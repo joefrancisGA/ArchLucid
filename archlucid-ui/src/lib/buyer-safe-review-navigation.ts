@@ -3,6 +3,7 @@ import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { reviewSignedRecordPath } from "@/lib/signed-records-paths";
 import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
@@ -19,9 +20,9 @@ export function getShowcaseWalkthroughHref(): string {
   return `/showcase/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 }
 
-/** Finalized manifest for the Claims Intake static spine (human-friendly path rewrites to manifest detail). */
+/** Finalized signed record for the Claims Intake static spine (human-friendly path rewrites to manifest detail). */
 export function getShowcaseManifestHref(): string {
-  return `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}/manifest`;
+  return reviewSignedRecordPath(SHOWCASE_STATIC_DEMO_RUN_ID);
 }
 
 /** Executive view (concise risk summary and outcomes) for the Claims Intake static spine. */
@@ -100,7 +101,7 @@ export function getBuyerSafeSignedManifestTableLink(runId: string): PrimaryRevie
   }
 
   return {
-    href: `/reviews/${encodeURIComponent(id)}/manifest`,
+    href: reviewSignedRecordPath(id),
     label: BUYER_VIEW_SIGNED_RECORD_CTA,
   };
 }

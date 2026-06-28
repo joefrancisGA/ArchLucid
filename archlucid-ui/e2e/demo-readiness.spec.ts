@@ -69,7 +69,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   });
 
   test("showcase-aligned manifest UUID loads manifest chrome (not indefinite skeleton)", async ({ page }) => {
-    await page.goto(`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
+    await page.goto(`/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
     const primaryMain = page.getByRole("main");
     await expect(primaryMain).toHaveCount(1);
@@ -98,7 +98,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       "/",
       "/reviews?projectId=default",
       `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,
-      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/manifest`,
+      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`,
       "/governance",
       "/help",
       `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
@@ -156,7 +156,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       .getByTestId(`runs-row-primary-explore-${SHOWCASE_DEMO_RUN_ID}`)
       .click();
     const afterListClickUrl = new RegExp(
-      `(?:/manifests/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/(?:manifest|architecture)|/(?:reviews|runs)/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)})`,
+      `(?:/signed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/(?:manifest|architecture)|/(?:reviews|runs)/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)})`,
     );
     await expect(page).toHaveURL(afterListClickUrl);
 
@@ -168,7 +168,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
     await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
 
-    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/manifest`);
+    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`);
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
 
     await page.goto(

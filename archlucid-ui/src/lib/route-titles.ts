@@ -13,7 +13,7 @@ export function getRouteTitle(pathname: string): string {
     return "Review detail";
   }
 
-  if (/^\/manifests\/[^/]+$/.test(normalized)) {
+  if (/^\/signed-records\/[^/]+$/.test(normalized)) {
     return "Architecture package";
   }
 

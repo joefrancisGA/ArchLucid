@@ -84,7 +84,7 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
 
   const execBase = normalizedPath(getShowcaseExecutiveHref());
   const manifestBase = normalizedPath(getShowcaseManifestHref());
-  const manifestRecord = `/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`;
+  const manifestRecord = `/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`;
   const manifestArchitecturePath = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}/architecture`;
 
   let stepIdx: number | null = null;

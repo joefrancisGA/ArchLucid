@@ -60,7 +60,7 @@ export default function RunDetailSegmentError({
         </OperatorErrorCallout>
         <div className="flex flex-wrap items-center gap-2">
           <Button type="button" variant="primary" asChild>
-            <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
+            <Link href={`/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
               Open sample review package
             </Link>
           </Button>

@@ -29,10 +29,10 @@ function manifestDetailHref(runId: string, goldenManifestId: string | null | und
   }
 
   if (mid.length > 0) {
-    return `/manifests/${encodeURIComponent(mid)}`;
+    return `/signed-records/${encodeURIComponent(mid)}`;
   }
 
-  return `/reviews/${encodeURIComponent(runId)}/manifest`;
+  return `/reviews/${encodeURIComponent(runId)}/signed-record`;
 }
 
 function ratioPercentLabel(value: number | null | undefined, emptyLabel: string): string {

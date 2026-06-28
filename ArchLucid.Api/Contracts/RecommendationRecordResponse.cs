@@ -132,4 +132,10 @@ public sealed class RecommendationRecordResponse
         get;
         set;
     }
+
+    public List<RecommendationSourceEvidenceLink> SourceEvidenceLinks
+    {
+        get;
+        set;
+    } = [];
 }

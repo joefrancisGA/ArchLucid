@@ -31,5 +31,6 @@ export const config = {
     "/compare",
     "/replay",
     "/manifests/:path*",
+    "/signed-records/:path*",
   ],
 };

@@ -70,7 +70,7 @@ const HREFS: string[] = [
   "/integrations/teams",
   "/get-started",
   "/live-demo",
-  `/manifests/${encodeURIComponent(SCREENSHOT_MANIFEST_ID)}`,
+  `/signed-records/${encodeURIComponent(SCREENSHOT_MANIFEST_ID)}`,
   "/planning",
   `/planning/plans/${encodeURIComponent(SCREENSHOT_PLAN_ID)}`,
   "/policy-packs",

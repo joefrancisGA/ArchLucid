@@ -26,6 +26,11 @@ describe("resolveInAppDocHref", () => {
 
   it("maps procurement and assurance docs to in-app help", () => {
     expect(resolveInAppDocHref("docs/go-to-market/PRIVACY_POLICY.md")).toBe("/help/privacy-policy");
+    expect(resolveInAppDocHref("docs/go-to-market/DPA_TEMPLATE.md")).toBe("/help/dpa-template");
+    expect(resolveInAppDocHref("docs/go-to-market/SUBPROCESSORS.md")).toBe("/help/subprocessors");
+    expect(resolveInAppDocHref("docs/security/SOC2_SELF_ASSESSMENT_2026.md")).toBe("/help/soc2-self-assessment");
+    expect(resolveInAppDocHref("docs/security/CAIQ_LITE_2026.md")).toBe("/help/caiq-sig-response");
+    expect(resolveInAppDocHref("docs/go-to-market/SECURITY_REVIEWER_ONE_PAGER.md")).toBe("/help/security-policies");
     expect(resolveInAppDocHref("docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md")).toBe(
       "/help/example-roi-bulletin",
     );

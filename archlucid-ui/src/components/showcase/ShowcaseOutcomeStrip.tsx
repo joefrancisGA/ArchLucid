@@ -61,7 +61,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       )}
 
       {hasManifest ? (
-        <Link className={cardClass} href={`/manifests/${encManifest}`}>
+        <Link className={cardClass} href={`/signed-records/${encManifest}`}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>{`2 · ${SIGNED_MANIFEST_LABEL}`}</span>
           <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Signed architecture record and deliverables index</span>
         </Link>
@@ -80,7 +80,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
           <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Traceability from evidence to decisions</span>
         </Link>
       ) : hasManifest ? (
-        <Link className={cardClass} href={`/manifests/${encManifest}`}>
+        <Link className={cardClass} href={`/signed-records/${encManifest}`}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`3 · ${BUYER_SURFACE_VOCABULARY.evidenceGraphNav}`}
           </span>
@@ -101,7 +101,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
           <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{governanceSubtitle}</span>
         </Link>
       ) : hasManifest ? (
-        <Link className={cardClass} href={`/manifests/${encManifest}`}>
+        <Link className={cardClass} href={`/signed-records/${encManifest}`}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
           <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{governanceSubtitle}</span>
         </Link>
@@ -121,7 +121,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
             <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Recorded lifecycle events for this review</span>
           </Link>
         ) : hasManifest ? (
-          <Link className={cardClass} href={`/manifests/${encManifest}`}>
+          <Link className={cardClass} href={`/signed-records/${encManifest}`}>
             <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {`5 · ${BUYER_SURFACE_VOCABULARY.auditTrail}`}
             </span>

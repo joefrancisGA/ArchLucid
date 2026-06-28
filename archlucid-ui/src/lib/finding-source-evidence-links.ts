@@ -7,6 +7,7 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
 } from "@/lib/showcase-static-demo";
 import type { FindingInspectEvidence, FindingInspectPayload } from "@/types/finding-inspect";
+import { signedRecordDetailPath, signedRecordSectionPath } from "@/lib/signed-records-paths";
 
 export type FindingSourceEvidenceLinkKind =
   | "manifestSection"
@@ -46,7 +47,7 @@ export function runDetailSectionHref(runId: string, sectionId: string): string {
 
 /** Manifest record page section anchor (`#manifest-decisions`, …). */
 export function manifestRecordSectionHref(manifestId: string, sectionId: string): string {
-  return `/manifests/${encodeURIComponent(manifestId.trim())}#${sectionId.trim()}`;
+  return signedRecordSectionPath(manifestId, sectionId);
 }
 
 function detailFromInspectRow(row: FindingInspectEvidence): string | null {

@@ -71,6 +71,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   dashboard: "Dashboard",
   audit: "Audit trail",
   manifests: "Signed review records",
+  "signed-records": "Signed review records",
   provenance: "Evidence provenance",
   "value-report": "Value report",
   pilot: BUYER_TERMINOLOGY.evaluationValueReport,
@@ -111,11 +112,19 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [{ label: newReviewWizardCrumbLabel(options?.buyerPolishedShell) }];
   }
 
-  // Cloud connections lives under Integrations nav — not Settings admin chrome.
+  // Azure cloud connection help — avoid generic multi-cloud breadcrumb segments.
+  if (normalized === "/help/cloud-connections/azure" || normalized === "/help/cloud-connections-azure") {
+    return [
+      { label: "Help", href: "/help" },
+      { label: OPERATOR_NAV_LINK_LABELS.azureCloudConnection },
+    ];
+  }
+
+  // Azure cloud connection lives under Integrations nav — not Settings admin chrome.
   if (normalized === "/settings/cloud-connections") {
     return [
       { label: OPERATOR_NAV_GROUP_LABELS.integrations, href: "/integrations/operations" },
-      { label: OPERATOR_NAV_LINK_LABELS.cloudConnections },
+      { label: OPERATOR_NAV_LINK_LABELS.azureCloudConnection },
     ];
   }
 
@@ -403,6 +412,7 @@ function labelForSegment(
     demoTitle !== undefined &&
     (prev === "reviews" ||
       prev === "manifests" ||
+      prev === "signed-records" ||
       prev === "showcase" ||
       prev === "findings" ||
       prev === "plans" ||
@@ -421,7 +431,7 @@ function labelForSegment(
       return "Review package";
     }
 
-    if (prev === "manifests") {
+    if (prev === "manifests" || prev === "signed-records") {
       return SIGNED_MANIFEST_LABEL;
     }
 
@@ -446,7 +456,7 @@ function labelForSegment(
 
   if (mapped !== undefined && mapped !== null) {
 
-    if (buyer === true && segment === "manifests") {
+    if (buyer === true && (segment === "manifests" || segment === "signed-records")) {
       return "Signed review records";
     }
 

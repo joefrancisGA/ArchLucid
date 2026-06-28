@@ -46,7 +46,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
               {manifestId ? (
                 <Link
                   className={cn("inline-block font-semibold", OPERATOR_LINK.nav)}
-                  href={`/manifests/${encodeURIComponent(manifestId)}`}
+                  href={`/signed-records/${encodeURIComponent(manifestId)}`}
                 >
                   Finalized signed review record
                 </Link>

@@ -13,9 +13,9 @@ describe("help-product-language", () => {
     );
   });
 
-  it("rewrites review manifest routes to architecture alias", () => {
+  it("rewrites review manifest routes to signed-record alias", () => {
     expect(rewriteLegacyHelpOperatorRoutes("[Summary](/reviews/abc/manifest)")).toBe(
-      "[Summary](/reviews/abc/architecture)",
+      "[Summary](/reviews/abc/signed-record)",
     );
   });
 

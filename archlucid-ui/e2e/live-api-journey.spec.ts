@@ -119,7 +119,7 @@ test.describe("live-api-journey", () => {
     expect(normalizeRunIdForCompare(shownRunId)).toBe(normalizeRunIdForCompare(runId));
 
     // Prefer href: accessible name for the GUID link can differ by a11y tree / Next Link behavior in Chromium CI.
-    const manifestHref = `/manifests/${goldenManifestId}`;
+    const manifestHref = `/signed-records/${goldenManifestId}`;
     const manifestLink = page.locator(`a[href="${manifestHref}"]`);
 
     await expect(

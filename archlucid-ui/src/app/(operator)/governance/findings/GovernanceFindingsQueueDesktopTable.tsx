@@ -65,10 +65,10 @@ function formatRiskRegisterUtcLabel(utc: string | null | undefined): string {
 
 function manifestRecordHref(runId: string, manifestId: string): string {
   if (manifestId !== "—") {
-    return `/manifests/${encodeURIComponent(manifestId)}`;
+    return `/signed-records/${encodeURIComponent(manifestId)}`;
   }
 
-  return `/reviews/${encodeURIComponent(runId)}/manifest`;
+  return `/reviews/${encodeURIComponent(runId)}/signed-record`;
 }
 
 function governanceQueueGraphEvidenceHref(row: GovernanceFindingQueueRow): string | null {

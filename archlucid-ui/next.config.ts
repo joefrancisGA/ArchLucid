@@ -96,26 +96,41 @@ const nextConfig: NextConfig = {
       // /runs/* → /reviews/* (URL rename; permanent so search engines and bookmarks update)
       { source: "/runs", destination: "/reviews", permanent: true },
       { source: "/runs/:path*", destination: "/reviews/:path*", permanent: true },
-      // Showcase manifest UUID canonicalizes to the friendly architecture URL for buyer spine E2E.
+      // Legacy manifest browser paths → canonical signed-records aliases (TB-399).
+      { source: "/manifests", destination: "/signed-records", permanent: true },
+      { source: "/manifests/:path*", destination: "/signed-records/:path*", permanent: true },
+      { source: "/reviews/:id/manifest", destination: "/reviews/:id/signed-record", permanent: true },
+      // Showcase manifest UUID canonicalizes to the friendly signed-record URL for buyer spine E2E.
       {
         source: "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
-        destination: "/reviews/claims-intake-modernization/architecture",
+        destination: "/reviews/claims-intake-modernization/signed-record",
         permanent: false,
       },
-      { source: "/reviews/:id/manifest", destination: "/reviews/:id/architecture", permanent: true },
+      {
+        source: "/reviews/claims-intake-modernization/architecture",
+        destination: "/reviews/claims-intake-modernization/signed-record",
+        permanent: true,
+      },
       { source: "/alert-rules", destination: "/alerts?tab=rules", permanent: false },
       { source: "/alert-routing", destination: "/alerts?tab=routing", permanent: false },
       { source: "/composite-alert-rules", destination: "/alerts?tab=composite", permanent: false },
       { source: "/alert-simulation", destination: "/alerts?tab=simulation", permanent: false },
       { source: "/alert-tuning", destination: "/alerts?tab=simulation", permanent: false },
       { source: "/settings/webhooks", destination: "/integrations/webhooks", permanent: false },
+      { source: "/integrations/itsm", destination: "/integrations/operations", permanent: false },
+      { source: "/admin/ai-usage-cost", destination: "/settings/cost-reporting", permanent: false },
     ];
   },
   async rewrites() {
     return [
-      // Friendly demo URL while reusing architecture detail implementation (`SHOWCASE_STATIC_DEMO_*`).
+      // Canonical signed-records aliases reuse existing manifests App Router tree (TB-399).
+      { source: "/signed-records", destination: "/manifests" },
+      { source: "/signed-records/:path*", destination: "/manifests/:path*" },
+      // Run-scoped signed record deep link lands on the review package (manifest summary section).
+      { source: "/reviews/:id/signed-record", destination: "/reviews/:id" },
+      // Friendly demo URL while reusing manifest detail implementation (`SHOWCASE_STATIC_DEMO_*`).
       {
-        source: "/reviews/claims-intake-modernization/architecture",
+        source: "/reviews/claims-intake-modernization/signed-record",
         destination: "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
       },
     ];

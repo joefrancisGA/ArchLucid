@@ -52,7 +52,7 @@ function reviewHrefForArtifact(
     return `/reviews/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(artifactId)}`;
   }
 
-  return `/manifests/${encodeURIComponent(manifestId)}/artifacts/${encodeURIComponent(artifactId)}`;
+  return `/signed-records/${encodeURIComponent(manifestId)}/artifacts/${encodeURIComponent(artifactId)}`;
 }
 
 /**

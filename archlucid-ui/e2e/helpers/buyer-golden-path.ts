@@ -13,10 +13,10 @@ import { escapeRegExpSource } from "./escape-reg-exp-source";
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_DEMO_RUN_ID);
 
 /** Canonical five-step buyer spine URLs (aligned with `buyer-golden-journey-nav.ts`). */
-/** Browser bar after `/manifests/{uuid}` or `/reviews/{runId}/manifest` redirects (see `next.config.ts`). */
+/** Browser bar after legacy manifest paths redirect to signed-records aliases (see `next.config.ts`). */
 export function showcaseSignedManifestBrowserUrlPattern(): RegExp {
   return new RegExp(
-    `(?:/manifests/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/(?:manifest|architecture))`,
+    `(?:/signed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/signed-record)`,
   );
 }
 
@@ -27,8 +27,8 @@ export function isShowcaseSignedManifestBrowserPath(pathname: string): boolean {
 export const BUYER_GOLDEN_PATH_HREFS = {
   executive: `/executive/reviews/${showcaseRunEnc}`,
   reviewPackage: `/reviews/${showcaseRunEnc}`,
-  signedManifestFriendly: `/reviews/${showcaseRunEnc}/manifest`,
-  signedManifestCanonical: `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
+  signedManifestFriendly: `/reviews/${showcaseRunEnc}/signed-record`,
+  signedManifestCanonical: `/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
   evidenceGraph: `/graph?runId=${showcaseRunEnc}`,
   governanceApproval: `/governance?runId=${showcaseRunEnc}`,
   auditTrail: `/audit?runId=${showcaseRunEnc}`,

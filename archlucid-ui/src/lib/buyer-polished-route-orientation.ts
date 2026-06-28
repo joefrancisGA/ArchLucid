@@ -60,7 +60,7 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path.includes(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)) {
+  if (path.includes(`/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)) {
     return {
       label: SIGNED_MANIFEST_LABEL,
       line: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} — decisions, monitored risks, and deliverables.`,
@@ -85,7 +85,7 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path.startsWith("/manifests/")) {
+  if (path.startsWith("/signed-records/")) {
     return {
       label: SIGNED_MANIFEST_LABEL,
       line: `${BUYER_SURFACE_VOCABULARY.finalizedSignedManifestRecord} — decisions, findings counts, artifacts, and download bundle.`,

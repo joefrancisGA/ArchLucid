@@ -31,7 +31,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
     await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
 
     const manifestLink = outcomeStrip.locator('a[href^="/manifests/"]').first();
-    const manifestHref = `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
+    const manifestHref = `/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
 
     await expect(manifestLink).toBeVisible({ timeout: 60_000 });
     await expect(manifestLink).toContainText(/Finalized/i);

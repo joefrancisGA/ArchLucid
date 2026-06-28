@@ -44,7 +44,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                     ResolutionRationale = @ResolutionRationale,
                     SupportingFindingIdsJson = @SupportingFindingIdsJson,
                     SupportingDecisionIdsJson = @SupportingDecisionIdsJson,
-                    SupportingArtifactIdsJson = @SupportingArtifactIdsJson
+                    SupportingArtifactIdsJson = @SupportingArtifactIdsJson,
+                    SourceEvidenceLinksJson = @SourceEvidenceLinksJson
             WHEN NOT MATCHED THEN
                 INSERT
                 (
@@ -54,7 +55,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                     Title, Category, Rationale, SuggestedAction, Urgency, ExpectedImpact,
                     PriorityScore, Status, CreatedUtc, LastUpdatedUtc,
                     ReviewedByUserId, ReviewedByUserName, ReviewComment, ResolutionRationale,
-                    SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson
+                    SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson,
+                   SourceEvidenceLinksJson, SourceEvidenceLinksJson
                 )
                 VALUES
                 (
@@ -81,7 +83,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                    Title, Category, Rationale, SuggestedAction, Urgency, ExpectedImpact,
                    PriorityScore, Status, CreatedUtc, LastUpdatedUtc,
                    ReviewedByUserId, ReviewedByUserName, ReviewComment, ResolutionRationale,
-                   SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson
+                   SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson,
+                   SourceEvidenceLinksJson
             FROM dbo.RecommendationRecords
             WHERE RecommendationId = @RecommendationId;
             """;
@@ -109,7 +112,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                    Title, Category, Rationale, SuggestedAction, Urgency, ExpectedImpact,
                    PriorityScore, Status, CreatedUtc, LastUpdatedUtc,
                    ReviewedByUserId, ReviewedByUserName, ReviewComment, ResolutionRationale,
-                   SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson
+                   SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson,
+                   SourceEvidenceLinksJson
             FROM dbo.RecommendationRecords WITH (NOLOCK)
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -150,7 +154,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                    Title, Category, Rationale, SuggestedAction, Urgency, ExpectedImpact,
                    PriorityScore, Status, CreatedUtc, LastUpdatedUtc,
                    ReviewedByUserId, ReviewedByUserName, ReviewComment, ResolutionRationale,
-                   SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson
+                   SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson,
+                   SourceEvidenceLinksJson
             FROM dbo.RecommendationRecords WITH (NOLOCK)
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId

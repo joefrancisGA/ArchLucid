@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.Advisory.Workflow;
+
 namespace ArchLucid.Persistence.Advisory;
 
 /// <inheritdoc cref="IRecommendationWorkflowService" />
@@ -42,6 +44,10 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
                 SupportingFindingIdsJson = JsonSerializer.Serialize(recommendation.SupportingFindingIds, JsonOptions),
                 SupportingDecisionIdsJson = JsonSerializer.Serialize(recommendation.SupportingDecisionIds, JsonOptions),
                 SupportingArtifactIdsJson = JsonSerializer.Serialize(recommendation.SupportingArtifactIds, JsonOptions),
+                SourceEvidenceLinksJson = RecommendationSourceEvidenceLinksComposer.ComposeJson(
+                    recommendation.SupportingFindingIds,
+                    recommendation.SupportingDecisionIds,
+                    recommendation.SupportingArtifactIds),
             };
 
             if (existing is not null && !string.Equals(existing.Status, RecommendationStatus.Proposed, StringComparison.Ordinal))

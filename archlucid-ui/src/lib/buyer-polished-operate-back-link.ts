@@ -20,7 +20,7 @@ export function buyerPolishedOperateBackLink(pathnameWithSearch: string): BuyerO
     path.startsWith("/graph") ||
     path.startsWith("/governance") ||
     path.startsWith("/audit") ||
-    path.startsWith("/manifests/") ||
+    path.startsWith("/signed-records/") ||
     path.startsWith("/showcase/") ||
     path.startsWith("/ask")
   ) {

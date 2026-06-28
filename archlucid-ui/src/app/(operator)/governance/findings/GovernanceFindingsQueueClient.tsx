@@ -311,7 +311,7 @@ function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[]): Gov
       recordKind: "decision",
       traceConfidenceLevel: null,
       lastReviewedUtc: entry.recordedAtUtc ?? null,
-      evidenceHref: manifestId.length > 0 ? `/manifests/${encodeURIComponent(manifestId)}` : undefined,
+      evidenceHref: manifestId.length > 0 ? `/signed-records/${encodeURIComponent(manifestId)}` : undefined,
     };
   });
 }
@@ -398,10 +398,10 @@ function governanceQueueGraphEvidenceHref(row: GovernanceFindingQueueRow): strin
 
 function manifestRecordHref(runId: string, manifestId: string): string {
   if (manifestId !== "—") {
-    return `/manifests/${encodeURIComponent(manifestId)}`;
+    return `/signed-records/${encodeURIComponent(manifestId)}`;
   }
 
-  return `/reviews/${encodeURIComponent(runId)}/manifest`;
+  return `/reviews/${encodeURIComponent(runId)}/signed-record`;
 }
 
 function navigateGovernanceRowDetail(

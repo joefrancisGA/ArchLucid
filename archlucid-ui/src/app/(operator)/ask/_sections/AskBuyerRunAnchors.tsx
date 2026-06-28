@@ -29,7 +29,7 @@ export function AskBuyerRunAnchors(props: AskBuyerRunAnchorsProps) {
       </Link>
       {canonical === SHOWCASE_STATIC_DEMO_RUN_ID ? (
         <>
-          <Link className={OPERATOR_LINK.nav} href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
+          <Link className={OPERATOR_LINK.nav} href={`/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
             {BUYER_OPEN_SIGNED_RECORD_CTA}
           </Link>
           <Link className={OPERATOR_LINK.nav} href={getShowcaseCompareHref()}>

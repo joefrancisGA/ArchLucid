@@ -337,7 +337,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
         <div className="mt-1">
           {props.hasGoldenManifest && hasManifest ? (
             <Link
-              href={`/manifests/${encodeURIComponent(trimmedManifestId)}`}
+              href={`/signed-records/${encodeURIComponent(trimmedManifestId)}`}
               className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
             >
               {packageBody}
@@ -639,7 +639,7 @@ export function RunDetailOutcomeCards({
           {hasGoldenManifest && manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0 ? (
             <Link
               className={cn("mt-2 inline-block", OPERATOR_LINK.nav)}
-              href={`/manifests/${encodeURIComponent(manifestId.trim())}`}
+              href={`/signed-records/${encodeURIComponent(manifestId.trim())}`}
             >
               {BUYER_OPEN_SIGNED_RECORD_CTA}
             </Link>

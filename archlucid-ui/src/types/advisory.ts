@@ -43,4 +43,10 @@ export type RecommendationRecord = {
   reviewedByUserName?: string | null;
   reviewComment?: string | null;
   resolutionRationale?: string | null;
+  sourceEvidenceLinks?: RecommendationSourceEvidenceLink[];
+};
+
+export type RecommendationSourceEvidenceLink = {
+  kind: "finding" | "manifestSection";
+  id: string;
 };

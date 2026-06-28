@@ -21,12 +21,12 @@ async function fetchBrowserDownload(
 }
 
 export function getArtifactDownloadUrl(manifestId: string, artifactId: string): string {
-  return `/api/proxy/v1/artifacts/manifests/${manifestId}/artifact/${artifactId}`;
+  return `/api/proxy/v1/artifacts/signed-records/${manifestId}/artifact/${artifactId}`;
 }
 
 /** Returns the proxy URL for downloading the full artifact bundle ZIP for a manifest. */
 export function getBundleDownloadUrl(manifestId: string): string {
-  return `/api/proxy/v1/artifacts/manifests/${manifestId}/bundle`;
+  return `/api/proxy/v1/artifacts/signed-records/${manifestId}/bundle`;
 }
 
 /** Returns the proxy URL for the advisory Terraform placeholder export ZIP. */

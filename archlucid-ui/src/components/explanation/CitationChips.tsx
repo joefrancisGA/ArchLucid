@@ -16,7 +16,7 @@ export type CitationChipsProps = {
 function citationHref(c: CitationReference, runId: string, buyerPolishedShell: boolean): string {
   switch (c.kind) {
     case "Manifest":
-      return `/manifests/${encodeURIComponent(c.id)}`;
+      return `/signed-records/${encodeURIComponent(c.id)}`;
     case "Finding":
 
       if (buyerPolishedShell) {

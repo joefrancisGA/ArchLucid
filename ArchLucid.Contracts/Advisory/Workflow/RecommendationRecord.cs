@@ -140,4 +140,10 @@ public class RecommendationRecord
         get;
         set;
     } = "[]";
+
+    public string SourceEvidenceLinksJson
+    {
+        get;
+        set;
+    } = "[]";
 }

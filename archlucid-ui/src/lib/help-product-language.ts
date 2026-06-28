@@ -33,7 +33,8 @@ export function rewriteLegacyHelpOperatorRoutes(markdown: string): string {
 
   result = result.replace(/\/runs\//g, "/reviews/");
   result = result.replace(/\/runs\b/g, "/reviews");
-  result = result.replace(/\/reviews\/([^)/\s]+)\/manifest\b/g, "/reviews/$1/architecture");
+  result = result.replace(/\/reviews\/([^)/\s]+)\/manifest\b/g, "/reviews/$1/signed-record");
+  result = result.replace(/\/manifests\//g, "/signed-records/");
 
   return result;
 }

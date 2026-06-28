@@ -293,7 +293,8 @@ public sealed class AdvisoryController(
             ReviewedByUserId = r.ReviewedByUserId,
             ReviewedByUserName = r.ReviewedByUserName,
             ReviewComment = r.ReviewComment,
-            ResolutionRationale = r.ResolutionRationale
+            ResolutionRationale = r.ResolutionRationale,
+            SourceEvidenceLinks = RecommendationSourceEvidenceLinksBuilder.Build(r).ToList()
         };
     }
 }

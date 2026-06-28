@@ -292,12 +292,12 @@ export async function getRunRetrievalGrounding(
 
 /** Fetches golden manifest summary (decision count, warnings, status, etc.). */
 export async function getManifestSummary(manifestId: string): Promise<ManifestSummary> {
-  return apiGet<ManifestSummary>(`/v1/authority/manifests/${manifestId}/summary`);
+  return apiGet<ManifestSummary>(`/v1/authority/signed-records/${manifestId}/summary`);
 }
 
 /** Lists all synthesized artifacts for a manifest (metadata only, no binary content). */
 export async function listArtifacts(manifestId: string): Promise<ArtifactDescriptor[]> {
-  return apiGet<ArtifactDescriptor[]>(`/v1/artifacts/manifests/${manifestId}`);
+  return apiGet<ArtifactDescriptor[]>(`/v1/artifacts/signed-records/${manifestId}`);
 }
 
 /** JSON metadata for one artifact (no binary download). */
@@ -306,7 +306,7 @@ export async function getArtifactDescriptor(
   artifactId: string,
 ): Promise<ArtifactDescriptor> {
   return apiGet<ArtifactDescriptor>(
-    `/v1/artifacts/manifests/${manifestId}/artifact/${artifactId}/descriptor`,
+    `/v1/artifacts/signed-records/${manifestId}/artifact/${artifactId}/descriptor`,
   );
 }
 
@@ -331,7 +331,7 @@ export async function fetchArtifactContentUtf8(
   maxBytes: number = DEFAULT_ARTIFACT_PREVIEW_MAX_BYTES,
 ): Promise<ArtifactContentFetchResult> {
   await ensureOidcBearerReady();
-  const path = `/v1/artifacts/manifests/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
+  const path = `/v1/artifacts/signed-records/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
   const { url, headers } = resolveBinaryGetRequest(path);
   const h = withCorrelationHeaders(headers);
   const response = await fetch(url, {

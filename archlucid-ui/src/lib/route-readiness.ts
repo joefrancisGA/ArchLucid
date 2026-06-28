@@ -34,6 +34,8 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/integrations/servicenow": "admin-only",
   "/integrations/webhooks": "advanced-only",
   "/integrations/operations": "advanced-only",
+  "/settings/cost-reporting": "admin-only",
+  "/admin/ai-cost-diagnostics": "admin-only",
   "/governance/first-30-days": "advanced-only",
   "/governance": "advanced-only",
   "/governance/dashboard": "advanced-only",

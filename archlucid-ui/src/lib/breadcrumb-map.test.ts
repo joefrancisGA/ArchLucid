@@ -45,17 +45,17 @@ describe("getBreadcrumbs", () => {
   });
 
   it("maps showcase manifest detail trail", () => {
-    expect(getBreadcrumbs(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)).toEqual([
-      { label: "Signed review records", href: "/manifests" },
+    expect(getBreadcrumbs(`/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)).toEqual([
+      { label: "Signed review records", href: "/signed-records" },
       { label: "Claims Intake review package" },
     ]);
   });
 
   it("buyer-polished: showcase manifest detail uses signed review record trail", () => {
     expect(
-      getBreadcrumbs(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`, { buyerPolishedShell: true }),
+      getBreadcrumbs(`/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`, { buyerPolishedShell: true }),
     ).toEqual([
-      { label: "Signed review records", href: "/manifests" },
+      { label: "Signed review records", href: "/signed-records" },
       { label: `${SHOWCASE_BUYER_REVIEW_TITLE} signed record` },
     ]);
   });
@@ -92,7 +92,14 @@ describe("getBreadcrumbs", () => {
   it("maps cloud connections under Integrations (not Settings)", () => {
     expect(getBreadcrumbs("/settings/cloud-connections")).toEqual([
       { label: "Integrations", href: "/integrations/operations" },
-      { label: "Cloud connections" },
+      { label: "Azure cloud connection" },
+    ]);
+  });
+
+  it("maps Azure cloud connection help without generic Cloud connections segment", () => {
+    expect(getBreadcrumbs("/help/cloud-connections/azure")).toEqual([
+      { label: "Help", href: "/help" },
+      { label: "Azure cloud connection" },
     ]);
   });
 

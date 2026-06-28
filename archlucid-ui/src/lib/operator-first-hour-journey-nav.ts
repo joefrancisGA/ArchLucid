@@ -7,29 +7,29 @@ export const OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS = [
     step: 1,
     label: "New architecture request",
     href: "/reviews/new",
-    nextAction: "Submit request and capture the review id.",
+    nextAction: "Submit a new architecture review request.",
     chipTooltip: "Start one architecture review — the only required action in the first 15 minutes.",
   },
   {
     step: 2,
-    label: "Execute review",
+    label: "Open active review",
     href: "/reviews",
-    nextAction: "Run agents and inspect the findings summary.",
-    chipTooltip: "Open your in-progress review, execute agents, and read findings before commit.",
+    nextAction: "Read the findings and address any issues before finalizing.",
+    chipTooltip: "Open your in-progress review, read findings, and refine before finalizing.",
   },
   {
     step: 3,
-    label: "Commit review package",
+    label: "Finalize review package",
     href: "/reviews",
     nextAction: "Finalize the signed review record when findings look right.",
-    chipTooltip: "Commit produces the versioned signed package sponsors expect.",
+    chipTooltip: "Finalization produces the versioned signed package sponsors expect.",
   },
   {
     step: 4,
     label: "Review artifacts",
-    href: "/manifests",
-    nextAction: "Inspect outputs before any sponsor handoff.",
-    chipTooltip: "Download or preview artifacts; run proof collection only after commit.",
+    href: "/signed-records",
+    nextAction: "Inspect signed outputs before sponsor handoff.",
+    chipTooltip: "Download or preview the review package artifacts for sponsor readout or diligence.",
   },
 ] as const;
 
@@ -69,7 +69,7 @@ export function resolveOperatorFirstHourJourneyNav(pathname: string): ResolvedOp
     } else {
       stepIdx = 1;
     }
-  } else if (path.startsWith("/manifests")) {
+  } else if (path.startsWith("/signed-records")) {
     stepIdx = 3;
   } else if (path === "/" || path.startsWith("/help")) {
     return {

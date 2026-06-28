@@ -89,7 +89,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
 
       <section className="flex flex-wrap gap-3">
         <Button asChild variant="default">
-          <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
+          <Link href={`/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
             {buyerPolishedShell ? BUYER_OPEN_SIGNED_RECORD_CTA : "Open Claims Intake review record"}
           </Link>
         </Button>

@@ -100,7 +100,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
                 {showManifest ? (
                   <Link
                     className="rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
-                    href={`/manifests/${encodeURIComponent(manifest)}`}
+                    href={`/signed-records/${encodeURIComponent(manifest)}`}
                   >
                     Signed review record
                   </Link>

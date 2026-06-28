@@ -225,7 +225,7 @@ export default function DecisionRegisterClient() {
               )}
               <p className="text-al-text-secondary">Recorded: {decision.recordedAtUtc}</p>
               <p>
-                <Link className={OPERATOR_LINK.nav} href={`/manifests/${decision.manifestId}`}>
+                <Link className={OPERATOR_LINK.nav} href={`/signed-records/${decision.manifestId}`}>
                   View signed record
                 </Link>
                 {" · "}

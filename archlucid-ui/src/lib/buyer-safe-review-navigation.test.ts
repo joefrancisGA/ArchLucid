@@ -65,7 +65,7 @@ describe("buyer-safe-review-navigation", () => {
 
     const mod = await import("./buyer-safe-review-navigation");
 
-    expect(mod.getShowcaseManifestHref()).toBe("/reviews/claims-intake-modernization/manifest");
+    expect(mod.getShowcaseManifestHref()).toBe("/reviews/claims-intake-modernization/signed-record");
   });
 
   it("builds showcase compare href with v1 and v2 static spine run ids", async () => {
@@ -85,6 +85,6 @@ describe("buyer-safe-review-navigation", () => {
     const manifest = mod.getBuyerSafeSignedManifestTableLink("claims-intake-modernization");
 
     expect(manifest.label).toBe("View signed record");
-    expect(manifest.href).toBe("/reviews/claims-intake-modernization/manifest");
+    expect(manifest.href).toBe("/reviews/claims-intake-modernization/signed-record");
   });
 });

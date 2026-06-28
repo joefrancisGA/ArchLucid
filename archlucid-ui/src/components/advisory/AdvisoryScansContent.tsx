@@ -5,6 +5,9 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 import { DocumentLayout } from "@/components/DocumentLayout";
+import Link from "next/link";
+
+import { buildRecommendationEvidenceLinkViews } from "@/lib/recommendation-source-evidence-links";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { Button } from "@/components/ui/button";
@@ -285,6 +288,20 @@ export function AdvisoryScansContent() {
                     <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
                       <strong>Resolution rationale:</strong> {rec.resolutionRationale}
                     </p>
+                  ) : null}
+                  {rec.sourceEvidenceLinks !== undefined && rec.sourceEvidenceLinks.length > 0 ? (
+                    <div className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+                      <strong>Source evidence:</strong>
+                      <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
+                        {buildRecommendationEvidenceLinkViews(rec.runId, null, rec.sourceEvidenceLinks).map((link) => (
+                          <li key={`${link.href}-${link.label}`}>
+                            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href={link.href}>
+                              {link.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   ) : null}
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Button type="button" size="sm" variant="outline" onClick={() => void takeAction(rec.recommendationId, "Accept")}>

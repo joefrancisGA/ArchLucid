@@ -46,7 +46,7 @@ export function ShowcaseQuickNav({ payload }: { readonly payload: DemoCommitPage
         <Link href={`/reviews/${encodeURIComponent(runId)}`} className={btnClass}>
           Review package
         </Link>
-        <Link href={`/manifests/${encodeURIComponent(manifestId)}`} className={btnClass}>
+        <Link href={`/signed-records/${encodeURIComponent(manifestId)}`} className={btnClass}>
           Open signed record
         </Link>
         <Link href={findingHref} className={btnClass}>

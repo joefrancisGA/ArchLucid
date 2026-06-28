@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-27 (TB-403 **Done** — automated GCP Tier 2 polling at Azure/AWS extractor parity). Prior: 2026-06-27 (TB-402 **Done** — automated AWS Tier 2 polling at Azure extractor parity). Prior: 2026-06-27 (TB-397 **Done** — `IExternalTicketConnector` plugin boundary; TB-396 **Done** — inbound ITSM disposition sync; TB-392 **Done**; TB-393 **Done** — per-tenant ITSM credentials + settings write API/UI). Prior: 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~58 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-27 (TB-399 **Done** — buyer-facing `/signed-records` route aliases; TB-400 **Done** — advisory recommendation `sourceEvidenceLinks`). Prior: 2026-06-27 (TB-403 **Done** — automated GCP Tier 2 polling at Azure/AWS extractor parity). Prior: 2026-06-27 (TB-402 **Done** — automated AWS Tier 2 polling at Azure extractor parity). Prior: 2026-06-27 (TB-397 **Done** — `IExternalTicketConnector` plugin boundary; TB-396 **Done** — inbound ITSM disposition sync; TB-392 **Done**; TB-393 **Done** — per-tenant ITSM credentials + settings write API/UI). Prior: 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~58 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -154,10 +154,10 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
-| TB-402 | Automated AWS polling (Tier 2) — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; blocked on **PQ-CLOUD-01** (credential model owner confirm) | L |
+| TB-402 | Automated AWS polling (Tier 2) — **Done (2026-06-27)** — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-403 | Automated GCP polling (Tier 2) — **Done (2026-06-27)** — hosted poller with GCP Workload Identity Federation (Azure MI trust); scheduled Cloud Asset Inventory collection; upload to `/v1/extractor/gcp/upload`; `/settings/cloud-connections` GCP connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
-| TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards: `sourceEvidenceLinks` field linking each recommendation to its source finding or manifest section; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
-| TB-399 | Buyer-facing route aliases — remove "manifest" from browser URLs (`/manifests` → `/signed-records`, `/reviews/{id}/manifest` → `/reviews/{id}/signed-record`); permanent redirects + internal link migration; API/persistence unchanged | Adoption friction P2 — **V1.1**; complements **TB-355** copy sweep | M |
+| TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards — **Done (2026-06-27)** — `sourceEvidenceLinks` on persisted recommendations + API; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
+| TB-399 | Buyer-facing route aliases — **Done (2026-06-27)** — remove "manifest" from browser URLs (`/manifests` → `/signed-records`, `/reviews/{id}/manifest` → `/reviews/{id}/signed-record`); permanent redirects + internal link migration; API/persistence unchanged | Adoption friction P2 — **V1.1**; complements **TB-355** copy sweep | M |
 | TB-389 | Tenant-scope `ItsmFindingCorrelations` unique constraint — **Done (2026-06-22)** — `UNIQUE (TenantId, Provider, ExternalKey)`; migration + integration test | Data consistency P0 | XS |
 | TB-386 | ITSM-aware findings export — **Done (2026-06-22)** — CSV + list/inspect JSON external tracking fields via enrichment service | Interoperability P1 | S |
 | TB-387 | Native ITSM feature flag — **Done (2026-06-22)** — `Integrations:Itsm:NativeEnabled` (default false); gates outbound create API + one-click UI; copy-as-work-item + correlations always on | Adoption friction P1 | XS |
@@ -11516,7 +11516,7 @@ Enterprise buyers eventually expect OAuth consent flows, per-field mapping UI, c
 
 ---
 
-## TB-399 — Buyer-facing route aliases — remove "manifest" from browser URLs — **V1.1**
+## TB-399 — Buyer-facing route aliases — remove "manifest" from browser URLs — **Done (2026-06-27)**
 
 **Source:** Manifest terminology copy sweep (2026-06-23). On-page UI strings no longer use "manifest" (global guard **TB-355** / CI **TB-366**). **URLs remain user-visible** in the address bar, bookmarks, shared links, and browser history.
 
@@ -11568,7 +11568,7 @@ Buyers and operators still land on paths such as `/manifests/{uuid}` and `/revie
 
 ---
 
-## TB-402 — Automated AWS polling (Tier 2) — hosted poller with IAM credential — **V1.1**
+## TB-402 — Automated AWS polling (Tier 2) — hosted poller with IAM credential — **Done (2026-06-27)**
 
 **Source:** Owner direction 2026-06-27 — automated AWS and GCP polling must reach full parity with the Azure Tier 2 extractor shipped in V1 (see `V1_SCOPE.md §2.16`).
 

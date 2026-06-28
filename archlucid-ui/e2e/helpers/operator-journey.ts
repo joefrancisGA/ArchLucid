@@ -196,7 +196,7 @@ export async function gotoRunDetailForMockFixtureRun(page: Page): Promise<void> 
 
 /** Manifest detail for a known id (encode-safe). */
 export async function gotoManifestDetail(page: Page, manifestId: string): Promise<void> {
-  await page.goto(`/manifests/${encodeURIComponent(manifestId)}`);
+  await page.goto(`/signed-records/${encodeURIComponent(manifestId)}`);
 }
 
 /** Manifest page wired in the mock server for empty artifact list semantics. */

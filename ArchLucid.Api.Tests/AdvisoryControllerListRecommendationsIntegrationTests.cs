@@ -59,4 +59,43 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
         items.Should().NotBeNull();
         items.Should().BeEmpty();
     }
+
+    [SkippableFact]
+    public async Task ListRecommendations_after_improvements_includes_finding_source_evidence_links()
+    {
+        HttpResponseMessage createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-ADV-REC-LINKS-001")));
+        await createResponse.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
+
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        await executeResponse.EnsureSuccessForTestAsync();
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        await commitResponse.EnsureSuccessForTestAsync();
+
+        HttpResponseMessage improvementsResponse =
+            await Client.GetAsync($"/v1/advisory/runs/{runId}/improvements");
+        await improvementsResponse.EnsureSuccessForTestAsync();
+
+        HttpResponseMessage response = await Client.GetAsync($"/v1/advisory/runs/{runId}/recommendations");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        List<RecommendationRecordResponse>? items =
+            await response.Content.ReadFromJsonAsync<List<RecommendationRecordResponse>>(JsonOptions);
+
+        items.Should().NotBeNull();
+        items.Should().NotBeEmpty();
+
+        RecommendationRecordResponse findingBacked = items!
+            .First(rec => rec.SourceEvidenceLinks.Any(link =>
+                string.Equals(link.Kind, "finding", StringComparison.OrdinalIgnoreCase)));
+
+        findingBacked.SourceEvidenceLinks.Should().Contain(link =>
+            string.Equals(link.Kind, "finding", StringComparison.OrdinalIgnoreCase) &&
+            !string.IsNullOrWhiteSpace(link.Id));
+    }
 }

@@ -1,7 +1,7 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **84.62%**.
+ArchLucid Assessment - (A) Headline Readiness: **85.00%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
@@ -34,15 +34,15 @@ ArchLucid Assessment - (A) Headline Readiness: **84.62%**.
 |---|---------|------:|-------:|----------------------:|---------------------------:|
 | 1 | Decision-Changing Insight Density | 85 | 13 | 11.05 | 195 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 88 | 13 | 11.44 | 156 |
-| 3 | Governed Review Integrity | 93 | 13 | 12.09 | 91 |
-| 4 | Correctness & Evidence Integrity | 87 | 12 | 10.44 | 156 |
+| 3 | Governed Review Integrity | 94 | 13 | 12.22 | 78 |
+| 4 | Correctness & Evidence Integrity | 88 | 12 | 10.56 | 144 |
 | 5 | AI / Agent Readiness | 85 | 10 | 8.50 | 150 |
 | 6 | Time-to-Value | 80 | 10 | 8.00 | 200 |
 | 7 | Proof-of-ROI Readiness | 82 | 9 | 7.38 | 162 |
-| 8 | Executive / Operator Comprehension | 79 | 8 | 6.32 | 168 |
+| 8 | Executive / Operator Comprehension | 80 | 8 | 6.40 | 160 |
 | 9 | Runtime & First-Review Reliability | 80 | 7 | 5.60 | 140 |
-| 10 | Adoption Friction | 76 | 5 | 3.80 | 120 |
-|  | **(A) Headline readiness** |  | **100** | **84.62** |  |
+| 10 | Adoption Friction | 77 | 5 | 3.85 | 115 |
+|  | **(A) Headline readiness** |  | **100** | **85.00** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -70,7 +70,7 @@ These diagnostics do **not** feed `(A)` directly.
 6. **Auth + tenant isolation behave correctly on pilot path:** **PASS (structural deny-matrix)** - `archlucid pilot tenant-isolation-negative-test` emits cross-tenant deny probes with correlation IDs (offline fixture replay + optional live `--run-id` mode); live two-tenant SQL smoke remains the fastest full-environment proof.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **84.62%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credentials (TB-392), operator-configurable outbound settings UI (TB-393), durable async outbound ticket creation (TB-394), finding remediation assignee/due fields on inspect and risk register (TB-395), inbound ITSM disposition sync when configured (TB-396), pluggable external ticket connectors for outbound create (TB-397), automated AWS Tier 2 cloud polling at Azure extractor parity (TB-402), automated GCP Tier 2 cloud polling completing the Azure/AWS/GCP hosted extractor cluster (TB-403), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
+- **(A) Overall headline readiness (excludes deferred items):** **85.00%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credentials (TB-392), operator-configurable outbound settings UI (TB-393), durable async outbound ticket creation (TB-394), finding remediation assignee/due fields on inspect and risk register (TB-395), inbound ITSM disposition sync when configured (TB-396), pluggable external ticket connectors for outbound create (TB-397), automated AWS Tier 2 cloud polling at Azure extractor parity (TB-402), automated GCP Tier 2 cloud polling completing the Azure/AWS/GCP hosted extractor cluster (TB-403), buyer-facing signed-records route aliases removing manifest jargon from browser URLs (TB-399), advisory recommendation source-evidence deep links on persisted recommendation cards (TB-400), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -581,6 +581,22 @@ Non-goals:
 - **Affected qualities:** 2, 5.
 - **Classification:** V1.1 engineering.
 - **Rescore impact:** Differentiability / Defensibility +1 and AI / Agent Readiness +1; `(A)` headline readiness rises from **84.39%** to **84.62%**.
+
+**22) Buyer-facing route aliases (TB-399)**
+- **Status:** shipped (2026-06-27).
+- **Implementation summary:** Canonical `/signed-records`, `/signed-records/{manifestId}`, and `/reviews/{runId}/signed-record` paths with permanent redirects from legacy manifest segments; internal `Link`/`href` builders, breadcrumbs, help copy, and E2E golden-path helpers migrated; App Router files under `app/(operator)/manifests/` unchanged via rewrites.
+- **Validation evidence:** `signed-records-paths.ts`, `next.config.ts` redirect/rewrite matrix, `breadcrumb-map.test.ts`, `buyer-safe-review-navigation.test.ts`, `help-product-language.test.ts`, `buyer-golden-path.ts` URL patterns.
+- **Affected qualities:** 8, 10.
+- **Classification:** V1.1 engineering.
+- **Rescore impact:** Executive / Operator Comprehension +1 and Adoption Friction +1; `(A)` headline readiness rises from **84.62%** to **84.75%**.
+
+**23) Advisory recommendation source-evidence links (TB-400)**
+- **Status:** shipped (2026-06-27).
+- **Implementation summary:** `SourceEvidenceLinksJson` on `RecommendationRecords` (migration **265**); `RecommendationSourceEvidenceLinksComposer` derives `{ kind: finding | manifestSection, id }` from supporting-id arrays at persist; `RecommendationRecordResponse.sourceEvidenceLinks` on list/action endpoints; `AdvisoryScansContent` renders navigable finding/manifest-section links.
+- **Validation evidence:** `AdvisoryControllerListRecommendationsIntegrationTests.ListRecommendations_after_improvements_includes_finding_source_evidence_links`, `RecommendationSourceEvidenceLinksComposer`, UI `recommendation-source-evidence-links.ts`.
+- **Affected qualities:** 3, 4.
+- **Classification:** V1.1 engineering.
+- **Rescore impact:** Governed Review Integrity +1 and Correctness & Evidence Integrity +1; `(A)` headline readiness rises from **84.75%** to **85.00%**.
 
 ## 18. Prompt Batching Guidance
 - **First batch (strong-model-recommended):** ship-gate evidence harness, tenant-isolation negative-test bundle, and citation-integrity sampler.

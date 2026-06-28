@@ -9,7 +9,7 @@ describe("OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS", () => {
   it("defines four canonical first-hour steps aligned to docs", () => {
     expect(OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS).toHaveLength(4);
     expect(OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS[0]?.href).toBe("/reviews/new");
-    expect(OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS[3]?.href).toBe("/manifests");
+    expect(OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS[3]?.href).toBe("/signed-records");
   });
 
   it("keeps distinct step numbers when execute and commit both route to /reviews", () => {

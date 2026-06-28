@@ -67,7 +67,7 @@ export function PostCommitRetentionRail({
                     canonicalizeDemoRunId(runId) === SHOWCASE_STATIC_DEMO_RUN_ID &&
                     goldenManifestId.trim() === SHOWCASE_STATIC_DEMO_MANIFEST_ID
                       ? getShowcaseManifestHref()
-                      : `/manifests/${encodeURIComponent(goldenManifestId.trim())}`
+                      : `/signed-records/${encodeURIComponent(goldenManifestId.trim())}`
                   }
                 >
                   {BUYER_VIEW_SIGNED_RECORD_CTA}
