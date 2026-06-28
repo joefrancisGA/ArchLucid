@@ -1,8 +1,9 @@
-import { CloudCog, Hash, Plug, Server, Ticket, UsersRound, Webhook } from "lucide-react";
+import { CloudCog, Hash, Plug, Ticket, UsersRound, Webhook } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
   CLOUD_CONNECTIONS_PATH,
+  INTEGRATIONS_ITSM_PATH,
   INTEGRATIONS_JIRA_PATH,
   INTEGRATIONS_READINESS_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
@@ -40,20 +41,12 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ExecuteAuthority",
         },
         {
-          href: INTEGRATIONS_JIRA_PATH,
-          label: OPERATOR_NAV_LINK_LABELS.jira,
-          title: OPERATOR_NAV_LINK_LABELS.jira,
+          href: INTEGRATIONS_ITSM_PATH, // "/integrations/itsm"
+          label: OPERATOR_NAV_LINK_LABELS.itsmConnectors,
+          title: OPERATOR_NAV_LINK_LABELS.itsmConnectors,
           icon: Ticket,
           tier: "extended",
-          requiredAuthority: "AdminAuthority",
-        },
-        {
-          href: INTEGRATIONS_SERVICENOW_PATH,
-          label: OPERATOR_NAV_LINK_LABELS.servicenow,
-          title: OPERATOR_NAV_LINK_LABELS.servicenow,
-          icon: Server,
-          tier: "extended",
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "ExecuteAuthority",
         },
         {
           href: INTEGRATIONS_TEAMS_PATH, // "/integrations/teams"

@@ -44,7 +44,7 @@ const PRODUCT_COPY: Record<
   jira: {
     pageTitle: "Jira",
     summary:
-      "Configure Jira Cloud outbound ticket creation from architecture findings. Deployment credentials stay in host configuration — tenant overrides below tune routing per project and severity.",
+      "Configure Jira Cloud outbound ticket creation from architecture findings. Per-tenant connector references live on the unified ITSM page — deployment credentials remain a single-tenant pilot fallback.",
     readinessLabel: "Jira",
     smokeHelpHref: ITSM_CONNECTOR_SMOKE_HELP.jira,
     smokeHelpLabel: "Jira connector smoke checklist",
@@ -52,7 +52,7 @@ const PRODUCT_COPY: Record<
   servicenow: {
     pageTitle: "ServiceNow",
     summary:
-      "Configure ServiceNow outbound incident creation from architecture findings. Deployment credentials stay in host configuration — tenant overrides below tune CMDB posture for incident correlation.",
+      "Configure ServiceNow outbound incident creation from architecture findings. Per-tenant connector references live on the unified ITSM page — deployment credentials remain a single-tenant pilot fallback.",
     readinessLabel: "ServiceNow",
     smokeHelpHref: ITSM_CONNECTOR_SMOKE_HELP.serviceNow,
     smokeHelpLabel: "ServiceNow connector smoke checklist",

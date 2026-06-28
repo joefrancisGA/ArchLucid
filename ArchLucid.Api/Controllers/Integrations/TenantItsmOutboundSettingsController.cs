@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Integrations;
 
-/// <summary>Per-tenant ITSM outbound settings for System Administration onboarding (TB-404).</summary>
+/// <summary>Per-tenant ITSM outbound settings (TB-393).</summary>
 [ApiController]
 [Authorize]
 [ApiVersion("1.0")]
@@ -40,7 +40,7 @@ public sealed class TenantItsmOutboundSettingsController(
 
     /// <summary>Returns tenant ITSM outbound overrides and masked deployment credential posture.</summary>
     [HttpGet]
-    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(TenantItsmOutboundSettingsResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
@@ -55,7 +55,7 @@ public sealed class TenantItsmOutboundSettingsController(
     /// <summary>Upserts optional per-tenant ITSM outbound overrides for Jira / ServiceNow.</summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPut]
-    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(TenantItsmOutboundSettingsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PutAsync(

@@ -1119,7 +1119,7 @@
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/integrations/teams"
+      "nav_operator_href": null
     },
     {
       "controller_file": "Integrations/TenantItsmConnectorConnectionsController.cs",
@@ -1129,7 +1129,7 @@
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": null
+      "nav_operator_href": "/integrations/itsm"
     },
     {
       "controller_file": "Integrations/TenantItsmOutboundSettingsController.cs",
@@ -1139,7 +1139,7 @@
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": null
+      "nav_operator_href": "/integrations/itsm"
     },
     {
       "controller_file": "Integrations/WebhookConnectionsController.cs",

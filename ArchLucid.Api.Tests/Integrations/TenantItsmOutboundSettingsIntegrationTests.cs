@@ -63,6 +63,25 @@ public sealed class TenantItsmOutboundSettingsIntegrationTests(JwtLocalSigningWe
     }
 
     [SkippableFact]
+    public async Task Put_settings_with_execute_jwt_succeeds()
+    {
+        string token = factory.MintLocalBearerJwt("OperatorUser", [ArchLucidRoles.Operator]);
+        HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        TenantItsmOutboundSettingsUpsertRequest body = new()
+        {
+            JiraProjectKeyOverride = "OPS",
+        };
+
+        HttpResponseMessage put = await client.PutAsJsonAsync(
+            new Uri($"/{ApiV1Routes.ItsmOutboundSettings}", UriKind.Relative),
+            body);
+
+        put.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [SkippableFact]
     public async Task Get_put_round_trip_with_admin_jwt()
     {
         string token = factory.MintLocalBearerJwt("AdminUser", [ArchLucidRoles.Admin]);

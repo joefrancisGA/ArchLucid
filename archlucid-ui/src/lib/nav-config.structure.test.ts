@@ -132,8 +132,7 @@ describe("nav-config structure", () => {
     expect(integrationsHrefs).toEqual([
       "/integrations/operations",
       "/settings/cloud-connections",
-      "/integrations/jira",
-      "/integrations/servicenow",
+      "/integrations/itsm",
       "/integrations/teams",
       "/integrations/slack",
       "/integrations/webhooks",

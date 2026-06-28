@@ -1,6 +1,8 @@
 /** Customer-facing Integrations hub routes (product-specific configuration surfaces). */
 export const INTEGRATIONS_READINESS_PATH = "/integrations/operations";
 
+export const INTEGRATIONS_ITSM_PATH = "/integrations/itsm";
+
 export const INTEGRATIONS_JIRA_PATH = "/integrations/jira";
 
 export const INTEGRATIONS_SERVICENOW_PATH = "/integrations/servicenow";

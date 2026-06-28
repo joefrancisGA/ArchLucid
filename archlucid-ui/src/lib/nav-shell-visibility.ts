@@ -43,6 +43,7 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/governance/first-30-days",
   "/audit",
   "/integrations/teams",
+  "/integrations/itsm",
   "/integrations/slack",
   "/integrations/jira",
   "/integrations/servicenow",

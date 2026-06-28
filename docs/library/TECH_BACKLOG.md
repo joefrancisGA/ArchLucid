@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-27 (TB-392 and TB-393 promoted to **V1** — per-tenant ITSM credentials + settings write API; automated AWS polling **TB-402** and automated GCP polling **TB-403** — V1.1). Prior: 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~58 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-27 (TB-392 **Done**; TB-393 **Done** — per-tenant ITSM credentials + settings write API/UI; automated AWS polling **TB-402** and automated GCP polling **TB-403** — V1.1). Prior: 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~58 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -165,7 +165,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-390 | ~~ITSM inbound webhook snapshot scoping~~ **Done (2026-06-22)** — scope inbound `HumanReviewStatus` UPDATE to correlated `FindingRecordId` / latest committed snapshot fallback | Correctness P1 | S |
 | TB-391 | ~~ServiceNow copy-as-task + `trackedExternally` projection~~ **Done (2026-06-22)** — `serviceNowText` clipboard format + `TrackedExternally` on inspect/list | Interoperability P2 | S |
 | TB-392 | Per-tenant Jira/ServiceNow credentials — mirror `TenantTeamsIncomingWebhookConnections` + Key Vault secret-name pattern for ITSM outbound/inbound; per-tenant connection rows; replace deployment-wide `Integrations:ItsmOutbound:*` for multi-tenant SaaS | **Done** (2026-06-27) — Trustworthiness P1 **V1** | M |
-| TB-393 | Tenant ITSM outbound settings write API + admin UI — upsert `TenantItsmOutboundSettings` (project key override, severity filters, issue-type map); `PUT /v1/integrations/itsm/settings`; `/integrations/itsm` settings page; `AdminAuthority` or `ExecuteAuthority` gate | Adoption friction P1 — **V1**; today repository is read-only | M |
+| TB-393 | Tenant ITSM outbound settings write API + admin UI — upsert `TenantItsmOutboundSettings` (project key override, severity filters, issue-type map); `PUT /v1/integrations/itsm/settings`; `/integrations/itsm` settings page; `ExecuteAuthority` gate | **Done** (2026-06-27) — Adoption friction P1 **V1** | M |
 | TB-394 | Durable async ITSM outbound ticket creation ? enqueue outbound create on existing outbox/background-job infrastructure; retry/DLQ after HTTP Polly exhaustion; operator-visible pending/failed state | Reliability P2 ? **V1.1**; today synchronous in request path | M |
 | TB-395 | Finding assignee + general remediation due date ? add `AssignedToUserId` and `RemediationDueUtc` to `Finding` contract + `FindingRecords` SQL; expose on inspect/risk-register; map in outbound payload builder | Architectural integrity P2 ? **V1.1**; required for Jira assignee / ServiceNow `assigned_to` sync | M |
 | TB-396 | Inbound ITSM disposition sync ? extend inbound webhook mapping beyond `HumanReviewStatus` to update latest `FindingDisposition` where configured; document status?disposition map in inbound options | Interoperability P2 ? **V1.1**; one-way human-review mirror is insufficient for governance workflows | M |
@@ -11370,9 +11370,11 @@ Jira/ServiceNow outbound and inbound webhook secrets live in deployment-wide `In
 
 ---
 
-## TB-393 — Tenant ITSM outbound settings write API + admin UI — **V1**
+## TB-393 — Tenant ITSM outbound settings write API + admin UI — **Done** (2026-06-27)
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Shipped:** `GET/PUT /v1/integrations/itsm/settings` with `ReadAuthority`/`ExecuteAuthority`; upsert repository + service; unified operator hub at `/integrations/itsm` (connector references + tenant overrides); wired into `ItsmOutboundIssueCreationService` and health probe; integration and UI tests.
 
 **Problem:**
 

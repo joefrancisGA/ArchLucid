@@ -1,4 +1,4 @@
-import { apiGet, apiPostJson, apiPutJson } from "@/lib/api-client";
+import { apiDelete, apiGet, apiPostJson, apiPutJson } from "@/lib/api-client";
 import type { components } from "@/lib/openapi-schemas";
 
 export type ItsmFindingCorrelationListItem = components["schemas"]["ItsmFindingCorrelationListItem"];
@@ -13,6 +13,28 @@ export type TenantItsmDeploymentCredentialSummary = {
   jiraServiceAccountEmailMasked?: string | null;
   serviceNowConfigured?: boolean;
   serviceNowUsernameMasked?: string | null;
+};
+
+export type TenantItsmConnectorConnectionResponse = {
+  tenantId?: string;
+  provider?: string;
+  isConfigured?: boolean;
+  isEnabled?: boolean;
+  instanceBaseUrl?: string | null;
+  authUserName?: string | null;
+  credentialKeyVaultSecretName?: string | null;
+  inboundWebhookKeyVaultSecretName?: string | null;
+  label?: string | null;
+  updatedUtc?: string;
+};
+
+export type TenantItsmConnectorConnectionUpsertRequest = {
+  instanceBaseUrl: string;
+  authUserName: string;
+  credentialKeyVaultSecretName: string;
+  inboundWebhookKeyVaultSecretName?: string | null;
+  isEnabled?: boolean;
+  label?: string | null;
 };
 
 export type TenantItsmOutboundSettingsResponse = {
@@ -45,6 +67,26 @@ export async function upsertTenantItsmOutboundSettings(
   body: TenantItsmOutboundSettingsUpsertRequest,
 ): Promise<TenantItsmOutboundSettingsResponse> {
   return apiPutJson<TenantItsmOutboundSettingsResponse>("/v1/integrations/itsm/settings", body);
+}
+
+export async function fetchTenantItsmConnectorConnection(
+  provider: "jira" | "servicenow",
+): Promise<TenantItsmConnectorConnectionResponse> {
+  return apiGet<TenantItsmConnectorConnectionResponse>(`/v1/integrations/itsm/connections/${provider}`);
+}
+
+export async function upsertTenantItsmConnectorConnection(
+  provider: "jira" | "servicenow",
+  body: TenantItsmConnectorConnectionUpsertRequest,
+): Promise<TenantItsmConnectorConnectionResponse> {
+  return apiPostJson<TenantItsmConnectorConnectionResponse>(
+    `/v1/integrations/itsm/connections/${provider}`,
+    body,
+  );
+}
+
+export async function deleteTenantItsmConnectorConnection(provider: "jira" | "servicenow"): Promise<void> {
+  await apiDelete(`/v1/integrations/itsm/connections/${provider}`);
 }
 
 export async function listItsmFindingCorrelations(

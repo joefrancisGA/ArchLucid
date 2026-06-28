@@ -45,6 +45,7 @@ export type LayerGuidancePageKey =
   | "value-report-roi"
   | "security-trust"
   | "teams-notifications"
+  | "itsm-connectors"
   | "slack-notifications";
 
 export type LayerGuidanceBlock = {
@@ -158,6 +159,15 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote:
       "After Pilot proof when Teams routing matters; store only a Key Vault secret id here.",
     enterpriseFootnote: "Read vs Execute matches API; Logic Apps resolves the secret at delivery time.",
+  },
+  "itsm-connectors": {
+    layerBadge: "Integration configuration",
+    headline: "Per-tenant Jira and ServiceNow connector references plus outbound routing overrides.",
+    useWhen:
+      "Configure Key Vault secret names, instance URLs, and optional project or CMDB behavior before enabling native ticket create.",
+    firstPilotNote:
+      "Optional until ITSM handoff is in scope; deployment-wide credentials still work for single-tenant pilots.",
+    omitReviewPackageScopeHelp: true,
   },
   "slack-notifications": {
     layerBadge: "Governance",

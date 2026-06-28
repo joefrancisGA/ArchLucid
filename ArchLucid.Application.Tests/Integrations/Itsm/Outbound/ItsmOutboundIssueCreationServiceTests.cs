@@ -199,6 +199,62 @@ public sealed class ItsmOutboundIssueCreationServiceTests
     }
 
     [Fact]
+    public async Task Jira_uses_tenant_project_key_override_when_configured()
+    {
+        RecordingHandler handler = new(_ =>
+            new HttpResponseMessage(HttpStatusCode.Created)
+            {
+                Content = new StringContent("{\"id\":\"9\",\"key\":\"TENANT-42\"}", Encoding.UTF8, "application/json")
+            });
+
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "x", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Inspect(FindingSeverity.Error));
+
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.RegisterAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                "x",
+                "Jira",
+                "TENANT-42",
+                "9",
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<ITenantItsmOutboundSettingsRepository> tenant = new();
+        tenant
+            .Setup(t => t.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantItsmOutboundSettings { JiraProjectKeyOverride = "TENANT" });
+
+        ItsmOutboundIssueCreationService sut = new(
+            findings.Object,
+            correlations.Object,
+            tenant.Object,
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IArchitectureRequestRepository>(),
+            CredentialResolver(OutboundJiraConfigured("DP")),
+            Monitor(OutboundJiraConfigured("DP")).Object,
+            PublicSiteMonitor().Object,
+            JiraClient(handler),
+            new ServiceNowOutboundIncidentClient(new HttpClient(new BoomHttpMessageHandler()),
+                NullLogger<ServiceNowOutboundIncidentClient>.Instance));
+
+        ItsmOutboundIssueCreationResult r = await sut.TryCreateForFindingAsync(
+            ItsmOutboundIssueProvider.Jira,
+            Scope(),
+            "x",
+            CancellationToken.None);
+
+        r.Kind.Should().Be(ItsmOutboundCreateTerminalKind.Succeeded);
+        handler.LastBody.Should().Contain("\"key\":\"TENANT\"");
+    }
+
+    [Fact]
     public async Task Jira_When_typed_payload_absent_uses_record_severity_for_priority()
     {
         RecordingHandler handler = new(_ =>

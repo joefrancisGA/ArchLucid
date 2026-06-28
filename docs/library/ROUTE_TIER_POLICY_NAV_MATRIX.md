@@ -183,9 +183,9 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Integrations/ItsmIntegrationHealthController.cs` | `/v1/integrations/itsm/health` | standard | Authorize |  |  |
 | `Integrations/ItsmOutboundIssuesController.cs` | `/v1/integrations/itsm/outbound/issues` | none | ExecuteAuthority |  |  |
 | `Integrations/SlackInteractivityController.cs` | `/v1/integrations/webhooks/slack` | none | AllowAnonymous |  | partner_webhook_ingest |
-| `Integrations/TeamsIncomingWebhookConnectionsController.cs` | `/v1/integrations/teams` | standard | Authorize | /integrations/teams |  |
-| `Integrations/TenantItsmConnectorConnectionsController.cs` | `/v1/integrations/itsm/connections` | standard | Authorize |  |  |
-| `Integrations/TenantItsmOutboundSettingsController.cs` | `/v1/integrations/itsm/settings` | standard | Authorize |  |  |
+| `Integrations/TeamsIncomingWebhookConnectionsController.cs` | `/v1/integrations/teams` | standard | Authorize |  |  |
+| `Integrations/TenantItsmConnectorConnectionsController.cs` | `/v1/integrations/itsm/connections` | standard | Authorize | /integrations/itsm |  |
+| `Integrations/TenantItsmOutboundSettingsController.cs` | `/v1/integrations/itsm/settings` | standard | Authorize | /integrations/itsm |  |
 | `Integrations/WebhookConnectionsController.cs` | `/v1/integrations/webhooks` | standard | ReadAuthority |  |  |
 | `Integrations/WebhookSimulationController.cs` | `/v1/integrations/webhooks` | none | ExecuteAuthority |  |  |
 | `Marketing/EnterpriseComparisonMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |

@@ -138,6 +138,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   first30DaysGovernance: "First 30 days (governance)",
   securityTrust: "Security & trust",
   teamsNotifications: "Teams notifications",
+  itsmConnectors: "Jira & ServiceNow",
   valueReport: "Value report",
   compareTwoReviews: "Compare two reviews",
   replayReview: "Validate review package",

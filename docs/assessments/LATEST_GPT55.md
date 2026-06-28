@@ -1,7 +1,7 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **83.24%**.
+ArchLucid Assessment - (A) Headline Readiness: **83.37%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
@@ -39,10 +39,10 @@ ArchLucid Assessment - (A) Headline Readiness: **83.24%**.
 | 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 160 |
 | 6 | Time-to-Value | 79 | 10 | 7.90 | 210 |
 | 7 | Proof-of-ROI Readiness | 82 | 9 | 7.38 | 162 |
-| 8 | Executive / Operator Comprehension | 78 | 8 | 6.24 | 176 |
+| 8 | Executive / Operator Comprehension | 79 | 8 | 6.32 | 168 |
 | 9 | Runtime & First-Review Reliability | 79 | 7 | 5.53 | 147 |
-| 10 | Adoption Friction | 73 | 5 | 3.65 | 135 |
-|  | **(A) Headline readiness** |  | **100** | **83.24** |  |
+| 10 | Adoption Friction | 74 | 5 | 3.70 | 130 |
+|  | **(A) Headline readiness** |  | **100** | **83.37** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -70,7 +70,7 @@ These diagnostics do **not** feed `(A)` directly.
 6. **Auth + tenant isolation behave correctly on pilot path:** **PASS (structural deny-matrix)** - `archlucid pilot tenant-isolation-negative-test` emits cross-tenant deny probes with correlation IDs (offline fixture replay + optional live `--run-id` mode); live two-tenant SQL smoke remains the fastest full-environment proof.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **83.24%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credential rows (TB-392), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
+- **(A) Overall headline readiness (excludes deferred items):** **83.37%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credentials (TB-392) and operator-configurable outbound settings UI (TB-393), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -118,9 +118,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** validation first
 
 ### 7.5 Executive / Operator Comprehension
-- **Score / Weight / Contribution / Deficiency:** 78 / 8 / 6.24 / 176
+- **Score / Weight / Contribution / Deficiency:** 79 / 8 / 6.32 / 168
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** rich surfaces exist, but buyer-level understanding can still fragment across governance, ROI, and operational views; canonical ROI scope manifest and buyer-proof evidence ledger normalization now align headline, per-system, export fallbacks, and sponsor-send completion slots across proof artifacts.
+- **Justification:** rich surfaces exist, but buyer-level understanding can still fragment across governance, ROI, and operational views; canonical ROI scope manifest, buyer-proof evidence ledger normalization, and unified `/integrations/itsm` settings hub now align ITSM connector references with tenant outbound overrides without SQL access.
 - **Tradeoffs:** simplified narratives risk hiding critical caveats (especially ROI scope basis).
 - **Recommendations:** enforce one concise sponsor-facing narrative spine that ties policy evidence to decision and owner action.
 - **Classification:** V1
@@ -158,9 +158,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.10 Adoption Friction
-- **Score / Weight / Contribution / Deficiency:** 73 / 5 / 3.65 / 135
+- **Score / Weight / Contribution / Deficiency:** 74 / 5 / 3.70 / 130
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; standardized tenant-isolation deny-matrix evidence and return-trigger cohort guardrails improve enterprise confidence without expanding pilot setup scope.
+- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; standardized tenant-isolation deny-matrix evidence, return-trigger cohort guardrails, and operator ITSM settings write API + `/integrations/itsm` hub improve enterprise confidence without expanding pilot setup scope.
 - **Tradeoffs:** reducing friction too far risks weakening governance and assurance posture.
 - **Recommendations:** bias toward "default safe + guided first proof" instead of broad optionality at pilot start.
 - **Classification:** V1
@@ -525,6 +525,14 @@ Non-goals:
 - **Affected qualities:** 3, 4.
 - **Classification:** V1 engineering.
 - **Rescore impact:** Governed Review Integrity +1 and Correctness & Evidence Integrity +1; `(A)` headline readiness rises from **82.99%** to **83.24%**.
+
+**15) Tenant ITSM outbound settings write API + admin UI (TB-393)**
+- **Status:** shipped (2026-06-27).
+- **Implementation summary:** `GET/PUT /v1/integrations/itsm/settings` with `ReadAuthority`/`ExecuteAuthority`; upsert persistence for Jira project key override, info-severity send toggle, issue-type map JSON, and ServiceNow CMDB auto-create; wired into outbound create and health probe; unified operator hub at `/integrations/itsm` mirrors Teams layout with per-tenant connector references (TB-392) and tenant override forms.
+- **Validation evidence:** `TenantItsmOutboundSettingsIntegrationTests`, `ItsmOutboundIssueCreationServiceTests` (tenant project key override), `ItsmIntegrationPageClient.test.tsx`, and `TenantItsmOutboundSettingsUpsertValidationTests`.
+- **Affected qualities:** 8, 10.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Executive / Operator Comprehension +1 and Adoption Friction +1; `(A)` headline readiness rises from **83.24%** to **83.37%**.
 
 ## 18. Prompt Batching Guidance
 - **First batch (strong-model-recommended):** ship-gate evidence harness, tenant-isolation negative-test bundle, and citation-integrity sampler.
