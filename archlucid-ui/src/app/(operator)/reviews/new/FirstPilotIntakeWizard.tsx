@@ -26,6 +26,7 @@ import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget
 import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
+import { BUYER_NEW_REVIEW_TOAST_CATEGORY } from "@/lib/buyer-polish-copy";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -144,7 +145,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     if (kind === "ok") {
       showSuccess(message);
     } else {
-      showError("First-pilot intake", message);
+      showError(BUYER_NEW_REVIEW_TOAST_CATEGORY, message);
     }
   }, []);
 
