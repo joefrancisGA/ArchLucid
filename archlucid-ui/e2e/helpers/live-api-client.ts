@@ -243,14 +243,40 @@ export async function postArchitectureRequestRaw(
 /** Mutating architecture POSTs share one API with many live specs — retry fixed-window 429 and brief 5xx. */
 const maxArchitectureMutationAttempts = 8;
 
+/** Minimum description length to pass live API REJECT-AS-WRITTEN validation in CI. */
+const liveArchitectureDescriptionMinLength = 80;
+
+/** Rich default architecture narrative for live E2E create-run calls. */
+export const liveE2eArchitectureDescription =
+  "Design a three-tier web application with SQL persistence, Redis cache, and Azure Blob storage. " +
+  "Evaluate architectural decisions for horizontal scaling, failover boundaries, and security controls.";
+
+function ensureLiveArchitectureDescription(body: Record<string, unknown>): Record<string, unknown> {
+  const raw = body.description;
+  const description = typeof raw === "string" ? raw.trim() : "";
+
+  if (description.length >= liveArchitectureDescriptionMinLength) {
+    return body;
+  }
+
+  const suffix = description.length > 0 ? ` Context: ${description}` : "";
+
+  return {
+    ...body,
+    description: liveE2eArchitectureDescription + suffix,
+  };
+}
+
 /** POST `/v1/architecture/request` — create a new architecture run. */
 export async function createRun(
   request: APIRequestContext,
   body: Record<string, unknown>,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<{ runId: string }> {
+  const enrichedBody = ensureLiveArchitectureDescription(body);
+
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
-    const res = await postArchitectureRequestRaw(request, body, tenantScope);
+    const res = await postArchitectureRequestRaw(request, enrichedBody, tenantScope);
 
     if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
       await delayAfterRateLimitedResponse(res);

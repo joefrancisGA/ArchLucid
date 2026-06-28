@@ -13,12 +13,12 @@ namespace ArchLucid.Api.Tests;
 ///     End-to-end: seed authority run → POST <c>v1/ask</c> with fake LLM → verify response includes thread and answer →
 ///     list conversations via <c>GET v1/conversations</c>.
 /// </summary>
-// CI #2268 / #2277: Ask host + IntegrationTestDeadline wedged tasks starve the thread pool when
-// co-scheduled with ~30 other integration classes in one dotnet test process; run on the Slow shard.
+// CI #2268 / #2277 / #2378: one shared host per class via <see cref="AlertLifecycleSharedHostFixture" />.
 [Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
 [Collection("ArchLucidEnvMutation")]
-public sealed class AskThreadIntegrationTests
+public sealed class AskThreadIntegrationTests(AlertLifecycleSharedHostFixture sharedHost)
+    : IClassFixture<AlertLifecycleSharedHostFixture>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -40,16 +40,13 @@ public sealed class AskThreadIntegrationTests
             nameof(Ask_with_seeded_run_returns_answer_and_creates_thread),
             async testDeadline =>
             {
-                await using AlertLifecycleWebAppFactory factory = new();
                 using CancellationTokenSource requestTimeout =
                     IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
-                IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
-
                 Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
-                    services, requestTimeout.Token);
+                    sharedHost.Factory.Services, requestTimeout.Token);
 
-                HttpClient client = await CreateScopedClientAsync(factory);
+                HttpClient client = await CreateScopedClientAsync(sharedHost.Factory);
 
                 HttpResponseMessage askResponse = await client.PostAsJsonAsync(
                     "v1/ask",
@@ -75,7 +72,8 @@ public sealed class AskThreadIntegrationTests
 
                 threads.Should().NotBeNull();
                 threads.Should().Contain(t => t.ThreadId == result.ThreadId);
-            });
+            },
+            IntegrationTestDeadline.SharedHostTestTimeout);
     }
 
     [SkippableFact]
@@ -85,16 +83,13 @@ public sealed class AskThreadIntegrationTests
             nameof(Ask_follow_up_continues_same_thread),
             async testDeadline =>
             {
-                await using AlertLifecycleWebAppFactory factory = new();
                 using CancellationTokenSource requestTimeout =
                     IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
-                IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
-
                 Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
-                    services, requestTimeout.Token);
+                    sharedHost.Factory.Services, requestTimeout.Token);
 
-                HttpClient client = await CreateScopedClientAsync(factory);
+                HttpClient client = await CreateScopedClientAsync(sharedHost.Factory);
 
                 HttpResponseMessage firstResponse = await client.PostAsJsonAsync(
                     "v1/ask",
@@ -132,7 +127,8 @@ public sealed class AskThreadIntegrationTests
 
                 messages.Should().NotBeNull();
                 messages.Should().HaveCountGreaterThanOrEqualTo(4, "two user + two assistant messages expected");
-            });
+            },
+            IntegrationTestDeadline.SharedHostTestTimeout);
     }
 
     [SkippableFact]
@@ -142,8 +138,7 @@ public sealed class AskThreadIntegrationTests
             nameof(Ask_without_question_returns_bad_request),
             async testDeadline =>
             {
-                await using AlertLifecycleWebAppFactory factory = new();
-                HttpClient client = await CreateScopedClientAsync(factory);
+                HttpClient client = await CreateScopedClientAsync(sharedHost.Factory);
                 using CancellationTokenSource requestTimeout =
                     IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
@@ -154,7 +149,8 @@ public sealed class AskThreadIntegrationTests
                     requestTimeout.Token);
 
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            });
+            },
+            IntegrationTestDeadline.SharedHostTestTimeout);
     }
 
     [SkippableFact]
@@ -164,8 +160,7 @@ public sealed class AskThreadIntegrationTests
             nameof(Ask_without_runId_or_threadId_returns_bad_request),
             async testDeadline =>
             {
-                await using AlertLifecycleWebAppFactory factory = new();
-                HttpClient client = await CreateScopedClientAsync(factory);
+                HttpClient client = await CreateScopedClientAsync(sharedHost.Factory);
                 using CancellationTokenSource requestTimeout =
                     IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
@@ -176,7 +171,8 @@ public sealed class AskThreadIntegrationTests
                     requestTimeout.Token);
 
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            });
+            },
+            IntegrationTestDeadline.SharedHostTestTimeout);
     }
 
     [SkippableFact]
@@ -186,16 +182,13 @@ public sealed class AskThreadIntegrationTests
             nameof(Ask_stream_with_seeded_run_emits_token_and_done_events),
             async testDeadline =>
             {
-                await using AlertLifecycleWebAppFactory factory = new();
                 using CancellationTokenSource requestTimeout =
                     IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
-                IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
-
                 Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
-                    services, requestTimeout.Token);
+                    sharedHost.Factory.Services, requestTimeout.Token);
 
-                HttpClient client = await CreateScopedClientAsync(factory);
+                HttpClient client = await CreateScopedClientAsync(sharedHost.Factory);
 
                 using HttpRequestMessage request = new(HttpMethod.Post, "v1/ask/stream")
                 {
@@ -249,6 +242,7 @@ public sealed class AskThreadIntegrationTests
                 donePayload.Should().NotBeNull("stream should terminate with a done payload");
                 donePayload!.ThreadId.Should().NotBeEmpty();
                 donePayload.Answer.Should().NotBeNullOrWhiteSpace();
-            });
+            },
+            IntegrationTestDeadline.SharedHostTestTimeout);
     }
 }

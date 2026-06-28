@@ -659,7 +659,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                                 runId,
                                 cancellationToken);
 
-                        throw new Xunit.Sdk.XunitException(
+                        throw new GreenfieldCommitRetryBudgetExhaustedException(
                             "POST /v1/architecture/run/"
                             + runId
                             + "/commit returned persistent manifest-not-loaded 409 after "

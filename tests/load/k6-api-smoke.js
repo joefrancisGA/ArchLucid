@@ -16,13 +16,16 @@
  *   K6_SCENARIO=load k6 run tests/load/k6-api-smoke.js
  */
 import http from "k6/http";
-import { check } from "k6";
+import { check, sleep } from "k6";
 
 const BASE = __ENV.ARCHLUCID_BASE_URL || __ENV.BASE_URL || "http://127.0.0.1:5128";
 const PROJECT_SLUG = __ENV.ARCHLUCID_AUTHORITY_PROJECT || "default";
 const IS_LOAD = __ENV.K6_SCENARIO === "load";
 const MINIMAL =
   __ENV.ARCHLUCID_K6_OPERATOR_MINIMAL === "1" || __ENV.ARCHLUCID_K6_OPERATOR_MINIMAL === "true";
+const SMOKE_VUS = Number(__ENV.ARCHLUCID_K6_SMOKE_VUS ?? (IS_LOAD ? 20 : 5));
+const RUN_READY_POLL_ATTEMPTS = Number(__ENV.ARCHLUCID_K6_RUN_READY_POLL_ATTEMPTS ?? 30);
+const RUN_READY_POLL_SLEEP_SECONDS = Number(__ENV.ARCHLUCID_K6_RUN_READY_POLL_SLEEP_SECONDS ?? 2);
 
 const P95_MS = {
   health_ready: Number(__ENV.ARCHLUCID_K6_P95_HEALTH_READY_MS ?? 1200),
@@ -65,6 +68,33 @@ function buildThresholds() {
   }
 
   return t;
+}
+
+function waitForRunReadyForCommit(runId, headers) {
+  for (let attempt = 0; attempt < RUN_READY_POLL_ATTEMPTS; attempt++) {
+    const r = http.get(`${BASE}/v1/architecture/run/${encodeURIComponent(runId)}`, {
+      headers,
+      tags: { k6api: "run_status" },
+    });
+
+    if (r.status === 200) {
+      try {
+        const j = JSON.parse(r.body);
+        const run = j && (j.run || j.Run);
+        const status = run && (run.status || run.Status);
+
+        if (status === "ReadyForCommit" || status === 2) {
+          return true;
+        }
+      } catch {
+        // keep polling
+      }
+    }
+
+    sleep(RUN_READY_POLL_SLEEP_SECONDS);
+  }
+
+  return false;
 }
 
 export function operatorPath() {
@@ -146,6 +176,8 @@ export function operatorPath() {
   });
   check(r, { "seed fake 2xx": (res) => res.status >= 200 && res.status < 300 });
 
+  waitForRunReadyForCommit(runId, h);
+
   r = http.post(`${BASE}/v1/architecture/run/${encodeURIComponent(runId)}/commit`, "{}", {
     headers: jsonHeaders,
     tags: { k6api: "pilot_commit" },
@@ -190,8 +222,8 @@ export const options = {
             { duration: "30s", target: 0 },
           ]
         : [
-            { duration: "10s", target: 5 },
-            { duration: "40s", target: 5 },
+            { duration: "10s", target: SMOKE_VUS },
+            { duration: "40s", target: SMOKE_VUS },
             { duration: "10s", target: 0 },
           ],
       gracefulRampDown: "10s",

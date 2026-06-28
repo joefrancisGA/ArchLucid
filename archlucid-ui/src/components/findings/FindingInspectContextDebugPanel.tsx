@@ -120,7 +120,6 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
           type="checkbox"
           className="h-4 w-4 shrink-0 accent-teal-700"
           checked={enabled}
-          aria-controls="finding-inspect-context-debug-body"
           onChange={(event) => {
             setEnabled(event.target.checked);
           }}

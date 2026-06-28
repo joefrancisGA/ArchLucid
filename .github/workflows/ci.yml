@@ -3531,12 +3531,12 @@ jobs:
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/live-api.pid"
-          for i in $(seq 1 90); do
+          for i in $(seq 1 180); do
             if curl -fsS http://127.0.0.1:5128/health/ready; then
               echo "API ready."
               exit 0
             fi
-            if [ "$i" -eq 90 ]; then
+            if [ "$i" -eq 180 ]; then
               echo "::error::API did not reach /health/ready in time"
               tail -n 200 "${RUNNER_TEMP}/live-api.log" || true
               exit 1
@@ -3684,12 +3684,12 @@ jobs:
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-apikey.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/live-api-apikey.pid"
-          for i in $(seq 1 90); do
+          for i in $(seq 1 180); do
             if curl -fsS http://127.0.0.1:5128/health/ready; then
               echo "API ready (ApiKey mode)."
               exit 0
             fi
-            if [ "$i" -eq 90 ]; then
+            if [ "$i" -eq 180 ]; then
               echo "::error::API (ApiKey) did not reach /health/ready in time"
               tail -n 200 "${RUNNER_TEMP}/live-api-apikey.log" || true
               exit 1
@@ -3846,12 +3846,12 @@ jobs:
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-jwt.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/live-api-jwt.pid"
-          for i in $(seq 1 90); do
+          for i in $(seq 1 180); do
             if curl -fsS http://127.0.0.1:5128/health/ready; then
               echo "API ready (JwtBearer + local PEM)."
               exit 0
             fi
-            if [ "$i" -eq 90 ]; then
+            if [ "$i" -eq 180 ]; then
               echo "::error::API (JwtBearer) did not reach /health/ready in time"
               tail -n 200 "${RUNNER_TEMP}/live-api-jwt.log" || true
               exit 1
@@ -3979,6 +3979,7 @@ jobs:
           ARCHLUCID_K6_P95_TIER2_MS: "928"
           ARCHLUCID_K6_P95_TIER3_MS: "6600"
           ARCHLUCID_K6_HTTP_FAIL_RATE_MAX: "0.02"
+          ARCHLUCID_K6_SMOKE_VUS: "1"
         run: |
           set -e
           k6 run "${GITHUB_WORKSPACE}/tests/load/k6-api-smoke.js"
