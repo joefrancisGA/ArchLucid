@@ -53,7 +53,7 @@ Operator sidebar groups imply a URL prefix in the address bar. **57** nav hrefs 
 |----------------|----------------------|--------|
 | `pilot` | *(none — heterogeneous top-level review paths)* | Portfolio overview may use CTO demo executive showcase href (registered exception). |
 | `operate-analysis` | *(none)* | `/ask`, `/compare`, `/advisory`, … |
-| `operate-governance` | `/governance` | Exceptions: `/policy-packs`, `/governance-resolution`, `/audit`, `/alerts` |
+| `operate-governance` | `/governance` | All governance nav hrefs are under `/governance/*` (TB-405). |
 | `operate-reports` | `/scorecard`, `/value-report` | Exception: `/governance/first-30-days` |
 | `operate-integrations` | `/integrations` | Exception: `/settings/cloud-connections` |
 | `operator-admin` | `/settings`, `/admin`, `/workspace` | Exception: `/governance/recurrence-schedules` |

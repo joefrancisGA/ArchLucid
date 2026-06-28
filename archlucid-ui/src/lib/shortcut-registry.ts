@@ -58,7 +58,7 @@ export const SHORTCUTS: ShortcutEntry[] = [
   {
     key: "alt+l",
     label: "Alerts",
-    route: "/alerts",
+    route: "/governance/alerts",
     description: "Open alerts",
   },
   {

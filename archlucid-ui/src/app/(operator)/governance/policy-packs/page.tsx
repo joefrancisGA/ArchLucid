@@ -1,9 +1,9 @@
-import { redirect } from "next/navigation";
+import { PolicyPacksPageClient } from "@/app/(operator)/policy-packs/_sections/PolicyPacksPageClient";
+import { loadPolicyPacksPageData } from "@/app/(operator)/policy-packs/_sections/load-policy-packs-page-data";
 
-/**
- * List and lifecycle live on `/policy-packs`. This index exists so `/governance/policy-packs` bookmarks
- * and breadcrumb targets resolve instead of 404 — avoids operators landing on unrelated governance pages.
- */
-export default function GovernancePolicyPacksIndexPage() {
-  redirect("/policy-packs");
+/** Canonical policy packs list (TB-405). */
+export default async function GovernancePolicyPacksPage() {
+  const loaded = await loadPolicyPacksPageData();
+
+  return <PolicyPacksPageClient loaded={loaded} />;
 }

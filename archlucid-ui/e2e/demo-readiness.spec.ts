@@ -198,7 +198,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       "/advisory",
       "/replay",
       "/search",
-      "/policy-packs",
+      "/governance/policy-packs",
     ] as const;
 
     for (const path of routes) {

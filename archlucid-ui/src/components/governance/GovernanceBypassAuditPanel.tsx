@@ -82,7 +82,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
               )}
             </p>
           </div>
-          <Link href="/audit" className={cn("font-medium text-teal-700 underline dark:text-teal-400", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link href="/governance/audit" className={cn("font-medium text-teal-700 underline dark:text-teal-400", OPERATOR_TYPOGRAPHY.helper)}>
             Open audit log
           </Link>
         </div>

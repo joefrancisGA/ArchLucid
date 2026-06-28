@@ -1,4 +1,5 @@
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
@@ -116,7 +117,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   if (normalized === "/help/cloud-connections/azure" || normalized === "/help/cloud-connections-azure") {
     return [
       { label: "Help", href: "/help" },
-      { label: OPERATOR_NAV_LINK_LABELS.azureCloudConnection },
+      { label: OPERATOR_NAV_LINK_LABELS.cloudConnections },
     ];
   }
 
@@ -124,7 +125,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   if (normalized === "/settings/cloud-connections") {
     return [
       { label: OPERATOR_NAV_GROUP_LABELS.integrations, href: "/integrations/operations" },
-      { label: OPERATOR_NAV_LINK_LABELS.azureCloudConnection },
+      { label: OPERATOR_NAV_LINK_LABELS.cloudConnections },
     ];
   }
 
@@ -146,13 +147,11 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return items;
   }
 
-  // `/governance/policy-packs/[id]` is governance-scoped pack tooling; the registry is `/policy-packs`.
-  // Do not link the "Governance" segment to `/governance` (approval workflow) — that confused screenshots
-  // and operators expecting pack UX.
-  const governancePolicyPacksPrefix = "/governance/policy-packs";
+  // `/governance/policy-packs/[id]` is governance-scoped pack tooling (TB-405 canonical list + detail).
+  const governancePolicyPacksPrefix = GOVERNANCE_POLICY_PACKS_PATH;
 
   if (normalized === governancePolicyPacksPrefix || normalized === `${governancePolicyPacksPrefix}/`) {
-    return [...items, { label: "Policy packs", href: "/policy-packs" }];
+    return [...items, { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH }];
   }
 
   if (normalized.startsWith(`${governancePolicyPacksPrefix}/`)) {
@@ -160,7 +159,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     const idSegment = afterSlash.split("/")[0] ?? "";
 
     if (idSegment.length === 0) {
-      return [...items, { label: "Policy packs", href: "/policy-packs" }];
+      return [...items, { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH }];
     }
 
     const allSegments = ["governance", "policy-packs", idSegment];
@@ -168,7 +167,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
 
     return [
       ...items,
-      { label: "Policy packs", href: "/policy-packs" },
+      { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH },
       { label: lastLabel },
     ];
   }

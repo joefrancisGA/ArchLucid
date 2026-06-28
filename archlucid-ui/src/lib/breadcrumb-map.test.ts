@@ -92,27 +92,27 @@ describe("getBreadcrumbs", () => {
   it("maps cloud connections under Integrations (not Settings)", () => {
     expect(getBreadcrumbs("/settings/cloud-connections")).toEqual([
       { label: "Integrations", href: "/integrations/operations" },
-      { label: "Azure cloud connection" },
+      { label: "Cloud connections" },
     ]);
   });
 
-  it("maps Azure cloud connection help without generic Cloud connections segment", () => {
+  it("maps cloud connections help without generic Cloud connections segment", () => {
     expect(getBreadcrumbs("/help/cloud-connections/azure")).toEqual([
       { label: "Help", href: "/help" },
-      { label: "Azure cloud connection" },
+      { label: "Cloud connections" },
     ]);
   });
 
   it("uses policy-pack registry trail for governance-scoped pack routes (no workflow parent link)", () => {
     expect(getBreadcrumbs("/governance/policy-packs/undefined")).toEqual([
-      { label: "Policy packs", href: "/policy-packs" },
+      { label: "Policy packs", href: "/governance/policy-packs" },
       { label: "Policy pack detail" },
     ]);
   });
 
   it("redirect target path breadcrumb resolves to registry only", () => {
     expect(getBreadcrumbs("/governance/policy-packs")).toEqual([
-      { label: "Policy packs", href: "/policy-packs" },
+      { label: "Policy packs", href: "/governance/policy-packs" },
     ]);
   });
 
@@ -123,8 +123,9 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("buyer-polished: audit crumb reads Audit trail", () => {
-    expect(getBreadcrumbs("/audit", { buyerPolishedShell: true })).toEqual([
+  it("buyer-polished: audit crumb reads Audit trail under governance", () => {
+    expect(getBreadcrumbs("/governance/audit", { buyerPolishedShell: true })).toEqual([
+      { label: "Governance", href: "/governance" },
       { label: "Audit trail" },
     ]);
   });

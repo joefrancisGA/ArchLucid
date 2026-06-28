@@ -263,7 +263,7 @@ test.describe("live-api-journey", () => {
     await expect(page.getByText(approvalRequestId).first()).toBeVisible({ timeout: 60_000 });
     await expect(page.getByText("Approved").first()).toBeVisible({ timeout: 60_000 });
 
-    await page.goto("/audit");
+    await page.goto("/governance/audit");
 
     await expect(page.getByRole("heading", { name: /audit log/i })).toBeVisible({ timeout: 30_000 });
 

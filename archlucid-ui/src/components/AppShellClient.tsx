@@ -41,6 +41,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
+  pathMatchesGovernanceAlerts,
+  pathMatchesGovernanceAudit,
+  pathMatchesGovernancePolicyPacks,
+} from "@/lib/governance-route-paths";
+import {
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
   OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -249,9 +254,9 @@ function AppShellInner({ children }: AppShellClientProps) {
     pathname.startsWith("/graph") ||
     pathname.startsWith("/ask") ||
     pathname.startsWith("/governance") ||
-    pathname.startsWith("/audit") ||
-    pathname.startsWith("/alerts") ||
-    pathname.startsWith("/policy-packs") ||
+    pathMatchesGovernanceAudit(pathname) ||
+    pathMatchesGovernanceAlerts(pathname) ||
+    pathMatchesGovernancePolicyPacks(pathname) ||
     (pathname.startsWith("/reviews/") && pathname.split("/").filter(Boolean).length >= 2) ||
     (pathname.startsWith("/executive/reviews/") && pathname.split("/").filter(Boolean).length >= 3);
 

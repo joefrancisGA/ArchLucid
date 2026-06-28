@@ -9,6 +9,11 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/dem
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import {
+  GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_RESOLUTION_PATH,
+} from "@/lib/governance-route-paths";
+import {
   filterNavLinksByOperateUnlockPhase,
   isOperateNavGroupId,
   type OperateNavUnlockPhase,
@@ -36,6 +41,10 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/admin/configuration",
   "/admin/support",
   "/admin/users",
+  "/governance/alerts",
+  "/governance/policy-packs",
+  "/governance/resolution",
+  "/governance/audit",
   "/alerts",
   "/policy-packs",
   "/governance-resolution",
@@ -60,7 +69,9 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/integrations/webhooks",
   "/settings/roles",
   "/settings/api-keys",
+  "/settings/cost-reporting",
   "/admin/ai-usage-cost",
+  "/admin/ai-cost-diagnostics",
   "/value-report",
   "/value-report/pilot",
   "/value-report/roi",
@@ -89,7 +100,10 @@ function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {
   const keepExpandedDemoSpine = isCtoDemoNavExpandedEnv();
 
   return links.filter((l) => {
-    if (keepExpandedDemoSpine && (l.href === "/graph" || l.href === "/governance" || l.href === "/audit")) {
+    if (
+      keepExpandedDemoSpine
+      && (l.href === "/graph" || l.href === "/governance" || l.href === GOVERNANCE_AUDIT_PATH)
+    ) {
       return true;
     }
 

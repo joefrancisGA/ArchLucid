@@ -1,18 +1,32 @@
 import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
+import {
+  GOVERNANCE_ALERTS_PATH,
+  GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_RESOLUTION_PATH,
+  LEGACY_ALERTS_PATH,
+  LEGACY_AUDIT_PATH,
+  LEGACY_GOVERNANCE_RESOLUTION_PATH,
+  LEGACY_POLICY_PACKS_PATH,
+} from "@/lib/governance-route-paths";
 
 /** Governance destinations hidden until the operator enables governance view. */
 export const GOVERNANCE_MODE_HIDDEN_NAV_HREFS = new Set<string>([
-  "/policy-packs",
-  "/governance-resolution",
+  GOVERNANCE_POLICY_PACKS_PATH,
+  LEGACY_POLICY_PACKS_PATH,
+  GOVERNANCE_RESOLUTION_PATH,
+  LEGACY_GOVERNANCE_RESOLUTION_PATH,
   "/governance",
   "/governance/findings",
   "/governance/risk-exceptions",
   "/governance/decision-register",
   "/governance/recurrence-schedules",
   "/governance/first-30-days",
-  "/audit",
-  "/alerts",
+  GOVERNANCE_AUDIT_PATH,
+  LEGACY_AUDIT_PATH,
+  GOVERNANCE_ALERTS_PATH,
+  LEGACY_ALERTS_PATH,
   "/integrations/operations",
 ]);
 

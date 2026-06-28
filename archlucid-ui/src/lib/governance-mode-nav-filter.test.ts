@@ -21,8 +21,8 @@ describe("governance-mode-nav-filter", () => {
     const filtered = filterNavGroupsForGovernanceMode(rows, false);
     const hrefs = filtered.flatMap((row) => row.visibleLinks.map((link) => link.href));
 
-    expect(hrefs).not.toContain("/audit");
-    expect(hrefs).not.toContain("/policy-packs");
+    expect(hrefs).not.toContain("/governance/audit");
+    expect(hrefs).not.toContain("/governance/policy-packs");
     expect(hrefs).not.toContain("/governance");
     expect(hrefs).not.toContain("/integrations/operations");
     expect(filtered.some((row) => row.group.id === "operate-governance")).toBe(false);
@@ -32,7 +32,7 @@ describe("governance-mode-nav-filter", () => {
     const links = NAV_GROUPS.flatMap((group) => group.links);
     const filtered = filterNavLinksForGovernanceMode(links, true);
 
-    expect(filtered.some((link) => link.href === "/audit")).toBe(true);
-    expect(filtered.some((link) => link.href === "/policy-packs")).toBe(true);
+    expect(filtered.some((link) => link.href === "/governance/audit")).toBe(true);
+    expect(filtered.some((link) => link.href === "/governance/policy-packs")).toBe(true);
   });
 });

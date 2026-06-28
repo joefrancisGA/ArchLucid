@@ -54,7 +54,7 @@ test.describe("live-api-error-states", () => {
 
     const fakeRunId = crypto.randomUUID();
 
-    await page.goto("/audit");
+    await page.goto("/governance/audit");
 
     await expect(page.getByRole("heading", { name: /audit log/i })).toBeVisible({ timeout: 30_000 });
 

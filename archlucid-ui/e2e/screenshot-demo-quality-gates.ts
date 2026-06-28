@@ -123,7 +123,7 @@ async function primeAuditSearchIfStillEmpty(page: Page): Promise<void> {
 async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Promise<void> {
   const pathOnly = href.split("?", 1)[0];
 
-  if (pathOnly !== "/audit") {
+  if (pathOnly !== "/governance/audit") {
     return;
   }
 

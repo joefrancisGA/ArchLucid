@@ -1,8 +1,8 @@
-import { PolicyPacksPageClient } from "./_sections/PolicyPacksPageClient";
-import { loadPolicyPacksPageData } from "./_sections/load-policy-packs-page-data";
+import { redirect } from "next/navigation";
 
-export default async function PolicyPacksPage() {
-  const loaded = await loadPolicyPacksPageData();
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 
-  return <PolicyPacksPageClient loaded={loaded} />;
+/** Legacy list path — canonical route is `/governance/policy-packs` (TB-405). */
+export default function LegacyPolicyPacksListRedirectPage() {
+  redirect(GOVERNANCE_POLICY_PACKS_PATH);
 }

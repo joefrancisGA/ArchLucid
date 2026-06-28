@@ -7,30 +7,6 @@ import type { NavRouteNamespaceException } from "@/lib/nav-route-namespace-polic
  */
 export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException[] = [
   {
-    navGroupId: "operate-governance",
-    href: "/policy-packs",
-    canonicalPrefixes: ["/governance"],
-    exceptionReason: "Legacy top-level policy pack routes; canonical move tracked in TB-405.",
-  },
-  {
-    navGroupId: "operate-governance",
-    href: "/governance-resolution",
-    canonicalPrefixes: ["/governance"],
-    exceptionReason: "Hyphenated legacy governance resolution path; canonical /governance/resolution in TB-405.",
-  },
-  {
-    navGroupId: "operate-governance",
-    href: "/audit",
-    canonicalPrefixes: ["/governance"],
-    exceptionReason: "Top-level audit trail path; canonical /governance/audit in TB-405.",
-  },
-  {
-    navGroupId: "operate-governance",
-    href: "/alerts",
-    canonicalPrefixes: ["/governance"],
-    exceptionReason: "Top-level alerts inbox path; canonical /governance/alerts in TB-405.",
-  },
-  {
     navGroupId: "operate-reports",
     href: "/governance/first-30-days",
     canonicalPrefixes: ["/scorecard", "/value-report"],

@@ -51,7 +51,7 @@ test.describe("live-api-policy-pack-lifecycle", () => {
     expect(match, "created pack should appear in effective set").toBeTruthy();
     expect(match?.version).toBe("1.0.0");
 
-    await page.goto("/policy-packs");
+    await page.goto("/governance/policy-packs");
     await expect(page.getByRole("heading", { name: /policy packs/i }).first()).toBeVisible({
       timeout: 60_000,
     });

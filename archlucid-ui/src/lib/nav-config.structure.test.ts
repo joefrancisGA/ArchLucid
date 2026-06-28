@@ -39,7 +39,7 @@ describe("nav-config structure", () => {
       for (const link of group.links) {
         if (link.requiredAuthority === "AdminAuthority") {
           if (group.id === "operate-integrations") {
-            expect(["/integrations/jira", "/integrations/servicenow"], link.href).toContain(link.href);
+            expect(["/integrations/itsm", "/integrations/jira", "/integrations/servicenow"], link.href).toContain(link.href);
             expect(group.surface).toBe("review-workflow");
           } else {
             expect(["operator-admin", "operator-system-admin"], link.href).toContain(group.id);
@@ -117,29 +117,50 @@ describe("nav-config structure", () => {
     const integrationsHrefs = NAV_GROUPS.find((group) => group.id === "operate-integrations")!.links.map((link) => link.href);
     const systemAdminHrefs = NAV_GROUPS.find((group) => group.id === "operator-system-admin")!.links.map((link) => link.href);
 
-    expect(analysisHrefs).toEqual(["/ask", "/search", "/compare", "/evolution-review"]);
+    expect(analysisHrefs).toEqual(["/ask", "/search", "/compare", "/evolution-review", "/advisory"]);
     expect(governanceHrefs).toEqual([
       "/governance",
       "/governance/findings",
       "/governance/risk-exceptions",
-      "/policy-packs",
-      "/governance-resolution",
+      "/governance/policy-packs",
+      "/governance/resolution",
       "/governance/decision-register",
-      "/audit",
-      "/alerts",
+      "/governance/audit",
+      "/governance/alerts",
     ]);
     expect(reportsHrefs).toEqual(["/scorecard", "/value-report", "/governance/first-30-days"]);
     expect(integrationsHrefs).toEqual([
       "/integrations/operations",
       "/settings/cloud-connections",
       "/integrations/itsm",
+      "/integrations/jira",
+      "/integrations/servicenow",
       "/integrations/teams",
       "/integrations/slack",
       "/integrations/webhooks",
     ]);
     expect(systemAdminHrefs).toContain("/admin/rag-health");
     expect(systemAdminHrefs).toContain("/replay");
-    expect(systemAdminHrefs).toContain("/advisory");
+    expect(systemAdminHrefs).not.toContain("/advisory");
     expect(systemAdminHrefs).not.toContain("/settings/tenant");
+    expect(systemAdminHrefs).not.toContain("/workspace/security-trust");
+
+    const adminHrefs = NAV_GROUPS.find((group) => group.id === "operator-admin")!.links.map((link) => link.href);
+
+    expect(adminHrefs).toContain("/workspace/security-trust");
+    expect(adminHrefs).toContain("/settings/cost-reporting");
+  });
+
+  it("keeps governance nav hrefs under /governance/* (TB-405)", () => {
+    const governance = NAV_GROUPS.find((group) => group.id === "operate-governance");
+
+    expect(governance).toBeDefined();
+
+    for (const link of governance!.links) {
+      expect(
+        link.href === "/governance" || link.href.startsWith("/governance/"),
+        link.href,
+      ).toBe(true);
+    }
   });
 });

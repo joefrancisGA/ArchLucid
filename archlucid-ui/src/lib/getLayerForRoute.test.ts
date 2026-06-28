@@ -28,13 +28,14 @@ describe("getLayerForRoute", () => {
   });
 
   it("returns operate-governance for a known governance nav path and nested routes", () => {
-    expect(getLayerForRoute("/alerts")).toBe("operate-governance");
+    expect(getLayerForRoute("/governance/alerts")).toBe("operate-governance");
     expect(getLayerForRoute("/governance")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/approval-requests/1")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/dashboard/weekly")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/findings")).toBe("operate-governance");
-    expect(getLayerForRoute("/governance-resolution")).toBe("operate-governance");
-    expect(getLayerForRoute("/audit")).toBe("operate-governance");
+    expect(getLayerForRoute("/governance/resolution")).toBe("operate-governance");
+    expect(getLayerForRoute("/governance/audit")).toBe("operate-governance");
+    expect(getLayerForRoute("/governance/policy-packs")).toBe("operate-governance");
   });
 
   it("prefers the longer nav path when multiple prefixes could match (reviews/new over reviews)", () => {

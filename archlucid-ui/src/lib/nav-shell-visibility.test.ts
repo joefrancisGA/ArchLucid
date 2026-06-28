@@ -26,8 +26,8 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/alerts")).toBe(false);
-    expect(visible.some((l) => l.href === "/policy-packs")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance/alerts")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(false);
     expect(visible).toHaveLength(0);
   });
 
@@ -47,9 +47,9 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/policy-packs")).toBe(true);
-    expect(visible.some((l) => l.href === "/alerts")).toBe(false);
-    expect(visible.some((l) => l.href === "/audit")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/alerts")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance/audit")).toBe(false);
     expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
     expect(visible.some((l) => l.href === "/governance")).toBe(false);
   });
@@ -66,10 +66,10 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/alerts")).toBe(true);
-    expect(visible.some((l) => l.href === "/audit")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/audit")).toBe(true);
     expect(visible.some((l) => l.href === "/governance")).toBe(false);
-    expect(visible.some((l) => l.href === "/policy-packs")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(false);
   });
 
   it("shows policy packs for Admin rank when extended links are enabled", () => {
@@ -84,7 +84,7 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/policy-packs")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
   });
 
   it("hides Execute-tier governance workflow for Reader even when advanced tier is on", () => {
@@ -117,9 +117,9 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/policy-packs")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(false);
     expect(visible.some((l) => l.href === "/governance")).toBe(true);
-    expect(visible.some((l) => l.href === "/alerts")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
   });
 
   /**
@@ -432,7 +432,7 @@ describe("countSidebarLinksRevealedByShowAllFeatures", () => {
 
 describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
   const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
-  const systemAdmin = NAV_GROUPS.find((g) => g.id === "operator-system-admin");
+  const admin = NAV_GROUPS.find((g) => g.id === "operator-admin");
   const prevDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
   const prevStatic = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
 
@@ -463,11 +463,13 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/alerts")).toBe(true);
-    expect(visible.some((l) => l.href === "/audit")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/audit")).toBe(true);
 
-    const systemAdminVisible = filterNavLinksForOperatorShell(
-      systemAdmin!.links,
+    expect(admin).toBeDefined();
+
+    const adminVisible = filterNavLinksForOperatorShell(
+      admin!.links,
       true,
       true,
       AUTHORITY_RANK.AdminAuthority,
@@ -475,7 +477,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(systemAdminVisible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
+    expect(adminVisible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
   });
 
   it("keeps governance destinations visible when NEXT_PUBLIC_DEMO_STATIC_OPERATOR is true", () => {
@@ -492,11 +494,13 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/alerts")).toBe(true);
-    expect(visible.some((l) => l.href === "/audit")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/audit")).toBe(true);
 
-    const systemAdminVisible = filterNavLinksForOperatorShell(
-      systemAdmin!.links,
+    expect(admin).toBeDefined();
+
+    const adminVisible = filterNavLinksForOperatorShell(
+      admin!.links,
       true,
       true,
       AUTHORITY_RANK.AdminAuthority,
@@ -504,7 +508,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(systemAdminVisible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
+    expect(adminVisible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
   });
 
   it("keeps operator-admin links visible in buyer-polished demo builds", () => {
@@ -524,6 +528,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
 
     expect(visible.some((l) => l.href === "/admin/users")).toBe(true);
     expect(visible.some((l) => l.href === "/settings/tenant")).toBe(true);
+    expect(visible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
   });
 });
 
@@ -598,7 +603,6 @@ describe("committed architecture review gate — operator shell composition", ()
 
     expect(rows.map((r) => r.group.id)).toEqual(["pilot", "operator-admin"]);
     expect(rows[0]!.visibleLinks.map((l) => l.href)).toEqual([
-      "/",
       "/reviews/new",
       "/graph",
       "/reviews?projectId=default",

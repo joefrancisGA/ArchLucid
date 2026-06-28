@@ -230,7 +230,7 @@ test.describe("live-api-smoke", () => {
 
     await injectDemoWorkspaceOperatorScope(page, scope);
 
-    await page.goto("/policy-packs", { waitUntil: "domcontentloaded" });
+    await page.goto("/governance/policy-packs", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByRole("heading", { name: /policy packs/i }).first()).toBeVisible({ timeout: 60_000 });
 
