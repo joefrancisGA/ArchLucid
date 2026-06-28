@@ -142,7 +142,7 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.8 Runtime & First-Review Reliability
-- **Score / Weight / Contribution / Deficiency:** 86 / 7 / 6.02 / 98
+- **Score / Weight / Contribution / Deficiency:** 87 / 7 / 6.09 / 91
 - **Affects outcomes:** 2, 3
 - **Justification:** architecture and contracts are mature; ship-gate evidence embeds first-review completion Gate 1, citation-integrity Gate 2, ROI coherence Gate 3, export matrix Gate 4 (Markdown/DOCX/ZIP) with first-value claim lint (TB-415), first-review UI route smoke Gate 5 with default localhost/env/config resolution (TB-414), and live tenant-isolation deny-matrix Gate 6 for the representative `--run-id`; default operational artifact bundles for ship-gate (TB-418), tenant-isolation (TB-419), citation-integrity (TB-420), buyer-proof ledger (TB-421), and return-trigger telemetry (TB-422) auto-write JSON + Markdown under `artifacts/` for release-train retention with overall PASS/FAIL/UNKNOWN or cohort verdict rollups; Playwright session depth remains environment-dependent when `--skip-ui-route-smoke` is used.
 - **Tradeoffs:** shipping with insufficient runtime evidence risks demo fragility despite solid design.
