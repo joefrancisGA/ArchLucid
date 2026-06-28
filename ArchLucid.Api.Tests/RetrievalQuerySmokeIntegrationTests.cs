@@ -18,21 +18,17 @@ namespace ArchLucid.Api.Tests;
 ///     Uses <see cref="AlertLifecycleWebAppFactory" /> (InMemory storage + <c>FakeEmbeddingService</c> +
 ///     <c>InMemoryVectorIndex</c>).
 /// </summary>
-// CI #2268: retrieval search hangs non-cancellably under shared-host fixture; isolate on Slow shard.
+// CI #2268: per-test factory — shared IClassFixture wedged all four tests at 150s when one request hung
+// non-cancellably; each test seeds its own vector index state.
 [Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
-public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeSharedHostFixture sharedHost)
-    : IClassFixture<RetrievalQuerySmokeSharedHostFixture>
+public sealed class RetrievalQuerySmokeIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true
     };
 
-    /// <summary>
-    ///     Method name prefix <c>A_</c> forces xUnit alphabetical order before seeding tests — shared
-    ///     <see cref="InMemoryVectorIndex" /> accumulates documents for the class lifetime.
-    /// </summary>
     [SkippableFact]
     public Task A_Query_with_no_indexed_documents_returns_empty_list()
     {
@@ -40,7 +36,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
             nameof(A_Query_with_no_indexed_documents_returns_empty_list),
             async testDeadline =>
             {
-                HttpClient client = await CreateRetrievalSearchClientAsync(sharedHost.Factory);
+                await using AlertLifecycleWebAppFactory factory = new();
+                HttpClient client = await CreateRetrievalSearchClientAsync(factory);
                 using CancellationTokenSource requestTimeout =
                     IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
@@ -55,7 +52,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
                 hits.Should().NotBeNull();
                 hits.Should().BeEmpty("no documents have been indexed");
             },
-            IntegrationTestDeadline.SharedHostTestTimeout);
+            IntegrationTestDeadline.DefaultTestTimeout);
     }
 
     [SkippableFact]
@@ -65,7 +62,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
             nameof(B_Query_without_q_returns_bad_request),
             async testDeadline =>
             {
-                HttpClient client = await CreateRetrievalSearchClientAsync(sharedHost.Factory);
+                await using AlertLifecycleWebAppFactory factory = new();
+                HttpClient client = await CreateRetrievalSearchClientAsync(factory);
                 using CancellationTokenSource requestTimeout =
                     IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
@@ -75,7 +73,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
 
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             },
-            IntegrationTestDeadline.SharedHostTestTimeout);
+            IntegrationTestDeadline.DefaultTestTimeout);
     }
 
     [SkippableFact]
@@ -85,12 +83,15 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
             nameof(C_Index_documents_then_query_returns_matching_hits),
             async testDeadline =>
             {
+                await using AlertLifecycleWebAppFactory factory = new();
                 using CancellationTokenSource requestTimeout =
                     IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
-                await SeedRetrievalDocumentsAsync(sharedHost.Factory.Services, requestTimeout.Token);
+                IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
 
-                HttpClient client = await CreateRetrievalSearchClientAsync(sharedHost.Factory);
+                await SeedRetrievalDocumentsAsync(services, requestTimeout.Token);
+
+                HttpClient client = await CreateRetrievalSearchClientAsync(factory);
 
                 HttpResponseMessage response = await client.GetAsync(
                     new Uri("v1/retrieval/search?q=microservices+topology&topK=5", UriKind.Relative),
@@ -103,7 +104,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
                 hits.Should().NotBeNull();
                 hits.Should().NotBeEmpty("indexed documents should produce at least one retrieval hit");
             },
-            IntegrationTestDeadline.SharedHostTestTimeout);
+            IntegrationTestDeadline.DefaultTestTimeout);
     }
 
     [SkippableFact]
@@ -113,12 +114,15 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
             nameof(D_TopK_clamps_result_count),
             async testDeadline =>
             {
+                await using AlertLifecycleWebAppFactory factory = new();
                 using CancellationTokenSource requestTimeout =
                     IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
-                await SeedRetrievalDocumentsAsync(sharedHost.Factory.Services, requestTimeout.Token);
+                IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
 
-                HttpClient client = await CreateRetrievalSearchClientAsync(sharedHost.Factory);
+                await SeedRetrievalDocumentsAsync(services, requestTimeout.Token);
+
+                HttpClient client = await CreateRetrievalSearchClientAsync(factory);
 
                 HttpResponseMessage response = await client.GetAsync(
                     new Uri("v1/retrieval/search?q=architecture&topK=1", UriKind.Relative),
@@ -131,7 +135,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
                 hits.Should().NotBeNull();
                 hits.Should().HaveCountLessThanOrEqualTo(1);
             },
-            IntegrationTestDeadline.SharedHostTestTimeout);
+            IntegrationTestDeadline.DefaultTestTimeout);
     }
 
     private static async Task SeedRetrievalDocumentsAsync(IServiceProvider services, CancellationToken cancellationToken)

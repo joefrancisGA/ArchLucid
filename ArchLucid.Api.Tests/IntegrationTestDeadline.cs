@@ -15,12 +15,9 @@ internal static class IntegrationTestDeadline
     internal static readonly TimeSpan DefaultTestTimeout = TimeSpan.FromMinutes(8);
 
     /// <summary>
-    ///     Per-test budget for classes that boot and dispose the API host once via a shared <c>IClassFixture</c>
-    ///     (e.g. <see cref="RetrievalQuerySmokeSharedHostFixture" />). Host start (180s) and bounded dispose (120s) run in the
-    ///     fixture's <c>InitializeAsync</c>/<c>DisposeAsync</c>, outside <see cref="RunAsync" />, so only the per-request inner
-    ///     stack — client wrap (30s) + bounded HTTP (90s) = 120s — can elapse inside the test body. 150s leaves the inner bounds
-    ///     room to fire first (attributable) while catching a truly unbounded request ~3x faster than <see cref="DefaultTestTimeout" />
-    ///     (CI #2268: retrieval search hung the full 480s because the inner 90s HTTP cancellation was not honored).
+    ///     Per-test budget for classes that reuse a warmed host via <c>IClassFixture</c> (e.g. <see cref="PolicyPackRequestValidationTests" />
+    ///     on <see cref="ArchLucidApiFactory" />). Prefer <see cref="DefaultTestTimeout" /> for InMemory Ask/Retrieval smoke tests —
+    ///     a non-cancellable HTTP stall on a shared host poisons every test in the class (CI #2268).
     /// </summary>
     internal static readonly TimeSpan SharedHostTestTimeout = TimeSpan.FromSeconds(150);
 

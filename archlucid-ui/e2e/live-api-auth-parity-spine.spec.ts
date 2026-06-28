@@ -6,7 +6,9 @@ import { expect, test } from "@playwright/test";
 
 import {
   createRun,
+  enrichArchitectureRequestBody,
   executeRun,
+  liveE2eArchitectureDescription,
   listArchitectureRuns,
   liveApiBase,
   normalizeRunIdForCompare,
@@ -28,9 +30,9 @@ test.describe("live-api-auth-parity-spine", () => {
   test("create → execute → list includes run under current auth mode", async ({ request }) => {
     test.setTimeout(120_000);
 
-    const createBody = {
+    const createBody = enrichArchitectureRequestBody({
       requestId: `E2E-PARITY-${Date.now()}`,
-      description: "Auth-parity spine: create execute list under production-like auth.".padEnd(80, " "),
+      description: liveE2eArchitectureDescription,
       systemName: "AuthParitySpine",
       environment: "prod",
       cloudProvider: 1,
@@ -38,7 +40,7 @@ test.describe("live-api-auth-parity-spine", () => {
       requiredCapabilities: ["SQL"],
       assumptions: [] as string[],
       priorManifestVersion: null as string | null,
-    };
+    });
 
     const { runId } = await createRun(request, createBody);
 
