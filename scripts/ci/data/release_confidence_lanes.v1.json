@@ -70,6 +70,15 @@
         "artifacts/release-smoke-live-ui-sql-result.json"
       ],
       "detail": "RC signoff requires release-smoke-live-ui-sql.ps1 -Profile LiveUiSql artifact with profile=LiveUiSql."
+    },
+    {
+      "id": "pilot-readiness-live-bundle",
+      "label": "Pilot readiness live bundle (--run-id release train)",
+      "releaseBlocking": true,
+      "statusFiles": [
+        "pilot-readiness-live-release-gate.json"
+      ],
+      "detail": "Live archlucid pilot readiness-bundle for representative first-review run; strict RC blocks WARN/FAIL slot outcomes."
     }
   ]
 }

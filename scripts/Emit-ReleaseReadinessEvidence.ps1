@@ -771,6 +771,11 @@ if (-not [string]::IsNullOrWhiteSpace($RepresentativeRunId)) {
 }
 Add-CheckRow $checks "Pilot readiness live bundle (TB-429)" $pilotReadinessLiveVerdict $pilotReadinessLiveDetail "pilot-readiness-live-release-gate.json"
 
+if (Test-StrictRcEffective -and $pilotReadinessLiveExit -ne 0) {
+    Write-Error "Strict RC pilot readiness live gate failed (exit $pilotReadinessLiveExit). See $pilotReadinessLiveJson."
+    exit $pilotReadinessLiveExit
+}
+
 & pwsh -NoProfile -File (Join-Path $root "scripts/ci/Invoke-FirstPilotPerformanceBudgetSmoke.ps1") `
     -OutputDir $OutDir `
     -ExecutionMode Simulator | Out-Null

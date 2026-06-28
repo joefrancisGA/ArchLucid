@@ -73,7 +73,39 @@ def validate_offline_bundle_report(report: dict[str, Any]) -> list[str]:
     return issues
 
 
-def validate_live_bundle_report(report: dict[str, Any], *, run_id: str) -> list[str]:
+def collect_live_slot_release_blockers(
+    slots: list[Any],
+    *,
+    include_warn: bool,
+) -> list[str]:
+    blockers: list[str] = []
+
+    if not isinstance(slots, list):
+        return blockers
+
+    for slot in slots:
+        if not isinstance(slot, dict):
+            continue
+
+        slot_key = str(slot.get("slotKey") or "").strip() or "unknown-slot"
+        verdict = str(slot.get("verdict") or "").strip()
+
+        if verdict == "Fail":
+            blockers.append(f"slot {slot_key} verdict is Fail.")
+            continue
+
+        if include_warn and verdict == "Warn":
+            blockers.append(f"slot {slot_key} verdict is Warn.")
+
+    return blockers
+
+
+def validate_live_bundle_report(
+    report: dict[str, Any],
+    *,
+    run_id: str,
+    include_warn_slot_blockers: bool = False,
+) -> list[str]:
     issues = validate_slot_coverage(report)
 
     overall = str(report.get("overallVerdict") or "").strip()
@@ -101,7 +133,12 @@ def validate_live_bundle_report(report: dict[str, Any], *, run_id: str) -> list[
         ship_gate_verdict = str(ship_gate.get("verdict") or "").strip()
         if ship_gate_verdict == "Skipped":
             issues.append("live release train expects ship-gate-evidence to run, found Skipped.")
-        elif ship_gate_verdict == "Fail":
-            issues.append("ship-gate-evidence slot verdict is Fail.")
+
+    issues.extend(
+        collect_live_slot_release_blockers(
+            report.get("slots") or [],
+            include_warn=include_warn_slot_blockers,
+        )
+    )
 
     return issues

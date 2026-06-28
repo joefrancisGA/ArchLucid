@@ -234,7 +234,19 @@ def main() -> int:
         bundle_report: dict[str, Any] = {}
     else:
         bundle_report = load_json(bundle_path)
-        issues.extend(validate_live_bundle_report(bundle_report, run_id=run_id))
+        issues.extend(
+            validate_live_bundle_report(
+                bundle_report,
+                run_id=run_id,
+                include_warn_slot_blockers=args.strict_rc,
+            )
+        )
+
+        if args.strict_rc:
+            overall = str(bundle_report.get("overallVerdict") or "").strip()
+
+            if overall in {"Warn", "Unknown"}:
+                issues.append(f"strict RC blocks overallVerdict {overall}.")
 
     gate_report = build_gate_report(
         bundle_report=bundle_report,
@@ -249,12 +261,25 @@ def main() -> int:
     args.json_out.write_text(json.dumps(gate_report, indent=2) + "\n", encoding="utf-8")
     args.markdown_out.write_text(render_markdown(gate_report), encoding="utf-8")
 
-    if gate_report["disposition"] in {"PASS", "WARN"}:
+    if gate_report["disposition"] == "PASS":
         print(
-            "run_pilot_readiness_live_release_gate: "
-            f"{gate_report['disposition']} "
+            "run_pilot_readiness_live_release_gate: PASS "
             f"(overallVerdict={gate_report.get('overallVerdict')}, slots={gate_report.get('slotCount')})",
         )
+        return 0
+
+    if gate_report["disposition"] == "WARN":
+        print(
+            "run_pilot_readiness_live_release_gate: WARN "
+            f"(overallVerdict={gate_report.get('overallVerdict')}, slots={gate_report.get('slotCount')})",
+        )
+
+        if args.strict_rc:
+            print("run_pilot_readiness_live_release_gate: FAIL strict RC blocks WARN", file=sys.stderr)
+            for issue in issues:
+                print(f"  - {issue}", file=sys.stderr)
+            return 1
+
         return 0
 
     print("run_pilot_readiness_live_release_gate: FAIL", file=sys.stderr)

@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-07-01 (TB-429 **Done** — pilot readiness live release gate). Prior: 2026-06-30 (TB-428 **Done** — ITSM pull-forward gate in pilot readiness bundle).
+**Updated:** 2026-07-01 (TB-430 **Done** — pilot readiness live release strict blocker). Prior: 2026-07-01 (TB-429 **Done** — pilot readiness live release gate).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -169,6 +169,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
+| TB-430 | Pilot readiness live release strict blocker — strict RC blocks live bundle WARN/FAIL slots and overall WARN/UNKNOWN; release-confidence lane; strict emitter fail-closed | **Done** (2026-07-01) — Runtime reliability P1 **V1** | S |
 | TB-429 | Pilot readiness live release gate — `run_pilot_readiness_live_release_gate.py` runs live `--run-id` readiness-bundle for RC evidence; wired into `Emit-ReleaseReadinessEvidence.ps1` and RC signoff | **Done** (2026-07-01) — Runtime reliability P1 **V1** | S |
 | TB-428 | ITSM pull-forward gate in pilot readiness bundle — eighth slot in `archlucid pilot readiness-bundle`; HOLD/WATCH/PULL_FORWARD rollup; CI gate validates eight slot keys | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-427 | Pilot readiness release-train CI gate — `scripts/ci/run_pilot_readiness_release_train_gate.py` runs offline `archlucid pilot readiness-bundle` in dotnet-fast-core build; fail closed on aggregate FAIL slots | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
@@ -12691,3 +12692,38 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-425, TB-427, TB-428, assessment §7.8, §7.10, §17 item 49.
+
+---
+
+## TB-430 — Pilot readiness live release strict blocker
+
+**Status:** **Done** (2026-07-01). Live readiness gate `--strict-rc` blocks WARN/FAIL slot outcomes and strict overall WARN/UNKNOWN; `collect_live_slot_release_blockers` helper; release-confidence lane `pilot-readiness-live-bundle`; `Emit-ReleaseReadinessEvidence.ps1` fail-closes strict RC when live gate exits non-zero.
+
+**Source:** Assessment §7.8 recommendation — treat live readiness-bundle WARN/FAIL slots as release blockers before pilot handoff.
+
+**Problem:** TB-429 wired live readiness-bundle into RC evidence but WARN slot outcomes and aggregate WARN could still pass strict RC signoff.
+
+**V1 scope:**
+
+1. Add `collect_live_slot_release_blockers` and strict WARN slot validation in `pilot_readiness_bundle_gate_common.py`.
+2. Extend `run_pilot_readiness_live_release_gate.py` strict RC to fail on WARN/FAIL slots and overall WARN/UNKNOWN.
+3. Add release-confidence lane and strict emitter fail-closed exit.
+
+**Acceptance criteria:**
+
+- Strict RC fails on live bundle WARN slots even when overall verdict is Pass.
+- Non-strict mode still allows WARN disposition without failing exit code 0.
+- Release-confidence rollup includes pilot-readiness-live-bundle release-blocking lane.
+
+**Affected files:**
+
+- `scripts/ci/pilot_readiness_bundle_gate_common.py`
+- `scripts/ci/run_pilot_readiness_live_release_gate.py`
+- `scripts/ci/data/release_confidence_lanes.v1.json`
+- `scripts/Emit-ReleaseReadinessEvidence.ps1`
+- `scripts/ci/tests/test_run_pilot_readiness_live_release_gate.py`
+- `scripts/ci/fixtures/pilot-readiness-bundle/live-warn-bundle.json`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-429, assessment §7.8, §7.10, §17 item 50.
