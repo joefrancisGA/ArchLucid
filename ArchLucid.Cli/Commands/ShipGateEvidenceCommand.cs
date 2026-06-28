@@ -45,7 +45,7 @@ internal static class ShipGateEvidenceCommand
 
         using HttpClient http = CliAuthorizedHttpClient.Create(baseUrl, config);
         ShipGateEvidenceRunner runner = new(http);
-        ShipGateEvidenceReport report = await runner.RunAsync(options.RunId, cancellationToken);
+        ShipGateEvidenceReport report = await runner.RunAsync(options.RunId, options.UiBaseUrl, cancellationToken);
 
         string json = JsonSerializer.Serialize(report, JsonOptions);
         string markdown = BuildMarkdown(report);
@@ -132,6 +132,11 @@ internal static class ShipGateEvidenceCommand
         sb.AppendLine("- `GET /v1/roi/executive-summary`");
         sb.AppendLine($"- `archlucid pilot citation-integrity --include-api` (Gate 2 embedded sampler for run `{report.RunId}`)");
 
+        if (!string.IsNullOrWhiteSpace(report.UiBaseUrl))
+        {
+            sb.AppendLine($"- Operator UI route smoke @ `{report.UiBaseUrl}` (Gate 5 first-review spine)");
+        }
+
         return sb.ToString();
     }
 
@@ -141,6 +146,6 @@ internal static class ShipGateEvidenceCommand
     {
         Console.WriteLine(
             "Usage: archlucid pilot ship-gate-evidence --run-id <guid> " +
-            "[--api-base-url <url>] [--json-out <path>] [--markdown-out <path>] [--json]");
+            "[--api-base-url <url>] [--ui-base-url <url>] [--json-out <path>] [--markdown-out <path>] [--json]");
     }
 }

@@ -20,6 +20,12 @@ internal sealed class ShipGateEvidenceOptions
         init;
     }
 
+    public string? UiBaseUrl
+    {
+        get;
+        init;
+    }
+
     public static ShipGateEvidenceOptions Parse(string[] args)
     {
         ArgumentNullException.ThrowIfNull(args);
@@ -34,6 +40,7 @@ internal sealed class ShipGateEvidenceOptions
             RunId = runId.Trim(),
             JsonOutPath = CliCommandShared.TryGetOptionValue(args, "--json-out"),
             MarkdownOutPath = CliCommandShared.TryGetOptionValue(args, "--markdown-out"),
+            UiBaseUrl = CliCommandShared.TryGetOptionValue(args, "--ui-base-url"),
         };
     }
 }

@@ -45,6 +45,8 @@
              CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Data\citation_integrity_rules.v1.json"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Data\first_review_ui_route_smoke_contract.v1.json"
+             CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Data\principal_architect_return_trigger_rules.v1.json"
              CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Data\buyer_proof_evidence_ledger_rules.v1.json"

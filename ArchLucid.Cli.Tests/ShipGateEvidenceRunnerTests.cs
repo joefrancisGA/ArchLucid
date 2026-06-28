@@ -169,11 +169,12 @@ public sealed class ShipGateEvidenceRunnerTests
     public void ShipGateEvidenceOptions_Parse_ReadsOutputPaths()
     {
         ShipGateEvidenceOptions options = ShipGateEvidenceOptions.Parse(
-            ["--run-id", RunId, "--json-out", "gate.json", "--markdown-out", "gate.md"]);
+            ["--run-id", RunId, "--json-out", "gate.json", "--markdown-out", "gate.md", "--ui-base-url", "http://localhost:3000"]);
 
         options.RunId.Should().Be(RunId);
         options.JsonOutPath.Should().Be("gate.json");
         options.MarkdownOutPath.Should().Be("gate.md");
+        options.UiBaseUrl.Should().Be("http://localhost:3000");
     }
 
     private static HttpClient CreateClient(HttpMessageHandler handler)

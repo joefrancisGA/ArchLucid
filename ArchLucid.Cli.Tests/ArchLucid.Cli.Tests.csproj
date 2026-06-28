@@ -24,6 +24,8 @@
   <ItemGroup>
     <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\ArchLucid.Cli\Data\proof_packet_claim_lint_rules.v1.json" Link="Data\proof_packet_claim_lint_rules.v1.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\ArchLucid.Cli\Data\citation_integrity_rules.v1.json" Link="Data\citation_integrity_rules.v1.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\ArchLucid.Cli\Data\first_review_ui_route_smoke_contract.v1.json" Link="Data\first_review_ui_route_smoke_contract.v1.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\templates\starter-proof-packs\regulated-saas-soc-procurement\second-run.json" Link="templates\starter-proof-packs\regulated-saas-soc-procurement\second-run.json" CopyToOutputDirectory="PreserveNewest" />

@@ -11,6 +11,7 @@ internal sealed class ShipGateEvidenceRunner(HttpClient http)
 
     public async Task<ShipGateEvidenceReport> RunAsync(
         string runId,
+        string? uiBaseUrl = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -22,13 +23,14 @@ internal sealed class ShipGateEvidenceRunner(HttpClient http)
         ShipGateEvidenceGateResult gate2 = await BuildGate2Async(runId, cancellationToken);
         ShipGateEvidenceGateResult gate3 = await BuildGate3Async(cancellationToken);
         ShipGateEvidenceGateResult gate4 = await BuildGate4Async(runId, cancellationToken);
-        ShipGateEvidenceGateResult gate5 = BuildGate5();
+        ShipGateEvidenceGateResult gate5 = await BuildGate5Async(runId, uiBaseUrl, cancellationToken);
         ShipGateEvidenceGateResult gate6 = BuildGate6();
 
         return new ShipGateEvidenceReport
         {
             BaseUrl = (_http.BaseAddress?.ToString() ?? string.Empty).Trim().TrimEnd('/'),
             RunId = runId,
+            UiBaseUrl = string.IsNullOrWhiteSpace(uiBaseUrl) ? null : uiBaseUrl.Trim().TrimEnd('/'),
             GeneratedUtc = DateTime.UtcNow,
             Gates = [gate1, gate2, gate3, gate4, gate5, gate6],
         };
@@ -310,16 +312,67 @@ internal sealed class ShipGateEvidenceRunner(HttpClient http)
         };
     }
 
-    private static ShipGateEvidenceGateResult BuildGate5()
+    private async Task<ShipGateEvidenceGateResult> BuildGate5Async(
+        string runId,
+        string? uiBaseUrl,
+        CancellationToken cancellationToken)
     {
-        return new ShipGateEvidenceGateResult
+        if (string.IsNullOrWhiteSpace(uiBaseUrl))
         {
-            GateNumber = 5,
-            Name = "Operator UI does not break during first-review / demo path",
-            Verdict = ShipGateEvidenceVerdict.Unknown,
-            Evidence = "CLI probe cannot assert browser rendering integrity for operator-shell routes.",
-            FastestResolution = "Run first-review UI smoke through operator shell and attach route-level PASS/FAIL evidence.",
-        };
+            return new ShipGateEvidenceGateResult
+            {
+                GateNumber = 5,
+                Name = "Operator UI does not break during first-review / demo path",
+                Verdict = ShipGateEvidenceVerdict.Unknown,
+                Evidence =
+                    "No --ui-base-url supplied; pass operator UI origin (e.g. http://localhost:3000) to probe first-review route smoke.",
+                FastestResolution =
+                    "Rerun with --ui-base-url <url> while the operator UI is reachable, or attach Playwright first-review smoke output separately.",
+            };
+        }
+
+        try
+        {
+            FirstReviewUiRouteSmokeContract contract = FirstReviewUiRouteSmokeContractLoader.Load(null);
+            using HttpClient uiHttp = FirstReviewUiRouteSmokeProbe.CreateUiClient(uiBaseUrl);
+            IReadOnlyList<FirstReviewUiRouteSmokeProbeResult> probeResults =
+                await FirstReviewUiRouteSmokeProbe.ProbeAsync(uiHttp, runId, contract, cancellationToken);
+
+            int passCount = probeResults.Count(static result => result.Success);
+            int failCount = probeResults.Count - passCount;
+            string failedSummary = string.Join(
+                "; ",
+                probeResults
+                    .Where(static result => !result.Success)
+                    .Select(static result => $"{result.RouteId}={result.Detail}"));
+
+            ShipGateEvidenceVerdict verdict = failCount == 0
+                ? ShipGateEvidenceVerdict.Pass
+                : ShipGateEvidenceVerdict.Fail;
+
+            return new ShipGateEvidenceGateResult
+            {
+                GateNumber = 5,
+                Name = "Operator UI does not break during first-review / demo path",
+                Verdict = verdict,
+                Evidence =
+                    $"uiBaseUrl={uiBaseUrl.Trim().TrimEnd('/')}; routesPassed={passCount}/{probeResults.Count}; contractRoutes={contract.Routes.Count}; failed=[{failedSummary}].",
+                FastestResolution = verdict == ShipGateEvidenceVerdict.Pass
+                    ? "Browser rendering and auth/session flows still require Playwright smoke for full PASS."
+                    : "Fix failing operator routes or UI deployment before sponsor/demo; rerun ship-gate evidence with the same --ui-base-url.",
+            };
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or InvalidOperationException)
+        {
+            return new ShipGateEvidenceGateResult
+            {
+                GateNumber = 5,
+                Name = "Operator UI does not break during first-review / demo path",
+                Verdict = ShipGateEvidenceVerdict.Fail,
+                Evidence = $"First-review UI route smoke failed: {ex.Message}",
+                FastestResolution = "Confirm the operator UI is running at --ui-base-url and bundled first_review_ui_route_smoke_contract.v1.json is present.",
+            };
+        }
     }
 
     private static ShipGateEvidenceGateResult BuildGate6()
