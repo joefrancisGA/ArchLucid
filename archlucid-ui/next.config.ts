@@ -126,12 +126,16 @@ const nextConfig: NextConfig = {
       { source: "/alert-simulation", destination: "/governance/alerts?tab=simulation", permanent: false },
       { source: "/alert-tuning", destination: "/governance/alerts?tab=simulation", permanent: false },
       { source: "/settings/webhooks", destination: "/integrations/webhooks", permanent: true },
-      { source: "/integrations/itsm", destination: "/integrations/operations", permanent: true },
-      { source: "/integrations/itsm/:path*", destination: "/integrations/operations", permanent: true },
+      { source: "/integrations/itsm", destination: "/integrations/readiness", permanent: true },
+      { source: "/integrations/itsm/:path*", destination: "/integrations/readiness", permanent: true },
+      { source: "/integrations/operations", destination: "/integrations/readiness", permanent: true },
+      { source: "/integrations/operations/:path*", destination: "/integrations/readiness/:path*", permanent: true },
       // Integrations route namespace reconciliation (TB-407).
       { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },
       { source: "/settings/cloud-connections/:path*", destination: "/integrations/cloud-connections/:path*", permanent: true },
-      { source: "/admin/ai-usage-cost", destination: "/settings/cost-reporting", permanent: false },
+      { source: "/admin/ai-usage-cost", destination: "/settings/ai-usage", permanent: true },
+      { source: "/settings/cost-reporting", destination: "/settings/ai-usage", permanent: true },
+      { source: "/settings/cost-reporting/:path*", destination: "/settings/ai-usage/:path*", permanent: true },
       // Administration route namespace reconciliation (TB-406).
       { source: "/workspace/security-trust", destination: "/settings/security-trust", permanent: true },
       { source: "/workspace/security-trust/:path*", destination: "/settings/security-trust/:path*", permanent: true },
@@ -170,6 +174,11 @@ const nextConfig: NextConfig = {
       // Integrations canonical URLs reuse settings cloud-connections App Router tree (TB-407).
       { source: "/integrations/cloud-connections", destination: "/settings/cloud-connections" },
       { source: "/integrations/cloud-connections/:path*", destination: "/settings/cloud-connections/:path*" },
+      // Semantic path aliases reuse existing App Router trees (TB-408).
+      { source: "/integrations/readiness", destination: "/integrations/operations" },
+      { source: "/integrations/readiness/:path*", destination: "/integrations/operations/:path*" },
+      { source: "/settings/ai-usage", destination: "/settings/cost-reporting" },
+      { source: "/settings/ai-usage/:path*", destination: "/settings/cost-reporting/:path*" },
     ];
   },
 };

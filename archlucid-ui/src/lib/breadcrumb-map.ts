@@ -1,6 +1,6 @@
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
-import { pathMatchesCloudConnections } from "@/lib/integrations-nav-paths";
+import { pathMatchesCloudConnections, pathMatchesIntegrationsReadiness } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
@@ -125,7 +125,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   // Azure cloud connection lives under Integrations nav — not Settings admin chrome.
   if (pathMatchesCloudConnections(normalized)) {
     return [
-      { label: OPERATOR_NAV_GROUP_LABELS.integrations, href: "/integrations/operations" },
+      { label: OPERATOR_NAV_GROUP_LABELS.integrations, href: "/integrations/readiness" },
       { label: OPERATOR_NAV_LINK_LABELS.cloudConnections },
     ];
   }

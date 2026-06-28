@@ -64,7 +64,7 @@ describe("FindingItsmExportPanel", () => {
 
     expect(screen.getByRole("link", { name: "configure connectors" })).toHaveAttribute(
       "href",
-      "/integrations/operations",
+      "/integrations/readiness",
     );
   });
 });

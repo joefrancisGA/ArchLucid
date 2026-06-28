@@ -80,7 +80,7 @@ describe("LlmBudgetStatusPill", () => {
       "href",
       "/settings/billing#billing-usage",
     );
-    expect(screen.getByRole("link", { name: "Cost reporting" })).toHaveAttribute("href", "/settings/cost-reporting");
+    expect(screen.getByRole("link", { name: "AI usage" })).toHaveAttribute("href", "/settings/ai-usage");
   });
 
   it("renders nothing when monitoring is inactive", async () => {

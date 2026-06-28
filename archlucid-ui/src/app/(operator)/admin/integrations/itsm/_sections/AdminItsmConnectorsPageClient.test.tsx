@@ -39,7 +39,7 @@ describe("AdminItsmConnectorsPageClient", () => {
     expect(screen.getByRole("heading", { name: "ITSM connectors" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Integration readiness" })).toHaveAttribute(
       "href",
-      "/integrations/operations",
+      "/integrations/readiness",
     );
 
     await waitFor(() => {

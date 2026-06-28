@@ -27,6 +27,7 @@ export const GOVERNANCE_MODE_HIDDEN_NAV_HREFS = new Set<string>([
   LEGACY_AUDIT_PATH,
   GOVERNANCE_ALERTS_PATH,
   LEGACY_ALERTS_PATH,
+  "/integrations/readiness",
   "/integrations/operations",
 ]);
 

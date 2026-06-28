@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LlmBudgetUtilizationMeter } from "@/components/LlmBudgetUtilizationMeter";
+import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -47,8 +48,8 @@ export function OperatorBillingUsageSection() {
           <LlmBudgetUtilizationMeter refreshToken={refreshToken} />
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             Detailed cost breakdowns live in{" "}
-            <Link href="/settings/cost-reporting" className={OPERATOR_LINK.nav}>
-              Settings → Cost reporting
+            <Link href={AI_USAGE_SETTINGS_PATH} className={OPERATOR_LINK.nav}>
+              Administration → AI usage
             </Link>
             .
           </p>

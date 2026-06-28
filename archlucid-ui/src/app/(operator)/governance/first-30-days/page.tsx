@@ -4,6 +4,7 @@ import Link from "next/link";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +68,7 @@ export default function FirstThirtyDaysGovernancePage() {
                 <Link className={OPERATOR_LINK.nav} href="/alerts">
                   Alerts inbox
                 </Link>
-                <Link className={OPERATOR_LINK.nav} href="/integrations/operations">
+                <Link className={OPERATOR_LINK.nav} href={INTEGRATIONS_READINESS_PATH}>
                   Connector readiness
                 </Link>
               </div>

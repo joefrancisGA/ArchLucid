@@ -28,17 +28,14 @@ class TestAdoptionBatch5AO(unittest.TestCase):
         self.assertIn("EnterpriseTable", text)
 
     def test_tb_222_nav_link(self) -> None:
-        # Recurrence schedules live in the Pilot nav group only (nav-config.structure forbids duplicate hrefs).
-        operate_path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "operate-governance-nav-group-builder.ts"
-        operate_text = operate_path.read_text(encoding="utf-8")
-        self.assertNotIn("/governance/recurrence-schedules", operate_text)
-
-    def test_tb_222_pilot_nav_link(self) -> None:
-        # Recurrence schedules live in Operate · operations after sidebar group refactor (nav-config.structure forbids duplicate hrefs).
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "operate-operations-nav-group-builder.ts"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "operate-governance-nav-group-builder.ts"
         text = path.read_text(encoding="utf-8")
         self.assertIn("/governance/recurrence-schedules", text)
         self.assertIn("recurrenceSchedules", text)
+
+    def test_tb_408_orphan_operations_nav_builder_removed(self) -> None:
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "operate-operations-nav-group-builder.ts"
+        self.assertFalse(path.is_file(), "orphan operate-operations nav builder must stay deleted (TB-408)")
 
 
 if __name__ == "__main__":

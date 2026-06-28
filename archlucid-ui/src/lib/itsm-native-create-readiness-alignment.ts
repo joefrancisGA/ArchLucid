@@ -1,6 +1,6 @@
 /** Stable exports for drift guards — ITSM native create default path (assessment Tier 2 #6). */
 
-export const ITSM_NATIVE_CREATE_ADMIN_HREF = "/integrations/operations";
+export const ITSM_NATIVE_CREATE_ADMIN_HREF = "/integrations/readiness";
 
 export const ITSM_NATIVE_CREATE_REQUIRED_UI_TEST_IDS = [
   "finding-itsm-native-default-panel",

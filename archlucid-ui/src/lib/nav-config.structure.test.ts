@@ -18,6 +18,15 @@ describe("nav-config structure", () => {
     expect(flattenNavLinks().length).toBe(fromGroups);
   });
 
+  it("does not duplicate nav labels within the same group (TB-408)", () => {
+    for (const group of NAV_GROUPS) {
+      const labels = group.links.map((link) => link.label);
+      const dupes = labels.filter((label, index) => labels.indexOf(label) !== index);
+
+      expect(dupes, `${group.id} duplicate labels: ${[...new Set(dupes)].join(", ")}`).toEqual([]);
+    }
+  });
+
   it("sets requiredAuthority on every Governance link (Pilot essentials may omit)", () => {
     const enterprise = NAV_GROUPS.find((group) => group.id === "operate-governance");
 
@@ -131,7 +140,7 @@ describe("nav-config structure", () => {
     ]);
     expect(reportsHrefs).toEqual(["/scorecard", "/value-report", "/governance/first-30-days"]);
     expect(integrationsHrefs).toEqual([
-      "/integrations/operations",
+      "/integrations/readiness",
       "/integrations/cloud-connections",
       "/integrations/jira",
       "/integrations/servicenow",
@@ -150,7 +159,7 @@ describe("nav-config structure", () => {
     expect(adminHrefs).toContain("/settings/security-trust");
     expect(adminHrefs).toContain("/settings/users");
     expect(adminHrefs).toContain("/settings/support");
-    expect(adminHrefs).toContain("/settings/cost-reporting");
+    expect(adminHrefs).toContain("/settings/ai-usage");
     expect(adminHrefs).not.toContain("/governance/recurrence-schedules");
   });
 

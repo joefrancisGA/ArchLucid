@@ -112,7 +112,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/settings/cost-reporting",
+          href: "/settings/ai-usage",
 
           label: OPERATOR_NAV_LINK_LABELS.aiUsage,
 

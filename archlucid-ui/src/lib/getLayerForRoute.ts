@@ -1,5 +1,6 @@
 import { NAV_GROUPS } from "@/lib/nav-config";
-import { pathMatchesCloudConnections } from "@/lib/integrations-nav-paths";
+import { pathMatchesAiUsageSettings } from "@/lib/ai-usage-nav-paths";
+import { pathMatchesCloudConnections, pathMatchesIntegrationsReadiness } from "@/lib/integrations-nav-paths";
 import {
   pathMatchesSettingsSecurityTrust,
   pathMatchesSettingsSupport,
@@ -96,6 +97,14 @@ export function getLayerForRoute(pathname: string): LayerId {
 
   if (pathMatchesCloudConnections(normalized)) {
     return "operate-analysis";
+  }
+
+  if (pathMatchesIntegrationsReadiness(normalized)) {
+    return "operate-analysis";
+  }
+
+  if (pathMatchesAiUsageSettings(normalized)) {
+    return "operator-admin";
   }
 
   for (const m of NAV_PATH_MATCHES) {

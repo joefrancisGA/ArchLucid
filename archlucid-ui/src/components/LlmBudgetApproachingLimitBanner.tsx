@@ -13,6 +13,7 @@ import {
 } from "@/lib/llm-monthly-budget-status";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { cn } from "@/lib/utils";
 
 const LLM_BUDGET_WARN_POLL_MS = 60_000;
@@ -63,7 +64,7 @@ export function LlmBudgetApproachingLimitBanner() {
         </p>
         <p className={cn("m-0 mt-1 leading-snug text-amber-900/90 dark:text-amber-200/90", OPERATOR_TYPOGRAPHY.helper)}>
           Review utilization in{" "}
-          <Link href="/settings/cost-reporting" className={OPERATOR_LINK.nav}>
+          <Link href={AI_USAGE_SETTINGS_PATH} className={OPERATOR_LINK.nav}>
             Settings → Cost reporting
           </Link>
           .

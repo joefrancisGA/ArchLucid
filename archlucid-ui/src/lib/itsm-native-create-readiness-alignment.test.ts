@@ -18,7 +18,7 @@ function readRepoFile(relativePath: string): string {
 
 describe("itsm-native-create-readiness-alignment", () => {
   it("exports stable admin href for connector configuration", () => {
-    expect(ITSM_NATIVE_CREATE_ADMIN_HREF).toBe("/integrations/operations");
+    expect(ITSM_NATIVE_CREATE_ADMIN_HREF).toBe("/integrations/readiness");
   });
 
   it("keeps native default panel and wizard wiring on finding and admin surfaces", () => {

@@ -1,7 +1,8 @@
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
+import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
-import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 
 /** Static pathname → announcement title mappings for documented top-level routes. */
 export const ROUTE_TITLES: Record<string, string> = {
@@ -34,9 +35,11 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/settings/tenant/recycle-bin": "Projects recycle bin",
   [CLOUD_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.cloudConnections,
   "/settings/cloud-connections": OPERATOR_NAV_LINK_LABELS.cloudConnections,
+  [AI_USAGE_SETTINGS_PATH]: OPERATOR_NAV_LINK_LABELS.aiUsage,
   "/settings/cost-reporting": OPERATOR_NAV_LINK_LABELS.aiUsage,
   "/integrations/jira": OPERATOR_NAV_LINK_LABELS.jira,
   "/integrations/servicenow": OPERATOR_NAV_LINK_LABELS.servicenow,
+  [INTEGRATIONS_READINESS_PATH]: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
   "/integrations/operations": OPERATOR_NAV_LINK_LABELS.integrationReadiness,
   "/dashboard": BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   "/digests": "Digests",

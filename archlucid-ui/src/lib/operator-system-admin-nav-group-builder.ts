@@ -1,5 +1,4 @@
 import {
-  Activity,
   BarChart3,
   BookOpen,
   ClipboardList,
@@ -14,7 +13,6 @@ import {
   LineChart,
   PackageCheck,
   Settings2,
-  ShieldCheck,
   Sparkles,
   Users,
   Wallet,
@@ -22,6 +20,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { AI_COST_DIAGNOSTICS_PATH } from "@/lib/ai-usage-nav-paths";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -36,9 +35,9 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
       surface: "system-admin",
       links: [
         {
-          href: "/admin/ai-usage-cost",
-          label: "AI usage and cost",
-          title: "AI usage and cost — estimated LLM spend, token usage, monthly budget, and processing queue health",
+          href: AI_COST_DIAGNOSTICS_PATH,
+          label: "AI processing diagnostics",
+          title: "AI processing diagnostics — outbox queue depth, dead-letter posture, and operator health signals",
           icon: Cpu,
           tier: "advanced",
           requiredAuthority: "AdminAuthority",
@@ -77,8 +76,8 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/admin/health",
-          label: "System health",
-          title: "System health — readiness, circuit breakers, onboarding funnel metrics",
+          label: "Diagnostics dashboard",
+          title: "Diagnostics dashboard — readiness, circuit breakers, onboarding funnel metrics",
           icon: Gauge,
           tier: "advanced",
           requiredAuthority: "AdminAuthority",
@@ -149,26 +148,10 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ExecuteAuthority",
         },
         {
-          href: "/advisory",
-          label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
-          title: "Architecture advisory — architecture scans and scan schedules",
-          icon: Activity,
-          tier: "advanced",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
           href: "/health",
           label: OPERATOR_NAV_LINK_LABELS.systemHealth,
           title: "System health — API liveness, readiness, and critical dependencies",
           icon: HeartPulse,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/workspace/security-trust",
-          label: OPERATOR_NAV_LINK_LABELS.securityTrust,
-          title: "Security & trust — published assessments, CAIQ/SIG, trust-center links",
-          icon: ShieldCheck,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

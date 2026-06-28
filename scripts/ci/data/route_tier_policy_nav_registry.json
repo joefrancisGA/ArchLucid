@@ -89,7 +89,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/cost-reporting"
+      "nav_operator_href": "/settings/ai-usage"
     },
     {
       "controller_file": "Admin/AdminLlmMonthlyDollarBudgetStatusController.cs",
@@ -1179,7 +1179,7 @@
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/integrations/operations"
+      "nav_operator_href": "/integrations/readiness"
     },
     {
       "controller_file": "Integrations/TenantItsmOutboundSettingsController.cs",
@@ -1189,7 +1189,7 @@
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/integrations/operations"
+      "nav_operator_href": "/integrations/readiness"
     },
     {
       "controller_file": "Integrations/WebhookConnectionsController.cs",

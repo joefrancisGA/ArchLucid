@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -91,7 +92,7 @@ export function PostCommitRetentionRail({
             </Button>
             <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
               <Link
-                href="/integrations/operations"
+                href={INTEGRATIONS_READINESS_PATH}
                 title={canMutate ? "Connector readiness and Service Bus posture" : "View connector readiness (read-only at your rank)"}
               >
                 Integration readiness

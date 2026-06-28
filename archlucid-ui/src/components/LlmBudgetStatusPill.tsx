@@ -17,6 +17,7 @@ import {
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -155,8 +156,8 @@ export function LlmBudgetStatusPill() {
               View usage on Billing &amp; plans
             </Link>
             {" · "}
-            <Link href="/settings/cost-reporting" className={OPERATOR_LINK.nav}>
-              Cost reporting
+            <Link href={AI_USAGE_SETTINGS_PATH} className={OPERATOR_LINK.nav}>
+              AI usage
             </Link>
           </p>
         </PopoverContent>

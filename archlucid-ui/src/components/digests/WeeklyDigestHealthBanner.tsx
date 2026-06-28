@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useState, type ReactElement } from "react";
 
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { fetchWeeklyDigestHealth } from "@/lib/api";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
@@ -88,7 +89,7 @@ export function WeeklyDigestHealthBanner(): ReactElement {
           </Link>
           <Link
             className={cn("rounded-md border border-neutral-300 px-3 py-1.5 font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
-            href="/integrations/operations"
+            href={INTEGRATIONS_READINESS_PATH}
           >
             Integration readiness
           </Link>

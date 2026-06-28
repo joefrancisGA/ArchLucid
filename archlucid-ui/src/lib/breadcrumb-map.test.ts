@@ -91,7 +91,7 @@ describe("getBreadcrumbs", () => {
 
   it("maps cloud connections under Integrations (not Settings)", () => {
     expect(getBreadcrumbs("/integrations/cloud-connections")).toEqual([
-      { label: "Integrations", href: "/integrations/operations" },
+      { label: "Integrations", href: "/integrations/readiness" },
       { label: "Cloud connections" },
     ]);
   });
