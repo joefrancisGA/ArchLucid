@@ -59,6 +59,8 @@ jobs:
           TAG="${{ vars.IMAGE_TAG }}"
           if [ -z "$TAG" ]; then TAG="${{ github.event.workflow_run.head_sha }}"; fi
           echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
+          # DEPLOY_SHA is the exact commit being deployed; always the workflow_run head SHA regardless of IMAGE_TAG override.
+          echo "DEPLOY_SHA=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_ENV"
 
       - name: Detect ACR configuration
         id: acr
@@ -100,7 +102,11 @@ jobs:
         with:
           context: .
           file: ArchLucid.Api/Dockerfile
-          tags: ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:${{ env.IMAGE_TAG }}
+          tags: |
+            ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:${{ env.IMAGE_TAG }}
+            ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:latest-staging
+          # BUILD_SHA stamps SourceRevisionId into the assembly so GET /version returns the deploying commit.
+          build-args: BUILD_SHA=${{ github.event.workflow_run.head_sha }}
           push: true
           pull: true
           provenance: false
@@ -115,7 +121,10 @@ jobs:
         with:
           context: .
           file: archlucid-ui/Dockerfile
-          tags: ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:${{ env.IMAGE_TAG }}
+          tags: |
+            ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:${{ env.IMAGE_TAG }}
+            ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:latest-staging
+          build-args: BUILD_SHA=${{ github.event.workflow_run.head_sha }}
           push: true
           pull: true
           provenance: false
@@ -151,7 +160,66 @@ jobs:
           echo "revision=$REV" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
+      # Fail fast if the API Container App is missing required env vars for staging production-like config.
+      - name: Configuration completeness check (pre-deploy)
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+        run: |
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
+            echo "Config check skipped."
+            exit 0
+          fi
+          set -euo pipefail
+          ENV_JSON=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
+            --query "properties.template.containers[0].env" -o json 2>/dev/null || echo "[]")
+          env_value() {
+            local val ref
+            val=$(echo "$ENV_JSON" | jq -r --arg n "$1" '.[] | select(.name==$n) | .value // empty' 2>/dev/null || true)
+            ref=$(echo "$ENV_JSON" | jq -r --arg n "$1" '.[] | select(.name==$n) | .secretRef // empty' 2>/dev/null || true)
+            if [ -n "$val" ]; then echo "$val"; elif [ -n "$ref" ]; then echo "(secret-ref)"; fi
+          }
+          is_set()   { [ -n "$(env_value "$1")" ]; }
+          is_exact() { [ "$(env_value "$1")" = "$2" ]; }
+          is_guid()  { echo "$(env_value "$1")" | grep -qiE '^[{]?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}[}]?$'; }
+          FAILED=0
+          fail() { echo "::error::CONFIG: $*"; FAILED=1; }
+          is_exact "ArchLucid__SqlTopology__Mode" "SystemWithPerTenantCatalogs" \
+            || fail "ArchLucid__SqlTopology__Mode must be 'SystemWithPerTenantCatalogs'"
+          is_set "ConnectionStrings__ArchLucidSystem" \
+            || fail "ConnectionStrings__ArchLucidSystem is not set"
+          is_set "ArchLucid__SqlTopology__TenantCatalogConnectionStringTemplate" \
+            || fail "ArchLucid__SqlTopology__TenantCatalogConnectionStringTemplate is not set"
+          is_exact "ArchLucidAuth__Mode" "ApiKey" \
+            || fail "ArchLucidAuth__Mode must be 'ApiKey'"
+          is_exact "Authentication__ApiKey__Enabled" "true" \
+            || fail "Authentication__ApiKey__Enabled must be 'true'"
+          is_set "Authentication__ApiKey__AdminKey" \
+            || fail "Authentication__ApiKey__AdminKey is not set"
+          is_guid "Authentication__ApiKey__TenantId" \
+            || fail "Authentication__ApiKey__TenantId is not a valid GUID"
+          is_exact "Demo__Enabled" "false" \
+            || fail "Demo__Enabled must be 'false'"
+          is_exact "Cors__AllowedOrigins__0" "https://www.archlucid.net" \
+            || fail "Cors__AllowedOrigins__0 must be 'https://www.archlucid.net'"
+          is_exact "Billing__Provider" "None" \
+            || fail "Billing__Provider must be 'None'"
+          is_exact "ArchLucid__Secrets__Provider" "KeyVault" \
+            || fail "ArchLucid__Secrets__Provider must be 'KeyVault'"
+          is_set "ArchLucid__Secrets__KeyVaultUri" \
+            || fail "ArchLucid__Secrets__KeyVaultUri is not set"
+          is_set "ArchLucid__ContentSafety__Endpoint" \
+            || fail "ArchLucid__ContentSafety__Endpoint is not set"
+          is_set "ArchLucid__ContentSafety__ApiKey" \
+            || fail "ArchLucid__ContentSafety__ApiKey is not set"
+          if [ "$FAILED" -ne 0 ]; then
+            echo "::error::Pre-deploy configuration completeness check FAILED."
+            exit 1
+          fi
+          echo "Configuration completeness check passed."
+
       - name: Update Container Apps
+        id: containerapp_update
         env:
           ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
@@ -208,24 +276,101 @@ jobs:
                 || echo "UI: ingress traffic set skipped."
             fi
           fi
+          # Export revision names for subsequent verification steps.
+          echo "a_latest=${A_LATEST:-}" >> "$GITHUB_OUTPUT"
+          echo "w_latest=${W_LATEST:-}" >> "$GITHUB_OUTPUT"
+          echo "u_latest=${U_LATEST:-}" >> "$GITHUB_OUTPUT"
 
-          echo ""
-          echo "Post-deploy revision verification (template image resolved for the revision we just updated)"
-          if [ -n "${A_LATEST:-}" ]; then
-            A_IMG=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --revision "$A_LATEST" \
-              --query "properties.template.containers[0].image" -o tsv)
-            echo "Post-deploy API: revision=${A_LATEST} image=${A_IMG}"
+      # Hard-fail if the deployed revision's image does not contain the SHA tag or the expected digest.
+      - name: Verify deployed revisions use the SHA-tagged image
+        id: verify_image
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+          API_IMAGE_DIGEST: ${{ steps.build_push_api.outputs.digest }}
+          UI_IMAGE_DIGEST: ${{ steps.build_push_ui.outputs.digest }}
+          A_LATEST: ${{ steps.containerapp_update.outputs.a_latest }}
+          W_LATEST: ${{ steps.containerapp_update.outputs.w_latest }}
+          U_LATEST: ${{ steps.containerapp_update.outputs.u_latest }}
+        run: |
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
+            echo "Image verification skipped."
+            exit 0
           fi
-          if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ] && [ -n "${W_LATEST:-}" ]; then
-            W_IMG=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --revision "$W_LATEST" \
-              --query "properties.template.containers[0].image" -o tsv)
-            echo "Post-deploy worker: revision=${W_LATEST} image=${W_IMG}"
+          EXPECTED_API=""
+          EXPECTED_UI=""
+          if [ -n "${API_IMAGE_DIGEST:-}" ]; then EXPECTED_API="${API_IMAGE_DIGEST}"; else EXPECTED_API="${IMAGE_TAG}"; fi
+          if [ -n "${UI_IMAGE_DIGEST:-}" ]; then EXPECTED_UI="${UI_IMAGE_DIGEST}"; else EXPECTED_UI="${IMAGE_TAG}"; fi
+          FAILED=0
+          check_image() {
+            local app_name="$1" rev="$2" expected="$3"
+            if [ -z "$rev" ]; then return; fi
+            local img
+            img=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$app_name" --revision "$rev" \
+              --query "properties.template.containers[0].image" -o tsv 2>/dev/null || true)
+            echo "  ${app_name}: revision=${rev} image=${img}"
+            if [ -z "$img" ]; then
+              echo "::error::IMAGE VERIFY: Could not read image for ${app_name} revision ${rev}"
+              FAILED=1
+            elif ! echo "$img" | grep -qF "$expected"; then
+              echo "::error::IMAGE VERIFY: ${app_name} revision ${rev} image '${img}' does not contain expected '${expected}'"
+              FAILED=1
+            fi
+          }
+          echo "Verifying deployed revision images (expected: ${EXPECTED_API}):"
+          check_image "$CONTAINER_APP_API_NAME"    "${A_LATEST}" "$EXPECTED_API"
+          check_image "$CONTAINER_APP_WORKER_NAME" "${W_LATEST}" "$EXPECTED_API"
+          check_image "$CONTAINER_APP_UI_NAME"     "${U_LATEST}" "$EXPECTED_UI"
+          if [ "$FAILED" -ne 0 ]; then
+            echo "::error::Deployed revision image verification FAILED — Container App is not running the expected SHA-tagged image."
+            exit 1
           fi
-          if [ -n "${CONTAINER_APP_UI_NAME:-}" ] && [ -n "${U_LATEST:-}" ]; then
-            U_IMG=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --revision "$U_LATEST" \
-              --query "properties.template.containers[0].image" -o tsv)
-            echo "Post-deploy UI: revision=${U_LATEST} image=${U_IMG}"
+          echo "All deployed revisions verified."
+
+      # Wait for the API revision to reach Running state with 100% traffic before smoke tests begin.
+      - name: Wait for API revision Running state and 100% traffic
+        id: api_running_check
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          A_LATEST: ${{ steps.containerapp_update.outputs.a_latest }}
+        run: |
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ] || [ -z "${A_LATEST:-}" ]; then
+            echo "Running-state check skipped."
+            exit 0
           fi
+          set -euo pipefail
+          MAX_WAIT=180
+          INTERVAL=10
+          ELAPSED=0
+          echo "Waiting for API revision ${A_LATEST} to reach Running state (max ${MAX_WAIT}s)..."
+          while [ "$ELAPSED" -lt "$MAX_WAIT" ]; do
+            STATE=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
+              --revision "$A_LATEST" --query "properties.runningState" -o tsv 2>/dev/null || true)
+            echo "  [${ELAPSED}s] runningState=${STATE}"
+            if [ "$STATE" = "Running" ]; then break; fi
+            if [ "$STATE" = "Failed" ] || [ "$STATE" = "Stopped" ]; then
+              echo "::error::API revision ${A_LATEST} entered state '${STATE}' — startup failure."
+              exit 1
+            fi
+            sleep "$INTERVAL"
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          if [ "$STATE" != "Running" ]; then
+            echo "::error::API revision ${A_LATEST} did not reach Running state within ${MAX_WAIT}s (last state: ${STATE})."
+            exit 1
+          fi
+          echo "API revision ${A_LATEST} is Running."
+          WEIGHT=$(az containerapp ingress traffic show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
+            --query "[?revisionName=='${A_LATEST}'].weight | [0]" -o tsv 2>/dev/null || echo "0")
+          echo "API revision ${A_LATEST} traffic weight: ${WEIGHT}%"
+          if [ "${WEIGHT}" != "100" ]; then
+            echo "::error::API revision ${A_LATEST} does not have 100% traffic (weight=${WEIGHT})."
+            exit 1
+          fi
+          echo "API revision ${A_LATEST} has 100% traffic — deployment verified."
 
       - uses: actions/setup-dotnet@v5.2.0
         with:
@@ -235,6 +380,79 @@ jobs:
             Directory.Packages.props
             global.json
             **/*.csproj
+
+      # Fast curl-based smoke checks run before the heavier CLI deployment-evidence step.
+      - name: Smoke — API health/live and health/ready
+        id: smoke_health
+        env:
+          SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
+          CD_POST_DEPLOY_MAX_ATTEMPTS: ${{ vars.CD_POST_DEPLOY_MAX_ATTEMPTS }}
+          CD_POST_DEPLOY_RETRY_WAIT_SECONDS: ${{ vars.CD_POST_DEPLOY_RETRY_WAIT_SECONDS }}
+        run: |
+          if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
+            echo "SMOKE_TEST_BASE_URL not set — skipping health smoke checks."
+            exit 0
+          fi
+          set -euo pipefail
+          BASE="${SMOKE_TEST_BASE_URL%/}"
+          MAX="${CD_POST_DEPLOY_MAX_ATTEMPTS:-3}"
+          WAIT="${CD_POST_DEPLOY_RETRY_WAIT_SECONDS:-10}"
+          case "$MAX" in ''|*[!0-9]*) MAX=3 ;; esac
+          case "$WAIT" in ''|*[!0-9]*) WAIT=10 ;; esac
+          smoke_one() {
+            local attempt=1
+            while [ "$attempt" -le "$MAX" ]; do
+              echo "[attempt ${attempt}/${MAX}] GET $1"
+              CODE=$(curl -sS -o /tmp/smoke_body.txt -w "%{http_code}" --connect-timeout 20 --max-time 60 "$1" || echo "000")
+              echo "  HTTP $CODE"
+              if [ "$CODE" = "200" ]; then return 0; fi
+              cat /tmp/smoke_body.txt || true; echo ""
+              if [ "$attempt" -ge "$MAX" ]; then
+                echo "::error::SMOKE: $1 returned HTTP $CODE after $MAX attempt(s)"
+                return 1
+              fi
+              echo "Waiting ${WAIT}s..."; sleep "$WAIT"
+              attempt=$((attempt + 1))
+            done
+          }
+          smoke_one "${BASE}/health/live"
+          smoke_one "${BASE}/health/ready"
+          CODE=$(curl -sS -o /tmp/ready.json -w "%{http_code}" --connect-timeout 20 --max-time 60 "${BASE}/health/ready" || echo "000")
+          if [ "$CODE" = "200" ]; then
+            STATUS=$(jq -r '.status // empty' /tmp/ready.json 2>/dev/null || true)
+            if [ "$STATUS" != "Healthy" ]; then
+              echo "::error::SMOKE: /health/ready overall status is '${STATUS}' (expected 'Healthy')."
+              jq -r '.entries[]? | "  \(.name): \(.status)"' /tmp/ready.json 2>/dev/null || true
+              exit 1
+            fi
+            echo "/health/ready status: Healthy"
+          fi
+
+      - name: Smoke — UI public URL
+        id: smoke_ui
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+        run: |
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_UI_NAME:-}" ]; then
+            echo "UI smoke skipped (CONTAINER_APP_UI_NAME not set)."
+            exit 0
+          fi
+          FQDN=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" \
+            --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || true)
+          if [ -z "$FQDN" ]; then
+            echo "Could not resolve UI FQDN — skipping UI smoke."
+            exit 0
+          fi
+          UI_URL="https://${FQDN}"
+          echo "Checking UI public URL: ${UI_URL}"
+          CODE=$(curl -sS -o /dev/null -w "%{http_code}" --connect-timeout 20 --max-time 60 -L "$UI_URL" || echo "000")
+          echo "HTTP $CODE"
+          if [ "$CODE" != "200" ]; then
+            echo "::error::SMOKE: UI public URL ${UI_URL} returned HTTP ${CODE}"
+            exit 1
+          fi
+          echo "UI smoke check passed."
 
       - name: Post-deploy validation and deployment evidence (CLI)
         id: smoke_api
@@ -268,7 +486,9 @@ jobs:
           if-no-files-found: ignore
 
       - name: Roll back API and worker on failed smoke
-        if: ${{ failure() && steps.smoke_api.outcome == 'failure' }}
+        if: |
+          failure() &&
+          (steps.smoke_health.outcome == 'failure' || steps.smoke_ui.outcome == 'failure' || steps.smoke_api.outcome == 'failure')
         env:
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}

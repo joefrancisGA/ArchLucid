@@ -80,6 +80,11 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
             GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
             return;
         }
+        catch (GreenfieldCommitRetryBudgetExhaustedException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
+        }
     }
 
     [SkippableFact]

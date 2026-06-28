@@ -57,12 +57,7 @@ internal static class SecurityCommittedRunSeed
         Guid runGuid = Guid.Parse(runId);
 
         await ArchitectureRequestConcurrencyTestSupport
-            .PostExecuteWithGreenfieldTransientRetryAsync(clientA, runId, cancellationToken)
-            .ConfigureAwait(false);
-
-        await ArchitectureRequestConcurrencyTestSupport
-            .PostCommitWithGreenfieldTransientRetryAsync(clientA, runId, cancellationToken)
-            .ConfigureAwait(false);
+            .PostExecuteAndCommitUnderGreenfieldBootstrapBudgetAsync(clientA, runId, cancellationToken);
 
         return new Result(runId, runGuid);
     }

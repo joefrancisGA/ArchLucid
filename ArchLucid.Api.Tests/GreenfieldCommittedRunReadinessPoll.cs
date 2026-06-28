@@ -111,6 +111,42 @@ internal static class GreenfieldCommittedRunReadinessPoll
         return responseBody.Contains("manifest could not be loaded yet", StringComparison.OrdinalIgnoreCase);
     }
 
+    internal static async Task<string> FormatRunDetailDiagnosticAsync(
+        HttpClient client,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        using CancellationTokenSource bounded =
+            CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+        bounded.CancelAfter(TimeSpan.FromSeconds(30));
+
+        using HttpResponseMessage response =
+            await client.GetAsync($"/v1/architecture/run/{runId}", bounded.Token);
+
+        string body = await response.Content.ReadAsStringAsync(bounded.Token);
+
+        ArchitectureRunExecuteReadinessProbeDto? detail =
+            await response.Content.ReadFromJsonAsync<ArchitectureRunExecuteReadinessProbeDto>(JsonOptions, bounded.Token);
+
+        int resultsCount = detail?.Results?.Count ?? 0;
+        string status = detail?.Run?.Status ?? "(null run)";
+        string manifestVersion = detail?.Run?.CurrentManifestVersion ?? "(none)";
+
+        return "GET status="
+            + ((int)response.StatusCode).ToString(System.Globalization.CultureInfo.InvariantCulture)
+            + " runStatus="
+            + status
+            + " resultsCount="
+            + resultsCount.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            + " currentManifestVersion="
+            + manifestVersion
+            + " bodyLength="
+            + body.Length.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
     internal static Task<string> WaitUntilFirstValueReportMarkdownReadyAsync(
         HttpClient client,
         string runId,

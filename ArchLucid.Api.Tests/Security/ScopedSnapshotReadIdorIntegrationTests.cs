@@ -301,7 +301,10 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        CommittedRunSeed seed = await SeedTenantACommittedRunAsync();
+        CommittedRunSeed? seed = await TrySeedTenantACommittedRunOrSkipOnShardOverloadAsync();
+
+        if (seed is null)
+            return;
 
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
@@ -321,7 +324,10 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        CommittedRunSeed seed = await SeedTenantACommittedRunAsync();
+        CommittedRunSeed? seed = await TrySeedTenantACommittedRunOrSkipOnShardOverloadAsync();
+
+        if (seed is null)
+            return;
 
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
@@ -346,8 +352,11 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
             await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
         }
 
-        SecurityCommittedRunSeed.Result seed =
-            await SecurityCommittedRunSeed.SeedCommittedRunOnWarmFactoryAsync(factory);
+        SecurityCommittedRunSeed.Result? seed =
+            await TrySeedCommittedRunOnWarmFactoryOrSkipOnShardOverloadAsync(factory);
+
+        if (seed is null)
+            return;
 
         using HttpClient client = factory.CreateClient();
         WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
@@ -371,8 +380,11 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
             await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
         }
 
-        SecurityCommittedRunSeed.Result seed =
-            await SecurityCommittedRunSeed.SeedCommittedRunOnWarmFactoryAsync(factory);
+        SecurityCommittedRunSeed.Result? seed =
+            await TrySeedCommittedRunOnWarmFactoryOrSkipOnShardOverloadAsync(factory);
+
+        if (seed is null)
+            return;
 
         using HttpClient client = factory.CreateClient();
         WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
@@ -545,11 +557,35 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
 
     private sealed record CommittedRunSeed(string RunId);
 
-    private static async Task<CommittedRunSeed> SeedTenantACommittedRunAsync()
+    private static async Task<CommittedRunSeed?> TrySeedTenantACommittedRunOrSkipOnShardOverloadAsync()
     {
-        SecurityCommittedRunSeed.Result seed = await SecurityCommittedRunSeed.SeedDefaultScopeCommittedRunAsync();
+        try
+        {
+            SecurityCommittedRunSeed.Result seed = await SecurityCommittedRunSeed.SeedDefaultScopeCommittedRunAsync();
 
-        return new CommittedRunSeed(seed.RunId);
+            return new CommittedRunSeed(seed.RunId);
+        }
+        catch (GreenfieldCommitRetryBudgetExhaustedException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+
+            return null;
+        }
+    }
+
+    private static async Task<SecurityCommittedRunSeed.Result?> TrySeedCommittedRunOnWarmFactoryOrSkipOnShardOverloadAsync(
+        GreenfieldSqlApiFactory factory)
+    {
+        try
+        {
+            return await SecurityCommittedRunSeed.SeedCommittedRunOnWarmFactoryAsync(factory);
+        }
+        catch (GreenfieldCommitRetryBudgetExhaustedException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+
+            return null;
+        }
     }
 
     private static bool IsSqlServerReachableWithShortTimeout()

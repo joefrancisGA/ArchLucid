@@ -33,6 +33,8 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
         settings["Demo:Enabled"] = "false";
         // appsettings.Development.json enables Demo:SeedOnStartup; integration tests seed explicitly when needed.
         settings["Demo:SeedOnStartup"] = "false";
+        // Agentic query rewrite/HyDE call the LLM completion router. Smoke tests assert vector search only.
+        settings["Retrieval:Advanced:Enabled"] = "false";
     }
 
     /// <inheritdoc />

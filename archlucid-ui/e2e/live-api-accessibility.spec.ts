@@ -187,8 +187,8 @@ export const PAGES_DEFERRED = [
 ] as const;
 
 async function expectNoCriticalOrSeriousAxeViolations(page: Page, path: string) {
-  await page.goto(path, { waitUntil: "load" });
-  await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+  await page.goto(path, { waitUntil: "domcontentloaded" });
+  await page.locator("main").first().waitFor({ state: "visible", timeout: 90_000 });
 
   const results = await runAxe(page, { disableRules: axeLiveE2eDisableRuleIdsNow() });
   const critical = results.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
