@@ -91,6 +91,17 @@ internal static class PilotReadinessBundleChildArtifactWriter
         await WritePairAsync(outputPaths.JsonPath, outputPaths.MarkdownPath, json, markdown, cancellationToken);
     }
 
+    internal static async Task WriteItsmPullForwardAsync(
+        ItsmPullForwardReport report,
+        ItsmPullForwardOutputResolution outputPaths,
+        CancellationToken cancellationToken)
+    {
+        string json = JsonSerializer.Serialize(report, JsonOptions);
+        string markdown = ItsmPullForwardCommand.BuildMarkdown(report);
+
+        await WritePairAsync(outputPaths.JsonPath, outputPaths.MarkdownPath, json, markdown, cancellationToken);
+    }
+
     private static async Task WritePairAsync(
         string? jsonPath,
         string? markdownPath,

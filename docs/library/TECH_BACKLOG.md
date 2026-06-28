@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-30 (TB-427 **Done** — pilot readiness release-train CI gate). Prior: 2026-06-30 (TB-426 **Done** — ITSM pull-forward gate default operational artifact bundle).
+**Updated:** 2026-06-30 (TB-428 **Done** — ITSM pull-forward gate in pilot readiness bundle). Prior: 2026-06-30 (TB-427 **Done** — pilot readiness release-train CI gate).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -169,6 +169,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
+| TB-428 | ITSM pull-forward gate in pilot readiness bundle — eighth slot in `archlucid pilot readiness-bundle`; HOLD/WATCH/PULL_FORWARD rollup; CI gate validates eight slot keys | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-427 | Pilot readiness release-train CI gate — `scripts/ci/run_pilot_readiness_release_train_gate.py` runs offline `archlucid pilot readiness-bundle` in dotnet-fast-core build; fail closed on aggregate FAIL slots | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-426 | ITSM pull-forward gate default operational artifact bundle — auto-write JSON + Markdown under `artifacts/itsm-pull-forward-gate/{ledger-name|live-api}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-425 | Pilot readiness release-train bundle — `archlucid pilot readiness-bundle` orchestrates TB-418—TB-424 child bundles in-process; aggregate JSON + Markdown under `artifacts/pilot-readiness-bundle/{runId|offline-fixture}/`; PASS/FAIL/UNKNOWN/WARN rollup; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | M |
@@ -12611,3 +12612,40 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-425, TB-426, assessment §7.8, §7.10, §17 item 47.
+
+---
+
+## TB-428 — ITSM pull-forward gate in pilot readiness bundle
+
+**Status:** **Done** (2026-06-30). `archlucid pilot readiness-bundle` orchestrates eight slots including `itsm-pull-forward-gate` before ship-gate; child artifacts write under `artifacts/itsm-pull-forward-gate/{ledger-name|live-api}/`; HOLD→PASS, WATCH→WARN, PULL_FORWARD and missing infrastructure→FAIL; live ITSM health probe when `--include-api`; release-train CI gate validates eight slot keys.
+
+**Source:** Assessment §7.8/§7.10 follow-on — ITSM pull-forward gate (TB-426) had standalone artifacts but was not included in the release-train bundle orchestrator (TB-425).
+
+**Problem:** Operators running `archlucid pilot readiness-bundle` still had to invoke `archlucid pilot itsm-pull-forward-gate` separately for connector pull-forward evidence, breaking one-command release-train retention.
+
+**V1 scope:**
+
+1. Add `itsm-pull-forward-gate` slot to `PilotReadinessBundleRunner` before ship-gate.
+2. Map ITSM recommendation and blocking infrastructure checks to bundle slot verdicts.
+3. Extend release-train CI gate expected slot keys and offline PASS fixture to eight slots.
+
+**Acceptance criteria:**
+
+- Offline readiness-bundle emits eight slots including ITSM pull-forward with child artifacts.
+- CI gate validates eight slot keys and offline ship-gate SKIPPED posture.
+- Unit tests cover eight-slot orchestration and updated offline PASS fixture.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/PilotReadinessBundleRunner.cs`
+- `ArchLucid.Cli/Commands/PilotReadinessBundleSlots.cs`
+- `ArchLucid.Cli/Commands/PilotReadinessBundleVerdictMapper.cs`
+- `ArchLucid.Cli/Commands/PilotReadinessBundleChildArtifactWriter.cs`
+- `ArchLucid.Cli/Commands/ItsmPullForwardCommand.cs`
+- `ArchLucid.Cli.Tests/PilotReadinessBundleRunnerTests.cs`
+- `scripts/ci/run_pilot_readiness_release_train_gate.py`
+- `scripts/ci/fixtures/pilot-readiness-bundle/offline-pass.json`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-425, TB-426, TB-427, assessment §7.8, §7.10, §17 item 48.

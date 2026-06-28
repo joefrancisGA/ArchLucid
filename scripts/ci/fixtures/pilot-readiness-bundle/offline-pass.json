@@ -9,6 +9,7 @@
     { "slotKey": "frontier-ai-baseline", "verdict": "Warn" },
     { "slotKey": "citation-integrity", "verdict": "Pass" },
     { "slotKey": "tenant-isolation-negative-test", "verdict": "Pass" },
+    { "slotKey": "itsm-pull-forward-gate", "verdict": "Pass" },
     { "slotKey": "ship-gate-evidence", "verdict": "Skipped" }
   ],
   "jsonArtifactPath": "artifacts/pilot-readiness-bundle/offline-fixture/pilot-readiness-bundle.json",

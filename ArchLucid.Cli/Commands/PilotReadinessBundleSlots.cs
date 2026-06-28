@@ -14,5 +14,7 @@ internal static class PilotReadinessBundleSlots
 
     internal const string TenantIsolationNegativeTest = "tenant-isolation-negative-test";
 
+    internal const string ItsmPullForwardGate = "itsm-pull-forward-gate";
+
     internal const string ShipGateEvidence = "ship-gate-evidence";
 }

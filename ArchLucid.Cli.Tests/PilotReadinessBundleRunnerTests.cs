@@ -9,7 +9,7 @@ namespace ArchLucid.Cli.Tests;
 public sealed class PilotReadinessBundleRunnerTests
 {
     [Fact]
-    public async Task RunAsync_OfflineMode_OrchestratesSevenSlotsAndSkipsShipGateWithoutRunId()
+    public async Task RunAsync_OfflineMode_OrchestratesEightSlotsAndSkipsShipGateWithoutRunId()
     {
         string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
 
@@ -29,13 +29,14 @@ public sealed class PilotReadinessBundleRunnerTests
             rawArgs: [],
             CancellationToken.None);
 
-        report.Slots.Should().HaveCount(7);
+        report.Slots.Should().HaveCount(8);
         report.Slots.Should().Contain(slot =>
             slot.SlotKey == PilotReadinessBundleSlots.ShipGateEvidence
             && slot.Verdict == PilotReadinessBundleSlotVerdict.Skipped);
         report.Slots.Should().Contain(slot => slot.SlotKey == PilotReadinessBundleSlots.BuyerProofEvidenceLedger);
         report.Slots.Should().Contain(slot => slot.SlotKey == PilotReadinessBundleSlots.CitationIntegrity);
         report.Slots.Should().Contain(slot => slot.SlotKey == PilotReadinessBundleSlots.TenantIsolationNegativeTest);
+        report.Slots.Should().Contain(slot => slot.SlotKey == PilotReadinessBundleSlots.ItsmPullForwardGate);
         report.OverallVerdict.Should().NotBe(PilotReadinessBundleVerdict.Fail);
     }
 }

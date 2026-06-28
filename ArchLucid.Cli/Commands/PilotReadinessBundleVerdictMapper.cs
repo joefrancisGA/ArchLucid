@@ -65,5 +65,24 @@ internal static class PilotReadinessBundleVerdictMapper
             _ => throw new ArgumentOutOfRangeException(nameof(verdict), verdict, "Unknown ship-gate verdict."),
         };
 
+    internal static PilotReadinessBundleSlotVerdict FromItsmPullForward(ItsmPullForwardReport report)
+    {
+        ArgumentNullException.ThrowIfNull(report);
+
+        if (report.Checks.Any(static check => check.Evidence.StartsWith("Missing", StringComparison.Ordinal)))
+            return PilotReadinessBundleSlotVerdict.Fail;
+
+        return report.Recommendation switch
+        {
+            ItsmPullForwardVerdict.Hold => PilotReadinessBundleSlotVerdict.Pass,
+            ItsmPullForwardVerdict.Watch => PilotReadinessBundleSlotVerdict.Warn,
+            ItsmPullForwardVerdict.PullForward => PilotReadinessBundleSlotVerdict.Fail,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(report),
+                report.Recommendation,
+                "Unknown ITSM pull-forward verdict."),
+        };
+    }
+
     private static PilotReadinessBundleSlotVerdict MapPassWarnFail(PilotReadinessBundleSlotVerdict verdict) => verdict;
 }

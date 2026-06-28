@@ -14,7 +14,7 @@ internal sealed class PilotReadinessBundleRunner
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(rawArgs);
 
-        List<PilotReadinessBundleSlotResult> slots = new(capacity: 7);
+        List<PilotReadinessBundleSlotResult> slots = new(capacity: 8);
 
         slots.Add(await RunBuyerProofEvidenceLedgerSlotAsync(repositoryRoot, options, cancellationToken));
         slots.Add(await RunReturnTriggerTelemetrySlotAsync(repositoryRoot, options, cancellationToken));
@@ -22,6 +22,7 @@ internal sealed class PilotReadinessBundleRunner
         slots.Add(await RunFrontierAiBaselineSlotAsync(repositoryRoot, options, cancellationToken));
         slots.Add(await RunCitationIntegritySlotAsync(repositoryRoot, options, httpClient, rawArgs, cancellationToken));
         slots.Add(await RunTenantIsolationSlotAsync(repositoryRoot, options, httpClient, config, cancellationToken));
+        slots.Add(await RunItsmPullForwardSlotAsync(repositoryRoot, options, httpClient, cancellationToken));
         slots.Add(await RunShipGateEvidenceSlotAsync(repositoryRoot, options, httpClient, config, rawArgs, cancellationToken));
 
         return new PilotReadinessBundleReport
@@ -276,6 +277,89 @@ internal sealed class PilotReadinessBundleRunner
             "Tenant-isolation negative test",
             PilotReadinessBundleVerdictMapper.FromTenantIsolation(finalReport.OverallVerdict),
             $"Overall {finalReport.OverallVerdict}; mode {modeLabel}; {finalReport.Probes.Count} probe(s).",
+            finalReport.JsonArtifactPath,
+            finalReport.MarkdownArtifactPath);
+    }
+
+    private static async Task<PilotReadinessBundleSlotResult> RunItsmPullForwardSlotAsync(
+        string repositoryRoot,
+        PilotReadinessBundleOptions bundleOptions,
+        HttpClient? httpClient,
+        CancellationToken cancellationToken)
+    {
+        ItsmPullForwardOptions childOptions = new()
+        {
+            IncludeApi = bundleOptions.IncludeApi,
+            SuppressDefaultArtifacts = bundleOptions.SuppressDefaultArtifacts,
+        };
+        ItsmPullForwardRunner runner = new();
+        ItsmPullForwardReport report = runner.Run(repositoryRoot, childOptions);
+
+        if (childOptions.IncludeApi)
+        {
+            if (httpClient is null)
+                throw new InvalidOperationException("ITSM pull-forward live API mode requires a configured HTTP client.");
+
+            string baseUrl = httpClient.BaseAddress!.ToString().Trim().TrimEnd('/');
+            PilotPreflightRunner preflightRunner = new(httpClient);
+            PilotPreflightReport preflightReport = await preflightRunner.RunAsync(
+                baseUrl,
+                [],
+                new PilotPreflightOptions { IncludeItsm = true },
+                cancellationToken);
+            PilotPreflightStepResult? itsmStep = preflightReport.Steps.FirstOrDefault(static step => step.Name == "itsm-health");
+
+            if (itsmStep is not null)
+            {
+                List<ItsmPullForwardCheckResult> checks = report.Checks.ToList();
+                checks.Add(ItsmPullForwardRunner.BuildApiHealthCheck(itsmStep));
+                report = new ItsmPullForwardReport
+                {
+                    RepositoryRoot = report.RepositoryRoot,
+                    LedgerDirectory = report.LedgerDirectory,
+                    BaseUrl = baseUrl,
+                    GeneratedUtc = report.GeneratedUtc,
+                    Recommendation = report.Recommendation,
+                    Checks = checks,
+                    Triggers = report.Triggers,
+                    LedgerFilesScanned = report.LedgerFilesScanned,
+                };
+            }
+            else
+            {
+                report = new ItsmPullForwardReport
+                {
+                    RepositoryRoot = report.RepositoryRoot,
+                    LedgerDirectory = report.LedgerDirectory,
+                    BaseUrl = baseUrl,
+                    GeneratedUtc = report.GeneratedUtc,
+                    Recommendation = report.Recommendation,
+                    Checks = report.Checks,
+                    Triggers = report.Triggers,
+                    LedgerFilesScanned = report.LedgerFilesScanned,
+                };
+            }
+        }
+
+        string artifactKey = ItsmPullForwardOutputPaths.ResolveArtifactKey(report);
+        ItsmPullForwardOutputResolution outputPaths =
+            ItsmPullForwardOutputPaths.Resolve(childOptions, repositoryRoot, artifactKey);
+        ItsmPullForwardReport finalReport = report.WithOutputMetadata(
+            outputPaths.JsonPath,
+            outputPaths.MarkdownPath);
+
+        await PilotReadinessBundleChildArtifactWriter.WriteItsmPullForwardAsync(
+            finalReport,
+            outputPaths,
+            cancellationToken);
+
+        string modeLabel = childOptions.IncludeApi ? "live-api" : "offline-ledger";
+
+        return BuildSlotResult(
+            PilotReadinessBundleSlots.ItsmPullForwardGate,
+            "ITSM pull-forward gate",
+            PilotReadinessBundleVerdictMapper.FromItsmPullForward(finalReport),
+            $"Recommendation {finalReport.Recommendation}; mode {modeLabel}; {finalReport.Triggers.ActivatedTriggerCount} activated trigger(s).",
             finalReport.JsonArtifactPath,
             finalReport.MarkdownArtifactPath);
     }

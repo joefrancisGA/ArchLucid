@@ -1,11 +1,11 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **89.16%**.
+ArchLucid Assessment - (A) Headline Readiness: **89.28%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
-- **Assessment timestamp:** 2026-06-30T22:00:00-04:00.
+- **Assessment timestamp:** 2026-06-30T23:00:00-04:00.
 - **Source materials inspected (required read list):**
   1. `docs/library/REPO_DIGEST.md`
   2. `docs/library/V1_SCOPE.md`
@@ -40,9 +40,9 @@ ArchLucid Assessment - (A) Headline Readiness: **89.16%**.
 | 6 | Time-to-Value | 81 | 10 | 8.10 | 190 |
 | 7 | Proof-of-ROI Readiness | 86 | 9 | 7.74 | 126 |
 | 8 | Executive / Operator Comprehension | 88 | 8 | 7.04 | 96 |
-| 9 | Runtime & First-Review Reliability | 89 | 7 | 6.23 | 77 |
-| 10 | Adoption Friction | 88 | 5 | 4.40 | 60 |
-|  | **(A) Headline readiness** |  | **100** | **89.16** |  |
+| 9 | Runtime & First-Review Reliability | 90 | 7 | 6.30 | 70 |
+| 10 | Adoption Friction | 89 | 5 | 4.45 | 55 |
+|  | **(A) Headline readiness** |  | **100** | **89.28** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -142,9 +142,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.8 Runtime & First-Review Reliability
-- **Score / Weight / Contribution / Deficiency:** 89 / 7 / 6.23 / 77
+- **Score / Weight / Contribution / Deficiency:** 90 / 7 / 6.30 / 70
 - **Affects outcomes:** 2, 3
-- **Justification:** architecture and contracts are mature; ship-gate evidence embeds first-review completion Gate 1, citation-integrity Gate 2, ROI coherence Gate 3, export matrix Gate 4 (Markdown/DOCX/ZIP) with first-value claim lint (TB-415), first-review UI route smoke Gate 5 with default localhost/env/config resolution (TB-414), and live tenant-isolation deny-matrix Gate 6 for the representative `--run-id`; default operational artifact bundles for ship-gate (TB-418), tenant-isolation (TB-419), citation-integrity (TB-420), buyer-proof ledger (TB-421), return-trigger telemetry (TB-422), decision-owner scoreboard (TB-423), and frontier-AI baseline (TB-424) auto-write JSON + Markdown under `artifacts/` for release-train retention with overall PASS/FAIL/UNKNOWN or cohort verdict rollups; pilot readiness release-train bundle orchestrator (TB-425) runs all seven child bundles in one command with aggregate JSON + Markdown under `artifacts/pilot-readiness-bundle/{runId|offline-fixture}/` and slot-level artifact path index for CI; pilot readiness release-train CI gate (TB-427) runs offline `archlucid pilot readiness-bundle` on every dotnet-fast-core build and fails closed on aggregate FAIL slots; Playwright session depth remains environment-dependent when `--skip-ui-route-smoke` is used.
+- **Justification:** architecture and contracts are mature; ship-gate evidence embeds first-review completion Gate 1, citation-integrity Gate 2, ROI coherence Gate 3, export matrix Gate 4 (Markdown/DOCX/ZIP) with first-value claim lint (TB-415), first-review UI route smoke Gate 5 with default localhost/env/config resolution (TB-414), and live tenant-isolation deny-matrix Gate 6 for the representative `--run-id`; default operational artifact bundles for ship-gate (TB-418), tenant-isolation (TB-419), citation-integrity (TB-420), buyer-proof ledger (TB-421), return-trigger telemetry (TB-422), decision-owner scoreboard (TB-423), and frontier-AI baseline (TB-424) auto-write JSON + Markdown under `artifacts/` for release-train retention with overall PASS/FAIL/UNKNOWN or cohort verdict rollups; pilot readiness release-train bundle orchestrator (TB-425) runs eight child bundles in one command—including ITSM pull-forward gate (TB-428)—with aggregate JSON + Markdown under `artifacts/pilot-readiness-bundle/{runId|offline-fixture}/` and slot-level artifact path index for CI; pilot readiness release-train CI gate (TB-427) runs offline `archlucid pilot readiness-bundle` on every dotnet-fast-core build and fails closed on aggregate FAIL slots; Playwright session depth remains environment-dependent when `--skip-ui-route-smoke` is used.
 - **Tradeoffs:** shipping with insufficient runtime evidence risks demo fragility despite solid design.
 - **Recommendations:** add live `--run-id` readiness-bundle to RC/release workflows after representative first-review smoke; treat aggregate FAIL slots as release blockers before pilot handoff.
 - **Classification:** V1
@@ -158,9 +158,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.10 Adoption Friction
-- **Score / Weight / Contribution / Deficiency:** 88 / 5 / 4.40 / 60
+- **Score / Weight / Contribution / Deficiency:** 89 / 5 / 4.45 / 55
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; AWS and GCP Tier 2 connect/re-poll/disconnect on `/integrations/cloud-connections` (TB-402, TB-403, TB-407) extend Azure-parity automated evidence intake across the three major clouds; governance route consolidation (TB-405), Administration reconciliation (TB-406), and integrations route reconciliation (TB-407) remove redirecting nav hrefs; semantic aliases `/settings/ai-usage` and `/integrations/readiness` plus Internal Operations **System health** label deduplication (TB-408) remove address-bar vs nav-label drift; operator nav ↔ URL prefix policy + CI drift guard (TB-404) blocks silent nav regression on remaining cross-namespace hrefs; ship-gate Gate 5 UI route smoke (TB-410) with default UI origin resolution (TB-414) gives operators one-command first-review route health evidence without manual `--ui-base-url` in local pilot setups; ship-gate default operational artifact bundle (TB-418) removes manual `--json-out` / `--markdown-out` wiring for routine release evidence retention; pilot readiness release-train bundle (TB-425) collapses seven pilot evidence commands into one release-train orchestrator with aggregate artifact index; ITSM pull-forward gate default operational artifact bundle (TB-426) auto-writes connector pull-forward HOLD/WATCH/PULL_FORWARD evidence under `artifacts/itsm-pull-forward-gate/` for release-train retention; pilot readiness release-train CI gate (TB-427) runs offline readiness-bundle on every dotnet-fast-core build so operators do not manually rediscover bundle regressions; standardized tenant-isolation deny-matrix evidence, return-trigger cohort guardrails, and operator ITSM settings write API improve enterprise confidence without expanding pilot setup scope.
+- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; AWS and GCP Tier 2 connect/re-poll/disconnect on `/integrations/cloud-connections` (TB-402, TB-403, TB-407) extend Azure-parity automated evidence intake across the three major clouds; governance route consolidation (TB-405), Administration reconciliation (TB-406), and integrations route reconciliation (TB-407) remove redirecting nav hrefs; semantic aliases `/settings/ai-usage` and `/integrations/readiness` plus Internal Operations **System health** label deduplication (TB-408) remove address-bar vs nav-label drift; operator nav ↔ URL prefix policy + CI drift guard (TB-404) blocks silent nav regression on remaining cross-namespace hrefs; ship-gate Gate 5 UI route smoke (TB-410) with default UI origin resolution (TB-414) gives operators one-command first-review route health evidence without manual `--ui-base-url` in local pilot setups; ship-gate default operational artifact bundle (TB-418) removes manual `--json-out` / `--markdown-out` wiring for routine release evidence retention; pilot readiness release-train bundle (TB-425) collapses eight pilot evidence commands—including ITSM pull-forward (TB-428)—into one release-train orchestrator with aggregate artifact index; ITSM pull-forward gate default operational artifact bundle (TB-426) auto-writes connector pull-forward HOLD/WATCH/PULL_FORWARD evidence under `artifacts/itsm-pull-forward-gate/` for release-train retention; pilot readiness release-train CI gate (TB-427) runs offline readiness-bundle on every dotnet-fast-core build so operators do not manually rediscover bundle regressions; standardized tenant-isolation deny-matrix evidence, return-trigger cohort guardrails, and operator ITSM settings write API improve enterprise confidence without expanding pilot setup scope.
 - **Tradeoffs:** reducing friction too far risks weakening governance and assurance posture.
 - **Recommendations:** bias toward "default safe + guided first proof" instead of broad optionality at pilot start.
 - **Classification:** V1
@@ -789,6 +789,14 @@ Non-goals:
 - **Affected qualities:** 9, 10.
 - **Classification:** V1 engineering.
 - **Rescore impact:** Runtime & First-Review Reliability +1 and Adoption Friction +1; `(A)` headline readiness rises from **89.04%** to **89.16%**.
+
+**48) ITSM pull-forward gate in pilot readiness bundle (TB-428)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** `archlucid pilot readiness-bundle` now orchestrates eight slots—including `itsm-pull-forward-gate` as the seventh slot before ship-gate—with child JSON + Markdown under `artifacts/itsm-pull-forward-gate/{ledger-name|live-api}/`; HOLD maps to PASS, WATCH to WARN, PULL_FORWARD and missing infrastructure to FAIL; live ITSM health probe when `--include-api` is supplied; release-train CI gate validates eight slot keys.
+- **Validation evidence:** `PilotReadinessBundleRunnerTests` covers offline eight-slot orchestration with ITSM slot present; `test_run_pilot_readiness_release_train_gate.py` offline PASS fixture includes `itsm-pull-forward-gate`.
+- **Affected qualities:** 9, 10.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Runtime & First-Review Reliability +1 and Adoption Friction +1; `(A)` headline readiness rises from **89.16%** to **89.28%**.
 
 ## 18. Prompt Batching Guidance
 - **First batch (strong-model-recommended):** ship-gate evidence harness, tenant-isolation negative-test bundle, and citation-integrity sampler.

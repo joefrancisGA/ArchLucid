@@ -19,6 +19,7 @@ _EXPECTED_SLOT_KEYS = (
     "frontier-ai-baseline",
     "citation-integrity",
     "tenant-isolation-negative-test",
+    "itsm-pull-forward-gate",
     "ship-gate-evidence",
 )
 _OFFLINE_ARTIFACT_RELATIVE = Path(

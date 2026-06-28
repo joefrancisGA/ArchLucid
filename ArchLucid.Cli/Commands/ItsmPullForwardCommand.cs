@@ -184,7 +184,7 @@ internal static class ItsmPullForwardCommand
         }
     }
 
-    private static string BuildMarkdown(ItsmPullForwardReport report)
+    internal static string BuildMarkdown(ItsmPullForwardReport report)
     {
         StringBuilder sb = new();
 
