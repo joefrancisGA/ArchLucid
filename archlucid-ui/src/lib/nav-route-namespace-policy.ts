@@ -23,7 +23,7 @@ export const NAV_GROUP_CANONICAL_PREFIX_POLICIES: readonly NavGroupCanonicalPref
   { navGroupId: "operate-governance", canonicalPrefixes: ["/governance"] },
   { navGroupId: "operate-reports", canonicalPrefixes: ["/scorecard", "/value-report"] },
   { navGroupId: "operate-integrations", canonicalPrefixes: ["/integrations"] },
-  { navGroupId: "operator-admin", canonicalPrefixes: ["/settings", "/admin", "/workspace"] },
+  { navGroupId: "operator-admin", canonicalPrefixes: ["/settings"] },
   { navGroupId: "operator-system-admin", canonicalPrefixes: ["/admin"] },
 ];
 

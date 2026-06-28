@@ -69,10 +69,12 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("orients the operator security-trust route for procurement reviewers", () => {
-    const o = buyerPolishedRouteOrientation("/workspace/security-trust");
+    const canonical = buyerPolishedRouteOrientation("/settings/security-trust");
+    const legacy = buyerPolishedRouteOrientation("/workspace/security-trust");
 
-    expect(o?.label).toBe("Security & trust");
-    expect(o?.line).toContain("Procurement-facing security posture");
+    expect(canonical?.label).toBe("Security & trust");
+    expect(canonical?.line).toContain("Procurement-facing security posture");
+    expect(legacy).toEqual(canonical);
   });
 
   it("orients the sponsor value report route", () => {

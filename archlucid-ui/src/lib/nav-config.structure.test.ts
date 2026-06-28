@@ -127,6 +127,7 @@ describe("nav-config structure", () => {
       "/governance/decision-register",
       "/governance/audit",
       "/governance/alerts",
+      "/governance/recurrence-schedules",
     ]);
     expect(reportsHrefs).toEqual(["/scorecard", "/value-report", "/governance/first-30-days"]);
     expect(integrationsHrefs).toEqual([
@@ -147,8 +148,21 @@ describe("nav-config structure", () => {
 
     const adminHrefs = NAV_GROUPS.find((group) => group.id === "operator-admin")!.links.map((link) => link.href);
 
-    expect(adminHrefs).toContain("/workspace/security-trust");
+    expect(adminHrefs).toContain("/settings/security-trust");
+    expect(adminHrefs).toContain("/settings/users");
+    expect(adminHrefs).toContain("/settings/support");
     expect(adminHrefs).toContain("/settings/cost-reporting");
+    expect(adminHrefs).not.toContain("/governance/recurrence-schedules");
+  });
+
+  it("keeps administration nav hrefs under /settings/* (TB-406)", () => {
+    const admin = NAV_GROUPS.find((group) => group.id === "operator-admin");
+
+    expect(admin).toBeDefined();
+
+    for (const link of admin!.links) {
+      expect(link.href.startsWith("/settings/") || link.href === "/settings", link.href).toBe(true);
+    }
   });
 
   it("keeps governance nav hrefs under /governance/* (TB-405)", () => {

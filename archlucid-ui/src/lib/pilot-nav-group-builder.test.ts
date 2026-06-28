@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator-admin-nav-group-builder";
+import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
 import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 
@@ -39,12 +40,21 @@ describe("PilotNavGroupBuilder", () => {
     expect(dashboardLink?.href).toBe(getShowcaseExecutiveHref());
   });
 
-  it("includes recurrence schedules in the administration nav group", () => {
-    const group = new OperatorAdminNavGroupBuilder().build();
+  it("includes recurrence schedules in the governance nav group (TB-406)", () => {
+    const group = new OperateGovernanceNavGroupBuilder().build();
     const recurrenceLink = group.links.find((link) => link.href === "/governance/recurrence-schedules");
 
     expect(recurrenceLink).toBeDefined();
     expect(recurrenceLink?.label).toBe("Recurrence schedules");
+  });
+
+  it("includes security and trust in the administration nav group", () => {
+    const group = new OperatorAdminNavGroupBuilder().build();
+    const securityTrustLink = group.links.find((link) => link.href === "/settings/security-trust");
+
+    expect(securityTrustLink).toBeDefined();
+    expect(securityTrustLink?.label).toBe("Security & trust");
+    expect(securityTrustLink?.requiredAuthority).toBe("ReadAuthority");
   });
 
   it("keeps Review work focused on first-review essentials only", () => {

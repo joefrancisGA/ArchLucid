@@ -56,7 +56,7 @@ Operator sidebar groups imply a URL prefix in the address bar. **57** nav hrefs 
 | `operate-governance` | `/governance` | All governance nav hrefs are under `/governance/*` (TB-405). |
 | `operate-reports` | `/scorecard`, `/value-report` | Exception: `/governance/first-30-days` |
 | `operate-integrations` | `/integrations` | Exception: `/settings/cloud-connections` |
-| `operator-admin` | `/settings`, `/admin`, `/workspace` | Exception: `/governance/recurrence-schedules` |
+| `operator-admin` | `/settings` | All Administration nav hrefs under `/settings/*` (TB-406). |
 | `operator-system-admin` | `/admin` | Settings, operate, replay, digests, and value-report variants — see exception registry |
 
 **Exception registry (source of truth):** `src/lib/nav-route-namespace-exceptions.ts`  
@@ -98,7 +98,7 @@ UI hint only; API still 401/403.
 - **Analysis · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`, `AuthorityCompareController`) use **`ReadAuthority`**. **Replay** stays **`ExecuteAuthority`** (`AuthorityReplayController`).
 - **Operate · analysis (`operate-analysis`):** every link sets **`requiredAuthority`**. Read/analytics pages → **`ReadAuthority`** unless the API primary workflow is Execute-class (planning, evolution candidates; advisory **schedules** and digest **subscriptions** are hub tabs under **`/advisory`** and **`/digests`** with in-page Execute gating). Link `title` strings use **“Label — short description”** for tooltips (same convention as governance slice).
 - **Operate · governance (`operate-governance`):** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **Governance workflow** (mutations) → **`ExecuteAuthority`**.
-- **Operator admin (`operator-admin`, `platform-admin` surface):** **`/admin/health`** and **`/admin/users`** use **`AdminAuthority`**; **`advanced`** tier on system health keeps diagnostics off the default review shell. Other admin destinations use **`ReadAuthority`** / **`ExecuteAuthority`** as appropriate. Elsewhere under Operate, do not label list/browse pages **`AdminAuthority`** when the API is Read-class — POST-only admin actions stay on server policy.
+- **Operator admin (`operator-admin`, `platform-admin` surface):** tenant directory and support use **`/settings/users`** and **`/settings/support`** (legacy `/admin/*` redirect); **`/settings/security-trust`** replaces **`/workspace/security-trust`**. **`AdminAuthority`** on user management. Other admin destinations use **`ReadAuthority`** / **`ExecuteAuthority`** as appropriate. Elsewhere under Operate, do not label list/browse pages **`AdminAuthority`** when the API is Read-class — POST-only admin actions stay on server policy.
 
 ## UI shaping vs API authorization (boundary)
 

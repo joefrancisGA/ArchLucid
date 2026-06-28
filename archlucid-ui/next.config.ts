@@ -128,6 +128,13 @@ const nextConfig: NextConfig = {
       { source: "/settings/webhooks", destination: "/integrations/webhooks", permanent: false },
       { source: "/integrations/itsm", destination: "/integrations/operations", permanent: false },
       { source: "/admin/ai-usage-cost", destination: "/settings/cost-reporting", permanent: false },
+      // Administration route namespace reconciliation (TB-406).
+      { source: "/workspace/security-trust", destination: "/settings/security-trust", permanent: true },
+      { source: "/workspace/security-trust/:path*", destination: "/settings/security-trust/:path*", permanent: true },
+      { source: "/admin/users", destination: "/settings/users", permanent: true },
+      { source: "/admin/users/:path*", destination: "/settings/users/:path*", permanent: true },
+      { source: "/admin/support", destination: "/settings/support", permanent: true },
+      { source: "/admin/support/:path*", destination: "/settings/support/:path*", permanent: true },
     ];
   },
   async rewrites() {
@@ -149,6 +156,13 @@ const nextConfig: NextConfig = {
       { source: "/governance/audit/:path*", destination: "/audit/:path*" },
       { source: "/governance/alerts", destination: "/alerts" },
       { source: "/governance/alerts/:path*", destination: "/alerts/:path*" },
+      // Tenant-administration canonical URLs reuse existing App Router trees (TB-406).
+      { source: "/settings/security-trust", destination: "/workspace/security-trust" },
+      { source: "/settings/security-trust/:path*", destination: "/workspace/security-trust/:path*" },
+      { source: "/settings/users", destination: "/admin/users" },
+      { source: "/settings/users/:path*", destination: "/admin/users/:path*" },
+      { source: "/settings/support", destination: "/admin/support" },
+      { source: "/settings/support/:path*", destination: "/admin/support/:path*" },
     ];
   },
 };

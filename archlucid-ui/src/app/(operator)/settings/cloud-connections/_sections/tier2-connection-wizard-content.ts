@@ -47,7 +47,7 @@ export const TIER2_WIZARD_DOC_PATHS = {
 export const TIER2_WIZARD_HELP_HREFS = {
   hostedEnterpriseOnboarding: inAppHelpHref("enterprise-onboarding"),
   procurementFaq: inAppHelpHref("procurement"),
-  trustCenter: "/workspace/security-trust",
+  trustCenter: "/settings/security-trust",
   connectAzureSecurely: "/help/cloud-connections/azure",
   securityTrust: inAppHelpHref("security-trust"),
 } as const;

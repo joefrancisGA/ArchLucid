@@ -33,8 +33,8 @@ export function SupportBundleDownloadButton({
       {showAdminLink ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Requires admin API access. Full diagnostics page:{" "}
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/admin/support">
-            Admin → Support
+          <Link className="text-teal-800 underline dark:text-teal-300" href="/settings/support">
+            Settings → Support
           </Link>
           .
         </p>

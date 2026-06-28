@@ -65,8 +65,7 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByText("Connect Azure")).toBeInTheDocument();
     expect(screen.getByText("Connect AWS")).toBeInTheDocument();
     expect(screen.getByText("Connect GCP")).toBeInTheDocument();
-    expect(screen.getByText("Azure connection")).toBeInTheDocument();
-    expect(screen.getByText("Evidence tier: Cloud-connected")).toBeInTheDocument();
+    expect(screen.getByText("Automated connections")).toBeInTheDocument();
     expect(screen.getByText("Create Azure identity")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connections-available-azure")).toBeInTheDocument();
     expect(screen.getByLabelText(/Only Reader and Cost Management Reader/i)).toBeInTheDocument();
@@ -80,19 +79,14 @@ describe("CloudConnectionsPageClient", () => {
       "/help/enterprise-onboarding",
     );
     expect(screen.getByRole("link", { name: "procurement FAQ" })).toHaveAttribute("href", "/help/procurement");
-    expect(screen.getByRole("link", { name: "trust center" })).toHaveAttribute("href", "/workspace/security-trust");
+    expect(screen.getByRole("link", { name: "trust center" })).toHaveAttribute("href", "/settings/security-trust");
 
     const intro = screen.getByTestId("cloud-connections-page").textContent ?? "";
-    expect(intro).toMatch(/Azure cloud connection is optional/i);
-    expect(intro).toMatch(/production-faithful Azure evidence when available/i);
-    expect(intro).not.toMatch(/Amazon Web Services/i);
-    expect(intro).not.toMatch(/Google Cloud Platform/i);
+    expect(intro).toMatch(/Connect Azure, AWS, or GCP/i);
+    expect(intro).toMatch(/scheduled read-only evidence collection/i);
     expect(intro).not.toMatch(/More providers/i);
-    expect(intro).not.toMatch(/cloud providers/i);
-    expect(intro).not.toMatch(/Configure continuous ingestion from your/i);
-    expect(intro).not.toMatch(/Connect Azure \(Tier 2\)/i);
-    expect(intro).not.toMatch(/hosted extractor configuration/i);
     expect(intro).not.toMatch(/planned for V1\.1/i);
+    expect(intro).not.toMatch(/Azure-only/i);
   });
 
   it("surfaces misconfigured tenant and client GUID validation on the connection step", async () => {

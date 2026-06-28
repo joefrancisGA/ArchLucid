@@ -26,7 +26,7 @@ describe("findSidebarNavGroupIdsForActivePath", () => {
   it("returns administration when security and trust is active", () => {
     const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, true, true, 3, false, "all", true, 2);
 
-    expect(findSidebarNavGroupIdsForActivePath(rows, "/workspace/security-trust")).toEqual(["operator-admin"]);
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/settings/security-trust")).toEqual(["operator-admin"]);
   });
 
   it("returns analysis when architecture advisory is active", () => {

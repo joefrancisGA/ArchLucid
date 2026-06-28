@@ -21,13 +21,6 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
       "Tier 2 cloud connection management shares settings App Router tree with tenant settings; surfaced under Integrations for evidence-source mental model.",
   },
   {
-    navGroupId: "operator-admin",
-    href: "/governance/recurrence-schedules",
-    canonicalPrefixes: ["/settings", "/admin", "/workspace"],
-    exceptionReason:
-      "Recurrence schedule management is governance workflow but grouped under Administration next to tenant settings.",
-  },
-  {
     navGroupId: "operator-system-admin",
     href: "/operate/integration-events/dlq",
     canonicalPrefixes: ["/admin"],

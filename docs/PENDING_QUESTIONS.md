@@ -40,14 +40,26 @@
 - **2026-05-29 — Assessment #23 / #25 → V1.1 backlog:** SOC 2 CPA (**TB-135**) and third-party pen test (**TB-136**) are **V1.1 backlog** organizational programs — **not** V1 assessment implementation prompts. See **`.cursor/rules/V1_1-assurance-backlog.mdc`**, [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c. *Resolved 2026-05-29 (assurance V1.1 backlog)* below.
 - **2026-05-29 — Azure AI Search on production-like profiles:** **Required for all production-like profiles** (not optional when reranking alone). See *Resolved 2026-05-29 (Azure AI Search — production-like requirement)* below.
 - **2026-05-29 — Scope-to-identity / API key pilots:** **No** existing pilots rely on header-only tenant selection with API keys; TB-072 may enforce binding without a pilot carve-out. See *Resolved 2026-05-29 (API key scope binding — no legacy pilots)* below.
+- **2026-06-27 — AWS/GCP Tier 2 cloud polling credential model (PQ-CLOUD-01):** **Option (a)** for both **AWS** and **GCP** — federated trust to ArchLucid's Azure Managed Identity; **no** long-lived access keys or service-account JSON in Key Vault. See *Resolved 2026-06-27 (PQ-CLOUD-01 — AWS/GCP Tier 2 credential model)* below.
 - **2026-05-01 — Third-party pen test:** **V1.1 backlog (TB-136)**; **V1** = owner-conducted (**TB-005**); supersedes prior **V2** framing where it conflicted — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c.
 - **2026-04-27:** (1) Auth default: Entra ID or explicit API keys (Resolved). (2) Hidden UI features: **404** (Resolved).
 
-**Last updated:** 2026-05-30 — **Azure AI Search index field contract** (*Resolved 2026-05-30*) · **Enterprise UI design system rollout sequencing** (*Resolved 2026-05-30*) · **Team self-serve bundled Stripe SKU at launch** (*Resolved 2026-05-30*) · **`signup.archlucid.net` DNS readiness** (*Resolved 2026-05-30*). Prior **2026-05-18 — Connectors + integration contract:** first-party **Jira** / **ServiceNow** / **Confluence** / **Slack** and **Teams** / **webhooks** / **recipes** as **buyer-contract** paths → **V1.1** (*Resolved 2026-05-18* + scope clarification same day). **V1** buyer bar: **REST** / **CLI** / **operator UI** / **§2.16+**. Prior **2026-05-05** commerce / breadth / WCAG / pricing block unchanged except connector window.
+**Last updated:** 2026-06-28 — **PQ-NAV-01 tenant admin URL namespace** (*Resolved 2026-06-28 — `/settings/*` for Administration; TB-406*). Prior **2026-06-27** — **PQ-CLOUD-01 AWS/GCP Tier 2 credential model** (*Resolved 2026-06-27*). Prior **2026-05-30** — Azure AI Search index field contract · Enterprise UI design system rollout sequencing · Team self-serve bundled Stripe SKU at launch · **`signup.archlucid.net` DNS readiness**. Prior **2026-05-18 — Connectors + integration contract:** first-party **Jira** / **ServiceNow** / **Confluence** / **Slack** and **Teams** / **webhooks** / **recipes** as **buyer-contract** paths → **V1.1** (*Resolved 2026-05-18* + scope clarification same day). **V1** buyer bar: **REST** / **CLI** / **operator UI** / **§2.16+**. Prior **2026-05-05** commerce / breadth / WCAG / pricing block unchanged except connector window.
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
+
+---
+
+## Resolved 2026-06-27 (PQ-CLOUD-01 — AWS/GCP Tier 2 credential model)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **AWS Tier 2 (`TB-402`)** | **Option (a):** customer **IAM role ARN** + **AWS IAM OIDC / Workload Identity Federation** — trust ArchLucid's **Azure Managed Identity** as the federated principal. **No** long-lived access-key + secret in Key Vault for the primary path. | `TenantAwsConnectionRecords`, `Integrations.AwsExtractor`, `/settings/cloud-connections` AWS connect flow, `infra/terraform-hosted-prod/modules/aws-extractor/`, trust-center AWS Tier 2 posture |
+| **GCP Tier 2 (`TB-403`)** | **Option (a):** **GCP Workload Identity Federation** — bind ArchLucid's **Azure Managed Identity** via a GCP **Workload Identity Pool** + provider; impersonate a read-only service account at poll time. **No** service-account JSON key in Key Vault for the primary path. | `TenantGcpConnectionRecords`, `Integrations.GcpExtractor`, `/settings/cloud-connections` GCP connect flow, Terraform module, trust-center GCP Tier 2 posture |
+| **Fallback keys** | **Not** the supported primary model. Engineering may document break-glass / migration guidance only if a buyer procurement exception requires it — not as the default connect UX. | TB-402/TB-403 acceptance criteria, procurement FAQ |
+| **Unblocks** | **TB-402** and **TB-403** are **cleared to implement** per [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md). | V1.1 automated cloud polling cluster |
 
 ---
 
@@ -401,6 +413,8 @@ Verbatim owner tables through **2026-04-28** (assessor B, ten-improvement Q&A, a
     - **Release window (Resolved 2026-04-23, sixth pass):** **V1.1.** Key generation, drop, and `SECURITY.md` / marketing `/security` updates are no longer V1 obligations — see Q12 / Q13 / Q14 in *Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)* in [`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) (Part B) and [`V1_DEFERRED.md`](library/V1_DEFERRED.md) § 6c. UID is gated on `archlucid.net` domain acquisition.
 
 4. **Next Microsoft-aligned workflow integration** — **Resolved 2026-05-05:** **Deeper Microsoft-native** (Teams, Logic Apps / [ADR 0019](architecture/adrs/0019-logic-apps-standard-edge-orchestration.md)) as the **primary next breadth bet** after shipped GitHub + ADO anchors — see *Resolved 2026-05-05 (Next workflow breadth — item 4)* above. **Updated 2026-05-18:** **ServiceNow**, **Jira**, **Confluence**, **Slack**, **Microsoft Teams** webhook delivery, **CloudEvents** webhooks, and **recipe** bridges are **V1.1** buyer-contract obligations ([`V1_SCOPE.md`](library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3).
+
+5. **PQ-NAV-01 — Tenant admin URL namespace (TB-406)** — *Resolved 2026-06-28:* canonical **Administration** prefix is **`/settings/*`** (`/settings/users`, `/settings/security-trust`, `/settings/support`); legacy `/admin/users`, `/workspace/security-trust`, `/admin/support` redirect permanently. **Recurrence schedules** nav moved to **Governance**. **Still open (TB-407):** cloud connections nav placement vs URL (option (a) `/integrations/cloud-connections` vs (b) move nav to Administration).
 
 ---
 

@@ -192,7 +192,7 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path === "/workspace/security-trust") {
+  if (path === "/settings/security-trust" || path === "/workspace/security-trust") {
     return {
       label: "Security & trust",
       line: "Procurement-facing security posture, trust center, and assessment materials.",

@@ -1,4 +1,9 @@
 import { NAV_GROUPS } from "@/lib/nav-config";
+import {
+  pathMatchesSettingsSecurityTrust,
+  pathMatchesSettingsSupport,
+  pathMatchesSettingsUsers,
+} from "@/lib/settings-admin-route-paths";
 
 /**
  * Product layer (buyer context) for operator shell — aligned with `NAV_GROUPS[].id` in `nav-config.ts` (read-only;
@@ -79,6 +84,15 @@ const NAV_PATH_MATCHES: ReadonlyArray<NavPathMatch> = (() => {
  */
 export function getLayerForRoute(pathname: string): LayerId {
   const normalized = pathname && pathname.length > 0 ? pathname : "/";
+
+  if (
+    pathMatchesSettingsUsers(normalized)
+    || pathMatchesSettingsSecurityTrust(normalized)
+    || pathMatchesSettingsSupport(normalized)
+  ) {
+    return "operator-admin";
+  }
+
   for (const m of NAV_PATH_MATCHES) {
     if (pathMatchesPathname(normalized, m.path)) {
       return m.groupId;
