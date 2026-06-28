@@ -21,4 +21,26 @@ internal sealed class CitationIntegrityReport
     public bool FailThresholdExceeded => RunsWithFailIssues >= FailThreshold;
 
     public IReadOnlyList<CitationIntegrityRunResult> Runs { get; init; } = [];
+
+    public string? JsonArtifactPath { get; init; }
+
+    public string? MarkdownArtifactPath { get; init; }
+
+    internal CitationIntegrityReport WithOutputMetadata(
+        string? jsonArtifactPath,
+        string? markdownArtifactPath) =>
+        new()
+        {
+            RepositoryRoot = RepositoryRoot,
+            BaseUrl = BaseUrl,
+            GeneratedUtc = GeneratedUtc,
+            OverallVerdict = OverallVerdict,
+            SampleSize = SampleSize,
+            CommittedRunsConsidered = CommittedRunsConsidered,
+            RunsWithFailIssues = RunsWithFailIssues,
+            FailThreshold = FailThreshold,
+            Runs = Runs,
+            JsonArtifactPath = jsonArtifactPath,
+            MarkdownArtifactPath = markdownArtifactPath,
+        };
 }

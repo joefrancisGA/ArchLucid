@@ -18,6 +18,8 @@ internal sealed class CitationIntegrityOptions
 
     public int? FailThreshold { get; init; }
 
+    public bool SuppressDefaultArtifacts { get; init; }
+
     public static CitationIntegrityOptions Parse(string[] args)
     {
         ArgumentNullException.ThrowIfNull(args);
@@ -35,6 +37,8 @@ internal sealed class CitationIntegrityOptions
             IncludeApi = args.Any(static arg => string.Equals(arg, "--include-api", StringComparison.Ordinal)),
             SampleSize = sampleSize,
             FailThreshold = failThreshold,
+            SuppressDefaultArtifacts = args.Any(static arg =>
+                string.Equals(arg, "--no-write-artifacts", StringComparison.OrdinalIgnoreCase)),
         };
     }
 

@@ -66,14 +66,17 @@ internal static class CitationIntegrityCommand
             report = runner.RunOffline(repositoryRoot, options, rules);
         }
 
-        string json = JsonSerializer.Serialize(report, JsonOptions);
-        string markdown = BuildMarkdown(report);
+        string artifactKey = CitationIntegrityOutputPaths.ResolveArtifactKey(report);
+        CitationIntegrityOutputResolution outputPaths =
+            CitationIntegrityOutputPaths.Resolve(options, repositoryRoot, artifactKey);
+        CitationIntegrityReport finalReport = report.WithOutputMetadata(
+            outputPaths.JsonPath,
+            outputPaths.MarkdownPath);
 
-        if (!string.IsNullOrWhiteSpace(options.JsonOutPath))
-            await File.WriteAllTextAsync(options.JsonOutPath, json, Encoding.UTF8, cancellationToken);
+        string json = JsonSerializer.Serialize(finalReport, JsonOptions);
+        string markdown = BuildMarkdown(finalReport);
 
-        if (!string.IsNullOrWhiteSpace(options.MarkdownOutPath))
-            await File.WriteAllTextAsync(options.MarkdownOutPath, markdown, Encoding.UTF8, cancellationToken);
+        await WriteArtifactsAsync(outputPaths, json, markdown, cancellationToken);
 
         if (CliExecutionContext.JsonOutput)
         {
@@ -81,12 +84,39 @@ internal static class CitationIntegrityCommand
         }
         else
         {
-            WriteConsoleSummary(report);
+            WriteConsoleSummary(finalReport);
             Console.WriteLine();
             Console.WriteLine(markdown);
         }
 
-        return report.FailThresholdExceeded ? CliExitCode.OperationFailed : CliExitCode.Success;
+        return finalReport.FailThresholdExceeded ? CliExitCode.OperationFailed : CliExitCode.Success;
+    }
+
+    private static async Task WriteArtifactsAsync(
+        CitationIntegrityOutputResolution outputPaths,
+        string json,
+        string markdown,
+        CancellationToken cancellationToken)
+    {
+        if (outputPaths.WillWriteJson)
+        {
+            string jsonDirectory = Path.GetDirectoryName(outputPaths.JsonPath!)!;
+
+            if (!Directory.Exists(jsonDirectory))
+                Directory.CreateDirectory(jsonDirectory);
+
+            await File.WriteAllTextAsync(outputPaths.JsonPath!, json, Encoding.UTF8, cancellationToken);
+        }
+
+        if (outputPaths.WillWriteMarkdown)
+        {
+            string markdownDirectory = Path.GetDirectoryName(outputPaths.MarkdownPath!)!;
+
+            if (!Directory.Exists(markdownDirectory))
+                Directory.CreateDirectory(markdownDirectory);
+
+            await File.WriteAllTextAsync(outputPaths.MarkdownPath!, markdown, Encoding.UTF8, cancellationToken);
+        }
     }
 
     private static void WriteConsoleSummary(CitationIntegrityReport report)
@@ -99,6 +129,13 @@ internal static class CitationIntegrityCommand
 
         Console.WriteLine($"overall: {FormatVerdict(report.OverallVerdict)}");
         Console.WriteLine($"sample: {report.SampleSize} of {report.CommittedRunsConsidered} committed runs");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            Console.WriteLine($"json artifact: {report.JsonArtifactPath}");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            Console.WriteLine($"markdown artifact: {report.MarkdownArtifactPath}");
+
         Console.WriteLine(new string('-', 72));
 
         foreach (CitationIntegrityRunResult run in report.Runs)
@@ -128,6 +165,13 @@ internal static class CitationIntegrityCommand
         sb.AppendLine($"Overall verdict: **{FormatVerdict(report.OverallVerdict)}**");
         sb.AppendLine($"Sample size: {report.SampleSize} (committed pool: {report.CommittedRunsConsidered})");
         sb.AppendLine($"Runs with FAIL issues: {report.RunsWithFailIssues} (threshold: {report.FailThreshold})");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            sb.AppendLine($"JSON artifact: `{report.JsonArtifactPath}`");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            sb.AppendLine($"Markdown artifact: `{report.MarkdownArtifactPath}`");
+
         sb.AppendLine();
         sb.AppendLine("## Run results");
         sb.AppendLine();
@@ -181,6 +225,6 @@ internal static class CitationIntegrityCommand
     {
         Console.WriteLine(
             "Usage: archlucid pilot citation-integrity [--fixtures-dir <path>] [--manifest <path>] [--rules <path>] "
-            + "[--sample-size <n>] [--fail-threshold <n>] [--include-api] [--json-out <path>] [--markdown-out <path>] [--json]");
+            + "[--sample-size <n>] [--fail-threshold <n>] [--include-api] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] [--json]");
     }
 }
