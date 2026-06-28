@@ -9,11 +9,19 @@ vi.mock("@/lib/toast", () => ({
 const listTier2Connections = vi.fn(async () => []);
 const configureTier2Connection = vi.fn();
 const validateTier2ConnectionHostedRun = vi.fn();
+const listAwsTier2Connections = vi.fn(async () => []);
 
 vi.mock("@/lib/api/cloud-connections-api", () => ({
   listTier2Connections: (...args: unknown[]) => listTier2Connections(...args),
   configureTier2Connection: (...args: unknown[]) => configureTier2Connection(...args),
   validateTier2ConnectionHostedRun: (...args: unknown[]) => validateTier2ConnectionHostedRun(...args),
+}));
+
+vi.mock("@/lib/api/aws-cloud-connections-api", () => ({
+  listAwsTier2Connections: (...args: unknown[]) => listAwsTier2Connections(...args),
+  configureAwsTier2Connection: vi.fn(),
+  disconnectAwsTier2Connection: vi.fn(),
+  triggerAwsTier2HostedRun: vi.fn(),
 }));
 
 import { CloudConnectionsPageClient } from "./CloudConnectionsPageClient";
@@ -44,9 +52,11 @@ describe("CloudConnectionsPageClient", () => {
       expect(screen.getByTestId("tier2-connection-wizard")).toBeInTheDocument();
     });
 
+    expect(screen.getByRole("heading", { level: 1, name: "Cloud connections" })).toBeInTheDocument();
     expect(screen.getByText("Security review checklist")).toBeInTheDocument();
     expect(screen.getByText("Connect Azure")).toBeInTheDocument();
-    expect(screen.getByText("Available connections")).toBeInTheDocument();
+    expect(screen.getByText("Connect AWS")).toBeInTheDocument();
+    expect(screen.getByText("Azure connection")).toBeInTheDocument();
     expect(screen.getByText("Evidence tier: Cloud-connected")).toBeInTheDocument();
     expect(screen.getByText("Create Azure identity")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connections-available-azure")).toBeInTheDocument();
@@ -64,8 +74,8 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByRole("link", { name: "trust center" })).toHaveAttribute("href", "/workspace/security-trust");
 
     const intro = screen.getByTestId("cloud-connections-page").textContent ?? "";
-    expect(intro).toMatch(/Cloud connections are optional/i);
-    expect(intro).toMatch(/production-faithful evidence when available/i);
+    expect(intro).toMatch(/Azure cloud connection is optional/i);
+    expect(intro).toMatch(/production-faithful Azure evidence when available/i);
     expect(intro).not.toMatch(/Amazon Web Services/i);
     expect(intro).not.toMatch(/Google Cloud Platform/i);
     expect(intro).not.toMatch(/More providers/i);

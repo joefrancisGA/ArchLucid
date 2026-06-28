@@ -10,6 +10,7 @@ using ArchLucid.Api.Services.Evolution;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Analytics;
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Application.AwsExtractor;
 using ArchLucid.Mcp.Tools;
 using ArchLucid.Application.Import;
 using ArchLucid.Core.Configuration;
@@ -82,8 +83,10 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IArchitectureDefinitionCsvImportDryRunService, ArchitectureDefinitionCsvImportDryRunService>();
         services.AddHostedAzureExtractorIntegrationServices(configuration);
+        services.AddHostedAwsExtractorIntegrationServices(configuration);
         services.AddCloudInventoryExtractorIngestServices();
         services.AddScoped<ITier2ConnectionService, Tier2ConnectionService>();
+        services.AddScoped<IAwsTier2ConnectionService, AwsTier2ConnectionService>();
         services.AddScoped<IPatternInsightsService, PatternInsightsService>();
         services.AddScoped<RetrievalTools>();
         services.AddScoped<PolicyPackMarkdownExplainService>();

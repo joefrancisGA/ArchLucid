@@ -1,11 +1,11 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **84.24%**.
+ArchLucid Assessment - (A) Headline Readiness: **84.39%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
-- **Assessment timestamp:** 2026-06-28T00:15:00-04:00.
+- **Assessment timestamp:** 2026-06-28T02:30:00-04:00.
 - **Source materials inspected (required read list):**
   1. `docs/library/REPO_DIGEST.md`
   2. `docs/library/V1_SCOPE.md`
@@ -37,12 +37,12 @@ ArchLucid Assessment - (A) Headline Readiness: **84.24%**.
 | 3 | Governed Review Integrity | 93 | 13 | 12.09 | 91 |
 | 4 | Correctness & Evidence Integrity | 87 | 12 | 10.44 | 156 |
 | 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 160 |
-| 6 | Time-to-Value | 79 | 10 | 7.90 | 210 |
+| 6 | Time-to-Value | 80 | 10 | 8.00 | 200 |
 | 7 | Proof-of-ROI Readiness | 82 | 9 | 7.38 | 162 |
 | 8 | Executive / Operator Comprehension | 79 | 8 | 6.32 | 168 |
 | 9 | Runtime & First-Review Reliability | 80 | 7 | 5.60 | 140 |
-| 10 | Adoption Friction | 75 | 5 | 3.75 | 125 |
-|  | **(A) Headline readiness** |  | **100** | **84.24** |  |
+| 10 | Adoption Friction | 76 | 5 | 3.80 | 120 |
+|  | **(A) Headline readiness** |  | **100** | **84.39** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -70,7 +70,7 @@ These diagnostics do **not** feed `(A)` directly.
 6. **Auth + tenant isolation behave correctly on pilot path:** **PASS (structural deny-matrix)** - `archlucid pilot tenant-isolation-negative-test` emits cross-tenant deny probes with correlation IDs (offline fixture replay + optional live `--run-id` mode); live two-tenant SQL smoke remains the fastest full-environment proof.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **84.24%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credentials (TB-392), operator-configurable outbound settings UI (TB-393), durable async outbound ticket creation (TB-394), finding remediation assignee/due fields on inspect and risk register (TB-395), inbound ITSM disposition sync when configured (TB-396), pluggable external ticket connectors for outbound create (TB-397), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
+- **(A) Overall headline readiness (excludes deferred items):** **84.39%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credentials (TB-392), operator-configurable outbound settings UI (TB-393), durable async outbound ticket creation (TB-394), finding remediation assignee/due fields on inspect and risk register (TB-395), inbound ITSM disposition sync when configured (TB-396), pluggable external ticket connectors for outbound create (TB-397), automated AWS Tier 2 cloud polling at Azure extractor parity (TB-402), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -86,9 +86,9 @@ These diagnostics do **not** feed `(A)` directly.
 ## 7. Weighted Quality Assessment (Ordered by Weighted Deficiency Signal)
 
 ### 7.1 Time-to-Value
-- **Score / Weight / Contribution / Deficiency:** 79 / 10 / 7.90 / 210
+- **Score / Weight / Contribution / Deficiency:** 80 / 10 / 8.00 / 200
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** first-review path is documented and broad, but the operator still crosses many setup/interpretation surfaces before "decision-changing insight" is obvious; return-trigger telemetry now aggregates reuse and dismissal signals so cohort messaging can follow guardrails instead of ad hoc notes.
+- **Justification:** first-review path is documented and broad, but the operator still crosses many setup/interpretation surfaces before "decision-changing insight" is obvious; AWS Tier 2 automated polling (TB-402) reduces manual ZIP friction for multi-cloud AWS estates at parity with Azure Tier 2; return-trigger telemetry aggregates reuse and dismissal signals so cohort messaging can follow guardrails instead of ad hoc notes.
 - **Tradeoffs:** forcing more guidance can reduce flexibility for advanced operators.
 - **Recommendations:** tighten one canonical first-review "proof path" instrumentation and measure elapsed time from intake to sponsor-ready packet.
 - **Classification:** V1
@@ -158,9 +158,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.10 Adoption Friction
-- **Score / Weight / Contribution / Deficiency:** 74 / 5 / 3.70 / 130
+- **Score / Weight / Contribution / Deficiency:** 76 / 5 / 3.80 / 120
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; standardized tenant-isolation deny-matrix evidence, return-trigger cohort guardrails, and operator ITSM settings write API + `/integrations/itsm` hub improve enterprise confidence without expanding pilot setup scope.
+- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; AWS Tier 2 connect/re-poll/disconnect on `/settings/cloud-connections` (TB-402) extends Azure-parity automated evidence intake; standardized tenant-isolation deny-matrix evidence, return-trigger cohort guardrails, and operator ITSM settings write API + `/integrations/itsm` hub improve enterprise confidence without expanding pilot setup scope.
 - **Tradeoffs:** reducing friction too far risks weakening governance and assurance posture.
 - **Recommendations:** bias toward "default safe + guided first proof" instead of broad optionality at pilot start.
 - **Classification:** V1
@@ -565,6 +565,14 @@ Non-goals:
 - **Affected qualities:** 2, 4.
 - **Classification:** V2 engineering prerequisite (shipped ahead of full enterprise connector TB-398).
 - **Rescore impact:** Differentiability / Defensibility +1 and Correctness & Evidence Integrity +1; `(A)` headline readiness rises from **83.99%** to **84.24%**.
+
+**20) Automated AWS polling (Tier 2) (TB-402)**
+- **Status:** shipped (2026-06-27).
+- **Implementation summary:** `Integrations.AwsExtractor` hosted client (Azure MI OIDC → STS AssumeRoleWithWebIdentity → Resource Explorer search → schema v1 ZIP); `TenantAwsConnectionRecords` persistence; `POST/GET/DELETE /v1/aws-extractor/connections`; `POST /v1/admin/aws-extractor/hosted/run`; leader-elected `AwsExtractorAutoPullHostedService` (`CloudPolling:Aws`, default off); `/settings/cloud-connections` AWS section; audit events `CloudConnection.AwsConnected` / `AwsPolled` / `AwsDisconnected`; trust-center AWS Tier 2 posture; Terraform module `infra/terraform-hosted-prod/modules/aws-extractor/`.
+- **Validation evidence:** `HostedAwsExtractorRunServiceTests`, `AwsTier2ConnectionServiceTests`, `AwsInventoryZipPackagerTests`, `CloudConnectionsPageClient.test.tsx` (Azure wizard regression retained).
+- **Affected qualities:** 6, 10.
+- **Classification:** V1.1 engineering.
+- **Rescore impact:** Time-to-Value +1 and Adoption Friction +1; `(A)` headline readiness rises from **84.24%** to **84.39%**.
 
 ## 18. Prompt Batching Guidance
 - **First batch (strong-model-recommended):** ship-gate evidence harness, tenant-isolation negative-test bundle, and citation-integrity sampler.

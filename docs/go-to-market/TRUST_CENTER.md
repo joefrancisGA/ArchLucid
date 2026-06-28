@@ -34,7 +34,17 @@ ArchLucid is built so that **security, privacy, and operational transparency** a
 
 **Tier 1 (default V1):** ArchLucid does **not** need login access to your Azure tenant for cost and architecture ingestion. Operators run **`scripts/azure/Get-ArchLucidAzurePackage.ps1`**, inspect the artifact, and upload the **`schemaVersion`-versioned ZIP** via **`POST /v1/azure-extractor/upload`** (see [../runbooks/AZURE_EXTRACTOR_INGEST.md](../runbooks/AZURE_EXTRACTOR_INGEST.md)). **InfoSec pre-read (share with security reviewers):** [AZURE_EXTRACTOR_INFOSEC_PREREAD.md](AZURE_EXTRACTOR_INFOSEC_PREREAD.md).
 
-**Tier 2 (planned continuous mode, optional V1.x+):** If a future release offers pull-based collection, the customer would provision a **dedicated** service principal with **only** Azure **`Reader`** and **`Cost Management Reader`**, scoped to a subscription or management group, with **federated workload identity** preferred over long-lived secrets. See [../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md).
+**Tier 2 (optional continuous mode — Azure shipped V1; AWS shipped V1.1 TB-402):** Pull-based collection uses **federated workload identity** — no long-lived secrets stored in ArchLucid. **Azure:** customer provisions a dedicated service principal with **only** **`Reader`** and **`Cost Management Reader`**, scoped to a subscription or management group. **AWS (V1.1):** customer provisions a **read-only IAM role** that trusts ArchLucid's **Azure managed identity** via **OIDC / web identity federation**; ArchLucid polls **AWS Resource Explorer** and ingests the same schema v1 inventory ZIP as Tier 1 manual upload. Connection metadata (account ID, region, role ARN) is stored per tenant; **no** access-key pairs on the primary path. See [../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) and operator settings **Cloud connections**.
+
+## AWS connectivity (extractor posture)
+
+**Tier 1 (default):** Operators run **`scripts/Get-ArchLucidAwsPackage.ps1`**, inspect the artifact, and upload the **`schemaVersion`-versioned ZIP** via **`POST /v1/extractor/aws/upload`**.
+
+**Tier 2 (optional V1.1 — TB-402):** Same federated-trust model as Azure Tier 2, adapted for AWS: customer IAM role ARN + OIDC trust to ArchLucid's Azure managed identity; scheduled polling via **`CloudPolling:Aws`** (default off; 24 h interval when enabled). ArchLucid requests **read-only** inventory via Resource Explorer only — **no** write, mutate, or infrastructure-apply permissions.
+
+### What we will never ask you to assign (AWS)
+
+ArchLucid will **never** ask for **`AdministratorAccess`**, **`PowerUserAccess`**, **`IAMFullAccess`**, or any role that can modify your AWS infrastructure on your behalf.
 
 ### What we will never ask you to assign
 

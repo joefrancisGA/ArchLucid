@@ -89,7 +89,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/admin/ai-usage-cost"
+      "nav_operator_href": "/settings/cost-reporting"
     },
     {
       "controller_file": "Admin/AdminLlmMonthlyDollarBudgetStatusController.cs",
@@ -230,6 +230,16 @@
       "class_policy": "AdminAuthority",
       "exemption": null,
       "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/HostedAwsExtractorRunController.cs",
+      "class_name": "HostedAwsExtractorRunController",
+      "route_template": "v{version:apiVersion}/admin/aws-extractor/hosted",
+      "normalized_prefix": "/v1/admin/aws-extractor/hosted",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": "/settings/cloud-connections"
     },
     {
       "controller_file": "Admin/HostedAzureExtractorAdminController.cs",
@@ -660,6 +670,16 @@
       "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/AwsTier2ConnectionController.cs",
+      "class_name": "AwsTier2ConnectionController",
+      "route_template": "v{version:apiVersion}/aws-extractor/connections",
+      "normalized_prefix": "/v1/aws-extractor/connections",
+      "commercial_tier": "none",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": "/settings/cloud-connections"
     },
     {
       "controller_file": "Authority/AzureExtractorUploadController.cs",

@@ -813,6 +813,15 @@ public static class AuditEventTypes
     /// <summary>Admin configured Tier 2 hosted Azure extractor (customer SP + subscription scope via WIF).</summary>
     public const string IntegrationHostedAzureExtractorConfigured = "Integration.HostedAzureExtractorConfigured";
 
+    /// <summary>Operator connected Tier 2 hosted AWS extractor (IAM role ARN via OIDC federation).</summary>
+    public const string CloudConnectionAwsConnected = "CloudConnection.AwsConnected";
+
+    /// <summary>Hosted AWS extractor completed a scheduled or on-demand poll cycle.</summary>
+    public const string CloudConnectionAwsPolled = "CloudConnection.AwsPolled";
+
+    /// <summary>Operator disconnected Tier 2 hosted AWS extractor connection.</summary>
+    public const string CloudConnectionAwsDisconnected = "CloudConnection.AwsDisconnected";
+
     /// <summary>Admin created a tenant custom role.</summary>
     public const string IdentityCustomRoleCreated = "Identity.CustomRoleCreated";
 

@@ -149,6 +149,7 @@ public static partial class ServiceCollectionExtensions
         RegisterTenantErasureEligiblePurgeHostedService(services, hostingRole);
         RegisterOrphanedTenantCleanupHostedService(services, hostingRole);
         RegisterAzureExtractorAutoPullHostedService(services, hostingRole);
+        RegisterAwsExtractorAutoPullHostedService(services, hostingRole);
         RegisterWarmTenantCatalogReplenishHostedService(services, hostingRole);
         RegisterDataConsistencyReconciliation(services, configuration, hostingRole);
         services.Configure<SqlConnectionHealthCheckOptions>(

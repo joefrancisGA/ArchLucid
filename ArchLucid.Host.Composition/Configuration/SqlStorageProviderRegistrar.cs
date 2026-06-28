@@ -60,6 +60,7 @@ using ArchLucid.Persistence.Analytics;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Authorization;
 using ArchLucid.Persistence.AzureExtractor;
+using ArchLucid.Persistence.AwsExtractor;
 using ArchLucid.Persistence.Search;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.BlobStore;
@@ -376,6 +377,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantSettingsRepository, SqlTenantSettingsRepository>();
         services.AddScoped<ITenantIdentityProviderConfigurationRepository, SqlTenantIdentityProviderConfigurationRepository>();
         services.AddScoped<ITenantHostedExtractorConfigurationRepository, SqlTenantHostedExtractorConfigurationRepository>();
+        services.AddScoped<ITenantAwsConnectionRepository, SqlTenantAwsConnectionRepository>();
         services.AddScoped<ICustomRoleRepository, SqlCustomRoleRepository>();
         services.AddScoped<IGlobalSearchRepository, SqlGlobalSearchRepository>();
         services.AddScoped<ITenantFirstValueReportBrandingRepository, SqlTenantFirstValueReportBrandingRepository>();

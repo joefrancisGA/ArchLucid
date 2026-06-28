@@ -3,8 +3,8 @@ import { CloudCog, Hash, Plug, Ticket, UsersRound, Webhook } from "lucide-react"
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
   CLOUD_CONNECTIONS_PATH,
-  INTEGRATIONS_ITSM_PATH,
   INTEGRATIONS_JIRA_PATH,
+  INTEGRATIONS_ITSM_PATH,
   INTEGRATIONS_READINESS_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
   INTEGRATIONS_SLACK_PATH,
@@ -33,20 +33,36 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: CLOUD_CONNECTIONS_PATH,
-          label: OPERATOR_NAV_LINK_LABELS.azureCloudConnection,
-          title: OPERATOR_NAV_LINK_LABELS.azureCloudConnection,
+          href: "/settings/cloud-connections",
+          label: OPERATOR_NAV_LINK_LABELS.cloudConnections,
+          title: OPERATOR_NAV_LINK_LABELS.cloudConnections,
           icon: CloudCog,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
         },
         {
-          href: INTEGRATIONS_ITSM_PATH, // "/integrations/itsm"
-          label: OPERATOR_NAV_LINK_LABELS.itsmConnectors,
-          title: OPERATOR_NAV_LINK_LABELS.itsmConnectors,
+          href: "/integrations/itsm",
+          label: OPERATOR_NAV_LINK_LABELS.itsm,
+          title: OPERATOR_NAV_LINK_LABELS.itsm,
           icon: Ticket,
           tier: "extended",
-          requiredAuthority: "ExecuteAuthority",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
+          href: INTEGRATIONS_JIRA_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.jira,
+          title: OPERATOR_NAV_LINK_LABELS.jira,
+          icon: Ticket,
+          tier: "extended",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
+          href: INTEGRATIONS_SERVICENOW_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.servicenow,
+          title: OPERATOR_NAV_LINK_LABELS.servicenow,
+          icon: Ticket,
+          tier: "extended",
+          requiredAuthority: "AdminAuthority",
         },
         {
           href: INTEGRATIONS_TEAMS_PATH, // "/integrations/teams"

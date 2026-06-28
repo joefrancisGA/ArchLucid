@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listTier2Connections, Tier2ConnectionResponse } from "@/lib/api/cloud-connections-api";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CLOUD_CONNECTIONS_PAGE_COPY, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
+import { AwsConnectionSection } from "./AwsConnectionSection";
 import { Tier2ConnectionWizard } from "./Tier2ConnectionWizard";
 
 export function CloudConnectionsPageClient() {
@@ -55,53 +57,48 @@ export function CloudConnectionsPageClient() {
     <div className="w-full max-w-3xl space-y-6" data-testid="cloud-connections-page">
       <div>
         <div className="flex items-start gap-2">
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Cloud connections</h1>
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{OPERATOR_NAV_LINK_LABELS.cloudConnections}</h1>
         </div>
         <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          Cloud connections are optional. They help ArchLucid use production-faithful evidence when available, but reviews
-          can also be created from briefs, diagrams, documents, and uploaded evidence.
+          {CLOUD_CONNECTIONS_PAGE_COPY.lead}
         </p>
       </div>
 
-      <Card className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900">
-        <CardHeader>
-          <CardTitle className="text-blue-800 dark:text-blue-300">Tier 1 vs Tier 2 Evidence Collection</CardTitle>
-        </CardHeader>
-        <CardContent className={cn("text-blue-900 dark:text-blue-200 space-y-2", OPERATOR_TYPOGRAPHY.body)}>
-          <p>
-            <strong>Tier 1 (Manual ZIP Upload) is the default.</strong> It requires zero vendor access to your cloud environment. You run an open-source PowerShell script locally and upload the resulting ZIP file during the architecture review creation process.
-          </p>
-          <p>
-            <strong>Tier 2 (Hosted Automated Polling) is strictly opt-in.</strong> It allows ArchLucid to automatically pull architecture and cost data on a schedule. This requires you to provision a read-only Service Principal in your Azure tenant and establish a federated trust relationship. ArchLucid will never ask for or store client secrets.
-          </p>
-        </CardContent>
-      </Card>
+      <div className={cn(DESIGN_TOKENS.callout.info, "space-y-2")}>
+        <p className={cn(OPERATOR_TYPOGRAPHY.body, "font-semibold")}>How evidence collection works</p>
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          <strong>Manual upload (default).</strong> No vendor access required. You run an open-source PowerShell script locally and upload the resulting ZIP file when creating an architecture review.
+        </p>
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          <strong>Automated Azure connection (optional).</strong> ArchLucid pulls architecture and cost data on a schedule using a read-only Service Principal you provision in Azure. Requires workload identity federation — no client secrets are stored.
+        </p>
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          <strong>Automated AWS connection (optional).</strong> ArchLucid polls AWS Resource Explorer on a schedule using a read-only IAM role that trusts ArchLucid&apos;s Azure managed identity via OIDC — no long-lived access keys are stored.
+        </p>
+      </div>
 
       <section className="space-y-4" aria-labelledby="cloud-connections-available-heading">
         <h2
           id="cloud-connections-available-heading"
           className={OPERATOR_TYPOGRAPHY.sectionTitle}
         >
-          Available connections
+          {CLOUD_CONNECTIONS_PAGE_COPY.azureSectionHeading}
         </h2>
 
         <Card data-testid="cloud-connections-available-azure">
           <CardHeader>
-            <div className="flex flex-wrap items-center gap-2">
-              <CardTitle>Connect Azure</CardTitle>
-              <span className={cn("rounded-full bg-neutral-100 px-2 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.badge, "font-semibold text-al-text-secondary")}>
-                Evidence tier: Cloud-connected
-              </span>
-            </div>
-            <CardDescription>
+            <CardTitle>Connect Azure</CardTitle>
+            <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
               Use workload identity federation to connect selected Azure subscriptions with read-only access. ArchLucid
               stores connection metadata only; no client secrets are stored.
-            </CardDescription>
+            </p>
           </CardHeader>
           <CardContent>
             <Tier2ConnectionWizard onSaved={handleSaved} />
           </CardContent>
         </Card>
+
+        <AwsConnectionSection />
       </section>
 
       {loadError ? (

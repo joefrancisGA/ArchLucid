@@ -57,17 +57,17 @@ export const RUNS_DASHBOARD_LABELS = {
   tabMonitoredRisks: "Monitored risks",
   tabOutcomes: "Outcomes",
   latestInWorkspace: "Latest in workspace",
-  reviewsNeedingAttention: "Reviews needing attention",
+  reviewsNeedingAttention: "Review packages needing attention",
   packagingPreFinalPosture: "Packaging and pre-final posture",
   reviewOutcomes: "Review outcomes",
-  recentSummary: "Showing the latest reviews for this workspace.",
-  attentionSummary: "Reviews with findings awaiting a finalized signed review record.",
+  recentSummary: "Showing the latest review packages for this workspace.",
+  attentionSummary: "Review packages with findings awaiting a finalized signed review record.",
   attentionSummaryBuyer:
     "Architecture reviews still moving toward a finalized signed review record before sponsor sign-off.",
-  noReviewsNeedAttention: "No reviews currently need attention.",
-  oneReviewNeedsAttention: "1 review needs attention.",
-  reviewsNeedAttentionCount: (count: number) => `${count} reviews need attention.`,
-  loadingReviews: "Loading reviews…",
+  noReviewsNeedAttention: "No review packages currently need attention.",
+  oneReviewNeedsAttention: "1 review package needs attention.",
+  reviewsNeedAttentionCount: (count: number) => `${count} review packages need attention.`,
+  loadingReviews: "Loading review packages…",
   openFullReviewsList: "Open full reviews list",
   governanceWarningTitle: "Governance warnings",
   governanceWarningHint: "Unresolved governance alerts or policy violations require operator follow-up.",
@@ -76,7 +76,7 @@ export const RUNS_DASHBOARD_LABELS = {
   restoreRequest: "Restore",
   restoringRequest: "Restoring…",
   archivedListUnsupported:
-    "Archived requests are not returned by the reviews list yet. When the API adds isArchived or includeArchived, rows will appear here.",
+    "Archived review packages are not yet shown when the archived filter is enabled. Contact your administrator if you expected to see archived items here.",
 } as const;
 
 export const RUN_PACKAGE_EXPORT_LABELS = {
@@ -137,6 +137,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   auditTrail: BUYER_SURFACE_VOCABULARY.auditTrail,
   first30DaysGovernance: "First 30 days (governance)",
   securityTrust: "Security & trust",
+  aiUsage: "AI usage",
   teamsNotifications: "Teams notifications",
   itsmConnectors: "Jira & ServiceNow",
   valueReport: "Value report",
@@ -154,15 +155,31 @@ export const OPERATOR_NAV_LINK_LABELS = {
   connectorOperations: "Integration readiness",
   integrationReadiness: "Integration readiness",
   jira: "Jira",
+  itsm: "ITSM",
   servicenow: "ServiceNow",
   microsoftTeams: "Microsoft Teams",
   slack: "Slack",
   webhooks: "Webhooks",
   azureCloudConnection: "Azure cloud connection",
+  /** Legacy label — prefer {@link OPERATOR_NAV_LINK_LABELS.azureCloudConnection} until multi-cloud is supported. */
   cloudConnections: "Cloud connections",
   systemHealth: "System health",
   digests: "Digests",
   /** Administration nav — `/settings/tenant` (customer-facing; route keeps tenant segment). */
   settings: "Settings",
   workspaceSettings: "Workspace settings",
+} as const;
+
+/** Customer-facing copy for `/settings/cloud-connections`. */
+export const CLOUD_CONNECTIONS_PAGE_COPY = {
+  lead:
+    "Cloud connections are optional. They help ArchLucid use production-faithful cloud evidence when available, but reviews can also be created from briefs, diagrams, documents, and uploaded evidence.",
+  azureSectionHeading: "Azure connection",
+  awsSectionHeading: "AWS connection",
+} as const;
+
+/** @deprecated Prefer {@link CLOUD_CONNECTIONS_PAGE_COPY} — Azure-only alias retained for legacy imports. */
+export const AZURE_CLOUD_CONNECTION_PAGE_COPY = {
+  lead: CLOUD_CONNECTIONS_PAGE_COPY.lead,
+  connectionSectionHeading: CLOUD_CONNECTIONS_PAGE_COPY.azureSectionHeading,
 } as const;
