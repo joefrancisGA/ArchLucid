@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+using ArchLucid.Cli;
 using ArchLucid.Cli.Commands;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -17,6 +18,9 @@ public sealed class ShipGateEvidenceRunnerTests
 {
     private const string BaseUrl = "https://pilot.archlucid.test";
     private const string RunId = "11111111-1111-1111-1111-111111111111";
+    private const string AlternateTenantId = "44444444-4444-4444-4444-444444444444";
+    private const string AlternateWorkspaceId = "55555555-5555-5555-5555-555555555555";
+    private const string AlternateProjectId = "66666666-6666-6666-6666-666666666666";
 
     [Fact]
     public async Task RunAsync_CommittedRunAndExportProbes_PassesGates1_2_3_4()
@@ -25,6 +29,9 @@ public sealed class ShipGateEvidenceRunnerTests
         {
             OnRequest = req =>
             {
+                if (TryHandleTenantIsolationRequest(req, out HttpResponseMessage? isolationResponse))
+                    return Task.FromResult(isolationResponse!);
+
                 string path = req.RequestUri!.AbsolutePath;
 
                 if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
@@ -66,7 +73,7 @@ public sealed class ShipGateEvidenceRunnerTests
         };
 
         using HttpClient http = CreateClient(handler);
-        ShipGateEvidenceRunner runner = new(http);
+        ShipGateEvidenceRunner runner = new(http, alternateScopeClientFactory: () => CreateAlternateClient(handler));
 
         ShipGateEvidenceReport report = await runner.RunAsync(RunId);
 
@@ -85,6 +92,9 @@ public sealed class ShipGateEvidenceRunnerTests
         {
             OnRequest = req =>
             {
+                if (TryHandleTenantIsolationRequest(req, out HttpResponseMessage? isolationResponse))
+                    return Task.FromResult(isolationResponse!);
+
                 string path = req.RequestUri!.AbsolutePath;
 
                 if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
@@ -114,7 +124,7 @@ public sealed class ShipGateEvidenceRunnerTests
         };
 
         using HttpClient http = CreateClient(handler);
-        ShipGateEvidenceRunner runner = new(http);
+        ShipGateEvidenceRunner runner = new(http, alternateScopeClientFactory: () => CreateAlternateClient(handler));
 
         ShipGateEvidenceReport report = await runner.RunAsync(RunId);
 
@@ -129,6 +139,9 @@ public sealed class ShipGateEvidenceRunnerTests
         {
             OnRequest = req =>
             {
+                if (TryHandleTenantIsolationRequest(req, out HttpResponseMessage? isolationResponse))
+                    return Task.FromResult(isolationResponse!);
+
                 string path = req.RequestUri!.AbsolutePath;
 
                 if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
@@ -149,11 +162,78 @@ public sealed class ShipGateEvidenceRunnerTests
         };
 
         using HttpClient http = CreateClient(handler);
-        ShipGateEvidenceRunner runner = new(http);
+        ShipGateEvidenceRunner runner = new(http, alternateScopeClientFactory: () => CreateAlternateClient(handler));
 
         ShipGateEvidenceReport report = await runner.RunAsync(RunId);
 
         report.Gates.Should().Contain(g => g.GateNumber == 1 && g.Verdict == ShipGateEvidenceVerdict.Fail);
+        report.AnyFail.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RunAsync_CrossTenantRunLeak_FailsGate6()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+                string? tenant = req.Headers.TryGetValues(CliScopeHeaders.TenantHeader, out IEnumerable<string>? values)
+                    ? values.FirstOrDefault()
+                    : null;
+
+                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                {
+                    if (string.Equals(tenant, AlternateTenantId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
+                    }
+
+                    return Task.FromResult(JsonResponse(
+                        HttpStatusCode.OK,
+                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationCompliantResults())));
+                }
+
+                if (TryHandleTenantIsolationRequest(req, out HttpResponseMessage? isolationResponse))
+                    return Task.FromResult(isolationResponse!);
+
+                if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new[]
+                    {
+                        new { artifactId = Guid.NewGuid().ToString("D") },
+                    }));
+                }
+
+                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                    {
+                        totalEstimatedUsdSavings = 1234.56m,
+                        systems = new[] { new { systemName = "demo" } },
+                        basisBreakdown = new { openFindingsEstimatedUsd = 50m },
+                    }));
+                }
+
+                if (path.EndsWith($"/v1/artifacts/runs/{RunId}/export", StringComparison.Ordinal)
+                    || path.EndsWith($"/v1/architecture/run/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new ByteArrayContent([1, 2, 3]),
+                    });
+                }
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient http = CreateClient(handler);
+        ShipGateEvidenceRunner runner = new(http, alternateScopeClientFactory: () => CreateAlternateClient(handler));
+
+        ShipGateEvidenceReport report = await runner.RunAsync(RunId);
+
+        report.Gates.Should().Contain(g => g.GateNumber == 6 && g.Verdict == ShipGateEvidenceVerdict.Fail);
         report.AnyFail.Should().BeTrue();
     }
 
@@ -169,12 +249,54 @@ public sealed class ShipGateEvidenceRunnerTests
     public void ShipGateEvidenceOptions_Parse_ReadsOutputPaths()
     {
         ShipGateEvidenceOptions options = ShipGateEvidenceOptions.Parse(
-            ["--run-id", RunId, "--json-out", "gate.json", "--markdown-out", "gate.md", "--ui-base-url", "http://localhost:3000"]);
+            [
+                "--run-id", RunId,
+                "--json-out", "gate.json",
+                "--markdown-out", "gate.md",
+                "--ui-base-url", "http://localhost:3000",
+                "--alternate-tenant-id", AlternateTenantId,
+            ]);
 
         options.RunId.Should().Be(RunId);
         options.JsonOutPath.Should().Be("gate.json");
         options.MarkdownOutPath.Should().Be("gate.md");
         options.UiBaseUrl.Should().Be("http://localhost:3000");
+        options.AlternateTenantId.Should().Be(AlternateTenantId);
+    }
+
+    private static bool TryHandleTenantIsolationRequest(HttpRequestMessage request, out HttpResponseMessage? response)
+    {
+        response = null;
+        string path = request.RequestUri!.AbsolutePath;
+        string? tenant = request.Headers.TryGetValues(CliScopeHeaders.TenantHeader, out IEnumerable<string>? values)
+            ? values.FirstOrDefault()
+            : null;
+
+        if (!string.Equals(tenant, AlternateTenantId, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (path.StartsWith("/v1/runs", StringComparison.Ordinal))
+        {
+            response = JsonResponse(HttpStatusCode.OK, new
+            {
+                items = new[] { new { runId = "bbbbbbbb-2222-2222-2222-222222222222" } },
+            });
+
+            return true;
+        }
+
+        response = JsonResponse(HttpStatusCode.NotFound, new { title = "Not found" });
+
+        return true;
+    }
+
+    private static HttpClient CreateAlternateClient(StubHandler handler)
+    {
+        HttpClient client = new(handler) { BaseAddress = new Uri(BaseUrl + "/") };
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        CliScopeHeaders.ApplyExplicit(client, AlternateTenantId, AlternateWorkspaceId, AlternateProjectId);
+
+        return client;
     }
 
     private static HttpClient CreateClient(HttpMessageHandler handler)

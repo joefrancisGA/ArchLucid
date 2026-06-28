@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-410 **Done** — ship-gate Gate 5 first-review UI route smoke). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-28 (TB-411 **Done** — ship-gate Gate 6 tenant-isolation negative-test embed). Prior: 2026-06-28 (TB-410 **Done** — ship-gate Gate 5 first-review UI route smoke). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -163,6 +163,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-408 | Nav deduplication + semantic path aliases — dedupe **System health** (`/health` vs `/admin/health`); add `/settings/ai-usage` alias → `/settings/cost-reporting`; reconcile **Integration readiness** label vs `/integrations/operations` segment | **Done** (2026-06-28) — Adoption friction P2 **V1.1** | S |
 | TB-409 | Ship-gate Gate 2 citation-integrity probe — embed `CitationIntegrityEvaluator` in `archlucid pilot ship-gate-evidence` for the supplied `--run-id`; Gate 2 PASS/FAIL from structural citation sampler (WARN treated as PASS with evidence) | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-410 | Ship-gate Gate 5 first-review UI route smoke — `--ui-base-url` probes canonical operator-shell routes from `FIRST_REVIEW_UI_ROUTE_SMOKE_CONTRACT.v1.json`; Gate 5 PASS/FAIL (UNKNOWN when UI origin omitted) | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
+| TB-411 | Ship-gate Gate 6 tenant-isolation negative-test embed — `BuildGate6Async` runs live cross-tenant deny probes via `TenantIsolationNegativeTestRunner` for the supplied `--run-id`; optional `--alternate-tenant-id` / workspace / project scope overrides | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-402 | Automated AWS polling (Tier 2) — **Done (2026-06-27)** — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-403 | Automated GCP polling (Tier 2) — **Done (2026-06-27)** — hosted poller with GCP Workload Identity Federation (Azure MI trust); scheduled Cloud Asset Inventory collection; upload to `/v1/extractor/gcp/upload`; `/settings/cloud-connections` GCP connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards — **Done (2026-06-27)** — `sourceEvidenceLinks` on persisted recommendations + API; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
@@ -11994,3 +11995,36 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-409, `docs/library/FIRST_HOUR_OPERATOR_PATH.md`, assessment §4 gate 5.
+
+---
+
+## TB-411 — Ship-gate Gate 6 tenant-isolation negative-test embed
+
+**Status:** **Done** (2026-06-28). `ShipGateEvidenceRunner.BuildGate6Async` runs live cross-tenant deny probes via `TenantIsolationNegativeTestRunner.RunLiveAsync` for the supplied `--run-id` using primary scope on the ship-gate API client and alternate tenant headers (defaults or `--alternate-tenant-id` / workspace / project overrides); Gate 6 PASS/FAIL from structural deny-matrix aggregation.
+
+**Source:** Assessment §17 #1 ship-gate evidence harness follow-on — Gate 6 only referenced the standalone tenant-isolation command without embedding live probes.
+
+**Problem:** Ship-gate evidence could not assert cross-tenant isolation for the representative `--run-id` without a separate tenant-isolation-negative-test invocation and manual correlation.
+
+**V1 scope:**
+
+1. Embed `TenantIsolationNegativeTestRunner.RunLiveAsync` in Gate 6 using the ship-gate `--run-id`.
+2. Forward optional `--alternate-tenant-id`, `--alternate-workspace-id`, and `--alternate-project-id` from ship-gate evidence.
+3. Gate 6 **PASS** when all cross-tenant probes deny or exclude the foreign runId; **FAIL** on unexpected success or primary-scope visibility failure.
+
+**Acceptance criteria:**
+
+- One `archlucid pilot ship-gate-evidence --run-id <guid>` command emits Gate 6 PASS/FAIL with probe counts and alternate tenant id in evidence text.
+- Unit tests cover Gate 6 PASS (stubbed deny responses) and FAIL (simulated cross-tenant run leak) in `ShipGateEvidenceRunnerTests`.
+- Markdown evidence links reference embedded tenant-isolation probes.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/ShipGateEvidenceRunner.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceOptions.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceCommand.cs`
+- `ArchLucid.Cli.Tests/ShipGateEvidenceRunnerTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-409, TB-410, assessment §4 gate 6, `fixtures/tenant-isolation/negative-test-manifest.v1.json`.

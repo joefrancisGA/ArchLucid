@@ -44,8 +44,12 @@ internal static class ShipGateEvidenceCommand
         }
 
         using HttpClient http = CliAuthorizedHttpClient.Create(baseUrl, config);
-        ShipGateEvidenceRunner runner = new(http);
-        ShipGateEvidenceReport report = await runner.RunAsync(options.RunId, options.UiBaseUrl, cancellationToken);
+        ShipGateEvidenceRunner runner = new(http, config);
+        ShipGateEvidenceReport report = await runner.RunAsync(
+            options.RunId,
+            options.UiBaseUrl,
+            options.ToTenantIsolationOptions(),
+            cancellationToken);
 
         string json = JsonSerializer.Serialize(report, JsonOptions);
         string markdown = BuildMarkdown(report);
@@ -137,6 +141,8 @@ internal static class ShipGateEvidenceCommand
             sb.AppendLine($"- Operator UI route smoke @ `{report.UiBaseUrl}` (Gate 5 first-review spine)");
         }
 
+        sb.AppendLine($"- `archlucid pilot tenant-isolation-negative-test --run-id {report.RunId}` (Gate 6 embedded cross-tenant deny probes)");
+
         return sb.ToString();
     }
 
@@ -146,6 +152,8 @@ internal static class ShipGateEvidenceCommand
     {
         Console.WriteLine(
             "Usage: archlucid pilot ship-gate-evidence --run-id <guid> " +
-            "[--api-base-url <url>] [--ui-base-url <url>] [--json-out <path>] [--markdown-out <path>] [--json]");
+            "[--api-base-url <url>] [--ui-base-url <url>] " +
+            "[--alternate-tenant-id <guid>] [--alternate-workspace-id <guid>] [--alternate-project-id <guid>] " +
+            "[--json-out <path>] [--markdown-out <path>] [--json]");
     }
 }

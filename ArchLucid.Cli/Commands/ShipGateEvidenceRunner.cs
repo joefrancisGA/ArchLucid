@@ -1,17 +1,24 @@
 using System.Net;
 using System.Text.Json;
 
+using ArchLucid.Cli;
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Cli.Commands;
 
-internal sealed class ShipGateEvidenceRunner(HttpClient http)
+internal sealed class ShipGateEvidenceRunner(
+    HttpClient http,
+    ArchLucidProjectScaffolder.ArchLucidCliConfig? config = null,
+    Func<HttpClient>? alternateScopeClientFactory = null)
 {
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
+    private readonly ArchLucidProjectScaffolder.ArchLucidCliConfig? _config = config;
+    private readonly Func<HttpClient>? _alternateScopeClientFactory = alternateScopeClientFactory;
 
     public async Task<ShipGateEvidenceReport> RunAsync(
         string runId,
         string? uiBaseUrl = null,
+        TenantIsolationNegativeTestOptions? tenantIsolationOptions = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -24,7 +31,7 @@ internal sealed class ShipGateEvidenceRunner(HttpClient http)
         ShipGateEvidenceGateResult gate3 = await BuildGate3Async(cancellationToken);
         ShipGateEvidenceGateResult gate4 = await BuildGate4Async(runId, cancellationToken);
         ShipGateEvidenceGateResult gate5 = await BuildGate5Async(runId, uiBaseUrl, cancellationToken);
-        ShipGateEvidenceGateResult gate6 = BuildGate6();
+        ShipGateEvidenceGateResult gate6 = await BuildGate6Async(runId, tenantIsolationOptions, cancellationToken);
 
         return new ShipGateEvidenceReport
         {
@@ -375,19 +382,100 @@ internal sealed class ShipGateEvidenceRunner(HttpClient http)
         }
     }
 
-    private static ShipGateEvidenceGateResult BuildGate6()
+    private async Task<ShipGateEvidenceGateResult> BuildGate6Async(
+        string runId,
+        TenantIsolationNegativeTestOptions? tenantIsolationOptions,
+        CancellationToken cancellationToken)
     {
-        return new ShipGateEvidenceGateResult
+        TenantIsolationNegativeTestOptions isolationOptions = tenantIsolationOptions ?? new TenantIsolationNegativeTestOptions { RunId = runId };
+
+        if (string.IsNullOrWhiteSpace(isolationOptions.RunId))
         {
-            GateNumber = 6,
-            Name = "Auth + tenant isolation behave correctly on the pilot path",
-            Verdict = ShipGateEvidenceVerdict.Pass,
-            Evidence =
-                "Structural deny-matrix available via `archlucid pilot tenant-isolation-negative-test` (offline fixture replay + optional live `--run-id` probes with correlation IDs).",
-            FastestResolution =
-                "Run tenant-isolation-negative-test with a representative committed runId under primary scope and attach the JSON/Markdown deny-matrix to readiness evidence.",
-        };
+            isolationOptions = new TenantIsolationNegativeTestOptions
+            {
+                RunId = runId,
+                AlternateTenantId = isolationOptions.AlternateTenantId,
+                AlternateWorkspaceId = isolationOptions.AlternateWorkspaceId,
+                AlternateProjectId = isolationOptions.AlternateProjectId,
+            };
+        }
+
+        string baseUrl = (_http.BaseAddress?.ToString() ?? string.Empty).Trim().TrimEnd('/');
+
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            return new ShipGateEvidenceGateResult
+            {
+                GateNumber = 6,
+                Name = "Auth + tenant isolation behave correctly on the pilot path",
+                Verdict = ShipGateEvidenceVerdict.Unknown,
+                Evidence = "Tenant-isolation probe skipped: API base URL is missing on the primary HttpClient.",
+                FastestResolution = "Configure --api-base-url or archlucid.json api.baseUrl before running ship-gate evidence.",
+            };
+        }
+
+        try
+        {
+            using HttpClient alternateClient = CreateAlternateScopeClient(baseUrl, isolationOptions);
+            TenantIsolationNegativeTestRunner runner = new();
+            string repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot() ?? Environment.CurrentDirectory;
+
+            TenantIsolationNegativeTestReport report = await runner.RunLiveAsync(
+                repositoryRoot,
+                _http,
+                alternateClient,
+                isolationOptions,
+                cancellationToken);
+
+            ShipGateEvidenceVerdict verdict = MapTenantIsolationVerdict(report.OverallVerdict);
+            int failCount = report.UnexpectedSuccessCount;
+            int probeCount = report.Probes.Count;
+
+            return new ShipGateEvidenceGateResult
+            {
+                GateNumber = 6,
+                Name = "Auth + tenant isolation behave correctly on the pilot path",
+                Verdict = verdict,
+                Evidence =
+                    $"tenant-isolation verdict={report.OverallVerdict}; probes={probeCount}; unexpectedSuccess={failCount}; alternateTenant={report.AlternateTenantId}; standalone: archlucid pilot tenant-isolation-negative-test --run-id {runId}.",
+                FastestResolution = verdict == ShipGateEvidenceVerdict.Pass
+                    ? "Live two-tenant SQL smoke remains the fastest full-environment proof beyond structural deny-matrix probes."
+                    : "Investigate cross-tenant probe failures or confirm the representative runId is visible under primary scope, then rerun ship-gate evidence.",
+            };
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or InvalidOperationException)
+        {
+            return new ShipGateEvidenceGateResult
+            {
+                GateNumber = 6,
+                Name = "Auth + tenant isolation behave correctly on the pilot path",
+                Verdict = ShipGateEvidenceVerdict.Fail,
+                Evidence = $"Tenant-isolation probe failed: {ex.Message}",
+                FastestResolution = "Confirm API connectivity and alternate tenant scope headers, then rerun ship-gate evidence.",
+            };
+        }
     }
+
+    private HttpClient CreateAlternateScopeClient(string baseUrl, TenantIsolationNegativeTestOptions options)
+    {
+        if (_alternateScopeClientFactory is not null)
+            return _alternateScopeClientFactory();
+
+        HttpClient alternateClient = CliAuthorizedHttpClient.Create(baseUrl, _config);
+        (string tenantId, string workspaceId, string projectId) = TenantIsolationNegativeTestRunner.ResolveAlternateScope(options);
+        CliScopeHeaders.ApplyExplicit(alternateClient, tenantId, workspaceId, projectId);
+
+        return alternateClient;
+    }
+
+    private static ShipGateEvidenceVerdict MapTenantIsolationVerdict(TenantIsolationNegativeTestVerdict isolationVerdict) =>
+        isolationVerdict switch
+        {
+            TenantIsolationNegativeTestVerdict.Fail => ShipGateEvidenceVerdict.Fail,
+            TenantIsolationNegativeTestVerdict.Pass => ShipGateEvidenceVerdict.Pass,
+            TenantIsolationNegativeTestVerdict.Skip => ShipGateEvidenceVerdict.Unknown,
+            _ => ShipGateEvidenceVerdict.Unknown,
+        };
 
     private async Task<ProbeResult> ProbePathAsync(string path, CancellationToken cancellationToken)
     {

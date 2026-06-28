@@ -26,6 +26,33 @@ internal sealed class ShipGateEvidenceOptions
         init;
     }
 
+    public string? AlternateTenantId
+    {
+        get;
+        init;
+    }
+
+    public string? AlternateWorkspaceId
+    {
+        get;
+        init;
+    }
+
+    public string? AlternateProjectId
+    {
+        get;
+        init;
+    }
+
+    public TenantIsolationNegativeTestOptions ToTenantIsolationOptions() =>
+        new()
+        {
+            RunId = RunId,
+            AlternateTenantId = AlternateTenantId,
+            AlternateWorkspaceId = AlternateWorkspaceId,
+            AlternateProjectId = AlternateProjectId,
+        };
+
     public static ShipGateEvidenceOptions Parse(string[] args)
     {
         ArgumentNullException.ThrowIfNull(args);
@@ -41,6 +68,9 @@ internal sealed class ShipGateEvidenceOptions
             JsonOutPath = CliCommandShared.TryGetOptionValue(args, "--json-out"),
             MarkdownOutPath = CliCommandShared.TryGetOptionValue(args, "--markdown-out"),
             UiBaseUrl = CliCommandShared.TryGetOptionValue(args, "--ui-base-url"),
+            AlternateTenantId = CliCommandShared.TryGetOptionValue(args, "--alternate-tenant-id"),
+            AlternateWorkspaceId = CliCommandShared.TryGetOptionValue(args, "--alternate-workspace-id"),
+            AlternateProjectId = CliCommandShared.TryGetOptionValue(args, "--alternate-project-id"),
         };
     }
 }
