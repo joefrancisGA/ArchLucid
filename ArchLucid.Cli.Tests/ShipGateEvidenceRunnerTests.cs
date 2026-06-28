@@ -3,7 +3,9 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 
 using ArchLucid.Cli.Commands;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
 
@@ -17,7 +19,7 @@ public sealed class ShipGateEvidenceRunnerTests
     private const string RunId = "11111111-1111-1111-1111-111111111111";
 
     [Fact]
-    public async Task RunAsync_CommittedRunAndExportProbes_PassesGates1_3_4()
+    public async Task RunAsync_CommittedRunAndExportProbes_PassesGates1_2_3_4()
     {
         StubHandler handler = new()
         {
@@ -26,33 +28,41 @@ public sealed class ShipGateEvidenceRunnerTests
                 string path = req.RequestUri!.AbsolutePath;
 
                 if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", 2)));
+                {
+                    return Task.FromResult(JsonResponse(
+                        HttpStatusCode.OK,
+                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationCompliantResults())));
+                }
 
                 if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
+                {
                     return Task.FromResult(JsonResponse(HttpStatusCode.OK, new[]
                     {
                         new { artifactId = Guid.NewGuid().ToString("D") },
                     }));
+                }
 
                 if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                {
                     return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
                     {
                         totalEstimatedUsdSavings = 1234.56m,
                         systems = new[] { new { systemName = "demo" } },
                         basisBreakdown = new { openFindingsEstimatedUsd = 50m },
                     }));
+                }
 
                 if (path.EndsWith($"/v1/artifacts/runs/{RunId}/export", StringComparison.Ordinal)
                     || path.EndsWith($"/v1/architecture/run/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
                 {
                     return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                     {
-                        Content = new ByteArrayContent([1, 2, 3])
+                        Content = new ByteArrayContent([1, 2, 3]),
                     });
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
-            }
+            },
         };
 
         using HttpClient http = CreateClient(handler);
@@ -61,11 +71,55 @@ public sealed class ShipGateEvidenceRunnerTests
         ShipGateEvidenceReport report = await runner.RunAsync(RunId);
 
         report.Gates.Should().Contain(g => g.GateNumber == 1 && g.Verdict == ShipGateEvidenceVerdict.Pass);
+        report.Gates.Should().Contain(g => g.GateNumber == 2 && g.Verdict == ShipGateEvidenceVerdict.Pass);
         report.Gates.Should().Contain(g => g.GateNumber == 3 && g.Verdict == ShipGateEvidenceVerdict.Pass);
         report.Gates.Should().Contain(g => g.GateNumber == 4 && g.Verdict == ShipGateEvidenceVerdict.Pass);
-        report.Gates.Should().Contain(g => g.GateNumber == 2 && g.Verdict == ShipGateEvidenceVerdict.Unknown);
         report.Gates.Should().Contain(g => g.GateNumber == 5 && g.Verdict == ShipGateEvidenceVerdict.Unknown);
         report.Gates.Should().Contain(g => g.GateNumber == 6 && g.Verdict == ShipGateEvidenceVerdict.Pass);
+    }
+
+    [Fact]
+    public async Task RunAsync_MissingCitationEvidence_FailsGate2()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+
+                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(
+                        HttpStatusCode.OK,
+                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationFailingResults())));
+                }
+
+                if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, Array.Empty<object>()));
+                }
+
+                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                    {
+                        totalEstimatedUsdSavings = 0m,
+                        systems = Array.Empty<object>(),
+                        basisBreakdown = new { openFindingsEstimatedUsd = 0m },
+                    }));
+                }
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient http = CreateClient(handler);
+        ShipGateEvidenceRunner runner = new(http);
+
+        ShipGateEvidenceReport report = await runner.RunAsync(RunId);
+
+        report.Gates.Should().Contain(g => g.GateNumber == 2 && g.Verdict == ShipGateEvidenceVerdict.Fail);
+        report.AnyFail.Should().BeTrue();
     }
 
     [Fact]
@@ -81,15 +135,17 @@ public sealed class ShipGateEvidenceRunnerTests
                     return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "not found" }));
 
                 if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                {
                     return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
                     {
                         totalEstimatedUsdSavings = 0,
                         systems = Array.Empty<object>(),
                         basisBreakdown = new { openFindingsEstimatedUsd = 0 },
                     }));
+                }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
-            }
+            },
         };
 
         using HttpClient http = CreateClient(handler);
@@ -128,7 +184,52 @@ public sealed class ShipGateEvidenceRunnerTests
         return http;
     }
 
-    private static string BuildRunPayload(ArchitectureRunStatus status, string manifestVersion, int resultCount)
+    private static object[] BuildCitationCompliantResults()
+    {
+        return
+        [
+            new AgentResult
+            {
+                ResultId = "result-compliance-1",
+                AgentType = AgentType.Compliance,
+                EvidenceRefs = ["evidence-1"],
+                Citations = [new Citation { SourceId = "POL-1", Description = "Mapped control policy." }],
+                Findings =
+                [
+                    new ArchitectureFinding
+                    {
+                        FindingId = "finding-1",
+                        Category = "Compliance",
+                        Severity = FindingSeverity.Warning,
+                        EvidenceRefs = ["evidence-1"],
+                    },
+                ],
+            },
+        ];
+    }
+
+    private static object[] BuildCitationFailingResults()
+    {
+        return
+        [
+            new AgentResult
+            {
+                ResultId = "result-compliance-1",
+                AgentType = AgentType.Compliance,
+                Findings =
+                [
+                    new ArchitectureFinding
+                    {
+                        FindingId = "finding-1",
+                        Category = "Compliance",
+                        Severity = FindingSeverity.Warning,
+                    },
+                ],
+            },
+        ];
+    }
+
+    private static string BuildRunPayload(ArchitectureRunStatus status, string manifestVersion, object[] results)
     {
         object payload = new
         {
@@ -140,10 +241,10 @@ public sealed class ShipGateEvidenceRunnerTests
                 createdUtc = DateTime.UtcNow,
                 completedUtc = DateTime.UtcNow,
                 currentManifestVersion = manifestVersion,
-                structuralExecutionMode = 1
+                structuralExecutionMode = 1,
             },
             tasks = Array.Empty<object>(),
-            results = Enumerable.Range(0, resultCount).Select(i => new { id = i }).ToArray()
+            results,
         };
 
         return JsonSerializer.Serialize(payload);

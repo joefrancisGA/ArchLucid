@@ -155,7 +155,7 @@ internal sealed class CitationIntegrityRunner
             if (run is null)
                 continue;
 
-            List<AgentResult> agentResults = ParseAgentResults(run.Results);
+            List<AgentResult> agentResults = CitationIntegrityAgentResultParser.Parse(run.Results);
 
             bundles.Add(new CitationIntegrityRunBundle
             {
@@ -166,21 +166,5 @@ internal sealed class CitationIntegrityRunner
         }
 
         return bundles;
-    }
-
-    private static List<AgentResult> ParseAgentResults(IReadOnlyList<object> rawResults)
-    {
-        List<AgentResult> parsed = new();
-
-        foreach (object raw in rawResults)
-        {
-            string json = JsonSerializer.Serialize(raw, CliCommandShared.JsonWriteIndented);
-            AgentResult? result = JsonSerializer.Deserialize<AgentResult>(json, CliCommandShared.JsonDeserializeAgentResult);
-
-            if (result is not null)
-                parsed.Add(result);
-        }
-
-        return parsed;
     }
 }

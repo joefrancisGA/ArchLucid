@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases). Prior: 2026-06-28 (TB-407 **Done** — integrations route namespace + ITSM redirect hygiene). Prior: 2026-06-28 (TB-404 **Done** — operator nav ↔ URL prefix policy + CI drift guard). Prior: 2026-06-27 (TB-399 **Done** — buyer-facing `/signed-records` route aliases; TB-400 **Done** — advisory recommendation `sourceEvidenceLinks`). Prior: 2026-06-27 (TB-403 **Done** — automated GCP Tier 2 polling at Azure/AWS extractor parity). Prior: 2026-06-27 (TB-402 **Done** — automated AWS Tier 2 polling at Azure extractor parity). Prior: 2026-06-27 (TB-397 **Done** — `IExternalTicketConnector` plugin boundary; TB-396 **Done** — inbound ITSM disposition sync; TB-392 **Done**; TB-393 **Done** — per-tenant ITSM credentials + settings write API/UI). Prior: 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -161,6 +161,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-406 | Administration route namespace reconciliation — `/workspace/security-trust` → `/settings/security-trust`; align **Users & roles** (`/admin/users`) with **Role management** (`/settings/roles`) under one prefix; move **Recurrence schedules** nav to Governance or add Administration-prefixed alias | **Done** (2026-06-28) — Adoption friction P1 **V1.1** | M |
 | TB-407 | Integrations cross-namespace routes + ITSM redirect hygiene — resolve **Cloud connections** (`/settings/cloud-connections` under Integrations nav); update nav from `/integrations/itsm` to `/integrations/operations`; remove or redirect `/settings/webhooks` stub | **Done** (2026-06-28) — Adoption friction P2 **V1.1** | S |
 | TB-408 | Nav deduplication + semantic path aliases — dedupe **System health** (`/health` vs `/admin/health`); add `/settings/ai-usage` alias → `/settings/cost-reporting`; reconcile **Integration readiness** label vs `/integrations/operations` segment | **Done** (2026-06-28) — Adoption friction P2 **V1.1** | S |
+| TB-409 | Ship-gate Gate 2 citation-integrity probe — embed `CitationIntegrityEvaluator` in `archlucid pilot ship-gate-evidence` for the supplied `--run-id`; Gate 2 PASS/FAIL from structural citation sampler (WARN treated as PASS with evidence) | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-402 | Automated AWS polling (Tier 2) — **Done (2026-06-27)** — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-403 | Automated GCP polling (Tier 2) — **Done (2026-06-27)** — hosted poller with GCP Workload Identity Federation (Azure MI trust); scheduled Cloud Asset Inventory collection; upload to `/v1/extractor/gcp/upload`; `/settings/cloud-connections` GCP connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards — **Done (2026-06-27)** — `sourceEvidenceLinks` on persisted recommendations + API; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
@@ -11925,3 +11926,36 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** **TB-404**, **TB-407**, **TB-406**.
+
+---
+
+## TB-409 — Ship-gate Gate 2 citation-integrity probe
+
+**Status:** **Done** (2026-06-28). `ShipGateEvidenceRunner.BuildGate2Async` loads the representative run via `CitationIntegrityApiLoader`, evaluates Cost/Compliance/Critic claim classes with bundled rules, and emits PASS/FAIL (WARN counts as structural PASS with evidence); shared parser extracted to `CitationIntegrityAgentResultParser`.
+
+**Source:** Assessment §17 #1 ship-gate evidence harness follow-on — Gate 2 was permanently **UNKNOWN** despite a standalone `archlucid pilot citation-integrity` command.
+
+**Problem:** Ship-gate evidence could not assert citation sanity for the representative `--run-id` in one bundle; operators had to run a second command and manually correlate results.
+
+**V1 scope:**
+
+1. Reuse `CitationIntegrityEvaluator` + `citation_integrity_rules.v1.json` — no new claim rules.
+2. Gate 2 **FAIL** when citation-integrity returns **FAIL**; **PASS** when **PASS** or **WARN** (semantic hallucination audit remains manual).
+3. Evidence string references standalone `archlucid pilot citation-integrity --include-api`.
+
+**Acceptance criteria:**
+
+- `archlucid pilot ship-gate-evidence --run-id <guid>` Gate 2 is PASS/FAIL (not UNKNOWN) when run detail loads.
+- Unit tests cover compliant and missing-citation fail paths in `ShipGateEvidenceRunnerTests`.
+- Markdown evidence links section references citation-integrity command.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/ShipGateEvidenceRunner.cs`
+- `ArchLucid.Cli/Commands/CitationIntegrityApiLoader.cs`
+- `ArchLucid.Cli/Commands/CitationIntegrityRunner.cs` (shared parser)
+- `ArchLucid.Cli.Tests/ShipGateEvidenceRunnerTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Assessment §17 #1, #8 (citation-integrity sampler), `docs/assessments/LATEST_GPT55.md` §4 gate 2.

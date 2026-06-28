@@ -130,6 +130,7 @@ internal static class ShipGateEvidenceCommand
         sb.AppendLine($"- `GET /v1/artifacts/runs/{report.RunId}/export`");
         sb.AppendLine($"- `GET /v1/architecture/run/{report.RunId}/traceability-bundle.zip`");
         sb.AppendLine("- `GET /v1/roi/executive-summary`");
+        sb.AppendLine($"- `archlucid pilot citation-integrity --include-api` (Gate 2 embedded sampler for run `{report.RunId}`)");
 
         return sb.ToString();
     }

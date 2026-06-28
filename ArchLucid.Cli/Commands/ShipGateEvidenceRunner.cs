@@ -1,6 +1,5 @@
 using System.Net;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Common;
 
@@ -16,13 +15,11 @@ internal sealed class ShipGateEvidenceRunner(HttpClient http)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        ArchLucidApiClient apiClient = new(_http);
+        RunDetailProbe? runProbe = await TryFetchRunDetailProbeAsync(runId, cancellationToken);
+        int artifactCount = await TryCountArtifactsAsync(runId, cancellationToken);
 
-        ArchLucidApiClient.GetRunResult? run = await apiClient.GetRunAsync(runId, cancellationToken);
-        IReadOnlyList<string> artifactIds = await apiClient.TryListArtifactIdsForRunAsync(runId, cancellationToken);
-
-        ShipGateEvidenceGateResult gate1 = BuildGate1(run, artifactIds);
-        ShipGateEvidenceGateResult gate2 = BuildGate2();
+        ShipGateEvidenceGateResult gate1 = BuildGate1(runProbe, artifactCount);
+        ShipGateEvidenceGateResult gate2 = await BuildGate2Async(runId, cancellationToken);
         ShipGateEvidenceGateResult gate3 = await BuildGate3Async(cancellationToken);
         ShipGateEvidenceGateResult gate4 = await BuildGate4Async(runId, cancellationToken);
         ShipGateEvidenceGateResult gate5 = BuildGate5();
@@ -38,10 +35,10 @@ internal sealed class ShipGateEvidenceRunner(HttpClient http)
     }
 
     private static ShipGateEvidenceGateResult BuildGate1(
-        ArchLucidApiClient.GetRunResult? run,
-        IReadOnlyList<string> artifactIds)
+        RunDetailProbe? runProbe,
+        int artifactCount)
     {
-        if (run is null)
+        if (runProbe is null)
         {
             return new ShipGateEvidenceGateResult
             {
@@ -53,10 +50,10 @@ internal sealed class ShipGateEvidenceRunner(HttpClient http)
             };
         }
 
-        bool committed = run.Run.Status == ArchitectureRunStatus.Committed;
-        bool hasManifest = !string.IsNullOrWhiteSpace(run.Run.CurrentManifestVersion);
-        bool hasArtifacts = artifactIds.Count > 0;
-        bool hasExecutionSignals = run.Results.Count > 0 || run.Tasks.Count > 0 || run.Run.CompletedUtc.HasValue;
+        bool committed = runProbe.IsCommitted;
+        bool hasManifest = !string.IsNullOrWhiteSpace(runProbe.CurrentManifestVersion);
+        bool hasArtifacts = artifactCount > 0;
+        bool hasExecutionSignals = runProbe.ResultCount > 0 || runProbe.TaskCount > 0 || runProbe.HasCompletedUtc;
 
         ShipGateEvidenceVerdict verdict = committed && hasManifest && hasArtifacts && hasExecutionSignals
             ? ShipGateEvidenceVerdict.Pass
@@ -68,25 +65,175 @@ internal sealed class ShipGateEvidenceRunner(HttpClient http)
             Name = "First review completes end to end (create -> execute -> commit -> manifest + artifact)",
             Verdict = verdict,
             Evidence =
-                $"status={run.Run.Status}; manifestVersion={(run.Run.CurrentManifestVersion ?? "(null)")}; artifactCount={artifactIds.Count}; taskCount={run.Tasks.Count}; resultCount={run.Results.Count}.",
+                $"status={runProbe.StatusRaw}; manifestVersion={(runProbe.CurrentManifestVersion ?? "(null)")}; artifactCount={artifactCount}; taskCount={runProbe.TaskCount}; resultCount={runProbe.ResultCount}.",
             FastestResolution = verdict == ShipGateEvidenceVerdict.Pass
                 ? null
                 : "Run one representative first-review path through create, execute, and commit until status=Committed with at least one artifact.",
         };
     }
 
-    private static ShipGateEvidenceGateResult BuildGate2()
+    private async Task<RunDetailProbe?> TryFetchRunDetailProbeAsync(string runId, CancellationToken cancellationToken)
     {
-        return new ShipGateEvidenceGateResult
+        try
         {
-            GateNumber = 2,
-            Name = "Representative review has no hallucinated or uncited policy/evidence citations",
-            Verdict = ShipGateEvidenceVerdict.Unknown,
-            Evidence = "Automated structural probe cannot prove citation truthfulness. Manual reviewer audit is required.",
-            FastestResolution =
-                "Run a manual citation audit on the representative package: sample policy/evidence claims and verify source-backed traceability.",
+            using HttpResponseMessage response = await _http.GetAsync($"/v1/architecture/run/{runId}", cancellationToken);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+                return null;
+
+            string body = await response.Content.ReadAsStringAsync(cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(body);
+            JsonElement root = doc.RootElement;
+
+            if (!root.TryGetProperty("run", out JsonElement run) || run.ValueKind != JsonValueKind.Object)
+                return null;
+
+            string statusRaw = ReadStatusRaw(run);
+            string? manifestVersion = run.TryGetProperty("currentManifestVersion", out JsonElement manifestEl)
+                ? manifestEl.GetString()
+                : null;
+            bool hasCompletedUtc = run.TryGetProperty("completedUtc", out JsonElement completedEl)
+                && completedEl.ValueKind != JsonValueKind.Null;
+
+            int taskCount = root.TryGetProperty("tasks", out JsonElement tasks) && tasks.ValueKind == JsonValueKind.Array
+                ? tasks.GetArrayLength()
+                : 0;
+            int resultCount = root.TryGetProperty("results", out JsonElement results) && results.ValueKind == JsonValueKind.Array
+                ? results.GetArrayLength()
+                : 0;
+
+            return new RunDetailProbe(statusRaw, manifestVersion, hasCompletedUtc, taskCount, resultCount);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        {
+            return null;
+        }
+    }
+
+    private async Task<int> TryCountArtifactsAsync(string runId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using HttpResponseMessage response = await _http.GetAsync($"/v1/artifacts/runs/{runId}", cancellationToken);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+                return 0;
+
+            string body = await response.Content.ReadAsStringAsync(cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(body);
+
+            if (doc.RootElement.ValueKind == JsonValueKind.Array)
+                return doc.RootElement.GetArrayLength();
+
+            return 0;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        {
+            return 0;
+        }
+    }
+
+    private static string ReadStatusRaw(JsonElement run)
+    {
+        if (!run.TryGetProperty("status", out JsonElement statusEl))
+            return "(missing)";
+
+        return statusEl.ValueKind switch
+        {
+            JsonValueKind.String => statusEl.GetString() ?? "(null)",
+            JsonValueKind.Number => statusEl.GetRawText(),
+            _ => statusEl.ToString(),
         };
     }
+
+    private static bool IsCommittedStatus(string statusRaw) =>
+        string.Equals(statusRaw, "Committed", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(statusRaw, "5", StringComparison.Ordinal);
+
+    private sealed record RunDetailProbe(
+        string StatusRaw,
+        string? CurrentManifestVersion,
+        bool HasCompletedUtc,
+        int TaskCount,
+        int ResultCount)
+    {
+        public bool IsCommitted => IsCommittedStatus(StatusRaw);
+    }
+
+    private async Task<ShipGateEvidenceGateResult> BuildGate2Async(string runId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            CitationIntegrityRunBundle? bundle = await CitationIntegrityApiLoader.TryLoadRunBundleAsync(
+                _http,
+                runId,
+                cancellationToken);
+
+            if (bundle is null)
+            {
+                return new ShipGateEvidenceGateResult
+                {
+                    GateNumber = 2,
+                    Name = "Representative review has no hallucinated or uncited policy/evidence citations",
+                    Verdict = ShipGateEvidenceVerdict.Fail,
+                    Evidence = "Citation-integrity probe could not load GET /v1/architecture/run/{runId} for the supplied run.",
+                    FastestResolution =
+                        "Verify runId, API auth, and run detail availability; rerun ship-gate evidence with a committed representative run.",
+                };
+            }
+
+            if (bundle.Status != ArchitectureRunStatus.Committed)
+            {
+                return new ShipGateEvidenceGateResult
+                {
+                    GateNumber = 2,
+                    Name = "Representative review has no hallucinated or uncited policy/evidence citations",
+                    Verdict = ShipGateEvidenceVerdict.Fail,
+                    Evidence = $"Citation-integrity requires a committed run; observed status={bundle.Status}.",
+                    FastestResolution = "Commit the representative run before asserting citation integrity in ship-gate evidence.",
+                };
+            }
+
+            CitationIntegrityRules rules = CitationIntegrityRulesLoader.Load(null);
+            CitationIntegrityRunResult citationResult = CitationIntegrityEvaluator.EvaluateRun(bundle, rules);
+            ShipGateEvidenceVerdict verdict = MapCitationVerdict(citationResult.Verdict);
+            int failCount = citationResult.Issues.Count(static issue => issue.Verdict == CitationIntegrityVerdict.Fail);
+            int warnCount = citationResult.Issues.Count(static issue => issue.Verdict == CitationIntegrityVerdict.Warn);
+
+            return new ShipGateEvidenceGateResult
+            {
+                GateNumber = 2,
+                Name = "Representative review has no hallucinated or uncited policy/evidence citations",
+                Verdict = verdict,
+                Evidence =
+                    $"citation-integrity verdict={citationResult.Verdict}; failIssues={failCount}; warnIssues={warnCount}; agentResults={citationResult.AgentResultCount}; standalone: archlucid pilot citation-integrity --include-api.",
+                FastestResolution = verdict == ShipGateEvidenceVerdict.Pass
+                    ? warnCount > 0
+                        ? "Review WARN-level citation gaps before sponsor send; semantic hallucination audit remains manual."
+                        : null
+                    : "Fix missing/weak citations on the representative run or rerun citation-integrity with fixture replay to triage failing claim classes.",
+            };
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or InvalidOperationException)
+        {
+            return new ShipGateEvidenceGateResult
+            {
+                GateNumber = 2,
+                Name = "Representative review has no hallucinated or uncited policy/evidence citations",
+                Verdict = ShipGateEvidenceVerdict.Fail,
+                Evidence = $"Citation-integrity probe failed: {ex.Message}",
+                FastestResolution = "Confirm API connectivity and bundled citation_integrity_rules.v1.json, then rerun ship-gate evidence.",
+            };
+        }
+    }
+
+    private static ShipGateEvidenceVerdict MapCitationVerdict(CitationIntegrityVerdict citationVerdict) =>
+        citationVerdict switch
+        {
+            CitationIntegrityVerdict.Fail => ShipGateEvidenceVerdict.Fail,
+            CitationIntegrityVerdict.Pass or CitationIntegrityVerdict.Warn => ShipGateEvidenceVerdict.Pass,
+            _ => ShipGateEvidenceVerdict.Unknown,
+        };
 
     private async Task<ShipGateEvidenceGateResult> BuildGate3Async(CancellationToken cancellationToken)
     {
