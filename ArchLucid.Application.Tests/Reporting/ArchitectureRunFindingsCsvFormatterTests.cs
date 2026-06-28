@@ -15,6 +15,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundConnectorTestFixture;
+
 namespace ArchLucid.Application.Tests;
 
 [Trait("Category", "Unit")]
@@ -177,8 +179,6 @@ public sealed class RunFindingExternalTrackingEnrichmentServiceTests
                     ItsmLinkedTicketsSummary = "Jira:ABC-1"
                 }
             });
-
-using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundConnectorTestFixture;
 
         RunFindingExternalTrackingEnrichmentService sut = new(
             readRepository.Object,
