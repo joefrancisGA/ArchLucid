@@ -70,14 +70,17 @@ internal static class TenantIsolationNegativeTestCommand
             report = runner.RunOffline(repositoryRoot, options);
         }
 
-        string json = JsonSerializer.Serialize(report, JsonOptions);
-        string markdown = BuildMarkdown(report);
+        string artifactKey = TenantIsolationNegativeTestOutputPaths.ResolveArtifactKey(report);
+        TenantIsolationNegativeTestOutputResolution outputPaths =
+            TenantIsolationNegativeTestOutputPaths.Resolve(options, repositoryRoot, artifactKey);
+        TenantIsolationNegativeTestReport finalReport = report.WithOutputMetadata(
+            outputPaths.JsonPath,
+            outputPaths.MarkdownPath);
 
-        if (!string.IsNullOrWhiteSpace(options.JsonOutPath))
-            await File.WriteAllTextAsync(options.JsonOutPath, json, Encoding.UTF8, cancellationToken);
+        string json = JsonSerializer.Serialize(finalReport, JsonOptions);
+        string markdown = BuildMarkdown(finalReport);
 
-        if (!string.IsNullOrWhiteSpace(options.MarkdownOutPath))
-            await File.WriteAllTextAsync(options.MarkdownOutPath, markdown, Encoding.UTF8, cancellationToken);
+        await WriteArtifactsAsync(outputPaths, json, markdown, cancellationToken);
 
         if (CliExecutionContext.JsonOutput)
         {
@@ -85,14 +88,41 @@ internal static class TenantIsolationNegativeTestCommand
         }
         else
         {
-            WriteConsoleSummary(report);
+            WriteConsoleSummary(finalReport);
             Console.WriteLine();
             Console.WriteLine(markdown);
         }
 
-        return report.OverallVerdict == TenantIsolationNegativeTestVerdict.Fail
+        return finalReport.OverallVerdict == TenantIsolationNegativeTestVerdict.Fail
             ? CliExitCode.OperationFailed
             : CliExitCode.Success;
+    }
+
+    private static async Task WriteArtifactsAsync(
+        TenantIsolationNegativeTestOutputResolution outputPaths,
+        string json,
+        string markdown,
+        CancellationToken cancellationToken)
+    {
+        if (outputPaths.WillWriteJson)
+        {
+            string jsonDirectory = Path.GetDirectoryName(outputPaths.JsonPath!)!;
+
+            if (!Directory.Exists(jsonDirectory))
+                Directory.CreateDirectory(jsonDirectory);
+
+            await File.WriteAllTextAsync(outputPaths.JsonPath!, json, Encoding.UTF8, cancellationToken);
+        }
+
+        if (outputPaths.WillWriteMarkdown)
+        {
+            string markdownDirectory = Path.GetDirectoryName(outputPaths.MarkdownPath!)!;
+
+            if (!Directory.Exists(markdownDirectory))
+                Directory.CreateDirectory(markdownDirectory);
+
+            await File.WriteAllTextAsync(outputPaths.MarkdownPath!, markdown, Encoding.UTF8, cancellationToken);
+        }
     }
 
     private static void WriteConsoleSummary(TenantIsolationNegativeTestReport report)
@@ -105,6 +135,12 @@ internal static class TenantIsolationNegativeTestCommand
 
         Console.WriteLine($"mode: {(report.LiveApiMode ? "live-api" : "offline-fixture")}");
         Console.WriteLine($"overall: {FormatVerdict(report.OverallVerdict)}");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            Console.WriteLine($"json artifact: {report.JsonArtifactPath}");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            Console.WriteLine($"markdown artifact: {report.MarkdownArtifactPath}");
 
         if (!string.IsNullOrWhiteSpace(report.PrimaryRunId))
             Console.WriteLine($"runId: {report.PrimaryRunId}");
@@ -135,6 +171,12 @@ internal static class TenantIsolationNegativeTestCommand
 
         sb.AppendLine($"Mode: **{(report.LiveApiMode ? "live-api" : "offline-fixture")}**");
         sb.AppendLine($"Overall verdict: **{FormatVerdict(report.OverallVerdict)}**");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            sb.AppendLine($"JSON artifact: `{report.JsonArtifactPath}`");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            sb.AppendLine($"Markdown artifact: `{report.MarkdownArtifactPath}`");
 
         if (!string.IsNullOrWhiteSpace(report.PrimaryRunId))
             sb.AppendLine($"Primary runId: `{report.PrimaryRunId}`");
@@ -184,6 +226,6 @@ internal static class TenantIsolationNegativeTestCommand
         Console.WriteLine(
             "Usage: archlucid pilot tenant-isolation-negative-test [--run-id <guid>] "
             + "[--alternate-tenant-id <guid>] [--alternate-workspace-id <guid>] [--alternate-project-id <guid>] "
-            + "[--manifest <path>] [--json-out <path>] [--markdown-out <path>] [--json]");
+            + "[--manifest <path>] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] [--json]");
     }
 }

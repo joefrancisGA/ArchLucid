@@ -16,6 +16,8 @@ internal sealed class TenantIsolationNegativeTestOptions
 
     public string? MarkdownOutPath { get; init; }
 
+    public bool SuppressDefaultArtifacts { get; init; }
+
     public static TenantIsolationNegativeTestOptions Parse(string[] args)
     {
         ArgumentNullException.ThrowIfNull(args);
@@ -29,6 +31,8 @@ internal sealed class TenantIsolationNegativeTestOptions
             ManifestPath = CliCommandShared.TryGetOptionValue(args, "--manifest"),
             JsonOutPath = CliCommandShared.TryGetOptionValue(args, "--json-out"),
             MarkdownOutPath = CliCommandShared.TryGetOptionValue(args, "--markdown-out"),
+            SuppressDefaultArtifacts = args.Any(static arg =>
+                string.Equals(arg, "--no-write-artifacts", StringComparison.OrdinalIgnoreCase)),
         };
     }
 }

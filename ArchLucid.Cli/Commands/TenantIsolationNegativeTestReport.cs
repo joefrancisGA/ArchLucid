@@ -23,4 +23,28 @@ internal sealed class TenantIsolationNegativeTestReport
     public int UnexpectedSuccessCount { get; init; }
 
     public IReadOnlyList<TenantIsolationNegativeTestProbeResult> Probes { get; init; } = [];
+
+    public string? JsonArtifactPath { get; init; }
+
+    public string? MarkdownArtifactPath { get; init; }
+
+    internal TenantIsolationNegativeTestReport WithOutputMetadata(
+        string? jsonArtifactPath,
+        string? markdownArtifactPath) =>
+        new()
+        {
+            RepositoryRoot = RepositoryRoot,
+            BaseUrl = BaseUrl,
+            GeneratedUtc = GeneratedUtc,
+            OverallVerdict = OverallVerdict,
+            PrimaryRunId = PrimaryRunId,
+            AlternateTenantId = AlternateTenantId,
+            AlternateWorkspaceId = AlternateWorkspaceId,
+            AlternateProjectId = AlternateProjectId,
+            LiveApiMode = LiveApiMode,
+            UnexpectedSuccessCount = UnexpectedSuccessCount,
+            Probes = Probes,
+            JsonArtifactPath = jsonArtifactPath,
+            MarkdownArtifactPath = markdownArtifactPath,
+        };
 }

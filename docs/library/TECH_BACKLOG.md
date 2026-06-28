@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-29 (TB-418 **Done** — ship-gate evidence default operational artifact bundle). Prior: 2026-06-29 (TB-417 **Done** — ship-gate Gate 4 traceability bundle ZIP embed). Prior: 2026-06-28 (TB-413 **Done** — ship-gate Gate 1 first-review completion probe). Prior: 2026-06-28 (TB-412 **Done** — ship-gate Gate 4 export matrix embed). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-29 (TB-419 **Done** — tenant-isolation negative-test default operational artifact bundle). Prior: 2026-06-29 (TB-418 **Done** — ship-gate evidence default operational artifact bundle). Prior: 2026-06-29 (TB-417 **Done** — ship-gate Gate 4 traceability bundle ZIP embed). Prior: 2026-06-28 (TB-413 **Done** — ship-gate Gate 1 first-review completion probe). Prior: 2026-06-28 (TB-412 **Done** — ship-gate Gate 4 export matrix embed). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -169,6 +169,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
+| TB-419 | Tenant-isolation negative-test default operational artifact bundle — auto-write JSON + Markdown under `artifacts/tenant-isolation-negative-test/{runId|offline-fixture}/` when repo root resolves; `--no-write-artifacts` for stdout/API-only runs | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-418 | Ship-gate evidence default operational artifact bundle — auto-write JSON + Markdown under `artifacts/ship-gate-evidence/{runId}/` when repo root resolves; overall PASS/FAIL/UNKNOWN rollup; `--no-write-artifacts` for stdout/API-only runs | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-417 | Ship-gate Gate 4 traceability bundle ZIP embed — add `traceability-bundle.zip` probe to export matrix contract alongside Markdown/DOCX/artifact ZIP | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-402 | Automated AWS polling (Tier 2) — **Done (2026-06-27)** — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
@@ -12286,3 +12287,38 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-409—TB-417 ship-gate cluster, assessment §7.8, §7.10.
+
+---
+
+## TB-419 — Tenant-isolation negative-test default operational artifact bundle
+
+**Status:** **Done** (2026-06-29). Default `archlucid pilot tenant-isolation-negative-test` writes JSON + Markdown under `artifacts/tenant-isolation-negative-test/{runId}/` for live runs or `artifacts/tenant-isolation-negative-test/offline-fixture/` for fixture replay when repository root resolves; `--no-write-artifacts` preserves stdout/API-only behavior.
+
+**Source:** Assessment §7.8 recommendation — promote tenant-isolation negative-test bundles into routine operational artifacts (parallel to TB-418 ship-gate bundle).
+
+**Problem:** Operators had to pass explicit `--json-out` / `--markdown-out` paths to retain cross-tenant deny-matrix evidence between release trains.
+
+**V1 scope:**
+
+1. Add `TenantIsolationNegativeTestOutputPaths` default resolver under `artifacts/tenant-isolation-negative-test/`.
+2. Live runs key artifacts by `--run-id`; offline fixture replay keys by `offline-fixture`.
+3. Add `--no-write-artifacts` for headless/API-only CI runs.
+4. Include artifact path metadata on JSON/Markdown deny-matrix output.
+
+**Acceptance criteria:**
+
+- Default tenant-isolation negative-test run from repo root writes JSON + Markdown without explicit output flags.
+- Explicit `--json-out` / `--markdown-out` override defaults; `--no-write-artifacts` skips default writes.
+- Unit tests cover path resolution for live run id, offline fixture key, explicit override, and suppress flag.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs`
+- `ArchLucid.Cli/Commands/TenantIsolationNegativeTestOptions.cs`
+- `ArchLucid.Cli/Commands/TenantIsolationNegativeTestReport.cs`
+- `ArchLucid.Cli/Commands/TenantIsolationNegativeTestOutputPaths.cs`
+- `ArchLucid.Cli.Tests/TenantIsolationNegativeTestOutputPathsTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-411, TB-418, assessment §7.8, §7.9.
