@@ -118,9 +118,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** validation first
 
 ### 7.5 Executive / Operator Comprehension
-- **Score / Weight / Contribution / Deficiency:** 79 / 8 / 6.32 / 168
+- **Score / Weight / Contribution / Deficiency:** 81 / 8 / 6.48 / 152
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** rich surfaces exist, but buyer-level understanding can still fragment across governance, ROI, and operational views; canonical ROI scope manifest, buyer-proof evidence ledger normalization, and unified `/integrations/itsm` settings hub now align ITSM connector references with tenant outbound overrides without SQL access.
+- **Justification:** rich surfaces exist, but buyer-level understanding can still fragment across governance, ROI, and operational views; canonical ROI scope manifest, buyer-proof evidence ledger normalization, unified `/integrations/itsm` settings hub, and documented nav ↔ URL prefix policy (TB-404) now give operators an explicit map of intentional sidebar/address-bar mismatches until route consolidation (TB-405–408).
 - **Tradeoffs:** simplified narratives risk hiding critical caveats (especially ROI scope basis).
 - **Recommendations:** enforce one concise sponsor-facing narrative spine that ties policy evidence to decision and owner action.
 - **Classification:** V1
@@ -158,7 +158,7 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.10 Adoption Friction
-- **Score / Weight / Contribution / Deficiency:** 76 / 5 / 3.80 / 120
+- **Score / Weight / Contribution / Deficiency:** 78 / 5 / 3.90 / 110
 - **Affects outcomes:** 2, 3, 4
 - **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; AWS and GCP Tier 2 connect/re-poll/disconnect on `/settings/cloud-connections` (TB-402, TB-403) extend Azure-parity automated evidence intake across the three major clouds; operator nav ↔ URL prefix policy + CI drift guard (TB-404) documents intentional sidebar/address-bar mismatches and blocks silent nav drift until TB-405–408 route consolidation; standardized tenant-isolation deny-matrix evidence, return-trigger cohort guardrails, and operator ITSM settings write API + `/integrations/itsm` hub improve enterprise confidence without expanding pilot setup scope.
 - **Tradeoffs:** reducing friction too far risks weakening governance and assurance posture.
