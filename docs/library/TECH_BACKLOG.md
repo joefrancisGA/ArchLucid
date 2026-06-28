@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-412 **Done** — ship-gate Gate 4 export matrix embed). Prior: 2026-06-28 (TB-411 **Done** — ship-gate Gate 6 tenant-isolation negative-test embed). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-28 (TB-413 **Done** — ship-gate Gate 1 first-review completion probe). Prior: 2026-06-28 (TB-412 **Done** — ship-gate Gate 4 export matrix embed). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -165,6 +165,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-410 | Ship-gate Gate 5 first-review UI route smoke — `--ui-base-url` probes canonical operator-shell routes from `FIRST_REVIEW_UI_ROUTE_SMOKE_CONTRACT.v1.json`; Gate 5 PASS/FAIL (UNKNOWN when UI origin omitted) | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-411 | Ship-gate Gate 6 tenant-isolation negative-test embed — `BuildGate6Async` runs live cross-tenant deny probes via `TenantIsolationNegativeTestRunner` for the supplied `--run-id`; optional `--alternate-tenant-id` / workspace / project scope overrides | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-412 | Ship-gate Gate 4 export matrix embed — probes Markdown (`first-value-report`), DOCX (`analysis-report/export/docx`), and ZIP (`artifacts/runs/{runId}/export`) from `SHIP_GATE_EXPORT_MATRIX_CONTRACT.v1.json`; Gate 4 PASS/FAIL with per-format evidence | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
+| TB-413 | Ship-gate Gate 1 first-review completion probe — contract-driven committed-run signals (status, manifest, request link, execution, artifacts, provenance graph) from `FIRST_REVIEW_COMPLETION_CONTRACT.v1.json`; Gate 1 PASS/FAIL with per-signal evidence | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-402 | Automated AWS polling (Tier 2) — **Done (2026-06-27)** — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-403 | Automated GCP polling (Tier 2) — **Done (2026-06-27)** — hosted poller with GCP Workload Identity Federation (Azure MI trust); scheduled Cloud Asset Inventory collection; upload to `/v1/extractor/gcp/upload`; `/settings/cloud-connections` GCP connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards — **Done (2026-06-27)** — `sourceEvidenceLinks` on persisted recommendations + API; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
@@ -12065,3 +12066,39 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-409, TB-410, TB-411, assessment §4 gate 4, `docs/library/API_CONTRACTS.md`.
+
+---
+
+## TB-413 — Ship-gate Gate 1 first-review completion probe
+
+**Status:** **Done** (2026-06-28). `ShipGateEvidenceRunner.BuildGate1Async` evaluates committed-run completion signals from bundled `first_review_completion_contract.v1.json`: Committed status, manifest version, request linkage, execution signals, artifact list, and provenance graph reachability; Gate 1 PASS/FAIL with per-signal evidence counts.
+
+**Source:** Assessment §4 gate 1 and §17 #1 ship-gate evidence harness follow-on — Gate 1 was marked **UNKNOWN** in §4 despite inline PASS/FAIL logic on run detail only.
+
+**Problem:** Ship-gate evidence could not assert structural first-review completion (create → execute → commit → manifest + artifact + provenance) for the representative `--run-id` with a canonical contract aligned to `FIRST_HOUR_OPERATOR_PATH.md`.
+
+**V1 scope:**
+
+1. Publish canonical completion contract aligned with first-hour operator success signals.
+2. Embed `FirstReviewCompletionProbe` in Gate 1 for the ship-gate `--run-id`.
+3. Gate 1 **PASS** when all contract run-detail signals and live probes succeed; **FAIL** otherwise.
+
+**Acceptance criteria:**
+
+- One `archlucid pilot ship-gate-evidence --run-id <guid>` command emits Gate 1 PASS/FAIL with per-signal evidence.
+- Unit tests cover probe pass/fail paths in `FirstReviewCompletionProbeTests` and Gate 1 fail in `ShipGateEvidenceRunnerTests`.
+- Assessment §4 gate 1 reflects embedded structural completion probe.
+
+**Affected files:**
+
+- `docs/library/FIRST_REVIEW_COMPLETION_CONTRACT.v1.json`
+- `ArchLucid.Cli/Data/first_review_completion_contract.v1.json`
+- `ArchLucid.Cli/Commands/FirstReviewCompletionProbe.cs`
+- `ArchLucid.Cli/Commands/FirstReviewCompletionContractLoader.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceRunner.cs`
+- `ArchLucid.Cli.Tests/FirstReviewCompletionProbeTests.cs`
+- `ArchLucid.Cli.Tests/ShipGateEvidenceRunnerTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-409–412, `docs/library/FIRST_HOUR_OPERATOR_PATH.md`, assessment §4 gate 1.

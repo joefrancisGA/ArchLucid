@@ -24,9 +24,8 @@ internal sealed class ShipGateEvidenceRunner(
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         RunDetailProbe? runProbe = await TryFetchRunDetailProbeAsync(runId, cancellationToken);
-        int artifactCount = await TryCountArtifactsAsync(runId, cancellationToken);
 
-        ShipGateEvidenceGateResult gate1 = BuildGate1(runProbe, artifactCount);
+        ShipGateEvidenceGateResult gate1 = await BuildGate1Async(runId, runProbe, cancellationToken);
         ShipGateEvidenceGateResult gate2 = await BuildGate2Async(runId, cancellationToken);
         ShipGateEvidenceGateResult gate3 = await BuildGate3Async(cancellationToken);
         ShipGateEvidenceGateResult gate4 = await BuildGate4Async(runId, cancellationToken);
@@ -43,42 +42,64 @@ internal sealed class ShipGateEvidenceRunner(
         };
     }
 
-    private static ShipGateEvidenceGateResult BuildGate1(
+    private async Task<ShipGateEvidenceGateResult> BuildGate1Async(
+        string runId,
         RunDetailProbe? runProbe,
-        int artifactCount)
+        CancellationToken cancellationToken)
     {
-        if (runProbe is null)
+        try
+        {
+            FirstReviewCompletionContract contract = FirstReviewCompletionContractLoader.Load(null);
+            FirstReviewCompletionRunSnapshot? snapshot = runProbe is null
+                ? null
+                : new FirstReviewCompletionRunSnapshot
+                {
+                    StatusRaw = runProbe.StatusRaw,
+                    CurrentManifestVersion = runProbe.CurrentManifestVersion,
+                    RequestId = runProbe.RequestId,
+                    HasCompletedUtc = runProbe.HasCompletedUtc,
+                    TaskCount = runProbe.TaskCount,
+                    ResultCount = runProbe.ResultCount,
+                };
+
+            IReadOnlyList<FirstReviewCompletionProbeResult> probeResults =
+                await FirstReviewCompletionProbe.EvaluateAsync(_http, runId, snapshot, contract, cancellationToken);
+
+            int passCount = probeResults.Count(static result => result.Success);
+            int failCount = probeResults.Count - passCount;
+            string failedSummary = string.Join(
+                "; ",
+                probeResults
+                    .Where(static result => !result.Success)
+                    .Select(static result => $"{result.SignalId}={result.Detail}"));
+
+            ShipGateEvidenceVerdict verdict = failCount == 0
+                ? ShipGateEvidenceVerdict.Pass
+                : ShipGateEvidenceVerdict.Fail;
+
+            return new ShipGateEvidenceGateResult
+            {
+                GateNumber = 1,
+                Name = "First review completes end to end (create -> execute -> commit -> manifest + artifact)",
+                Verdict = verdict,
+                Evidence =
+                    $"completionSignalsPassed={passCount}/{probeResults.Count}; contractSignals={contract.RunDetailSignals.Count + contract.LiveProbes.Count}; failed=[{failedSummary}].",
+                FastestResolution = verdict == ShipGateEvidenceVerdict.Pass
+                    ? "Live scripted create->execute->commit in a fresh tenant remains the fastest full-environment proof beyond structural completion probes."
+                    : "Run one representative first-review path through create, execute, and commit until all Gate 1 completion signals pass, then rerun ship-gate evidence.",
+            };
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or InvalidOperationException)
         {
             return new ShipGateEvidenceGateResult
             {
                 GateNumber = 1,
                 Name = "First review completes end to end (create -> execute -> commit -> manifest + artifact)",
                 Verdict = ShipGateEvidenceVerdict.Fail,
-                Evidence = "GET /v1/architecture/run/{runId} failed or returned no run.",
-                FastestResolution = "Provide a valid runId from a representative first-review flow and rerun ship-gate evidence.",
+                Evidence = $"First-review completion probe failed: {ex.Message}",
+                FastestResolution = "Confirm API connectivity and bundled first_review_completion_contract.v1.json, then rerun ship-gate evidence.",
             };
         }
-
-        bool committed = runProbe.IsCommitted;
-        bool hasManifest = !string.IsNullOrWhiteSpace(runProbe.CurrentManifestVersion);
-        bool hasArtifacts = artifactCount > 0;
-        bool hasExecutionSignals = runProbe.ResultCount > 0 || runProbe.TaskCount > 0 || runProbe.HasCompletedUtc;
-
-        ShipGateEvidenceVerdict verdict = committed && hasManifest && hasArtifacts && hasExecutionSignals
-            ? ShipGateEvidenceVerdict.Pass
-            : ShipGateEvidenceVerdict.Fail;
-
-        return new ShipGateEvidenceGateResult
-        {
-            GateNumber = 1,
-            Name = "First review completes end to end (create -> execute -> commit -> manifest + artifact)",
-            Verdict = verdict,
-            Evidence =
-                $"status={runProbe.StatusRaw}; manifestVersion={(runProbe.CurrentManifestVersion ?? "(null)")}; artifactCount={artifactCount}; taskCount={runProbe.TaskCount}; resultCount={runProbe.ResultCount}.",
-            FastestResolution = verdict == ShipGateEvidenceVerdict.Pass
-                ? null
-                : "Run one representative first-review path through create, execute, and commit until status=Committed with at least one artifact.",
-        };
     }
 
     private async Task<RunDetailProbe?> TryFetchRunDetailProbeAsync(string runId, CancellationToken cancellationToken)
@@ -101,6 +122,9 @@ internal sealed class ShipGateEvidenceRunner(
             string? manifestVersion = run.TryGetProperty("currentManifestVersion", out JsonElement manifestEl)
                 ? manifestEl.GetString()
                 : null;
+            string? requestId = run.TryGetProperty("requestId", out JsonElement requestEl)
+                ? requestEl.GetString()
+                : null;
             bool hasCompletedUtc = run.TryGetProperty("completedUtc", out JsonElement completedEl)
                 && completedEl.ValueKind != JsonValueKind.Null;
 
@@ -111,7 +135,7 @@ internal sealed class ShipGateEvidenceRunner(
                 ? results.GetArrayLength()
                 : 0;
 
-            return new RunDetailProbe(statusRaw, manifestVersion, hasCompletedUtc, taskCount, resultCount);
+            return new RunDetailProbe(statusRaw, manifestVersion, requestId, hasCompletedUtc, taskCount, resultCount);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
         {
@@ -119,28 +143,6 @@ internal sealed class ShipGateEvidenceRunner(
         }
     }
 
-    private async Task<int> TryCountArtifactsAsync(string runId, CancellationToken cancellationToken)
-    {
-        try
-        {
-            using HttpResponseMessage response = await _http.GetAsync($"/v1/artifacts/runs/{runId}", cancellationToken);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-                return 0;
-
-            string body = await response.Content.ReadAsStringAsync(cancellationToken);
-            using JsonDocument doc = JsonDocument.Parse(body);
-
-            if (doc.RootElement.ValueKind == JsonValueKind.Array)
-                return doc.RootElement.GetArrayLength();
-
-            return 0;
-        }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
-        {
-            return 0;
-        }
-    }
 
     private static string ReadStatusRaw(JsonElement run)
     {
@@ -162,6 +164,7 @@ internal sealed class ShipGateEvidenceRunner(
     private sealed record RunDetailProbe(
         string StatusRaw,
         string? CurrentManifestVersion,
+        string? RequestId,
         bool HasCompletedUtc,
         int TaskCount,
         int ResultCount)

@@ -131,6 +131,8 @@ internal static class ShipGateEvidenceCommand
         sb.AppendLine("## Evidence Links");
         sb.AppendLine();
         sb.AppendLine($"- `GET /v1/architecture/run/{report.RunId}`");
+        sb.AppendLine($"- `GET /v1/architecture/run/{report.RunId}` (Gate 1 first-review completion signals)");
+        sb.AppendLine($"- `GET /v1/architecture/runs/{report.RunId}/provenance` (Gate 1 provenance graph probe)");
         sb.AppendLine($"- `GET /v1/pilots/runs/{report.RunId}/first-value-report` (Gate 4 Markdown export matrix)");
         sb.AppendLine($"- `POST /v1/architecture/run/{report.RunId}/analysis-report/export/docx` (Gate 4 DOCX export matrix)");
         sb.AppendLine($"- `GET /v1/artifacts/runs/{report.RunId}/export` (Gate 4 ZIP export matrix)");

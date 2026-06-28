@@ -35,6 +35,9 @@ public sealed class ShipGateEvidenceRunnerTests
                 if (TryHandleExportMatrixRequest(req, out HttpResponseMessage? exportResponse))
                     return Task.FromResult(exportResponse!);
 
+                if (TryHandleFirstReviewCompletionRequest(req, out HttpResponseMessage? completionResponse))
+                    return Task.FromResult(completionResponse!);
+
                 string path = req.RequestUri!.AbsolutePath;
 
                 if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
@@ -92,6 +95,9 @@ public sealed class ShipGateEvidenceRunnerTests
                 if (TryHandleExportMatrixRequest(req, out HttpResponseMessage? exportResponse))
                     return Task.FromResult(exportResponse!);
 
+                if (TryHandleFirstReviewCompletionRequest(req, out HttpResponseMessage? completionResponse))
+                    return Task.FromResult(completionResponse!);
+
                 string path = req.RequestUri!.AbsolutePath;
 
                 if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
@@ -141,6 +147,9 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 if (TryHandleExportMatrixRequest(req, out HttpResponseMessage? exportResponse))
                     return Task.FromResult(exportResponse!);
+
+                if (TryHandleFirstReviewCompletionRequest(req, out HttpResponseMessage? completionResponse))
+                    return Task.FromResult(completionResponse!);
 
                 string path = req.RequestUri!.AbsolutePath;
 
@@ -199,6 +208,9 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 if (TryHandleExportMatrixRequest(req, out HttpResponseMessage? exportResponse))
                     return Task.FromResult(exportResponse!);
+
+                if (TryHandleFirstReviewCompletionRequest(req, out HttpResponseMessage? completionResponse))
+                    return Task.FromResult(completionResponse!);
 
                 if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
                 {
@@ -303,6 +315,62 @@ public sealed class ShipGateEvidenceRunnerTests
     }
 
     [Fact]
+    public async Task RunAsync_MissingProvenanceGraph_FailsGate1()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                if (TryHandleTenantIsolationRequest(req, out HttpResponseMessage? isolationResponse))
+                    return Task.FromResult(isolationResponse!);
+
+                if (TryHandleExportMatrixRequest(req, out HttpResponseMessage? exportResponse))
+                    return Task.FromResult(exportResponse!);
+
+                string path = req.RequestUri!.AbsolutePath;
+
+                if (path.EndsWith($"/v1/architecture/runs/{RunId}/provenance", StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "missing" }));
+
+                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(
+                        HttpStatusCode.OK,
+                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationCompliantResults())));
+                }
+
+                if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new[]
+                    {
+                        new { artifactId = Guid.NewGuid().ToString("D") },
+                    }));
+                }
+
+                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                    {
+                        totalEstimatedUsdSavings = 1234.56m,
+                        systems = new[] { new { systemName = "demo" } },
+                        basisBreakdown = new { openFindingsEstimatedUsd = 50m },
+                    }));
+                }
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient http = CreateClient(handler);
+        ShipGateEvidenceRunner runner = new(http, alternateScopeClientFactory: () => CreateAlternateClient(handler));
+
+        ShipGateEvidenceReport report = await runner.RunAsync(RunId);
+
+        report.Gates.Should().Contain(g => g.GateNumber == 1 && g.Verdict == ShipGateEvidenceVerdict.Fail);
+        report.AnyFail.Should().BeTrue();
+    }
+
+    [Fact]
     public void ShipGateEvidenceOptions_Parse_RequiresRunId()
     {
         Action parse = () => ShipGateEvidenceOptions.Parse([]);
@@ -351,6 +419,23 @@ public sealed class ShipGateEvidenceRunnerTests
         }
 
         response = JsonResponse(HttpStatusCode.NotFound, new { title = "Not found" });
+
+        return true;
+    }
+
+    private static bool TryHandleFirstReviewCompletionRequest(HttpRequestMessage request, out HttpResponseMessage? response)
+    {
+        response = null;
+        string path = request.RequestUri!.AbsolutePath;
+
+        if (!path.EndsWith($"/v1/architecture/runs/{RunId}/provenance", StringComparison.Ordinal))
+            return false;
+
+        response = JsonResponse(HttpStatusCode.OK, new
+        {
+            nodes = new[] { new { id = "run", type = "run" } },
+            edges = Array.Empty<object>(),
+        });
 
         return true;
     }
