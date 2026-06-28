@@ -302,21 +302,47 @@ internal sealed class ShipGateEvidenceRunner(
         string runId,
         CancellationToken cancellationToken)
     {
-        ProbeResult runExport = await ProbePathAsync($"/v1/artifacts/runs/{runId}/export", cancellationToken);
-        ProbeResult traceability = await ProbePathAsync($"/v1/architecture/run/{runId}/traceability-bundle.zip", cancellationToken);
-
-        bool pass = runExport.Success && traceability.Success;
-
-        return new ShipGateEvidenceGateResult
+        try
         {
-            GateNumber = 4,
-            Name = "Export/package generation works (Markdown / DOCX / ZIP)",
-            Verdict = pass ? ShipGateEvidenceVerdict.Pass : ShipGateEvidenceVerdict.Fail,
-            Evidence = $"run-export={runExport.Detail}; traceability-bundle={traceability.Detail}.",
-            FastestResolution = pass
-                ? null
-                : "Verify committed run export routes for the supplied runId and ensure artifact/export permissions are configured.",
-        };
+            ShipGateExportMatrixContract contract = ShipGateExportMatrixContractLoader.Load(null);
+            IReadOnlyList<ShipGateExportMatrixProbeResult> probeResults =
+                await ShipGateExportMatrixProbe.ProbeAsync(_http, runId, contract, cancellationToken);
+
+            int passCount = probeResults.Count(static result => result.Success);
+            int failCount = probeResults.Count - passCount;
+            string failedSummary = string.Join(
+                "; ",
+                probeResults
+                    .Where(static result => !result.Success)
+                    .Select(static result => $"{result.ProbeId}({result.Format})={result.Detail}"));
+
+            ShipGateEvidenceVerdict verdict = failCount == 0
+                ? ShipGateEvidenceVerdict.Pass
+                : ShipGateEvidenceVerdict.Fail;
+
+            return new ShipGateEvidenceGateResult
+            {
+                GateNumber = 4,
+                Name = "Export/package generation works (Markdown / DOCX / ZIP)",
+                Verdict = verdict,
+                Evidence =
+                    $"exportMatrixPassed={passCount}/{probeResults.Count}; formats=markdown,docx,zip; contractProbes={contract.Probes.Count}; failed=[{failedSummary}].",
+                FastestResolution = verdict == ShipGateEvidenceVerdict.Pass
+                    ? null
+                    : "Verify committed-run export routes (first-value Markdown, analysis DOCX, run export ZIP) for the supplied runId and rerun ship-gate evidence.",
+            };
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or InvalidOperationException)
+        {
+            return new ShipGateEvidenceGateResult
+            {
+                GateNumber = 4,
+                Name = "Export/package generation works (Markdown / DOCX / ZIP)",
+                Verdict = ShipGateEvidenceVerdict.Fail,
+                Evidence = $"Export matrix probe failed: {ex.Message}",
+                FastestResolution = "Confirm API connectivity and bundled ship_gate_export_matrix_contract.v1.json, then rerun ship-gate evidence.",
+            };
+        }
     }
 
     private async Task<ShipGateEvidenceGateResult> BuildGate5Async(
@@ -477,21 +503,6 @@ internal sealed class ShipGateEvidenceRunner(
             _ => ShipGateEvidenceVerdict.Unknown,
         };
 
-    private async Task<ProbeResult> ProbePathAsync(string path, CancellationToken cancellationToken)
-    {
-        try
-        {
-            using HttpResponseMessage response = await _http.GetAsync(path, cancellationToken);
-            bool success = response.StatusCode == HttpStatusCode.OK;
-            string detail = $"HTTP {(int)response.StatusCode}";
-
-            return new ProbeResult(success, detail);
-        }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
-        {
-            return new ProbeResult(false, ex.Message);
-        }
-    }
 
     private static string Trim(string value)
     {
@@ -502,6 +513,4 @@ internal sealed class ShipGateEvidenceRunner(
 
         return singleLine.Length <= 240 ? singleLine : singleLine[..240] + "…";
     }
-
-    private readonly record struct ProbeResult(bool Success, string Detail);
 }

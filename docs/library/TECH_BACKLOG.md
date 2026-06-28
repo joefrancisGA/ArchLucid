@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-411 **Done** — ship-gate Gate 6 tenant-isolation negative-test embed). Prior: 2026-06-28 (TB-410 **Done** — ship-gate Gate 5 first-review UI route smoke). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-28 (TB-412 **Done** — ship-gate Gate 4 export matrix embed). Prior: 2026-06-28 (TB-411 **Done** — ship-gate Gate 6 tenant-isolation negative-test embed). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -164,6 +164,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-409 | Ship-gate Gate 2 citation-integrity probe — embed `CitationIntegrityEvaluator` in `archlucid pilot ship-gate-evidence` for the supplied `--run-id`; Gate 2 PASS/FAIL from structural citation sampler (WARN treated as PASS with evidence) | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-410 | Ship-gate Gate 5 first-review UI route smoke — `--ui-base-url` probes canonical operator-shell routes from `FIRST_REVIEW_UI_ROUTE_SMOKE_CONTRACT.v1.json`; Gate 5 PASS/FAIL (UNKNOWN when UI origin omitted) | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-411 | Ship-gate Gate 6 tenant-isolation negative-test embed — `BuildGate6Async` runs live cross-tenant deny probes via `TenantIsolationNegativeTestRunner` for the supplied `--run-id`; optional `--alternate-tenant-id` / workspace / project scope overrides | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
+| TB-412 | Ship-gate Gate 4 export matrix embed — probes Markdown (`first-value-report`), DOCX (`analysis-report/export/docx`), and ZIP (`artifacts/runs/{runId}/export`) from `SHIP_GATE_EXPORT_MATRIX_CONTRACT.v1.json`; Gate 4 PASS/FAIL with per-format evidence | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-402 | Automated AWS polling (Tier 2) — **Done (2026-06-27)** — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-403 | Automated GCP polling (Tier 2) — **Done (2026-06-27)** — hosted poller with GCP Workload Identity Federation (Azure MI trust); scheduled Cloud Asset Inventory collection; upload to `/v1/extractor/gcp/upload`; `/settings/cloud-connections` GCP connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards — **Done (2026-06-27)** — `sourceEvidenceLinks` on persisted recommendations + API; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
@@ -12028,3 +12029,39 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-409, TB-410, assessment §4 gate 6, `fixtures/tenant-isolation/negative-test-manifest.v1.json`.
+
+---
+
+## TB-412 — Ship-gate Gate 4 export matrix embed
+
+**Status:** **Done** (2026-06-28). `ShipGateEvidenceRunner.BuildGate4Async` probes canonical committed-run export routes from bundled `ship_gate_export_matrix_contract.v1.json`: sponsor Markdown (`GET /v1/pilots/runs/{runId}/first-value-report`), analysis DOCX (`POST /v1/architecture/run/{runId}/analysis-report/export/docx`), and run artifact ZIP (`GET /v1/artifacts/runs/{runId}/export` with ZIP magic-byte check); Gate 4 PASS/FAIL with per-format evidence counts.
+
+**Source:** Assessment §4 gate 4 and §17 #1 ship-gate evidence harness follow-on — Gate 4 only probed two ZIP GET routes without asserting Markdown/DOCX export matrix coverage.
+
+**Problem:** Ship-gate evidence could not assert the three-format export matrix (Markdown, DOCX, ZIP) required for sponsor/procurement proof on the representative `--run-id`.
+
+**V1 scope:**
+
+1. Publish canonical export matrix contract aligned with buyer proof-packet and first-value export routes.
+2. Embed `ShipGateExportMatrixProbe` in Gate 4 for the ship-gate `--run-id`.
+3. Gate 4 **PASS** when all contract probes return HTTP 200 with minimum body size and expected content types; **FAIL** otherwise.
+
+**Acceptance criteria:**
+
+- One `archlucid pilot ship-gate-evidence --run-id <guid>` command emits Gate 4 PASS/FAIL with markdown/docx/zip probe evidence.
+- Unit tests cover probe pass/fail paths in `ShipGateExportMatrixProbeTests` and Gate 4 fail in `ShipGateEvidenceRunnerTests`.
+- Markdown evidence links reference the three export matrix routes.
+
+**Affected files:**
+
+- `docs/library/SHIP_GATE_EXPORT_MATRIX_CONTRACT.v1.json`
+- `ArchLucid.Cli/Data/ship_gate_export_matrix_contract.v1.json`
+- `ArchLucid.Cli/Commands/ShipGateExportMatrixProbe.cs`
+- `ArchLucid.Cli/Commands/ShipGateExportMatrixContractLoader.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceRunner.cs`
+- `ArchLucid.Cli.Tests/ShipGateExportMatrixProbeTests.cs`
+- `ArchLucid.Cli.Tests/ShipGateEvidenceRunnerTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-409, TB-410, TB-411, assessment §4 gate 4, `docs/library/API_CONTRACTS.md`.

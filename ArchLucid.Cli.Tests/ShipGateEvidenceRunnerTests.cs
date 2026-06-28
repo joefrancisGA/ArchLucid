@@ -32,6 +32,9 @@ public sealed class ShipGateEvidenceRunnerTests
                 if (TryHandleTenantIsolationRequest(req, out HttpResponseMessage? isolationResponse))
                     return Task.FromResult(isolationResponse!);
 
+                if (TryHandleExportMatrixRequest(req, out HttpResponseMessage? exportResponse))
+                    return Task.FromResult(exportResponse!);
+
                 string path = req.RequestUri!.AbsolutePath;
 
                 if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
@@ -57,15 +60,6 @@ public sealed class ShipGateEvidenceRunnerTests
                         systems = new[] { new { systemName = "demo" } },
                         basisBreakdown = new { openFindingsEstimatedUsd = 50m },
                     }));
-                }
-
-                if (path.EndsWith($"/v1/artifacts/runs/{RunId}/export", StringComparison.Ordinal)
-                    || path.EndsWith($"/v1/architecture/run/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
-                {
-                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = new ByteArrayContent([1, 2, 3]),
-                    });
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -94,6 +88,9 @@ public sealed class ShipGateEvidenceRunnerTests
             {
                 if (TryHandleTenantIsolationRequest(req, out HttpResponseMessage? isolationResponse))
                     return Task.FromResult(isolationResponse!);
+
+                if (TryHandleExportMatrixRequest(req, out HttpResponseMessage? exportResponse))
+                    return Task.FromResult(exportResponse!);
 
                 string path = req.RequestUri!.AbsolutePath;
 
@@ -141,6 +138,9 @@ public sealed class ShipGateEvidenceRunnerTests
             {
                 if (TryHandleTenantIsolationRequest(req, out HttpResponseMessage? isolationResponse))
                     return Task.FromResult(isolationResponse!);
+
+                if (TryHandleExportMatrixRequest(req, out HttpResponseMessage? exportResponse))
+                    return Task.FromResult(exportResponse!);
 
                 string path = req.RequestUri!.AbsolutePath;
 
@@ -197,6 +197,9 @@ public sealed class ShipGateEvidenceRunnerTests
                 if (TryHandleTenantIsolationRequest(req, out HttpResponseMessage? isolationResponse))
                     return Task.FromResult(isolationResponse!);
 
+                if (TryHandleExportMatrixRequest(req, out HttpResponseMessage? exportResponse))
+                    return Task.FromResult(exportResponse!);
+
                 if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
                 {
                     return Task.FromResult(JsonResponse(HttpStatusCode.OK, new[]
@@ -215,13 +218,75 @@ public sealed class ShipGateEvidenceRunnerTests
                     }));
                 }
 
-                if (path.EndsWith($"/v1/artifacts/runs/{RunId}/export", StringComparison.Ordinal)
-                    || path.EndsWith($"/v1/architecture/run/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient http = CreateClient(handler);
+        ShipGateEvidenceRunner runner = new(http, alternateScopeClientFactory: () => CreateAlternateClient(handler));
+
+        ShipGateEvidenceReport report = await runner.RunAsync(RunId);
+
+        report.Gates.Should().Contain(g => g.GateNumber == 6 && g.Verdict == ShipGateEvidenceVerdict.Fail);
+        report.AnyFail.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RunAsync_MissingDocxExport_FailsGate4()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                if (TryHandleTenantIsolationRequest(req, out HttpResponseMessage? isolationResponse))
+                    return Task.FromResult(isolationResponse!);
+
+                string path = req.RequestUri!.AbsolutePath;
+
+                if (path.EndsWith($"/v1/pilots/runs/{RunId}/first-value-report", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                    return Task.FromResult(TextExportResponse(
+                        HttpStatusCode.OK,
+                        "# First value\n\nCommitted run summary.",
+                        "text/markdown"));
+                }
+
+                if (path.EndsWith($"/v1/architecture/run/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(TextExportResponse(HttpStatusCode.NotFound, "missing", "application/json"));
+                }
+
+                if (path.EndsWith($"/v1/artifacts/runs/{RunId}/export", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(BytesExportResponse(
+                        HttpStatusCode.OK,
+                        [0x50, 0x4B, 0x03, 0x04, 0x00, 0x00, 0x00, 0x00],
+                        "application/zip"));
+                }
+
+                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(
+                        HttpStatusCode.OK,
+                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationCompliantResults())));
+                }
+
+                if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new[]
                     {
-                        Content = new ByteArrayContent([1, 2, 3]),
-                    });
+                        new { artifactId = Guid.NewGuid().ToString("D") },
+                    }));
+                }
+
+                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                    {
+                        totalEstimatedUsdSavings = 1234.56m,
+                        systems = new[] { new { systemName = "demo" } },
+                        basisBreakdown = new { openFindingsEstimatedUsd = 50m },
+                    }));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -233,7 +298,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
         ShipGateEvidenceReport report = await runner.RunAsync(RunId);
 
-        report.Gates.Should().Contain(g => g.GateNumber == 6 && g.Verdict == ShipGateEvidenceVerdict.Fail);
+        report.Gates.Should().Contain(g => g.GateNumber == 4 && g.Verdict == ShipGateEvidenceVerdict.Fail);
         report.AnyFail.Should().BeTrue();
     }
 
@@ -288,6 +353,44 @@ public sealed class ShipGateEvidenceRunnerTests
         response = JsonResponse(HttpStatusCode.NotFound, new { title = "Not found" });
 
         return true;
+    }
+
+    private static bool TryHandleExportMatrixRequest(HttpRequestMessage request, out HttpResponseMessage? response)
+    {
+        response = null;
+        string path = request.RequestUri!.AbsolutePath;
+
+        if (path.EndsWith($"/v1/pilots/runs/{RunId}/first-value-report", StringComparison.Ordinal))
+        {
+            response = TextExportResponse(
+                HttpStatusCode.OK,
+                "# First value\n\nCommitted run summary.",
+                "text/markdown");
+
+            return true;
+        }
+
+        if (path.EndsWith($"/v1/architecture/run/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
+        {
+            response = BytesExportResponse(
+                HttpStatusCode.OK,
+                new byte[600],
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+
+            return true;
+        }
+
+        if (path.EndsWith($"/v1/artifacts/runs/{RunId}/export", StringComparison.Ordinal))
+        {
+            response = BytesExportResponse(
+                HttpStatusCode.OK,
+                [0x50, 0x4B, 0x03, 0x04, 0x00, 0x00, 0x00, 0x00],
+                "application/zip");
+
+            return true;
+        }
+
+        return false;
     }
 
     private static HttpClient CreateAlternateClient(StubHandler handler)
@@ -382,6 +485,21 @@ public sealed class ShipGateEvidenceRunnerTests
             Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json"),
         };
     }
+
+    private static HttpResponseMessage TextExportResponse(HttpStatusCode status, string body, string contentType) =>
+        new(status)
+        {
+            Content = new StringContent(body, System.Text.Encoding.UTF8, contentType),
+        };
+
+    private static HttpResponseMessage BytesExportResponse(HttpStatusCode status, byte[] body, string contentType) =>
+        new(status)
+        {
+            Content = new ByteArrayContent(body)
+            {
+                Headers = { ContentType = new MediaTypeHeaderValue(contentType) },
+            },
+        };
 
     private sealed class StubHandler : HttpMessageHandler
     {

@@ -131,7 +131,9 @@ internal static class ShipGateEvidenceCommand
         sb.AppendLine("## Evidence Links");
         sb.AppendLine();
         sb.AppendLine($"- `GET /v1/architecture/run/{report.RunId}`");
-        sb.AppendLine($"- `GET /v1/artifacts/runs/{report.RunId}/export`");
+        sb.AppendLine($"- `GET /v1/pilots/runs/{report.RunId}/first-value-report` (Gate 4 Markdown export matrix)");
+        sb.AppendLine($"- `POST /v1/architecture/run/{report.RunId}/analysis-report/export/docx` (Gate 4 DOCX export matrix)");
+        sb.AppendLine($"- `GET /v1/artifacts/runs/{report.RunId}/export` (Gate 4 ZIP export matrix)");
         sb.AppendLine($"- `GET /v1/architecture/run/{report.RunId}/traceability-bundle.zip`");
         sb.AppendLine("- `GET /v1/roi/executive-summary`");
         sb.AppendLine($"- `archlucid pilot citation-integrity --include-api` (Gate 2 embedded sampler for run `{report.RunId}`)");
