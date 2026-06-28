@@ -5,6 +5,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integrations.Itsm;
 using ArchLucid.Core.Security;
 
 using ArchLucid.Host.Core.Middleware;
@@ -31,11 +32,15 @@ using ArchLucid.Api.Security;
 [EnableRateLimiting("fixed")]
 public sealed class ItsmInboundWebhooksController(
     IOptionsMonitor<IntegrationsItsmInboundOptions> options,
+    IItsmTenantConnectorCredentialResolver credentialResolver,
     ItsmInboundWebhookSyncService sync,
     IAuditService auditService) : ControllerBase
 {
     private readonly IOptionsMonitor<IntegrationsItsmInboundOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
+
+    private readonly IItsmTenantConnectorCredentialResolver _credentialResolver =
+        credentialResolver ?? throw new ArgumentNullException(nameof(credentialResolver));
 
     private readonly ItsmInboundWebhookSyncService _sync =
         sync ?? throw new ArgumentNullException(nameof(sync));
@@ -44,17 +49,45 @@ public sealed class ItsmInboundWebhooksController(
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     [HttpPost("jira")]
+    [MutatingAuditExcluded("Audit: ItsmInboundWebhookSyncService and payload-size guard log via IAuditService in ProcessJiraAsync.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Jira(CancellationToken ct)
+    public Task<IActionResult> Jira(CancellationToken ct) =>
+        ProcessJiraAsync(tenantId: null, ct);
+
+    [HttpPost("jira/tenants/{tenantId:guid}")]
+    [MutatingAuditExcluded("Audit: ItsmInboundWebhookSyncService and payload-size guard log via IAuditService in ProcessJiraAsync.")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public Task<IActionResult> JiraForTenant(Guid tenantId, CancellationToken ct) =>
+        ProcessJiraAsync(tenantId, ct);
+
+    [HttpPost("servicenow")]
+    [MutatingAuditExcluded("Audit: ItsmInboundWebhookSyncService and payload-size guard log via IAuditService in ProcessServiceNowAsync.")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public Task<IActionResult> ServiceNow(CancellationToken ct) =>
+        ProcessServiceNowAsync(tenantId: null, ct);
+
+    [HttpPost("servicenow/tenants/{tenantId:guid}")]
+    [MutatingAuditExcluded("Audit: ItsmInboundWebhookSyncService and payload-size guard log via IAuditService in ProcessServiceNowAsync.")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public Task<IActionResult> ServiceNowForTenant(Guid tenantId, CancellationToken ct) =>
+        ProcessServiceNowAsync(tenantId, ct);
+
+    private async Task<IActionResult> ProcessJiraAsync(Guid? tenantId, CancellationToken ct)
     {
         InboundWebhookCorrelationBinder.EnsureIncomingCorrelationTags(HttpContext);
 
-        IntegrationsItsmInboundOptions o = _options.CurrentValue;
+        string? sharedSecret = await ResolveInboundSecretAsync(tenantId, TenantItsmConnectorProvider.Jira, ct)
+            .ConfigureAwait(false);
 
-        if (string.IsNullOrWhiteSpace(o.JiraWebhookSecret))
-
+        if (string.IsNullOrWhiteSpace(sharedSecret))
             return Unauthorized();
 
         string rawBody = await ReadRequestBodyUtf8Async(ct).ConfigureAwait(false);
@@ -72,8 +105,7 @@ public sealed class ItsmInboundWebhooksController(
 
         string? token = Request.Headers["X-Jira-Token"].FirstOrDefault();
 
-        if (!TryVerifyWebhookSecurity(o, o.JiraWebhookSecret, rawBody, token, out IActionResult? reject))
-
+        if (!TryVerifyWebhookSecurity(_options.CurrentValue, sharedSecret, rawBody, token, out IActionResult? reject))
             return reject!;
 
         using JsonDocument doc = JsonDocument.Parse(rawBody);
@@ -82,28 +114,22 @@ public sealed class ItsmInboundWebhooksController(
             await _sync.TryProcessJiraIssueUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes).ConfigureAwait(false);
 
         if (r.DurableAuditEvent is not null)
-
             await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
 
         if (!r.Accepted)
-
             return this.BadRequestProblem("Unrecognized Jira webhook payload.", ProblemTypes.ValidationFailed);
 
         return Ok();
     }
 
-    [HttpPost("servicenow")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ServiceNow(CancellationToken ct)
+    private async Task<IActionResult> ProcessServiceNowAsync(Guid? tenantId, CancellationToken ct)
     {
         InboundWebhookCorrelationBinder.EnsureIncomingCorrelationTags(HttpContext);
 
-        IntegrationsItsmInboundOptions o = _options.CurrentValue;
+        string? sharedSecret = await ResolveInboundSecretAsync(tenantId, TenantItsmConnectorProvider.ServiceNow, ct)
+            .ConfigureAwait(false);
 
-        if (string.IsNullOrWhiteSpace(o.ServiceNowWebhookSecret))
-
+        if (string.IsNullOrWhiteSpace(sharedSecret))
             return Unauthorized();
 
         string rawBody = await ReadRequestBodyUtf8Async(ct).ConfigureAwait(false);
@@ -121,8 +147,7 @@ public sealed class ItsmInboundWebhooksController(
 
         string? token = Request.Headers["X-ServiceNow-Token"].FirstOrDefault();
 
-        if (!TryVerifyWebhookSecurity(o, o.ServiceNowWebhookSecret, rawBody, token, out IActionResult? reject))
-
+        if (!TryVerifyWebhookSecurity(_options.CurrentValue, sharedSecret, rawBody, token, out IActionResult? reject))
             return reject!;
 
         using JsonDocument doc = JsonDocument.Parse(rawBody);
@@ -131,14 +156,41 @@ public sealed class ItsmInboundWebhooksController(
             await _sync.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes).ConfigureAwait(false);
 
         if (r.DurableAuditEvent is not null)
-
             await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
 
         if (!r.Accepted)
-
             return this.BadRequestProblem("Unrecognized ServiceNow webhook payload.", ProblemTypes.ValidationFailed);
 
         return Ok();
+    }
+
+    private async Task<string?> ResolveInboundSecretAsync(
+        Guid? tenantId,
+        TenantItsmConnectorProvider provider,
+        CancellationToken ct)
+    {
+        if (tenantId is { } scopedTenantId && scopedTenantId != Guid.Empty)
+        {
+            return await _credentialResolver
+                .TryResolveInboundWebhookSecretAsync(scopedTenantId, provider, ct)
+                .ConfigureAwait(false);
+        }
+
+        IntegrationsItsmInboundOptions inbound = _options.CurrentValue;
+
+        if (!inbound.AllowDeploymentWideWebhookSecrets)
+            return null;
+
+        return provider switch
+        {
+            TenantItsmConnectorProvider.Jira => string.IsNullOrWhiteSpace(inbound.JiraWebhookSecret)
+                ? null
+                : inbound.JiraWebhookSecret,
+            TenantItsmConnectorProvider.ServiceNow => string.IsNullOrWhiteSpace(inbound.ServiceNowWebhookSecret)
+                ? null
+                : inbound.ServiceNowWebhookSecret,
+            _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null)
+        };
     }
 
     private async Task<string> ReadRequestBodyUtf8Async(CancellationToken ct)
@@ -176,7 +228,8 @@ public sealed class ItsmInboundWebhooksController(
             return false;
         }
 
-        if (!o.RequireBodyHmacSignature) return true;
+        if (!o.RequireBodyHmacSignature)
+            return true;
 
         string? signature =
             Request.Headers[WebhookSignature.HeaderName].FirstOrDefault()
@@ -189,14 +242,16 @@ public sealed class ItsmInboundWebhooksController(
             return false;
         }
 
-        if (o.WebhookTimestampSkewSeconds <= 0) return true;
-        
+        if (o.WebhookTimestampSkewSeconds <= 0)
+            return true;
+
         string? ts = Request.Headers["X-ArchLucid-Timestamp"].FirstOrDefault();
 
-        if (WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), ts, o.WebhookTimestampSkewSeconds)) return true;
+        if (WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), ts, o.WebhookTimestampSkewSeconds))
+            return true;
+
         reject = Unauthorized();
 
         return false;
-
     }
 }

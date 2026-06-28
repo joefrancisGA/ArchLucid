@@ -164,7 +164,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-388 | ITSM correlation lifecycle audit events — **Done (2026-06-22)** — `Integration.ItsmFindingCorrelationUpdated` / `Integration.ItsmFindingCorrelationRemoved`; PATCH/DELETE on `ItsmCorrelationController`; audit catalog + matrix | Traceability P1 | XS |
 | TB-390 | ~~ITSM inbound webhook snapshot scoping~~ **Done (2026-06-22)** — scope inbound `HumanReviewStatus` UPDATE to correlated `FindingRecordId` / latest committed snapshot fallback | Correctness P1 | S |
 | TB-391 | ~~ServiceNow copy-as-task + `trackedExternally` projection~~ **Done (2026-06-22)** — `serviceNowText` clipboard format + `TrackedExternally` on inspect/list | Interoperability P2 | S |
-| TB-392 | Per-tenant Jira/ServiceNow credentials — mirror `TenantTeamsIncomingWebhookConnections` + Key Vault secret-name pattern for ITSM outbound/inbound; per-tenant connection rows; replace deployment-wide `Integrations:ItsmOutbound:*` for multi-tenant SaaS | Trustworthiness P1 — **V1**; required for multi-tenant SaaS ITSM | M |
+| TB-392 | Per-tenant Jira/ServiceNow credentials — mirror `TenantTeamsIncomingWebhookConnections` + Key Vault secret-name pattern for ITSM outbound/inbound; per-tenant connection rows; replace deployment-wide `Integrations:ItsmOutbound:*` for multi-tenant SaaS | **Done** (2026-06-27) — Trustworthiness P1 **V1** | M |
 | TB-393 | Tenant ITSM outbound settings write API + admin UI — upsert `TenantItsmOutboundSettings` (project key override, severity filters, issue-type map); `PUT /v1/integrations/itsm/settings`; `/integrations/itsm` settings page; `AdminAuthority` or `ExecuteAuthority` gate | Adoption friction P1 — **V1**; today repository is read-only | M |
 | TB-394 | Durable async ITSM outbound ticket creation ? enqueue outbound create on existing outbox/background-job infrastructure; retry/DLQ after HTTP Polly exhaustion; operator-visible pending/failed state | Reliability P2 ? **V1.1**; today synchronous in request path | M |
 | TB-395 | Finding assignee + general remediation due date ? add `AssignedToUserId` and `RemediationDueUtc` to `Finding` contract + `FindingRecords` SQL; expose on inspect/risk-register; map in outbound payload builder | Architectural integrity P2 ? **V1.1**; required for Jira assignee / ServiceNow `assigned_to` sync | M |
@@ -11334,9 +11334,11 @@ Inbound Jira/ServiceNow webhook sync updates `FindingRecords.HumanReviewStatus` 
 
 ---
 
-## TB-392 — Per-tenant Jira/ServiceNow credentials — **V1**
+## TB-392 — Per-tenant Jira/ServiceNow credentials — **Done** (2026-06-27)
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Shipped:** `TenantItsmConnectorConnections` table + repository; `TenantItsmConnectorConnectionsController` (`GET/POST/DELETE /v1/integrations/itsm/connections`); `ItsmTenantConnectorCredentialResolver` wired into outbound create, health probe, inbound tenant-scoped webhooks, and external ticket URL builder; deployment-wide fallback flags for single-tenant pilots; KV naming documented in `docs/runbooks/ITSM_LIVE_SMOKE_SCAFFOLD.md`.
 
 **Problem:**
 

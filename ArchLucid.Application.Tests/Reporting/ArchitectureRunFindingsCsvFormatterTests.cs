@@ -178,14 +178,14 @@ public sealed class RunFindingExternalTrackingEnrichmentServiceTests
                 }
             });
 
-        IOptionsMonitor<IntegrationsItsmOutboundOptions> options = Options.Create(new IntegrationsItsmOutboundOptions
-        {
-            Jira = new JiraItsmOutboundOptions { CloudBaseUrl = "https://example.atlassian.net" }
-        }).ToMonitor();
+using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundConnectorTestFixture;
 
         RunFindingExternalTrackingEnrichmentService sut = new(
             readRepository.Object,
-            new ItsmExternalTicketUrlBuilder(options));
+            new ItsmExternalTicketUrlBuilder(CredentialResolver(new IntegrationsItsmOutboundOptions
+            {
+                Jira = new JiraItsmOutboundOptions { CloudBaseUrl = "https://example.atlassian.net" }
+            })));
 
         IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> result =
             await sut.LoadForFindingsAsync(

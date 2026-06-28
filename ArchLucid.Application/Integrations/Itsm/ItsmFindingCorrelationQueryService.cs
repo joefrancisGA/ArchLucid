@@ -30,16 +30,24 @@ public sealed class ItsmFindingCorrelationQueryService(
         IReadOnlyList<ItsmFindingCorrelationRecord> rows =
             await _correlations.ListByFindingAsync(scope.TenantId, trimmed, ct).ConfigureAwait(false);
 
-        List<ItsmFindingCorrelationListItem> items = rows
-            .Select(r => new ItsmFindingCorrelationListItem
+        List<ItsmFindingCorrelationListItem> items = [];
+
+        foreach (ItsmFindingCorrelationRecord row in rows)
+        {
+            items.Add(new ItsmFindingCorrelationListItem
             {
-                Provider = r.Provider,
-                ExternalKey = r.ExternalKey,
-                ExternalSysId = r.ExternalSysId,
-                CreatedUtc = r.CreatedUtc,
-                ExternalUrl = _urlBuilder.TryBuildBrowseUrl(r.Provider, r.ExternalKey, r.ExternalSysId)
-            })
-            .ToList();
+                Provider = row.Provider,
+                ExternalKey = row.ExternalKey,
+                ExternalSysId = row.ExternalSysId,
+                CreatedUtc = row.CreatedUtc,
+                ExternalUrl = await _urlBuilder.TryBuildBrowseUrlAsync(
+                    scope.TenantId,
+                    row.Provider,
+                    row.ExternalKey,
+                    row.ExternalSysId,
+                    ct).ConfigureAwait(false)
+            });
+        }
 
         return new ItsmFindingCorrelationsByFindingResponse
         {

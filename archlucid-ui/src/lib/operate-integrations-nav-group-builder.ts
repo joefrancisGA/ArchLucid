@@ -56,7 +56,7 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "AdminAuthority",
         },
         {
-          href: INTEGRATIONS_TEAMS_PATH,
+          href: INTEGRATIONS_TEAMS_PATH, // "/integrations/teams"
           label: OPERATOR_NAV_LINK_LABELS.microsoftTeams,
           title: OPERATOR_NAV_LINK_LABELS.microsoftTeams,
           icon: UsersRound,

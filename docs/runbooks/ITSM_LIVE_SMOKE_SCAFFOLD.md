@@ -19,6 +19,19 @@ Validate **Jira Cloud**, **ServiceNow developer**, **Slack**, and **Confluence C
 - Rotate tokens on the same cadence as vendor trial resets.
 - Redact tenant names in CI logs (existing `LogSanitizer` patterns where applicable).
 
+## Per-tenant Key Vault secret naming (TB-392)
+
+Hosted multi-tenant SaaS stores **secret names** in `TenantItsmConnectorConnections`, not raw tokens. Recommended convention:
+
+| Secret purpose | Example name |
+|---|---|
+| Jira outbound API token | `itsm-{tenantId:N}-jira-api-token` |
+| Jira inbound webhook HMAC | `itsm-{tenantId:N}-jira-webhook-secret` |
+| ServiceNow outbound password / token | `itsm-{tenantId:N}-servicenow-credential` |
+| ServiceNow inbound webhook secret | `itsm-{tenantId:N}-servicenow-webhook-secret` |
+
+Configure rows via `POST /v1/integrations/itsm/connections/{jira|servicenow}`. For single-tenant pilot deployments, leave rows empty and use deployment-wide `Integrations:ItsmOutbound:*` / inbound options unless `RequireTenantScopedCredentials` is enabled.
+
 ## Related
 
 - [`docs/library/TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) TB-016

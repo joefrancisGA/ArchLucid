@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Secrets;
 using ArchLucid.Persistence.Integrations;
 
 using FluentAssertions;
@@ -237,9 +238,18 @@ public sealed class ItsmCorrelationControllerTests
         Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> outboundOptions = new();
         outboundOptions.Setup(monitor => monitor.CurrentValue).Returns(new IntegrationsItsmOutboundOptions());
 
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> inboundOptions = new();
+        inboundOptions.Setup(monitor => monitor.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
+
+        ItsmTenantConnectorCredentialResolver credentialResolver = new(
+            new InMemoryTenantItsmConnectorConnectionRepository(),
+            new NullSecretProvider(),
+            outboundOptions.Object,
+            inboundOptions.Object);
+
         ItsmFindingCorrelationQueryService queryService = new(
             correlations,
-            new ItsmExternalTicketUrlBuilder(outboundOptions.Object));
+            new ItsmExternalTicketUrlBuilder(credentialResolver));
 
         return new ItsmCorrelationController(
             scopeProvider.Object,
@@ -247,5 +257,10 @@ public sealed class ItsmCorrelationControllerTests
             correlations,
             queryService,
             audit.Object);
+    }
+
+    private sealed class NullSecretProvider : ISecretProvider
+    {
+        public Task<string?> GetSecretAsync(string secretName, CancellationToken ct) => Task.FromResult<string?>(null);
     }
 }

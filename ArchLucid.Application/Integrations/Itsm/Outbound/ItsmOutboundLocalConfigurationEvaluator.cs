@@ -1,5 +1,6 @@
 using System.Net;
 
+using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Integrations;
 
@@ -39,6 +40,49 @@ public static class ItsmOutboundLocalConfigurationEvaluator
 
         return new ItsmOutboundLocalReadiness(true,
             "Jira Cloud base URL, project key, and credentials fields are populated (live validation still required).");
+    }
+
+    public static ItsmOutboundLocalReadiness EvaluateJiraFromResolvedCredentials(
+        ResolvedItsmOutboundCredentials? credentials,
+        IntegrationsItsmOutboundOptions options,
+        TenantItsmOutboundSettings? tenantItsm)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (credentials is null)
+            return EvaluateJira(options, tenantItsm);
+
+        string projectFallback = options.Jira.DefaultProjectKey.Trim();
+        string? projectOverride = tenantItsm?.JiraProjectKeyOverride?.Trim();
+        bool projectOk = !string.IsNullOrWhiteSpace(projectOverride) || !string.IsNullOrWhiteSpace(projectFallback);
+
+        if (!projectOk)
+        {
+            return new ItsmOutboundLocalReadiness(false,
+                "Provide DefaultProjectKey or a per-tenant Jira project key override.");
+        }
+
+        return new ItsmOutboundLocalReadiness(
+            true,
+            credentials.FromTenantConnection
+                ? "Tenant Jira connector references are configured (live validation still required)."
+                : "Jira Cloud base URL, project key, and credentials fields are populated (live validation still required).");
+    }
+
+    public static ItsmOutboundLocalReadiness EvaluateServiceNowFromResolvedCredentials(
+        ResolvedItsmOutboundCredentials? credentials,
+        IntegrationsItsmOutboundOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (credentials is null)
+            return EvaluateServiceNow(options);
+
+        return new ItsmOutboundLocalReadiness(
+            true,
+            credentials.FromTenantConnection
+                ? "Tenant ServiceNow connector references are configured (live validation still required)."
+                : "ServiceNow instance URL and credential fields are populated (live validation still required).");
     }
 
     public static ItsmOutboundLocalReadiness EvaluateServiceNow(IntegrationsItsmOutboundOptions options)

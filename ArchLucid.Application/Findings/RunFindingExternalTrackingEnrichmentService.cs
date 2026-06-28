@@ -47,10 +47,12 @@ public sealed class RunFindingExternalTrackingEnrichmentService(
                 RevisitDueUtc = RunFindingExternalTrackingFieldMapper.ToUtcOffset(row.RevisitDueUtc),
                 Provider = row.Provider,
                 ExternalKey = row.ExternalKey,
-                ExternalUrl = _urlBuilder.TryBuildBrowseUrl(
+                ExternalUrl = await _urlBuilder.TryBuildBrowseUrlAsync(
+                    tenantId,
                     row.Provider ?? string.Empty,
                     row.ExternalKey ?? string.Empty,
-                    row.ExternalSysId),
+                    row.ExternalSysId,
+                    cancellationToken).ConfigureAwait(false),
                 ItsmLinkedTicketsSummary = row.ItsmLinkedTicketsSummary,
                 TrackedExternally = RunFindingExternalTrackingDerivedFields.IsTrackedExternally(row),
                 ExternalTrackingSummary = RunFindingExternalTrackingDerivedFields.ResolveExternalTrackingSummary(row)

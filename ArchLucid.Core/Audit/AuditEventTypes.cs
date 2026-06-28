@@ -724,6 +724,16 @@ public static class AuditEventTypes
     public const string TenantItsmOutboundSettingsUpserted = "TenantItsmOutboundSettingsUpserted";
 
     /// <summary>
+    ///     Tenant ITSM connector credential reference upserted (<c>POST /v1/integrations/itsm/connections/{provider}</c>).
+    /// </summary>
+    public const string TenantItsmConnectorConnectionUpserted = "TenantItsmConnectorConnectionUpserted";
+
+    /// <summary>
+    ///     Tenant ITSM connector credential reference removed (<c>DELETE /v1/integrations/itsm/connections/{provider}</c>).
+    /// </summary>
+    public const string TenantItsmConnectorConnectionRemoved = "TenantItsmConnectorConnectionRemoved";
+
+    /// <summary>
     ///     Tenant Microsoft Teams incoming-webhook Key Vault reference removed (
     ///     <c>DELETE /v1/integrations/teams/connections</c>).
     /// </summary>

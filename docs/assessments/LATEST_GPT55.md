@@ -1,7 +1,7 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **82.99%**.
+ArchLucid Assessment - (A) Headline Readiness: **83.24%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
@@ -25,7 +25,8 @@ ArchLucid Assessment - (A) Headline Readiness: **82.99%**.
   - `ArchLucid.Application/Runs/Orchestration/AuthorityRunOrchestrator.cs`
   - `ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs`
   - `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
-  - `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs`
+  - `ArchLucid.Api/Controllers/Integrations/TenantItsmConnectorConnectionsController.cs`
+  - `ArchLucid.Application/Integrations/Itsm/ItsmTenantConnectorCredentialResolver.cs`
 
 ## 2. Scorecard
 
@@ -33,15 +34,15 @@ ArchLucid Assessment - (A) Headline Readiness: **82.99%**.
 |---|---------|------:|-------:|----------------------:|---------------------------:|
 | 1 | Decision-Changing Insight Density | 85 | 13 | 11.05 | 195 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 86 | 13 | 11.18 | 182 |
-| 3 | Governed Review Integrity | 90 | 13 | 11.70 | 130 |
-| 4 | Correctness & Evidence Integrity | 83 | 12 | 9.96 | 204 |
+| 3 | Governed Review Integrity | 91 | 13 | 11.83 | 117 |
+| 4 | Correctness & Evidence Integrity | 84 | 12 | 10.08 | 192 |
 | 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 160 |
 | 6 | Time-to-Value | 79 | 10 | 7.90 | 210 |
 | 7 | Proof-of-ROI Readiness | 82 | 9 | 7.38 | 162 |
 | 8 | Executive / Operator Comprehension | 78 | 8 | 6.24 | 176 |
 | 9 | Runtime & First-Review Reliability | 79 | 7 | 5.53 | 147 |
 | 10 | Adoption Friction | 73 | 5 | 3.65 | 135 |
-|  | **(A) Headline readiness** |  | **100** | **82.99** |  |
+|  | **(A) Headline readiness** |  | **100** | **83.24** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -69,7 +70,7 @@ These diagnostics do **not** feed `(A)` directly.
 6. **Auth + tenant isolation behave correctly on pilot path:** **PASS (structural deny-matrix)** - `archlucid pilot tenant-isolation-negative-test` emits cross-tenant deny probes with correlation IDs (offline fixture replay + optional live `--run-id` mode); live two-tenant SQL smoke remains the fastest full-environment proof.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **82.99%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams, citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
+- **(A) Overall headline readiness (excludes deferred items):** **83.24%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credential rows (TB-392), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -101,9 +102,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** validation first
 
 ### 7.3 Correctness & Evidence Integrity
-- **Score / Weight / Contribution / Deficiency:** 83 / 12 / 9.96 / 204
+- **Score / Weight / Contribution / Deficiency:** 84 / 12 / 10.08 / 192
 - **Affects outcomes:** 1, 2, 4
-- **Justification:** strong evidence contracts and typed audit model exist; citation-integrity sampling and tenant-isolation deny-matrix artifacts now standardize recurring negative-test evidence for pilot readiness.
+- **Justification:** strong evidence contracts and typed audit model exist; citation-integrity sampling and tenant-isolation deny-matrix artifacts now standardize recurring negative-test evidence for pilot readiness; per-tenant ITSM connector rows store Key Vault secret names only with deployment-wide fallback gated for single-tenant pilots (TB-392).
 - **Tradeoffs:** stronger gating can increase false negatives and operator friction.
 - **Recommendations:** run `archlucid pilot citation-integrity` and `archlucid pilot tenant-isolation-negative-test --run-id <guid>` each release train; escalate FAIL outcomes before sponsor send.
 - **Classification:** V1
@@ -149,9 +150,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.9 Governed Review Integrity
-- **Score / Weight / Contribution / Deficiency:** 90 / 13 / 11.70 / 130
+- **Score / Weight / Contribution / Deficiency:** 91 / 13 / 11.83 / 117
 - **Affects outcomes:** 1, 2, 5
-- **Justification:** this remains the strongest quality: policy packs, pre-commit gate, approval workflow, governance resolution, durable audit events, buyer-proof ledger normalization, and decision-owner accountability scoreboards are present and interconnected for repeatable sponsor-send proof completion.
+- **Justification:** this remains the strongest quality: policy packs, pre-commit gate, approval workflow, governance resolution, durable audit events, buyer-proof ledger normalization, decision-owner accountability scoreboards, and per-tenant ITSM credential isolation (`TenantItsmConnectorConnections` + `ISecretProvider` resolution) are present and interconnected for repeatable sponsor-send proof completion.
 - **Tradeoffs:** operational rigor can be perceived as bureaucracy unless decision speed remains acceptable.
 - **Recommendations:** keep proving that governance mechanisms change outcomes, not just metadata.
 - **Classification:** V1
@@ -174,7 +175,7 @@ These diagnostics do **not** feed `(A)` directly.
 7. **Reliability claims are architecture-strong but evidence-light in this specific pass** - matters because demo failure kills trust quickly; **design uncertainty**; potential blocker if unresolved; fix with repeated smoke evidence.
 8. **Frontier-AI comparison is still easier to narrate than to quantify** - matters because displacement can occur on perception; **market uncertainty**; not blocker; fix with explicit baseline-vs-ArchLucid decision deltas.
 9. **Policy-pack moat can be mistaken for taxonomy decoration** - matters because moat credibility drives purchase; **market uncertainty**; not blocker; fix by showing policy changes flipping concrete decisions and owners.
-10. **ITSM depth remains intentionally partial in V1** - matters for some enterprise workflows; **design uncertainty**; not blocker for V1 if pilot scope is explicit; fastest fix is buyer qualification and connector readiness checks.
+10. **ITSM depth remains intentionally partial in V1** - matters for some enterprise workflows; **design uncertainty**; not blocker for V1 if pilot scope is explicit; per-tenant connector credentials (TB-392) close the multi-tenant SaaS credential gap; durable async outbound (TB-394) remains V1.1.
 
 ## 9. Frontier-AI Analysis
 
@@ -516,6 +517,14 @@ Non-goals:
 - **Affected qualities:** 1, 2, 3.
 - **Classification:** validation first (engineering half shipped).
 - **Rescore impact:** Decision-Changing Insight Density +1, Differentiability / Defensibility vs Frontier AI +1, and Governed Review Integrity +1; `(A)` headline readiness rises from **82.60%** to **82.99%**.
+
+**14) Per-tenant Jira/ServiceNow connector credentials (TB-392)**
+- **Status:** shipped (2026-06-27).
+- **Implementation summary:** `TenantItsmConnectorConnections` SQL table stores provider, instance URL, auth username, and Key Vault secret **names** only; `GET/POST/DELETE /v1/integrations/itsm/connections/{provider}` with `ReadAuthority`/`ExecuteAuthority`; `ItsmTenantConnectorCredentialResolver` resolves outbound API tokens and inbound webhook secrets via `ISecretProvider` at execution time with deployment-wide fallback behind `RequireTenantScopedCredentials` / `AllowDeploymentWideWebhookSecrets` for single-tenant pilots; outbound create, health probe, correlation URL builder, and tenant-scoped inbound webhook routes consume the resolver.
+- **Validation evidence:** `TenantItsmConnectorConnectionsIntegrationTests`, `ItsmTenantConnectorCredentialResolverTests`, `TenantItsmConnectorConnectionUpsertValidationTests`, and updated ITSM outbound test fixtures.
+- **Affected qualities:** 3, 4.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Governed Review Integrity +1 and Correctness & Evidence Integrity +1; `(A)` headline readiness rises from **82.99%** to **83.24%**.
 
 ## 18. Prompt Batching Guidance
 - **First batch (strong-model-recommended):** ship-gate evidence harness, tenant-isolation negative-test bundle, and citation-integrity sampler.

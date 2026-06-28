@@ -5,6 +5,16 @@ public sealed class IntegrationsItsmInboundOptions
 {
     public const string SectionName = "Integrations:ItsmInbound";
 
+    /// <summary>
+    ///     When <see langword="false" /> (hosted multi-tenant SaaS), inbound webhooks must authenticate with per-tenant secrets
+    ///     resolved from connector connection rows (tenant-scoped webhook routes).
+    /// </summary>
+    public bool AllowDeploymentWideWebhookSecrets
+    {
+        get;
+        set;
+    } = true;
+
     /// <summary>Shared secret for <c>X-Jira-Token</c> header on Jira webhook POST. Empty disables the endpoint.</summary>
     public string JiraWebhookSecret
     {

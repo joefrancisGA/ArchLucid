@@ -1,8 +1,10 @@
 using System.Net.Http.Headers;
 using System.Text;
 
+using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Integrations.Itsm;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Integrations;
 
@@ -19,6 +21,7 @@ public sealed class ItsmOutboundIntegrationHealthService(
     IHttpClientFactory httpClientFactory,
     IOptionsMonitor<IntegrationsItsmOutboundOptions> outboundOptions,
     ITenantItsmOutboundSettingsRepository tenantItsmOutboundSettings,
+    IItsmTenantConnectorCredentialResolver credentialResolver,
     ILogger<ItsmOutboundIntegrationHealthService> logger) : IItsmOutboundIntegrationHealthService
 {
     private const string HealthyStatus = "healthy";
@@ -33,6 +36,9 @@ public sealed class ItsmOutboundIntegrationHealthService(
 
     private readonly ITenantItsmOutboundSettingsRepository _tenantItsmOutboundSettings =
         tenantItsmOutboundSettings ?? throw new ArgumentNullException(nameof(tenantItsmOutboundSettings));
+
+    private readonly IItsmTenantConnectorCredentialResolver _credentialResolver =
+        credentialResolver ?? throw new ArgumentNullException(nameof(credentialResolver));
 
     private readonly ILogger<ItsmOutboundIntegrationHealthService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -49,16 +55,25 @@ public sealed class ItsmOutboundIntegrationHealthService(
 
         IntegrationsItsmOutboundOptions outbound = _outboundOptions.CurrentValue;
 
-        ItsmOutboundLocalReadiness jiraLocal =
-            ItsmOutboundLocalConfigurationEvaluator.EvaluateJira(outbound, tenantRow);
+        ResolvedItsmOutboundCredentials? jiraCredentials = await _credentialResolver
+            .TryResolveOutboundAsync(scope.TenantId, TenantItsmConnectorProvider.Jira, cancellationToken)
+            .ConfigureAwait(false);
 
-        ItsmOutboundLocalReadiness snowLocal = ItsmOutboundLocalConfigurationEvaluator.EvaluateServiceNow(outbound);
+        ResolvedItsmOutboundCredentials? snowCredentials = await _credentialResolver
+            .TryResolveOutboundAsync(scope.TenantId, TenantItsmConnectorProvider.ServiceNow, cancellationToken)
+            .ConfigureAwait(false);
+
+        ItsmOutboundLocalReadiness jiraLocal =
+            ItsmOutboundLocalConfigurationEvaluator.EvaluateJiraFromResolvedCredentials(jiraCredentials, outbound, tenantRow);
+
+        ItsmOutboundLocalReadiness snowLocal =
+            ItsmOutboundLocalConfigurationEvaluator.EvaluateServiceNowFromResolvedCredentials(snowCredentials, outbound);
 
         ItsmOutboundIntegrationProviderProbe jiraProbe =
-            await BuildJiraProbeAsync(http, outbound, jiraLocal, cancellationToken).ConfigureAwait(false);
+            await BuildJiraProbeAsync(http, jiraCredentials, jiraLocal, cancellationToken).ConfigureAwait(false);
 
         ItsmOutboundIntegrationProviderProbe snowProbe =
-            await BuildServiceNowProbeAsync(http, outbound, snowLocal, cancellationToken).ConfigureAwait(false);
+            await BuildServiceNowProbeAsync(http, snowCredentials, snowLocal, cancellationToken).ConfigureAwait(false);
 
         bool anyConfigured = jiraProbe.LocallyConfigured || snowProbe.LocallyConfigured;
 
@@ -78,15 +93,21 @@ public sealed class ItsmOutboundIntegrationHealthService(
             Return503: anyConfigured && upstreamFailure);
     }
 
-    private async Task<ItsmOutboundIntegrationProviderProbe> BuildJiraProbeAsync(HttpClient http,
-        IntegrationsItsmOutboundOptions outbound, ItsmOutboundLocalReadiness local, CancellationToken ct)
+    private async Task<ItsmOutboundIntegrationProviderProbe> BuildJiraProbeAsync(
+        HttpClient http,
+        ResolvedItsmOutboundCredentials? credentials,
+        ItsmOutboundLocalReadiness local,
+        CancellationToken ct)
     {
         if (!local.IsReady)
             return new ItsmOutboundIntegrationProviderProbe(false, null, local.Summary);
 
-        Uri myselfUri = BuildJiraMyselfUri(outbound.Jira.CloudBaseUrl);
+        if (credentials is null)
+            return new ItsmOutboundIntegrationProviderProbe(false, null, local.Summary);
+
+        Uri myselfUri = BuildJiraMyselfUri(credentials.InstanceBaseUrl);
         (bool ok, string detail) =
-            await ProbeGetWithBasicAuthAsync(http, myselfUri, outbound.Jira.ServiceAccountEmail, outbound.Jira.ApiToken, "Jira", ct)
+            await ProbeGetWithBasicAuthAsync(http, myselfUri, credentials.AuthUserName, credentials.SecretValue, "Jira", ct)
                 .ConfigureAwait(false);
 
         if (!ok && _logger.IsEnabled(LogLevel.Warning))
@@ -97,19 +118,25 @@ public sealed class ItsmOutboundIntegrationHealthService(
         return new ItsmOutboundIntegrationProviderProbe(true, ok, summary);
     }
 
-    private async Task<ItsmOutboundIntegrationProviderProbe> BuildServiceNowProbeAsync(HttpClient http,
-        IntegrationsItsmOutboundOptions outbound, ItsmOutboundLocalReadiness local, CancellationToken ct)
+    private async Task<ItsmOutboundIntegrationProviderProbe> BuildServiceNowProbeAsync(
+        HttpClient http,
+        ResolvedItsmOutboundCredentials? credentials,
+        ItsmOutboundLocalReadiness local,
+        CancellationToken ct)
     {
         if (!local.IsReady)
             return new ItsmOutboundIntegrationProviderProbe(false, null, local.Summary);
 
-        Uri incidentProbeUri = BuildServiceNowIncidentProbeUri(outbound.ServiceNow.InstanceBaseUrl);
+        if (credentials is null)
+            return new ItsmOutboundIntegrationProviderProbe(false, null, local.Summary);
+
+        Uri incidentProbeUri = BuildServiceNowIncidentProbeUri(credentials.InstanceBaseUrl);
 
         (bool ok, string detail) = await ProbeGetWithBasicAuthAsync(
                 http,
                 incidentProbeUri,
-                outbound.ServiceNow.Username,
-                outbound.ServiceNow.Password,
+                credentials.AuthUserName,
+                credentials.SecretValue,
                 "ServiceNow",
                 ct)
             .ConfigureAwait(false);

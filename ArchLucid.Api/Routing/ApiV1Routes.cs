@@ -65,5 +65,7 @@ public static class ApiV1Routes
 
     public const string ItsmOutboundSettings = "v1/integrations/itsm/settings";
 
+    public const string ItsmConnectorConnections = "v1/integrations/itsm/connections";
+
     public const string Evolution = "v1/evolution";
 }

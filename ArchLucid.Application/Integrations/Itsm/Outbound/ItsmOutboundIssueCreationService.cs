@@ -1,9 +1,11 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integrations.Itsm;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Integrations;
@@ -21,6 +23,7 @@ public sealed class ItsmOutboundIssueCreationService(
     ITenantItsmOutboundSettingsRepository tenantItsmOutboundSettings,
     IRunRepository runRepository,
     IArchitectureRequestRepository architectureRequests,
+    IItsmTenantConnectorCredentialResolver credentialResolver,
     IOptionsMonitor<IntegrationsItsmOutboundOptions> outboundOptions,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     JiraOutboundIssueClient jiraClient,
@@ -40,6 +43,9 @@ public sealed class ItsmOutboundIssueCreationService(
 
     private readonly IArchitectureRequestRepository _architectureRequests =
         architectureRequests ?? throw new ArgumentNullException(nameof(architectureRequests));
+
+    private readonly IItsmTenantConnectorCredentialResolver _credentialResolver =
+        credentialResolver ?? throw new ArgumentNullException(nameof(credentialResolver));
 
     private readonly IOptionsMonitor<IntegrationsItsmOutboundOptions> _outboundOptions =
         outboundOptions ?? throw new ArgumentNullException(nameof(outboundOptions));
@@ -118,10 +124,11 @@ public sealed class ItsmOutboundIssueCreationService(
     private async Task<ItsmOutboundIssueCreationResult> TryJiraAsync(ScopeContext scope, FindingInspectResponse inspect, TenantItsmOutboundSettings? tenantRow,
         FindingSeverity severity, string summary, string description, CancellationToken ct)
     {
-        IntegrationsItsmOutboundOptions outbound = _outboundOptions.CurrentValue;
-        JiraItsmOutboundOptions jiraOpts = outbound.Jira;
-        if (string.IsNullOrWhiteSpace(jiraOpts.CloudBaseUrl) || string.IsNullOrWhiteSpace(jiraOpts.ServiceAccountEmail) ||
-            string.IsNullOrWhiteSpace(jiraOpts.ApiToken))
+        ResolvedItsmOutboundCredentials? credentials = await _credentialResolver
+            .TryResolveOutboundAsync(scope.TenantId, TenantItsmConnectorProvider.Jira, ct)
+            .ConfigureAwait(false);
+
+        if (credentials is null)
         {
             AuditEvent ev = SkippedAudit(AuditEventTypes.IntegrationJiraIssueCreateSkipped, scope, inspect, "jira_connector_missing_credentials");
             return new ItsmOutboundIssueCreationResult
@@ -132,7 +139,10 @@ public sealed class ItsmOutboundIssueCreationService(
             };
         }
 
-        string? projectKey = !string.IsNullOrWhiteSpace(tenantRow?.JiraProjectKeyOverride) ? tenantRow.JiraProjectKeyOverride : jiraOpts.DefaultProjectKey;
+        IntegrationsItsmOutboundOptions outbound = _outboundOptions.CurrentValue;
+        string? projectKey = !string.IsNullOrWhiteSpace(tenantRow?.JiraProjectKeyOverride)
+            ? tenantRow.JiraProjectKeyOverride
+            : outbound.Jira.DefaultProjectKey;
         if (string.IsNullOrWhiteSpace(projectKey))
         {
             AuditEvent ev = SkippedAudit(AuditEventTypes.IntegrationJiraIssueCreateSkipped, scope, inspect, JiraProjectKeyMissingMessage);
@@ -164,10 +174,18 @@ public sealed class ItsmOutboundIssueCreationService(
             inspect.RunId.ToString("D"),
             inspect.FindingId);
         JsonElement adf = JiraAdfDescriptionBuilder.BuildDescriptionField(descriptionForVendor);
-        string baseUrl = jiraOpts.CloudBaseUrl.Trim().TrimEnd('/');
+        string baseUrl = credentials.InstanceBaseUrl.Trim().TrimEnd('/');
         Uri issueUri = new($"{baseUrl}/rest/api/3/issue");
-        JiraOutboundIssueHttpResult http = await _jiraClient.CreateIssueAsync(issueUri, jiraOpts.ServiceAccountEmail.Trim(), jiraOpts.ApiToken,
-            projectKey.Trim(), summary, adf, issueTypeName, priorityName, ct).ConfigureAwait(false);
+        JiraOutboundIssueHttpResult http = await _jiraClient.CreateIssueAsync(
+            issueUri,
+            credentials.AuthUserName,
+            credentials.SecretValue,
+            projectKey.Trim(),
+            summary,
+            adf,
+            issueTypeName,
+            priorityName,
+            ct).ConfigureAwait(false);
         if (!http.Ok || string.IsNullOrWhiteSpace(http.IssueKey))
         {
             AuditEvent ev = new()
@@ -261,9 +279,11 @@ public sealed class ItsmOutboundIssueCreationService(
     private async Task<ItsmOutboundIssueCreationResult> TryServiceNowAsync(ScopeContext scope, FindingInspectResponse inspect,
         TenantItsmOutboundSettings? tenantRow, FindingSeverity severity, string summary, string description, CancellationToken ct)
     {
-        IntegrationsItsmOutboundOptions outbound = _outboundOptions.CurrentValue;
-        ServiceNowItsmOutboundOptions sn = outbound.ServiceNow;
-        if (string.IsNullOrWhiteSpace(sn.InstanceBaseUrl) || string.IsNullOrWhiteSpace(sn.Username) || string.IsNullOrWhiteSpace(sn.Password))
+        ResolvedItsmOutboundCredentials? credentials = await _credentialResolver
+            .TryResolveOutboundAsync(scope.TenantId, TenantItsmConnectorProvider.ServiceNow, ct)
+            .ConfigureAwait(false);
+
+        if (credentials is null)
         {
             AuditEvent ev = SkippedAudit(AuditEventTypes.IntegrationServiceNowIncidentCreateSkipped, scope, inspect,
                 "servicenow_connector_missing_credentials");
@@ -288,11 +308,16 @@ public sealed class ItsmOutboundIssueCreationService(
             systemName = req?.SystemName.Trim();
         }
 
-        string instanceRoot = sn.InstanceBaseUrl.Trim().TrimEnd('/');
+        string instanceRoot = credentials.InstanceBaseUrl.Trim().TrimEnd('/');
         Uri instanceUri = new(instanceRoot);
         (string urgency, string impact) = ServiceNowUrgencyImpactResolver.Resolve(severity);
-        ServiceNowCmdbCiResolveResult cmdb = await _serviceNowClient.TryResolveCmdbCiApplSysIdAsync(instanceUri, sn.Username, sn.Password,
-            systemName ?? string.Empty, tenantRow?.ServiceNowAutoCreateCmdbCi ?? false, ct).ConfigureAwait(false);
+        ServiceNowCmdbCiResolveResult cmdb = await _serviceNowClient.TryResolveCmdbCiApplSysIdAsync(
+            instanceUri,
+            credentials.AuthUserName,
+            credentials.SecretValue,
+            systemName ?? string.Empty,
+            tenantRow?.ServiceNowAutoCreateCmdbCi ?? false,
+            ct).ConfigureAwait(false);
         if (cmdb.Fatal)
         {
             AuditEvent ev = new()
@@ -326,7 +351,16 @@ public sealed class ItsmOutboundIssueCreationService(
             inspect.RunId.ToString("D"),
             inspect.FindingId);
         ServiceNowIncidentHttpResult http = await _serviceNowClient
-            .CreateIncidentAsync(incidentUri, sn.Username, sn.Password, summary, descriptionForVendor, urgency, impact, cmdb.SysId, ct).ConfigureAwait(false);
+            .CreateIncidentAsync(
+                incidentUri,
+                credentials.AuthUserName,
+                credentials.SecretValue,
+                summary,
+                descriptionForVendor,
+                urgency,
+                impact,
+                cmdb.SysId,
+                ct).ConfigureAwait(false);
         if (!http.Ok || string.IsNullOrWhiteSpace(http.SysId))
         {
             AuditEvent ev = new()

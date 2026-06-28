@@ -14,6 +14,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundConnectorTestFixture;
+
 namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
 [Trait("Category", "Unit")]
 
@@ -43,6 +45,7 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
             factory.Object,
             monitor.Object,
             tenantRepo.Object,
+            CredentialResolver(new IntegrationsItsmOutboundOptions()),
             NullLogger<ItsmOutboundIntegrationHealthService>.Instance);
 
         ScopeContext scope = new()
@@ -109,6 +112,7 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
             factory.Object,
             monitor.Object,
             tenantRepo.Object,
+            CredentialResolver(options),
             NullLogger<ItsmOutboundIntegrationHealthService>.Instance);
 
         ScopeContext scope = new()
@@ -165,6 +169,7 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
             factory.Object,
             monitor.Object,
             tenantRepo.Object,
+            CredentialResolver(options),
             NullLogger<ItsmOutboundIntegrationHealthService>.Instance);
 
         ScopeContext scope = new()

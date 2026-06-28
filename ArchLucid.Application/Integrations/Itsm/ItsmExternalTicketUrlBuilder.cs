@@ -1,25 +1,27 @@
-using ArchLucid.Core.Configuration;
-
-using Microsoft.Extensions.Options;
+using ArchLucid.Core.Integrations.Itsm;
 
 namespace ArchLucid.Application.Integrations.Itsm;
 
 /// <summary>Builds operator-facing browse URLs for linked Jira issues and ServiceNow incidents.</summary>
-public sealed class ItsmExternalTicketUrlBuilder(IOptionsMonitor<IntegrationsItsmOutboundOptions> outboundOptions)
+public sealed class ItsmExternalTicketUrlBuilder(IItsmTenantConnectorCredentialResolver credentialResolver)
 {
-    private readonly IOptionsMonitor<IntegrationsItsmOutboundOptions> _outboundOptions =
-        outboundOptions ?? throw new ArgumentNullException(nameof(outboundOptions));
+    private readonly IItsmTenantConnectorCredentialResolver _credentialResolver =
+        credentialResolver ?? throw new ArgumentNullException(nameof(credentialResolver));
 
-    public string? TryBuildBrowseUrl(string provider, string externalKey, string? externalSysId)
+    public async Task<string?> TryBuildBrowseUrlAsync(
+        Guid tenantId,
+        string provider,
+        string externalKey,
+        string? externalSysId,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(provider) || string.IsNullOrWhiteSpace(externalKey))
             return null;
 
-        IntegrationsItsmOutboundOptions outbound = _outboundOptions.CurrentValue;
-
         if (provider.Equals("Jira", StringComparison.OrdinalIgnoreCase))
         {
-            string? baseUrl = NormalizeBaseUrl(outbound.Jira.CloudBaseUrl);
+            string? baseUrl = await ResolveBaseUrlAsync(tenantId, TenantItsmConnectorProvider.Jira, cancellationToken)
+                .ConfigureAwait(false);
 
             if (baseUrl is null)
                 return null;
@@ -29,7 +31,8 @@ public sealed class ItsmExternalTicketUrlBuilder(IOptionsMonitor<IntegrationsIts
 
         if (provider.Equals("ServiceNow", StringComparison.OrdinalIgnoreCase))
         {
-            string? baseUrl = NormalizeBaseUrl(outbound.ServiceNow.InstanceBaseUrl);
+            string? baseUrl = await ResolveBaseUrlAsync(tenantId, TenantItsmConnectorProvider.ServiceNow, cancellationToken)
+                .ConfigureAwait(false);
 
             if (baseUrl is null || string.IsNullOrWhiteSpace(externalSysId))
                 return null;
@@ -40,11 +43,9 @@ public sealed class ItsmExternalTicketUrlBuilder(IOptionsMonitor<IntegrationsIts
         return null;
     }
 
-    private static string? NormalizeBaseUrl(string? raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-            return null;
-
-        return raw.Trim().TrimEnd('/');
-    }
+    private Task<string?> ResolveBaseUrlAsync(
+        Guid tenantId,
+        TenantItsmConnectorProvider provider,
+        CancellationToken cancellationToken) =>
+        _credentialResolver.TryResolveInstanceBaseUrlAsync(tenantId, provider, cancellationToken);
 }

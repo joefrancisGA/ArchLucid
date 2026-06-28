@@ -1,8 +1,11 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Secrets;
+using ArchLucid.Persistence.Integrations;
 
 using FluentAssertions;
 
@@ -79,10 +82,27 @@ internal static class ItsmOutboundConnectorTestFixture
     public static ServiceNowOutboundIncidentClient ServiceNowClient(HttpMessageHandler handler) =>
         new(new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(5) }, NullLogger<ServiceNowOutboundIncidentClient>.Instance);
 
+    public static IItsmTenantConnectorCredentialResolver CredentialResolver(IntegrationsItsmOutboundOptions outbound)
+    {
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> inboundMonitor = new();
+        inboundMonitor.Setup(x => x.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
+
+        return new ItsmTenantConnectorCredentialResolver(
+            new InMemoryTenantItsmConnectorConnectionRepository(),
+            new NullSecretProvider(),
+            Monitor(outbound).Object,
+            inboundMonitor.Object);
+    }
+
     public static void AssertBasicAuthPresent(HttpRequestMessage request)
     {
         request.Headers.Authorization.Should().NotBeNull();
         request.Headers.Authorization!.Scheme.Should().Be("Basic");
         request.Headers.Authorization.Parameter.Should().NotBeNullOrWhiteSpace();
+    }
+
+    private sealed class NullSecretProvider : ISecretProvider
+    {
+        public Task<string?> GetSecretAsync(string secretName, CancellationToken ct) => Task.FromResult<string?>(null);
     }
 }

@@ -1122,6 +1122,16 @@
       "nav_operator_href": "/integrations/teams"
     },
     {
+      "controller_file": "Integrations/TenantItsmConnectorConnectionsController.cs",
+      "class_name": "TenantItsmConnectorConnectionsController",
+      "route_template": "v{version:apiVersion}/integrations/itsm/connections",
+      "normalized_prefix": "/v1/integrations/itsm/connections",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Integrations/TenantItsmOutboundSettingsController.cs",
       "class_name": "TenantItsmOutboundSettingsController",
       "route_template": "v{version:apiVersion}/integrations/itsm/settings",

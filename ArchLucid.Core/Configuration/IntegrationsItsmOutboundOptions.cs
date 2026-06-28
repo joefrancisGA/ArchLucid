@@ -5,6 +5,16 @@ public sealed class IntegrationsItsmOutboundOptions
 {
     public const string SectionName = "Integrations:ItsmOutbound";
 
+    /// <summary>
+    ///     When <see langword="true" /> (hosted multi-tenant SaaS), deployment-wide Jira/ServiceNow credentials are ignored;
+    ///     each tenant must register rows via <c>/v1/integrations/itsm/connections</c>.
+    /// </summary>
+    public bool RequireTenantScopedCredentials
+    {
+        get;
+        set;
+    }
+
     public JiraItsmOutboundOptions Jira { get; set; } = new();
 
     public ServiceNowItsmOutboundOptions ServiceNow { get; set; } = new();

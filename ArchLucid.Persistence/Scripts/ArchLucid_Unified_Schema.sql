@@ -4698,6 +4698,34 @@ END;
 
 GO
 
+/* 261: Per-tenant Jira / ServiceNow connector references (see Migrations/261_TenantItsmConnectorConnections.sql). */
+IF OBJECT_ID(N'dbo.TenantItsmConnectorConnections', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantItsmConnectorConnections
+    (
+        TenantId                          UNIQUEIDENTIFIER NOT NULL,
+        Provider                          NVARCHAR(32)     NOT NULL,
+        InstanceBaseUrl                   NVARCHAR(500)    NOT NULL,
+        AuthUserName                      NVARCHAR(320)    NULL,
+        CredentialKeyVaultSecretName      NVARCHAR(500)    NOT NULL,
+        InboundWebhookKeyVaultSecretName  NVARCHAR(500)    NULL,
+        IsEnabled                         BIT              NOT NULL
+            CONSTRAINT DF_TenantItsmConnectorConnections_IsEnabled2 DEFAULT (1),
+        Label                             NVARCHAR(200)    NULL,
+        UpdatedUtc                        DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_TenantItsmConnectorConnections_UpdatedUtc2 DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_TenantItsmConnectorConnections2 PRIMARY KEY (TenantId, Provider),
+        CONSTRAINT CK_TenantItsmConnectorConnections_Provider2
+            CHECK (Provider IN (N'Jira', N'ServiceNow')),
+        CONSTRAINT CK_TenantItsmConnectorConnections_CredentialNoUrl2
+            CHECK (CredentialKeyVaultSecretName NOT LIKE N'%://%'),
+        CONSTRAINT CK_TenantItsmConnectorConnections_InboundNoUrl2
+            CHECK (InboundWebhookKeyVaultSecretName IS NULL OR InboundWebhookKeyVaultSecretName NOT LIKE N'%://%'),
+        CONSTRAINT FK_TenantItsmConnectorConnections_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+END;
+GO
+
 /* 083: Tenant health scores + product feedback (see Migrations/083_TenantHealthScores_ProductFeedback.sql). */
 IF OBJECT_ID(N'dbo.TenantHealthScores', N'U') IS NULL
 BEGIN
