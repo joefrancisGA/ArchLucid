@@ -132,7 +132,7 @@ internal static class FrontierAiBaselineCommand
         }
     }
 
-    private static string BuildMarkdown(FrontierAiBaselineReport report)
+    internal static string BuildMarkdown(FrontierAiBaselineReport report)
     {
         StringBuilder sb = new();
 

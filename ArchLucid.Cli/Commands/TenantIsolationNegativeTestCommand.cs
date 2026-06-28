@@ -157,7 +157,7 @@ internal static class TenantIsolationNegativeTestCommand
         }
     }
 
-    private static string BuildMarkdown(TenantIsolationNegativeTestReport report)
+    internal static string BuildMarkdown(TenantIsolationNegativeTestReport report)
     {
         StringBuilder sb = new();
 

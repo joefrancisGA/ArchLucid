@@ -115,7 +115,7 @@ internal static class ReturnTriggerTelemetryCommand
         }
     }
 
-    private static string BuildMarkdown(ReturnTriggerTelemetryReport report)
+    internal static string BuildMarkdown(ReturnTriggerTelemetryReport report)
     {
         StringBuilder sb = new();
 

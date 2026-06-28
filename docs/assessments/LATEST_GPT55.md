@@ -1,11 +1,11 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **88.79%**.
+ArchLucid Assessment - (A) Headline Readiness: **88.91%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
-- **Assessment timestamp:** 2026-06-30T06:00:00-04:00.
+- **Assessment timestamp:** 2026-06-30T12:00:00-04:00.
 - **Source materials inspected (required read list):**
   1. `docs/library/REPO_DIGEST.md`
   2. `docs/library/V1_SCOPE.md`
@@ -40,9 +40,9 @@ ArchLucid Assessment - (A) Headline Readiness: **88.79%**.
 | 6 | Time-to-Value | 81 | 10 | 8.10 | 190 |
 | 7 | Proof-of-ROI Readiness | 86 | 9 | 7.74 | 126 |
 | 8 | Executive / Operator Comprehension | 87 | 8 | 6.96 | 104 |
-| 9 | Runtime & First-Review Reliability | 87 | 7 | 6.09 | 91 |
-| 10 | Adoption Friction | 85 | 5 | 4.25 | 75 |
-|  | **(A) Headline readiness** |  | **100** | **88.79** |  |
+| 9 | Runtime & First-Review Reliability | 88 | 7 | 6.16 | 84 |
+| 10 | Adoption Friction | 86 | 5 | 4.30 | 70 |
+|  | **(A) Headline readiness** |  | **100** | **88.91** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -142,11 +142,11 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.8 Runtime & First-Review Reliability
-- **Score / Weight / Contribution / Deficiency:** 87 / 7 / 6.09 / 91
+- **Score / Weight / Contribution / Deficiency:** 88 / 7 / 6.16 / 84
 - **Affects outcomes:** 2, 3
-- **Justification:** architecture and contracts are mature; ship-gate evidence embeds first-review completion Gate 1, citation-integrity Gate 2, ROI coherence Gate 3, export matrix Gate 4 (Markdown/DOCX/ZIP) with first-value claim lint (TB-415), first-review UI route smoke Gate 5 with default localhost/env/config resolution (TB-414), and live tenant-isolation deny-matrix Gate 6 for the representative `--run-id`; default operational artifact bundles for ship-gate (TB-418), tenant-isolation (TB-419), citation-integrity (TB-420), buyer-proof ledger (TB-421), return-trigger telemetry (TB-422), decision-owner scoreboard (TB-423), and frontier-AI baseline (TB-424) auto-write JSON + Markdown under `artifacts/` for release-train retention with overall PASS/FAIL/UNKNOWN or cohort verdict rollups; Playwright session depth remains environment-dependent when `--skip-ui-route-smoke` is used.
+- **Justification:** architecture and contracts are mature; ship-gate evidence embeds first-review completion Gate 1, citation-integrity Gate 2, ROI coherence Gate 3, export matrix Gate 4 (Markdown/DOCX/ZIP) with first-value claim lint (TB-415), first-review UI route smoke Gate 5 with default localhost/env/config resolution (TB-414), and live tenant-isolation deny-matrix Gate 6 for the representative `--run-id`; default operational artifact bundles for ship-gate (TB-418), tenant-isolation (TB-419), citation-integrity (TB-420), buyer-proof ledger (TB-421), return-trigger telemetry (TB-422), decision-owner scoreboard (TB-423), and frontier-AI baseline (TB-424) auto-write JSON + Markdown under `artifacts/` for release-train retention with overall PASS/FAIL/UNKNOWN or cohort verdict rollups; pilot readiness release-train bundle orchestrator (TB-425) runs all seven child bundles in one command with aggregate JSON + Markdown under `artifacts/pilot-readiness-bundle/{runId|offline-fixture}/` and slot-level artifact path index for CI; Playwright session depth remains environment-dependent when `--skip-ui-route-smoke` is used.
 - **Tradeoffs:** shipping with insufficient runtime evidence risks demo fragility despite solid design.
-- **Recommendations:** wire all seven pilot readiness bundle artifact paths (TB-418—TB-424) into release-train CI and pilot readiness checklists.
+- **Recommendations:** add `archlucid pilot readiness-bundle` to release-train CI after representative `--run-id` smoke; treat aggregate FAIL slots as release blockers before pilot handoff.
 - **Classification:** V1
 
 ### 7.9 Governed Review Integrity
@@ -158,9 +158,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.10 Adoption Friction
-- **Score / Weight / Contribution / Deficiency:** 85 / 5 / 4.25 / 75
+- **Score / Weight / Contribution / Deficiency:** 86 / 5 / 4.30 / 70
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; AWS and GCP Tier 2 connect/re-poll/disconnect on `/integrations/cloud-connections` (TB-402, TB-403, TB-407) extend Azure-parity automated evidence intake across the three major clouds; governance route consolidation (TB-405), Administration reconciliation (TB-406), and integrations route reconciliation (TB-407) remove redirecting nav hrefs; semantic aliases `/settings/ai-usage` and `/integrations/readiness` plus Internal Operations **System health** label deduplication (TB-408) remove address-bar vs nav-label drift; operator nav ↔ URL prefix policy + CI drift guard (TB-404) blocks silent nav regression on remaining cross-namespace hrefs; ship-gate Gate 5 UI route smoke (TB-410) with default UI origin resolution (TB-414) gives operators one-command first-review route health evidence without manual `--ui-base-url` in local pilot setups; ship-gate default operational artifact bundle (TB-418) removes manual `--json-out` / `--markdown-out` wiring for routine release evidence retention; standardized tenant-isolation deny-matrix evidence, return-trigger cohort guardrails, and operator ITSM settings write API improve enterprise confidence without expanding pilot setup scope.
+- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; AWS and GCP Tier 2 connect/re-poll/disconnect on `/integrations/cloud-connections` (TB-402, TB-403, TB-407) extend Azure-parity automated evidence intake across the three major clouds; governance route consolidation (TB-405), Administration reconciliation (TB-406), and integrations route reconciliation (TB-407) remove redirecting nav hrefs; semantic aliases `/settings/ai-usage` and `/integrations/readiness` plus Internal Operations **System health** label deduplication (TB-408) remove address-bar vs nav-label drift; operator nav ↔ URL prefix policy + CI drift guard (TB-404) blocks silent nav regression on remaining cross-namespace hrefs; ship-gate Gate 5 UI route smoke (TB-410) with default UI origin resolution (TB-414) gives operators one-command first-review route health evidence without manual `--ui-base-url` in local pilot setups; ship-gate default operational artifact bundle (TB-418) removes manual `--json-out` / `--markdown-out` wiring for routine release evidence retention; pilot readiness release-train bundle (TB-425) collapses seven pilot evidence commands into one release-train orchestrator with aggregate artifact index; standardized tenant-isolation deny-matrix evidence, return-trigger cohort guardrails, and operator ITSM settings write API improve enterprise confidence without expanding pilot setup scope.
 - **Tradeoffs:** reducing friction too far risks weakening governance and assurance posture.
 - **Recommendations:** bias toward "default safe + guided first proof" instead of broad optionality at pilot start.
 - **Classification:** V1
@@ -765,6 +765,14 @@ Non-goals:
 - **Affected qualities:** 1, 2.
 - **Classification:** V1 engineering.
 - **Rescore impact:** Decision-Changing Insight Density +1 and Differentiability / Defensibility vs Frontier AI +1; `(A)` headline readiness rises from **88.53%** to **88.79%**.
+
+**45) Pilot readiness release-train bundle orchestrator (TB-425)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** default `archlucid pilot readiness-bundle` orchestrates all seven §17 pilot readiness CLI bundles (TB-418—TB-424) in-process, writes each child bundle's default JSON + Markdown (and decision-owner sponsor Markdown) under `artifacts/`, and auto-writes aggregate JSON + Markdown under `artifacts/pilot-readiness-bundle/{runId|offline-fixture}/` when repository root resolves; offline fixture replay by default; live ship-gate and tenant-isolation when `--run-id` is supplied; live citation-integrity when `--include-api` is supplied; aggregate PASS/FAIL/UNKNOWN/WARN rollup with SKIPPED ship-gate when `--run-id` is absent; `--no-write-artifacts` preserves stdout-only runs; explicit `--json-out` / `--markdown-out` override aggregate defaults.
+- **Validation evidence:** `PilotReadinessBundleOutputPathsTests` covers default offline paths, run-id keying, explicit override, and suppress flag; `PilotReadinessBundleVerdictRollupTests` covers FAIL/UNKNOWN/WARN/PASS rollups; `PilotReadinessBundleRunnerTests` covers offline seven-slot orchestration with ship-gate SKIPPED.
+- **Affected qualities:** 9, 10.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Runtime & First-Review Reliability +1 and Adoption Friction +1; `(A)` headline readiness rises from **88.79%** to **88.91%**.
 
 ## 18. Prompt Batching Guidance
 - **First batch (strong-model-recommended):** ship-gate evidence harness, tenant-isolation negative-test bundle, and citation-integrity sampler.

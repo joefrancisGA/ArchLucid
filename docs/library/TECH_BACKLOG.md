@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-30 (TB-424 **Done** — frontier-AI baseline default operational artifact bundle). Prior: 2026-06-30 (TB-423 **Done** — decision-owner scoreboard default operational artifact bundle). Prior: 2026-06-29 (TB-422 **Done** — return-trigger telemetry default operational artifact bundle). Prior: 2026-06-29 (TB-421 **Done** — buyer-proof evidence ledger default operational artifact bundle). Prior: 2026-06-29 (TB-420 **Done** — citation-integrity default operational artifact bundle). Prior: 2026-06-29 (TB-419 **Done** — tenant-isolation negative-test default operational artifact bundle). Prior: 2026-06-29 (TB-418 **Done** — ship-gate evidence default operational artifact bundle). Prior: 2026-06-29 (TB-417 **Done** — ship-gate Gate 4 traceability bundle ZIP embed). Prior: 2026-06-28 (TB-413 **Done** — ship-gate Gate 1 first-review completion probe). Prior: 2026-06-28 (TB-412 **Done** — ship-gate Gate 4 export matrix embed). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-30 (TB-425 **Done** — pilot readiness release-train bundle orchestrator). Prior: 2026-06-30 (TB-424 **Done** — frontier-AI baseline default operational artifact bundle).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -169,6 +169,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
+| TB-425 | Pilot readiness release-train bundle — `archlucid pilot readiness-bundle` orchestrates TB-418—TB-424 child bundles in-process; aggregate JSON + Markdown under `artifacts/pilot-readiness-bundle/{runId|offline-fixture}/`; PASS/FAIL/UNKNOWN/WARN rollup; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | M |
 | TB-424 | Frontier-AI baseline default operational artifact bundle — auto-write JSON + Markdown under `artifacts/frontier-ai-baseline/{scoreboard-name}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-423 | Decision-owner scoreboard default operational artifact bundle — auto-write JSON + operator/sponsor Markdown under `artifacts/decision-owner-scoreboard/{ledger-name}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-422 | Return-trigger telemetry default operational artifact bundle — auto-write JSON + Markdown under `artifacts/return-trigger-telemetry/{ledger-name}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
@@ -12502,3 +12503,41 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-423, assessment §7.2, §7.4, §17 item 9.
+
+---
+
+## TB-425 — Pilot readiness release-train bundle orchestrator
+
+**Status:** **Done** (2026-06-30). Default `archlucid pilot readiness-bundle` orchestrates all seven §17 pilot readiness CLI bundles (TB-418—TB-424) in-process, writes child artifacts under each bundle's default `artifacts/` path, and auto-writes aggregate JSON + Markdown under `artifacts/pilot-readiness-bundle/{runId|offline-fixture}/` when repository root resolves; `--no-write-artifacts` preserves stdout-only runs.
+
+**Source:** Assessment §7.8 recommendation — wire all seven pilot readiness bundle artifact paths (TB-418—TB-424) into release-train CI and pilot readiness checklists.
+
+**Problem:** Operators had to invoke seven separate pilot CLI bundles manually to retain release-train evidence; no single aggregate rollup or artifact index for CI gates.
+
+**V1 scope:**
+
+1. Add `PilotReadinessBundleCommand`, `PilotReadinessBundleRunner`, and `PilotReadinessBundleOutputPaths` under `artifacts/pilot-readiness-bundle/`.
+2. Orchestrate offline fixtures by default; live ship-gate and tenant-isolation probes when `--run-id` is supplied; citation-integrity live mode when `--include-api` is supplied.
+3. Aggregate PASS/FAIL/UNKNOWN/WARN slot verdict rollup with SKIPPED ship-gate when `--run-id` is absent.
+4. Include child artifact path metadata on aggregate JSON/Markdown output.
+
+**Acceptance criteria:**
+
+- Default offline run from repo root writes aggregate JSON + Markdown and child bundle artifacts without explicit output flags.
+- `--run-id` enables live ship-gate and tenant-isolation slots; `--include-api` enables live citation-integrity.
+- Explicit `--json-out` / `--markdown-out` override aggregate defaults; `--no-write-artifacts` skips all default writes.
+- Unit tests cover path resolution, verdict rollup, and offline seven-slot orchestration.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/PilotReadinessBundleCommand.cs`
+- `ArchLucid.Cli/Commands/PilotReadinessBundleRunner.cs`
+- `ArchLucid.Cli/Commands/PilotReadinessBundleOutputPaths.cs`
+- `ArchLucid.Cli/Program.cs`
+- `ArchLucid.Cli.Tests/PilotReadinessBundleOutputPathsTests.cs`
+- `ArchLucid.Cli.Tests/PilotReadinessBundleVerdictRollupTests.cs`
+- `ArchLucid.Cli.Tests/PilotReadinessBundleRunnerTests.cs`
+
+**Size estimate:** **M**
+
+**Cross-ref:** TB-418—TB-424, assessment §7.8, §7.10, §17 item 45.

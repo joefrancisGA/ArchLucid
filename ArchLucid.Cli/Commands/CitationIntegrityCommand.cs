@@ -150,7 +150,7 @@ internal static class CitationIntegrityCommand
         }
     }
 
-    private static string BuildMarkdown(CitationIntegrityReport report)
+    internal static string BuildMarkdown(CitationIntegrityReport report)
     {
         StringBuilder sb = new();
 

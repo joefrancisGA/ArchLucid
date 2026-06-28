@@ -115,7 +115,7 @@ internal static class BuyerProofEvidenceLedgerCommand
         }
     }
 
-    private static string BuildMarkdown(BuyerProofEvidenceLedgerReport report)
+    internal static string BuildMarkdown(BuyerProofEvidenceLedgerReport report)
     {
         StringBuilder sb = new();
 

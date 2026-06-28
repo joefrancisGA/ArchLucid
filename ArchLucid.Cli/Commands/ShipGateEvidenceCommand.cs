@@ -132,7 +132,7 @@ internal static class ShipGateEvidenceCommand
         }
     }
 
-    private static string BuildMarkdown(ShipGateEvidenceReport report)
+    internal static string BuildMarkdown(ShipGateEvidenceReport report)
     {
         StringBuilder sb = new();
 
