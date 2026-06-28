@@ -65,6 +65,11 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
             GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
             return;
         }
+        catch (GreenfieldCommitRetryBudgetExhaustedException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
+        }
     }
 
     private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)

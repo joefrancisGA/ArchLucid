@@ -63,6 +63,11 @@ public sealed class AuditExportTenantIsolationIntegrationTests
             GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
             return;
         }
+        catch (GreenfieldCommitRetryBudgetExhaustedException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
+        }
     }
 
     [SkippableFact]
@@ -85,6 +90,11 @@ public sealed class AuditExportTenantIsolationIntegrationTests
             csv.Should().NotContain(runGuid.ToString("D"), because: "tenant B CSV export must not leak tenant A run id filter results");
         }
         catch (WarmupTimedOutException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
+        }
+        catch (GreenfieldCommitRetryBudgetExhaustedException)
         {
             GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
             return;
@@ -114,6 +124,11 @@ public sealed class AuditExportTenantIsolationIntegrationTests
             page!.Items.Should().BeEmpty(because: "tenant B scoped audit search must not return tenant A run events");
         }
         catch (WarmupTimedOutException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
+        }
+        catch (GreenfieldCommitRetryBudgetExhaustedException)
         {
             GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
             return;

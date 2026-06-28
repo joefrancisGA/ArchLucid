@@ -38,11 +38,13 @@ internal static class IntegrationTestDeadline
         deadline.CancelAfter(effectiveTimeout);
 
         Task runTask = body(deadline.Token);
-        Task delayTask = Task.Delay(effectiveTimeout);
 
-        Task completed = await Task.WhenAny(runTask, delayTask).ConfigureAwait(false);
+        bool timedOut = StarvationProofTimeout.WaitUntilCompletedOrTimeout(
+            runTask,
+            effectiveTimeout,
+            nameof(IntegrationTestDeadline) + ":" + testName);
 
-        if (completed != runTask)
+        if (timedOut)
         {
             await deadline.CancelAsync().ConfigureAwait(false);
 

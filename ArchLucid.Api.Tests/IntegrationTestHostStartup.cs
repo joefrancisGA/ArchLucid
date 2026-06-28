@@ -33,10 +33,8 @@ internal static class IntegrationTestHostStartup
 
     /// <summary>
     ///     Runs a synchronous factory operation on a dedicated worker thread under <paramref name="timeout" />.
-    ///     Uses <see cref="Task.WhenAny" /> so callers return promptly on timeout even when the worker
-    ///     remains blocked (WaitAsync alone would leave xUnit waiting on the orphaned task).
-    ///     CI #2376: <see cref="Task.Run" /> wedged workers starve the thread pool so the delay continuation
-    ///     never fires; a dedicated thread keeps timer scheduling independent of pool exhaustion.
+    ///     CI #2377: poll-based <see cref="StarvationProofTimeout" /> so the bound fires even when the thread pool
+    ///     is exhausted (Task.Delay + WhenAny continuations never run).
     /// </summary>
     internal static async Task<T> EnsureCompletedAsync<T>(
         Func<T> operation,
@@ -49,7 +47,7 @@ internal static class IntegrationTestHostStartup
         Console.Error.WriteLine(
             $"[IntegrationTestHostStartup] Starting bounded operation (limit {effectiveTimeout.TotalSeconds:N0}s) at {DateTime.UtcNow:HH:mm:ss.fff}Z");
 
-        System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
+        System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
         TaskCompletionSource<T> completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         Thread worker = new(_ =>
@@ -71,10 +69,12 @@ internal static class IntegrationTestHostStartup
 
         worker.Start();
 
-        Task delayTask = Task.Delay(effectiveTimeout);
-        Task completed = await Task.WhenAny(completion.Task, delayTask).ConfigureAwait(false);
+        bool timedOut = StarvationProofTimeout.WaitUntilCompletedOrTimeout(
+            completion.Task,
+            effectiveTimeout,
+            nameof(IntegrationTestHostStartup));
 
-        if (completed != completion.Task)
+        if (timedOut)
         {
             Console.Error.WriteLine(
                 $"[IntegrationTestHostStartup] TIMEOUT: operation exceeded {effectiveTimeout.TotalSeconds:N0}s at {DateTime.UtcNow:HH:mm:ss.fff}Z");
@@ -88,7 +88,7 @@ internal static class IntegrationTestHostStartup
         T resolved = await completion.Task.ConfigureAwait(false);
 
         Console.Error.WriteLine(
-            $"[IntegrationTestHostStartup] Bounded operation completed in {sw.Elapsed.TotalSeconds:N1}s at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+            $"[IntegrationTestHostStartup] Bounded operation completed in {stopwatch.Elapsed.TotalSeconds:N1}s at {DateTime.UtcNow:HH:mm:ss.fff}Z");
 
         return resolved;
     }

@@ -44,6 +44,16 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     internal static readonly TimeSpan GreenfieldSqlCommitAttemptHttpTimeout = TimeSpan.FromSeconds(90);
 
     /// <summary>
+    ///     Total wall-clock budget for the commit retry loop (CI #2377: 25 × 90s attempts consumed ~39 min on TB-294/295).
+    /// </summary>
+    internal static readonly TimeSpan GreenfieldSqlCommitRetryWallClockBudget = TimeSpan.FromMinutes(8);
+
+    /// <summary>
+    ///     Per-cycle cap for manifest readiness polls inside the commit retry loop.
+    /// </summary>
+    internal static readonly TimeSpan GreenfieldSqlManifestPollBudget = TimeSpan.FromSeconds(60);
+
+    /// <summary>
     ///     DbUp + readiness + optional first create-run on an empty catalog (outside parallel-burst hang guards).
     ///     Must cover <see cref="WarmListRunsPathAsync" /> worst-case warmup (~8 min at max backoff) plus at least two full
     ///     <see cref="GreenfieldSqlArchitectureRequestBurstHttpTimeout" /> cycles, so a first attempt that times out on a slow
@@ -580,17 +590,29 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 
         AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, GreenfieldSqlArchitectureRequestBurstHttpTimeout);
 
-        await GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(
-            client,
-            runId,
-            cancellationToken);
+        await WaitUntilRunManifestReadableForCommitWithPollBudgetAsync(client, runId, cancellationToken);
 
+        System.Diagnostics.Stopwatch totalWallClock = System.Diagnostics.Stopwatch.StartNew();
         int delayMs = 250;
         HttpStatusCode? lastStatusCode = null;
         string? lastBody = null;
+        int consecutiveManifestNotLoaded409 = 0;
 
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
+            if (totalWallClock.Elapsed >= GreenfieldSqlCommitRetryWallClockBudget)
+            {
+                throw new GreenfieldCommitRetryBudgetExhaustedException(
+                    "POST /v1/architecture/run/"
+                    + runId
+                    + "/commit retry budget exhausted after "
+                    + totalWallClock.Elapsed.TotalMinutes.ToString("N1", System.Globalization.CultureInfo.InvariantCulture)
+                    + " min (wall clock). Last status="
+                    + (lastStatusCode is null ? "none" : ((int)lastStatusCode).ToString(System.Globalization.CultureInfo.InvariantCulture))
+                    + ". Body="
+                    + (lastBody ?? "(none)"));
+            }
+
             if (await GreenfieldCommittedRunReadinessPoll.TryReturnIfRunAlreadyCommittedAsync(client, runId, cancellationToken))
                 return;
 
@@ -627,10 +649,32 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 
                 if (GreenfieldCommittedRunReadinessPoll.IsManifestNotLoadedYetConflict(response.StatusCode, lastBody))
                 {
-                    await GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(
-                        client,
-                        runId,
-                        cancellationToken);
+                    consecutiveManifestNotLoaded409++;
+
+                    if (consecutiveManifestNotLoaded409 >= 3)
+                    {
+                        string diagnostic =
+                            await GreenfieldCommittedRunReadinessPoll.FormatRunDetailDiagnosticAsync(
+                                client,
+                                runId,
+                                cancellationToken);
+
+                        throw new Xunit.Sdk.XunitException(
+                            "POST /v1/architecture/run/"
+                            + runId
+                            + "/commit returned persistent manifest-not-loaded 409 after "
+                            + consecutiveManifestNotLoaded409.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                            + " consecutive attempts. Body="
+                            + lastBody
+                            + ". Run detail diagnostic: "
+                            + diagnostic);
+                    }
+
+                    await WaitUntilRunManifestReadableForCommitWithPollBudgetAsync(client, runId, cancellationToken);
+                }
+                else
+                {
+                    consecutiveManifestNotLoaded409 = 0;
                 }
             }
             catch (HttpRequestException ex) when (!cancellationToken.IsCancellationRequested
@@ -659,6 +703,22 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             + (lastStatusCode is null
                 ? string.Empty
                 : $" Last status={(int)lastStatusCode} ({lastStatusCode}). Body={lastBody}"));
+    }
+
+    private static Task WaitUntilRunManifestReadableForCommitWithPollBudgetAsync(
+        HttpClient client,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        using CancellationTokenSource pollBudget =
+            CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+        pollBudget.CancelAfter(GreenfieldSqlManifestPollBudget);
+
+        return GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(
+            client,
+            runId,
+            pollBudget.Token);
     }
 
     internal static void DisposeAll(HttpResponseMessage[] responses)
