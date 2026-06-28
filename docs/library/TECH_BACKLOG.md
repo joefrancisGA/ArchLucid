@@ -169,6 +169,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
+| TB-417 | Ship-gate Gate 4 traceability bundle ZIP embed — add `traceability-bundle.zip` probe to export matrix contract alongside Markdown/DOCX/artifact ZIP | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-402 | Automated AWS polling (Tier 2) — **Done (2026-06-27)** — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-403 | Automated GCP polling (Tier 2) — **Done (2026-06-27)** — hosted poller with GCP Workload Identity Federation (Azure MI trust); scheduled Cloud Asset Inventory collection; upload to `/v1/extractor/gcp/upload`; `/settings/cloud-connections` GCP connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards — **Done (2026-06-27)** — `sourceEvidenceLinks` on persisted recommendations + API; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
@@ -12212,3 +12213,37 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-412, TB-415, `fixtures/roi/roi-sponsor-facing-scope-labels.v1.json`, assessment §4 gate 3.
+
+---
+
+## TB-417 — Ship-gate Gate 4 traceability bundle ZIP embed
+
+**Status:** **Done** (2026-06-29). Extended `ship_gate_export_matrix_contract.v1.json` with a fourth probe for `GET /v1/architecture/run/{runId}/traceability-bundle.zip` (ZIP magic-byte validation); Gate 4 export matrix now covers Markdown, DOCX, run artifact ZIP, and traceability audit hand-off ZIP.
+
+**Source:** Assessment §4 gate 4 — traceability bundle ZIP was listed in ship-gate evidence links but not probed in the embedded export matrix.
+
+**Problem:** Ship-gate Gate 4 could PASS without asserting the audit hand-off traceability bundle route for the representative `--run-id`.
+
+**V1 scope:**
+
+1. Add `traceability-bundle-zip` probe to bundled and docs-library export matrix contracts.
+2. Gate 4 evidence includes `traceability-zip` in format summary.
+3. Gate 4 **FAIL** when traceability bundle route fails HTTP/ZIP validation.
+
+**Acceptance criteria:**
+
+- Default ship-gate evidence run probes four export routes including traceability bundle ZIP.
+- Unit tests cover pass and missing traceability bundle fail paths in `ShipGateExportMatrixProbeTests` and `ShipGateEvidenceRunnerTests`.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Data/ship_gate_export_matrix_contract.v1.json`
+- `docs/library/SHIP_GATE_EXPORT_MATRIX_CONTRACT.v1.json`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceRunner.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceCommand.cs`
+- `ArchLucid.Cli.Tests/ShipGateExportMatrixProbeTests.cs`
+- `ArchLucid.Cli.Tests/ShipGateEvidenceRunnerTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-412, TB-415, TB-416, `docs/library/API_CONTRACTS.md` traceability bundle, assessment §4 gate 4.

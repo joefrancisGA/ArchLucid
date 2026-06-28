@@ -333,7 +333,7 @@ internal sealed class ShipGateEvidenceRunner(
                 Name = "Export/package generation works (Markdown / DOCX / ZIP)",
                 Verdict = verdict,
                 Evidence =
-                    $"exportMatrixPassed={passCount}/{probeResults.Count}; formats=markdown,docx,zip; contractProbes={contract.Probes.Count}; failed=[{failedSummary}]; {claimLintResult.Detail}.",
+                    $"exportMatrixPassed={passCount}/{probeResults.Count}; formats=markdown,docx,zip,traceability-zip; contractProbes={contract.Probes.Count}; failed=[{failedSummary}]; {claimLintResult.Detail}.",
                 FastestResolution = verdict == ShipGateEvidenceVerdict.Pass
                     ? null
                     : exportMatrixPass

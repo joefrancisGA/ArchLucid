@@ -45,6 +45,14 @@ public sealed class ShipGateExportMatrixProbeTests
                         "application/zip"));
                 }
 
+                if (path.EndsWith($"/v1/architecture/run/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(BytesResponse(
+                        HttpStatusCode.OK,
+                        [0x50, 0x4B, 0x03, 0x04, 0x00, 0x00, 0x00, 0x00],
+                        "application/zip"));
+                }
+
                 return Task.FromResult(TextResponse(HttpStatusCode.NotFound, "missing", "application/json"));
             },
         };
@@ -84,6 +92,14 @@ public sealed class ShipGateExportMatrixProbeTests
                 if (path.EndsWith($"/v1/artifacts/runs/{RunId}/export", StringComparison.Ordinal))
                 {
                     return Task.FromResult(BytesResponse(HttpStatusCode.OK, new byte[128], "application/zip"));
+                }
+
+                if (path.EndsWith($"/v1/architecture/run/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(BytesResponse(
+                        HttpStatusCode.OK,
+                        [0x50, 0x4B, 0x03, 0x04, 0x00, 0x00, 0x00, 0x00],
+                        "application/zip"));
                 }
 
                 return Task.FromResult(TextResponse(HttpStatusCode.NotFound, "missing", "application/json"));
