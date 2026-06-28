@@ -2997,6 +2997,70 @@ IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
 
 GO
 
+/* ---- Governance workflow (DbUp 038 parity) ----
+   Base tables for the governance approval / promotion / environment-activation feature.
+   Greenfield bootstrap previously relied on DbUp/baseline creating these before this script
+   ran; creating them here keeps ArchLucid.sql self-sufficient. The SLA, actor-key, and
+   tenant/workspace/project scope columns (plus their indexes and the FK to dbo.Tenants) are
+   added by the DbUp 058 / 130 / 118 parity blocks that follow. */
+
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.GovernanceApprovalRequests
+    (
+        ApprovalRequestId NVARCHAR(64)  NOT NULL PRIMARY KEY,
+        RunId             NVARCHAR(64)  NOT NULL,
+        ManifestVersion   NVARCHAR(128) NOT NULL,
+        SourceEnvironment NVARCHAR(32)  NOT NULL,
+        TargetEnvironment NVARCHAR(32)  NOT NULL,
+        Status            NVARCHAR(32)  NOT NULL,
+        RequestedBy       NVARCHAR(200) NOT NULL,
+        ReviewedBy        NVARCHAR(200) NULL,
+        RequestComment    NVARCHAR(MAX) NULL,
+        ReviewComment     NVARCHAR(MAX) NULL,
+        RequestedUtc      DATETIME2     NOT NULL,
+        ReviewedUtc       DATETIME2     NULL,
+        INDEX IX_GovernanceApprovalRequests_RunId NONCLUSTERED (RunId)
+    );
+END
+
+GO
+
+IF OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.GovernancePromotionRecords
+    (
+        PromotionRecordId NVARCHAR(64)  NOT NULL PRIMARY KEY,
+        RunId             NVARCHAR(64)  NOT NULL,
+        ManifestVersion   NVARCHAR(128) NOT NULL,
+        SourceEnvironment NVARCHAR(32)  NOT NULL,
+        TargetEnvironment NVARCHAR(32)  NOT NULL,
+        PromotedBy        NVARCHAR(200) NOT NULL,
+        PromotedUtc       DATETIME2     NOT NULL,
+        ApprovalRequestId NVARCHAR(64)  NULL,
+        Notes             NVARCHAR(MAX) NULL,
+        INDEX IX_GovernancePromotionRecords_RunId NONCLUSTERED (RunId)
+    );
+END
+
+GO
+
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.GovernanceEnvironmentActivations
+    (
+        ActivationId    NVARCHAR(64)  NOT NULL PRIMARY KEY,
+        RunId           NVARCHAR(64)  NOT NULL,
+        ManifestVersion NVARCHAR(128) NOT NULL,
+        Environment     NVARCHAR(32)  NOT NULL,
+        IsActive        BIT           NOT NULL,
+        ActivatedUtc    DATETIME2     NOT NULL,
+        INDEX IX_GovernanceEnvironmentActivations_Environment_IsActive NONCLUSTERED (Environment, IsActive)
+    );
+END
+
+GO
+
 /* ---- DbUp 058 parity: SLA tracking on governance approval requests ---- */
 
 IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
@@ -3023,10 +3087,11 @@ GO
 
 /* ---- DbUp 059 parity: SLA breach monitoring + blob upload failure indexes ---- */
 
-IF NOT EXISTS (
-    SELECT 1 FROM sys.indexes
-    WHERE name = N'IX_GovernanceApprovalRequests_PendingSlaBreached'
-      AND object_id = OBJECT_ID(N'dbo.GovernanceApprovalRequests'))
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1 FROM sys.indexes
+       WHERE name = N'IX_GovernanceApprovalRequests_PendingSlaBreached'
+         AND object_id = OBJECT_ID(N'dbo.GovernanceApprovalRequests'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_GovernanceApprovalRequests_PendingSlaBreached
         ON dbo.GovernanceApprovalRequests (SlaDeadlineUtc ASC)
@@ -3036,10 +3101,11 @@ END
 
 GO
 
-IF NOT EXISTS (
-    SELECT 1 FROM sys.indexes
-    WHERE name = N'IX_GovernanceApprovalRequests_Status_RequestedUtc'
-      AND object_id = OBJECT_ID(N'dbo.GovernanceApprovalRequests'))
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1 FROM sys.indexes
+       WHERE name = N'IX_GovernanceApprovalRequests_Status_RequestedUtc'
+         AND object_id = OBJECT_ID(N'dbo.GovernanceApprovalRequests'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_GovernanceApprovalRequests_Status_RequestedUtc
         ON dbo.GovernanceApprovalRequests (Status, RequestedUtc DESC)
@@ -3112,10 +3178,11 @@ END
 
 GO
 
-IF NOT EXISTS (
-    SELECT 1 FROM sys.indexes
-    WHERE name = N'IX_GovernanceEnvironmentActivations_RunId_ActivatedUtc'
-      AND object_id = OBJECT_ID(N'dbo.GovernanceEnvironmentActivations'))
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1 FROM sys.indexes
+       WHERE name = N'IX_GovernanceEnvironmentActivations_RunId_ActivatedUtc'
+         AND object_id = OBJECT_ID(N'dbo.GovernanceEnvironmentActivations'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_GovernanceEnvironmentActivations_RunId_ActivatedUtc
         ON dbo.GovernanceEnvironmentActivations (RunId, ActivatedUtc DESC);
@@ -3123,10 +3190,11 @@ END
 
 GO
 
-IF NOT EXISTS (
-    SELECT 1 FROM sys.indexes
-    WHERE name = N'IX_GovernanceEnvironmentActivations_Environment_ActivatedUtc'
-      AND object_id = OBJECT_ID(N'dbo.GovernanceEnvironmentActivations'))
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1 FROM sys.indexes
+       WHERE name = N'IX_GovernanceEnvironmentActivations_Environment_ActivatedUtc'
+         AND object_id = OBJECT_ID(N'dbo.GovernanceEnvironmentActivations'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_GovernanceEnvironmentActivations_Environment_ActivatedUtc
         ON dbo.GovernanceEnvironmentActivations (Environment, ActivatedUtc DESC)
@@ -3135,10 +3203,11 @@ END
 
 GO
 
-IF NOT EXISTS (
-    SELECT 1 FROM sys.indexes
-    WHERE name = N'IX_GovernancePromotionRecords_RunId_PromotedUtc'
-      AND object_id = OBJECT_ID(N'dbo.GovernancePromotionRecords'))
+IF OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1 FROM sys.indexes
+       WHERE name = N'IX_GovernancePromotionRecords_RunId_PromotedUtc'
+         AND object_id = OBJECT_ID(N'dbo.GovernancePromotionRecords'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_GovernancePromotionRecords_RunId_PromotedUtc
         ON dbo.GovernancePromotionRecords (RunId, PromotedUtc DESC);
@@ -4898,10 +4967,11 @@ END;
 
 GO
 
-IF NOT EXISTS (
-    SELECT 1 FROM sys.indexes
-    WHERE name = N'IX_GovernanceApprovalRequests_Scope_RequestedUtc'
-      AND object_id = OBJECT_ID(N'dbo.GovernanceApprovalRequests'))
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1 FROM sys.indexes
+       WHERE name = N'IX_GovernanceApprovalRequests_Scope_RequestedUtc'
+         AND object_id = OBJECT_ID(N'dbo.GovernanceApprovalRequests'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_GovernanceApprovalRequests_Scope_RequestedUtc
         ON dbo.GovernanceApprovalRequests (TenantId, WorkspaceId, ProjectId, RequestedUtc DESC)
@@ -4916,10 +4986,11 @@ END;
 
 GO
 
-IF NOT EXISTS (
-    SELECT 1 FROM sys.indexes
-    WHERE name = N'IX_GovernancePromotionRecords_Scope_PromotedUtc'
-      AND object_id = OBJECT_ID(N'dbo.GovernancePromotionRecords'))
+IF OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1 FROM sys.indexes
+       WHERE name = N'IX_GovernancePromotionRecords_Scope_PromotedUtc'
+         AND object_id = OBJECT_ID(N'dbo.GovernancePromotionRecords'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_GovernancePromotionRecords_Scope_PromotedUtc
         ON dbo.GovernancePromotionRecords (TenantId, WorkspaceId, ProjectId, PromotedUtc DESC)
@@ -4928,10 +4999,11 @@ END;
 
 GO
 
-IF NOT EXISTS (
-    SELECT 1 FROM sys.indexes
-    WHERE name = N'IX_GovernanceEnvironmentActivations_Scope_ActivatedUtc'
-      AND object_id = OBJECT_ID(N'dbo.GovernanceEnvironmentActivations'))
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1 FROM sys.indexes
+       WHERE name = N'IX_GovernanceEnvironmentActivations_Scope_ActivatedUtc'
+         AND object_id = OBJECT_ID(N'dbo.GovernanceEnvironmentActivations'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_GovernanceEnvironmentActivations_Scope_ActivatedUtc
         ON dbo.GovernanceEnvironmentActivations (TenantId, WorkspaceId, ProjectId, ActivatedUtc DESC)
