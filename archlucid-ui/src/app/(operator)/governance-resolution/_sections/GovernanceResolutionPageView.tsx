@@ -15,7 +15,9 @@ import {
   governanceResolutionEffectivePolicyHeadingReader,
   governanceResolutionPageLeadOperator,
   governanceResolutionPageLeadReader,
+  governanceResolutionRawOutputAccordionLabel,
   governanceResolutionRefreshButtonTitle,
+  governanceResolutionRefreshPolicySectionHeading,
   governanceResolutionResolutionDetailsHeadingOperator,
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
@@ -35,9 +37,13 @@ export function GovernanceResolutionPageView(props: Props) {
 
   return (
     <div className="max-w-6xl">
-      <LayerHeader pageKey="governance-resolution" density="compact" />
+      <LayerHeader
+        pageKey="governance-resolution"
+        density="compact"
+        collapsibleGuidance="About policy resolution"
+      />
       <OperatorPageHeader
-        title="Governance resolution"
+        title="Policy resolution"
         subtitle={canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
       />
       <GovernanceResolutionRankCue className="mb-3" />
@@ -87,7 +93,7 @@ export function GovernanceResolutionPageView(props: Props) {
           )}
         </ul>
 
-        <AdvancedOptionsAccordion className="mt-5">
+        <AdvancedOptionsAccordion className="mt-5" triggerLabel={governanceResolutionRawOutputAccordionLabel}>
           <div className="grid gap-4">
             <h4 className={cn("mt-0 mb-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Effective content</h4>
             <pre
@@ -111,38 +117,36 @@ export function GovernanceResolutionPageView(props: Props) {
         </AdvancedOptionsAccordion>
       </section>
 
-      <AdvancedOptionsAccordion className="mb-7">
-        <section className="mb-0" aria-labelledby="governance-resolution-details-heading">
-          <h3 id="governance-resolution-details-heading" className={cn("mt-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {canMutateEnterprisePolicySurfaces
-              ? governanceResolutionResolutionDetailsHeadingOperator
-              : governanceResolutionResolutionDetailsHeadingReader}
-          </h3>
-          <h4 className={cn("mt-0 mb-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Resolution decisions ({m.data?.decisions.length ?? 0})
-          </h4>
-          <div className="grid gap-2.5">
-            {(m.data?.decisions ?? []).map((d, i) => (
-              <article
-                key={`${d.itemType}-${d.itemKey}-${i}`}
-                className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 bg-neutral-50 dark:bg-neutral-950"
-              >
-                <div className={OPERATOR_TYPOGRAPHY.cardTitle}>
-                  <strong>{d.itemType}</strong> <code>{d.itemKey}</code>
-                </div>
-                <div className={cn("mt-1.5", OPERATOR_TYPOGRAPHY.body)}>
-                  Winner: <strong>{d.winningPolicyPackName}</strong> ({d.winningVersion}) — scope <code>{d.winningScopeLevel}</code>
-                </div>
-                <div className={cn("mt-1.5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{d.resolutionReason}</div>
-                <details className={cn("mt-2", OPERATOR_TYPOGRAPHY.micro)}>
-                  <summary>All candidates</summary>
-                  <pre className="overflow-auto max-h-[220px]">{JSON.stringify(d.candidates, null, 2)}</pre>
-                </details>
-              </article>
-            ))}
-          </div>
-        </section>
-      </AdvancedOptionsAccordion>
+      <section className="mb-7" aria-labelledby="governance-resolution-details-heading">
+        <h3 id="governance-resolution-details-heading" className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {canMutateEnterprisePolicySurfaces
+            ? governanceResolutionResolutionDetailsHeadingOperator
+            : governanceResolutionResolutionDetailsHeadingReader}
+        </h3>
+        <h4 className={cn("mt-2 mb-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Resolution decisions ({m.data?.decisions.length ?? 0})
+        </h4>
+        <div className="grid gap-2.5">
+          {(m.data?.decisions ?? []).map((d, i) => (
+            <article
+              key={`${d.itemType}-${d.itemKey}-${i}`}
+              className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 bg-neutral-50 dark:bg-neutral-950"
+            >
+              <div className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                <strong>{d.itemType}</strong> <code>{d.itemKey}</code>
+              </div>
+              <div className={cn("mt-1.5", OPERATOR_TYPOGRAPHY.body)}>
+                Winner: <strong>{d.winningPolicyPackName}</strong> ({d.winningVersion}) — scope <code>{d.winningScopeLevel}</code>
+              </div>
+              <div className={cn("mt-1.5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{d.resolutionReason}</div>
+              <details className={cn("mt-2", OPERATOR_TYPOGRAPHY.micro)}>
+                <summary>All candidates</summary>
+                <pre className="overflow-auto max-h-[220px]">{JSON.stringify(d.candidates, null, 2)}</pre>
+              </details>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section
         aria-labelledby="governance-change-controls-heading"
@@ -152,7 +156,7 @@ export function GovernanceResolutionPageView(props: Props) {
         )}
       >
         <h3 id="governance-change-controls-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-          Change related controls
+          {governanceResolutionRefreshPolicySectionHeading}
         </h3>
         <p className={cn("mb-2.5 mt-0 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {governanceResolutionChangeRelatedControlsLead}
@@ -178,7 +182,7 @@ export function GovernanceResolutionPageView(props: Props) {
             variant="outline"
             size="sm"
             data-testid="governance-resolution-export-markdown"
-            title="Download a point-in-time Markdown snapshot of notes, conflicts, decisions, and effective content"
+            title="Download a point-in-time diagnostic report with notes, conflicts, decisions, and effective content"
             disabled={m.loading || m.data === null}
             onClick={() => {
               if (m.data === null) {
@@ -188,7 +192,7 @@ export function GovernanceResolutionPageView(props: Props) {
               triggerGovernanceResolutionMarkdownDownload(m.data);
             }}
           >
-            Export to Markdown
+            Export diagnostic report
           </Button>
         </div>
       </section>

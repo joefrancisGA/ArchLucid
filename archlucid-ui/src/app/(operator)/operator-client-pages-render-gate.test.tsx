@@ -277,7 +277,7 @@ describe("operator client pages — render gate", () => {
   it("GovernanceResolutionPage renders primary heading", async () => {
     const page = await GovernanceResolutionPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Governance resolution" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Policy resolution" })).toBeInTheDocument();
   });
 
   it("SearchPage renders primary heading without heading-level contextual help", async () => {

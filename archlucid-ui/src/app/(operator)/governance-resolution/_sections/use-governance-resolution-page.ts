@@ -14,7 +14,7 @@ import type { GovernanceResolutionPageServerLoad } from "./load-governance-resol
 export function useGovernanceResolutionPage(
   serverLoad: GovernanceResolutionPageServerLoad,
 ): GovernanceResolutionPageViewModel {
-  /** Same Execute floor as Policy packs / Workflow writes — shapes “Change related controls” emphasis only (GET refresh stays allowed). */
+  /** Same Execute floor as Policy packs / Workflow writes — shapes refresh-section emphasis only (Refresh stays allowed). */
   const canMutateEnterprisePolicySurfaces = useOperateCapability();
   const [data, setData] = useState<EffectiveGovernanceResolutionResult | null>(serverLoad.data);
   const [loading, setLoading] = useState(false);

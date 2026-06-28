@@ -6,8 +6,8 @@
  * Governance workflow: submit card uses the same hook for read-only fields (`readOnly` / disabled selects) — asserted
  * via DOM attributes, not tooltip copy strings.
  *
- * Governance resolution: **`Change related controls`** reader supplement is driven only by the mutation capability hook
- * (GET **Refresh** stays enabled); rank cues on the same page use **`useNavCallerAuthorityRank`** in production — here the
+ * Policy resolution: **`Refresh policy resolution`** reader supplement is driven only by the mutation capability hook
+ * (Refresh stays enabled); rank cues on the same page use **`useNavCallerAuthorityRank`** in production — here the
  * mocked hook isolates the write-boundary copy from **`GovernanceResolutionRankCue`**.
  */
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -128,6 +128,7 @@ import {
   alertsTriageDialogConfirmButtonLabelReaderRank,
   governanceResolutionChangeRelatedControlsReaderSupplement,
   governanceResolutionEffectivePolicyHeadingReader,
+  governanceResolutionRawOutputAccordionLabel,
   governanceResolutionResolutionDetailsHeadingReader,
   advisorySchedulesCreateScheduleButtonLabelReaderRank,
   compositeRulesCreateButtonLabelReaderRank,
@@ -592,7 +593,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
    * tests default to Admin rank, but the mutation hook mock can still be **false** — we assert the page wires **soft-disable**
    * copy to **`useOperateCapability`**, not nav rank alone.
    */
-  it("Governance resolution: Change related controls shows reader supplement when mutation capability is false", async () => {
+  it("Policy resolution: refresh section shows reader supplement when mutation capability is false", async () => {
     mutateCapability.current = false;
     const page = await GovernanceResolutionPage();
     render(page);
@@ -603,21 +604,13 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
     expect(screen.getByText(governanceResolutionChangeRelatedControlsReaderSupplement)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: governanceResolutionEffectivePolicyHeadingReader })).toBeInTheDocument();
-
-    // Resolution details `h3` lives inside the second default-closed `AdvancedOptionsAccordion` (progressive disclosure).
-    const advancedToggles = screen.getAllByRole("button", { name: /^Advanced Options$/ });
-
-    expect(advancedToggles.length).toBeGreaterThanOrEqual(2);
-    fireEvent.click(advancedToggles[1]!);
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole("heading", { name: governanceResolutionResolutionDetailsHeadingReader }),
-      ).toBeInTheDocument();
-    });
+    expect(
+      screen.getByRole("heading", { name: governanceResolutionResolutionDetailsHeadingReader }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: governanceResolutionRawOutputAccordionLabel })).toBeInTheDocument();
   });
 
-  it("Governance resolution: Change related controls omits reader supplement when mutation capability is true", async () => {
+  it("Policy resolution: refresh section omits reader supplement when mutation capability is true", async () => {
     mutateCapability.current = true;
     const page = await GovernanceResolutionPage();
     render(page);
@@ -629,8 +622,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     expect(screen.queryByText(governanceResolutionChangeRelatedControlsReaderSupplement)).toBeNull();
   });
 
-  /** Readers refresh effective policy via GET; **`disabled`** must stay tied to **`loading`**, not mutation rank. */
-  it("Governance resolution: Refresh stays enabled when mutation capability is false", async () => {
+  /** Readers refresh effective policy; **`disabled`** must stay tied to **`loading`**, not mutation rank. */
+  it("Policy resolution: Refresh stays enabled when mutation capability is false", async () => {
     mutateCapability.current = false;
     const page = await GovernanceResolutionPage();
     render(page);

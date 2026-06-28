@@ -132,7 +132,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   scorecard: BUYER_TERMINOLOGY.reviewScorecard,
   alerts: "Alerts",
   policyPacks: "Policy packs",
-  governanceResolution: "Governance resolution",
+  governanceResolution: "Policy resolution",
   governanceWorkflow: "Governance workflow",
   auditTrail: BUYER_SURFACE_VOCABULARY.auditTrail,
   first30DaysGovernance: "First 30 days (governance)",

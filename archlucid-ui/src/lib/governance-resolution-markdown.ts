@@ -23,7 +23,7 @@ export function buildGovernanceResolutionMarkdown(
 ): string {
   const snapshotAt = formatSnapshotInstantUtc(exportedAtUtc);
   const lines: string[] = [
-    "# Governance resolution snapshot",
+    "# Policy resolution snapshot",
     "",
     "> **Point-in-time export.** This document reflects effective governance at the moment it was downloaded.",
     `> It is **not** a live view. Snapshot captured: **${snapshotAt}** (UTC).`,

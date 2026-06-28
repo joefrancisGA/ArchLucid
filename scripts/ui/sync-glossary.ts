@@ -165,9 +165,9 @@ const CATALOG: Record<string, CatalogEntry> = {
     docLink: "/docs/library/GLOSSARY.md#governance-workflow",
   },
   governance_resolution: {
-    term: "Governance resolution",
+    term: "Policy resolution",
     definition:
-      "The operator workflow that applies policy, reconciles risk, and routes outcomes after findings or compliance signals—before or instead of a formal approval in some tenants.",
+      "The read-only diagnostic view that shows merged policy packs, precedence decisions, and conflicts for the current scope.",
     docLink: "/docs/library/contributor-reference/GOVERNANCE.md",
   },
 };

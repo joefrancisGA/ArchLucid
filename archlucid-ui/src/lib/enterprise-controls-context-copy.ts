@@ -48,24 +48,25 @@ export const layerHeaderEnterpriseOperatorRankLine =
 /** Deep execute tooling: only when resolved rank is below Execute (e.g. Reader deep-linked) */
 export const enterpriseExecutePageHintReaderRank = "Writes need operator-level permission in this workspace.";
 
-/** Second line on governance resolution — readers vs operators (see `GovernanceResolutionRankCue`). */
-export const governanceResolutionRankReaderLine = "Edits: policy packs or workflow (operator permission).";
+/** Second line on policy resolution — readers vs operators (see `GovernanceResolutionRankCue`). */
+export const governanceResolutionRankReaderLine =
+  "Policy pack and workflow changes require operator permission.";
 
+export const governanceResolutionRankOperatorLine =
+  "Change pack order on Policy packs or Governance workflow—not on this page.";
 
-export const governanceResolutionRankOperatorLine = "Ordering lives in packs or workflow—not here.";
+const governanceResolutionPageLead =
+  "See which governance packs, controls, and workflow rules are currently effective for this workspace. Use this page to diagnose policy conflicts, precedence, and generated governance decisions.";
 
-/** Governance resolution — lead under page title (`governance-resolution/page.tsx`), before rank cue. */
-export const governanceResolutionPageLeadOperator =
-  "Read effective policy and conflicts; change packs or workflow when bindings must move (API).";
+/** Policy resolution — lead under page title (`governance-resolution/page.tsx`), before rank cue. */
+export const governanceResolutionPageLeadOperator = governanceResolutionPageLead;
 
-export const governanceResolutionPageLeadReader =
-  "Inspect effective policy and decisions here; pack and workflow writes use operator-facing surfaces when your role allows.";
+export const governanceResolutionPageLeadReader = governanceResolutionPageLead;
 
+/** Policy resolution — refresh action (always enabled at any shell rank). */
+export const governanceResolutionRefreshButtonTitle = "Reload effective policy for this scope.";
 
-/** Governance resolution — **Refresh** is GET-only (always enabled at any shell rank). */
-export const governanceResolutionRefreshButtonTitle = "Reload effective governance resolution (GET only).";
-
-/** Governance resolution — primary inspect sections (`governance-resolution/page.tsx`). */
+/** Policy resolution — primary inspect sections (`governance-resolution/page.tsx`). */
 export const governanceResolutionEffectivePolicyHeadingOperator = "Effective policy";
 
 export const governanceResolutionEffectivePolicyHeadingReader = "Effective policy (inspect)";
@@ -74,16 +75,21 @@ export const governanceResolutionResolutionDetailsHeadingOperator = "Resolution 
 
 export const governanceResolutionResolutionDetailsHeadingReader = "Resolution details (inspect)";
 
-/** Governance resolution — “Change related controls” strip (LayerHeader + rank cue already frame read vs write). */
+/** Policy resolution — raw JSON disclosure label (`AdvancedOptionsAccordion` trigger). */
+export const governanceResolutionRawOutputAccordionLabel = "Raw resolution output";
+
+/** Policy resolution — refresh strip heading (LayerHeader + rank cue already frame read vs write). */
+export const governanceResolutionRefreshPolicySectionHeading = "Refresh policy resolution";
+
 export const governanceResolutionChangeRelatedControlsLead =
-  "Refresh is GET. Scope changes: Packs or Workflow.";
+  "Refresh the effective policy after changing policy packs or governance workflow settings.";
 
 /**
- * Governance resolution — extra line under **Change related controls** when **`useOperateCapability()`** is
- * false (writes live elsewhere; **Refresh** stays a safe GET).
+ * Policy resolution — extra line under **Refresh policy resolution** when **`useOperateCapability()`** is
+ * false (writes live on Policy packs and Governance workflow).
  */
 export const governanceResolutionChangeRelatedControlsReaderSupplement =
-  "Writes need operator-level permission at this rank.";
+  "Changing policy packs or workflow settings requires operator-level permission.";
 
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
 export const governanceDashboardReaderActionLine = "Read-only queue until an operator can act in this workspace.";
@@ -365,7 +371,7 @@ export const governanceWorkflowPromotionsActivationsSectionLeadReader =
 export const governanceWorkflowOutcomeBannerLine =
   "Tracks approvals for finalized architecture packages. Outcomes are recorded in the audit trail.";
 
-/** Policy packs — lead under title (Execute+); link to Governance resolution for stack semantics. */
+/** Policy packs — lead under title (Execute+); link to Policy resolution for stack semantics. */
 export const policyPacksPageLeadOperator =
   "Review inventory and effective policy first; publish or assign when your role allows.";
 

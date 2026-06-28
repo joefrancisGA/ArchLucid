@@ -85,7 +85,7 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
             A <GlossaryTooltip termKey="policy_pack">policy pack</GlossaryTooltip> bundles versioned controls and
             advisory defaults for your scope — {canMutatePacks ? policyPacksPageLeadOperator : policyPacksPageLeadReader}{" "}
             <Link href="/governance-resolution" className={OPERATOR_LINK.inline}>
-              Governance resolution
+              Policy resolution
             </Link>
             .
           </>

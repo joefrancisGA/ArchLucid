@@ -160,7 +160,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/governance-resolution",
           label: OPERATOR_NAV_LINK_LABELS.governanceResolution,
-          title: "Governance resolution — effective policy for this scope (read view)",
+          title: "Policy resolution — diagnose effective policy, conflicts, and precedence for this scope",
           icon: Scale,
           tier: "extended",
           requiredAuthority: "ReadAuthority",

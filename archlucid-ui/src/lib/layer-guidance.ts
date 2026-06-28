@@ -193,10 +193,12 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-resolution": {
     layerBadge: "Governance",
-    headline: "Effective policy stack for this scope.",
-    useWhen: "Read ordering here; change content on Policy packs or Workflow.",
-    firstPilotNote: "After Pilot proof when merge order or conflicts need resolution.",
-    enterpriseFootnote: "Read-only stack; edits on Packs or Workflow.",
+    headline: "Diagnose effective policy, conflicts, and precedence for this scope.",
+    useWhen:
+      "Use after changing policy pack assignments or governance workflow settings to confirm what is in effect.",
+    firstPilotNote: "After Pilot proof when merge order or conflicts need review.",
+    enterpriseFootnote: "Read-only diagnostic; edits on Policy packs or Governance workflow.",
+    omitReviewPackageScopeHelp: true,
   },
   "governance-workflow": {
     layerBadge: "Governance",
