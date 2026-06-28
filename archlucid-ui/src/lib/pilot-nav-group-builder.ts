@@ -1,7 +1,6 @@
 import {
   ClipboardList,
   GitGraph,
-  Home,
   LayoutDashboard,
   ListOrdered,
   Rocket,
@@ -24,17 +23,8 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Overview → New review → Evidence graph → Review packages → Portfolio overview; then onboarding and governance follow-up.",
+        "Buyer-first path: New review → Evidence graph → Review packages → Portfolio overview; then onboarding and governance follow-up.",
       links: [
-        {
-          href: "/",
-          label: OPERATOR_NAV_LINK_LABELS.home,
-          title: this.shortcutTitle("Overview — start here and track workspace activity", "alt+h"),
-          keyShortcut: "alt+h",
-          icon: Home,
-          tier: "essential",
-          defaultVisibleInCollapsedSidebar: true,
-        },
         {
           href: "/reviews/new",
           label: OPERATOR_NAV_LINK_LABELS.capture,

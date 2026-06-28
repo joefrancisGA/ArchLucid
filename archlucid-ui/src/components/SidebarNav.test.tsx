@@ -211,7 +211,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     expect(screen.getByText("Review work")).toBeInTheDocument();
 
     const nav = screen.getByRole("navigation", { name: "Review work" });
-    expect(within(nav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
+    expect(within(nav).queryByRole("link", { name: "Overview" })).toBeNull();
     expect(within(nav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
     expect(within(nav).getByRole("link", { name: "Evidence graph" })).toHaveAttribute("href", "/graph");
 
