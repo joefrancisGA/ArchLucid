@@ -81,7 +81,9 @@
         "rc-evidence-signoff-bundle.json",
         "rc-evidence-signoff-bundle.md",
         "saq-release-gate.json",
-        "saq-release-gate.md"
+        "saq-release-gate.md",
+        "pilot-readiness-live-release-gate.json",
+        "pilot-readiness-live-release-gate.md"
       ]
     },
     "production-readiness-drill": {

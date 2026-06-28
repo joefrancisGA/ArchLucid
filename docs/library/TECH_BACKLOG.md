@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-30 (TB-428 **Done** — ITSM pull-forward gate in pilot readiness bundle). Prior: 2026-06-30 (TB-427 **Done** — pilot readiness release-train CI gate).
+**Updated:** 2026-07-01 (TB-429 **Done** — pilot readiness live release gate). Prior: 2026-06-30 (TB-428 **Done** — ITSM pull-forward gate in pilot readiness bundle).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -169,6 +169,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
+| TB-429 | Pilot readiness live release gate — `run_pilot_readiness_live_release_gate.py` runs live `--run-id` readiness-bundle for RC evidence; wired into `Emit-ReleaseReadinessEvidence.ps1` and RC signoff | **Done** (2026-07-01) — Runtime reliability P1 **V1** | S |
 | TB-428 | ITSM pull-forward gate in pilot readiness bundle — eighth slot in `archlucid pilot readiness-bundle`; HOLD/WATCH/PULL_FORWARD rollup; CI gate validates eight slot keys | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-427 | Pilot readiness release-train CI gate — `scripts/ci/run_pilot_readiness_release_train_gate.py` runs offline `archlucid pilot readiness-bundle` in dotnet-fast-core build; fail closed on aggregate FAIL slots | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-426 | ITSM pull-forward gate default operational artifact bundle — auto-write JSON + Markdown under `artifacts/itsm-pull-forward-gate/{ledger-name|live-api}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
@@ -12649,3 +12650,44 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-425, TB-426, TB-427, assessment §7.8, §7.10, §17 item 48.
+
+---
+
+## TB-429 — Pilot readiness live release gate
+
+**Status:** **Done** (2026-07-01). `scripts/ci/run_pilot_readiness_live_release_gate.py` runs live `archlucid pilot readiness-bundle --run-id <guid> [--include-api]` for RC/release evidence, validates eight slots with ship-gate executed, emits `archlucid.pilot-readiness-live-release-gate.v1` JSON + Markdown, SKIPPED when run id absent, strict RC fail-closed when run id missing on buyer-facing cuts; wired into `Emit-ReleaseReadinessEvidence.ps1`, `build_rc_evidence_signoff_bundle.py`, release evidence bundle profile, and RC signoff workflow shape fixture.
+
+**Source:** Assessment §7.8 recommendation — add live `--run-id` readiness-bundle to RC/release workflows after representative first-review smoke.
+
+**Problem:** Offline readiness-bundle CI (TB-427) guarded fixture regressions but RC cuts still required a separate manual live CLI invocation to retain representative run evidence.
+
+**V1 scope:**
+
+1. Add `run_pilot_readiness_live_release_gate.py` with live bundle validation and gate JSON schema.
+2. Extract shared slot validation to `pilot_readiness_bundle_gate_common.py`.
+3. Wire gate into `Emit-ReleaseReadinessEvidence.ps1` with `-RepresentativeRunId` / `ARCHLUCID_REPRESENTATIVE_RUN_ID`.
+4. Add high-risk signoff gate row and optional bundle profile files; RC workflow shape fixture.
+
+**Acceptance criteria:**
+
+- Live gate SKIPPED without `--run-id`; strict RC fails when run id missing.
+- Live gate validates eight slots and rejects SKIPPED ship-gate.
+- Release evidence script and RC signoff bundle reference `pilot-readiness-live-release-gate.json`.
+- Unit tests cover live PASS fixture, ship-gate skip rejection, and skip-cli-run harness.
+
+**Affected files:**
+
+- `scripts/ci/run_pilot_readiness_live_release_gate.py`
+- `scripts/ci/pilot_readiness_bundle_gate_common.py`
+- `scripts/ci/run_pilot_readiness_release_train_gate.py`
+- `scripts/ci/build_rc_evidence_signoff_bundle.py`
+- `scripts/ci/data/release_evidence_bundle_profiles.v1.json`
+- `scripts/Emit-ReleaseReadinessEvidence.ps1`
+- `scripts/ci/tests/test_run_pilot_readiness_live_release_gate.py`
+- `scripts/ci/fixtures/pilot-readiness-bundle/live-pass-gate.json`
+- `scripts/ci/fixtures/pilot-readiness-bundle/live-pass-bundle.json`
+- `.github/workflows/rc-release-gate.yml`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-425, TB-427, TB-428, assessment §7.8, §7.10, §17 item 49.

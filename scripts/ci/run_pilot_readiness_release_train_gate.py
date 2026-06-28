@@ -11,17 +11,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-_GATE_SCHEMA = "archlucid.pilot-readiness-release-train-gate.v1"
-_EXPECTED_SLOT_KEYS = (
-    "buyer-proof-evidence-ledger",
-    "return-trigger-telemetry",
-    "decision-owner-scoreboard",
-    "frontier-ai-baseline",
-    "citation-integrity",
-    "tenant-isolation-negative-test",
-    "itsm-pull-forward-gate",
-    "ship-gate-evidence",
+_CI_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(_CI_DIR))
+
+from pilot_readiness_bundle_gate_common import (  # noqa: E402
+    EXPECTED_SLOT_KEYS,
+    validate_offline_bundle_report,
 )
+
+_GATE_SCHEMA = "archlucid.pilot-readiness-release-train-gate.v1"
 _OFFLINE_ARTIFACT_RELATIVE = Path(
     "artifacts",
     "pilot-readiness-bundle",
@@ -39,45 +37,7 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def validate_pilot_readiness_bundle_report(report: dict[str, Any]) -> list[str]:
-    issues: list[str] = []
-
-    overall = str(report.get("overallVerdict") or "").strip()
-    if not overall:
-        issues.append("overallVerdict is missing.")
-    elif overall == "Fail":
-        issues.append("overallVerdict is Fail.")
-
-    slots = report.get("slots")
-    if not isinstance(slots, list):
-        issues.append("slots must be an array.")
-        return issues
-
-    if len(slots) != len(_EXPECTED_SLOT_KEYS):
-        issues.append(f"expected {len(_EXPECTED_SLOT_KEYS)} slots, found {len(slots)}.")
-
-    slot_keys = [
-        str(slot.get("slotKey") or "").strip()
-        for slot in slots
-        if isinstance(slot, dict)
-    ]
-
-    for expected_key in _EXPECTED_SLOT_KEYS:
-        if expected_key not in slot_keys:
-            issues.append(f"missing slot key {expected_key}.")
-
-    ship_gate = next(
-        (slot for slot in slots if isinstance(slot, dict) and slot.get("slotKey") == "ship-gate-evidence"),
-        None,
-    )
-
-    if isinstance(ship_gate, dict):
-        ship_gate_verdict = str(ship_gate.get("verdict") or "").strip()
-        if ship_gate_verdict != "Skipped":
-            issues.append(
-                f"offline release train expects ship-gate-evidence SKIPPED, found {ship_gate_verdict or 'missing'}.",
-            )
-
-    return issues
+    return validate_offline_bundle_report(report)
 
 
 def run_offline_bundle(root: Path, *, no_build: bool) -> tuple[int, str]:
