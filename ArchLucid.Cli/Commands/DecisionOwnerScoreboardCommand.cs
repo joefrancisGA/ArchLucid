@@ -45,16 +45,17 @@ internal static class DecisionOwnerScoreboardCommand
         DecisionOwnerScoreboardRunner runner = new();
         DecisionOwnerScoreboardReport report = runner.Run(repositoryRoot, options, rules);
 
-        string json = JsonSerializer.Serialize(report, JsonOptions);
+        string artifactKey = DecisionOwnerScoreboardOutputPaths.ResolveArtifactKey(report);
+        DecisionOwnerScoreboardOutputResolution outputPaths =
+            DecisionOwnerScoreboardOutputPaths.Resolve(options, repositoryRoot, artifactKey);
+        DecisionOwnerScoreboardReport finalReport = report.WithOutputMetadata(
+            outputPaths.JsonPath,
+            outputPaths.MarkdownPath,
+            outputPaths.SponsorMarkdownPath);
 
-        if (!string.IsNullOrWhiteSpace(options.JsonOutPath))
-            File.WriteAllText(options.JsonOutPath, json, Encoding.UTF8);
+        string json = JsonSerializer.Serialize(finalReport, JsonOptions);
 
-        if (!string.IsNullOrWhiteSpace(options.MarkdownOutPath))
-            File.WriteAllText(options.MarkdownOutPath, report.OperatorMarkdown, Encoding.UTF8);
-
-        if (!string.IsNullOrWhiteSpace(options.SponsorMarkdownOutPath))
-            File.WriteAllText(options.SponsorMarkdownOutPath, report.SponsorMarkdown, Encoding.UTF8);
+        WriteArtifacts(outputPaths, json, finalReport.OperatorMarkdown, finalReport.SponsorMarkdown);
 
         if (CliExecutionContext.JsonOutput)
         {
@@ -62,12 +63,49 @@ internal static class DecisionOwnerScoreboardCommand
         }
         else
         {
-            WriteConsoleSummary(report);
+            WriteConsoleSummary(finalReport);
             Console.WriteLine();
-            Console.WriteLine(report.OperatorMarkdown);
+            Console.WriteLine(finalReport.OperatorMarkdown);
         }
 
-        return Task.FromResult(report.AnyFail ? CliExitCode.OperationFailed : CliExitCode.Success);
+        return Task.FromResult(finalReport.AnyFail ? CliExitCode.OperationFailed : CliExitCode.Success);
+    }
+
+    private static void WriteArtifacts(
+        DecisionOwnerScoreboardOutputResolution outputPaths,
+        string json,
+        string operatorMarkdown,
+        string sponsorMarkdown)
+    {
+        if (outputPaths.WillWriteJson)
+        {
+            string jsonDirectory = Path.GetDirectoryName(outputPaths.JsonPath!)!;
+
+            if (!Directory.Exists(jsonDirectory))
+                Directory.CreateDirectory(jsonDirectory);
+
+            File.WriteAllText(outputPaths.JsonPath!, json, Encoding.UTF8);
+        }
+
+        if (outputPaths.WillWriteMarkdown)
+        {
+            string markdownDirectory = Path.GetDirectoryName(outputPaths.MarkdownPath!)!;
+
+            if (!Directory.Exists(markdownDirectory))
+                Directory.CreateDirectory(markdownDirectory);
+
+            File.WriteAllText(outputPaths.MarkdownPath!, operatorMarkdown, Encoding.UTF8);
+        }
+
+        if (outputPaths.WillWriteSponsorMarkdown)
+        {
+            string sponsorDirectory = Path.GetDirectoryName(outputPaths.SponsorMarkdownPath!)!;
+
+            if (!Directory.Exists(sponsorDirectory))
+                Directory.CreateDirectory(sponsorDirectory);
+
+            File.WriteAllText(outputPaths.SponsorMarkdownPath!, sponsorMarkdown, Encoding.UTF8);
+        }
     }
 
     private static void WriteConsoleSummary(DecisionOwnerScoreboardReport report)
@@ -76,6 +114,16 @@ internal static class DecisionOwnerScoreboardCommand
         Console.WriteLine($"repo: {report.RepositoryRoot}");
         Console.WriteLine($"ledger: {report.LedgerDirectory}");
         Console.WriteLine($"overall: {FormatVerdict(report.OverallVerdict)}");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            Console.WriteLine($"json artifact: {report.JsonArtifactPath}");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            Console.WriteLine($"markdown artifact: {report.MarkdownArtifactPath}");
+
+        if (!string.IsNullOrWhiteSpace(report.SponsorMarkdownArtifactPath))
+            Console.WriteLine($"sponsor markdown artifact: {report.SponsorMarkdownArtifactPath}");
+
         Console.WriteLine(new string('-', 72));
 
         foreach (DecisionOwnerScoreboardCheckResult check in report.Checks)
@@ -103,6 +151,6 @@ internal static class DecisionOwnerScoreboardCommand
     {
         Console.WriteLine(
             "Usage: archlucid pilot decision-owner-scoreboard [--ledger-dir <path>] [--rules <path>] "
-            + "[--json-out <path>] [--markdown-out <path>] [--sponsor-markdown-out <path>] [--json]");
+            + "[--json-out <path>] [--markdown-out <path>] [--sponsor-markdown-out <path>] [--no-write-artifacts] [--json]");
     }
 }

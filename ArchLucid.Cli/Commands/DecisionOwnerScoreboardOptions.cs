@@ -12,6 +12,8 @@ internal sealed class DecisionOwnerScoreboardOptions
 
     public string? SponsorMarkdownOutPath { get; init; }
 
+    public bool SuppressDefaultArtifacts { get; init; }
+
     public static DecisionOwnerScoreboardOptions Parse(string[] args)
     {
         ArgumentNullException.ThrowIfNull(args);
@@ -23,6 +25,8 @@ internal sealed class DecisionOwnerScoreboardOptions
             JsonOutPath = CliCommandShared.TryGetOptionValue(args, "--json-out"),
             MarkdownOutPath = CliCommandShared.TryGetOptionValue(args, "--markdown-out"),
             SponsorMarkdownOutPath = CliCommandShared.TryGetOptionValue(args, "--sponsor-markdown-out"),
+            SuppressDefaultArtifacts = args.Any(static arg =>
+                string.Equals(arg, "--no-write-artifacts", StringComparison.OrdinalIgnoreCase)),
         };
     }
 }
