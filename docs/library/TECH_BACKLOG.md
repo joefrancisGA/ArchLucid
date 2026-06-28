@@ -167,6 +167,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-412 | Ship-gate Gate 4 export matrix embed — probes Markdown (`first-value-report`), DOCX (`analysis-report/export/docx`), and ZIP (`artifacts/runs/{runId}/export`) from `SHIP_GATE_EXPORT_MATRIX_CONTRACT.v1.json`; Gate 4 PASS/FAIL with per-format evidence | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-413 | Ship-gate Gate 1 first-review completion probe — contract-driven committed-run signals (status, manifest, request link, execution, artifacts, provenance graph) from `FIRST_REVIEW_COMPLETION_CONTRACT.v1.json`; Gate 1 PASS/FAIL with per-signal evidence | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
+| TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-402 | Automated AWS polling (Tier 2) — **Done (2026-06-27)** — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-403 | Automated GCP polling (Tier 2) — **Done (2026-06-27)** — hosted poller with GCP Workload Identity Federation (Azure MI trust); scheduled Cloud Asset Inventory collection; upload to `/v1/extractor/gcp/upload`; `/settings/cloud-connections` GCP connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards — **Done (2026-06-27)** — `sourceEvidenceLinks` on persisted recommendations + API; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
@@ -12139,3 +12140,40 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-410, assessment §4 gate 5, §8 weakness #1.
+
+---
+
+## TB-415 — Ship-gate Gate 4 first-value claim lint embed
+
+**Status:** **Done** (2026-06-28). After export matrix probes pass, `ShipGateEvidenceRunner.BuildGate4Async` runs `ShipGateFirstValueClaimLintProbe` on `GET /v1/pilots/runs/{runId}/first-value-report` markdown via shared `ProofPacketClaimLinter`; Gate 4 **FAIL** when forbidden buyer claims are detected; `--skip-claim-lint` preserves lint bypass for internal-only runs.
+
+**Source:** Assessment §17 ship-gate evidence harness follow-on — claim lint existed on `pilot proof-packet` but not on the unified ship-gate bundle for sponsor Markdown.
+
+**Problem:** Ship-gate Gate 4 could assert export route health without verifying buyer-safe language on the sponsor first-value Markdown artifact.
+
+**V1 scope:**
+
+1. Expose `ProofPacketClaimLinter.ScanText` for inline markdown linting.
+2. Embed `ShipGateFirstValueClaimLintProbe` after successful export matrix probes in Gate 4.
+3. Add `--skip-claim-lint` to `archlucid pilot ship-gate-evidence`.
+4. Gate 4 evidence includes `claimLint=pass|fail|skipped` with violation counts.
+
+**Acceptance criteria:**
+
+- Default ship-gate evidence run lints first-value-report markdown when export matrix passes.
+- Forbidden claims fail Gate 4 with sample violation detail in evidence text.
+- Unit tests in `ShipGateFirstValueClaimLintProbeTests` and `ShipGateEvidenceRunnerTests`.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/ProofPacketClaimLinter.cs`
+- `ArchLucid.Cli/Commands/ShipGateFirstValueClaimLintProbe.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceRunner.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceOptions.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceCommand.cs`
+- `ArchLucid.Cli.Tests/ShipGateFirstValueClaimLintProbeTests.cs`
+- `ArchLucid.Cli.Tests/ShipGateEvidenceRunnerTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-412, `proof_packet_claim_lint_rules.v1.json`, assessment §4 gate 4.

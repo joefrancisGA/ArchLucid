@@ -51,6 +51,7 @@ internal static class ShipGateEvidenceCommand
             uiOrigin.BaseUrl,
             uiOrigin.Source,
             options.ToTenantIsolationOptions(),
+            options.SkipClaimLint,
             cancellationToken);
 
         string json = JsonSerializer.Serialize(report, JsonOptions);
@@ -141,7 +142,7 @@ internal static class ShipGateEvidenceCommand
         sb.AppendLine($"- `GET /v1/architecture/run/{report.RunId}`");
         sb.AppendLine($"- `GET /v1/architecture/run/{report.RunId}` (Gate 1 first-review completion signals)");
         sb.AppendLine($"- `GET /v1/architecture/runs/{report.RunId}/provenance` (Gate 1 provenance graph probe)");
-        sb.AppendLine($"- `GET /v1/pilots/runs/{report.RunId}/first-value-report` (Gate 4 Markdown export matrix)");
+        sb.AppendLine($"- `GET /v1/pilots/runs/{report.RunId}/first-value-report` (Gate 4 Markdown export matrix + claim lint)");
         sb.AppendLine($"- `POST /v1/architecture/run/{report.RunId}/analysis-report/export/docx` (Gate 4 DOCX export matrix)");
         sb.AppendLine($"- `GET /v1/artifacts/runs/{report.RunId}/export` (Gate 4 ZIP export matrix)");
         sb.AppendLine($"- `GET /v1/architecture/run/{report.RunId}/traceability-bundle.zip`");
@@ -166,6 +167,7 @@ internal static class ShipGateEvidenceCommand
             "Usage: archlucid pilot ship-gate-evidence --run-id <guid> " +
             "[--api-base-url <url>] [--ui-base-url <url>] [--skip-ui-route-smoke] " +
             "[--alternate-tenant-id <guid>] [--alternate-workspace-id <guid>] [--alternate-project-id <guid>] " +
+            "[--skip-claim-lint] " +
             "[--json-out <path>] [--markdown-out <path>] [--json]");
     }
 }

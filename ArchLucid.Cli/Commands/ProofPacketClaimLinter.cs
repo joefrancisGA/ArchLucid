@@ -41,6 +41,16 @@ internal static class ProofPacketClaimLinter
             .ToList();
     }
 
+    internal static IReadOnlyList<ProofPacketClaimLintViolation> ScanText(
+        string content,
+        string sourceLabel,
+        string? rulesFilePath = null)
+    {
+        ClaimLintRules rules = LoadRules(rulesFilePath);
+
+        return ScanText(content, sourceLabel, rules);
+    }
+
     private static IReadOnlyList<ProofPacketClaimLintViolation> ScanText(string content, string sourceLabel, ClaimLintRules rules)
     {
         ArgumentNullException.ThrowIfNull(content);

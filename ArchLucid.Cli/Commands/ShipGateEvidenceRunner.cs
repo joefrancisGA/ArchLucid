@@ -20,6 +20,7 @@ internal sealed class ShipGateEvidenceRunner(
         string? uiBaseUrl = null,
         string? uiBaseUrlSource = null,
         TenantIsolationNegativeTestOptions? tenantIsolationOptions = null,
+        bool skipClaimLint = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -29,7 +30,7 @@ internal sealed class ShipGateEvidenceRunner(
         ShipGateEvidenceGateResult gate1 = await BuildGate1Async(runId, runProbe, cancellationToken);
         ShipGateEvidenceGateResult gate2 = await BuildGate2Async(runId, cancellationToken);
         ShipGateEvidenceGateResult gate3 = await BuildGate3Async(cancellationToken);
-        ShipGateEvidenceGateResult gate4 = await BuildGate4Async(runId, cancellationToken);
+        ShipGateEvidenceGateResult gate4 = await BuildGate4Async(runId, skipClaimLint, cancellationToken);
         ShipGateEvidenceGateResult gate5 = await BuildGate5Async(runId, uiBaseUrl, uiBaseUrlSource, cancellationToken);
         ShipGateEvidenceGateResult gate6 = await BuildGate6Async(runId, tenantIsolationOptions, cancellationToken);
 
@@ -305,6 +306,7 @@ internal sealed class ShipGateEvidenceRunner(
 
     private async Task<ShipGateEvidenceGateResult> BuildGate4Async(
         string runId,
+        bool skipClaimLint,
         CancellationToken cancellationToken)
     {
         try
@@ -321,7 +323,17 @@ internal sealed class ShipGateEvidenceRunner(
                     .Where(static result => !result.Success)
                     .Select(static result => $"{result.ProbeId}({result.Format})={result.Detail}"));
 
-            ShipGateEvidenceVerdict verdict = failCount == 0
+            bool exportMatrixPass = failCount == 0;
+            ShipGateFirstValueClaimLintResult claimLintResult = exportMatrixPass
+                ? await ShipGateFirstValueClaimLintProbe.EvaluateAsync(_http, runId, skipClaimLint, cancellationToken)
+                : new ShipGateFirstValueClaimLintResult
+                {
+                    Skipped = true,
+                    ViolationCount = 0,
+                    Detail = "claimLint=not-evaluated (export matrix failed)",
+                };
+
+            ShipGateEvidenceVerdict verdict = exportMatrixPass && claimLintResult.Success
                 ? ShipGateEvidenceVerdict.Pass
                 : ShipGateEvidenceVerdict.Fail;
 
@@ -331,10 +343,12 @@ internal sealed class ShipGateEvidenceRunner(
                 Name = "Export/package generation works (Markdown / DOCX / ZIP)",
                 Verdict = verdict,
                 Evidence =
-                    $"exportMatrixPassed={passCount}/{probeResults.Count}; formats=markdown,docx,zip; contractProbes={contract.Probes.Count}; failed=[{failedSummary}].",
+                    $"exportMatrixPassed={passCount}/{probeResults.Count}; formats=markdown,docx,zip; contractProbes={contract.Probes.Count}; failed=[{failedSummary}]; {claimLintResult.Detail}.",
                 FastestResolution = verdict == ShipGateEvidenceVerdict.Pass
                     ? null
-                    : "Verify committed-run export routes (first-value Markdown, analysis DOCX, run export ZIP) for the supplied runId and rerun ship-gate evidence.",
+                    : exportMatrixPass
+                        ? "Remove unsupported buyer-facing claims from first-value-report markdown (see proof_packet_claim_lint_rules.v1.json) or fix API source content, then rerun ship-gate evidence."
+                        : "Verify committed-run export routes (first-value Markdown, analysis DOCX, run export ZIP) for the supplied runId and rerun ship-gate evidence.",
             };
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or InvalidOperationException)
