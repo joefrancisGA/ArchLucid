@@ -21,6 +21,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/alerts", topic: { slug: "alerts", label: "Alerts" } },
   { prefix: "/policy-packs", topic: { slug: "governance-approval", label: "Governance approval" } },
   { prefix: "/value-report", topic: { slug: "executive-summary", label: "Executive summary" } },
+  { prefix: "/integrations/cloud-connections", topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" } },
   { prefix: "/settings/cloud-connections", topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" } },
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
 ];

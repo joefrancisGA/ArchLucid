@@ -8,9 +8,9 @@ When you connect Azure, ArchLucid uses **read-only** inventory and cost signals 
 
 ---
 
-## Connect Azure securely {#connect-azure-securely}
+## Overview {#connect-azure-securely}
 
-ArchLucid can use Azure metadata and cost evidence when you connect selected subscriptions. Cloud connection is optional; reviews can also use briefs, diagrams, documents, and uploaded evidence.
+ArchLucid can use Azure metadata and cost evidence when you connect selected subscriptions. The Azure connection is optional; reviews can also use briefs, diagrams, documents, and uploaded evidence.
 
 **Evidence tier:** cloud-connected (optional hosted pull from authorized subscriptions).
 
@@ -24,7 +24,7 @@ ArchLucid can use Azure metadata and cost evidence when you connect selected sub
 
 ### Setup steps
 
-1. Complete the in-product **security review** checklist on **Settings → Cloud connections**.
+1. Complete the in-product **security review** checklist from the [**Azure cloud connection**](/integrations/cloud-connections) page.
 2. Create a read-only Azure identity (Azure CLI script, Terraform, or Bicep templates).
 3. Enter tenant ID, application (client) ID, and subscription IDs.
 4. Save the connection, then run **Run validation pull** to confirm federated credentials and read access.
@@ -36,7 +36,7 @@ ArchLucid can use Azure metadata and cost evidence when you connect selected sub
 | **Reader** | Subscription inventory for architecture evidence | No |
 | **Cost Management Reader** | Read-only cost posture for value and risk context | No |
 
-Do **not** assign Owner, Contributor, User Access Administrator, or broad directory roles for cloud connections.
+Do **not** assign Owner, Contributor, User Access Administrator, or broad directory roles for the Azure connection.
 
 ### What ArchLucid stores
 
@@ -72,7 +72,7 @@ If federation is misconfigured, validation fails fast with an API error — fix 
 | **Reader** | Subscription inventory for architecture evidence | No |
 | **Cost Management Reader** | Read-only cost posture for value and risk context | No |
 
-Do **not** assign Owner, Contributor, User Access Administrator, or broad directory roles for cloud connections.
+Do **not** assign Owner, Contributor, User Access Administrator, or broad directory roles for the Azure connection.
 
 ---
 

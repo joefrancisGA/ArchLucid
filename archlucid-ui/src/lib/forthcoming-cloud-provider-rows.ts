@@ -4,16 +4,16 @@ export type ForthcomingCloudProviderRow = {
   readonly description: string;
 };
 
-/** V1.1 roadmap rows for admin/diagnostics surfaces only — not shown on the customer Cloud connections page (TB-343). */
+/** Admin/diagnostics-only rows — customer connect flows live on `/integrations/cloud-connections` (TB-407). */
 export const FORTHCOMING_CLOUD_PROVIDER_ROWS: readonly ForthcomingCloudProviderRow[] = [
   {
     id: "aws",
     name: "Amazon Web Services",
-    description: "Continuous ingestion from AWS accounts — planned for V1.1.",
+    description: "Tier 2 hosted polling — customer UI at /integrations/cloud-connections (AWS section).",
   },
   {
     id: "gcp",
     name: "Google Cloud Platform",
-    description: "Continuous ingestion from GCP projects — planned for V1.1.",
+    description: "Tier 2 hosted polling — customer UI at /integrations/cloud-connections (GCP section).",
   },
 ];

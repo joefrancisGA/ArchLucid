@@ -51,7 +51,7 @@ describe("help-markdown-presentation", () => {
     const source = [
       "- **[Configure SSO](#workforce-sso)**",
       "- **[Connect Azure securely](/help/cloud-connections/azure)**",
-      "- [`/settings/cloud-connections`](/settings/cloud-connections)",
+      "- [`/integrations/cloud-connections`](/integrations/cloud-connections)",
     ].join("\n");
     const rewritten = rewriteHelpMarkdownDocLinks(
       source,
@@ -60,7 +60,7 @@ describe("help-markdown-presentation", () => {
 
     expect(rewritten).toContain("[Configure SSO](#workforce-sso)");
     expect(rewritten).toContain("[Connect Azure securely](/help/cloud-connections/azure)");
-    expect(rewritten).toContain("[Cloud Connections](/settings/cloud-connections)");
+    expect(rewritten).toContain("[Cloud Connections](/integrations/cloud-connections)");
   });
 
   it("drops unmapped markdown links to plain labels", () => {
@@ -240,7 +240,7 @@ Body copy.`}
   it("renders internal operator settings links from help markdown", () => {
     render(
       <MarketingAccessibilityMarkdownFragment
-        markdownBody="Open [`/settings/cloud-connections`](/settings/cloud-connections)."
+        markdownBody="Open [`/integrations/cloud-connections`](/integrations/cloud-connections)."
         tableCaption="Test table"
         presentation="help"
         sourceDocPath="docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"
@@ -249,7 +249,7 @@ Body copy.`}
 
     expect(screen.getByRole("link", { name: "Cloud Connections" })).toHaveAttribute(
       "href",
-      "/settings/cloud-connections",
+      "/integrations/cloud-connections",
     );
   });
 });

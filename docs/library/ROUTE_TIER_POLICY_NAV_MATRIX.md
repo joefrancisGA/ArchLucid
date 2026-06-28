@@ -84,9 +84,9 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/AdminLlmMonthlyDollarBudgetStatusController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
 | `Admin/AdminQualityGateDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
 | `Admin/AdminRagHealthController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
-| `Admin/AdminTenantsController.cs` | `/v1/admin/tenants` | none | PlatformTenantDeletionAuthority | /admin/users |  |
+| `Admin/AdminTenantsController.cs` | `/v1/admin/tenants` | none | PlatformTenantDeletionAuthority | /settings/users |  |
 | `Admin/AdminTrialFunnelOperationalController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
-| `Admin/AuditController.cs` | `/v1/audit` | none | ReadAuthority | /audit |  |
+| `Admin/AuditController.cs` | `/v1/audit` | none | ReadAuthority | /governance/audit |  |
 | `Admin/AuthDebugController.cs` | `/api/auth` | none | ReadAuthority |  | auth_debug_api |
 | `Admin/ClientErrorTelemetryController.cs` | `/v1/diagnostics` | none | ReadAuthority |  |  |
 | `Admin/ConfluencePublishingAdminController.cs` | `/v1/admin/integrations/confluence` | none | AdminAuthority |  |  |
@@ -95,10 +95,10 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/DiagnosticsController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Admin/DocsController.cs` | `/docs` | none | ReadAuthority |  | static_operator_docs_html |
 | `Admin/EvidenceProposalsController.cs` | `/v1/admin/evidence` | none | AdminAuthority |  |  |
-| `Admin/HostedAwsExtractorRunController.cs` | `/v1/admin/aws-extractor/hosted` | none | AdminAuthority | /settings/cloud-connections |  |
+| `Admin/HostedAwsExtractorRunController.cs` | `/v1/admin/aws-extractor/hosted` | none | AdminAuthority | /integrations/cloud-connections |  |
 | `Admin/HostedAzureExtractorAdminController.cs` | `/v1/admin/azure-extractor/hosted` | none | AdminAuthority |  |  |
 | `Admin/HostedAzureExtractorRunController.cs` | `/v1/admin/azure-extractor/hosted` | none | AdminAuthority |  |  |
-| `Admin/HostedGcpExtractorRunController.cs` | `/v1/admin/gcp-extractor/hosted` | none | AdminAuthority | /settings/cloud-connections |  |
+| `Admin/HostedGcpExtractorRunController.cs` | `/v1/admin/gcp-extractor/hosted` | none | AdminAuthority | /integrations/cloud-connections |  |
 | `Admin/IdentityProviderConfigurationController.cs` | `/v1/admin/identity` | none | AdminAuthority |  |  |
 | `Admin/JobsController.cs` | `/v1/jobs` | none | ReadAuthority |  |  |
 | `Admin/MarketingPricingQuoteAgingAdminController.cs` | `/v1/admin/marketing/pricing-quote-aging` | none | AdminAuthority |  |  |
@@ -109,10 +109,10 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/RoiBulletinAdminController.cs` | `/v1/admin/roi-bulletin-preview` | none | AdminAuthority |  |  |
 | `Admin/ScimTokensAdminController.cs` | `/v1/admin/scim/tokens` | none | AdminAuthority |  |  |
 | `Admin/ScopeDebugController.cs` | `/v1/scope` | none | ReadAuthority |  |  |
-| `Admin/SecurityTrustPublicationController.cs` | `/v1/admin/security-trust` | none | AdminAuthority | /workspace/security-trust |  |
+| `Admin/SecurityTrustPublicationController.cs` | `/v1/admin/security-trust` | none | AdminAuthority | /settings/security-trust |  |
 | `Admin/SettingsController.cs` | `/v1/admin/settings` | none | AdminAuthority | /settings/tenant |  |
-| `Admin/SupportBundleController.cs` | `/v1/admin` | none | AdminAuthority | /admin/support |  |
-| `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | AdminAuthority | /admin/users |  |
+| `Admin/SupportBundleController.cs` | `/v1/admin` | none | AdminAuthority | /settings/support |  |
+| `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | AdminAuthority | /settings/users |  |
 | `Advisory/AdvisoryController.cs` | `/v1/advisory` | standard | ReadAuthority | /advisory |  |
 | `Advisory/AdvisorySchedulingController.cs` | `/v1/advisory-scheduling` | standard | ReadAuthority |  |  |
 | `Advisory/DigestSubscriptionsController.cs` | `/v1/digest-subscriptions` | standard | ReadAuthority | /digests |  |
@@ -120,12 +120,12 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Advisory/ProductLearningController.cs` | `/v1/product-learning` | standard | ReadAuthority | /product-learning |  |
 | `Advisory/RecommendationLearningController.cs` | `/v1/recommendation-learning` | standard | ReadAuthority | /recommendation-learning |  |
 | `AgentExecution/AgentExecutionCostPreviewController.cs` | `/v1/agent-execution` | none | AllowAnonymous |  | anonymous_wizard_cost_preview |
-| `Alerts/AlertRoutingSubscriptionsController.cs` | `/v1/alert-routing-subscriptions` | standard | ReadAuthority | /alerts |  |
-| `Alerts/AlertRulesController.cs` | `/v1/alert-rules` | standard | ReadAuthority | /alerts |  |
-| `Alerts/AlertSimulationController.cs` | `/v1/alert-simulation` | standard | ReadAuthority | /alerts |  |
-| `Alerts/AlertTuningController.cs` | `/v1/alert-tuning` | standard | ReadAuthority | /alerts |  |
-| `Alerts/AlertsController.cs` | `/v1/alerts` | standard | ReadAuthority | /alerts |  |
-| `Alerts/CompositeAlertRulesController.cs` | `/v1/composite-alert-rules` | standard | ReadAuthority | /alerts |  |
+| `Alerts/AlertRoutingSubscriptionsController.cs` | `/v1/alert-routing-subscriptions` | standard | ReadAuthority | /governance/alerts |  |
+| `Alerts/AlertRulesController.cs` | `/v1/alert-rules` | standard | ReadAuthority | /governance/alerts |  |
+| `Alerts/AlertSimulationController.cs` | `/v1/alert-simulation` | standard | ReadAuthority | /governance/alerts |  |
+| `Alerts/AlertTuningController.cs` | `/v1/alert-tuning` | standard | ReadAuthority | /governance/alerts |  |
+| `Alerts/AlertsController.cs` | `/v1/alerts` | standard | ReadAuthority | /governance/alerts |  |
+| `Alerts/CompositeAlertRulesController.cs` | `/v1/composite-alert-rules` | standard | ReadAuthority | /governance/alerts |  |
 | `Analytics/InternalCrossTenantAnalyticsController.cs` | `/v1/internal/analytics` | none | PlatformCrossTenantReadAuthority |  | internal_cross_tenant_analytics |
 | `Analytics/PatternInsightsController.cs` | `/v1/analytics/patterns` | none | Authorize |  |  |
 | `Analytics/RoiAnalyticsController.cs` | `/v1/analytics` | none | ReadAuthority |  |  |
@@ -140,14 +140,14 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/AuthorityQueryController.cs` | `/v1/authority` | none | ReadAuthority |  |  |
 | `Authority/AuthorityReplayController.cs` | `/v1/internal/authority/replay` | standard | RequireOperatorRole |  | internal_replay_diagnostics |
 | `Authority/AuthorityRunEventsController.cs` | `/v1/authority` | none | ReadAuthority |  |  |
-| `Authority/AwsTier2ConnectionController.cs` | `/v1/aws-extractor/connections` | none | ExecuteAuthority | /settings/cloud-connections |  |
+| `Authority/AwsTier2ConnectionController.cs` | `/v1/aws-extractor/connections` | none | ExecuteAuthority | /integrations/cloud-connections |  |
 | `Authority/AzureExtractorUploadController.cs` | `/v1/azure-extractor` | none | ReadAuthority |  |  |
 | `Authority/CloudInventoryExtractorUploadController.cs` | `/v1/extractor` | none | ReadAuthority |  |  |
 | `Authority/DocxExportController.cs` | `/v1/docx` | standard | ReadAuthority |  |  |
 | `Authority/EvidenceBulkUploadController.cs` | `/v1/architecture/run/{runId:guid}/evidence` | none | ExecuteAuthority |  |  |
 | `Authority/ExportsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
 | `Authority/FastPathContextController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
-| `Authority/GcpTier2ConnectionController.cs` | `/v1/gcp-extractor/connections` | none | ExecuteAuthority | /settings/cloud-connections |  |
+| `Authority/GcpTier2ConnectionController.cs` | `/v1/gcp-extractor/connections` | none | ExecuteAuthority | /integrations/cloud-connections |  |
 | `Authority/ImportRequestFileController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/InternalArchitectureDiagnosticsController.cs` | `/v1/internal/architecture` | none | RequireOperatorRole |  | internal_architecture_diagnostics |
 | `Authority/InternalArchitectureTraceForensicsController.cs` | `/v1/internal/architecture` | none | RequireOperatorRole |  |  |
@@ -179,18 +179,18 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Governance/GovernanceController.cs` | `/v1/governance` | standard | ReadAuthority | /governance |  |
 | `Governance/GovernancePreCommitSimulationController.cs` | `/v1/governance/pre-commit` | standard | ReadAuthority |  |  |
 | `Governance/GovernancePreviewController.cs` | `/v1/governance-preview` | standard | ReadAuthority |  |  |
-| `Governance/GovernanceResolutionController.cs` | `/v1/governance-resolution` | standard | ReadAuthority | /governance-resolution |  |
+| `Governance/GovernanceResolutionController.cs` | `/v1/governance-resolution` | standard | ReadAuthority | /governance/resolution |  |
 | `Governance/GovernanceStickinessController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
 | `Governance/ManifestsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
-| `Governance/PolicyPacksController.cs` | `/v1/policy-packs` | standard | ReadAuthority | /policy-packs |  |
+| `Governance/PolicyPacksController.cs` | `/v1/policy-packs` | standard | ReadAuthority | /governance/policy-packs |  |
 | `Integrations/ItsmCorrelationController.cs` | `/v1/integrations/itsm/correlations` | none | ReadAuthority |  |  |
 | `Integrations/ItsmInboundWebhooksController.cs` | `/v1/integrations/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Integrations/ItsmIntegrationHealthController.cs` | `/v1/integrations/itsm/health` | standard | Authorize |  |  |
 | `Integrations/ItsmOutboundIssuesController.cs` | `/v1/integrations/itsm/outbound/issues` | none | ExecuteAuthority |  |  |
 | `Integrations/SlackInteractivityController.cs` | `/v1/integrations/webhooks/slack` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Integrations/TeamsIncomingWebhookConnectionsController.cs` | `/v1/integrations/teams` | standard | Authorize |  |  |
-| `Integrations/TenantItsmConnectorConnectionsController.cs` | `/v1/integrations/itsm/connections` | standard | Authorize | /integrations/itsm |  |
-| `Integrations/TenantItsmOutboundSettingsController.cs` | `/v1/integrations/itsm/settings` | standard | Authorize | /integrations/itsm |  |
+| `Integrations/TenantItsmConnectorConnectionsController.cs` | `/v1/integrations/itsm/connections` | standard | Authorize | /integrations/operations |  |
+| `Integrations/TenantItsmOutboundSettingsController.cs` | `/v1/integrations/itsm/settings` | standard | Authorize | /integrations/operations |  |
 | `Integrations/WebhookConnectionsController.cs` | `/v1/integrations/webhooks` | standard | ReadAuthority |  |  |
 | `Integrations/WebhookSimulationController.cs` | `/v1/integrations/webhooks` | none | ExecuteAuthority |  |  |
 | `Marketing/EnterpriseComparisonMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |

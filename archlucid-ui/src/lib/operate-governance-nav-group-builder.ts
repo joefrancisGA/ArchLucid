@@ -11,12 +11,6 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
-import {
-  GOVERNANCE_ALERTS_PATH,
-  GOVERNANCE_AUDIT_PATH,
-  GOVERNANCE_POLICY_PACKS_PATH,
-  GOVERNANCE_RESOLUTION_PATH,
-} from "@/lib/governance-route-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -56,7 +50,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: GOVERNANCE_POLICY_PACKS_PATH,
+          href: "/governance/policy-packs",
           label: OPERATOR_NAV_LINK_LABELS.policyPacks,
           title: "Manage standards used in reviews",
           icon: Shield,
@@ -64,7 +58,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: GOVERNANCE_RESOLUTION_PATH,
+          href: "/governance/resolution",
           label: OPERATOR_NAV_LINK_LABELS.governanceResolution,
           title: "Diagnose effective policy, conflicts, and precedence for this scope",
           icon: Scale,
@@ -80,7 +74,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: GOVERNANCE_AUDIT_PATH,
+          href: "/governance/audit",
           label: OPERATOR_NAV_LINK_LABELS.auditTrail,
           title: "See who did what and when",
           icon: FileSearch,
@@ -88,7 +82,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: GOVERNANCE_ALERTS_PATH,
+          href: "/governance/alerts",
           label: OPERATOR_NAV_LINK_LABELS.alerts,
           title: this.shortcutTitle("Review items needing attention", "alt+l"),
           keyShortcut: "alt+l",

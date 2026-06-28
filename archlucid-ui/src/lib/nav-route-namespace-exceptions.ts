@@ -1,8 +1,7 @@
-import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import type { NavRouteNamespaceException } from "@/lib/nav-route-namespace-policy";
 
 /**
- * Intentional nav-group ↔ URL prefix mismatches until TB-405–408 canonical route moves land.
+ * Intentional nav-group ↔ URL prefix mismatches until TB-408 canonical route moves land.
  * CI: `nav-route-namespace.test.ts`. Policy: `docs/NAV_CONFIG_CONTRACT.md` § Route namespace.
  */
 export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException[] = [
@@ -12,13 +11,6 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
     canonicalPrefixes: ["/scorecard", "/value-report"],
     exceptionReason:
       "First-30-days governance adoption report lives under governance URL tree while grouped under Reports for buyer narrative.",
-  },
-  {
-    navGroupId: "operate-integrations",
-    href: CLOUD_CONNECTIONS_PATH,
-    canonicalPrefixes: ["/integrations"],
-    exceptionReason:
-      "Tier 2 cloud connection management shares settings App Router tree with tenant settings; surfaced under Integrations for evidence-source mental model.",
   },
   {
     navGroupId: "operator-system-admin",

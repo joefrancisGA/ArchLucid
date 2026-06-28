@@ -1,4 +1,5 @@
 import { NAV_GROUPS } from "@/lib/nav-config";
+import { pathMatchesCloudConnections } from "@/lib/integrations-nav-paths";
 import {
   pathMatchesSettingsSecurityTrust,
   pathMatchesSettingsSupport,
@@ -91,6 +92,10 @@ export function getLayerForRoute(pathname: string): LayerId {
     || pathMatchesSettingsSupport(normalized)
   ) {
     return "operator-admin";
+  }
+
+  if (pathMatchesCloudConnections(normalized)) {
+    return "operate-analysis";
   }
 
   for (const m of NAV_PATH_MATCHES) {

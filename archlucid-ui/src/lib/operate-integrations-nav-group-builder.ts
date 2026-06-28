@@ -2,10 +2,7 @@ import { CloudCog, Hash, Plug, Ticket, UsersRound, Webhook } from "lucide-react"
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
-  CLOUD_CONNECTIONS_PATH,
   INTEGRATIONS_JIRA_PATH,
-  INTEGRATIONS_ITSM_PATH,
-  INTEGRATIONS_READINESS_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
   INTEGRATIONS_SLACK_PATH,
   INTEGRATIONS_TEAMS_PATH,
@@ -25,7 +22,8 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
       caption: "Connect evidence sources and send events to external systems.",
       links: [
         {
-          href: INTEGRATIONS_READINESS_PATH,
+          // Literal href required for route_tier_policy_nav CI (assert_route_tier_policy_nav.py).
+          href: "/integrations/operations",
           label: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
           title: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
           icon: Plug,
@@ -33,20 +31,12 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/settings/cloud-connections",
+          href: "/integrations/cloud-connections",
           label: OPERATOR_NAV_LINK_LABELS.cloudConnections,
           title: OPERATOR_NAV_LINK_LABELS.cloudConnections,
           icon: CloudCog,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
-        },
-        {
-          href: "/integrations/itsm",
-          label: OPERATOR_NAV_LINK_LABELS.itsm,
-          title: OPERATOR_NAV_LINK_LABELS.itsm,
-          icon: Ticket,
-          tier: "extended",
-          requiredAuthority: "AdminAuthority",
         },
         {
           href: INTEGRATIONS_JIRA_PATH,
@@ -65,7 +55,7 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "AdminAuthority",
         },
         {
-          href: INTEGRATIONS_TEAMS_PATH, // "/integrations/teams"
+          href: INTEGRATIONS_TEAMS_PATH,
           label: OPERATOR_NAV_LINK_LABELS.microsoftTeams,
           title: OPERATOR_NAV_LINK_LABELS.microsoftTeams,
           icon: UsersRound,

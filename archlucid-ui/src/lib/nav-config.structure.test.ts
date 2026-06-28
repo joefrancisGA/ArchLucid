@@ -39,7 +39,7 @@ describe("nav-config structure", () => {
       for (const link of group.links) {
         if (link.requiredAuthority === "AdminAuthority") {
           if (group.id === "operate-integrations") {
-            expect(["/integrations/itsm", "/integrations/jira", "/integrations/servicenow"], link.href).toContain(link.href);
+            expect(["/integrations/jira", "/integrations/servicenow"], link.href).toContain(link.href);
             expect(group.surface).toBe("review-workflow");
           } else {
             expect(["operator-admin", "operator-system-admin"], link.href).toContain(group.id);
@@ -132,8 +132,7 @@ describe("nav-config structure", () => {
     expect(reportsHrefs).toEqual(["/scorecard", "/value-report", "/governance/first-30-days"]);
     expect(integrationsHrefs).toEqual([
       "/integrations/operations",
-      "/settings/cloud-connections",
-      "/integrations/itsm",
+      "/integrations/cloud-connections",
       "/integrations/jira",
       "/integrations/servicenow",
       "/integrations/teams",
@@ -153,6 +152,19 @@ describe("nav-config structure", () => {
     expect(adminHrefs).toContain("/settings/support");
     expect(adminHrefs).toContain("/settings/cost-reporting");
     expect(adminHrefs).not.toContain("/governance/recurrence-schedules");
+  });
+
+  it("keeps integrations nav hrefs under /integrations/* (TB-407)", () => {
+    const integrations = NAV_GROUPS.find((group) => group.id === "operate-integrations");
+
+    expect(integrations).toBeDefined();
+
+    for (const link of integrations!.links) {
+      expect(
+        link.href === "/integrations" || link.href.startsWith("/integrations/"),
+        link.href,
+      ).toBe(true);
+    }
   });
 
   it("keeps administration nav hrefs under /settings/* (TB-406)", () => {

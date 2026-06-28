@@ -170,12 +170,14 @@ export const OPERATOR_NAV_LINK_LABELS = {
   workspaceSettings: "Workspace settings",
 } as const;
 
-/** Customer-facing copy for `/settings/cloud-connections`. */
+/** Customer-facing copy for `/integrations/cloud-connections`. */
 export const CLOUD_CONNECTIONS_PAGE_COPY = {
   lead:
-    "Cloud connections are optional. They help ArchLucid use production-faithful cloud evidence when available, but reviews can also be created from briefs, diagrams, documents, and uploaded evidence.",
-  azureSectionHeading: "Azure connection",
-  awsSectionHeading: "AWS connection",
+    "Cloud connections are optional. Connect Azure, AWS, or GCP for scheduled read-only evidence collection, or create reviews from briefs, diagrams, documents, and uploaded ZIPs alone.",
+  automatedConnectionsSectionHeading: "Automated connections",
+  azureSectionHeading: "Azure",
+  awsSectionHeading: "AWS",
+  gcpSectionHeading: "GCP",
 } as const;
 
 /** @deprecated Prefer {@link CLOUD_CONNECTIONS_PAGE_COPY} — Azure-only alias retained for legacy imports. */

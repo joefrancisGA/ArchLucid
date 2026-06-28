@@ -8,6 +8,8 @@ import {
   AWS_CLOUD_CONNECTIONS_ADMIN_LABEL,
   AWS_CLOUD_CONNECTIONS_ADMIN_SUMMARY,
 } from "@/lib/aws-cloud-connection-admin-scope";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export function AdminAwsCloudConnectionsPageClient(): React.ReactElement {
@@ -20,23 +22,26 @@ export function AdminAwsCloudConnectionsPageClient(): React.ReactElement {
 
       <Card data-testid="admin-aws-cloud-connections-scope">
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>V1 scope</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Customer vs admin surfaces</CardTitle>
           <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
-            AWS connectors ship in V1 for internal rollout. Customer-facing{" "}
-            <Link href="/settings/cloud-connections" className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
-              Cloud connections
-            </Link>{" "}
-            remains Azure-only. GCP continuous ingestion stays on the V1.1 roadmap.
+            Operators connect AWS, Azure, and GCP from{" "}
+            <Link href={CLOUD_CONNECTIONS_PATH} className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
+              {OPERATOR_NAV_LINK_LABELS.cloudConnections}
+            </Link>
+            . This admin page remains for internal rollout diagnostics and hosted-prod Terraform verification.
           </CardDescription>
         </CardHeader>
         <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0">
-            Target posture mirrors Azure Tier 2: read-only inventory and cost evidence via cross-account IAM — no
-            long-lived secrets stored in ArchLucid.
+            Target posture mirrors Azure Tier 2: read-only inventory via cross-account IAM OIDC trust to
+            ArchLucid&apos;s Azure managed identity — no long-lived access keys stored in ArchLucid.
           </p>
           <p className="m-0">
-            Configuration wizard, hosted validation pull, and persistence ship under engineering backlog{" "}
-            <span className="font-medium">TB-403</span>.
+            Enable hosted AWS polling in production via{" "}
+            <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-900">HostedAwsExtractor:Enabled</code> and{" "}
+            <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-900">CloudPolling:Aws:Enabled</code>{" "}
+            (see <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-900">deploy/hosted-prod-terraform</code>{" "}
+            extractor modules).
           </p>
         </CardContent>
       </Card>

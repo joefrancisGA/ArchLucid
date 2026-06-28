@@ -125,8 +125,12 @@ const nextConfig: NextConfig = {
       { source: "/composite-alert-rules", destination: "/governance/alerts?tab=composite", permanent: false },
       { source: "/alert-simulation", destination: "/governance/alerts?tab=simulation", permanent: false },
       { source: "/alert-tuning", destination: "/governance/alerts?tab=simulation", permanent: false },
-      { source: "/settings/webhooks", destination: "/integrations/webhooks", permanent: false },
-      { source: "/integrations/itsm", destination: "/integrations/operations", permanent: false },
+      { source: "/settings/webhooks", destination: "/integrations/webhooks", permanent: true },
+      { source: "/integrations/itsm", destination: "/integrations/operations", permanent: true },
+      { source: "/integrations/itsm/:path*", destination: "/integrations/operations", permanent: true },
+      // Integrations route namespace reconciliation (TB-407).
+      { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },
+      { source: "/settings/cloud-connections/:path*", destination: "/integrations/cloud-connections/:path*", permanent: true },
       { source: "/admin/ai-usage-cost", destination: "/settings/cost-reporting", permanent: false },
       // Administration route namespace reconciliation (TB-406).
       { source: "/workspace/security-trust", destination: "/settings/security-trust", permanent: true },
@@ -163,6 +167,9 @@ const nextConfig: NextConfig = {
       { source: "/settings/users/:path*", destination: "/admin/users/:path*" },
       { source: "/settings/support", destination: "/admin/support" },
       { source: "/settings/support/:path*", destination: "/admin/support/:path*" },
+      // Integrations canonical URLs reuse settings cloud-connections App Router tree (TB-407).
+      { source: "/integrations/cloud-connections", destination: "/settings/cloud-connections" },
+      { source: "/integrations/cloud-connections/:path*", destination: "/settings/cloud-connections/:path*" },
     ];
   },
 };

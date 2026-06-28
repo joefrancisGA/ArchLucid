@@ -21,6 +21,8 @@ import {
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
 import { cn } from "@/lib/utils";
 
@@ -112,7 +114,7 @@ export function PilotCommandCenterCard(): React.JSX.Element {
         >
           <span>{PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL}</span>
           <Link
-            href="/settings/cloud-connections"
+            href={CLOUD_CONNECTIONS_PATH}
             className={optionalSetupLinkClass}
             data-testid="pilot-command-center-connect-azure"
           >
@@ -122,7 +124,7 @@ export function PilotCommandCenterCard(): React.JSX.Element {
             ·
           </span>
           <Link
-            href="/settings/roles?tab=users"
+            href={INVITE_REVIEWER_PATH}
             className={optionalSetupLinkClass}
             data-testid="pilot-command-center-invite-reviewer"
           >

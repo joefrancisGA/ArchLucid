@@ -159,7 +159,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "When in-process graph projection caching is enough, when to enable Redis-backed Distributed cache, and how to spot multi-replica footguns.",
     docPath: "docs/operations/PROJECTION_CACHE_AND_REPLICAS.md",
-    routes: ["/admin/configuration", "/settings/tenant", "/settings/cloud-connections", "/graph"],
+    routes: ["/admin/configuration", "/settings/tenant", "/integrations/cloud-connections", "/graph"],
   },
   {
     id: "troubleshooting",

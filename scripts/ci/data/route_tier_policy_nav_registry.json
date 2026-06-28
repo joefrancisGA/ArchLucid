@@ -129,7 +129,7 @@
       "commercial_tier": "none",
       "class_policy": "PlatformTenantDeletionAuthority",
       "exemption": null,
-      "nav_operator_href": "/admin/users"
+      "nav_operator_href": "/settings/users"
     },
     {
       "controller_file": "Admin/AdminTrialFunnelOperationalController.cs",
@@ -149,7 +149,7 @@
       "commercial_tier": "none",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/audit"
+      "nav_operator_href": "/governance/audit"
     },
     {
       "controller_file": "Admin/AuthDebugController.cs",
@@ -239,7 +239,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/cloud-connections"
+      "nav_operator_href": "/integrations/cloud-connections"
     },
     {
       "controller_file": "Admin/HostedAzureExtractorAdminController.cs",
@@ -269,7 +269,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/cloud-connections"
+      "nav_operator_href": "/integrations/cloud-connections"
     },
     {
       "controller_file": "Admin/IdentityProviderConfigurationController.cs",
@@ -379,7 +379,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/workspace/security-trust"
+      "nav_operator_href": "/settings/security-trust"
     },
     {
       "controller_file": "Admin/SettingsController.cs",
@@ -399,7 +399,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/admin/support"
+      "nav_operator_href": "/settings/support"
     },
     {
       "controller_file": "Admin/TenantsAdminController.cs",
@@ -409,7 +409,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/admin/users"
+      "nav_operator_href": "/settings/users"
     },
     {
       "controller_file": "Advisory/AdvisoryController.cs",
@@ -489,7 +489,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/alerts"
+      "nav_operator_href": "/governance/alerts"
     },
     {
       "controller_file": "Alerts/AlertRulesController.cs",
@@ -499,7 +499,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/alerts"
+      "nav_operator_href": "/governance/alerts"
     },
     {
       "controller_file": "Alerts/AlertsController.cs",
@@ -509,7 +509,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/alerts"
+      "nav_operator_href": "/governance/alerts"
     },
     {
       "controller_file": "Alerts/AlertSimulationController.cs",
@@ -519,7 +519,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/alerts"
+      "nav_operator_href": "/governance/alerts"
     },
     {
       "controller_file": "Alerts/AlertTuningController.cs",
@@ -529,7 +529,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/alerts"
+      "nav_operator_href": "/governance/alerts"
     },
     {
       "controller_file": "Alerts/CompositeAlertRulesController.cs",
@@ -539,7 +539,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/alerts"
+      "nav_operator_href": "/governance/alerts"
     },
     {
       "controller_file": "Analytics/InternalCrossTenantAnalyticsController.cs",
@@ -689,7 +689,7 @@
       "commercial_tier": "none",
       "class_policy": "ExecuteAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/cloud-connections"
+      "nav_operator_href": "/integrations/cloud-connections"
     },
     {
       "controller_file": "Authority/AzureExtractorUploadController.cs",
@@ -759,7 +759,7 @@
       "commercial_tier": "none",
       "class_policy": "ExecuteAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/cloud-connections"
+      "nav_operator_href": "/integrations/cloud-connections"
     },
     {
       "controller_file": "Authority/ImportRequestFileController.cs",
@@ -1079,7 +1079,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/governance-resolution"
+      "nav_operator_href": "/governance/resolution"
     },
     {
       "controller_file": "Governance/GovernanceStickinessController.cs",
@@ -1109,7 +1109,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/policy-packs"
+      "nav_operator_href": "/governance/policy-packs"
     },
     {
       "controller_file": "Integrations/ItsmCorrelationController.cs",
@@ -1179,7 +1179,7 @@
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/integrations/itsm"
+      "nav_operator_href": "/integrations/operations"
     },
     {
       "controller_file": "Integrations/TenantItsmOutboundSettingsController.cs",
@@ -1189,7 +1189,7 @@
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/integrations/itsm"
+      "nav_operator_href": "/integrations/operations"
     },
     {
       "controller_file": "Integrations/WebhookConnectionsController.cs",
