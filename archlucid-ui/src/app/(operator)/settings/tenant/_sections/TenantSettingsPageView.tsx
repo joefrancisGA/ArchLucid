@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { getIanaTimeZoneSelectOptions, normalizeIanaTimeZoneForSelect } from "@/lib/iana-time-zone-select";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { cn } from "@/lib/utils";
@@ -74,9 +75,9 @@ export function TenantSettingsPageView(props: Props) {
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="tenant-settings-page">
       <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Tenant settings</h1>
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{OPERATOR_NAV_LINK_LABELS.workspaceSettings}</h1>
         <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          Workspace defaults and operator-facing preferences for this tenant.
+          Workspace defaults and operator-facing preferences for this workspace.
         </p>
       </div>
 

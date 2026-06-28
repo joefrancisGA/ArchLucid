@@ -13,10 +13,12 @@ import { cn } from "@/lib/utils";
 
 type SidebarNavLinkLabelProps = {
   readonly presented: NavLinkItem;
+  readonly showQuestionSubtitle?: boolean;
 };
 
 export function SidebarNavLinkLabel(props: SidebarNavLinkLabelProps): ReactElement {
-  const subtitle = navLinkQuestionSubtitle(props.presented.href);
+  const subtitle =
+    props.showQuestionSubtitle === false ? null : navLinkQuestionSubtitle(props.presented.href);
 
   if (subtitle === null) {
     return <>{props.presented.label}</>;
@@ -40,6 +42,7 @@ type SidebarNavLinkProps = {
   readonly active: boolean;
   readonly advancedDemo: boolean;
   readonly buyerPolishedShell: boolean;
+  readonly showQuestionSubtitle?: boolean;
   readonly afterLabel?: ReactNode;
   readonly onNavigate?: () => void;
 };
@@ -79,7 +82,7 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
       }}
     >
       {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-      <SidebarNavLinkLabel presented={presented} />
+      <SidebarNavLinkLabel presented={presented} showQuestionSubtitle={props.showQuestionSubtitle} />
       {props.afterLabel}
     </Link>
   );

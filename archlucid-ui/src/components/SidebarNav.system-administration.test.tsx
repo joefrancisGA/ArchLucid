@@ -73,7 +73,7 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-describe("SidebarNav — System Administration section", () => {
+describe("SidebarNav — Internal Operations section", () => {
   beforeEach(() => {
     mockPathname.mockReturnValue("/");
     localStorage.clear();
@@ -85,7 +85,7 @@ describe("SidebarNav — System Administration section", () => {
     vi.unstubAllEnvs();
   });
 
-  it("renders System Administration when the feature flag is enabled", async () => {
+  it("renders Internal Operations when the feature flag is enabled", async () => {
     render(<SidebarNav />);
 
     await waitFor(() => {
@@ -93,11 +93,11 @@ describe("SidebarNav — System Administration section", () => {
     });
 
     expect(screen.getByTestId("sidebar-group-toggle-operator-system-admin")).toHaveTextContent(
-      "System Administration",
+      "Internal Operations",
     );
   });
 
-  it("does not render System Administration when the feature flag is disabled", async () => {
+  it("does not render Internal Operations when the feature flag is disabled", async () => {
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "false");
 
     render(<SidebarNav />);
@@ -122,7 +122,7 @@ describe("SidebarNav — System Administration section", () => {
     expect(screen.queryByRole("link", { name: "RAG health" })).toBeNull();
   });
 
-  it("expands System Administration and highlights an active internal route", async () => {
+  it("expands Internal Operations and highlights an active internal route", async () => {
     mockPathname.mockReturnValue("/admin/rag-health");
 
     render(<SidebarNav />);
@@ -131,11 +131,12 @@ describe("SidebarNav — System Administration section", () => {
       expect(screen.getByTestId("sidebar-group-toggle-operator-system-admin")).toHaveAttribute("aria-expanded", "true");
     });
 
-    const systemAdminNav = screen.getByRole("navigation", { name: "System Administration" });
-    const ragLink = within(systemAdminNav).getByRole("link", { name: "RAG health" });
+    const internalOpsNav = screen.getByRole("navigation", { name: "Internal Operations" });
+    const ragLink = within(internalOpsNav).getByRole("link", { name: "RAG health" });
 
     expect(ragLink).toHaveAttribute("href", "/admin/rag-health");
     expect(ragLink).toHaveAttribute("aria-current", "page");
+    expect(ragLink).not.toHaveTextContent("per-corpus");
   });
 
   it("does not render the legacy governance view checkbox", () => {

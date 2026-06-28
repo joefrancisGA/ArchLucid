@@ -64,7 +64,7 @@ describe("FindingItsmExportPanel", () => {
 
     expect(screen.getByRole("link", { name: "configure connectors" })).toHaveAttribute(
       "href",
-      "/admin/integrations/itsm",
+      "/integrations/operations",
     );
   });
 });

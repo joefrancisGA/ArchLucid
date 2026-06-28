@@ -20,16 +20,28 @@ export const OPERATOR_HELP_ARIA_KEYSHORTCUTS = "F1 Shift+?";
 /** Accessible name for the global entity search input in the operator header. */
 export const GLOBAL_SEARCH_ARIA_LABEL = "Search reviews, findings, and evidence";
 
-/** Tooltip / accessible name for the in-input command palette shortcut hint. */
-export const COMMAND_PALETTE_HINT_TITLE = "Keyboard shortcut: Ctrl+K";
-
-export const COMMAND_PALETTE_HINT_ARIA_LABEL = `Open command palette. ${COMMAND_PALETTE_HINT_TITLE}`;
+/** Placeholder for the operator header global search input. */
+export const GLOBAL_SEARCH_PLACEHOLDER = "Search ArchLucid";
 
 /**
- * WAI-ARIA `aria-keyshortcuts` value for the palette (Control+K), separate from visible copy.
+ * WAI-ARIA `aria-keyshortcuts` for the command palette — both Control and Meta so macOS Cmd+K is exposed.
  * @see https://www.w3.org/TR/wai-aria-1.2/#aria-keyshortcuts
  */
-export const COMMAND_PALETTE_ARIA_KEYSHORTCUTS = "Control+K";
+export const COMMAND_PALETTE_ARIA_KEYSHORTCUTS = "Control+K Meta+K";
+
+/** Visible shortcut label for tooltips — Cmd+K on Apple platforms, Ctrl+K elsewhere. */
+export function resolveCommandPaletteDisplayShortcut(): string {
+  if (typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent)) {
+    return "Cmd+K";
+  }
+
+  return COMMAND_PALETTE_DISPLAY_SHORTCUT;
+}
+
+/** Native tooltip for the header global search input (includes palette shortcut). */
+export function globalSearchInputTitle(): string {
+  return `${GLOBAL_SEARCH_PLACEHOLDER} — ${resolveCommandPaletteDisplayShortcut()}`;
+}
 
 /** Tooltip line suffix for palette triggers. */
 export function commandPaletteTooltipLine(primaryLabel: string): string {

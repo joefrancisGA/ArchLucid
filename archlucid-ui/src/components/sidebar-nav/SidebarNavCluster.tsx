@@ -11,6 +11,7 @@ import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import {
   filterSidebarNavClusterLinks,
+  presentSidebarNavLinkForCluster,
   isSidebarNavLinkAdvancedInDemo,
   presentSidebarNavLink,
 } from "@/lib/sidebar-nav-link-filters";
@@ -40,6 +41,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
     hasCommittedArchitectureReview: props.hasCommittedArchitectureReview,
     effectiveOperateUnlockPhase: props.effectiveOperateUnlockPhase,
   });
+  const suppressQuestionSubtitles = group.surface === "system-admin";
 
   const groupHeadingLabel = group.label;
   const demoOrBuyer = props.demoUi || props.buyerPolishedShell;
@@ -113,7 +115,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
           aria-label={group.label}
         >
           {linksForRender.map((link) => {
-            const presented = presentSidebarNavLink(link, props.buyerPolishedShell);
+            const presented = presentSidebarNavLinkForCluster(link, props.buyerPolishedShell, group.surface);
 
             return (
               <SidebarNavLink
@@ -122,6 +124,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 active={isNavLinkActive(props.pathname, presented.href)}
                 advancedDemo={isSidebarNavLinkAdvancedInDemo(presented.href, demoOrBuyer)}
                 buyerPolishedShell={props.buyerPolishedShell}
+                showQuestionSubtitle={!suppressQuestionSubtitles}
                 onNavigate={props.onNavLinkNavigate}
                 afterLabel={
                   presented.href === "/governance" ? <GovernanceReviewsAwaitingNavBadge /> : null

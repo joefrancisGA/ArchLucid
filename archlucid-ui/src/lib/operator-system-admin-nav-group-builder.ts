@@ -9,7 +9,6 @@ import {
   FileText,
   Fingerprint,
   Gauge,
-  GitBranch,
   HeartPulse,
   KeyRound,
   LineChart,
@@ -34,9 +33,8 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "operator-system-admin",
-      label: "System Administration",
+      label: "Internal Operations",
       surface: "system-admin",
-      caption: "Internal tools, diagnostics, experiments, and employee operations.",
       links: [
         {
           href: "/admin/ai-usage-cost",
@@ -131,14 +129,6 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.planning,
           title: "Planning — improvement themes and prioritized plans",
           icon: BarChart3,
-          tier: "advanced",
-          requiredAuthority: "ExecuteAuthority",
-        },
-        {
-          href: "/evolution-review",
-          label: OPERATOR_NAV_LINK_LABELS.evolutionCandidates,
-          title: "Change simulation — preview expected impact of proposed architecture changes",
-          icon: GitBranch,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",
         },

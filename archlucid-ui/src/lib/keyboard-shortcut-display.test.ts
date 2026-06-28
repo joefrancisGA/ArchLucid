@@ -3,10 +3,13 @@ import { describe, expect, it } from "vitest";
 import {
   COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
   COMMAND_PALETTE_DISPLAY_SHORTCUT,
+  GLOBAL_SEARCH_PLACEHOLDER,
   OPERATOR_HELP_ARIA_KEYSHORTCUTS,
   OPERATOR_HELP_ARIA_LABEL,
   commandPaletteOpenAriaLabel,
   commandPaletteTooltipLine,
+  globalSearchInputTitle,
+  resolveCommandPaletteDisplayShortcut,
 } from "@/lib/keyboard-shortcut-display";
 
 describe("keyboard-shortcut-display", () => {
@@ -15,8 +18,14 @@ describe("keyboard-shortcut-display", () => {
     expect(COMMAND_PALETTE_DISPLAY_SHORTCUT).not.toContain("⌘");
   });
 
-  it("uses Control+K for aria-keyshortcuts", () => {
-    expect(COMMAND_PALETTE_ARIA_KEYSHORTCUTS).toBe("Control+K");
+  it("uses Control+K and Meta+K for aria-keyshortcuts", () => {
+    expect(COMMAND_PALETTE_ARIA_KEYSHORTCUTS).toBe("Control+K Meta+K");
+  });
+
+  it("exposes global search placeholder and tooltip title", () => {
+    expect(GLOBAL_SEARCH_PLACEHOLDER).toBe("Search ArchLucid");
+    expect(globalSearchInputTitle()).toContain(GLOBAL_SEARCH_PLACEHOLDER);
+    expect(globalSearchInputTitle()).toContain(resolveCommandPaletteDisplayShortcut());
   });
 
   it("builds tooltip lines with Ctrl+K only", () => {

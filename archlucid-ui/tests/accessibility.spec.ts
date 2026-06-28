@@ -9,13 +9,13 @@ const wcag21LevelAaTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] as const;
 
 /**
  * Operator routes exercised under mock API + demo static fallback (see `playwright.mock.config.ts`).
- * There is no `/settings` index; tenant settings represent the primary settings hub.
+ * There is no `/settings` index; workspace settings represent the primary settings hub.
  */
 const operatorAccessibilityRoutes = [
   { path: "/", label: "operator home" },
   { path: "/runs", label: "runs" },
   { path: "/compare", label: "compare" },
-  { path: "/settings/tenant", label: "tenant settings" },
+  { path: "/settings/tenant", label: "workspace settings" },
 ] as const;
 
 function summarizeViolations(violations: Result[]): string {

@@ -1,4 +1,4 @@
-import type { NavLinkItem } from "@/lib/nav-config.types";
+import type { NavLinkItem, NavShellSurface } from "@/lib/nav-config.types";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { filterNavLinksByOperateUnlockPhase, type OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 import { resolveNavLinkPresentation } from "@/lib/operator-nav-labels";
@@ -11,6 +11,24 @@ export function presentSidebarNavLink(link: NavLinkItem, buyerPolishedShell: boo
     ...link,
     label: resolved.label,
     title: resolved.title,
+  };
+}
+
+/** Internal Operations rows stay icon + label in the sidebar (no helper subtext or verbose tooltips). */
+export function presentSidebarNavLinkForCluster(
+  link: NavLinkItem,
+  buyerPolishedShell: boolean,
+  groupSurface: NavShellSurface,
+): NavLinkItem {
+  const presented = presentSidebarNavLink(link, buyerPolishedShell);
+
+  if (groupSurface !== "system-admin") {
+    return presented;
+  }
+
+  return {
+    ...presented,
+    title: presented.label,
   };
 }
 

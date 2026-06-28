@@ -1,11 +1,20 @@
-import { CloudCog, MessageSquare, Plug, Ticket, Webhook } from "lucide-react";
+import { CloudCog, Hash, Plug, Server, Ticket, UsersRound, Webhook } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import {
+  CLOUD_CONNECTIONS_PATH,
+  INTEGRATIONS_JIRA_PATH,
+  INTEGRATIONS_READINESS_PATH,
+  INTEGRATIONS_SERVICENOW_PATH,
+  INTEGRATIONS_SLACK_PATH,
+  INTEGRATIONS_TEAMS_PATH,
+  INTEGRATIONS_WEBHOOKS_PATH,
+} from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
-/** Operate · integrations — connectors, cloud ingestion, and outbound notifications. */
+/** Operate · integrations — product-specific connector configuration surfaces. */
 export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
@@ -15,44 +24,60 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
       caption: "Connect evidence sources and send events to external systems.",
       links: [
         {
-          href: "/integrations/operations",
-          label: OPERATOR_NAV_LINK_LABELS.connectorOperations,
-          title: "Check readiness for optional integrations",
+          href: INTEGRATIONS_READINESS_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
+          title: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
           icon: Plug,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/settings/cloud-connections",
-          label: OPERATOR_NAV_LINK_LABELS.cloudConnections,
-          title: "Connect Azure for production evidence",
+          href: CLOUD_CONNECTIONS_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.azureCloudConnection,
+          title: OPERATOR_NAV_LINK_LABELS.azureCloudConnection,
           icon: CloudCog,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
         },
         {
-          href: "/admin/integrations/itsm",
-          label: OPERATOR_NAV_LINK_LABELS.itsmConnectors,
-          title: "Configure Jira and ServiceNow connectors for finding handoff",
+          href: INTEGRATIONS_JIRA_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.jira,
+          title: OPERATOR_NAV_LINK_LABELS.jira,
           icon: Ticket,
           tier: "extended",
           requiredAuthority: "AdminAuthority",
         },
         {
-          href: "/integrations/webhooks",
-          label: OPERATOR_NAV_LINK_LABELS.webhookSubscriptions,
-          title: "Send events to external HTTPS endpoints",
+          href: INTEGRATIONS_SERVICENOW_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.servicenow,
+          title: OPERATOR_NAV_LINK_LABELS.servicenow,
+          icon: Server,
+          tier: "extended",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
+          href: INTEGRATIONS_TEAMS_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.microsoftTeams,
+          title: OPERATOR_NAV_LINK_LABELS.microsoftTeams,
+          icon: UsersRound,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: INTEGRATIONS_SLACK_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.slack,
+          title: OPERATOR_NAV_LINK_LABELS.slack,
+          icon: Hash,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: INTEGRATIONS_WEBHOOKS_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.webhooks,
+          title: OPERATOR_NAV_LINK_LABELS.webhooks,
           icon: Webhook,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",
-        },
-        {
-          href: "/integrations/teams",
-          label: OPERATOR_NAV_LINK_LABELS.teamsNotifications,
-          title: "Send alerts to Teams",
-          icon: MessageSquare,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
         },
       ],
     };

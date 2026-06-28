@@ -41,8 +41,8 @@ import { showError, showSuccess } from "@/lib/toast";
 
 import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
 
-function isOutboundWebhookChannel(channelType: string): boolean {
-  return channelType === "TeamsWebhook" || channelType === "SlackWebhook" || channelType === "OnCallWebhook";
+function isGenericOutboundWebhookChannel(channelType: string): boolean {
+  return channelType === "OnCallWebhook";
 }
 
 /** Integration hub for outbound HTTP webhook subscriptions (URLs + signed metadata + simulated delivery test). */
@@ -78,7 +78,7 @@ export function WebhooksSettingsClient() {
     watchedEventTypes.every((eventId) => eventId.startsWith("archlucid.alert."));
 
   const webhookRows = useMemo(
-    () => items.filter((s) => isOutboundWebhookChannel(s.channelType)),
+    () => items.filter((s) => isGenericOutboundWebhookChannel(s.channelType)),
     [items],
   );
 
@@ -173,23 +173,21 @@ export function WebhooksSettingsClient() {
           <Webhook className="h-6 w-6 text-neutral-700 dark:text-neutral-200" aria-hidden />
         </div>
         <div className="min-w-0 flex-1 space-y-2">
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>
-            Webhook subscriptions
-          </h1>
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Webhooks</h1>
           <p className={cn("leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Send ArchLucid events to external systems through secure HTTPS webhooks. Secrets are stored with the
-            subscription but are never shown again in this UI.
+            Send ArchLucid events to custom HTTPS endpoints. Secrets are stored with the subscription but are never
+            shown again in this UI.
           </p>
           <p className={cn("leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            For email or Teams notifications, use{" "}
-            <Link className={OPERATOR_LINK.inline} href="/alerts?tab=routing">
-              Notification routing
-            </Link>
-            . For standard Microsoft Teams setup, use{" "}
+            For product-specific notification setup, use{" "}
             <Link className={OPERATOR_LINK.inline} href="/integrations/teams">
-              Microsoft Teams notifications
+              Microsoft Teams
+            </Link>{" "}
+            or{" "}
+            <Link className={OPERATOR_LINK.inline} href="/integrations/slack">
+              Slack
             </Link>
-            unless you need a custom webhook route here.
+            .
           </p>
           <p className={cn("leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Use generic webhooks for custom HTTP endpoints. Provider templates format payloads for common receivers.
@@ -250,8 +248,6 @@ export function WebhooksSettingsClient() {
                   {...register("channelType")}
                 >
                   <option value="OnCallWebhook">{WEBHOOK_CHANNEL_TYPE_LABELS.OnCallWebhook}</option>
-                  <option value="SlackWebhook">{WEBHOOK_CHANNEL_TYPE_LABELS.SlackWebhook}</option>
-                  <option value="TeamsWebhook">{WEBHOOK_CHANNEL_TYPE_LABELS.TeamsWebhook}</option>
                 </select>
                 {errors.channelType?.message !== undefined ? (
                   <p role="alert" className={cn("mt-1 text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>

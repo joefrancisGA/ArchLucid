@@ -5,15 +5,15 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 
 export const metadata: Metadata = {
-  title: "Connector operations",
+  title: "Integration readiness",
 };
 
 export default function IntegrationsOperationsPage() {
   return (
     <div className="w-full max-w-[1200px] space-y-6 px-1 py-4 sm:px-0">
       <OperatorPageHeader
-        title="Connector operations"
-        subtitle="Check readiness for notifications, ticketing, publishing, and integration events. These connectors are optional for first review generation."
+        title="Integration readiness"
+        subtitle="Check readiness for Jira, ServiceNow, Microsoft Teams, Slack, Azure, webhooks, publishing, and integration events. Open a product page below to configure one integration at a time."
       />
       <LayerHeader
         pageKey="integrations-operations"

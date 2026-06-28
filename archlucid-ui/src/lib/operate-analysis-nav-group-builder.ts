@@ -1,4 +1,5 @@
 import {
+  GitBranch,
   GitCompare,
   MessageSquare,
   Search,
@@ -43,6 +44,14 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
           icon: GitCompare,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/evolution-review",
+          label: OPERATOR_NAV_LINK_LABELS.evolutionCandidates,
+          title: "Change simulation — preview expected impact of proposed architecture changes",
+          icon: GitBranch,
+          tier: "advanced",
+          requiredAuthority: "ExecuteAuthority",
         },
       ],
     };

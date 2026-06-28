@@ -97,7 +97,7 @@ export function SidebarNavLayoutSettingsPanel(
                 <p className={cn("text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                   <strong>Advanced Analysis:</strong> compare, replay, graph, architecture advisory, evaluation feedback,
                   recommendation tuning.{" "}
-                  <strong>Admin:</strong> baseline and tenant settings.{" "}
+                  <strong>Admin:</strong> baseline and workspace settings.{" "}
                   <strong>Enterprise Controls:</strong> policy packs, governance dashboard, governance resolution.
                 </p>
               </div>

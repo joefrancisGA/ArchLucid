@@ -117,7 +117,7 @@ public sealed class ConnectorOperationsSummaryReader(
                 Summary = slackConfigured
                     ? $"{slackRoutes} enabled alert routing subscription(s) use Slack webhooks."
                     : "No enabled Slack webhook routes in this workspace scope.",
-                ConfigurationHref = "/alerts?tab=routing",
+                ConfigurationHref = "/integrations/slack",
             },
             new()
             {
@@ -137,7 +137,7 @@ public sealed class ConnectorOperationsSummaryReader(
                 IsConfigured = jiraOk,
                 SmokeReadiness = jiraOk ? "LocallyValid" : "ConfigurationIncomplete",
                 Summary = jiraSummary,
-                ConfigurationHref = "/integrations",
+                ConfigurationHref = "/integrations/jira",
             },
             new()
             {
@@ -146,7 +146,7 @@ public sealed class ConnectorOperationsSummaryReader(
                 IsConfigured = snowOk,
                 SmokeReadiness = snowOk ? "LocallyValid" : "ConfigurationIncomplete",
                 Summary = snowSummary,
-                ConfigurationHref = "/integrations",
+                ConfigurationHref = "/integrations/servicenow",
             },
             new()
             {

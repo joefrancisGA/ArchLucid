@@ -169,7 +169,7 @@ describe("SidebarNav (primary navigation)", () => {
     });
 
     const adminNav = screen.getByRole("navigation", { name: "Administration" });
-    expect(within(adminNav).getByRole("link", { name: "Tenant settings" })).toHaveAttribute("href", "/settings/tenant");
+    expect(within(adminNav).getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/settings/tenant");
   });
 
   it("does not duplicate the numbered first-hour journey strip in the sidebar (TB-345)", () => {

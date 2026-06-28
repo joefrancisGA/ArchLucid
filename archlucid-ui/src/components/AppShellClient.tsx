@@ -17,7 +17,6 @@ import { AppShellMainAffordances } from "@/components/shell/AppShellMainAffordan
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
-import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { DemoStrictNavigationGate } from "@/components/DemoStrictNavigationGate";
 import { SponsorExecutiveShellRedirect } from "@/components/SponsorExecutiveShellRedirect";
 import {
@@ -213,9 +212,8 @@ type AppShellClientProps = {
 };
 
 /**
- * Operator shell: sticky header rail (logo, auth/environment, scope, global search with Ctrl+K hint, help, theme) plus layer-context /
- * buyer journey strip pinned together under one sticky stack; breadcrumbs inside header; collapsible sidebar nav landmark (lg+),
- * collapsible sidebar nav landmark (lg+), mobile drawer, keyboard shortcuts, primary <main> landmark.
+ * Operator shell: sticky header rail (logo, auth/environment, scope, global search, help, theme),
+ * collapsible sidebar nav landmark (lg+), mobile drawer, keyboard shortcuts, and primary <main> landmark.
  */
 export function AppShellClient({ children }: AppShellClientProps) {
   return (
@@ -351,7 +349,6 @@ function AppShellInner({ children }: AppShellClientProps) {
                     </div>
                   </div>
                 </header>
-                <LayerContextFromRoute />
               </div>
               <div
                 data-testid="app-shell-main"
@@ -405,7 +402,6 @@ function AppShellInner({ children }: AppShellClientProps) {
           <div ref={stickyHeaderRef} className="sticky top-0 z-30 overflow-x-hidden bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
             <FrictionlessTrialBanner />
             <OperatorShellTopBar onOpenHelpSearch={openHelpSearch} />
-            <LayerContextFromRoute />
             <CtoDemoJourneyCaptionBar />
           </div>
           <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-1")}>

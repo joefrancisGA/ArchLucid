@@ -24,6 +24,8 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/planning": "Planning",
   "/onboarding": "Onboarding",
   "/settings/billing": "Billing & plans",
+  "/settings/tenant": OPERATOR_NAV_LINK_LABELS.workspaceSettings,
+  "/settings/tenant/recycle-bin": "Projects recycle bin",
   "/dashboard": BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   "/digests": "Digests",
   "/value-report/roi": "ROI summary",

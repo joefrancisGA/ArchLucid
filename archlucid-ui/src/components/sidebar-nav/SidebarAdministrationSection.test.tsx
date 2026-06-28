@@ -23,8 +23,8 @@ const adminRows: NavGroupWithVisibleLinks[] = [
     visibleLinks: [
       {
         href: "/settings/tenant",
-        label: "Tenant settings",
-        title: "Tenant settings",
+        label: "Settings",
+        title: "Workspace settings",
         tier: "extended",
       },
       {
@@ -65,7 +65,7 @@ describe("SidebarAdministrationSection", () => {
     expect(screen.queryByText("Show administration")).toBeNull();
     expect(screen.queryByText("Hide administration")).toBeNull();
     expect(screen.getByTestId("sidebar-administration-collapsed")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Tenant settings" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Settings" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Projects recycle bin" })).toBeNull();
     expect(screen.queryByText("Admin tools")).toBeNull();
   });
@@ -94,7 +94,7 @@ describe("SidebarAdministrationSection", () => {
     expect(screen.queryByText("Hide administration")).toBeNull();
     expect(screen.getByTestId("sidebar-administration-section")).toBeInTheDocument();
     expect(toggle.textContent).not.toMatch(/\b2\b/);
-    expect(screen.getByRole("link", { name: "Tenant settings" })).toHaveAttribute("href", "/settings/tenant");
+    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/settings/tenant");
     expect(screen.getByRole("link", { name: "Projects recycle bin" })).toHaveAttribute(
       "href",
       "/settings/tenant/recycle-bin",

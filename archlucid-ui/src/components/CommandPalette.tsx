@@ -307,11 +307,11 @@ function CommandPaletteNavGroups({
         : null}
       {showAdminPalette
         ? systemAdminRows.map(({ group, visibleLinks }) => (
-            <CommandGroup key={`palette-${group.id}`} heading="System admin">
+            <CommandGroup key={`palette-${group.id}`} heading={group.label}>
               {visibleLinks.map((link) => (
                 <CommandItem
                   key={link.href}
-                  value={`system admin ${link.label} ${link.href}`}
+                  value={`internal operations ${link.label} ${link.href}`}
                   onSelect={() => {
                     onNavigate(link.href);
                   }}

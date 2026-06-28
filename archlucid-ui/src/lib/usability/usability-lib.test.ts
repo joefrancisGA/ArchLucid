@@ -7,13 +7,16 @@ import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 import { shouldAutoStartRegistrationTour } from "@/lib/usability/onboarding-registration-tour";
 
 describe("usability lib", () => {
-  it("navLinkQuestionSubtitle returns compare copy", () => {
+  it("navLinkQuestionSubtitle returns compare and ask copy", () => {
     expect(navLinkQuestionSubtitle("/compare")).toContain("changed");
+    expect(navLinkQuestionSubtitle("/ask")).toContain("plain language");
   });
 
   it("navLinkQuestionSubtitle omits dense helpers for self-explanatory nav items", () => {
     expect(navLinkQuestionSubtitle("/graph")).toBeNull();
     expect(navLinkQuestionSubtitle("/governance")).toBeNull();
+    expect(navLinkQuestionSubtitle("/replay")).toBeNull();
+    expect(navLinkQuestionSubtitle("/advisory")).toBeNull();
   });
 
   it("filterNavLinksByOperateUnlockPhase hides all Operate links at phase 0", () => {

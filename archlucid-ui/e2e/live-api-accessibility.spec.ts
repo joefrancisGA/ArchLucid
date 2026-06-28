@@ -71,7 +71,7 @@ const PAGES = [
   { name: "Digests", path: "/digests" },
   /** Canonical hub URL — `/digest-subscriptions` redirects here and can race axe mid-scan. */
   { name: "Digest subscriptions", path: "/digests?tab=subscriptions" },
-  { name: "Tenant settings", path: "/settings/tenant" },
+  { name: "Workspace settings", path: "/settings/tenant" },
   { name: "Settings baseline", path: "/settings/baseline" },
   /** Canonical hub URL — `/settings/exec-digest` redirects here (same class of flake as legacy digest-subscriptions). */
   { name: "Settings exec digest", path: "/digests?tab=schedule" },

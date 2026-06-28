@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { StatusTag } from "@/components/ui/status-tag";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   fetchItsmIntegrationHealth,
@@ -19,41 +18,12 @@ import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import { cn } from "@/lib/utils";
 
 import { AdminItsmConnectorOnboardingWizard } from "./AdminItsmConnectorOnboardingWizard";
-
-type ConnectorProbeCardProps = {
-  title: string;
-  probe: ItsmIntegrationHealthResponse["jira"] | ItsmIntegrationHealthResponse["serviceNow"];
-  testId: string;
-};
-
-function ConnectorProbeCard(props: ConnectorProbeCardProps): React.ReactElement {
-  const { title, probe, testId } = props;
-  const summary = (probe?.summary ?? "Health probe not available.").trim();
-  const configured = probe?.locallyConfigured === true;
-  const reachable = probe?.reachable;
-
-  let statusLabel = "Not configured";
-
-  if (configured && reachable === true) {
-    statusLabel = "Ready";
-  } else if (configured) {
-    statusLabel = "Configured";
-  }
-
-  return (
-    <Card data-testid={testId}>
-      <CardHeader>
-        <div className="flex flex-wrap items-center gap-2">
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{title}</CardTitle>
-          <StatusTag kind={configured ? "ready" : "neutral"} label={statusLabel} />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{summary}</p>
-      </CardContent>
-    </Card>
-  );
-}
+import { ItsmConnectorProbeCard } from "@/app/(operator)/integrations/_sections/itsm/ItsmConnectorProbeCard";
+import {
+  INTEGRATIONS_JIRA_PATH,
+  INTEGRATIONS_READINESS_PATH,
+  INTEGRATIONS_SERVICENOW_PATH,
+} from "@/lib/integrations-nav-paths";
 
 export function AdminItsmConnectorsPageClient(): React.ReactElement {
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
@@ -96,14 +66,25 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>V1 scope</CardTitle>
           <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
-            Jira and ServiceNow connectors ship in V1 for internal rollout. Buyer-facing{" "}
+            Buyer-facing{" "}
             <Link
-              href="/integrations/operations"
+              href={INTEGRATIONS_READINESS_PATH}
               className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
             >
               Integration readiness
+            </Link>
+            ,{" "}
+            <Link href={INTEGRATIONS_JIRA_PATH} className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
+              Jira
+            </Link>
+            , and{" "}
+            <Link
+              href={INTEGRATIONS_SERVICENOW_PATH}
+              className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+            >
+              ServiceNow
             </Link>{" "}
-            shows status only; configure connectors here. Copy-for-Jira and CSV export remain on findings surfaces.
+            pages configure each product separately. Copy-for-Jira and CSV export remain on findings surfaces.
           </CardDescription>
         </CardHeader>
         <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -147,8 +128,8 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
             >
               Connector health
             </h2>
-            <ConnectorProbeCard title="Jira" probe={health?.jira} testId="admin-itsm-jira-health" />
-            <ConnectorProbeCard title="ServiceNow" probe={health?.serviceNow} testId="admin-itsm-servicenow-health" />
+            <ItsmConnectorProbeCard title="Jira" probe={health?.jira} testId="admin-itsm-jira-health" />
+            <ItsmConnectorProbeCard title="ServiceNow" probe={health?.serviceNow} testId="admin-itsm-servicenow-health" />
           </section>
         </>
       )}

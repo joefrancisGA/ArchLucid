@@ -85,7 +85,10 @@ const SEGMENT_LABELS: Record<string, string> = {
   billing: "Billing & plans",
   integrations: "Integrations",
   itsm: "ITSM",
-  webhooks: "Webhook subscriptions",
+  jira: "Jira",
+  servicenow: "ServiceNow",
+  slack: "Slack",
+  webhooks: "Webhooks",
 };
 
 /**
@@ -113,6 +116,17 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [
       { label: OPERATOR_NAV_GROUP_LABELS.integrations, href: "/integrations/operations" },
       { label: OPERATOR_NAV_LINK_LABELS.cloudConnections },
+    ];
+  }
+
+  if (normalized === "/settings/tenant") {
+    return [{ label: OPERATOR_NAV_LINK_LABELS.workspaceSettings }];
+  }
+
+  if (normalized === "/settings/tenant/recycle-bin") {
+    return [
+      { label: OPERATOR_NAV_LINK_LABELS.workspaceSettings, href: "/settings/tenant" },
+      { label: "Projects recycle bin" },
     ];
   }
 

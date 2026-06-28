@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { NavLinkItem } from "@/lib/nav-config.types";
-import { filterSidebarNavClusterLinks } from "@/lib/sidebar-nav-link-filters";
+import { filterSidebarNavClusterLinks, presentSidebarNavLinkForCluster } from "@/lib/sidebar-nav-link-filters";
 
 const sampleLinks: NavLinkItem[] = [
   {
@@ -43,5 +43,39 @@ describe("filterSidebarNavClusterLinks", () => {
     });
 
     expect(filtered.map((link) => link.href)).toEqual(["/compare", "/search"]);
+  });
+});
+
+describe("presentSidebarNavLinkForCluster", () => {
+  it("trims Internal Operations tooltips to the link label", () => {
+    const presented = presentSidebarNavLinkForCluster(
+      {
+        href: "/admin/rag-health",
+        label: "RAG health",
+        title: "RAG health — per-corpus index freshness and embedding dimension",
+        tier: "advanced",
+        requiredAuthority: "AdminAuthority",
+      },
+      false,
+      "system-admin",
+    );
+
+    expect(presented.title).toBe("RAG health");
+  });
+
+  it("preserves review-workflow nav titles outside Internal Operations", () => {
+    const presented = presentSidebarNavLinkForCluster(
+      {
+        href: "/compare",
+        label: "Compare two reviews",
+        title: "See what changed between reviews (Alt+C)",
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
+      false,
+      "review-workflow",
+    );
+
+    expect(presented.title).toContain("changed");
   });
 });

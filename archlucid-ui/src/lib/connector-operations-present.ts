@@ -58,8 +58,8 @@ const CONNECTOR_CARD_TITLES: Record<string, string> = {
   teams: "Microsoft Teams",
   slack: "Slack",
   outbound_webhooks: "Outbound HTTP webhooks",
-  jira: "Jira ticketing",
-  servicenow: "ServiceNow ticketing",
+  jira: "Jira",
+  servicenow: "ServiceNow",
   confluence: "Confluence publishing",
   digests_advisory: "Architecture digests",
 };

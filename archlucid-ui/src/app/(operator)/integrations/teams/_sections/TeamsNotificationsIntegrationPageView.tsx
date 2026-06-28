@@ -43,7 +43,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props) {
           webhook URL in SQL — Logic Apps or workers resolve the secret at delivery time. For custom HTTPS webhook routes,
           use{" "}
           <Link className={OPERATOR_LINK.nav} href="/integrations/webhooks">
-            Webhook subscriptions
+            Webhooks
           </Link>
           . See{" "}
           <Link className={OPERATOR_LINK.nav} href="/help/troubleshooting">

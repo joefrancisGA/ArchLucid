@@ -34,12 +34,17 @@ describe("nav-config structure", () => {
     }
   });
 
-  it("keeps AdminAuthority rows in tenant or internal admin groups only", () => {
+  it("keeps AdminAuthority rows in tenant, internal admin, or ITSM integration pages only", () => {
     for (const group of NAV_GROUPS) {
       for (const link of group.links) {
         if (link.requiredAuthority === "AdminAuthority") {
-          expect(["operator-admin", "operator-system-admin"], link.href).toContain(group.id);
-          expect(["platform-admin", "system-admin"]).toContain(group.surface);
+          if (group.id === "operate-integrations") {
+            expect(["/integrations/jira", "/integrations/servicenow"], link.href).toContain(link.href);
+            expect(group.surface).toBe("review-workflow");
+          } else {
+            expect(["operator-admin", "operator-system-admin"], link.href).toContain(group.id);
+            expect(["platform-admin", "system-admin"]).toContain(group.surface);
+          }
         }
       }
     }
@@ -98,7 +103,11 @@ describe("nav-config structure", () => {
 
     const executeLinks = advanced!.links.filter((link) => link.requiredAuthority === "ExecuteAuthority");
 
-    expect(executeLinks.length).toBe(0);
+    expect(executeLinks.length).toBeGreaterThan(0);
+
+    for (const link of executeLinks) {
+      expect(link.tier, link.href).not.toBe("essential");
+    }
   });
 
   it("keeps buyer-polished operate group membership aligned", () => {
@@ -108,7 +117,7 @@ describe("nav-config structure", () => {
     const integrationsHrefs = NAV_GROUPS.find((group) => group.id === "operate-integrations")!.links.map((link) => link.href);
     const systemAdminHrefs = NAV_GROUPS.find((group) => group.id === "operator-system-admin")!.links.map((link) => link.href);
 
-    expect(analysisHrefs).toEqual(["/ask", "/search", "/compare"]);
+    expect(analysisHrefs).toEqual(["/ask", "/search", "/compare", "/evolution-review"]);
     expect(governanceHrefs).toEqual([
       "/governance",
       "/governance/findings",
@@ -122,8 +131,11 @@ describe("nav-config structure", () => {
     expect(integrationsHrefs).toEqual([
       "/integrations/operations",
       "/settings/cloud-connections",
-      "/integrations/webhooks",
+      "/integrations/jira",
+      "/integrations/servicenow",
       "/integrations/teams",
+      "/integrations/slack",
+      "/integrations/webhooks",
     ]);
     expect(systemAdminHrefs).toContain("/admin/rag-health");
     expect(systemAdminHrefs).toContain("/replay");

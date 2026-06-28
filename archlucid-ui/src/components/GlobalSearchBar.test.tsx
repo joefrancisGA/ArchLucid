@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GlobalSearchBar } from "@/components/GlobalSearchBar";
 import {
-  COMMAND_PALETTE_DISPLAY_SHORTCUT,
-  COMMAND_PALETTE_HINT_ARIA_LABEL,
+  COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
   GLOBAL_SEARCH_ARIA_LABEL,
+  GLOBAL_SEARCH_PLACEHOLDER,
+  globalSearchInputTitle,
 } from "@/lib/keyboard-shortcut-display";
-import { OPEN_COMMAND_PALETTE_EVENT } from "@/lib/shortcut-registry";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -28,29 +28,25 @@ describe("GlobalSearchBar", () => {
     );
   });
 
-  it("uses one primary search affordance with an embedded Ctrl+K hint", () => {
+  it("uses a lightweight search input without an embedded shortcut chip", () => {
     render(<GlobalSearchBar />);
 
-    expect(screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL })).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Search or jump to…")).toBeInTheDocument();
-    expect(screen.getByText(COMMAND_PALETTE_DISPLAY_SHORTCUT)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Open command palette" })).toBeNull();
+    const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
+
+    expect(input).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(GLOBAL_SEARCH_PLACEHOLDER)).toBe(input);
+    expect(input).toHaveAttribute("title", globalSearchInputTitle());
+    expect(input).toHaveAttribute("aria-keyshortcuts", COMMAND_PALETTE_ARIA_KEYSHORTCUTS);
+    expect(screen.queryByTestId("global-search-command-palette-hint")).toBeNull();
+    expect(screen.queryByText("Ctrl+K")).toBeNull();
   });
 
-  it("opens the command palette when the in-input shortcut hint is clicked", () => {
-    const listener = vi.fn();
-
-    window.addEventListener(OPEN_COMMAND_PALETTE_EVENT, listener);
-
+  it("opens the results panel when the query is long enough", async () => {
     render(<GlobalSearchBar />);
-    fireEvent.click(screen.getByTestId("global-search-command-palette-hint"));
 
-    expect(listener).toHaveBeenCalledTimes(1);
-    expect(screen.getByTestId("global-search-command-palette-hint")).toHaveAttribute(
-      "aria-label",
-      COMMAND_PALETTE_HINT_ARIA_LABEL,
-    );
+    const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
+    fireEvent.change(input, { target: { value: "ab" } });
 
-    window.removeEventListener(OPEN_COMMAND_PALETTE_EVENT, listener);
+    expect(await screen.findByRole("listbox")).toBeInTheDocument();
   });
 });

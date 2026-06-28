@@ -17,13 +17,13 @@ export const V1_SIDEBAR_CUSTOMIZATION_VISIBLE = false;
 
 export const SIDEBAR_QUICK_ACTIONS_LABEL = "Start review & audit";
 
-/** Platform-admin sidebar section — tenant settings and operator tooling, not operate governance. */
+/** Platform-admin sidebar section — workspace settings and operator tooling, not operate governance. */
 export const SIDEBAR_ADMINISTRATION = {
-  title: "Show or hide tenant settings and platform administration destinations in the sidebar.",
+  title: "Show or hide Settings and platform administration destinations in the sidebar.",
   ariaCollapsed: "Administration, collapsed",
   ariaExpanded: "Administration, expanded",
-  assistiveShow: "Administration section hidden. Tenant settings and recycle bin are not listed.",
-  assistiveHide: "Administration section visible. Tenant settings and platform admin links are listed below.",
+  assistiveShow: "Administration section hidden. Settings and recycle bin are not listed.",
+  assistiveHide: "Administration section visible. Settings and platform admin links are listed below.",
 } as const;
 
 export const OPERATOR_ADVANCED_MODE = {

@@ -20,12 +20,12 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
       id: "operator-admin",
       label: "Administration",
       surface: "platform-admin",
-      caption: "Tenant settings, billing, users, and support.",
+      caption: "Settings, billing, users, and support.",
       links: [
         {
           href: "/settings/tenant",
-          label: "Tenant settings",
-          title: "Tenant settings — trial, digest email, and request scope",
+          label: OPERATOR_NAV_LINK_LABELS.settings,
+          title: `${OPERATOR_NAV_LINK_LABELS.workspaceSettings} — trial, digest email, and request scope`,
           icon: Building2,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",

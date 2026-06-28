@@ -34,8 +34,7 @@ export const auditExportControlDisabledTitle =
 export const enterpriseNavHintReaderRank = "";
 
 /** Sidebar / mobile: operator+ framing for Enterprise group (`operate-governance`; aligns with PRODUCT_PACKAGING §Layer B — not the first-session Pilot wedge). */
-export const enterpriseNavHintOperatorRank =
-  "Governance controls: policies, approvals, alerts, audit (after Pilot proves value).";
+export const enterpriseNavHintOperatorRank = "Controls, approvals, alerts, and audit";
 
 /**
  * `LayerHeader` rank-aware line under `enterpriseFootnote` on Enterprise Controls pages (same threshold as nav hints:

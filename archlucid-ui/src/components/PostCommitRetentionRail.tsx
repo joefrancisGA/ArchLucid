@@ -94,7 +94,7 @@ export function PostCommitRetentionRail({
                 href="/integrations/operations"
                 title={canMutate ? "Connector readiness and Service Bus posture" : "View connector readiness (read-only at your rank)"}
               >
-                Connector operations
+                Integration readiness
               </Link>
             </Button>
           </>
