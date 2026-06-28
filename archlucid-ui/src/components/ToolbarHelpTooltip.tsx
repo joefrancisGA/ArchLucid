@@ -1,6 +1,4 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
 
@@ -51,7 +49,7 @@ export function ToolbarHelpTooltip(props: ToolbarHelpTooltipProps): React.JSX.El
           />
         )}
       </TooltipTrigger>
-      <TooltipContent sideOffset={sideOffset} side={side} className={cn("max-w-xs", OPERATOR_TYPOGRAPHY.body)}>
+      <TooltipContent sideOffset={sideOffset} side={side} className="max-w-xs">
         {content}
       </TooltipContent>
     </Tooltip>

@@ -72,7 +72,7 @@ const CATALOG: Record<string, CatalogEntry> = {
   effective_governance: {
     term: "Effective governance",
     definition:
-      "The merged policy content for a scope (project → workspace → tenant) used for alerts, compliance, and advisories.",
+      "The merged policy content for this scope, used for alerts, compliance, and advisory decisions.",
     docLink: "/docs/library/GLOSSARY.md#effective-governance",
   },
   policy_pack: {

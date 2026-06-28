@@ -197,6 +197,19 @@ export const OPERATOR_TYPOGRAPHY = {
   executiveDashboardMetric: "text-2xl font-semibold tabular-nums text-al-text-primary",
 } as const;
 
+/** Inverse tooltip surface — paired with `--al-tooltip-*` in `globals.css`; do not reuse page caption tokens inside tooltips. */
+export const TOOLTIP_SURFACE = {
+  content:
+    "border border-[var(--al-tooltip-border)] bg-[var(--al-tooltip-bg)] text-[var(--al-tooltip-fg)] shadow-md",
+} as const;
+
+export const TOOLTIP_TYPOGRAPHY = {
+  body: "text-[13px] font-normal leading-5 text-[var(--al-tooltip-fg)]",
+  title: "text-[13px] font-semibold leading-5 text-[var(--al-tooltip-fg)]",
+  muted: "text-xs font-normal leading-[18px] text-[var(--al-tooltip-fg-muted)]",
+  link: "font-medium text-[var(--al-tooltip-link)] underline decoration-[var(--al-tooltip-link)]/60 underline-offset-2 hover:text-[var(--al-tooltip-link-hover)] hover:decoration-[var(--al-tooltip-link-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-tooltip-link)]",
+} as const;
+
 export const DESIGN_TOKENS = {
   typography: OPERATOR_TYPOGRAPHY,
   surface: {

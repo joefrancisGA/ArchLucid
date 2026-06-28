@@ -1,5 +1,6 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { TOOLTIP_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { useEffect, useState, type ReactNode } from "react";
@@ -56,17 +57,12 @@ export function GlossaryTooltip({ termKey, children, pulseOnFirstSession = true 
           {children}
         </span>
       </TooltipTrigger>
-      <TooltipContent side="top" className={cn("max-w-sm", OPERATOR_TYPOGRAPHY.body)}>
-        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{entry.term}</p>
-        <p className={cn("mb-0 mt-1.5 leading-snug", OPERATOR_TYPOGRAPHY.helper)}>{entry.definition}</p>
+      <TooltipContent side="top" className="pointer-events-auto max-w-sm py-2">
+        <p className={cn("m-0", TOOLTIP_TYPOGRAPHY.title)}>{entry.term}</p>
+        <p className={cn("mb-0 mt-1.5 leading-snug", TOOLTIP_TYPOGRAPHY.body)}>{entry.definition}</p>
         {entry.docLink !== undefined ? (
-          <p className={cn("mb-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-            <a
-              className="font-medium underline decoration-neutral-300 underline-offset-2 dark:decoration-neutral-600"
-              href={entry.docLink}
-              target="_blank"
-              rel="noreferrer"
-            >
+          <p className={cn("mb-0 mt-2", TOOLTIP_TYPOGRAPHY.body)}>
+            <a className={TOOLTIP_TYPOGRAPHY.link} href={entry.docLink} target="_blank" rel="noreferrer">
               Learn more in glossary →
             </a>
           </p>

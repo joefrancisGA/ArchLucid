@@ -13,7 +13,6 @@ import {
   KeyRound,
   LineChart,
   PackageCheck,
-  Scale,
   Settings2,
   ShieldCheck,
   Sparkles,
@@ -155,14 +154,6 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           title: "Architecture advisory — architecture scans and scan schedules",
           icon: Activity,
           tier: "advanced",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/governance-resolution",
-          label: OPERATOR_NAV_LINK_LABELS.governanceResolution,
-          title: "Policy resolution — diagnose effective policy, conflicts, and precedence for this scope",
-          icon: Scale,
-          tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
         {

@@ -1,6 +1,4 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
 
@@ -32,7 +30,7 @@ export function FieldHelpTooltip(props: FieldHelpTooltipProps): React.JSX.Elemen
           className={className}
         />
       </TooltipTrigger>
-      <TooltipContent className={cn("max-w-xs", OPERATOR_TYPOGRAPHY.body)} side={side}>
+      <TooltipContent className="max-w-xs" side={side}>
         {hint}
       </TooltipContent>
     </Tooltip>

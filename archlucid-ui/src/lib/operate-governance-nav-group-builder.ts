@@ -4,6 +4,7 @@ import {
   FileSearch,
   Gavel,
   GitBranch,
+  Scale,
   Shield,
   ShieldX,
 } from "lucide-react";
@@ -52,6 +53,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.policyPacks,
           title: "Manage standards used in reviews",
           icon: Shield,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/governance-resolution",
+          label: OPERATOR_NAV_LINK_LABELS.governanceResolution,
+          title: "Diagnose effective policy, conflicts, and precedence for this scope",
+          icon: Scale,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

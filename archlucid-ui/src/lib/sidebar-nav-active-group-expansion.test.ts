@@ -20,5 +20,6 @@ describe("findSidebarNavGroupIdsForActivePath", () => {
     const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, true, true, 3, false, "all", true, 2);
 
     expect(findSidebarNavGroupIdsForActivePath(rows, "/policy-packs")).toEqual(["operate-governance"]);
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/governance-resolution")).toEqual(["operate-governance"]);
   });
 });

@@ -1,5 +1,6 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { TOOLTIP_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { useEffect, useState, type ReactNode } from "react";
@@ -63,13 +64,13 @@ export function GlossaryTerm({ termId, children, pulseOnFirstSession = true }: G
           {children}
         </span>
       </TooltipTrigger>
-      <TooltipContent side="top" className={cn("max-w-sm pointer-events-auto", OPERATOR_TYPOGRAPHY.body)}>
-        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{entry.displayLabel}</p>
-        <p className={cn("mb-0 mt-1.5 leading-snug", OPERATOR_TYPOGRAPHY.helper)}>{entry.shortDefinition}</p>
-        <p className={cn("mb-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+      <TooltipContent side="top" className="pointer-events-auto max-w-sm py-2">
+        <p className={cn("m-0", TOOLTIP_TYPOGRAPHY.title)}>{entry.displayLabel}</p>
+        <p className={cn("mb-0 mt-1.5 leading-snug", TOOLTIP_TYPOGRAPHY.body)}>{entry.shortDefinition}</p>
+        <p className={cn("mb-0 mt-2", TOOLTIP_TYPOGRAPHY.body)}>
           <button
             type="button"
-            className="m-0 cursor-pointer border-0 bg-transparent p-0 font-medium text-inherit underline decoration-neutral-300 underline-offset-2 dark:decoration-neutral-600"
+            className={cn("m-0 cursor-pointer border-0 bg-transparent p-0", TOOLTIP_TYPOGRAPHY.link)}
             aria-expanded={learnMoreOpen}
             onClick={() => setLearnMoreOpen((prev) => !prev)}
           >
@@ -77,7 +78,12 @@ export function GlossaryTerm({ termId, children, pulseOnFirstSession = true }: G
           </button>
         </p>
         {learnMoreOpen ? (
-          <p className={cn("mb-0 mt-2 border-t border-neutral-700 pt-2 leading-snug dark:border-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          <p
+            className={cn(
+              "mb-0 mt-2 border-t border-[var(--al-tooltip-border)] pt-2 leading-snug",
+              TOOLTIP_TYPOGRAPHY.body,
+            )}
+          >
             {entry.longDefinition}
           </p>
         ) : null}

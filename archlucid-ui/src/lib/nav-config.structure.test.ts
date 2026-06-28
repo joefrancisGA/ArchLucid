@@ -123,6 +123,7 @@ describe("nav-config structure", () => {
       "/governance/findings",
       "/governance/risk-exceptions",
       "/policy-packs",
+      "/governance-resolution",
       "/governance/decision-register",
       "/audit",
       "/alerts",

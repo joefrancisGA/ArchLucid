@@ -46,6 +46,20 @@ describe("GlossaryTooltip", () => {
     expect(defMatches.length).toBeGreaterThan(0);
     const links = screen.getAllByRole("link", { name: /learn more in glossary/i });
     expect(links[0]).toHaveAttribute("href", GLOSSARY_TERMS.golden_manifest.docLink);
+    expect(links[0]?.className).toContain("text-[var(--al-tooltip-link)]");
+  });
+
+  it("uses effective governance copy with tooltip foreground tokens", async () => {
+    renderWithProvider(
+      <GlossaryTooltip termKey="effective_governance">Effective policy</GlossaryTooltip>,
+    );
+
+    fireEvent.pointerMove(screen.getByText("Effective policy"));
+
+    const definitions = await screen.findAllByText(GLOSSARY_TERMS.effective_governance.definition, { exact: true });
+
+    expect(definitions[0]?.className).toContain("text-[var(--al-tooltip-fg)]");
+    expect(definitions[0]?.className).not.toContain("text-al-text-secondary");
   });
 
   it("has no serious axe violations on the trigger and tooltip region", async () => {
