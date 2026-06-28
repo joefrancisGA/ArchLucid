@@ -168,6 +168,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-413 | Ship-gate Gate 1 first-review completion probe — contract-driven committed-run signals (status, manifest, request link, execution, artifacts, provenance graph) from `FIRST_REVIEW_COMPLETION_CONTRACT.v1.json`; Gate 1 PASS/FAIL with per-signal evidence | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
+| TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-402 | Automated AWS polling (Tier 2) — **Done (2026-06-27)** — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-403 | Automated GCP polling (Tier 2) — **Done (2026-06-27)** — hosted poller with GCP Workload Identity Federation (Azure MI trust); scheduled Cloud Asset Inventory collection; upload to `/v1/extractor/gcp/upload`; `/settings/cloud-connections` GCP connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards — **Done (2026-06-27)** — `sourceEvidenceLinks` on persisted recommendations + API; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
@@ -12177,3 +12178,37 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-412, `proof_packet_claim_lint_rules.v1.json`, assessment §4 gate 4.
+
+---
+
+## TB-416 — Ship-gate Gate 3 ROI coherence probe
+
+**Status:** **Done** (2026-06-29). `ShipGateEvidenceRunner.BuildGate3Async` runs `ShipGateRoiCoherenceProbe` on `GET /v1/roi/executive-summary`, validating disposition-aware scope codes/descriptions against canonical `RoiSponsorFacingScopeDescriptions`, required `basisBreakdown` buckets, and headline math (`totalEstimatedUsdSavings == openEstimatedUsd + needsEvidenceUsd`).
+
+**Source:** Assessment §4 gate 3 and §17 ship-gate evidence harness follow-on — Gate 3 only checked HTTP 200 and coarse field presence without asserting non-misleading ROI semantics.
+
+**Problem:** Ship-gate evidence could PASS Gate 3 when executive ROI payload drifted from canonical scope labels or headline math incoherent with disposition buckets.
+
+**V1 scope:**
+
+1. Add `ShipGateRoiCoherenceProbe` with per-signal PASS/FAIL results.
+2. Embed probe in Gate 3 evidence aggregation.
+3. Gate 3 **FAIL** when any coherence signal fails.
+
+**Acceptance criteria:**
+
+- Default ship-gate evidence run evaluates eight ROI coherence signals on executive summary JSON.
+- Unit tests in `ShipGateRoiCoherenceProbeTests` and Gate 3 fail path in `ShipGateEvidenceRunnerTests`.
+- Assessment §4 gate 3 reflects embedded structural ROI coherence probe.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/ShipGateRoiCoherenceProbe.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceRunner.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceCommand.cs`
+- `ArchLucid.Cli.Tests/ShipGateRoiCoherenceProbeTests.cs`
+- `ArchLucid.Cli.Tests/ShipGateEvidenceRunnerTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-412, TB-415, `fixtures/roi/roi-sponsor-facing-scope-labels.v1.json`, assessment §4 gate 3.

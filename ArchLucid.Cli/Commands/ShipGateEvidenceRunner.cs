@@ -254,28 +254,18 @@ internal sealed class ShipGateEvidenceRunner(
     {
         try
         {
-            using HttpResponseMessage response = await _http.GetAsync("/v1/roi/executive-summary", cancellationToken);
-            string body = await response.Content.ReadAsStringAsync(cancellationToken);
+            IReadOnlyList<ShipGateRoiCoherenceProbeResult> probeResults =
+                await ShipGateRoiCoherenceProbe.EvaluateAsync(_http, cancellationToken);
 
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                return new ShipGateEvidenceGateResult
-                {
-                    GateNumber = 3,
-                    Name = "Executive summary / ROI output coherent and not misleading",
-                    Verdict = ShipGateEvidenceVerdict.Fail,
-                    Evidence = $"GET /v1/roi/executive-summary -> HTTP {(int)response.StatusCode}; {Trim(body)}",
-                    FastestResolution = "Verify ReadAuthority scope and ROI endpoint availability, then rerun ship-gate evidence.",
-                };
-            }
+            int passCount = probeResults.Count(static result => result.Success);
+            int failCount = probeResults.Count - passCount;
+            string failedSummary = string.Join(
+                "; ",
+                probeResults
+                    .Where(static result => !result.Success)
+                    .Select(static result => $"{result.SignalId}={result.Detail}"));
 
-            using JsonDocument doc = JsonDocument.Parse(body);
-            JsonElement root = doc.RootElement;
-            bool hasHeadline = root.TryGetProperty("totalEstimatedUsdSavings", out _);
-            bool hasSystems = root.TryGetProperty("systems", out JsonElement systems) && systems.ValueKind == JsonValueKind.Array;
-            bool hasBasis = root.TryGetProperty("basisBreakdown", out _);
-
-            ShipGateEvidenceVerdict verdict = hasHeadline && hasSystems && hasBasis
+            ShipGateEvidenceVerdict verdict = failCount == 0
                 ? ShipGateEvidenceVerdict.Pass
                 : ShipGateEvidenceVerdict.Fail;
 
@@ -285,13 +275,13 @@ internal sealed class ShipGateEvidenceRunner(
                 Name = "Executive summary / ROI output coherent and not misleading",
                 Verdict = verdict,
                 Evidence =
-                    $"HTTP 200; totalEstimatedUsdSavings={hasHeadline}; systemsArray={hasSystems}; basisBreakdown={hasBasis}.",
+                    $"roiCoherenceSignalsPassed={passCount}/{probeResults.Count}; contractSignals={probeResults.Count}; failed=[{failedSummary}].",
                 FastestResolution = verdict == ShipGateEvidenceVerdict.Pass
                     ? null
-                    : "Ensure executive ROI payload includes headline, systems array, and basis breakdown fields on the active API contract.",
+                    : "Verify executive ROI payload includes disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on GET /v1/roi/executive-summary, then rerun ship-gate evidence.",
             };
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or InvalidOperationException)
         {
             return new ShipGateEvidenceGateResult
             {

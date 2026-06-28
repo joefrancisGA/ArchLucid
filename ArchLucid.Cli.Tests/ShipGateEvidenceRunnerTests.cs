@@ -7,6 +7,7 @@ using ArchLucid.Cli.Commands;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Roi;
 
 using FluentAssertions;
 
@@ -57,12 +58,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
-                    {
-                        totalEstimatedUsdSavings = 1234.56m,
-                        systems = new[] { new { systemName = "demo" } },
-                        basisBreakdown = new { openFindingsEstimatedUsd = 50m },
-                    }));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -114,12 +110,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
-                    {
-                        totalEstimatedUsdSavings = 0m,
-                        systems = Array.Empty<object>(),
-                        basisBreakdown = new { openFindingsEstimatedUsd = 0m },
-                    }));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -158,12 +149,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
-                    {
-                        totalEstimatedUsdSavings = 0,
-                        systems = Array.Empty<object>(),
-                        basisBreakdown = new { openFindingsEstimatedUsd = 0 },
-                    }));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -222,12 +208,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
-                    {
-                        totalEstimatedUsdSavings = 1234.56m,
-                        systems = new[] { new { systemName = "demo" } },
-                        basisBreakdown = new { openFindingsEstimatedUsd = 50m },
-                    }));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -293,12 +274,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
-                    {
-                        totalEstimatedUsdSavings = 1234.56m,
-                        systems = new[] { new { systemName = "demo" } },
-                        basisBreakdown = new { openFindingsEstimatedUsd = 50m },
-                    }));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -370,12 +346,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
-                    {
-                        totalEstimatedUsdSavings = 1234.56m,
-                        systems = new[] { new { systemName = "demo" } },
-                        basisBreakdown = new { openFindingsEstimatedUsd = 50m },
-                    }));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -428,12 +399,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
-                    {
-                        totalEstimatedUsdSavings = 1234.56m,
-                        systems = new[] { new { systemName = "demo" } },
-                        basisBreakdown = new { openFindingsEstimatedUsd = 50m },
-                    }));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -446,6 +412,61 @@ public sealed class ShipGateEvidenceRunnerTests
         ShipGateEvidenceReport report = await runner.RunAsync(RunId);
 
         report.Gates.Should().Contain(g => g.GateNumber == 1 && g.Verdict == ShipGateEvidenceVerdict.Fail);
+        report.AnyFail.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RunAsync_HeadlineMathDrift_FailsGate3()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                if (TryHandleTenantIsolationRequest(req, out HttpResponseMessage? isolationResponse))
+                    return Task.FromResult(isolationResponse!);
+
+                if (TryHandleExportMatrixRequest(req, out HttpResponseMessage? exportResponse))
+                    return Task.FromResult(exportResponse!);
+
+                if (TryHandleFirstReviewCompletionRequest(req, out HttpResponseMessage? completionResponse))
+                    return Task.FromResult(completionResponse!);
+
+                string path = req.RequestUri!.AbsolutePath;
+
+                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(
+                        HttpStatusCode.OK,
+                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationCompliantResults())));
+                }
+
+                if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new[]
+                    {
+                        new { artifactId = Guid.NewGuid().ToString("D") },
+                    }));
+                }
+
+                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(JsonResponse(
+                        HttpStatusCode.OK,
+                        BuildCoherentExecutiveSummaryPayload(headlineTotal: 999m)));
+                }
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient http = CreateClient(handler);
+        ShipGateEvidenceRunner runner = new(http, alternateScopeClientFactory: () => CreateAlternateClient(handler));
+
+        ShipGateEvidenceReport report = await runner.RunAsync(RunId);
+
+        ShipGateEvidenceGateResult gate3 = report.Gates.Single(g => g.GateNumber == 3);
+        gate3.Verdict.Should().Be(ShipGateEvidenceVerdict.Fail);
+        gate3.Evidence.Should().Contain("headline-math-coherent");
         report.AnyFail.Should().BeTrue();
     }
 
@@ -674,6 +695,33 @@ public sealed class ShipGateEvidenceRunnerTests
                 Headers = { ContentType = new MediaTypeHeaderValue(contentType) },
             },
         };
+
+    private static object BuildCoherentExecutiveSummaryPayload(
+        decimal headlineTotal = 150m,
+        decimal openEstimatedUsd = 100m,
+        decimal needsEvidenceUsd = 50m)
+    {
+        return new
+        {
+            totalEstimatedUsdSavings = headlineTotal,
+            headlineSavingsScopeCode = RoiSponsorFacingScopeCodes.HeadlineDispositionAware,
+            headlineSavingsScopeDescription = RoiSponsorFacingScopeDescriptions.HeadlineDispositionAware,
+            systemRowSavingsScopeCode = RoiSponsorFacingScopeCodes.SystemRowSnapshotPotential,
+            systemRowSavingsScopeDescription = RoiSponsorFacingScopeDescriptions.SystemRowSnapshotPotential,
+            systems = new[] { new { systemName = "demo", runId = RunId, estimatedUsdSavings = 75m } },
+            basisBreakdown = new
+            {
+                openEstimatedUsd,
+                needsEvidenceUsd,
+                realizedUsd = 0m,
+                acceptedRiskUsd = 0m,
+                deferredUsd = 0m,
+                waivedUsd = 0m,
+                rejectedNotApplicableUsd = 0m,
+                totalPotentialUsd = openEstimatedUsd + needsEvidenceUsd,
+            },
+        };
+    }
 
     private sealed class StubHandler : HttpMessageHandler
     {
