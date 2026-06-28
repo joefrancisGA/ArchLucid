@@ -81,7 +81,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
 
         Mock<IItsmFindingCorrelationRepository> correlations = new();
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(t =>
@@ -135,7 +135,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
                 CreatedUtc = DateTime.UtcNow
             });
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -173,7 +173,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
 
         Mock<IItsmFindingCorrelationRepository> correlations = new();
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -231,7 +231,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             .Setup(t => t.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantItsmOutboundSettings { JiraProjectKeyOverride = "TENANT" });
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             tenant.Object,
@@ -292,7 +292,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -350,7 +350,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             .Setup(t => t.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantItsmOutboundSettings { JiraSendInfoSeverity = true });
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             tenant.Object,
@@ -391,7 +391,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
 
         Mock<IItsmFindingCorrelationRepository> correlations = new();
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -441,7 +441,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "x", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Inspect(FindingSeverity.Warning));
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -475,7 +475,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "x", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Inspect(FindingSeverity.Error));
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -525,7 +525,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("sql down"));
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -593,7 +593,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
         IntegrationsItsmOutboundOptions outbound = OutboundJiraConfigured();
         outbound.ServiceNow = new ServiceNowItsmOutboundOptions { InstanceBaseUrl = "https://sn.example", Username = "u", Password = "p" };
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),

@@ -18,6 +18,8 @@ using Moq;
 using Polly;
 using Polly.Retry;
 
+using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundConnectorTestFixture;
+
 namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
 
 [Trait("Suite", "Core")]
@@ -58,7 +60,7 @@ public sealed class ItsmOutboundResilienceTests
         var options = ItsmOutboundConnectorTestFixture.OutboundJiraConfigured();
         options.Jira.CloudBaseUrl = "https://mock.jira.local";
 
-        var sut = new ItsmOutboundIssueCreationService(
+        var sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -121,7 +123,7 @@ public sealed class ItsmOutboundResilienceTests
 
         var options = ItsmOutboundConnectorTestFixture.OutboundServiceNowConfigured("https://mock.sn.local");
 
-        var sut = new ItsmOutboundIssueCreationService(
+        var sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),

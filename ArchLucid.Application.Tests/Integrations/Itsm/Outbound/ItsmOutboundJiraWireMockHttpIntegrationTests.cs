@@ -104,7 +104,7 @@ public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
             Timeout = TimeSpan.FromSeconds(120)
         };
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -172,7 +172,7 @@ public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
             Timeout = TimeSpan.FromSeconds(120)
         };
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -215,7 +215,7 @@ public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
         using HttpClient jiraHttp = new();
         jiraHttp.Timeout = TimeSpan.FromSeconds(120);
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),

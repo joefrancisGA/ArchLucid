@@ -109,7 +109,7 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
             Timeout = TimeSpan.FromSeconds(25)
         };
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -187,7 +187,7 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
         using HttpClient snowHttp = new();
         snowHttp.Timeout = TimeSpan.FromSeconds(15);
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -250,7 +250,7 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
         using HttpClient snowHttp = new();
         snowHttp.Timeout = TimeSpan.FromSeconds(15);
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),

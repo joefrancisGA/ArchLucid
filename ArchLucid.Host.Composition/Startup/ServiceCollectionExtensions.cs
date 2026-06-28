@@ -170,6 +170,14 @@ public static partial class ServiceCollectionExtensions
             .AddOutboundExternalHttpResilience();
         services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
             .AddOutboundExternalHttpResilience();
+        services.AddScoped<JiraExternalTicketConnector>();
+        services.AddScoped<ServiceNowExternalTicketConnector>();
+        services.AddScoped<IExternalTicketConnectorRegistry>(static sp =>
+            new ExternalTicketConnectorRegistry(
+            [
+                sp.GetRequiredService<JiraExternalTicketConnector>(),
+                sp.GetRequiredService<ServiceNowExternalTicketConnector>()
+            ]));
         services
             .AddHttpClient(
                 ItsmOutboundIntegrationHealthLimits.HttpClientName,

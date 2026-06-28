@@ -34,7 +34,7 @@ public sealed class ItsmOutboundJiraVendorHttpConformanceTests
             .ReturnsAsync(Inspect(FindingSeverity.Error, findingId: "x"));
 
         ScopeContext scope = Scope();
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -85,7 +85,7 @@ public sealed class ItsmOutboundJiraVendorHttpConformanceTests
             .Returns(Task.CompletedTask);
 
         ScopeContext scope = Scope();
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -123,7 +123,7 @@ public sealed class ItsmOutboundJiraVendorHttpConformanceTests
             .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "x", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Inspect(FindingSeverity.Warning, findingId: "x"));
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),

@@ -1,12 +1,12 @@
-using ArchLucid.Core.Integrations.Itsm;
+using ArchLucid.Application.Integrations.Itsm.Outbound;
 
 namespace ArchLucid.Application.Integrations.Itsm;
 
-/// <summary>Builds operator-facing browse URLs for linked Jira issues and ServiceNow incidents.</summary>
-public sealed class ItsmExternalTicketUrlBuilder(IItsmTenantConnectorCredentialResolver credentialResolver)
+/// <summary>Builds operator-facing browse URLs for linked external tickets via connector plugins (TB-397).</summary>
+public sealed class ItsmExternalTicketUrlBuilder(IExternalTicketConnectorRegistry connectorRegistry)
 {
-    private readonly IItsmTenantConnectorCredentialResolver _credentialResolver =
-        credentialResolver ?? throw new ArgumentNullException(nameof(credentialResolver));
+    private readonly IExternalTicketConnectorRegistry _connectorRegistry =
+        connectorRegistry ?? throw new ArgumentNullException(nameof(connectorRegistry));
 
     public async Task<string?> TryBuildBrowseUrlAsync(
         Guid tenantId,
@@ -18,34 +18,16 @@ public sealed class ItsmExternalTicketUrlBuilder(IItsmTenantConnectorCredentialR
         if (string.IsNullOrWhiteSpace(provider) || string.IsNullOrWhiteSpace(externalKey))
             return null;
 
-        if (provider.Equals("Jira", StringComparison.OrdinalIgnoreCase))
+        foreach (IExternalTicketConnector connector in _connectorRegistry.Connectors)
         {
-            string? baseUrl = await ResolveBaseUrlAsync(tenantId, TenantItsmConnectorProvider.Jira, cancellationToken)
+            if (!connector.ProviderLabel.Equals(provider, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            return await connector
+                .TryBuildBrowseUrlAsync(tenantId, externalKey, externalSysId, cancellationToken)
                 .ConfigureAwait(false);
-
-            if (baseUrl is null)
-                return null;
-
-            return $"{baseUrl}/browse/{Uri.EscapeDataString(externalKey.Trim())}";
-        }
-
-        if (provider.Equals("ServiceNow", StringComparison.OrdinalIgnoreCase))
-        {
-            string? baseUrl = await ResolveBaseUrlAsync(tenantId, TenantItsmConnectorProvider.ServiceNow, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (baseUrl is null || string.IsNullOrWhiteSpace(externalSysId))
-                return null;
-
-            return $"{baseUrl}/nav_to.do?uri=incident.do?sys_id={Uri.EscapeDataString(externalSysId.Trim())}";
         }
 
         return null;
     }
-
-    private Task<string?> ResolveBaseUrlAsync(
-        Guid tenantId,
-        TenantItsmConnectorProvider provider,
-        CancellationToken cancellationToken) =>
-        _credentialResolver.TryResolveInstanceBaseUrlAsync(tenantId, provider, cancellationToken);
 }

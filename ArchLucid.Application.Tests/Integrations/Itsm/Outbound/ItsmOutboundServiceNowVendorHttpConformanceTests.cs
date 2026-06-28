@@ -82,7 +82,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
             .Returns(Task.CompletedTask);
 
         ScopeContext scope = Scope();
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -150,7 +150,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
             .ReturnsAsync(new RunRecord { ArchitectureRequestId = null });
 
         ScopeContext scope = Scope();
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -196,7 +196,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
             .ReturnsAsync(new RunRecord { ArchitectureRequestId = null });
 
         ScopeContext scope = Scope();
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -254,7 +254,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
             .ReturnsAsync(new ArchitectureRequest { SystemName = "BillingSvc" });
 
         ScopeContext scope = Scope();
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -349,7 +349,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
             .Returns(Task.CompletedTask);
 
         ScopeContext scope = Scope();
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -472,7 +472,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
             .Returns(Task.CompletedTask);
 
         ScopeContext scope = Scope();
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             tenantSettings.Object,
@@ -569,7 +569,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
             .Returns(Task.CompletedTask);
 
         ScopeContext scope = Scope();
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             tenantSettings.Object,

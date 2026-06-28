@@ -5,7 +5,11 @@ using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Secrets;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Integrations;
+using ArchLucid.Persistence.Interfaces;
+
+using ArchLucid.TestSupport.Http;
 
 using FluentAssertions;
 
@@ -92,6 +96,99 @@ internal static class ItsmOutboundConnectorTestFixture
             new NullSecretProvider(),
             Monitor(outbound).Object,
             inboundMonitor.Object);
+    }
+
+    public static IExternalTicketConnectorRegistry ConnectorRegistry(
+        IItsmFindingCorrelationRepository correlations,
+        ITenantItsmOutboundSettingsRepository tenantItsmOutboundSettings,
+        IRunRepository runRepository,
+        IArchitectureRequestRepository architectureRequests,
+        IItsmTenantConnectorCredentialResolver credentialResolver,
+        IOptionsMonitor<IntegrationsItsmOutboundOptions> outboundOptions,
+        IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
+        JiraOutboundIssueClient jiraClient,
+        ServiceNowOutboundIncidentClient serviceNowClient) =>
+        new ExternalTicketConnectorRegistry(
+        [
+            new JiraExternalTicketConnector(
+                correlations,
+                credentialResolver,
+                outboundOptions,
+                publicSiteOptions,
+                tenantItsmOutboundSettings,
+                jiraClient),
+            new ServiceNowExternalTicketConnector(
+                correlations,
+                credentialResolver,
+                publicSiteOptions,
+                runRepository,
+                architectureRequests,
+                serviceNowClient)
+        ]);
+
+    public static ItsmOutboundIssueCreationService IssueCreationService(
+        IFindingInspectReadRepository findingInspectReadRepository,
+        IItsmFindingCorrelationRepository correlations,
+        ITenantItsmOutboundSettingsRepository tenantItsmOutboundSettings,
+        IRunRepository runRepository,
+        IArchitectureRequestRepository architectureRequests,
+        IItsmTenantConnectorCredentialResolver credentialResolver,
+        IOptionsMonitor<IntegrationsItsmOutboundOptions> outboundOptions,
+        IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
+        JiraOutboundIssueClient jiraClient,
+        ServiceNowOutboundIncidentClient serviceNowClient) =>
+        new(
+            findingInspectReadRepository,
+            correlations,
+            tenantItsmOutboundSettings,
+            ConnectorRegistry(
+                correlations,
+                tenantItsmOutboundSettings,
+                runRepository,
+                architectureRequests,
+                credentialResolver,
+                outboundOptions,
+                publicSiteOptions,
+                jiraClient,
+                serviceNowClient));
+
+    public static ItsmExternalTicketUrlBuilder UrlBuilder(
+        IItsmFindingCorrelationRepository correlations,
+        ITenantItsmOutboundSettingsRepository tenantItsmOutboundSettings,
+        IRunRepository runRepository,
+        IArchitectureRequestRepository architectureRequests,
+        IItsmTenantConnectorCredentialResolver credentialResolver,
+        IOptionsMonitor<IntegrationsItsmOutboundOptions> outboundOptions,
+        IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
+        JiraOutboundIssueClient jiraClient,
+        ServiceNowOutboundIncidentClient serviceNowClient) =>
+        new(
+            ConnectorRegistry(
+                correlations,
+                tenantItsmOutboundSettings,
+                runRepository,
+                architectureRequests,
+                credentialResolver,
+                outboundOptions,
+                publicSiteOptions,
+                jiraClient,
+                serviceNowClient));
+
+    public static ItsmExternalTicketUrlBuilder UrlBuilder(IntegrationsItsmOutboundOptions outbound)
+    {
+        HttpMessageHandler noop = new UnexpectedHttpCallMessageHandler();
+        IItsmTenantConnectorCredentialResolver credentialResolver = CredentialResolver(outbound);
+
+        return UrlBuilder(
+            new InMemoryItsmFindingCorrelationRepository(),
+            Mock.Of<ITenantItsmOutboundSettingsRepository>(),
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IArchitectureRequestRepository>(),
+            credentialResolver,
+            Monitor(outbound).Object,
+            PublicSiteMonitor().Object,
+            JiraClient(noop),
+            ServiceNowClient(noop));
     }
 
     public static void AssertBasicAuthPresent(HttpRequestMessage request)

@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-27 (TB-396 **Done** — inbound ITSM disposition sync; TB-392 **Done**; TB-393 **Done** — per-tenant ITSM credentials + settings write API/UI; automated AWS polling **TB-402** and automated GCP polling **TB-403** — V1.1). Prior: 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~58 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-27 (TB-397 **Done** — `IExternalTicketConnector` plugin boundary; TB-396 **Done** — inbound ITSM disposition sync; TB-392 **Done**; TB-393 **Done** — per-tenant ITSM credentials + settings write API/UI; automated AWS polling **TB-402** and automated GCP polling **TB-403** — V1.1). Prior: 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~58 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -169,7 +169,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-394 | Durable async ITSM outbound ticket creation — enqueue outbound create on existing outbox/background-job infrastructure; retry/DLQ after HTTP Polly exhaustion; operator-visible pending/failed state | **Done** (2026-06-27) — Reliability P2 **V1.1** | M |
 | TB-395 | Finding assignee + general remediation due date — add `AssignedToUserId` and `RemediationDueUtc` to `Finding` contract + `FindingRecords` SQL; expose on inspect/risk-register; map in outbound payload builder | **Done** (2026-06-27) — Architectural integrity P2 **V1.1** | M |
 | TB-396 | Inbound ITSM disposition sync — extend inbound webhook mapping beyond `HumanReviewStatus` to update latest `FindingDisposition` where configured; document status→disposition map in inbound options | **Done** (2026-06-27) — Interoperability P2 **V1.1** | M |
-| TB-397 | `IExternalTicketConnector` plugin boundary ? shared port + provider registry; refactor `JiraOutboundIssueClient` / `ServiceNowOutboundIncidentClient` behind it without changing Authority event payloads | Architectural integrity P2 ? **V2** prerequisite before vendor #3 | M |
+| TB-397 | `IExternalTicketConnector` plugin boundary — shared port + provider registry; refactor `JiraOutboundIssueClient` / `ServiceNowOutboundIncidentClient` behind it without changing Authority event payloads | **Done** (2026-06-27) — Architectural integrity P2 **V2** prerequisite | M |
 | TB-398 | Full enterprise ITSM connector ? OAuth flows, field-mapping UI, custom workflow mapping, bidirectional status sync, tenant connector onboarding wizard | Interoperability P3 ? **V2**; explicitly out of V1/V1.1 scope unless owner promotes | L |
 | TB-196 | Reasoning token cost underreporting fix ? update `AgentExecutionTraceRunLlmCostAggregator.Compute()` to pass `trace.ReasoningTokenCount ?? 0` (not literal `0`) to `costEstimator.EstimateUsd`; add test covering reasoning-token cost path | **Done (2026-06-02 batch 5R)** ? aggregator forwards reasoning tokens (shipped 5J); `AgentExecutionTraceRunLlmCostAggregatorTests`; `test_correctness_batch_5r.py` drift guard | XS |
 | TB-197 | `GovernanceWorkflowService.PromoteAsync` ? wrap `approvalRepo.UpdateAsync` + `promotionRepo.CreateAsync` in single `IArchLucidUnitOfWork`; add atomicity test | **Done (2026-06-02 batch 5J)** ? single UoW commit/rollback; `IGovernanceApprovalRequestRepository.UpdateAsync` accepts external connection/transaction | S |
@@ -11474,29 +11474,11 @@ Core `Finding` has no `AssignedToUserId` or general remediation due date. Risk-r
 
 ---
 
-## TB-397 — `IExternalTicketConnector` plugin boundary — **V2**
+## TB-397 — `IExternalTicketConnector` plugin boundary — **Done (2026-06-27)**
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 
-**Problem:**
-
-Jira and ServiceNow are concrete HTTP clients selected by `ItsmOutboundIssueProvider` enum inside `ItsmOutboundIssueCreationService`. Adding Azure DevOps Work Items, Linear, or other targets requires new switch arms and duplicate orchestration. `IConnector*` under `ContextIngestion` is the wrong domain (inbound context ingestion).
-
-**Scope:**
-
-1. Define `IExternalTicketConnector` (create ticket, build browse URL, validate config, provider id).
-2. Register Jira + ServiceNow implementations in DI; refactor creation service to resolve by provider id.
-3. Keep Authority-shaped outbound payloads unchanged per [`V1_DEFERRED.md`](V1_DEFERRED.md) §6 connector rules.
-4. Architecture test: Application must not reference vendor HTTP types from API controllers directly.
-
-**Acceptance criteria:**
-
-- Adding a third provider requires a new connector class + registration, not edits across controller/service switch statements.
-
-**Affected files / projects:**
-
-- `ArchLucid.Application/Integrations/Itsm/Outbound/`
-- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.cs`
+**Shipped:** `IExternalTicketConnector` + `IExternalTicketConnectorRegistry` with Jira/ServiceNow implementations; `ItsmOutboundIssueCreationService` resolves connectors by provider id; browse URLs delegate through registry; architecture test guards API controllers from vendor HTTP client types.
 
 **Size estimate:** **M**
 

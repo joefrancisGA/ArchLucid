@@ -2,16 +2,21 @@ using ArchLucid.Api.Controllers.Integrations;
 using ArchLucid.Api.Models.Integrations;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Integrations.Itsm;
+using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Secrets;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Integrations;
+using ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
+using ArchLucid.TestSupport.Http;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -247,9 +252,31 @@ public sealed class ItsmCorrelationControllerTests
             outboundOptions.Object,
             inboundOptions.Object);
 
+        Mock<IOptionsMonitor<PublicSiteOptions>> publicSiteOptions = new();
+        publicSiteOptions.Setup(monitor => monitor.CurrentValue).Returns(new PublicSiteOptions());
+
+        HttpMessageHandler noop = new UnexpectedHttpCallMessageHandler();
+        IExternalTicketConnectorRegistry connectorRegistry = new ExternalTicketConnectorRegistry(
+        [
+            new JiraExternalTicketConnector(
+                correlations,
+                credentialResolver,
+                outboundOptions.Object,
+                publicSiteOptions.Object,
+                Mock.Of<ITenantItsmOutboundSettingsRepository>(),
+                new JiraOutboundIssueClient(new HttpClient(noop), NullLogger<JiraOutboundIssueClient>.Instance)),
+            new ServiceNowExternalTicketConnector(
+                correlations,
+                credentialResolver,
+                publicSiteOptions.Object,
+                Mock.Of<IRunRepository>(),
+                Mock.Of<IArchitectureRequestRepository>(),
+                new ServiceNowOutboundIncidentClient(new HttpClient(noop), NullLogger<ServiceNowOutboundIncidentClient>.Instance))
+        ]);
+
         ItsmFindingCorrelationQueryService queryService = new(
             correlations,
-            new ItsmExternalTicketUrlBuilder(credentialResolver));
+            new ItsmExternalTicketUrlBuilder(connectorRegistry));
 
         return new ItsmCorrelationController(
             scopeProvider.Object,

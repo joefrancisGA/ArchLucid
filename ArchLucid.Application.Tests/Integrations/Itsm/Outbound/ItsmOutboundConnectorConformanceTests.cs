@@ -35,7 +35,7 @@ public sealed class ItsmOutboundConnectorConformanceTests
         IntegrationsItsmOutboundOptions outbound = OutboundJiraConfigured();
         outbound.Jira = new JiraItsmOutboundOptions { CloudBaseUrl = "", ServiceAccountEmail = "", ApiToken = "" };
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -72,7 +72,7 @@ public sealed class ItsmOutboundConnectorConformanceTests
 
         ScopeContext scope = Scope();
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -110,7 +110,7 @@ public sealed class ItsmOutboundConnectorConformanceTests
         IntegrationsItsmOutboundOptions outbound = OutboundJiraConfigured();
         outbound.ServiceNow = new ServiceNowItsmOutboundOptions { InstanceBaseUrl = string.Empty, Username = string.Empty, Password = string.Empty };
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),

@@ -62,7 +62,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
         IntegrationsItsmOutboundOptions options = OutboundJiraConfigured();
         options.Jira.CloudBaseUrl = server.BaseUrl;
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -119,7 +119,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
         IntegrationsItsmOutboundOptions options = OutboundJiraConfigured();
         options.Jira.CloudBaseUrl = server.BaseUrl;
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -203,7 +203,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
         using HttpClient httpForJira = new(resilience);
         httpForJira.Timeout = TimeSpan.FromSeconds(8);
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             correlations.Object,
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),
@@ -242,7 +242,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
         using HttpClient httpForJira = new(new HttpClientHandler());
         httpForJira.Timeout = TimeSpan.FromMilliseconds(800);
 
-        ItsmOutboundIssueCreationService sut = new(
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
             Mock.Of<ITenantItsmOutboundSettingsRepository>(),

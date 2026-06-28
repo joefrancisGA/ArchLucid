@@ -182,10 +182,10 @@ public sealed class RunFindingExternalTrackingEnrichmentServiceTests
 
         RunFindingExternalTrackingEnrichmentService sut = new(
             readRepository.Object,
-            new ItsmExternalTicketUrlBuilder(CredentialResolver(new IntegrationsItsmOutboundOptions
+            UrlBuilder(new IntegrationsItsmOutboundOptions
             {
                 Jira = new JiraItsmOutboundOptions { CloudBaseUrl = "https://example.atlassian.net" }
-            })));
+            }));
 
         IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> result =
             await sut.LoadForFindingsAsync(
