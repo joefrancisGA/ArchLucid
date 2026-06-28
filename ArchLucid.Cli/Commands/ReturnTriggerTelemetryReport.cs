@@ -21,4 +21,25 @@ internal sealed class ReturnTriggerTelemetryReport
         new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
     public bool AnyFail => OverallVerdict == ReturnTriggerTelemetryVerdict.Fail;
+
+    public string? JsonArtifactPath { get; init; }
+
+    public string? MarkdownArtifactPath { get; init; }
+
+    internal ReturnTriggerTelemetryReport WithOutputMetadata(
+        string? jsonArtifactPath,
+        string? markdownArtifactPath) =>
+        new()
+        {
+            RepositoryRoot = RepositoryRoot,
+            LedgerDirectory = LedgerDirectory,
+            GeneratedUtc = GeneratedUtc,
+            OverallVerdict = OverallVerdict,
+            Checks = Checks,
+            CohortMetrics = CohortMetrics,
+            ReturnTriggerCounts = ReturnTriggerCounts,
+            DismissalTriggerCounts = DismissalTriggerCounts,
+            JsonArtifactPath = jsonArtifactPath,
+            MarkdownArtifactPath = markdownArtifactPath,
+        };
 }

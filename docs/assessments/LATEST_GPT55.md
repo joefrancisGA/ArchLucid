@@ -1,11 +1,11 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **88.12%**.
+ArchLucid Assessment - (A) Headline Readiness: **88.32%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
-- **Assessment timestamp:** 2026-06-29T18:00:00-04:00.
+- **Assessment timestamp:** 2026-06-29T22:00:00-04:00.
 - **Source materials inspected (required read list):**
   1. `docs/library/REPO_DIGEST.md`
   2. `docs/library/V1_SCOPE.md`
@@ -32,7 +32,7 @@ ArchLucid Assessment - (A) Headline Readiness: **88.12%**.
 
 | # | Quality | Score | Weight | Weighted contribution | Weighted deficiency signal |
 |---|---------|------:|-------:|----------------------:|---------------------------:|
-| 1 | Decision-Changing Insight Density | 85 | 13 | 11.05 | 195 |
+| 1 | Decision-Changing Insight Density | 86 | 13 | 11.18 | 182 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 88 | 13 | 11.44 | 156 |
 | 3 | Governed Review Integrity | 98 | 13 | 12.74 | 26 |
 | 4 | Correctness & Evidence Integrity | 95 | 12 | 11.40 | 60 |
@@ -40,9 +40,9 @@ ArchLucid Assessment - (A) Headline Readiness: **88.12%**.
 | 6 | Time-to-Value | 81 | 10 | 8.10 | 190 |
 | 7 | Proof-of-ROI Readiness | 86 | 9 | 7.74 | 126 |
 | 8 | Executive / Operator Comprehension | 86 | 8 | 6.88 | 112 |
-| 9 | Runtime & First-Review Reliability | 86 | 7 | 6.02 | 98 |
+| 9 | Runtime & First-Review Reliability | 87 | 7 | 6.09 | 91 |
 | 10 | Adoption Friction | 85 | 5 | 4.25 | 75 |
-|  | **(A) Headline readiness** |  | **100** | **88.12** |  |
+|  | **(A) Headline readiness** |  | **100** | **88.32** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -70,7 +70,7 @@ These diagnostics do **not** feed `(A)` directly.
 6. **Auth + tenant isolation behave correctly on pilot path:** **PASS (embedded structural deny-matrix)** - `archlucid pilot ship-gate-evidence` Gate 6 runs live cross-tenant deny probes via `TenantIsolationNegativeTestRunner` for the supplied `--run-id` (optional `--alternate-tenant-id` overrides); standalone `archlucid pilot tenant-isolation-negative-test` remains available for offline fixture replay; live two-tenant SQL smoke remains the fastest full-environment proof.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **88.12%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credentials (TB-392), operator-configurable outbound settings UI (TB-393), durable async outbound ticket creation (TB-394), finding remediation assignee/due fields on inspect and risk register (TB-395), inbound ITSM disposition sync when configured (TB-396), pluggable external ticket connectors for outbound create (TB-397), automated AWS Tier 2 cloud polling at Azure extractor parity (TB-402), automated GCP Tier 2 cloud polling completing the Azure/AWS/GCP hosted extractor cluster (TB-403), buyer-facing signed-records route aliases removing manifest jargon from browser URLs (TB-399), advisory recommendation source-evidence deep links on persisted recommendation cards (TB-400), operator nav ↔ URL prefix policy with CI drift guard documenting intentional cross-namespace sidebar hrefs (TB-404), governance route tree consolidation under `/governance/*` with permanent legacy redirects (TB-405), Administration route namespace reconciliation under `/settings/*` with recurrence schedules in Governance nav (TB-406), integrations route namespace reconciliation under `/integrations/*` with cloud connections and ITSM redirect hygiene (TB-407), nav deduplication and semantic path aliases for AI usage and integration readiness (TB-408), ship-gate Gate 2 citation-integrity probe embedded in the unified ship-gate evidence bundle (TB-409), ship-gate Gate 5 first-review UI route smoke via optional `--ui-base-url` (TB-410), ship-gate Gate 6 tenant-isolation negative-test embed for the representative `--run-id` (TB-411), ship-gate Gate 4 export matrix embed for Markdown/DOCX/ZIP sponsor proof routes (TB-412), ship-gate Gate 1 first-review completion probe for committed-run structural signals (TB-413), ship-gate Gate 5 default UI origin resolution with env/config/default localhost and `--skip-ui-route-smoke` escape hatch (TB-414), ship-gate Gate 4 first-value claim lint embed on sponsor Markdown via shared `ProofPacketClaimLinter` (TB-415), ship-gate Gate 3 ROI coherence probe for disposition-aware executive summary semantics (TB-416), ship-gate Gate 4 traceability bundle ZIP embed completing the four-route export matrix (TB-417), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
+- **(A) Overall headline readiness (excludes deferred items):** **88.32%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credentials (TB-392), operator-configurable outbound settings UI (TB-393), durable async outbound ticket creation (TB-394), finding remediation assignee/due fields on inspect and risk register (TB-395), inbound ITSM disposition sync when configured (TB-396), pluggable external ticket connectors for outbound create (TB-397), automated AWS Tier 2 cloud polling at Azure extractor parity (TB-402), automated GCP Tier 2 cloud polling completing the Azure/AWS/GCP hosted extractor cluster (TB-403), buyer-facing signed-records route aliases removing manifest jargon from browser URLs (TB-399), advisory recommendation source-evidence deep links on persisted recommendation cards (TB-400), operator nav ↔ URL prefix policy with CI drift guard documenting intentional cross-namespace sidebar hrefs (TB-404), governance route tree consolidation under `/governance/*` with permanent legacy redirects (TB-405), Administration route namespace reconciliation under `/settings/*` with recurrence schedules in Governance nav (TB-406), integrations route namespace reconciliation under `/integrations/*` with cloud connections and ITSM redirect hygiene (TB-407), nav deduplication and semantic path aliases for AI usage and integration readiness (TB-408), ship-gate Gate 2 citation-integrity probe embedded in the unified ship-gate evidence bundle (TB-409), ship-gate Gate 5 first-review UI route smoke via optional `--ui-base-url` (TB-410), ship-gate Gate 6 tenant-isolation negative-test embed for the representative `--run-id` (TB-411), ship-gate Gate 4 export matrix embed for Markdown/DOCX/ZIP sponsor proof routes (TB-412), ship-gate Gate 1 first-review completion probe for committed-run structural signals (TB-413), ship-gate Gate 5 default UI origin resolution with env/config/default localhost and `--skip-ui-route-smoke` escape hatch (TB-414), ship-gate Gate 4 first-value claim lint embed on sponsor Markdown via shared `ProofPacketClaimLinter` (TB-415), ship-gate Gate 3 ROI coherence probe for disposition-aware executive summary semantics (TB-416), ship-gate Gate 4 traceability bundle ZIP embed completing the four-route export matrix (TB-417), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -94,9 +94,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.2 Decision-Changing Insight Density
-- **Score / Weight / Contribution / Deficiency:** 85 / 13 / 11.05 / 195
+- **Score / Weight / Contribution / Deficiency:** 86 / 13 / 11.18 / 182
 - **Affects outcomes:** 1, 3, 5
-- **Justification:** policy/evidence/governance scaffolding can produce insights frontier AI chat alone often fails to package defensibly; frontier-AI baseline, return-trigger telemetry, and decision-owner accountability scoreboards now give repeatable paths to measure attributed decision change, but live buyer field proof is still limited.
+- **Justification:** policy/evidence/governance scaffolding can produce insights frontier AI chat alone often fails to package defensibly; frontier-AI baseline, return-trigger telemetry with default operational artifact retention (TB-422), and decision-owner accountability scoreboards now give repeatable paths to measure attributed decision change and cohort reuse/dismissal guardrails, but live buyer field proof is still limited.
 - **Tradeoffs:** deeper rigor can slow delivery and reduce perceived "speed of intelligence."
 - **Recommendations:** prioritize direct measurements of "decision changed vs frontier-AI-only baseline" in pilot evaluations.
 - **Classification:** validation first
@@ -144,9 +144,9 @@ These diagnostics do **not** feed `(A)` directly.
 ### 7.8 Runtime & First-Review Reliability
 - **Score / Weight / Contribution / Deficiency:** 86 / 7 / 6.02 / 98
 - **Affects outcomes:** 2, 3
-- **Justification:** architecture and contracts are mature; ship-gate evidence embeds first-review completion Gate 1, citation-integrity Gate 2, ROI coherence Gate 3, export matrix Gate 4 (Markdown/DOCX/ZIP) with first-value claim lint (TB-415), first-review UI route smoke Gate 5 with default localhost/env/config resolution (TB-414), and live tenant-isolation deny-matrix Gate 6 for the representative `--run-id`; default operational artifact bundles for ship-gate (TB-418), tenant-isolation (TB-419), and citation-integrity (TB-420) auto-write JSON + Markdown under `artifacts/` for release-train retention with overall PASS/FAIL/UNKNOWN or cohort verdict rollups; Playwright session depth remains environment-dependent when `--skip-ui-route-smoke` is used.
+- **Justification:** architecture and contracts are mature; ship-gate evidence embeds first-review completion Gate 1, citation-integrity Gate 2, ROI coherence Gate 3, export matrix Gate 4 (Markdown/DOCX/ZIP) with first-value claim lint (TB-415), first-review UI route smoke Gate 5 with default localhost/env/config resolution (TB-414), and live tenant-isolation deny-matrix Gate 6 for the representative `--run-id`; default operational artifact bundles for ship-gate (TB-418), tenant-isolation (TB-419), citation-integrity (TB-420), buyer-proof ledger (TB-421), and return-trigger telemetry (TB-422) auto-write JSON + Markdown under `artifacts/` for release-train retention with overall PASS/FAIL/UNKNOWN or cohort verdict rollups; Playwright session depth remains environment-dependent when `--skip-ui-route-smoke` is used.
 - **Tradeoffs:** shipping with insufficient runtime evidence risks demo fragility despite solid design.
-- **Recommendations:** wire ship-gate, tenant-isolation, and citation-integrity artifact paths into release-train CI and pilot readiness checklists.
+- **Recommendations:** wire ship-gate, tenant-isolation, citation-integrity, buyer-proof, and return-trigger telemetry artifact paths into release-train CI and pilot readiness checklists.
 - **Classification:** V1
 
 ### 7.9 Governed Review Integrity
@@ -741,6 +741,14 @@ Non-goals:
 - **Affected qualities:** 3, 7.
 - **Classification:** V1 engineering.
 - **Rescore impact:** Governed Review Integrity +1 and Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **87.90%** to **88.12%**.
+
+**42) Return-trigger telemetry default operational artifact bundle (TB-422)**
+- **Status:** shipped (2026-06-29).
+- **Implementation summary:** default `archlucid pilot return-trigger-telemetry` auto-writes JSON + Markdown under `artifacts/return-trigger-telemetry/{ledger-name}/` (default `return-trigger-sessions`) when repository root resolves; artifact path metadata included on cohort guardrail output; `--no-write-artifacts` preserves stdout-only runs; explicit `--json-out` / `--markdown-out` override defaults.
+- **Validation evidence:** `ReturnTriggerTelemetryOutputPathsTests` covers default ledger paths, explicit override, suppress flag, and artifact key resolution from ledger directory name.
+- **Affected qualities:** 1, 9.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1 and Runtime & First-Review Reliability +1; `(A)` headline readiness rises from **88.12%** to **88.32%**.
 
 ## 18. Prompt Batching Guidance
 - **First batch (strong-model-recommended):** ship-gate evidence harness, tenant-isolation negative-test bundle, and citation-integrity sampler.

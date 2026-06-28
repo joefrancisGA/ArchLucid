@@ -46,14 +46,35 @@ internal static class ReturnTriggerTelemetryCommand
         ReturnTriggerTelemetryRunner runner = new();
         ReturnTriggerTelemetryReport report = runner.Run(repositoryRoot, options, rules);
 
-        string json = JsonSerializer.Serialize(report, JsonOptions);
-        string markdown = BuildMarkdown(report);
+        string artifactKey = ReturnTriggerTelemetryOutputPaths.ResolveArtifactKey(report);
+        ReturnTriggerTelemetryOutputResolution outputPaths =
+            ReturnTriggerTelemetryOutputPaths.Resolve(options, repositoryRoot, artifactKey);
+        ReturnTriggerTelemetryReport finalReport = report.WithOutputMetadata(
+            outputPaths.JsonPath,
+            outputPaths.MarkdownPath);
 
-        if (!string.IsNullOrWhiteSpace(options.JsonOutPath))
-            File.WriteAllText(options.JsonOutPath, json, Encoding.UTF8);
+        string json = JsonSerializer.Serialize(finalReport, JsonOptions);
+        string markdown = BuildMarkdown(finalReport);
 
-        if (!string.IsNullOrWhiteSpace(options.MarkdownOutPath))
-            File.WriteAllText(options.MarkdownOutPath, markdown, Encoding.UTF8);
+        if (outputPaths.WillWriteJson)
+        {
+            string jsonDirectory = Path.GetDirectoryName(outputPaths.JsonPath!)!;
+
+            if (!Directory.Exists(jsonDirectory))
+                Directory.CreateDirectory(jsonDirectory);
+
+            File.WriteAllText(outputPaths.JsonPath!, json, Encoding.UTF8);
+        }
+
+        if (outputPaths.WillWriteMarkdown)
+        {
+            string markdownDirectory = Path.GetDirectoryName(outputPaths.MarkdownPath!)!;
+
+            if (!Directory.Exists(markdownDirectory))
+                Directory.CreateDirectory(markdownDirectory);
+
+            File.WriteAllText(outputPaths.MarkdownPath!, markdown, Encoding.UTF8);
+        }
 
         if (CliExecutionContext.JsonOutput)
         {
@@ -61,12 +82,12 @@ internal static class ReturnTriggerTelemetryCommand
         }
         else
         {
-            WriteConsoleSummary(report);
+            WriteConsoleSummary(finalReport);
             Console.WriteLine();
             Console.WriteLine(markdown);
         }
 
-        return Task.FromResult(report.AnyFail ? CliExitCode.OperationFailed : CliExitCode.Success);
+        return Task.FromResult(finalReport.AnyFail ? CliExitCode.OperationFailed : CliExitCode.Success);
     }
 
     private static void WriteConsoleSummary(ReturnTriggerTelemetryReport report)
@@ -75,6 +96,13 @@ internal static class ReturnTriggerTelemetryCommand
         Console.WriteLine($"repo: {report.RepositoryRoot}");
         Console.WriteLine($"ledger: {report.LedgerDirectory}");
         Console.WriteLine($"overall: {FormatVerdict(report.OverallVerdict)}");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            Console.WriteLine($"json artifact: {report.JsonArtifactPath}");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            Console.WriteLine($"markdown artifact: {report.MarkdownArtifactPath}");
+
         Console.WriteLine(new string('-', 72));
 
         foreach (ReturnTriggerTelemetryCheckResult check in report.Checks)
@@ -97,6 +125,13 @@ internal static class ReturnTriggerTelemetryCommand
         sb.AppendLine($"Repository: `{report.RepositoryRoot}`");
         sb.AppendLine($"Ledger: `{report.LedgerDirectory}`");
         sb.AppendLine($"Overall verdict: **{FormatVerdict(report.OverallVerdict)}**");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            sb.AppendLine($"JSON artifact: `{report.JsonArtifactPath}`");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            sb.AppendLine($"Markdown artifact: `{report.MarkdownArtifactPath}`");
+
         sb.AppendLine();
 
         if (report.CohortMetrics is not null)
@@ -172,6 +207,6 @@ internal static class ReturnTriggerTelemetryCommand
     {
         Console.WriteLine(
             "Usage: archlucid pilot return-trigger-telemetry [--ledger-dir <path>] [--rules <path>] "
-            + "[--json-out <path>] [--markdown-out <path>] [--json]");
+            + "[--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] [--json]");
     }
 }

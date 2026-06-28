@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-29 (TB-421 **Done** — buyer-proof evidence ledger default operational artifact bundle). Prior: 2026-06-29 (TB-420 **Done** — citation-integrity default operational artifact bundle). Prior: 2026-06-29 (TB-419 **Done** — tenant-isolation negative-test default operational artifact bundle). Prior: 2026-06-29 (TB-418 **Done** — ship-gate evidence default operational artifact bundle). Prior: 2026-06-29 (TB-417 **Done** — ship-gate Gate 4 traceability bundle ZIP embed). Prior: 2026-06-28 (TB-413 **Done** — ship-gate Gate 1 first-review completion probe). Prior: 2026-06-28 (TB-412 **Done** — ship-gate Gate 4 export matrix embed). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-29 (TB-422 **Done** — return-trigger telemetry default operational artifact bundle). Prior: 2026-06-29 (TB-421 **Done** — buyer-proof evidence ledger default operational artifact bundle). Prior: 2026-06-29 (TB-420 **Done** — citation-integrity default operational artifact bundle). Prior: 2026-06-29 (TB-419 **Done** — tenant-isolation negative-test default operational artifact bundle). Prior: 2026-06-29 (TB-418 **Done** — ship-gate evidence default operational artifact bundle). Prior: 2026-06-29 (TB-417 **Done** — ship-gate Gate 4 traceability bundle ZIP embed). Prior: 2026-06-28 (TB-413 **Done** — ship-gate Gate 1 first-review completion probe). Prior: 2026-06-28 (TB-412 **Done** — ship-gate Gate 4 export matrix embed). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -169,6 +169,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
+| TB-422 | Return-trigger telemetry default operational artifact bundle — auto-write JSON + Markdown under `artifacts/return-trigger-telemetry/{ledger-name}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-421 | Buyer-proof evidence ledger default operational artifact bundle — auto-write JSON + Markdown under `artifacts/buyer-proof-evidence-ledger/{runId|proof-pack}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-420 | Citation-integrity default operational artifact bundle — auto-write JSON + Markdown under `artifacts/citation-integrity/{offline-fixture|live-api}/` when repo root resolves; `--no-write-artifacts` for stdout/API-only runs | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-419 | Tenant-isolation negative-test default operational artifact bundle — auto-write JSON + Markdown under `artifacts/tenant-isolation-negative-test/{runId|offline-fixture}/` when repo root resolves; `--no-write-artifacts` for stdout/API-only runs | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
@@ -12394,3 +12395,38 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-418—TB-420 operational bundle cluster, assessment §7.6, §7.9.
+
+---
+
+## TB-422 — Return-trigger telemetry default operational artifact bundle
+
+**Status:** **Done** (2026-06-29). Default `archlucid pilot return-trigger-telemetry` writes JSON + Markdown under `artifacts/return-trigger-telemetry/{ledger-name}/` (default `return-trigger-sessions`) when repository root resolves; `--no-write-artifacts` preserves stdout-only behavior.
+
+**Source:** Assessment §17 return-trigger telemetry pack follow-on — principal-architect cohort guardrail evidence lacked default release-train artifact retention (parallel to TB-418—TB-421 operational bundles).
+
+**Problem:** Operators had to pass explicit `--json-out` / `--markdown-out` paths to retain return-trigger and dismissal cohort metrics between release trains.
+
+**V1 scope:**
+
+1. Add `ReturnTriggerTelemetryOutputPaths` default resolver under `artifacts/return-trigger-telemetry/`.
+2. Key artifacts by ledger directory name (default `return-trigger-sessions`).
+3. Add `--no-write-artifacts` for headless CI runs.
+4. Include artifact path metadata on JSON/Markdown cohort telemetry output.
+
+**Acceptance criteria:**
+
+- Default return-trigger telemetry run from repo root writes JSON + Markdown without explicit output flags.
+- Explicit `--json-out` / `--markdown-out` override defaults; `--no-write-artifacts` skips default writes.
+- Unit tests cover path resolution for ledger name, explicit override, and suppress flag.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/ReturnTriggerTelemetryCommand.cs`
+- `ArchLucid.Cli/Commands/ReturnTriggerTelemetryOptions.cs`
+- `ArchLucid.Cli/Commands/ReturnTriggerTelemetryReport.cs`
+- `ArchLucid.Cli/Commands/ReturnTriggerTelemetryOutputPaths.cs`
+- `ArchLucid.Cli.Tests/ReturnTriggerTelemetryOutputPathsTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-421, assessment §7.2, §7.8, §17 item 11.
