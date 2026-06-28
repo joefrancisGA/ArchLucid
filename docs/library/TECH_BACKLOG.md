@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-30 (TB-425 **Done** — pilot readiness release-train bundle orchestrator). Prior: 2026-06-30 (TB-424 **Done** — frontier-AI baseline default operational artifact bundle).
+**Updated:** 2026-06-30 (TB-426 **Done** — ITSM pull-forward gate default operational artifact bundle). Prior: 2026-06-30 (TB-425 **Done** — pilot readiness release-train bundle orchestrator).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -169,6 +169,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
+| TB-426 | ITSM pull-forward gate default operational artifact bundle — auto-write JSON + Markdown under `artifacts/itsm-pull-forward-gate/{ledger-name|live-api}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-425 | Pilot readiness release-train bundle — `archlucid pilot readiness-bundle` orchestrates TB-418—TB-424 child bundles in-process; aggregate JSON + Markdown under `artifacts/pilot-readiness-bundle/{runId|offline-fixture}/`; PASS/FAIL/UNKNOWN/WARN rollup; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | M |
 | TB-424 | Frontier-AI baseline default operational artifact bundle — auto-write JSON + Markdown under `artifacts/frontier-ai-baseline/{scoreboard-name}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-423 | Decision-owner scoreboard default operational artifact bundle — auto-write JSON + operator/sponsor Markdown under `artifacts/decision-owner-scoreboard/{ledger-name}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
@@ -12541,3 +12542,38 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **M**
 
 **Cross-ref:** TB-418—TB-424, assessment §7.8, §7.10, §17 item 45.
+
+---
+
+## TB-426 — ITSM pull-forward gate default operational artifact bundle
+
+**Status:** **Done** (2026-06-30). Default `archlucid pilot itsm-pull-forward-gate` writes JSON + Markdown under `artifacts/itsm-pull-forward-gate/{ledger-name}/` (default `paid-pilot-ledgers`) or `artifacts/itsm-pull-forward-gate/live-api/` when `--include-api` is used; `--no-write-artifacts` preserves stdout-only behavior.
+
+**Source:** Assessment §17 ITSM pull-forward decision gate follow-on — connector pull-forward evidence lacked default release-train artifact retention (parallel to TB-418—TB-425 operational bundles).
+
+**Problem:** Operators had to pass explicit `--json-out` / `--markdown-out` paths to retain ITSM pull-forward gate reports between release trains.
+
+**V1 scope:**
+
+1. Add `ItsmPullForwardOutputPaths` default resolver under `artifacts/itsm-pull-forward-gate/`.
+2. Key artifacts by paid-pilot ledger directory name (default `paid-pilot-ledgers`) or `live-api` when `--include-api` probes ITSM health.
+3. Add `--no-write-artifacts` for headless CI runs.
+4. Include artifact path metadata on JSON/Markdown gate output.
+
+**Acceptance criteria:**
+
+- Default ITSM pull-forward gate run from repo root writes JSON + Markdown without explicit output flags.
+- Explicit `--json-out` / `--markdown-out` override defaults; `--no-write-artifacts` skips default writes.
+- Unit tests cover path resolution for ledger name, live-api key, explicit override, and suppress flag.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/ItsmPullForwardCommand.cs`
+- `ArchLucid.Cli/Commands/ItsmPullForwardOptions.cs`
+- `ArchLucid.Cli/Commands/ItsmPullForwardReport.cs`
+- `ArchLucid.Cli/Commands/ItsmPullForwardOutputPaths.cs`
+- `ArchLucid.Cli.Tests/ItsmPullForwardOutputPathsTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-425, assessment §7.8, §7.10, §17 item 6 follow-on, §17 item 46.

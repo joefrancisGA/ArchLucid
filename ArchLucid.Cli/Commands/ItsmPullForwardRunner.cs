@@ -36,10 +36,14 @@ internal sealed class ItsmPullForwardRunner
         checks.Add(BuildTriggerEvaluationCheck(triggers));
 
         ItsmPullForwardVerdict recommendation = DeriveRecommendation(triggers);
+        string ledgerDirectory = ItsmPullForwardEvidenceParser.ResolveLedgerDirectory(
+            repositoryRoot,
+            options.LedgerDirectory);
 
         return new ItsmPullForwardReport
         {
             RepositoryRoot = repositoryRoot,
+            LedgerDirectory = ledgerDirectory,
             GeneratedUtc = DateTime.UtcNow,
             Recommendation = recommendation,
             Checks = checks,

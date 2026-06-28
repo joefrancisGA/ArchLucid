@@ -43,11 +43,12 @@ internal static class ItsmPullForwardCommand
 
         ItsmPullForwardRunner runner = new();
         ItsmPullForwardReport report = runner.Run(repositoryRoot, options);
+        string? baseUrl = null;
 
         if (options.IncludeApi)
         {
             ArchLucidProjectScaffolder.ArchLucidCliConfig? config = CliCommandShared.TryLoadConfigFromCwd();
-            string baseUrl = CliAuthorizedHttpClient.ResolveBaseUrl(args, config);
+            baseUrl = CliAuthorizedHttpClient.ResolveBaseUrl(args, config);
             string? urlError = ArchLucidApiClient.GetInvalidApiBaseUrlReason(baseUrl);
 
             if (urlError is not null)
@@ -73,6 +74,8 @@ internal static class ItsmPullForwardCommand
                 report = new ItsmPullForwardReport
                 {
                     RepositoryRoot = report.RepositoryRoot,
+                    LedgerDirectory = report.LedgerDirectory,
+                    BaseUrl = baseUrl,
                     GeneratedUtc = report.GeneratedUtc,
                     Recommendation = report.Recommendation,
                     Checks = checks,
@@ -80,16 +83,33 @@ internal static class ItsmPullForwardCommand
                     LedgerFilesScanned = report.LedgerFilesScanned,
                 };
             }
+            else
+            {
+                report = new ItsmPullForwardReport
+                {
+                    RepositoryRoot = report.RepositoryRoot,
+                    LedgerDirectory = report.LedgerDirectory,
+                    BaseUrl = baseUrl,
+                    GeneratedUtc = report.GeneratedUtc,
+                    Recommendation = report.Recommendation,
+                    Checks = report.Checks,
+                    Triggers = report.Triggers,
+                    LedgerFilesScanned = report.LedgerFilesScanned,
+                };
+            }
         }
 
-        string json = JsonSerializer.Serialize(report, JsonOptions);
-        string markdown = BuildMarkdown(report);
+        string artifactKey = ItsmPullForwardOutputPaths.ResolveArtifactKey(report);
+        ItsmPullForwardOutputResolution outputPaths =
+            ItsmPullForwardOutputPaths.Resolve(options, repositoryRoot, artifactKey);
+        ItsmPullForwardReport finalReport = report.WithOutputMetadata(
+            outputPaths.JsonPath,
+            outputPaths.MarkdownPath);
 
-        if (!string.IsNullOrWhiteSpace(options.JsonOutPath))
-            await File.WriteAllTextAsync(options.JsonOutPath, json, Encoding.UTF8, cancellationToken);
+        string json = JsonSerializer.Serialize(finalReport, JsonOptions);
+        string markdown = BuildMarkdown(finalReport);
 
-        if (!string.IsNullOrWhiteSpace(options.MarkdownOutPath))
-            await File.WriteAllTextAsync(options.MarkdownOutPath, markdown, Encoding.UTF8, cancellationToken);
+        await WriteArtifactsAsync(outputPaths, json, markdown, cancellationToken);
 
         if (CliExecutionContext.JsonOutput)
         {
@@ -97,14 +117,41 @@ internal static class ItsmPullForwardCommand
         }
         else
         {
-            WriteConsoleSummary(report);
+            WriteConsoleSummary(finalReport);
             Console.WriteLine();
             Console.WriteLine(markdown);
         }
 
-        return report.RequiresOwnerAction || HasBlockingInfrastructureIssue(report.Checks)
+        return finalReport.RequiresOwnerAction || HasBlockingInfrastructureIssue(finalReport.Checks)
             ? CliExitCode.OperationFailed
             : CliExitCode.Success;
+    }
+
+    private static async Task WriteArtifactsAsync(
+        ItsmPullForwardOutputResolution outputPaths,
+        string json,
+        string markdown,
+        CancellationToken cancellationToken)
+    {
+        if (outputPaths.WillWriteJson)
+        {
+            string jsonDirectory = Path.GetDirectoryName(outputPaths.JsonPath!)!;
+
+            if (!Directory.Exists(jsonDirectory))
+                Directory.CreateDirectory(jsonDirectory);
+
+            await File.WriteAllTextAsync(outputPaths.JsonPath!, json, Encoding.UTF8, cancellationToken);
+        }
+
+        if (outputPaths.WillWriteMarkdown)
+        {
+            string markdownDirectory = Path.GetDirectoryName(outputPaths.MarkdownPath!)!;
+
+            if (!Directory.Exists(markdownDirectory))
+                Directory.CreateDirectory(markdownDirectory);
+
+            await File.WriteAllTextAsync(outputPaths.MarkdownPath!, markdown, Encoding.UTF8, cancellationToken);
+        }
     }
 
     private static bool HasBlockingInfrastructureIssue(IReadOnlyList<ItsmPullForwardCheckResult> checks)
@@ -116,7 +163,15 @@ internal static class ItsmPullForwardCommand
     {
         Console.WriteLine("archlucid pilot itsm-pull-forward-gate");
         Console.WriteLine($"repo: {report.RepositoryRoot}");
+        Console.WriteLine($"ledger: {report.LedgerDirectory}");
         Console.WriteLine($"recommendation: {FormatVerdict(report.Recommendation)}");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            Console.WriteLine($"json artifact: {report.JsonArtifactPath}");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            Console.WriteLine($"markdown artifact: {report.MarkdownArtifactPath}");
+
         Console.WriteLine(new string('-', 72));
 
         foreach (ItsmPullForwardCheckResult check in report.Checks)
@@ -137,7 +192,18 @@ internal static class ItsmPullForwardCommand
         sb.AppendLine();
         sb.AppendLine($"Generated (UTC): {report.GeneratedUtc:O}");
         sb.AppendLine($"Repository: `{report.RepositoryRoot}`");
+        sb.AppendLine($"Ledger directory: `{report.LedgerDirectory}`");
         sb.AppendLine($"Recommendation: **{FormatVerdict(report.Recommendation)}**");
+
+        if (!string.IsNullOrWhiteSpace(report.BaseUrl))
+            sb.AppendLine($"API base URL: `{report.BaseUrl}`");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            sb.AppendLine($"JSON artifact: `{report.JsonArtifactPath}`");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            sb.AppendLine($"Markdown artifact: `{report.MarkdownArtifactPath}`");
+
         sb.AppendLine();
         sb.AppendLine("## Trigger counts");
         sb.AppendLine();
@@ -184,6 +250,6 @@ internal static class ItsmPullForwardCommand
     {
         Console.WriteLine(
             "Usage: archlucid pilot itsm-pull-forward-gate [--ledger-dir <path>] [--evidence <path>] "
-            + "[--include-api] [--json-out <path>] [--markdown-out <path>]");
+            + "[--include-api] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts]");
     }
 }

@@ -56,8 +56,10 @@ internal static class ItsmPullForwardEvidenceParser
         return Directory.EnumerateFiles(ledgerDirectory, "*.json", SearchOption.AllDirectories).Count();
     }
 
-    private static string ResolveLedgerDirectory(string repositoryRoot, string? ledgerDirectory)
+    internal static string ResolveLedgerDirectory(string repositoryRoot, string? ledgerDirectory)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(repositoryRoot);
+
         if (!string.IsNullOrWhiteSpace(ledgerDirectory))
             return Path.GetFullPath(ledgerDirectory);
 
