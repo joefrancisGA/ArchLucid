@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-30 (TB-426 **Done** — ITSM pull-forward gate default operational artifact bundle). Prior: 2026-06-30 (TB-425 **Done** — pilot readiness release-train bundle orchestrator).
+**Updated:** 2026-06-30 (TB-427 **Done** — pilot readiness release-train CI gate). Prior: 2026-06-30 (TB-426 **Done** — ITSM pull-forward gate default operational artifact bundle).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -169,6 +169,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
+| TB-427 | Pilot readiness release-train CI gate — `scripts/ci/run_pilot_readiness_release_train_gate.py` runs offline `archlucid pilot readiness-bundle` in dotnet-fast-core build; fail closed on aggregate FAIL slots | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-426 | ITSM pull-forward gate default operational artifact bundle — auto-write JSON + Markdown under `artifacts/itsm-pull-forward-gate/{ledger-name|live-api}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-425 | Pilot readiness release-train bundle — `archlucid pilot readiness-bundle` orchestrates TB-418—TB-424 child bundles in-process; aggregate JSON + Markdown under `artifacts/pilot-readiness-bundle/{runId|offline-fixture}/`; PASS/FAIL/UNKNOWN/WARN rollup; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | M |
 | TB-424 | Frontier-AI baseline default operational artifact bundle — auto-write JSON + Markdown under `artifacts/frontier-ai-baseline/{scoreboard-name}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
@@ -12577,3 +12578,36 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-425, assessment §7.8, §7.10, §17 item 6 follow-on, §17 item 46.
+
+---
+
+## TB-427 — Pilot readiness release-train CI gate
+
+**Status:** **Done** (2026-06-30). `scripts/ci/run_pilot_readiness_release_train_gate.py` runs offline `archlucid pilot readiness-bundle` during `scripts/ci/run_dotnet_fast_core_build.sh` and fails closed when the aggregate bundle report is missing, overall verdict is FAIL, slot coverage is incomplete, or ship-gate is not SKIPPED in offline mode.
+
+**Source:** Assessment §7.8 recommendation — add `archlucid pilot readiness-bundle` to release-train CI after representative `--run-id` smoke; offline gate covers fixture replay on every dotnet-fast-core build.
+
+**Problem:** The readiness-bundle orchestrator existed but was not invoked in CI, so release trains could regress pilot evidence bundles without detection.
+
+**V1 scope:**
+
+1. Add `run_pilot_readiness_release_train_gate.py` with bundle report validation and gate JSON output schema.
+2. Wire the gate into `run_dotnet_fast_core_build.sh` after CLI config lint.
+3. Add unit tests with offline PASS fixture and skip-cli-run validation path.
+
+**Acceptance criteria:**
+
+- Dotnet-fast-core build runs offline readiness-bundle and fails on aggregate FAIL.
+- Gate validates seven slot keys and offline ship-gate SKIPPED posture.
+- Unit tests cover PASS fixture, FAIL on overall Fail, and skip-cli-run harness.
+
+**Affected files:**
+
+- `scripts/ci/run_pilot_readiness_release_train_gate.py`
+- `scripts/ci/run_dotnet_fast_core_build.sh`
+- `scripts/ci/tests/test_run_pilot_readiness_release_train_gate.py`
+- `scripts/ci/fixtures/pilot-readiness-bundle/offline-pass.json`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-425, TB-426, assessment §7.8, §7.10, §17 item 47.

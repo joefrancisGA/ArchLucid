@@ -16,4 +16,7 @@ dotnet build ArchLucid.sln --no-restore -c Release "/p:SourceRevisionId=$(git re
 export ASPNETCORE_ENVIRONMENT=Development
 dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --no-build -c Release -- config lint
 
+python3 scripts/ci/run_pilot_readiness_release_train_gate.py
+python -m unittest discover -s scripts/ci/tests -p "test_run_pilot_readiness_release_train_gate.py"
+
 echo "dotnet-fast-core-build finished successfully."
