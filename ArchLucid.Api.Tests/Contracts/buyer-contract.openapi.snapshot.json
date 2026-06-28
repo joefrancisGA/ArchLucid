@@ -22315,6 +22315,109 @@
         },
         "type": "object"
       },
+      "TenantItsmConnectorConnectionResponse": {
+        "properties": {
+          "authUserName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "credentialKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "inboundWebhookKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instanceBaseUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provider": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider"
+        ],
+        "type": "object"
+      },
+      "TenantItsmConnectorConnectionUpsertRequest": {
+        "properties": {
+          "authUserName": {
+            "type": "string"
+          },
+          "credentialKeyVaultSecretName": {
+            "type": "string"
+          },
+          "inboundWebhookKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instanceBaseUrl": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "authUserName",
+          "credentialKeyVaultSecretName",
+          "instanceBaseUrl"
+        ],
+        "type": "object"
+      },
+      "TenantItsmConnectorConnectionsListResponse": {
+        "properties": {
+          "connections": {
+            "items": {
+              "$ref": "#/components/schemas/TenantItsmConnectorConnectionResponse"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "connections"
+        ],
+        "type": "object"
+      },
       "TenantItsmDeploymentCredentialSummary": {
         "properties": {
           "jiraConfigured": {
@@ -26364,6 +26467,9 @@
     },
     {
       "name": "TenantIntegrationsOperations"
+    },
+    {
+      "name": "TenantItsmConnectorConnections"
     },
     {
       "name": "TenantItsmOutboundSettings"
