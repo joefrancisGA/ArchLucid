@@ -9,6 +9,7 @@ import { CLOUD_CONNECTIONS_PAGE_COPY, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18
 import { cn } from "@/lib/utils";
 
 import { AwsConnectionSection } from "./AwsConnectionSection";
+import { GcpConnectionSection } from "./GcpConnectionSection";
 import { Tier2ConnectionWizard } from "./Tier2ConnectionWizard";
 
 export function CloudConnectionsPageClient() {
@@ -75,6 +76,9 @@ export function CloudConnectionsPageClient() {
         <p className={OPERATOR_TYPOGRAPHY.body}>
           <strong>Automated AWS connection (optional).</strong> ArchLucid polls AWS Resource Explorer on a schedule using a read-only IAM role that trusts ArchLucid&apos;s Azure managed identity via OIDC — no long-lived access keys are stored.
         </p>
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          <strong>Automated GCP connection (optional).</strong> ArchLucid polls Cloud Asset Inventory on a schedule using GCP Workload Identity Federation bound to ArchLucid&apos;s Azure managed identity — no service-account JSON keys are stored.
+        </p>
       </div>
 
       <section className="space-y-4" aria-labelledby="cloud-connections-available-heading">
@@ -99,6 +103,8 @@ export function CloudConnectionsPageClient() {
         </Card>
 
         <AwsConnectionSection />
+
+        <GcpConnectionSection />
       </section>
 
       {loadError ? (

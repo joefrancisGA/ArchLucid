@@ -10,6 +10,7 @@ const listTier2Connections = vi.fn(async () => []);
 const configureTier2Connection = vi.fn();
 const validateTier2ConnectionHostedRun = vi.fn();
 const listAwsTier2Connections = vi.fn(async () => []);
+const listGcpTier2Connections = vi.fn(async () => []);
 
 vi.mock("@/lib/api/cloud-connections-api", () => ({
   listTier2Connections: (...args: unknown[]) => listTier2Connections(...args),
@@ -22,6 +23,13 @@ vi.mock("@/lib/api/aws-cloud-connections-api", () => ({
   configureAwsTier2Connection: vi.fn(),
   disconnectAwsTier2Connection: vi.fn(),
   triggerAwsTier2HostedRun: vi.fn(),
+}));
+
+vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
+  listGcpTier2Connections: (...args: unknown[]) => listGcpTier2Connections(...args),
+  configureGcpTier2Connection: vi.fn(),
+  disconnectGcpTier2Connection: vi.fn(),
+  triggerGcpTier2HostedRun: vi.fn(),
 }));
 
 import { CloudConnectionsPageClient } from "./CloudConnectionsPageClient";
@@ -56,6 +64,7 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByText("Security review checklist")).toBeInTheDocument();
     expect(screen.getByText("Connect Azure")).toBeInTheDocument();
     expect(screen.getByText("Connect AWS")).toBeInTheDocument();
+    expect(screen.getByText("Connect GCP")).toBeInTheDocument();
     expect(screen.getByText("Azure connection")).toBeInTheDocument();
     expect(screen.getByText("Evidence tier: Cloud-connected")).toBeInTheDocument();
     expect(screen.getByText("Create Azure identity")).toBeInTheDocument();

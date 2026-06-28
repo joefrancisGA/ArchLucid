@@ -822,6 +822,12 @@ public static class AuditEventTypes
     /// <summary>Operator disconnected Tier 2 hosted AWS extractor connection.</summary>
     public const string CloudConnectionAwsDisconnected = "CloudConnection.AwsDisconnected";
 
+    public const string CloudConnectionGcpConnected = "CloudConnection.GcpConnected";
+
+    public const string CloudConnectionGcpPolled = "CloudConnection.GcpPolled";
+
+    public const string CloudConnectionGcpDisconnected = "CloudConnection.GcpDisconnected";
+
     /// <summary>Admin created a tenant custom role.</summary>
     public const string IdentityCustomRoleCreated = "Identity.CustomRoleCreated";
 

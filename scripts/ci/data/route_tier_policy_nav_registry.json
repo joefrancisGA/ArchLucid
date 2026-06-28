@@ -262,6 +262,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/HostedGcpExtractorRunController.cs",
+      "class_name": "HostedGcpExtractorRunController",
+      "route_template": "v{version:apiVersion}/admin/gcp-extractor/hosted",
+      "normalized_prefix": "/v1/admin/gcp-extractor/hosted",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": "/settings/cloud-connections"
+    },
+    {
       "controller_file": "Admin/IdentityProviderConfigurationController.cs",
       "class_name": "IdentityProviderConfigurationController",
       "route_template": "v{version:apiVersion}/admin/identity",
@@ -740,6 +750,16 @@
       "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/GcpTier2ConnectionController.cs",
+      "class_name": "GcpTier2ConnectionController",
+      "route_template": "v{version:apiVersion}/gcp-extractor/connections",
+      "normalized_prefix": "/v1/gcp-extractor/connections",
+      "commercial_tier": "none",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": "/settings/cloud-connections"
     },
     {
       "controller_file": "Authority/ImportRequestFileController.cs",

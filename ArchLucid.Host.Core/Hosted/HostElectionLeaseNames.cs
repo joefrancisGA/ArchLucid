@@ -47,6 +47,8 @@ public static class HostElectionLeaseNames
 
     public const string AwsExtractorAutoPull = "hosted:aws-extractor-auto-pull";
 
+    public const string GcpExtractorAutoPull = "hosted:gcp-extractor-auto-pull";
+
     public const string InternalCrossTenantRollup = "hosted:internal-cross-tenant-rollup";
 
     public const string SamlCertExpiryNotification = "hosted:saml-cert-expiry-notification";

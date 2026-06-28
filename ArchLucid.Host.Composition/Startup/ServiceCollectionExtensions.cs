@@ -150,6 +150,7 @@ public static partial class ServiceCollectionExtensions
         RegisterOrphanedTenantCleanupHostedService(services, hostingRole);
         RegisterAzureExtractorAutoPullHostedService(services, hostingRole);
         RegisterAwsExtractorAutoPullHostedService(services, hostingRole);
+        RegisterGcpExtractorAutoPullHostedService(services, hostingRole);
         RegisterWarmTenantCatalogReplenishHostedService(services, hostingRole);
         RegisterDataConsistencyReconciliation(services, configuration, hostingRole);
         services.Configure<SqlConnectionHealthCheckOptions>(

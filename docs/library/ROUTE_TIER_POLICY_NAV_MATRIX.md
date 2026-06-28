@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **170** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **172** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:170 -->
+<!-- route-tier-policy-nav-registry-count:172 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -98,6 +98,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/HostedAwsExtractorRunController.cs` | `/v1/admin/aws-extractor/hosted` | none | AdminAuthority | /settings/cloud-connections |  |
 | `Admin/HostedAzureExtractorAdminController.cs` | `/v1/admin/azure-extractor/hosted` | none | AdminAuthority |  |  |
 | `Admin/HostedAzureExtractorRunController.cs` | `/v1/admin/azure-extractor/hosted` | none | AdminAuthority |  |  |
+| `Admin/HostedGcpExtractorRunController.cs` | `/v1/admin/gcp-extractor/hosted` | none | AdminAuthority | /settings/cloud-connections |  |
 | `Admin/IdentityProviderConfigurationController.cs` | `/v1/admin/identity` | none | AdminAuthority |  |  |
 | `Admin/JobsController.cs` | `/v1/jobs` | none | ReadAuthority |  |  |
 | `Admin/MarketingPricingQuoteAgingAdminController.cs` | `/v1/admin/marketing/pricing-quote-aging` | none | AdminAuthority |  |  |
@@ -146,6 +147,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/EvidenceBulkUploadController.cs` | `/v1/architecture/run/{runId:guid}/evidence` | none | ExecuteAuthority |  |  |
 | `Authority/ExportsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
 | `Authority/FastPathContextController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
+| `Authority/GcpTier2ConnectionController.cs` | `/v1/gcp-extractor/connections` | none | ExecuteAuthority | /settings/cloud-connections |  |
 | `Authority/ImportRequestFileController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/InternalArchitectureDiagnosticsController.cs` | `/v1/internal/architecture` | none | RequireOperatorRole |  | internal_architecture_diagnostics |
 | `Authority/InternalArchitectureTraceForensicsController.cs` | `/v1/internal/architecture` | none | RequireOperatorRole |  |  |

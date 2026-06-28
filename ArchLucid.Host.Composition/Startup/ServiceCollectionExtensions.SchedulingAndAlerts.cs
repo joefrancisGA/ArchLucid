@@ -191,6 +191,16 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<AwsExtractorAutoPullHostedService>();
     }
 
+    private static void RegisterGcpExtractorAutoPullHostedService(
+        IServiceCollection services,
+        ArchLucidHostingRole hostingRole)
+    {
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        services.AddHostedService<GcpExtractorAutoPullHostedService>();
+    }
+
     private static void RegisterWarmTenantCatalogReplenishHostedService(
         IServiceCollection services,
         ArchLucidHostingRole hostingRole)

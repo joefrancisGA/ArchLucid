@@ -146,6 +146,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Mcp", "ArchLucid.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Integrations.AwsExtractor", "ArchLucid.Integrations.AwsExtractor\ArchLucid.Integrations.AwsExtractor.csproj", "{A6B8B83B-B8C5-4551-9FFC-F4923EB5FE8D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Integrations.GcpExtractor", "ArchLucid.Integrations.GcpExtractor\ArchLucid.Integrations.GcpExtractor.csproj", "{BDF18754-071D-4448-9A18-DE231E0CE063}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -816,6 +818,18 @@ Global
 		{A6B8B83B-B8C5-4551-9FFC-F4923EB5FE8D}.Release|x64.Build.0 = Release|Any CPU
 		{A6B8B83B-B8C5-4551-9FFC-F4923EB5FE8D}.Release|x86.ActiveCfg = Release|Any CPU
 		{A6B8B83B-B8C5-4551-9FFC-F4923EB5FE8D}.Release|x86.Build.0 = Release|Any CPU
+		{BDF18754-071D-4448-9A18-DE231E0CE063}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDF18754-071D-4448-9A18-DE231E0CE063}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDF18754-071D-4448-9A18-DE231E0CE063}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BDF18754-071D-4448-9A18-DE231E0CE063}.Debug|x64.Build.0 = Debug|Any CPU
+		{BDF18754-071D-4448-9A18-DE231E0CE063}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BDF18754-071D-4448-9A18-DE231E0CE063}.Debug|x86.Build.0 = Debug|Any CPU
+		{BDF18754-071D-4448-9A18-DE231E0CE063}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDF18754-071D-4448-9A18-DE231E0CE063}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDF18754-071D-4448-9A18-DE231E0CE063}.Release|x64.ActiveCfg = Release|Any CPU
+		{BDF18754-071D-4448-9A18-DE231E0CE063}.Release|x64.Build.0 = Release|Any CPU
+		{BDF18754-071D-4448-9A18-DE231E0CE063}.Release|x86.ActiveCfg = Release|Any CPU
+		{BDF18754-071D-4448-9A18-DE231E0CE063}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
