@@ -10,6 +10,8 @@ internal sealed class FrontierAiBaselineOptions
 
     public bool InitScoreboard { get; init; }
 
+    public bool SuppressDefaultArtifacts { get; init; }
+
     public static FrontierAiBaselineOptions Parse(string[] args)
     {
         ArgumentNullException.ThrowIfNull(args);
@@ -20,6 +22,8 @@ internal sealed class FrontierAiBaselineOptions
             JsonOutPath = CliCommandShared.TryGetOptionValue(args, "--json-out"),
             MarkdownOutPath = CliCommandShared.TryGetOptionValue(args, "--markdown-out"),
             InitScoreboard = args.Any(static arg => string.Equals(arg, "--init-scoreboard", StringComparison.Ordinal)),
+            SuppressDefaultArtifacts = args.Any(static arg =>
+                string.Equals(arg, "--no-write-artifacts", StringComparison.OrdinalIgnoreCase)),
         };
     }
 }

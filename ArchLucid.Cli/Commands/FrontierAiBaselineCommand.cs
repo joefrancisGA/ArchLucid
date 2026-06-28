@@ -55,14 +55,17 @@ internal static class FrontierAiBaselineCommand
             return Task.FromResult(CliExitCode.OperationFailed);
         }
 
-        string json = JsonSerializer.Serialize(report, JsonOptions);
-        string markdown = BuildMarkdown(report);
+        string artifactKey = FrontierAiBaselineOutputPaths.ResolveArtifactKey(report);
+        FrontierAiBaselineOutputResolution outputPaths =
+            FrontierAiBaselineOutputPaths.Resolve(options, repositoryRoot, artifactKey);
+        FrontierAiBaselineReport finalReport = report.WithOutputMetadata(
+            outputPaths.JsonPath,
+            outputPaths.MarkdownPath);
 
-        if (!string.IsNullOrWhiteSpace(options.JsonOutPath))
-            File.WriteAllText(options.JsonOutPath, json, Encoding.UTF8);
+        string json = JsonSerializer.Serialize(finalReport, JsonOptions);
+        string markdown = BuildMarkdown(finalReport);
 
-        if (!string.IsNullOrWhiteSpace(options.MarkdownOutPath))
-            File.WriteAllText(options.MarkdownOutPath, markdown, Encoding.UTF8);
+        WriteArtifacts(outputPaths, json, markdown);
 
         if (CliExecutionContext.JsonOutput)
         {
@@ -70,12 +73,38 @@ internal static class FrontierAiBaselineCommand
         }
         else
         {
-            WriteConsoleSummary(report);
+            WriteConsoleSummary(finalReport);
             Console.WriteLine();
             Console.WriteLine(markdown);
         }
 
-        return Task.FromResult(report.AnyFail ? CliExitCode.OperationFailed : CliExitCode.Success);
+        return Task.FromResult(finalReport.AnyFail ? CliExitCode.OperationFailed : CliExitCode.Success);
+    }
+
+    private static void WriteArtifacts(
+        FrontierAiBaselineOutputResolution outputPaths,
+        string json,
+        string markdown)
+    {
+        if (outputPaths.WillWriteJson)
+        {
+            string jsonDirectory = Path.GetDirectoryName(outputPaths.JsonPath!)!;
+
+            if (!Directory.Exists(jsonDirectory))
+                Directory.CreateDirectory(jsonDirectory);
+
+            File.WriteAllText(outputPaths.JsonPath!, json, Encoding.UTF8);
+        }
+
+        if (outputPaths.WillWriteMarkdown)
+        {
+            string markdownDirectory = Path.GetDirectoryName(outputPaths.MarkdownPath!)!;
+
+            if (!Directory.Exists(markdownDirectory))
+                Directory.CreateDirectory(markdownDirectory);
+
+            File.WriteAllText(outputPaths.MarkdownPath!, markdown, Encoding.UTF8);
+        }
     }
 
     private static void WriteConsoleSummary(FrontierAiBaselineReport report)
@@ -84,6 +113,13 @@ internal static class FrontierAiBaselineCommand
         Console.WriteLine($"repo: {report.RepositoryRoot}");
         Console.WriteLine($"scoreboard: {report.ScoreboardPath}");
         Console.WriteLine($"overall: {FormatVerdict(report.OverallVerdict)}");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            Console.WriteLine($"json artifact: {report.JsonArtifactPath}");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            Console.WriteLine($"markdown artifact: {report.MarkdownArtifactPath}");
+
         Console.WriteLine(new string('-', 72));
 
         foreach (FrontierAiBaselineCheckResult check in report.Checks)
@@ -106,6 +142,13 @@ internal static class FrontierAiBaselineCommand
         sb.AppendLine($"Repository: `{report.RepositoryRoot}`");
         sb.AppendLine($"Scoreboard: `{report.ScoreboardPath}`");
         sb.AppendLine($"Overall verdict: **{FormatVerdict(report.OverallVerdict)}**");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            sb.AppendLine($"JSON artifact: `{report.JsonArtifactPath}`");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            sb.AppendLine($"Markdown artifact: `{report.MarkdownArtifactPath}`");
+
         sb.AppendLine();
         sb.AppendLine("## Checks");
         sb.AppendLine();
@@ -164,6 +207,6 @@ internal static class FrontierAiBaselineCommand
     {
         Console.WriteLine(
             "Usage: archlucid pilot frontier-ai-baseline [--scoreboard <path>] [--init-scoreboard] " +
-            "[--json-out <path>] [--markdown-out <path>]");
+            "[--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] [--json]");
     }
 }

@@ -17,4 +17,24 @@ internal sealed class FrontierAiBaselineReport
     public FrontierAiBaselineCohortMetrics? CohortMetrics { get; init; }
 
     public bool AnyFail => Checks.Any(static check => check.Verdict == FrontierAiBaselineVerdict.Fail);
+
+    public string? JsonArtifactPath { get; init; }
+
+    public string? MarkdownArtifactPath { get; init; }
+
+    internal FrontierAiBaselineReport WithOutputMetadata(
+        string? jsonArtifactPath,
+        string? markdownArtifactPath) =>
+        new()
+        {
+            RepositoryRoot = RepositoryRoot,
+            ScoreboardPath = ScoreboardPath,
+            GeneratedUtc = GeneratedUtc,
+            OverallVerdict = OverallVerdict,
+            Checks = Checks,
+            Sessions = Sessions,
+            CohortMetrics = CohortMetrics,
+            JsonArtifactPath = jsonArtifactPath,
+            MarkdownArtifactPath = markdownArtifactPath,
+        };
 }
