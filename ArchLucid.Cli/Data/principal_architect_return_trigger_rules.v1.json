@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "minSessionsForMessaging": 3,
+  "positiveReuseIntents": ["yes", "maybe"],
+  "returnTriggerCodes": {
+    "R1": "evidence-trail-defensibility",
+    "R2": "export-packaging-pull",
+    "R3": "decision-changed",
+    "R4": "governance-rework-saved",
+    "R5": "finding-actionability",
+    "R6": "time-to-defensible-output",
+    "R7": "would-pay-to-avoid-manual",
+    "R8": "no-return-signal"
+  },
+  "guardrails": {
+    "minPositiveReuseFraction": 0.33,
+    "maxDismissalWithoutReturnFraction": 0.67
+  }
+}

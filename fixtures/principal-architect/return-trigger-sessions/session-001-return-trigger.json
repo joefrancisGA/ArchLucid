@@ -1,0 +1,12 @@
+{
+  "schema": "archlucid.principal-architect-return-trigger.v1",
+  "sessionId": "pa-session-001",
+  "sessionUtc": "2026-06-01T14:00:00Z",
+  "cohortLabel": "first-session-cohort",
+  "participantLabel": "participant-a",
+  "reuseIntent30Day": "yes",
+  "returnTriggerCode": "R2",
+  "returnTriggerLabel": "export-packaging-pull",
+  "dismissalTriggerCodeAtSession": "D8",
+  "evidenceTrailWalkthroughPerformed": true
+}
