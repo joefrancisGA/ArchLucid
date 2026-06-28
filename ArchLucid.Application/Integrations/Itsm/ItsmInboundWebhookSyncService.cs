@@ -13,10 +13,11 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Integrations.Itsm;
 
-/// <summary>Maps inbound Jira / ServiceNow payloads to <c>FindingRecords.HumanReviewStatus</c>; emits durable audit via API layer.</summary>
+/// <summary>Maps inbound Jira / ServiceNow payloads to <c>FindingRecords.HumanReviewStatus</c> and optional disposition trail; emits durable audit via API layer.</summary>
 public sealed class ItsmInboundWebhookSyncService(
     IItsmFindingCorrelationRepository correlations,
     IOptionsMonitor<IntegrationsItsmInboundOptions> inboundOptions,
+    ItsmInboundDispositionSync dispositionSync,
     ILogger<ItsmInboundWebhookSyncService> logger)
 {
     public const int MaxInboundWebhookPayloadUtf8Bytes = 65536;
@@ -42,6 +43,9 @@ public sealed class ItsmInboundWebhookSyncService(
 
     private readonly IOptionsMonitor<IntegrationsItsmInboundOptions> _inboundOptions =
         inboundOptions ?? throw new ArgumentNullException(nameof(inboundOptions));
+
+    private readonly ItsmInboundDispositionSync _dispositionSync =
+        dispositionSync ?? throw new ArgumentNullException(nameof(dispositionSync));
 
     private readonly ILogger<ItsmInboundWebhookSyncService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -164,6 +168,14 @@ public sealed class ItsmInboundWebhookSyncService(
                 row.TenantId,
                 LogSanitizer.Sanitize(row.FindingId)); // codeql[cs/log-forging]: FindingId persisted NVARCHAR operational id; TenantId is Guid.
 
+        FindingDisposition? mappedDisposition =
+            ItsmInboundExternalStatusMapper.TryMapJiraStatusToDisposition(statusName, options);
+
+        ItsmInboundDispositionSyncResult dispositionResult =
+            await _dispositionSync
+                .TryRecordFromWebhookAsync(row, mappedDisposition, statusName, "jira-webhook", ct)
+                .ConfigureAwait(false);
+
         AuditEvent auditEvent = new()
         {
             EventType = AuditEventTypes.IntegrationJiraIssueStatusSynced,
@@ -179,7 +191,11 @@ public sealed class ItsmInboundWebhookSyncService(
                     issueKey,
                     statusName,
                     humanReviewStatus = humanReview,
-                    rowsUpdated = updated
+                    rowsUpdated = updated,
+                    dispositionSynced = dispositionResult.WasRecorded,
+                    disposition = dispositionResult.Disposition?.ToString(),
+                    dispositionEventId = dispositionResult.DispositionEventId,
+                    dispositionSkipReason = dispositionResult.SkipReason,
                 })
         };
 
@@ -296,6 +312,14 @@ public sealed class ItsmInboundWebhookSyncService(
                 row.TenantId,
                 LogSanitizer.Sanitize(row.FindingId)); // codeql[cs/log-forging]: FindingId persisted NVARCHAR operational id; TenantId is Guid.
 
+        FindingDisposition? mappedDisposition =
+            ItsmInboundExternalStatusMapper.TryMapServiceNowStateToDisposition(stateNormalized, options);
+
+        ItsmInboundDispositionSyncResult dispositionResult =
+            await _dispositionSync
+                .TryRecordFromWebhookAsync(row, mappedDisposition, stateNormalized, "servicenow-webhook", ct)
+                .ConfigureAwait(false);
+
         AuditEvent auditEvent = new()
         {
             EventType = AuditEventTypes.IntegrationServiceNowIncidentStatusSynced,
@@ -311,7 +335,11 @@ public sealed class ItsmInboundWebhookSyncService(
                     externalKey,
                     state = stateNormalized,
                     humanReviewStatus = humanReview,
-                    rowsUpdated = updated
+                    rowsUpdated = updated,
+                    dispositionSynced = dispositionResult.WasRecorded,
+                    disposition = dispositionResult.Disposition?.ToString(),
+                    dispositionEventId = dispositionResult.DispositionEventId,
+                    dispositionSkipReason = dispositionResult.SkipReason,
                 })
         };
 

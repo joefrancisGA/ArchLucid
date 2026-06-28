@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-27 (TB-392 **Done**; TB-393 **Done** — per-tenant ITSM credentials + settings write API/UI; automated AWS polling **TB-402** and automated GCP polling **TB-403** — V1.1). Prior: 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~58 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-27 (TB-396 **Done** — inbound ITSM disposition sync; TB-392 **Done**; TB-393 **Done** — per-tenant ITSM credentials + settings write API/UI; automated AWS polling **TB-402** and automated GCP polling **TB-403** — V1.1). Prior: 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~58 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -168,7 +168,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-393 | Tenant ITSM outbound settings write API + admin UI — upsert `TenantItsmOutboundSettings` (project key override, severity filters, issue-type map); `PUT /v1/integrations/itsm/settings`; `/integrations/itsm` settings page; `ExecuteAuthority` gate | **Done** (2026-06-27) — Adoption friction P1 **V1** | M |
 | TB-394 | Durable async ITSM outbound ticket creation — enqueue outbound create on existing outbox/background-job infrastructure; retry/DLQ after HTTP Polly exhaustion; operator-visible pending/failed state | **Done** (2026-06-27) — Reliability P2 **V1.1** | M |
 | TB-395 | Finding assignee + general remediation due date — add `AssignedToUserId` and `RemediationDueUtc` to `Finding` contract + `FindingRecords` SQL; expose on inspect/risk-register; map in outbound payload builder | **Done** (2026-06-27) — Architectural integrity P2 **V1.1** | M |
-| TB-396 | Inbound ITSM disposition sync ? extend inbound webhook mapping beyond `HumanReviewStatus` to update latest `FindingDisposition` where configured; document status?disposition map in inbound options | Interoperability P2 ? **V1.1**; one-way human-review mirror is insufficient for governance workflows | M |
+| TB-396 | Inbound ITSM disposition sync — extend inbound webhook mapping beyond `HumanReviewStatus` to update latest `FindingDisposition` where configured; document status→disposition map in inbound options | **Done** (2026-06-27) — Interoperability P2 **V1.1** | M |
 | TB-397 | `IExternalTicketConnector` plugin boundary ? shared port + provider registry; refactor `JiraOutboundIssueClient` / `ServiceNowOutboundIncidentClient` behind it without changing Authority event payloads | Architectural integrity P2 ? **V2** prerequisite before vendor #3 | M |
 | TB-398 | Full enterprise ITSM connector ? OAuth flows, field-mapping UI, custom workflow mapping, bidirectional status sync, tenant connector onboarding wizard | Interoperability P3 ? **V2**; explicitly out of V1/V1.1 scope unless owner promotes | L |
 | TB-196 | Reasoning token cost underreporting fix ? update `AgentExecutionTraceRunLlmCostAggregator.Compute()` to pass `trace.ReasoningTokenCount ?? 0` (not literal `0`) to `costEstimator.EstimateUsd`; add test covering reasoning-token cost path | **Done (2026-06-02 batch 5R)** ? aggregator forwards reasoning tokens (shipped 5J); `AgentExecutionTraceRunLlmCostAggregatorTests`; `test_correctness_batch_5r.py` drift guard | XS |
@@ -11464,31 +11464,11 @@ Core `Finding` has no `AssignedToUserId` or general remediation due date. Risk-r
 
 ---
 
-## TB-396 — Inbound ITSM disposition sync — **V1.1**
+## TB-396 — Inbound ITSM disposition sync — **Done (2026-06-27)**
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 
-**Problem:**
-
-Inbound webhooks map external ticket state → `FindingHumanReviewStatus` only. Governance `FindingDisposition` (Accepted/Deferred/Remediated/…) is not updated from Jira/ServiceNow, so risk register and governance queue stay stale relative to ticket state.
-
-**Scope:**
-
-1. Extend `IntegrationsItsmInboundOptions` with optional disposition map (external status → `FindingDisposition`).
-2. On inbound webhook, when map hits, call `FindingDispositionService.RecordAsync` with system actor + audit (or dedicated integration actor).
-3. Guard against loops (outbound create → inbound echo).
-4. Document one-way vs bidirectional boundaries in `API_CONTRACTS.md`; full bidirectional workflow mapping remains **TB-398**.
-
-**Acceptance criteria:**
-
-- Configured Jira "Done" (or ServiceNow "Resolved") can mark finding disposition Remediated when mapping enabled.
-- Unmapped statuses continue to update human-review only (current behaviour).
-
-**Affected files / projects:**
-
-- `ArchLucid.Application/Integrations/Itsm/ItsmInboundWebhookSyncService.cs`
-- `ArchLucid.Core/Configuration/IntegrationsItsmInboundOptions.cs`
-- `ArchLucid.Application/Governance/FindingDisposition/`
+**Shipped:** Optional `JiraStatusDispositionMap` / `ServiceNowStateDispositionMap` on `Integrations:ItsmInbound`; `ItsmInboundDispositionSync` records disposition via `FindingDispositionService` when mapped; loop guard skips unchanged latest disposition; audit payloads include disposition sync fields. See `API_CONTRACTS.md` ITSM inbound row.
 
 **Size estimate:** **M**
 

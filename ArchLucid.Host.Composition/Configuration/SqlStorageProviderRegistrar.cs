@@ -379,6 +379,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ICustomRoleRepository, SqlCustomRoleRepository>();
         services.AddScoped<IGlobalSearchRepository, SqlGlobalSearchRepository>();
         services.AddScoped<ITenantFirstValueReportBrandingRepository, SqlTenantFirstValueReportBrandingRepository>();
+        services.AddScoped<ItsmInboundDispositionSync>();
         services.AddScoped<ItsmInboundWebhookSyncService>();
         services.AddScoped<IValueReportMetricsReader, DapperValueReportMetricsReader>();
         services.AddScoped<IRunPipelineAuditTimelineService, RunPipelineAuditTimelineService>();

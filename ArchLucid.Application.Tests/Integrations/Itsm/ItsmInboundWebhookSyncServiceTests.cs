@@ -1,7 +1,10 @@
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Integrations.Itsm;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Integrations;
@@ -59,10 +62,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         {
             JiraStatusHumanReviewMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["Blocked"] = "Rejected" }
         };
-        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
-        monitor.Setup(m => m.CurrentValue).Returns(options);
-        ItsmInboundWebhookSyncService sut =
-            new(correlations.Object, monitor.Object, NullLogger<ItsmInboundWebhookSyncService>.Instance);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, options);
 
         const string json =
             """
@@ -113,10 +113,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         {
             ServiceNowStateHumanReviewMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["99"] = "Approved" }
         };
-        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
-        monitor.Setup(m => m.CurrentValue).Returns(options);
-        ItsmInboundWebhookSyncService sut =
-            new(correlations.Object, monitor.Object, NullLogger<ItsmInboundWebhookSyncService>.Instance);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, options);
 
         const string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"99"}""";
         using JsonDocument doc = JsonDocument.Parse(json);
@@ -139,10 +136,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
         IntegrationsItsmInboundOptions options = new();
-        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
-        monitor.Setup(m => m.CurrentValue).Returns(options);
-        ItsmInboundWebhookSyncService sut =
-            new(correlations.Object, monitor.Object, NullLogger<ItsmInboundWebhookSyncService>.Instance);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, options, configureDefaultFindingExists: false);
 
         using JsonDocument doc = JsonDocument.Parse("{}");
         ItsmInboundWebhookProcessResult r = await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None);
@@ -360,7 +354,11 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         Mock<ILogger<ItsmInboundWebhookSyncService>> logger = new();
         Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
-        ItsmInboundWebhookSyncService sut = new(correlations.Object, monitor.Object, logger.Object);
+        Mock<IFindingDispositionService> dispositionService = new();
+        ItsmInboundDispositionSync dispositionSync =
+            new(dispositionService.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
+        ItsmInboundWebhookSyncService sut =
+            new(correlations.Object, monitor.Object, dispositionSync, logger.Object);
 
         using JsonDocument doc = JsonDocument.Parse(
             """{"issue":{"key":"KK-9","fields":{"status":{"name":"Custom-Not-Mapped"}}}}""");
@@ -400,7 +398,11 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         Mock<ILogger<ItsmInboundWebhookSyncService>> logger = new();
         Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
-        ItsmInboundWebhookSyncService sut = new(correlations.Object, monitor.Object, logger.Object);
+        Mock<IFindingDispositionService> dispositionService = new();
+        ItsmInboundDispositionSync dispositionSync =
+            new(dispositionService.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
+        ItsmInboundWebhookSyncService sut =
+            new(correlations.Object, monitor.Object, dispositionSync, logger.Object);
 
         const string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"88"}""";
         using JsonDocument doc = JsonDocument.Parse(json);
@@ -634,9 +636,106 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         payload.RootElement.GetProperty("humanReviewStatus").GetString().Should().Be(nameof(FindingHumanReviewStatus.Pending));
     }
 
+    [Fact]
+    public async Task Jira_when_disposition_map_configured_records_remediated_and_emits_audit_fields()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KK-77", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "f-disp" });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-disp",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+        Mock<IFindingDispositionService> dispositionService = new();
+        dispositionService
+            .Setup(s => s.ListHistoryAsync(TenantA, "f-disp", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<FindingDispositionEventDto>());
+        dispositionService
+            .Setup(s => s.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(r => r.Disposition == FindingDisposition.Remediated),
+                It.IsAny<Core.Scoping.ScopeContext>(),
+                "jira-webhook",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new FindingDispositionEventDto
+                {
+                    EventId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    FindingId = "f-disp",
+                    Disposition = FindingDisposition.Remediated,
+                    ReviewerUserId = "jira-webhook",
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                });
+        IntegrationsItsmInboundOptions options = new()
+        {
+            JiraStatusDispositionMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Done"] = nameof(FindingDisposition.Remediated)
+            }
+        };
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, options, dispositionService);
+
+        using JsonDocument doc = JsonDocument.Parse(
+            """{"issue":{"key":"KK-77","fields":{"status":{"name":"Done"}}}}""");
+        ItsmInboundWebhookProcessResult r = await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None);
+
+        r.Accepted.Should().BeTrue();
+        JsonDocument payload = JsonDocument.Parse(r.DurableAuditEvent!.DataJson);
+        payload.RootElement.GetProperty("dispositionSynced").GetBoolean().Should().BeTrue();
+        payload.RootElement.GetProperty("disposition").GetString().Should().Be(nameof(FindingDisposition.Remediated));
+        dispositionService.Verify(
+            s => s.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                It.IsAny<Core.Scoping.ScopeContext>(),
+                "jira-webhook",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Jira_without_disposition_map_leaves_disposition_sync_skipped_in_audit()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KK-88", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "f-plain" });
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                It.IsAny<Guid>(),
+                "f-plain",
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+        Mock<IFindingDispositionService> dispositionService = new();
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions(), dispositionService);
+
+        using JsonDocument doc = JsonDocument.Parse(
+            """{"issue":{"key":"KK-88","fields":{"status":{"name":"Done"}}}}""");
+        ItsmInboundWebhookProcessResult r = await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None);
+
+        r.Accepted.Should().BeTrue();
+        JsonDocument payload = JsonDocument.Parse(r.DurableAuditEvent!.DataJson);
+        payload.RootElement.GetProperty("dispositionSynced").GetBoolean().Should().BeFalse();
+        payload.RootElement.GetProperty("dispositionSkipReason").GetString().Should().Be("disposition_unmapped");
+        dispositionService.Verify(
+            s => s.ListHistoryAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static ItsmInboundWebhookSyncService CreateSutWithInboundOptions(
         Mock<IItsmFindingCorrelationRepository> correlations,
         IntegrationsItsmInboundOptions inboundOptions,
+        Mock<IFindingDispositionService>? dispositionService = null,
         bool configureDefaultFindingExists = true)
     {
         if (configureDefaultFindingExists)
@@ -647,9 +746,14 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(inboundOptions);
 
+        Mock<IFindingDispositionService> disposition = dispositionService ?? new Mock<IFindingDispositionService>();
+        ItsmInboundDispositionSync dispositionSync =
+            new(disposition.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
+
         return new ItsmInboundWebhookSyncService(
             correlations.Object,
             monitor.Object,
+            dispositionSync,
             NullLogger<ItsmInboundWebhookSyncService>.Instance);
     }
 }

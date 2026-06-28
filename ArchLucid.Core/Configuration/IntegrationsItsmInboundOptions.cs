@@ -43,6 +43,19 @@ public sealed class IntegrationsItsmInboundOptions
     public Dictionary<string, string> ServiceNowStateHumanReviewMap { get; set; } = new();
 
     /// <summary>
+    ///     Optional per-deployment map: Jira workflow status <c>name</c> →
+    ///     <see cref="ArchLucid.Contracts.Findings.FindingDisposition"/> name (e.g. <c>Remediated</c>). Keys match case-insensitively;
+    ///     when absent, inbound webhooks update human review only (TB-396).
+    /// </summary>
+    public Dictionary<string, string> JiraStatusDispositionMap { get; set; } = new();
+
+    /// <summary>
+    ///     Optional per-deployment map: ServiceNow <c>state</c> / <c>incident_state</c> raw value →
+    ///     <see cref="ArchLucid.Contracts.Findings.FindingDisposition"/> name. Keys match case-insensitively; unmapped values do not change disposition.
+    /// </summary>
+    public Dictionary<string, string> ServiceNowStateDispositionMap { get; set; } = new();
+
+    /// <summary>
     ///     When <see langword="true" />, callers must send HMAC-SHA256 over the raw UTF-8 body on
     ///     <c>X-ArchLucid-Webhook-Signature</c> (<c>sha256=&lt;hex&gt;</c>, outbound-aligned) or legacy
     ///     <c>X-ArchLucid-Signature</c> (lowercase hex only). The vendor token header is still required.
