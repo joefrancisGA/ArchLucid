@@ -47,6 +47,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                                fr.HumanReviewStatus,
                                fr.IsMuted,
                                fr.MuteReason,
+                               fr.AssignedToUserId,
+                               fr.RemediationDueUtc,
                                fr.ReasoningTrace,
                                fr.ReasoningTraceDigestSha256,
                                r.RunId,
@@ -230,6 +232,10 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                 : FindingInspectReadModelMapper.ParseDisposition(dispositionRow.Disposition),
             LatestDispositionOccurredAtUtc = dispositionRow?.OccurredAtUtc,
             HasActiveWaiver = activeWaiverCount > 0,
+            AssignedToUserId = row.AssignedToUserId,
+            RemediationDueUtc = row.RemediationDueUtc is null
+                ? null
+                : new DateTimeOffset(DateTime.SpecifyKind(row.RemediationDueUtc.Value, DateTimeKind.Utc)),
         };
     }
 
@@ -361,6 +367,18 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         }
 
         public string? MuteReason
+        {
+            get;
+            init;
+        }
+
+        public string? AssignedToUserId
+        {
+            get;
+            init;
+        }
+
+        public DateTime? RemediationDueUtc
         {
             get;
             init;

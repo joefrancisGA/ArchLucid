@@ -31,7 +31,9 @@ internal static class ItsmFindingAuthorityPayloadMapper
         Guid runId,
         JsonElement? typedPayload,
         string? decisionRuleName,
-        IReadOnlyList<string> recommendedActions)
+        IReadOnlyList<string> recommendedActions,
+        string? assignedToUserId = null,
+        DateTimeOffset? remediationDueUtc = null)
     {
         string summary = $"ArchLucid finding {findingId}";
         string description =
@@ -39,6 +41,8 @@ internal static class ItsmFindingAuthorityPayloadMapper
             $"- findingId: {findingId}{Environment.NewLine}" +
             $"- runId: {runId:N}{Environment.NewLine}" +
             $"Relative paths (no secrets): v1/architecture/run/{runId:N}/findings/{findingId}/evidence-chain";
+
+        description = AppendRemediationAssignment(description, assignedToUserId, remediationDueUtc);
 
         if (typedPayload is null || typedPayload.Value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
             return (summary, AppendDecisionAndActions(description, decisionRuleName, recommendedActions));
@@ -85,6 +89,25 @@ internal static class ItsmFindingAuthorityPayloadMapper
         description += Environment.NewLine + Environment.NewLine + "Recommended actions:";
 
         return recommendedActions.Where(action => !string.IsNullOrWhiteSpace(action)).Aggregate(description, (current, action) => current + (Environment.NewLine + "- " + action.Trim()));
+    }
+
+    public static string AppendRemediationAssignment(
+        string description,
+        string? assignedToUserId,
+        DateTimeOffset? remediationDueUtc)
+    {
+        if (string.IsNullOrWhiteSpace(assignedToUserId) && remediationDueUtc is null)
+            return description;
+
+        description += Environment.NewLine + Environment.NewLine + "Remediation assignment:";
+
+        if (!string.IsNullOrWhiteSpace(assignedToUserId))
+            description += Environment.NewLine + "- assignedTo: " + assignedToUserId.Trim();
+
+        if (remediationDueUtc is not null)
+            description += Environment.NewLine + "- remediationDueUtc: " + remediationDueUtc.Value.ToString("O");
+
+        return description;
     }
 
     private static string Truncate(string s, int max)

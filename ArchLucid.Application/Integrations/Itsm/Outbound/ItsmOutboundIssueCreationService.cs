@@ -110,8 +110,14 @@ public sealed class ItsmOutboundIssueCreationService(
 
         TenantItsmOutboundSettings? tenantRow = await _tenantItsmOutboundSettings.TryGetAsync(scope.TenantId, ct).ConfigureAwait(false);
         FindingSeverity severity = ItsmFindingAuthorityPayloadMapper.TryGetSeverity(inspect.TypedPayload, inspect.Severity);
-        (string summary, string description) = ItsmFindingAuthorityPayloadMapper.BuildSummaryAndDescription(inspect.FindingId, inspect.RunId,
-            inspect.TypedPayload, inspect.DecisionRuleName, inspect.RecommendedActions);
+        (string summary, string description) = ItsmFindingAuthorityPayloadMapper.BuildSummaryAndDescription(
+            inspect.FindingId,
+            inspect.RunId,
+            inspect.TypedPayload,
+            inspect.DecisionRuleName,
+            inspect.RecommendedActions,
+            inspect.AssignedToUserId,
+            inspect.RemediationDueUtc);
         return provider switch
         {
             ItsmOutboundIssueProvider.Jira => await TryJiraAsync(scope, inspect, tenantRow, severity, summary, description, ct).ConfigureAwait(false),
@@ -185,7 +191,9 @@ public sealed class ItsmOutboundIssueCreationService(
             adf,
             issueTypeName,
             priorityName,
-            ct).ConfigureAwait(false);
+            ct,
+            inspect.AssignedToUserId,
+            ItsmOutboundVendorRemediationFields.FormatJiraDueDate(inspect.RemediationDueUtc)).ConfigureAwait(false);
         if (!http.Ok || string.IsNullOrWhiteSpace(http.IssueKey))
         {
             AuditEvent ev = new()
@@ -360,7 +368,9 @@ public sealed class ItsmOutboundIssueCreationService(
                 urgency,
                 impact,
                 cmdb.SysId,
-                ct).ConfigureAwait(false);
+                ct,
+                inspect.AssignedToUserId,
+                ItsmOutboundVendorRemediationFields.FormatServiceNowDueDate(inspect.RemediationDueUtc)).ConfigureAwait(false);
         if (!http.Ok || string.IsNullOrWhiteSpace(http.SysId))
         {
             AuditEvent ev = new()

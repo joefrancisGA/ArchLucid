@@ -30,4 +30,8 @@ export type FindingInspectPayload = {
   confidenceLevel?: FindingConfidenceLevel | null;
   /** Inbound ITSM sync / operator human review state when returned by inspect API. */
   humanReviewStatus?: number | null;
+  /** TB-395 general remediation assignee (not disposition reviewer). */
+  assignedToUserId?: string | null;
+  /** TB-395 target remediation due (not deferral revisit). */
+  remediationDueUtc?: string | null;
 };

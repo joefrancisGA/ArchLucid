@@ -43,4 +43,23 @@ public sealed class ItsmFindingAuthorityPayloadMapperConformanceTests
 
         description.Should().NotContain("hooks.slack.com", because: $"{ConnectorName}: description must not embed vendor webhook hosts.");
     }
+
+    [Fact]
+    public void BuildSummaryAndDescription_includes_remediation_assignment_block_when_provided()
+    {
+        DateTimeOffset due = new(2026, 8, 1, 0, 0, 0, TimeSpan.Zero);
+
+        (_, string description) = ItsmFindingAuthorityPayloadMapper.BuildSummaryAndDescription(
+            "f-assign",
+            Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            typedPayload: null,
+            decisionRuleName: null,
+            recommendedActions: [],
+            assignedToUserId: "owner@example.com",
+            remediationDueUtc: due);
+
+        description.Should().Contain("Remediation assignment:");
+        description.Should().Contain("assignedTo: owner@example.com");
+        description.Should().Contain("remediationDueUtc:");
+    }
 }

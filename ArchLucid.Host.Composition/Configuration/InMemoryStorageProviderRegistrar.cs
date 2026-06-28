@@ -130,6 +130,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IFindingsSnapshotRepository>(static sp =>
             new InMemoryFindingsSnapshotRepository(sp.GetRequiredService<IScopeContextProvider>()));
         services.AddSingleton<IFindingRecordMuteRepository, InMemoryFindingRecordMuteRepository>();
+        services.AddSingleton<IFindingRecordRemediationAssignmentRepository, InMemoryFindingRecordRemediationAssignmentRepository>();
         services.AddSingleton<IFindingInspectReadRepository>(sp =>
             new InMemoryFindingInspectReadRepository(sp.GetRequiredService<IAuthorityQueryService>()));
         services.AddSingleton<IDecisionTraceRepository, InMemoryDecisionTraceRepository>();

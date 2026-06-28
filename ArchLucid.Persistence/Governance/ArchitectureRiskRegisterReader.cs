@@ -41,6 +41,8 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                              fr.Category,
                              fr.HumanReviewStatus,
                              fs.CreatedUtc,
+                             fr.AssignedToUserId,
+                             fr.RemediationDueUtc,
                              ld.Disposition,
                              ld.RevisitDueUtc,
                              ld.EvidenceRequestText,
@@ -126,8 +128,12 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                     Category = row.Category,
                     StatusLabel = statusLabel,
                     OwnerUserId = row.OwnerUserId,
+                    AssignedToUserId = row.AssignedToUserId,
                     LatestDisposition = disposition,
                     RevisitDueUtc = revisit,
+                    RemediationDueUtc = row.RemediationDueUtc is null
+                        ? null
+                        : new DateTimeOffset(DateTime.SpecifyKind(row.RemediationDueUtc.Value, DateTimeKind.Utc)),
                     LastReviewedUtc = lastReviewed,
                     AgingDays = agingDays,
                     WaiverExpiresAtUtc = waiverExpires,
@@ -237,6 +243,18 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
         }
 
         public string? OwnerUserId
+        {
+            get;
+            init;
+        }
+
+        public string? AssignedToUserId
+        {
+            get;
+            init;
+        }
+
+        public DateTime? RemediationDueUtc
         {
             get;
             init;

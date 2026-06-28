@@ -178,7 +178,12 @@ export function FindingInspectView({
         variant="inspect"
       />
 
-      <FindingInspectGovernanceStickinessPanel findingId={decodedFindingId} runId={runId} />
+      <FindingInspectGovernanceStickinessPanel
+        findingId={decodedFindingId}
+        runId={runId}
+        initialAssignedToUserId={payload.assignedToUserId}
+        initialRemediationDueUtc={payload.remediationDueUtc}
+      />
 
       <FindingInspectItsmWorkflowPanel
         findingId={decodedFindingId}

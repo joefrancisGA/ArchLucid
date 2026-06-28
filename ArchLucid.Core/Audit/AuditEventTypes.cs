@@ -143,6 +143,9 @@ public static class AuditEventTypes
     /// <summary>Operator muted a finding for the active review (durable <c>dbo.FindingRecords</c> row).</summary>
     public const string FindingMuted = "FindingMuted";
 
+    /// <summary>Operator updated general remediation assignee/due date on a finding row (TB-395).</summary>
+    public const string FindingRemediationAssignmentUpdated = "FindingRemediationAssignmentUpdated";
+
     public const string ReplayExecuted = "ReplayExecuted";
 
     /// <summary>Workspace curation: <c>PATCH /v1/architecture/run/{{runId}}/pin</c> set or toggled <c>dbo.Runs.IsPinned</c>.</summary>

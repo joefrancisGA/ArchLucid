@@ -190,6 +190,20 @@ public sealed class FindingInspectResponse
         init;
     }
 
+    /// <summary>Operator-assigned remediation owner (distinct from disposition reviewer). TB-395.</summary>
+    public string? AssignedToUserId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Target remediation completion (distinct from deferral revisit). TB-395.</summary>
+    public DateTimeOffset? RemediationDueUtc
+    {
+        get;
+        init;
+    }
+
     public string? Provider
     {
         get;

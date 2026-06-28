@@ -320,6 +320,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IFindingInspectReadRepository, DapperFindingInspectReadRepository>();
         services.AddScoped<IRunFindingExternalTrackingReadRepository, DapperRunFindingExternalTrackingReadRepository>();
         services.AddScoped<IFindingRecordMuteRepository, DapperFindingRecordMuteRepository>();
+        services.AddScoped<IFindingRecordRemediationAssignmentRepository, DapperFindingRecordRemediationAssignmentRepository>();
         services.AddScoped<IDecisionTraceRepository, SqlDecisionTraceRepository>();
         ArchLucidStorageServiceCollectionExtensions.RegisterGoldenManifestRunAndPolicyPackRepositories(services, configuration);
 

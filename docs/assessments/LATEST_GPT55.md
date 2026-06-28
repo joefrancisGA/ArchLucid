@@ -1,11 +1,11 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **83.49%**.
+ArchLucid Assessment - (A) Headline Readiness: **83.74%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
-- **Assessment timestamp:** 2026-06-27T21:30:00-04:00.
+- **Assessment timestamp:** 2026-06-27T22:15:00-04:00.
 - **Source materials inspected (required read list):**
   1. `docs/library/REPO_DIGEST.md`
   2. `docs/library/V1_SCOPE.md`
@@ -34,15 +34,15 @@ ArchLucid Assessment - (A) Headline Readiness: **83.49%**.
 |---|---------|------:|-------:|----------------------:|---------------------------:|
 | 1 | Decision-Changing Insight Density | 85 | 13 | 11.05 | 195 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 86 | 13 | 11.18 | 182 |
-| 3 | Governed Review Integrity | 91 | 13 | 11.83 | 117 |
-| 4 | Correctness & Evidence Integrity | 84 | 12 | 10.08 | 192 |
+| 3 | Governed Review Integrity | 92 | 13 | 11.96 | 104 |
+| 4 | Correctness & Evidence Integrity | 85 | 12 | 10.20 | 180 |
 | 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 160 |
 | 6 | Time-to-Value | 79 | 10 | 7.90 | 210 |
 | 7 | Proof-of-ROI Readiness | 82 | 9 | 7.38 | 162 |
 | 8 | Executive / Operator Comprehension | 79 | 8 | 6.32 | 168 |
 | 9 | Runtime & First-Review Reliability | 80 | 7 | 5.60 | 140 |
 | 10 | Adoption Friction | 75 | 5 | 3.75 | 125 |
-|  | **(A) Headline readiness** |  | **100** | **83.49** |  |
+|  | **(A) Headline readiness** |  | **100** | **83.74** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -70,7 +70,7 @@ These diagnostics do **not** feed `(A)` directly.
 6. **Auth + tenant isolation behave correctly on pilot path:** **PASS (structural deny-matrix)** - `archlucid pilot tenant-isolation-negative-test` emits cross-tenant deny probes with correlation IDs (offline fixture replay + optional live `--run-id` mode); live two-tenant SQL smoke remains the fastest full-environment proof.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **83.49%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credentials (TB-392), operator-configurable outbound settings UI (TB-393), durable async outbound ticket creation with job polling (TB-394), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
+- **(A) Overall headline readiness (excludes deferred items):** **83.74%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credentials (TB-392), operator-configurable outbound settings UI (TB-393), durable async outbound ticket creation (TB-394), finding remediation assignee/due fields on inspect and risk register (TB-395), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -541,6 +541,14 @@ Non-goals:
 - **Affected qualities:** 9, 10.
 - **Classification:** V1.1 engineering.
 - **Rescore impact:** Runtime & First-Review Reliability +1 and Adoption Friction +1; `(A)` headline readiness rises from **83.37%** to **83.49%**.
+
+**17) Finding assignee + general remediation due date (TB-395)**
+- **Status:** shipped (2026-06-27).
+- **Implementation summary:** `AssignedToUserId` and `RemediationDueUtc` on `Finding` + `FindingRecords` (migration 262); `PUT /v1/findings/{findingId}/remediation-assignment` with audit `FindingRemediationAssignmentUpdated`; exposed on inspect and architecture risk register; outbound Jira/ServiceNow create maps assignee/due when configured; finding inspect governance panel edit UI.
+- **Validation evidence:** `ItsmOutboundVendorRemediationFieldsTests`, `ItsmFindingAuthorityPayloadMapperConformanceTests`, `FindingRemediationAssignmentEndpointTests`.
+- **Affected qualities:** 3, 4.
+- **Classification:** V1.1 engineering.
+- **Rescore impact:** Governed Review Integrity +1 and Correctness & Evidence Integrity +1; `(A)` headline readiness rises from **83.49%** to **83.74%**.
 
 ## 18. Prompt Batching Guidance
 - **First batch (strong-model-recommended):** ship-gate evidence harness, tenant-isolation negative-test bundle, and citation-integrity sampler.

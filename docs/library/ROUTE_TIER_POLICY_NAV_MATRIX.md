@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **167** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **168** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:167 -->
+<!-- route-tier-policy-nav-registry-count:168 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -171,6 +171,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Findings/ArchitectureFindingAskController.cs` | `/v1/architecture/finding` | standard | ReadAuthority |  |  |
 | `Findings/FindingInspectController.cs` | `/v1/findings` | standard | ReadAuthority | /governance/findings |  |
 | `Findings/FindingMuteController.cs` | `/v1/findings` | standard | ExecuteAuthority | /governance/findings |  |
+| `Findings/FindingRemediationAssignmentController.cs` | `/v1/findings` | standard | ExecuteAuthority | /governance/findings |  |
 | `Governance/GovernanceController.cs` | `/v1/governance` | standard | ReadAuthority | /governance |  |
 | `Governance/GovernancePreCommitSimulationController.cs` | `/v1/governance/pre-commit` | standard | ReadAuthority |  |  |
 | `Governance/GovernancePreviewController.cs` | `/v1/governance-preview` | standard | ReadAuthority |  |  |

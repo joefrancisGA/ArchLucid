@@ -65,6 +65,20 @@ public sealed class ArchitectureRiskRegisterEntry
         init;
     }
 
+    /// <summary>Operator-assigned remediation owner (TB-395; not disposition reviewer).</summary>
+    public string? AssignedToUserId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Target remediation due date (TB-395; not deferral revisit).</summary>
+    public DateTimeOffset? RemediationDueUtc
+    {
+        get;
+        init;
+    }
+
     public DateTimeOffset? LastReviewedUtc
     {
         get;

@@ -17,7 +17,8 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
     private readonly ILogger<JiraOutboundIssueClient> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task<JiraOutboundIssueHttpResult> CreateIssueAsync(Uri issuePostUri, string serviceAccountEmail, string apiToken, string projectKey,
-        string summary, JsonElement descriptionAdf, string issueTypeName, string priorityName, CancellationToken ct)
+        string summary, JsonElement descriptionAdf, string issueTypeName, string priorityName, CancellationToken ct,
+        string? assigneeAccountId = null, string? dueDateYyyyMmDd = null)
     {
         ArgumentNullException.ThrowIfNull(serviceAccountEmail);
         ArgumentNullException.ThrowIfNull(apiToken);
@@ -30,26 +31,23 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
             throw new ArgumentException("serviceAccountEmail is required.", nameof(serviceAccountEmail));
         if (string.IsNullOrWhiteSpace(apiToken))
             throw new ArgumentException("apiToken is required.", nameof(apiToken));
-        object body = new
+
+        Dictionary<string, object?> fields = new()
         {
-            fields = new
-            {
-                project = new
-                {
-                    key = projectKey
-                },
-                summary,
-                description = descriptionAdf,
-                issuetype = new
-                {
-                    name = issueTypeName
-                },
-                priority = new
-                {
-                    name = priorityName
-                }
-            }
+            ["project"] = new { key = projectKey },
+            ["summary"] = summary,
+            ["description"] = descriptionAdf,
+            ["issuetype"] = new { name = issueTypeName },
+            ["priority"] = new { name = priorityName }
         };
+
+        if (ItsmOutboundVendorRemediationFields.LooksLikeJiraAccountId(assigneeAccountId))
+            fields["assignee"] = new { accountId = assigneeAccountId!.Trim() };
+
+        if (!string.IsNullOrWhiteSpace(dueDateYyyyMmDd))
+            fields["duedate"] = dueDateYyyyMmDd.Trim();
+
+        object body = new { fields };
         using HttpRequestMessage request = new(HttpMethod.Post, issuePostUri);
         string basic = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{serviceAccountEmail}:{apiToken}"));
         request.Headers.Authorization = new AuthenticationHeaderValue("Basic", basic);

@@ -1434,6 +1434,12 @@ GO
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'MuteExpiresAtUtc') IS NULL
     ALTER TABLE dbo.FindingRecords ADD MuteExpiresAtUtc DATETIME2(3) NULL;
 
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'AssignedToUserId') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD AssignedToUserId NVARCHAR(256) NULL;
+
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'RemediationDueUtc') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD RemediationDueUtc DATETIME2(3) NULL;
+
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_FindingRecords_ReviewedByWhenReviewed')

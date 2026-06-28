@@ -68,7 +68,8 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
     }
 
     public async Task<ServiceNowIncidentHttpResult> CreateIncidentAsync(Uri incidentTableUri, string username, string password, string shortDescription,
-        string description, string urgency, string impact, string? cmdbCiSysId, CancellationToken ct)
+        string description, string urgency, string impact, string? cmdbCiSysId, CancellationToken ct,
+        string? assignedToUserId = null, string? dueDate = null)
     {
         ArgumentNullException.ThrowIfNull(incidentTableUri);
         ArgumentNullException.ThrowIfNull(username);
@@ -83,7 +84,9 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
             Description = description,
             Urgency = urgency,
             Impact = impact,
-            CmdbCi = cmdbCiSysId
+            CmdbCi = cmdbCiSysId,
+            AssignedTo = string.IsNullOrWhiteSpace(assignedToUserId) ? null : assignedToUserId.Trim(),
+            DueDate = string.IsNullOrWhiteSpace(dueDate) ? null : dueDate.Trim()
         };
         using HttpRequestMessage request = new(HttpMethod.Post, incidentTableUri);
         ApplyBasicAuth(request, username, password);
@@ -252,6 +255,22 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
 
         [JsonPropertyName("cmdb_ci")]
         public string? CmdbCi
+        {
+            [UsedImplicitly]
+            get;
+            init;
+        }
+
+        [JsonPropertyName("assigned_to")]
+        public string? AssignedTo
+        {
+            [UsedImplicitly]
+            get;
+            init;
+        }
+
+        [JsonPropertyName("due_date")]
+        public string? DueDate
         {
             [UsedImplicitly]
             get;

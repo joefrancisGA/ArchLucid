@@ -17,8 +17,10 @@ export type ArchitectureRiskRegisterEntry = {
   category: string;
   statusLabel: string;
   ownerUserId?: string | null;
+  assignedToUserId?: string | null;
   latestDisposition?: FindingDispositionKind | null;
   revisitDueUtc?: string | null;
+  remediationDueUtc?: string | null;
   lastReviewedUtc?: string | null;
   agingDays: number;
   waiverExpiresAtUtc?: string | null;

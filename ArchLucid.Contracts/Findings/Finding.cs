@@ -256,4 +256,18 @@ public class Finding
         get;
         set;
     }
+
+    /// <summary>Operator-assigned remediation owner (distinct from disposition reviewer or waiver owner). TB-395.</summary>
+    public string? AssignedToUserId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Target remediation completion date (distinct from deferral <c>RevisitDueUtc</c>). TB-395.</summary>
+    public DateTimeOffset? RemediationDueUtc
+    {
+        get;
+        set;
+    }
 }
