@@ -44,10 +44,12 @@ internal static class ShipGateEvidenceCommand
         }
 
         using HttpClient http = CliAuthorizedHttpClient.Create(baseUrl, config);
+        ShipGateUiBaseUrlResolution uiOrigin = ShipGateUiBaseUrlResolver.Resolve(args, config);
         ShipGateEvidenceRunner runner = new(http, config);
         ShipGateEvidenceReport report = await runner.RunAsync(
             options.RunId,
-            options.UiBaseUrl,
+            uiOrigin.BaseUrl,
+            uiOrigin.Source,
             options.ToTenantIsolationOptions(),
             cancellationToken);
 
@@ -106,6 +108,12 @@ internal static class ShipGateEvidenceCommand
         sb.AppendLine($"- **Generated (UTC):** {report.GeneratedUtc:yyyy-MM-dd HH:mm:ss}");
         sb.AppendLine($"- **Base URL:** `{report.BaseUrl}`");
         sb.AppendLine($"- **Run ID:** `{report.RunId}`");
+
+        if (!string.IsNullOrWhiteSpace(report.UiBaseUrl))
+        {
+            sb.AppendLine($"- **UI base URL:** `{report.UiBaseUrl}` (source: {report.UiBaseUrlSource ?? "unspecified"})");
+        }
+
         sb.AppendLine();
         sb.AppendLine("## Gate Verdicts");
         sb.AppendLine();
@@ -156,7 +164,7 @@ internal static class ShipGateEvidenceCommand
     {
         Console.WriteLine(
             "Usage: archlucid pilot ship-gate-evidence --run-id <guid> " +
-            "[--api-base-url <url>] [--ui-base-url <url>] " +
+            "[--api-base-url <url>] [--ui-base-url <url>] [--skip-ui-route-smoke] " +
             "[--alternate-tenant-id <guid>] [--alternate-workspace-id <guid>] [--alternate-project-id <guid>] " +
             "[--json-out <path>] [--markdown-out <path>] [--json]");
     }

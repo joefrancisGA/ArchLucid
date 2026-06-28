@@ -20,6 +20,12 @@ internal sealed class ShipGateEvidenceReport
         init;
     }
 
+    public string? UiBaseUrlSource
+    {
+        get;
+        init;
+    }
+
     public required DateTime GeneratedUtc
     {
         get;

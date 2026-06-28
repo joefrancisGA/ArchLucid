@@ -489,6 +489,14 @@ Describe the outcome you want (business + technical). Keep it short and runnable
             set;
         }
 
+        /// <summary>Optional operator UI origin for CLI route-smoke and deep links (e.g. ship-gate Gate 5).</summary>
+        [JsonPropertyName("uiUrl")]
+        public string? UiUrl
+        {
+            get;
+            set;
+        }
+
         [JsonPropertyName("inputs")]
         public InputsSection Inputs
         {

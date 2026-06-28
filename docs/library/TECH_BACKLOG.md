@@ -166,6 +166,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-411 | Ship-gate Gate 6 tenant-isolation negative-test embed — `BuildGate6Async` runs live cross-tenant deny probes via `TenantIsolationNegativeTestRunner` for the supplied `--run-id`; optional `--alternate-tenant-id` / workspace / project scope overrides | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-412 | Ship-gate Gate 4 export matrix embed — probes Markdown (`first-value-report`), DOCX (`analysis-report/export/docx`), and ZIP (`artifacts/runs/{runId}/export`) from `SHIP_GATE_EXPORT_MATRIX_CONTRACT.v1.json`; Gate 4 PASS/FAIL with per-format evidence | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-413 | Ship-gate Gate 1 first-review completion probe — contract-driven committed-run signals (status, manifest, request link, execution, artifacts, provenance graph) from `FIRST_REVIEW_COMPLETION_CONTRACT.v1.json`; Gate 1 PASS/FAIL with per-signal evidence | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
+| TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-402 | Automated AWS polling (Tier 2) — **Done (2026-06-27)** — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-403 | Automated GCP polling (Tier 2) — **Done (2026-06-27)** — hosted poller with GCP Workload Identity Federation (Azure MI trust); scheduled Cloud Asset Inventory collection; upload to `/v1/extractor/gcp/upload`; `/settings/cloud-connections` GCP connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards — **Done (2026-06-27)** — `sourceEvidenceLinks` on persisted recommendations + API; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
@@ -12102,3 +12103,39 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-409–412, `docs/library/FIRST_HOUR_OPERATOR_PATH.md`, assessment §4 gate 1.
+
+---
+
+## TB-414 — Ship-gate Gate 5 default UI origin resolution
+
+**Status:** **Done** (2026-06-28). `ShipGateUiBaseUrlResolver` resolves operator UI origin for `archlucid pilot ship-gate-evidence` with precedence: `--ui-base-url` → `ARCHLUCID_UI_BASE_URL` → `archlucid.json` `uiUrl` → default `http://localhost:3000`; `--skip-ui-route-smoke` preserves Gate 5 **UNKNOWN** for API-only or headless CI runs.
+
+**Source:** Assessment §8 weakness #1 — Gate 5 stayed **UNKNOWN** unless operators manually supplied `--ui-base-url` despite documented default localhost and env/config conventions used elsewhere in the CLI.
+
+**Problem:** Ship-gate evidence could not assert operator-shell route health in the default one-command pilot readiness path; Gate 5 required an extra flag even when local UI was the expected probe target.
+
+**V1 scope:**
+
+1. Add `ShipGateUiBaseUrlResolver` with explicit precedence chain and source attribution on the evidence report.
+2. Wire resolution in `ShipGateEvidenceCommand` before `ShipGateEvidenceRunner.RunAsync`.
+3. Add optional `uiUrl` to `ArchLucidCliConfig` for project-scoped UI origin.
+4. Gate 5 evidence includes `uiOrigin=` (explicit-arg | environment | archlucid.json | default-localhost | skipped).
+
+**Acceptance criteria:**
+
+- Default `archlucid pilot ship-gate-evidence --run-id <guid>` probes Gate 5 against `http://localhost:3000` unless overridden or skipped.
+- `--skip-ui-route-smoke` yields Gate 5 **UNKNOWN** with skip detail in evidence text.
+- Unit tests in `ShipGateUiBaseUrlResolverTests` cover precedence and skip flag.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/ShipGateUiBaseUrlResolver.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceCommand.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceRunner.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceReport.cs`
+- `ArchLucid.Cli/ArchLucidProjectScaffolder.cs` (`uiUrl` config)
+- `ArchLucid.Cli.Tests/ShipGateUiBaseUrlResolverTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-410, assessment §4 gate 5, §8 weakness #1.

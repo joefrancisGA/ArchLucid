@@ -18,6 +18,7 @@ internal sealed class ShipGateEvidenceRunner(
     public async Task<ShipGateEvidenceReport> RunAsync(
         string runId,
         string? uiBaseUrl = null,
+        string? uiBaseUrlSource = null,
         TenantIsolationNegativeTestOptions? tenantIsolationOptions = null,
         CancellationToken cancellationToken = default)
     {
@@ -29,7 +30,7 @@ internal sealed class ShipGateEvidenceRunner(
         ShipGateEvidenceGateResult gate2 = await BuildGate2Async(runId, cancellationToken);
         ShipGateEvidenceGateResult gate3 = await BuildGate3Async(cancellationToken);
         ShipGateEvidenceGateResult gate4 = await BuildGate4Async(runId, cancellationToken);
-        ShipGateEvidenceGateResult gate5 = await BuildGate5Async(runId, uiBaseUrl, cancellationToken);
+        ShipGateEvidenceGateResult gate5 = await BuildGate5Async(runId, uiBaseUrl, uiBaseUrlSource, cancellationToken);
         ShipGateEvidenceGateResult gate6 = await BuildGate6Async(runId, tenantIsolationOptions, cancellationToken);
 
         return new ShipGateEvidenceReport
@@ -37,6 +38,7 @@ internal sealed class ShipGateEvidenceRunner(
             BaseUrl = (_http.BaseAddress?.ToString() ?? string.Empty).Trim().TrimEnd('/'),
             RunId = runId,
             UiBaseUrl = string.IsNullOrWhiteSpace(uiBaseUrl) ? null : uiBaseUrl.Trim().TrimEnd('/'),
+            UiBaseUrlSource = string.IsNullOrWhiteSpace(uiBaseUrlSource) ? null : uiBaseUrlSource,
             GeneratedUtc = DateTime.UtcNow,
             Gates = [gate1, gate2, gate3, gate4, gate5, gate6],
         };
@@ -351,19 +353,27 @@ internal sealed class ShipGateEvidenceRunner(
     private async Task<ShipGateEvidenceGateResult> BuildGate5Async(
         string runId,
         string? uiBaseUrl,
+        string? uiBaseUrlSource,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(uiBaseUrl))
         {
+            string skipDetail = string.Equals(
+                uiBaseUrlSource,
+                ShipGateUiBaseUrlResolution.SkippedSource,
+                StringComparison.Ordinal)
+                ? "--skip-ui-route-smoke supplied"
+                : "No UI origin resolved";
+
             return new ShipGateEvidenceGateResult
             {
                 GateNumber = 5,
                 Name = "Operator UI does not break during first-review / demo path",
                 Verdict = ShipGateEvidenceVerdict.Unknown,
                 Evidence =
-                    "No --ui-base-url supplied; pass operator UI origin (e.g. http://localhost:3000) to probe first-review route smoke.",
+                    $"{skipDetail}; omit --skip-ui-route-smoke to probe canonical routes (default http://localhost:3000, ARCHLUCID_UI_BASE_URL, archlucid.json uiUrl, or --ui-base-url).",
                 FastestResolution =
-                    "Rerun with --ui-base-url <url> while the operator UI is reachable, or attach Playwright first-review smoke output separately.",
+                    "Rerun without --skip-ui-route-smoke while the operator UI is reachable, or attach Playwright first-review smoke output separately.",
             };
         }
 
@@ -386,16 +396,18 @@ internal sealed class ShipGateEvidenceRunner(
                 ? ShipGateEvidenceVerdict.Pass
                 : ShipGateEvidenceVerdict.Fail;
 
+            string originLabel = string.IsNullOrWhiteSpace(uiBaseUrlSource) ? "unspecified" : uiBaseUrlSource;
+
             return new ShipGateEvidenceGateResult
             {
                 GateNumber = 5,
                 Name = "Operator UI does not break during first-review / demo path",
                 Verdict = verdict,
                 Evidence =
-                    $"uiBaseUrl={uiBaseUrl.Trim().TrimEnd('/')}; routesPassed={passCount}/{probeResults.Count}; contractRoutes={contract.Routes.Count}; failed=[{failedSummary}].",
+                    $"uiBaseUrl={uiBaseUrl.Trim().TrimEnd('/')}; uiOrigin={originLabel}; routesPassed={passCount}/{probeResults.Count}; contractRoutes={contract.Routes.Count}; failed=[{failedSummary}].",
                 FastestResolution = verdict == ShipGateEvidenceVerdict.Pass
                     ? "Browser rendering and auth/session flows still require Playwright smoke for full PASS."
-                    : "Fix failing operator routes or UI deployment before sponsor/demo; rerun ship-gate evidence with the same --ui-base-url.",
+                    : "Fix failing operator routes or UI deployment before sponsor/demo; rerun ship-gate evidence with the same UI origin.",
             };
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or InvalidOperationException)
