@@ -8,17 +8,29 @@
     {
       "decisionId": "d1",
       "title": "Approve east-west firewall rule for subnet X",
-      "statusBeforeReview": "pending-approval"
+      "statusBeforeReview": "pending-approval",
+      "decisionOwner": "workload-security-lead",
+      "ownerOutcome": "deferred",
+      "outcomeRecordedUtc": "2026-06-16T18:30:00Z",
+      "itsmTicketRef": "",
+      "remediationDueUtc": "2026-07-15T00:00:00Z"
     },
     {
       "decisionId": "d2",
       "title": "Proceed with single-region deployment for pilot scope",
-      "statusBeforeReview": "under-review"
+      "statusBeforeReview": "under-review",
+      "decisionOwner": "platform-architect",
+      "ownerOutcome": "pending",
+      "outcomeRecordedUtc": "2026-06-16T18:45:00Z",
+      "remediationDueUtc": "2026-08-01T00:00:00Z"
     },
     {
       "decisionId": "d3",
       "title": "Accept cost baseline for Q3 capacity plan",
-      "statusBeforeReview": "draft"
+      "statusBeforeReview": "draft",
+      "decisionOwner": "finops-lead",
+      "ownerOutcome": "accepted",
+      "outcomeRecordedUtc": "2026-06-16T19:00:00Z"
     }
   ],
   "decisionChanges": [
@@ -36,5 +48,11 @@
     "outcome": "accepted",
     "recordedUtc": "2026-06-16T19:30:00Z",
     "notes": "Sponsor accepted deferred approval with remediation plan attached."
-  }
+  },
+  "notes": [
+    "decisionOwner: sanitized buyer-side role label (not sponsor, not ArchLucid operator).",
+    "ownerOutcome: accepted | rejected | deferred | pending | not-applicable.",
+    "Use owner-not-applicable or demo for self-serve pilots without real buyer-side owners.",
+    "remediationDueUtc drives owned-overdue when outcome is not resolved."
+  ]
 }

@@ -49,6 +49,8 @@
              CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Data\buyer_proof_evidence_ledger_rules.v1.json"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Data\decision_owner_scoreboard_rules.v1.json"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

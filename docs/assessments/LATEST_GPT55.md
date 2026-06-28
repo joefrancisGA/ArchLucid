@@ -1,7 +1,7 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **82.60%**.
+ArchLucid Assessment - (A) Headline Readiness: **82.99%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
@@ -31,9 +31,9 @@ ArchLucid Assessment - (A) Headline Readiness: **82.60%**.
 
 | # | Quality | Score | Weight | Weighted contribution | Weighted deficiency signal |
 |---|---------|------:|-------:|----------------------:|---------------------------:|
-| 1 | Decision-Changing Insight Density | 84 | 13 | 10.92 | 208 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 85 | 13 | 11.05 | 195 |
-| 3 | Governed Review Integrity | 89 | 13 | 11.57 | 143 |
+| 1 | Decision-Changing Insight Density | 85 | 13 | 11.05 | 195 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 86 | 13 | 11.18 | 182 |
+| 3 | Governed Review Integrity | 90 | 13 | 11.70 | 130 |
 | 4 | Correctness & Evidence Integrity | 83 | 12 | 9.96 | 204 |
 | 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 160 |
 | 6 | Time-to-Value | 79 | 10 | 7.90 | 210 |
@@ -41,7 +41,7 @@ ArchLucid Assessment - (A) Headline Readiness: **82.60%**.
 | 8 | Executive / Operator Comprehension | 78 | 8 | 6.24 | 176 |
 | 9 | Runtime & First-Review Reliability | 79 | 7 | 5.53 | 147 |
 | 10 | Adoption Friction | 73 | 5 | 3.65 | 135 |
-|  | **(A) Headline readiness** |  | **100** | **82.60** |  |
+|  | **(A) Headline readiness** |  | **100** | **82.99** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -69,7 +69,7 @@ These diagnostics do **not** feed `(A)` directly.
 6. **Auth + tenant isolation behave correctly on pilot path:** **PASS (structural deny-matrix)** - `archlucid pilot tenant-isolation-negative-test` emits cross-tenant deny probes with correlation IDs (offline fixture replay + optional live `--run-id` mode); live two-tenant SQL smoke remains the fastest full-environment proof.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **82.60%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams, citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, and buyer-proof evidence ledger normalization for canonical sponsor-send completion.
+- **(A) Overall headline readiness (excludes deferred items):** **82.99%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams, citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, and decision-owner accountability scoreboards for pilot closeout.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -93,9 +93,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.2 Decision-Changing Insight Density
-- **Score / Weight / Contribution / Deficiency:** 84 / 13 / 10.92 / 208
+- **Score / Weight / Contribution / Deficiency:** 85 / 13 / 11.05 / 195
 - **Affects outcomes:** 1, 3, 5
-- **Justification:** policy/evidence/governance scaffolding can produce insights frontier AI chat alone often fails to package defensibly; the frontier-AI baseline CLI and return-trigger telemetry pack give repeatable counterfactual and voluntary-return scoreboard paths, but live buyer decision-change proof is still limited.
+- **Justification:** policy/evidence/governance scaffolding can produce insights frontier AI chat alone often fails to package defensibly; frontier-AI baseline, return-trigger telemetry, and decision-owner accountability scoreboards now give repeatable paths to measure attributed decision change, but live buyer field proof is still limited.
 - **Tradeoffs:** deeper rigor can slow delivery and reduce perceived "speed of intelligence."
 - **Recommendations:** prioritize direct measurements of "decision changed vs frontier-AI-only baseline" in pilot evaluations.
 - **Classification:** validation first
@@ -109,9 +109,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.4 Differentiability / Defensibility vs Frontier AI
-- **Score / Weight / Contribution / Deficiency:** 85 / 13 / 11.05 / 195
+- **Score / Weight / Contribution / Deficiency:** 86 / 13 / 11.18 / 182
 - **Affects outcomes:** 1, 2, 5
-- **Justification:** this remains **High** on the rubric because moat candidates are governance-stateful and auditable; the baseline benchmark program now operationalizes honest scoreboard rollups instead of self-referential positioning.
+- **Justification:** this remains **High** on the rubric because moat candidates are governance-stateful and auditable; baseline benchmark rollups and buyer-side decision-owner accountability scoreboards now operationalize honest decision-advantage evidence instead of self-referential positioning.
 - **Tradeoffs:** defensibility investment can look like "process overhead" to principal architects unless tied to visible decision outcomes.
 - **Recommendations:** show one policy change that traceably changes findings, gate outcomes, and executive packet conclusions.
 - **Classification:** validation first
@@ -149,9 +149,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.9 Governed Review Integrity
-- **Score / Weight / Contribution / Deficiency:** 89 / 13 / 11.57 / 143
+- **Score / Weight / Contribution / Deficiency:** 90 / 13 / 11.70 / 130
 - **Affects outcomes:** 1, 2, 5
-- **Justification:** this remains the strongest quality: policy packs, pre-commit gate, approval workflow, governance resolution, durable audit events, and buyer-proof evidence ledger normalization are present and interconnected for repeatable sponsor-send proof completion.
+- **Justification:** this remains the strongest quality: policy packs, pre-commit gate, approval workflow, governance resolution, durable audit events, buyer-proof ledger normalization, and decision-owner accountability scoreboards are present and interconnected for repeatable sponsor-send proof completion.
 - **Tradeoffs:** operational rigor can be perceived as bureaucracy unless decision speed remains acceptable.
 - **Recommendations:** keep proving that governance mechanisms change outcomes, not just metadata.
 - **Classification:** V1
@@ -510,14 +510,12 @@ Non-goals:
 - **Rescore impact:** Governed Review Integrity +1, Proof-of-ROI Readiness +1, and Executive / Operator Comprehension +1; `(A)` headline readiness rises from **82.30%** to **82.60%**.
 
 **13) Decision-owner accountability scoreboard for pilots**
-- **Why it matters:** decision value is stronger when findings map to explicit owners and outcomes.
-- **Expected impact:** decision-changing insight density and survivability.
+- **Status:** shipped (2026-06-27) — engineering half; live buyer-side owner validation remains GTM field execution.
+- **Implementation summary:** `archlucid pilot decision-owner-scoreboard` ingests `pilot-decision-ledger.v1` rows with buyer-side `decisionOwner`, `ownerOutcome`, optional `remediationDueUtc`, and ITSM refs; derives accountability statuses (`owned-and-resolved` / `owned-pending` / `owned-overdue` / `unowned` / `not-applicable`); emits PASS/WARN/FAIL closeout verdict plus operator and buyer-safe sponsor Markdown from one canonical model.
+- **Validation evidence:** `ArchLucid.Cli.Tests/DecisionOwnerScoreboardRunnerTests.cs` covers owner-field parsing, accountability derivation, default fixture PASS/WARN, and synthetic unowned/overdue FAIL; fixtures under `fixtures/decision-owner-scoreboard/sample-ledgers/`; template extended at `docs/go-to-market/templates/pilot-decision-ledger.template.json`.
 - **Affected qualities:** 1, 2, 3.
-- **Evidence:** remediation seams exist; owner-accountability reporting is not yet a default pilot artifact.
-- **Actionability:** medium.
-- **Design Uncertainty Reduced:** 5/10
-- **Market Uncertainty Reduced:** 6/10
-- **Classification:** V1.1 / blocked on user input
+- **Classification:** validation first (engineering half shipped).
+- **Rescore impact:** Decision-Changing Insight Density +1, Differentiability / Defensibility vs Frontier AI +1, and Governed Review Integrity +1; `(A)` headline readiness rises from **82.60%** to **82.99%**.
 
 ## 18. Prompt Batching Guidance
 - **First batch (strong-model-recommended):** ship-gate evidence harness, tenant-isolation negative-test bundle, and citation-integrity sampler.
