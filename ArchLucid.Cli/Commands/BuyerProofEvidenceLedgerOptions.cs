@@ -10,6 +10,8 @@ internal sealed class BuyerProofEvidenceLedgerOptions
 
     public string? MarkdownOutPath { get; init; }
 
+    public bool SuppressDefaultArtifacts { get; init; }
+
     public static BuyerProofEvidenceLedgerOptions Parse(string[] args)
     {
         ArgumentNullException.ThrowIfNull(args);
@@ -20,6 +22,8 @@ internal sealed class BuyerProofEvidenceLedgerOptions
             RulesPath = CliCommandShared.TryGetOptionValue(args, "--rules"),
             JsonOutPath = CliCommandShared.TryGetOptionValue(args, "--json-out"),
             MarkdownOutPath = CliCommandShared.TryGetOptionValue(args, "--markdown-out"),
+            SuppressDefaultArtifacts = args.Any(static arg =>
+                string.Equals(arg, "--no-write-artifacts", StringComparison.OrdinalIgnoreCase)),
         };
     }
 }

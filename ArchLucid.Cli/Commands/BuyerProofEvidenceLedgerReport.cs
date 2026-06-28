@@ -23,4 +23,27 @@ internal sealed class BuyerProofEvidenceLedgerReport
     public string? SponsorPacketDisposition { get; init; }
 
     public bool AnyFail => OverallVerdict == BuyerProofEvidenceLedgerVerdict.Fail;
+
+    public string? JsonArtifactPath { get; init; }
+
+    public string? MarkdownArtifactPath { get; init; }
+
+    internal BuyerProofEvidenceLedgerReport WithOutputMetadata(
+        string? jsonArtifactPath,
+        string? markdownArtifactPath) =>
+        new()
+        {
+            RepositoryRoot = RepositoryRoot,
+            ProofDirectory = ProofDirectory,
+            GeneratedUtc = GeneratedUtc,
+            OverallVerdict = OverallVerdict,
+            Checks = Checks,
+            NormalizedSlots = NormalizedSlots,
+            RunId = RunId,
+            RoiBasisStatus = RoiBasisStatus,
+            RoiSponsorSafe = RoiSponsorSafe,
+            SponsorPacketDisposition = SponsorPacketDisposition,
+            JsonArtifactPath = jsonArtifactPath,
+            MarkdownArtifactPath = markdownArtifactPath,
+        };
 }

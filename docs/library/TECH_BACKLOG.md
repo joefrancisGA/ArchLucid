@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-29 (TB-420 **Done** — citation-integrity default operational artifact bundle). Prior: 2026-06-29 (TB-419 **Done** — tenant-isolation negative-test default operational artifact bundle). Prior: 2026-06-29 (TB-418 **Done** — ship-gate evidence default operational artifact bundle). Prior: 2026-06-29 (TB-417 **Done** — ship-gate Gate 4 traceability bundle ZIP embed). Prior: 2026-06-28 (TB-413 **Done** — ship-gate Gate 1 first-review completion probe). Prior: 2026-06-28 (TB-412 **Done** — ship-gate Gate 4 export matrix embed). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-29 (TB-421 **Done** — buyer-proof evidence ledger default operational artifact bundle). Prior: 2026-06-29 (TB-420 **Done** — citation-integrity default operational artifact bundle). Prior: 2026-06-29 (TB-419 **Done** — tenant-isolation negative-test default operational artifact bundle). Prior: 2026-06-29 (TB-418 **Done** — ship-gate evidence default operational artifact bundle). Prior: 2026-06-29 (TB-417 **Done** — ship-gate Gate 4 traceability bundle ZIP embed). Prior: 2026-06-28 (TB-413 **Done** — ship-gate Gate 1 first-review completion probe). Prior: 2026-06-28 (TB-412 **Done** — ship-gate Gate 4 export matrix embed). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -169,6 +169,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
+| TB-421 | Buyer-proof evidence ledger default operational artifact bundle — auto-write JSON + Markdown under `artifacts/buyer-proof-evidence-ledger/{runId|proof-pack}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-420 | Citation-integrity default operational artifact bundle — auto-write JSON + Markdown under `artifacts/citation-integrity/{offline-fixture|live-api}/` when repo root resolves; `--no-write-artifacts` for stdout/API-only runs | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-419 | Tenant-isolation negative-test default operational artifact bundle — auto-write JSON + Markdown under `artifacts/tenant-isolation-negative-test/{runId|offline-fixture}/` when repo root resolves; `--no-write-artifacts` for stdout/API-only runs | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-418 | Ship-gate evidence default operational artifact bundle — auto-write JSON + Markdown under `artifacts/ship-gate-evidence/{runId}/` when repo root resolves; overall PASS/FAIL/UNKNOWN rollup; `--no-write-artifacts` for stdout/API-only runs | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
@@ -12358,3 +12359,38 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-409, TB-418, TB-419, assessment §4 gate 2, §7.3, §7.8.
+
+---
+
+## TB-421 — Buyer-proof evidence ledger default operational artifact bundle
+
+**Status:** **Done** (2026-06-29). Default `archlucid pilot buyer-proof-evidence-ledger` writes JSON + Markdown under `artifacts/buyer-proof-evidence-ledger/{runId}/` when proof pack includes a run id, or `{proof-pack-name}/` (default `sample-proof-pack`) otherwise; `--no-write-artifacts` preserves stdout-only behavior.
+
+**Source:** Assessment §17 buyer-proof evidence ledger normalization follow-on — sponsor-send completion matrix lacked default release-train artifact retention (parallel to TB-418—TB-420 operational bundles).
+
+**Problem:** Operators had to pass explicit `--json-out` / `--markdown-out` paths to retain normalized sponsor-send slot verdicts between release trains.
+
+**V1 scope:**
+
+1. Add `BuyerProofEvidenceLedgerOutputPaths` default resolver under `artifacts/buyer-proof-evidence-ledger/`.
+2. Key artifacts by proof-pack `runId` when present, else proof directory name.
+3. Add `--no-write-artifacts` for headless CI runs.
+4. Include artifact path metadata on JSON/Markdown normalized ledger output.
+
+**Acceptance criteria:**
+
+- Default buyer-proof evidence ledger run from repo root writes JSON + Markdown without explicit output flags.
+- Explicit `--json-out` / `--markdown-out` override defaults; `--no-write-artifacts` skips default writes.
+- Unit tests cover path resolution for run id, proof-pack name, explicit override, and suppress flag.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/BuyerProofEvidenceLedgerCommand.cs`
+- `ArchLucid.Cli/Commands/BuyerProofEvidenceLedgerOptions.cs`
+- `ArchLucid.Cli/Commands/BuyerProofEvidenceLedgerReport.cs`
+- `ArchLucid.Cli/Commands/BuyerProofEvidenceLedgerOutputPaths.cs`
+- `ArchLucid.Cli.Tests/BuyerProofEvidenceLedgerOutputPathsTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-418—TB-420 operational bundle cluster, assessment §7.6, §7.9.

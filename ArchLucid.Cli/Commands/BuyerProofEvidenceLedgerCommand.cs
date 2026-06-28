@@ -46,14 +46,35 @@ internal static class BuyerProofEvidenceLedgerCommand
         BuyerProofEvidenceLedgerRunner runner = new();
         BuyerProofEvidenceLedgerReport report = runner.Run(repositoryRoot, options, rules);
 
-        string json = JsonSerializer.Serialize(report, JsonOptions);
-        string markdown = BuildMarkdown(report);
+        string artifactKey = BuyerProofEvidenceLedgerOutputPaths.ResolveArtifactKey(report);
+        BuyerProofEvidenceLedgerOutputResolution outputPaths =
+            BuyerProofEvidenceLedgerOutputPaths.Resolve(options, repositoryRoot, artifactKey);
+        BuyerProofEvidenceLedgerReport finalReport = report.WithOutputMetadata(
+            outputPaths.JsonPath,
+            outputPaths.MarkdownPath);
 
-        if (!string.IsNullOrWhiteSpace(options.JsonOutPath))
-            File.WriteAllText(options.JsonOutPath, json, Encoding.UTF8);
+        string json = JsonSerializer.Serialize(finalReport, JsonOptions);
+        string markdown = BuildMarkdown(finalReport);
 
-        if (!string.IsNullOrWhiteSpace(options.MarkdownOutPath))
-            File.WriteAllText(options.MarkdownOutPath, markdown, Encoding.UTF8);
+        if (outputPaths.WillWriteJson)
+        {
+            string jsonDirectory = Path.GetDirectoryName(outputPaths.JsonPath!)!;
+
+            if (!Directory.Exists(jsonDirectory))
+                Directory.CreateDirectory(jsonDirectory);
+
+            File.WriteAllText(outputPaths.JsonPath!, json, Encoding.UTF8);
+        }
+
+        if (outputPaths.WillWriteMarkdown)
+        {
+            string markdownDirectory = Path.GetDirectoryName(outputPaths.MarkdownPath!)!;
+
+            if (!Directory.Exists(markdownDirectory))
+                Directory.CreateDirectory(markdownDirectory);
+
+            File.WriteAllText(outputPaths.MarkdownPath!, markdown, Encoding.UTF8);
+        }
 
         if (CliExecutionContext.JsonOutput)
         {
@@ -61,12 +82,12 @@ internal static class BuyerProofEvidenceLedgerCommand
         }
         else
         {
-            WriteConsoleSummary(report);
+            WriteConsoleSummary(finalReport);
             Console.WriteLine();
             Console.WriteLine(markdown);
         }
 
-        return Task.FromResult(report.AnyFail ? CliExitCode.OperationFailed : CliExitCode.Success);
+        return Task.FromResult(finalReport.AnyFail ? CliExitCode.OperationFailed : CliExitCode.Success);
     }
 
     private static void WriteConsoleSummary(BuyerProofEvidenceLedgerReport report)
@@ -75,6 +96,13 @@ internal static class BuyerProofEvidenceLedgerCommand
         Console.WriteLine($"repo: {report.RepositoryRoot}");
         Console.WriteLine($"proof: {report.ProofDirectory}");
         Console.WriteLine($"overall: {FormatVerdict(report.OverallVerdict)}");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            Console.WriteLine($"json artifact: {report.JsonArtifactPath}");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            Console.WriteLine($"markdown artifact: {report.MarkdownArtifactPath}");
+
         Console.WriteLine(new string('-', 72));
 
         foreach (BuyerProofEvidenceLedgerCheckResult check in report.Checks)
@@ -97,6 +125,13 @@ internal static class BuyerProofEvidenceLedgerCommand
         sb.AppendLine($"Repository: `{report.RepositoryRoot}`");
         sb.AppendLine($"Proof directory: `{report.ProofDirectory}`");
         sb.AppendLine($"Overall verdict: **{FormatVerdict(report.OverallVerdict)}**");
+
+        if (!string.IsNullOrWhiteSpace(report.JsonArtifactPath))
+            sb.AppendLine($"JSON artifact: `{report.JsonArtifactPath}`");
+
+        if (!string.IsNullOrWhiteSpace(report.MarkdownArtifactPath))
+            sb.AppendLine($"Markdown artifact: `{report.MarkdownArtifactPath}`");
+
         sb.AppendLine();
 
         if (!string.IsNullOrWhiteSpace(report.RunId))
@@ -161,6 +196,6 @@ internal static class BuyerProofEvidenceLedgerCommand
     {
         Console.WriteLine(
             "Usage: archlucid pilot buyer-proof-evidence-ledger [--proof-dir <path>] [--rules <path>] "
-            + "[--json-out <path>] [--markdown-out <path>] [--json]");
+            + "[--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] [--json]");
     }
 }
