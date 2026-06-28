@@ -93,13 +93,17 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
             operateNavUnlockPhase,
           );
 
+    // Internal Operations is already behind the `isShowSystemAdministrationNavEnabled()` feature
+    // flag — it is an employee-only surface, so tier-based progressive disclosure does not apply.
+    // Always pass true for both showExtended and showAdvanced so every link is visible to anyone
+    // who can see the section.
     const systemAdminNavRows: NavGroupWithVisibleLinks[] =
       omitAdminClusters || !isShowSystemAdministrationNavEnabled()
         ? []
         : listNavGroupsVisibleInOperatorShell(
             NAV_GROUPS,
             true,
-            navAdvanced,
+            true,
             callerAuthorityRank,
             false,
             "system-admin",
