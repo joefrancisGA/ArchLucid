@@ -50,6 +50,12 @@ internal sealed class ShipGateEvidenceOptions
         init;
     }
 
+    public bool SuppressDefaultArtifacts
+    {
+        get;
+        init;
+    }
+
     public TenantIsolationNegativeTestOptions ToTenantIsolationOptions() =>
         new()
         {
@@ -78,6 +84,7 @@ internal sealed class ShipGateEvidenceOptions
             AlternateWorkspaceId = CliCommandShared.TryGetOptionValue(args, "--alternate-workspace-id"),
             AlternateProjectId = CliCommandShared.TryGetOptionValue(args, "--alternate-project-id"),
             SkipClaimLint = args.Any(static arg => string.Equals(arg, "--skip-claim-lint", StringComparison.OrdinalIgnoreCase)),
+            SuppressDefaultArtifacts = args.Any(static arg => string.Equals(arg, "--no-write-artifacts", StringComparison.OrdinalIgnoreCase)),
         };
     }
 }

@@ -76,6 +76,8 @@ public sealed class ShipGateEvidenceRunnerTests
         report.Gates.Should().Contain(g => g.GateNumber == 4 && g.Verdict == ShipGateEvidenceVerdict.Pass);
         report.Gates.Should().Contain(g => g.GateNumber == 5 && g.Verdict == ShipGateEvidenceVerdict.Unknown);
         report.Gates.Should().Contain(g => g.GateNumber == 6 && g.Verdict == ShipGateEvidenceVerdict.Pass);
+        report.OverallVerdict.Should().Be(ShipGateEvidenceVerdict.Unknown);
+        report.AnyUnknown.Should().BeTrue();
     }
 
     [Fact]

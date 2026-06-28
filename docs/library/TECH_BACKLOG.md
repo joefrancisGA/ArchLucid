@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-413 **Done** — ship-gate Gate 1 first-review completion probe). Prior: 2026-06-28 (TB-412 **Done** — ship-gate Gate 4 export matrix embed). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-29 (TB-418 **Done** — ship-gate evidence default operational artifact bundle). Prior: 2026-06-29 (TB-417 **Done** — ship-gate Gate 4 traceability bundle ZIP embed). Prior: 2026-06-28 (TB-413 **Done** — ship-gate Gate 1 first-review completion probe). Prior: 2026-06-28 (TB-412 **Done** — ship-gate Gate 4 export matrix embed). Prior: 2026-06-28 (TB-409 **Done** — ship-gate Gate 2 citation-integrity probe). Prior: 2026-06-28 (TB-408 **Done** — nav deduplication + semantic path aliases).el **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -169,6 +169,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
+| TB-418 | Ship-gate evidence default operational artifact bundle — auto-write JSON + Markdown under `artifacts/ship-gate-evidence/{runId}/` when repo root resolves; overall PASS/FAIL/UNKNOWN rollup; `--no-write-artifacts` for stdout/API-only runs | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-417 | Ship-gate Gate 4 traceability bundle ZIP embed — add `traceability-bundle.zip` probe to export matrix contract alongside Markdown/DOCX/artifact ZIP | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
 | TB-402 | Automated AWS polling (Tier 2) — **Done (2026-06-27)** — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-403 | Automated GCP polling (Tier 2) — **Done (2026-06-27)** — hosted poller with GCP Workload Identity Federation (Azure MI trust); scheduled Cloud Asset Inventory collection; upload to `/v1/extractor/gcp/upload`; `/settings/cloud-connections` GCP connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
@@ -12247,3 +12248,41 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-412, TB-415, TB-416, `docs/library/API_CONTRACTS.md` traceability bundle, assessment §4 gate 4.
+
+---
+
+## TB-418 — Ship-gate evidence default operational artifact bundle
+
+**Status:** **Done** (2026-06-29). Default `archlucid pilot ship-gate-evidence --run-id <guid>` writes JSON + Markdown under `artifacts/ship-gate-evidence/{runId}/` when repository root resolves; report includes overall PASS/FAIL/UNKNOWN rollup and artifact path metadata; `--no-write-artifacts` preserves stdout/API-only behavior.
+
+**Source:** Assessment §7.8 recommendation — promote ship-gate evidence into routine operational artifacts.
+
+**Problem:** Operators had to pass explicit `--json-out` / `--markdown-out` paths to retain ship-gate evidence between release trains; the report lacked an overall verdict rollup for release-gate automation.
+
+**V1 scope:**
+
+1. Add `ShipGateEvidenceOutputPaths` default resolver under `artifacts/ship-gate-evidence/{runId}/`.
+2. Add `ShipGateEvidenceVerdictRollup` overall PASS/FAIL/UNKNOWN from gate verdicts.
+3. Add `--no-write-artifacts` for headless/API-only CI runs.
+4. Include repository root and artifact paths on JSON/Markdown evidence output.
+
+**Acceptance criteria:**
+
+- Default ship-gate evidence run from repo root writes `ship-gate-evidence.json` and `ship-gate-evidence.md` under `artifacts/ship-gate-evidence/{runId}/`.
+- Explicit `--json-out` / `--markdown-out` override defaults; `--no-write-artifacts` skips default writes.
+- Unit tests cover path resolution, verdict rollup, and overall UNKNOWN when Gate 5 is skipped.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/ShipGateEvidenceCommand.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceOptions.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceReport.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceOutputPaths.cs`
+- `ArchLucid.Cli/Commands/ShipGateEvidenceVerdictRollup.cs`
+- `ArchLucid.Cli.Tests/ShipGateEvidenceOutputPathsTests.cs`
+- `ArchLucid.Cli.Tests/ShipGateEvidenceVerdictRollupTests.cs`
+- `ArchLucid.Cli.Tests/ShipGateEvidenceRunnerTests.cs`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-409—TB-417 ship-gate cluster, assessment §7.8, §7.10.
