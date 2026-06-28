@@ -178,6 +178,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IItsmOutboundIntegrationHealthService, ItsmOutboundIntegrationHealthService>();
         services.AddScoped<ITenantItsmOutboundSettingsService, TenantItsmOutboundSettingsService>();
         services.AddScoped<IItsmTenantConnectorCredentialResolver, ItsmTenantConnectorCredentialResolver>();
+        services.AddScoped<IItsmOutboundIssueCreationService, ItsmOutboundIssueCreationService>();
         services.AddScoped<ItsmOutboundIssueCreationService>();
         services.AddScoped<ItsmExternalTicketUrlBuilder>();
         services.AddScoped<ItsmFindingCorrelationQueryService>();

@@ -1,9 +1,11 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Application.Jobs;
@@ -17,7 +19,8 @@ public sealed class BackgroundJobWorkUnitExecutor(
     IArchitectureAnalysisDocxExportService docxExportService,
     IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService,
     IAuditService auditService,
-    ITenantDeletionService tenantDeletionService) : IBackgroundJobWorkUnitExecutor
+    ITenantDeletionService tenantDeletionService,
+    IItsmOutboundIssueCreationService itsmOutboundIssueCreationService) : IBackgroundJobWorkUnitExecutor
 {
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
 
@@ -35,6 +38,9 @@ public sealed class BackgroundJobWorkUnitExecutor(
     private readonly ITenantDeletionService _tenantDeletionService =
         tenantDeletionService ?? throw new ArgumentNullException(nameof(tenantDeletionService));
 
+    private readonly IItsmOutboundIssueCreationService _itsmOutboundIssueCreationService =
+        itsmOutboundIssueCreationService ?? throw new ArgumentNullException(nameof(itsmOutboundIssueCreationService));
+
     public async Task<BackgroundJobFile> ExecuteAsync(BackgroundJobWorkUnit workUnit, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(workUnit);
@@ -43,6 +49,7 @@ public sealed class BackgroundJobWorkUnitExecutor(
             AnalysisReportDocxWorkUnit w => await ExecuteAnalysisReportDocxAsync(w, cancellationToken),
             ConsultingDocxWorkUnit w => await ExecuteConsultingDocxAsync(w, cancellationToken),
             TenantDeletionWorkUnit w => await ExecuteTenantDeletionAsync(w, cancellationToken),
+            ItsmOutboundCreateWorkUnit w => await ExecuteItsmOutboundCreateAsync(w, cancellationToken),
             _ => throw new InvalidOperationException($"Unsupported background job work unit: {workUnit.GetType().Name}.")
         };
     }
@@ -64,6 +71,30 @@ public sealed class BackgroundJobWorkUnitExecutor(
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(result);
 
         return new BackgroundJobFile("tenant-deletion-result.json", "application/json", bytes);
+    }
+
+    private async Task<BackgroundJobFile> ExecuteItsmOutboundCreateAsync(
+        ItsmOutboundCreateWorkUnit unit,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(unit.Payload);
+
+        ItsmOutboundCreateJobPayload payload = unit.Payload;
+        ScopeContext scope = ItsmOutboundCreateJobProcessor.ToScopeContext(payload);
+
+        ItsmOutboundIssueCreationResult result = await _itsmOutboundIssueCreationService
+            .TryCreateForFindingAsync(payload.Provider, scope, payload.FindingId, cancellationToken)
+            .ConfigureAwait(false);
+
+        foreach (AuditEvent auditEvent in result.AuditEvents)
+            await _auditService.LogAsync(auditEvent, cancellationToken).ConfigureAwait(false);
+
+        ItsmOutboundCreateJobResult jobResult = ItsmOutboundCreateJobProcessor.ToJobResult(result, payload.Provider);
+
+        if (ItsmOutboundCreateJobProcessor.ShouldRetryWorker(result))
+            throw ItsmOutboundCreateJobProcessor.BuildRetryException(jobResult);
+
+        return ItsmOutboundCreateJobProcessor.ToResultFile(jobResult);
     }
 
     private async Task<BackgroundJobFile> ExecuteAnalysisReportDocxAsync(AnalysisReportDocxWorkUnit unit, CancellationToken cancellationToken)

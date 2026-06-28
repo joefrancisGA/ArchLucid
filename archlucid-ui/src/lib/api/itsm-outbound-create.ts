@@ -1,0 +1,96 @@
+import {
+  ensureOidcBearerReady,
+  resolveRequest,
+  throwApiRequestError,
+  withCorrelationHeaders,
+} from "@/lib/api/http";
+import {
+  fetchBackgroundJobResultJson,
+  waitForBackgroundJobTerminal,
+  type BackgroundJobInfo,
+} from "@/lib/api/background-jobs-api";
+import type { components } from "@/lib/openapi-schemas";
+
+export type CreateItsmOutboundIssueResponse = components["schemas"]["CreateItsmOutboundIssueResponse"];
+
+/** TB-394 async job result file shape (OpenAPI snapshot pending regen). */
+export type ItsmOutboundCreateJobResult = {
+  kind?: string;
+  provider?: string;
+  externalKey?: string | null;
+  userMessage?: string | null;
+  vendorStatusCode?: number | null;
+};
+
+function mapJobResultToResponse(result: ItsmOutboundCreateJobResult): CreateItsmOutboundIssueResponse {
+  if (result.kind !== "Succeeded") {
+    throw new Error(result.userMessage ?? "ITSM create did not succeed.");
+  }
+
+  return {
+    provider: result.provider ?? "ITSM",
+    externalKey: result.externalKey ?? undefined,
+  };
+}
+
+async function postOutboundCreateRequest(
+  findingId: string,
+  provider: "Jira" | "ServiceNow",
+): Promise<{ status: number; body: unknown }> {
+  await ensureOidcBearerReady();
+  const { url, headers } = resolveRequest("/v1/integrations/itsm/outbound/issues");
+  const { headers: h, correlationId } = withCorrelationHeaders(headers);
+  h.set("Content-Type", "application/json");
+
+  const response = await fetch(
+    url,
+    {
+      method: "POST",
+      headers: h,
+      body: JSON.stringify({ findingId, provider }),
+    },
+  );
+
+  const text = await response.text();
+
+  if (!response.ok) {
+    throwApiRequestError(response, text, correlationId);
+  }
+
+  const body = text.length > 0 ? (JSON.parse(text) as unknown) : null;
+
+  return { status: response.status, body };
+}
+
+/** Creates a linked ITSM issue — polls the background job when the API returns 202 (TB-394). */
+export async function createItsmOutboundIssueWithJobPolling(
+  findingId: string,
+  provider: "Jira" | "ServiceNow",
+  onJobPending?: (job: BackgroundJobInfo) => void,
+): Promise<CreateItsmOutboundIssueResponse> {
+  const { status, body } = await postOutboundCreateRequest(findingId, provider);
+
+  if (status === 200) {
+    return body as CreateItsmOutboundIssueResponse;
+  }
+
+  const jobId = (body as { jobId?: string }).jobId;
+
+  if (!jobId) {
+    throw new Error("ITSM create accepted but no job id was returned.");
+  }
+
+  const terminal = await waitForBackgroundJobTerminal(jobId, { pollIntervalMs: 400, timeoutMs: 60_000 });
+
+  if (onJobPending && terminal.state === "Running") {
+    onJobPending(terminal);
+  }
+
+  if (terminal.state === "Failed") {
+    throw new Error(terminal.error ?? "ITSM create job failed.");
+  }
+
+  const result = await fetchBackgroundJobResultJson<ItsmOutboundCreateJobResult>(jobId);
+
+  return mapJobResultToResponse(result);
+}

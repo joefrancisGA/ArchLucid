@@ -1,4 +1,5 @@
-﻿using ArchLucid.Application.Jobs;
+﻿using ArchLucid.Application.Integrations.Itsm.Outbound;
+using ArchLucid.Application.Jobs;
 
 using FluentAssertions;
 
@@ -60,5 +61,28 @@ public sealed class BackgroundJobWorkUnitJsonTests
         typed.Payload.RequestedByUserId.Should().Be("u1");
         typed.Payload.RequestedByUserName.Should().Be("n1");
         typed.Payload.CorrelationId.Should().Be("c1");
+    }
+
+    [SkippableFact]
+    public void RoundTrip_ItsmOutboundCreateWorkUnit_PreservesPayload()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        ItsmOutboundCreateWorkUnit original = new(
+            new ItsmOutboundCreateJobPayload(
+                tenantId,
+                Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                "finding-abc",
+                ItsmOutboundIssueProvider.ServiceNow,
+                "corr-1"));
+
+        string json = BackgroundJobWorkUnitJson.Serialize(original);
+        BackgroundJobWorkUnit? restored = BackgroundJobWorkUnitJson.Deserialize(json);
+
+        restored.Should().BeOfType<ItsmOutboundCreateWorkUnit>();
+        ItsmOutboundCreateWorkUnit typed = (ItsmOutboundCreateWorkUnit)restored!;
+        typed.Payload.TenantId.Should().Be(tenantId);
+        typed.Payload.FindingId.Should().Be("finding-abc");
+        typed.Payload.Provider.Should().Be(ItsmOutboundIssueProvider.ServiceNow);
     }
 }

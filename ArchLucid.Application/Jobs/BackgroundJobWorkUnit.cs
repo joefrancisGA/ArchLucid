@@ -9,6 +9,7 @@ namespace ArchLucid.Application.Jobs;
 [JsonDerivedType(typeof(AnalysisReportDocxWorkUnit), "analysisReportDocx")]
 [JsonDerivedType(typeof(ConsultingDocxWorkUnit), "consultingDocx")]
 [JsonDerivedType(typeof(TenantDeletionWorkUnit), "tenantDeletion")]
+[JsonDerivedType(typeof(ItsmOutboundCreateWorkUnit), "itsmOutboundCreate")]
 public abstract record BackgroundJobWorkUnit;
 
 /// <summary>Standard analysis report exported as DOCX.</summary>

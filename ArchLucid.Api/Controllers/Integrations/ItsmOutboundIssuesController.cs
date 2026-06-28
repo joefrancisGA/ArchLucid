@@ -1,16 +1,24 @@
+using System.Text.Json;
+
+using ArchLucid.Api.Models;
 using ArchLucid.Api.Models.Integrations;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
+using ArchLucid.Application.Jobs;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Integrations;
 
@@ -22,14 +30,16 @@ namespace ArchLucid.Api.Controllers.Integrations;
 [EnableRateLimiting("fixed")]
 public sealed class ItsmOutboundIssuesController(
     IScopeContextProvider scopeProvider,
-    ItsmOutboundIssueCreationService issueCreation,
+    IItsmOutboundIssueCreationService issueCreation,
     ItsmNativeIntegrationGate nativeIntegrationGate,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    IBackgroundJobQueue jobs,
+    IOptionsMonitor<IntegrationsItsmOutboundOptions> outboundOptions) : ControllerBase
 {
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
-    private readonly ItsmOutboundIssueCreationService _issueCreation =
+    private readonly IItsmOutboundIssueCreationService _issueCreation =
         issueCreation ?? throw new ArgumentNullException(nameof(issueCreation));
 
     private readonly ItsmNativeIntegrationGate _nativeIntegrationGate =
@@ -38,10 +48,16 @@ public sealed class ItsmOutboundIssuesController(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
+    private readonly IBackgroundJobQueue _jobs = jobs ?? throw new ArgumentNullException(nameof(jobs));
+
+    private readonly IOptionsMonitor<IntegrationsItsmOutboundOptions> _outboundOptions =
+        outboundOptions ?? throw new ArgumentNullException(nameof(outboundOptions));
+
     /// <summary>Creates an external ticket from the persisted finding in the current scope.</summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [ProducesResponseType(typeof(CreateItsmOutboundIssueResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AsyncJobResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
@@ -79,10 +95,53 @@ public sealed class ItsmOutboundIssuesController(
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        if (_outboundOptions.CurrentValue.DurableAsyncCreateEnabled)
+        {
+            string providerLabel = provider is ItsmOutboundIssueProvider.Jira ? "Jira" : "ServiceNow";
+            string correlationId = $"{providerLabel.ToLowerInvariant()}-outbound-create:{findingTrimmed}:{Guid.NewGuid():N}";
+
+            ItsmOutboundCreateJobPayload payload = new(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                findingTrimmed,
+                provider,
+                correlationId);
+
+            IntegrationsItsmOutboundOptions options = _outboundOptions.CurrentValue;
+            int maxRetries = Math.Clamp(options.AsyncCreateMaxRetries, 0, 10);
+
+            string jobId = await _jobs
+                .EnqueueAsync(new ItsmOutboundCreateWorkUnit(payload), maxRetries, ct)
+                .ConfigureAwait(false);
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.IntegrationItsmOutboundCreateEnqueued,
+                    CorrelationId = correlationId,
+                    DataJson = JsonSerializer.Serialize(
+                        new { jobId, findingId = findingTrimmed, provider = providerLabel },
+                        AuditJsonSerializationOptions.Instance)
+                },
+                ct).ConfigureAwait(false);
+
+            return Accepted(new AsyncJobResponse { JobId = jobId });
+        }
+
         ItsmOutboundIssueCreationResult result = await _issueCreation
             .TryCreateForFindingAsync(provider, scope, findingTrimmed, ct)
             .ConfigureAwait(false);
 
+        return await MapSyncCreateResultAsync(result, provider, findingTrimmed, ct).ConfigureAwait(false);
+    }
+
+    private async Task<IActionResult> MapSyncCreateResultAsync(
+        ItsmOutboundIssueCreationResult result,
+        ItsmOutboundIssueProvider provider,
+        string findingTrimmed,
+        CancellationToken ct)
+    {
         foreach (AuditEvent auditEvent in result.AuditEvents)
             await _auditService.LogAsync(auditEvent, ct).ConfigureAwait(false);
 

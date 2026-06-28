@@ -27,7 +27,7 @@ public sealed class ItsmOutboundIssueCreationService(
     IOptionsMonitor<IntegrationsItsmOutboundOptions> outboundOptions,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     JiraOutboundIssueClient jiraClient,
-    ServiceNowOutboundIncidentClient serviceNowClient)
+    ServiceNowOutboundIncidentClient serviceNowClient) : IItsmOutboundIssueCreationService
 {
     private const string JiraProjectKeyMissingMessage = "Jira connector not configured: project key required.";
 

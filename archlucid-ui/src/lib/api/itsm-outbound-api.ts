@@ -1,6 +1,7 @@
 import { apiDelete, apiGet, apiPostJson, apiPutJson } from "@/lib/api-client";
+import { createItsmOutboundIssueWithJobPolling } from "@/lib/api/itsm-outbound-create";
+import type { BackgroundJobInfo } from "@/lib/api/background-jobs-api";
 import type { components } from "@/lib/openapi-schemas";
-
 export type ItsmFindingCorrelationListItem = components["schemas"]["ItsmFindingCorrelationListItem"];
 export type ItsmFindingCorrelationsByFindingResponse =
   components["schemas"]["ItsmFindingCorrelationsByFindingResponse"];
@@ -103,9 +104,7 @@ export async function listItsmFindingCorrelations(
 export async function createItsmOutboundIssue(
   findingId: string,
   provider: "Jira" | "ServiceNow",
+  onJobPending?: (job: BackgroundJobInfo) => void,
 ): Promise<CreateItsmOutboundIssueResponse> {
-  return apiPostJson<CreateItsmOutboundIssueResponse>("/v1/integrations/itsm/outbound/issues", {
-    findingId,
-    provider,
-  });
+  return createItsmOutboundIssueWithJobPolling(findingId, provider, onJobPending);
 }

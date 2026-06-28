@@ -15,6 +15,23 @@ public sealed class IntegrationsItsmOutboundOptions
         set;
     }
 
+    /// <summary>
+    ///     When <see langword="true" /> (default), outbound create is enqueued on the background job queue
+    ///     and returns <c>202 Accepted</c> with a job id. When <see langword="false" />, create runs synchronously in the HTTP request (local smoke).
+    /// </summary>
+    public bool DurableAsyncCreateEnabled
+    {
+        get;
+        set;
+    } = true;
+
+    /// <summary>Worker-level retries after the outbound HTTP Polly pipeline is exhausted (0–10).</summary>
+    public int AsyncCreateMaxRetries
+    {
+        get;
+        set;
+    } = 3;
+
     public JiraItsmOutboundOptions Jira { get; set; } = new();
 
     public ServiceNowItsmOutboundOptions ServiceNow { get; set; } = new();

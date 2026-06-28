@@ -871,6 +871,9 @@ public static class AuditEventTypes
     /// <summary>Outbound Jira issue create skipped — unconfigured connector, missing project key, or informational severity dropped.</summary>
     public const string IntegrationJiraIssueCreateSkipped = "Integration.JiraIssueCreateSkipped";
 
+    /// <summary>Durable async outbound ITSM create enqueued (payload: job id, finding id, provider label).</summary>
+    public const string IntegrationItsmOutboundCreateEnqueued = "Integration.ItsmOutboundCreateEnqueued";
+
     /// <summary>Outbound ServiceNow incident create succeeded.</summary>
     public const string IntegrationServiceNowIncidentCreateSucceeded = "Integration.ServiceNowIncidentCreateSucceeded";
 

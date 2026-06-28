@@ -34,6 +34,9 @@ public sealed class ItsmOutboundIssuesIntegrationApiFactory(TimeSpan? jiraHttpTi
     /// <summary>When true, sets <c>Integrations:Itsm:NativeEnabled</c> for outbound create tests (default true).</summary>
     public bool NativeItsmCreateEnabled { get; init; } = true;
 
+    /// <summary>When false, POST outbound create runs synchronously (default false for deterministic integration tests).</summary>
+    public bool DurableAsyncCreateEnabled { get; init; }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
@@ -59,6 +62,7 @@ public sealed class ItsmOutboundIssuesIntegrationApiFactory(TimeSpan? jiraHttpTi
                 }
 
                 extra["Integrations:Itsm:NativeEnabled"] = NativeItsmCreateEnabled ? "true" : "false";
+                extra["Integrations:ItsmOutbound:DurableAsyncCreateEnabled"] = DurableAsyncCreateEnabled ? "true" : "false";
 
                 config.AddInMemoryCollection(extra);
             });

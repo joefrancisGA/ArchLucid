@@ -5,6 +5,7 @@ using System.Text.Json;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Integrations.Itsm;
+using ArchLucid.Application.Jobs;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Integrations;
 
@@ -282,5 +283,69 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
 
         string raw = await response.Content.ReadAsStringAsync();
         raw.Should().Contain(ItsmNativeIntegrationGate.NativeCreateDisabledMessage);
+    }
+
+    [SkippableFact]
+    public async Task Post_jira_durable_async_returns_202_job_completes_with_correlation()
+    {
+        await using ItsmOutboundIssuesIntegrationApiFactory factory = new() { DurableAsyncCreateEnabled = true };
+        factory.OutboundHttp.RespondAsync = (_, _) =>
+            Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.Created)
+                {
+                    Content = new StringContent("{\"id\":\"441\",\"key\":\"DP-901\"}", Encoding.UTF8, "application/json")
+                });
+
+        using HttpClient client = factory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        await SeedDemoBaselineAsync(factory.Services);
+
+        using HttpResponseMessage response = await client.PostAsync(
+            "/v1/integrations/itsm/outbound/issues",
+            OutboundIssueBody("Jira", DemoPrimaryFindingId));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        JsonDocument accepted = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        string jobId = accepted.RootElement.GetProperty("jobId").GetString();
+        jobId.Should().NotBeNullOrWhiteSpace();
+
+        BackgroundJobState? terminalState = null;
+
+        for (int attempt = 0; attempt < 40; attempt++)
+        {
+            await Task.Delay(100, CancellationToken.None);
+
+            using HttpResponseMessage statusResponse = await client.GetAsync($"/v1/jobs/{jobId}");
+            statusResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            JsonDocument statusBody = JsonDocument.Parse(await statusResponse.Content.ReadAsStringAsync());
+            string? stateRaw = statusBody.RootElement.GetProperty("state").GetString();
+
+            if (stateRaw is "Succeeded" or "Failed")
+            {
+                terminalState = Enum.Parse<BackgroundJobState>(stateRaw, ignoreCase: true);
+                break;
+            }
+        }
+
+        terminalState.Should().Be(BackgroundJobState.Succeeded);
+
+        using IServiceScope scope = factory.Services.CreateScope();
+        IItsmFindingCorrelationRepository correlations =
+            scope.ServiceProvider.GetRequiredService<IItsmFindingCorrelationRepository>();
+
+        ItsmFindingCorrelationRecord? row =
+            await correlations.TryGetByExternalKeyAsync("Jira", "DP-901", CancellationToken.None);
+
+        row.Should().NotBeNull();
+        row.FindingId.Should().Be(DemoPrimaryFindingId);
+
+        factory.AuditCapture.Snapshot()
+            .Select(static a => a.EventType)
+            .Should()
+            .Contain(AuditEventTypes.IntegrationItsmOutboundCreateEnqueued)
+            .And.Contain(AuditEventTypes.IntegrationJiraIssueCreateSucceeded);
     }
 }
