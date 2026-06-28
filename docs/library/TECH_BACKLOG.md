@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-27 (TB-399 **Done** — buyer-facing `/signed-records` route aliases; TB-400 **Done** — advisory recommendation `sourceEvidenceLinks`). Prior: 2026-06-27 (TB-403 **Done** — automated GCP Tier 2 polling at Azure/AWS extractor parity). Prior: 2026-06-27 (TB-402 **Done** — automated AWS Tier 2 polling at Azure extractor parity). Prior: 2026-06-27 (TB-397 **Done** — `IExternalTicketConnector` plugin boundary; TB-396 **Done** — inbound ITSM disposition sync; TB-392 **Done**; TB-393 **Done** — per-tenant ITSM credentials + settings write API/UI). Prior: 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~58 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-28 (TB-404 **Done** — operator nav ↔ URL prefix policy + CI drift guard). Prior: 2026-06-28 (TB-404 — TB-408 **Added** — operator nav ↔ URL prefix alignment cluster from sidebar/route audit). Prior: 2026-06-27 (TB-399 **Done** — buyer-facing `/signed-records` route aliases; TB-400 **Done** — advisory recommendation `sourceEvidenceLinks`). Prior: 2026-06-27 (TB-403 **Done** — automated GCP Tier 2 polling at Azure/AWS extractor parity). Prior: 2026-06-27 (TB-402 **Done** — automated AWS Tier 2 polling at Azure extractor parity). Prior: 2026-06-27 (TB-397 **Done** — `IExternalTicketConnector` plugin boundary; TB-396 **Done** — inbound ITSM disposition sync; TB-392 **Done**; TB-393 **Done** — per-tenant ITSM credentials + settings write API/UI). Prior: 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~63 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -12,14 +12,14 @@
 | Deployability | 5 |
 | AI/Agent readiness | 3 |
 | Architectural integrity | 8 |
-| Adoption friction | 20 |
+| Adoption friction | 25 |
 | Commercial / marketability | 3 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 2 |
 | Proof-of-ROI / executive value | 3 |
 | Trustworthiness | 1 |
-| Maintainability | 2 |
+| Maintainability | 3 |
 | Traceability | 3 |
 | Interoperability | 8 |
 | Compliance readiness | 2 |
@@ -27,7 +27,7 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
-| **Total (unique)** | **~57** |
+| **Total (unique)** | **~62** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-392** (per-tenant Jira/ServiceNow credentials — V1.1). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -140,6 +140,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-400** was added 2026-06-23 as a **V1.1 follow-on** to the architecture advisory UX polish pass (advisory page review picker + strip label shipped in V1). The advisory recommendation cards currently surface `rationale`, `suggestedAction`, and `expectedImpact` from the API. What is missing is a **direct link from a recommendation to the source finding or manifest section** that generated it — clicking "API tier lacks circuit breaker" should deep-link into the finding record or evidence trail where the gap was observed. This requires: (a) a new `sourceEvidenceLinks: { kind: "finding" | "manifestSection", id: string }[]` field on `RecommendationRecord` (API + persistence); (b) rendering those links as navigable links in `AdvisoryScansContent` recommendation cards; (c) an integration test asserting at least one link is populated when a finding-backed recommendation is generated. **Out of scope:** changing the recommendation generation logic or the advisory-scan scheduling surface. **Cross-ref:** `AdvisoryScansContent.tsx`, `advisory-api.ts`, `types/advisory.ts`.
 
+**TB-404 — TB-408** were added 2026-06-28 from an **operator sidebar ↔ URL prefix alignment** audit (`archlucid-ui` nav group builders vs App Router paths; canvas `canvases/nav-route-audit.canvas.tsx`). The operator shell exposes **57** nav links across **7** groups, but **23** hrefs use a URL prefix that does not match the menu section (e.g. **Integrations → Cloud connections** at `/settings/cloud-connections`, **Administration → Security & trust** at `/workspace/security-trust`, **Governance → Policy packs** at `/policy-packs` while `/governance/policy-packs` also exists). Buyers and operators infer location from the address bar, bookmarks, and shared links — prefix drift undermines wayfinding and breadcrumb mental models. **TB-404** (P1) publishes a route-namespace policy + CI drift guard (same pattern as **TB-399**, **TB-344**, **NAV_CONFIG_CONTRACT.md**); **TB-405** (P1) consolidates governance outliers under `/governance/*` with permanent redirects; **TB-406** (P1) reconciles Administration `/settings/*` vs `/admin/*` vs `/workspace/*` split; **TB-407** (P2) aligns Integrations cross-namespace routes and stale ITSM redirect nav; **TB-408** (P2) deduplicates ambiguous nav entries and adds semantic path aliases. Does not duplicate **TB-399** (manifest terminology URLs), **TB-276?282** (route-tenant API scope), **TB-267** (executive dashboard route), or **TB-401** (run-detail IA). Cross-ref `integrations-nav-paths.ts`, `ai-usage-nav-paths.ts`, `nav-config.structure.test.ts`, `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`.
+
 **TB-402 — TB-403** were added 2026-06-27 as the **V1.1 automated cloud polling** cluster. [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) commits to AWS/GCP topology ingestion via Terraform and customer-controlled inventory ZIPs (Phase 1–3); it explicitly defers **Tier 2 live API connectors** (long-lived credentials inside the customer AWS/GCP account). These two items add **hosted automated polling** for AWS (**TB-402**) and GCP (**TB-403**) at **full parity with the Azure Tier 2 extractor** shipped in V1 (see `V1_SCOPE.md §2.16`, `CloudConnectionsPageClient.tsx`, and `Integrations.AzureExtractor`). Tier 2 for Azure wires a hosted poller that holds a minimal read-only credential, runs on a schedule, uploads an inventory ZIP via `/v1/extractor/azure/upload`, and exposes a management UI at `/settings/cloud-connections`. TB-402 and TB-403 replicate that same end-to-end stack for AWS and GCP respectively. They do **not** duplicate `TB-214` (non-Azure JSON upload path, DEFERRED owner-gated), `TB-341` (multi-source evidence picker V1.1 badges), `TB-343` (cloud-connections plural copy reconciliation — Done 2026-06-19), or Phase 1–4 of `MULTI_CLOUD_ANALYSIS_V1_1.md` (topology analysis + pricing — distinct from the polling credential/scheduler/UI cluster). Owner must confirm acceptable credential model (Entra Workload Identity Federation, IAM role-ARN trust, or GCP Workload Identity before implementation begins; items are blocked on that pending question — **PQ-CLOUD-01**).
 
 **TB-399** was added 2026-06-23 as the **V1.1 follow-on** to the manifest terminology copy sweep (global guard **TB-355** / **TB-366**). V1 removed "manifest" from on-page labels, help, compare copy, and error strings; **browser URLs still expose** `/manifests/` and `/reviews/{runId}/manifest`, which buyers see in the address bar, bookmarks, and shared links. **TB-399** adds **buyer-facing route aliases + permanent redirects** (same pattern as `/runs` ? `/reviews` in `next.config.ts`) without renaming API contracts, persistence, or internal `manifestId` fields. **Out of scope:** `/manifest.webmanifest` (PWA platform convention); backend `/v1/authority/manifests/*` paths. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) ?9, **TB-273** (BDA manifest terminology cluster), `buyer-safe-review-navigation.ts`, `NAV_CONFIG_CONTRACT.md`.
@@ -154,6 +156,11 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
+| TB-404 | Operator nav ↔ URL prefix policy + CI drift guard — document canonical path namespaces per nav group; Vitest asserts every `nav-config` href matches its section prefix or an explicit documented exception registry | Maintainability P1 — **V1.1**; prerequisite for TB-405?408 | S |
+| TB-405 | Governance route tree consolidation — move `/audit`, `/alerts`, `/policy-packs`, `/governance-resolution` under `/governance/*`; 301 redirects from legacy paths; retire duplicate `/governance/policy-packs` list route or redirect to canonical | Adoption friction P1 — **V1.1** | M |
+| TB-406 | Administration route namespace reconciliation — `/workspace/security-trust` → `/settings/security-trust`; align **Users & roles** (`/admin/users`) with **Role management** (`/settings/roles`) under one prefix; move **Recurrence schedules** nav to Governance or add Administration-prefixed alias | Adoption friction P1 — **V1.1** | M |
+| TB-407 | Integrations cross-namespace routes + ITSM redirect hygiene — resolve **Cloud connections** (`/settings/cloud-connections` under Integrations nav); update nav from `/integrations/itsm` to `/integrations/operations`; remove or redirect `/settings/webhooks` stub | Adoption friction P2 — **V1.1** | S |
+| TB-408 | Nav deduplication + semantic path aliases — dedupe **System health** (`/health` vs `/admin/health`); add `/settings/ai-usage` alias → `/settings/cost-reporting`; reconcile **Integration readiness** label vs `/integrations/operations` segment | Adoption friction P2 — **V1.1** | S |
 | TB-402 | Automated AWS polling (Tier 2) — **Done (2026-06-27)** — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-403 | Automated GCP polling (Tier 2) — **Done (2026-06-27)** — hosted poller with GCP Workload Identity Federation (Azure MI trust); scheduled Cloud Asset Inventory collection; upload to `/v1/extractor/gcp/upload`; `/settings/cloud-connections` GCP connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; credential model **PQ-CLOUD-01 option (a)** | L |
 | TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards — **Done (2026-06-27)** — `sourceEvidenceLinks` on persisted recommendations + API; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
@@ -11687,3 +11694,226 @@ Identical to TB-402 for GCP: no hosted poller, no GCP credential management surf
 **Size estimate:** **L** (~4–6 weeks including IaC and trust-center copy; dependent on PQ-CLOUD-01 resolution; roughly equivalent effort to TB-402).
 
 **Cross-ref:** **TB-402** (AWS parity), **TB-343** (cloud-connections plural copy — Done), [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) §5.3, [`V1_SCOPE.md`](V1_SCOPE.md) §2.16, [`V1_DEFERRED.md`](V1_DEFERRED.md) §6n, `CloudConnectionsPageClient.tsx`, `Integrations.AzureExtractor`.
+
+---
+
+## TB-404 — Operator nav ↔ URL prefix policy + CI drift guard
+
+**Status:** **Done** (2026-06-28). Policy table in `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md` § Route namespace; exception registry `nav-route-namespace-exceptions.ts`; prefix matcher `nav-route-namespace-policy.ts`; Vitest drift guard `nav-route-namespace.test.ts`.
+
+**Source:** Operator sidebar ↔ URL prefix alignment audit (2026-06-28). Canvas: `canvases/nav-route-audit.canvas.tsx` (IDE-only).
+
+**Problem:**
+
+The operator sidebar is composed from seven `NavGroupBuilder` classes (`nav-config.ts`) with **57** leaf hrefs, but **23** links use a URL prefix that does not match the menu section they appear under. Some divergences are intentional (documented in path helper modules), but there is **no single policy artifact** stating which cross-namespace hrefs are allowed, and **no CI guard** preventing new nav rows from drifting further. Contributors cannot tell whether `/settings/cloud-connections` under **Integrations** is correct or a bug.
+
+**V1.1 scope (this item — policy + guard only; route moves are TB-405?408):**
+
+1. **Policy doc:** extend `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md` (or add `ROUTE_NAMESPACE_POLICY.md`) with a table: nav group → expected URL prefix → allowed exceptions (with rationale).
+2. **Exception registry:** typed module e.g. `src/lib/nav-route-namespace-exceptions.ts` listing `{ navGroupId, href, expectedPrefix, exceptionReason }` for every intentional cross-namespace href (Integrations→settings, Reports→governance, Internal Ops→settings, etc.).
+3. **Vitest drift guard:** extend `nav-config.structure.test.ts` (or new `nav-route-namespace.test.ts`) to assert every nav href either (a) starts with its group's canonical prefix, or (b) appears in the exception registry with a non-empty reason.
+4. **Breadcrumb contract:** document that breadcrumbs may remap logical nav parent ≠ URL prefix only when an exception registry row exists (align with `breadcrumb-map.ts`).
+
+**Explicitly out of scope:**
+
+- Moving pages or adding redirects (**TB-405?408**).
+- Backend API path renames.
+- Marketing route groups.
+
+**Acceptance criteria:**
+
+- Every nav href is either prefix-aligned or listed in the exception registry with rationale.
+- CI fails when a new nav link is added without updating policy or registry.
+- `NAV_CONFIG_CONTRACT.md` contributor checklist references the namespace policy.
+
+**Affected files / projects (initial):**
+
+- `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`
+- `archlucid-ui/src/lib/nav-config.structure.test.ts` (or new test file)
+- `archlucid-ui/src/lib/*-nav-group-builder.ts`
+- `archlucid-ui/src/lib/breadcrumb-map.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** **TB-405?408**, **TB-399** (redirect alias pattern), **TB-344** (first-run drift guard pattern), **TB-270?272** (usability cluster).
+
+---
+
+## TB-405 — Governance route tree consolidation
+
+**Source:** Operator sidebar ↔ URL prefix alignment audit (2026-06-28).
+
+**Problem:**
+
+**Governance** nav items expose top-level or hyphenated paths that do not read as governance in the address bar:
+
+| Nav label | Current href | Expected |
+|-----------|-------------|----------|
+| Policy packs | `/policy-packs` | `/governance/policy-packs` |
+| Policy resolution | `/governance-resolution` | `/governance/resolution` (or `/governance/policy-resolution`) |
+| Audit trail | `/audit` | `/governance/audit` |
+| Alerts | `/alerts` | `/governance/alerts` |
+
+Additionally, **both** `/policy-packs` and `/governance/policy-packs` (+ `[id]`) exist as pages, creating duplicate content URLs.
+
+**V1.1 scope:**
+
+1. **Canonical paths** under `/governance/*` for all four surfaces above (pick final segment names; recommended in table).
+2. **`next.config.ts` permanent redirects** from every legacy path (mirror **TB-399** `/runs` → `/reviews` pattern).
+3. **Nav href migration:** update `operate-governance-nav-group-builder.ts` to emit canonical paths only.
+4. **Internal link sweep:** `breadcrumb-map.ts`, help registry, E2E golden paths, command palette shortcuts.
+5. **Retire or redirect** duplicate `/policy-packs` App Router tree once canonical `/governance/policy-packs` is primary.
+
+**Explicitly out of scope:**
+
+- API controller path renames (`/v1/governance/...` unchanged).
+- Moving **Reports → First 30 days** (`/governance/first-30-days`) — tracked under exception registry in **TB-404** unless owner moves nav to Governance.
+
+**Acceptance criteria:**
+
+- Governance nav hrefs all start with `/governance/`.
+- Legacy URLs 301/308 to canonical paths; bookmarks continue to work.
+- No duplicate indexable URLs for policy packs list/detail.
+- Playwright smoke + `nav-config.structure.test.ts` updated.
+
+**Affected files / projects (initial):**
+
+- `archlucid-ui/next.config.ts`
+- `archlucid-ui/src/lib/operate-governance-nav-group-builder.ts`
+- `archlucid-ui/src/app/(operator)/policy-packs/**`, `governance/**`
+- `archlucid-ui/e2e/**`, `archlucid-ui/src/lib/breadcrumb-map.ts`
+
+**Size estimate:** **M**
+
+**Cross-ref:** **TB-404** (exception registry), **TB-399**, **TB-226** (governance pages pattern).
+
+---
+
+## TB-406 — Administration route namespace reconciliation
+
+**Source:** Operator sidebar ↔ URL prefix alignment audit (2026-06-28).
+
+**Problem:**
+
+**Administration** mixes three URL namespaces with no user-visible logic:
+
+| Nav label | Current href | Issue |
+|-----------|-------------|-------|
+| Users & roles | `/admin/users` | `/admin/` prefix |
+| Role management | `/settings/roles` | `/settings/` prefix — same conceptual area |
+| Security & trust | `/workspace/security-trust` | `/workspace/` segment unexplained |
+| Support | `/admin/support` | `/admin/` prefix |
+| Recurrence schedules | `/governance/recurrence-schedules` | `/governance/` but shown under Administration |
+
+Operators sharing links cannot predict whether an admin task lives under `/admin/`, `/settings/`, or `/workspace/`.
+
+**V1.1 scope (owner confirms prefix strategy — recommended: `/settings/*` for tenant admin, `/admin/*` reserved for platform/system-admin surfaces):**
+
+1. **`/workspace/security-trust` → `/settings/security-trust`** (or `/settings/trust`) with permanent redirect.
+2. **Users & roles:** either migrate `/admin/users` → `/settings/users` with redirect, **or** move Role management to `/admin/roles` — pick one namespace and document in **TB-404** registry.
+3. **Recurrence schedules:** move nav entry from **Administration** to **Governance** (href already `/governance/recurrence-schedules`), **or** add `/settings/recurrence-schedules` alias if product intent is admin-owned scheduling.
+4. Nav + breadcrumb + help link migration to canonical paths.
+
+**Explicitly out of scope:**
+
+- **Internal Operations** `/admin/*` diagnostics (**TB-408**).
+- Backend `AdminAuthority` policy renames.
+
+**Acceptance criteria:**
+
+- All **Administration** nav hrefs share one documented prefix (`/settings/` recommended) except rows explicitly listed in TB-404 exception registry.
+- `/workspace/security-trust` legacy URL redirects permanently.
+- No Administration item uses `/governance/` prefix without nav group move or documented exception.
+
+**Affected files / projects (initial):**
+
+- `archlucid-ui/src/lib/operator-admin-nav-group-builder.ts`
+- `archlucid-ui/src/app/(operator)/workspace/security-trust/**`
+- `archlucid-ui/src/app/(operator)/admin/users/**`, `settings/roles/**`
+- `archlucid-ui/next.config.ts`
+
+**Size estimate:** **M**
+
+**Pending question — PQ-NAV-01 (owner):** Confirm canonical tenant-admin prefix: **`/settings/*`** (recommended) vs retaining **`/admin/*`** for user management only.
+
+**Cross-ref:** **TB-404**, **TB-405**, **TB-222** (recurrence schedules UI).
+
+---
+
+## TB-407 — Integrations cross-namespace routes + ITSM redirect hygiene
+
+**Source:** Operator sidebar ↔ URL prefix alignment audit (2026-06-28).
+
+**Problem:**
+
+1. **Cloud connections** appears under **Integrations** but href is `/settings/cloud-connections` (settings-owned implementation, integrations-owned nav).
+2. **ITSM** nav href `/integrations/itsm` **redirects** to `/integrations/operations` in `next.config.ts` — nav still points at the legacy path.
+3. `/settings/webhooks` page exists but redirects to `/integrations/webhooks` (nav correctly uses integrations path).
+
+**V1.1 scope:**
+
+1. **Pick one resolution for cloud connections** (document in TB-404 registry):
+   - **(a)** Move route to `/integrations/cloud-connections` with redirect from `/settings/cloud-connections` (URL matches nav), **or**
+   - **(b)** Move nav link to **Administration** / **Settings** group (nav matches URL) — product copy already treats it as tenant settings.
+2. Update **ITSM** nav href to `/integrations/operations` (or product-specific canonical after ITSM page consolidation); remove stale `/integrations/itsm` from nav unless it becomes a real landing page.
+3. Delete or stub `/settings/webhooks` redirect-only page if no inbound links remain.
+4. Align `integrations-nav-paths.ts` + `nav-config.structure.test.ts` with chosen canonical paths.
+
+**Acceptance criteria:**
+
+- No nav href targets a URL that immediately redirects elsewhere (except documented transitional aliases with sunset date).
+- Cloud connections nav position and URL prefix are consistent per TB-404 policy.
+- ITSM integration tests and Playwright paths use canonical href.
+
+**Affected files / projects (initial):**
+
+- `archlucid-ui/src/lib/operate-integrations-nav-group-builder.ts`
+- `archlucid-ui/src/lib/integrations-nav-paths.ts`
+- `archlucid-ui/next.config.ts`
+- `archlucid-ui/src/app/(operator)/settings/cloud-connections/**`, `integrations/**`
+
+**Size estimate:** **S**
+
+**Cross-ref:** **TB-404**, **TB-386?393** (ITSM cluster), **TB-343** (cloud-connections copy — Done).
+
+---
+
+## TB-408 — Nav deduplication + semantic path aliases
+
+**Source:** Operator sidebar ↔ URL prefix alignment audit (2026-06-28).
+
+**Problem:**
+
+1. **Internal Operations** lists two **System health** links: `/admin/health` and `/health` (different destinations, identical label).
+2. **Administration → AI usage** nav label does not match path `/settings/cost-reporting`.
+3. **Integrations → Integration readiness** label vs `/integrations/operations` segment.
+4. Orphan `operate-operations-nav-group-builder.ts` (not registered) duplicates recurrence-schedules href — cleanup risk.
+
+**V1.1 scope:**
+
+1. **Dedupe System health:** retain one nav entry; rename or remove the other; redirect deprecated path.
+2. **Semantic alias:** add `/settings/ai-usage` → `/settings/cost-reporting` permanent redirect; optionally update nav href to alias (address bar shows friendly segment).
+3. **Integration readiness:** rename nav label to match **operations** segment **or** add `/integrations/readiness` alias → `/integrations/operations`.
+4. Delete or merge orphan `operate-operations-nav-group-builder.ts` if unused.
+
+**Explicitly out of scope:**
+
+- Moving Internal Operations items wholesale under `/admin/*` (large blast radius; defer unless owner promotes).
+
+**Acceptance criteria:**
+
+- No duplicate nav labels within the same group pointing at different hrefs.
+- AI usage and integration readiness URLs read consistently with nav labels (alias or label change).
+- Orphan nav builder removed or registered with test coverage.
+
+**Affected files / projects (initial):**
+
+- `archlucid-ui/src/lib/operator-system-admin-nav-group-builder.ts`
+- `archlucid-ui/src/lib/ai-usage-nav-paths.ts`
+- `archlucid-ui/src/lib/operate-integrations-nav-group-builder.ts`
+- `archlucid-ui/src/lib/operate-operations-nav-group-builder.ts` (orphan)
+- `archlucid-ui/next.config.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** **TB-404**, **TB-407**, **TB-406**.

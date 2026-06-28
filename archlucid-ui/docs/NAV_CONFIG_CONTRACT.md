@@ -45,6 +45,30 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 
 When adding or moving a route, follow the **ordered checklist** in **`docs/library/PRODUCT_PACKAGING.md`** §3 *Contributor drift guard* (API policy → nav config → `layer-guidance` / `LayerHeader` → **`useOperateCapability`** → packaging doc). Verify **C#** `[Authorize(Policy = …)]` still matches each link’s **`requiredAuthority`** string.
 
+### Route namespace policy (TB-404)
+
+Operator sidebar groups imply a URL prefix in the address bar. **57** nav hrefs span **7** groups; **23** intentional cross-namespace hrefs remain until **TB-405–408** route moves land.
+
+| Nav group `id` | Canonical prefix(es) | Notes |
+|----------------|----------------------|--------|
+| `pilot` | *(none — heterogeneous top-level review paths)* | Portfolio overview may use CTO demo executive showcase href (registered exception). |
+| `operate-analysis` | *(none)* | `/ask`, `/compare`, `/advisory`, … |
+| `operate-governance` | `/governance` | Exceptions: `/policy-packs`, `/governance-resolution`, `/audit`, `/alerts` |
+| `operate-reports` | `/scorecard`, `/value-report` | Exception: `/governance/first-30-days` |
+| `operate-integrations` | `/integrations` | Exception: `/settings/cloud-connections` |
+| `operator-admin` | `/settings`, `/admin`, `/workspace` | Exception: `/governance/recurrence-schedules` |
+| `operator-system-admin` | `/admin` | Settings, operate, replay, digests, and value-report variants — see exception registry |
+
+**Exception registry (source of truth):** `src/lib/nav-route-namespace-exceptions.ts`  
+**Prefix matcher + policies:** `src/lib/nav-route-namespace-policy.ts`  
+**CI drift guard:** `src/lib/nav-route-namespace.test.ts` — fails when a new nav `href` is neither prefix-aligned nor registered with a non-empty `exceptionReason`.
+
+When adding a nav link whose URL prefix differs from its sidebar group, **add a registry row first** (or move the route under **TB-405–408**).
+
+### Breadcrumb contract
+
+`breadcrumb-map.ts` may show a logical parent label that differs from the URL prefix **only** when the href is listed in `NAV_ROUTE_NAMESPACE_EXCEPTIONS`. Do not invent ad hoc breadcrumb remaps for undocumented cross-namespace paths.
+
 ### Cross-module Vitest anchors
 
 - **`authority-seam-regression.test.ts`** — e.g. **`/governance`** must stay **`ExecuteAuthority`** so Reader-ranked callers do not see it under Operate nav (deep-link still hits API policy); every **`ExecuteAuthority`** row under **`operate-analysis`** and **`operate-governance`** stays absent from Read-tier filtered nav; Pilot essential hrefs stay visible for Reader with default tier toggles; **caller rank `0`** stays stricter than Read for **`ReadAuthority`** links; **`/alerts`** stays **`essential`** tier; filtered link order and **`listNavGroupsVisibleInOperatorShell`** group order stay aligned with config; Operate governance href sets grow **monotonically** Read→Execute→Admin under **`filterNavLinksByAuthority`** alone; default Reader shell keeps **Operate analysis** to **`/ask`** only (tier before authority); **`/governance`** appears only when **extended and advanced** are on for **Execute** rank (**`filterNavLinksForOperatorShell`**).
@@ -55,6 +79,7 @@ When adding or moving a route, follow the **ordered checklist** in **`docs/libra
 - **`nav-shell-visibility.test.ts`** — Analysis extended **Execute** links (e.g. **`/replay`**) behind **Show more** — tier before rank.
 - **`current-principal.test.ts`** — **`maxAuthority`** vs **`requiredAuthorityFromRank`** and **`hasEnterpriseOperatorSurfaces`** vs mutation capability.
 - **`nav-config.structure.test.ts`** — duplicate **`href`**s; **Pilot** essentials omit **`requiredAuthority`**; **Operate** **`ExecuteAuthority`** links must not use **`essential`** tier (progressive disclosure + rank story).
+- **`nav-route-namespace.test.ts`** — every nav **`href`** matches its group canonical prefix or **`NAV_ROUTE_NAMESPACE_EXCEPTIONS`** (TB-404).
 - **`authority-shaped-layout-regression.test.tsx`** — **inspect-first** DOM when mutation hook is false (parallel to tier→authority story; still **UI only**).
 
 ## `layer-guidance.ts` / `LayerHeader`
