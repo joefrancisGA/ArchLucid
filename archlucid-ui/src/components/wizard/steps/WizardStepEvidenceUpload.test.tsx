@@ -15,11 +15,22 @@ describe("WizardStepEvidenceUpload", () => {
     onSkipDemoData: vi.fn(),
   };
 
-  it("renders Tier-1 inventory sources and AWS command panel", () => {
+  it("selects brief by default with brief panel and no cloud inventory upload on first render", () => {
+    render(<WizardStepEvidenceUpload {...baseProps} />);
+
+    expect(screen.getByTestId("wizard-evidence-source-brief")).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByTestId("wizard-evidence-source-panel-brief")).toBeInTheDocument();
+    expect(screen.queryByTestId("wizard-evidence-inventory-panel")).not.toBeInTheDocument();
+  });
+
+  it("renders Tier-1 inventory sources and AWS command panel when selected", () => {
     render(<WizardStepEvidenceUpload {...baseProps} />);
 
     expect(screen.getByTestId("wizard-evidence-source-aws-inventory")).toHaveTextContent("Fastest");
     expect(screen.getByTestId("wizard-evidence-source-gcp-inventory")).toHaveTextContent("Fastest");
+
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-azure-export"));
+
     expect(screen.getByTestId("wizard-evidence-inventory-panel")).toHaveAttribute("data-platform", "azure");
   });
 
@@ -46,6 +57,8 @@ describe("WizardStepEvidenceUpload", () => {
     }
 
     render(<Harness />);
+
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-azure-export"));
 
     const validZip = new File(
       [
@@ -77,6 +90,8 @@ describe("WizardStepEvidenceUpload", () => {
 
   it("shows structured validation error with cloud connections help link", async () => {
     render(<WizardStepEvidenceUpload {...baseProps} />);
+
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-azure-export"));
 
     const invalidZip = new File(
       [zipSync({ "readme.txt": strToU8("not an inventory zip") })],

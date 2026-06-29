@@ -164,7 +164,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
     onTryDemoData,
     onSkipDemoData,
   } = props;
-  const [selectedSourceId, setSelectedSourceId] = useState<WizardEvidenceSourceId>("azure-export");
+  const [selectedSourceId, setSelectedSourceId] = useState<WizardEvidenceSourceId>("brief");
   const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<AzureExtractorDemoScenarioId>(
     DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
   );
