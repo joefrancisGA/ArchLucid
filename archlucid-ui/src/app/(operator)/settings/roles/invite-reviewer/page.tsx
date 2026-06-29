@@ -1,8 +1,9 @@
-import { redirect } from "next/navigation";
+import { InviteReviewerPageClient } from "../_sections/InviteReviewerPageClient";
+import { loadSettingsRolesPageData } from "../_sections/load-settings-roles-page-data";
 
-import { SETTINGS_ROLES_USERS_TAB_PATH } from "@/lib/invite-reviewer-flow";
+/** Reviewer-focused invite surface — reuses role management permissions and invite API without generic admin chrome. */
+export default async function InviteReviewerPage() {
+  const loaded = await loadSettingsRolesPageData();
 
-/** Dedicated invite-reviewer entry — lands on the users tab invite form. */
-export default function InviteReviewerPage() {
-  redirect(SETTINGS_ROLES_USERS_TAB_PATH);
+  return <InviteReviewerPageClient loaded={loaded} />;
 }
