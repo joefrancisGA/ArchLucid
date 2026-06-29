@@ -54,7 +54,7 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
           <div className="flex flex-wrap gap-3">
             <Button variant="secondary" size="sm" asChild>
               <FunnelTelemetryExportAnchor href={getTraceabilityBundleDownloadUrl(runId)}>
-                Download traceability bundle (ZIP)
+                Download evidence package (ZIP)
               </FunnelTelemetryExportAnchor>
             </Button>
             {buyerPolishedShell ? null : (
