@@ -16,7 +16,7 @@ export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
   standardsAppliedTitle: "Customer standards applied automatically",
   standardsAppliedBody:
     "This first review evaluates against Security Architecture Baseline and FinOps & Cloud Cost Optimization — no manual assignment required.",
-  focusedPilotToggleLabel: "Focused pilot mode",
+  focusedPilotToggleLabel: "Focused review scope",
   focusedPilotToggleDescription:
     "Limit this review to Security Architecture Baseline and FinOps & Cloud Cost Optimization standards so your first package stays actionable.",
   focusedPilotToggleAssistiveOn: "Evaluation is limited to security baseline and cost standards.",
@@ -24,7 +24,7 @@ export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
   firstIntakeLead:
     "Upload one architecture diagram and add a short description if you want. Evaluation standards apply automatically.",
   firstIntakeAdvancedNote:
-    "Focused pilot standards are on by default. Turn off only if you need every enabled standard to contribute findings.",
+    "Focused review scope is on by default. Turn off only if you need every enabled standard to contribute findings.",
   streamlinedFirstReviewBanner:
     "Streamlined first review — upload one diagram to start. Evaluation standards apply automatically.",
   operateUnlockLead:

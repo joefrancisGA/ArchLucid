@@ -37,6 +37,8 @@ describe("core-pilot-path-vocabulary", () => {
     };
 
     expect(listCorePilotPathCopyViolations(surfaces)).toEqual([]);
+    expect(CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleLabel).toBe("Focused review scope");
+    expect(CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeAdvancedNote.toLowerCase()).not.toContain("pilot");
     expect(CORE_PILOT_PATH_BANNED_PHRASES).toContain("governance");
     expect(CORE_PILOT_PATH_BANNED_PHRASES).toContain("policy pack");
   });

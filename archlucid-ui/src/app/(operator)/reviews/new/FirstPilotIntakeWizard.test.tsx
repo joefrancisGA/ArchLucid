@@ -80,10 +80,11 @@ describe("FirstPilotIntakeWizard", () => {
     expect(push).toHaveBeenCalledWith(buildReviewGenerationRedirect("first-pilot-run-1", "quick-review"));
   });
 
-  it("keeps advanced configuration collapsed by default", () => {
+  it("keeps review scope accordion collapsed by default", () => {
     render(<FirstPilotIntakeWizard />);
 
-    expect(screen.queryByText(/Advanced configuration \(optional\)/i)).toBeTruthy();
+    expect(screen.queryByText(/Review scope \(optional\)/i)).toBeTruthy();
+    expect(screen.queryByText(/pilot mode/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("quick-review-proof-scope")).not.toBeInTheDocument();
   });
 

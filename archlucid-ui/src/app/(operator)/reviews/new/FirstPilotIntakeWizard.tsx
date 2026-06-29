@@ -271,7 +271,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             </p>
           </div>
 
-          <AdvancedOptionsAccordion triggerLabel="Advanced configuration (optional)">
+          <AdvancedOptionsAccordion triggerLabel="Review scope (optional)">
             <div className="space-y-4">
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
                 {CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeAdvancedNote}
