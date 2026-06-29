@@ -39,7 +39,7 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     const sectionNav = page.getByRole("navigation", { name: "Review detail sections" });
 
-    await expect(sectionNav.getByRole("link", { name: "Outcome" })).toBeVisible();
+    await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible();
     await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible();
     await expect(sectionNav.getByRole("link", { name: "Assessment" })).toBeVisible();
     await expect(sectionNav.getByRole("link", { name: "Activity" })).toBeVisible();

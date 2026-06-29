@@ -65,6 +65,8 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expectRunDetailPageReady(page);
 
+    await page.locator("#run-explanation").scrollIntoViewIfNeeded();
+
     /** Pack A narrative (Responsible AI governance engine + rule identifiers from seed fixtures). */
     await expect(page.locator("main").getByText(/Promoted scoring ensemble lacks immutable lineage hash/i)).toBeVisible({
       timeout: 90_000,
@@ -78,8 +80,6 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     });
 
     await expect(page.locator("main").getByText(/sec-base-006/i).first()).toBeVisible({ timeout: 90_000 });
-
-    await page.locator("#run-explanation").scrollIntoViewIfNeeded();
 
     await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 60_000 });
 
