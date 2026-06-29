@@ -13,6 +13,10 @@ import {
 import { buildAdrGeneratorRunInput } from "@/lib/adr-from-run";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  isPinnedDemoWorkspaceRunId,
+  resolveDemoWorkspaceScopeHeadersForRunId,
+} from "@/lib/demo-workspace-scope";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
 import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
@@ -70,10 +74,13 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let loadFailure: ApiLoadFailureState | null = null;
   let usedStaticDemoRun = false;
 
+  const serverDemoScopeHeaders = isBrowser() ? null : resolveDemoWorkspaceScopeHeadersForRunId(runId);
+  const scopeHeadersOverride = serverDemoScopeHeaders ?? undefined;
+
   const fetchRunDetail = isBuyerPolishedOperatorShellEnv() ? getBuyerRunDetailSummary : getRunDetail;
 
   try {
-    runDetailResponse = await fetchRunDetail(runId);
+    runDetailResponse = await fetchRunDetail(runId, { scopeHeaders: scopeHeadersOverride });
   } catch (e) {
     const fallback = tryStaticDemoRunDetail(runId);
 
@@ -120,10 +127,13 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
 
   const effectiveScopeHeaders = isBrowser()
     ? getEffectiveBrowserProxyScopeHeaders()
-    : getScopeHeaders();
+    : (serverDemoScopeHeaders ?? getScopeHeaders());
   const effectiveProjectId = projectIdFromScopeHeaders(effectiveScopeHeaders);
 
-  if (!runProjectMatchesEffectiveScope(resolvedDetail.run.projectId, effectiveProjectId)) {
+  if (
+    !isPinnedDemoWorkspaceRunId(runId)
+    && !runProjectMatchesEffectiveScope(resolvedDetail.run.projectId, effectiveProjectId)
+  ) {
     return { kind: "not-found", reason: "workspace-mismatch" };
   }
 

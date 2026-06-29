@@ -10,6 +10,7 @@ import {
   injectDemoWorkspaceOperatorScope,
 } from "./helpers/demo-workspace-live-scope";
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
+import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import {
   countFindingsInAuthorityRunDetailPayload,
   getAuthorityRunDetailRaw,
@@ -24,6 +25,8 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 90_000 });
 
     expect(health.ok(), await health.text()).toBeTruthy();
+
+    await ensureDemoWorkspaceSeedReady(request);
   });
 
   test("canonical Product Tour reviewer shell loads with evidence, findings, finalized record, exports", async ({ page }) => {

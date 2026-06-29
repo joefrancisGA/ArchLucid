@@ -13,6 +13,7 @@ import {
   injectDemoWorkspaceOperatorScope,
 } from "./helpers/demo-workspace-live-scope";
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
+import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import {
   countFindingsInAuthorityRunDetailPayload,
   getAuthorityRunDetailRaw,
@@ -36,6 +37,8 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 90_000 });
 
     expect(health.ok(), await health.text()).toBeTruthy();
+
+    await ensureDemoWorkspaceSeedReady(request);
   });
 
   test("regulated storyline surfaces Pack A/B findings, severities, consulting DOCX, whitelabel export JSON", async ({

@@ -198,13 +198,19 @@ export async function getRunSummary(runId: string): Promise<RunSummary> {
 }
 
 /** Fetches the full run detail envelope (run metadata, snapshots, manifest, trace, bundle). */
-export async function getRunDetail(runId: string): Promise<ApiResponseWithTrace<RunDetail>> {
-  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}`);
+export async function getRunDetail(
+  runId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<ApiResponseWithTrace<RunDetail>> {
+  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}`, options);
 }
 
 /** Buyer-proof run detail — whitelisted fields only (TB-283). */
-export async function getBuyerRunDetailSummary(runId: string): Promise<ApiResponseWithTrace<RunDetail>> {
-  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}/buyer-summary`);
+export async function getBuyerRunDetailSummary(
+  runId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<ApiResponseWithTrace<RunDetail>> {
+  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}/buyer-summary`, options);
 }
 
 export type RunOperatorGovernanceDispositionRequest = {

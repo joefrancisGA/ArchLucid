@@ -111,7 +111,10 @@ export function resolveBinaryGetRequest(path: string): { url: string; headers: H
  * Server (RSC): direct to backend with API key + scope headers.
  * Browser: same-origin `/api/proxy` so secrets stay server-side.
  */
-export function resolveRequest(path: string): { url: string; headers: HeadersInit } {
+export function resolveRequest(
+  path: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): { url: string; headers: HeadersInit } {
   if (isBrowser()) {
     const url = browserProxyUrl(path);
     const headers: Record<string, string> = {
@@ -128,7 +131,7 @@ export function resolveRequest(path: string): { url: string; headers: HeadersIni
   const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
   const headers: Record<string, string> = {
     Accept: "application/json",
-    ...getScopeHeaders(),
+    ...(options?.scopeHeaders ?? getScopeHeaders()),
     ...getServerUpstreamAuthHeaders(),
     ...audienceHeadersForCurrentShell(),
   };
@@ -210,7 +213,10 @@ function notifyIfIdempotencyReplayed(response: Response): void {
   }
 }
 
-export async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseWithTrace<T>> {
+export async function apiGetJsonWithTrace<T>(
+  path: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<ApiResponseWithTrace<T>> {
   const sandboxPayload = trySandboxMockJsonForApiGet(path);
 
   if (sandboxPayload !== undefined) {
@@ -218,7 +224,7 @@ export async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseW
   }
 
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest(path);
+  const { url, headers } = resolveRequest(path, options);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   const response = await fetch(url, serverFetchInit(h));
   captureTraceContextFromResponse(response);
