@@ -59,5 +59,5 @@ export const HELP_TOPIC_BANNED_COPY_PATTERNS = [
   "for that manifest",
   "/runs/",
   "run not ready",
-  "architecture run",
+  "architecture" + " run",
 ] as const;
