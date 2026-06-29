@@ -17,7 +17,8 @@ describe("New Architecture Review page", () => {
 
     expect(screen.getByRole("heading", { level: 2, name: "New Architecture Review" })).toBeInTheDocument();
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
-    expect(screen.getByRole("link", { name: "Full pilot guidance" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review guide" })).toBeInTheDocument();
+    expect(screen.queryByText(/pilot guidance/i)).not.toBeInTheDocument();
     expect(
       screen.getByText(/Start with a diagram or document \(Quick start\), or let ArchLucid guide you through what to include \(Guided\)/i),
     ).toBeInTheDocument();
