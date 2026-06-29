@@ -23,6 +23,16 @@ describe("core-pilot-steps", () => {
     expect(CORE_PILOT_STEPS.some((step) => step.title.toLowerCase().includes("audit"))).toBe(true);
   });
 
+  it("uses multi-cloud inventory language on step 4 upload guidance", () => {
+    const uploadStep = CORE_PILOT_STEPS[3];
+
+    expect(uploadStep.title).toBe("Upload cloud inventory evidence");
+    expect(uploadStep.shortBody.toLowerCase()).toContain("azure, aws, or gcp");
+    expect(uploadStep.shortBody.toLowerCase()).not.toMatch(/\bazure spend\b/);
+    expect(uploadStep.primaryLabel).toBe("Upload inventory ZIP");
+    expect(uploadStep.primaryHref).toBe("/settings/extract-upload");
+  });
+
   it("keeps default-visible shortBody lines free of manifest jargon (detail may stay technical)", () => {
     for (const step of CORE_PILOT_STEPS) {
       expect(step.shortBody.toLowerCase()).not.toContain("manifest");

@@ -43,9 +43,9 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     primaryLabel: "Finalize on review detail",
   },
   {
-    title: "Upload Azure extractor ZIP",
+    title: "Upload cloud inventory evidence",
     shortBody:
-      "Attach Tier-1 inventory evidence so cost findings and ROI cite measured Azure spend — upload extractor ZIP after commit.",
+      "Attach a Tier-1 cloud inventory ZIP (Azure, AWS, or GCP) so cost findings and ROI cite measured spend — or skip if using document/brief evidence only.",
     detail:
       "Run the read-only Azure extractor locally, then upload `manifest.json` + `resources.json` from Extract & Upload settings or review detail.",
     primaryHref: EXTRACT_UPLOAD_SETTINGS_PATH,

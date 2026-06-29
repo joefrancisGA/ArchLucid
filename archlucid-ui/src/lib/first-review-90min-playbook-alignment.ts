@@ -17,7 +17,7 @@ export const FIRST_REVIEW_90MIN_REQUIRED_ROUTES = [
 
 /** Keyword fragments from FIRST_RUN_EVIDENCE_CHECKLIST.md that the UI playbook must cover. */
 export const FIRST_REVIEW_90MIN_CHECKLIST_KEYWORDS = [
-  "extractor zip",
+  "inventory zip",
   "finalize",
   "export",
   "roi",
