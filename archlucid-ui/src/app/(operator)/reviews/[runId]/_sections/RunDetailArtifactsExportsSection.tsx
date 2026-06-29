@@ -107,7 +107,7 @@ export function RunDetailArtifactsExportsSection(
             ) : null}
             <Button variant="primary" asChild>
               <FunnelTelemetryExportAnchor href={getArtifactDownloadUrl(manifestId, "architecture-review-board")}>
-                Download Sponsor Export (DOCX)
+                Download architecture review report (DOCX)
               </FunnelTelemetryExportAnchor>
             </Button>
             {requestId ? (
