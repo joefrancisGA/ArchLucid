@@ -16,6 +16,7 @@ import type { LlmMonthlyDollarBudgetStatus } from "@/hooks/use-llm-monthly-budge
 import { architectureReviewTemplates, suggestedSystemNameFromTemplateId } from "@/data/review-templates";
 import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
@@ -325,7 +326,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
           isFirstStep={isFirstStep}
           isLastInputStep={isReviewStep}
           nextLabel="Next"
-          submitLabel="Start Architecture Review"
+          submitLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
           submittingLabel="Creating…"
         />
       </div>

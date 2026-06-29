@@ -349,6 +349,8 @@ export const BUYER_RUNS_LIST_MALFORMED_BODY =
 
 export const BUYER_NEW_REVIEW_TOAST_CATEGORY = "New review";
 
+export const BUYER_START_ARCHITECTURE_REVIEW_CTA = "Start architecture review";
+
 export const BUYER_ONBOARDING_PAGE_TITLE = "Getting started";
 
 export const BUYER_ONBOARDING_PAGE_LEAD =

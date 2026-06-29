@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-436 **Done** — review detail Deliverables section title and default-open). Prior: 2026-06-28 (TB-435 **Done** — onboarding walkthrough help link label). Prior: 2026-06-28 (TB-434 **Done** — onboarding page title and lead copy). Prior: 2026-07-01 (TB-430 **Done** — pilot readiness live release strict blocker).
+**Updated:** 2026-06-28 (TB-437 **Done** — unified new-review submit CTA). Prior: 2026-06-28 (TB-481–TB-500 added — integrations/evidence audit 20 P0–P2 items). Prior: 2026-06-28 (TB-456–TB-480 added — copy/terminology audit 25 P0–P3 items). Prior: 2026-06-28 (TB-436 **Done** — review detail Deliverables section title and default-open). Prior: 2026-07-01 (TB-430 **Done** — pilot readiness live release strict blocker).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -12,7 +12,7 @@
 | Deployability | 5 |
 | AI/Agent readiness | 3 |
 | Architectural integrity | 8 |
-| Adoption friction | 69 |
+| Adoption friction | 86 |
 | Commercial / marketability | 3 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -27,7 +27,8 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
-| **Total (unique)** | **~112** |
+| Code hygiene | 6 |
+| **Total (unique)** | **~132** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-392** (per-tenant Jira/ServiceNow credentials — V1.1). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -12919,7 +12920,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-437 — Unify new-review submit CTA to "Start architecture review"
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13477,8 +13478,1311 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 **Affected files:**
 
-- `archlucid-ui/src/app/(operator)/reviews/[runId]/page.tsx`
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-456 — Rename "Pilot feedback" to "Review feedback" across nav and page title
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C01. Severity: **P0**.
+
+**Problem:** `BUYER_TERMINOLOGY.evaluationFeedback = "Pilot feedback"` is used as the nav label (system admin) and the `<h2>` page title on `/product-learning`. Accessible to any `ReadAuthority` user. "Pilot feedback" signals the product is in pre-release evaluation, eroding confidence for enterprise customers in production.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`, change `evaluationFeedback: "Pilot feedback"` → `evaluationFeedback: "Review feedback"`.
+2. All nav builders and `ProductLearningPageView` heading update automatically.
+
+**Acceptance criteria:**
+
+- `/product-learning` page title reads "Review feedback." System-admin nav label reads "Review feedback."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`
 
 **Size estimate:** **XS**
 
-**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+**Cross-ref:** TB-456–TB-480 cluster (copy/terminology audit 2026-06-28). TB-457.
+
+---
+
+## TB-457 — Rename "Evaluation value report" to "Review value report" in nav and breadcrumbs
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C02. Severity: **P0**.
+
+**Problem:** `BUYER_TERMINOLOGY.evaluationValueReport = "Evaluation value report"` is the `/value-report/pilot` nav label and breadcrumb entry. "Evaluation" frames this as a pre-purchase artefact.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`, change `evaluationValueReport: "Evaluation value report"` → `evaluationValueReport: "Review value report"`.
+
+**Acceptance criteria:**
+
+- Nav label and breadcrumb read "Review value report."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster.
+
+---
+
+## TB-458 — Rename "Evaluation standards" to "Review standards" on first-review outcome card
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C03. Severity: **P0**.
+
+**Problem:** `CORE_PILOT_PATH_STREAMLINED_LABELS.evaluationStandards = "Evaluation standards"` is the field label for the policy pack on the review detail outcome card for streamlined Core Pilot users. A customer running their first real production review sees "Evaluation standards" as the label for the governance policy they are governed by.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/core-pilot-path-vocabulary.ts`, change `evaluationStandards: "Evaluation standards"` → `evaluationStandards: "Review standards"`.
+
+**Acceptance criteria:**
+
+- The outcome card field label reads "Review standards."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/core-pilot-path-vocabulary.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-441 (same file).
+
+---
+
+## TB-459 — Remove "demo integrity tools" clause from audit trail integrity note
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C04. Severity: **P0**.
+
+**Problem:** `AUDIT_TRAIL_INTEGRITY_NOTE` ends with `"…when demo integrity tools are enabled."` This note is rendered on the production `/governance/audit` page. "Demo integrity tools" should never appear on the live audit trail of an enterprise workspace.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, replace `AUDIT_TRAIL_INTEGRITY_NOTE` with: `"Append-only audit trail — every create, finalize, governance decision, and export is recorded with actor, action type, and timestamp. Filter or sort below to inspect the complete event timeline."`
+
+**Acceptance criteria:**
+
+- The audit trail note does not contain "demo" or "demo integrity tools."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-461–TB-464 (commit→finalize sweep).
+
+---
+
+## TB-460 — Fix Azure-only cost evidence footnote on executive dashboard
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C05. Severity: **P0**.
+
+**Problem:** `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.costEvidenceNotConfiguredFootnote = "Add Azure cost evidence to estimate savings and ROI."` Only Azure is named despite AWS and GCP support.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`, change `costEvidenceNotConfiguredFootnote` to: `"Add cost evidence (Azure, AWS, or GCP spend data) to estimate savings and ROI."`
+
+**Acceptance criteria:**
+
+- The footnote is cloud-agnostic or names multiple clouds.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-465–TB-467 (Azure-first sweep).
+
+---
+
+## TB-461 — Rename step-3 label "Commit review package" to "Finalize review package"
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C06. Severity: **P1**.
+
+**Problem:** `PILOT_PATH_PREVIEW_STEPS[2].label = "Commit review package"` is step 3 in the home page hero card. The pipeline status system uses "Finalized / Ready to finalize" throughout; this step still says "Commit."
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change `PILOT_PATH_PREVIEW_STEPS[2].label` from `"Commit review package"` to `"Finalize review package"`.
+
+**Acceptance criteria:**
+
+- Home page hero step 3 reads "Finalize review package."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-462–TB-464. TB-448 (step 2 — same file).
+
+---
+
+## TB-462 — Rename "Committed reviews" to "Finalized reviews" on executive scorecard
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C07. Severity: **P1**.
+
+**Problem:** `BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL = "Committed reviews"` is inconsistent with "Finalized" used throughout the pipeline status system.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to `"Finalized reviews"`.
+
+**Acceptance criteria:**
+
+- Executive scorecard KPI reads "Finalized reviews."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-461, TB-463, TB-464.
+
+---
+
+## TB-463 — Replace "commit" with "finalize" in executive dashboard empty states
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C08. Severity: **P1**.
+
+**Problem:** `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.emptyStateDescription` and `portfolioMetricsUnavailableDescription` both use "commit" (e.g. "Portfolio metrics appear after you commit at least one review package."). These appear in the most prominent dashboard empty state.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`, replace "commit" → "finalize" in both strings.
+
+**Acceptance criteria:**
+
+- Neither string contains "commit" in reference to the review finalization action.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-461, TB-462, TB-464.
+
+---
+
+## TB-464 — Replace "committed review package" in evidence graph subtitle
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C09. Severity: **P1**.
+
+**Problem:** `OPERATOR_GRAPH_PAGE_SUBTITLE` uses "committed review package" while all other subtitles use "finalized."
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, replace `"committed review package"` with `"finalized review package"` in `OPERATOR_GRAPH_PAGE_SUBTITLE`.
+
+**Acceptance criteria:**
+
+- Evidence graph subtitle reads "…for a finalized review package."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-461–TB-463.
+
+---
+
+## TB-465 — Remove "Azure import" from home page hero lead
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C10. Severity: **P1**.
+
+**Problem:** `PILOT_COMMAND_CENTER_LEAD` ends with `"or an optional Azure import."` Azure is the only cloud named in the primary home page hero lead.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change ending to `"or an optional cloud connection."`
+
+**Acceptance criteria:**
+
+- Hero lead does not name a specific cloud provider.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-460, TB-466, TB-467. TB-454 (styling — same card).
+
+---
+
+## TB-466 — Rename "Connect Azure" optional-setup CTA to "Connect cloud"
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C11. Severity: **P1**.
+
+**Problem:** `PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect Azure"` is the optional-setup link on the home page hero card. Only Azure is named.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change `PILOT_COMMAND_CENTER_CONNECT_AZURE` to `"Connect cloud"`. Verify the link still routes to `/integrations/cloud-connections`.
+
+**Acceptance criteria:**
+
+- The optional-setup CTA reads "Connect cloud." Destination route unchanged.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+- `archlucid-ui/src/components/usability/PilotCommandCenterCard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-454, TB-465, TB-467.
+
+---
+
+## TB-467 — Complete migration from "Azure cloud connection" to "Cloud connections" in nav
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C12. Severity: **P1**.
+
+**Problem:** `OPERATOR_NAV_LINK_LABELS.azureCloudConnection = "Azure cloud connection"` is still referenced in nav group builders. `cloudConnections: "Cloud connections"` is already the canonical label in `i18n.ts` but the migration is incomplete.
+
+**V1 scope:**
+
+1. Replace all uses of `azureCloudConnection` in nav group builders with `cloudConnections`.
+2. Mark `azureCloudConnection` `@deprecated` in `i18n.ts`.
+
+**Acceptance criteria:**
+
+- No nav group builder renders "Azure cloud connection" as a visible label.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/i18n.ts`
+- Nav group builder files referencing `azureCloudConnection`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-460, TB-465, TB-466.
+
+---
+
+## TB-468 — Rename "Sponsor value report" to "Executive value report"
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C13. Severity: **P1**.
+
+**Problem:** `BUYER_VALUE_REPORT_PAGE_TITLE = "Sponsor value report"` and related subtitle use internal sales framing.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`: `BUYER_VALUE_REPORT_PAGE_TITLE` → `"Executive value report"`. Replace "sponsor-ready report" → "executive-ready report" in the subtitle.
+
+**Acceptance criteria:**
+
+- Page title reads "Executive value report."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-457.
+
+---
+
+## TB-469 — Remove "during a pilot" from product-concepts glossary dialog description
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C14. Severity: **P1**.
+
+**Problem:** `PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION` contains "during a pilot." Enterprise customers already in production see this every time they open the glossary.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to: `"Short definitions for terms you will encounter in your architecture reviews — open on demand."`
+
+**Acceptance criteria:**
+
+- The glossary dialog description does not contain "pilot."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster.
+
+---
+
+## TB-470 — Remove "seeded" from Why ArchLucid source attribution line
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C15. Severity: **P1**.
+
+**Problem:** `BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE` contains "the seeded Claims Intake review." "Seeded" implies artificially manufactured data.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, replace with: `"Aggregated proof from the evidence pack service — paired with the example Claims Intake review below."`
+
+**Acceptance criteria:**
+
+- The string does not contain "seeded" or "seed."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-473, TB-474.
+
+---
+
+## TB-471 — Rename "Start CTO demo" to "Open example review" in buyer-polished operator home
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C16. Severity: **P1**.
+
+**Problem:** `BUYER_HOME_START_CTO_DEMO_HEADING = "Start CTO demo"` and `BUYER_HOME_START_CTO_DEMO_CTA = "Start CTO demo"` appear on the operator home page in buyer-polished mode. "CTO demo" is internal sales-harness language implying the product is a demo.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`: change heading and CTA to `"Open example review"`. Update aria label to match. Presenter-only strings (e.g. `BUYER_CTO_DEMO_TOUR_HEADING`) are unchanged.
+
+**Acceptance criteria:**
+
+- Visible heading and CTA read "Open example review." No "CTO demo" in the visible home page card heading or primary CTA.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-472.
+
+---
+
+## TB-472 — Replace "live pilot" with "live workspace" in governance preview note
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C17. Severity: **P1**.
+
+**Problem:** `BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE` contains "In a live pilot, an architect…" and "for demonstration purposes." Both phrases imply the governance capability is pre-production.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to: `"In a connected workspace, an architect with Execute authority approves here. The view below shows the post-approval state."`
+
+**Acceptance criteria:**
+
+- The note does not contain "live pilot" or "demonstration purposes."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-471.
+
+---
+
+## TB-473 — Rename "Demo-derived sample" label on home page AHA card
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C18. Severity: **P2**.
+
+**Problem:** `SAMPLE_REVIEW_AHA_DEMO_LABEL = "Demo-derived sample"` is a visible badge on the first-value AHA card on the home page. "Demo-derived" conflates the example concept with sales-demo mode.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to `"Example review"`.
+
+**Acceptance criteria:**
+
+- The AHA card badge reads "Example review."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-474.
+
+---
+
+## TB-474 — Replace "Demo-derived sample only" in home page defensible-layer caption
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C19. Severity: **P2**.
+
+**Problem:** `OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER` contains "Demo-derived sample only" and "execution mode" as a sub-caption on the home page sample review card.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to: `"Example review — not your workspace data. Open the full package for findings, evidence, and the signed record."`
+
+**Acceptance criteria:**
+
+- The sub-caption does not contain "Demo-derived," "execution mode," or "evidence basis."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-473.
+
+---
+
+## TB-475 — Rename "Simulator mode" trust badge to "Rule-based analysis"
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C20. Severity: **P2**.
+
+**Problem:** `BUYER_SIMULATOR_TRUST_BADGE_LABEL = "Simulator mode — structurally identical findings, no cloud LLM charges"` is a visible trust badge on review detail pages when the review used simulator execution. "Simulator mode" implies findings are not real.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to: `"Rule-based analysis — findings match live-mode structure; cost estimates are illustrative."` Keep full technical explanation in tooltip.
+
+**Acceptance criteria:**
+
+- Badge reads "Rule-based analysis." No remaining "Simulator mode" in the badge label.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster.
+
+---
+
+## TB-476 — Rename "Commit" step label in onboarding step tracker
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C21. Severity: **P2**.
+
+**Problem:** `CorePilotNextStepsCard.tsx` step tracker shows "Commit" as the display label for the finalization checkpoint. Inconsistent with "Finalize" in all pipeline status labels.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/components/CorePilotNextStepsCard.tsx`, change the display label for the "commit" checkpoint to `"Finalize"`. The checkpoint `id` remains `"commit"`.
+
+**Acceptance criteria:**
+
+- The onboarding step tracker displays "Finalize."
+
+**Affected files:**
+
+- `archlucid-ui/src/components/CorePilotNextStepsCard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-461–TB-464.
+
+---
+
+## TB-477 — Rename "Commit reviews" permission label to "Finalize reviews" in role settings
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C22. Severity: **P2**.
+
+**Problem:** `custom-role-permission-groups.ts` has `{ id: "Runs.Commit", label: "Commit reviews" }`. Admin users see "Commit reviews" in the Roles settings UI while the rest of the product uses "Finalize." API key `Runs.Commit` is unchanged.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/app/(operator)/settings/roles/_sections/custom-role-permission-groups.ts`, change `label: "Commit reviews"` → `label: "Finalize reviews"`.
+
+**Acceptance criteria:**
+
+- Roles settings UI displays "Finalize reviews." `id` is unchanged.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/settings/roles/_sections/custom-role-permission-groups.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-461–TB-464.
+
+---
+
+## TB-478 — Remove "(operators)" qualifier from system-health link label in service bus banner
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C23. Severity: **P2**.
+
+**Problem:** `SERVICE_BUS_HEALTH_LABELS.systemHealthLink = "System health (operators)"`. The parenthetical is an internal surface qualifier visible to all users during a service delay.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/i18n.ts`, change to `"System health"`.
+
+**Acceptance criteria:**
+
+- Service bus banner link reads "System health."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster.
+
+---
+
+## TB-479 — Replace "active for the demonstration" in workspace list unavailable copy
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C24. Severity: **P2**.
+
+**Problem:** `BUYER_SCOPE_LIST_UNAVAILABLE` ends with "active for the demonstration." Enterprise customers encountering this post-sale infer they are permanently in a demo.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to: `"Workspace directory is unavailable in this environment. The sample workspace remains active for this session."`
+
+**Acceptance criteria:**
+
+- The string does not contain "demonstration" or "demo."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-473, TB-474.
+
+---
+
+## TB-480 — Replace "seeded showcase" in demo latency-exceeded message
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C25. Severity: **P3**.
+
+**Problem:** `BUYER_CTO_DEMO_LATENCY_EXCEEDED = "Exceeded demo latency budget — switch to seeded showcase"` exposes developer fixture terminology to sales reps and buyers during a demo.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to: `"Taking longer than expected — switch to example review."`
+
+**Acceptance criteria:**
+
+- The message does not contain "seeded" or "seed."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster (copy/terminology audit 2026-06-28).
+
+---
+
+## TB-481 — Fix AWS/GCP cloud-target dropdown labels: "V1.1 deep analysis" contradicts available Tier-1 ZIPs
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E01. Severity: **P0**.
+
+**Problem:** `WizardStepIdentity` cloud target `<Select>` labels AWS as `"Amazon Web Services (intent capture — V1.1 deep analysis)"` and GCP as `"Google Cloud Platform (intent capture — V1.1 deep analysis)"`. However, `wizard-evidence-source-options.ts` marks `aws-inventory` and `gcp-inventory` as `availability: "accelerated"` (Fastest badge). The dropdown tells AWS/GCP customers they get analysis only in V1.1, while the evidence picker already offers accelerated ZIP paths for those clouds. This is a direct contradiction that shrinks perceived product value for non-Azure customers.
+
+**V1 scope:**
+
+1. In `WizardStepIdentity.tsx` change:
+   - `"Amazon Web Services (intent capture — V1.1 deep analysis)"` → `"Amazon Web Services (cloud inventory ZIP available)"`
+   - `"Google Cloud Platform (intent capture — V1.1 deep analysis)"` → `"Google Cloud Platform (cloud inventory ZIP available)"`
+2. Update the inline hint tooltip to remove: `"Aws and Gcp capture target-cloud intent for multi-cloud RFPs; attach Terraform or other IaC for best results until V1.1 deep analysis ships."` → `"Choose the cloud target that matches your workload. AWS and GCP inventory ZIPs are available as accelerated evidence sources."`
+
+**Acceptance criteria:**
+
+- AWS and GCP select options no longer say "V1.1" when Tier-1 ZIPs are already available.
+- No mention of "V1.1" inside `WizardStepIdentity.tsx`.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepIdentity.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-466, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-482 — Change default evidence source selection from "azure-export" to "brief"
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E02. Severity: **P0**.
+
+**Problem:** `WizardStepEvidenceUpload` initialises `useState<WizardEvidenceSourceId>("azure-export")`. Every user opening the evidence step sees the Azure ZIP upload panel by default. A customer with AWS, GCP, or document-only evidence must actively switch away from Azure. This is the most visible point-of-entry evidence-drift in the wizard.
+
+**V1 scope:**
+
+1. In `WizardStepEvidenceUpload.tsx` change the initial state from `"azure-export"` to `"brief"`.
+2. Verify the brief panel copy renders cleanly as the zero-state.
+
+**Acceptance criteria:**
+
+- When the evidence step mounts, no cloud-specific upload panel is shown by default.
+- "Brief" card is visually selected (ring highlight) on first render.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-483 — Rename Core Pilot step 4 from "Upload Azure extractor ZIP" to "Upload cloud inventory evidence"
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E03. Severity: **P1**.
+
+**Problem:** `CORE_PILOT_STEPS[3].title = "Upload Azure extractor ZIP"` and its `shortBody` says "Attach Tier-1 inventory evidence so cost findings and ROI cite measured Azure spend." Step 4 of the 7-step onboarding pilot checklist is Azure-only. Customers running AWS or GCP workloads see a step that does not apply to them and has no equivalent guidance.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/core-pilot-steps.ts`, update step 4:
+   - `title`: `"Upload cloud inventory evidence"` (was `"Upload Azure extractor ZIP"`)
+   - `shortBody`: `"Attach a Tier-1 cloud inventory ZIP (Azure, AWS, or GCP) so cost findings and ROI cite measured spend — or skip if using document/brief evidence only."`
+2. Keep `primaryLabel: "Upload inventory ZIP"` (already cloud-agnostic) and `primaryHref: EXTRACT_UPLOAD_SETTINGS_PATH` (unchanged).
+
+**Acceptance criteria:**
+
+- Step 4 title and body do not mention Azure exclusively.
+- AWS and GCP inventory ZIP paths are acknowledged.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/core-pilot-steps.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-484 — Fix baseline-first wizard notice: replace "Azure extractor ZIP" with "cloud inventory evidence"
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E04. Severity: **P1**.
+
+**Problem:** `WizardStepPreset` renders a notice when `baselineFirst === true`: `"Baseline-first path: upload the Azure extractor ZIP on the next step, then confirm system identity and brief."` An AWS or GCP customer navigating via `?baseline=1` sees Azure-specific instructions.
+
+**V1 scope:**
+
+1. In `WizardStepPreset.tsx`, change the baseline-first notice to:
+   `"Baseline-first path: upload a cloud inventory ZIP on the next step, then confirm system identity and brief."`
+
+**Acceptance criteria:**
+
+- The baseline-first notice does not mention Azure.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepPreset.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-485 — WizardStepAzureContext: rename label and expand to cloud-agnostic optional enrichment
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E05. Severity: **P1**.
+
+**Problem:** `WizardStepAzureContext` renders an optional enrichment collapsible labelled `"Add Azure inventory ZIP"`. AWS and GCP inventory ZIPs are available (`WizardStepEvidenceUpload` shows them as "Fastest"), but the dedicated optional-enrichment section in the full wizard only surfaces Azure. This creates an asymmetric experience: Azure gets its own prominent step; AWS/GCP customers must know to go to the separate evidence upload step.
+
+**V1 scope:**
+
+1. Rename the collapsible trigger label from `"Add Azure inventory ZIP"` to `"Add cloud inventory ZIP"`.
+2. Inside `WizardStepAzureContext`, replace the inner description: replace `"Run read-only ARM inventory packaging from your ArchLucid checkout"` with `"Run the read-only inventory script for your cloud provider locally, then attach the ZIP to prefill wizard fields."` Remove the Azure-specific `-ResourceGroupScope` snippet from this surface (it can stay in the help docs).
+3. Surface the `CloudInventoryExtractorCommandPanel` (already multi-cloud) instead of the Azure-only `AzureExtractorQuickStartCommandPanel`.
+
+**Acceptance criteria:**
+
+- Collapsible trigger does not say "Azure" on its face.
+- AWS/GCP customers receive equivalent guidance inside the section.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepAzureContext.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-466, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-486 — Remove Azure-only mention from WizardStepIdentity cloud-target footer hint
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E06. Severity: **P1**.
+
+**Problem:** The helper text below the cloud target select: `"Evidence-only is the default first-pilot path. Azure export accelerates topology and cost findings when InfoSec approves the script."` — Azure is the only cloud named. AWS and GCP customers receive no equivalent framing for their inventory scripts.
+
+**V1 scope:**
+
+1. In `WizardStepIdentity.tsx`, update the footer hint to:
+   `"Evidence-only is the default first-pilot path. A cloud inventory ZIP (Azure, AWS, or GCP) accelerates topology and cost findings when your InfoSec team approves the extractor script."`
+
+**Acceptance criteria:**
+
+- Footer hint mentions all three clouds or is cloud-agnostic.
+- Azure is not the only cloud named.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepIdentity.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481, TB-485, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-487 — Fix demo source description: remove "Azure extractor package" from demo evidence copy
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E07. Severity: **P1**.
+
+**Problem:** In `WizardStepEvidenceUpload`, the demo source panel reads: `"Choose a bundled synthetic Azure extractor package — no PowerShell script required."` The demo option exists precisely so users can experience ArchLucid without any real evidence. Describing it as an "Azure extractor package" implies the demo only showcases Azure architecture, which narrows the perceived scope.
+
+**V1 scope:**
+
+1. In `WizardStepEvidenceUpload.tsx`, change the demo panel helper text from:
+   `"Choose a bundled synthetic Azure extractor package — no PowerShell script required. Demo outputs are labeled Simulator."`
+   to:
+   `"Choose a bundled example review scenario — no scripts or uploads required. Demo outputs are labeled Simulator."`
+
+**Acceptance criteria:**
+
+- Demo source description does not contain "Azure extractor package."
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-488 — AzureExtractorPackageZipField: label and hardcoded cloudProvider=Azure on non-Azure ZIP upload
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction + correctness risk
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E08. Severity: **P1**.
+
+**Problem:** `AzureExtractorPackageZipField` renders a `<Label>` reading `"Azure packager ZIP"` — visible to operators in the full wizard. More critically, line 84 executes `setValue("cloudProvider", "Azure", ...)` whenever any ZIP is applied through this field. If an AWS/GCP customer navigates to a surface that embeds this component, their review is silently set to `cloudProvider: "Azure"`. The component is embedded in `WizardStepAzureContext` which is logically an Azure-only section, but the naming risk remains if the component is reused.
+
+**V1 scope:**
+
+1. Add a JSDoc comment to `AzureExtractorPackageZipField` warning that the `cloudProvider: "Azure"` side-effect makes this component Azure-only and it must not be reused for AWS/GCP evidence paths.
+2. Change the visible `<Label>` from `"Azure packager ZIP"` to `"Cloud inventory ZIP"` so if the section header already says "Azure" the label does not double-stamp Azure.
+3. Long-term (V1.1): extract the `cloudProvider` side-effect into a prop so the component can be made genuinely multi-cloud.
+
+**Acceptance criteria:**
+
+- Label visible to users does not say "Azure packager ZIP."
+- A code comment warns future developers about the `cloudProvider` side-effect.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/AzureExtractorPackageZipField.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-485, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-489 — InProductEvidenceChecklist: replace "API reachable (/health/ready)" with plain-language label
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E09. Severity: **P1**.
+
+**Problem:** The first row of the first-run evidence checklist shows `"API reachable (/health/ready)"` as its label — an internal API route path visible to operator customers. Enterprise admins running a first-review setup should see a status name, not a route.
+
+**V1 scope:**
+
+1. In `InProductEvidenceChecklist.tsx`, change the `api-health` row label from `"API reachable (/health/ready)"` to `"Service connectivity"`.
+2. Retain `actionHref: "/help/troubleshooting"` and `actionLabel: "Troubleshoot"` unchanged.
+
+**Acceptance criteria:**
+
+- No internal API path is visible in the evidence checklist label.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/usability/InProductEvidenceChecklist.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-490 — Tier1InventoryZipUploadPanel: replace internal schema validation hint with plain language
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E10. Severity: **P1**.
+
+**Problem:** `Tier1InventoryZipUploadPanel` renders a hint visible to customers: `"Client-side checks require manifest.json (schemaVersion 1) and resources.json at the archive root. Maximum size N MB."` This tells customers the internal schema version and file structure requirements of the ZIP, which are implementation details.
+
+**V1 scope:**
+
+1. In `Tier1InventoryZipUploadPanel.tsx`, change the `<p>` hint to:
+   `"Drop the inventory ZIP output from the extractor script. Maximum size {maxMb} MB. The file is validated locally before upload."`
+2. Keep the `manifest.json`/`resources.json` detail available in an error message if validation fails (which it already does via `Tier1InventoryZipValidationCallout`).
+
+**Acceptance criteria:**
+
+- The drop-zone hint does not mention `schemaVersion`, `manifest.json`, or `resources.json` in the happy-path guidance.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/Tier1InventoryZipUploadPanel.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-491 — Remove "Tier-1" internal tier label from customer-facing wizard description
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E11. Severity: **P1**.
+
+**Problem:** `WizardStepEvidenceUpload` description reads: `"...a Tier-1 cloud inventory ZIP (Azure, AWS, or GCP)..."`. "Tier-1" is an internal ArchLucid tier classification that customers never see defined anywhere in the wizard.
+
+**V1 scope:**
+
+1. In `WizardStepEvidenceUpload.tsx`, change `"a Tier-1 cloud inventory ZIP (Azure, AWS, or GCP)"` to `"a cloud inventory ZIP (Azure, AWS, or GCP)"`.
+2. In `wizard-evidence-source-options.ts`, review option descriptions for any other "Tier-1" occurrences visible to customers.
+
+**Acceptance criteria:**
+
+- "Tier-1" does not appear in any customer-visible string in `WizardStepEvidenceUpload`.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`
+- `archlucid-ui/src/lib/wizard-evidence-source-options.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-492 — FindingTrustChip: improve "Citation missing" label to include guidance direction
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E12. Severity: **P1**.
+
+**Problem:** When `evidenceRefCount <= 0` and confidence is not "Low", `FindingTrustChip` shows label `"Citation missing"` with tooltip `"No evidence references are attached to this finding."`. The label is technically accurate but gives the reviewer no indication of what action to take.
+
+**V1 scope:**
+
+1. In `FindingTrustChip.tsx`, change the `citation-missing` model:
+   - `label`: `"No evidence linked"` (was `"Citation missing"`)
+   - `title` (tooltip): `"No evidence references are attached to this finding. Add evidence to the review or re-run to improve traceability."`
+
+**Acceptance criteria:**
+
+- The label shown to reviewers does not say "Citation missing."
+- The tooltip provides a path forward.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/FindingTrustChip.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-493 — Core pilot checklist: add non-cloud-inventory evidence acknowledgment to step 4
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E13. Severity: **P1**.
+
+**Problem:** The 7-step `CORE_PILOT_STEPS` array step 4 has no guidance for operators using document-based or brief-only evidence. After TB-483, the step title is cloud-agnostic, but the body should also acknowledge that cloud inventory is optional.
+
+**V1 scope:**
+
+1. After TB-483 lands, update `CORE_PILOT_STEPS[3].detail` to add: `"If you are using brief, document, or diagram evidence only, skip this step — findings will still run and may have lower confidence on cost claims."`
+2. Update `shortBody` to: `"Optional for document/brief-only reviews — cloud inventory required for cost ROI accuracy."`
+
+**Acceptance criteria:**
+
+- Step 4 `detail` or `shortBody` explicitly acknowledges document/brief evidence paths as valid.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/core-pilot-steps.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-483, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-494 — Add JSDoc naming note to AzureExtractorZipDropZone used for multi-cloud inventory
+
+**Status:** **Open**
+
+**Architectural quality:** Code hygiene
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E14. Severity: **P2**.
+
+**Problem:** `AzureExtractorZipDropZone` is used inside `Tier1InventoryZipUploadPanel` for AWS and GCP inventory ZIPs. The component's name embeds "Azure" even though it handles any ZIP file.
+
+**V1 scope:**
+
+1. Add a JSDoc comment to `AzureExtractorZipDropZone.tsx`: `"@deprecated for multi-cloud use — this component is safe for any inventory ZIP but is named for Azure for historical reasons. Use in Tier1InventoryZipUploadPanel is intentional. Rename to InventoryZipDropZone planned for V1.1."`
+
+**Acceptance criteria:**
+
+- A code comment explains the naming mismatch.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/AzureExtractorZipDropZone.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-495 — Migrate WizardStepAzureContext and AzureExtractorPackageZipField to CloudInventoryExtractorCommandPanel
+
+**Status:** **Open**
+
+**Architectural quality:** Code hygiene
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E15. Severity: **P2**.
+
+**Problem:** Two command panel components coexist: legacy `AzureExtractorQuickStartCommandPanel` (Azure-only) and new `CloudInventoryExtractorCommandPanel` (multi-cloud). `WizardStepAzureContext` and `AzureExtractorPackageZipField` still import the legacy component.
+
+**V1 scope:**
+
+1. In `WizardStepAzureContext.tsx`, replace `AzureExtractorQuickStartCommandPanel` with `CloudInventoryExtractorCommandPanel` passing `platform="azure"`.
+2. In `AzureExtractorPackageZipField.tsx`, replace the legacy panel usages with `CloudInventoryExtractorCommandPanel`.
+3. After all import sites migrate, add `@deprecated` JSDoc to `AzureExtractorQuickStartCommandPanel`.
+
+**Acceptance criteria:**
+
+- `WizardStepAzureContext` and `AzureExtractorPackageZipField` import only `CloudInventoryExtractorCommandPanel`.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepAzureContext.tsx`
+- `archlucid-ui/src/components/wizard/steps/AzureExtractorPackageZipField.tsx`
+- `archlucid-ui/src/components/wizard/AzureExtractorQuickStartCommandPanel.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-494, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-496 — Rename buildReadinessAzureExtractorSummary to buildReadinessCloudEvidenceSummary
+
+**Status:** **Open**
+
+**Architectural quality:** Code hygiene
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E16. Severity: **P2**.
+
+**Problem:** `buildReadinessAzureExtractorSummary` already returns multi-cloud instructions but its name implies it is Azure-only.
+
+**V1 scope:**
+
+1. In `onboarding-secondary-surfaces.ts`, add `export { buildReadinessAzureExtractorSummary as buildReadinessCloudEvidenceSummary }` and deprecate the old name.
+2. Update all call sites.
+
+**Acceptance criteria:**
+
+- Canonical export is `buildReadinessCloudEvidenceSummary`; old name has `@deprecated`.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/onboarding-secondary-surfaces.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-497 — Add evidence-quality context to "Skip evidence for now" button in wizard
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E17. Severity: **P2**.
+
+**Problem:** `WizardStepEvidenceUpload` shows `"Skip evidence for now"` with no inline explanation of what skipping means for review quality. First-time users don't know if findings will run, how accurate they'll be, or whether they can add evidence later.
+
+**V1 scope:**
+
+1. In `WizardStepEvidenceUpload.tsx`, add helper text near the skip button:
+   `"Skipping evidence is OK — you can add files or cloud inventory from the review detail page after the review is created. Findings without evidence may have lower confidence."`
+
+**Acceptance criteria:**
+
+- A plain-language note appears near "Skip evidence for now" explaining the trade-off and that evidence can be added later.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-498 — Export READINESS_CLOUD_EVIDENCE_LABEL alias and deprecate READINESS_AZURE_EXTRACTOR_LABEL
+
+**Status:** **Open**
+
+**Architectural quality:** Code hygiene
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E18. Severity: **P2**.
+
+**Problem:** `READINESS_AZURE_EXTRACTOR_LABEL = "Tier-1 cloud inventory ZIP"` has an Azure-specific name despite its value being multi-cloud. Developer searches for multi-cloud evidence guidance may miss this constant.
+
+**V1 scope:**
+
+1. Add alias `READINESS_CLOUD_EVIDENCE_LABEL` in `onboarding-secondary-surfaces.ts`.
+2. Mark `READINESS_AZURE_EXTRACTOR_LABEL` as `@deprecated`.
+3. Update call sites.
+
+**Acceptance criteria:**
+
+- New canonical export is `READINESS_CLOUD_EVIDENCE_LABEL`.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/onboarding-secondary-surfaces.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-491, TB-496, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-499 — InProductEvidenceChecklist: improve "Full walkthrough" link anchor text
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E19. Severity: **P2**.
+
+**Problem:** The evidence checklist renders a link with anchor text `"Full walkthrough"` — generic and does not communicate destination or purpose to enterprise admins.
+
+**V1 scope:**
+
+1. In `InProductEvidenceChecklist.tsx`, change link text from `"Full walkthrough"` to `"Open setup guide"`.
+
+**Acceptance criteria:**
+
+- Link anchor text communicates destination purpose.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/usability/InProductEvidenceChecklist.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-500 — Add cloud-agnostic aliases for AzureExtractorDemoScenarioId type and default constant
+
+**Status:** **Open**
+
+**Architectural quality:** Code hygiene
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E20. Severity: **P2**.
+
+**Problem:** `AzureExtractorDemoScenarioId` and `DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID` are Azure-specific names for a cloud-agnostic mechanism (bundled example review scenarios). Consumer code in `WizardStepEvidenceUpload.tsx` and `AzureExtractorPackageZipField.tsx` imports these names, perpetuating Azure-specificity in the demo path.
+
+**V1 scope:**
+
+1. In `arch-lucid-azure-extractor-demo-scenarios.ts`, add type alias `DemoReviewScenarioId = AzureExtractorDemoScenarioId` and const `DEFAULT_DEMO_REVIEW_SCENARIO_ID = DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID`.
+2. Mark originals `@deprecated`.
+3. Migrate wizard files to use the new aliases.
+
+**Acceptance criteria:**
+
+- `WizardStepEvidenceUpload.tsx` and `AzureExtractorPackageZipField.tsx` import cloud-agnostic names.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/arch-lucid-azure-extractor-demo-scenarios.ts`
+- `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`
+- `archlucid-ui/src/components/wizard/steps/AzureExtractorPackageZipField.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-487, TB-494, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).

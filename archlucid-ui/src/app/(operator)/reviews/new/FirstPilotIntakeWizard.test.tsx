@@ -37,7 +37,7 @@ vi.mock("./QuickReviewWizardDeferredPanels", () => ({
 }));
 
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { BUYER_NEW_REVIEW_TOAST_CATEGORY } from "@/lib/buyer-polish-copy";
+import { BUYER_NEW_REVIEW_TOAST_CATEGORY, BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { showError } from "@/lib/toast";
 import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 
@@ -59,7 +59,7 @@ describe("FirstPilotIntakeWizard", () => {
 
     fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
 
-    const startButton = screen.getByRole("button", { name: "Start analysis" });
+    const startButton = screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA });
     expect(startButton).not.toBeDisabled();
 
     fireEvent.click(startButton);
@@ -96,7 +96,7 @@ describe("FirstPilotIntakeWizard", () => {
       target: { value: "Retail API review" },
     });
     fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
-    fireEvent.click(screen.getByRole("button", { name: "Start analysis" }));
+    fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {
       expect(showError).toHaveBeenCalledWith(BUYER_NEW_REVIEW_TOAST_CATEGORY, "Network down");

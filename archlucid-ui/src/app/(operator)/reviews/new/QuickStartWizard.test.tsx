@@ -4,6 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it, vi } from "vitest";
 
 import { ApiRequestError } from "@/lib/api-request-error";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
 
 const createRun = vi.fn();
@@ -74,7 +75,7 @@ describe("QuickStartWizard", () => {
       expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 3 of 3/i);
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
+    fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {
       expect(createRun).toHaveBeenCalled();
@@ -108,7 +109,7 @@ describe("QuickStartWizard", () => {
       expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 3 of 3/i);
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
+    fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {
       expect(createRun).toHaveBeenCalled();
@@ -150,7 +151,7 @@ describe("QuickStartWizard", () => {
       expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 3 of 3/i);
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
+    fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {
       expect(screen.getByTestId("quick-start-submit-error")).toBeInTheDocument();
