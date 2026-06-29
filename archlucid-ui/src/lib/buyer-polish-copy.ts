@@ -354,6 +354,8 @@ export const BUYER_ONBOARDING_PAGE_TITLE = "Getting started";
 export const BUYER_ONBOARDING_PAGE_LEAD =
   "Create and finalize your first architecture review package.";
 
+export const BUYER_ONBOARDING_WALKTHROUGH_HELP_LINK = "Architecture review walkthrough";
+
 export const BUYER_MANIFEST_SUMMARY_LOAD_ERROR_HEADING = "Review record summary could not be loaded.";
 
 export const BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING = "Review record summary response was not usable.";

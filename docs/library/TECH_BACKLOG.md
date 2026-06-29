@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-434 **Done** — onboarding page title and lead copy). Prior: 2026-06-28 (TB-431–TB-433 **Done** — first-hour UX audit P0 copy/IA fixes). Prior: 2026-06-28 (TB-431–TB-455 **Open** — first-hour UX audit cluster). Prior: 2026-07-01 (TB-430 **Done** — pilot readiness live release strict blocker).
+**Updated:** 2026-06-28 (TB-435 **Done** — onboarding walkthrough help link label). Prior: 2026-06-28 (TB-434 **Done** — onboarding page title and lead copy). Prior: 2026-06-28 (TB-431–TB-433 **Done** — first-hour UX audit P0 copy/IA fixes). Prior: 2026-07-01 (TB-430 **Done** — pilot readiness live release strict blocker).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -12,7 +12,7 @@
 | Deployability | 5 |
 | AI/Agent readiness | 3 |
 | Architectural integrity | 8 |
-| Adoption friction | 46 |
+| Adoption friction | 45 |
 | Commercial / marketability | 3 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -12858,7 +12858,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-435 — Rename "First-pilot operator path" help link on Onboarding page
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
