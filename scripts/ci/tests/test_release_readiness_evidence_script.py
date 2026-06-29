@@ -29,6 +29,9 @@ class TestReleaseReadinessEvidenceScript(unittest.TestCase):
         self.assertIn("ai-quality-release-summary.json", text)
         self.assertIn("build_rc_evidence_signoff_bundle.py", text)
         self.assertIn("build_pilot_critical_performance_evidence.py", text)
+        self.assertIn("run_pilot_readiness_live_release_gate.py", text)
+        self.assertIn("Strict RC pilot readiness live gate failed", text)
+        self.assertIn("pilot-readiness-live-release-gate.json", text)
         self.assertIn("rc-evidence-signoff-bundle.json", text)
 
 

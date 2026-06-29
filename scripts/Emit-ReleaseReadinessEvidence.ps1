@@ -15,12 +15,17 @@
 
 .PARAMETER ApiBaseUrl
   Optional live API base URL for deployment-evidence and doctor subprocess checks.
+
+.PARAMETER RepresentativeRunId
+  Optional representative completed first-review run id for live pilot readiness-bundle evidence.
+  Falls back to ARCHLUCID_REPRESENTATIVE_RUN_ID when unset.
 #>
 [CmdletBinding()]
 param(
     [string] $Environment = "Production",
     [string] $OutDir = "artifacts/release-readiness",
     [string] $ApiBaseUrl = "",
+    [string] $RepresentativeRunId = "",
     [switch] $StrictRc
 )
 
@@ -34,6 +39,10 @@ Set-Location $root
 
 if ($strictRcEffective) {
     Write-Host "Strict RC mode: ON (fail-closed on missing/stale strict signoff artifacts)."
+}
+
+if ([string]::IsNullOrWhiteSpace($RepresentativeRunId)) {
+    $RepresentativeRunId = $env:ARCHLUCID_REPRESENTATIVE_RUN_ID
 }
 
 function Test-StrictRcEffective {
@@ -717,6 +726,55 @@ if (Test-StrictRcEffective) {
     --json-out $pilotPerfJson `
     --markdown-out $pilotPerfMd
 Add-CheckRow $checks "Pilot-critical performance smoke" (Map-ExitToVerdict $LASTEXITCODE).verdict "pilot-critical flow timings — not a load test" "pilot-critical-performance-evidence.json"
+
+[string] $pilotReadinessLiveJson = Join-Path $OutDir "pilot-readiness-live-release-gate.json"
+[string] $pilotReadinessLiveMd = Join-Path $OutDir "pilot-readiness-live-release-gate.md"
+[string[]] $pilotReadinessLiveArgs = @(
+    (Join-Path $root "scripts/ci/run_pilot_readiness_live_release_gate.py"),
+    "--repo-root", $root,
+    "--json-out", $pilotReadinessLiveJson,
+    "--markdown-out", $pilotReadinessLiveMd
+)
+
+if (-not [string]::IsNullOrWhiteSpace($RepresentativeRunId)) {
+    $pilotReadinessLiveArgs += @("--run-id", $RepresentativeRunId.Trim())
+}
+
+if (-not [string]::IsNullOrWhiteSpace($ApiBaseUrl)) {
+    $pilotReadinessLiveArgs += @("--api-base-url", $ApiBaseUrl.Trim(), "--include-api")
+}
+
+if (Test-StrictRcEffective) {
+    $pilotReadinessLiveArgs += "--strict-rc"
+}
+
+& python @pilotReadinessLiveArgs
+[int] $pilotReadinessLiveExit = $LASTEXITCODE
+[string] $pilotReadinessLiveDetail = if ([string]::IsNullOrWhiteSpace($RepresentativeRunId)) {
+    "SKIPPED — pass -RepresentativeRunId or ARCHLUCID_REPRESENTATIVE_RUN_ID after first-review smoke"
+} else {
+    "live readiness-bundle for run $($RepresentativeRunId.Trim()); exit $pilotReadinessLiveExit"
+}
+[string] $pilotReadinessLiveVerdict = "SKIPPED"
+
+if (-not [string]::IsNullOrWhiteSpace($RepresentativeRunId)) {
+    if (Test-Path -LiteralPath $pilotReadinessLiveJson) {
+        $pilotReadinessLivePayload = Get-Content -LiteralPath $pilotReadinessLiveJson -Raw | ConvertFrom-Json
+        $pilotReadinessLiveVerdict = [string]$pilotReadinessLivePayload.disposition
+    }
+    elseif ($pilotReadinessLiveExit -ne 0) {
+        $pilotReadinessLiveVerdict = "FAIL"
+    }
+    else {
+        $pilotReadinessLiveVerdict = "PASS"
+    }
+}
+Add-CheckRow $checks "Pilot readiness live bundle (TB-429)" $pilotReadinessLiveVerdict $pilotReadinessLiveDetail "pilot-readiness-live-release-gate.json"
+
+if (Test-StrictRcEffective -and $pilotReadinessLiveExit -ne 0) {
+    Write-Error "Strict RC pilot readiness live gate failed (exit $pilotReadinessLiveExit). See $pilotReadinessLiveJson."
+    exit $pilotReadinessLiveExit
+}
 
 & pwsh -NoProfile -File (Join-Path $root "scripts/ci/Invoke-FirstPilotPerformanceBudgetSmoke.ps1") `
     -OutputDir $OutDir `

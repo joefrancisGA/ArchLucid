@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-30 (TB-428 **Done** — ITSM pull-forward gate in pilot readiness bundle). Prior: 2026-06-30 (TB-427 **Done** — pilot readiness release-train CI gate).
+**Updated:** 2026-06-28 (TB-435 **Done** — onboarding walkthrough help link label). Prior: 2026-06-28 (TB-434 **Done** — onboarding page title and lead copy). Prior: 2026-06-28 (TB-431–TB-433 **Done** — first-hour UX audit P0 copy/IA fixes). Prior: 2026-07-01 (TB-430 **Done** — pilot readiness live release strict blocker).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -12,7 +12,7 @@
 | Deployability | 5 |
 | AI/Agent readiness | 3 |
 | Architectural integrity | 8 |
-| Adoption friction | 25 |
+| Adoption friction | 45 |
 | Commercial / marketability | 3 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -27,7 +27,7 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
-| **Total (unique)** | **~62** |
+| **Total (unique)** | **~87** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-392** (per-tenant Jira/ServiceNow credentials — V1.1). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -71,6 +71,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-170 ? TB-176** (formerly duplicated IDs TB-114?120 in this file) were added 2026-05-29 from a Template and Accelerator Richness review. The conclusion was **not** to add template volume for its own sake. The V1 opportunity is to make existing starter proof packs easier to choose, validate, trust, and dry-run. **TB-170** is the highest leverage because it maps buyer jobs to existing accelerators; **TB-171** prevents stale/unsafe pack metadata; **TB-172** and **TB-173** add deterministic validation and proof dry-run coverage; **TB-174** creates one golden walkthrough that sales/operators can use without multiplying templates.
 
 **TB-119 ? TB-134** were added 2026-05-29 from a Policy/Governance, Auditability, and Commercial Packaging review. The theme is proof discipline: make governance packs, audit trails, and sales-led packaging harder to misread, drift, or overclaim. **TB-119 ? TB-123** cover policy/governance alignment; **TB-124 ? TB-128** cover auditability; **TB-129 ? TB-134** cover commercial packaging readiness. Owner-gated items such as live commerce and named customer references remain deferred outside this cluster.
+
+**TB-431 — TB-455** were added 2026-06-28 from a first-hour user-journey UX audit across home, onboarding, new-review wizard, review detail, review list, and invite-reviewer routes. Audience for the affected surfaces: senior IT leaders, enterprise architects, governance/security reviewers, platform owners, and customer admins. The dominant issue class is internal product-builder vocabulary surfacing verbatim in customer-facing copy ("pilot," "commit," "manifest," "artifacts," "traceability bundle," "intake," "operator path"). 18 of 25 items are copy-only changes (no code refactor); 4 are IA changes (move a surface); 1 is a styling change; 2 span both copy and IA. Severity: **3 × P0** (exposed API debug copy, internal toast label, pipeline diagnostics inline on review card), **7 × P1** (page title jargon, collapsed deliverables, CTA inconsistency, download button ambiguity, dead-end empty state), **9 × P2** (pilot mode toggle, CLI tools in onboarding, undefined terms), **6 × P3** (polish). All items are tagged **Adoption friction**. Canvas audit: `canvases/first-hour-ux-audit.canvas.tsx` (IDE-only).
 
 **TB-135 ? TB-142** were added 2026-05-29 per owner decision. **TB-135 ? TB-136** (SOC 2 CPA and third-party pen test) remain V1.1 assurance backlog organizational / vendor programs per workspace rule. **TB-137 ? TB-140** capture follow-on real-LLM engineering after assessment improvement **#1** local evidence shipped. **TB-141 ? TB-142** were later promoted on 2026-06-01 to near-term GTM backlog priorities for real pilot proof packets and market-facing demo assets. See **`.cursor/rules/V1_1-assurance-backlog.mdc`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, and [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6c.
 
@@ -169,6 +171,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-414 | Ship-gate Gate 5 default UI origin resolution — resolve UI base URL from `--ui-base-url`, `ARCHLUCID_UI_BASE_URL`, `archlucid.json` `uiUrl`, or default localhost; `--skip-ui-route-smoke` preserves Gate 5 UNKNOWN for API-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-415 | Ship-gate Gate 4 first-value claim lint embed — lint sponsor Markdown from `first-value-report` via `ProofPacketClaimLinter` after export matrix pass; `--skip-claim-lint` for internal-only runs | **Done** (2026-06-28) — Runtime reliability P1 **V1** | S |
 | TB-416 | Ship-gate Gate 3 ROI coherence probe — structural disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on `GET /v1/roi/executive-summary` | **Done** (2026-06-29) — Runtime reliability P1 **V1** | S |
+| TB-430 | Pilot readiness live release strict blocker — strict RC blocks live bundle WARN/FAIL slots and overall WARN/UNKNOWN; release-confidence lane; strict emitter fail-closed | **Done** (2026-07-01) — Runtime reliability P1 **V1** | S |
+| TB-429 | Pilot readiness live release gate — `run_pilot_readiness_live_release_gate.py` runs live `--run-id` readiness-bundle for RC evidence; wired into `Emit-ReleaseReadinessEvidence.ps1` and RC signoff | **Done** (2026-07-01) — Runtime reliability P1 **V1** | S |
 | TB-428 | ITSM pull-forward gate in pilot readiness bundle — eighth slot in `archlucid pilot readiness-bundle`; HOLD/WATCH/PULL_FORWARD rollup; CI gate validates eight slot keys | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-427 | Pilot readiness release-train CI gate — `scripts/ci/run_pilot_readiness_release_train_gate.py` runs offline `archlucid pilot readiness-bundle` in dotnet-fast-core build; fail closed on aggregate FAIL slots | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
 | TB-426 | ITSM pull-forward gate default operational artifact bundle — auto-write JSON + Markdown under `artifacts/itsm-pull-forward-gate/{ledger-name|live-api}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs | **Done** (2026-06-30) — Runtime reliability P1 **V1** | S |
@@ -12649,3 +12653,832 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **S**
 
 **Cross-ref:** TB-425, TB-426, TB-427, assessment §7.8, §7.10, §17 item 48.
+
+---
+
+## TB-429 — Pilot readiness live release gate
+
+**Status:** **Done** (2026-07-01). `scripts/ci/run_pilot_readiness_live_release_gate.py` runs live `archlucid pilot readiness-bundle --run-id <guid> [--include-api]` for RC/release evidence, validates eight slots with ship-gate executed, emits `archlucid.pilot-readiness-live-release-gate.v1` JSON + Markdown, SKIPPED when run id absent, strict RC fail-closed when run id missing on buyer-facing cuts; wired into `Emit-ReleaseReadinessEvidence.ps1`, `build_rc_evidence_signoff_bundle.py`, release evidence bundle profile, and RC signoff workflow shape fixture.
+
+**Source:** Assessment §7.8 recommendation — add live `--run-id` readiness-bundle to RC/release workflows after representative first-review smoke.
+
+**Problem:** Offline readiness-bundle CI (TB-427) guarded fixture regressions but RC cuts still required a separate manual live CLI invocation to retain representative run evidence.
+
+**V1 scope:**
+
+1. Add `run_pilot_readiness_live_release_gate.py` with live bundle validation and gate JSON schema.
+2. Extract shared slot validation to `pilot_readiness_bundle_gate_common.py`.
+3. Wire gate into `Emit-ReleaseReadinessEvidence.ps1` with `-RepresentativeRunId` / `ARCHLUCID_REPRESENTATIVE_RUN_ID`.
+4. Add high-risk signoff gate row and optional bundle profile files; RC workflow shape fixture.
+
+**Acceptance criteria:**
+
+- Live gate SKIPPED without `--run-id`; strict RC fails when run id missing.
+- Live gate validates eight slots and rejects SKIPPED ship-gate.
+- Release evidence script and RC signoff bundle reference `pilot-readiness-live-release-gate.json`.
+- Unit tests cover live PASS fixture, ship-gate skip rejection, and skip-cli-run harness.
+
+**Affected files:**
+
+- `scripts/ci/run_pilot_readiness_live_release_gate.py`
+- `scripts/ci/pilot_readiness_bundle_gate_common.py`
+- `scripts/ci/run_pilot_readiness_release_train_gate.py`
+- `scripts/ci/build_rc_evidence_signoff_bundle.py`
+- `scripts/ci/data/release_evidence_bundle_profiles.v1.json`
+- `scripts/Emit-ReleaseReadinessEvidence.ps1`
+- `scripts/ci/tests/test_run_pilot_readiness_live_release_gate.py`
+- `scripts/ci/fixtures/pilot-readiness-bundle/live-pass-gate.json`
+- `scripts/ci/fixtures/pilot-readiness-bundle/live-pass-bundle.json`
+- `.github/workflows/rc-release-gate.yml`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-425, TB-427, TB-428, assessment §7.8, §7.10, §17 item 49.
+
+---
+
+## TB-430 — Pilot readiness live release strict blocker
+
+**Status:** **Done** (2026-07-01). Live readiness gate `--strict-rc` blocks WARN/FAIL slot outcomes and strict overall WARN/UNKNOWN; `collect_live_slot_release_blockers` helper; release-confidence lane `pilot-readiness-live-bundle`; `Emit-ReleaseReadinessEvidence.ps1` fail-closes strict RC when live gate exits non-zero.
+
+**Source:** Assessment §7.8 recommendation — treat live readiness-bundle WARN/FAIL slots as release blockers before pilot handoff.
+
+**Problem:** TB-429 wired live readiness-bundle into RC evidence but WARN slot outcomes and aggregate WARN could still pass strict RC signoff.
+
+**V1 scope:**
+
+1. Add `collect_live_slot_release_blockers` and strict WARN slot validation in `pilot_readiness_bundle_gate_common.py`.
+2. Extend `run_pilot_readiness_live_release_gate.py` strict RC to fail on WARN/FAIL slots and overall WARN/UNKNOWN.
+3. Add release-confidence lane and strict emitter fail-closed exit.
+
+**Acceptance criteria:**
+
+- Strict RC fails on live bundle WARN slots even when overall verdict is Pass.
+- Non-strict mode still allows WARN disposition without failing exit code 0.
+- Release-confidence rollup includes pilot-readiness-live-bundle release-blocking lane.
+
+**Affected files:**
+
+- `scripts/ci/pilot_readiness_bundle_gate_common.py`
+- `scripts/ci/run_pilot_readiness_live_release_gate.py`
+- `scripts/ci/data/release_confidence_lanes.v1.json`
+- `scripts/Emit-ReleaseReadinessEvidence.ps1`
+- `scripts/ci/tests/test_run_pilot_readiness_live_release_gate.py`
+- `scripts/ci/fixtures/pilot-readiness-bundle/live-warn-bundle.json`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-429, assessment §7.8, §7.10, §17 item 50.
+
+---
+
+## TB-431 — Fix malformed-response diagnostic copy on reviews list
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F01. Severity: **P0**.
+
+**Problem:** When the API returns a response that fails JSON shape validation, `RunsPageView` renders the raw diagnostic sentence verbatim: `"The HTTP call may have succeeded, but the JSON did not match the expected paged review summary shape. This is distinct from an empty project (zero reviews)."` This is developer-facing debug copy exposed directly to enterprise governance reviewers and IT leaders. Any senior customer who hits this state loses confidence in product maturity immediately.
+
+**V1 scope:**
+
+1. In `RunsPageView`, replace the `OperatorMalformedCallout` body text with a safe, customer-facing message.
+2. Keep the full diagnostic detail in a collapsed disclosure or developer-only `process.env.NODE_ENV === 'development'` branch.
+
+**Acceptance criteria:**
+
+- Production build renders: `"Review packages could not be displayed. Try reloading the page. If this continues, contact support."` (or equivalent) instead of the raw shape-mismatch sentence.
+- Development build may still show the full diagnostic string.
+- Existing test for the malformed state continues to pass.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/_sections/RunsPageView.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-432 — Remove "First-pilot intake" internal label from submit-error toast
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F02. Severity: **P0**.
+
+**Problem:** On submit failure in `FirstPilotIntakeWizard`, the toast category title is `"First-pilot intake"` — an internal product label that is displayed verbatim to customers in production. The phrase "pilot" signals evaluation/pre-release status to a buying enterprise customer at exactly the moment of first submission failure.
+
+**V1 scope:**
+
+1. Change the `showError` first argument in `FirstPilotIntakeWizard` from `"First-pilot intake"` to `"New review"` (or omit the category title entirely if the toast component supports it).
+
+**Acceptance criteria:**
+
+- Submit-error toast title shows `"New review"` or no category title.
+- No other user-visible text on the new-review flow mentions "pilot intake" as a category.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/new/FirstPilotIntakeWizard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-433 — Move pipeline diagnostics off primary review Actions card
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F03. Severity: **P0**.
+
+**Problem:** `RunDetailRunActionsSection` renders a visible inline link `"Pipeline diagnostics — optional detail for operators troubleshooting pipeline steps."` in the primary Actions card. Enterprise governance reviewers and IT leaders open the review detail to assess outputs; seeing pipeline troubleshooting tools inline signals an unfinished, developer-facing product.
+
+**V1 scope:**
+
+1. Remove the `Pipeline diagnostics` anchor from `RunDetailRunActionsSection`'s primary card body.
+2. The link already targets the `#agent-forensics` anchor inside `RunDetailOperatorTechnicalDisclosure` — that collapsed disclosure is the correct home. No new surface required.
+
+**Acceptance criteria:**
+
+- The `Pipeline diagnostics` paragraph/link is not visible in the primary Actions card on any review detail page.
+- The `#agent-forensics` anchor and `RunDetailOperatorTechnicalDisclosure` disclosure remain accessible.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRunActionsSection.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-434 — Rename Onboarding page title and fix "committed package" lead copy
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F04. Severity: **P1**.
+
+**Problem:** The onboarding page title is `"Onboarding"` — how the company describes its process, not how a customer navigates a product. The lead copy says `"...from intake to committed package."` — "committed" is git/software jargon; "intake" is product-internal. Senior IT leaders expect "Getting started" and "finalized review package" or "approved review."
+
+**V1 scope:**
+
+1. Change `<h1>Onboarding</h1>` to `"Getting started"` in `OnboardingPageView`.
+2. Change the lead paragraph to: `"Create and finalize your first architecture review package."` (removes "intake" and "committed package").
+3. Update the nav label if it reads "Onboarding" — confirm against `OPERATOR_NAV_LINK_LABELS.onboarding` in `i18n.ts`; update if needed.
+
+**Acceptance criteria:**
+
+- Onboarding page `<h1>` reads `"Getting started"` or equivalent.
+- Lead copy contains neither "intake" nor "committed."
+- Nav label is consistent with the page title.
+- Existing snapshot/test for the onboarding page header passes or is updated.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/onboarding/_sections/OnboardingPageView.tsx`
+- `archlucid-ui/src/lib/i18n.ts` (if nav label `onboarding` needs updating)
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-435 — Rename "First-pilot operator path" help link on Onboarding page
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F05. Severity: **P1**.
+
+**Problem:** `OnboardingPageView` renders an `InAppHelpLink` with label `"First-pilot operator path — full walkthrough"`. This reads as an internal test-plan document title. Enterprise architects do not self-identify as "pilot operators." The label reduces confidence in product maturity.
+
+**V1 scope:**
+
+1. Change the `label` prop on `<InAppHelpLink helpSlug="first-pilot-path" ...>` to `"Architecture review walkthrough"` or `"Full setup guide"`.
+
+**Acceptance criteria:**
+
+- The help link on the Onboarding / Getting started page does not contain "pilot" or "operator path."
+- `helpSlug` remains unchanged so the link continues to route correctly.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/onboarding/_sections/OnboardingPageView.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-436 — Rename "Artifacts & exports" → "Deliverables" and open by default in operator shell
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F06. Severity: **P1**.
+
+**Problem:** In the operator shell, `RunDetailArtifactsExportsSection` uses the section title `"Artifacts & exports"` and is rendered collapsed by default (`defaultOpen={!buyerPolishedArtifactTable}`). "Artifacts" is software pipeline jargon. Collapsing the deliverables section by default for the enterprise operator shell — the audience most likely to need these outputs immediately — is a first-hour friction failure.
+
+**V1 scope:**
+
+1. Change the `title` prop on `CollapsibleSection` from `"Artifacts & exports"` to `"Deliverables"` for both shell variants (remove the `buyerPolishedArtifactTable` ternary for the title).
+2. Change `defaultOpen` to `true` for the operator shell (i.e. when `buyerPolishedArtifactTable === false`).
+
+**Acceptance criteria:**
+
+- Section title is `"Deliverables"` in both buyer-polished and operator shells.
+- Section is expanded by default in the operator shell.
+- Buyer-polished shell retains its existing `defaultOpen` behavior (it was already `false`; confirm whether keeping it collapsed is intended — if so, only the title changes for the buyer shell).
+- Existing tests for the section pass or are updated.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailArtifactsExportsSection.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-437 — Unify new-review submit CTA to "Start architecture review"
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F07. Severity: **P1**.
+
+**Problem:** The submit button in `FirstPilotIntakeWizard` reads `"Start analysis"`. The same action triggered from the reviews list reads `"Start architecture review"`. The `QuickStartWizard` uses `"Start Architecture Review"`. Three different labels for the same first-action across the first-hour journey create uncertainty about what the user is starting.
+
+**V1 scope:**
+
+1. Change `"Start analysis"` button label in `FirstPilotIntakeWizard` to `"Start architecture review"` (lowercase "review" for consistency with the list CTA).
+2. Confirm `QuickStartWizard`'s `submitLabel="Start Architecture Review"` — align casing to `"Start architecture review"` for consistency.
+
+**Acceptance criteria:**
+
+- All three wizard entry points use `"Start architecture review"` as the submit CTA (consistent casing).
+- The reviews-list `"Start architecture review"` button label is unchanged.
+- Existing tests referencing the old label are updated.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/new/FirstPilotIntakeWizard.tsx`
+- `archlucid-ui/src/app/(operator)/reviews/new/QuickStartWizard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-438 — Rename "Download Sponsor Export (DOCX)" primary download button
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F08. Severity: **P1**.
+
+**Problem:** `RunDetailArtifactsExportsSection` renders `"Download Sponsor Export (DOCX)"` as the `variant="primary"` download button in the operator shell. "Sponsor Export" is ambiguous — enterprise governance reviewers do not know what a "sponsor export" is. The buyer-polished shell uses `"Download evidence package"` which is clearer about contents.
+
+**V1 scope:**
+
+1. Change button label from `"Download Sponsor Export (DOCX)"` to `"Download architecture review report (DOCX)"` in the operator shell path.
+
+**Acceptance criteria:**
+
+- The primary DOCX download button in the operator shell reads `"Download architecture review report (DOCX)"`.
+- Buyer-polished shell download labels are unchanged.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailArtifactsExportsSection.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-439 — Fix "Wait for the review to commit" empty-state copy
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F09. Severity: **P1**.
+
+**Problem:** When no artifacts have been generated yet, `RunDetailArtifactsExportsSection` renders: `"No artifacts generated yet. Wait for the review to commit."` — "commit" is git/software jargon that enterprise governance reviewers do not recognize as the action that produces outputs. The empty state has no action path, making it feel like a dead end.
+
+**V1 scope:**
+
+1. Change the empty state `<OperatorEmptyState title>` to `"No deliverables yet"` (consistent with the TB-436 rename).
+2. Change the body text to `"Deliverables will appear here once the review is finalized."`.
+3. Add a retry/reload affordance (e.g. `OperatorSectionRetryButton` with label `"Reload"`) so the state is not a dead end.
+
+**Acceptance criteria:**
+
+- Empty-state title and body do not contain "commit" or "artifacts."
+- A retry/reload action is present in the empty state.
+- Decision-receipt empty state copy is unaffected.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailArtifactsExportsSection.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit). TB-436 (rename section title).
+
+---
+
+## TB-440 — Rewrite new-review page path description to be outcome-oriented
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F10. Severity: **P1**.
+
+**Problem:** `NewRunPage` renders: `"Use Quick start when you already have an architecture brief or evidence file. Use Guided intake when you want ArchLucid to walk you through the context."` This is meta-copy about the UI structure rather than outcome copy. First-time senior IT leaders must decode it. "Architecture brief" and "Guided intake" are product-specific terms without prior definition on this page.
+
+**V1 scope:**
+
+1. Replace the `<p>` lead paragraph with: `"Start with a diagram or document (Quick start), or let ArchLucid guide you through what to include (Guided)."` or equivalent outcome-framed copy.
+
+**Acceptance criteria:**
+
+- Lead paragraph does not use "architecture brief," "evidence file," or "Guided intake" as defined terms without context.
+- Paragraph is ≤ 2 sentences.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/new/page.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-441 — Rename "Focused pilot mode" toggle to "Focused review scope"
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F11. Severity: **P2**.
+
+**Problem:** `FirstPilotIntakeWizard` renders an `AdvancedOptionsAccordion` containing a `PilotModePolicyPackToggle`. The toggle label (sourced from `CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleLabel`) is `"Focused pilot mode"` and the accordion is titled `"Advanced configuration (optional)"`. "Pilot mode" signals a demo or test state to enterprise customers paying for a production product.
+
+**V1 scope:**
+
+1. Update `focusedPilotToggleLabel` in `core-pilot-path-vocabulary.ts` to `"Focused review scope"`.
+2. Update `focusedPilotToggleDescription` to remove "pilot" — e.g. `"Limit this review to Security Architecture Baseline and FinOps & Cloud Cost Optimization standards so your first package stays actionable."` (remove only "pilot" from the description).
+3. Rename the `AdvancedOptionsAccordion` `triggerLabel` in `FirstPilotIntakeWizard` from `"Advanced configuration (optional)"` to `"Review scope (optional)"`.
+
+**Acceptance criteria:**
+
+- No user-visible text in the accordion or toggle contains "pilot mode."
+- Toggle description and assistive labels remain functionally accurate.
+- `core-pilot-path-vocabulary.test.ts` tests pass or are updated.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/core-pilot-path-vocabulary.ts`
+- `archlucid-ui/src/app/(operator)/reviews/new/FirstPilotIntakeWizard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-442 — Move CLI tools section out of primary Onboarding page
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F12. Severity: **P2**.
+
+**Problem:** `OnboardingOptionalSetupSection` includes a `"Developer / CLI tools"` disclosure with collapsed summary `"Terminal workflow for evaluators who prefer the CLI."` Governance reviewers, enterprise architects, and IT leaders arrive at Onboarding to set up their first review. Seeing developer CLI tools in the primary onboarding path signals this is a developer product, not a governance platform. "Evaluators" reinforces a pre-sales feel.
+
+**V1 scope:**
+
+1. Remove the `"Developer / CLI tools"` `OperatorHomeDisclosureSection` from `OnboardingOptionalSetupSection`.
+2. Move `<TryCliDemoCard />` to a Settings or Help surface where it is reachable by technical users without appearing in the governance onboarding path.
+
+**Acceptance criteria:**
+
+- The Onboarding / Getting started page does not render a "Developer / CLI tools" or "Terminal workflow" section.
+- `TryCliDemoCard` remains accessible from at least one other route (e.g. Settings → Developer or Help).
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/onboarding/_sections/OnboardingOptionalSetupSection.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-443 — Fix "Continue setup" home card copy and CTA label
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F13. Severity: **P2**.
+
+**Problem:** `OperatorHomeContinueSetupCard` shows: heading `"Continue setup"`, body `"Finish workspace setup, evidence checklist, and optional integrations."`, CTA `"Open onboarding"`. "Evidence checklist" is product-internal vocabulary — customers don't think of evidence as part of workspace setup. "Open onboarding" is a weak CTA that does not tell a customer why they should click.
+
+**V1 scope:**
+
+1. Body text → `"Finish workspace setup, reviewer access, and optional cloud connections."`
+2. CTA label → `"Continue getting started"` (links to same `/onboarding` route).
+
+**Acceptance criteria:**
+
+- Card body does not contain "evidence checklist."
+- CTA label is updated; link target unchanged.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/operator-home/OperatorHomeContinueSetupCard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-444 — Rename "Full pilot guidance" link on new-review page header
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F14. Severity: **P2**.
+
+**Problem:** `NewRunPage` renders `<InAppHelpLink helpSlug="pilot-guide" label="Full pilot guidance" variant="text" />` next to the page title. "Pilot guidance" in a navigation link adjacent to the main CTA suggests the product is in evaluation mode. Customers paying for a production service would find this disconcerting.
+
+**V1 scope:**
+
+1. Change `label` prop from `"Full pilot guidance"` to `"Setup guide"` or `"Review guide"`. `helpSlug` stays `"pilot-guide"`.
+
+**Acceptance criteria:**
+
+- Link label does not contain "pilot."
+- `helpSlug` and routing are unchanged.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/new/page.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-445 — Fix "manifest's decisions" jargon in artifacts section description
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F15. Severity: **P2**.
+
+**Problem:** `RunDetailArtifactsExportsSection` renders: `"Review the manifest's decisions, findings, and structured metadata."` as a description paragraph. "Manifest" is an internal product term for the signed review record. To an enterprise architect or governance reviewer, "manifest" means a deployment file or a shipping document — not a governance record. This is shown in the operator shell to all users.
+
+**V1 scope:**
+
+1. Replace the description paragraph with: `"Review the decisions, findings, and supporting evidence for this review package."` (or equivalent — remove "manifest" and "structured metadata").
+
+**Acceptance criteria:**
+
+- Description does not contain "manifest" or "structured metadata."
+- Applies to both buyer-polished and operator-shell paths (or the operator path only if buyer-polished path already has correct copy).
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailArtifactsExportsSection.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit). TB-436 (rename section title).
+
+---
+
+## TB-446 — Rename "traceability bundle (ZIP)" CTA in review Actions card
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F16. Severity: **P2**.
+
+**Problem:** `RunDetailRunActionsSection` renders `"Download traceability bundle (ZIP)"` as a secondary download CTA. "Traceability bundle" is a technical audit/provenance term that governance reviewers and IT leaders would not use to describe what they are looking for. They expect "evidence package" or "audit export."
+
+**V1 scope:**
+
+1. Change button label from `"Download traceability bundle (ZIP)"` to `"Download evidence package (ZIP)"`.
+
+**Acceptance criteria:**
+
+- Button label updated; download URL and behavior unchanged.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRunActionsSection.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-447 — Remove "API keys" from Invite Reviewer page footer
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F17. Severity: **P2**.
+
+**Problem:** `InviteReviewerPageView` renders a footer: `"Need to manage existing users, custom roles, or API keys? Open Users and roles."` API key management in the footer of an Invite Reviewer page is developer-facing language. A governance reviewer or customer admin arriving from the home page CTA "Invite reviewer" does not expect to see API key management mentioned.
+
+**V1 scope:**
+
+1. Change footer text to: `"Need to manage users or permissions? Open Users and roles."` (remove "or API keys").
+
+**Acceptance criteria:**
+
+- Footer does not contain "API keys."
+- Link target `/settings/roles?tab=users` is unchanged.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/settings/roles/_sections/InviteReviewerPageView.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-448 — Fix "Review findings and missing evidence" step label on home page
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F18. Severity: **P2**.
+
+**Problem:** `PILOT_PATH_PREVIEW_STEPS` in `buyer-polish-copy.ts` defines step 2 as `"Review findings and missing evidence"`. "Missing evidence" sounds like an error condition, not a normal step in a governance workflow. First-time users may interpret this as meaning their review will always have gaps, regardless of what they submit.
+
+**V1 scope:**
+
+1. Change step label from `"Review findings and missing evidence"` to `"Review findings and add supporting evidence"`.
+
+**Acceptance criteria:**
+
+- Step 2 label does not contain "missing evidence."
+- `buyer-polish-copy.ts` const is updated.
+- Tests referencing `PILOT_PATH_PREVIEW_STEPS[1].label` pass or are updated.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-449 — Fix reviews-list subtitle to reflect in-progress and finalized reviews
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F19. Severity: **P2**.
+
+**Problem:** `RUNS_LIST_PAGE_SUBTITLE` in `i18n.ts` reads: `"Finalized architecture reviews with findings, evidence, signed review records, and exports."` Users with in-progress (non-finalized) reviews land on this page and the subtitle implies they will only see completed reviews. A first-time user may assume their in-progress review failed or is missing.
+
+**V1 scope:**
+
+1. Change `RUNS_LIST_PAGE_SUBTITLE` to: `"Architecture review packages — in progress, finalized, and ready for export."` or equivalent that reflects the full lifecycle.
+
+**Acceptance criteria:**
+
+- Subtitle does not imply only finalized reviews are shown.
+- Tests or snapshots referencing `RUNS_LIST_PAGE_SUBTITLE` pass or are updated.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-450 — Fix "More intake options" and first-run banner copy on new-review page
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F20. Severity: **P2**.
+
+**Problem:** `ReviewsNewPathSwitcher` shows two pieces of copy that use "intake" — a healthcare/clinical term unfamiliar to platform owners and security reviewers: (1) `"Streamlined first review — upload one diagram to start. Evaluation standards apply automatically."` and (2) a `"More intake options"` button. "Evaluation standards" is also undefined on first contact.
+
+**V1 scope:**
+
+1. Update `CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBanner` to: `"Quick path: upload one diagram to start. Review scope is pre-configured."`.
+2. Change `"More intake options"` button label to `"More options"`.
+
+**Acceptance criteria:**
+
+- First-run banner does not contain "intake," "evaluation standards," or "pilot."
+- Button does not contain "intake."
+- `core-pilot-path-vocabulary.test.ts` tests pass or are updated.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/core-pilot-path-vocabulary.ts`
+- `archlucid-ui/src/app/(operator)/reviews/new/ReviewsNewPathSwitcher.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit). TB-441 (focused review scope rename).
+
+---
+
+## TB-451 — Replace "architecture request" with "architecture document" in sample preview copy
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F21. Severity: **P3**.
+
+**Problem:** `OPERATOR_HOME_SAMPLE_FINDINGS_LEAD` in `buyer-polish-copy.ts` reads: `"See how ArchLucid turns an architecture request into findings, evidence, governance actions, and a completed review package."` "Architecture request" is the internal API payload name, not how a customer describes their input. Customers submit architecture proposals, design documents, or initiative briefs.
+
+**V1 scope:**
+
+1. Change `OPERATOR_HOME_SAMPLE_FINDINGS_LEAD` to: `"See how ArchLucid turns an architecture document into findings, governance decisions, and a completed review package."` (or similar — remove "request," add "document").
+
+**Acceptance criteria:**
+
+- Copy does not contain "architecture request."
+- Tests referencing the const pass or are updated.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-452 — Remove meta-description paragraph from review Actions card
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F22. Severity: **P3**.
+
+**Problem:** `RunDetailRunActionsSection` renders a `CardDescription` paragraph: `"Exports and sponsor-facing bundles sit in Deliverables & exports above. Use this card for scorecard generation and traceability ZIP, and optional compare shortcuts."` This is navigation meta-copy that tells users where other things are rather than describing what this card does. It also uses "scorecard generation" and "traceability ZIP" (internal jargon). After TB-433 removes the pipeline diagnostics link, this paragraph has no remaining value.
+
+**V1 scope:**
+
+1. Remove the `<CardDescription>` element from `RunDetailRunActionsSection` entirely.
+
+**Acceptance criteria:**
+
+- The Actions card no longer renders a description paragraph.
+- The action buttons (governance disposition, value report, share, download) remain intact.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRunActionsSection.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit). TB-433 (pipeline diagnostics removal).
+
+---
+
+## TB-453 — Fix submit-validation error message on first-pilot intake wizard
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F23. Severity: **P3**.
+
+**Problem:** `FirstPilotIntakeWizard.submitRun()` shows a toast: `"Enter a review title and attach at least one evidence file or a complete brief."` The phrase "evidence file" is undefined on first contact. A customer uploading an architecture diagram may not know that is an "evidence file."
+
+**V1 scope:**
+
+1. Change the validation toast message to: `"Add a review title and upload at least one architecture document, or fill in the description."`.
+
+**Acceptance criteria:**
+
+- Validation toast does not contain "evidence file."
+- Toast message still accurately describes the required inputs.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/new/FirstPilotIntakeWizard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-454 — Increase visibility of "Invite reviewer" optional-setup CTA on home page
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F24. Severity: **P3**.
+
+**Problem:** `PilotCommandCenterCard` renders the `"Invite reviewer"` and `"Connect Azure"` links as near-invisible tertiary text (`text-al-text-secondary/80`) in a footnote-like row below the primary CTA. "Invite reviewer" is a key action in the first-hour journey. At low contrast and plain-anchor styling, users with normal aging vision may not perceive these as clickable.
+
+**V1 scope:**
+
+1. Render the optional-setup links (`"Connect Azure"` and `"Invite reviewer"`) as outline badge-style links or secondary `Button` components rather than plain `<Link>` anchors.
+2. Maintain their "optional" visual weight — they should be clearly secondary to the primary CTA but visibly interactive.
+
+**Acceptance criteria:**
+
+- Both links have a visible interactive affordance (border, underline on hover, or button shape).
+- Links pass WCAG AA contrast ratio (4.5:1) against the card background.
+- The primary CTA remains the dominant element.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/usability/PilotCommandCenterCard.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-455 — Fix "Review generation" error heading on not-found review page
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** First-hour UX audit (2026-06-28), finding F25. Severity: **P3**.
+
+**Problem:** When `fromGeneration` is true and the review cannot be found, `/reviews/[runId]/page.tsx` renders the heading: `"Review generation — Could not open generated package"`. "Review generation" is internal pipeline vocabulary. A user who just submitted a new review and arrives at this error page will not understand what "generation" means in this context.
+
+**V1 scope:**
+
+1. Change the `<h1>` from `"Review generation — Could not open generated package"` to `"Architecture review — package could not be opened"` (the `ReviewPackageLoadFailureView` below can explain that it may still be processing).
+
+**Acceptance criteria:**
+
+- Error heading does not contain "Review generation" or "generated package."
+- `ReviewPackageLoadFailureView` content and retry logic are unchanged.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/page.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).

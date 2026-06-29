@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { OnboardingPageView } from "./OnboardingPageView";
+import { BUYER_ONBOARDING_PAGE_LEAD, BUYER_ONBOARDING_PAGE_TITLE, BUYER_ONBOARDING_WALKTHROUGH_HELP_LINK } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 vi.mock("next/link", () => ({
@@ -46,13 +47,17 @@ describe("OnboardingPageView", () => {
     render(<OnboardingPageView model={{ fromRegistration: false }} />);
 
     expect(screen.getByTestId("onboarding-hero")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Onboarding" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: BUYER_ONBOARDING_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByText(BUYER_ONBOARDING_PAGE_LEAD)).toBeInTheDocument();
+    expect(screen.queryByText(/intake|committed package/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: "Open sample review" })).toHaveAttribute(
       "href",
       `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
     );
     expect(screen.getByRole("heading", { name: "Progress" })).toBeInTheDocument();
+    expect(screen.getByText(BUYER_ONBOARDING_WALKTHROUGH_HELP_LINK)).toBeInTheDocument();
+    expect(screen.queryByText(/pilot|operator path/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("unified-first-pilot-progress-panel-stub")).toBeInTheDocument();
     expect(screen.getByTestId("onboarding-optional-setup-section-stub")).toBeInTheDocument();
     expect(screen.queryByTestId("getting-started-trial-section-stub")).not.toBeInTheDocument();

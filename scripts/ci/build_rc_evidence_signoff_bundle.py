@@ -417,6 +417,29 @@ def build_signoff_bundle(root: Path, bundle_dir: Path) -> dict[str, Any]:
         )
     )
 
+    pilot_readiness_path, pilot_readiness_rel = _resolve_artifact(
+        root,
+        bundle_dir,
+        ["pilot-readiness-live-release-gate.json"],
+    )
+    pilot_readiness_payload = load_json(pilot_readiness_path) if pilot_readiness_path else None
+    gates.append(
+        _gate_from_payload(
+            gate_id="pilot-readiness-live-bundle",
+            label="Pilot readiness live bundle (--run-id release train)",
+            artifact_path=pilot_readiness_rel,
+            payload=pilot_readiness_payload,
+            status_keys=("disposition", "overallVerdict", "status"),
+            reason_keys=("detail", "summary"),
+            evidence_mode="live",
+            high_risk=True,
+            skipped_reason=(
+                "pilot-readiness-live-release-gate.json not attached — run "
+                "run_pilot_readiness_live_release_gate.py with --run-id after first-review smoke"
+            ),
+        )
+    )
+
     citation_path, citation_rel = _resolve_artifact(
         root,
         bundle_dir,

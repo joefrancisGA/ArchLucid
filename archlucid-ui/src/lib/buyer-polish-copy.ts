@@ -342,6 +342,20 @@ export const BUYER_RUNS_GETTING_STARTED_GUIDE = "getting-started guide";
 export const BUYER_RUNS_LIST_GLOSSARY_LEAD =
   "Open a review package for the signed record, evidence, findings, and deliverables.";
 
+export const BUYER_RUNS_LIST_MALFORMED_HEADING = "Review packages could not be displayed.";
+
+export const BUYER_RUNS_LIST_MALFORMED_BODY =
+  "Try reloading the page. If this continues, contact support.";
+
+export const BUYER_NEW_REVIEW_TOAST_CATEGORY = "New review";
+
+export const BUYER_ONBOARDING_PAGE_TITLE = "Getting started";
+
+export const BUYER_ONBOARDING_PAGE_LEAD =
+  "Create and finalize your first architecture review package.";
+
+export const BUYER_ONBOARDING_WALKTHROUGH_HELP_LINK = "Architecture review walkthrough";
+
 export const BUYER_MANIFEST_SUMMARY_LOAD_ERROR_HEADING = "Review record summary could not be loaded.";
 
 export const BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING = "Review record summary response was not usable.";

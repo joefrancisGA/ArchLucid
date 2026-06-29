@@ -37,6 +37,8 @@ vi.mock("./QuickReviewWizardDeferredPanels", () => ({
 }));
 
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { BUYER_NEW_REVIEW_TOAST_CATEGORY } from "@/lib/buyer-polish-copy";
+import { showError } from "@/lib/toast";
 import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 
 import { FirstPilotIntakeWizard } from "./FirstPilotIntakeWizard";
@@ -83,5 +85,21 @@ describe("FirstPilotIntakeWizard", () => {
 
     expect(screen.queryByText(/Advanced configuration \(optional\)/i)).toBeTruthy();
     expect(screen.queryByTestId("quick-review-proof-scope")).not.toBeInTheDocument();
+  });
+
+  it("uses buyer-safe toast category on submit errors", async () => {
+    createRun.mockRejectedValue(new Error("Network down"));
+
+    render(<FirstPilotIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("first-pilot-title"), {
+      target: { value: "Retail API review" },
+    });
+    fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
+    fireEvent.click(screen.getByRole("button", { name: "Start analysis" }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith(BUYER_NEW_REVIEW_TOAST_CATEGORY, "Network down");
+    });
   });
 });

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { UnifiedFirstPilotProgressPanel } from "@/components/usability/UnifiedFirstPilotProgressPanel";
+import { BUYER_ONBOARDING_PAGE_LEAD, BUYER_ONBOARDING_PAGE_TITLE, BUYER_ONBOARDING_WALKTHROUGH_HELP_LINK } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -29,10 +30,10 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
     <OperatorPageContainer variant="reading" className="space-y-8">
       <header className="max-w-prose space-y-3" data-testid="onboarding-hero">
         <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>
-          Onboarding
+          {BUYER_ONBOARDING_PAGE_TITLE}
         </h1>
         <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>
-          Create your first review package. Complete one architecture review from intake to committed package.
+          {BUYER_ONBOARDING_PAGE_LEAD}
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <Button asChild size="sm" variant="default">
@@ -55,8 +56,8 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
         </p>
         <UnifiedFirstPilotProgressPanel checklistVariant="full" embedded checklistOnly />
         <div className="flex flex-wrap items-center gap-2">
-          <InAppHelpLink helpSlug="first-pilot-path" label="First-pilot operator path — full walkthrough" />
-          <InAppHelpLink helpSlug="specialty-walkthroughs" label="Specialty templates (optional, after first commit)" />
+          <InAppHelpLink helpSlug="first-pilot-path" label={BUYER_ONBOARDING_WALKTHROUGH_HELP_LINK} />
+          <InAppHelpLink helpSlug="specialty-walkthroughs" label="Choose a review template" variant="text" />
         </div>
       </section>
 

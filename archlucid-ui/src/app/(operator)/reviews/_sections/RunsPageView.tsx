@@ -20,6 +20,8 @@ import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } fr
 import {
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_LIST_GLOSSARY_LEAD,
+  BUYER_RUNS_LIST_MALFORMED_BODY,
+  BUYER_RUNS_LIST_MALFORMED_HEADING,
 } from "@/lib/buyer-polish-copy";
 import { RUNS_LIST_PAGE_SUBTITLE, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -36,6 +38,7 @@ export function RunsPageView(props: Props) {
   const m = props.model;
   const loadFailure = m.loadFailure;
   const malformedMessage = m.malformedMessage;
+  const isDev = process.env.NODE_ENV === "development";
 
   return (
     <OperatorPageContainer variant="dashboard">
@@ -124,14 +127,18 @@ export function RunsPageView(props: Props) {
       {!loadFailure && malformedMessage ? (
         <>
           <OperatorMalformedCallout>
-            <strong>Reviews list response was not usable.</strong>
-            <p className="mt-2">{malformedMessage}</p>
-            <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
-              The HTTP call may have succeeded, but the JSON did not match the expected paged review summary shape. This is distinct from
-              an empty project (zero reviews).
-            </p>
+            <strong>{BUYER_RUNS_LIST_MALFORMED_HEADING}</strong>
+            <p className="mt-2">{isDev ? malformedMessage : BUYER_RUNS_LIST_MALFORMED_BODY}</p>
+            {isDev ? (
+              <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
+                The HTTP call may have succeeded, but the JSON did not match the expected paged review summary shape. This is distinct from
+                an empty project (zero reviews).
+              </p>
+            ) : null}
           </OperatorMalformedCallout>
-          <OperatorTryNext>The server response was unexpected. If this persists, contact support.</OperatorTryNext>
+          {isDev ? (
+            <OperatorTryNext>The server response was unexpected. If this persists, contact support.</OperatorTryNext>
+          ) : null}
         </>
       ) : null}
 

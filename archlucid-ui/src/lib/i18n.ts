@@ -3,6 +3,7 @@
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 
 export const DOMAIN_TERMS = {
   goldenManifest: "Signed review record",
@@ -122,7 +123,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   /** Left nav destination for `/reviews/new` — distinct from hero/quick-action "Start review". */
   capture: "New review",
-  onboarding: "Onboarding",
+  onboarding: BUYER_ONBOARDING_PAGE_TITLE,
   findings: "Risk register",
   riskExceptions: "Risk exceptions",
   decisionRegister: "Decision register",
