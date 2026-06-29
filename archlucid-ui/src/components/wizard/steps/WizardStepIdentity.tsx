@@ -138,7 +138,8 @@ export function WizardStepIdentity() {
             message={cloudErr != null ? String(cloudErr) : undefined}
           />
           <p className={cn("mt-1 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-            Evidence-only is the default first-pilot path. Azure export accelerates topology and cost findings when InfoSec approves the script.
+            Evidence-only is the default first-pilot path. A cloud inventory ZIP (Azure, AWS, or GCP) accelerates
+            topology and cost findings when your InfoSec team approves the extractor script.
           </p>
         </div>
 

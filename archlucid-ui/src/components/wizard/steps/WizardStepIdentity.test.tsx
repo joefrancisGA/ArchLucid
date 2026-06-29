@@ -61,6 +61,15 @@ describe("WizardStepIdentity", () => {
     expect(screen.queryByText(/V1\.1/i)).not.toBeInTheDocument();
   });
 
+  it("shows multi-cloud inventory guidance in the cloud target footer hint", () => {
+    render(<IdentityHarness />);
+
+    expect(
+      screen.getByText(/cloud inventory ZIP \(Azure, AWS, or GCP\)/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Azure export accelerates/i)).not.toBeInTheDocument();
+  });
+
   it("surfaces a validation error when system name is cleared and validated", async () => {
     render(<IdentityHarness />);
 
