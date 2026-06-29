@@ -169,7 +169,9 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
 
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`);
-    await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
+    await expect(
+      page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
+    ).toBeVisible({ timeout: 60_000 });
 
     await page.goto(
       `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,

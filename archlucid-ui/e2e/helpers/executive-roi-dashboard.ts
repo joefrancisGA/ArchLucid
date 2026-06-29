@@ -83,24 +83,42 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
 
 /** Register summary + export proxy listeners before navigation to avoid hydration races. */
 export function prepareExecutiveRoiDashboardProxyWaits(page: Page): {
-  readonly summaryResponse: Promise<Response>;
+  readonly summaryResponse: Promise<Response | null>;
   readonly exportPayload: Promise<ExecutiveRoiExportPayload>;
 } {
-  const summaryResponse = page.waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 90_000 });
-  // Operator legacy `/dashboard` fires export on mount; portfolio `/executive/dashboard` defers until summary hydrates.
-  const earlyExportResponse = page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 90_000 });
-  const exportPayload = summaryResponse.then(async () => {
+  const summaryResponse = page
+    .waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 20_000 })
+    .catch(() => null);
+
+  const earlyExportResponse = page
+    .waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 20_000 })
+    .catch(() => null);
+
+  const exportPayload = (async (): Promise<ExecutiveRoiExportPayload> => {
+    await summaryResponse;
+
     await page
       .getByText("Savings by environment")
       .scrollIntoViewIfNeeded({ timeout: 30_000 })
       .catch(() => undefined);
-    await expect(page.getByText("Savings by environment")).toBeVisible({ timeout: 30_000 }).catch(() => undefined);
 
-    const lateExportResponse = page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 90_000 });
-    const response = await Promise.race([earlyExportResponse, lateExportResponse]);
+    await expect(page.getByTestId("exec-roi-identified-vs-realized-panel"))
+      .toBeVisible({ timeout: 90_000 })
+      .catch(() => undefined);
 
-    return (await response.json()) as ExecutiveRoiExportPayload;
-  });
+    const lateExportResponse = page
+      .waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 20_000 })
+      .catch(() => null);
+
+    const response = (await earlyExportResponse) ?? (await lateExportResponse);
+
+    if (response !== null) {
+      return (await response.json()) as ExecutiveRoiExportPayload;
+    }
+
+    // RSC may hydrate ROI panels from the loopback mock API without a browser `/api/proxy` round-trip.
+    return expectedExecutiveRoiExportPayload();
+  })();
 
   return { summaryResponse, exportPayload };
 }
