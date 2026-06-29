@@ -32,7 +32,7 @@ export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Try a sample review";
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD =
-  "See how ArchLucid turns an architecture request into findings, evidence, governance actions, and a completed review package.";
+  "See how ArchLucid turns an architecture document into findings, governance decisions, and a completed review package.";
 
 export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Run sample review";
 

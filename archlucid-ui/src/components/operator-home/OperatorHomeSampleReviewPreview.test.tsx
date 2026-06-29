@@ -5,6 +5,7 @@ import { OperatorHomeSampleReviewPreview } from "@/components/operator-home/Oper
 import {
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
+  OPERATOR_HOME_SAMPLE_FINDINGS_LEAD,
 } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_HOME_SAMPLE_FINDINGS } from "@/lib/showcase-home-sample-findings";
 import {
@@ -29,6 +30,8 @@ describe("OperatorHomeSampleReviewPreview (TB-353)", () => {
     render(<OperatorHomeSampleReviewPreview />);
 
     expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_SAMPLE_FINDINGS_LEAD)).toBeInTheDocument();
+    expect(screen.queryByText(/architecture request/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("operator-home-sample-review-finding-list")).toBeInTheDocument();
 
     for (const finding of SHOWCASE_HOME_SAMPLE_FINDINGS) {
