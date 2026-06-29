@@ -1,4 +1,5 @@
 import {
+  Activity,
   GitBranch,
   GitCompare,
   MessageSquare,
@@ -52,6 +53,14 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
           icon: GitBranch,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",
+        },
+        {
+          href: "/advisory",
+          label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
+          title: "Architecture advisory — architecture scans and scan schedules",
+          icon: Activity,
+          tier: "advanced",
+          requiredAuthority: "ReadAuthority",
         },
       ],
     };
