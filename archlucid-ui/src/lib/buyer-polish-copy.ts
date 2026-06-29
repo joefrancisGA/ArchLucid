@@ -817,7 +817,7 @@ export const BUYER_FINDING_SUPPORTING_EVIDENCE_TRACE = "Supporting evidence trac
 export const BUYER_AUDIT_REFERENCE_ID_LABEL = "Reference ID";
 
 export const AUDIT_TRAIL_INTEGRITY_NOTE =
-  "Append-only audit trail — every create, commit, governance decision, and export is recorded with actor, action type, and timestamp. Filter below or verify the hash chain when demo integrity tools are enabled.";
+  "Append-only audit trail — every create, finalize, governance decision, and export is recorded with actor, action type, and timestamp. Filter or sort below to inspect the complete event timeline.";
 
 export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View governance decision record";
 
