@@ -27,7 +27,7 @@ vi.mock("./NewRunWizardClient", () => ({
 import { ReviewsNewPathSwitcher } from "./ReviewsNewPathSwitcher";
 
 describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
-  it("hides path tabs until the operator asks for more intake options", async () => {
+  it("hides path tabs until the operator asks for more options", async () => {
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
@@ -36,8 +36,10 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
 
     expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
     expect(screen.getByTestId("reviews-new-more-intake-options")).toBeTruthy();
+    expect(screen.queryByText(/intake/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/evaluation standards/i)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "More intake options" }));
+    fireEvent.click(screen.getByRole("button", { name: "More options" }));
 
     expect(screen.getByTestId("reviews-new-path-toggle")).toBeTruthy();
   });

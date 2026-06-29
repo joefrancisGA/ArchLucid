@@ -163,7 +163,7 @@ export function ReviewsNewPathSwitcher() {
             }}
             data-testid="reviews-new-more-intake-options"
           >
-            More intake options
+            More options
           </Button>
         </div>
       ) : null}
