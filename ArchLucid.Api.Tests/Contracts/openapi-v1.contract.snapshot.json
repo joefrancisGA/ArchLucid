@@ -3522,6 +3522,12 @@
             "format": "int32",
             "type": "integer"
           },
+          "assignedToUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "category": {
             "type": "string"
           },
@@ -3568,6 +3574,13 @@
             ]
           },
           "ownerUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "remediationDueUtc": {
+            "format": "date-time",
             "type": [
               "null",
               "string"
@@ -4283,6 +4296,63 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "AwsTier2ConnectionConfigureBody": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "roleArn": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountId",
+          "region",
+          "roleArn"
+        ],
+        "type": "object"
+      },
+      "AwsTier2ConnectionResponse": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "lastPolledUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "region": {
+            "type": "string"
+          },
+          "roleArn": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountId",
+          "region",
+          "roleArn",
+          "status"
+        ],
         "type": "object"
       },
       "AzureExtractorChunkUploadStartBody": {
@@ -9724,6 +9794,12 @@
               "string"
             ]
           },
+          "assignedToUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "category": {
             "type": "string"
           },
@@ -9876,6 +9952,13 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "remediationDueUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "requestInputRef": {
             "type": [
@@ -10367,6 +10450,12 @@
       },
       "FindingInspectResponse": {
         "properties": {
+          "assignedToUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "auditRowId": {
             "format": "uuid",
             "type": [
@@ -10525,6 +10614,13 @@
             },
             "type": "array"
           },
+          "remediationDueUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "revisitDueUtc": {
             "format": "date-time",
             "type": [
@@ -10654,6 +10750,28 @@
                 "$ref": "#/components/schemas/FindingTraceCompletenessScore"
               }
             ]
+          }
+        },
+        "type": "object"
+      },
+      "FindingRemediationAssignmentRequest": {
+        "properties": {
+          "assignedToUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "remediationDueUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
           }
         },
         "type": "object"
@@ -10857,6 +10975,63 @@
             ]
           }
         },
+        "type": "object"
+      },
+      "GcpTier2ConnectionConfigureBody": {
+        "properties": {
+          "projectId": {
+            "type": "string"
+          },
+          "serviceAccountEmail": {
+            "type": "string"
+          },
+          "workloadIdentityPoolProvider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "projectId",
+          "serviceAccountEmail",
+          "workloadIdentityPoolProvider"
+        ],
+        "type": "object"
+      },
+      "GcpTier2ConnectionResponse": {
+        "properties": {
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "lastPolledUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "serviceAccountEmail": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "workloadIdentityPoolProvider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "projectId",
+          "serviceAccountEmail",
+          "status",
+          "workloadIdentityPoolProvider"
+        ],
         "type": "object"
       },
       "GeneratePolicyPackRequest": {
@@ -12040,6 +12215,35 @@
         },
         "type": "object"
       },
+      "HostedAwsExtractorRunBody": {
+        "properties": {
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "HostedAwsExtractorRunResponse": {
+        "properties": {
+          "packageId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "resourceCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "HostedAzureExtractorConfigurationResponse": {
         "properties": {
           "customerAppId": {
@@ -12107,6 +12311,35 @@
         "type": "object"
       },
       "HostedAzureExtractorRunResponse": {
+        "properties": {
+          "packageId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "resourceCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "HostedGcpExtractorRunBody": {
+        "properties": {
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "HostedGcpExtractorRunResponse": {
         "properties": {
           "packageId": {
             "format": "uuid",
@@ -17941,6 +18174,12 @@
             "format": "uuid",
             "type": "string"
           },
+          "sourceEvidenceLinks": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationSourceEvidenceLink"
+            },
+            "type": "array"
+          },
           "status": {
             "type": "string"
           },
@@ -17959,6 +18198,17 @@
           },
           "workspaceId": {
             "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RecommendationSourceEvidenceLink": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
             "type": "string"
           }
         },
@@ -24762,6 +25012,119 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/admin/aws-extractor/hosted/run": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/HostedAwsExtractorRunBody"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HostedAwsExtractorRunBody"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HostedAwsExtractorRunBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HostedAwsExtractorRunResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HostedAwsExtractorRunResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/HostedAwsExtractorRunResponse"
+                }
+              }
+            },
+            "description": "Accepted"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "description": "Service Unavailable"
+          }
+        },
+        "tags": [
+          "HostedAwsExtractorRun"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/admin/azure-extractor/hosted/configuration": {
       "get": {
         "parameters": [
@@ -25666,6 +26029,119 @@
         },
         "tags": [
           "Admin"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/admin/gcp-extractor/hosted/run": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/HostedGcpExtractorRunBody"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HostedGcpExtractorRunBody"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HostedGcpExtractorRunBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HostedGcpExtractorRunResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HostedGcpExtractorRunResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/HostedGcpExtractorRunResponse"
+                }
+              }
+            },
+            "description": "Accepted"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "description": "Service Unavailable"
+          }
+        },
+        "tags": [
+          "HostedGcpExtractorRun"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -46185,6 +46661,157 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/aws-extractor/connections": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AwsTier2ConnectionResponse"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AwsTier2ConnectionResponse"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AwsTier2ConnectionResponse"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "AwsTier2Connection"
+        ],
+        "x-archlucid-audience": "operator"
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/AwsTier2ConnectionConfigureBody"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AwsTier2ConnectionConfigureBody"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AwsTier2ConnectionConfigureBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AwsTier2ConnectionResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AwsTier2ConnectionResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AwsTier2ConnectionResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "AwsTier2Connection"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/aws-extractor/connections/{connectionId}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "connectionId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "AwsTier2Connection"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/azure-extractor/connections": {
       "get": {
         "responses": {
@@ -50633,6 +51260,300 @@
         },
         "tags": [
           "FindingMute"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/findings/{findingId}/remediation-assignment": {
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "findingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/FindingRemediationAssignmentRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/FindingRemediationAssignmentRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/FindingRemediationAssignmentRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "FindingRemediationAssignment"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/gcp-extractor/connections": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GcpTier2ConnectionResponse"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GcpTier2ConnectionResponse"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GcpTier2ConnectionResponse"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "GcpTier2Connection"
+        ],
+        "x-archlucid-audience": "operator"
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/GcpTier2ConnectionConfigureBody"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GcpTier2ConnectionConfigureBody"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GcpTier2ConnectionConfigureBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GcpTier2ConnectionResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GcpTier2ConnectionResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GcpTier2ConnectionResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "GcpTier2Connection"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/gcp-extractor/connections/{connectionId}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "connectionId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "GcpTier2Connection"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -56033,6 +56954,26 @@
               }
             },
             "description": "OK"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsyncJobResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsyncJobResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsyncJobResponse"
+                }
+              }
+            },
+            "description": "Accepted"
           },
           "400": {
             "content": {
@@ -68202,6 +69143,9 @@
       "name": "AuthorityRunEvents"
     },
     {
+      "name": "AwsTier2Connection"
+    },
+    {
       "name": "AzureExtractorUpload"
     },
     {
@@ -68307,6 +69251,12 @@
       "name": "FindingMute"
     },
     {
+      "name": "FindingRemediationAssignment"
+    },
+    {
+      "name": "GcpTier2Connection"
+    },
+    {
       "name": "Governance"
     },
     {
@@ -68325,10 +69275,16 @@
       "name": "Graph"
     },
     {
+      "name": "HostedAwsExtractorRun"
+    },
+    {
       "name": "HostedAzureExtractorAdmin"
     },
     {
       "name": "HostedAzureExtractorRun"
+    },
+    {
+      "name": "HostedGcpExtractorRun"
     },
     {
       "name": "IdentityProviderConfiguration"
