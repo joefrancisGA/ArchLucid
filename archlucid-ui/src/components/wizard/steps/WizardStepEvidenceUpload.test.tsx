@@ -88,6 +88,19 @@ describe("WizardStepEvidenceUpload", () => {
     expect(screen.queryByTestId("wizard-evidence-inventory-zip-error")).not.toBeInTheDocument();
   });
 
+  it("shows cloud-agnostic demo source copy without Azure extractor package language", () => {
+    render(<WizardStepEvidenceUpload {...baseProps} />);
+
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-demo"));
+
+    expect(screen.getByTestId("wizard-evidence-source-panel-demo")).toHaveTextContent(
+      "Choose a bundled example review scenario",
+    );
+    expect(screen.getByTestId("wizard-evidence-source-panel-demo").textContent?.toLowerCase()).not.toContain(
+      "azure extractor package",
+    );
+  });
+
   it("shows structured validation error with cloud connections help link", async () => {
     render(<WizardStepEvidenceUpload {...baseProps} />);
 
