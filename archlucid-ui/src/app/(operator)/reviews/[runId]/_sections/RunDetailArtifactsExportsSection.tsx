@@ -92,8 +92,8 @@ export function RunDetailArtifactsExportsSection(
           defaultOpen={deliverablesSectionDefaultOpen}
         >
           <p className={cn("m-0 mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Review the manifest&apos;s decisions, findings, and structured metadata. Download artifacts for offline review
-            below.
+            Review the decisions, findings, and supporting evidence for this review package. Download artifacts for offline
+            review below.
           </p>
           <div className="mb-4 flex flex-wrap gap-3">
             {showDecisionReceipt ? (

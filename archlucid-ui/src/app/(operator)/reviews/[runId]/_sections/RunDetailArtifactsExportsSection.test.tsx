@@ -73,6 +73,8 @@ describe("RunDetailArtifactsExportsSection", () => {
 
     expect(screen.getByText(BUYER_MANIFEST_DELIVERABLES_HEADING)).toBeInTheDocument();
     expect(screen.queryByText("Artifacts & exports")).not.toBeInTheDocument();
+    expect(screen.getByText(/decisions, findings, and supporting evidence for this review package/i)).toBeInTheDocument();
+    expect(screen.queryByText(/manifest/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Download architecture review report (DOCX)" })).toBeInTheDocument();
     expect(container.querySelector("details")).toHaveAttribute("open");
   });
