@@ -1,5 +1,7 @@
+import { cn } from "@/lib/utils";
 import type { ReviewIntakeExampleTemplate } from "@/lib/operator-home-example-request";
 
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 type ReviewIntakeExampleTemplateCalloutProps = {
   readonly template: ReviewIntakeExampleTemplate;

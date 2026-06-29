@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 export const planningTableCls = (cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body));
 

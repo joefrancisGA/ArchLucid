@@ -1,5 +1,7 @@
+import { cn } from "@/lib/utils";
 import { extractorUploadConstraints } from "@/lib/usability/extractor-upload-constraints";
 
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 /** Up-front upload constraints for the Azure extractor settings page. */
 export function ExtractUploadConstraintsPanel() {

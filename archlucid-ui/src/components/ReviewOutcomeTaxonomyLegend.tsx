@@ -1,5 +1,7 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 /**
  * Buyer-facing micro-legend so review findings, monitored risks, and approval lines read consistently.

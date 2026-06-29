@@ -18,6 +18,7 @@ import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-discl
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
 import { StatusTag } from "@/components/ui/status-tag";
+import { type EnterpriseStatusKind } from "@/lib/design-tokens";
 
 const NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY = "archlucid_core_pilot_next_steps_minimized_v1";
 
@@ -117,15 +118,16 @@ function statusChipLabel(status: FirstReviewCheckpointStatus): string {
   }
 }
 
-function statusChipKind(status: FirstReviewCheckpointStatus): "positive" | "warning" | "neutral" {
-  switch (status) {
-    case "complete":
-      return "positive";
-    case "active":
-      return "warning";
-    case "pending":
-      return "neutral";
+function statusChipKind(status: FirstReviewCheckpointStatus): EnterpriseStatusKind {
+  if (status === "complete") {
+    return "ready";
   }
+
+  if (status === "active") {
+    return "in-progress";
+  }
+
+  return "neutral";
 }
 
 function FirstReviewCheckpointStrip(props: {
