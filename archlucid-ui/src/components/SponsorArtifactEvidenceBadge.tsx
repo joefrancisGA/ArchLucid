@@ -46,7 +46,11 @@ export function SponsorArtifactEvidenceBadge(props: SponsorArtifactEvidenceBadge
           key={trust.posture}
           data-testid={`sponsor-trust-posture-${trust.posture}`}
           title={trust.detail}
-          className={cn("inline-flex items-center rounded-full border px-2 py-0.5 font-medium ${trustPostureClass(trust.posture)}", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn(
+            "inline-flex items-center rounded-full border px-2 py-0.5 font-medium",
+            trustPostureClass(trust.posture),
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
         >
           {trust.display}
         </span>

@@ -308,7 +308,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         JsonDocument accepted = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        string jobId = accepted.RootElement.GetProperty("jobId").GetString();
+        string? jobId = accepted.RootElement.GetProperty("jobId").GetString();
         jobId.Should().NotBeNullOrWhiteSpace();
 
         BackgroundJobState? terminalState = null;

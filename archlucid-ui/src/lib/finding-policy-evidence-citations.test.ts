@@ -37,7 +37,7 @@ describe("finding-policy-evidence-citations", () => {
     expect(model.policy).toEqual({
       ruleId: "sec-base-001",
       ruleLabel: "Security Architecture Baseline rule",
-      href: "/policy-packs?ruleId=sec-base-001",
+      href: "/governance/policy-packs?ruleId=sec-base-001",
     });
     expect(model.evidence).toHaveLength(1);
     expect(model.evidence[0]?.label).toContain("Request schema");
@@ -60,7 +60,7 @@ describe("finding-policy-evidence-citations", () => {
     expect(model.pack).toEqual({
       packId: "healthcare-claims-v3",
       packName: "Healthcare Claims Policy Pack v3",
-      href: "/policy-packs?packId=healthcare-claims-v3",
+      href: "/governance/policy-packs?packId=healthcare-claims-v3",
     });
   });
 
@@ -86,7 +86,7 @@ describe("finding-policy-evidence-citations", () => {
     );
 
     expect(model.policy?.ruleId).toBe("cost-opt-003");
-    expect(model.policy?.href).toBe("/policy-packs?ruleId=cost-opt-003");
+    expect(model.policy?.href).toBe("/governance/policy-packs?ruleId=cost-opt-003");
   });
 
   it("buildFindingPolicyEvidenceCitationsFromQuickDecision uses policyRuleId and evidence snippets", () => {

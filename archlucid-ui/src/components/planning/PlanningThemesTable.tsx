@@ -72,7 +72,7 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
                     </button>
                   )}
                 </td>
-                <td className={cn("${planningThTdCls} max-w-[280px]", OPERATOR_TYPOGRAPHY.helper)}>{t.summary}</td>
+                <td className={cn(planningThTdCls, "max-w-[280px]", OPERATOR_TYPOGRAPHY.helper)}>{t.summary}</td>
               </tr>
             );
           })}

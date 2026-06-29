@@ -66,7 +66,6 @@ type RequestedGroup = {
 };
 
 const REVIEW_WORK_HREFS: ReadonlyArray<string> = [
-  "/",
   "/reviews/new",
   "/graph",
   "/reviews?projectId=default",

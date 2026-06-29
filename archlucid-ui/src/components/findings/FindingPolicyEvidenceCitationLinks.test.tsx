@@ -12,7 +12,7 @@ describe("FindingPolicyEvidenceCitationLinks", () => {
           policy: {
             ruleId: "sec-base-001",
             ruleLabel: "Security baseline ingress rule",
-            href: "/policy-packs?ruleId=sec-base-001",
+            href: "/governance/policy-packs?ruleId=sec-base-001",
           },
           evidence: [
             {
