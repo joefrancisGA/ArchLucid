@@ -49,8 +49,7 @@ internal static class FrontierAiBaselineOutputPaths
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        string scoreboardPath = report.ScoreboardPath.Trim();
-        string fileName = Path.GetFileNameWithoutExtension(scoreboardPath);
+        string fileName = ArtifactOutputPathHelper.GetFileNameWithoutExtensionFromPath(report.ScoreboardPath);
 
         if (!string.IsNullOrWhiteSpace(fileName))
             return fileName;

@@ -47,11 +47,7 @@ internal static class ReturnTriggerTelemetryOutputPaths
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        string ledgerDirectory = report.LedgerDirectory.Trim().TrimEnd(
-            Path.DirectorySeparatorChar,
-            Path.AltDirectorySeparatorChar);
-
-        return Path.GetFileName(ledgerDirectory);
+        return ArtifactOutputPathHelper.GetTrailingPathSegment(report.LedgerDirectory);
     }
 
     internal static string BuildDefaultRunDirectory(string repositoryRoot, string artifactKey)

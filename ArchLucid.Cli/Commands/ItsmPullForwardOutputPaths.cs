@@ -54,11 +54,7 @@ internal static class ItsmPullForwardOutputPaths
         if (!string.IsNullOrWhiteSpace(report.BaseUrl))
             return LiveApiArtifactKey;
 
-        string ledgerDirectory = report.LedgerDirectory.Trim().TrimEnd(
-            Path.DirectorySeparatorChar,
-            Path.AltDirectorySeparatorChar);
-
-        string fileName = Path.GetFileName(ledgerDirectory);
+        string fileName = ArtifactOutputPathHelper.GetTrailingPathSegment(report.LedgerDirectory);
 
         if (!string.IsNullOrWhiteSpace(fileName))
             return fileName;

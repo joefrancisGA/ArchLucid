@@ -50,11 +50,7 @@ internal static class BuyerProofEvidenceLedgerOutputPaths
         if (!string.IsNullOrWhiteSpace(report.RunId))
             return report.RunId.Trim();
 
-        string proofDirectory = report.ProofDirectory.Trim().TrimEnd(
-            Path.DirectorySeparatorChar,
-            Path.AltDirectorySeparatorChar);
-
-        return Path.GetFileName(proofDirectory);
+        return ArtifactOutputPathHelper.GetTrailingPathSegment(report.ProofDirectory);
     }
 
     internal static string BuildDefaultRunDirectory(string repositoryRoot, string artifactKey)
