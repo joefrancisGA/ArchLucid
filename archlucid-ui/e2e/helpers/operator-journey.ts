@@ -307,3 +307,12 @@ export function structuredCompareSponsorRecommendationParagraph(page: Page): Loc
 export function outcomeStripSignedRecordLink(outcomeStrip: Locator): Locator {
   return outcomeStrip.locator('a[href^="/signed-records/"], a[href^="/manifests/"]').first();
 }
+
+/** Live review detail hydration — buyer-polished shell uses H1 headline; legacy shell exposed H2 "Run detail". */
+export async function expectRunDetailPageReady(page: Page, options?: { timeout?: number }): Promise<void> {
+  const timeout = options?.timeout ?? 90_000;
+
+  await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout });
+  await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Review detail sections" })).toBeVisible({ timeout });
+}

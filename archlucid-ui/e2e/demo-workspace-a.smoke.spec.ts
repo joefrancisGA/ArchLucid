@@ -15,6 +15,7 @@ import {
   getAuthorityRunDetailRaw,
   liveApiBase,
 } from "./helpers/live-api-client";
+import { expectRunDetailPageReady } from "./helpers/operator-journey";
 
 const releaseGateTag = "@release-gate";
 
@@ -31,11 +32,7 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
     await page.goto(`/reviews/${DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID}`, { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 90_000 });
-
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 90_000 });
-
-    await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0);
+    await expectRunDetailPageReady(page);
 
     const sectionNav = page.getByRole("navigation", { name: "Review detail sections" });
 
