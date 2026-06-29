@@ -26,8 +26,7 @@ export default function NewRunPage() {
         <InAppHelpLink helpSlug="pilot-guide" label="Full pilot guidance" variant="text" />
       </div>
       <p className={cn("mt-1 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
-        Use Quick start when you already have an architecture brief or evidence file. Use Guided intake when you want
-        ArchLucid to walk you through the context.
+        Start with a diagram or document (Quick start), or let ArchLucid guide you through what to include (Guided).
       </p>
       <NewReviewSampleEscapeLink className="mt-2" />
       <div id="new-review-wizard" className="mt-4 scroll-mt-24">
