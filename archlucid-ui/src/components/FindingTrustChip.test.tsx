@@ -31,7 +31,8 @@ describe("deriveFindingTrustChip", () => {
     const chip = deriveFindingTrustChip(baseFinding({ evidenceRefCount: 0 }));
 
     expect(chip.kind).toBe("citation-missing");
-    expect(chip.label).toBe("Citation missing");
+    expect(chip.label).toBe("No evidence linked");
+    expect(chip.title).toContain("Add evidence to the review");
   });
 
   it("marks low confidence with evidence as low-confidence", () => {

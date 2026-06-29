@@ -74,8 +74,8 @@ export function Tier1InventoryZipUploadPanel(props: Tier1InventoryZipUploadPanel
         }}
         hint={
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Client-side checks require <code className={OPERATOR_TYPOGRAPHY.helper}>manifest.json</code> (schemaVersion 1) and{" "}
-            <code className={OPERATOR_TYPOGRAPHY.helper}>resources.json</code> at the archive root. Maximum size {maxMb} MB.
+            Drop the inventory ZIP output from the extractor script. Maximum size {maxMb} MB. The file is validated locally
+            before upload.
           </p>
         }
         onZipSelected={(file) => {

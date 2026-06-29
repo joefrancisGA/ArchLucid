@@ -53,7 +53,7 @@ export function InProductEvidenceChecklist() {
       const nextRows: EvidenceChecklistRow[] = [
         {
           id: "api-health",
-          label: "API reachable (/health/ready)",
+          label: "Service connectivity",
           status: apiReady ? "ready" : health === null ? "pending" : "attention",
           actionHref: "/help/troubleshooting",
           actionLabel: "Troubleshoot",

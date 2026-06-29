@@ -41,8 +41,9 @@ export function deriveFindingTrustChip(finding: QuickDecisionFinding): FindingTr
 
     return {
       kind: "citation-missing",
-      label: "Citation missing",
-      title: "No evidence references are attached to this finding.",
+      label: "No evidence linked",
+      title:
+        "No evidence references are attached to this finding. Add evidence to the review or re-run to improve traceability.",
     };
   }
 

@@ -186,7 +186,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
   return (
     <WizardStepPanel
       title="Add architecture evidence (optional)"
-      description="Choose how you want to start — brief, documents, diagrams, IaC, a Tier-1 cloud inventory ZIP (Azure, AWS, or GCP), or labeled demo data."
+      description="Choose how you want to start — brief, documents, diagrams, IaC, a cloud inventory ZIP (Azure, AWS, or GCP), or labeled demo data."
     >
       <div className="space-y-4" data-testid="wizard-evidence-upload-step">
         <EvidenceSourcePicker selectedSourceId={selectedSourceId} onSelectSource={handleSelectSource} />

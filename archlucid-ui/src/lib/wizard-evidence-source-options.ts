@@ -51,19 +51,19 @@ export const WIZARD_EVIDENCE_SOURCE_OPTIONS: readonly WizardEvidenceSourceOption
   {
     id: "azure-export",
     label: "Azure inventory ZIP",
-    description: "Customer-controlled Azure subscription inventory (Tier-1).",
+    description: "Customer-controlled Azure subscription inventory.",
     availability: "accelerated",
   },
   {
     id: "aws-inventory",
     label: "AWS inventory ZIP",
-    description: "Customer-controlled AWS account inventory (Tier-1).",
+    description: "Customer-controlled AWS account inventory.",
     availability: "accelerated",
   },
   {
     id: "gcp-inventory",
     label: "GCP inventory ZIP",
-    description: "Customer-controlled GCP project inventory (Tier-1).",
+    description: "Customer-controlled GCP project inventory.",
     availability: "accelerated",
   },
   {

@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField). Prior: 2026-06-28 (TB-487 **Done** — demo evidence source cloud-agnostic copy). Prior: 2026-06-28 (TB-486 **Done** — WizardStepIdentity multi-cloud footer hint). Prior: 2026-06-28 (TB-485 **Done** — WizardStepAzureContext cloud-agnostic inventory enrichment). Prior: 2026-06-28 (TB-484 **Done** — baseline-first wizard notice cloud inventory copy). Prior: 2026-06-28 (TB-483 **Done** — Core Pilot step 4 multi-cloud inventory copy). Prior: 2026-06-28 (TB-482 **Done** — wizard evidence step defaults to brief). Prior: 2026-06-28 (TB-481 **Done** — AWS/GCP wizard cloud-target labels match accelerated ZIP availability). Prior: 2026-06-28 (TB-460 **Done** — multi-cloud cost evidence footnote on executive dashboard). Prior: 2026-06-28 (TB-459 **Done** — remove demo integrity tools from audit trail note). Prior: 2026-06-28 (TB-458 **Done** — rename Evaluation standards to Review standards on outcome card). Prior: 2026-06-28 (TB-457 **Done** — rename Evaluation value report to Review value report). Prior: 2026-06-28 (TB-456 **Done** — rename Pilot feedback to Review feedback). Prior: 2026-06-28 (TB-437 **Done** — unified new-review submit CTA). Prior: 2026-06-28 (TB-481–TB-500 added — integrations/evidence audit 20 P0–P2 items). Prior: 2026-06-28 (TB-456–TB-480 added — copy/terminology audit 25 P0–P3 items). Prior: 2026-06-28 (TB-436 **Done** — review detail Deliverables section title and default-open). Prior: 2026-07-01 (TB-430 **Done** — pilot readiness live release strict blocker).
+**Updated:** 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -14434,7 +14434,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-489 — InProductEvidenceChecklist: replace "API reachable (/health/ready)" with plain-language label
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -14463,7 +14463,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-490 — Tier1InventoryZipUploadPanel: replace internal schema validation hint with plain language
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -14493,7 +14493,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-491 — Remove "Tier-1" internal tier label from customer-facing wizard description
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -14523,7 +14523,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-492 — FindingTrustChip: improve "Citation missing" label to include guidance direction
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 

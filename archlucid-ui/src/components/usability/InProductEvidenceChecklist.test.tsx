@@ -36,6 +36,8 @@ describe("InProductEvidenceChecklist", () => {
     });
 
     expect(screen.getByText("Evidence attached or sample review opened")).toBeInTheDocument();
+    expect(screen.queryByText(/\/health\/ready/)).not.toBeInTheDocument();
+    expect(screen.getByText("Service connectivity")).toBeInTheDocument();
   });
 
   it("marks the evidence step ready when the checklist array reports step 1 complete", async () => {
