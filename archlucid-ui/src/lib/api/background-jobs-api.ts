@@ -1,4 +1,11 @@
-import { apiGet, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
+import {
+  apiGet,
+  applyCorrelationHeaders,
+  ensureOidcBearerReady,
+  resolveRequest,
+  throwApiRequestError,
+} from "@/lib/api/http";
+import { BACKGROUND_JOB_STATE } from "@/lib/background-job-state";
 import type { components } from "@/lib/openapi-schemas";
 
 export type BackgroundJobInfo = components["schemas"]["BackgroundJobInfo"];
@@ -11,7 +18,7 @@ export async function fetchBackgroundJob(jobId: string): Promise<BackgroundJobIn
 export async function fetchBackgroundJobResultJson<T>(jobId: string): Promise<T> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(`/v1/jobs/${encodeURIComponent(jobId)}/file`);
-  const { headers: h, correlationId } = withCorrelationHeaders(headers);
+  const { headers: h, correlationId } = applyCorrelationHeaders(headers);
 
   const response = await fetch(url, { method: "GET", headers: h });
   const text = await response.text();
@@ -34,7 +41,7 @@ export async function waitForBackgroundJobTerminal(
   while (Date.now() < deadline) {
     const info = await fetchBackgroundJob(jobId);
 
-    if (info.state === "Succeeded" || info.state === "Failed") {
+    if (info.state === BACKGROUND_JOB_STATE.Succeeded || info.state === BACKGROUND_JOB_STATE.Failed) {
       return info;
     }
 

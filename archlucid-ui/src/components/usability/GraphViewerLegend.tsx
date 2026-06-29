@@ -1,4 +1,5 @@
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 /** Legend for evidence graph node types and default layout hints. */
 export function GraphViewerLegend() {
   const rows = [

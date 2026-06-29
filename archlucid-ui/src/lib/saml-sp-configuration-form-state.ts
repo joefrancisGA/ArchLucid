@@ -37,7 +37,7 @@ export function hydrateSamlSpConfigurationFormValues(
 ): SamlSpConfigurationFormValues {
   const defaults = createDefaultSamlSpConfigurationFormValues();
 
-  if (record === null || record.protocol !== "Saml") {
+  if (record === null || record.protocol !== "saml") {
     return defaults;
   }
 
