@@ -9,7 +9,7 @@
 export const CORE_PILOT_PATH_BANNED_PHRASES: readonly string[] = ["governance", "policy pack"] as const;
 
 export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
-  evaluationStandards: "Evaluation standards",
+  evaluationStandards: "Review standards",
   reviewWarnings: "Review warnings",
   approvalCheck: "Approval check",
   reviewApproval: "Review approval",
