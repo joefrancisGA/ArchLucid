@@ -200,11 +200,12 @@ export function RunDetailArtifactsExportsSection(
                 </div>
               </OperatorEmptyState>
             ) : (
-              <OperatorEmptyState title="No artifacts generated yet">
+              <OperatorEmptyState title="No deliverables yet">
                 <div className="flex flex-col items-center justify-center space-y-2 py-4 text-center">
                   <p className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                    No artifacts generated yet. Wait for the review to commit.
+                    Deliverables will appear here once the review is finalized.
                   </p>
+                  <OperatorSectionRetryButton label="Reload" />
                 </div>
               </OperatorEmptyState>
             )
