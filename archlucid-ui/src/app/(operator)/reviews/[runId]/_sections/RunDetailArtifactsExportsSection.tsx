@@ -25,6 +25,7 @@ import {
   getRunExportDownloadUrl,
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer-polish-copy";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import type { ArtifactDescriptor, ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
@@ -82,12 +83,13 @@ export function RunDetailArtifactsExportsSection(
   const feasibilityVerdict = resolveFeasibilityVerdict(manifestSummaryForUi, manifestSummary);
   const showDecisionReceipt =
     feasibilityVerdict !== null && isExportableDecisionVerdict(feasibilityVerdict.kind);
+  const deliverablesSectionDefaultOpen = !buyerPolishedArtifactTable;
 
   return (
     <section id="artifacts-exports" className="scroll-mt-24">
         <CollapsibleSection
-          title={buyerPolishedArtifactTable ? "Deliverables" : "Artifacts & exports"}
-          defaultOpen={!buyerPolishedArtifactTable}
+          title={BUYER_MANIFEST_DELIVERABLES_HEADING}
+          defaultOpen={deliverablesSectionDefaultOpen}
         >
           <p className={cn("m-0 mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Review the manifest&apos;s decisions, findings, and structured metadata. Download artifacts for offline review

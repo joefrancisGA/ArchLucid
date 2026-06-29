@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { ManifestSummary } from "@/types/authority";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
+import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer-polish-copy";
+
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 
 vi.mock("@/components/FunnelTelemetryExportAnchor", () => ({
@@ -52,6 +54,49 @@ const manifestSummary: ManifestSummary = {
 };
 
 describe("RunDetailArtifactsExportsSection", () => {
+  it("uses Deliverables title and starts expanded in operator shell", () => {
+    const { container } = render(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-1"
+        runId="run-1"
+        buyerPolishedArtifactTable={false}
+        artifacts={[]}
+        artifactsFailure={null}
+        artifactsMalformed={null}
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={manifestSummary}
+        manifestSummary={manifestSummary}
+        trustEvidenceCard={null}
+        samplePolicyPackContextLine={null}
+      />,
+    );
+
+    expect(screen.getByText(BUYER_MANIFEST_DELIVERABLES_HEADING)).toBeInTheDocument();
+    expect(screen.queryByText("Artifacts & exports")).not.toBeInTheDocument();
+    expect(container.querySelector("details")).toHaveAttribute("open");
+  });
+
+  it("uses Deliverables title and starts collapsed in buyer-polished shell", () => {
+    const { container } = render(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-1"
+        runId="run-1"
+        buyerPolishedArtifactTable
+        artifacts={[]}
+        artifactsFailure={null}
+        artifactsMalformed={null}
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={manifestSummary}
+        manifestSummary={manifestSummary}
+        trustEvidenceCard={null}
+        samplePolicyPackContextLine={null}
+      />,
+    );
+
+    expect(screen.getByText(BUYER_MANIFEST_DELIVERABLES_HEADING)).toBeInTheDocument();
+    expect(container.querySelector("details")).not.toHaveAttribute("open");
+  });
+
   it("surfaces decision receipt in deliverables when verdict is infeasible", () => {
     render(
       <RunDetailArtifactsExportsSection

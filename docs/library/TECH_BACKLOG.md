@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-435 **Done** — onboarding walkthrough help link label). Prior: 2026-06-28 (TB-434 **Done** — onboarding page title and lead copy). Prior: 2026-06-28 (TB-431–TB-433 **Done** — first-hour UX audit P0 copy/IA fixes). Prior: 2026-07-01 (TB-430 **Done** — pilot readiness live release strict blocker).
+**Updated:** 2026-06-28 (TB-436 **Done** — review detail Deliverables section title and default-open). Prior: 2026-06-28 (TB-435 **Done** — onboarding walkthrough help link label). Prior: 2026-06-28 (TB-434 **Done** — onboarding page title and lead copy). Prior: 2026-07-01 (TB-430 **Done** — pilot readiness live release strict blocker).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -12,7 +12,7 @@
 | Deployability | 5 |
 | AI/Agent readiness | 3 |
 | Architectural integrity | 8 |
-| Adoption friction | 45 |
+| Adoption friction | 69 |
 | Commercial / marketability | 3 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -27,7 +27,7 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
-| **Total (unique)** | **~87** |
+| **Total (unique)** | **~112** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-392** (per-tenant Jira/ServiceNow credentials — V1.1). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -12887,7 +12887,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-436 — Rename "Artifacts & exports" → "Deliverables" and open by default in operator shell
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
