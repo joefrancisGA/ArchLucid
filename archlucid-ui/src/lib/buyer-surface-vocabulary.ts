@@ -20,7 +20,7 @@ export const BUYER_SURFACE_VOCABULARY = {
 /** Buyer-facing replacements for legacy pilot/internal product language. */
 export const BUYER_TERMINOLOGY = {
   evaluationFeedback: "Review feedback",
-  evaluationValueReport: "Evaluation value report",
+  evaluationValueReport: "Review value report",
   reviewScorecard: "Review scorecard",
   governanceDashboard: "Governance dashboard",
   portfolioOverview: "Portfolio overview",
