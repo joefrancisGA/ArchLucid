@@ -44,10 +44,9 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   },
   {
     title: "Upload cloud inventory evidence",
-    shortBody:
-      "Attach a Tier-1 cloud inventory ZIP (Azure, AWS, or GCP) so cost findings and ROI cite measured spend — or skip if using document/brief evidence only.",
+    shortBody: "Optional for document/brief-only reviews — cloud inventory required for cost ROI accuracy.",
     detail:
-      "Run the read-only Azure extractor locally, then upload `manifest.json` + `resources.json` from Extract & Upload settings or review detail.",
+      "Run the read-only Azure extractor locally, then upload `manifest.json` + `resources.json` from Extract & Upload settings or review detail. If you are using brief, document, or diagram evidence only, skip this step — findings will still run and may have lower confidence on cost claims.",
     primaryHref: EXTRACT_UPLOAD_SETTINGS_PATH,
     primaryLabel: "Upload inventory ZIP",
   },

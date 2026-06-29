@@ -27,8 +27,10 @@ describe("core-pilot-steps", () => {
     const uploadStep = CORE_PILOT_STEPS[3];
 
     expect(uploadStep.title).toBe("Upload cloud inventory evidence");
-    expect(uploadStep.shortBody.toLowerCase()).toContain("azure, aws, or gcp");
-    expect(uploadStep.shortBody.toLowerCase()).not.toMatch(/\bazure spend\b/);
+    expect(uploadStep.shortBody).toBe(
+      "Optional for document/brief-only reviews — cloud inventory required for cost ROI accuracy.",
+    );
+    expect(uploadStep.detail).toContain("brief, document, or diagram evidence only");
     expect(uploadStep.primaryLabel).toBe("Upload inventory ZIP");
     expect(uploadStep.primaryHref).toBe("/settings/extract-upload");
   });
