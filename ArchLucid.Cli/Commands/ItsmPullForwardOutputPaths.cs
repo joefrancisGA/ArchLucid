@@ -1,24 +1,5 @@
 namespace ArchLucid.Cli.Commands;
 
-internal sealed class ItsmPullForwardOutputResolution
-{
-    public string? JsonPath
-    {
-        get;
-        init;
-    }
-
-    public string? MarkdownPath
-    {
-        get;
-        init;
-    }
-
-    public bool WillWriteJson => !string.IsNullOrWhiteSpace(JsonPath);
-
-    public bool WillWriteMarkdown => !string.IsNullOrWhiteSpace(MarkdownPath);
-}
-
 internal static class ItsmPullForwardOutputPaths
 {
     internal const string ArtifactDirectorySegment = "itsm-pull-forward-gate";
@@ -54,7 +35,11 @@ internal static class ItsmPullForwardOutputPaths
         if (!string.IsNullOrWhiteSpace(report.BaseUrl))
             return LiveApiArtifactKey;
 
-        string fileName = ArtifactOutputPathHelper.GetTrailingPathSegment(report.LedgerDirectory);
+        string ledgerDirectory = report.LedgerDirectory.Trim().TrimEnd(
+            Path.DirectorySeparatorChar,
+            Path.AltDirectorySeparatorChar);
+
+        string fileName = Path.GetFileName(ledgerDirectory);
 
         if (!string.IsNullOrWhiteSpace(fileName))
             return fileName;

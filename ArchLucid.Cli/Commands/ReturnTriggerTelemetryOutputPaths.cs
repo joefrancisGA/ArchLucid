@@ -1,24 +1,5 @@
 namespace ArchLucid.Cli.Commands;
 
-internal sealed class ReturnTriggerTelemetryOutputResolution
-{
-    public string? JsonPath
-    {
-        get;
-        init;
-    }
-
-    public string? MarkdownPath
-    {
-        get;
-        init;
-    }
-
-    public bool WillWriteJson => !string.IsNullOrWhiteSpace(JsonPath);
-
-    public bool WillWriteMarkdown => !string.IsNullOrWhiteSpace(MarkdownPath);
-}
-
 internal static class ReturnTriggerTelemetryOutputPaths
 {
     internal const string ArtifactDirectorySegment = "return-trigger-telemetry";
@@ -47,7 +28,11 @@ internal static class ReturnTriggerTelemetryOutputPaths
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        return ArtifactOutputPathHelper.GetTrailingPathSegment(report.LedgerDirectory);
+        string ledgerDirectory = report.LedgerDirectory.Trim().TrimEnd(
+            Path.DirectorySeparatorChar,
+            Path.AltDirectorySeparatorChar);
+
+        return Path.GetFileName(ledgerDirectory);
     }
 
     internal static string BuildDefaultRunDirectory(string repositoryRoot, string artifactKey)

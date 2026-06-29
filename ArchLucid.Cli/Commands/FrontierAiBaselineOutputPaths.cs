@@ -1,24 +1,5 @@
 namespace ArchLucid.Cli.Commands;
 
-internal sealed class FrontierAiBaselineOutputResolution
-{
-    public string? JsonPath
-    {
-        get;
-        init;
-    }
-
-    public string? MarkdownPath
-    {
-        get;
-        init;
-    }
-
-    public bool WillWriteJson => !string.IsNullOrWhiteSpace(JsonPath);
-
-    public bool WillWriteMarkdown => !string.IsNullOrWhiteSpace(MarkdownPath);
-}
-
 internal static class FrontierAiBaselineOutputPaths
 {
     internal const string ArtifactDirectorySegment = "frontier-ai-baseline";
@@ -49,7 +30,8 @@ internal static class FrontierAiBaselineOutputPaths
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        string fileName = ArtifactOutputPathHelper.GetFileNameWithoutExtensionFromPath(report.ScoreboardPath);
+        string scoreboardPath = report.ScoreboardPath.Trim();
+        string fileName = Path.GetFileNameWithoutExtension(scoreboardPath);
 
         if (!string.IsNullOrWhiteSpace(fileName))
             return fileName;

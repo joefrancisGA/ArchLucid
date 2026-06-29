@@ -1,32 +1,5 @@
 namespace ArchLucid.Cli.Commands;
 
-internal sealed class DecisionOwnerScoreboardOutputResolution
-{
-    public string? JsonPath
-    {
-        get;
-        init;
-    }
-
-    public string? MarkdownPath
-    {
-        get;
-        init;
-    }
-
-    public string? SponsorMarkdownPath
-    {
-        get;
-        init;
-    }
-
-    public bool WillWriteJson => !string.IsNullOrWhiteSpace(JsonPath);
-
-    public bool WillWriteMarkdown => !string.IsNullOrWhiteSpace(MarkdownPath);
-
-    public bool WillWriteSponsorMarkdown => !string.IsNullOrWhiteSpace(SponsorMarkdownPath);
-}
-
 internal static class DecisionOwnerScoreboardOutputPaths
 {
     internal const string ArtifactDirectorySegment = "decision-owner-scoreboard";
@@ -56,7 +29,11 @@ internal static class DecisionOwnerScoreboardOutputPaths
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        return ArtifactOutputPathHelper.GetTrailingPathSegment(report.LedgerDirectory);
+        string ledgerDirectory = report.LedgerDirectory.Trim().TrimEnd(
+            Path.DirectorySeparatorChar,
+            Path.AltDirectorySeparatorChar);
+
+        return Path.GetFileName(ledgerDirectory);
     }
 
     internal static string BuildDefaultRunDirectory(string repositoryRoot, string artifactKey)
