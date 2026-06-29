@@ -1,7 +1,9 @@
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { AuthorityThemeDevSelector } from "@/components/settings/AuthorityThemeDevSelector";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +41,18 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <AuthorityThemeDevSelector />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Developer tools</CardTitle>
+        </CardHeader>
+        <CardContent className={cn("space-y-2 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          <p className="m-0">CLI demo workflow and terminal usage for technical users.</p>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/settings/developer">Open developer tools</Link>
+          </Button>
         </CardContent>
       </Card>
 

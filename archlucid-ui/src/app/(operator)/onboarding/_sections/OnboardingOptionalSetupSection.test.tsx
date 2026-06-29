@@ -14,10 +14,6 @@ vi.mock("@/components/FinishSetupWizardPanel", () => ({
   ),
 }));
 
-vi.mock("@/components/TryCliDemoCard", () => ({
-  TryCliDemoCard: () => <div data-testid="try-cli-demo-card-stub" />,
-}));
-
 vi.mock("@/components/operator-home/OperatorHomeDisclosureSection", () => ({
   OperatorHomeDisclosureSection: ({
     title,
@@ -36,13 +32,14 @@ vi.mock("@/components/operator-home/OperatorHomeDisclosureSection", () => ({
 }));
 
 describe("OnboardingOptionalSetupSection", () => {
-  it("groups ROI baseline, workspace setup, and CLI tools under optional setup", () => {
+  it("groups ROI baseline and workspace setup under optional setup without CLI tools", () => {
     render(<OnboardingOptionalSetupSection />);
 
     expect(screen.getByTestId("onboarding-optional-setup")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Configure ROI baseline" })).toHaveAttribute("href", "/settings/baseline");
     expect(screen.getByTestId("finish-setup-wizard-panel-stub")).toHaveAttribute("data-variant", "optional");
-    expect(screen.getByTestId("onboarding-cli-tools")).toBeInTheDocument();
-    expect(screen.getByTestId("try-cli-demo-card-stub")).toBeInTheDocument();
+    expect(screen.queryByTestId("onboarding-cli-tools")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Developer \/ CLI tools/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Terminal workflow/i)).not.toBeInTheDocument();
   });
 });
