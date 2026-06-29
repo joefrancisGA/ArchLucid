@@ -224,7 +224,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   });
 
   test("invalid manifest and run route tokens surface branded not-found @demo-readiness", async ({ page }) => {
-    await page.goto("/manifests/undefined");
+    await page.goto("/signed-records/undefined");
     await expectBrandedNotFoundSurface(page);
 
     await page.goto("/reviews/undefined");

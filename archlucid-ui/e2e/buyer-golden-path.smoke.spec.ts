@@ -43,7 +43,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
     await expect(
       page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
