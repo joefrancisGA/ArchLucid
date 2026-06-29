@@ -29,7 +29,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/alerts": "Alerts",
   "/health": "System health",
   "/planning": "Planning",
-  "/onboarding": "Onboarding",
+  "/onboarding": OPERATOR_NAV_LINK_LABELS.onboarding,
   "/settings/billing": "Billing & plans",
   "/settings/tenant": OPERATOR_NAV_LINK_LABELS.workspaceSettings,
   "/settings/tenant/recycle-bin": "Projects recycle bin",

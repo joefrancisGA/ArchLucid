@@ -349,6 +349,11 @@ export const BUYER_RUNS_LIST_MALFORMED_BODY =
 
 export const BUYER_NEW_REVIEW_TOAST_CATEGORY = "New review";
 
+export const BUYER_ONBOARDING_PAGE_TITLE = "Getting started";
+
+export const BUYER_ONBOARDING_PAGE_LEAD =
+  "Create and finalize your first architecture review package.";
+
 export const BUYER_MANIFEST_SUMMARY_LOAD_ERROR_HEADING = "Review record summary could not be loaded.";
 
 export const BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING = "Review record summary response was not usable.";

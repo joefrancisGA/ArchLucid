@@ -85,9 +85,8 @@ describe("SidebarNav (primary navigation)", () => {
 
     const reviewNav = screen.getByRole("navigation", { name: "Review work" });
     expect(reviewNav).toBeInTheDocument();
-    expect(within(reviewNav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(reviewNav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
-    expect(within(reviewNav).getByRole("link", { name: "Onboarding" })).toHaveAttribute("href", "/onboarding");
+    expect(within(reviewNav).getByRole("link", { name: "Getting started" })).toHaveAttribute("href", "/onboarding");
     expect(within(reviewNav).queryByRole("link", { name: "Risk register" })).toBeNull();
     expect(within(reviewNav).queryByRole("link", { name: "Scorecard" })).toBeNull();
 

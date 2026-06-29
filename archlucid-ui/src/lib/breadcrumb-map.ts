@@ -44,7 +44,7 @@ const BUYER_HUB_RUN_SCOPED_SEGMENTS = new Set<string>([
 const BUYER_GOVERNANCE_RUN_SCOPED_PATHS = new Set<string>(["/governance/findings"]);
 
 const SEGMENT_LABELS: Record<string, string> = {
-  onboarding: "Onboarding",
+  onboarding: OPERATOR_NAV_LINK_LABELS.onboarding,
   reviews: "Review packages",
   new: "New request",
   graph: "Graph",

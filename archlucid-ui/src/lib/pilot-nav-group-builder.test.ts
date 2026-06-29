@@ -61,12 +61,11 @@ describe("PilotNavGroupBuilder", () => {
     const group = new PilotNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.label)).toEqual([
-      "Overview",
       "New review",
       "Evidence graph",
       "Review packages",
       "Portfolio overview",
-      "Onboarding",
+      "Getting started",
     ]);
   });
 });

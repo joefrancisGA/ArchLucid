@@ -63,7 +63,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/onboarding",
           label: OPERATOR_NAV_LINK_LABELS.onboarding,
-          title: "Onboarding — checklist and milestones",
+          title: "Getting started — checklist and milestones",
           tier: "essential",
           icon: ClipboardList,
           defaultVisibleInCollapsedSidebar: true,
