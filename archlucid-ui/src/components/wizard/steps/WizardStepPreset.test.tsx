@@ -83,6 +83,19 @@ describe("WizardStepPreset", () => {
     expect(screen.getByTestId("probe-system")).toHaveTextContent("LegacyModernization");
   });
 
+  it("shows cloud-agnostic baseline-first notice when baselineFirst is true", () => {
+    render(
+      <WizardFormTestHarness>
+        <WizardStepPreset baselineFirst />
+      </WizardFormTestHarness>,
+    );
+
+    const notice = screen.getByTestId("wizard-baseline-path-active-notice");
+
+    expect(notice).toHaveTextContent("upload a cloud inventory ZIP on the next step");
+    expect(notice.textContent?.toLowerCase()).not.toContain("azure");
+  });
+
   it("Start from scratch resets to buildDefaultWizardValues system name", () => {
     render(
       <WizardFormTestHarness

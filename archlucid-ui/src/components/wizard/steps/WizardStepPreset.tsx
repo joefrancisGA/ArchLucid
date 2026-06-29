@@ -158,7 +158,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
               )}
               data-testid="wizard-baseline-path-active-notice"
             >
-              Baseline-first path: upload the Azure extractor ZIP on the next step, then confirm system identity and
+              Baseline-first path: upload a cloud inventory ZIP on the next step, then confirm system identity and
               brief.
             </p>
           ) : null}
