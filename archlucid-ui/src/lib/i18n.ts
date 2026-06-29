@@ -32,7 +32,7 @@ export const RUNS_LIST_PAGE_TITLES = {
 
 /** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). */
 export const RUNS_LIST_PAGE_SUBTITLE =
-  "Finalized architecture reviews with findings, evidence, signed review records, and exports.";
+  "Architecture review packages — in progress, finalized, and ready for export.";
 
 export const PIPELINE_STATUS_LABELS = {
   finalized: "Finalized",
