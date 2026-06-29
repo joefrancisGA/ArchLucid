@@ -8,6 +8,7 @@ import { expect, test } from "@playwright/test";
 
 import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, SHOWCASE_DEMO_RUN_ID } from "./fixtures";
 import { liveApiBase } from "./helpers/live-api-client";
+import { outcomeStripSignedRecordLink } from "./helpers/operator-journey";
 
 /** Breadcrumb label varies with buyer-polished shell vs full-operator manifest layout. */
 const NAV_BACK_TO_REVIEW_FROM_MANIFEST = /^Open review$|^Claims Intake Modernization Review$/;
@@ -35,13 +36,13 @@ test.describe("live-api-review-manifest-roundtrip", () => {
 
     await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
 
-    const manifestLink = outcomeStrip.locator(`a[href^="/manifests/"]`).first();
+    const manifestLink = outcomeStripSignedRecordLink(outcomeStrip);
 
     await expect(manifestLink).toBeVisible({ timeout: 60_000 });
     await expect(manifestLink).toContainText(/Finalized/i);
 
     await Promise.all([
-      page.waitForURL(/\/manifests\/.+/i, { waitUntil: "commit" }),
+      page.waitForURL(/\/(?:signed-records|manifests)\/.+/i, { waitUntil: "commit" }),
       manifestLink.click(),
     ]);
 

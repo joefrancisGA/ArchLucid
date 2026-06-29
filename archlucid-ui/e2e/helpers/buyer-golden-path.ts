@@ -59,6 +59,15 @@ export async function expectNoGenericErrorBoundary(page: Page): Promise<void> {
   await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
 }
 
+/** CTO demo pack replaces the classic "Executive summary" label with the above-fold hero (mock E2E default). */
+export async function expectBuyerExecutiveSummarySurface(page: Page): Promise<void> {
+  await expect(
+    page
+      .getByTestId("cto-demo-executive-above-fold")
+      .or(page.getByText("Executive summary", { exact: true }).first()),
+  ).toBeVisible();
+}
+
 /** Layer strip stepper is present on curated spine routes in buyer-polished mock E2E. */
 export async function expectBuyerGoldenJourneyStepper(page: Page): Promise<void> {
   await expect(page.getByTestId("buyer-golden-journey-stepper")).toBeVisible();

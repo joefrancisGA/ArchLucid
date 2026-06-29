@@ -78,6 +78,72 @@ function sendJson(res: http.ServerResponse, status: number, body: unknown): void
   res.end(payload);
 }
 
+function tryParseManifestSummaryPath(pathname: string): string | null {
+  const patterns = [
+    /^\/v1\/authority\/(?:manifests|signed-records)\/([^/]+)\/summary$/,
+    /^\/api\/authority\/(?:manifests|signed-records)\/([^/]+)\/summary$/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = pattern.exec(pathname);
+
+    if (match !== null) {
+      return match[1];
+    }
+  }
+
+  return null;
+}
+
+function jsonForManifestSummary(manifestId: string): { status: number; body: unknown } {
+  if (manifestId === FIXTURE_MANIFEST_ID) {
+    return { status: 200, body: fixtureManifestSummary() };
+  }
+
+  if (manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
+    return { status: 200, body: fixtureManifestSummaryForShowcase(SHOWCASE_DEMO_RUN_ID) };
+  }
+
+  if (manifestId === FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID) {
+    return { status: 200, body: fixtureManifestSummaryEmptyArtifacts() };
+  }
+
+  return { status: 404, body: { detail: "Review record not found." } };
+}
+
+function tryParseArtifactListPath(pathname: string): string | null {
+  const patterns = [
+    /^\/v1\/artifacts\/(?:manifests|signed-records)\/([^/]+)$/,
+    /^\/api\/artifacts\/(?:manifests|signed-records)\/([^/]+)$/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = pattern.exec(pathname);
+
+    if (match !== null) {
+      return match[1];
+    }
+  }
+
+  return null;
+}
+
+function jsonForArtifactList(manifestId: string): unknown {
+  if (manifestId === FIXTURE_MANIFEST_ID) {
+    return fixtureArtifactDescriptorsNonEmpty();
+  }
+
+  if (manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
+    return fixtureArtifactDescriptorsForShowcase(SHOWCASE_DEMO_RUN_ID);
+  }
+
+  if (manifestId === FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID) {
+    return [];
+  }
+
+  return [];
+}
+
 function jsonRunSummaryFromDetail(detail: RunDetail): unknown {
   const r = detail.run;
 
@@ -428,42 +494,19 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
-      const summaryMatchV1 = /^\/v1\/authority\/manifests\/([^/]+)\/summary$/.exec(pathname);
-      const summaryMatchLegacy = /^\/api\/authority\/manifests\/([^/]+)\/summary$/.exec(pathname);
-      const summaryMatch = summaryMatchV1 ?? summaryMatchLegacy;
+      const manifestSummaryManifestId = tryParseManifestSummaryPath(pathname);
 
-      if (summaryMatch) {
-        const manifestId = summaryMatch[1];
-
-        if (manifestId === FIXTURE_MANIFEST_ID) {
-          sendJson(res, 200, fixtureManifestSummary());
-        } else if (manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
-          sendJson(res, 200, fixtureManifestSummaryForShowcase(SHOWCASE_DEMO_RUN_ID));
-        } else if (manifestId === FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID) {
-          sendJson(res, 200, fixtureManifestSummaryEmptyArtifacts());
-        } else {
-          sendJson(res, 404, { detail: "Review record not found." });
-        }
+      if (manifestSummaryManifestId !== null) {
+        const summaryPayload = jsonForManifestSummary(manifestSummaryManifestId);
+        sendJson(res, summaryPayload.status, summaryPayload.body);
 
         return;
       }
 
-      const artifactsMatchV1 = /^\/v1\/artifacts\/manifests\/([^/]+)$/.exec(pathname);
-      const artifactsMatchLegacy = /^\/api\/artifacts\/manifests\/([^/]+)$/.exec(pathname);
-      const artifactsMatch = artifactsMatchV1 ?? artifactsMatchLegacy;
+      const artifactListManifestId = tryParseArtifactListPath(pathname);
 
-      if (artifactsMatch) {
-        const manifestId = artifactsMatch[1];
-
-        if (manifestId === FIXTURE_MANIFEST_ID) {
-          sendJson(res, 200, fixtureArtifactDescriptorsNonEmpty());
-        } else if (manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
-          sendJson(res, 200, fixtureArtifactDescriptorsForShowcase(SHOWCASE_DEMO_RUN_ID));
-        } else if (manifestId === FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID) {
-          sendJson(res, 200, []);
-        } else {
-          sendJson(res, 200, []);
-        }
+      if (artifactListManifestId !== null) {
+        sendJson(res, 200, jsonForArtifactList(artifactListManifestId));
 
         return;
       }

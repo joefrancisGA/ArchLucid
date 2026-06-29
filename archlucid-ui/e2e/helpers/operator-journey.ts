@@ -302,3 +302,8 @@ export async function expandCompareStructuredDecisionChanges(page: Page): Promis
 export function structuredCompareSponsorRecommendationParagraph(page: Page): Locator {
   return page.locator("#compare-structured").getByTestId("compare-sponsor-recommendation");
 }
+
+/** Outcome strip deep link to signed record / legacy manifest detail (TB-399 canonical URLs). */
+export function outcomeStripSignedRecordLink(outcomeStrip: Locator): Locator {
+  return outcomeStrip.locator('a[href^="/signed-records/"], a[href^="/manifests/"]').first();
+}

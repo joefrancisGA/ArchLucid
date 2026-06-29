@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+
 import { SHOWCASE_DEMO_RUN_ID } from "../e2e/fixtures/ids";
 import { registerFreshTenantOnboardingMocks } from "../e2e/helpers/register-onboarding-mocks";
 
@@ -35,9 +37,9 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
 
     await expect(page).toHaveURL(/\/onboarding\?source=registration/);
 
-    await expect(page.getByRole("heading", { name: "Onboarding", level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: BUYER_ONBOARDING_PAGE_TITLE, level: 1 })).toBeVisible();
 
-    await expect(page.getByRole("heading", { name: "Trial workspace", level: 2 })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("heading", { name: "Onboarding", level: 2 })).toBeVisible({ timeout: 30_000 });
 
     await expect(page.getByTestId("onboarding-open-sample-run")).toBeVisible();
     await expect(page.getByTestId("onboarding-open-sample-run")).toHaveAttribute(
