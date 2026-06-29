@@ -66,6 +66,7 @@ describe("ExtractUploadSettingsPageClient", () => {
           scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg",
         }),
       ),
+      "resources.json": strToU8("[]"),
     });
     const file = new File([bytes], "broken.zip", { type: "application/zip" });
 
@@ -106,6 +107,7 @@ describe("ExtractUploadSettingsPageClient", () => {
           scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg",
         }),
       ),
+      "resources.json": strToU8("[]"),
     });
     const file = new File([bytes], "legacy.zip", { type: "application/zip" });
 

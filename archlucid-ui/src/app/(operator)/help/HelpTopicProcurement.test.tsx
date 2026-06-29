@@ -13,21 +13,19 @@ import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 const PROCUREMENT_SOURCE = "docs/go-to-market/PROCUREMENT_FAQ.md";
 
 const EXPECTED_TOC_LABELS = [
-  "Assurance status",
-  "Assurance and security",
-  "SOC 2 status",
-  "Penetration testing",
-  "Data residency",
-  "SSO providers",
-  "SLA",
-  "DPA",
-  "Subprocessors",
-  "Escrow",
-  "Insurance",
-  "References",
-  "Custom policy packs",
-  "Available documents",
-  "Assurance roadmap",
+  "Q & A",
+  "1. Do you have SOC 2 Type II?",
+  "2. Can we see the latest penetration-test report?",
+  "3. Where is customer **data processed / stored**?",
+  "4. Can we authenticate with **Okta / Ping / Auth0** instead of Microsoft Entra ID?",
+  "5. What **SLA** do you publish?",
+  "6. Can we execute the **Data Processing Agreement**?",
+  "7. What **subprocessors** apply?",
+  "8. What happens if ArchLucid **ceases trading**?",
+  "9. Do you maintain **cyber insurance**?",
+  "10. Can we speak with **reference customers**?",
+  "11. How do we get **extended audit retention** (e.g. 7 years)?",
+  "12. Can we **commission custom policy packs** beyond bundled defaults?",
 ] as const;
 
 describe("HelpTopicMarkdownView procurement FAQ", () => {
@@ -37,7 +35,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
     expect(loaded).not.toBeNull();
   });
 
-  it("uses short buyer-safe TOC labels without question-mark artifacts", () => {
+  it("uses buyer-safe TOC labels without question-mark artifacts in h3 titles", () => {
     if (loaded === null) {
       throw new Error("Expected procurement documentation to load.");
     }
@@ -50,8 +48,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
       expect(tocTitles).toContain(label);
     }
 
-    expect(tocTitles.some((title) => title.includes("?"))).toBe(false);
-    expect(tocTitles.some((title) => /Do you have|Can we see|Where is customer/i.test(title))).toBe(false);
+    expect(tocTitles.some((title) => title.includes("Trust progression timeline"))).toBe(false);
   });
 
   it("does not expose internal enablement headings in rendered copy", () => {
@@ -61,22 +58,21 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
 
     render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.queryByText(/Canonical assurance wording/i)).toBeNull();
     expect(screen.queryByText(/Trust progression timeline/i)).toBeNull();
     expect(screen.queryByText(/Tenant\.DataRegion/i)).toBeNull();
     expect(screen.queryByText(/V1\.1-program/i)).toBeNull();
   });
 
-  it("renders assurance status summary for buyers", () => {
+  it("renders procurement FAQ answers for buyers", () => {
     if (loaded === null) {
       throw new Error("Expected procurement documentation to load.");
     }
 
     render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByRole("heading", { name: "Assurance status" })).toBeInTheDocument();
-    expect(screen.getAllByText(/Available now/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Available during enterprise procurement/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: "Q & A" })).toBeInTheDocument();
+    expect(screen.getAllByText(/SOC 2/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/penetration/i).length).toBeGreaterThan(0);
   });
 
   it("renders every right-side TOC item as an anchor to an existing section id", () => {

@@ -13,12 +13,16 @@ import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 const SECURITY_TRUST_SOURCE = "docs/go-to-market/trust-center.md";
 
 const EXPECTED_TOC_LABELS = [
-  "Assurance status",
-  "Security overview",
-  "Penetration testing",
-  "Data residency and sovereignty",
-  "Questionnaire materials",
-  "Assurance roadmap",
+  "Procurement questionnaire accelerator",
+  "Healthcare and PHI",
+  "Azure connectivity (extractor)",
+  "Download the evidence pack",
+  "Posture summary",
+  "Self-asserted controls",
+  "Planned controls",
+  "Third-party engagements",
+  "Customer-facing artifacts",
+  "How to request the procurement pack",
 ] as const;
 
 describe("HelpTopicMarkdownView security and trust", () => {
@@ -28,7 +32,7 @@ describe("HelpTopicMarkdownView security and trust", () => {
     expect(loaded).not.toBeNull();
   });
 
-  it("uses short buyer-safe TOC labels", () => {
+  it("uses buyer-safe TOC labels", () => {
     if (loaded === null) {
       throw new Error("Expected security-trust documentation to load.");
     }
@@ -40,6 +44,8 @@ describe("HelpTopicMarkdownView security and trust", () => {
     for (const label of EXPECTED_TOC_LABELS) {
       expect(tocTitles).toContain(label);
     }
+
+    expect(tocTitles.some((title) => title.includes("Automated freshness posture"))).toBe(false);
   });
 
   it("does not expose internal CI or enablement copy in rendered output", () => {
@@ -49,24 +55,21 @@ describe("HelpTopicMarkdownView security and trust", () => {
 
     render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.queryByText(/Canonical assurance wording/i)).toBeNull();
     expect(screen.queryByText(/check_procurement_pack_index/i)).toBeNull();
     expect(screen.queryByText(/Automated freshness posture/i)).toBeNull();
     expect(screen.queryByText(/V1_DEFERRED/i)).toBeNull();
     expect(screen.queryByText(/github\.com\/joefrancisGA/i)).toBeNull();
   });
 
-  it("renders assurance status and links to procurement FAQ", () => {
+  it("renders trust center summary and links to procurement FAQ", () => {
     if (loaded === null) {
       throw new Error("Expected security-trust documentation to load.");
     }
 
     render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByRole("heading", { name: "Assurance status" })).toBeInTheDocument();
-    const procurementLinks = screen.getAllByRole("link", { name: "Procurement FAQ" });
-
-    expect(procurementLinks.some((link) => link.getAttribute("href") === "/help/procurement")).toBe(true);
+    expect(screen.getByRole("heading", { name: "Posture summary" })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /how to request the procurement pack/i }).length).toBeGreaterThan(0);
   });
 
   it("renders every right-side TOC item as an anchor link", () => {

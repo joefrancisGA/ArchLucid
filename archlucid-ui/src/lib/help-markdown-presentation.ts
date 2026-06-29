@@ -247,14 +247,64 @@ export function stripHtmlComments(markdown: string): string {
   return markdown.replace(/<!--[\s\S]*?-->/g, "");
 }
 
+/** Drops contributor-only sections that must not appear in buyer help topics. */
+export function stripInternalBuyerHelpSections(markdown: string): string {
+  const internalSectionPrefixes = ["trust progression timeline", "automated freshness posture"] as const;
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim().toLowerCase();
+      omitSection = internalSectionPrefixes.some((prefix) => title.startsWith(prefix));
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+/** Removes internal enablement preamble lines from buyer FAQ sources. */
+export function stripInternalBuyerHelpPreamble(markdown: string): string {
+  return markdown
+    .split("\n")
+    .filter((line) => !/\*\*Canonical assurance wording:\*\*/i.test(line))
+    .filter((line) => !/\*\*SIG \/ CAIQ row acceleration:\*\*/i.test(line))
+    .filter((line) => !/scripts\/ci\//i.test(line))
+    .filter((line) => !/Tenant\.DataRegion/i.test(line))
+    .join("\n");
+}
+
+/** Strips inline CI and backlog references from buyer help copy. */
+export function stripInternalBuyerHelpInlineReferences(markdown: string): string {
+  return markdown
+    .replace(/\(`scripts\/ci\/[^`)]+`\)/gi, "")
+    .replace(/`scripts\/ci\/[^`]+`/gi, "")
+    .replace(/\[([^\]]*)\]\(https:\/\/github\.com\/joefrancisGA\/ArchLucid\/blob\/main\/[^)]+\)/gi, "$1")
+    .replace(/`V1_DEFERRED\.md`/gi, "deferred program documentation")
+    .replace(/V1_DEFERRED\.md/gi, "deferred program documentation")
+    .replace(/Deferred assurance and packaging \(V1_DEFERRED\)/gi, "Deferred assurance and packaging")
+    .replace(/\(V1_DEFERRED\)/gi, "")
+    .replace(/V1_DEFERRED/gi, "deferred program")
+    .replace(/V1\.1-program/gi, "future program")
+    .replace(/`Tenant\.DataRegion`/gi, "tenant data region");
+}
+
 /**
  * Prepares repo markdown for in-app help rendering — no raw `.md` paths in operator UI.
  */
 export function prepareHelpMarkdownForPresentation(markdown: string, sourceDocPath: string): string {
   const withoutPreamble = stripLeadingContributorScopeBlockquote(markdown);
-  const normalized = stripDuplicateMarkdownTitle(stripInternalEngineeringBatchLabels(withoutPreamble));
+  const withoutInternalPreamble = stripInternalBuyerHelpPreamble(withoutPreamble);
+  const normalized = stripDuplicateMarkdownTitle(stripInternalEngineeringBatchLabels(withoutInternalPreamble));
   const withoutHtmlComments = stripHtmlComments(normalized);
-  const rewrittenLinks = rewriteHelpMarkdownDocLinks(withoutHtmlComments, sourceDocPath);
+  const withoutInternalSections = stripInternalBuyerHelpSections(withoutHtmlComments);
+  const withoutInlineReferences = stripInternalBuyerHelpInlineReferences(withoutInternalSections);
+  const rewrittenLinks = rewriteHelpMarkdownDocLinks(withoutInlineReferences, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
 
   return applyHelpTopicProductLanguage(sanitized);

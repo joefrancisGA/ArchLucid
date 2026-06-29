@@ -15,7 +15,7 @@ describe("resolveCorePilotStepPresentation", () => {
       latestCommittedRunId: null,
     });
 
-    expect(presentation.label).toBe("Start a review");
+    expect(presentation.label).toBe("Start or open review");
     expect(presentation.href).toBe("/reviews/new");
   });
 

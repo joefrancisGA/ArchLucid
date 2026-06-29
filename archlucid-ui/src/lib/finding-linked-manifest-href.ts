@@ -1,3 +1,4 @@
+import { reviewSignedRecordPath } from "@/lib/signed-records-paths";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -10,5 +11,5 @@ export function findingLinkedManifestDetailHrefForRun(runId: string): string | n
     return null;
   }
 
-  return `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}/manifest`;
+  return reviewSignedRecordPath(SHOWCASE_STATIC_DEMO_RUN_ID);
 }

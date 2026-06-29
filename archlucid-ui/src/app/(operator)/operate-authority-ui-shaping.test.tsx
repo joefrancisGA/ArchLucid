@@ -119,6 +119,23 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock("./policy-packs/_sections/load-policy-packs-page-data", () => ({
+  loadPolicyPacksPageData: () =>
+    Promise.resolve({
+      packs: [],
+      effective: { tenantId: "", workspaceId: "", projectId: "", packs: [] },
+      effectiveContent: {
+        complianceRuleIds: [],
+        complianceRuleKeys: [],
+        alertRuleIds: [],
+        compositeAlertRuleIds: [],
+        advisoryDefaults: {},
+        metadata: {},
+      },
+      failure: null,
+    }),
+}));
+
 import {
   alertToolingListRefreshButtonTitleReader,
   alertSimulationCurrentBehaviorHeadingReader,
@@ -152,7 +169,7 @@ import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedule
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
 import GovernanceResolutionPage from "./governance-resolution/page";
 import GovernanceWorkflowPage from "./governance/page";
-import PolicyPacksPage from "./policy-packs/page";
+import PolicyPacksPage from "./governance/policy-packs/page";
 
 const emptyGovernanceResolutionPayload = {
   tenantId: "t-ui-shape",

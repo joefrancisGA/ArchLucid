@@ -6,6 +6,7 @@ import {
   hydrateSamlSpConfigurationFormValues,
   isSamlSpConfigurationFormValid,
 } from "./saml-sp-configuration-form-state";
+import { TENANT_IDENTITY_PROTOCOL } from "@/lib/tenant-identity-protocol";
 
 describe("saml-sp-configuration-form-state", () => {
   it("builds activate request with trimmed SAML fields", () => {
@@ -24,7 +25,7 @@ describe("saml-sp-configuration-form-state", () => {
 
   it("hydrates claim mappings from tenant SAML configuration record", () => {
     const values = hydrateSamlSpConfigurationFormValues({
-      protocol: "Saml",
+      protocol: TENANT_IDENTITY_PROTOCOL.Saml,
       issuerUri: "https://sts.contoso.com/",
       claimMappingJson: JSON.stringify({
         roleClaimName: "groups",

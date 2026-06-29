@@ -79,10 +79,27 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock("./policy-packs/_sections/load-policy-packs-page-data", () => ({
+  loadPolicyPacksPageData: () =>
+    Promise.resolve({
+      packs: [],
+      effective: { tenantId: "", workspaceId: "", projectId: "", packs: [] },
+      effectiveContent: {
+        complianceRuleIds: [],
+        complianceRuleKeys: [],
+        alertRuleIds: [],
+        compositeAlertRuleIds: [],
+        advisoryDefaults: {},
+        metadata: {},
+      },
+      failure: null,
+    }),
+}));
+
 import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
 import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
 import GovernanceWorkflowPage from "./governance/page";
-import PolicyPacksPage from "./policy-packs/page";
+import PolicyPacksPage from "./governance/policy-packs/page";
 
 const sampleAlert = {
   alertId: "alert-layout-1",

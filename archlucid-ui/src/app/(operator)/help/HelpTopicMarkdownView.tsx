@@ -6,6 +6,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -17,7 +18,9 @@ type HelpTopicMarkdownViewProps = {
 /** Renders curated repo markdown inside the operator help shell (no GitHub chrome). */
 export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.ReactElement {
   const { entry, markdown } = props;
-  const headings = extractHelpMarkdownHeadings(markdown);
+  const sourceDocPath = entry.sourcePaths[0] ?? "";
+  const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath);
+  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
 
   return (
     <article className={OPERATOR_LAYOUT.majorSectionGap}>
