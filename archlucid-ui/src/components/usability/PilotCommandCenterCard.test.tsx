@@ -4,7 +4,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import {
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
+  PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_HEADING,
+  PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
@@ -99,5 +101,16 @@ describe("PilotCommandCenterCard", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.queryByTestId("pilot-command-center-optional-setup")).toBeNull();
+  });
+
+  it("renders optional setup links as outline buttons with visible affordance", () => {
+    render(<PilotCommandCenterCard />);
+
+    const connectAzure = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE });
+    const inviteReviewer = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER });
+
+    expect(connectAzure.className).toMatch(/border/);
+    expect(inviteReviewer.className).toMatch(/border/);
+    expect(screen.getByTestId("pilot-next-best-action").className).not.toMatch(/border-neutral-300/);
   });
 });

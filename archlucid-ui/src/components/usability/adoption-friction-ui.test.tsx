@@ -40,6 +40,8 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByTestId("pilot-command-center-invite-reviewer")).toHaveAttribute("href", INVITE_REVIEWER_PATH);
     expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE }).className).toMatch(/border/);
+    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER }).className).toMatch(/border/);
     expect(screen.queryByTestId("pilot-command-center-setup-disclosure")).toBeNull();
   });
 });

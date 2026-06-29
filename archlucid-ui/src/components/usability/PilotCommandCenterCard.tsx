@@ -17,7 +17,6 @@ import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
@@ -26,7 +25,7 @@ import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
 import { cn } from "@/lib/utils";
 
-const optionalSetupLinkClass = OPERATOR_LINK.optional;
+const optionalSetupButtonClass = "h-7";
 
 const DEFAULT_NEXT_ACTION: PilotNextBestAction = {
   label: "Start review",
@@ -104,33 +103,23 @@ export function PilotCommandCenterCard(): React.JSX.Element {
       ) : null}
 
       {!hasCommittedArchitectureReview ? (
-        <p
-          className={cn(
-            "heroOptionalSetup m-0 mt-2 flex flex-wrap items-center gap-x-1 gap-y-0.5",
-            OPERATOR_TYPE_SCALE.meta,
-            "text-al-text-secondary/80",
-          )}
-          data-testid="pilot-command-center-optional-setup"
-        >
-          <span>{PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL}</span>
-          <Link
-            href={CLOUD_CONNECTIONS_PATH}
-            className={optionalSetupLinkClass}
-            data-testid="pilot-command-center-connect-azure"
-          >
-            {PILOT_COMMAND_CENTER_CONNECT_AZURE}
-          </Link>
-          <span aria-hidden className="text-al-text-secondary/60">
-            ·
-          </span>
-          <Link
-            href={INVITE_REVIEWER_PATH}
-            className={optionalSetupLinkClass}
-            data-testid="pilot-command-center-invite-reviewer"
-          >
-            {PILOT_COMMAND_CENTER_INVITE_REVIEWER}
-          </Link>
-        </p>
+        <div className="heroOptionalSetup mt-2 space-y-2" data-testid="pilot-command-center-optional-setup">
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}>
+            {PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL}
+          </p>
+          <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
+            <Button asChild variant="outline" size="sm" className={optionalSetupButtonClass}>
+              <Link href={CLOUD_CONNECTIONS_PATH} data-testid="pilot-command-center-connect-azure">
+                {PILOT_COMMAND_CENTER_CONNECT_AZURE}
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className={optionalSetupButtonClass}>
+              <Link href={INVITE_REVIEWER_PATH} data-testid="pilot-command-center-invite-reviewer">
+                {PILOT_COMMAND_CENTER_INVITE_REVIEWER}
+              </Link>
+            </Button>
+          </div>
+        </div>
       ) : null}
     </section>
   );
