@@ -50,6 +50,9 @@ function BaselineStepHeading(props: { step: number; title: string; description: 
 /**
  * Client-side unpack of the read-only Azure packager ZIP to read `manifest.json` and prefill wizard fields
  * that map to the architecture review create payload (description, optional system name, topology hints).
+ *
+ * Azure-only: applying a ZIP through this field sets `cloudProvider` to `"Azure"`. Do not embed this component
+ * on AWS/GCP evidence paths — use `Tier1InventoryZipUploadPanel` or a future multi-cloud variant instead.
  */
 export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFieldProps) {
   const { variant, onPendingZipFileChange } = props;
@@ -130,7 +133,7 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <Label className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-          Azure packager ZIP
+          Cloud inventory ZIP
         </Label>
         <InAppHelpLink helpSlug="pilot-guide" label="Open pilot guide" className="h-5 w-5" />
       </div>
@@ -173,7 +176,7 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
       ) : null}
 
       <AzureExtractorZipDropZone
-        ariaLabel="Azure packager ZIP file"
+        ariaLabel="Cloud inventory ZIP file"
         busy={busy}
         busyLabel="Reading extractor package…"
         testId={variant === "baseline" ? "wizard-baseline-zip-field" : "wizard-azure-zip-field"}
