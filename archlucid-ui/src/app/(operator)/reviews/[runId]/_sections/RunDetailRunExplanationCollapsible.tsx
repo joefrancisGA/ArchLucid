@@ -1,23 +1,40 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { cn } from "@/lib/utils";
 import { FindingsWhatIfAnalysisPanel } from "@/components/FindingsWhatIfAnalysisPanel";
+import { cn } from "@/lib/utils";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
+import { cn } from "@/lib/utils";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
+import { cn } from "@/lib/utils";
 import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabilityTable";
+import { cn } from "@/lib/utils";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
+import { cn } from "@/lib/utils";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { CoverageChecklistPanel } from "@/components/usability/CoverageChecklistPanel";
+import { cn } from "@/lib/utils";
 import { InsightDensityCurationBanner } from "@/components/usability/InsightDensityCurationBanner";
+import { cn } from "@/lib/utils";
 import type { FindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";
+import { cn } from "@/lib/utils";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { cn } from "@/lib/utils";
 import type { RunExplanationSummary } from "@/types/explanation";
+import { cn } from "@/lib/utils";
 import { RunDecisionExplainabilitySection } from "@/components/RunDecisionExplainabilitySection";
+import { cn } from "@/lib/utils";
 import type { RunDecisionExplainabilityModel } from "@/lib/run-decision-explainability-from-detail";
 
+import { cn } from "@/lib/utils";
 import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";
 
 type RunDetailRunExplanationCollapsibleProps = {

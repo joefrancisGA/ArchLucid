@@ -1,10 +1,10 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useMemo } from "react";
 
 import type { PilotValueReportSeverityJson } from "@/types/pilot-value-report";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type Props = {
   readonly counts: PilotValueReportSeverityJson;

@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -25,7 +26,6 @@ import {
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import {
   formatRiskExceptionExpiresAtUtc,

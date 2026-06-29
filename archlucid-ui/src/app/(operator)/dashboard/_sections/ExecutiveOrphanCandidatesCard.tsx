@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -9,7 +10,6 @@ import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-h
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function formatUsd(value: number | null | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {

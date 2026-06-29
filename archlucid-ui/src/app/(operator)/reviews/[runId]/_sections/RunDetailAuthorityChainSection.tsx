@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import type { ReactElement } from "react";
@@ -10,7 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import type { RunDetail } from "@/types/authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 

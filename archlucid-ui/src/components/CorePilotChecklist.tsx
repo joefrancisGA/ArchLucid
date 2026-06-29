@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -17,7 +18,6 @@ import { resolveCorePilotStepPresentation } from "@/lib/core-pilot-step-presenta
 import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /** Anchor ids in docs/CORE_PILOT.md walkthrough (section 3) — keep aligned with headings. */
 const CORE_PILOT_HELP_HASH_FRAGMENTS = [

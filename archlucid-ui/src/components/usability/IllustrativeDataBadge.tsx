@@ -1,6 +1,7 @@
-import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
+import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type IllustrativeDataBadgeProps = {
   readonly className?: string;

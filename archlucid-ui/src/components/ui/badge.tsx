@@ -1,6 +1,8 @@
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import * as React from "react"
+import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority"
 
 const badgeVariants = cva(

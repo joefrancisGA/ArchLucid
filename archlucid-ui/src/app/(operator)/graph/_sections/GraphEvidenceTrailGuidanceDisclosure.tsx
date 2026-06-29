@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import {
   BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE,
@@ -8,7 +9,6 @@ import {
 import { mergeLayerGuidanceForGraphDisclosure } from "@/lib/layer-guidance";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useNavSurface } from "@/lib/use-nav-surface";
-import { cn } from "@/lib/utils";
 
 export type GraphEvidenceTrailGuidanceDisclosureProps = {
   className?: string;

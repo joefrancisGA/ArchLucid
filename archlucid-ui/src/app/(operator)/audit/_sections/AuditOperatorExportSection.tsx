@@ -1,11 +1,12 @@
+import { cn } from "@/lib/utils";
 import {
   auditExportControlDisabledTitle,
   auditExportCsvButtonLabelRoleRestricted,
   auditExportCsvButtonLabelWindowIncomplete,
   auditExportSectionSupportingLine,
 } from "@/lib/enterprise-controls-context-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type AuditOperatorExportSectionProps = {
   csvExportUiAllowed: boolean;

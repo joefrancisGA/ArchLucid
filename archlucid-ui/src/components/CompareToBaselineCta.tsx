@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -11,7 +12,6 @@ import {
 } from "@/lib/compare-baseline-run";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /**
  * When a baseline run id is stored for this browser, surfaces a one-click navigation to `/compare`

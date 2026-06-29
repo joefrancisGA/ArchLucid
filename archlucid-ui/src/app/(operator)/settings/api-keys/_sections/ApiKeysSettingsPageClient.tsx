@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -7,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { cn } from "@/lib/utils";
 
 type AdminApiKeySettingsResponse = components["schemas"]["AdminApiKeySettingsResponse"];
 type AdminApiKeyRotateResponse = components["schemas"]["AdminApiKeyRotateResponse"];

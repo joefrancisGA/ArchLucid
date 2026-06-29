@@ -1,11 +1,11 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type EvidenceProposalRow = {
   resultId: string;

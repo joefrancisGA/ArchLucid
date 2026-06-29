@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -56,7 +57,6 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 import type { RunSummary } from "@/types/authority";
-import { cn } from "@/lib/utils";
 
 const EMPTY_COMMIT_CONTEXT: CorePilotCommitContext = {
   hasCommittedManifest: false,

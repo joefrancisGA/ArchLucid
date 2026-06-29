@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -22,7 +23,6 @@ import {
 } from "@/lib/governance-lineage-metric-format";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { governanceLineageApprovalDisplayTitle } from "./governance-lineage-approval-display-title";
 

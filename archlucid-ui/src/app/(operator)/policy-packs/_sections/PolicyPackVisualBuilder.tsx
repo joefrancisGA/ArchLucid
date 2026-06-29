@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -26,7 +27,6 @@ import {
 } from "@/lib/policy-pack-visual-builder";
 import { showSuccess } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type PolicyPackVisualBuilderProps = {
   readonly canMutatePacks: boolean;

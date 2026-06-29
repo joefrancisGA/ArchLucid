@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
@@ -12,7 +13,6 @@ import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
-import { cn } from "@/lib/utils";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
 import { ReviewIntakeInvalidTemplateCallout } from "@/components/review-intake/ReviewIntakeInvalidTemplateCallout";

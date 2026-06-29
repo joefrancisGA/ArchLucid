@@ -1,7 +1,8 @@
+import { cn } from "@/lib/utils";
 import type { HTMLAttributes, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from "react";
 
-import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
 
 export type EnterpriseTableProps = TableHTMLAttributes<HTMLTableElement> & {
   /** Accessible name when the table caption is not visible. */

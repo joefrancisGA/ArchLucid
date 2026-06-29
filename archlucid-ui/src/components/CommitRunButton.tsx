@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -26,7 +27,6 @@ import {
 } from "@/lib/first-tenant-funnel-telemetry";
 import { resolvePreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-block-problem";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /** Nav and review-detail copy — replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
 export const FINALIZE_REPLAY_COMPARE_TOOLTIP = "Replay and comparison remain available after finalizing.";

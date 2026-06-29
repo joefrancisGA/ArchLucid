@@ -1,16 +1,26 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { cn } from "@/lib/utils";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { cn } from "@/lib/utils";
 import { BUYER_SHOWCASE_POLICY_PACK_LABEL } from "@/lib/buyer-polish-copy";
+import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { cn } from "@/lib/utils";
 import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
+import { cn } from "@/lib/utils";
 import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
+import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { resolvePolicyRuleIdFromInspect, resolvePolicyRuleLabelFromInspect } from "@/lib/finding-policy-evidence-citations";
+import { cn } from "@/lib/utils";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 export type FindingInspectWhyMattersSectionProps = {

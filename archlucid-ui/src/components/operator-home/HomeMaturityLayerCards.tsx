@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -6,7 +7,6 @@ import { BarChart3, Search, Shield } from "lucide-react";
 
 import { OPERATOR_HOME_SECTION_HEADING, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { cn } from "@/lib/utils";
 
 type LayerCardProps = {
   icon: ReactNode;

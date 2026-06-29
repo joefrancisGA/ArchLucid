@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -17,7 +18,6 @@ import {
 } from "@/lib/operator-scope-storage";
 import { resolveOperatorBillingCurrentPlan } from "@/lib/operator-billing-current-plan";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function readWorkspaceLabelFromStorage(): string | null {
   const scope = readOperatorScopeFromStorage();

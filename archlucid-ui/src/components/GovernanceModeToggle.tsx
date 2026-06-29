@@ -1,6 +1,6 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { GOVERNANCE_MODE_COPY } from "@/lib/governance-mode-vocabulary";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";

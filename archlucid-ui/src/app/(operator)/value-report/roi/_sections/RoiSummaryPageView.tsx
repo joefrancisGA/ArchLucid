@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -13,7 +14,6 @@ import { Button } from "@/components/ui/button";
 
 import type { RoiSummaryPageViewModel } from "./roi-summary-page-view-model";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type Props = {
   readonly model: RoiSummaryPageViewModel;

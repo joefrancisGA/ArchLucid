@@ -1,6 +1,6 @@
 "use client";
-import { OPERATOR_HOME_SUBSECTION_LABEL, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_HOME_SUBSECTION_LABEL, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useEffect, useSyncExternalStore, useState } from "react";

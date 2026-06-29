@@ -1,10 +1,10 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
 import { OnboardingStartClient } from "@/components/OnboardingStartClient";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { readLastRegistrationPayload } from "@/lib/registration-session";
 
 export type GettingStartedTrialSectionProps = {

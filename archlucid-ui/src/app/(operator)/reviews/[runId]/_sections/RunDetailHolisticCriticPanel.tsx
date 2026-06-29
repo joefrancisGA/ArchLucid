@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 
@@ -11,7 +12,6 @@ import { generateHolisticCritique } from "@/lib/api/holistic-critic-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type RunDetailHolisticCriticPanelProps = {
   readonly runId: string;

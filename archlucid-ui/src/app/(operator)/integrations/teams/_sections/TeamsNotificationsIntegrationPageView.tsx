@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -13,7 +14,6 @@ import { Label } from "@/components/ui/label";
 import { describeTeamsNotificationTrigger } from "./teams-integration-trigger-descriptions";
 import type { TeamsNotificationsIntegrationPageViewModel } from "./teams-notifications-integration-view-model";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type Props = {
   readonly model: TeamsNotificationsIntegrationPageViewModel;

@@ -1,8 +1,10 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { cn } from "@/lib/utils";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /**
  * Short-lived navigation state only — structured page chrome (not a generic skeleton) so screenshots and

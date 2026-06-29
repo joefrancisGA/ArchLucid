@@ -10,26 +10,41 @@ Get-ChildItem -LiteralPath $uiRoot -Recurse -Include *.tsx, *.ts -File |
   ForEach-Object {
     $path = $_.FullName
     $content = [System.IO.File]::ReadAllText($path)
+    $original = $content
+
+    $content = [regex]::Replace($content, '(?m)^import \{ cn \} from "@/lib/utils";\r?\n', '')
 
     if ($content -notmatch '\bcn\(') {
+      if ($original -ne $content) {
+        [System.IO.File]::WriteAllText($path, $content)
+        $repaired++
+        Write-Host ("deduped-only {0}" -f $path.Replace($uiRoot + [IO.Path]::DirectorySeparatorChar, ""))
+      }
+
       return
     }
 
     if ($content -match '(?m)^import \{ cn \} from "@/lib/utils";') {
+      if ($original -ne $content) {
+        [System.IO.File]::WriteAllText($path, $content)
+        $repaired++
+        Write-Host ("deduped {0}" -f $path.Replace($uiRoot + [IO.Path]::DirectorySeparatorChar, ""))
+      }
+
       return
     }
 
     if ($content -match '(?m)^"use client";\r?\n') {
-      $updated = [regex]::Replace($content, '(?m)^("use client";\r?\n)', "`$1$cnImport`n", 1)
+      $content = [regex]::Replace($content, '(?m)^("use client";\r?\n)', "`$1$cnImport`n", 1)
     }
     elseif ($content -match '(?m)^import ') {
-      $updated = [regex]::Replace($content, '(?m)^import ', "$cnImport`nimport ", 1)
+      $content = [regex]::Replace($content, '(?m)^import ', "$cnImport`nimport ", 1)
     }
     else {
-      $updated = "$cnImport`n$content"
+      $content = "$cnImport`n$content"
     }
 
-    [System.IO.File]::WriteAllText($path, $updated)
+    [System.IO.File]::WriteAllText($path, $content)
     $repaired++
     Write-Host ("repaired {0}" -f $path.Replace($uiRoot + [IO.Path]::DirectorySeparatorChar, ""))
   }

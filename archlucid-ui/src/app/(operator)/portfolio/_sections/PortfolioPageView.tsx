@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,6 @@ import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_KPI_CARD_TITLE, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
-import { cn } from "@/lib/utils";
 import { AlertCircle, Info } from "lucide-react";
 
 const CROSS_TENANT_PORTFOLIO_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiCrossTenantPortfolio}`;

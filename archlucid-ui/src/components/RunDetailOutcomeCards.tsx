@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -17,7 +18,6 @@ import {
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { components } from "@/lib/openapi-schemas";
 
 export type ShowcasePolicyPackStripLink = {

@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 import type { ReactElement } from "react";
@@ -10,7 +11,6 @@ import type {
   FindingPolicyCitationLink,
   FindingPolicyPackCitationLink,
 } from "@/lib/finding-policy-evidence-citations";
-import { cn } from "@/lib/utils";
 
 export type FindingPolicyTraceabilityBadgesProps = {
   readonly pack?: FindingPolicyPackCitationLink | null;

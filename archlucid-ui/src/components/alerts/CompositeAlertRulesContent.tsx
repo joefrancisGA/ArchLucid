@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
@@ -31,7 +32,6 @@ import {
   compositeRulesEmptyGettingStartedReader,
 } from "@/lib/alerts-hub-empty-guidance";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 const METRICS = [

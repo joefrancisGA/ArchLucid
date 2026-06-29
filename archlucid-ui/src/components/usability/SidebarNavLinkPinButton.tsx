@@ -1,8 +1,8 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { Pin, PinOff } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 
 type SidebarNavLinkPinButtonProps = {
   readonly pinned: boolean;

@@ -1,10 +1,10 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
 import type { SetupHealthPresentation } from "@/lib/setup-health-present";
 import { OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type WorkspaceSetupHealthCalloutProps = {
   readonly presentation: SetupHealthPresentation;

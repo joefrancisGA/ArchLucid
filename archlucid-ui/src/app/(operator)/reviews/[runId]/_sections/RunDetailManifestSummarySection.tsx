@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import type { ReactElement } from "react";
 
@@ -15,7 +16,6 @@ import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { ManifestSummary } from "@/types/authority";
 
 import { RunDetailFeasibilityVerdictSection } from "./RunDetailFeasibilityVerdictSection";

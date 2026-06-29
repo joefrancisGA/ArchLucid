@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect } from "react";
@@ -9,7 +10,6 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reportClientError } from "@/lib/error-telemetry";
-import { cn } from "@/lib/utils";
 
 /**
  * Segment error boundary for `/runs` so list/split layout failures stay scoped and surface a recovery path

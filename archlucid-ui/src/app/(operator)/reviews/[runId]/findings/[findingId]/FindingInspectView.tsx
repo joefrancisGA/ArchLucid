@@ -1,31 +1,46 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
+import { cn } from "@/lib/utils";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { cn } from "@/lib/utils";
 import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/OperatorEvidenceLimitsFooter";
+import { cn } from "@/lib/utils";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { cn } from "@/lib/utils";
 import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
+import { cn } from "@/lib/utils";
 import {
   findingDetailHeadingTitle,
   findingDetailLeadSentence,
   findingInspectPageEyebrow,
 } from "@/lib/finding-display-from-inspect";
+import { cn } from "@/lib/utils";
 import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-display";
+import { cn } from "@/lib/utils";
 import { findingIdsAlignForInspectRoute } from "@/lib/load-finding-inspect-for-route";
+import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { cn } from "@/lib/utils";
 import {
   buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/finding-policy-evidence-citations";
+import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
+import { cn } from "@/lib/utils";
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
+import { cn } from "@/lib/utils";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
+import { cn } from "@/lib/utils";
 import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
 
 /** Compares authority run ids from URL vs API (hyphenated vs `N` GUID, case). */

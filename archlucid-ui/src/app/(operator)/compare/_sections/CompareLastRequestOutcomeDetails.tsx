@@ -1,10 +1,15 @@
-import { compareRunHeadingLabel } from "@/lib/compare-run-display";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import type { GoldenManifestComparison } from "@/types/comparison";
-import type { RunComparison, RunSummary } from "@/types/authority";
-import { outcomeLabel, type ComparedPair } from "@/app/(operator)/compare/_sections/compare-page-helpers";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { compareRunHeadingLabel } from "@/lib/compare-run-display";
+import { cn } from "@/lib/utils";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { cn } from "@/lib/utils";
+import type { GoldenManifestComparison } from "@/types/comparison";
+import { cn } from "@/lib/utils";
+import type { RunComparison, RunSummary } from "@/types/authority";
+import { cn } from "@/lib/utils";
+import { outcomeLabel, type ComparedPair } from "@/app/(operator)/compare/_sections/compare-page-helpers";
+import { cn } from "@/lib/utils";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareLastRequestOutcomeDetailsProps = {
   pairAligned: boolean;

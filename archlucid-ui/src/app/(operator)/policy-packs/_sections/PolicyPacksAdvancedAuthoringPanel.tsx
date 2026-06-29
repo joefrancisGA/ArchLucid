@@ -1,11 +1,11 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import type { ReactElement } from "react";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { PolicyPackGeneratorSection } from "./PolicyPackGeneratorSection";
 import { PolicyPacksAuthoringTabSection } from "./PolicyPacksAuthoringTabSection";

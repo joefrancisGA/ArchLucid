@@ -1,10 +1,10 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type FindingInspectItsmWorkflowPanelProps = {
   readonly findingId: string;

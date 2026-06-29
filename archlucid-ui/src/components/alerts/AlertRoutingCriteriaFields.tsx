@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import type { AlertRoutingCriteria } from "@/lib/alert-routing-criteria";
 import {
@@ -8,7 +9,6 @@ import {
   parseTagsInput,
 } from "@/lib/alert-routing-criteria";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type AlertRoutingCriteriaFieldsProps = {
   criteria: AlertRoutingCriteria;

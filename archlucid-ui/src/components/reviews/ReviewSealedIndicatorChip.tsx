@@ -1,8 +1,10 @@
+import { cn } from "@/lib/utils";
 import { Lock } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ReviewSealedIndicatorChipProps = {
   /** ISO-8601 UTC timestamp of when the package was sealed (golden manifest committed). */

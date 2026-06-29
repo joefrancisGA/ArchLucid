@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -18,7 +19,6 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { FindingConfidenceLevel, FindingEvidenceChain, FindingLlmAudit } from "@/types/explanation";
 
 export type FindingExplainPanelProps = {

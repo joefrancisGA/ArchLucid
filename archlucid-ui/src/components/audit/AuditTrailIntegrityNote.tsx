@@ -1,6 +1,7 @@
-import { AUDIT_TRAIL_INTEGRITY_NOTE } from "@/lib/buyer-polish-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { AUDIT_TRAIL_INTEGRITY_NOTE } from "@/lib/buyer-polish-copy";
+import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Tamper-evident framing for the operator audit log — procurement buyers look for append-only honesty. */
 export function AuditTrailIntegrityNote(props: { readonly className?: string }): React.JSX.Element {

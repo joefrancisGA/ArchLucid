@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { X } from "lucide-react";
 import Link from "next/link";
@@ -9,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import {
   formatTrialExportOnlyPurgeHeadline,
   TRIAL_EXPORT_ONLY_SUPPORTING_LINE,

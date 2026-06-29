@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { Search } from "lucide-react";
 import Link from "next/link";
@@ -21,7 +22,6 @@ import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { getDocHref, helpTopicsForGuidesTab, helpTopicsForTroubleshootingTab, type HelpTopic } from "@/lib/help-topics";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
 

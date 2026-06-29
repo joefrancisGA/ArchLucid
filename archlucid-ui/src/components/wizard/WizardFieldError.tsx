@@ -1,7 +1,7 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 /** Inline validation message: consistent with the usability prompt (focus-visible is on the input). */
 export function WizardFieldError({ id, message }: { id?: string; message?: string }) {
   if (message == null || message.length === 0) {

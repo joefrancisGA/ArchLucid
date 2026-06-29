@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -35,7 +36,6 @@ import {
 } from "@/lib/design-tokens";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { cn } from "@/lib/utils";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,

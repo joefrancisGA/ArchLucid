@@ -1,8 +1,11 @@
-import type { RunDetailFirstScreenProofSummary } from "@/lib/run-detail-first-screen-proof-status";
-import { runDetailFirstScreenProofDispositionClass } from "@/lib/run-detail-first-screen-proof-status";
-import { PROOF_CONFIDENCE_FIELD_LABEL } from "@/lib/proof-confidence-taxonomy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import type { RunDetailFirstScreenProofSummary } from "@/lib/run-detail-first-screen-proof-status";
+import { cn } from "@/lib/utils";
+import { runDetailFirstScreenProofDispositionClass } from "@/lib/run-detail-first-screen-proof-status";
+import { cn } from "@/lib/utils";
+import { PROOF_CONFIDENCE_FIELD_LABEL } from "@/lib/proof-confidence-taxonomy";
+import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type RunDetailFirstScreenProofStatusProps = {
   readonly summary: RunDetailFirstScreenProofSummary;

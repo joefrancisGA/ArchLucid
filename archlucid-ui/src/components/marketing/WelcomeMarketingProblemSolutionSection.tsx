@@ -1,11 +1,12 @@
+import { cn } from "@/lib/utils";
 import {
   WELCOME_PROBLEM_BODY,
   WELCOME_PROBLEM_HEADING,
   WELCOME_SOLUTION_BODY,
   WELCOME_SOLUTION_HEADING,
 } from "@/components/marketing/welcome-marketing-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Problem → solution framing for the public homepage (service-led wedge). */
 export function WelcomeMarketingProblemSolutionSection() {

@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -6,7 +7,6 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import {
   assertOidcSignInConfig,

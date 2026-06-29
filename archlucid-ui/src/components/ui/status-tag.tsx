@@ -1,12 +1,14 @@
+import { cn } from "@/lib/utils";
 import type { HTMLAttributes } from "react";
 
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import {
   ENTERPRISE_STATUS_LABELS,
   enterpriseStatusTagClass,
   type EnterpriseStatusKind,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type StatusTagProps = {
   kind: EnterpriseStatusKind;

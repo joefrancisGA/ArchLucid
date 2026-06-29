@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -43,7 +44,6 @@ import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/
 import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { runsListPageFilterStatusLine } from "@/lib/runs-list-filter-status-line";
-import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 export type RunsListClientProps = {

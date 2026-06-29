@@ -1,18 +1,27 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 import { BUYER_GOVERNANCE_PAGE_TITLE, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_POLICY_PACK_LEAD } from "@/lib/buyer-polish-copy";
+import { cn } from "@/lib/utils";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { cn } from "@/lib/utils";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 
 type HealthcareClaimsPolicyPackDetailProps = {

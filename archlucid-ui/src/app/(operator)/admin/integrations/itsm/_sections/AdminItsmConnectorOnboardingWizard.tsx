@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
@@ -24,7 +25,6 @@ import {
   resolveItsmOnboardingWizardInitialStep,
   type ItsmOnboardingWizardStep,
 } from "@/lib/itsm-native-create-readiness";
-import { cn } from "@/lib/utils";
 
 type Props = {
   readonly initialSettings: TenantItsmOutboundSettingsResponse | null;

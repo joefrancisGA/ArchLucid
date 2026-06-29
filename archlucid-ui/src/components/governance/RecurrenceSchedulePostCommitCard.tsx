@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -13,7 +14,6 @@ import {
   type ArchitectureReviewRecurrenceSchedule,
 } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const DEFAULT_CRON = "0 8 * * 1";
 const DEFAULT_NAME = "Weekly architecture review";

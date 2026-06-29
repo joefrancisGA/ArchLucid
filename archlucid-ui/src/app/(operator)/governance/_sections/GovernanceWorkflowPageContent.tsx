@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -37,7 +38,6 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { CtoDemoGovernancePreviewHint } from "@/components/OperateCapabilityHints";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {

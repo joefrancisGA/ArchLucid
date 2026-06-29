@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -9,7 +10,6 @@ import { buildOperatorBillingPricingLines } from "@/lib/operator-billing-pricing
 import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
 import { showInfo } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function PricingLines(props: { pricing: PricingDoc; pkg: PricingPackage }) {
   const lines = buildOperatorBillingPricingLines(props.pricing, props.pkg);

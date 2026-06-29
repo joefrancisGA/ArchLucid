@@ -1,14 +1,17 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
 import { LayerHeader } from "@/components/LayerHeader";
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   OPERATOR_SECURITY_TRUST_AVAILABLE_NOW_ITEMS,
   OPERATOR_SECURITY_TRUST_NDA_EMAIL,
   OPERATOR_SECURITY_TRUST_NDA_INTRO,
   OPERATOR_SECURITY_TRUST_ROADMAP_ITEMS,
 } from "@/lib/operator-security-trust-content";
-import { cn } from "@/lib/utils";
 
 const securityTrustLinkClassName = cn(
   OPERATOR_TYPOGRAPHY.body,

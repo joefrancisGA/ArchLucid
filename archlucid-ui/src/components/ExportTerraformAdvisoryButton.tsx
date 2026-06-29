@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useState, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
@@ -18,7 +19,6 @@ import { downloadTerraformAdvisoryExportZip } from "@/lib/api";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { showError } from "@/lib/toast";
 import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
-import { cn } from "@/lib/utils";
 
 export type ExportTerraformAdvisoryButtonProps = {
   runId: string;

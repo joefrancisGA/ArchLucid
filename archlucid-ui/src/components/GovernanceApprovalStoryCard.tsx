@@ -1,9 +1,13 @@
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import {
   BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE,
   BUYER_SHOWCASE_APPROVAL_UTC,
@@ -14,7 +18,9 @@ import {
   BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer-polish-copy";
+import { cn } from "@/lib/utils";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
+import { cn } from "@/lib/utils";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
 /**

@@ -1,10 +1,12 @@
+import { cn } from "@/lib/utils";
 import {
   BUYER_CTO_DEMO_ISOLATION_PROOF_BODY,
   BUYER_CTO_DEMO_ISOLATION_PROOF_HEADING,
 } from "@/lib/buyer-polish-copy";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { SHOWCASE_DEMO_TENANT_CATALOG_ID, SHOWCASE_DEMO_TENANT_NAME } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+import { SHOWCASE_DEMO_TENANT_CATALOG_ID, SHOWCASE_DEMO_TENANT_NAME } from "@/lib/showcase-static-demo";
 
 /** Factual isolation evidence shown when opening the how-it-works dialog from the tenant badge. */
 export function CtoDemoTenantIsolationProofCallout(): React.JSX.Element {

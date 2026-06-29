@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -6,7 +7,6 @@ import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { BUYER_CTO_DEMO_VALUE_STRIP_LABELS } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type CtoDemoBuyerValueStripProps = {
   readonly stepIndex: 0 | 1 | 2 | 3 | 4;

@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { Building2 } from "lucide-react";
 import Link from "next/link";
@@ -13,7 +14,6 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator-scope-storage";
-import { cn } from "@/lib/utils";
 
 export type TenantWorkspaceBoundaryBadgeProps = {
   readonly variant?: "header" | "compact";

@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useMemo } from "react";
@@ -10,7 +11,6 @@ import { readBuyerCtoDemoTourActive, resolveBuyerCtoDemoTourNavigation } from "@
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import type { BlockedRouteEntry } from "@/lib/cto-demo-blocked-route-registry";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type CtoDemoBlockedRoutePanelProps = {
   readonly entry: BlockedRouteEntry;

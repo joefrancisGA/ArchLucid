@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { GovernanceConflictsTable } from "@/components/governance/GovernanceConflictsTable";
@@ -23,7 +24,6 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { triggerGovernanceResolutionMarkdownDownload } from "@/lib/governance-resolution-markdown";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 

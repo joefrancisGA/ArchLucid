@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -6,7 +7,6 @@ import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Card, CardContent } from "@/components/ui/card";
 import type { GovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type DecisionsNeededTile = {
   key: string;

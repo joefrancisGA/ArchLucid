@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -24,7 +25,6 @@ import {
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
-import { cn } from "@/lib/utils";
 
 const optionalSetupLinkClass = OPERATOR_LINK.optional;
 

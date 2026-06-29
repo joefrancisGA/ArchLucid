@@ -1,18 +1,28 @@
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
 import { applyBuyerPolishedGoldenManifestSummaryHighlights } from "@/lib/buyer-golden-manifest-summary-highlights";
+import { cn } from "@/lib/utils";
 import {
   BUYER_COMPARE_STRUCTURED_HEADING,
   BUYER_COMPARE_STRUCTURED_LEAD,
 } from "@/lib/buyer-polish-copy";
+import { cn } from "@/lib/utils";
 import { decisionKeyDisplay } from "@/lib/compare-decision-key-display";
+import { cn } from "@/lib/utils";
 import { partitionDecisionDeltas } from "@/lib/compare-decision-delta-material";
+import { cn } from "@/lib/utils";
 import { getArchitecturePackageDocxUrl } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
+import { cn } from "@/lib/utils";
 import { sortGoldenManifestComparison } from "@/lib/compare-display-sort";
+import { cn } from "@/lib/utils";
 import type { DecisionDelta, GoldenManifestComparison } from "@/types/comparison";
+import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 const cellCls = "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";

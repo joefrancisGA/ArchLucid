@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -10,7 +11,6 @@ import {
 } from "@/lib/aws-cloud-connection-admin-scope";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
 
 export function AdminAwsCloudConnectionsPageClient(): React.ReactElement {
   return (

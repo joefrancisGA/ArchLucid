@@ -1,10 +1,15 @@
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, Circle } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
+import { cn } from "@/lib/utils";
 import { isTimelineMilestoneEvent } from "@/lib/timeline-milestone-events";
+import { cn } from "@/lib/utils";
 import type { PipelineTimelineItem } from "@/types/authority";
 
 type AuthorityPipelineTimelineProps = {

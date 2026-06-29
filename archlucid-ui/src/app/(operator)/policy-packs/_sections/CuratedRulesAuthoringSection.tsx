@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useMemo, useState } from "react";
 
@@ -24,7 +25,6 @@ import {
   serializeCuratedRulesDocument,
 } from "@/lib/policy-pack-curated-rules-v1";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type CuratedRulesAuthoringSectionProps = {
   readonly canMutatePacks: boolean;

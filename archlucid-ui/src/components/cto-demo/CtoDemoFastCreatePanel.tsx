@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
@@ -17,7 +18,6 @@ import {
 } from "@/lib/cto-demo-fast-create";
 import { findQuickReviewSampleBrief, QUICK_REVIEW_DEMO_DEFAULT_BRIEF_ID } from "@/lib/quick-review-sample-briefs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function buildHealthcareLivePayload(): CreateArchitectureRunRequestPayload {
   const sample = findQuickReviewSampleBrief(QUICK_REVIEW_DEMO_DEFAULT_BRIEF_ID);

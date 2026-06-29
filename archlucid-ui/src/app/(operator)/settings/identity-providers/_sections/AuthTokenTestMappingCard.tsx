@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 
@@ -11,7 +12,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { components } from "@/lib/openapi-schemas";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
-import { cn } from "@/lib/utils";
 
 type AdminTokenClaimsDiagnosticResponse = components["schemas"]["AdminTokenClaimsDiagnosticResponse"];
 

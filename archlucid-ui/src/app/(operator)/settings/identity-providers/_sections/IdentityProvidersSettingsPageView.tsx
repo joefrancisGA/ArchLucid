@@ -1,10 +1,10 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";

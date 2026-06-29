@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useMemo } from "react";
 
@@ -9,7 +10,6 @@ import { Progress } from "@/components/ui/progress";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ExplanationResult, RunExplanationSummary } from "@/types/explanation";
 import { enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { isDeterministicExplanationFallback, normalizeFiniteRatio, traceCompletenessPercent } from "@/types/explanation";
 
 export type RunExplanationSectionProps = {

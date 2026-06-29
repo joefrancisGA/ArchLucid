@@ -1,26 +1,39 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { cn } from "@/lib/utils";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { cn } from "@/lib/utils";
 import { ManifestJsonActions } from "@/components/ManifestJsonActions";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { getBundleDownloadUrl } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { cn } from "@/lib/utils";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
+import { cn } from "@/lib/utils";
 import {
   BUYER_EXAMPLE_COUNT_SUFFIX,
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY,
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE,
   BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP,
 } from "@/lib/buyer-polish-copy";
+import { cn } from "@/lib/utils";
 import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { cn } from "@/lib/utils";
 import {
   SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT,
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
@@ -29,8 +42,8 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
 } from "@/lib/showcase-static-demo";
-import type { ManifestSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
+import type { ManifestSummary } from "@/types/authority";
 
 export type ManifestDetailSummaryPanelProps = {
   readonly summary: ManifestSummary;

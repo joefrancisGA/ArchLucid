@@ -1,9 +1,9 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { ScorecardMetricCard } from "./ScorecardMetricCard";
 import type { UsePilotScorecardPageModel } from "./use-pilot-scorecard-page";

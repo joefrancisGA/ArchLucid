@@ -1,11 +1,14 @@
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
 import {
   resolveSponsorArtifactEvidenceBadges,
   type ResolveSponsorArtifactEvidenceBadgeInput,
 } from "@/lib/sponsor-artifact-evidence-badge";
+import { cn } from "@/lib/utils";
 import { resolveSponsorArtifactTrustPostures } from "@/lib/sponsor-artifact-trust-posture";
 
 export type SponsorArtifactEvidenceBadgeProps = ResolveSponsorArtifactEvidenceBadgeInput;

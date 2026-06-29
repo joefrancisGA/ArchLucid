@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
@@ -7,7 +8,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { AzureExtractorQuickStartCommandPanel } from "@/components/wizard/AzureExtractorQuickStartCommandPanel";
 import { AzureExtractorPackageZipField } from "@/components/wizard/steps/AzureExtractorPackageZipField";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /**
  * Optional Azure inventory packaging step.

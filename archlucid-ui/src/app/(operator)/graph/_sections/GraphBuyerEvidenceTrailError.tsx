@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -18,7 +19,6 @@ import {
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type GraphBuyerEvidenceTrailErrorProps = {
   failure: ApiLoadFailureState;

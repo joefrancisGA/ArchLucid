@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useId, useMemo, useState } from "react";
 
@@ -9,7 +10,6 @@ import { getFindingLlmAudit } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import type { FindingLlmAudit } from "@/types/explanation";
 import type { FindingProvenance } from "@/lib/api/finding-provenance";

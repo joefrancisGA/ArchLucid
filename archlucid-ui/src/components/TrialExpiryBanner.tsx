@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { X } from "lucide-react";
 import Link from "next/link";
@@ -8,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /** Session-only: dismiss hides the banner until the browser tab/session ends. */
 const SESSION_DISMISS_KEY = "archlucid_trial_expiry_banner_dismissed_session";

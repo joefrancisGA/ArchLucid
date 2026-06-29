@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
@@ -21,7 +22,6 @@ import {
   summarizePolicyImpactGateResult,
   type PolicyImpactPreviewGateSummary,
 } from "@/lib/policy-pack-impact-preview";
-import { cn } from "@/lib/utils";
 import type { PolicyPackContentDocument, PolicyPackVersion } from "@/types/policy-packs";
 
 export type PolicyPackImpactPreviewPanelProps = {

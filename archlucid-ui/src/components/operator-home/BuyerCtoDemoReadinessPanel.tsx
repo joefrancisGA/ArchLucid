@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -23,7 +24,6 @@ import {
 import { buildCtoDemoRunOfShowMarkdown } from "@/lib/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function readinessBadgeLabel(result: BuyerCtoDemoReadinessResult | null): string {
   if (result === null) {

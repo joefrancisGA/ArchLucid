@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { X } from "lucide-react";
 import Link from "next/link";
@@ -16,7 +17,6 @@ import {
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { startTrialBillingCheckout } from "@/lib/trial-billing-checkout";
 import {
   dismissTrialUpgradeNudge24h,

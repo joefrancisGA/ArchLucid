@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -23,7 +24,6 @@ import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
 } from "@/lib/buyer-polish-copy";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";

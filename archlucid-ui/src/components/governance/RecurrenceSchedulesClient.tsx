@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -23,7 +24,6 @@ import {
   type ArchitectureReviewRecurrenceSchedule,
 } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function truncateRunId(runId: string): string {
   const normalized = runId.replace(/-/g, "");

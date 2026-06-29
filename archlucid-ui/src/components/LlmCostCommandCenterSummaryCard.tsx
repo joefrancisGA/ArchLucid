@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 import type { ReactElement } from "react";
@@ -18,7 +19,6 @@ import {
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
 import { OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function formatUsd(amount: number, currency: string): string {
   return new Intl.NumberFormat(undefined, {

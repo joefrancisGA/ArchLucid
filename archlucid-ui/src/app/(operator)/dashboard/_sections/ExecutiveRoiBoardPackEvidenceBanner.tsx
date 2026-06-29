@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import type { ReactElement } from "react";
@@ -12,7 +13,6 @@ import {
   type BoardPackClusterEvidencePosture,
 } from "@/lib/executive-roi-board-pack-evidence-clusters";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { cn } from "@/lib/utils";
 
 export type ExecutiveRoiBoardPackEvidenceBannerProps = {
   readonly summary: ExecutiveRoiSummary;

@@ -1,10 +1,10 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { PolicyRuleAuthoringWizard } from "./PolicyRuleAuthoringWizard";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type PolicyPacksAuthoringTabSectionProps = {
   readonly model: PolicyPacksPageViewModel;

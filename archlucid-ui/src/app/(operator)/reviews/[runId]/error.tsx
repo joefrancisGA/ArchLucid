@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect } from "react";
@@ -13,7 +14,6 @@ import { reportClientError } from "@/lib/error-telemetry";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
-import { cn } from "@/lib/utils";
 
 /**
  * Segment error boundary for `/reviews/[runId]` so review detail client failures show buyer-safe recovery

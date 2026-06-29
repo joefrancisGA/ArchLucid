@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
   policyPacksCurrentPacksHeadingOperator,
   policyPacksCurrentPacksHeadingReader,
@@ -5,13 +6,19 @@ import {
   policyPacksEmptyScopeReaderLine,
   policyPacksPackSelectReaderTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { cn } from "@/lib/utils";
 import { policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
+import { cn } from "@/lib/utils";
 import { isStandardBaselinePolicyPackName } from "@/lib/policy-pack-standard-baseline";
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { cn } from "@/lib/utils";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
+import { cn } from "@/lib/utils";
 import { StatusTag } from "@/components/ui/status-tag";
+import { cn } from "@/lib/utils";
 import type { PolicyPack } from "@/types/policy-packs";
 
 export type PolicyPacksRegisteredListSectionProps = {

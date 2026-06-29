@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useMemo, useState } from "react";
 
@@ -17,7 +18,6 @@ import {
 } from "@/lib/policy-pack-curated-rules-v1";
 import { showSuccess } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type PolicyRulePlainEnglishDraftPanelProps = {
   readonly canMutatePacks: boolean;

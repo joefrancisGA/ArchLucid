@@ -1,8 +1,10 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { RunDecisionExplainabilityModel } from "@/lib/run-decision-explainability-from-detail";
 import { cn } from "@/lib/utils";
+import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+import type { RunDecisionExplainabilityModel } from "@/lib/run-decision-explainability-from-detail";
 
 function formatConfidence(confidence: number | null): string {
   if (confidence === null || !Number.isFinite(confidence)) {

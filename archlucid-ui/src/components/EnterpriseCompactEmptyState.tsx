@@ -1,9 +1,12 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import type { ReactElement, ReactNode } from "react";
 
-import { Button } from "@/components/ui/button";
-import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
 export type EnterpriseCompactEmptyStateAction = {
   readonly label: string;

@@ -1,9 +1,12 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { cn } from "@/lib/utils";
 import {
   buildRetrievalHitActionLink,
   resolveRetrievalHitRunId,
@@ -11,6 +14,7 @@ import {
   retrievalHitRelevanceTier,
   retrievalHitSourceTypeLabel,
 } from "./retrieval-hit-display";
+import { cn } from "@/lib/utils";
 import type { RetrievalHit } from "./retrieval-hit";
 
 export type SearchRetrievalHitCardProps = {

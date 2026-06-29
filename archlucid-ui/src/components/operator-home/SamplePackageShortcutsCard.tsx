@@ -1,20 +1,25 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   BUYER_HOME_EXAMPLE_EXPLORE_LINK,
   BUYER_HOME_EXAMPLE_PACKAGE_HEADING,
   BUYER_HOME_EXAMPLE_PACKAGE_LEAD,
   BUYER_HOME_EXAMPLE_PACKAGE_SHORTCUTS_ARIA,
 } from "@/lib/buyer-polish-copy";
+import { cn } from "@/lib/utils";
 import {
   getCanonicalReviewWorkspaceHref,
   getShowcaseManifestHref,
   getShowcaseWalkthroughHref,
 } from "@/lib/buyer-safe-review-navigation";
-import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 /** Right-rail example package shortcuts — secondary links (primary CTA lives on the hero card). */
 export function SamplePackageShortcutsCard(): React.JSX.Element {

@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -18,7 +19,6 @@ import { simulateAlertRule } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_CALLOUT_BLOCKED_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { RuleSimulationResult } from "@/types/alert-simulation";
 import type { AlertRule } from "@/types/alerts";
 

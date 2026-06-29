@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Single procurement caveat under tier cards — avoids repeating provisional pricing language elsewhere on the page. */
 export function MarketingPricingPublicCutoverNotice() {

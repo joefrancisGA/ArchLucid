@@ -1,8 +1,10 @@
+import { cn } from "@/lib/utils";
 import type { HTMLAttributes } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { statusPillCombinedClass, type StatusPillDomain } from "@/lib/status-pill-domain-classes";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { statusPillCombinedClass, type StatusPillDomain } from "@/lib/status-pill-domain-classes";
 
 export type StatusPillProps = {
   status: string;

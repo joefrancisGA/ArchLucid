@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { Fragment, useCallback, useEffect, useState } from "react";
 
@@ -8,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { agentOutputQualityGateConfigPaths, selectAgentOutputQualityGateRows } from "@/lib/quality-gate-config-summary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type AdminConfigSummaryResponse = components["schemas"]["AdminConfigSummaryResponse"];
 type AdminQualityGateDiagnosticsResponse = components["schemas"]["AdminQualityGateDiagnosticsResponse"];

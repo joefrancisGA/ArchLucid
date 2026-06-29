@@ -1,6 +1,7 @@
-import { normalizeFindingSeverity, OPERATOR_TYPOGRAPHY, severityTagClass } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { normalizeFindingSeverity, OPERATOR_TYPOGRAPHY, severityTagClass } from "@/lib/design-tokens";
 
+import { cn } from "@/lib/utils";
 import type { ProductLearningTimeRangeKey } from "./product-learning-types";
 
 export function sinceIsoForRange(key: ProductLearningTimeRangeKey): string | null {

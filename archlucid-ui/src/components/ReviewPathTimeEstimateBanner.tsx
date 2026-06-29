@@ -1,6 +1,6 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { ReviewCreationPathId } from "@/lib/review-path-time-estimates";
 import { formatReviewPathTimeEstimate } from "@/lib/review-path-time-estimates";

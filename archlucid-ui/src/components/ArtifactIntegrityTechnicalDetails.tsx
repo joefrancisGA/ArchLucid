@@ -1,8 +1,11 @@
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { ArtifactDescriptor } from "@/types/authority";
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
 import { getArtifactBusinessLabel, getArtifactFormatLabel } from "@/lib/artifact-review-helpers";
 
 type ArtifactIntegrityTechnicalDetailsProps = {

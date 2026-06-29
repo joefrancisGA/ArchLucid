@@ -1,7 +1,10 @@
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { cn } from "@/lib/utils";
 import { RunToolInvocationForensicsRawCell } from "@/components/RunToolInvocationForensicsRawCell";
+import { cn } from "@/lib/utils";
 import type { AgentTraceRawSnapshot, RunToolInvocationForensicRow } from "@/types/agent-forensics";
 
 export type RunToolInvocationForensicsPanelProps = {

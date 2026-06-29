@@ -1,7 +1,11 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
 import { RoiSystemRowMathTooltip } from "@/components/roi/RoiSystemRowMathTooltip";
+import { cn } from "@/lib/utils";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -11,11 +15,14 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { presentExecutiveEstimatedSavings } from "@/lib/executive-estimated-savings-display";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveExecutiveSystemRowScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 import { cn } from "@/lib/utils";
+import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { cn } from "@/lib/utils";
+import { presentExecutiveEstimatedSavings } from "@/lib/executive-estimated-savings-display";
+import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+import { resolveExecutiveSystemRowScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 
 type ExecutiveRoiSystemsIncludedSectionProps = {
   readonly summary: ExecutiveRoiSummary;

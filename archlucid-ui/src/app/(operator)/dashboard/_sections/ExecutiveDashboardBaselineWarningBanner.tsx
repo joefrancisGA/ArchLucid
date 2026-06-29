@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -8,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { useWorkspaceBaselineArtifactsPresence } from "@/hooks/use-workspace-baseline-artifacts";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /** Session-dismiss key — discarded when the browser tab ends. */
 

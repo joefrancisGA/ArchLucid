@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 
@@ -7,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import type { CuratedRulesDocument } from "@/lib/policy-pack-curated-rules-v1";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
 import { PolicyPackNaturalLanguageBuilder } from "./PolicyPackNaturalLanguageBuilder";

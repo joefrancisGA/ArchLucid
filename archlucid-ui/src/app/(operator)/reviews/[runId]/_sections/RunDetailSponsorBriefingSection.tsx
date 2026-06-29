@@ -1,11 +1,16 @@
+import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { RunDetailAiReadinessGateCard } from "@/components/RunDetailAiReadinessGateCard";
-import { BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL } from "@/lib/buyer-polish-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { cn } from "@/lib/utils";
+import { RunDetailAiReadinessGateCard } from "@/components/RunDetailAiReadinessGateCard";
+import { cn } from "@/lib/utils";
+import { BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL } from "@/lib/buyer-polish-copy";
+import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const EmailRunToSponsorBanner = dynamic(
   () => import("@/components/EmailRunToSponsorBanner").then((module) => module.EmailRunToSponsorBanner),

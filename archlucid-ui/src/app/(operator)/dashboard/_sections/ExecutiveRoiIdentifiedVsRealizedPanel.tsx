@@ -1,7 +1,11 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
 import { RoiDispositionTrainingTooltip } from "@/components/roi/RoiDispositionTrainingTooltip";
+import { cn } from "@/lib/utils";
 import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
+import { cn } from "@/lib/utils";
 import {
   EXECUTIVE_ROI_IDENTIFIED_PENDING_DESCRIPTION,
   EXECUTIVE_ROI_IDENTIFIED_PENDING_LABEL,
@@ -9,11 +13,15 @@ import {
   EXECUTIVE_ROI_REALIZED_COMMITTED_LABEL,
   type ExecutiveRoiIdentifiedVsRealizedBuckets,
 } from "@/lib/executive-roi-identified-vs-realized";
+import { cn } from "@/lib/utils";
 import { presentExecutiveEstimatedSavings } from "@/lib/executive-estimated-savings-display";
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { cn } from "@/lib/utils";
 import { resolveExecutiveHeadlineScopeLabel } from "@/lib/roi-sponsor-scope-labels";
+import { cn } from "@/lib/utils";
 import {
   formatExecutiveRoiPricingBasisLabel,
   formatRoiCostEvidenceFreshnessWarning,

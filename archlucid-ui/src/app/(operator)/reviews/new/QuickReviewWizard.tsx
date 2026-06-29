@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -36,7 +37,6 @@ import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { cn } from "@/lib/utils";
 import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import { reviewPathTimeEstimate } from "@/lib/review-path-time-estimates";

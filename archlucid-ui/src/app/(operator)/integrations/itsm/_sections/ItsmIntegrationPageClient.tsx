@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -27,7 +28,6 @@ import {
   INTEGRATIONS_SERVICENOW_PATH,
 } from "@/lib/integrations-nav-paths";
 import { isItsmNativeCreateDefaultPathReady } from "@/lib/itsm-native-create-readiness";
-import { cn } from "@/lib/utils";
 
 import { ItsmConnectorConnectionSection } from "./ItsmConnectorConnectionSection";
 import { ItsmConnectorProbeCard } from "../../_sections/itsm/ItsmConnectorProbeCard";

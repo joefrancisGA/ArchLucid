@@ -1,11 +1,11 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorBrandedRouteLoadFailure } from "@/components/OperatorBrandedRouteLoadFailure";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { PlanningPlanDetailSections } from "./PlanningPlanDetailSections";
 import type { UsePlanningPlanDetailPageModel } from "./use-planning-plan-detail-page";

@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -20,7 +21,6 @@ import {
 } from "@/lib/help-center-catalog";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { cn } from "@/lib/utils";
 
 /**
  * Static, immediately-rendered product help (no fetch). Developer doc index is secondary in HelpDocsClient.

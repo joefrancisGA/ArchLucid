@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -9,7 +10,6 @@ import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failu
 import { tryStaticDemoExplanationSummary } from "@/lib/operator-static-demo";
 import { resolveFindingTraceRowsFromSummary } from "@/lib/quick-decision-summary-derive";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type EvidenceTrailTracePanelProps = {
   runId: string;

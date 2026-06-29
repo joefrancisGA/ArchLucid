@@ -1,10 +1,10 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ItsmIntegrationHealthResponse } from "@/lib/api/itsm-outbound-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type Props = {
   readonly title: string;

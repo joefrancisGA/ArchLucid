@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -28,7 +29,6 @@ import {
 } from "@/lib/zero-config-demo-mode";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type AzureExtractorPackageZipFieldProps = {
   variant: "baseline" | "ingest";

@@ -1,11 +1,11 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type QuickReviewAdvancedConfigAccordionProps = {
   readonly children: ReactNode;

@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -61,7 +62,6 @@ import {
   partitionQuickDecisionFindingsByConfidence,
 } from "@/lib/finding-confidence-filter";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const badgeBase = cn(
   "inline-flex shrink-0 rounded-md border px-2 py-0.5 font-semibold tabular-nums",

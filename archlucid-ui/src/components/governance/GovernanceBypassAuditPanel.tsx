@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -20,7 +21,6 @@ import { GOVERNANCE_BYPASS_INVOKED_EVENT_TYPE, parseGovernanceBypassAuditPayload
 import { listRecentGovernanceBypassAuditEvents } from "@/lib/list-recent-governance-bypass-audit-events";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function resolveAuditActorLabel(event: AuditEvent): string {
   const name = event.actorUserName?.trim();

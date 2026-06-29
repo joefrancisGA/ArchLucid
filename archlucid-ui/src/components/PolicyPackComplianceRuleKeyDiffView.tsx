@@ -1,10 +1,12 @@
+import { cn } from "@/lib/utils";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { cn } from "@/lib/utils";
 import {
   diffComplianceRuleKeys,
   type ComplianceRuleKeyDiffItem,
 } from "@/lib/policy-pack-compliance-rule-key-diff";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const rowCls: Record<ComplianceRuleKeyDiffItem["changeType"], string> = {
   added: "border-emerald-700/40 bg-emerald-50/50 dark:border-emerald-800/50 dark:bg-emerald-950/20",

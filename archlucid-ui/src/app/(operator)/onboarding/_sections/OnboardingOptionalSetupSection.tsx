@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -7,7 +8,6 @@ import { TryCliDemoCard } from "@/components/TryCliDemoCard";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY = "archlucid_onboarding_disclosure_optional_setup_v1";
 const ONBOARDING_CLI_TOOLS_STORAGE_KEY = "archlucid_onboarding_disclosure_cli_tools_v1";

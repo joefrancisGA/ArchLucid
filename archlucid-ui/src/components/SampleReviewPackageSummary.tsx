@@ -1,10 +1,15 @@
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
 import { SampleReviewAhaMomentPanel } from "@/components/operator-home/SampleReviewAhaMomentPanel";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   BUYER_HOME_PRIMARY_CTA,
   BUYER_OPEN_SIGNED_RECORD_CTA,
@@ -12,8 +17,11 @@ import {
   SAMPLE_REVIEW_PACKAGE_AHA_LEAD,
   SAMPLE_REVIEW_AHA_DEMO_LABEL,
 } from "@/lib/buyer-polish-copy";
+import { cn } from "@/lib/utils";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { cn } from "@/lib/utils";
 import { SHOWCASE_HOME_AHA_MOMENT, showcasePrimaryFindingHref } from "@/lib/showcase-home-aha-moment";
+import { cn } from "@/lib/utils";
 import { SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 
 type SampleReviewPackageSummaryProps = {

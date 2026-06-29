@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -28,7 +29,6 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { showError, showSuccess } from "@/lib/toast";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const EXTRACTOR_SCRIPT_CDN_URL =
   process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||

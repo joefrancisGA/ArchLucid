@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import type { ReactElement } from "react";
@@ -16,7 +17,6 @@ import {
   resolveExecutiveHeadlineScopeLabel,
   resolveExecutiveSystemRowScopeLabel,
 } from "@/lib/roi-sponsor-scope-labels";
-import { cn } from "@/lib/utils";
 
 export const EXECUTIVE_ROI_PROOF_STATUS_HELP_HREF = "/help/pilot-roi-model";
 

@@ -1,25 +1,42 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
+import { cn } from "@/lib/utils";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
+import { cn } from "@/lib/utils";
 import {
   OperatorEvidenceLimitsFooter,
 } from "@/components/OperatorEvidenceLimitsFooter";
+import { cn } from "@/lib/utils";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
+import { cn } from "@/lib/utils";
 import { ManifestBuyerBundleDownloadSection } from "@/components/ManifestBuyerBundleDownloadSection";
+import { cn } from "@/lib/utils";
 import { ManifestDeliverableGrid } from "@/components/ManifestDeliverableGrid";
+import { cn } from "@/lib/utils";
 import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
+import { cn } from "@/lib/utils";
 import { ManifestTopDecisionsCard } from "@/components/ManifestTopDecisionsCard";
+import { cn } from "@/lib/utils";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { cn } from "@/lib/utils";
 import {
   OperatorEmptyState,
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
+import { cn } from "@/lib/utils";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { cn } from "@/lib/utils";
 import { getBundleDownloadUrl } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import {
   BUYER_MANIFEST_AUTHORITY_SUMMARY,
   BUYER_MANIFEST_DOWNLOAD_PREPARING,
@@ -32,21 +49,24 @@ import {
   BUYER_MANIFEST_TOP_RISK_CTA,
   BUYER_SIGNED_DECISION_RECORD_LABEL,
 } from "@/lib/buyer-polish-copy";
+import { cn } from "@/lib/utils";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import { cn } from "@/lib/utils";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-model";
 
 type ManifestDetailPageViewProps = {

@@ -1,11 +1,11 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { PERSONA_SHELL_LABELS } from "@/lib/persona-shell-vocabulary";
-import { cn } from "@/lib/utils";
 
 /** Toggle between operator and executive shell views. */
 export function ExecutiveOperatorShellSwitcher() {

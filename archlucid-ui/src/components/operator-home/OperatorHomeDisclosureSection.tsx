@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useId, useLayoutEffect, useState, type ReactNode } from "react";
@@ -11,7 +12,6 @@ import {
   writeOperatorHomeDisclosureExpanded,
 } from "@/lib/operator-home-disclosure-storage";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type OperatorHomeDisclosureSectionProps = {
   title: string;
