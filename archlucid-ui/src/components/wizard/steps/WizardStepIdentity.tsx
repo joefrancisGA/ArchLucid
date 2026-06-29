@@ -108,7 +108,7 @@ export function WizardStepIdentity() {
           <WizardFieldHint
             htmlFor="wizard-cloud-provider"
             label="Cloud target"
-            hint="Choose None for brief/docs/diagram/IaC-only reviews. Choose Azure when the workload runs on Azure or you attach Azure extractor evidence. Aws and Gcp capture target-cloud intent for multi-cloud RFPs; attach Terraform or other IaC for best results until V1.1 deep analysis ships."
+            hint="Choose the cloud target that matches your workload. AWS and GCP inventory ZIPs are available as accelerated evidence sources."
           />
           <Controller
             name="cloudProvider"
@@ -127,8 +127,8 @@ export function WizardStepIdentity() {
                 <SelectContent className="border-neutral-200/90 dark:border-neutral-600">
                   <SelectItem value="None">No cloud / evidence-only</SelectItem>
                   <SelectItem value="Azure">Microsoft Azure (accelerated V1 path)</SelectItem>
-                  <SelectItem value="Aws">Amazon Web Services (intent capture — V1.1 deep analysis)</SelectItem>
-                  <SelectItem value="Gcp">Google Cloud Platform (intent capture — V1.1 deep analysis)</SelectItem>
+                  <SelectItem value="Aws">Amazon Web Services (cloud inventory ZIP available)</SelectItem>
+                  <SelectItem value="Gcp">Google Cloud Platform (cloud inventory ZIP available)</SelectItem>
                 </SelectContent>
               </Select>
             )}

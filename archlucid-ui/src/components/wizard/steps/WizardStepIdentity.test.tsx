@@ -55,9 +55,10 @@ describe("WizardStepIdentity", () => {
     fireEvent.click(cloudTrigger);
 
     expect(screen.getByRole("option", { name: /Microsoft Azure/i })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: /Amazon Web Services/i })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: /Google Cloud Platform/i })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Amazon Web Services \(cloud inventory ZIP available\)/i })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Google Cloud Platform \(cloud inventory ZIP available\)/i })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: /No cloud \/ evidence-only/i })).toBeInTheDocument();
+    expect(screen.queryByText(/V1\.1/i)).not.toBeInTheDocument();
   });
 
   it("surfaces a validation error when system name is cleared and validated", async () => {
