@@ -39,11 +39,11 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     const sectionNav = page.getByRole("navigation", { name: "Review detail sections" });
 
-    await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible();
-    await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible();
-    await expect(sectionNav.getByRole("link", { name: "Assessment" })).toBeVisible();
-    await expect(sectionNav.getByRole("link", { name: "Activity" })).toBeVisible();
-    await expect(sectionNav.getByRole("link", { name: "Deliverables" })).toBeVisible();
+    await expect(sectionNav.getByRole("link", { name: "Decision", exact: true })).toBeVisible();
+    await expect(sectionNav.getByRole("link", { name: "Evidence", exact: true })).toBeVisible();
+    await expect(sectionNav.getByRole("link", { name: "Assessment", exact: true })).toBeVisible();
+    await expect(sectionNav.getByRole("link", { name: "Activity", exact: true })).toBeVisible();
+    await expect(sectionNav.getByRole("link", { name: "Deliverables", exact: true })).toBeVisible();
 
     await expect(page.getByRole("heading", { name: /Recent lifecycle events|Pipeline timeline/i }).first()).toBeVisible({
       timeout: 60_000,
@@ -58,7 +58,10 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expect.poll(async () => evidenceBasisTiles.count(), { timeout: 60_000 }).toBeGreaterThanOrEqual(minimumEvidenceTiles);
 
-    await page.locator("#run-explanation").scrollIntoViewIfNeeded();
+    const assessmentSection = page.locator("#run-explanation");
+
+    await expect(assessmentSection).toBeVisible({ timeout: 120_000 });
+    await assessmentSection.scrollIntoViewIfNeeded();
 
     await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 60_000 });
 

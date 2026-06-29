@@ -173,9 +173,12 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let explanationSummary: RunExplanationSummary | null = null;
   let explanationFailure: ApiLoadFailureState | null = null;
 
+  const dependentFetchScopeOptions =
+    scopeHeadersOverride !== undefined ? { scopeHeaders: scopeHeadersOverride } : undefined;
+
   if (manifestId) {
     try {
-      const rawSummary: unknown = await getManifestSummary(manifestId);
+      const rawSummary: unknown = await getManifestSummary(manifestId, dependentFetchScopeOptions);
       const coercedSummary = coerceManifestSummary(rawSummary);
 
       if (!coercedSummary.ok) {
@@ -194,7 +197,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     }
 
     try {
-      const rawArtifacts: unknown = await listArtifacts(manifestId);
+      const rawArtifacts: unknown = await listArtifacts(manifestId, dependentFetchScopeOptions);
       const coercedArtifacts = coerceArtifactDescriptorList(rawArtifacts);
 
       if (!coercedArtifacts.ok) {
@@ -214,7 +217,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     }
 
     try {
-      explanationSummary = await getRunExplanationSummary(runId);
+      explanationSummary = await getRunExplanationSummary(runId, dependentFetchScopeOptions);
     } catch (e) {
       explanationFailure = toApiLoadFailure(e);
       const staticExplanation = tryStaticDemoExplanationSummary(runId);

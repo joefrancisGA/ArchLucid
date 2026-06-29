@@ -239,8 +239,11 @@ export async function apiGetJsonWithTrace<T>(
 }
 
 /** GETs JSON from the ArchLucid API. Throws {@link ApiRequestError} on HTTP errors. */
-export async function apiGet<T>(path: string): Promise<T> {
-  const { data } = await apiGetJsonWithTrace<T>(path);
+export async function apiGet<T>(
+  path: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<T> {
+  const { data } = await apiGetJsonWithTrace<T>(path, options);
 
   return data;
 }
