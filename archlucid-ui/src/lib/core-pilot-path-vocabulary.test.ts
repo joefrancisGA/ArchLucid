@@ -6,6 +6,7 @@ import {
   isStreamlinedCorePilotPath,
   listCorePilotPathCopyViolations,
 } from "@/lib/core-pilot-path-vocabulary";
+import { PILOT_PATH_PREVIEW_STEPS } from "@/lib/buyer-polish-copy";
 import { FOCUSED_PILOT_MODE_COPY } from "@/lib/focused-pilot-mode-policy-packs";
 
 describe("core-pilot-path-vocabulary", () => {
@@ -46,5 +47,12 @@ describe("core-pilot-path-vocabulary", () => {
     expect(CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBanner.toLowerCase()).not.toContain("pilot");
     expect(CORE_PILOT_PATH_BANNED_PHRASES).toContain("governance");
     expect(CORE_PILOT_PATH_BANNED_PHRASES).toContain("policy pack");
+  });
+
+  it("pilot path preview step 3 uses finalize vocabulary", () => {
+    const finalizeStep = PILOT_PATH_PREVIEW_STEPS.find((step) => step.id === "commit");
+
+    expect(finalizeStep?.label).toBe("Finalize review package");
+    expect(finalizeStep?.label.toLowerCase()).not.toContain("commit");
   });
 });
