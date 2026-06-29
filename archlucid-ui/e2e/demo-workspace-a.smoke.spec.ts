@@ -45,7 +45,9 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await expect(sectionNav.getByRole("link", { name: "Activity", exact: true })).toBeVisible();
     await expect(sectionNav.getByRole("link", { name: "Deliverables", exact: true })).toBeVisible();
 
-    await expect(page.getByRole("heading", { name: /Recent lifecycle events|Pipeline timeline/i }).first()).toBeVisible({
+    await page.locator("#pipeline-timeline").scrollIntoViewIfNeeded();
+
+    await expect(page.getByTestId("run-pipeline-timeline-collapsible")).toBeVisible({
       timeout: 60_000,
     });
 

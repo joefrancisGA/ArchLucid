@@ -410,6 +410,14 @@ public sealed class ShipGateEvidenceRunnerTests
                         "application/zip"));
                 }
 
+                if (path.EndsWith($"/v1/architecture/run/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
+                {
+                    return Task.FromResult(BytesExportResponse(
+                        HttpStatusCode.OK,
+                        ShipGateExportMatrixTestFixtures.ZipStubBody(),
+                        "application/zip"));
+                }
+
                 if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
                 {
                     return Task.FromResult(JsonResponse(

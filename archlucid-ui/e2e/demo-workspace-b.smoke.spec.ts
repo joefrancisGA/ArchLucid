@@ -74,7 +74,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     /** Pack A narrative (Responsible AI governance engine + rule identifiers from seed fixtures). */
     await expect(
-      assessmentSection.getByText(/Promoted scoring ensemble lacks immutable lineage hash/i),
+      assessmentSection.getByTestId("quick-decision-summary").getByText(/Promoted scoring ensemble lacks immutable lineage hash/i).first(),
     ).toBeVisible({
       timeout: 90_000,
     });
@@ -85,7 +85,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     /** Pack B security baseline posture (public exposure rule sec-base-006 from seed fixtures). */
     await expect(
-      assessmentSection.getByText(/Inference gateway still advertises interim public listener/i),
+      assessmentSection.getByTestId("quick-decision-summary").getByText(/Inference gateway still advertises interim public listener/i).first(),
     ).toBeVisible({
       timeout: 90_000,
     });
