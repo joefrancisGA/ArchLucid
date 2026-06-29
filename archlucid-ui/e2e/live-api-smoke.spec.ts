@@ -44,7 +44,10 @@ function makeLiveSmokeArchLucidZipForInput(): { name: string; mimeType: string; 
     subscriptionId: "11111111-1111-1111-1111-111111111111",
     scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/E2eLiveSmokeRg",
   };
-  const zipped = zipSync({ "manifest.json": strToU8(JSON.stringify(manifest)) });
+  const zipped = zipSync({
+    "manifest.json": strToU8(JSON.stringify(manifest)),
+    "resources.json": strToU8("[]"),
+  });
 
   return {
     name: "e2e-live-smoke-azure-pack.zip",
