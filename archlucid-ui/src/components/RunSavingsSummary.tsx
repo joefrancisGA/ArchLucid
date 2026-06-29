@@ -1,13 +1,9 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { cn } from "@/lib/utils";
 import { formatUsd } from "@/lib/roi-assumptions";
-import { cn } from "@/lib/utils";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { RunSavingsSummaryModel, RunSavingsSummarySourceKind } from "@/lib/run-savings-summary-model";
 
 function sourceBadgeLabel(sourceKind: RunSavingsSummarySourceKind): string {

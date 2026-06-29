@@ -1,11 +1,8 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { SeverityTag } from "@/components/ui/severity-tag";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { ChecklistCoverageItem } from "@/lib/findings-snapshot-insight-density";
 
 export type CoverageChecklistPanelProps = {

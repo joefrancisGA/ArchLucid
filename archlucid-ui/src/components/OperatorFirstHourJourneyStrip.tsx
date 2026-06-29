@@ -1,9 +1,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import { OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS } from "@/lib/operator-first-hour-journey-nav";
-import { cn } from "@/lib/utils";
 import {
   OPERATOR_HOME_SECTION_HEADING,
   OPERATOR_LINK,

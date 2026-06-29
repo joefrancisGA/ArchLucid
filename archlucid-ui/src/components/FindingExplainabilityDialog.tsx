@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { ExplainabilityTraceTree } from "@/components/explainability/ExplainabilityTraceTree";

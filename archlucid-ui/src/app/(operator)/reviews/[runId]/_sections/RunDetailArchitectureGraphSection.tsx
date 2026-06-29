@@ -1,18 +1,12 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { ArchitectureGraphViewer } from "@/components/ArchitectureGraphViewer";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { cn } from "@/lib/utils";
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
 type RunDetailArchitectureGraphSectionProps = {

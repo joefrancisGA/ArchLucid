@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import { PolicyRuleAuthoringWizard } from "./PolicyRuleAuthoringWizard";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";

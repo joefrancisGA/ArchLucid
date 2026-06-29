@@ -1,11 +1,8 @@
 import { cn } from "@/lib/utils";
 import { Lock } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { cn } from "@/lib/utils";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type GovernanceApprovalAttestationBlockProps = {

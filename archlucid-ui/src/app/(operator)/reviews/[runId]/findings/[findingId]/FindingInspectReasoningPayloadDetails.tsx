@@ -1,11 +1,8 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { FindingInspectJsonPayload } from "@/components/FindingInspectJsonPayload";
-import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { cn } from "@/lib/utils";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingInspectReasoningPayloadDetailsProps = {

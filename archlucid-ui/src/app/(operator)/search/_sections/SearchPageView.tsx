@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";

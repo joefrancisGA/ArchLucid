@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import { ArrowLeft, BookOpen, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

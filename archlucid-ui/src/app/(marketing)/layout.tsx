@@ -1,35 +1,20 @@
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
-import { cn } from "@/lib/utils";
 import { MarketingAnalyticsConsentBanner } from "@/components/MarketingAnalyticsConsentBanner";
-import { cn } from "@/lib/utils";
 import { MarketingFirstTouchCapture } from "@/components/MarketingFirstTouchCapture";
-import { cn } from "@/lib/utils";
 import { MarketingJsonLd } from "@/components/MarketingJsonLd";
-import { cn } from "@/lib/utils";
 import { MarketingResourcesMenu } from "@/components/marketing/MarketingResourcesMenu";
-import { cn } from "@/lib/utils";
 import { MicrosoftClarityLoader } from "@/components/MicrosoftClarityLoader";
-import { cn } from "@/lib/utils";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
-import { cn } from "@/lib/utils";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { MARKETING_LAYOUT } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { getMarketingClarityProjectId } from "@/lib/marketing-analytics-consent";
-import { cn } from "@/lib/utils";
 import { resolveMarketingLiveDemoApiBase } from "@/lib/marketing-live-demo-api-base";
-import { cn } from "@/lib/utils";
 import { isMarketingLiveDemoLinkEnabled } from "@/lib/public-demo-mode";
 
 export const metadata: Metadata = {

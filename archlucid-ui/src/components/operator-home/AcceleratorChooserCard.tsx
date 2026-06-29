@@ -1,13 +1,9 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
-import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { ACCELERATOR_CHOOSER_ENTRIES } from "@/lib/accelerator-chooser";
-import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Surfaces buyer-job → starter proof pack picks after first commit (TB-114). */

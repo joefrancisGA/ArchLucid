@@ -1,27 +1,21 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { SeverityTag } from "@/components/ui/severity-tag";
-import { cn } from "@/lib/utils";
 import {
   SAMPLE_REVIEW_AHA_DECISION_LABEL,
   SAMPLE_REVIEW_AHA_EVIDENCE_LABEL,
   SAMPLE_REVIEW_AHA_FINDING_LABEL,
   SAMPLE_REVIEW_AHA_WHY_LABEL,
 } from "@/lib/buyer-polish-copy";
-import { cn } from "@/lib/utils";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPOGRAPHY,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { ShowcaseHomeAhaMoment } from "@/lib/showcase-home-aha-moment";
 
 type SampleReviewAhaMomentPanelProps = {

@@ -1,11 +1,9 @@
 import { cn } from "@/lib/utils";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
-import { cn } from "@/lib/utils";
 import {
   diffComplianceRuleKeys,
   type ComplianceRuleKeyDiffItem,
 } from "@/lib/policy-pack-compliance-rule-key-diff";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const rowCls: Record<ComplianceRuleKeyDiffItem["changeType"], string> = {

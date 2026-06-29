@@ -1,9 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 
-import { cn } from "@/lib/utils";
 import { CallbackClient } from "@/app/(operator)/auth/callback/CallbackClient";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function AuthCallbackLoading() {

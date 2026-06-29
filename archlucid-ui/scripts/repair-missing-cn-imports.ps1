@@ -3,7 +3,24 @@ $ErrorActionPreference = "Stop"
 
 $uiRoot = Join-Path (Split-Path $PSScriptRoot -Parent) "src"
 $cnImport = 'import { cn } from "@/lib/utils";'
+$cnImportPattern = '(?m)^import \{ cn \} from "@/lib/utils";?\r?\n'
 $repaired = 0
+
+function Insert-CnImport {
+  param([string]$Content)
+
+  if ($Content -match '(?m)^"use client"\r?\n') {
+    return [regex]::Replace($Content, '(?m)^("use client"\r?\n)', "`$1$cnImport`n", 1)
+  }
+
+  $firstImport = [regex]::Match($Content, '(?m)^import ')
+
+  if ($firstImport.Success) {
+    return $Content.Insert($firstImport.Index, "$cnImport`n")
+  }
+
+  return "$cnImport`n$Content"
+}
 
 Get-ChildItem -LiteralPath $uiRoot -Recurse -Include *.tsx, *.ts -File |
   Where-Object { $_.FullName -notmatch '\\__snapshots__\\' } |
@@ -12,7 +29,17 @@ Get-ChildItem -LiteralPath $uiRoot -Recurse -Include *.tsx, *.ts -File |
     $content = [System.IO.File]::ReadAllText($path)
     $original = $content
 
-    $content = [regex]::Replace($content, '(?m)^import \{ cn \} from "@/lib/utils";\r?\n', '')
+    $content = [regex]::Replace($content, $cnImportPattern, '')
+
+    if ($content -match '(?m)^export function cn\b') {
+      if ($original -ne $content) {
+        [System.IO.File]::WriteAllText($path, $content)
+        $repaired++
+        Write-Host ("deduped-self {0}" -f $path.Replace($uiRoot + [IO.Path]::DirectorySeparatorChar, ""))
+      }
+
+      return
+    }
 
     if ($content -notmatch '\bcn\(') {
       if ($original -ne $content) {
@@ -24,7 +51,7 @@ Get-ChildItem -LiteralPath $uiRoot -Recurse -Include *.tsx, *.ts -File |
       return
     }
 
-    if ($content -match '(?m)^import \{ cn \} from "@/lib/utils";') {
+    if ($content -match '(?m)^import \{ cn \} from "@/lib/utils";?') {
       if ($original -ne $content) {
         [System.IO.File]::WriteAllText($path, $content)
         $repaired++
@@ -34,15 +61,7 @@ Get-ChildItem -LiteralPath $uiRoot -Recurse -Include *.tsx, *.ts -File |
       return
     }
 
-    if ($content -match '(?m)^"use client";\r?\n') {
-      $content = [regex]::Replace($content, '(?m)^("use client";\r?\n)', "`$1$cnImport`n", 1)
-    }
-    elseif ($content -match '(?m)^import ') {
-      $content = [regex]::Replace($content, '(?m)^import ', "$cnImport`nimport ", 1)
-    }
-    else {
-      $content = "$cnImport`n$content"
-    }
+    $content = Insert-CnImport -Content $content
 
     [System.IO.File]::WriteAllText($path, $content)
     $repaired++

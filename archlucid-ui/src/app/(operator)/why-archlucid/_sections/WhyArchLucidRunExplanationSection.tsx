@@ -1,10 +1,7 @@
 import { cn } from "@/lib/utils";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { cn } from "@/lib/utils";
 import type { WhyArchLucidPageState } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
-import { cn } from "@/lib/utils";
 import { WhyArchLucidExplanationPanel } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidExplanationPanel";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type WhyArchLucidRunExplanationSectionProps = {

@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { BarChart3, Search, Shield } from "lucide-react";

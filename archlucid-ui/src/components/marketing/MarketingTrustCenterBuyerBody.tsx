@@ -1,11 +1,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 /** Curated buyer Trust Center sections — avoids rendering raw repo markdown publicly. */

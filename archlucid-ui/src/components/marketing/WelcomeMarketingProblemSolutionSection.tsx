@@ -5,7 +5,6 @@ import {
   WELCOME_SOLUTION_BODY,
   WELCOME_SOLUTION_HEADING,
 } from "@/components/marketing/welcome-marketing-copy";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Problem → solution framing for the public homepage (service-led wedge). */

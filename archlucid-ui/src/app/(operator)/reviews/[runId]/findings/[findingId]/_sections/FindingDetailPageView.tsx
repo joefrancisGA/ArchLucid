@@ -1,64 +1,39 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import { FindingInspectContextDebugPanel } from "@/components/findings/FindingInspectContextDebugPanel";
-import { cn } from "@/lib/utils";
 import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
-import { cn } from "@/lib/utils";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
-import { cn } from "@/lib/utils";
 import { FindingIacStubPanel } from "@/components/FindingIacStubPanel";
-import { cn } from "@/lib/utils";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
-import { cn } from "@/lib/utils";
 import { FindingItsmExportPanel } from "@/components/FindingItsmExportPanel";
-import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { cn } from "@/lib/utils";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { cn } from "@/lib/utils";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
-import { cn } from "@/lib/utils";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
-import { cn } from "@/lib/utils";
 import { FindingExplainabilityTracePanel } from "@/components/FindingExplainabilityTracePanel";
-import { cn } from "@/lib/utils";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { cn } from "@/lib/utils";
 import { OperatorEvidenceLimitsFooter } from "@/components/OperatorEvidenceLimitsFooter";
-import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   findingDetailLeadSentence,
   findingDetailPageEyebrow,
   findingInspectPrimaryLabels,
   phiMinimizationBuyerConsequenceNarrative,
 } from "@/lib/finding-display-from-inspect";
-import { cn } from "@/lib/utils";
 import { findingSeverityAudienceCopy } from "@/lib/finding-explainability-summary";
-import { cn } from "@/lib/utils";
 import { BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION, BUYER_FINDING_SUMMARY_DECISION_IMPACT_LABEL, BUYER_FINDING_SUMMARY_NEXT_STEP_LABEL } from "@/lib/buyer-polish-copy";
-import { cn } from "@/lib/utils";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
-import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
-import { cn } from "@/lib/utils";
 import {
   buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/finding-policy-evidence-citations";
 
-import { cn } from "@/lib/utils";
 import { FindingInspectFindingBody } from "../FindingInspectFindingBody";
-import { cn } from "@/lib/utils";
 import { FindingInspectItsmWorkflowPanel } from "../FindingInspectItsmWorkflowPanel";
-import { cn } from "@/lib/utils";
 import {
   fallbackSeverity,
   findingDetailLeadFallback,
@@ -69,7 +44,6 @@ import {
   summarizeEvidenceBasis,
   validationRequirement,
 } from "./finding-detail-route-display";
-import { cn } from "@/lib/utils";
 import type { FindingDetailPageModel } from "./finding-detail-page-model";
 
 type Props = {

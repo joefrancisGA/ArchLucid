@@ -1,23 +1,16 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
-import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { cn } from "@/lib/utils";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
-import { cn } from "@/lib/utils";
 import {
   feasibilityVerdictKindLabel,
   feasibilityVerdictTone,
 } from "@/lib/feasibility-verdict-display";
-import { cn } from "@/lib/utils";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { cn } from "@/lib/utils";
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
 type RunDetailFeasibilityVerdictSectionProps = {

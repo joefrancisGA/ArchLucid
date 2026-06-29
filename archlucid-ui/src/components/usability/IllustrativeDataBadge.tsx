@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type IllustrativeDataBadgeProps = {

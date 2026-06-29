@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { HealthcareClaimsPolicyPackDetail } from "@/app/(operator)/governance/policy-packs/[id]/HealthcareClaimsPolicyPackDetail";

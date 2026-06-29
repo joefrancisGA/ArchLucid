@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 
 import { CitationChips } from "@/components/explanation/CitationChips";

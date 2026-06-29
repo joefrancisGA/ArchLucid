@@ -1,28 +1,20 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { cn } from "@/lib/utils";
 import { OperatorBrandedTransientFailure } from "@/components/OperatorBrandedTransientFailure";
-import { cn } from "@/lib/utils";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
-import { cn } from "@/lib/utils";
 import {
   OperatorErrorCallout,
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
-import { cn } from "@/lib/utils";
 import {
   BUYER_MANIFEST_SUMMARY_LOAD_ERROR_HEADING,
   BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING,
   BUYER_MANIFEST_SUMMARY_MISSING_HEADING,
 } from "@/lib/buyer-polish-copy";
-import { cn } from "@/lib/utils";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { cn } from "@/lib/utils";
 import { isApiTransientLoadFailure } from "@/lib/api-load-failure";
-import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type ManifestDetailPageErrorFrameProps = {

@@ -1,12 +1,8 @@
 import { cn } from "@/lib/utils";
 import type { CitationReference, RunExplanationSummary } from "@/types/explanation";
-import { cn } from "@/lib/utils";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
-import { cn } from "@/lib/utils";
 import { WhyArchLucidExplanationStat } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidExplanationStat";
-import { cn } from "@/lib/utils";
 import { citationKindBuyerLabel } from "@/lib/citation-kind-buyer-label";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type WhyArchLucidExplanationPanelProps = {

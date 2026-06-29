@@ -1,18 +1,11 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import type { AuditEvent } from "@/lib/api";
-import { cn } from "@/lib/utils";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
-import { cn } from "@/lib/utils";
 import { pipelineEventTypeBuyerMilestoneSubtitle, pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
-import { cn } from "@/lib/utils";
 import { auditBuyerEventIsSystemRecordedActor } from "@/app/(operator)/audit/audit-ui-helpers";
-import { cn } from "@/lib/utils";
 import { buyerSafeActorDisplayName } from "@/lib/buyer-demo-persona-labels";
-import { cn } from "@/lib/utils";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { auditBuyerActorRoleLine, formatUtc, tryFormatDataJson } from "./audit-page-helpers";
 
 type AuditTimelineEventCardProps = {

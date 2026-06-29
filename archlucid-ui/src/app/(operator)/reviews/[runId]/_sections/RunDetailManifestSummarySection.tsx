@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { ManifestJsonActions } from "@/components/ManifestJsonActions";

@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -11,18 +10,13 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { StatusTag } from "@/components/ui/status-tag";
-import { cn } from "@/lib/utils";
 import type { FirstPilotReadinessGroup, FirstPilotReadinessRow } from "@/lib/first-pilot-readiness-cockpit";
-import { cn } from "@/lib/utils";
 import {
   mapReadinessStatusToEnterpriseKind,
   mapReadinessStatusToStatusTagLabel,
 } from "@/lib/first-pilot-operator-status-vocabulary";
-import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type FirstPilotReadinessGroupTableProps = {

@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
 import { MARKETING_LAYOUT } from "@/lib/design-tokens";
 
 type MarketingPageShellProps = {

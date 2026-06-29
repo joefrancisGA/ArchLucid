@@ -1,18 +1,12 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { StatusTag } from "@/components/ui/status-tag";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { PolicyPackFindingGroup } from "@/lib/group-findings-by-policy-pack";
-import { cn } from "@/lib/utils";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
-import { cn } from "@/lib/utils";
 import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
 
 export type ReviewDetailPolicyPackFindingsBreakdownProps = {

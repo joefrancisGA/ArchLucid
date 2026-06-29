@@ -1,9 +1,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { cn } from "@/lib/utils";
 import { normalizePath } from "./admin-configuration-helpers";
-import { cn } from "@/lib/utils";
 import type { AdminConfigLintFinding } from "./admin-configuration-types";
 
 type Props = {

@@ -1,50 +1,30 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import { Download } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
-import { cn } from "@/lib/utils";
 import { CompareRawManifestDiffSection } from "@/components/compare/CompareRawManifestDiffSection";
-import { cn } from "@/lib/utils";
 import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
-import { cn } from "@/lib/utils";
 import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
-import { cn } from "@/lib/utils";
 import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
-import { cn } from "@/lib/utils";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { cn } from "@/lib/utils";
 import {
   OperatorLoadingNotice,
   OperatorMalformedCallout,
   OperatorTryNext,
   OperatorWarningCallout,
 } from "@/components/OperatorShellMessage";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
-import { cn } from "@/lib/utils";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { cn } from "@/lib/utils";
 import { createAndDownloadComparisonPdf } from "@/lib/api";
-import { cn } from "@/lib/utils";
 import type { GoldenManifestComparison } from "@/types/comparison";
-import { cn } from "@/lib/utils";
 import type { ComparisonExplanation } from "@/types/explanation";
-import { cn } from "@/lib/utils";
 import type { RunComparison, RunSummary } from "@/types/authority";
-import { cn } from "@/lib/utils";
 import { BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer-polish-copy";
-import { cn } from "@/lib/utils";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { ComparedPair } from "@/app/(operator)/compare/_sections/compare-page-helpers";
-import { cn } from "@/lib/utils";
 import { CompareGovernanceDiffSection } from "@/app/(operator)/compare/_sections/CompareGovernanceDiffSection";
 
 export type CompareResultsPanelProps = {

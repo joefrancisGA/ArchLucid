@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import { Fragment, useCallback, useEffect, useState } from "react";
 
 import type { components } from "@/lib/api-types.generated";

@@ -1,19 +1,14 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { cn } from "@/lib/utils";
 import {
   BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer-polish-copy";
-import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingInspectAuditSectionProps = {

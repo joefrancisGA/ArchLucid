@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import {
   buildArchitectureManifestUnifiedLines,
   type ArchitectureManifestUnifiedLine,

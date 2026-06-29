@@ -1,9 +1,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import { StatusTag } from "@/components/ui/status-tag";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ReviewPackageEvidenceDensityStripProps = {

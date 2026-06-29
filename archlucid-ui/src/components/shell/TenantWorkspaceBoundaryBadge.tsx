@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import { Building2 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";

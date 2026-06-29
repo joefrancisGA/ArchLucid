@@ -1,57 +1,35 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
-import { cn } from "@/lib/utils";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
-import { cn } from "@/lib/utils";
 import { BuyerDeliverablesArtifactTabs } from "@/components/BuyerDeliverablesArtifactTabs";
-import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { cn } from "@/lib/utils";
 import { ConsultingDocxExportButton } from "@/components/ConsultingDocxExportButton";
-import { cn } from "@/lib/utils";
 import { ExportTerraformAdvisoryButton } from "@/components/ExportTerraformAdvisoryButton";
-import { cn } from "@/lib/utils";
 import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
-import { cn } from "@/lib/utils";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
-import { cn } from "@/lib/utils";
 import { ReviewBoardWhitelabelConsultingExportButton } from "@/components/ReviewBoardWhitelabelConsultingExportButton";
-import { cn } from "@/lib/utils";
 import { RunScopedAuditExportButton } from "@/components/RunScopedAuditExportButton";
-import { cn } from "@/lib/utils";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { cn } from "@/lib/utils";
 import {
   OperatorEmptyState,
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
-import { cn } from "@/lib/utils";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   getArchitectureRequestDownloadUrl,
   getArtifactDownloadUrl,
   getBundleDownloadUrl,
   getRunExportDownloadUrl,
 } from "@/lib/api";
-import { cn } from "@/lib/utils";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { cn } from "@/lib/utils";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
-import { cn } from "@/lib/utils";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
-import { cn } from "@/lib/utils";
 import type { ArtifactDescriptor, ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
-import { cn } from "@/lib/utils";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type RunDetailArtifactsExportsSectionProps = {

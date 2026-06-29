@@ -1,21 +1,13 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
-import { cn } from "@/lib/utils";
 import { ArtifactIntegrityTechnicalDetails } from "@/components/ArtifactIntegrityTechnicalDetails";
-import { cn } from "@/lib/utils";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
-import { cn } from "@/lib/utils";
 import type { ArtifactDescriptor } from "@/types/authority";
-import { cn } from "@/lib/utils";
 import { getArtifactDownloadUrl } from "@/lib/api";
-import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { cn } from "@/lib/utils";
 import {
   getArtifactBusinessLabel,
   getArtifactDisplayLabel,

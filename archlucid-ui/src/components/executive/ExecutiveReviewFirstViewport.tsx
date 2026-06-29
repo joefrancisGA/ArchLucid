@@ -1,25 +1,15 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
-import { cn } from "@/lib/utils";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
-import { cn } from "@/lib/utils";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { cn } from "@/lib/utils";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { cn } from "@/lib/utils";
 import type { RunExplanationSummary } from "@/types/explanation";
-import { cn } from "@/lib/utils";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
 
 export type ExecutiveReviewFirstViewportProps = {

@@ -1,20 +1,14 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
-import { cn } from "@/lib/utils";
 import { SeverityTag } from "@/components/ui/severity-tag";
-import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import {
   RUN_DETAIL_DECISION_DELTA_PANEL_TEST_ID,
   RUN_DETAIL_DECISION_DELTA_ROW_TEST_ID,
 } from "@/lib/run-detail-decision-delta-alignment";
-import { cn } from "@/lib/utils";
 import type { RunDetailDecisionDeltaView } from "@/lib/run-detail-decision-delta";
 
 export type RunDetailDecisionDeltaPanelProps = {

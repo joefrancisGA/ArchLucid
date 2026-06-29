@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { GovernanceConflictsTable } from "@/components/governance/GovernanceConflictsTable";
 import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";

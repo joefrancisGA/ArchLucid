@@ -1,14 +1,9 @@
 import { cn } from "@/lib/utils";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
-import { cn } from "@/lib/utils";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceWorkflowActivateButtonLabelReaderRank,
@@ -23,22 +18,16 @@ import {
   governanceWorkflowPromotionsEmptyOperatorHint,
   governanceWorkflowPromotionsEmptyReaderHint,
 } from "@/lib/enterprise-controls-context-copy";
-import { cn } from "@/lib/utils";
 import {
   governanceActivationsEmptyGettingStartedOperator,
   governanceActivationsEmptyGettingStartedReader,
   governancePromotionsEmptyGettingStartedOperator,
   governancePromotionsEmptyGettingStartedReader,
 } from "@/lib/governance-workflow-empty-guidance";
-import { cn } from "@/lib/utils";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { GovernanceEnvironmentActivation, GovernancePromotionRecord } from "@/types/governance-workflow";
-import { cn } from "@/lib/utils";
 import type { MutableRefObject } from "react";
-import { cn } from "@/lib/utils";
 import { formatGovernanceBusinessInstant } from "./governance-workflow-helpers";
 
 type GovernanceWorkflowPromotionsActivationsSectionProps = {

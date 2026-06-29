@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 
+import { cn } from "@/lib/utils";
 import { BUYER_CTO_DEMO_AGENDA_HEADING, BUYER_CTO_DEMO_AGENDA_SUBTEXT } from "@/lib/buyer-polish-copy";
 import { BUYER_CTO_DEMO_STEP_BUDGET_MINUTES } from "@/lib/buyer-cto-demo-tour";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";

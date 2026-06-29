@@ -1,18 +1,12 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
-import { cn } from "@/lib/utils";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
-import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import type { RunDetail } from "@/types/authority";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { cn } from "@/lib/utils";
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
 type RunDetailRunMetadataSectionProps = {

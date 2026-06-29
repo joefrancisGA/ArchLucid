@@ -1,26 +1,15 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { AgentEvidenceFaithfulnessBadge } from "@/components/AgentEvidenceFaithfulnessBadge";
-import { cn } from "@/lib/utils";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { cn } from "@/lib/utils";
 import { RunToolInvocationForensicsPanel } from "@/components/RunToolInvocationForensicsPanel";
-import { cn } from "@/lib/utils";
 import { EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER } from "@/lib/agent-evidence-faithfulness-presenter";
-import { cn } from "@/lib/utils";
 import { buildAgentTraceRawSnapshotByTraceId } from "@/lib/agent-trace-raw-snapshot";
-import { cn } from "@/lib/utils";
 import { getRunAgentEvaluation, getRunTraces, getRunToolInvocationForensics } from "@/lib/api";
-import { cn } from "@/lib/utils";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
-import { cn } from "@/lib/utils";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { cn } from "@/lib/utils";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { cn } from "@/lib/utils";
 import type {
   AgentExecutionTraceListPayload,
   AgentOutputEvaluationScoreRow,

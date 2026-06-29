@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import { GovernanceDryRunModal } from "@/components/GovernanceDryRunModal";
 
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 export type PolicyPackImpactSimulationCardProps = {
   readonly selectedPackId: string;

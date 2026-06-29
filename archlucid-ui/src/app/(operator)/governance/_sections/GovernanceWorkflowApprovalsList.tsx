@@ -1,22 +1,13 @@
 import { cn } from "@/lib/utils";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
-import { cn } from "@/lib/utils";
 import { GovernanceQuickApproveButton } from "@/components/GovernanceQuickApproveButton";
-import { cn } from "@/lib/utils";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { cn } from "@/lib/utils";
 import { StatusPill } from "@/components/StatusPill";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceWorkflowApproveButtonLabelReaderRank,
@@ -28,30 +19,21 @@ import {
   governanceWorkflowRejectButtonLabelReaderRank,
   governanceWorkflowReviewSubmitButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
-import { cn } from "@/lib/utils";
 import {
   governanceNoApprovalsGettingStartedOperator,
   governanceNoApprovalsGettingStartedReader,
 } from "@/lib/governance-workflow-empty-guidance";
-import { cn } from "@/lib/utils";
 import { buyerSafeGovernanceActorLabel } from "@/lib/buyer-demo-persona-labels";
-import { cn } from "@/lib/utils";
 import { buyerGovernanceWorkflowStatusLabel } from "@/lib/buyer-governance-workflow-status-labels";
-import { cn } from "@/lib/utils";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { cn } from "@/lib/utils";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
-import { cn } from "@/lib/utils";
 import type { MutableRefObject } from "react";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import {
   formatGovernanceBusinessInstant,
   governanceApprovalCardTitle,
   governanceEnvironmentPairDisplay,
 } from "./governance-workflow-helpers";
-import { cn } from "@/lib/utils";
 import type { GovernanceWorkflowPendingReview } from "./governance-workflow-helpers";
 
 type GovernanceWorkflowApprovalsListProps = {

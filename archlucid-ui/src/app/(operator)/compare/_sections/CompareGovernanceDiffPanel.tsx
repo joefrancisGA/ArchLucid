@@ -1,18 +1,14 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { StatusTag } from "@/components/ui/status-tag";
-import { cn } from "@/lib/utils";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
-import { cn } from "@/lib/utils";
 import {
   COMPARE_GOVERNANCE_CURRENT_EFFECTIVE_DISCLAIMER,
   type CompareEffectiveGovernanceAtCommitSnapshot,
   type CompareGovernanceDiffView,
   type CompareManifestGovernanceSnapshot,
 } from "@/lib/compare-effective-governance-diff";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareGovernanceDiffPanelProps = {

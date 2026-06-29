@@ -1,17 +1,11 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidenceBasisBadges";
-import { cn } from "@/lib/utils";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import { cn } from "@/lib/utils";
 import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
-import { cn } from "@/lib/utils";
 import type { RunExplanationSummary } from "@/types/explanation";
-import { cn } from "@/lib/utils";
 import { isDeterministicExplanationFallback, normalizeFiniteRatio } from "@/types/explanation";
-import { cn } from "@/lib/utils";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type RunDetailSponsorModeExplanationCardProps = {

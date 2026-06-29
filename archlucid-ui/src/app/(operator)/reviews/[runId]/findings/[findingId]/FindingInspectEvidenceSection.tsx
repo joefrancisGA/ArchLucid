@@ -1,19 +1,13 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { cn } from "@/lib/utils";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/finding-policy-evidence-citations";
-import { cn } from "@/lib/utils";
 import type { FindingInspectEvidence } from "@/types/finding-inspect";
 
-import { cn } from "@/lib/utils";
 import { FindingInspectPolicyRuleCallout } from "./FindingInspectPolicyRuleCallout";
 
 export type FindingInspectEvidenceSectionProps = {

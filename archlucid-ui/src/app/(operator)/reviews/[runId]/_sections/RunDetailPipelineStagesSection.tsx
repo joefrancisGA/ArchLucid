@@ -1,29 +1,19 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { cn } from "@/lib/utils";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
-import { cn } from "@/lib/utils";
 import { StatusTag } from "@/components/ui/status-tag";
-import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { cn } from "@/lib/utils";
 import { formatStageDurationMs } from "@/lib/format-stage-duration";
-import { cn } from "@/lib/utils";
 import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
-import { cn } from "@/lib/utils";
 import {
   mapPipelineStageOutcomeToStatusKind,
   pipelineStageOutcomeLabel,
 } from "@/lib/map-pipeline-stage-outcome-status";
-import { cn } from "@/lib/utils";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { cn } from "@/lib/utils";
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
 type RunDetailPipelineStagesSectionProps = {
