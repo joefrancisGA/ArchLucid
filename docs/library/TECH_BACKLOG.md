@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-451 **Done** — sample preview lead uses architecture document). Prior: 2026-06-28 (TB-450 **Done** — new-review first-run banner and More options label). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
+**Updated:** 2026-06-28 (TB-452 **Done** — remove Actions card meta-description). Prior: 2026-06-28 (TB-451 **Done** — sample preview lead uses architecture document). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -13370,7 +13370,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-452 — Remove meta-description paragraph from review Actions card
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 

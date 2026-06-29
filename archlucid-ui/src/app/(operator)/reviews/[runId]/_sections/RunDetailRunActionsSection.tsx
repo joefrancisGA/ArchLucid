@@ -5,7 +5,7 @@ import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportA
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { ShareReviewPackageButton } from "@/components/ShareReviewPackageButton";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -31,13 +31,6 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
       <Card>
         <CardHeader>
           <h3 className={runDetailSectionHeadingClass}>Actions</h3>
-          <CardDescription>
-            <>
-              Exports and sponsor-facing bundles sit in <strong>Deliverables & exports</strong> above. Use this card for
-              scorecard generation and traceability ZIP
-              {buyerPolishedShell ? "." : ", and optional compare shortcuts."}
-            </>
-          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <RunDetailRunGovernanceDispositionActions
