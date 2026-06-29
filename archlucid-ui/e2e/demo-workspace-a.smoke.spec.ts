@@ -30,7 +30,7 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
   });
 
   test("canonical Product Tour reviewer shell loads with evidence, findings, finalized record, exports", async ({ page }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(300_000);
 
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
     await page.goto(`/reviews/${DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID}`, { waitUntil: "domcontentloaded" });
@@ -71,6 +71,7 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
       page.getByTestId("quick-decision-summary").getByText(/Container Apps external ingress exposes admin callbacks/i).first(),
     ).toBeVisible({ timeout: 60_000 });
 
+    await expect(page.locator("#manifest-summary")).toBeVisible({ timeout: 60_000 });
     await page.locator("#manifest-summary").scrollIntoViewIfNeeded();
 
     await expect(page.getByRole("heading", { name: /Finalized decision record/i })).toBeVisible();

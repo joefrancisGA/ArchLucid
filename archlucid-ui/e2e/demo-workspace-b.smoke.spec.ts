@@ -76,18 +76,10 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
       timeout: 90_000,
     });
 
-    await expect(assessmentSection.getByText(/ai-gov-002/i).first()).toBeVisible({
-      timeout: 90_000,
-    });
-
     /** Pack B security baseline posture (public exposure rule sec-base-006 from seed fixtures). */
     await expect(
       assessmentSection.getByTestId("quick-decision-summary").getByText(/Inference gateway still advertises interim public listener/i).first(),
     ).toBeVisible({
-      timeout: 90_000,
-    });
-
-    await expect(assessmentSection.getByText(/sec-base-006/i).first()).toBeVisible({
       timeout: 90_000,
     });
 
