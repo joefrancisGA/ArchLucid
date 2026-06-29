@@ -105,7 +105,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
     "Commit reviews or add cost evidence to estimate savings.",
   costEvidenceNotConfigured: "Cost baseline not configured",
   costEvidenceNotConfiguredFootnote:
-    "Add Azure cost evidence to estimate savings and ROI.",
+    "Add cost evidence (Azure, AWS, or GCP spend data) to estimate savings and ROI.",
   sampleWorkspaceBannerTitle: "Sample workspace data",
   sampleWorkspaceBannerDescription:
     "Figures below come from the demonstration workspace — not your production inventory.",

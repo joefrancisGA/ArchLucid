@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-459 **Done** — remove demo integrity tools from audit trail note). Prior: 2026-06-28 (TB-458 **Done** — rename Evaluation standards to Review standards on outcome card). Prior: 2026-06-28 (TB-457 **Done** — rename Evaluation value report to Review value report). Prior: 2026-06-28 (TB-456 **Done** — rename Pilot feedback to Review feedback). Prior: 2026-06-28 (TB-437 **Done** — unified new-review submit CTA). Prior: 2026-06-28 (TB-481–TB-500 added — integrations/evidence audit 20 P0–P2 items). Prior: 2026-06-28 (TB-456–TB-480 added — copy/terminology audit 25 P0–P3 items). Prior: 2026-06-28 (TB-436 **Done** — review detail Deliverables section title and default-open). Prior: 2026-07-01 (TB-430 **Done** — pilot readiness live release strict blocker).
+**Updated:** 2026-06-28 (TB-460 **Done** — multi-cloud cost evidence footnote on executive dashboard). Prior: 2026-06-28 (TB-459 **Done** — remove demo integrity tools from audit trail note). Prior: 2026-06-28 (TB-458 **Done** — rename Evaluation standards to Review standards on outcome card). Prior: 2026-06-28 (TB-457 **Done** — rename Evaluation value report to Review value report). Prior: 2026-06-28 (TB-456 **Done** — rename Pilot feedback to Review feedback). Prior: 2026-06-28 (TB-437 **Done** — unified new-review submit CTA). Prior: 2026-06-28 (TB-481–TB-500 added — integrations/evidence audit 20 P0–P2 items). Prior: 2026-06-28 (TB-456–TB-480 added — copy/terminology audit 25 P0–P3 items). Prior: 2026-06-28 (TB-436 **Done** — review detail Deliverables section title and default-open). Prior: 2026-07-01 (TB-430 **Done** — pilot readiness live release strict blocker).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -13597,7 +13597,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-460 — Fix Azure-only cost evidence footnote on executive dashboard
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
