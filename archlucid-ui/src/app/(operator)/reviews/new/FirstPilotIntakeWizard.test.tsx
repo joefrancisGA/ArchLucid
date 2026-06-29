@@ -41,9 +41,16 @@ import { BUYER_NEW_REVIEW_TOAST_CATEGORY, BUYER_START_ARCHITECTURE_REVIEW_CTA } 
 import { showError } from "@/lib/toast";
 import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 
-import { FirstPilotIntakeWizard } from "./FirstPilotIntakeWizard";
+import { FirstPilotIntakeWizard, FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE } from "./FirstPilotIntakeWizard";
 
 describe("FirstPilotIntakeWizard", () => {
+  it("uses buyer-safe submit validation copy without evidence-file jargon", () => {
+    expect(FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE).toBe(
+      "Add a review title and upload at least one architecture document, or fill in the description.",
+    );
+    expect(FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE.toLowerCase()).not.toContain("evidence file");
+  });
+
   it("enables start with title and evidence file without a long brief", async () => {
     createRun.mockResolvedValue({ run: { runId: "first-pilot-run-1" } });
 

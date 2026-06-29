@@ -48,6 +48,9 @@ import { WizardEvidenceUploadZone } from "./QuickReviewWizardDeferredPanels";
 const V1_DEFAULT_CLOUD_PROVIDER: CreateArchitectureRunRequestPayload["cloudProvider"] = "None";
 const DEFAULT_PROOF_SCOPE: QuickReviewProofScopeId[] = ["cost", "compliance", "topology"];
 
+export const FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE =
+  "Add a review title and upload at least one architecture document, or fill in the description.";
+
 function buildFirstPilotPayload(
   title: string,
   brief: string,
@@ -151,7 +154,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
   const submitRun = async () => {
     if (!canStart) {
-      showToast("err", "Enter a review title and attach at least one evidence file or a complete brief.");
+      showToast("err", FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE);
 
       return;
     }
