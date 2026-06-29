@@ -98,7 +98,7 @@ export const PILOT_COMMAND_CENTER_INVITE_REVIEWER = "Invite reviewer";
 
 export const PILOT_PATH_PREVIEW_STEPS = [
   { id: "start", label: "Start with a design or evidence" },
-  { id: "review", label: "Review findings and missing evidence" },
+  { id: "review", label: "Review findings and add supporting evidence" },
   { id: "commit", label: "Commit review package" },
 ] as const;
 

@@ -27,8 +27,10 @@ describe("review terminology guard", () => {
   it("pilot path preview steps use review-first labels", () => {
     const reviewStep = PILOT_PATH_PREVIEW_STEPS.find((step) => step.id === "review");
 
+    expect(reviewStep?.label).toBe("Review findings and add supporting evidence");
     expect(reviewStep?.label.toLowerCase()).toContain("review");
     expect(reviewStep?.label.toLowerCase()).not.toContain("run analysis");
+    expect(reviewStep?.label.toLowerCase()).not.toContain("missing evidence");
   });
 
   it("high-traffic copy files avoid legacy run-primary labels", () => {
