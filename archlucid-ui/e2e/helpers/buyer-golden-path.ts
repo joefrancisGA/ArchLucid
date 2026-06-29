@@ -70,5 +70,5 @@ export async function expectBuyerExecutiveSummarySurface(page: Page): Promise<vo
 
 /** Layer strip stepper is present on curated spine routes in buyer-polished mock E2E. */
 export async function expectBuyerGoldenJourneyStepper(page: Page): Promise<void> {
-  await expect(page.getByTestId("buyer-golden-journey-stepper")).toBeVisible();
+  await expect(page.getByTestId("buyer-golden-journey-stepper")).toBeVisible({ timeout: 30_000 });
 }

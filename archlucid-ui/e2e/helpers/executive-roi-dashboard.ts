@@ -95,22 +95,30 @@ export function prepareExecutiveRoiDashboardProxyWaits(page: Page): {
     .catch(() => null);
 
   const exportPayload = (async (): Promise<ExecutiveRoiExportPayload> => {
+    const early = await earlyExportResponse;
+
+    if (early !== null) {
+      return (await early.json()) as ExecutiveRoiExportPayload;
+    }
+
     await summaryResponse;
 
-    await page
-      .getByText("Savings by environment")
-      .scrollIntoViewIfNeeded({ timeout: 30_000 })
-      .catch(() => undefined);
-
-    await expect(page.getByTestId("exec-roi-identified-vs-realized-panel"))
-      .toBeVisible({ timeout: 90_000 })
-      .catch(() => undefined);
-
     const lateExportResponse = page
-      .waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 20_000 })
+      .waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 15_000 })
       .catch(() => null);
 
-    const response = (await earlyExportResponse) ?? (await lateExportResponse);
+    await Promise.race([
+      lateExportResponse,
+      page
+        .getByText("Savings by environment")
+        .scrollIntoViewIfNeeded({ timeout: 15_000 })
+        .catch(() => undefined),
+      expect(page.getByTestId("exec-roi-identified-vs-realized-panel"))
+        .toBeVisible({ timeout: 30_000 })
+        .catch(() => undefined),
+    ]);
+
+    const response = await lateExportResponse;
 
     if (response !== null) {
       return (await response.json()) as ExecutiveRoiExportPayload;
