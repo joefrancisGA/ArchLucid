@@ -187,6 +187,7 @@ function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto, order:
   const titleRaw = typeof row.findingTitle === "string" ? row.findingTitle.trim() : "";
   const title = titleRaw.length > 0 ? titleRaw : findingId;
   const recommendation = typeof row.traceConfidenceLabel === "string" ? row.traceConfidenceLabel.trim() : "";
+  const ruleIdRaw = typeof row.ruleId === "string" ? row.ruleId.trim() : "";
   let wireJson: string;
 
   try {
@@ -220,6 +221,7 @@ function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto, order:
         : null,
     evidenceRefCount,
     enforcementTier: "PolicyViolation",
+    policyRuleId: ruleIdRaw.length > 0 ? ruleIdRaw : null,
   };
 }
 

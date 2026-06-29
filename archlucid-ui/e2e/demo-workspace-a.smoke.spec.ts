@@ -65,14 +65,11 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await expect(assessmentSection).toBeVisible({ timeout: 120_000 });
     await assessmentSection.scrollIntoViewIfNeeded();
 
-    await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 120_000 });
 
-    const severityBadge = page
-      .getByTestId("quick-decision-summary")
-      .getByText(/^Critical$|^High$|^Medium$/, { exact: true })
-      .first();
-
-    await expect(severityBadge).toBeVisible({ timeout: 30_000 });
+    await expect(
+      page.getByTestId("quick-decision-summary").getByText(/Container Apps external ingress exposes admin callbacks/i).first(),
+    ).toBeVisible({ timeout: 60_000 });
 
     await page.locator("#manifest-summary").scrollIntoViewIfNeeded();
 

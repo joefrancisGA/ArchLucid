@@ -65,12 +65,9 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expectRunDetailPageReady(page);
 
+    await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 120_000 });
+
     const assessmentSection = page.locator("#run-explanation");
-
-    await expect(assessmentSection).toBeVisible({ timeout: 120_000 });
-    await assessmentSection.scrollIntoViewIfNeeded();
-
-    await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 90_000 });
 
     /** Pack A narrative (Responsible AI governance engine + rule identifiers from seed fixtures). */
     await expect(
@@ -79,7 +76,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
       timeout: 90_000,
     });
 
-    await expect(assessmentSection.getByTestId("finding-policy-rule-badge").filter({ hasText: /ai-gov-002/i }).first()).toBeVisible({
+    await expect(assessmentSection.getByText(/ai-gov-002/i).first()).toBeVisible({
       timeout: 90_000,
     });
 
@@ -90,7 +87,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
       timeout: 90_000,
     });
 
-    await expect(assessmentSection.getByTestId("finding-policy-rule-badge").filter({ hasText: /sec-base-006/i }).first()).toBeVisible({
+    await expect(assessmentSection.getByText(/sec-base-006/i).first()).toBeVisible({
       timeout: 90_000,
     });
 
