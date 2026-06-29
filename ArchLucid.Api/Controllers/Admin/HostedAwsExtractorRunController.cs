@@ -85,17 +85,3 @@ public sealed class HostedAwsExtractorRunController(
         });
     }
 }
-
-public sealed class HostedAwsExtractorRunBody
-{
-    public Guid ConnectionId { get; init; }
-
-    public Guid? RunId { get; init; }
-}
-
-public sealed class HostedAwsExtractorRunResponse
-{
-    public Guid PackageId { get; init; }
-
-    public int ResourceCount { get; init; }
-}
