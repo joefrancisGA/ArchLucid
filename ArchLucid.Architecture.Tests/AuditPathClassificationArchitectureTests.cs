@@ -94,6 +94,7 @@ public sealed class AuditPathClassificationArchitectureTests
         for (DirectoryInfo? d = new(AppContext.BaseDirectory); d != null; d = d.Parent)
         {
             string sln = Path.Combine(d.FullName, "ArchLucid.sln");
+
             if (File.Exists(sln))
                 return d.FullName;
         }
