@@ -5188,7 +5188,7 @@ BEGIN
 END;
 GO
 
-/* 261: Per-tenant Jira / ServiceNow connector references (see Migrations/261_TenantItsmConnectorConnections.sql). */
+/* 266: Per-tenant Jira / ServiceNow connector references (see Migrations/266_TenantItsmConnectorConnections.sql). */
 IF OBJECT_ID(N'dbo.TenantItsmConnectorConnections', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.TenantItsmConnectorConnections

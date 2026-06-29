@@ -37,13 +37,13 @@ public sealed class InboundWebhookPipelineOrderArchitectureTests
 
         text.Should().Contain("[EnableRateLimiting(\"fixed\")]");
 
-        AssertMethodOrder(text, "Jira");
-        AssertMethodOrder(text, "ServiceNow");
+        AssertMethodOrder(text, "ProcessJiraAsync");
+        AssertMethodOrder(text, "ProcessServiceNowAsync");
     }
 
     private static void AssertMethodOrder(string fileText, string methodName)
     {
-        int methodStart = fileText.IndexOf($"public async Task<IActionResult> {methodName}(", StringComparison.Ordinal);
+        int methodStart = fileText.IndexOf($"async Task<IActionResult> {methodName}(", StringComparison.Ordinal);
         methodStart.Should().BeGreaterThan(0, because: $"{methodName} should exist");
 
         int nextMethod = fileText.IndexOf("public async Task<IActionResult>", methodStart + 1, StringComparison.Ordinal);
