@@ -1,6 +1,7 @@
 import {
   GitBranch,
   GitCompare,
+  Lightbulb,
   MessageSquare,
   Search,
 } from "lucide-react";
@@ -52,6 +53,14 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
           icon: GitBranch,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",
+        },
+        {
+          href: "/advisory",
+          label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
+          title: "Architecture advisory recommendations and improvement plans",
+          icon: Lightbulb,
+          tier: "advanced",
+          requiredAuthority: "ReadAuthority",
         },
       ],
     };
