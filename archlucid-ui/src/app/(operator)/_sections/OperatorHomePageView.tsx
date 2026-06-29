@@ -10,6 +10,7 @@ import {
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
 import { OperatorHomeExecutiveRoiStrip } from "@/components/operator-home/OperatorHomeExecutiveRoiStrip";
 import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
+import { OperatorHomeContinueSetupCard } from "@/components/operator-home/OperatorHomeContinueSetupCard";
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
@@ -48,6 +49,8 @@ function BuyerPolishedHomePageBody() {
       <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} />
 
       <OperatorHomeAdvancedGuidancePanel buyerPolishedShell checklistVariant="compact" />
+
+      <OperatorHomeContinueSetupCard />
     </>
   );
 }
@@ -75,6 +78,8 @@ function OperatorHomePageBody() {
         fullOperatorShell={fullOperatorShell}
         checklistVariant={fullOperatorShell ? "full" : "compact"}
       />
+
+      <OperatorHomeContinueSetupCard />
     </>
   );
 }
