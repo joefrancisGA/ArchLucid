@@ -42,7 +42,7 @@ describe("WizardStepAzureContext", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the Azure ZIP disclosure toggle labeled 'Add Azure inventory ZIP'", () => {
+  it("renders the inventory ZIP disclosure toggle without Azure-only labeling", () => {
     render(
       <WizardFormTestHarness>
         <WizardStepAzureContext />
@@ -50,11 +50,12 @@ describe("WizardStepAzureContext", () => {
     );
 
     expect(screen.getByTestId("wizard-azure-optional-toggle")).toBeInTheDocument();
-    expect(screen.getByText("Add Azure inventory ZIP")).toBeInTheDocument();
+    expect(screen.getByText("Add cloud inventory ZIP")).toBeInTheDocument();
+    expect(screen.queryByText("Add Azure inventory ZIP")).not.toBeInTheDocument();
     expect(screen.getByText("optional")).toBeInTheDocument();
   });
 
-  it("starts with the Azure ZIP section collapsed (aria-expanded=false)", () => {
+  it("starts with the inventory ZIP section collapsed (aria-expanded=false)", () => {
     render(
       <WizardFormTestHarness>
         <WizardStepAzureContext />
@@ -65,7 +66,7 @@ describe("WizardStepAzureContext", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "false");
   });
 
-  it("expands the Azure ZIP section when the toggle is clicked", () => {
+  it("expands the inventory ZIP section when the toggle is clicked", () => {
     render(
       <WizardFormTestHarness>
         <WizardStepAzureContext />
@@ -79,7 +80,7 @@ describe("WizardStepAzureContext", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "true");
   });
 
-  it("shows the extractor command with the active tenant id prefilled and copies it", async () => {
+  it("shows the Azure inventory command by default when cloud target is None", async () => {
     render(
       <WizardFormTestHarness>
         <WizardStepAzureContext />
@@ -89,12 +90,42 @@ describe("WizardStepAzureContext", () => {
     fireEvent.click(screen.getByTestId("wizard-azure-optional-toggle"));
 
     await waitFor(() => {
-      expect(screen.getByTestId("wizard-azure-ingest-command")).toHaveTextContent(
-        new RegExp(`-SubscriptionId '${DEV_SCOPE_TENANT_ID}'`),
-      );
+      expect(screen.getByTestId("wizard-cloud-inventory-ingest-panel")).toHaveAttribute("data-platform", "azure");
     });
 
-    fireEvent.click(screen.getByTestId("wizard-azure-ingest-copy"));
+    expect(screen.getByTestId("wizard-cloud-inventory-ingest-command")).toHaveTextContent(
+      new RegExp(`-SubscriptionId '${DEV_SCOPE_TENANT_ID}'`),
+    );
+  });
+
+  it("shows the AWS inventory command when cloud target is Aws", async () => {
+    render(
+      <WizardFormTestHarness values={{ cloudProvider: "Aws" }}>
+        <WizardStepAzureContext />
+      </WizardFormTestHarness>,
+    );
+
+    fireEvent.click(screen.getByTestId("wizard-azure-optional-toggle"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("wizard-cloud-inventory-ingest-panel")).toHaveAttribute("data-platform", "aws");
+    });
+
+    expect(screen.getByTestId("wizard-cloud-inventory-ingest-command")).toHaveTextContent(
+      "Get-ArchLucidAwsPackage.ps1",
+    );
+  });
+
+  it("copies the active cloud inventory command", async () => {
+    render(
+      <WizardFormTestHarness>
+        <WizardStepAzureContext />
+      </WizardFormTestHarness>,
+    );
+
+    fireEvent.click(screen.getByTestId("wizard-azure-optional-toggle"));
+
+    fireEvent.click(screen.getByTestId("wizard-cloud-inventory-ingest-copy"));
 
     await waitFor(() => {
       expect(writeTextMock).toHaveBeenCalledTimes(1);
