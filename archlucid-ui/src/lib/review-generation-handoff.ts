@@ -3,6 +3,10 @@ import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
 /** Query key signaling app-initiated navigation immediately after review generation. */
 export const FROM_GENERATION_QUERY_KEY = "fromGeneration";
 
+/** Buyer-safe run-detail heading when a post-generation package cannot be opened yet. */
+export const REVIEW_PACKAGE_OPEN_FAILURE_HEADING =
+  "Architecture review — package could not be opened";
+
 const STORAGE_PREFIX = "archlucid_review_generation_handoff_v1_";
 
 export type ReviewGenerationHandoffSource =

@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
 import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
-import { isFromGenerationSearchParam } from "@/lib/review-generation-handoff";
+import {
+  isFromGenerationSearchParam,
+  REVIEW_PACKAGE_OPEN_FAILURE_HEADING,
+} from "@/lib/review-generation-handoff";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -36,7 +39,7 @@ export default async function RunDetailPage({
       return (
         <div className="w-full max-w-[1200px] px-1 py-2 sm:px-0" data-testid="run-detail-load-failure">
           <h1 className={cn("mb-4", OPERATOR_TYPOGRAPHY.pageTitle)}>
-            Review generation — Could not open generated package
+            {REVIEW_PACKAGE_OPEN_FAILURE_HEADING}
           </h1>
           <ReviewPackageLoadFailureView
             runId={runId}

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
   FROM_GENERATION_QUERY_KEY,
+  REVIEW_PACKAGE_OPEN_FAILURE_HEADING,
   buildReviewGenerationRedirect,
   clearReviewGenerationHandoff,
   isFromGenerationSearchParam,
@@ -40,6 +41,14 @@ describe("review-generation-handoff", () => {
 
     expect(href).toContain(`${FROM_GENERATION_QUERY_KEY}=1`);
     expect(readReviewGenerationHandoff(RUN_ID)?.source).toBe("socratic-intake");
+  });
+
+  it("uses buyer-safe open-failure heading without generation jargon", () => {
+    expect(REVIEW_PACKAGE_OPEN_FAILURE_HEADING).toBe(
+      "Architecture review — package could not be opened",
+    );
+    expect(REVIEW_PACKAGE_OPEN_FAILURE_HEADING.toLowerCase()).not.toContain("review generation");
+    expect(REVIEW_PACKAGE_OPEN_FAILURE_HEADING.toLowerCase()).not.toContain("generated package");
   });
 
   it("detects fromGeneration search param", () => {

@@ -6,6 +6,7 @@ import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFail
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, isApiTransientLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { REVIEW_PACKAGE_OPEN_FAILURE_HEADING } from "@/lib/review-generation-handoff";
 import { cn } from "@/lib/utils";
 
 export function RunDetailPageFetchErrorView(props: {
@@ -20,7 +21,7 @@ export function RunDetailPageFetchErrorView(props: {
       <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0" data-testid="run-detail-load-failure">
         <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
           {props.fromGeneration
-            ? "Review generation — Could not open generated package"
+            ? REVIEW_PACKAGE_OPEN_FAILURE_HEADING
             : "Review detail — Could not load review package"}
         </h1>
         <ReviewPackageLoadFailureView
