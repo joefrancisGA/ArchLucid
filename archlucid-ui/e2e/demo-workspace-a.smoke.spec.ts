@@ -71,16 +71,12 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
       page.getByTestId("quick-decision-summary").getByText(/Container Apps external ingress exposes admin callbacks/i).first(),
     ).toBeVisible({ timeout: 60_000 });
 
-    await expect(page.locator("#manifest-summary")).toBeVisible({ timeout: 60_000 });
-    await page.locator("#manifest-summary").scrollIntoViewIfNeeded();
+    await expect(page.locator("#run-decision-summary")).toBeVisible({ timeout: 60_000 });
+    await page.locator("#run-decision-summary").scrollIntoViewIfNeeded();
 
-    await expect(page.getByRole("heading", { name: /Finalized decision record/i })).toBeVisible();
+    await expect(page.getByTestId("buyer-review-decision-summary")).toBeVisible({ timeout: 60_000 });
 
-    const manifestSection = page.locator("#manifest-summary");
-
-    await expect(manifestSection).toContainText("Finalized");
-
-    await expect(manifestSection.getByRole("term", { name: "Decisions" })).toBeVisible();
+    await expect(page.getByTestId("buyer-review-status-headline")).toBeVisible({ timeout: 60_000 });
 
     await page.locator("#artifacts-exports").scrollIntoViewIfNeeded();
 

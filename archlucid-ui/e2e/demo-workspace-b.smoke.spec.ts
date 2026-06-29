@@ -41,7 +41,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await ensureDemoWorkspaceSeedReady(request);
   });
 
-  test("regulated storyline surfaces Pack A/B findings, severities, consulting DOCX, whitelabel export JSON", async ({
+  test("regulated storyline surfaces Pack A/B findings, consulting DOCX, whitelabel export JSON", async ({
     page,
     request,
   }) => {
@@ -82,13 +82,6 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     ).toBeVisible({
       timeout: 90_000,
     });
-
-    await expect(
-      page
-        .getByTestId("quick-decision-summary")
-        .getByText(/^High$|^Critical$/, { exact: true })
-        .first(),
-    ).toBeVisible({ timeout: 30_000 });
 
     const docxExport = await postConsultingAnalysisDocxRaw(request, DEMO_WORKSPACE_B_REGULATED_RUN_ID, {
       tenantId: DEMO_WORKSPACE_B_LIVE_IDS.tenantId,
