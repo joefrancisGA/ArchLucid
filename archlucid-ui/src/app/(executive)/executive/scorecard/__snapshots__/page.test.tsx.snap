@@ -70,7 +70,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
       </p>
     </div>
     <a
-      class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-7 rounded-md px-3 text-xs font-medium shrink-0 self-start sm:self-auto"
+      class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-7 rounded-md px-3 text-xs shrink-0 self-start sm:self-auto"
       href="/executive/reviews"
     >
       Open review packages
@@ -78,7 +78,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
   </div>
   <p
     aria-busy="true"
-    class="m-0 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 text-sm leading-relaxed text-neutral-800 shadow-sm dark:border-neutral-800 dark:text-neutral-200"
+    class="m-0 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 shadow-sm dark:border-neutral-800 dark:text-neutral-200 text-[13px] font-normal leading-5 text-al-text-primary"
     data-testid="executive-value-narrative"
     role="status"
   >
@@ -243,7 +243,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
     class="mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
   >
     <summary
-      class="cursor-pointer select-none text-sm font-semibold text-al-text-primary"
+      class="cursor-pointer select-none text-[15px] font-semibold leading-[22px] text-al-text-primary"
     >
       About these metrics
     </summary>
