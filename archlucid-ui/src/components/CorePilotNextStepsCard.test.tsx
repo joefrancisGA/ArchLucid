@@ -76,6 +76,14 @@ describe("CorePilotNextStepsCard", () => {
       expect(screen.getByTestId("pilot-active-step-link")).toHaveTextContent(/start review/i);
     });
 
+    it("shows Finalize checkpoint label in the step tracker", async () => {
+      render(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      expect(screen.getByRole("link", { name: "Finalize" })).toBeInTheDocument();
+    });
+
     it("shows skip-for-now note naming advanced features", async () => {
       render(<CorePilotNextStepsCard />);
 

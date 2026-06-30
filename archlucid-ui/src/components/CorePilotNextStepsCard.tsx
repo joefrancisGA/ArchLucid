@@ -80,7 +80,7 @@ function buildFirstReviewCheckpointStrip(
   return [
     { id: "intake", label: "Intake", href: "/reviews/new", status: statusById.intake },
     { id: "execute", label: "Execute", href: reviewHref, status: statusById.execute },
-    { id: "commit", label: "Commit", href: reviewHref, status: statusById.commit },
+    { id: "commit", label: "Finalize", href: reviewHref, status: statusById.commit },
     { id: "export", label: "Export", href: committedReviewHref, status: statusById.export },
     { id: "sponsor-ready", label: "Sponsor-ready", href: "/dashboard", status: statusById["sponsor-ready"] },
   ] as const;
