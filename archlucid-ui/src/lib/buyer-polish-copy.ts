@@ -504,7 +504,7 @@ export const BUYER_WHY_ARCHLUCID_SOURCES_LINE =
   "Aggregated sponsor-facing proof from measured ROI, sponsor evidence pack, value report, and aggregate explanation services.";
 
 export const BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE =
-  "Aggregated sponsor-facing proof from the sponsor evidence pack service — complements the seeded Claims Intake review below.";
+  "Aggregated proof from the evidence pack service — paired with the example Claims Intake review below.";
 
 export const BUYER_AUDIT_ENTERPRISE_WORKSPACE_LEAD =
   "When your team is ready for tenant-backed governed reviews, procurement and workspace onboarding use a separate request flow.";

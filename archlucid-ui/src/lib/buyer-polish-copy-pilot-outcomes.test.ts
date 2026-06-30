@@ -10,6 +10,7 @@ import {
   PILOT_COMMAND_CENTER_OUTCOMES,
   PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
   PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION,
+  BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 
@@ -82,5 +83,14 @@ describe("buyer-polish-copy product concepts glossary (TB-469)", () => {
       "Short definitions for terms you will encounter in your architecture reviews — open on demand.",
     );
     expect(PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION.toLowerCase()).not.toContain("pilot");
+  });
+});
+
+describe("buyer-polish-copy Why ArchLucid sponsor pack source (TB-470)", () => {
+  it("uses example review attribution without seeded framing", () => {
+    expect(BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE).toBe(
+      "Aggregated proof from the evidence pack service — paired with the example Claims Intake review below.",
+    );
+    expect(BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE.toLowerCase()).not.toMatch(/\bseed(ed)?\b/);
   });
 });
