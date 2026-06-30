@@ -106,7 +106,7 @@ export function InProductEvidenceChecklist() {
           href={resolveInAppDocHref("/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")}
           className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
         >
-          Full walkthrough
+          Open setup guide
         </Link>
       </div>
 
