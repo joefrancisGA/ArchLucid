@@ -19,6 +19,7 @@ import {
   OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER,
   BUYER_SIMULATOR_TRUST_BADGE_LABEL,
   BUYER_SIMULATOR_TRUST_BADGE_TOOLTIP,
+  BUYER_SCOPE_LIST_UNAVAILABLE,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 
@@ -138,6 +139,16 @@ describe("buyer-polish-copy sample findings defensible layer (TB-474)", () => {
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("demo-derived");
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("execution mode");
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("evidence basis");
+  });
+});
+
+describe("buyer-polish-copy scope list unavailable (TB-479)", () => {
+  it("uses session framing without demonstration or demo jargon", () => {
+    expect(BUYER_SCOPE_LIST_UNAVAILABLE).toBe(
+      "Workspace directory is unavailable in this environment. The sample workspace remains active for this session.",
+    );
+    expect(BUYER_SCOPE_LIST_UNAVAILABLE.toLowerCase()).not.toContain("demonstration");
+    expect(BUYER_SCOPE_LIST_UNAVAILABLE.toLowerCase()).not.toContain("demo");
   });
 });
 

@@ -560,7 +560,7 @@ export const BUYER_SCOPE_SWITCHER_INTRO =
 
 /** Legacy list-unavailable copy — keep for technical disclosures only. */
 export const BUYER_SCOPE_LIST_UNAVAILABLE =
-  "Workspace directory is unavailable in this environment. The sample workspace remains active for the demonstration.";
+  "Workspace directory is unavailable in this environment. The sample workspace remains active for this session.";
 
 export const BUYER_APPROVED_WITH_MONITORING_DEFINITION =
   "Approved for implementation planning; one residual risk accepted with active monitoring; no blocking issues.";
