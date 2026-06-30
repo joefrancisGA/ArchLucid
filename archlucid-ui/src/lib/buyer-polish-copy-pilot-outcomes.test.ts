@@ -11,6 +11,9 @@ import {
   PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
   PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION,
   BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE,
+  BUYER_HOME_START_CTO_DEMO_ARIA,
+  BUYER_HOME_START_CTO_DEMO_CTA,
+  BUYER_HOME_START_CTO_DEMO_HEADING,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 
@@ -92,5 +95,15 @@ describe("buyer-polish-copy Why ArchLucid sponsor pack source (TB-470)", () => {
       "Aggregated proof from the evidence pack service — paired with the example Claims Intake review below.",
     );
     expect(BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE.toLowerCase()).not.toMatch(/\bseed(ed)?\b/);
+  });
+});
+
+describe("buyer-polish-copy operator home example review card (TB-471)", () => {
+  it("uses Open example review heading and CTA without CTO demo framing", () => {
+    expect(BUYER_HOME_START_CTO_DEMO_HEADING).toBe("Open example review");
+    expect(BUYER_HOME_START_CTO_DEMO_CTA).toBe("Open example review");
+    expect(BUYER_HOME_START_CTO_DEMO_ARIA).toBe("Open example review — sample review package walkthrough");
+    expect(BUYER_HOME_START_CTO_DEMO_HEADING.toLowerCase()).not.toContain("cto demo");
+    expect(BUYER_HOME_START_CTO_DEMO_CTA.toLowerCase()).not.toContain("cto demo");
   });
 });

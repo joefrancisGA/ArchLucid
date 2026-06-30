@@ -124,14 +124,14 @@ export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_TITLE = "Product concepts";
 export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION =
   "Short definitions for terms you will encounter in your architecture reviews — open on demand.";
 
-export const BUYER_HOME_START_CTO_DEMO_HEADING = "Start CTO demo";
+export const BUYER_HOME_START_CTO_DEMO_HEADING = "Open example review";
 
 export const BUYER_HOME_START_CTO_DEMO_LEAD =
   "Open a finalized sample architecture review and walk the 5-step diligence path — no setup.";
 
-export const BUYER_HOME_START_CTO_DEMO_CTA = "Start CTO demo";
+export const BUYER_HOME_START_CTO_DEMO_CTA = "Open example review";
 
-export const BUYER_HOME_START_CTO_DEMO_ARIA = "Start CTO demo — sample review package walkthrough";
+export const BUYER_HOME_START_CTO_DEMO_ARIA = "Open example review — sample review package walkthrough";
 
 export const BUYER_CTO_DEMO_TOUR_HEADING = "CTO demo tour";
 

@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-470 **Done** — Why ArchLucid sponsor pack source line). Prior: 2026-06-28 (TB-469 **Done** — product concepts glossary dialog description). Prior: 2026-06-28 (TB-468 **Done** — Executive value report page title). Prior: 2026-06-28 (TB-467 **Done** — Cloud connections nav label migration). Prior: 2026-06-28 (TB-461 **Done** — hero step 3 Finalize review package). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
+**Updated:** 2026-06-28 (TB-471 **Done** — Open example review home card copy). Prior: 2026-06-29 (TB-516–TB-534 added — nav/IA audit 19 P0–P2 items; FIRST_HOUR_JOURNEY_AUDIT.md and NAV_IA_AUDIT.md recreated). Prior: 2026-06-29 (TB-501–TB-515 added — enterprise trust audit 15 P0–P2 items). Prior: 2026-06-28 (TB-470 **Done** — Why ArchLucid sponsor pack source line). Prior: 2026-06-28 (TB-469 **Done** — product concepts glossary dialog description). Prior: 2026-06-28 (TB-468 **Done** — Executive value report page title). Prior: 2026-06-28 (TB-467 **Done** — Cloud connections nav label migration). Prior: 2026-06-28 (TB-461 **Done** — hero step 3 Finalize review package). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -12,7 +12,7 @@
 | Deployability | 5 |
 | AI/Agent readiness | 3 |
 | Architectural integrity | 8 |
-| Adoption friction | 92 |
+| Adoption friction | 111 |
 | Commercial / marketability | 3 |
 | Data consistency | 5 |
 | Cutting-edge AI | 3 |
@@ -28,7 +28,7 @@
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
 | Code hygiene | 9 |
-| **Total (unique)** | **~147** |
+| **Total (unique)** | **~166** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-392** (per-tenant Jira/ServiceNow credentials — V1.1). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -13908,7 +13908,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-471 — Rename "Start CTO demo" to "Open example review" in buyer-polished operator home
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -15264,3 +15264,461 @@ Reader role capabilities:
 **Size estimate:** **XS**
 
 **Cross-ref:** TB-508, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-516 — Add Overview (`/`) as first nav item in pilot nav group (P0)
+
+**Why:** No nav item links to the home page. The logo is the only return path. Any user who navigates to Reviews, Governance, or Settings has no visible way back — a dead end for the most common recovery pattern.
+
+**Approach:**
+
+Add as the first link in `PilotNavGroupBuilder.build()`:
+
+```typescript
+{
+  href: "/",
+  label: OPERATOR_NAV_LINK_LABELS.home,
+  title: "Workspace overview",
+  icon: Home,
+  tier: "essential",
+  defaultVisibleInCollapsedSidebar: true,
+},
+```
+
+`OPERATOR_NAV_LINK_LABELS.home` already resolves to `"Overview"` in `i18n.ts`.
+
+**Acceptance criteria:**
+
+- "Overview" appears as the first item in the left nav for all users.
+- Clicking it navigates to `/`.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/pilot-nav-group-builder.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N01 (2026-06-28).
+
+---
+
+## TB-517 — Unlock Governance and Audit trail at nav phase 1 (after first commit) (P0)
+
+**Why:** The entire Governance nav group — including the Audit trail — is hidden until `operateNavUnlockPhase >= 2`. Users who have committed a review have no nav path to governance approval or the audit trail. Product looks incomplete.
+
+**Approach:**
+
+In `nav-shell-visibility.ts`, change the governance group gate from a full-group phase-2 block to a per-link filter: show Governance workflow (`/governance`) and Audit trail (`/governance/audit`) at phase 1. Keep Risk register, Policy packs, Risk exceptions at phase 2.
+
+Alternatively split `operate-governance` into `operate-governance-core` (phase 1) and `operate-governance-extended` (phase 2).
+
+**Acceptance criteria:**
+
+- Users with `operateNavUnlockPhase >= 1` see Governance workflow and Audit trail in the sidebar.
+- Users with `operateNavUnlockPhase < 1` do not see them.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/nav-shell-visibility.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Nav/IA audit N02 (2026-06-28).
+
+---
+
+## TB-518 — Reorder Review Work nav: move Evidence graph after Review packages (P1)
+
+**Why:** "Evidence graph" is the second nav item in Review Work — before "Review packages." First-time users click it first and find an empty state. The nav order implies the graph is a primary workflow task, not a deep-dive tool.
+
+**Approach:**
+
+In `PilotNavGroupBuilder`, reorder links to: Overview → New review → Review packages → Portfolio overview → Getting started. The Evidence graph link should also move groups (see TB-519).
+
+**Acceptance criteria:**
+
+- Review Work nav order matches: Overview, New review, Review packages, Portfolio overview, Getting started.
+- Evidence graph is no longer in Review Work.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/pilot-nav-group-builder.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N03, TB-519 (2026-06-28).
+
+---
+
+## TB-519 — Move Evidence graph from Review Work into the Analysis/Insights group (P1)
+
+**Why:** Evidence graph is an analytical deep-dive tool, not a workflow task. It belongs with Ask, Search, and Compare — not alongside New review and Review packages. The current placement breaks the Review Work / Analysis boundary.
+
+**Approach:**
+
+Remove Evidence graph from `PilotNavGroupBuilder`. Add it as the first link in `OperateAnalysisNavGroupBuilder.build()` so it appears before `/ask`. Also rename the Analysis group label to "Insights" (see TB-525).
+
+**Acceptance criteria:**
+
+- Evidence graph appears as the first link in the Insights/Analysis group.
+- Evidence graph is absent from the Review Work group.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/pilot-nav-group-builder.ts`
+- `archlucid-ui/src/lib/operate-analysis-nav-group-builder.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N04, TB-518, TB-525 (2026-06-28).
+
+---
+
+## TB-520 — Move "First 30 days (governance)" from Reports to Governance group; rename (P1)
+
+**Why:** "First 30 days (governance)" (`/governance/first-30-days`) is in the Reports group but is a governance setup guide. Its tooltip says "after evaluation" — reinforcing pilot language. Enterprise IT leaders look for this in Governance, not Reports.
+
+**Approach:**
+
+Remove the link from `OperateReportsNavGroupBuilder` and add it to `OperateGovernanceNavGroupBuilder`. Rename to "Governance setup guide". Remove "after evaluation" from its tooltip.
+
+**Acceptance criteria:**
+
+- "Governance setup guide" appears in the Governance nav group.
+- "First 30 days (governance)" no longer appears in Reports.
+- Tooltip contains no "evaluation" or "pilot" language.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-reports-nav-group-builder.ts`
+- `archlucid-ui/src/lib/operate-governance-nav-group-builder.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N05, TB-441 (2026-06-28).
+
+---
+
+## TB-521 — Add forward CTA from review detail to governance when review is commit-ready (P1)
+
+**Why:** There is no persistent forward-path CTA from the review detail page to `/governance`. The golden path (Reviews → Review detail → Governance) is broken. Users must stumble onto the Governance nav item or miss this step entirely.
+
+**Approach:**
+
+When a review has a `manifestId`, no governance decision yet, and is in the operator shell, render a `RunDetailGovernanceCta` component between the outcome cards and deliverables section. Link to `/governance?runId={runId}` with label "Submit for governance approval →".
+
+**Acceptance criteria:**
+
+- A CTA card linking to governance appears on the review detail page when the review is ready for governance approval.
+- The CTA does not appear when a governance decision already exists.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Nav/IA audit N06 (2026-06-28).
+
+---
+
+## TB-522 — Consolidate "Users & roles" and "Role management" into one nav item (P1)
+
+**Why:** Admin group has two overlapping nav items: "Users & roles" (`/settings/users`) and "Role management" (`/settings/roles`). A first-time admin cannot distinguish them. Creates friction at a sensitive administration surface.
+
+**Approach:**
+
+Remove `href: "/settings/roles"` from `OperatorAdminNavGroupBuilder`. Keep `href: "/settings/users"` with label "Users & roles". Add a redirect from `/settings/roles` to `/settings/users?tab=roles` so existing links continue to work.
+
+**Acceptance criteria:**
+
+- Only one "Users & roles" nav item appears in the Administration group.
+- `/settings/roles` redirects to `/settings/users?tab=roles`.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operator-admin-nav-group-builder.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Nav/IA audit N07 (2026-06-28).
+
+---
+
+## TB-523 — Add breadcrumb and stable nav entry for executive summary (P1)
+
+**Why:** The executive summary (`/executive/reviews/[runId]`) is not in the left nav at all. It is reachable only from a CTA card on the review detail page. After navigating away users have no return path. Executive summary is step 3 of the golden path and the primary output for sponsor handoff.
+
+**Approach:**
+
+Add "Executive summary" as a persistent tab on the review detail page with a stable anchor in the breadcrumb, or add it as a visible nav deep-link when a committed review is selected. Breadcrumb: "Review packages · [title] · Executive summary".
+
+**Acceptance criteria:**
+
+- A user can reach the executive summary page from the breadcrumb after having navigated away.
+- The executive summary has a breadcrumb back to the review packages list.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx` or equivalent routing layer
+
+**Size estimate:** **M**
+
+**Cross-ref:** Nav/IA audit N08, N13 (2026-06-28).
+
+---
+
+## TB-524 — Demote "Getting started" nav item to `extended` tier after first review is committed (P2)
+
+**Why:** "Getting started" (TB-434 rename of "Onboarding") is `tier: "essential"` and `defaultVisibleInCollapsedSidebar: true` — permanently shown in the top nav. After the first review is committed, it occupies prime nav real estate and signals the product is still being set up.
+
+**Approach:**
+
+Pass `hasCommittedArchitectureReview` to `PilotNavGroupBuilder` (or filter in `listNavGroupsVisibleInOperatorShell`) and set `tier: hasCommittedArchitectureReview ? "extended" : "essential"` on the onboarding link. Coordinate with TB-434.
+
+**Acceptance criteria:**
+
+- "Getting started" is in the extended/collapsed tier after the first review is committed.
+- "Getting started" is in the essential/visible tier for new workspaces.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/pilot-nav-group-builder.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N09, TB-434 (2026-06-28).
+
+---
+
+## TB-525 — Rename "Analysis" nav group to "Insights" (P2)
+
+**Why:** "Analysis" is a generic term that does not communicate what these tools do for a governance reviewer. "Insights" better describes the exploratory nature of Ask, Search, Compare, and Evidence graph.
+
+**Approach:**
+
+Change the `analysis` key in `i18n.ts` from `"Analysis"` to `"Insights"`. Add caption: "Explore evidence, findings, and decisions across reviews."
+
+**Acceptance criteria:**
+
+- The nav group formerly labeled "Analysis" displays as "Insights".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N10, TB-519 (2026-06-28).
+
+---
+
+## TB-526 — Rename "Governance workflow" first link to "Approval queue" (P2)
+
+**Why:** The Governance nav group's first link is labeled "Governance workflow." Group = Governance; first link = Governance workflow. The repetition makes it look like two levels of governance. "Approval queue" clarifies the page's purpose.
+
+**Approach:**
+
+Update the label for `/governance` in `OperateGovernanceNavGroupBuilder` from "Governance workflow" to "Approval queue". Update the page title (`/governance`) to match.
+
+**Acceptance criteria:**
+
+- The first Governance nav link reads "Approval queue".
+- The `/governance` page title reads "Approval queue".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-governance-nav-group-builder.ts`
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N11 (2026-06-28).
+
+---
+
+## TB-527 — Rename "Portfolio overview" nav item to "Executive dashboard" and disambiguate home (P2)
+
+**Why:** "Portfolio overview" in the nav goes to `/dashboard` (Executive ROI dashboard). The home page `/` also shows "Workspace overview" after first review. Two dashboard-like destinations with overlapping names cause confusion.
+
+**Approach:**
+
+Rename the nav item label "Portfolio overview" → "Executive dashboard" in `PilotNavGroupBuilder`. Rename the home page section heading "Workspace overview" → "Recent activity".
+
+**Acceptance criteria:**
+
+- Nav item for `/dashboard` reads "Executive dashboard".
+- Home page post-commit section heading reads "Recent activity".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/pilot-nav-group-builder.ts`
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N12 (2026-06-28).
+
+---
+
+## TB-528 — Add breadcrumbs to executive summary, governance, and audit trail pages (P2)
+
+**Why:** The review detail breadcrumb shows only "Review packages · [review title]". No breadcrumb exists on the executive view or governance pages downstream. Users lose location context after the first hop on the golden path.
+
+**Approach:**
+
+Add breadcrumbs to:
+1. `/executive/reviews/[runId]` — "Review packages · [title] · Executive summary"
+2. `/governance` when `?runId` is present — "Reviews · [title] · Governance"
+3. `/governance/audit` — "Governance · Audit trail"
+
+**Acceptance criteria:**
+
+- All three downstream pages show a breadcrumb with a back-link to the review or governance context.
+
+**Affected files:**
+
+- Relevant page components for `/executive/reviews/[runId]`, `/governance`, `/governance/audit`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Nav/IA audit N13, N08, TB-523 (2026-06-28).
+
+---
+
+## TB-529 — Rename "Architecture advisory" to "Advisory scans" (P2)
+
+**Why:** "Architecture advisory" sounds like a professional services offering, not an automated scan scheduling feature. The name misrepresents the page's function and may raise pricing/scope expectations.
+
+**Approach:**
+
+Update the nav label for `/advisory` in `OperateAnalysisNavGroupBuilder` and in `i18n.ts`.
+
+**Acceptance criteria:**
+
+- The nav item for `/advisory` reads "Advisory scans".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-analysis-nav-group-builder.ts`
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N14 (2026-06-28).
+
+---
+
+## TB-530 — Rename "Integration readiness" to "Connection status" (P2)
+
+**Why:** "Integration readiness" sounds like a prerequisites checklist, not a connector health dashboard. Enterprise administrators expect "Connection status" or "Connector health" for a health monitoring view.
+
+**Approach:**
+
+Update the nav label for `/integrations/readiness` in `OperateIntegrationsNavGroupBuilder` and in `i18n.ts`.
+
+**Acceptance criteria:**
+
+- The nav item for `/integrations/readiness` reads "Connection status".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-integrations-nav-group-builder.ts`
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N15 (2026-06-28).
+
+---
+
+## TB-531 — Rename "Policy resolution" to "Standards & rules" (P2)
+
+**Why:** "Policy resolution" is the internal technical term for conflict resolution between policy packs. Enterprise reviewers call these "standards" or "compliance rules." The current label leaks implementation vocabulary.
+
+**Approach:**
+
+Update the nav label for `/governance/resolution` in `OperateGovernanceNavGroupBuilder` and in `i18n.ts`.
+
+**Acceptance criteria:**
+
+- The nav item for `/governance/resolution` reads "Standards & rules".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-governance-nav-group-builder.ts`
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N16 (2026-06-28).
+
+---
+
+## TB-532 — Add governance progress nudge after first review commit (P2)
+
+**Why:** After the first review is committed, there is no affordance in the nav indicating that governance features exist and are now unlocked. Users have no signal to progress to the Governance workflow.
+
+**Approach:**
+
+When `hasCommittedArchitectureReview` is `true` AND `operateNavUnlockPhase < 2`, render a "Governance available" call-to-action strip below the Review Work nav group — a progress nudge, not a nav item.
+
+**Acceptance criteria:**
+
+- A contextual strip appears below the Review Work group prompting the user to try governance after their first commit.
+- The strip does not appear once `operateNavUnlockPhase >= 2`.
+
+**Affected files:**
+
+- Operator shell sidebar component
+
+**Size estimate:** **S**
+
+**Cross-ref:** Nav/IA audit N17, TB-517 (2026-06-28).
+
+---
+
+## TB-533 — Move "Recurrence schedules" out of Governance group (P3)
+
+**Why:** "Recurrence schedules" (`/governance/recurrence-schedules`) is in the Governance nav group but is a scheduling configuration tool, not a governance decision workflow. Its placement blurs the boundary between governance decisions and settings configuration.
+
+**Approach:**
+
+Move the link to the Integrations group or to Settings. If retained in Governance, add a visible separator between approval workflow items and configuration items.
+
+**Acceptance criteria:**
+
+- "Recurrence schedules" no longer appears among governance approval workflow items.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-governance-nav-group-builder.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N18 (2026-06-28).
+
+---
+
+## TB-534 — Rename "Change simulation" to "Impact preview" (P3)
+
+**Why:** "Change simulation" (`/evolution-review`) in the Analysis group does not communicate governance context. "Impact preview" is more descriptive of the page's purpose: previewing the expected governance impact of proposed architecture changes.
+
+**Approach:**
+
+Update the nav label and page title for `/evolution-review` in `OperateAnalysisNavGroupBuilder` and `i18n.ts`. New title: "Preview expected impact of proposed architecture changes on governance posture."
+
+**Acceptance criteria:**
+
+- The nav item for `/evolution-review` reads "Impact preview".
+- The page title reads "Impact preview".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-analysis-nav-group-builder.ts`
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N19 (2026-06-28).
