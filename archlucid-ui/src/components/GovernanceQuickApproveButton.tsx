@@ -81,7 +81,7 @@ export function GovernanceQuickApproveButton({
       const res = await batchReviewGovernanceApprovalRequests({
         approvalRequestIds: [approvalRequestId],
         decision: "approve",
-        reviewComment: "Quick approve — no Critical/High findings in governance lineage snapshot.",
+        reviewComment: "Approved — no critical or high findings present at time of review.",
         reviewedBy: reviewedBy.trim().length > 0 ? reviewedBy.trim() : undefined,
       });
       const row = res.results?.find((r) => r.approvalRequestId === approvalRequestId) ?? res.results?.[0];

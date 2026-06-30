@@ -77,6 +77,7 @@ describe("GovernanceQuickApproveButton", () => {
         expect.objectContaining({
           approvalRequestIds: ["a1"],
           decision: "approve",
+          reviewComment: "Approved — no critical or high findings present at time of review.",
         }),
       );
     });
