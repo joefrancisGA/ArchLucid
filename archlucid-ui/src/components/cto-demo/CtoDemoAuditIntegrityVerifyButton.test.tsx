@@ -60,5 +60,8 @@ describe("CtoDemoAuditIntegrityVerifyButton", () => {
     });
 
     expect(screen.getByText(/events · head hash/)).toBeInTheDocument();
+    expect(screen.getByTestId("cto-demo-audit-integrity-demo-disclaimer")).toHaveTextContent(
+      "Verified against showcase demo events. Your production audit trail is verified server-side via the same algorithm.",
+    );
   });
 });

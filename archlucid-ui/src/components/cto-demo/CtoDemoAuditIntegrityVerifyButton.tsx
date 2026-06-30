@@ -78,6 +78,15 @@ export function CtoDemoAuditIntegrityVerifyButton(): React.JSX.Element | null {
           <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.badge, "text-neutral-600 dark:text-neutral-400")}>
             {result.eventCount} events · head hash {formatAuditIntegrityHeadHash(result.headHash)}
           </p>
+          {result.verified ? (
+            <p
+              className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="cto-demo-audit-integrity-demo-disclaimer"
+            >
+              Verified against showcase demo events. Your production audit trail is verified server-side via the same
+              algorithm.
+            </p>
+          ) : null}
         </div>
       ) : null}
     </div>
