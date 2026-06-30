@@ -9,6 +9,7 @@ import {
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
@@ -106,10 +107,11 @@ describe("PilotCommandCenterCard", () => {
   it("renders optional setup links as outline buttons with visible affordance", () => {
     render(<PilotCommandCenterCard />);
 
-    const connectAzure = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE });
+    const connectCloud = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE });
     const inviteReviewer = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER });
 
-    expect(connectAzure.className).toMatch(/border/);
+    expect(connectCloud).toHaveAttribute("href", CLOUD_CONNECTIONS_PATH);
+    expect(connectCloud.className).toMatch(/border/);
     expect(inviteReviewer.className).toMatch(/border/);
     expect(screen.getByTestId("pilot-next-best-action").className).not.toMatch(/border-neutral-300/);
   });

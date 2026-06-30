@@ -92,7 +92,7 @@ export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional setup:";
 
 export const PILOT_COMMAND_CENTER_STEPS_HEADING = "3 steps";
 
-export const PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect Azure";
+export const PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect cloud";
 
 export const PILOT_COMMAND_CENTER_INVITE_REVIEWER = "Invite reviewer";
 

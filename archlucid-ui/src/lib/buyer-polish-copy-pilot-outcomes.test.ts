@@ -3,10 +3,12 @@ import { describe, expect, it } from "vitest";
 import {
   BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL,
   OPERATOR_GRAPH_PAGE_SUBTITLE,
+  PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_LEAD,
   PILOT_COMMAND_CENTER_OUTCOMES,
   PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
 } from "@/lib/buyer-polish-copy";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 
 /** TB-351: hero outcomes use discovery framing — not artifact receipt bullets. */
 describe("buyer-polish-copy pilot command center outcomes (TB-351)", () => {
@@ -48,5 +50,16 @@ describe("buyer-polish-copy home hero lead (TB-465)", () => {
   it("uses multi-cloud connection language without naming Azure", () => {
     expect(PILOT_COMMAND_CENTER_LEAD).toContain("optional cloud connection");
     expect(PILOT_COMMAND_CENTER_LEAD.toLowerCase()).not.toContain("azure");
+  });
+});
+
+describe("buyer-polish-copy optional setup CTA (TB-466)", () => {
+  it("uses Connect cloud label without naming Azure", () => {
+    expect(PILOT_COMMAND_CENTER_CONNECT_AZURE).toBe("Connect cloud");
+    expect(PILOT_COMMAND_CENTER_CONNECT_AZURE.toLowerCase()).not.toContain("azure");
+  });
+
+  it("routes optional cloud connection CTA to integrations cloud connections", () => {
+    expect(CLOUD_CONNECTIONS_PATH).toBe("/integrations/cloud-connections");
   });
 });
