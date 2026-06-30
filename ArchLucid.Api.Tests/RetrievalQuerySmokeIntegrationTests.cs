@@ -32,6 +32,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests
     [SkippableFact]
     public Task A_Query_with_no_indexed_documents_returns_empty_list()
     {
+        InMemoryAskRetrievalIntegrationGate.SkipUnlessEnabled();
+
         return IntegrationTestDeadline.RunAsync(
             nameof(A_Query_with_no_indexed_documents_returns_empty_list),
             async testDeadline =>
@@ -58,6 +60,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests
     [SkippableFact]
     public Task B_Query_without_q_returns_bad_request()
     {
+        InMemoryAskRetrievalIntegrationGate.SkipUnlessEnabled();
+
         return IntegrationTestDeadline.RunAsync(
             nameof(B_Query_without_q_returns_bad_request),
             async testDeadline =>
@@ -79,6 +83,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests
     [SkippableFact]
     public Task C_Index_documents_then_query_returns_matching_hits()
     {
+        InMemoryAskRetrievalIntegrationGate.SkipUnlessEnabled();
+
         return IntegrationTestDeadline.RunAsync(
             nameof(C_Index_documents_then_query_returns_matching_hits),
             async testDeadline =>
@@ -110,6 +116,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests
     [SkippableFact]
     public Task D_TopK_clamps_result_count()
     {
+        InMemoryAskRetrievalIntegrationGate.SkipUnlessEnabled();
+
         return IntegrationTestDeadline.RunAsync(
             nameof(D_TopK_clamps_result_count),
             async testDeadline =>

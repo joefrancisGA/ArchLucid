@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -36,6 +36,8 @@ public sealed class AskThreadIntegrationTests
     [SkippableFact]
     public Task Ask_with_seeded_run_returns_answer_and_creates_thread()
     {
+        InMemoryAskRetrievalIntegrationGate.SkipUnlessEnabled();
+
         return IntegrationTestDeadline.RunAsync(
             nameof(Ask_with_seeded_run_returns_answer_and_creates_thread),
             async testDeadline =>
@@ -83,6 +85,8 @@ public sealed class AskThreadIntegrationTests
     [SkippableFact]
     public Task Ask_follow_up_continues_same_thread()
     {
+        InMemoryAskRetrievalIntegrationGate.SkipUnlessEnabled();
+
         return IntegrationTestDeadline.RunAsync(
             nameof(Ask_follow_up_continues_same_thread),
             async testDeadline =>
@@ -142,6 +146,8 @@ public sealed class AskThreadIntegrationTests
     [SkippableFact]
     public Task Ask_without_question_returns_bad_request()
     {
+        InMemoryAskRetrievalIntegrationGate.SkipUnlessEnabled();
+
         return IntegrationTestDeadline.RunAsync(
             nameof(Ask_without_question_returns_bad_request),
             async testDeadline =>
@@ -165,6 +171,8 @@ public sealed class AskThreadIntegrationTests
     [SkippableFact]
     public Task Ask_without_runId_or_threadId_returns_bad_request()
     {
+        InMemoryAskRetrievalIntegrationGate.SkipUnlessEnabled();
+
         return IntegrationTestDeadline.RunAsync(
             nameof(Ask_without_runId_or_threadId_returns_bad_request),
             async testDeadline =>
@@ -188,6 +196,8 @@ public sealed class AskThreadIntegrationTests
     [SkippableFact]
     public Task Ask_stream_with_seeded_run_emits_token_and_done_events()
     {
+        InMemoryAskRetrievalIntegrationGate.SkipUnlessEnabled();
+
         return IntegrationTestDeadline.RunAsync(
             nameof(Ask_stream_with_seeded_run_emits_token_and_done_events),
             async testDeadline =>
