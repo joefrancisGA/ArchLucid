@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL,
   PILOT_COMMAND_CENTER_OUTCOMES,
   PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
 } from "@/lib/buyer-polish-copy";
@@ -24,5 +25,12 @@ describe("buyer-polish-copy pilot command center outcomes (TB-351)", () => {
 
     expect(PILOT_COMMAND_CENTER_OUTCOMES_HEADING).not.toBe("What you'll get");
     expect(joined).not.toMatch(/Review trail|Governed decision record|^Findings$|^Decisions$/);
+  });
+});
+
+describe("buyer-polish-copy executive scorecard (TB-462)", () => {
+  it("uses finalized reviews label on scorecard KPI", () => {
+    expect(BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL).toBe("Finalized reviews");
+    expect(BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL.toLowerCase()).not.toContain("committed");
   });
 });

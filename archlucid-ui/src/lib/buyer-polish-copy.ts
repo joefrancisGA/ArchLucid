@@ -620,7 +620,7 @@ export const BUYER_EXECUTIVE_SCORECARD_RECOMMENDED_ACTION_LINK = "Review this ac
 
 export const BUYER_EXECUTIVE_OPERATOR_HANDOFF_LINK = "Open in Operator →";
 
-export const BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL = "Committed reviews";
+export const BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL = "Finalized reviews";
 
 export const BUYER_GRAPH_FILTER_SUMMARY = "Filter by evidence type, decision, or risk";
 
