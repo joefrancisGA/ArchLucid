@@ -17,7 +17,7 @@
 #   Tier 2c â€” k6: operator-path API smoke after full regression (native k6; merge-blocking) + k6 CI smoke read+write (after Tier 1)
 #   Tier 3a â€” Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact; lint/typecheck/build (`ui-static-quality`); mock journeys (`ui-playwright-mock-smoke`);
 #             axe WCAG 2.1 A/AA (`ui-playwright-accessibility`, mock-backed); optional full-page screenshot goldens via `npm run test:e2e:mock:visual` locally when updating baselines
-#   Tier 3b â€” Operator UI e2e (Playwright live API + SQL; extended live-a11y route matrix via workflow_dispatch input / nightly)
+#   Tier 3b — Operator UI e2e (Playwright live API + SQL): `ui-e2e-live` @release-gate subset; `ui-e2e-live-extended` warn-only full matrix (`workflow_dispatch` input for extended live-a11y)
 #   Terraform advisory: mock manifest â†’ emit comment-only snippets â†’ terraform fmt -check / validate (`terraform-advisory-snippets-validate`)
 #
 # Re-run failed jobs from the Actions tab. Local equivalents: test-fast-core.*, test-full.*,
@@ -40,7 +40,7 @@ on:
   workflow_dispatch:
     inputs:
       run_extended_live_a11y_matrix:
-        description: "Run full live axe route matrix in ui-e2e-live (same as nightly; overrides PR default subset)"
+        description: "Run full live axe route matrix in ui-e2e-live-extended (overrides default @live-a11y-full-matrix exclusion)"
         required: false
         default: false
         type: boolean
@@ -3449,11 +3449,11 @@ jobs:
           path: archlucid-ui/blob-report
           if-no-files-found: warn
 
-  # Live API + Sql + Next.js (no mock). Gating â€” failures block merge.
-  # Runs playwright.config.ts (live-api-*, demo-workspace-*.smoke @release-gate, marketing targets). Demo GA anchors:
+  # Live API + Sql + Next.js (no mock). `ui-e2e-live`: @release-gate subset (demo-workspace smokes; aligns with rc-release-gate).
+  # `ui-e2e-live-extended`: warn-only remainder of live-api-* + marketing specs (full @live-a11y-full-matrix via workflow_dispatch input).
   # docs/go-to-market/DEMO_WORKSPACES.md
   ui-e2e-live:
-    name: "Operator UI: e2e live API + SQL (full CI; extended live-a11y matrix via workflow_dispatch input)"
+    name: "Operator UI: e2e live API + SQL (@release-gate subset)"
     # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
     continue-on-error: true
     needs:
@@ -3462,7 +3462,7 @@ jobs:
       - dotnet-full-regression-slow-domain
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 90
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -3554,7 +3554,7 @@ jobs:
             sleep 2
           done
 
-      - name: Install Playwright browsers & run live e2e (PR omits extended live-a11y matrix; workflow_dispatch may re-enable)
+      - name: Install Playwright browsers & run live e2e (@release-gate — aligns with rc-release-gate ui-e2e-live-rc)
         working-directory: archlucid-ui
         env:
           CI: true
@@ -3562,19 +3562,16 @@ jobs:
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           NODE_OPTIONS: --max-old-space-size=6144
-          ARCHLUCID_CI_FULL_LIVE_A11Y: ${{ github.event_name == 'workflow_dispatch' && inputs.run_extended_live_a11y_matrix }}
-          # Api host is DevelopmentBypass â€” prevent inherited env from sending JWT/API key the server rejects (401).
+          # Api host is DevelopmentBypass — prevent inherited env from sending JWT/API key the server rejects (401).
           LIVE_JWT_TOKEN: ""
           LIVE_API_KEY: ""
           LIVE_API_KEY_READONLY: ""
         run: |
           npx playwright install --with-deps chromium
           curl -fsS http://127.0.0.1:5128/health/ready
-          if [ "${ARCHLUCID_CI_FULL_LIVE_A11Y}" = "true" ]; then
-            npx playwright test
-          else
-            npx playwright test --grep-invert "@live-a11y-full-matrix"
-          fi
+          echo "Playwright @release-gate live e2e start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          npx playwright test --grep @release-gate
+          echo "Playwright @release-gate live e2e end: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
       - name: Upload Playwright test-results (traces)
         if: always()
@@ -3605,6 +3602,160 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
+  ui-e2e-live-extended:
+    name: "Operator UI: e2e live API + SQL (extended matrix; warn-only)"
+    continue-on-error: true
+    needs:
+      - dotnet-full-regression-core-complete
+      - dotnet-full-regression-slow-api
+      - dotnet-full-regression-slow-domain
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Restore & build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Install UI deps & build Next (standalone)
+        working-directory: archlucid-ui
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npm ci
+          npm run build
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
+
+      - name: Create SQL catalog for live API e2e (extended)
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2eExtended') CREATE DATABASE ArchLucidLiveE2eExtended;"
+
+      - name: Start ArchLucid.Api (background)
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5128
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eExtended"
+          ArchLucid__StorageProvider: Sql
+          ArchLucidAuth__Mode: DevelopmentBypass
+          Authentication__ApiKey__DevelopmentBypassAll: "true"
+          AgentExecution__Mode: Simulator
+          Observability__Prometheus__Enabled: "true"
+          Observability__Prometheus__RequireScrapeAuthentication: "false"
+          RateLimiting__Registration__PermitLimit: "500"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
+          Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
+          Cors__AllowedOrigins__1: "http://localhost:3000"
+        run: |
+          set -e
+          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-extended.log" 2>&1 &
+          echo $! > "${RUNNER_TEMP}/live-api-extended.pid"
+          for i in $(seq 1 180); do
+            if curl -fsS http://127.0.0.1:5128/health/ready; then
+              echo "API ready."
+              exit 0
+            fi
+            if [ "$i" -eq 180 ]; then
+              echo "::error::API did not reach /health/ready in time"
+              tail -n 200 "${RUNNER_TEMP}/live-api-extended.log" || true
+              exit 1
+            fi
+            sleep 2
+          done
+
+      - name: Install Playwright browsers & run extended live e2e (excludes @release-gate; optional full live-a11y via workflow_dispatch)
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          LIVE_API_URL: http://127.0.0.1:5128
+          LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+          NODE_OPTIONS: --max-old-space-size=6144
+          ARCHLUCID_CI_FULL_LIVE_A11Y: ${{ github.event_name == 'workflow_dispatch' && inputs.run_extended_live_a11y_matrix }}
+          LIVE_JWT_TOKEN: ""
+          LIVE_API_KEY: ""
+          LIVE_API_KEY_READONLY: ""
+        run: |
+          npx playwright install --with-deps chromium
+          curl -fsS http://127.0.0.1:5128/health/ready
+          echo "Playwright extended live e2e start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if [ "${ARCHLUCID_CI_FULL_LIVE_A11Y}" = "true" ]; then
+            npx playwright test --grep-invert "@release-gate"
+          else
+            npx playwright test --grep-invert "@release-gate|@live-a11y-full-matrix"
+          fi
+          echo "Playwright extended live e2e end: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - name: Upload Playwright test-results (traces)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-e2e-live-extended-test-results
+          path: archlucid-ui/test-results
+          if-no-files-found: warn
+
+      - name: Upload Playwright blob report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-e2e-live-extended-blob-report
+          path: archlucid-ui/blob-report
+          if-no-files-found: warn
+
+      - name: Upload live API log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-e2e-live-extended-api-log
+          path: ${{ runner.temp }}/live-api-extended.log
+          if-no-files-found: warn
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-e2e-live-extended-playwright-report
           path: archlucid-ui/playwright-report
           if-no-files-found: warn
 
@@ -4352,6 +4503,7 @@ jobs:
       - ui-playwright-mock-smoke
       - ui-playwright-accessibility
       - ui-e2e-live
+      - ui-e2e-live-extended
       - ui-e2e-live-apikey
       - ui-e2e-live-jwt
       - k6-smoke-api
