@@ -99,7 +99,7 @@ export const SERVICE_BUS_HEALTH_LABELS = {
   bannerTitle: "Some analysis tasks are delayed",
   bannerBody:
     "Results may take longer than usual. Contact your ArchLucid administrator if this persists.",
-  systemHealthLink: "System health (operators)",
+  systemHealthLink: "System health",
 } as const;
 
 /** Sidebar group headings — single source for `*-nav-group-builder.ts` files. */
