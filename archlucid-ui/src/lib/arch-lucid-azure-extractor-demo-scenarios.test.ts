@@ -3,6 +3,7 @@ import { unzipSync } from "fflate";
 
 import {
   AZURE_EXTRACTOR_DEMO_SCENARIO_IDS,
+  DEFAULT_DEMO_REVIEW_SCENARIO_ID,
   buildWizardPrefillFromDemoScenario,
   createAzureExtractorDemoZipFile,
   getAzureExtractorDemoScenario,
@@ -12,6 +13,10 @@ import {
 import { readArchLucidAzurePackageZipFromBytes } from "@/lib/read-arch-lucid-azure-package-zip";
 
 describe("arch-lucid-azure-extractor-demo-scenarios", () => {
+  it("exports cloud-agnostic demo review scenario aliases", () => {
+    expect(DEFAULT_DEMO_REVIEW_SCENARIO_ID).toBe("claims-intake-modernization");
+  });
+
   it("ships three complex bundled demo scenarios", () => {
     expect(AZURE_EXTRACTOR_DEMO_SCENARIO_IDS).toHaveLength(3);
 

@@ -20,8 +20,8 @@ import { WizardEvidenceUploadZone } from "@/components/usability/WizardEvidenceU
 import { Button } from "@/components/ui/button";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import {
-  DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
-  type AzureExtractorDemoScenarioId,
+  DEFAULT_DEMO_REVIEW_SCENARIO_ID,
+  type DemoReviewScenarioId,
 } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import {
   isTier1InventoryEvidenceSourceId,
@@ -44,7 +44,7 @@ export type WizardStepEvidenceUploadProps = {
   pendingDocumentFiles: File[];
   onPendingFileChange: (file: File | null) => void;
   onPendingDocumentFilesChange: (files: File[]) => void;
-  onTryDemoData: (scenarioId: AzureExtractorDemoScenarioId) => void;
+  onTryDemoData: (scenarioId: DemoReviewScenarioId) => void;
   onSkipDemoData: () => void;
 };
 
@@ -165,8 +165,8 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
     onSkipDemoData,
   } = props;
   const [selectedSourceId, setSelectedSourceId] = useState<WizardEvidenceSourceId>("brief");
-  const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<AzureExtractorDemoScenarioId>(
-    DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
+  const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<DemoReviewScenarioId>(
+    DEFAULT_DEMO_REVIEW_SCENARIO_ID,
   );
 
   const handleSelectSource = (sourceId: WizardEvidenceSourceId) => {

@@ -10,10 +10,15 @@ export const AZURE_EXTRACTOR_DEMO_SCENARIO_IDS = [
   "finops-optimization-snapshot",
 ] as const;
 
-export type AzureExtractorDemoScenarioId = (typeof AZURE_EXTRACTOR_DEMO_SCENARIO_IDS)[number];
+export type DemoReviewScenarioId = (typeof AZURE_EXTRACTOR_DEMO_SCENARIO_IDS)[number];
 
-export const DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID: AzureExtractorDemoScenarioId =
-  "claims-intake-modernization";
+/** @deprecated Prefer {@link DemoReviewScenarioId} — Azure-only name retained for legacy imports. */
+export type AzureExtractorDemoScenarioId = DemoReviewScenarioId;
+
+export const DEFAULT_DEMO_REVIEW_SCENARIO_ID: DemoReviewScenarioId = "claims-intake-modernization";
+
+/** @deprecated Prefer {@link DEFAULT_DEMO_REVIEW_SCENARIO_ID} — Azure-only name retained for legacy imports. */
+export const DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID = DEFAULT_DEMO_REVIEW_SCENARIO_ID;
 
 type DemoResourceRecord = {
   name: string;

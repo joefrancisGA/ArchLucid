@@ -14,8 +14,8 @@ import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtra
 import { buildWizardPrefillFromArchLucidAzureManifest } from "@/lib/apply-arch-lucid-azure-package-manifest-to-wizard";
 import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-package-manifest";
 import {
-  DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
-  type AzureExtractorDemoScenarioId,
+  DEFAULT_DEMO_REVIEW_SCENARIO_ID,
+  type DemoReviewScenarioId,
 } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
@@ -60,8 +60,8 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const [acceptedFileLabel, setAcceptedFileLabel] = useState<string | null>(null);
-  const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<AzureExtractorDemoScenarioId>(
-    DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
+  const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<DemoReviewScenarioId>(
+    DEFAULT_DEMO_REVIEW_SCENARIO_ID,
   );
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
   const successMessage =
