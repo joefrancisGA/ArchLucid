@@ -10,7 +10,7 @@ import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
 import {
   buildReadinessCloudEvidenceSummary,
   READINESS_AZURE_EXTRACTOR_CTA,
-  READINESS_AZURE_EXTRACTOR_LABEL,
+  READINESS_CLOUD_EVIDENCE_LABEL,
 } from "@/lib/onboarding-secondary-surfaces";
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -168,7 +168,7 @@ export function buildFirstPilotReadinessRows(input: {
     },
     {
       id: "azure-extractor",
-      label: READINESS_AZURE_EXTRACTOR_LABEL,
+      label: READINESS_CLOUD_EVIDENCE_LABEL,
       group: "execution" as const,
       status: input.signals.evidenceReady ? "ready" : input.runsLoadFailed ? "unknown" : "attention",
       summary: buildReadinessCloudEvidenceSummary(input.signals.evidenceReady, input.runsLoadFailed),

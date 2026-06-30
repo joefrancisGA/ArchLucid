@@ -53,8 +53,11 @@ export const ONBOARDING_TOUR_BANNED_PHRASES: readonly string[] = [
   "wizard",
 ] as const;
 
-/** Readiness cockpit optional Tier-1 inventory row — Azure/AWS/GCP ZIP accelerators (TB-342). */
-export const READINESS_AZURE_EXTRACTOR_LABEL = "Tier-1 cloud inventory ZIP";
+/** Readiness cockpit optional cloud inventory ZIP row — Azure/AWS/GCP accelerators (TB-342). */
+export const READINESS_CLOUD_EVIDENCE_LABEL = "Tier-1 cloud inventory ZIP";
+
+/** @deprecated Prefer {@link READINESS_CLOUD_EVIDENCE_LABEL} — Azure-only name retained for legacy imports. */
+export const READINESS_AZURE_EXTRACTOR_LABEL = READINESS_CLOUD_EVIDENCE_LABEL;
 
 export const READINESS_AZURE_EXTRACTOR_CTA = "Add evidence";
 

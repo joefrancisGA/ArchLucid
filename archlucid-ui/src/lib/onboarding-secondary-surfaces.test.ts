@@ -15,6 +15,7 @@ import {
   ONBOARDING_TOUR_WELCOME_BODY,
   OPERATOR_ONBOARDING_TOUR_STEPS,
   OPT_IN_TOUR_EVIDENCE_STEP,
+  READINESS_CLOUD_EVIDENCE_LABEL,
   READINESS_AZURE_EXTRACTOR_CTA,
   WELCOME_OPERATOR_EVIDENCE_STEP,
 } from "@/lib/onboarding-secondary-surfaces";
@@ -44,6 +45,10 @@ describe("onboarding-secondary-surfaces (TB-342)", () => {
     });
 
     expect(violations).toEqual([]);
+  });
+
+  it("uses canonical cloud evidence readiness label export", () => {
+    expect(READINESS_CLOUD_EVIDENCE_LABEL).toBe("Tier-1 cloud inventory ZIP");
   });
 
   it("uses evidence-first path preview and tertiary Connect cloud label", () => {

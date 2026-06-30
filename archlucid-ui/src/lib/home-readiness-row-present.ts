@@ -1,7 +1,7 @@
 import type { FirstPilotReadinessRow } from "@/lib/first-pilot-readiness-cockpit";
 import {
   READINESS_AZURE_EXTRACTOR_CTA,
-  READINESS_AZURE_EXTRACTOR_LABEL,
+  READINESS_CLOUD_EVIDENCE_LABEL,
 } from "@/lib/onboarding-secondary-surfaces";
 import {
   FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
@@ -17,7 +17,7 @@ const EXECUTIVE_READINESS_ROW_PRESENT: Readonly<Record<string, ReadinessRowPrese
   "principal-authority": { label: "Review authority", cta: "View permissions" },
   "review-pipeline": { label: "Create, execute, and finalize review", cta: "Open review" },
   "sample-review": { label: "Example review package: ready", cta: "Open example" },
-  "azure-extractor": { label: READINESS_AZURE_EXTRACTOR_LABEL, cta: READINESS_AZURE_EXTRACTOR_CTA },
+  "azure-extractor": { label: READINESS_CLOUD_EVIDENCE_LABEL, cta: READINESS_AZURE_EXTRACTOR_CTA },
   "roi-baselines": { label: "ROI assumptions", cta: "Add ROI assumptions" },
   "procurement-classification": { label: "Procurement package", cta: "Generate package" },
   "sponsor-packet": { label: "Executive evidence package", cta: "Open review package" },
