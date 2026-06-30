@@ -42,6 +42,7 @@ public sealed class ArchitectureAnalysisService(
         ArgumentException.ThrowIfNullOrWhiteSpace(request.RunId);
         ArchitectureRunDetail? primaryDetail = request.PreloadedRunDetail;
         ArchitectureRun run;
+
         if (primaryDetail is not null)
         {
             if (!RunIdsReferToSameRun(primaryDetail.Run.RunId, request.RunId))
@@ -58,9 +59,11 @@ public sealed class ArchitectureAnalysisService(
         }
 
         ArchitectureAnalysisReport report = new() { Run = run };
+
         if (request.IncludeEvidence)
         {
             report.Evidence = await evidenceRepository.GetByRunIdAsync(request.RunId, cancellationToken);
+
             if (report.Evidence is null)
                 report.Warnings.Add("Evidence package was not found for this run.");
         }
@@ -69,6 +72,7 @@ public sealed class ArchitectureAnalysisService(
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
             report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken)).ToList();
+
             if (report.ExecutionTraces.Count == 0)
                 report.Warnings.Add("No execution traces were found for this run.");
         }
@@ -77,9 +81,11 @@ public sealed class ArchitectureAnalysisService(
         {
             report.Manifest = primaryDetail?.Manifest;
             string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion) ? $"v1-{run.RunId}" : run.CurrentManifestVersion;
+
             if (report.Manifest is null)
             {
                 report.Manifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersionKey, cancellationToken);
+
                 if (report.Manifest is not null && !string.Equals(report.Manifest.RunId, run.RunId, StringComparison.Ordinal))
                     report.Manifest = null;
             }
@@ -93,17 +99,20 @@ public sealed class ArchitectureAnalysisService(
                 report.Diagram = diagramGenerator.GenerateMermaid(report.Manifest);
             else
                 report.Warnings.Add("Diagram was requested but the manifest is unavailable; diagram was not generated.");
+
         if (request.IncludeSummary)
             if (report.Manifest is not null)
                 report.Summary = summaryGenerator.GenerateMarkdown(report.Manifest, report.Evidence);
             else
                 report.Warnings.Add("Summary was requested but the manifest is unavailable; summary was not generated.");
+
         if (request.IncludeDeterminismCheck)
             report.Determinism = await determinismCheckService.RunAsync(
                 new DeterminismCheckRequest
                 {
                     RunId = request.RunId, Iterations = request.DeterminismIterations, ExecutionMode = ExecutionModeCurrent, CommitReplays = false
                 }, cancellationToken);
+
         if (request.IncludeManifestCompare)
             if (string.IsNullOrWhiteSpace(request.CompareManifestVersion))
                 report.Warnings.Add("Manifest comparison was requested but CompareManifestVersion was not provided.");
@@ -112,6 +121,7 @@ public sealed class ArchitectureAnalysisService(
             else
             {
                 GoldenManifest? compareManifest = await unifiedGoldenManifestReader.GetByVersionAsync(request.CompareManifestVersion, cancellationToken);
+
                 if (compareManifest is null)
                     report.Warnings.Add($"Compare manifest '{request.CompareManifestVersion}' was not found.");
                 else
@@ -120,11 +130,13 @@ public sealed class ArchitectureAnalysisService(
 
         if (!request.IncludeAgentResultCompare)
             return report;
+
         if (string.IsNullOrWhiteSpace(request.CompareRunId))
             report.Warnings.Add("Agent-result comparison was requested but CompareRunId was not provided.");
         else
         {
             ArchitectureRunDetail? compareDetail = await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken);
+
             if (compareDetail is null)
                 report.Warnings.Add($"Compare run '{request.CompareRunId}' was not found.");
             else
