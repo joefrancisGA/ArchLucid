@@ -58,7 +58,7 @@ export const READINESS_AZURE_EXTRACTOR_LABEL = "Tier-1 cloud inventory ZIP";
 
 export const READINESS_AZURE_EXTRACTOR_CTA = "Add evidence";
 
-export function buildReadinessAzureExtractorSummary(evidenceReady: boolean, runsLoadFailed: boolean): string {
+export function buildReadinessCloudEvidenceSummary(evidenceReady: boolean, runsLoadFailed: boolean): string {
   if (evidenceReady) {
     return "Evidence is attached, acknowledged, or already committed for the pilot path.";
   }
@@ -69,6 +69,9 @@ export function buildReadinessAzureExtractorSummary(evidenceReady: boolean, runs
 
   return "Run Get-ArchLucidAzurePackage.ps1, Get-ArchLucidAwsPackage.ps1, or Get-ArchLucidGcpPackage.ps1 locally, validate manifest.json + resources.json, then upload from the new-review wizard.";
 }
+
+/** @deprecated Prefer {@link buildReadinessCloudEvidenceSummary} — Azure-only name retained for legacy imports. */
+export const buildReadinessAzureExtractorSummary = buildReadinessCloudEvidenceSummary;
 
 /** Phrases that imply Azure is required before the first review (TB-342 guard). */
 export const ONBOARDING_SECONDARY_BANNED_PHRASES: readonly string[] = [

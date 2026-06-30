@@ -8,7 +8,7 @@ import {
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
 import {
-  buildReadinessAzureExtractorSummary,
+  buildReadinessCloudEvidenceSummary,
   READINESS_AZURE_EXTRACTOR_CTA,
   READINESS_AZURE_EXTRACTOR_LABEL,
 } from "@/lib/onboarding-secondary-surfaces";
@@ -171,7 +171,7 @@ export function buildFirstPilotReadinessRows(input: {
       label: READINESS_AZURE_EXTRACTOR_LABEL,
       group: "execution" as const,
       status: input.signals.evidenceReady ? "ready" : input.runsLoadFailed ? "unknown" : "attention",
-      summary: buildReadinessAzureExtractorSummary(input.signals.evidenceReady, input.runsLoadFailed),
+      summary: buildReadinessCloudEvidenceSummary(input.signals.evidenceReady, input.runsLoadFailed),
       href: inAppHelpHref("cloud-connections"),
       cta: READINESS_AZURE_EXTRACTOR_CTA,
     },

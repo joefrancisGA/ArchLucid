@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
 import { FIRST_PILOT_OPERATING_RAIL_STEPS } from "@/lib/first-pilot-operating-rail-steps";
 import {
-  buildReadinessAzureExtractorSummary,
+  buildReadinessCloudEvidenceSummary,
   FIRST_VISIT_HELP_THREE_THINGS,
   listOnboardingSecondarySurfaceViolations,
   listOnboardingTourCopyViolations,
@@ -21,6 +21,14 @@ import {
 import { PILOT_COMMAND_CENTER_CONNECT_AZURE, PILOT_PATH_PREVIEW_STEPS } from "@/lib/buyer-polish-copy";
 
 describe("onboarding-secondary-surfaces (TB-342)", () => {
+  it("uses multi-cloud inventory script guidance in readiness cloud evidence summary", () => {
+    const summary = buildReadinessCloudEvidenceSummary(false, false);
+
+    expect(summary).toContain("Get-ArchLucidAwsPackage.ps1");
+    expect(summary).toContain("Get-ArchLucidGcpPackage.ps1");
+    expect(summary.toLowerCase()).not.toMatch(/\bazure-only\b/);
+  });
+
   it("keeps secondary onboarding copy free of Azure-prerequisite lead phrases", () => {
     const ingest = FIRST_PILOT_OPERATING_RAIL_STEPS.find((step) => step.id === "ingest-evidence");
 
@@ -32,7 +40,7 @@ describe("onboarding-secondary-surfaces (TB-342)", () => {
       "onboarding-tour-new-review": ONBOARDING_TOUR_NEW_REVIEW_BODY,
       "operating-rail-ingest": `${ingest?.title ?? ""} ${ingest?.shortBody ?? ""}`,
       "buyer-copy-ingest": FIRST_PILOT_BUYER_COPY.ingestEvidenceWithoutUpload,
-      "readiness-azure-summary": buildReadinessAzureExtractorSummary(false, false),
+      "readiness-cloud-summary": buildReadinessCloudEvidenceSummary(false, false),
     });
 
     expect(violations).toEqual([]);
