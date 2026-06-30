@@ -30,7 +30,8 @@ internal static class FrontierAiBaselineOutputPaths
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        string scoreboardPath = report.ScoreboardPath.Trim();
+        // Normalize Windows-style backslashes so Path.GetFileNameWithoutExtension works on Linux CI.
+        string scoreboardPath = report.ScoreboardPath.Trim().Replace('\\', '/');
         string fileName = Path.GetFileNameWithoutExtension(scoreboardPath);
 
         if (!string.IsNullOrWhiteSpace(fileName))

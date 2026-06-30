@@ -35,9 +35,10 @@ internal static class ItsmPullForwardOutputPaths
         if (!string.IsNullOrWhiteSpace(report.BaseUrl))
             return LiveApiArtifactKey;
 
-        string ledgerDirectory = report.LedgerDirectory.Trim().TrimEnd(
-            Path.DirectorySeparatorChar,
-            Path.AltDirectorySeparatorChar);
+        // Normalize Windows-style backslashes so Path.GetFileName works on Linux CI.
+        string ledgerDirectory = report.LedgerDirectory.Trim()
+            .Replace('\\', '/')
+            .TrimEnd('/');
 
         string fileName = Path.GetFileName(ledgerDirectory);
 

@@ -23,7 +23,7 @@
       "controller_file": "Governance/PolicyPacksController.cs",
       "expected_commercial_tier": "standard",
       "expected_class_policy": "ReadAuthority",
-      "expected_nav_operator_href": "/policy-packs",
+      "expected_nav_operator_href": "/governance/policy-packs",
       "trial_limit_behavior": "Policy-pack visibility is progressive; trial limits do not override the Standard minimum tier."
     },
     {
@@ -39,7 +39,7 @@
       "controller_file": "Alerts/AlertsController.cs",
       "expected_commercial_tier": "standard",
       "expected_class_policy": "ReadAuthority",
-      "expected_nav_operator_href": "/alerts",
+      "expected_nav_operator_href": "/governance/alerts",
       "trial_limit_behavior": "Alerts are an Operate capability; trial UX should not expose hidden alerting capability names to sub-tier tenants."
     },
     {

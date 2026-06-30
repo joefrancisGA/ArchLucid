@@ -28,9 +28,10 @@ internal static class ReturnTriggerTelemetryOutputPaths
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        string ledgerDirectory = report.LedgerDirectory.Trim().TrimEnd(
-            Path.DirectorySeparatorChar,
-            Path.AltDirectorySeparatorChar);
+        // Normalize Windows-style backslashes so Path.GetFileName works on Linux CI.
+        string ledgerDirectory = report.LedgerDirectory.Trim()
+            .Replace('\\', '/')
+            .TrimEnd('/');
 
         return Path.GetFileName(ledgerDirectory);
     }
