@@ -203,7 +203,7 @@ export const BUYER_CTO_DEMO_PANIC_ENABLE_CTA = "Enable offline fallback";
 export const BUYER_CTO_DEMO_PANIC_ENABLED_LABEL = "Offline fallback active";
 
 export const BUYER_SIMULATOR_TRUST_BADGE_LABEL =
-  "Simulator mode — structurally identical findings, no cloud LLM charges";
+  "Rule-based analysis — findings match live-mode structure; cost estimates are illustrative.";
 
 export const BUYER_SIMULATOR_TRUST_BADGE_TOOLTIP =
   "Simulator mode runs the full four-agent pipeline using rule-based inference. Findings have the same structure as live mode; cost estimates are illustrative.";

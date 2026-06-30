@@ -17,6 +17,8 @@ import {
   BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE,
   SAMPLE_REVIEW_AHA_DEMO_LABEL,
   OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER,
+  BUYER_SIMULATOR_TRUST_BADGE_LABEL,
+  BUYER_SIMULATOR_TRUST_BADGE_TOOLTIP,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 
@@ -136,5 +138,17 @@ describe("buyer-polish-copy sample findings defensible layer (TB-474)", () => {
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("demo-derived");
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("execution mode");
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("evidence basis");
+  });
+});
+
+describe("buyer-polish-copy simulator trust badge (TB-475)", () => {
+  it("uses Rule-based analysis label without Simulator mode in badge copy", () => {
+    expect(BUYER_SIMULATOR_TRUST_BADGE_LABEL).toContain("Rule-based analysis");
+    expect(BUYER_SIMULATOR_TRUST_BADGE_LABEL.toLowerCase()).not.toContain("simulator mode");
+  });
+
+  it("keeps full technical explanation in tooltip", () => {
+    expect(BUYER_SIMULATOR_TRUST_BADGE_TOOLTIP.toLowerCase()).toContain("simulator mode");
+    expect(BUYER_SIMULATOR_TRUST_BADGE_TOOLTIP).toContain("rule-based inference");
   });
 });

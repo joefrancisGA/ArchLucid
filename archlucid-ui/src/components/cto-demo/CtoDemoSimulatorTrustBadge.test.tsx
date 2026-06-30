@@ -22,7 +22,7 @@ describe("CtoDemoSimulatorTrustBadge", () => {
     render(<CtoDemoSimulatorTrustBadge />);
 
     expect(screen.getByTestId("cto-demo-simulator-trust-badge")).toBeInTheDocument();
-    expect(screen.getByText(/Simulator mode/)).toBeInTheDocument();
+    expect(screen.getByText(/Rule-based analysis/)).toBeInTheDocument();
   });
 
   it("does not render when buyer shell is inactive", async () => {
