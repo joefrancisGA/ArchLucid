@@ -25,6 +25,18 @@ export const OPERATOR_SECURITY_TRUST_AVAILABLE_NOW_ITEMS: ReadonlyArray<Operator
 export const OPERATOR_SECURITY_TRUST_NDA_INTRO =
   "Redacted penetration-test summaries and diligence-only assessment summaries are available under NDA when approved for distribution.";
 
+export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE = "Tenant isolation model";
+
+export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_BODY =
+  "Each workspace is bound to a dedicated database catalog. API requests carry a tenant scope header that the data layer enforces on every query. There is no cross-tenant data path in the standard operating model.";
+
+/** In-app CAIQ doc — references tenant isolation evidence for procurement reviewers. */
+export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_HREF = resolveInAppDocHref(
+  "docs/security/CAIQ_LITE_2026.md",
+);
+
+export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_LABEL = "CAIQ / SIG response";
+
 export const OPERATOR_SECURITY_TRUST_NDA_EMAIL = "security@archlucid.net";
 
 export const OPERATOR_SECURITY_TRUST_ROADMAP_ITEMS: ReadonlyArray<string> = [

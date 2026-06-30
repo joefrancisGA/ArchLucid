@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { OperatorSecurityTrustPageView } from "./OperatorSecurityTrustPageView";
@@ -17,6 +17,20 @@ describe("OperatorSecurityTrustPageView", () => {
     expect(screen.getByText(/SOC 2 Type II readiness and audit engagement planning/i)).toBeInTheDocument();
     expect(screen.queryByText(/Formal SOC 2 Type II audit engagement/i)).not.toBeInTheDocument();
     expect(document.body.textContent ?? "").not.toMatch(/github\.com\/.*\/blob\//i);
+  });
+
+  it("renders tenant isolation model with CAIQ technical detail link", () => {
+    render(<OperatorSecurityTrustPageView />);
+
+    expect(screen.getByRole("heading", { name: "Tenant isolation model" })).toBeInTheDocument();
+    expect(screen.getByText(/dedicated database catalog/i)).toBeInTheDocument();
+    expect(screen.getByText(/no cross-tenant data path/i)).toBeInTheDocument();
+    const isolationSection = screen.getByLabelText("Tenant isolation model");
+
+    expect(within(isolationSection).getByRole("link", { name: /CAIQ \/ SIG response/i })).toHaveAttribute(
+      "href",
+      "/help/caiq-sig-response",
+    );
   });
 
   it("collapses badge legend by default", () => {

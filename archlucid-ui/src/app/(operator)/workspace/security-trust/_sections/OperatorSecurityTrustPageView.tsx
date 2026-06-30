@@ -7,6 +7,10 @@ import {
   OPERATOR_SECURITY_TRUST_NDA_EMAIL,
   OPERATOR_SECURITY_TRUST_NDA_INTRO,
   OPERATOR_SECURITY_TRUST_ROADMAP_ITEMS,
+  OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_BODY,
+  OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_HREF,
+  OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_LABEL,
+  OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE,
 } from "@/lib/operator-security-trust-content";
 import { cn } from "@/lib/utils";
 
@@ -68,6 +72,22 @@ export function OperatorSecurityTrustPageView() {
               <SecurityTrustLinkItem href={item.href} key={item.label} label={item.label} />
             ))}
           </ul>
+        </div>
+      </section>
+
+      <section aria-label={OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE} className="space-y-3">
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE}</h2>
+        <div className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40">
+          <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_BODY}
+          </p>
+          <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            Technical detail:{" "}
+            <Link className={securityTrustLinkClassName} href={OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_HREF}>
+              {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_LABEL}
+            </Link>
+            .
+          </p>
         </div>
       </section>
 
