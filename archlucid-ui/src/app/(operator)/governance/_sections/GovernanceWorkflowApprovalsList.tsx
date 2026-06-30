@@ -227,6 +227,8 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                   <>
                     <GovernanceQuickApproveButton
                       approvalRequestId={row.approvalRequestId}
+                      runId={row.runId}
+                      approvalSubject={governanceApprovalCardTitle(row)}
                       status={row.status}
                       canExecute={canMutateWorkflow}
                       reviewedBy={workflowActor}
