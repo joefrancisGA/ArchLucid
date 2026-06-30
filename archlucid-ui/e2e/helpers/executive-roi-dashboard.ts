@@ -83,52 +83,31 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
 
 /** Register summary + export proxy listeners before navigation to avoid hydration races. */
 export function prepareExecutiveRoiDashboardProxyWaits(page: Page): {
-  readonly summaryResponse: Promise<Response | null>;
+  readonly summaryResponse: Promise<Response>;
   readonly exportPayload: Promise<ExecutiveRoiExportPayload>;
 } {
-  const summaryResponse = page
-    .waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 20_000 })
-    .catch(() => null);
+  const summaryResponse = page.waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 90_000 });
+  // Operator legacy `/dashboard` fires export on mount; portfolio `/executive/dashboard` defers until summary hydrates.
+  const earlyExportResponse = page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 90_000 });
+  const exportPayload = summaryResponse.then(async () => {
+    await page
+      .getByText("Savings by environment")
+      .scrollIntoViewIfNeeded({ timeout: 30_000 })
+      .catch(() => undefined);
+    await expect(page.getByText("Savings by environment")).toBeVisible({ timeout: 30_000 }).catch(() => undefined);
 
-  const earlyExportResponse = page
-    .waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 20_000 })
-    .catch(() => null);
+    const lateExportResponse = page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 90_000 });
+    const response = await Promise.race([earlyExportResponse, lateExportResponse]);
 
-  const exportPayload = (async (): Promise<ExecutiveRoiExportPayload> => {
-    const early = await earlyExportResponse;
-
-    if (early !== null) {
-      return (await early.json()) as ExecutiveRoiExportPayload;
-    }
-
-    await summaryResponse;
-
-    const lateExportResponse = page
-      .waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 15_000 })
-      .catch(() => null);
-
-    await Promise.race([
-      lateExportResponse,
-      page
-        .getByText("Savings by environment")
-        .scrollIntoViewIfNeeded({ timeout: 15_000 })
-        .catch(() => undefined),
-      expect(page.getByTestId("exec-roi-identified-vs-realized-panel"))
-        .toBeVisible({ timeout: 30_000 })
-        .catch(() => undefined),
-    ]);
-
-    const response = await lateExportResponse;
-
-    if (response !== null) {
-      return (await response.json()) as ExecutiveRoiExportPayload;
-    }
-
-    // RSC may hydrate ROI panels from the loopback mock API without a browser `/api/proxy` round-trip.
-    return expectedExecutiveRoiExportPayload();
-  })();
+    return (await response.json()) as ExecutiveRoiExportPayload;
+  });
 
   return { summaryResponse, exportPayload };
+}
+
+/** Wait until portfolio layout leaves the global empty state after executive-summary hydrates. */
+export async function waitForExecutiveRoiDashboardHydrated(page: Page): Promise<void> {
+  await expect(page.getByTestId("executive-dashboard-empty-state")).toHaveCount(0, { timeout: 30_000 });
 }
 
 /** Call before `page.goto` so summary/export proxy responses are not missed during hydration. */
@@ -208,7 +187,7 @@ export async function expectExecutiveRoiPortfolioPanels(page: Page): Promise<voi
 export async function expectExecutiveRoiExecutiveSurface(page: Page): Promise<void> {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
-  await expect(page.getByTestId("executive-dashboard-empty-state")).toHaveCount(0);
+  await expect(page.getByTestId("executive-dashboard-empty-state")).toHaveCount(0, { timeout: 30_000 });
   await expect(page.getByTestId("executive-primary-decisions-needed")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId("executive-value-narrative")).toBeVisible({ timeout: 30_000 });
   await expect(

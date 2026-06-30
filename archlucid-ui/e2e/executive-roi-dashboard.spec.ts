@@ -13,6 +13,7 @@ import {
   expectExecutiveRoiPortfolioPanels,
   expectNoExecutiveRoiDashboardErrorBoundary,
   prepareExecutiveRoiDashboardProxyWaits,
+  waitForExecutiveRoiDashboardHydrated,
 } from "./helpers/executive-roi-dashboard";
 
 /** Mock dashboard waits on export fetch (60s) plus panel hydration on cold CI agents. */
@@ -28,6 +29,7 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
     await expectExecutiveRoiDashboardShell(page);
     await expectNoExecutiveRoiDashboardErrorBoundary(page);
     await roiWaits.summaryResponse;
+    await waitForExecutiveRoiDashboardHydrated(page);
     await roiWaits.exportPayload;
     await expectExecutiveRoiPortfolioPanels(page);
     await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible();
@@ -42,6 +44,7 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
     await expectExecutiveRoiDashboardShell(page);
     await roiWaits.summaryResponse;
+    await waitForExecutiveRoiDashboardHydrated(page);
     await expectExecutiveRoiFindingDeduplication(page, await roiWaits.exportPayload);
   });
 });
@@ -54,6 +57,7 @@ test.describe("executive ROI dashboard — executive /executive/dashboard", () =
     await expectExecutiveRoiDashboardShell(page);
     await expectNoExecutiveRoiDashboardErrorBoundary(page);
     await roiWaits.summaryResponse;
+    await waitForExecutiveRoiDashboardHydrated(page);
     await roiWaits.exportPayload;
     await expectExecutiveRoiExecutiveSurface(page);
     await expect(page.getByTestId("exec-roi-identified-vs-realized-panel")).toBeVisible({ timeout: 30_000 });
@@ -68,6 +72,7 @@ test.describe("executive ROI dashboard — executive /executive/dashboard", () =
     await expectExecutiveRoiDashboardShell(page);
     await expectNoExecutiveRoiDashboardErrorBoundary(page);
     await roiWaits.summaryResponse;
+    await waitForExecutiveRoiDashboardHydrated(page);
     const exportPayload = await roiWaits.exportPayload;
     await expectExecutiveRoiExecutiveSurface(page);
     await expectExecutiveRoiFindingDeduplication(page, exportPayload);
