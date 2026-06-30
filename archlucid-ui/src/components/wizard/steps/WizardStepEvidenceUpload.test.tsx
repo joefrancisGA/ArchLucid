@@ -101,6 +101,17 @@ describe("WizardStepEvidenceUpload", () => {
     );
   });
 
+  it("shows evidence-quality context near skip evidence for now", () => {
+    render(<WizardStepEvidenceUpload {...baseProps} />);
+
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-azure-export"));
+
+    expect(screen.getByTestId("wizard-evidence-upload-skip-context")).toHaveTextContent(
+      "Skipping evidence is OK — you can add files or cloud inventory from the review detail page after the review is created. Findings without evidence may have lower confidence.",
+    );
+    expect(screen.getByRole("button", { name: "Skip evidence for now" })).toBeInTheDocument();
+  });
+
   it("shows structured validation error with cloud connections help link", async () => {
     render(<WizardStepEvidenceUpload {...baseProps} />);
 

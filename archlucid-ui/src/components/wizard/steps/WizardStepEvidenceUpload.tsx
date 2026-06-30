@@ -305,10 +305,19 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
         ) : null}
 
         {selectedSourceId !== "demo" && selectedSourceId !== "brief" ? (
-          <div className="flex flex-wrap gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-800">
-            <Button type="button" variant="outline" data-testid="wizard-evidence-upload-skip-step" onClick={onSkipDemoData}>
-              Skip evidence for now
-            </Button>
+          <div className="flex flex-col gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-800">
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="wizard-evidence-upload-skip-context"
+            >
+              Skipping evidence is OK — you can add files or cloud inventory from the review detail page after the
+              review is created. Findings without evidence may have lower confidence.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" variant="outline" data-testid="wizard-evidence-upload-skip-step" onClick={onSkipDemoData}>
+                Skip evidence for now
+              </Button>
+            </div>
           </div>
         ) : null}
       </div>
