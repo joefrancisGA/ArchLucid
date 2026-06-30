@@ -122,7 +122,7 @@ export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Skip setup — see a finished packa
 export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_TITLE = "Product concepts";
 
 export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION =
-  "Short definitions for terms you will see during a pilot — open on demand instead of on every screen.";
+  "Short definitions for terms you will encounter in your architecture reviews — open on demand.";
 
 export const BUYER_HOME_START_CTO_DEMO_HEADING = "Start CTO demo";
 

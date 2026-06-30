@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-468 **Done** — Executive value report page title). Prior: 2026-06-28 (TB-467 **Done** — Cloud connections nav label migration). Prior: 2026-06-28 (TB-461 **Done** — hero step 3 Finalize review package). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
+**Updated:** 2026-06-28 (TB-469 **Done** — product concepts glossary dialog description). Prior: 2026-06-29 (TB-501–TB-515 added — enterprise trust audit 15 P0–P2 items). Prior: 2026-06-28 (TB-468 **Done** — Executive value report page title). Prior: 2026-06-28 (TB-467 **Done** — Cloud connections nav label migration). Prior: 2026-06-28 (TB-461 **Done** — hero step 3 Finalize review package). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -12,23 +12,23 @@
 | Deployability | 5 |
 | AI/Agent readiness | 3 |
 | Architectural integrity | 8 |
-| Adoption friction | 86 |
+| Adoption friction | 92 |
 | Commercial / marketability | 3 |
-| Data consistency | 4 |
+| Data consistency | 5 |
 | Cutting-edge AI | 3 |
-| Explainability | 2 |
+| Explainability | 3 |
 | Proof-of-ROI / executive value | 3 |
-| Trustworthiness | 1 |
+| Trustworthiness | 8 |
 | Maintainability | 3 |
 | Traceability | 3 |
 | Interoperability | 8 |
-| Compliance readiness | 2 |
+| Compliance readiness | 3 |
 | Performance | 1 |
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
-| Code hygiene | 6 |
-| **Total (unique)** | **~132** |
+| Code hygiene | 9 |
+| **Total (unique)** | **~147** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-392** (per-tenant Jira/ServiceNow credentials — V1.1). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -13852,7 +13852,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-469 — Remove "during a pilot" from product-concepts glossary dialog description
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -14786,3 +14786,481 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Size estimate:** **XS**
 
 **Cross-ref:** TB-487, TB-494, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-501 — Remove "Quick approve" from stored governance decision comment
+
+**Status:** **Open**
+
+**Architectural quality:** Trustworthiness + Adoption friction
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T01. Severity: **P0**.
+
+**Problem:** `GovernanceQuickApproveButton` submits a governance decision with `reviewComment: "Quick approve — no Critical/High findings in governance lineage snapshot."` This string is persisted in the approval record and exported in the run-scoped audit CSV. Enterprise buyers who export their audit trail for compliance review see the phrase "Quick approve" and "governance lineage snapshot" — internal implementation terms — in a field that should read as a formal governance decision record. This directly undermines the claim that the governance workflow produces audit-ready artifacts.
+
+**V1 scope:**
+
+1. In `GovernanceQuickApproveButton.tsx`, change the `reviewComment` from:
+   `"Quick approve — no Critical/High findings in governance lineage snapshot."`
+   to:
+   `"Approved — no critical or high findings present at time of review."`
+
+**Acceptance criteria:**
+
+- The stored governance comment does not contain "Quick approve" or "governance lineage snapshot."
+- The exported audit CSV comment reads as a formal decision statement.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/GovernanceQuickApproveButton.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-502 — Label audit integrity verification as demo data during CTO tour
+
+**Status:** **Open**
+
+**Architectural quality:** Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T02. Severity: **P0**.
+
+**Problem:** `CtoDemoAuditIntegrityVerifyButton` runs `verifyAuditIntegrityChain(getDemoSampleAuditTrailEvents())` — verifying a hash chain of bundled synthetic demo events — and displays "Chain intact" with an event count and head hash. Nothing in the UI labels this as demo data. A buyer watching the CTO tour sees "Chain intact" and believes they are observing the production system's tamper-evident audit chain, not a calculated result over synthetic showcase events. This is a material misrepresentation of the audit capability.
+
+**V1 scope:**
+
+1. In `CtoDemoAuditIntegrityVerifyButton.tsx`, add a sub-label below the "Chain intact" result:
+   `"Verified against showcase demo events. Your production audit trail is verified server-side via the same algorithm."`
+2. Add a `data-testid="cto-demo-audit-integrity-demo-disclaimer"` for test coverage.
+
+**Acceptance criteria:**
+
+- A plain-language note tells demo viewers the verification ran against demo data, not production.
+- A link or pointer to the production audit trail exists.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/cto-demo/CtoDemoAuditIntegrityVerifyButton.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-503 — Add confirmation dialog or mandatory justification to governance quick approve
+
+**Status:** **Open**
+
+**Architectural quality:** Trustworthiness + Governance
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T03. Severity: **P1**.
+
+**Problem:** `GovernanceQuickApproveButton` approves a governance decision with a single click. Even with the buyer-polished label "Approve (no critical/high findings)", a one-click governance approval with no confirmation dialog or mandatory written justification raises immediate questions during enterprise security review. Regulated buyers expect that governance decisions require at minimum an acknowledgment step or a reviewers-note field. The current implementation lets an executor approve a review package in one click with no friction that proves a human made a deliberate decision.
+
+**V1 scope:**
+
+1. Introduce a confirmation popover or dialog on the quick approve button that shows:
+   - The approval subject (review package name / run ID)
+   - "No critical/high findings detected" confirmation
+   - An optional but encouraged free-text note field ("Approver note")
+   - Two buttons: "Confirm approval" and "Cancel"
+2. The confirmation step should be a `<Dialog>` or `<Popover>` — not just a `window.confirm`.
+3. The free-text note, if filled, replaces the `reviewComment` value from TB-501.
+
+**Acceptance criteria:**
+
+- Quick approve requires at minimum one additional click in a dialog to complete.
+- Approver has the opportunity to record a reason.
+- Governance decision record shows either the free-text reason or the default approved comment from TB-501.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/GovernanceQuickApproveButton.tsx`
+- New component: `GovernanceQuickApproveDialog.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-501, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-504 — Strengthen invite reviewer role description from "typically need" to definitive statement
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction + Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T04. Severity: **P1**.
+
+**Problem:** `INVITE_REVIEWER_PAGE_LEAD = "Invite a colleague to participate in architecture reviews for this workspace. Reviewers typically need read access to review packages and findings."` — "typically need" is vague and non-committal. Enterprise security reviewers and workspace admins who are granting access need to understand precisely what the assigned role can and cannot do. The phrase "typically need" implies situational judgment when the role should be deterministic.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/invite-reviewer-flow.ts`, change `INVITE_REVIEWER_PAGE_LEAD` to:
+   `"Invite a colleague to participate in architecture reviews for this workspace. Reviewers are assigned the Reader role: they can view review packages, findings, and governance decisions, but cannot approve, finalize, or modify evidence."`
+
+**Acceptance criteria:**
+
+- The invite page lead explicitly states what the reviewer role can and cannot do.
+- The word "typically" is removed.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/invite-reviewer-flow.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-505 — Add tenant isolation mechanism explanation to operator security-trust page
+
+**Status:** **Open**
+
+**Architectural quality:** Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T05. Severity: **P1**.
+
+**Problem:** The operator `OperatorSecurityTrustPageView` lists trust artifacts (DPA, CAIQ, SOC 2 self-assessment) but provides no explanation of HOW tenant isolation is implemented. The marketing trust center mentions "tenant isolation" and the CTO demo shows "Each customer receives a dedicated database catalog." The procurement-facing operator page is silent on the mechanism. A security architect doing internal approval would ask: row-level security? separate schema? separate database? The operator page provides no answer.
+
+**V1 scope:**
+
+1. In `OperatorSecurityTrustPageView.tsx`, add a new section "Tenant isolation model" between the "Available now" and "Under NDA" sections containing:
+   `"Each workspace is bound to a dedicated database catalog. API requests carry a tenant scope header that the data layer enforces on every query. There is no cross-tenant data path in the standard operating model."`
+2. Link to the existing CAIQ or CUSTOMER_TRUST_AND_ACCESS doc for technical detail.
+
+**Acceptance criteria:**
+
+- The operator security-trust page explains the tenant isolation model in plain language.
+- A link to the detailed technical document is provided.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/workspace/security-trust/_sections/OperatorSecurityTrustPageView.tsx`
+- `archlucid-ui/src/lib/operator-security-trust-content.ts` (add constant)
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-506 — Add data retention/deletion information to operator settings or security-trust page
+
+**Status:** **Open**
+
+**Architectural quality:** Trustworthiness + Compliance readiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T06. Severity: **P1**.
+
+**Problem:** There is no visible data retention policy or data-deletion controls in the operator settings or security-trust page. Regulated enterprise buyers (HIPAA, SOX, GDPR, FedRAMP candidates) require clear answers to "how long is our architecture review data retained?" and "how do we request deletion?" during procurement. The current UI has no surface for this information. Buyers who cannot answer this question during procurement may not proceed.
+
+**V1 scope:**
+
+1. Add a "Data retention" section to `OperatorSecurityTrustPageView` containing at minimum:
+   - A plain-language statement of the standard retention period.
+   - Instructions for requesting data deletion (e.g., `"Contact security@archlucid.net to request workspace data deletion."`).
+   - A link to the DPA or privacy policy for contractual terms.
+2. Optionally add a `OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE` constant to `operator-security-trust-content.ts`.
+
+**Acceptance criteria:**
+
+- The operator security-trust page answers "how long is data retained?" and "how do I request deletion?"
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/workspace/security-trust/_sections/OperatorSecurityTrustPageView.tsx`
+- `archlucid-ui/src/lib/operator-security-trust-content.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-505, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-507 — Gate static demo governance fallback so it cannot seed approvals in a live non-demo workspace
+
+**Status:** **Open**
+
+**Architectural quality:** Trustworthiness + Data consistency
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T07. Severity: **P1**.
+
+**Problem:** `GovernanceWorkflowPageContent` initialises `approvals` state with `tryStaticDemoGovernanceApprovalRequests()` as the demo seed when `isStaticDemoFallbackActiveForShowcase` is true. If a buyer is conducting UAT in a workspace where the static demo fallback is active (e.g., the API is temporarily unavailable), their governance page will show pre-seeded demo approval records that look identical to real records. The governance list would display a completed example review's approval chain — without any indication it's demo data. This is a data-boundary breach: demo data appearing in what looks like a live workspace.
+
+**V1 scope:**
+
+1. Ensure `isStaticDemoPayloadFallbackEnabled()` is strictly false in all non-demo production workspaces. Add a runtime assertion or clear log warning when the static fallback is activated outside demo environments.
+2. On the governance page, if `initialDemoApprovals` is populated from the static demo, add a visible `role="status"` note: `"Showing example approval records — live governance data unavailable. Refresh to reload live data."` so the boundary is explicit.
+
+**Acceptance criteria:**
+
+- A live customer workspace that temporarily loses API connectivity shows an empty state or loading state, not demo governance records.
+- Any static-fallback state is visibly labeled as example/demo data.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+- `archlucid-ui/src/lib/operator-static-demo.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-508 — Disambiguate ExecutiveSqlBackupRegionVerificationCard — ArchLucid infra vs. customer data
+
+**Status:** **Open**
+
+**Architectural quality:** Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T08. Severity: **P1**.
+
+**Problem:** `ExecutiveSqlBackupRegionVerificationCard` appears on the executive dashboard and displays a backup region name with a check mark or warning triangle. The title "Database backup region check" and the region label are drawn from ArchLucid's own infrastructure Terraform verification artifact — not the customer's data. A buyer who sees this card might believe it is reporting on the backup region of their architecture review data or their own systems. The source and scope of this metric are not labeled on the card.
+
+**V1 scope:**
+
+1. Update `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.sqlBackupRegionVerificationMetric.description` to say:
+   `"ArchLucid platform database backup region — verified against Terraform CI. Shows where ArchLucid stores your workspace data."`
+2. Add a sub-label on the card below the region name: `"ArchLucid platform infrastructure — not your architecture workloads."` — to be clear this is ArchLucid's own backup, which is relevant to buyers as a vendor trust signal.
+
+**Acceptance criteria:**
+
+- The card clearly identifies itself as an ArchLucid infrastructure metric, not the customer's own systems.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveSqlBackupRegionVerificationCard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-509 — Remove "live pilot" framing from governance preview note copy
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction + Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T09. Severity: **P1**.
+
+**Problem:** `BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE = "In a live pilot, an architect with Execute authority approves here. The view below shows the post-approval state for demonstration purposes."` — "In a live pilot" implies the customer is in a pilot/test phase, not a production system. Enterprise buyers who have already purchased or are in UAT should see governance framing that assumes production use. "For demonstration purposes" is also trust-breaking when shown to a buyer who is evaluating the governance workflow as a production capability.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change `BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE` to:
+   `"In production, an architect with Execute authority approves here. This view shows the post-approval state from the example review package."`
+
+**Acceptance criteria:**
+
+- The note does not say "live pilot" or "for demonstration purposes."
+- The note explains the read-only demo state without implying pre-production framing.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-510 — Replace "promoteManifest" with a governance-vocabulary API call name in buyer surfaces
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T10. Severity: **P1**.
+
+**Problem:** `GovernanceWorkflowPageContent` imports and calls `promoteManifest` — a CI/CD-flavored verb visible in import statements and toast/error messages. Buyers who see "promote" in governance-related UI text or error messages receive a developer deployment signal, not a governance signal. The governance workflow should use "governance approval" and "finalization" language throughout, not deployment-pipeline vocabulary.
+
+**V1 scope:**
+
+1. Check every customer-facing string in `GovernanceWorkflowPageContent.tsx` and its sub-components for any "promote," "promotion," or "promotion record" text.
+2. In any visible label or error message, replace "promoted" with "governance-approved" or "approved and promoted to implementation planning."
+3. `GovernancePromotionRecord` is an API type name — not customer-visible directly; no rename needed at the API level, but UI strings derived from this type should use governance vocabulary.
+
+**Acceptance criteria:**
+
+- No buyer-visible text on the governance page contains "promote" or "promotion" as a standalone action verb.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+- `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPromotionsActivationsSection.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-511 — Add role capability summary to invite reviewer flow
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction + Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T11. Severity: **P1**.
+
+**Problem:** The invite reviewer flow (`InviteReviewerPageClient`) and `INVITE_REVIEWER_PAGE_LEAD` do not explain what a reviewer can and cannot do after being invited. Enterprise workspace admins granting access want to know: can the reviewer approve? can they export? can they see all workspaces? The current page is silent on capabilities beyond "read access." Combined with TB-504 (changing "typically need" to definitive language), this item adds a capability summary block to the invite flow itself.
+
+**V1 scope:**
+
+1. After TB-504 updates `INVITE_REVIEWER_PAGE_LEAD`, add a capability summary section below the lead on `InviteReviewerPageView.tsx`:
+
+```
+Reader role capabilities:
+✓ View review packages, findings, and governance decisions
+✓ Export signed review records and audit CSVs
+✗ Cannot approve governance requests
+✗ Cannot finalize review packages
+✗ Cannot modify evidence or review settings
+```
+
+2. This can be a compact `<ul>` with check/cross icons.
+
+**Acceptance criteria:**
+
+- The invite page shows explicit can/cannot capabilities for the Reader role.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/settings/roles/_sections/InviteReviewerPageView.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-504, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-512 — Rename FunnelTelemetryExportAnchor to a neutral export wrapper component name
+
+**Status:** **Open**
+
+**Architectural quality:** Code hygiene + Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T12. Severity: **P2**.
+
+**Problem:** `FunnelTelemetryExportAnchor` wraps all download/export links and calls `recordFirstExportOpenedOnce()`. The component name is an internal analytics name. If a security reviewer or buyer inspects React component tree or browser developer tools, seeing "FunnelTelemetryExport" on a download link implies invisible marketing analytics are attached to security-sensitive export actions. The intent is benign (first-download funnel event), but the name raises trust questions.
+
+**V1 scope:**
+
+1. Rename `FunnelTelemetryExportAnchor` to `ExportTrackedAnchor` or `TrackedDownloadAnchor`.
+2. Add a JSDoc comment explaining the telemetry is a single first-export lifecycle event for onboarding funnel, not persistent surveillance.
+3. Update all import sites.
+
+**Acceptance criteria:**
+
+- Component is not named with "funnel" or "telemetry" in a context visible to security reviewers.
+- JSDoc comment documents the analytics scope.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/FunnelTelemetryExportAnchor.tsx`
+- All files importing `FunnelTelemetryExportAnchor`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-513 — Add JSDoc and deprecation note to GoldenManifestExportMenu for buyer surface use
+
+**Status:** **Open**
+
+**Architectural quality:** Code hygiene
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T13. Severity: **P2**.
+
+**Problem:** `GoldenManifestExportMenu` is rendered in `RunDetailArtifactsExportsSection` for buyer-facing export. The component name contains "GoldenManifest" — an internal term. While `trustEvidenceGoldenManifestFieldTitle()` performs translation in data fields, the component itself may render "golden manifest" text if any internal label leaks through. Additionally, the prop `goldenManifestJsonForExport: unknown` in the parent passes raw API data.
+
+**V1 scope:**
+
+1. Add a JSDoc comment to `GoldenManifestExportMenu.tsx`: `"@important Verify all buyer-visible string labels use SIGNED_MANIFEST_LABEL, not 'golden manifest'. The trustEvidenceGoldenManifestFieldTitle guard covers data-layer field names but not hardcoded strings inside this component."`
+2. Audit every string inside `GoldenManifestExportMenu` for any residual "golden manifest" literals.
+3. If any labels still say "golden manifest" to the user, replace with `SIGNED_MANIFEST_LABEL`.
+
+**Acceptance criteria:**
+
+- No buyer-visible text inside `GoldenManifestExportMenu` says "golden manifest."
+- A JSDoc comment documents the naming risk.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/GoldenManifestExportMenu.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-470, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-514 — Add "demo data" context note to ExplainabilityTraceTree empty state
+
+**Status:** **Open**
+
+**Architectural quality:** Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T14. Severity: **P2**.
+
+**Problem:** `ExplainabilityTraceTree` shows `"No evidence references recorded."` as the empty state when a finding has no linked evidence. In a governance-approved review package, this message appears without explanation of what it means for auditability. A compliance reviewer auditing the package sees "no evidence references" on an approved finding and cannot determine whether this is expected (heuristic finding) or a gap (evidence was not attached). The `FindingTrustChip` provides the trust label, but it may not be visible in all contexts where the trace tree renders.
+
+**V1 scope:**
+
+1. In `ExplainabilityTraceTree.tsx`, change the empty state text from `"No evidence references recorded."` to:
+   `"No evidence references recorded for this finding. Evidence-backed findings show source references here. Heuristic findings rely on model reasoning rather than explicit evidence."`
+
+**Acceptance criteria:**
+
+- Empty evidence reference state explains the difference between heuristic and evidence-backed findings.
+- Compliance reviewers understand what "no references" means without inferring failure.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/explainability/ExplainabilityTraceTree.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-492, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-515 — Replace "Loading backup region verification…" with neutral KPI loading state
+
+**Status:** **Open**
+
+**Architectural quality:** Adoption friction
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T15. Severity: **P2**.
+
+**Problem:** `ExecutiveSqlBackupRegionVerificationCard` shows `"Loading backup region verification…"` in the loading state. "Backup region verification" is internal infrastructure vocabulary on an executive dashboard card that a buyer CTO would see. The loading message uses the technical component description, not a buyer-safe label.
+
+**V1 scope:**
+
+1. In `ExecutiveSqlBackupRegionVerificationCard.tsx`, change the loading message from `"Loading backup region verification…"` to use `v.title` or `"Checking backup status…"` for consistency with the card header.
+
+**Acceptance criteria:**
+
+- The loading state message matches the card title vocabulary, not the internal API term.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveSqlBackupRegionVerificationCard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-508, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).

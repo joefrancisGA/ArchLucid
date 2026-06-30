@@ -9,6 +9,7 @@ import {
   PILOT_COMMAND_CENTER_LEAD,
   PILOT_COMMAND_CENTER_OUTCOMES,
   PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
+  PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 
@@ -72,5 +73,14 @@ describe("buyer-polish-copy value report page (TB-468)", () => {
     expect(BUYER_VALUE_REPORT_PAGE_SUBTITLE).toContain("executive-ready report");
     expect(BUYER_VALUE_REPORT_PAGE_TITLE.toLowerCase()).not.toContain("sponsor");
     expect(BUYER_VALUE_REPORT_PAGE_SUBTITLE.toLowerCase()).not.toContain("sponsor-ready");
+  });
+});
+
+describe("buyer-polish-copy product concepts glossary (TB-469)", () => {
+  it("uses architecture review glossary description without pilot framing", () => {
+    expect(PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION).toBe(
+      "Short definitions for terms you will encounter in your architecture reviews — open on demand.",
+    );
+    expect(PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION.toLowerCase()).not.toContain("pilot");
   });
 });
