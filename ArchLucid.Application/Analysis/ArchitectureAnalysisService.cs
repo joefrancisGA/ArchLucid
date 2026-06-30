@@ -44,7 +44,7 @@ public sealed class ArchitectureAnalysisService(
         ArchitectureRun run;
         if (primaryDetail is not null)
         {
-            if (!string.Equals(primaryDetail.Run.RunId, request.RunId, StringComparison.Ordinal))
+            if (!RunIdsReferToSameRun(primaryDetail.Run.RunId, request.RunId))
                 throw new ArgumentException("PreloadedRunDetail.Run.RunId must match RunId.", nameof(request));
 
             run = primaryDetail.Run;
@@ -137,5 +137,19 @@ public sealed class ArchitectureAnalysisService(
         }
 
         return report;
+    }
+
+    /// <summary>
+    ///     Route parameters may use dashed GUIDs while persisted run rows use canonical N-format ids.
+    /// </summary>
+    private static bool RunIdsReferToSameRun(string preloadedRunId, string requestRunId)
+    {
+        if (string.Equals(preloadedRunId, requestRunId, StringComparison.Ordinal))
+            return true;
+
+        if (Guid.TryParse(preloadedRunId, out Guid preloadedGuid) && Guid.TryParse(requestRunId, out Guid requestGuid))
+            return preloadedGuid == requestGuid;
+
+        return false;
     }
 }
