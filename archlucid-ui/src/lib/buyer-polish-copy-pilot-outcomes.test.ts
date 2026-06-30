@@ -14,6 +14,7 @@ import {
   BUYER_HOME_START_CTO_DEMO_ARIA,
   BUYER_HOME_START_CTO_DEMO_CTA,
   BUYER_HOME_START_CTO_DEMO_HEADING,
+  BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 
@@ -105,5 +106,15 @@ describe("buyer-polish-copy operator home example review card (TB-471)", () => {
     expect(BUYER_HOME_START_CTO_DEMO_ARIA).toBe("Open example review — sample review package walkthrough");
     expect(BUYER_HOME_START_CTO_DEMO_HEADING.toLowerCase()).not.toContain("cto demo");
     expect(BUYER_HOME_START_CTO_DEMO_CTA.toLowerCase()).not.toContain("cto demo");
+  });
+});
+
+describe("buyer-polish-copy governance preview note (TB-472)", () => {
+  it("uses connected workspace language without live pilot framing", () => {
+    expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE).toBe(
+      "In a connected workspace, an architect with Execute authority approves here. The view below shows the post-approval state.",
+    );
+    expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE.toLowerCase()).not.toContain("live pilot");
+    expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE.toLowerCase()).not.toContain("demonstration purposes");
   });
 });

@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-471 **Done** — Open example review home card copy). Prior: 2026-06-29 (TB-516–TB-534 added — nav/IA audit 19 P0–P2 items; FIRST_HOUR_JOURNEY_AUDIT.md and NAV_IA_AUDIT.md recreated). Prior: 2026-06-29 (TB-501–TB-515 added — enterprise trust audit 15 P0–P2 items). Prior: 2026-06-28 (TB-470 **Done** — Why ArchLucid sponsor pack source line). Prior: 2026-06-28 (TB-469 **Done** — product concepts glossary dialog description). Prior: 2026-06-28 (TB-468 **Done** — Executive value report page title). Prior: 2026-06-28 (TB-467 **Done** — Cloud connections nav label migration). Prior: 2026-06-28 (TB-461 **Done** — hero step 3 Finalize review package). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
+**Updated:** 2026-06-28 (TB-472 **Done** — governance preview connected workspace note). Prior: 2026-06-29 (TB-535–TB-559 added — visual polish 10, internal leakage 8, link/route integrity 7 items). Prior: 2026-06-29 (TB-516–TB-534 added — nav/IA audit 19 P0–P2 items; FIRST_HOUR_JOURNEY_AUDIT.md and NAV_IA_AUDIT.md recreated). Prior: 2026-06-29 (TB-501–TB-515 added — enterprise trust audit 15 P0–P2 items). Prior: 2026-06-28 (TB-470 **Done** — Why ArchLucid sponsor pack source line). Prior: 2026-06-28 (TB-469 **Done** — product concepts glossary dialog description). Prior: 2026-06-28 (TB-468 **Done** — Executive value report page title). Prior: 2026-06-28 (TB-467 **Done** — Cloud connections nav label migration). Prior: 2026-06-28 (TB-461 **Done** — hero step 3 Finalize review package). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -12,13 +12,13 @@
 | Deployability | 5 |
 | AI/Agent readiness | 3 |
 | Architectural integrity | 8 |
-| Adoption friction | 111 |
+| Adoption friction | 128 |
 | Commercial / marketability | 3 |
 | Data consistency | 5 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 3 |
-| Trustworthiness | 8 |
+| Trustworthiness | 11 |
 | Maintainability | 3 |
 | Traceability | 3 |
 | Interoperability | 8 |
@@ -27,8 +27,8 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
-| Code hygiene | 9 |
-| **Total (unique)** | **~166** |
+| Code hygiene | 10 |
+| **Total (unique)** | **~189** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-392** (per-tenant Jira/ServiceNow credentials — V1.1). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -13936,7 +13936,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-472 — Replace "live pilot" with "live workspace" in governance preview note
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -15722,3 +15722,612 @@ Update the nav label and page title for `/evolution-review` in `OperateAnalysisN
 **Size estimate:** **XS**
 
 **Cross-ref:** Nav/IA audit N19 (2026-06-28).
+
+---
+
+## TB-535 — Distinguish `warning`/`medium` severity badges from `error`/`high` (P1)
+
+**Why:** `severityTagClass("warning")` and `"medium"` render with an inline white background (`bg-al-surface-raised`) while `"error"` and `"high"` use the semantic `--al-status-warn-bg` token. Visual output is near-identical amber, collapsing the severity gradient for governance reviewers who rely on color to triage findings.
+
+**Approach:**
+
+In `design-tokens.ts`, change the `warning`/`medium` case to use a visibly lighter treatment:
+
+```typescript
+case "warning":
+case "medium":
+  return `${STATUS_TAG_BASE} border-amber-500/40 bg-amber-50/60 text-amber-900 dark:border-amber-600/40 dark:bg-amber-950/30 dark:text-amber-200`;
+```
+
+Or introduce a new CSS variable `--al-status-warn-secondary-bg/fg` for the lighter tier.
+
+**Acceptance criteria:**
+
+- "Warning" / "Medium" severity badges are visibly distinct (lighter) from "Error" / "High" badges.
+- Both still use amber family color semantics.
+
+**Affected files:** `archlucid-ui/src/lib/design-tokens.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V01 (2026-06-29).
+
+---
+
+## TB-536 — Fix GraphStaticFallback copy: remove "Sample" from production loading state (P1)
+
+**Why:** `GraphStaticFallback` renders "Sample evidence trail — the interactive graph appears here when the viewer finishes loading." This component fires during normal React Flow initialization in production. Enterprise architects waiting for their real graph see "Sample" and may assume they are looking at demo data.
+
+**Approach:**
+
+In `GraphStaticFallback.tsx`:
+
+```tsx
+// aria-label change:
+"Evidence trail: context, primary finding, decisions, and finalized signed package"
+
+// Body copy change:
+"Evidence trail — the interactive graph appears once the viewer has loaded."
+```
+
+**Acceptance criteria:**
+
+- The word "Sample" does not appear in `GraphStaticFallback` rendered output.
+- `aria-label` accurately describes the content without "Sample".
+
+**Affected files:** `archlucid-ui/src/components/GraphStaticFallback.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V02 (2026-06-29).
+
+---
+
+## TB-537 — Rename FindingInspectFindingBody CTA from "artifacts & graph" to "Open review summary" (P1)
+
+**Why:** For non-demo runs, `reviewContextLabel = "Open review detail (artifacts & graph)"`. "artifacts & graph" is internal pipeline vocabulary in a buyer-visible CTA on the finding inspect page.
+
+**Approach:**
+
+```typescript
+const reviewContextLabel =
+  surface === "executive" ? "Open risk review" : "Open review summary";
+```
+
+**Acceptance criteria:**
+
+- The CTA for non-executive finding inspect reads "Open review summary".
+- Demo and live paths use the same label.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectFindingBody.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V03, leakage audit L06, link audit R01 (2026-06-29).
+
+---
+
+## TB-538 — Remove deprecated OPERATOR_TYPOGRAPHY aliases and migrate consumers (P2)
+
+**Why:** `OPERATOR_TYPOGRAPHY` exports deprecated aliases `title`, `section`, `meta` (lines 133–138 of `design-tokens.ts`). Consumers using these names bypass TypeScript enforcement of canonical names and will silently diverge if tokens change.
+
+**Approach:**
+
+1. Grep for `OPERATOR_TYPOGRAPHY\.title`, `\.section`, `\.meta` across `archlucid-ui/src`.
+2. Migrate each consumer to `pageTitle`, `sectionTitle`, `helper` respectively.
+3. Remove (or add TypeScript `@deprecated` to) the alias entries in `design-tokens.ts`.
+
+**Acceptance criteria:**
+
+- No consumer references `OPERATOR_TYPOGRAPHY.title`, `.section`, or `.meta`.
+- Deprecated entries removed or marked with `@deprecated` causing TypeScript warnings.
+
+**Affected files:** `archlucid-ui/src/lib/design-tokens.ts` + all consumers identified by grep.
+
+**Size estimate:** **S**
+
+**Cross-ref:** Visual polish audit V05 (2026-06-29).
+
+---
+
+## TB-539 — OperatorCorePilotDiagnosticsChecklist KPI tiles: use OPERATOR_TYPOGRAPHY.kpiValue (P2)
+
+**Why:** Metric `<dd>` elements use inline `text-lg font-bold` — smaller and using `bold` instead of `semibold` vs. the `kpiValue` / `executiveDashboardMetric` tokens. Creates visual inconsistency with all other metric tiles in the product.
+
+**Approach:**
+
+Replace `text-lg font-bold text-neutral-900 dark:text-neutral-100` on `<dd>` elements with `OPERATOR_TYPOGRAPHY.executiveDashboardMetric` from `design-tokens`.
+
+**Affected files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V06 (2026-06-29).
+
+---
+
+## TB-540 — Fix governance page toast double-style concatenation (P2)
+
+**Why:** The governance toast class string concatenates an inline base (`rounded-lg px-4 py-3 shadow-lg`) with the callout token class, producing duplicate `rounded-*` and `px-*/py-*` declarations and a redundant trailing `border` class.
+
+**Approach:**
+
+Extract toast positioning to a wrapper class. Use only the callout token for surface styling:
+
+```tsx
+<div
+  role="status"
+  className="fixed bottom-6 right-6 z-50 max-w-sm"
+>
+  <div className={cn(
+    OPERATOR_TYPOGRAPHY.body,
+    "shadow-lg",
+    toast.kind === "ok" ? DESIGN_TOKENS.callout.success : DESIGN_TOKENS.callout.blocked,
+  )}>
+    {toast.message}
+  </div>
+</div>
+```
+
+**Affected files:** `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V07 (2026-06-29).
+
+---
+
+## TB-541 — Add explicit `cn` import to planning-table-styles.ts (P2)
+
+**Why:** `planning-table-styles.ts` calls `cn()` without a visible import statement. Either the import is missing (lint error) or relies on an implicit barrel. Explicit imports are required by the no-inline-imports workspace rule.
+
+**Approach:**
+
+Add to the top of the file:
+```typescript
+import { cn } from "@/lib/utils";
+```
+
+**Affected files:** `archlucid-ui/src/components/planning/planning-table-styles.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V10 (2026-06-29).
+
+---
+
+## TB-542 — OperatorCorePilotDiagnosticsChecklist: use OPERATOR_CARD.nested for metric tiles (P2)
+
+**Why:** Metric tile `<div>` elements use inline `px-2 py-2`. The token `OPERATOR_CARD.nested = "p-3"` exists exactly for "Nested raised surface inside a card (metrics, run rows, empty states)."
+
+**Approach:**
+
+Replace `className="rounded-md border border-neutral-200 px-2 py-2 dark:border-neutral-700"` with `className={cn("rounded-md border border-neutral-200 dark:border-neutral-700", OPERATOR_CARD.nested)}` using the imported token.
+
+**Affected files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V08 (2026-06-29).
+
+---
+
+## TB-543 — Fix FirstWeekRouteGuidance "home" variant: replace native `<details>` with OperatorHomeDisclosureSection (P2)
+
+**Why:** The home variant uses a native `<details>`/`<summary>` element while all peer expandable guidance sections use `OperatorHomeDisclosureSection`. Creates visual and behavioral inconsistency (no animation, different focus ring, different typography baseline).
+
+**Approach:**
+
+In `FirstWeekRouteGuidance.tsx`, replace the `"home"` branch:
+
+```tsx
+import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+
+// home branch:
+return (
+  <OperatorHomeDisclosureSection
+    title={FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY}
+    titleId="first-week-guidance-home"
+    sectionTestId={`first-week-route-guidance-home`}
+    storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.firstWeekGuidance}
+    defaultExpanded={false}
+  >
+    <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{config.useWhen}</p>
+    <GuidanceBody {...config} />
+  </OperatorHomeDisclosureSection>
+);
+```
+
+**Affected files:** `archlucid-ui/src/components/FirstWeekRouteGuidance.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Visual polish audit V09 (2026-06-29).
+
+---
+
+## TB-544 — Rename "Unknown" severity badge to "Unclassified" and add distinct visual treatment (P1)
+
+**Why:** `severityTagClass("unknown")` renders same visual as `enterpriseStatusTagClass("neutral")`. Enterprise reviewers see "Unknown" severity in findings tables with no visual distinction from a missing-data state. The label "Unknown" is more alarming than "Unclassified."
+
+**Approach:**
+
+1. In `SEVERITY_LABELS`, change `unknown: "Unknown"` → `unknown: "Unclassified"`.
+2. In `severityTagClass("unknown")`, change to a visually distinct dashed or muted treatment:
+   ```typescript
+   case "unknown":
+     return `${STATUS_TAG_BASE} border-dashed border-neutral-400 bg-al-surface-raised text-al-text-secondary dark:border-neutral-600`;
+   ```
+
+**Acceptance criteria:**
+
+- "Unknown" severity is displayed as "Unclassified".
+- The badge is visually distinct from the neutral status badge.
+
+**Affected files:** `archlucid-ui/src/lib/design-tokens.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V04 (2026-06-29).
+
+---
+
+## TB-545 — Rename FindingInspectContextDebugPanel toggle from "Debug: View Raw Context" (P0)
+
+**Why:** The toggle label "Debug: View Raw Context" is visible to all operators on the finding inspect page. Enterprise buyers, CTOs, and auditors opening a finding see a "Debug" toggle — an unconditional trust signal that this is an engineering prototype, not an enterprise product. The description also references "LLM user prompt" which may surprise buyers before they understand ArchLucid's AI trust model.
+
+**Approach:**
+
+```tsx
+// Label: change
+"Debug: View Raw Context"
+// To:
+"Evidence trace detail"
+
+// Description: change
+"Shows cited evidence excerpts, provenance context steps, and the redacted LLM user prompt the model saw."
+// To:
+"Shows the evidence excerpts and analysis context used to produce this finding."
+```
+
+Optionally gate behind `AdminAuthority`:
+```tsx
+if (callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) return null;
+```
+
+**Acceptance criteria:**
+
+- No operator on the finding inspect page sees the word "Debug".
+- The word "LLM" is not visible in the panel description.
+
+**Affected files:** `archlucid-ui/src/components/findings/FindingInspectContextDebugPanel.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Leakage audit L01 (2026-06-29).
+
+---
+
+## TB-546 — Gate OperatorCorePilotDiagnosticsChecklist to AdminAuthority (P0)
+
+**Why:** The checklist exposes internal telemetry language visible to all full-shell operators: "Server-tracked onboarding signals (this deployment)", "process-lifetime for this deployment and reset when the API host restarts", "Registration/session signal", "Finalization signal", "finalize counter", "pipeline persists". This is a DevOps monitoring panel, not a user-facing product feature.
+
+**Approach:**
+
+Option A — authority gate (fast path):
+```tsx
+const { callerAuthorityRank } = useOperatorNavAuthority();
+if (callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
+  return null;
+}
+```
+
+Option B — rewrite as user-facing first-review progress card, removing all deployment/pipeline language.
+
+**Acceptance criteria:**
+
+- Non-admin operators do not see "Server-tracked onboarding signals", "process-lifetime", "Registration/session signal", or "finalize counter" copy.
+
+**Affected files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+
+**Size estimate:** **XS** (Option A) / **M** (Option B)
+
+**Cross-ref:** Leakage audit L02 (2026-06-29).
+
+---
+
+## TB-547 — Remove "dev"/"test" environment defaults from governance approval submit form (P1)
+
+**Why:** `submitSource` defaults to `"dev"` and `submitTarget` to `"test"` — DevOps environment names pre-filled in an architecture review governance approval form. Operators submitting their first approval see these values and may assume they are managing software deployments.
+
+**Approach:**
+
+```typescript
+const [submitSource, setSubmitSource] = useState<string>("");
+const [submitTarget, setSubmitTarget] = useState<string>("");
+```
+
+Add placeholders to the input fields: `placeholder="e.g. source-environment"` / `placeholder="e.g. target-environment"`. Add a help tooltip: "Source and target represent the review states in your governance process."
+
+**Acceptance criteria:**
+
+- Governance approval form shows no pre-filled environment values.
+- Placeholder text guides operators without exposing internal defaults.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Leakage audit L03 (2026-06-29).
+
+---
+
+## TB-548 — Replace "Review package promoted." governance toast with governance vocabulary (P1)
+
+**Why:** "Promoted" is deployment pipeline vocabulary. The action in the governance workflow is approving an architecture review package for decision support, not promoting software to an environment.
+
+**Approach:**
+
+```typescript
+// Change:
+setToast({ kind: "ok", message: "Review package promoted." });
+// To:
+setToast({ kind: "ok", message: "Review package approved for release." });
+```
+
+Also review other toasts in the file for similar pipeline vocabulary.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Leakage audit L04 (2026-06-29).
+
+---
+
+## TB-549 — Gate RunTraceViewerLink to admin authority or add "Support reference" label (P1)
+
+**Why:** `RunTraceViewerLink` renders hex trace IDs and a "View trace" link to internal observability infrastructure — visible to all operators on finding inspect and error surfaces. Enterprise governance reviewers and auditors do not need access to distributed tracing; this looks like internal DevOps tooling in a product UI.
+
+**Approach:**
+
+Add authority gate:
+```tsx
+if (callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
+  // Render copy-only minimal version without external trace link
+  return <span className="font-mono text-neutral-500">Support ref: {preview}</span>;
+}
+```
+
+Or wrap in an expandable "Technical details (for support)" disclosure that collapses by default.
+
+**Acceptance criteria:**
+
+- Non-admin operators do not see the "View trace" external link to internal infrastructure.
+- The trace ID is either hidden or labeled as a support reference.
+
+**Affected files:** `archlucid-ui/src/components/RunTraceViewerLink.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Leakage audit L05 (2026-06-29).
+
+---
+
+## TB-550 — Fix FindingInspectFindingBody live-path CTA label (P1)
+
+Duplicate of TB-537 — tracked from leakage audit perspective. See TB-537 for implementation.
+
+**Cross-ref:** Leakage audit L06, TB-537 (2026-06-29).
+
+---
+
+## TB-551 — Fix governance demo manifest version `"3.4.1"` pre-fill (P2)
+
+**Why:** In demo/static mode, `submitManifestVersion` is pre-filled with `"3.4.1"` — a raw internal version string visible in the approval submit form as the default value.
+
+**Approach:**
+
+Use a descriptive demo placeholder: `"3.4.1 (Claims Intake example)"` and ensure it only pre-fills when `isStaticDemoPayloadFallbackEnabled()` — not for the buyer-polished shell which should show an empty field.
+
+**Acceptance criteria:**
+
+- The buyer-polished shell governance form shows an empty version field.
+- Static demo mode shows a descriptive placeholder, not a raw version number.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Leakage audit L07 (2026-06-29).
+
+---
+
+## TB-552 — Rename "Approval workflow quickstart" to "How governance approval works" (P2)
+
+**Why:** The "Approval workflow quickstart" accordion in the non-buyer operator shell exposes `GovernanceInteractiveQuickstartCard` with steps labeled "promote manifest" and "activate environment". This reads as a developer tutorial for calling APIs, not a governance workflow reference.
+
+**Approach:**
+
+1. Rename the accordion trigger label from `"Approval workflow quickstart"` to `"How governance approval works"`.
+2. In `GovernanceInteractiveQuickstartCard`, replace API-verb labels with governance vocabulary:
+   - "promote manifest" → "approve and advance review package"
+   - "activate environment" → "record go-live"
+   - "submit approval request" → "request governance approval"
+
+**Affected files:**
+- `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+- `archlucid-ui/src/components/GovernanceInteractiveQuickstartCard.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Leakage audit L08 (2026-06-29).
+
+---
+
+## TB-553 — Unify FindingInspectFindingBody reviewContextLabel (P1)
+
+Duplicate of TB-537 — tracked from link integrity perspective. See TB-537 for implementation.
+
+**Cross-ref:** Link integrity audit R01, TB-537 (2026-06-29).
+
+---
+
+## TB-554 — Add audit trail CTA to governance empty states (P1)
+
+**Why:** When `activeRunId === null` on the governance page, the empty state has no link to the audit trail. Read-only reviewers who arrive at governance without loading a specific review have no forward path to the audit trail — a dead end for step 8→9 of the golden path.
+
+**Approach:**
+
+In `archlucid-ui/src/lib/empty-state-presets.ts`, add a secondary action to `GOVERNANCE_WORKFLOW_IDLE` and `GOVERNANCE_WORKFLOW_IDLE_READER`:
+
+```typescript
+secondaryAction: {
+  label: "View audit trail →",
+  href: "/governance/audit",
+},
+```
+
+Update the `EmptyState` component to render `secondaryAction` when present (as a link below the main CTA).
+
+**Acceptance criteria:**
+
+- Both governance empty states include a "View audit trail →" link.
+- The link routes to `/governance/audit`.
+
+**Affected files:**
+- `archlucid-ui/src/lib/empty-state-presets.ts`
+- `archlucid-ui/src/components/EmptyState.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Link integrity audit R02 (2026-06-29).
+
+---
+
+## TB-555 — Add sample-data disclosure to review error boundary recovery CTA (P1)
+
+**Why:** In static-demo or buyer-polished mode, the review-detail error boundary links to `SHOWCASE_STATIC_DEMO_MANIFEST_ID` without disclosing that this is demo data. An operator who hit a real error (e.g., network timeout) is silently redirected to a static demo record without being told their real data is unaffected.
+
+**Approach:**
+
+Add a disclaimer below the demo CTA group:
+
+```tsx
+<p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+  The sample above uses demo data. Your reviews remain available at{" "}
+  <Link href="/reviews?projectId=default" className={OPERATOR_LINK.nav}>
+    Reviews list
+  </Link>.
+</p>
+```
+
+**Acceptance criteria:**
+
+- The review error boundary in demo/buyer-polished mode shows a note clarifying the linked content is sample data.
+- A direct link to the reviews list is present.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/reviews/[runId]/error.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Link integrity audit R03 (2026-06-29).
+
+---
+
+## TB-556 — Fix error boundary "Read-only walkthrough" link from marketing route to operator-appropriate route (P2)
+
+**Why:** The error boundary links to `/demo/preview` (a marketing-surface route) as a recovery CTA inside the operator shell. Clicking it takes users out of the product and into a marketing demo page.
+
+**Approach:**
+
+```tsx
+// Change:
+<Link href="/demo/preview">{isBuyerPolished ? "Read-only walkthrough" : "View sample walkthrough"}</Link>
+// To:
+<Link href={`/showcase/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
+  View sample review
+</Link>
+```
+
+**Acceptance criteria:**
+
+- The recovery CTA in buyer/operator error states routes to `/showcase/[demoRunId]`, not `/demo/preview`.
+- CTA label is "View sample review" in all modes.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/reviews/[runId]/error.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Link integrity audit R04 (2026-06-29).
+
+---
+
+## TB-557 — Verify `#first-run-workflow-panel` anchor resolves on all home variants (P2)
+
+**Why:** `OperatorCorePilotDiagnosticsChecklist` contains `href="#first-run-workflow-panel"`. If the target element (`id="first-run-workflow-panel"`) is not rendered on the current home page variant, clicking "Jump to first review checklist" silently does nothing.
+
+**Approach:**
+
+1. Verify the `id="first-run-workflow-panel"` target is always in the DOM when `OperatorCorePilotDiagnosticsChecklist` renders.
+2. Add a test asserting that `document.getElementById("first-run-workflow-panel")` is not null when this component is mounted.
+3. If the target is conditionally rendered, provide a fallback `href="/reviews/new"` (the actual first review action) instead of the anchor.
+
+**Acceptance criteria:**
+
+- Clicking "Jump to first review checklist" either scrolls to the target or routes to a useful fallback.
+
+**Affected files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Link integrity audit R05 (2026-06-29).
+
+---
+
+## TB-558 — Add help tooltip to governance environment fields (P2)
+
+**Why:** The governance submit form's "Source environment" and "Target environment" fields have no explanation for operators unfamiliar with the approval workflow. Users don't know what to enter, and the fields look like software deployment infrastructure (especially with the "dev"/"test" defaults removed by TB-547).
+
+**Approach:**
+
+Add a `<TooltipProvider>` / `<Tooltip>` help icon next to each field label explaining: "Source and target describe the review state transitions in your governance process (e.g., 'review-pending' → 'approved')."
+
+Or add an inline helper text below the field cluster: `"Enter the review state names used in your organization's governance workflow."`
+
+**Affected files:** The governance submit section component (locate via `GovernanceWorkflowSubmitSection`).
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Link integrity audit R06 (2026-06-29).
+
+---
+
+## TB-559 — Remove demo version pre-fill from governance submit form in non-static-demo modes (P2)
+
+**Why:** `setSubmitManifestVersion(isDemoShell ? "3.4.1" : "")` — the `isDemoShell` check includes the buyer-polished shell. The buyer-polished shell is not necessarily the static demo; it's a polished presentation mode for live buyer demos with real data. A buyer demo with real data should show an empty version field.
+
+**Approach:**
+
+Change:
+```typescript
+const [submitManifestVersion, setSubmitManifestVersion] = useState(isDemoShell ? "3.4.1" : "");
+```
+To:
+```typescript
+const [submitManifestVersion, setSubmitManifestVersion] = useState(
+  isStaticDemoPayloadFallbackEnabled() ? "3.4.1 (Claims Intake example)" : "",
+);
+```
+
+**Acceptance criteria:**
+
+- The buyer-polished shell governance form shows an empty version field.
+- Static demo mode shows `"3.4.1 (Claims Intake example)"` as a descriptive pre-fill.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Leakage audit TB-551, link audit R07 (2026-06-29).
