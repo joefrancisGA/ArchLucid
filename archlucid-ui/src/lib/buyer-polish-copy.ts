@@ -766,7 +766,7 @@ export const BUYER_GRAPH_IDLE_DESCRIPTION = BUYER_EVIDENCE_TRAIL_EMPTY_BODY;
 
 /** Operator evidence graph page — IA pass (progressive disclosure, not buyer-polished shell). */
 export const OPERATOR_GRAPH_PAGE_SUBTITLE =
-  "Trace architecture inputs, findings, decisions, and audit records for a committed review package.";
+  "Trace architecture inputs, findings, decisions, and audit records for a finalized review package.";
 
 export const OPERATOR_GRAPH_SCOPE_LABEL = "Graph scope";
 

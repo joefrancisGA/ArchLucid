@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL,
+  OPERATOR_GRAPH_PAGE_SUBTITLE,
   PILOT_COMMAND_CENTER_OUTCOMES,
   PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
 } from "@/lib/buyer-polish-copy";
@@ -32,5 +33,12 @@ describe("buyer-polish-copy executive scorecard (TB-462)", () => {
   it("uses finalized reviews label on scorecard KPI", () => {
     expect(BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL).toBe("Finalized reviews");
     expect(BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL.toLowerCase()).not.toContain("committed");
+  });
+});
+
+describe("buyer-polish-copy evidence graph subtitle (TB-464)", () => {
+  it("uses finalized review package in operator graph page subtitle", () => {
+    expect(OPERATOR_GRAPH_PAGE_SUBTITLE).toContain("finalized review package");
+    expect(OPERATOR_GRAPH_PAGE_SUBTITLE.toLowerCase()).not.toContain("committed");
   });
 });
