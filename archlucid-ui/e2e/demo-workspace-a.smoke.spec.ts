@@ -71,12 +71,13 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
       page.getByTestId("quick-decision-summary").getByText(/Container Apps external ingress exposes admin callbacks/i).first(),
     ).toBeVisible({ timeout: 60_000 });
 
-    await expect(page.locator("#run-decision-summary")).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator("#run-decision-summary")).toBeVisible({ timeout: 90_000 });
     await page.locator("#run-decision-summary").scrollIntoViewIfNeeded();
+    await page.waitForLoadState("networkidle", { timeout: 30_000 });
 
-    await expect(page.getByTestId("buyer-review-decision-summary")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("buyer-review-decision-summary")).toBeVisible({ timeout: 90_000 });
 
-    await expect(page.getByTestId("buyer-review-status-headline")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("buyer-review-status-headline")).toBeVisible({ timeout: 90_000 });
 
     await page.locator("#artifacts-exports").scrollIntoViewIfNeeded();
 

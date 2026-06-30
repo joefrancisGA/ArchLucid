@@ -113,7 +113,7 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
                     e.EventType == AuditEventTypes.ArchitectureDocxExportGenerated &&
-                    e.CorrelationId != null &&
+                    e.CorrelationId is not null &&
                     e.CorrelationId.StartsWith("analysis-report-consulting-docx-async:", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
