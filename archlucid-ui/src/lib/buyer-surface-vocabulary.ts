@@ -69,7 +69,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   roiMetricsSrOnly: "Executive ROI metrics",
   emptyStateTitle: "No committed reviews yet",
   emptyStateDescription:
-    "Portfolio metrics appear after you commit at least one review package.",
+    "Portfolio metrics appear after you finalize at least one review package.",
   emptyStatePrimaryAction: "Start review",
   emptyStateSecondaryAction: "Load sample workspace",
   emptyStateTertiaryAction: "View sample portfolio dashboard",
@@ -99,7 +99,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   ] as const,
   portfolioMetricsUnavailableTitle: "Portfolio metrics unavailable",
   portfolioMetricsUnavailableDescription:
-    "Commit a review package to populate findings, decisions, waivers, risks, and remediation trends.",
+    "Finalize a review package to populate findings, decisions, waivers, risks, and remediation trends.",
   estimatedSavingsNotAvailableYet: "Not available yet",
   estimatedSavingsNotAvailableFootnote:
     "Commit reviews or add cost evidence to estimate savings.",
