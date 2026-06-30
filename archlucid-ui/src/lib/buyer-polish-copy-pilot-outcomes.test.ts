@@ -16,6 +16,7 @@ import {
   BUYER_HOME_START_CTO_DEMO_HEADING,
   BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE,
   SAMPLE_REVIEW_AHA_DEMO_LABEL,
+  OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 
@@ -124,5 +125,16 @@ describe("buyer-polish-copy sample review AHA badge (TB-473)", () => {
   it("uses Example review label without demo-derived framing", () => {
     expect(SAMPLE_REVIEW_AHA_DEMO_LABEL).toBe("Example review");
     expect(SAMPLE_REVIEW_AHA_DEMO_LABEL.toLowerCase()).not.toContain("demo-derived");
+  });
+});
+
+describe("buyer-polish-copy sample findings defensible layer (TB-474)", () => {
+  it("uses example review caption without demo-derived or execution mode jargon", () => {
+    expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER).toBe(
+      "Example review — not your workspace data. Open the full package for findings, evidence, and the signed record.",
+    );
+    expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("demo-derived");
+    expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("execution mode");
+    expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("evidence basis");
   });
 });

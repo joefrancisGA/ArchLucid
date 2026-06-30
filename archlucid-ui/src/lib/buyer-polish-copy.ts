@@ -39,7 +39,7 @@ export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Run sample review";
 export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = "Open completed sample";
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER =
-  "Demo-derived sample only — labels execution mode and evidence basis on the full review package.";
+  "Example review — not your workspace data. Open the full package for findings, evidence, and the signed record.";
 
 export const SAMPLE_REVIEW_AHA_FINDING_LABEL = "Finding";
 
