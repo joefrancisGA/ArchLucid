@@ -9,7 +9,7 @@ export const SETTINGS_ROLES_USERS_TAB_PATH = "/settings/roles?tab=users";
 export const INVITE_REVIEWER_PAGE_TITLE = "Invite reviewer";
 
 export const INVITE_REVIEWER_PAGE_LEAD =
-  "Invite a colleague to participate in architecture reviews for this workspace. Reviewers typically need read access to review packages and findings.";
+  "Invite a colleague to participate in architecture reviews for this workspace. Reviewers are assigned the Reader role: they can view review packages, findings, and governance decisions, but cannot approve, finalize, or modify evidence.";
 
 export const INVITE_REVIEWER_DEFAULT_ROLE: ArchLucidAppRole = "Reader";
 
