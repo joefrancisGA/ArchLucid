@@ -73,7 +73,7 @@ export function resolveOperatorHomeHeroHeading(hasWorkspaceActivity: boolean): s
 }
 
 export const PILOT_COMMAND_CENTER_LEAD =
-  "Create an architecture review from a design brief, uploaded evidence, or an optional Azure import.";
+  "Create an architecture review from a design brief, uploaded evidence, or an optional cloud connection.";
 
 export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start review";
 

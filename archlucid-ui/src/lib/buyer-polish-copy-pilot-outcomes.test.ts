@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL,
   OPERATOR_GRAPH_PAGE_SUBTITLE,
+  PILOT_COMMAND_CENTER_LEAD,
   PILOT_COMMAND_CENTER_OUTCOMES,
   PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
 } from "@/lib/buyer-polish-copy";
@@ -40,5 +41,12 @@ describe("buyer-polish-copy evidence graph subtitle (TB-464)", () => {
   it("uses finalized review package in operator graph page subtitle", () => {
     expect(OPERATOR_GRAPH_PAGE_SUBTITLE).toContain("finalized review package");
     expect(OPERATOR_GRAPH_PAGE_SUBTITLE.toLowerCase()).not.toContain("committed");
+  });
+});
+
+describe("buyer-polish-copy home hero lead (TB-465)", () => {
+  it("uses multi-cloud connection language without naming Azure", () => {
+    expect(PILOT_COMMAND_CENTER_LEAD).toContain("optional cloud connection");
+    expect(PILOT_COMMAND_CENTER_LEAD.toLowerCase()).not.toContain("azure");
   });
 });
