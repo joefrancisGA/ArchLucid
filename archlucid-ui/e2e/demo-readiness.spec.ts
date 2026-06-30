@@ -22,12 +22,13 @@ const claimsShowcasePath = "/showcase/claims-intake-modernization";
  */
 const SHOWCASE_MANIFEST_DEEP_LINK = /^(?:Open signed record|Signed review record|Review package|Finalized review package)$/i;
 
-/** Branded 404 marker is sr-only; assert visible recovery copy plus attached test id. */
+/** Branded 404 — assert visible recovery copy plus stable recovery affordances from OperatorBrandedNotFound. */
 async function expectBrandedNotFoundSurface(page: Page): Promise<void> {
-  await expect(
-    page.getByText(/We could not find that ArchLucid artifact/i),
-  ).toBeVisible();
-  await expect(page.getByTestId("branded-not-found")).toBeAttached();
+  const main = page.getByRole("main").first();
+
+  await expect(main.getByText(/We could not find that ArchLucid artifact/i)).toBeVisible();
+  await expect(main.getByTestId("branded-not-found")).toBeAttached();
+  await expect(main.getByTestId("not-found-review-packages")).toBeVisible();
 }
 
 /** Canonical run detail path is `/reviews/{runId}`; `/runs/*` permanently redirects (see `next.config.ts`). */
