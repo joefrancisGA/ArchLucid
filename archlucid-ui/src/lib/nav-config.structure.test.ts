@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { flattenNavLinks, NAV_GROUPS } from "@/lib/nav-config";
 
 describe("nav-config structure", () => {
@@ -25,6 +26,15 @@ describe("nav-config structure", () => {
 
       expect(dupes, `${group.id} duplicate labels: ${[...new Set(dupes)].join(", ")}`).toEqual([]);
     }
+  });
+
+  it("uses Cloud connections nav label instead of Azure cloud connection (TB-467)", () => {
+    const flat = flattenNavLinks();
+    const deprecatedLabel = OPERATOR_NAV_LINK_LABELS.azureCloudConnection;
+    const cloudConnectionsLink = flat.find((link) => link.href === "/integrations/cloud-connections");
+
+    expect(cloudConnectionsLink?.label).toBe(OPERATOR_NAV_LINK_LABELS.cloudConnections);
+    expect(flat.map((link) => link.label)).not.toContain(deprecatedLabel);
   });
 
   it("sets requiredAuthority on every Governance link (Pilot essentials may omit)", () => {

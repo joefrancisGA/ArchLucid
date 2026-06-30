@@ -161,8 +161,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   microsoftTeams: "Microsoft Teams",
   slack: "Slack",
   webhooks: "Webhooks",
+  /** @deprecated Prefer {@link OPERATOR_NAV_LINK_LABELS.cloudConnections} — Azure-only nav label retained for legacy imports. */
   azureCloudConnection: "Azure cloud connection",
-  /** Legacy label — prefer {@link OPERATOR_NAV_LINK_LABELS.azureCloudConnection} until multi-cloud is supported. */
   cloudConnections: "Cloud connections",
   systemHealth: "System health",
   digests: "Digests",
