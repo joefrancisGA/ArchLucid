@@ -4,6 +4,13 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   OPERATOR_SECURITY_TRUST_AVAILABLE_NOW_ITEMS,
+  OPERATOR_SECURITY_TRUST_DATA_RETENTION_DELETION_INSTRUCTION,
+  OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_HREF,
+  OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_LABEL,
+  OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE,
+  OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_HREF,
+  OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_LABEL,
+  OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE,
   OPERATOR_SECURITY_TRUST_NDA_EMAIL,
   OPERATOR_SECURITY_TRUST_NDA_INTRO,
   OPERATOR_SECURITY_TRUST_ROADMAP_ITEMS,
@@ -85,6 +92,29 @@ export function OperatorSecurityTrustPageView() {
             Technical detail:{" "}
             <Link className={securityTrustLinkClassName} href={OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_HREF}>
               {OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_LABEL}
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+
+      <section aria-label={OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE} className="space-y-3">
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE}</h2>
+        <div className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40">
+          <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            {OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE}
+          </p>
+          <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            {OPERATOR_SECURITY_TRUST_DATA_RETENTION_DELETION_INSTRUCTION}
+          </p>
+          <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            Contractual terms:{" "}
+            <Link className={securityTrustLinkClassName} href={OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_HREF}>
+              {OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_LABEL}
+            </Link>
+            {" · "}
+            <Link className={securityTrustLinkClassName} href={OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_HREF}>
+              {OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_LABEL}
             </Link>
             .
           </p>

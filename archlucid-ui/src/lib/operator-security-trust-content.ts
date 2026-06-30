@@ -37,6 +37,26 @@ export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_HREF = resolveInApp
 
 export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_LABEL = "CAIQ / SIG response";
 
+export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE = "Data retention";
+
+export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE =
+  "Architecture review data is retained for the duration of your workspace subscription. After termination, customer data is deleted within 90 days, except where retention is required by law or documented backup cycles.";
+
+export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_DELETION_INSTRUCTION =
+  "Contact security@archlucid.net to request workspace data deletion.";
+
+export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_HREF = resolveInAppDocHref(
+  "docs/go-to-market/DPA_TEMPLATE.md",
+);
+
+export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_LABEL = "DPA template";
+
+export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_HREF = resolveInAppDocHref(
+  "docs/go-to-market/privacy_policy.md",
+);
+
+export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_LABEL = "Privacy policy";
+
 export const OPERATOR_SECURITY_TRUST_NDA_EMAIL = "security@archlucid.net";
 
 export const OPERATOR_SECURITY_TRUST_ROADMAP_ITEMS: ReadonlyArray<string> = [

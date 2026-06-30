@@ -33,6 +33,24 @@ describe("OperatorSecurityTrustPageView", () => {
     );
   });
 
+  it("renders data retention section with deletion instructions and contractual links", () => {
+    render(<OperatorSecurityTrustPageView />);
+
+    const retentionSection = screen.getByLabelText("Data retention");
+
+    expect(within(retentionSection).getByText(/duration of your workspace subscription/i)).toBeInTheDocument();
+    expect(within(retentionSection).getByText(/deleted within 90 days/i)).toBeInTheDocument();
+    expect(within(retentionSection).getByText(/request workspace data deletion/i)).toBeInTheDocument();
+    expect(within(retentionSection).getByRole("link", { name: /DPA template/i })).toHaveAttribute(
+      "href",
+      "/help/dpa-template",
+    );
+    expect(within(retentionSection).getByRole("link", { name: /Privacy policy/i })).toHaveAttribute(
+      "href",
+      "/help/privacy-policy",
+    );
+  });
+
   it("collapses badge legend by default", () => {
     render(<OperatorSecurityTrustPageView />);
 
