@@ -20,6 +20,7 @@ import {
   BUYER_SIMULATOR_TRUST_BADGE_LABEL,
   BUYER_SIMULATOR_TRUST_BADGE_TOOLTIP,
   BUYER_SCOPE_LIST_UNAVAILABLE,
+  BUYER_CTO_DEMO_LATENCY_EXCEEDED,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 
@@ -139,6 +140,16 @@ describe("buyer-polish-copy sample findings defensible layer (TB-474)", () => {
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("demo-derived");
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("execution mode");
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("evidence basis");
+  });
+});
+
+describe("buyer-polish-copy demo latency exceeded (TB-480)", () => {
+  it("uses example review fallback without seeded showcase jargon", () => {
+    expect(BUYER_CTO_DEMO_LATENCY_EXCEEDED).toBe(
+      "Taking longer than expected — switch to example review.",
+    );
+    expect(BUYER_CTO_DEMO_LATENCY_EXCEEDED.toLowerCase()).not.toMatch(/\bseed(ed)?\b/);
+    expect(BUYER_CTO_DEMO_LATENCY_EXCEEDED.toLowerCase()).not.toContain("showcase");
   });
 });
 

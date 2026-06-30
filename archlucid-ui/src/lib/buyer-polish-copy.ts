@@ -295,7 +295,7 @@ export const BUYER_CTO_DEMO_STATIC_PRESENTER_BANNER =
 
 export const BUYER_CTO_DEMO_LATENCY_OK = "Within demo latency budget";
 
-export const BUYER_CTO_DEMO_LATENCY_EXCEEDED = "Exceeded demo latency budget — switch to seeded showcase";
+export const BUYER_CTO_DEMO_LATENCY_EXCEEDED = "Taking longer than expected — switch to example review.";
 
 export const BUYER_HOME_EXAMPLE_PACKAGE_SHORTCUTS_ARIA = "Example review package shortcuts";
 
