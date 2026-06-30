@@ -22,7 +22,7 @@ export type AzureExtractorZipDropZoneProps = {
 };
 
 /**
- * Drag-and-drop surface for Tier 1 Azure extractor ZIP uploads (wizard + settings).
+ * @deprecated for multi-cloud use — this component is safe for any inventory ZIP but is named for Azure for historical reasons. Use in Tier1InventoryZipUploadPanel is intentional. Rename to InventoryZipDropZone planned for V1.1.
  */
 export function AzureExtractorZipDropZone(props: AzureExtractorZipDropZoneProps) {
   const {
