@@ -49,7 +49,7 @@ export const SAMPLE_REVIEW_AHA_EVIDENCE_LABEL = "Evidence support";
 
 export const SAMPLE_REVIEW_AHA_DECISION_LABEL = "Decision change";
 
-export const SAMPLE_REVIEW_AHA_DEMO_LABEL = "Demo-derived sample";
+export const SAMPLE_REVIEW_AHA_DEMO_LABEL = "Example review";
 
 export const SAMPLE_REVIEW_PACKAGE_AHA_HEADING = "Your first-value moment";
 

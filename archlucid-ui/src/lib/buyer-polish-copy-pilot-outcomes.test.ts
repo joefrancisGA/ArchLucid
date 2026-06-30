@@ -15,6 +15,7 @@ import {
   BUYER_HOME_START_CTO_DEMO_CTA,
   BUYER_HOME_START_CTO_DEMO_HEADING,
   BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE,
+  SAMPLE_REVIEW_AHA_DEMO_LABEL,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 
@@ -116,5 +117,12 @@ describe("buyer-polish-copy governance preview note (TB-472)", () => {
     );
     expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE.toLowerCase()).not.toContain("live pilot");
     expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE.toLowerCase()).not.toContain("demonstration purposes");
+  });
+});
+
+describe("buyer-polish-copy sample review AHA badge (TB-473)", () => {
+  it("uses Example review label without demo-derived framing", () => {
+    expect(SAMPLE_REVIEW_AHA_DEMO_LABEL).toBe("Example review");
+    expect(SAMPLE_REVIEW_AHA_DEMO_LABEL.toLowerCase()).not.toContain("demo-derived");
   });
 });
