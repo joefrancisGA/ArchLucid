@@ -571,10 +571,10 @@ export const BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION =
 export const BUYER_GRAPH_WHAT_THIS_PROVES =
   "Trace any accepted risk to its supporting evidence — from source context through policy basis, decision, approval, signed review record, and audit record.";
 
-export const BUYER_VALUE_REPORT_PAGE_TITLE = "Sponsor value report";
+export const BUYER_VALUE_REPORT_PAGE_TITLE = "Executive value report";
 
 export const BUYER_VALUE_REPORT_PAGE_SUBTITLE =
-  "Create a sponsor-ready report summarizing finalized reviews, findings, governance activity, and estimated ROI.";
+  "Create an executive-ready report summarizing finalized reviews, findings, governance activity, and estimated ROI.";
 
 export const BUYER_VALUE_REPORT_OUTCOME_LEAD = BUYER_VALUE_REPORT_PAGE_SUBTITLE;
 
