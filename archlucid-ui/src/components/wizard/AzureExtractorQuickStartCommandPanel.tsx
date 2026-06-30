@@ -17,6 +17,8 @@ export type AzureExtractorQuickStartCommandPanelProps = {
 };
 
 /**
+ * @deprecated Prefer {@link CloudInventoryExtractorCommandPanel} with `platform="azure"`. Retained for extract-upload settings until that route migrates.
+ *
  * Copy-paste one-liner for Run-ArchLucidAzureExtractor.ps1 (Tier 1 quick start).
  */
 export function AzureExtractorQuickStartCommandPanel(props: AzureExtractorQuickStartCommandPanelProps) {

@@ -9,7 +9,7 @@ import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZon
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { AzureExtractorQuickStartCommandPanel } from "@/components/wizard/AzureExtractorQuickStartCommandPanel";
+import { CloudInventoryExtractorCommandPanel } from "@/components/wizard/CloudInventoryExtractorCommandPanel";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { buildWizardPrefillFromArchLucidAzureManifest } from "@/lib/apply-arch-lucid-azure-package-manifest-to-wizard";
 import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-package-manifest";
@@ -145,9 +145,9 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
             title="Collect inventory locally"
             description="Run the read-only extractor in your Azure tenant — ArchLucid never needs cloud credentials for this step."
           />
-          <AzureExtractorQuickStartCommandPanel
+          <CloudInventoryExtractorCommandPanel
+            platform="azure"
             testIdPrefix="wizard-baseline-extractor"
-            description="From your ArchLucid checkout: sign in to Azure when prompted, then upload ./archlucid-azure-package.zip in step 2."
           />
           <AzureExtractorDemoScenarioPicker
             selectedScenarioId={selectedDemoScenarioId}
@@ -229,7 +229,7 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
 
       {variant === "ingest" ? (
         <>
-          <AzureExtractorQuickStartCommandPanel testIdPrefix="wizard-ingest-extractor" />
+          <CloudInventoryExtractorCommandPanel platform="azure" testIdPrefix="wizard-ingest-extractor" />
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Or use the{" "}
             <Link className={OPERATOR_LINK.nav} href="/reviews/new?baseline=1">
