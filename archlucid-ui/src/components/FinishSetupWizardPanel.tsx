@@ -1,4 +1,5 @@
 "use client";
+import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +56,7 @@ const SETUP_STEPS: SetupStep[] = [
     id: "admin-role",
     label: "Assign initial Admin role",
     description: "Grant at least one operator Admin authority for tenant settings and SCIM.",
-    href: "/settings/roles",
+    href: SETTINGS_USERS_PATH,
     cta: "Manage roles",
     isDone: (ctx) => ctx.principalAdmin,
   },

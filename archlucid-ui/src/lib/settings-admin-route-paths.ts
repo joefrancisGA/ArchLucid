@@ -3,6 +3,13 @@ import { pathMatchesRoutePrefix } from "@/lib/governance-route-paths";
 /** Canonical tenant-administration URLs (TB-406). */
 export const SETTINGS_USERS_PATH = "/settings/users";
 
+export const SETTINGS_USERS_ROLES_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=roles`;
+
+export const SETTINGS_USERS_USERS_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=users`;
+
+/** Legacy roles index — permanent redirect to canonical users tab URL (TB-522). */
+export const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
+
 export const SETTINGS_SECURITY_TRUST_PATH = "/settings/security-trust";
 
 export const SETTINGS_SUPPORT_PATH = "/settings/support";

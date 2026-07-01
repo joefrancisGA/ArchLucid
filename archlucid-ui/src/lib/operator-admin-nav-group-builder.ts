@@ -12,8 +12,6 @@ import {
 
   ShieldCheck,
 
-  UserCog,
-
   Users,
 
 } from "lucide-react";
@@ -68,25 +66,9 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           label: "Users & roles",
 
-          title: "Users & roles — directory and authority rank",
+          title: "Users & roles — directory, role assignments, and API keys",
 
           icon: Users,
-
-          tier: "extended",
-
-          requiredAuthority: "AdminAuthority",
-
-        },
-
-        {
-
-          href: "/settings/roles",
-
-          label: "Role management",
-
-          title: "Role management — assign Admin, Operator, Reader, and Auditor",
-
-          icon: UserCog,
 
           tier: "extended",
 

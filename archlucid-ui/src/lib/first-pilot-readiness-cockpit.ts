@@ -14,6 +14,7 @@ import {
 } from "@/lib/onboarding-secondary-surfaces";
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { applyHomeReadinessRowPresentation } from "@/lib/home-readiness-row-present";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
@@ -133,7 +134,7 @@ export function buildFirstPilotReadinessRows(input: {
       summary: canExecute
         ? `${input.principal.maxAuthority} can create and execute the first architecture review.`
         : "Read-only principals can inspect the cockpit and should ask an operator/admin to execute reviews.",
-      href: canAdmin ? "/settings/roles" : "/help",
+      href: canAdmin ? SETTINGS_USERS_PATH : "/help",
       cta: canAdmin ? "Open roles" : FIRST_PILOT_READINESS_REVIEW_PERMISSIONS_CTA,
     },
     {

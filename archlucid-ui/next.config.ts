@@ -143,6 +143,8 @@ const nextConfig: NextConfig = {
       { source: "/admin/users/:path*", destination: "/settings/users/:path*", permanent: true },
       { source: "/admin/support", destination: "/settings/support", permanent: true },
       { source: "/admin/support/:path*", destination: "/settings/support/:path*", permanent: true },
+      // Administration users/roles nav consolidation (TB-522).
+      { source: "/settings/roles", destination: "/settings/users?tab=roles", permanent: true },
     ];
   },
   async rewrites() {
@@ -167,8 +169,7 @@ const nextConfig: NextConfig = {
       // Tenant-administration canonical URLs reuse existing App Router trees (TB-406).
       { source: "/settings/security-trust", destination: "/workspace/security-trust" },
       { source: "/settings/security-trust/:path*", destination: "/workspace/security-trust/:path*" },
-      { source: "/settings/users", destination: "/admin/users" },
-      { source: "/settings/users/:path*", destination: "/admin/users/:path*" },
+      { source: "/settings/users", destination: "/settings/roles" },
       { source: "/settings/support", destination: "/admin/support" },
       { source: "/settings/support/:path*", destination: "/admin/support/:path*" },
       // Integrations canonical URLs reuse settings cloud-connections App Router tree (TB-407).

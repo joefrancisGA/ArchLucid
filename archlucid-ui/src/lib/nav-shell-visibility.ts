@@ -68,7 +68,6 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/settings/exec-digest",
   "/settings/webhooks",
   "/integrations/webhooks",
-  "/settings/roles",
   "/settings/api-keys",
   "/settings/ai-usage",
   "/settings/cost-reporting",

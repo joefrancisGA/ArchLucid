@@ -169,6 +169,7 @@ describe("nav-config structure", () => {
 
     expect(adminHrefs).toContain("/settings/security-trust");
     expect(adminHrefs).toContain("/settings/users");
+    expect(adminHrefs).not.toContain("/settings/roles");
     expect(adminHrefs).toContain("/settings/support");
     expect(adminHrefs).toContain("/settings/ai-usage");
     expect(adminHrefs).not.toContain("/governance/recurrence-schedules");
