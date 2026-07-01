@@ -11,6 +11,7 @@ import {
   createRun,
   executeRun,
   liveApiBase,
+  liveE2eArchitectureDescription,
   postAdvisoryScanRaw,
   searchAudit,
   waitForReadyForCommit,
@@ -33,7 +34,7 @@ test.describe("live-api-advisory-flow", () => {
 
     const createBody = {
       requestId: `E2E-LIVE-ADVISORY-${Date.now()}`,
-      description: "Live E2E: advisory scan scheduling after commit.",
+      description: liveE2eArchitectureDescription("Live E2E: advisory scan scheduling after commit."),
       systemName: "AdvisoryFlowTest",
       environment: "prod",
       cloudProvider: 1,
