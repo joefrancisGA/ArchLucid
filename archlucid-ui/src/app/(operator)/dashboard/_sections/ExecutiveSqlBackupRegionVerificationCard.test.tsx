@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const loadGate = vi.hoisted(() => ({
   verification: {
@@ -30,8 +30,22 @@ vi.mock("@/lib/sql-backup-region-verification", async (importOriginal) => {
 });
 
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
+import { fetchSqlBackupRegionVerification } from "@/lib/sql-backup-region-verification";
 
 describe("ExecutiveSqlBackupRegionVerificationCard", () => {
+  beforeEach(() => {
+    vi.mocked(fetchSqlBackupRegionVerification).mockImplementation(async () => loadGate.verification);
+  });
+
+  it("shows buyer-safe loading copy aligned with the card title (TB-515)", () => {
+    vi.mocked(fetchSqlBackupRegionVerification).mockReturnValue(new Promise(() => {}));
+
+    render(<ExecutiveSqlBackupRegionVerificationCard />);
+
+    expect(screen.getByTestId("sql-backup-verification-loading")).toHaveTextContent("Checking backup status…");
+    expect(screen.getByTestId("sql-backup-verification-loading")).not.toHaveTextContent(/backup region verification/i);
+  });
+
   it("shows a green check and region name when verified", async () => {
     loadGate.verification = {
       ...loadGate.verification,

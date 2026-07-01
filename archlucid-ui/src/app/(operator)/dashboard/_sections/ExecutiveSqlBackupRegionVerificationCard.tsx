@@ -82,7 +82,7 @@ export function ExecutiveSqlBackupRegionVerificationCard() {
         </CardHeader>
         <CardContent>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="sql-backup-verification-loading">
-            Loading backup region verification…
+            Checking backup status…
           </p>
         </CardContent>
       </Card>
