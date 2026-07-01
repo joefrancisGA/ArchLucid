@@ -30,6 +30,10 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
+import {
+  GOVERNANCE_WORKFLOW_READER_LOAD_REVIEW_HINT,
+  GOVERNANCE_WORKFLOW_SUBMIT_CARD_DESCRIPTION_OPERATOR,
+} from "@/lib/governance-workflow-release-copy";
 import { GOVERNANCE_ENV_OPTIONS } from "./governance-workflow-helpers";
 
 type GovernanceWorkflowSubmitSectionProps = {
@@ -89,7 +93,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
             <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {hideGovernanceQueryLoadCard
                 ? "Approval activity for this review appears below."
-                : "Load a review in the approval section below to inspect approvals, promotions, and environment activity."}
+                : GOVERNANCE_WORKFLOW_READER_LOAD_REVIEW_HINT}
             </p>
           </CardContent>
         </Card>
@@ -101,10 +105,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
             </CardTitle>
             <CardDescription>
               {canMutateWorkflow ? (
-                <>
-                  Starts an approval request so reviewers can promote your finalized review record from a source environment
-                  toward a target (for example staging to production).
-                </>
+                <>{GOVERNANCE_WORKFLOW_SUBMIT_CARD_DESCRIPTION_OPERATOR}</>
               ) : (
                 governanceWorkflowSubmitCardDescriptionReader
               )}

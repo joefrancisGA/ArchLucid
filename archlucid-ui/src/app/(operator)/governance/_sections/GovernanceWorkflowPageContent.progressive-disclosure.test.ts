@@ -16,9 +16,9 @@ describe("GovernanceWorkflowPageContent progressive disclosure", () => {
     expect(source).not.toMatch(/\)\s*:\s*\(\s*\n\s*<GovernanceInteractiveQuickstartCard \/>/);
   });
 
-  it("labels promotions accordion and adds stable test id", () => {
+  it("labels environment releases accordion and adds stable test id", () => {
     expect(source).toContain('data-testid="governance-workflow-advanced-options"');
-    expect(source).toContain('triggerLabel="Environment promotions and activations"');
+    expect(source).toContain("GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL");
   });
 
   it("labels static demo governance fallback with role=status banner", () => {

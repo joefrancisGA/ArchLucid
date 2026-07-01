@@ -23,6 +23,13 @@ import {
   governancePromotionsEmptyGettingStartedOperator,
   governancePromotionsEmptyGettingStartedReader,
 } from "@/lib/governance-workflow-empty-guidance";
+import {
+  GOVERNANCE_WORKFLOW_ACTIVATE_TOOLTIP_TARGET_ENV,
+  GOVERNANCE_WORKFLOW_NO_RELEASES_RECORDED_TITLE,
+  GOVERNANCE_WORKFLOW_RELEASE_CARD_TITLE_PREFIX,
+  GOVERNANCE_WORKFLOW_RELEASE_RECORD_ID_SR_ONLY_PREFIX,
+  GOVERNANCE_WORKFLOW_TIMELINE_LEAD,
+} from "@/lib/governance-workflow-release-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -74,12 +81,12 @@ export function GovernanceWorkflowPromotionsActivationsSection(
           : governanceWorkflowPromotionsActivationsSectionLeadReader}
       </p>
       <p className={cn("mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Selected review timeline · promotions newest first; activations follow.
+        {GOVERNANCE_WORKFLOW_TIMELINE_LEAD}
         {activeRunId ? <span className="sr-only"> Technical review id {activeRunId}</span> : null}
       </p>
 
       {!listsLoading && activeRunId !== null && promotions.length === 0 && listFailure === null ? (
-        <OperatorEmptyState title="No promotions recorded yet">
+        <OperatorEmptyState title={GOVERNANCE_WORKFLOW_NO_RELEASES_RECORDED_TITLE}>
           <div className="grid gap-3">
             <p className={OPERATOR_TYPOGRAPHY.body}>
               {canMutateWorkflow
@@ -100,9 +107,11 @@ export function GovernanceWorkflowPromotionsActivationsSection(
           <Card key={p.promotionRecordId} className="border-l-4 border-l-violet-500">
             <CardHeader className="pb-2">
               <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
-                Promotion · {formatGovernanceBusinessInstant(p.promotedUtc)}
+                {GOVERNANCE_WORKFLOW_RELEASE_CARD_TITLE_PREFIX} · {formatGovernanceBusinessInstant(p.promotedUtc)}
               </CardTitle>
-              <p className="sr-only">Promotion record id {p.promotionRecordId}</p>
+              <p className="sr-only">
+                {GOVERNANCE_WORKFLOW_RELEASE_RECORD_ID_SR_ONLY_PREFIX} {p.promotionRecordId}
+              </p>
             </CardHeader>
             <CardContent className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
               <div>
@@ -148,7 +157,7 @@ export function GovernanceWorkflowPromotionsActivationsSection(
                     ? enterpriseMutationControlDisabledTitle
                     : !workflowActor.trim()
                       ? "Enter your name for the audit trail to enable activation."
-                      : "POST activation for this review record on the promotion’s target environment."}
+                      : GOVERNANCE_WORKFLOW_ACTIVATE_TOOLTIP_TARGET_ENV}
                 </TooltipContent>
               </Tooltip>
             </CardFooter>

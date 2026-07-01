@@ -6,15 +6,15 @@ export const governanceWorkflowIdleGettingStartedOperator: EmptyStateGettingStar
   steps: [
     "Finalize a manifest on a review, then scroll to Submit for governance approval (source → target environments).",
     "Load that review under Approval requests — approve or reject rows as a reviewer.",
-    "Promote approved requests, then Activate for the target environment when you are ready to go live.",
+    "Release approved requests to the target environment, then Activate when you are ready to go live.",
   ],
 };
 
 export const governanceWorkflowIdleGettingStartedReader: EmptyStateGettingStarted = {
   heading: "What this page shows",
   steps: [
-    "Operators pick a review and load approval requests, promotions, and activations for that review.",
-    "Each step follows your organization's role policy for who may submit, approve, promote, and activate.",
+    "Operators pick a review and load approval requests, governance releases, and activations for that review.",
+    "Each step follows your organization's role policy for who may submit, approve, release, and activate.",
     "Use Findings or Reviews for context — this timeline stays inspection-first at your rank.",
   ],
 };
@@ -33,15 +33,15 @@ export const governanceNoApprovalsGettingStartedReader: EmptyStateGettingStarted
   steps: [
     "No approval rows exist for this review yet — operators submit requests after finalize.",
     "Try another review from the picker, or coordinate with an operator to submit.",
-    "You can still inspect promotions and activations below once the review has history.",
+    "You can still inspect governance releases and activations below once the review has history.",
   ],
 };
 
 export const governancePromotionsEmptyGettingStartedOperator: EmptyStateGettingStarted = {
-  heading: "How promotions appear",
+  heading: "How governance releases appear",
   steps: [
     "Approve a submitted request using Approve on its card.",
-    "Click Promote on an approved row — that records the manifest moving toward the target.",
+    "Click Release to environment on an approved row — that records the manifest moving toward the target.",
     "Repeat for each environment hop your process requires.",
   ],
 };
@@ -49,17 +49,17 @@ export const governancePromotionsEmptyGettingStartedOperator: EmptyStateGettingS
 export const governancePromotionsEmptyGettingStartedReader: EmptyStateGettingStarted = {
   heading: "Timeline insight",
   steps: [
-    "Promotions show after operators approve and promote — empty means none yet for this review.",
+    "Governance releases show after operators approve and release to the target environment — empty means none yet for this review.",
     "Compare with Approval requests above to see pending work.",
     "Activations below confirm what landed in each environment.",
   ],
 };
 
 export const governanceActivationsEmptyGettingStartedOperator: EmptyStateGettingStarted = {
-  heading: "Activate after promotion",
+  heading: "Activate after governance release",
   steps: [
-    "Promote first — activation binds the manifest to the target environment.",
-    "Enter your audit-trail name, open Activate on a promotion card, and confirm.",
+    "Release to the target environment first — activation binds the manifest to that environment.",
+    "Enter your audit-trail name, open Activate on a governance release card, and confirm.",
     "Refresh to see activation rows with timestamps for auditors.",
   ],
 };
@@ -68,7 +68,7 @@ export const governanceActivationsEmptyGettingStartedReader: EmptyStateGettingSt
   heading: "What activations mean",
   steps: [
     "Activations record which manifest version is live for an environment.",
-    "Operators run Activate after promote — nothing shows until that completes.",
+    "Operators run Activate after a governance release — nothing shows until that completes.",
     "Use Audit log if you need the portfolio-level paper trail.",
   ],
 };
@@ -77,7 +77,7 @@ export const governanceActivationsEmptyGettingStartedReader: EmptyStateGettingSt
 export const governanceDashboardPlaceholderGettingStarted: EmptyStateGettingStarted = {
   heading: "What to use today",
   steps: [
-    "Open Governance workflow to move a single review through submit → approve → promote → activate.",
+    "Open Governance workflow to move a single review through submit → approve → release → activate.",
     "Track findings and policy drift from Findings and Policy packs when approvals need evidence.",
     "Search Audit log for immutable records of who changed governance state and when.",
   ],

@@ -43,6 +43,7 @@ import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } fr
 import {
   isStaticDemoPayloadFallbackEnabled,
   shouldSeedStaticDemoGovernanceRecordsForRun,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
   STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS,
   tryStaticDemoGovernanceApprovalRequests,
   tryStaticDemoGovernancePromotions,
@@ -55,7 +56,11 @@ import {
   BUYER_GOVERNANCE_SEGREGATION_OF_DUTIES,
   BUYER_GOVERNANCE_WORKFLOW_LIVE_INTRO,
 } from "@/lib/buyer-polish-copy";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE,
+  GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL,
+  GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST,
+} from "@/lib/governance-workflow-release-copy";
 import type {
   GovernanceApprovalRequest,
   GovernanceEnvironmentActivation,
@@ -415,7 +420,7 @@ export function GovernanceWorkflowPageContent() {
     const by = workflowActor.trim();
 
     if (!by) {
-      setToast({ kind: "err", message: "Enter your name for the audit trail before promoting." });
+      setToast({ kind: "err", message: GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE });
 
       return;
     }
@@ -431,7 +436,7 @@ export function GovernanceWorkflowPageContent() {
         promotedBy: by,
         approvalRequestId: promoteFor.approvalRequestId ?? undefined,
       });
-      setToast({ kind: "ok", message: "Review package promoted." });
+      setToast({ kind: "ok", message: GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST });
       setPendingPromote(null);
       pendingPromoteRequestRef.current = null;
       await refreshIfActive();
@@ -692,7 +697,7 @@ export function GovernanceWorkflowPageContent() {
           <Separator className="mb-10" />
 
           <div data-testid="governance-workflow-advanced-options">
-            <AdvancedOptionsAccordion triggerLabel="Environment promotions and activations" className="mb-10">
+            <AdvancedOptionsAccordion triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL} className="mb-10">
               <GovernanceWorkflowPromotionsActivationsSection
                 canMutateWorkflow={canMutateWorkflow}
                 listsLoading={listsLoading}

@@ -1,6 +1,11 @@
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import type { MutableRefObject } from "react";
 import type { GovernanceApprovalRequest, GovernancePromotionRecord } from "@/types/governance-workflow";
+import {
+  GOVERNANCE_WORKFLOW_RELEASE_CONFIRM_BUTTON,
+  GOVERNANCE_WORKFLOW_RELEASE_CONFIRM_TITLE,
+  governanceWorkflowReleaseConfirmDescription,
+} from "@/lib/governance-workflow-release-copy";
 
 type GovernanceWorkflowDialogsProps = {
   pendingPromote: { manifestId: string; targetEnv: string } | null;
@@ -39,14 +44,17 @@ export function GovernanceWorkflowDialogs(props: GovernanceWorkflowDialogsProps)
             pendingPromoteRequestRef.current = null;
           }
         }}
-        title="Promote manifest?"
+        title={GOVERNANCE_WORKFLOW_RELEASE_CONFIRM_TITLE}
         description={
           pendingPromote !== null
-            ? `Promoting manifest ${pendingPromote.manifestId} to ${pendingPromote.targetEnv}. This will replace the current active manifest in that environment.`
+            ? governanceWorkflowReleaseConfirmDescription(
+                pendingPromote.manifestId,
+                pendingPromote.targetEnv,
+              )
             : ""
         }
         variant="default"
-        confirmLabel="Promote"
+        confirmLabel={GOVERNANCE_WORKFLOW_RELEASE_CONFIRM_BUTTON}
         busy={promoteBusy}
         onConfirm={() => {
           void onConfirmPromote();

@@ -14,6 +14,11 @@ import {
   governanceWorkflowRefreshRunDataTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import {
+  GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_HELPER,
+  GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_LABEL,
+  GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_PLACEHOLDER,
+} from "@/lib/governance-workflow-release-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -116,17 +121,17 @@ export function GovernanceWorkflowQueryCard(props: GovernanceWorkflowQueryCardPr
             </div>
             {canMutateWorkflow && !buyerPolishedShell ? (
               <div className="grid gap-2">
-                <Label htmlFor="gov-workflow-actor">Your name for the audit trail (promote and activate)</Label>
+                <Label htmlFor="gov-workflow-actor">{GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_LABEL}</Label>
                 <Input
                   id="gov-workflow-actor"
                   value={workflowActor}
                   onChange={(e) => setWorkflowActor(e.target.value)}
-                  placeholder="Display name recorded with promote and activate actions"
+                  placeholder={GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_PLACEHOLDER}
                   autoComplete="username"
                   title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
                 />
                 <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  This is stored with promotion and activation records alongside your signed-in account.
+                  {GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_HELPER}
                 </p>
               </div>
             ) : null}

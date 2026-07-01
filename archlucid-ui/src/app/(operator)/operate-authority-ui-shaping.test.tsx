@@ -550,7 +550,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
       // Promotions / activations `h3` is inside the default-closed `AdvancedOptionsAccordion`; Radix unmounts
       // closed panel content, so open it before querying the heading.
-      const advancedToggle = screen.getByRole("button", { name: /^Environment promotions and activations$/ });
+      const advancedToggle = screen.getByRole("button", { name: /^Environment releases and activations$/ });
 
       fireEvent.click(advancedToggle);
 

@@ -123,7 +123,7 @@ export const governanceDashboardLineageLinkTitle = "Read-only approval and revie
 
 /** Governance dashboard — **Review** opens workflow for the review (`governance/dashboard/page.tsx`). */
 export const governanceDashboardOpenWorkflowReviewTitleOperator =
-  "Open governance workflow for this review to continue promotion steps.";
+  "Open governance workflow for this review to continue governance release steps.";
 
 export const governanceDashboardOpenWorkflowReviewTitleReader =
   "Open workflow for inspection; approve or reject actions need operator-level permission in this workspace.";
@@ -328,14 +328,14 @@ export const governanceDashboardPendingClearReaderSupplement =
 
 /** Governance workflow — “Approval requests for a review” card description by rank. */
 export const governanceWorkflowQueryCardDescriptionReader =
-  "Load a review to see its approval requests. Approving, promoting, and activating require approver rights on your account.";
+  "Load a review to see its approval requests. Approving, releasing to environment, and activating require approver rights on your account.";
 
 /** Buyer-polished shell: avoids “approver rights” jargon; sample-first framing. */
 export const governanceWorkflowQueryCardDescriptionBuyerPolished =
   "The sample below shows a completed approval trail for the Claims Intake review. In production, choose a review to load its workflow history; approving and activating follow your organization’s role policy.";
 
 export const governanceWorkflowQueryCardDescriptionOperator =
-  "Pick a review, then load its approval requests. Approve or reject submitted requests, promote approved architecture snapshots, and activate in the target environment when ready.";
+  "Pick a review, then load its approval requests. Approve or reject submitted requests, release approved architecture snapshots to the target environment, and activate when ready.";
 
 /** No rows returned for the loaded review — reader copy references submit section position when inspect-first layout is used. */
 export const governanceWorkflowNoApprovalsReaderHint =
@@ -355,17 +355,18 @@ export const governanceWorkflowApproveButtonLabelReaderRank = "Approve (needs ap
 
 export const governanceWorkflowRejectButtonLabelReaderRank = "Reject (needs approver rights)";
 
-export const governanceWorkflowPromoteButtonLabelReaderRank = "Promote (needs approver rights)";
+export const governanceWorkflowPromoteButtonLabelReaderRank =
+  "Release to environment (needs approver rights)";
 
 export const governanceWorkflowActivateButtonLabelReaderRank = "Activate (needs approver rights)";
 
-/** Governance workflow — under “Promotions & activations” for Execute+ (timeline + actions). */
+/** Governance workflow — under environment releases + activations for Execute+ (timeline + actions). */
 export const governanceWorkflowPromotionsActivationsSectionLeadOperator =
-  "Promote approved rows, then activate for the target environment.";
+  "Release approved rows to the target environment, then activate when ready.";
 
-/** Governance workflow — same section for read tier (Activate/Promote buttons stay disabled in the shell). */
+/** Governance workflow — same section for read tier (Release/Activate buttons stay disabled in the shell). */
 export const governanceWorkflowPromotionsActivationsSectionLeadReader =
-  "Read-only timeline; Promote and Activate require approver rights (API).";
+  "Read-only timeline; Release to environment and Activate require approver rights (API).";
 
 /** Governance workflow — outcome banner under headers (`governance/page.tsx`): scope vs Policy packs / resolution. */
 export const governanceWorkflowOutcomeBannerLine =
@@ -497,18 +498,19 @@ export const alertRoutingSubscriptionsEmptyReaderLine =
 
 export const alertRoutingSubscriptionsEmptyOperatorLine = "None yet.";
 
-/** Governance workflow — promotions timeline empty (after a run is loaded). */
+/** Governance workflow — governance release timeline empty (after a run is loaded). */
 export const governanceWorkflowPromotionsEmptyReaderHint =
-  "None yet. Rows appear after an operator promotes an approved request.";
+  "None yet. Rows appear after an operator releases an approved request to the target environment.";
 
-export const governanceWorkflowPromotionsEmptyOperatorHint = "Promote an approved request to see rows here.";
+export const governanceWorkflowPromotionsEmptyOperatorHint =
+  "Release an approved request to the target environment to see rows here.";
 
 /** Governance workflow — activations list empty. */
 export const governanceWorkflowActivationsEmptyReaderHint =
-  "None yet. Appear after an operator activates a promotion; inspect-only at your rank.";
+  "None yet. Appear after an operator activates a governance release; inspect-only at your rank.";
 
 export const governanceWorkflowActivationsEmptyOperatorHint =
-  "Use Activate on a promotion card after promotions exist.";
+  "Use Activate on a governance release card after releases exist.";
 
 /** Alerts inbox — filtered empty state (Reader: deemphasize triage/configure as primary path). */
 export const alertsFilteredEmptyDescriptionReader =

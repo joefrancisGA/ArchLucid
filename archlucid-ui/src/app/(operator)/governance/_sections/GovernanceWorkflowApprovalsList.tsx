@@ -14,7 +14,6 @@ import {
   governanceWorkflowNoApprovalsReaderHint,
   governanceWorkflowPendingReviewReaderNote,
   governanceWorkflowPendingReviewReaderNoteBuyerPolished,
-  governanceWorkflowPromoteButtonLabelReaderRank,
   governanceWorkflowRejectButtonLabelReaderRank,
   governanceWorkflowReviewSubmitButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
@@ -22,6 +21,10 @@ import {
   governanceNoApprovalsGettingStartedOperator,
   governanceNoApprovalsGettingStartedReader,
 } from "@/lib/governance-workflow-empty-guidance";
+import {
+  GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON,
+  GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON_READER,
+} from "@/lib/governance-workflow-release-copy";
 import { buyerSafeGovernanceActorLabel } from "@/lib/buyer-demo-persona-labels";
 import { buyerGovernanceWorkflowStatusLabel } from "@/lib/buyer-governance-workflow-status-labels";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -287,7 +290,9 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                         setPendingReview(null);
                       }}
                     >
-                      {canMutateWorkflow ? "Promote" : governanceWorkflowPromoteButtonLabelReaderRank}
+                      {canMutateWorkflow
+                        ? GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON
+                        : GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON_READER}
                     </Button>
                   )
                 ) : null}
