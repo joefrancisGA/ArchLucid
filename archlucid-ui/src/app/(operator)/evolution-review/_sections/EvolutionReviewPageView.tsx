@@ -8,6 +8,7 @@ import { SimulationRunDiffCard } from "@/components/evolution/SimulationRunDiffC
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { buildEvolutionSimulationReportFileUrl } from "@/lib/evolution-simulation-report-urls";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +19,7 @@ type Props = {
 };
 
 /**
- * Change simulation: browse proposed architecture changes, their expected impact, and before-and-after comparisons per review baseline.
+ * Impact preview: browse proposed architecture changes, their expected impact, and before-and-after comparisons per review baseline.
  */
 export function EvolutionReviewPageView(props: Props) {
   const m = props.model;
@@ -26,7 +27,7 @@ export function EvolutionReviewPageView(props: Props) {
   if (m.isDemo) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
-        capability="Change simulation"
+        capability="Impact preview"
         description="In a connected tenant, operators preview the expected impact of a proposed architecture change with a before-and-after comparison."
       />
     );
@@ -36,7 +37,7 @@ export function EvolutionReviewPageView(props: Props) {
 
   return (
     <div className="max-w-5xl">
-      <OperatorPageHeader title="Change simulation" />
+      <OperatorPageHeader title={OPERATOR_NAV_LINK_LABELS.evolutionCandidates} />
       <p className={cn("max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         Preview the expected impact of a proposed architecture change before implementation. Each proposed change
         carries its expected impact and a side-by-side <strong>before-and-after comparison</strong> against the review

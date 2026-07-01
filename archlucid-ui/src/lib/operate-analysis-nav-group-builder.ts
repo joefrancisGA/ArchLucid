@@ -59,7 +59,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/evolution-review",
           label: OPERATOR_NAV_LINK_LABELS.evolutionCandidates,
-          title: "Change simulation — preview expected impact of proposed architecture changes",
+          title: "Impact preview — preview expected impact of proposed architecture changes on governance posture",
           icon: GitBranch,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",

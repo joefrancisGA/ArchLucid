@@ -15691,6 +15691,8 @@ Update the nav label for `/integrations/readiness` in `OperateIntegrationsNavGro
 
 ## TB-531 — Rename "Policy resolution" to "Standards & rules" (P2)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** "Policy resolution" is the internal technical term for conflict resolution between policy packs. Enterprise reviewers call these "standards" or "compliance rules." The current label leaks implementation vocabulary.
 
 **Approach:**
@@ -15713,6 +15715,8 @@ Update the nav label for `/governance/resolution` in `OperateGovernanceNavGroupB
 ---
 
 ## TB-532 — Add governance progress nudge after first review commit (P2)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** After the first review is committed, there is no affordance in the nav indicating that governance features exist and are now unlocked. Users have no signal to progress to the Governance workflow.
 
@@ -15737,6 +15741,8 @@ When `hasCommittedArchitectureReview` is `true` AND `operateNavUnlockPhase < 2`,
 
 ## TB-533 — Move "Recurrence schedules" out of Governance group (P3)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** "Recurrence schedules" (`/governance/recurrence-schedules`) is in the Governance nav group but is a scheduling configuration tool, not a governance decision workflow. Its placement blurs the boundary between governance decisions and settings configuration.
 
 **Approach:**
@@ -15758,6 +15764,8 @@ Move the link to the Integrations group or to Settings. If retained in Governanc
 ---
 
 ## TB-534 — Rename "Change simulation" to "Impact preview" (P3)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** "Change simulation" (`/evolution-review`) in the Analysis group does not communicate governance context. "Impact preview" is more descriptive of the page's purpose: previewing the expected governance impact of proposed architecture changes.
 
@@ -15782,6 +15790,8 @@ Update the nav label and page title for `/evolution-review` in `OperateAnalysisN
 ---
 
 ## TB-535 — Distinguish `warning`/`medium` severity badges from `error`/`high` (P1)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** `severityTagClass("warning")` and `"medium"` render with an inline white background (`bg-al-surface-raised`) while `"error"` and `"high"` use the semantic `--al-status-warn-bg` token. Visual output is near-identical amber, collapsing the severity gradient for governance reviewers who rely on color to triage findings.
 
@@ -15812,6 +15822,8 @@ Or introduce a new CSS variable `--al-status-warn-secondary-bg/fg` for the light
 
 ## TB-536 — Fix GraphStaticFallback copy: remove "Sample" from production loading state (P1)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** `GraphStaticFallback` renders "Sample evidence trail — the interactive graph appears here when the viewer finishes loading." This component fires during normal React Flow initialization in production. Enterprise architects waiting for their real graph see "Sample" and may assume they are looking at demo data.
 
 **Approach:**
@@ -15840,6 +15852,8 @@ In `GraphStaticFallback.tsx`:
 ---
 
 ## TB-537 — Rename FindingInspectFindingBody CTA from "artifacts & graph" to "Open review summary" (P1)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** For non-demo runs, `reviewContextLabel = "Open review detail (artifacts & graph)"`. "artifacts & graph" is internal pipeline vocabulary in a buyer-visible CTA on the finding inspect page.
 
@@ -15888,6 +15902,8 @@ const reviewContextLabel =
 
 ## TB-539 — OperatorCorePilotDiagnosticsChecklist KPI tiles: use OPERATOR_TYPOGRAPHY.kpiValue (P2)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** Metric `<dd>` elements use inline `text-lg font-bold` — smaller and using `bold` instead of `semibold` vs. the `kpiValue` / `executiveDashboardMetric` tokens. Creates visual inconsistency with all other metric tiles in the product.
 
 **Approach:**
@@ -15903,6 +15919,8 @@ Replace `text-lg font-bold text-neutral-900 dark:text-neutral-100` on `<dd>` ele
 ---
 
 ## TB-540 — Fix governance page toast double-style concatenation (P2)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** The governance toast class string concatenates an inline base (`rounded-lg px-4 py-3 shadow-lg`) with the callout token class, producing duplicate `rounded-*` and `px-*/py-*` declarations and a redundant trailing `border` class.
 
@@ -15935,6 +15953,8 @@ Extract toast positioning to a wrapper class. Use only the callout token for sur
 
 ## TB-541 — Add explicit `cn` import to planning-table-styles.ts (P2)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** `planning-table-styles.ts` calls `cn()` without a visible import statement. Either the import is missing (lint error) or relies on an implicit barrel. Explicit imports are required by the no-inline-imports workspace rule.
 
 **Approach:**
@@ -15953,6 +15973,8 @@ import { cn } from "@/lib/utils";
 ---
 
 ## TB-542 — OperatorCorePilotDiagnosticsChecklist: use OPERATOR_CARD.nested for metric tiles (P2)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** Metric tile `<div>` elements use inline `px-2 py-2`. The token `OPERATOR_CARD.nested = "p-3"` exists exactly for "Nested raised surface inside a card (metrics, run rows, empty states)."
 
@@ -16005,6 +16027,8 @@ return (
 
 ## TB-544 — Rename "Unknown" severity badge to "Unclassified" and add distinct visual treatment (P1)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** `severityTagClass("unknown")` renders same visual as `enterpriseStatusTagClass("neutral")`. Enterprise reviewers see "Unknown" severity in findings tables with no visual distinction from a missing-data state. The label "Unknown" is more alarming than "Unclassified."
 
 **Approach:**
@@ -16030,6 +16054,8 @@ return (
 ---
 
 ## TB-545 — Rename FindingInspectContextDebugPanel toggle from "Debug: View Raw Context" (P0)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** The toggle label "Debug: View Raw Context" is visible to all operators on the finding inspect page. Enterprise buyers, CTOs, and auditors opening a finding see a "Debug" toggle — an unconditional trust signal that this is an engineering prototype, not an enterprise product. The description also references "LLM user prompt" which may surprise buyers before they understand ArchLucid's AI trust model.
 
@@ -16067,6 +16093,8 @@ if (callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) return null;
 
 ## TB-546 — Gate OperatorCorePilotDiagnosticsChecklist to AdminAuthority (P0)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** The checklist exposes internal telemetry language visible to all full-shell operators: "Server-tracked onboarding signals (this deployment)", "process-lifetime for this deployment and reset when the API host restarts", "Registration/session signal", "Finalization signal", "finalize counter", "pipeline persists". This is a DevOps monitoring panel, not a user-facing product feature.
 
 **Approach:**
@@ -16094,6 +16122,8 @@ Option B — rewrite as user-facing first-review progress card, removing all dep
 ---
 
 ## TB-547 — Remove "dev"/"test" environment defaults from governance approval submit form (P1)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** `submitSource` defaults to `"dev"` and `submitTarget` to `"test"` — DevOps environment names pre-filled in an architecture review governance approval form. Operators submitting their first approval see these values and may assume they are managing software deployments.
 

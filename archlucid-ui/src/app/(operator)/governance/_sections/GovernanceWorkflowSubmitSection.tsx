@@ -199,7 +199,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               type="button"
               data-testid="governance-submit-approval-button"
               onClick={() => void onSubmitApproval()}
-              disabled={submitBusy || !canMutateWorkflow || submitRunId.trim().length === 0}
+              disabled={submitBusy || !canMutateWorkflow || submitRunId.trim().length === 0 || submitSource.trim().length === 0 || submitTarget.trim().length === 0}
               title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
             >
               {submitBusy

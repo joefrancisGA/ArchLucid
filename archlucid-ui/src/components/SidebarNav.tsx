@@ -1,9 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useState } from "react";
 
 import { SidebarRecentActivityCard } from "@/components/SidebarRecentActivityCard";
+import { GovernanceAvailableSidebarNudge } from "@/components/sidebar-nav/GovernanceAvailableSidebarNudge";
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
 import { OperateFeaturesUnlockPanel } from "@/components/usability/OperateFeaturesUnlockPanel";
 import { OperateUnlockAutoHint } from "@/components/usability/OperateUnlockAutoHint";
@@ -113,24 +114,31 @@ export function SidebarNav() {
           : row.group.id === "pilot";
 
         return (
-          <SidebarNavCluster
-            key={row.group.id}
-            row={row}
-            pathname={pathname}
-            demoUi={demoUi}
-            buyerPolishedShell={buyerPolishedShell}
-            hasCommittedArchitectureReview={effectiveHasCommittedArchitectureReview}
-            effectiveOperateUnlockPhase={effectiveOperateUnlockPhase}
-            isCollapsible={collapsible}
-            isExpanded={isExpanded}
-            onToggleExpanded={
-              collapsible
-                ? () => {
-                    toggleGroupExpanded(row.group.id as SidebarCollapsibleNavGroupId);
-                  }
-                : undefined
-            }
-          />
+          <Fragment key={row.group.id}>
+            <SidebarNavCluster
+              row={row}
+              pathname={pathname}
+              demoUi={demoUi}
+              buyerPolishedShell={buyerPolishedShell}
+              hasCommittedArchitectureReview={effectiveHasCommittedArchitectureReview}
+              effectiveOperateUnlockPhase={effectiveOperateUnlockPhase}
+              isCollapsible={collapsible}
+              isExpanded={isExpanded}
+              onToggleExpanded={
+                collapsible
+                  ? () => {
+                      toggleGroupExpanded(row.group.id as SidebarCollapsibleNavGroupId);
+                    }
+                  : undefined
+              }
+            />
+            {row.group.id === "pilot" ? (
+              <GovernanceAvailableSidebarNudge
+                hasCommittedArchitectureReview={effectiveHasCommittedArchitectureReview}
+                operateNavUnlockPhase={effectiveOperateUnlockPhase}
+              />
+            ) : null}
+          </Fragment>
         );
       })}
 

@@ -60,7 +60,7 @@ const PAGES = [
   { name: "Alerts composite tab", path: "/alerts?tab=composite" },
   { name: "Executive Workspace Health", path: "/governance/dashboard" },
   { name: "Approval queue", path: "/governance" },
-  { name: "Policy resolution", path: "/governance/resolution" },
+  { name: "Standards & rules", path: "/governance/resolution" },
   { name: "Governance findings queue", path: "/governance/findings" },
   { name: "Governance policy packs", path: "/governance/policy-packs" },
   {

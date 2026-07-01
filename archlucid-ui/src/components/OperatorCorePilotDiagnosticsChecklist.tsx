@@ -1,9 +1,11 @@
 "use client";
-import { OPERATOR_HOME_SUBSECTION_LABEL, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_HOME_SUBSECTION_LABEL, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useSyncExternalStore, useState } from "react";
+
+import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
@@ -20,12 +22,14 @@ import {
   CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS,
 } from "@/lib/core-pilot-first-review-copy";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 /**
  * Progressive-disclosure checklist summary: aligns Core Pilot titles with `/v1/diagnostics/operator-task-success-rates`
  * counters (sessions / finalized runs) plus local checklist storage. Companion to the richer first-review checklist sidebar.
  */
 export function OperatorCorePilotDiagnosticsChecklist() {
+  const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const [rates, setRates] = useState<OperatorTaskSuccessRates | null>(null);
 
   const [ratesError, setRatesError] = useState<string | null>(null);
@@ -72,6 +76,10 @@ export function OperatorCorePilotDiagnosticsChecklist() {
 
   const sessionRecorded = rates !== null ? rates.firstSessionCompletedTotal >= 1 : false;
 
+  if (isAuthorityLoading || callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
+    return null;
+  }
+
   return (
     <OperatorHomeDisclosureSection
       title="First review checklist"
@@ -110,17 +118,17 @@ export function OperatorCorePilotDiagnosticsChecklist() {
 
         {rates !== null ? (
           <dl className="m-0 mt-3 grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-md border border-neutral-200 px-2 py-2 dark:border-neutral-700">
+            <div className={cn("rounded-md border border-neutral-200 dark:border-neutral-700", OPERATOR_CARD.nested)}>
               <dt className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>Sessions</dt>
-              <dd className="m-0 text-lg font-bold text-neutral-900 dark:text-neutral-100">{rates.firstSessionCompletedTotal}</dd>
+              <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.executiveDashboardMetric)}>{rates.firstSessionCompletedTotal}</dd>
             </div>
-            <div className="rounded-md border border-neutral-200 px-2 py-2 dark:border-neutral-700">
+            <div className={cn("rounded-md border border-neutral-200 dark:border-neutral-700", OPERATOR_CARD.nested)}>
               <dt className={cn("uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Finalized</dt>
-              <dd className="m-0 text-lg font-bold text-neutral-900 dark:text-neutral-100">{rates.firstRunCommittedTotal}</dd>
+              <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.executiveDashboardMetric)}>{rates.firstRunCommittedTotal}</dd>
             </div>
-            <div className="rounded-md border border-neutral-200 px-2 py-2 dark:border-neutral-700">
+            <div className={cn("rounded-md border border-neutral-200 dark:border-neutral-700", OPERATOR_CARD.nested)}>
               <dt className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>Conversion</dt>
-              <dd className="m-0 text-lg font-bold text-neutral-900 dark:text-neutral-100">
+              <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.executiveDashboardMetric)}>
                 {rates.firstSessionCompletedTotal > 0
                   ? `${Math.round(rates.firstRunCommittedPerSessionRatio * 100)}%`
                   : "—"}

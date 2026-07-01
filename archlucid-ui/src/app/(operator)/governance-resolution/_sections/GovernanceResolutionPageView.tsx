@@ -22,6 +22,7 @@ import {
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { triggerGovernanceResolutionMarkdownDownload } from "@/lib/governance-resolution-markdown";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +44,7 @@ export function GovernanceResolutionPageView(props: Props) {
         collapsibleGuidance="About policy resolution"
       />
       <OperatorPageHeader
-        title="Policy resolution"
+        title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
         subtitle={canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
       />
       <GovernanceResolutionRankCue className="mb-3" />

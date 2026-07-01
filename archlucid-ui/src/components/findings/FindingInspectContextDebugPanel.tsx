@@ -109,10 +109,10 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
             htmlFor={toggleId}
             className={cn(OPERATOR_TYPOGRAPHY.badge, "font-semibold text-neutral-800 dark:text-neutral-100")}
           >
-            Debug: View Raw Context
+            Evidence trace detail
           </label>
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Shows cited evidence excerpts, provenance context steps, and the redacted LLM user prompt the model saw.
+            Shows the evidence excerpts and analysis context used to produce this finding.
           </p>
         </div>
         <input

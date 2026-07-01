@@ -395,7 +395,7 @@ export const SEVERITY_LABELS: Readonly<Record<FindingSeverityKind, string>> = {
   medium: "Medium",
   low: "Low",
   info: "Info",
-  unknown: "Unknown",
+  unknown: "Unclassified",
 };
 
 export function normalizeFindingSeverity(raw: string | null | undefined): FindingSeverityKind {
@@ -554,7 +554,7 @@ export function severityTagClass(kind: FindingSeverityKind): string {
 
     case "warning":
     case "medium":
-      return `${STATUS_TAG_BASE} border-amber-600/40 bg-al-surface-raised text-al-text-primary`;
+      return `${STATUS_TAG_BASE} border-amber-500/40 bg-amber-50/60 text-amber-900 dark:border-amber-600/40 dark:bg-amber-950/30 dark:text-amber-200`;
 
     case "low":
       return `${STATUS_TAG_BASE} border-neutral-400 bg-al-surface-raised text-al-text-secondary`;
@@ -563,7 +563,7 @@ export function severityTagClass(kind: FindingSeverityKind): string {
       return `${STATUS_TAG_BASE} border-blue-700/40 bg-al-surface-raised text-al-text-primary`;
 
     case "unknown":
-      return `${STATUS_TAG_BASE} border-neutral-300 bg-al-surface-raised text-al-text-secondary`;
+      return `${STATUS_TAG_BASE} border-dashed border-neutral-400 bg-al-surface-raised text-al-text-secondary dark:border-neutral-600`;
 
     default: {
       const exhaustive: never = kind;

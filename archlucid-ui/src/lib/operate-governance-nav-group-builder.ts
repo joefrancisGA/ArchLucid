@@ -2,7 +2,6 @@ import {
   AlertTriangle,
   Bell,
   CalendarCheck,
-  CalendarClock,
   FileSearch,
   Gavel,
   GitBranch,
@@ -89,14 +88,6 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           keyShortcut: "alt+l",
           icon: Bell,
           tier: "advanced",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/governance/recurrence-schedules",
-          label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
-          title: "Recurrence schedules — automated follow-up architecture reviews after commit",
-          icon: CalendarClock,
-          tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
         {

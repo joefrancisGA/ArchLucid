@@ -249,7 +249,7 @@ describe("operator client pages — render gate", () => {
   it("EvolutionReviewPage renders primary heading", async () => {
     const page = await EvolutionReviewPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Change simulation" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Impact preview" })).toBeInTheDocument();
   });
 
   it("EvolutionReviewPage does not render internal codename '60R' in user-visible output", async () => {
@@ -277,7 +277,7 @@ describe("operator client pages — render gate", () => {
   it("GovernanceResolutionPage renders primary heading", async () => {
     const page = await GovernanceResolutionPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Policy resolution" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Standards & rules" })).toBeInTheDocument();
   });
 
   it("SearchPage renders primary heading without heading-level contextual help", async () => {

@@ -57,7 +57,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   "recommendation-learning": OPERATOR_NAV_LINK_LABELS.recommendationTuning,
   "product-learning": OPERATOR_NAV_LINK_LABELS.pilotFeedback,
   planning: "Planning",
-  "evolution-review": "Change simulation",
+  "evolution-review": "Impact preview",
   "advisory-scheduling": "Schedules",
   digests: "Digests",
   "digest-subscriptions": "Subscriptions",

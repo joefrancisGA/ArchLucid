@@ -76,7 +76,7 @@ describe("FindingInspectContextDebugPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByLabelText("Debug: View Raw Context"));
+    fireEvent.click(screen.getByLabelText("Evidence trace detail"));
 
     await waitFor(() => {
       expect(getFindingProvenance).toHaveBeenCalledWith("claims-intake-modernization", "phi-minimization-risk");

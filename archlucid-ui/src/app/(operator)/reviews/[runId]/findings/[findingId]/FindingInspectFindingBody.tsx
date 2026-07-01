@@ -49,9 +49,7 @@ export function FindingInspectFindingBody({
   const reviewContextLabel =
     surface === "executive"
       ? "Open risk review"
-      : isDemoRunIdEligibleForStaticFallback(runId)
-        ? "Open cited evidence"
-        : "Open review detail (artifacts & graph)";
+      : "Open review summary";
   const labels = findingInspectPrimaryLabels(payload);
   const citationModel = buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, payload);
   const whyThisMattersNarrative = findingWhyThisMattersText(payload);

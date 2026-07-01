@@ -15,6 +15,37 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
+---
+
+## Quick reference: which channel logs what
+
+**Audience:** security reviewers scanning durability and channel choice in under a minute. Field definitions and immutability depth: **[`AUDIT_EVENT_MODEL.md`](AUDIT_EVENT_MODEL.md)**.
+
+### Channels (one row per channel)
+
+| Channel | Storage target | Mutability guarantee | Example event types | Why this channel (durable vs log-only) |
+|---------|----------------|----------------------|---------------------|----------------------------------------|
+| **Durable SQL audit** | `dbo.AuditEvents` via `IAuditService.LogAsync` | **Append-only** for app role `ArchLucidApp` (`DENY UPDATE` / `DENY DELETE`; migration **`051_AuditEvents_DenyUpdateDelete.sql`**) | `RunStarted`, `GovernanceApprovalSubmitted`, `PolicyPackAssignmentCreated`, `GovernancePreCommitWarned` | **Authoritative tenant-scoped audit trail** — queryable via `GET /v1/audit`, export, and correlation search; this is what buyers mean by “audit log.” |
+| **Baseline mutation log** | Structured **`ILogger`** lines only (`IBaselineMutationAuditService.RecordAsync`) | **Not** SQL append-only — follows **log pipeline retention/rotation** (SIEM or host logs) | `Baseline.Architecture.RunStarted`, `Baseline.Architecture.RunCompleted`, `Baseline.Governance.ApprovalSubmitted` | **Orchestration hot-path telemetry** — grep-friendly structured lines at mutation time; **not** the compliance ledger because rows are **not** written to `dbo.AuditEvents` unless explicitly bridged (see coordinator **`Run.*`** durable echo below). |
+| **Platform SQL audit** | `dbo.PlatformAuditEvents` via `IPlatformAuditRepository.AppendAsync` | **Append-only** for app role `ArchLucidApp` (`DENY UPDATE` / `DENY DELETE`; migration **`168_PlatformAuditEvents.sql`**) | `TenantDataDeleted`, `TenantErasureOffboarded`, `TenantErasureApproved`, `SampleRunsPurged` | **Cross-tenant operator ledger** — actions that sit **outside** tenant session scope (offboarding, erasure, platform purge); **not** returned by tenant-scoped `/v1/audit` filters. |
+
+**Coordinator bridge:** architecture run create / execute / commit / fail records **`Baseline.Architecture.*`** to the log-only channel first, then **`BaselineMutationAuditService`** echoes **`AuditEventTypes.Run.*`** into **`dbo.AuditEvents`** (retried on the critical path). Governance workflow **dual-writes** baseline **`Baseline.Governance.*`** **and** durable top-level governance types.
+
+### Workflow areas → channel (where to look)
+
+| Workflow area | Channel that records it | Durability guarantee | Representative event types |
+|---------------|-------------------------|----------------------|----------------------------|
+| **Governance** (approval submit/approve/reject, manifest promote, environment activate, dry-run) | **Durable SQL** (+ baseline log dual-write for workflow service) | Append-only SQL | `GovernanceApprovalSubmitted`, `GovernanceManifestPromoted`, `GovernanceDryRunRequested` |
+| **Policy packs** (create, assign, archive, catalog promote) | **Durable SQL** | Append-only SQL | `PolicyPackAssigned`, `PolicyPackAssignmentCreated`, `PolicyPackCatalogPromoted` |
+| **Pre-commit gate** (warn / block on commit) | **Durable SQL** (direct `IAuditService`; no baseline row) | Append-only SQL | `GovernancePreCommitWarned` |
+| **Baseline mutation** (coordinator run lifecycle) | **Baseline log** **and** **durable echo** (`Run.*`) | Log: pipeline retention; SQL echo: append-only | Log: `Baseline.Architecture.RunStarted`; SQL: `Run.ExecuteStarted`, `Run.CommitCompleted` |
+| **Cross-tenant operator action** (tenant delete, erasure, legal hold, sample purge) | **Platform SQL** | Append-only SQL | `TenantDataDeleted`, `TenantErasureOffboarded`, `TenantErasureLegalHoldSet` |
+| **Authority / advisory pipeline** (run start/complete, manifest, exports) | **Durable SQL** | Append-only SQL | `RunStarted`, `RunCompleted`, `ManifestGenerated`, `ArtifactDownloaded` |
+
+Full operation-level rows: **Operations → durable audit** and **Baseline mutation logging only** below. Known intentional absences (dry-run, LLM assist, read-path probes): **Known gaps**.
+
+---
+
 <!-- audit-core-const-count:283 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.

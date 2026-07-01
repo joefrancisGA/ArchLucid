@@ -38,7 +38,7 @@ import {
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { CtoDemoGovernancePreviewHint } from "@/components/OperateCapabilityHints";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
   isStaticDemoPayloadFallbackEnabled,
@@ -100,8 +100,8 @@ export function GovernanceWorkflowPageContent() {
 
   const [submitRunId, setSubmitRunId] = useState(isDemoShell ? SHOWCASE_STATIC_DEMO_RUN_ID : "");
   const [submitManifestVersion, setSubmitManifestVersion] = useState(isDemoShell ? "3.4.1" : "");
-  const [submitSource, setSubmitSource] = useState<string>("dev");
-  const [submitTarget, setSubmitTarget] = useState<string>("test");
+  const [submitSource, setSubmitSource] = useState<string>("");
+  const [submitTarget, setSubmitTarget] = useState<string>("");
   const [submitComment, setSubmitComment] = useState("");
   const [submitBusy, setSubmitBusy] = useState(false);
 
@@ -582,17 +582,16 @@ export function GovernanceWorkflowPageContent() {
       ) : null}
 
       {toast ? (
-        <div
-          role="status"
-          className={cn(
-            "fixed bottom-6 right-6 z-50 max-w-sm rounded-lg px-4 py-3 shadow-lg",
-            OPERATOR_TYPOGRAPHY.body,
-            toast.kind === "ok"
-              ? "rounded-md border border-emerald-700/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-emerald-800/50 border"
-              : "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50 border",
-          )}
-        >
-          {toast.message}
+        <div className="fixed bottom-6 right-6 z-50 max-w-sm" role="status">
+          <div
+            className={cn(
+              OPERATOR_TYPOGRAPHY.body,
+              "shadow-lg",
+              toast.kind === "ok" ? DESIGN_TOKENS.callout.success : DESIGN_TOKENS.callout.blocked,
+            )}
+          >
+            {toast.message}
+          </div>
         </div>
       ) : null}
 
