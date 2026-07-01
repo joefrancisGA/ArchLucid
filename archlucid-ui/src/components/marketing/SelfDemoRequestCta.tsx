@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useSearchParams } from "next/navigation";
 
@@ -10,7 +10,7 @@ import { recordMarketingCtaSelfDemoClick } from "@/lib/marketing/marketing-clari
 
 /** Owner / legal-approved disclosure (hero self-demo; does not claim paid-tenant parity). */
 export const SELF_DEMO_HERO_DISCLOSURE_COPY =
-  "Explore a synthetic architecture review — no sign-up required. Demo uses fabricated data only.";
+  "Inspect a governed sample review — no sign-up required. Uses fabricated data only.";
 
 const SELF_DEMO_DISCLOSURE_ID = "welcome-self-demo-disclosure";
 
@@ -40,16 +40,16 @@ export function SelfDemoRequestCta(props: { readonly className?: string }) {
     >
       <CtaButton
         href={href}
-        variant="outline"
+        variant="primary"
         size="lg"
         sameTab
-        className="min-h-11 w-full font-normal sm:w-auto"
+        className="min-h-11 w-full px-8 font-semibold shadow-sm sm:w-auto sm:min-w-[12rem]"
         title={SELF_DEMO_HERO_DISCLOSURE_COPY}
         ariaDescribedby={SELF_DEMO_DISCLOSURE_ID}
         data-testid="welcome-self-demo-cta"
         onPressAnalytics={onPressAnalytics}
       >
-        Try the self-demo
+        Inspect a governed sample review
       </CtaButton>
       <p
         id={SELF_DEMO_DISCLOSURE_ID}
