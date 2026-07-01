@@ -82,6 +82,52 @@ export function writeOperatorDemoPanicOffline(on: boolean): void {
 }
 
 /** Curated static payloads only when demo/static-operator env flags are set (TB-274 / BE-059). */
+export function isPackagedDemoDeployEnv(): boolean {
+  return isOperatorDemoStaticMode() || isPublicDemoModeEnv();
+}
+
+export const STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS =
+  "Showing example approval records — live governance data unavailable. Refresh to reload live data.";
+
+let staticDemoFallbackOutsidePackagedDeployWarned = false;
+
+/** Logs once when frictionless-trial or presenter-offline activates static fallback outside packaged demo hosts. */
+export function warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce(): void {
+  if (staticDemoFallbackOutsidePackagedDeployWarned) {
+    return;
+  }
+
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return;
+  }
+
+  if (isPackagedDemoDeployEnv()) {
+    return;
+  }
+
+  staticDemoFallbackOutsidePackagedDeployWarned = true;
+
+  console.warn(
+    "[ArchLucid] Static demo payload fallback is active outside a packaged demo deploy (frictionless trial or presenter offline mode). Curated payloads must not be treated as live tenant data.",
+  );
+}
+
+/**
+ * Governance approval/promotion seeding is limited to packaged demo deploys so UAT workspaces with
+ * transient API failures show empty states instead of example approval records (TB-507).
+ */
+export function shouldSeedStaticDemoGovernanceRecordsForRun(runId: string): boolean {
+  if (!isPackagedDemoDeployEnv()) {
+    return false;
+  }
+
+  return isStaticDemoPayloadFallbackActiveForRun(runId);
+}
+
 export function isStaticDemoPayloadFallbackEnabled(): boolean {
   if (isOperatorDemoStaticMode() || isPublicDemoModeEnv()) {
     return true;

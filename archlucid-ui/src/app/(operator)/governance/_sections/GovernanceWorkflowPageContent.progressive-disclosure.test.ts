@@ -20,4 +20,12 @@ describe("GovernanceWorkflowPageContent progressive disclosure", () => {
     expect(source).toContain('data-testid="governance-workflow-advanced-options"');
     expect(source).toContain('triggerLabel="Environment promotions and activations"');
   });
+
+  it("labels static demo governance fallback with role=status banner", () => {
+    expect(source).toContain('data-testid="governance-static-demo-fallback-status"');
+    expect(source).toContain('role="status"');
+    expect(source).toContain("STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS");
+    expect(source).toContain("shouldSeedStaticDemoGovernanceRecordsForRun");
+    expect(source).toContain("warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce");
+  });
 });

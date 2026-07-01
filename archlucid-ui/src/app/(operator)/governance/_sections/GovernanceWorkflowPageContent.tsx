@@ -42,8 +42,11 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
   isStaticDemoPayloadFallbackEnabled,
+  shouldSeedStaticDemoGovernanceRecordsForRun,
+  STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS,
   tryStaticDemoGovernanceApprovalRequests,
   tryStaticDemoGovernancePromotions,
+  warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce,
 } from "@/lib/operator-static-demo";
 import {
   BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
@@ -74,19 +77,18 @@ export function GovernanceWorkflowPageContent() {
   const searchParams = useSearchParams();
   const canMutateWorkflow = useOperateCapability();
   const [toast, setToast] = useState<GovernanceWorkflowToastState>(null);
-  const isStaticDemoFallbackActiveForShowcase =
-    isStaticDemoPayloadFallbackEnabled() ||
-    tryStaticDemoGovernanceApprovalRequests(SHOWCASE_STATIC_DEMO_RUN_ID) !== null;
+  const isStaticDemoFallbackActiveForShowcase = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const staticGovernanceSeedAllowed = shouldSeedStaticDemoGovernanceRecordsForRun(SHOWCASE_STATIC_DEMO_RUN_ID);
 
   // Pre-seed demo state synchronously so the first render already shows the approval
   // outcome card rather than the empty / instruction-first state that appears before
   // the useEffect hydration cycle completes.
   const isDemoShell = isStaticDemoFallbackActiveForShowcase || buyerPolishedShell;
-  const initialDemoApprovals = isDemoShell
+  const initialDemoApprovals = staticGovernanceSeedAllowed
     ? (tryStaticDemoGovernanceApprovalRequests(SHOWCASE_STATIC_DEMO_RUN_ID) ?? [])
     : [];
-  const initialDemoPromotions = isDemoShell
+  const initialDemoPromotions = staticGovernanceSeedAllowed
     ? (tryStaticDemoGovernancePromotions(SHOWCASE_STATIC_DEMO_RUN_ID) ?? [])
     : [];
   const initialDemoActiveRunId: string | null = isDemoShell ? SHOWCASE_STATIC_DEMO_RUN_ID : null;
@@ -109,6 +111,9 @@ export function GovernanceWorkflowPageContent() {
   const [activations, setActivations] = useState<GovernanceEnvironmentActivation[]>([]);
   const [listsLoading, setListsLoading] = useState(false);
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
+  const [showingStaticDemoGovernanceRecords, setShowingStaticDemoGovernanceRecords] = useState(
+    staticGovernanceSeedAllowed && initialDemoApprovals.length > 0,
+  );
   const hideGovernanceQueryLoadCard = buyerPolishedShell && approvals.length > 0;
 
   const buyerSuppressGovernanceSubmitChrome =
@@ -138,6 +143,10 @@ export function GovernanceWorkflowPageContent() {
   const [activateBusyId, setActivateBusyId] = useState<string | null>(null);
 
   const demoPrefillRanRef = useRef(false);
+
+  useEffect(() => {
+    warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce();
+  }, []);
 
   useEffect(() => {
     if (toast === null) {
@@ -173,13 +182,16 @@ export function GovernanceWorkflowPageContent() {
     setListsLoading(true);
     setListFailure(null);
 
-    const optimisticApprovals = tryStaticDemoGovernanceApprovalRequests(runId);
-    const optimisticPromotions = tryStaticDemoGovernancePromotions(runId);
+    const governanceSeedAllowed = shouldSeedStaticDemoGovernanceRecordsForRun(runId);
+    const optimisticApprovals = governanceSeedAllowed ? tryStaticDemoGovernanceApprovalRequests(runId) : null;
+    const optimisticPromotions = governanceSeedAllowed ? tryStaticDemoGovernancePromotions(runId) : null;
 
     if (optimisticApprovals !== null) {
       setApprovals(optimisticApprovals);
+      setShowingStaticDemoGovernanceRecords(true);
     } else {
       setApprovals([]);
+      setShowingStaticDemoGovernanceRecords(false);
     }
 
     if (optimisticPromotions !== null) {
@@ -199,7 +211,7 @@ export function GovernanceWorkflowPageContent() {
       let nextApprovals = a;
       let nextPromotions = p;
 
-      if (nextApprovals.length === 0) {
+      if (nextApprovals.length === 0 && governanceSeedAllowed) {
         const seeded = tryStaticDemoGovernanceApprovalRequests(runId);
 
         if (seeded !== null) {
@@ -207,7 +219,7 @@ export function GovernanceWorkflowPageContent() {
         }
       }
 
-      if (nextPromotions.length === 0) {
+      if (nextPromotions.length === 0 && governanceSeedAllowed) {
         const seededP = tryStaticDemoGovernancePromotions(runId);
 
         if (seededP !== null) {
@@ -218,20 +230,23 @@ export function GovernanceWorkflowPageContent() {
       setApprovals(nextApprovals);
       setPromotions(sortGovernancePromotions(nextPromotions));
       setActivations(sortGovernanceActivations(act));
+      setShowingStaticDemoGovernanceRecords(governanceSeedAllowed && a.length === 0 && nextApprovals.length > 0);
     } catch (e) {
       const fail = toApiLoadFailure(e);
       setApprovals([]);
       setPromotions([]);
       setActivations([]);
+      setShowingStaticDemoGovernanceRecords(false);
 
       const idForDemo = runId.trim();
 
-      if (idForDemo.length > 0) {
+      if (idForDemo.length > 0 && governanceSeedAllowed) {
         const seeded = tryStaticDemoGovernanceApprovalRequests(idForDemo);
         const seededP = tryStaticDemoGovernancePromotions(idForDemo);
 
         if (seeded !== null) {
           setApprovals(seeded);
+          setShowingStaticDemoGovernanceRecords(true);
         }
 
         if (seededP !== null) {
@@ -636,6 +651,18 @@ export function GovernanceWorkflowPageContent() {
           workflowActor={workflowActor}
           setWorkflowActor={setWorkflowActor}
         />
+        {showingStaticDemoGovernanceRecords ? (
+          <p
+            role="status"
+            data-testid="governance-static-demo-fallback-status"
+            className={cn(
+              "mb-4 rounded-md border border-amber-600/40 bg-amber-50/90 px-3 py-2 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+          >
+            {STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS}
+          </p>
+        ) : null}
         <GovernanceWorkflowApprovalsList
           buyerPolishedShell={buyerPolishedShell}
           canMutateWorkflow={canMutateWorkflow}

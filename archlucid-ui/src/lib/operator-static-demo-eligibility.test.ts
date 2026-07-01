@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  isPackagedDemoDeployEnv,
   isStaticDemoPayloadFallbackActiveForManifest,
   isStaticDemoPayloadFallbackActiveForRun,
   isShowcaseSpineStaticPayloadActiveForRun,
+  shouldSeedStaticDemoGovernanceRecordsForRun,
   tryStaticDemoFindingInspect,
   tryStaticDemoGoldenManifestComparison,
   tryStaticDemoRunComparison,
@@ -187,6 +189,40 @@ describe("operator-static-demo — showcase eligibility without demo env vars", 
 
     if (originalStatic !== undefined) {
       process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = originalStatic;
+    }
+  });
+
+  it("shouldSeedStaticDemoGovernanceRecordsForRun is false without packaged demo env even when demo run id matches", () => {
+    const originalDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
+    const originalStatic = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+
+    expect(isPackagedDemoDeployEnv()).toBe(false);
+    expect(shouldSeedStaticDemoGovernanceRecordsForRun(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(false);
+
+    if (originalDemo !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_MODE = originalDemo;
+    }
+
+    if (originalStatic !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = originalStatic;
+    }
+  });
+
+  it("shouldSeedStaticDemoGovernanceRecordsForRun is true for showcase run id in packaged demo env", () => {
+    const originalDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
+    process.env.NEXT_PUBLIC_DEMO_MODE = "true";
+
+    expect(isPackagedDemoDeployEnv()).toBe(true);
+    expect(shouldSeedStaticDemoGovernanceRecordsForRun(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(true);
+    expect(shouldSeedStaticDemoGovernanceRecordsForRun("not-a-demo-run")).toBe(false);
+
+    if (originalDemo !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_MODE = originalDemo;
+    } else {
+      delete process.env.NEXT_PUBLIC_DEMO_MODE;
     }
   });
 

@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-506 **Done** — security-trust data retention section). Prior: 2026-06-28 (TB-505 **Done** — security-trust tenant isolation section). Prior: 2026-06-28 (TB-479 **Done** — workspace list unavailable session copy). Prior: 2026-06-28 (TB-478 **Done** — service bus banner System health link label). Prior: 2026-06-28 (TB-477 **Done** — roles settings Finalize reviews permission label). Prior: 2026-06-28 (TB-476 **Done** — onboarding step tracker Finalize checkpoint label). Prior: 2026-06-28 (TB-475 **Done** — Rule-based analysis simulator trust badge). Prior: 2026-06-28 (TB-474 **Done** — example review defensible-layer caption). Prior: 2026-06-29 (TB-516–TB-534 added — nav/IA audit 19 P0–P2 items; FIRST_HOUR_JOURNEY_AUDIT.md and NAV_IA_AUDIT.md recreated). Prior: 2026-06-29 (TB-501–TB-515 added — enterprise trust audit 15 P0–P2 items). Prior: 2026-06-28 (TB-470 **Done** — Why ArchLucid sponsor pack source line). Prior: 2026-06-28 (TB-469 **Done** — product concepts glossary dialog description). Prior: 2026-06-28 (TB-468 **Done** — Executive value report page title). Prior: 2026-06-28 (TB-467 **Done** — Cloud connections nav label migration). Prior: 2026-06-28 (TB-461 **Done** — hero step 3 Finalize review package). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
+**Updated:** 2026-06-30 (TB-507 **Done** — gate static demo governance fallback). Prior: 2026-06-30 (TB-560–TB-573 added — archlucid-ui performance audit cluster). Prior: 2026-06-28 (TB-506 **Done** — security-trust data retention section). Prior: 2026-06-28 (TB-505 **Done** — security-trust tenant isolation section). Prior: 2026-06-28 (TB-479 **Done** — workspace list unavailable session copy). Prior: 2026-06-28 (TB-478 **Done** — service bus banner System health link label). Prior: 2026-06-28 (TB-477 **Done** — roles settings Finalize reviews permission label). Prior: 2026-06-28 (TB-476 **Done** — onboarding step tracker Finalize checkpoint label). Prior: 2026-06-28 (TB-475 **Done** — Rule-based analysis simulator trust badge). Prior: 2026-06-28 (TB-474 **Done** — example review defensible-layer caption). Prior: 2026-06-29 (TB-516–TB-534 added — nav/IA audit 19 P0–P2 items; FIRST_HOUR_JOURNEY_AUDIT.md and NAV_IA_AUDIT.md recreated). Prior: 2026-06-29 (TB-501–TB-515 added — enterprise trust audit 15 P0–P2 items). Prior: 2026-06-28 (TB-470 **Done** — Why ArchLucid sponsor pack source line). Prior: 2026-06-28 (TB-469 **Done** — product concepts glossary dialog description). Prior: 2026-06-28 (TB-468 **Done** — Executive value report page title). Prior: 2026-06-28 (TB-467 **Done** — Cloud connections nav label migration). Prior: 2026-06-28 (TB-461 **Done** — hero step 3 Finalize review package). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -23,12 +23,12 @@
 | Traceability | 3 |
 | Interoperability | 8 |
 | Compliance readiness | 3 |
-| Performance | 1 |
+| Performance | 14 |
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
 | Code hygiene | 10 |
-| **Total (unique)** | **~189** |
+| **Total (unique)** | **~203** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-392** (per-tenant Jira/ServiceNow credentials — V1.1). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -147,6 +147,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-402 — TB-403** were added 2026-06-27 as the **V1.1 automated cloud polling** cluster. [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) commits to AWS/GCP topology ingestion via Terraform and customer-controlled inventory ZIPs (Phase 1–3); it explicitly defers **Tier 2 live API connectors** (long-lived credentials inside the customer AWS/GCP account). These two items add **hosted automated polling** for AWS (**TB-402**) and GCP (**TB-403**) at **full parity with the Azure Tier 2 extractor** shipped in V1 (see `V1_SCOPE.md §2.16`, `CloudConnectionsPageClient.tsx`, and `Integrations.AzureExtractor`). Tier 2 for Azure wires a hosted poller that holds a minimal read-only credential, runs on a schedule, uploads an inventory ZIP via `/v1/extractor/azure/upload`, and exposes a management UI at `/settings/cloud-connections`. TB-402 and TB-403 replicate that same end-to-end stack for AWS and GCP respectively. They do **not** duplicate `TB-214` (non-Azure JSON upload path, DEFERRED owner-gated), `TB-341` (multi-source evidence picker V1.1 badges), `TB-343` (cloud-connections plural copy reconciliation — Done 2026-06-19), or Phase 1–4 of `MULTI_CLOUD_ANALYSIS_V1_1.md` (topology analysis + pricing — distinct from the polling credential/scheduler/UI cluster). Owner must confirm acceptable credential model (Entra Workload Identity Federation, IAM role-ARN trust, or GCP Workload Identity before implementation begins; items are blocked on that pending question — **PQ-CLOUD-01**).
 
+**TB-560 — TB-573** were added 2026-06-30 from an **archlucid-ui performance audit** (Next.js 15 App Router; canvas `canvases/ui-performance-backlog.canvas.tsx`). The operator product shell pays a large client bundle and hydration tax: `OperatorShellTopBar` statically imports `CommandPalette` (~617 lines + `cmdk`) on every page; `FindingEvidenceGraph` statically imports `reactflow` + CSS; only **4** TanStack Query hooks exist while **80+** components still use ad-hoc `useEffect`+`fetch`; and several monolithic client files (`GovernanceFindingsQueueClient` ~1115 lines, `AlertsInboxContent` ~903, `RunsDashboardPanel` ~822) widen re-render and hydration scope. **TB-560**–**TB-565** (P1) are highest leverage (dynamic imports, Query expansion, mega-component splits, `optimizePackageImports`); **TB-566**–**TB-572** (P2) push server/client boundaries, ISR, context memoization, Suspense streaming, and telemetry deferral; **TB-573** (P2) establishes bundle-analyzer baseline + Lighthouse CI regression gate. Does **not** duplicate **TB-319** (pilot-critical performance *evidence* step — **Done**); these are engineering fixes toward fast first paint and navigation. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1 (TanStack Query), §4 (operator route caching), §7 (nested Suspense).
+
 **TB-399** was added 2026-06-23 as the **V1.1 follow-on** to the manifest terminology copy sweep (global guard **TB-355** / **TB-366**). V1 removed "manifest" from on-page labels, help, compare copy, and error strings; **browser URLs still expose** `/manifests/` and `/reviews/{runId}/manifest`, which buyers see in the address bar, bookmarks, and shared links. **TB-399** adds **buyer-facing route aliases + permanent redirects** (same pattern as `/runs` ? `/reviews` in `next.config.ts`) without renaming API contracts, persistence, or internal `manifestId` fields. **Out of scope:** `/manifest.webmanifest` (PWA platform convention); backend `/v1/authority/manifests/*` paths. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) ?9, **TB-273** (BDA manifest terminology cluster), `buyer-safe-review-navigation.ts`, `NAV_CONFIG_CONTRACT.md`.
 
 **TB-337 ? TB-344** were added 2026-06-15 from a **product-drift / onboarding narrative realignment** assessment (product-strategist + enterprise-architect + UX-architect review of the operator first-run experience). **Canonical write-up:** [`docs/architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md`](../architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md). **Finding:** the *positioning* (brand category "Architecture Proof Engine", `/welcome`, `/why`, `/get-started`, the quick-review brief-first wizard) is correctly framed as a multi-source **architecture review and governance platform**, but the highest-visibility *operator first-run spine* teaches an **Azure-assessment** mental model ? the empty-state component is literally named `OperatorHomeAzureExtractorEmptyState`, its step 1 is "Upload your Azure environment", and Core Pilot step 1 is "Upload Azure architecture context". The correction reframes intake around **"provide architecture evidence"** with Azure positioned as the **accelerated** (fastest-to-production-faithful) path, **not** the entry condition ? without weakening the Azure onboarding experience. **TB-337?339** (P0) are the copy/component-name reframes on the three highest-visibility surfaces; **TB-340** (P1, owner-confirm) makes `cloudProvider` optional so pre-deployment/paper/AWS-shop reviews are first-class at intake; **TB-341** (P1) surfaces a multi-source evidence picker with honest disabled "V1.1" badges; **TB-342** (P1) is the secondary-surface copy sweep; **TB-343** (P2) reconciles the "cloud providers" plural in cloud-connections with the Azure-only reality; **TB-344** (P2) adds a CI drift guard so the first-run spine cannot silently regress to Azure-only framing. **These do not build any non-Azure ingestion or multi-cloud target analysis** ? that remains **TB-214** (non-Azure evidence JSON, DEFERRED V1.1, owner-gated) and [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) / [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6n. They are framing/labeling/optionality + guard work using **only what ships in V1**. Do not duplicate **TB-169** (Pilot-vs-Operate progressive disclosure ? different axis), **TB-215** (evidence upload mechanic in wizard), or **TB-320/321/328** (KPI/route/severity drift guards ? same guard *pattern*, different surface). Honors [`POSITIONING.md`](../go-to-market/POSITIONING.md) ?7 (no claims of multi-cloud before V1.1), [`V1_SCOPE.md`](V1_SCOPE.md) ?2.19 (Azure-only `CloudProvider` enum + Azure-first extractor remain the shipped contract), and [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **Pending question PQ-DRIFT-01** (owner): confirm `cloudProvider` may be optional/`NotApplicable` at intake while V1 deep analysis stays Azure-only (TB-340).
@@ -159,6 +161,20 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
+| TB-560 | Dynamic-import `CommandPalette` from operator shell top bar — defer `cmdk` + ~617-line palette chunk until shortcut/open; `next/dynamic({ ssr: false })` + loading placeholder | Performance P1 — **V1.1** | S |
+| TB-561 | Dynamic-import `FindingEvidenceGraph` — defer `reactflow` + CSS from shell bundle; `next/dynamic({ ssr: false })` + skeleton | Performance P1 — **V1.1** | S |
+| TB-562 | Expand TanStack Query across operator shell — migrate high-traffic `useEffect`+`fetch` reads (home, governance queue, alerts inbox, billing, executive dashboard) to shared query keys with tenant/run scope | Performance P1 — **V1.1**; extends **UI_ARCHITECTURE_V1_1.md** §1 | L |
+| TB-563 | Decompose `GovernanceFindingsQueueClient` (~1115 lines) — list, filter bar, row, detail pane slots + colocated hooks; enable per-section lazy load / Suspense | Performance P1 — **V1.1** | L |
+| TB-564 | Decompose `AlertsInboxContent` (~903) + `RunsDashboardPanel` (~822) — server loader + client interactive slices (pattern: `RunDetailBelowFoldSections`) | Performance P1 — **V1.1** | L |
+| TB-565 | Add `experimental.optimizePackageImports` in `next.config.ts` for `lucide-react`, `recharts`, `@radix-ui/*` | Performance P1 — **V1.1** | XS |
+| TB-566 | Push `"use client"` boundaries down — server-render marketing `WelcomeMarketingPage` sections + settings `*PageView.tsx` that only render props; thin `*Client.tsx` for mutations | Performance P2 — **V1.1** | M |
+| TB-567 | ISR (`revalidate = 300`) on `/welcome`, `/pricing`, `/trust` marketing routes (parity with `see-it`, `live-demo`) | Performance P2 — **V1.1** | XS |
+| TB-568 | Memoize + split operator shell context providers — narrow `WorkspaceActiveRunProvider` / governance mode re-render blast radius in `AppShellClient` | Performance P2 — **V1.1** | S |
+| TB-569 | Migrate `ExecutiveDashboardDataContext` from provider-level `useEffect` fetch to React Query shared key | Performance P2 — **V1.1** | S |
+| TB-570 | Audit static `recharts` imports — ensure all chart paths use `dynamic()` wrapper (no bypass via alternate call sites) | Performance P2 — **V1.1** | XS |
+| TB-571 | Nested `Suspense` on run detail + governance hub — stream below-fold sections (`RunDetailBelowFoldSections`, findings queue) | Performance P2 — **V1.1**; **UI_ARCHITECTURE_V1_1.md** §7 | M |
+| TB-572 | Defer App Insights initialization until `requestIdleCallback` or first interaction | Performance P2 — **V1.1** | XS |
+| TB-573 | Bundle baseline + Lighthouse CI gate — `npm run build:analyze` per-route First Load JS snapshot; GitHub Action fails on regression threshold for `/reviews` | Performance P2 — **V1.1** | S |
 | TB-404 | Operator nav ↔ URL prefix policy + CI drift guard — document canonical path namespaces per nav group; Vitest asserts every `nav-config` href matches its section prefix or an explicit documented exception registry | Maintainability P1 — **V1.1**; prerequisite for TB-405?408 | S |
 | TB-405 | Governance route tree consolidation — move `/audit`, `/alerts`, `/policy-packs`, `/governance-resolution` under `/governance/*`; 301 redirects from legacy paths; retire duplicate `/governance/policy-packs` list route or redirect to canonical | Adoption friction P1 — **V1.1** | M |
 | TB-406 | Administration route namespace reconciliation — `/workspace/security-trust` → `/settings/security-trust`; align **Users & roles** (`/admin/users`) with **Role management** (`/settings/roles`) under one prefix; move **Recurrence schedules** nav to Governance or add Administration-prefixed alias | **Done** (2026-06-28) — Adoption friction P1 **V1.1** | M |
@@ -14986,7 +15002,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-507 — Gate static demo governance fallback so it cannot seed approvals in a live non-demo workspace
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Trustworthiness + Data consistency
 
@@ -16331,3 +16347,350 @@ const [submitManifestVersion, setSubmitManifestVersion] = useState(
 **Size estimate:** **XS**
 
 **Cross-ref:** Leakage audit TB-551, link audit R07 (2026-06-29).
+
+---
+
+## TB-560 — Dynamic-import `CommandPalette` from operator shell top bar (P1)
+
+**Why:** `OperatorShellTopBar.tsx` statically imports `CommandPalette.tsx` (~617 lines) and `cmdk` on every operator page load. Most sessions never open the palette, but every route pays parse/hydrate cost for this chunk in the shell bundle.
+
+**Approach:**
+
+1. Replace the static import in `OperatorShellTopBar.tsx` with `next/dynamic(() => import("…/CommandPalette"), { ssr: false, loading: () => … })`.
+2. Preserve keyboard shortcut behavior (preload on first `keydown` for `/` or `Ctrl+K` if already implemented; otherwise lazy load on open only).
+3. Run `npm run build:analyze` before/after and record First Load JS for `/reviews` and `/governance`.
+
+**Acceptance criteria:**
+
+- `CommandPalette` and `cmdk` are not in the initial operator shell shared chunk.
+- Palette opens with acceptable delay (<200 ms on dev hardware) after shortcut or click.
+- Existing CommandPalette Vitest/Playwright coverage still passes.
+
+**Affected files:** `archlucid-ui/src/components/shell/OperatorShellTopBar.tsx`, `archlucid-ui/src/components/CommandPalette.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** UI performance audit PERF-01 (2026-06-30); canvas `canvases/ui-performance-backlog.canvas.tsx`.
+
+---
+
+## TB-561 — Dynamic-import `FindingEvidenceGraph` (reactflow + CSS) (P1)
+
+**Why:** `FindingEvidenceGraph.tsx` statically imports `reactflow` and `reactflow/dist/style.css`. Users who never open a finding evidence graph still download and parse the reactflow bundle (~350 KB minified baseline).
+
+**Approach:**
+
+1. Wrap `FindingEvidenceGraph` in `next/dynamic({ ssr: false })` at every call site (or export a lazy wrapper from the component module).
+2. Show a skeleton matching `GraphStaticFallback` styling while the chunk loads.
+3. Ensure reactflow CSS loads with the dynamic chunk, not the shell.
+
+**Acceptance criteria:**
+
+- `reactflow` is absent from First Load JS on routes that do not render the graph.
+- Graph renders correctly after lazy load on finding inspect / evidence surfaces.
+- No regression in graph interaction tests.
+
+**Affected files:** `archlucid-ui/src/components/findings/FindingEvidenceGraph.tsx` and importers
+
+**Size estimate:** **S**
+
+**Cross-ref:** UI performance audit PERF-02 (2026-06-30); **TB-536** (GraphStaticFallback copy).
+
+---
+
+## TB-562 — Expand TanStack Query across operator shell (P1)
+
+**Why:** Only four shell-status query hooks exist (`use-tenant-trial-status-query`, `use-tenant-usage-status-query`, `use-llm-monthly-budget-status-query`, `use-health-ready-summary-query`). **80+** components use raw `useEffect`+`fetch` with no deduplication, stale-while-revalidate, or cache restore on back-navigation. Duplicate `/api/proxy` calls fire on shell + page mount.
+
+**Approach:**
+
+1. Prioritize high-traffic reads: operator home, governance findings queue, alerts inbox, billing/settings banners, executive dashboard provider data.
+2. Add `use-*-query.ts` hooks colocated under `src/hooks/` or feature folders; align query keys to tenant/workspace/run scope headers (reuse `operator-query-stale-time.ts` defaults: 60s stale, 5min GC).
+3. Wire mutation invalidation for writes that affect cached lists.
+4. Document pattern in `UI_ARCHITECTURE_V1_1.md` §1 as partially shipped (not fully deferred).
+
+**Acceptance criteria:**
+
+- Network waterfall on operator home load shows deduplicated proxy calls for migrated surfaces.
+- Back-navigation restores from cache without loading flash where data is fresh.
+- No business rules moved client-side — hooks wrap existing API client functions only.
+
+**Affected files:** `archlucid-ui/src/hooks/use-*-query.ts` (new/extended), `archlucid-ui/src/components/OperatorQueryProvider.tsx`, `archlucid-ui/src/lib/query/operator-query-client.ts`, governance/alerts/home/executive consumers listed in audit
+
+**Size estimate:** **L**
+
+**Cross-ref:** [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1; UI performance audit PERF-03 (2026-06-30).
+
+---
+
+## TB-563 — Decompose `GovernanceFindingsQueueClient` (~1115 lines) (P1)
+
+**Why:** Single client component owns list rendering, filters, pagination, drawer detail, and mutations. Any state change re-renders the full subtree; no independent Suspense or lazy sections.
+
+**Approach:**
+
+1. Split into slot components: `GovernanceFindingsFilterBar`, `GovernanceFindingsList`, `GovernanceFindingRow`, `GovernanceFindingDetailPane` (each in own file per repo convention).
+2. Colocate data hooks (`useGovernanceFindingsQuery`, etc.) — prefer **TB-562** Query hooks.
+3. Optionally lazy-load detail pane below fold.
+
+**Acceptance criteria:**
+
+- Main file under ~200 lines; each child component focused on one concern.
+- Filter changes do not re-render closed detail panes unnecessarily (memo boundaries or colocated state).
+- Existing governance findings Vitest coverage preserved or improved.
+
+**Affected files:** `archlucid-ui/src/components/GovernanceFindingsQueueClient.tsx` → new sibling modules under `archlucid-ui/src/components/governance/findings/` (or equivalent)
+
+**Size estimate:** **L**
+
+**Cross-ref:** UI performance audit PERF-04 (2026-06-30).
+
+---
+
+## TB-564 — Decompose `AlertsInboxContent` + `RunsDashboardPanel` (P1)
+
+**Why:** Both are monolithic client components (~903 and ~822 lines) fetching at top-level `useEffect`. They block parallel server data fetching and widen hydration scope on home and reviews surfaces.
+
+**Approach:**
+
+1. Introduce server loaders / `load*PageModel` for initial list data where `(operator)` route policy allows (follow `RunDetailBelowFoldSections` pattern).
+2. Split interactive slices (filters, row actions, expanders) into client islands.
+3. Coordinate with **TB-562** for client-side refresh paths.
+
+**Acceptance criteria:**
+
+- Above-fold content can render from server props without waiting for client fetch on migrated routes.
+- Component files decomposed; no single file >400 lines without documented reason.
+- Home and reviews list smoke tests pass.
+
+**Affected files:** `archlucid-ui/src/components/AlertsInboxContent.tsx`, `archlucid-ui/src/components/RunsDashboardPanel.tsx`, related page loaders under `archlucid-ui/src/app/(operator)/`
+
+**Size estimate:** **L**
+
+**Cross-ref:** UI performance audit PERF-05 (2026-06-30); **TB-345**–**TB-353** (home first-run UX — complementary, not duplicate).
+
+---
+
+## TB-565 — Add `experimental.optimizePackageImports` (P1)
+
+**Why:** Next.js 15 supports import-time tree-shaking for barrel-heavy packages. `lucide-react`, `recharts`, and `@radix-ui/*` are imported widely; unused exports may inflate shared chunks. Nav group builders importing many Lucide icons are a known risk.
+
+**Approach:**
+
+1. Add to `archlucid-ui/next.config.ts`:
+
+```typescript
+experimental: {
+  optimizePackageImports: [
+    "lucide-react",
+    "recharts",
+    "@radix-ui/react-dialog",
+    "@radix-ui/react-dropdown-menu",
+    // … other @radix-ui/react-* in package.json
+  ],
+},
+```
+
+2. Run `npm run build:analyze` before/after; confirm shared chunk delta.
+3. No functional code changes required unless analyze reveals a broken import (fix forward).
+
+**Acceptance criteria:**
+
+- Config merged without breaking `next build`.
+- Documented First Load JS improvement on at least one operator route, or explicit "no measurable change" note in PR.
+- All UI Vitest + typecheck green.
+
+**Affected files:** `archlucid-ui/next.config.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** UI performance audit PERF-06 (2026-06-30).
+
+---
+
+## TB-566 — Push `"use client"` boundaries down (P2)
+
+**Why:** **200+** `.tsx` files carry `"use client"`. Many settings `*PageView.tsx` only render props; `WelcomeMarketingPage` could be mostly server-rendered with client islands for forms/CTAs.
+
+**Approach:**
+
+1. Audit `*PageView.tsx` under `(operator)/settings/` — convert prop-only views to server components; keep `*Client.tsx` for mutations.
+2. Refactor `(marketing)/welcome/page.tsx` to compose server sections + client `SignupForm` / CTA islands.
+3. Track `"use client"` count in PR description (target: measurable reduction on marketing + settings routes).
+
+**Acceptance criteria:**
+
+- Welcome marketing route ships less client JS (verify via build analyze).
+- Settings pages that only display server-fetched props are server components.
+- No hydration mismatch errors in Playwright marketing/operator smoke.
+
+**Affected files:** `archlucid-ui/src/app/(marketing)/welcome/page.tsx`, `archlucid-ui/src/components/marketing/WelcomeMarketingPage.tsx`, `archlucid-ui/src/app/(operator)/settings/**/*PageView.tsx`
+
+**Size estimate:** **M**
+
+**Cross-ref:** UI performance audit PERF-07 (2026-06-30).
+
+---
+
+## TB-567 — ISR on remaining static marketing routes (P2)
+
+**Why:** `see-it`, `live-demo`, `demo/preview`, and `showcase/[runId]` already use `revalidate = 300`. `/welcome`, `/pricing`, and `/trust` appear static but may still hit origin on every cold visit.
+
+**Approach:**
+
+1. Add `export const revalidate = 300` (or `operator-static-route-policy` equivalent) to welcome, pricing, and trust page modules.
+2. Confirm no authenticated/session-dependent data on those pages (marketing layout only).
+3. Verify Clarity/consent loaders remain client-only and ISR-safe.
+
+**Acceptance criteria:**
+
+- TTFB for cold marketing visits served from CDN edge where deployed.
+- Content updates propagate within revalidate window.
+- Marketing E2E still passes.
+
+**Affected files:** `archlucid-ui/src/app/(marketing)/welcome/page.tsx`, `archlucid-ui/src/app/(marketing)/pricing/page.tsx`, `archlucid-ui/src/app/(marketing)/trust/page.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** UI performance audit PERF-08 (2026-06-30); `operator-static-route-policy.ts`.
+
+---
+
+## TB-568 — Memoize + split operator shell context providers (P2)
+
+**Why:** `AppShellClient` nests 7+ React context providers (`OperatorQueryProvider`, `GovernanceModeProvider`, `WorkspaceActiveRunProvider`, etc.). Context value changes re-render large subtrees.
+
+**Approach:**
+
+1. Audit each provider value object — wrap in `useMemo` where not already memoized.
+2. Move `WorkspaceActiveRunProvider` closer to run-scoped routes if feasible without breaking shell chrome.
+3. Add a Vitest or React DevTools profiling note in PR if measurable re-render reduction.
+
+**Acceptance criteria:**
+
+- Documented list of memoized context values in `AppShellClient` (or extracted provider modules).
+- Governance mode / active-run toggles do not re-render unrelated shell regions (verify with targeted test or manual profiling checklist).
+
+**Affected files:** `archlucid-ui/src/components/AppShellClient.tsx`, `archlucid-ui/src/hooks/use-governance-mode.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** UI performance audit PERF-09 (2026-06-30); [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §2.
+
+---
+
+## TB-569 — Migrate `ExecutiveDashboardDataContext` to React Query (P2)
+
+**Why:** Executive dashboard fetches at provider level in `useEffect` on every mount — no cache restore on back-navigation, duplicates **TB-562** goals for one high-visibility surface.
+
+**Approach:**
+
+1. Replace provider fetch with `useQuery` + shared key scoped to tenant/executive window.
+2. Keep context as thin selector over query result if needed for deep consumers.
+3. Align stale time with other executive KPI reads.
+
+**Acceptance criteria:**
+
+- Navigating away and back to executive dashboard shows cached data immediately when fresh.
+- Loading/error states unchanged from operator perspective.
+- Unit tests cover query key scoping.
+
+**Affected files:** `archlucid-ui/src/components/executive/ExecutiveDashboardDataContext.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** UI performance audit PERF-10 (2026-06-30); **TB-562**, **TB-103**–**TB-105** (ROI data consistency — complementary).
+
+---
+
+## TB-570 — Audit static `recharts` imports (P2)
+
+**Why:** `ExecutiveRoiSystemicIssueTrendChart.tsx` imports `recharts` statically; parent `ExecutiveRoiSummarySection` wraps it in `dynamic()`. Other call sites may bypass the split.
+
+**Approach:**
+
+1. Grep `from "recharts"` across `archlucid-ui/src`.
+2. Ensure every production path uses a dynamic wrapper or is behind a dynamically imported parent.
+3. Add a lightweight Vitest or ESLint advisory (optional) banning static recharts import outside `*-chart.tsx` dynamic entry points.
+
+**Acceptance criteria:**
+
+- Grep shows no static recharts import on operator home/reviews hot paths.
+- Executive dashboard charts still render.
+
+**Affected files:** `archlucid-ui/src/components/executive/ExecutiveRoiSystemicIssueTrendChart.tsx` and any other recharts importers
+
+**Size estimate:** **XS**
+
+**Cross-ref:** UI performance audit PERF-11 (2026-06-30).
+
+---
+
+## TB-571 — Nested `Suspense` on run detail + governance hub (P2)
+
+**Why:** `loading.tsx` covers primary routes; independent below-fold sections (run detail outcomes, governance queue) still block first paint until all data resolves. Deferred in **UI_ARCHITECTURE_V1_1.md** §7.
+
+**Approach:**
+
+1. Wrap `RunDetailBelowFoldSections` and governance findings main list in `<Suspense fallback={…}>`.
+2. Ensure server components / async children can stream where `(operator)` `force-dynamic` policy allows.
+3. Match skeleton styling to existing `loading.tsx` patterns.
+
+**Acceptance criteria:**
+
+- Above-fold run detail header/metadata paints before below-fold sections on throttled network (manual or Playwright `slow 3g` spot check).
+- No duplicate fetch regressions (coordinate with **TB-562**).
+
+**Affected files:** `archlucid-ui/src/app/(operator)/reviews/[runId]/page.tsx`, `archlucid-ui/src/components/RunDetailBelowFoldSections.tsx`, `archlucid-ui/src/app/(operator)/governance/page.tsx`
+
+**Size estimate:** **M**
+
+**Cross-ref:** [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §7; UI performance audit PERF-12 (2026-06-30).
+
+---
+
+## TB-572 — Defer App Insights initialization (P2)
+
+**Why:** `AppInsightsTelemetryInit` runs on every operator session during initial render. Telemetry is valuable but not critical-path for first paint.
+
+**Approach:**
+
+1. Move `@microsoft/applicationinsights-web` initialization into `requestIdleCallback` (with `setTimeout` fallback) or first user interaction handler.
+2. Preserve existing dynamic import in `telemetry.ts`.
+3. Confirm RUM still captures first navigation after deferral.
+
+**Acceptance criteria:**
+
+- App Insights initializes after first paint on operator load (verify in Performance tab).
+- No lost session telemetry for standard navigation flows.
+- CSP unchanged.
+
+**Affected files:** `archlucid-ui/src/components/AppInsightsTelemetryInit.tsx`, `archlucid-ui/src/lib/telemetry.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** UI performance audit PERF-13 (2026-06-30).
+
+---
+
+## TB-573 — Bundle baseline + Lighthouse CI gate (P2)
+
+**Why:** Without a baseline, bundle regressions from future PRs go unnoticed. `@next/bundle-analyzer` and `build:analyze` already exist but are not gated in CI.
+
+**Approach:**
+
+1. Run `npm run build:analyze` in `archlucid-ui`; record First Load JS for `/welcome`, `/reviews`, `/reviews/[runId]` (fixture id), `/governance` in `docs/library/` or committed JSON snapshot under `archlucid-ui/` (choose one canonical artifact).
+2. Add GitHub Action (or extend existing UI CI) with Lighthouse CI or custom script comparing against snapshot threshold (warn first, fail after baseline stable).
+3. Document runbook in `archlucid-ui/AGENTS.md` or `docs/library/TEST_EXECUTION_MODEL.md`.
+
+**Acceptance criteria:**
+
+- Baseline artifact checked in or generated in CI with documented update process.
+- PR that adds >N KB to `/reviews` First Load JS fails or warns per team policy.
+- **TB-560**–**TB-565** PRs reference before/after metrics.
+
+**Affected files:** `archlucid-ui/next.config.ts`, `archlucid-ui/package.json`, `.github/workflows/` (new or extended), `docs/library/TEST_EXECUTION_MODEL.md`
+
+**Size estimate:** **S**
+
+**Cross-ref:** UI performance audit PERF-14 (2026-06-30); **TB-319** (pilot-critical performance evidence — Done, different layer).
