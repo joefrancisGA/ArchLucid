@@ -25,7 +25,7 @@ const CATALOG: Record<string, CatalogEntry> = {
     docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
   },
   golden_manifest: {
-    term: "Golden manifest",
+    term: "Signed review record",
     glossaryMatch: "Signed manifest",
     definition:
       "The versioned, finalized design record for an architecture review—the source of truth for governance, comparison, and artifacts.",
@@ -34,7 +34,7 @@ const CATALOG: Record<string, CatalogEntry> = {
   review_package: {
     term: "Review package",
     definition:
-      "A governed architecture review with manifest, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
+      "A governed architecture review with signed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
     docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
   },
   findings: {
@@ -139,16 +139,16 @@ const CATALOG: Record<string, CatalogEntry> = {
       "The structured path to request, review, and activate manifest changes for a run, with approver and evidence trail.",
   },
   architecture_manifest: {
-    term: "Architecture manifest",
+    term: "Signed review record",
     glossaryMatch: "Signed manifest",
     definition:
       "A finalized architecture record containing decisions, findings, and evidence — ready for governance review and sponsor export.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   manifest_diff: {
-    term: "Manifest diff",
+    term: "Review comparison",
     definition:
-      "A field-level comparison between two finalized, reviewed manifests (or their persisted projection), used in Compare to see what changed between runs.",
+      "A field-level comparison between two finalized signed review records (or their persisted projection), used in Compare to see what changed between reviews.",
     docLink: "/docs/library/COMPARISON_REPLAY.md",
   },
   comparison_record: {
