@@ -115,6 +115,24 @@ export function normalizeRunIdForCompare(value: string): string {
   return value.replace(/-/g, "").trim().toLowerCase();
 }
 
+/** Matches LlmSemanticAdmissionGate architecture-domain heuristic (see ArchLucid.Application). */
+const liveE2eArchitectureAdmissionRegex =
+  /\b(architecture|system|database|api|service|cloud|azure|aws|gcp|security|compliance|tenant|scale|latency|throughput|auth|identity)\b/i;
+
+/**
+ * Builds a POST `/v1/architecture/request` description that passes semantic admission.
+ * Prefix with test-specific intent; appends architecture vocabulary when the intent alone would be rejected.
+ */
+export function liveE2eArchitectureDescription(testIntent: string): string {
+  const intent = testIntent.trim();
+
+  if (liveE2eArchitectureAdmissionRegex.test(intent)) {
+    return intent;
+  }
+
+  return `${intent} Secure Azure API service architecture with SQL database, managed identity auth, and cloud compliance constraints.`;
+}
+
 function pickApiKey(explicitApiKey?: string | null): string | undefined {
   if (explicitApiKey !== undefined && explicitApiKey !== null) {
     const t = explicitApiKey.trim();
@@ -243,35 +261,8 @@ export async function postArchitectureRequestRaw(
 /** Mutating architecture POSTs share one API with many live specs — retry fixed-window 429 and brief 5xx. */
 const maxArchitectureMutationAttempts = 8;
 
-/** Mirrors `DraftAdmissionDomainHeuristic` — descriptions must mention architecture-domain terms. */
-const liveArchitectureDomainPattern =
-  /\b(architecture|system|database|api|service|cloud|azure|aws|gcp|security|compliance|tenant|scale|latency|throughput|auth|identity)\b/i;
-
-/** Rich default architecture narrative for live E2E create-run calls. */
-export const liveE2eArchitectureDescription =
-  "Design a three-tier web application with SQL persistence, Redis cache, and Azure Blob storage. " +
-  "Evaluate architectural decisions for horizontal scaling, failover boundaries, and security controls.";
-
-/** Enriches thin descriptions so inline POST /v1/architecture/request bodies pass REJECT-AS-WRITTEN validation. */
-export function enrichArchitectureRequestBody(body: Record<string, unknown>): Record<string, unknown> {
-  return ensureLiveArchitectureDescription(body);
-}
-
-function ensureLiveArchitectureDescription(body: Record<string, unknown>): Record<string, unknown> {
-  const raw = body.description;
-  const description = typeof raw === "string" ? raw.trim() : "";
-
-  if (liveArchitectureDomainPattern.test(description)) {
-    return body;
-  }
-
-  const suffix = description.length > 0 ? ` Context: ${description}` : "";
-
-  return {
-    ...body,
-    description: liveE2eArchitectureDescription + suffix,
-  };
-}
+/** Authority commit can return transient 409 (#conflict) immediately after ReadyForCommit poll — retry before failing journeys. */
+const maxCommitTransient409Attempts = 12;
 
 /** POST `/v1/architecture/request` — create a new architecture run. */
 export async function createRun(
@@ -279,10 +270,8 @@ export async function createRun(
   body: Record<string, unknown>,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<{ runId: string }> {
-  const enrichedBody = ensureLiveArchitectureDescription(body);
-
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
-    const res = await postArchitectureRequestRaw(request, enrichedBody, tenantScope);
+    const res = await postArchitectureRequestRaw(request, body, tenantScope);
 
     if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
       await delayAfterRateLimitedResponse(res);
@@ -342,35 +331,12 @@ export async function executeRun(
   throw new Error("executeRun: retry loop exhausted");
 }
 
-const maxCommitTransient409Attempts = 12;
-
-/** True when API returns the greenfield manifest-materialization race (retry after readiness poll). */
-function isTransientManifestNotLoadedCommit409(status: number, bodyText: string): boolean {
-  if (status !== 409) {
-    return false;
-  }
-
-  const normalized = bodyText.toLowerCase();
-
-  return normalized.includes("manifest could not be loaded yet");
-}
-
-async function readResponseBodySnippet(res: APIResponse): Promise<string> {
-  try {
-    return await res.text();
-  } catch {
-    return "";
-  }
-}
-
 /** POST `/v1/architecture/run/{runId}/commit` — merge and persist golden manifest. */
 export async function commitRun(
   request: APIRequestContext,
   runId: string,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<CommitRunResponseJson> {
-  await waitForReadyForCommit(request, runId, 90_000, tenantScope);
-
   for (let attempt = 0; attempt < maxCommitTransient409Attempts; attempt++) {
     const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/commit`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
@@ -382,21 +348,16 @@ export async function commitRun(
       continue;
     }
 
-    if (res.status() >= 500 && res.status() < 600 && attempt < maxCommitTransient409Attempts - 1) {
-      await new Promise((r) => setTimeout(r, 500));
+    if (res.status() === 409 && attempt < maxCommitTransient409Attempts - 1) {
+      await new Promise((r) => setTimeout(r, 2000));
 
       continue;
     }
 
-    if (res.status() === 409 && attempt < maxCommitTransient409Attempts - 1) {
-      const bodyText = await readResponseBodySnippet(res);
+    if (res.status() >= 500 && res.status() < 600 && attempt < maxCommitTransient409Attempts - 1) {
+      await new Promise((r) => setTimeout(r, 500));
 
-      if (isTransientManifestNotLoadedCommit409(res.status(), bodyText)) {
-        await new Promise((r) => setTimeout(r, 250 + attempt * 250));
-        await waitForReadyForCommit(request, runId, 30_000, tenantScope);
-
-        continue;
-      }
+      continue;
     }
 
     await throwIfNotOk(res, "POST /v1/architecture/run/.../commit");
@@ -409,39 +370,28 @@ export async function commitRun(
 
 /**
  * Same as {@link commitRun} but returns the raw response for negative-path assertions (409, 404, …).
- * Retries **429**, transient **5xx**, and transient manifest-not-loaded **409** before returning a definitive 4xx.
+ * Retries **429** / transient **5xx** only so callers still see the first definitive 4xx (e.g. 404) body.
  */
 export async function commitRunRaw(
   request: APIRequestContext,
   runId: string,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
-  for (let attempt = 0; attempt < maxCommitTransient409Attempts; attempt++) {
+  for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
     const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/commit`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
-    if (res.status() === 429 && attempt < maxCommitTransient409Attempts - 1) {
+    if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
       await delayAfterRateLimitedResponse(res);
 
       continue;
     }
 
-    if (res.status() >= 500 && res.status() < 600 && attempt < maxCommitTransient409Attempts - 1) {
+    if (res.status() >= 500 && res.status() < 600 && attempt < maxArchitectureMutationAttempts - 1) {
       await new Promise((r) => setTimeout(r, 500));
 
       continue;
-    }
-
-    if (res.status() === 409 && attempt < maxCommitTransient409Attempts - 1) {
-      const bodyText = await readResponseBodySnippet(res);
-
-      if (isTransientManifestNotLoadedCommit409(res.status(), bodyText)) {
-        await new Promise((r) => setTimeout(r, 250 + attempt * 250));
-        await waitForReadyForCommit(request, runId, 30_000, tenantScope);
-
-        continue;
-      }
     }
 
     return res;
@@ -478,20 +428,6 @@ export async function getAuthorityRunDetailRaw(
   const encoded = encodeURIComponent(runId);
 
   return request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}`, {
-    headers: mergeTenantScope(liveAcceptHeaders(options?.apiKey), tenantScope),
-  });
-}
-
-/** GET `/v1/pilots/runs/{runId}/pilot-run-deltas` — sponsor proof posture used on run detail client panels. */
-export async function getPilotRunDeltasRaw(
-  request: APIRequestContext,
-  runId: string,
-  tenantScope: LiveTenantScopeHeaders,
-  options?: { apiKey?: string | null },
-): Promise<APIResponse> {
-  const encoded = encodeURIComponent(runId);
-
-  return request.get(`${resolveLiveApiBase()}/v1/pilots/runs/${encoded}/pilot-run-deltas`, {
     headers: mergeTenantScope(liveAcceptHeaders(options?.apiKey), tenantScope),
   });
 }
@@ -679,27 +615,6 @@ export async function waitForArchitectureRunListCommitted(
   throw new Error(`Run ${runId} did not show Committed on GET /v1/architecture/runs within ${timeoutMs}ms`);
 }
 
-/**
- * Unwraps GET /v1/architecture/runs JSON — the API returns a cursor page envelope (`{ items: [...] }`) while older
- * mocks/tests may still emit a bare array.
- */
-export function unwrapArchitectureRunListPayload(payload: unknown): ArchitectureRunListItemJson[] {
-  if (Array.isArray(payload)) {
-    return payload as ArchitectureRunListItemJson[];
-  }
-
-  if (payload !== null && typeof payload === "object") {
-    const record = payload as Record<string, unknown>;
-    const items = record.items ?? record.runs;
-
-    if (Array.isArray(items)) {
-      return items as ArchitectureRunListItemJson[];
-    }
-  }
-
-  throw new Error("GET /v1/architecture/runs returned unexpected JSON shape (expected array or { items: [] })");
-}
-
 /** GET `/v1/architecture/runs` — recent runs in scope (dashboard / picker). */
 export async function listArchitectureRuns(request: APIRequestContext): Promise<ArchitectureRunListItemJson[]> {
   const res = await request.get(`${resolveLiveApiBase()}/v1/architecture/runs`, {
@@ -708,9 +623,7 @@ export async function listArchitectureRuns(request: APIRequestContext): Promise<
 
   await throwIfNotOk(res, "GET /v1/architecture/runs");
 
-  const payload: unknown = await res.json();
-
-  return unwrapArchitectureRunListPayload(payload);
+  return res.json() as Promise<ArchitectureRunListItemJson[]>;
 }
 
 /** POST approve without throwing — use for negative-path assertions (`expect.soft` + status/body). */

@@ -3,11 +3,14 @@
 import { useSearchParams } from "next/navigation";
 
 import { CtaButton } from "@/components/marketing/CtaButton";
+import { MARKETING_HERO_SECONDARY_CTA_CLASS } from "@/lib/design-tokens";
 import { buildWalkthroughCtaHref } from "@/lib/marketing/build-walkthrough-cta-href";
 import { recordMarketingCtaWalkthroughClick } from "@/lib/marketing/marketing-clarity-custom-event";
+import { cn } from "@/lib/utils";
 
 /**
- * Hero primary CTA: opens configured booking URL with UTM carry-forward, else mailto fallback.
+ * Hero optional CTA: opens configured booking URL with UTM carry-forward, else mailto fallback.
+ * Deliberately secondary to self-serve inspection — a walkthrough is help on request, not a gate to value.
  */
 export function WalkthroughRequestCta(props: { readonly className?: string }) {
   const searchParams = useSearchParams();
@@ -26,13 +29,13 @@ export function WalkthroughRequestCta(props: { readonly className?: string }) {
   return (
     <CtaButton
       href={href}
-      variant="primary"
+      variant="outline"
       size="lg"
-      className={props.className}
+      className={cn(MARKETING_HERO_SECONDARY_CTA_CLASS, props.className)}
       data-testid="welcome-request-walkthrough-cta"
       onPressAnalytics={onPressAnalytics}
     >
-      Request walkthrough
+      Request optional walkthrough
     </CtaButton>
   );
 }

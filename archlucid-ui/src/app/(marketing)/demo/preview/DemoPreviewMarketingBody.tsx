@@ -11,8 +11,10 @@ import { getArtifactBusinessLabel, stripArtifactFilenameExtension } from "@/lib/
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
+import { MARKETING_CAPTION_TEXT_CLASS } from "@/lib/design-tokens";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator-static-demo";
+import { cn } from "@/lib/utils";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -269,14 +271,14 @@ export function DemoPreviewMarketingBody({
         </div>
 
         {demoMode ? (
-          <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className={cn("mt-3 text-xs", MARKETING_CAPTION_TEXT_CLASS)}>
             <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
               Sign in
             </Link>{" "}
             to view the full interactive timeline in your workspace.
           </p>
         ) : (
-          <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className={cn("mt-3 text-xs", MARKETING_CAPTION_TEXT_CLASS)}>
             Show the full timeline after{" "}
             <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
               opening in workspace
@@ -426,7 +428,7 @@ export function DemoPreviewMarketingBody({
                     >
                       <span className="font-medium">{typeLabel}</span>
                       {typeof a.name === "string" && a.name.trim().length > 0 ? (
-                        <p className="m-0 mt-0.5 text-[11px] text-neutral-500 dark:text-neutral-400">
+                        <p className={cn("m-0 mt-0.5 text-[11px]", MARKETING_CAPTION_TEXT_CLASS)}>
                           {demoMode ? stripArtifactFilenameExtension(a.name.trim()) : a.name.trim()}
                         </p>
                       ) : null}
@@ -467,7 +469,7 @@ export function DemoPreviewMarketingBody({
 
       <p
         data-testid="demo-preview-footer"
-        className="border-t border-neutral-200 pt-3 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
+        className={cn("border-t border-neutral-200 pt-3 text-xs dark:border-neutral-800", MARKETING_CAPTION_TEXT_CLASS)}
       >
         Structured architecture review output — review package, findings, and audit trail.
       </p>

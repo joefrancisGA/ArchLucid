@@ -206,18 +206,25 @@ export async function gotoManifestEmptyArtifactsOperatorCase(page: Page): Promis
 
 // --- Assertions (only where duplicated across specs) ---
 
-/** Opens buyer-polished run deliverables and switches to the ARB/audit artifact tab. */
-export async function openBuyerRunDetailArchitectureReviewBoardDeliverables(page: Page): Promise<Locator> {
+/** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */
+export async function ensureBuyerDeliverablesSectionExpanded(page: Page): Promise<void> {
   const deliverablesDetails = page.locator("#artifacts-exports details").first();
   const deliverablesSummary = deliverablesDetails.locator("summary", { hasText: /^Deliverables$/ });
 
-  await expect(deliverablesSummary).toBeVisible();
+  await expect(deliverablesSummary).toBeVisible({ timeout: 60_000 });
 
   const detailsOpen: boolean = await deliverablesDetails.evaluate((element) => (element as HTMLDetailsElement).open);
 
   if (!detailsOpen) {
     await deliverablesSummary.click();
   }
+
+  await expect(deliverablesDetails).toHaveAttribute("open", "");
+}
+
+/** Opens buyer-polished run deliverables and switches to the ARB/audit artifact tab. */
+export async function openBuyerRunDetailArchitectureReviewBoardDeliverables(page: Page): Promise<Locator> {
+  await ensureBuyerDeliverablesSectionExpanded(page);
 
   const architectureReviewBoardTab = page.getByRole("tab", { name: "Architecture review board artifacts" });
 
@@ -301,18 +308,4 @@ export async function expandCompareStructuredDecisionChanges(page: Page): Promis
  */
 export function structuredCompareSponsorRecommendationParagraph(page: Page): Locator {
   return page.locator("#compare-structured").getByTestId("compare-sponsor-recommendation");
-}
-
-/** Outcome strip deep link to signed record / legacy manifest detail (TB-399 canonical URLs). */
-export function outcomeStripSignedRecordLink(outcomeStrip: Locator): Locator {
-  return outcomeStrip.locator('a[href^="/signed-records/"], a[href^="/manifests/"]').first();
-}
-
-/** Live review detail hydration — buyer-polished shell uses H1 headline; legacy shell exposed H2 "Run detail". */
-export async function expectRunDetailPageReady(page: Page, options?: { timeout?: number }): Promise<void> {
-  const timeout = options?.timeout ?? 90_000;
-
-  await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout });
-  await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0);
-  await expect(page.getByRole("navigation", { name: "Review detail sections" })).toBeVisible({ timeout });
 }

@@ -19,6 +19,7 @@ import {
   livePeerReviewerActorName,
   normalizeRunIdForCompare,
   waitForArchitectureRunListCommitted,
+  waitForReadyForCommit,
   waitForRunDetailCommitted,
   postGovernanceApproveRaw,
   searchAudit,
@@ -49,7 +50,8 @@ test.describe("live-api-journey", () => {
     page,
     request,
   }) => {
-    test.setTimeout(300_000);
+    // Polling alone can use 90s + 60s + 90s; UI steps add more — 180s caused request-context disposal at commit in CI.
+    test.setTimeout(360_000);
 
     const createBody = {
       requestId: `E2E-LIVE-${Date.now()}`,
@@ -70,6 +72,8 @@ test.describe("live-api-journey", () => {
     test.info().annotations.push({ type: "e2e-run-id", description: runId });
 
     await executeRun(request, runId);
+
+    await waitForReadyForCommit(request, runId, 90_000);
 
     const commitJson = await commitRun(request, runId);
     const manifestVersion = commitJson.manifest?.metadata?.manifestVersion;

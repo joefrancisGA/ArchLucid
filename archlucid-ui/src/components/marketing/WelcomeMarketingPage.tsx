@@ -14,6 +14,7 @@ import { WelcomeMarketingUseCasesSection } from "@/components/marketing/WelcomeM
 import { WelcomeMarketingWorkflowSection } from "@/components/marketing/WelcomeMarketingWorkflowSection";
 import {
   WELCOME_HERO_CTA_SUBHEADING,
+  WELCOME_HERO_EVALUATION_REASSURANCE,
   WELCOME_HERO_PITCH,
 } from "@/components/marketing/welcome-marketing-copy";
 import { Button } from "@/components/ui/button";
@@ -126,13 +127,20 @@ export function WelcomeMarketingPage() {
             {WELCOME_HERO_CTA_SUBHEADING}
           </p>
 
+          <p
+            className={cn("max-w-2xl text-center leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="welcome-hero-evaluation-reassurance"
+          >
+            {WELCOME_HERO_EVALUATION_REASSURANCE}
+          </p>
+
           <div
             className="flex w-full max-w-2xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-center"
             data-testid="welcome-hero-primary-secondary-row"
             aria-labelledby="hero-cta-subheading"
           >
-            <WalkthroughRequestCta className={cn("h-11 min-h-11 w-full px-8 font-bold shadow-sm sm:w-auto sm:min-w-[12rem]", OPERATOR_TYPOGRAPHY.body)} />
             <SelfDemoRequestCta />
+            <WalkthroughRequestCta />
           </div>
 
           <div data-testid="welcome-hero-tertiary-region" className="flex w-full max-w-2xl flex-col items-center">
@@ -158,7 +166,7 @@ export function WelcomeMarketingPage() {
               <Link href="/see-it">See it in 30 seconds</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="/signup">Start free trial</Link>
+              <Link href="/signup">Start an evaluation</Link>
             </Button>
             <Button asChild variant="secondary" size="lg">
               <Link href="/auth/signin">Sign in</Link>
@@ -182,7 +190,7 @@ export function WelcomeMarketingPage() {
             <Link className={MARKETING_SURFACES.inlineLink} href="/WORKED_EXAMPLE_ROI.pdf">
               See worked example (PDF)
             </Link>{" "}
-            — Contoso sample ROI (fictional tenant). Ask your account team for the written walkthrough companion.
+            — Contoso sample ROI (fictional tenant). Inspectable end to end; no sign-in or sales call required.
           </p>
           <p className={cn("mt-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             <span className="font-semibold text-neutral-600 dark:text-neutral-300">Verify:</span>{" "}

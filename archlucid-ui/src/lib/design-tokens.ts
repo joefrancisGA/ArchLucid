@@ -296,6 +296,13 @@ export const MARKETING_SURFACES = {
     "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-al-surface-raised text-sm font-semibold text-al-text-primary dark:border-neutral-800",
 } as const;
 
+/** Outline hero CTA sizing/contrast — never combine with {@link OPERATOR_TYPOGRAPHY.body} on the same control (overrides button fg). */
+export const MARKETING_HERO_SECONDARY_CTA_CLASS =
+  "h-11 min-h-11 w-full border-neutral-300 bg-white px-8 text-neutral-900 shadow-sm hover:bg-neutral-100 sm:w-auto sm:min-w-[12rem] dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800";
+
+/** Secondary caption on marketing/demo surfaces — passes 4.5:1 on `--al-surface-base` (avoid `text-neutral-500` at 11–12px). */
+export const MARKETING_CAPTION_TEXT_CLASS = "text-neutral-600 dark:text-neutral-400";
+
 /** GitBook-like reading column — descendant typography for {@link DocumentLayout}. */
 export const OPERATOR_DOCUMENT_ARTICLE_BODY = [
   "[&_p]:text-[13px] [&_p]:leading-relaxed",
