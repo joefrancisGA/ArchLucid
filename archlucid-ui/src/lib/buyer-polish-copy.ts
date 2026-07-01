@@ -869,7 +869,7 @@ export const BUYER_CTO_DEMO_ISOLATION_PROOF_BODY =
 export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_BADGE = "Demo preview — read-only view";
 
 export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE =
-  "In a connected workspace, an architect with Execute authority approves here. The view below shows the post-approval state.";
+  "In production, an architect with Execute authority approves here. This view shows the post-approval state from the example review package.";
 
 export const BUYER_CTO_DEMO_VALUE_STRIP_LABELS: readonly string[] = [
   "This executive summary gives your sponsor a one-page risk and outcome verdict — no engineering context required.",

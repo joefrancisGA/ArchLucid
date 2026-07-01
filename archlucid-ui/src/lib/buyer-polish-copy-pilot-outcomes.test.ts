@@ -115,13 +115,14 @@ describe("buyer-polish-copy operator home example review card (TB-471)", () => {
   });
 });
 
-describe("buyer-polish-copy governance preview note (TB-472)", () => {
-  it("uses connected workspace language without live pilot framing", () => {
+describe("buyer-polish-copy governance preview note (TB-509)", () => {
+  it("uses production framing with example review package and no pilot or demo jargon", () => {
     expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE).toBe(
-      "In a connected workspace, an architect with Execute authority approves here. The view below shows the post-approval state.",
+      "In production, an architect with Execute authority approves here. This view shows the post-approval state from the example review package.",
     );
     expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE.toLowerCase()).not.toContain("live pilot");
     expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE.toLowerCase()).not.toContain("demonstration purposes");
+    expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE.toLowerCase()).not.toContain("connected workspace");
   });
 });
 
