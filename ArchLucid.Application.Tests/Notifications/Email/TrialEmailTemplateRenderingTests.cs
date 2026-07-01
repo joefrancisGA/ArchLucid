@@ -107,11 +107,44 @@ public sealed class TrialEmailTemplateRenderingTests
         html.Should().Contain("paid Professional");
     }
 
-    [SkippableFact]
+    [Fact]
     public void TemplateKey_matches_embedded_resource_naming()
     {
         string key = RazorLightEmailTemplateRenderer.TemplateKey(EmailTemplateIds.TrialWelcome);
 
         key.Should().Be("Templates.TrialWelcome.cshtml");
+    }
+
+    [SkippableFact]
+    public async Task RenderTextAsync_strips_html_tags_from_rendered_template()
+    {
+        string text = await _renderer.RenderTextAsync(
+            EmailTemplateIds.TrialWelcome,
+            new TrialWelcomeEmailModel("Contoso", "ArchLucid"),
+            CancellationToken.None);
+
+        text.Should().NotContain("<!DOCTYPE html>");
+        text.Should().Contain("Welcome to ArchLucid");
+        text.Should().Contain("Contoso");
+    }
+
+    [SkippableFact]
+    public async Task RenderHtmlAsync_unknown_template_throws()
+    {
+        Func<Task> act = () => _renderer.RenderHtmlAsync(
+            "DoesNotExist",
+            new TrialWelcomeEmailModel("Contoso", "ArchLucid"),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public void TemplateKey_throws_when_template_id_blank()
+    {
+        Action act = () => RazorLightEmailTemplateRenderer.TemplateKey("  ");
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Template id is required*");
     }
 }
