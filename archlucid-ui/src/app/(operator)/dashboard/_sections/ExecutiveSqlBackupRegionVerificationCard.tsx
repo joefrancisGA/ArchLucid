@@ -138,6 +138,12 @@ export function ExecutiveSqlBackupRegionVerificationCard() {
                 {regionLabel}
               </p>
             </Link>
+            <p
+              className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="sql-backup-verification-platform-scope-note"
+            >
+              {v.platformScopeNote}
+            </p>
             {redundancyLine !== null ? (
               <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{redundancyLine}</p>
             ) : null}

@@ -17,7 +17,16 @@ export const BUYER_SURFACE_VOCABULARY = {
   finalizedSignedManifestRecord: "Signed review record",
 } as const;
 
-/** Buyer-facing replacements for legacy pilot/internal product language. */
+/**
+ * Buyer-facing replacements for legacy pilot/internal product language.
+ *
+ * "evaluation" SCOPING RULE (TB-456/457/458, COPY_TERMINOLOGY_AUDIT §2): the word "evaluation" is banned
+ * only as a PRODUCT-STATUS adjective (it must not imply ArchLucid is pre-release / in evaluation). Hence
+ * these symbols render "Review …", never "Evaluation …". It remains intentionally ALLOWED as the BUYER's
+ * activity on marketing entry CTAs (signup / try / hero — e.g. "Start an evaluation"), where it reads as a
+ * respectful expert assessment rather than a sales "free trial". Do not introduce NEW "evaluation workspace"
+ * phrasing (a few legacy usages remain in pricing/demo copy, flagged for cleanup in COPY_TERMINOLOGY_AUDIT §2).
+ */
 export const BUYER_TERMINOLOGY = {
   evaluationFeedback: "Review feedback",
   evaluationValueReport: "Review value report",
@@ -157,6 +166,8 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   },
   sqlBackupRegionVerificationMetric: {
     title: "Database backup region check",
-    description: "Infrastructure resilience signal from latest deployment plan",
+    description:
+      "ArchLucid platform database backup region — verified against Terraform CI. Shows where ArchLucid stores your workspace data.",
+    platformScopeNote: "ArchLucid platform infrastructure — not your architecture workloads.",
   },
 } as const;

@@ -43,6 +43,10 @@ describe("ExecutiveSqlBackupRegionVerificationCard", () => {
 
     expect(await screen.findByTestId("sql-backup-verification-status-verified")).toBeInTheDocument();
     expect(screen.getByTestId("sql-backup-verification-region-name")).toHaveTextContent("eastus");
+    expect(screen.getByTestId("sql-backup-verification-platform-scope-note")).toHaveTextContent(
+      /ArchLucid platform infrastructure/i,
+    );
+    expect(screen.getByText(/verified against Terraform CI/i)).toBeInTheDocument();
   });
 
   it("shows a warning when unverified", async () => {
