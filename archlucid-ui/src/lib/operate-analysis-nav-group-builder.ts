@@ -19,7 +19,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       id: "operate-analysis",
       label: OPERATOR_NAV_GROUP_LABELS.analysis,
       surface: "review-workflow",
-      caption: "Trace evidence, ask, search, and compare across review packages.",
+      caption: "Explore evidence, findings, and decisions across reviews.",
       links: [
         {
           href: "/graph",

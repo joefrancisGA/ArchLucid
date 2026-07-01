@@ -79,6 +79,13 @@ describe("nav-config structure", () => {
     }
   });
 
+  it("labels operate-analysis nav group Insights (TB-525)", () => {
+    const analysis = NAV_GROUPS.find((group) => group.id === "operate-analysis");
+
+    expect(analysis?.label).toBe("Insights");
+    expect(analysis?.caption).toBe("Explore evidence, findings, and decisions across reviews.");
+  });
+
   it("sets requiredAuthority on every Analysis nav link", () => {
     const advanced = NAV_GROUPS.find((group) => group.id === "operate-analysis");
 

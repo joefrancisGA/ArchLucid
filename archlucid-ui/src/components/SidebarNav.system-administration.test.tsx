@@ -115,7 +115,7 @@ describe("SidebarNav — Internal Operations section", () => {
     fireEvent.click(screen.getByTestId("sidebar-group-toggle-operate-analysis"));
 
     await waitFor(() => {
-      expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
+      expect(screen.getByRole("navigation", { name: "Insights" })).toBeInTheDocument();
     });
 
     expect(screen.queryByRole("link", { name: "Architecture advisory" })).toBeNull();

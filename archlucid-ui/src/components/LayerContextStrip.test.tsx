@@ -41,10 +41,10 @@ describe("LayerContextStrip", () => {
 
   it("uses polished operate-analysis label when provided", () => {
     const { getByTestId, unmount } = render(
-      <LayerContextStrip layerId="operate-analysis" polishedOperateAnalysisLabel="Analysis" />,
+      <LayerContextStrip layerId="operate-analysis" polishedOperateAnalysisLabel="Insights" />,
     );
     const strip = getByTestId("layer-context-strip");
-    expect((strip.textContent ?? "").replace(/\s+/g, " ")).toContain("Analysis");
+    expect((strip.textContent ?? "").replace(/\s+/g, " ")).toContain("Insights");
     unmount();
   });
 

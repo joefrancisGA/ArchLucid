@@ -98,7 +98,7 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.queryByTestId("sidebar-group-toggle-operate-integrations")).toBeNull();
     expect(screen.getByTestId("sidebar-group-toggle-operator-admin")).toHaveAttribute("aria-expanded", "false");
 
-    expect(screen.queryByRole("navigation", { name: "Analysis" })).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Insights" })).toBeNull();
     expect(screen.queryByRole("navigation", { name: "Governance" })).toBeNull();
     expect(screen.queryByRole("navigation", { name: "Reports" })).toBeNull();
     expect(screen.queryByRole("navigation", { name: "Integrations" })).toBeNull();
@@ -118,7 +118,7 @@ describe("SidebarNav (primary navigation)", () => {
       expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "true");
     });
 
-    const analysisNav = screen.getByRole("navigation", { name: "Analysis" });
+    const analysisNav = screen.getByRole("navigation", { name: "Insights" });
     expect(within(analysisNav).getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
     expect(within(analysisNav).getByRole("link", { name: "Ask this review" })).toHaveAttribute("href", "/ask");
   });
@@ -217,7 +217,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
 
     expect(screen.getByTestId("operate-features-unlock-panel")).toBeInTheDocument();
     expect(screen.queryByTestId("sidebar-group-toggle-operate-analysis")).toBeNull();
-    expect(screen.queryByRole("navigation", { name: "Analysis" })).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Insights" })).toBeNull();
 
     unlockOperateFeatures();
 

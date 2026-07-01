@@ -84,7 +84,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Governance workflow" })).toHaveCount(0);
-    await expect(page.getByRole("navigation", { name: "Analysis" })).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Insights" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
 
     const analysisToggle = page.getByTestId("sidebar-group-toggle-operate-analysis");
@@ -94,7 +94,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     await analysisToggle.click();
 
-    const analysisNav = page.getByRole("navigation", { name: "Analysis" });
+    const analysisNav = page.getByRole("navigation", { name: "Insights" });
 
     await expect(analysisNav).toBeVisible({ timeout: 15_000 });
     await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);

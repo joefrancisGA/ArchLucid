@@ -4,7 +4,14 @@ import { OperateAnalysisNavGroupBuilder } from "@/lib/operate-analysis-nav-group
 import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
 
 describe("OperateAnalysisNavGroupBuilder", () => {
-  it("lists Evidence graph first in Analysis nav (TB-519)", () => {
+  it("uses Insights group label and caption (TB-525)", () => {
+    const group = new OperateAnalysisNavGroupBuilder().build();
+
+    expect(group.label).toBe("Insights");
+    expect(group.caption).toBe("Explore evidence, findings, and decisions across reviews.");
+  });
+
+  it("lists Evidence graph first in Insights nav (TB-519)", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
     const graphLink = group.links[0];
 
