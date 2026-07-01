@@ -6,13 +6,6 @@ import type { NavRouteNamespaceException } from "@/lib/nav-route-namespace-polic
  */
 export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException[] = [
   {
-    navGroupId: "operate-reports",
-    href: "/governance/first-30-days",
-    canonicalPrefixes: ["/scorecard", "/value-report"],
-    exceptionReason:
-      "First-30-days governance adoption report lives under governance URL tree while grouped under Reports for buyer narrative.",
-  },
-  {
     navGroupId: "operator-system-admin",
     href: "/operate/integration-events/dlq",
     canonicalPrefixes: ["/admin"],

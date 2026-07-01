@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   Bell,
+  CalendarCheck,
   CalendarClock,
   FileSearch,
   Gavel,
@@ -95,6 +96,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
           title: "Recurrence schedules — automated follow-up architecture reviews after commit",
           icon: CalendarClock,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/governance/first-30-days",
+          label: OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
+          title: "Governance setup guide — operating rhythm for approvals, audit, and policy packs",
+          icon: CalendarCheck,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

@@ -147,8 +147,9 @@ describe("nav-config structure", () => {
       "/governance/audit",
       "/governance/alerts",
       "/governance/recurrence-schedules",
+      "/governance/first-30-days",
     ]);
-    expect(reportsHrefs).toEqual(["/scorecard", "/value-report", "/governance/first-30-days"]);
+    expect(reportsHrefs).toEqual(["/scorecard", "/value-report"]);
     expect(integrationsHrefs).toEqual([
       "/integrations/readiness",
       "/integrations/cloud-connections",

@@ -1,4 +1,4 @@
-import { BarChart3, CalendarCheck, FileText } from "lucide-react";
+import { BarChart3, FileText } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
@@ -13,7 +13,7 @@ export class OperateReportsNavGroupBuilder extends NavGroupBuilderBase {
       id: "operate-reports",
       label: OPERATOR_NAV_GROUP_LABELS.reports,
       surface: "review-workflow",
-      caption: "Review scorecards, value reports, and early governance adoption.",
+      caption: "Review scorecards and sponsor-facing value reports.",
       links: [
         {
           href: "/scorecard",
@@ -30,14 +30,6 @@ export class OperateReportsNavGroupBuilder extends NavGroupBuilderBase {
           icon: FileText,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",
-        },
-        {
-          href: "/governance/first-30-days",
-          label: OPERATOR_NAV_LINK_LABELS.first30DaysGovernance,
-          title: "First 30 days — minimal governance operating preset after evaluation",
-          icon: CalendarCheck,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
         },
       ],
     };
