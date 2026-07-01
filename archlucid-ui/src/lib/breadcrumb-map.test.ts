@@ -232,6 +232,28 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("TB-528: maps governance with runId to Review packages · title · Governance", () => {
+    expect(
+      getBreadcrumbs("/governance", {
+        queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+      }),
+    ).toEqual([
+      { label: "Review packages", href: "/reviews" },
+      {
+        label: SHOWCASE_BUYER_REVIEW_TITLE,
+        href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+      },
+      { label: "Governance" },
+    ]);
+  });
+
+  it("TB-528: legacy /audit path maps to Governance · Audit trail", () => {
+    expect(getBreadcrumbs("/audit")).toEqual([
+      { label: "Governance", href: "/governance" },
+      { label: "Audit trail" },
+    ]);
+  });
+
   it("TB-523: maps executive summary to Review packages · title · Executive summary", () => {
     expect(getBreadcrumbs(`/executive/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)).toEqual([
       { label: "Review packages", href: "/reviews" },

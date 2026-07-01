@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { Suspense } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ExecutiveShellDeferredChrome } from "@/components/executive/ExecutiveShellDeferredChrome";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
@@ -102,6 +104,9 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
             "px-4 py-4 outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600 lg:px-6 lg:py-6",
           )}
         >
+          <Suspense fallback={null}>
+            <Breadcrumbs />
+          </Suspense>
           {children}
         </main>
       </ShellReadySurface>

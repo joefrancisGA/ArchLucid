@@ -121,6 +121,23 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return executiveReviewTrail;
   }
 
+  const governanceRunTrail = tryBuildGovernanceRunScopedBreadcrumbs(normalized, options);
+
+  if (governanceRunTrail !== null) {
+    return governanceRunTrail;
+  }
+
+  if (normalized === "/audit" || normalized.startsWith("/audit/")) {
+    const runId = options?.queryRunId?.trim();
+
+    if (runId === undefined || runId.length === 0) {
+      return [
+        { label: "Governance", href: "/governance" },
+        { label: "Audit trail" },
+      ];
+    }
+  }
+
   // Azure cloud connection help — avoid generic multi-cloud breadcrumb segments.
   if (normalized === "/help/cloud-connections/azure" || normalized === "/help/cloud-connections-azure") {
     return [
@@ -509,6 +526,31 @@ function resolveReviewsListBreadcrumbHref(options?: GetBreadcrumbsOptions): stri
   }
 
   return "/reviews";
+}
+
+function tryBuildGovernanceRunScopedBreadcrumbs(
+  normalizedPath: string,
+  options?: GetBreadcrumbsOptions,
+): BreadcrumbItem[] | null {
+  if (normalizedPath !== "/governance") {
+    return null;
+  }
+
+  const runId = options?.queryRunId?.trim();
+
+  if (runId === undefined || runId.length === 0) {
+    return null;
+  }
+
+  const reviewsListHref = resolveReviewsListBreadcrumbHref(options);
+  const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review package";
+  const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+
+  return [
+    { label: "Review packages", href: reviewsListHref },
+    { label: packageTitle, href: reviewHref },
+    { label: "Governance" },
+  ];
 }
 
 function tryBuildExecutiveReviewBreadcrumbs(
