@@ -10,8 +10,9 @@ describe("GoldenManifestExportMenu (TB-513)", () => {
     expect(source).toMatch(/@important[\s\S]*SIGNED_MANIFEST_LABEL[\s\S]*not "golden manifest"/);
     expect(source).toMatch(/@deprecated[\s\S]*SignedReviewRecordExportMenu/);
 
+    const sourceWithoutComments = source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
     const stringLiteralPattern = /"[^"]*"/g;
-    const literals = source.match(stringLiteralPattern) ?? [];
+    const literals = sourceWithoutComments.match(stringLiteralPattern) ?? [];
 
     for (const literal of literals) {
       const value = literal.slice(1, -1).toLowerCase();
