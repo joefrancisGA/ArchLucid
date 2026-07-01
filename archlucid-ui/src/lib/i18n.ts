@@ -156,7 +156,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   pilotValueReport: BUYER_TERMINOLOGY.evaluationValueReport,
   roiReport: "ROI report",
   connectorOperations: "Integration readiness",
-  integrationReadiness: "Integration readiness",
+  integrationReadiness: "Connection status",
   jira: "Jira",
   itsm: "ITSM",
   servicenow: "ServiceNow",

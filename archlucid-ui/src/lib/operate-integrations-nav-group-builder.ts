@@ -25,7 +25,7 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           // Literal href required for route_tier_policy_nav CI (assert_route_tier_policy_nav.py).
           href: "/integrations/readiness",
           label: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
-          title: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
+          title: "Connector health and integration status",
           icon: Plug,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",
