@@ -136,7 +136,7 @@ describe("nav-config structure", () => {
     const integrationsHrefs = NAV_GROUPS.find((group) => group.id === "operate-integrations")!.links.map((link) => link.href);
     const systemAdminHrefs = NAV_GROUPS.find((group) => group.id === "operator-system-admin")!.links.map((link) => link.href);
 
-    expect(analysisHrefs).toEqual(["/ask", "/search", "/compare", "/evolution-review", "/advisory"]);
+    expect(analysisHrefs).toEqual(["/graph", "/ask", "/search", "/compare", "/evolution-review", "/advisory"]);
     expect(governanceHrefs).toEqual([
       "/governance",
       "/governance/findings",

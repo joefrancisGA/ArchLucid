@@ -8,6 +8,10 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/dashboard")).toBe("pilot");
   });
 
+  it("returns operate-analysis for evidence graph routes", () => {
+    expect(getLayerForRoute("/graph")).toBe("operate-analysis");
+  });
+
   it("returns operate-analysis for a known analysis nav path", () => {
     expect(getLayerForRoute("/ask")).toBe("operate-analysis");
     expect(getLayerForRoute("/search")).toBe("operate-analysis");

@@ -1,6 +1,7 @@
 import {
   GitBranch,
   GitCompare,
+  GitGraph,
   Lightbulb,
   MessageSquare,
   Search,
@@ -18,8 +19,17 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       id: "operate-analysis",
       label: OPERATOR_NAV_GROUP_LABELS.analysis,
       surface: "review-workflow",
-      caption: "Ask, search, and compare evidence across review packages.",
+      caption: "Trace evidence, ask, search, and compare across review packages.",
       links: [
+        {
+          href: "/graph",
+          label: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
+          title: this.shortcutTitle("Trace evidence, findings, and decisions", "alt+y"),
+          keyShortcut: "alt+y",
+          icon: GitGraph,
+          tier: "essential",
+          requiredAuthority: "ReadAuthority",
+        },
         {
           href: "/ask",
           label: OPERATOR_NAV_LINK_LABELS.askReview,
