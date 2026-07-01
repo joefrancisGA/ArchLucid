@@ -1,6 +1,6 @@
 "use client";
 
-import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
+import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { Button } from "@/components/ui/button";
 import {
   getDraftDecisionReceiptDownloadUrl,
@@ -35,9 +35,9 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
   if (serverDownloadUrl !== null) {
     return (
       <Button variant="outline" size="sm" disabled={props.disabled === true} asChild>
-        <FunnelTelemetryExportAnchor href={serverDownloadUrl} data-testid="decision-receipt-export">
+        <ExportTrackedAnchor href={serverDownloadUrl} data-testid="decision-receipt-export">
           Download decision receipt (JSON)
-        </FunnelTelemetryExportAnchor>
+        </ExportTrackedAnchor>
       </Button>
     );
   }

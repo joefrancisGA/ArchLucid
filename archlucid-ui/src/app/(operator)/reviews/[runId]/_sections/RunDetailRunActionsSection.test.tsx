@@ -8,8 +8,8 @@ vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: ReactNode }) => <a href={href}>{children}</a>,
 }));
 
-vi.mock("@/components/FunnelTelemetryExportAnchor", () => ({
-  FunnelTelemetryExportAnchor: ({ href, children }: { href: string; children: ReactNode }) => (
+vi.mock("@/components/ExportTrackedAnchor", () => ({
+  ExportTrackedAnchor: ({ href, children }: { href: string; children: ReactNode }) => (
     <a href={href}>{children}</a>
   ),
 }));

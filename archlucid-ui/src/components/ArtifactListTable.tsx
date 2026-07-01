@@ -2,7 +2,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
+import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { ArtifactIntegrityTechnicalDetails } from "@/components/ArtifactIntegrityTechnicalDetails";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import type { ArtifactDescriptor } from "@/types/authority";
@@ -147,9 +147,9 @@ export function ArtifactListTable(props: {
           <td className="px-2 py-2.5">
             <Link href={reviewHref}>{openActionLabel}</Link>
             <span className="mx-2 text-neutral-300 dark:text-neutral-600">|</span>
-            <FunnelTelemetryExportAnchor href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>
+            <ExportTrackedAnchor href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>
               {downloadActionLabel}
-            </FunnelTelemetryExportAnchor>
+            </ExportTrackedAnchor>
             {runId && !hidePilotFeedbackOnArtifacts ? (
               <div className="mt-2 max-w-xs">
                 <ProductLearningFeedbackControls

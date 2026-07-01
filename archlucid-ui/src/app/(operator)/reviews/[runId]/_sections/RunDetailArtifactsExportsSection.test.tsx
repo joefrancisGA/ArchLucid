@@ -8,8 +8,8 @@ import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer-polish-copy";
 
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 
-vi.mock("@/components/FunnelTelemetryExportAnchor", () => ({
-  FunnelTelemetryExportAnchor: ({
+vi.mock("@/components/ExportTrackedAnchor", () => ({
+  ExportTrackedAnchor: ({
     children,
     href,
     ...rest

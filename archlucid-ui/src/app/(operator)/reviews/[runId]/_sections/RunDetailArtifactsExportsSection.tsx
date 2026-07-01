@@ -7,7 +7,7 @@ import { BuyerDeliverablesArtifactTabs } from "@/components/BuyerDeliverablesArt
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ConsultingDocxExportButton } from "@/components/ConsultingDocxExportButton";
 import { ExportTerraformAdvisoryButton } from "@/components/ExportTerraformAdvisoryButton";
-import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
+import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { ReviewBoardWhitelabelConsultingExportButton } from "@/components/ReviewBoardWhitelabelConsultingExportButton";
 import { RunScopedAuditExportButton } from "@/components/RunScopedAuditExportButton";
@@ -106,15 +106,15 @@ export function RunDetailArtifactsExportsSection(
               />
             ) : null}
             <Button variant="primary" asChild>
-              <FunnelTelemetryExportAnchor href={getArtifactDownloadUrl(manifestId, "architecture-review-board")}>
+              <ExportTrackedAnchor href={getArtifactDownloadUrl(manifestId, "architecture-review-board")}>
                 Download architecture review report (DOCX)
-              </FunnelTelemetryExportAnchor>
+              </ExportTrackedAnchor>
             </Button>
             {requestId ? (
               <Button variant="secondary" asChild>
-                <FunnelTelemetryExportAnchor href={getArchitectureRequestDownloadUrl(requestId)} download={`ArchitectureRequest-${requestId}.json`}>
+                <ExportTrackedAnchor href={getArchitectureRequestDownloadUrl(requestId)} download={`ArchitectureRequest-${requestId}.json`}>
                   Download Request JSON
-                </FunnelTelemetryExportAnchor>
+                </ExportTrackedAnchor>
               </Button>
             ) : null}
           </div>
@@ -229,9 +229,9 @@ export function RunDetailArtifactsExportsSection(
             {buyerPolishedArtifactTable ? (
               <div className="flex flex-wrap items-center gap-3">
                 <Button variant="primary" size="sm" asChild>
-                  <FunnelTelemetryExportAnchor href={getBundleDownloadUrl(manifestId)}>
+                  <ExportTrackedAnchor href={getBundleDownloadUrl(manifestId)}>
                     Download evidence package
-                  </FunnelTelemetryExportAnchor>
+                  </ExportTrackedAnchor>
                 </Button>
                 <GoldenManifestExportMenu
                   runId={runId}
@@ -252,7 +252,7 @@ export function RunDetailArtifactsExportsSection(
                   trustEvidenceCard={trustEvidenceCard ?? null}
                 />
                 <Button variant="outline" size="sm" asChild>
-                  <FunnelTelemetryExportAnchor href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</FunnelTelemetryExportAnchor>
+                  <ExportTrackedAnchor href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</ExportTrackedAnchor>
                 </Button>
                 <ConsultingDocxExportButton runId={runId} />
                 <ReviewBoardWhitelabelConsultingExportButton runId={runId} />
@@ -262,9 +262,9 @@ export function RunDetailArtifactsExportsSection(
             {buyerPolishedArtifactTable ? null : (
               <div className="flex flex-wrap items-center gap-3">
                 <Button variant="outline" size="sm" asChild>
-                  <FunnelTelemetryExportAnchor href={getRunExportDownloadUrl(runId)}>
+                  <ExportTrackedAnchor href={getRunExportDownloadUrl(runId)}>
                     Download review export (ZIP)
-                  </FunnelTelemetryExportAnchor>
+                  </ExportTrackedAnchor>
                 </Button>
                 <RunScopedAuditExportButton runId={runId} />
                 <Button variant="outline" size="sm" asChild>

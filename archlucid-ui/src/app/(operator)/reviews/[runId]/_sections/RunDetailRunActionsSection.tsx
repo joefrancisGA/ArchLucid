@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
-import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
+import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { ShareReviewPackageButton } from "@/components/ShareReviewPackageButton";
 import { Button } from "@/components/ui/button";
@@ -46,9 +46,9 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
           />
           <div className="flex flex-wrap gap-3">
             <Button variant="secondary" size="sm" asChild>
-              <FunnelTelemetryExportAnchor href={getTraceabilityBundleDownloadUrl(runId)}>
+              <ExportTrackedAnchor href={getTraceabilityBundleDownloadUrl(runId)}>
                 Download evidence package (ZIP)
-              </FunnelTelemetryExportAnchor>
+              </ExportTrackedAnchor>
             </Button>
             {buyerPolishedShell ? null : (
             <Button variant="outline" size="sm" asChild>

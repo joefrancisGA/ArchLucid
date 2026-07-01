@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { SponsorArtifactEvidenceBadge } from "@/components/SponsorArtifactEvidenceBadge";
 import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
-import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
+import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
@@ -559,9 +559,9 @@ export function EmailRunToSponsorBanner({
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <Button variant="primary" asChild data-testid="email-run-to-sponsor-proof-pack-zip">
-          <FunnelTelemetryExportAnchor href={sponsorProofPackHref} download={`sponsor-proof-pack-${runId}.zip`}>
+          <ExportTrackedAnchor href={sponsorProofPackHref} download={`sponsor-proof-pack-${runId}.zip`}>
             Download sponsor proof pack (ZIP)
-          </FunnelTelemetryExportAnchor>
+          </ExportTrackedAnchor>
         </Button>
         <Button
           type="button"
@@ -597,12 +597,12 @@ export function EmailRunToSponsorBanner({
         </Button>
         {sponsorDocxAvailable ? (
           <Button variant="secondary" asChild>
-            <FunnelTelemetryExportAnchor
+            <ExportTrackedAnchor
               href={getArtifactDownloadUrl(manifestId, "architecture-review-board")}
               data-testid="email-run-to-sponsor-sponsor-docx"
             >
               Download Sponsor Export (DOCX)
-            </FunnelTelemetryExportAnchor>
+            </ExportTrackedAnchor>
           </Button>
         ) : null}
         {sentToSponsorUtc !== null ? (

@@ -4,8 +4,11 @@ import type { AnchorHTMLAttributes, ReactNode } from "react";
 
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 
-/** Anchor that records first-tenant `first_export_opened` funnel telemetry (once per browser). */
-export function FunnelTelemetryExportAnchor({
+/**
+ * Download/export anchor that records a single first-export lifecycle event (once per browser).
+ * Used for onboarding completion signals only — not persistent export surveillance or marketing analytics.
+ */
+export function ExportTrackedAnchor({
   onClick,
   children,
   ...props
