@@ -63,6 +63,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           href: "/onboarding",
           label: OPERATOR_NAV_LINK_LABELS.onboarding,
           title: "Getting started — checklist and milestones",
+          // Catalog tier is essential; demoted to extended after first commit in nav-committed-architecture-review-promotion.ts (TB-524).
           tier: "essential",
           icon: ClipboardList,
           defaultVisibleInCollapsedSidebar: true,

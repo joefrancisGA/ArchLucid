@@ -7,6 +7,9 @@ const COMMITTED_ARCHITECTURE_REVIEW_PROMOTED_HREFS = new Set<string>([
   "/value-report/pilot",
 ]);
 
+/** Pilot essentials demoted to extended tier after the first committed review (TB-524). */
+const COMMITTED_ARCHITECTURE_REVIEW_DEMOTED_HREFS = new Set<string>(["/onboarding"]);
+
 /** Pilot-group essentials that stay visible before Review work disclosure expands. */
 const COMMITTED_ARCHITECTURE_REVIEW_COLLAPSED_SIDEBAR_HREFS = new Set<string>(["/graph"]);
 
@@ -29,6 +32,14 @@ export function applyCommittedArchitectureReviewNavPromotions(
 
   return links.map((link) => {
     const path = navPathWithoutQuery(link.href);
+
+    if (COMMITTED_ARCHITECTURE_REVIEW_DEMOTED_HREFS.has(path)) {
+      return {
+        ...link,
+        tier: "extended",
+        defaultVisibleInCollapsedSidebar: undefined,
+      };
+    }
 
     if (!COMMITTED_ARCHITECTURE_REVIEW_PROMOTED_HREFS.has(path)) {
       return link;
