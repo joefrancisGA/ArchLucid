@@ -10,6 +10,7 @@ import {
   executeRun,
   listArchitectureRuns,
   liveApiBase,
+  liveE2eArchitectureDescription,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
@@ -40,7 +41,9 @@ test.describe("live-api-archival", () => {
     for (let i = 0; i < 2; i++) {
       const createBody = {
         requestId: `E2E-ARCHIVAL-LIST-${Date.now()}-${i}`,
-        description: "Live E2E: list consistency smoke (archival placeholder suite).",
+        description: liveE2eArchitectureDescription(
+          "Live E2E: list consistency smoke (archival placeholder suite).",
+        ),
         systemName: `ArchivalListTest-${i}`,
         environment: "prod",
         cloudProvider: 1,
