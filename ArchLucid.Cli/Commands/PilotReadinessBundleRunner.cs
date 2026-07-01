@@ -2,6 +2,12 @@ namespace ArchLucid.Cli.Commands;
 
 internal sealed class PilotReadinessBundleRunner
 {
+    private const string OfflineCitationIntegrityManifestRelative =
+        "fixtures/citation-integrity/offline-release-train-manifest.v1.json";
+
+    private const string OfflineTenantIsolationManifestRelative =
+        "fixtures/tenant-isolation/offline-release-train-manifest.v1.json";
+
     internal async Task<PilotReadinessBundleReport> RunAsync(
         string repositoryRoot,
         PilotReadinessBundleOptions options,
@@ -179,6 +185,9 @@ internal sealed class PilotReadinessBundleRunner
         {
             IncludeApi = bundleOptions.IncludeApi,
             SuppressDefaultArtifacts = bundleOptions.SuppressDefaultArtifacts,
+            ManifestPath = bundleOptions.IncludeApi
+                ? null
+                : Path.Combine(repositoryRoot, OfflineCitationIntegrityManifestRelative),
         };
         CitationIntegrityRules rules = CitationIntegrityRulesLoader.Load(childOptions.RulesPath);
         CitationIntegrityRunner runner = new();
@@ -230,6 +239,9 @@ internal sealed class PilotReadinessBundleRunner
         {
             RunId = bundleOptions.RunId,
             SuppressDefaultArtifacts = bundleOptions.SuppressDefaultArtifacts,
+            ManifestPath = string.IsNullOrWhiteSpace(bundleOptions.RunId)
+                ? Path.Combine(repositoryRoot, OfflineTenantIsolationManifestRelative)
+                : null,
         };
         TenantIsolationNegativeTestRunner runner = new();
         TenantIsolationNegativeTestReport report;

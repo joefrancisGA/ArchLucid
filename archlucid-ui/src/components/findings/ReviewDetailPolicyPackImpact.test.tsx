@@ -24,11 +24,11 @@ describe("ReviewDetailPolicyPackImpactCallout", () => {
     );
     expect(screen.getByTestId("review-detail-policy-pack-impact-edit-rules")).toHaveAttribute(
       "href",
-      "/policy-packs?tab=author&packId=healthcare-claims-v3",
+      "/governance/policy-packs?tab=author&packId=healthcare-claims-v3",
     );
     expect(screen.getByTestId("review-detail-policy-pack-impact-simulate")).toHaveAttribute(
       "href",
-      "/policy-packs?packId=healthcare-claims-v3",
+      "/governance/policy-packs?packId=healthcare-claims-v3",
     );
     expect(screen.getByTestId("review-detail-policy-pack-impact-audit")).toHaveAttribute(
       "href",
@@ -49,7 +49,7 @@ describe("ReviewDetailPolicyPackFindingsBreakdown", () => {
             groupKey: "security architecture baseline",
             packDisplayName: "Security Architecture Baseline",
             findingCount: 2,
-            packHref: "/policy-packs?ruleId=sec-base-001",
+            packHref: "/governance/policy-packs?ruleId=sec-base-001",
           },
         ]}
       />,
@@ -58,11 +58,11 @@ describe("ReviewDetailPolicyPackFindingsBreakdown", () => {
     expect(screen.getByTestId("policy-pack-impact-counts")).toHaveTextContent("2 findings cite curated policy rules");
     expect(screen.getByTestId("policy-pack-breakdown-link-security architecture baseline")).toHaveAttribute(
       "href",
-      "/policy-packs?ruleId=sec-base-001",
+      "/governance/policy-packs?ruleId=sec-base-001",
     );
     expect(screen.getByTestId("policy-pack-impact-simulate-link")).toHaveAttribute(
       "href",
-      "/policy-packs?packId=healthcare-claims-v3",
+      "/governance/policy-packs?packId=healthcare-claims-v3",
     );
   });
 });

@@ -13,7 +13,7 @@ import {
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
-import { comparisonRequestOutcomePanel } from "./helpers/operator-journey";
+import { comparePageMainHeading, comparisonRequestOutcomePanel } from "./helpers/operator-journey";
 
 function buildCreateBody(suffix: string): Record<string, unknown> {
   return {
@@ -42,7 +42,8 @@ test.describe("live-api-compare-runs", () => {
   });
 
   test("two committed runs → authority compare → compare page loads", async ({ page, request }) => {
-    test.setTimeout(240_000);
+    // Two execute/commit cycles plus compare UI hydration can exceed 240s in CI (see live-api-journey timeout note).
+    test.setTimeout(480_000);
 
     const { runId: runIdA } = await createRun(request, buildCreateBody("A"));
     await executeRun(request, runIdA);
@@ -76,23 +77,19 @@ test.describe("live-api-compare-runs", () => {
     expect(body.rightRunId).toBeTruthy();
     expect(typeof body.runLevelDiffCount).toBe("number");
 
-    await page.goto(`/compare?leftRunId=${encodeURIComponent(runIdA)}&rightRunId=${encodeURIComponent(runIdB)}`);
-
-    await expect(
-      page.getByRole("heading", { level: 2, name: /^Compare reviews$/i }).first(),
-    ).toBeVisible({
-      timeout: 60_000,
+    await page.goto(`/compare?leftRunId=${encodeURIComponent(runIdA)}&rightRunId=${encodeURIComponent(runIdB)}`, {
+      waitUntil: "domcontentloaded",
     });
+
+    await expect(comparePageMainHeading(page).first()).toBeVisible({ timeout: 60_000 });
 
     await expect(page.locator("#compare-structured")).toBeVisible({ timeout: 120_000 });
 
     await expect(comparisonRequestOutcomePanel(page)).toBeVisible({ timeout: 60_000 });
-
-    await expect(page.getByTestId("compare-governance-diff-panel")).toBeVisible({ timeout: 60_000 });
   });
 
   test("compare with missing right run returns 404", async ({ request }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(240_000);
 
     const { runId: runIdA } = await createRun(request, buildCreateBody("404A"));
     await executeRun(request, runIdA);

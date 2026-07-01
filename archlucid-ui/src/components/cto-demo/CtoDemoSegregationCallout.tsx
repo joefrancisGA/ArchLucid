@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 import {
@@ -9,7 +10,6 @@ import {
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /** Highlights segregation of duties during the CTO demo governance step. */
 export function CtoDemoSegregationCallout(): React.JSX.Element | null {

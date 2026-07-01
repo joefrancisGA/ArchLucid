@@ -1,7 +1,7 @@
 "use client";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Component, type ErrorInfo, type ReactNode } from "react";
 
 type MutationErrorBoundaryState = { hasError: boolean; message: string | null };

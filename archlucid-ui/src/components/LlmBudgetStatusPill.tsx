@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -21,7 +22,6 @@ import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function pillClassForTone(tone: LlmBudgetUtilizationTone): string {
   const hover = "hover:bg-[var(--al-layer-hover)] dark:hover:bg-neutral-800/80";

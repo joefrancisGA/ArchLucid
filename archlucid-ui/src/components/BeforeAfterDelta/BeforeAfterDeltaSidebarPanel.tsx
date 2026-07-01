@@ -1,6 +1,6 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 import { formatFindings, formatHours, safeCommittedRunWindowCount } from "./formatDelta";
 import { useDeltaQuery } from "./useDeltaQuery";

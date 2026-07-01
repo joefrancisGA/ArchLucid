@@ -1,7 +1,7 @@
 "use client";
 
-import { TOOLTIP_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { TOOLTIP_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useEffect, useState, type ReactNode } from "react";
 

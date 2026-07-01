@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.GcpExtractor;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -171,6 +172,9 @@ public sealed class SqlTenantGcpConnectionRepository(
         return rows.Select(row => row.ToRecord()).ToList();
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "ListActiveConnectionsAsync is a cross-tenant background-poller scan; it intentionally reads all active connections across all tenants and is invoked only by the hosted connection-health job identity.")]
     private async Task<IReadOnlyList<TenantGcpConnectionRecord>> ListActiveConnectionsCoreAsync(
         CancellationToken cancellationToken)
     {

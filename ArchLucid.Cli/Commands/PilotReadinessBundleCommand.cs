@@ -74,10 +74,6 @@ internal static class PilotReadinessBundleCommand
                 args,
                 cancellationToken);
         }
-        finally
-        {
-            httpClient?.Dispose();
-        }
         catch (IOException ex)
         {
             Console.Error.WriteLine("[ArchLucid CLI] " + ex.Message);
@@ -89,6 +85,10 @@ internal static class PilotReadinessBundleCommand
             Console.Error.WriteLine("[ArchLucid CLI] " + ex.Message);
 
             return CliExitCode.ConfigurationError;
+        }
+        finally
+        {
+            httpClient?.Dispose();
         }
 
         string artifactKey = PilotReadinessBundleOutputPaths.ResolveArtifactKey(report);

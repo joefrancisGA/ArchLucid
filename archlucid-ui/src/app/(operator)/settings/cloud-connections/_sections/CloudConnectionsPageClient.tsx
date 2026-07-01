@@ -1,12 +1,12 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listTier2Connections, Tier2ConnectionResponse } from "@/lib/api/cloud-connections-api";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CLOUD_CONNECTIONS_PAGE_COPY, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
 
 import { AwsConnectionSection } from "./AwsConnectionSection";
 import { GcpConnectionSection } from "./GcpConnectionSection";

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
@@ -21,7 +22,6 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
-import { cn } from "@/lib/utils";
 import { SIMPLIFIED_PILOT_WIZARD_STEP_FIELD_GROUPS } from "@/lib/simplified-pilot-wizard-step-fields";
 import { showError, showSuccess } from "@/lib/toast";
 import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";

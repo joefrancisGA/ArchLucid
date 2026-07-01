@@ -14,12 +14,12 @@ describe("FindingPolicyTraceabilityBadges", () => {
         pack={{
           packId: "healthcare-claims-v3",
           packName: "Healthcare Claims Policy Pack v3",
-          href: "/policy-packs?packId=healthcare-claims-v3",
+          href: "/governance/policy-packs?packId=healthcare-claims-v3",
         }}
         policy={{
           ruleId: "sec-base-010",
           ruleLabel: "Encrypt data at rest",
-          href: "/policy-packs?ruleId=sec-base-010",
+          href: "/governance/policy-packs?ruleId=sec-base-010",
         }}
       />,
     );

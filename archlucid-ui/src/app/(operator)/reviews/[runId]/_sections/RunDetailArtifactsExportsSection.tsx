@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -31,7 +32,6 @@ import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import type { ArtifactDescriptor, ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;

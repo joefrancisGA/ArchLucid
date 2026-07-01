@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { PolicyPackContentJsonEditor } from "@/components/PolicyPackContentJsonEditor";
 import { InfoTooltip } from "@/components/InfoTooltip";
 import { GovernanceDryRunModal } from "@/components/GovernanceDryRunModal";
@@ -11,7 +12,6 @@ import {
   policyPacksPublishButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { PACK_TYPES, VERTICAL_POLICY_PACK_IMPORTS } from "./policy-packs-page-constants";
 
 export type PolicyPacksLifecycleSectionProps = {

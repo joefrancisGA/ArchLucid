@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
@@ -25,7 +26,6 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-summary-derive";
 import { truncateForList } from "@/lib/truncate-for-list";
-import { cn } from "@/lib/utils";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel, traceCompletenessPercent } from "@/types/explanation";
 

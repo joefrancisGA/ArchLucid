@@ -1,6 +1,6 @@
+import { cn } from "@/lib/utils";
 import type { DemoExplainResponse } from "@/types/demo-explain";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type Props = {
   readonly payload: DemoExplainResponse;

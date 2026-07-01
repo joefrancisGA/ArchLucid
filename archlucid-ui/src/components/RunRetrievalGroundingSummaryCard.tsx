@@ -1,9 +1,9 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RunRetrievalGraphRagDiagnosticsStrip } from "@/components/RunRetrievalGraphRagDiagnosticsStrip";
 import { OPERATOR_TYPOGRAPHY, operatorConfidenceSurface, operatorSemanticSurface } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
 
 function dispositionClass(disposition: string): string {

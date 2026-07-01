@@ -1,7 +1,7 @@
+import { cn } from "@/lib/utils";
 import type { AuditEvent } from "@/lib/api";
 import { buyerSafeTechnicalIdLabel } from "@/lib/buyer-demo-persona-labels";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { formatUtc, tryFormatDataJson } from "./audit-page-helpers";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 

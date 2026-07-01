@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -17,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
-import { cn } from "@/lib/utils";
 
 export type ExecutiveShellFrameProps = {
   children: ReactNode;

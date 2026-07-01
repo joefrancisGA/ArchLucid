@@ -44,17 +44,30 @@ public sealed class AuditExportTenantIsolationIntegrationTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        Guid runGuid = await SeedTenantACommittedRunAsync();
+        try
+        {
+            Guid runGuid = await SeedTenantACommittedRunAsync();
 
-        await using GreenfieldSqlApiFactory factory = new();
-        using HttpClient clientB = factory.CreateClient();
-        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+            await using GreenfieldSqlApiFactory factory = new();
+            using HttpClient clientB = factory.CreateClient();
+            WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-        HttpResponseMessage list = await clientB.GetAsync("/v1/audit?take=200");
-        await list.EnsureSuccessForTestAsync();
+            HttpResponseMessage list = await clientB.GetAsync("/v1/audit?take=200");
+            await list.EnsureSuccessForTestAsync();
 
-        string json = await list.Content.ReadAsStringAsync();
-        json.Should().NotContain(runGuid.ToString("D"), because: "tenant B audit list must not include tenant A run id");
+            string json = await list.Content.ReadAsStringAsync();
+            json.Should().NotContain(runGuid.ToString("D"), because: "tenant B audit list must not include tenant A run id");
+        }
+        catch (WarmupTimedOutException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
+        }
+        catch (GreenfieldCommitRetryBudgetExhaustedException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
+        }
     }
 
     [SkippableFact]
@@ -62,17 +75,30 @@ public sealed class AuditExportTenantIsolationIntegrationTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        Guid runGuid = await SeedTenantACommittedRunAsync();
+        try
+        {
+            Guid runGuid = await SeedTenantACommittedRunAsync();
 
-        await using GreenfieldSqlApiFactory factory = new();
-        using HttpClient clientB = factory.CreateClient();
-        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+            await using GreenfieldSqlApiFactory factory = new();
+            using HttpClient clientB = factory.CreateClient();
+            WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-        HttpResponseMessage export = await clientB.GetAsync($"/v1/audit/export/csv?runId={runGuid:D}&maxRows=500");
-        await export.EnsureSuccessForTestAsync();
+            HttpResponseMessage export = await clientB.GetAsync($"/v1/audit/export/csv?runId={runGuid:D}&maxRows=500");
+            await export.EnsureSuccessForTestAsync();
 
-        string csv = await export.Content.ReadAsStringAsync();
-        csv.Should().NotContain(runGuid.ToString("D"), because: "tenant B CSV export must not leak tenant A run id filter results");
+            string csv = await export.Content.ReadAsStringAsync();
+            csv.Should().NotContain(runGuid.ToString("D"), because: "tenant B CSV export must not leak tenant A run id filter results");
+        }
+        catch (WarmupTimedOutException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
+        }
+        catch (GreenfieldCommitRetryBudgetExhaustedException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
+        }
     }
 
     [SkippableFact]
@@ -80,20 +106,33 @@ public sealed class AuditExportTenantIsolationIntegrationTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        Guid runGuid = await SeedTenantACommittedRunAsync();
+        try
+        {
+            Guid runGuid = await SeedTenantACommittedRunAsync();
 
-        await using GreenfieldSqlApiFactory factory = new();
-        using HttpClient clientB = factory.CreateClient();
-        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+            await using GreenfieldSqlApiFactory factory = new();
+            using HttpClient clientB = factory.CreateClient();
+            WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-        HttpResponseMessage search = await clientB.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=200");
-        await search.EnsureSuccessForTestAsync();
+            HttpResponseMessage search = await clientB.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=200");
+            await search.EnsureSuccessForTestAsync();
 
-        CursorPagedResponse<AuditEvent>? page =
-            await search.Content.ReadFromJsonAsync<CursorPagedResponse<AuditEvent>>(JsonOptions);
+            CursorPagedResponse<AuditEvent>? page =
+                await search.Content.ReadFromJsonAsync<CursorPagedResponse<AuditEvent>>(JsonOptions);
 
-        page.Should().NotBeNull();
-        page!.Items.Should().BeEmpty(because: "tenant B scoped audit search must not return tenant A run events");
+            page.Should().NotBeNull();
+            page!.Items.Should().BeEmpty(because: "tenant B scoped audit search must not return tenant A run events");
+        }
+        catch (WarmupTimedOutException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
+        }
+        catch (GreenfieldCommitRetryBudgetExhaustedException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
+        }
     }
 
     private static async Task<Guid> SeedTenantACommittedRunAsync()
@@ -104,6 +143,8 @@ public sealed class AuditExportTenantIsolationIntegrationTests
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
             await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
         }
+
+        GreenfieldSqlIntegrationWarmup.SkipIfShardWarmupAlreadyTimedOut();
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
 

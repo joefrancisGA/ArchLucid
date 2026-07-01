@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
@@ -8,7 +9,6 @@ import { UnifiedFirstPilotProgressPanel } from "@/components/usability/UnifiedFi
 import { BUYER_ONBOARDING_PAGE_LEAD, BUYER_ONBOARDING_PAGE_TITLE, BUYER_ONBOARDING_WALKTHROUGH_HELP_LINK } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
 import type { OnboardingPageViewModel } from "./onboarding-page-view-model";

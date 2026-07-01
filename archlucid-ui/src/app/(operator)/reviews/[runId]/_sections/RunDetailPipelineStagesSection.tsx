@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -12,7 +13,6 @@ import {
 } from "@/lib/map-pipeline-stage-outcome-status";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 

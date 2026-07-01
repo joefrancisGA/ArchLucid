@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FIRST_PILOT_TECHNICAL_COMMAND_DISCLOSURE_SUMMARY } from "@/lib/first-pilot-diagnostics-copy";
 
 /** Collapses repo CLI/script commands — operator home surfaces link to diagnostics instead. */

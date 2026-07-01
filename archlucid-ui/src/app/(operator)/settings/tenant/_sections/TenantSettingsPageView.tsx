@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import Link from "next/link";
@@ -15,7 +16,6 @@ import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { getIanaTimeZoneSelectOptions, normalizeIanaTimeZoneForSelect } from "@/lib/iana-time-zone-select";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
-import { cn } from "@/lib/utils";
 
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";

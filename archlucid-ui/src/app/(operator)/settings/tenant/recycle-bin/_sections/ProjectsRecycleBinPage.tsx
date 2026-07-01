@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
@@ -17,7 +18,6 @@ import {
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;

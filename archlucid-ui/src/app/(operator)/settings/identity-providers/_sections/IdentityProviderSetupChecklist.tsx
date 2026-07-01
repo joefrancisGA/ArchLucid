@@ -1,11 +1,11 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
-import { cn } from "@/lib/utils";
 import type { components } from "@/lib/openapi-schemas";
 
 type AdminAuthConfigurationDiagnosticsResponse =

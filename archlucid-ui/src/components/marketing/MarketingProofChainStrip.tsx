@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

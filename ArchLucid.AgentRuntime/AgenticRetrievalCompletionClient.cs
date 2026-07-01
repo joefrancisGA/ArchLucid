@@ -1,16 +1,19 @@
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Agentic;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>LLM-backed query rewrite and HyDE generation for agentic retrieval.</summary>
 public sealed class AgenticRetrievalCompletionClient(
     IAgentTierCompletionRouter tierCompletionRouter,
+    IOptionsMonitor<AdvancedRetrievalOptions> optionsMonitor,
     ILogger<AgenticRetrievalCompletionClient> logger) : IAgenticRetrievalCompletionClient
 {
     private const string RewriteSystemPrompt =
@@ -24,6 +27,9 @@ public sealed class AgenticRetrievalCompletionClient(
     private readonly IAgentTierCompletionRouter _tierCompletionRouter =
         tierCompletionRouter ?? throw new ArgumentNullException(nameof(tierCompletionRouter));
 
+    private readonly IOptionsMonitor<AdvancedRetrievalOptions> _optionsMonitor =
+        optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+
     private readonly ILogger<AgenticRetrievalCompletionClient> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -32,22 +38,18 @@ public sealed class AgenticRetrievalCompletionClient(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(queryText);
 
-        try
-        {
-            (IAgentCompletionClient completionClient, _) =
-                _tierCompletionRouter.ResolveForAgent(AgentType.Topology, LlmModelTier.Economy);
+        string? rewritten = await TryCompleteWithExpansionBudgetAsync(
+            (completionClient, ct) => completionClient.CompleteJsonAsync(
+                RewriteSystemPrompt,
+                queryText,
+                maxTokens: 120,
+                temperature: 0.1f,
+                ct),
+            "query rewrite",
+            cancellationToken).ConfigureAwait(false);
 
-            string rewritten = await completionClient
-                .CompleteJsonAsync(RewriteSystemPrompt, queryText, maxTokens: 120, temperature: 0.1f, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (!string.IsNullOrWhiteSpace(rewritten))
-                return rewritten.Trim();
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogWarning(ex, "LLM query rewrite failed; falling back to heuristic rewrite.");
-        }
+        if (rewritten is not null)
+            return rewritten;
 
         return AgenticRetrievalHeuristics.RewriteQuery(queryText);
     }
@@ -57,23 +59,63 @@ public sealed class AgenticRetrievalCompletionClient(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(queryText);
 
+        string? hyde = await TryCompleteWithExpansionBudgetAsync(
+            (completionClient, ct) => completionClient.CompleteJsonAsync(
+                HydeSystemPrompt,
+                queryText,
+                maxTokens: 200,
+                temperature: 0.2f,
+                ct),
+            "HyDE generation",
+            cancellationToken).ConfigureAwait(false);
+
+        if (hyde is not null)
+            return hyde;
+
+        return AgenticRetrievalHeuristics.GenerateHydeDocument(queryText);
+    }
+
+    private async Task<string?> TryCompleteWithExpansionBudgetAsync(
+        Func<IAgentCompletionClient, CancellationToken, Task<string>> completeAsync,
+        string operationLabel,
+        CancellationToken cancellationToken)
+    {
+        TimeSpan budget = _optionsMonitor.CurrentValue.GetEffectiveExpansionTimeout();
+
+        using CancellationTokenSource budgetSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        budgetSource.CancelAfter(budget);
+
         try
         {
             (IAgentCompletionClient completionClient, _) =
                 _tierCompletionRouter.ResolveForAgent(AgentType.Topology, LlmModelTier.Economy);
 
-            string hyde = await completionClient
-                .CompleteJsonAsync(HydeSystemPrompt, queryText, maxTokens: 200, temperature: 0.2f, cancellationToken)
-                .ConfigureAwait(false);
+            string result = await completeAsync(completionClient, budgetSource.Token).ConfigureAwait(false);
 
-            if (!string.IsNullOrWhiteSpace(hyde))
-                return hyde.Trim();
+            if (string.IsNullOrWhiteSpace(result))
+                return null;
+
+            return result.Trim();
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            _logger.LogWarning(ex, "LLM HyDE generation failed; falling back to heuristic HyDE.");
+            throw;
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning(
+                "Agentic retrieval {Operation} exceeded {BudgetSeconds:N0}s; falling back to heuristics.",
+                operationLabel,
+                budget.TotalSeconds);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Agentic retrieval {Operation} failed; falling back to heuristics.",
+                operationLabel);
         }
 
-        return AgenticRetrievalHeuristics.GenerateHydeDocument(queryText);
+        return null;
     }
 }

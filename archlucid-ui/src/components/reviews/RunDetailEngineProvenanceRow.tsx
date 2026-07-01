@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -8,7 +9,6 @@ import {
   formatReviewEngineRunTimestamp,
 } from "@/lib/review-engine-provenance-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type RunDetailEngineProvenanceRowProps = {
   readonly provenance: ReviewRunEngineProvenance;

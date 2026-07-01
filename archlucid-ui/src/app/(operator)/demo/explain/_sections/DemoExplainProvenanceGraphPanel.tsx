@@ -1,7 +1,7 @@
+import { cn } from "@/lib/utils";
 import type { DemoProvenanceGraph, DemoProvenanceGraphEdge } from "@/types/demo-explain";
 import { provenanceGraphNodeTypeBuyerLabel } from "@/lib/citation-kind-buyer-label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type Props = {
   readonly graph: DemoProvenanceGraph;

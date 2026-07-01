@@ -1,8 +1,8 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { SeedSampleReviewButton } from "@/components/SeedSampleReviewButton";
 import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type DemoTenantSeedCalloutProps = {
   readonly className?: string;

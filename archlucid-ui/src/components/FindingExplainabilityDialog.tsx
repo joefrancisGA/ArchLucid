@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { ExplainabilityTraceTree } from "@/components/explainability/ExplainabilityTraceTree";
@@ -32,7 +33,6 @@ import {
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { FindingExplainability } from "@/types/explanation";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 

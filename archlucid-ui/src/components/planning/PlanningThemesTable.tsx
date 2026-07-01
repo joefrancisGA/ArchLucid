@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { LearningPlanListItemResponse, LearningThemeResponse } from "@/types/learning";
 import { planningNumericCellCls, planningTableCls, planningThTdCls } from "./planning-table-styles";
 
@@ -72,7 +72,7 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
                     </button>
                   )}
                 </td>
-                <td className={cn("${planningThTdCls} max-w-[280px]", OPERATOR_TYPOGRAPHY.helper)}>{t.summary}</td>
+                <td className={cn(planningThTdCls, "max-w-[280px]", OPERATOR_TYPOGRAPHY.helper)}>{t.summary}</td>
               </tr>
             );
           })}

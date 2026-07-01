@@ -1,9 +1,9 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ChecklistCoverageItem } from "@/lib/findings-snapshot-insight-density";
-import { cn } from "@/lib/utils";
 
 export type CoverageChecklistPanelProps = {
   readonly items: readonly ChecklistCoverageItem[];

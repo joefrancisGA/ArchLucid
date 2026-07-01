@@ -1,12 +1,12 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { cn } from "@/lib/utils";
 
 import type { UseAdminSupportPageModel } from "./use-admin-support-page";
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -12,7 +13,6 @@ import {
   type CtoDemoLiveRunStage,
 } from "@/lib/cto-demo-live-run-stages";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const POLL_INTERVAL_MS = 2000;
 const SLOW_RUN_MESSAGE_SECONDS = 25;

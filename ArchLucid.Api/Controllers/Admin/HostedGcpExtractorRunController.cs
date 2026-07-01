@@ -85,17 +85,3 @@ public sealed class HostedGcpExtractorRunController(
         });
     }
 }
-
-public sealed class HostedGcpExtractorRunBody
-{
-    public Guid ConnectionId { get; init; }
-
-    public Guid? RunId { get; init; }
-}
-
-public sealed class HostedGcpExtractorRunResponse
-{
-    public Guid PackageId { get; init; }
-
-    public int ResourceCount { get; init; }
-}

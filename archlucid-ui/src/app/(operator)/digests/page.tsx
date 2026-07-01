@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
@@ -5,7 +6,6 @@ import { DigestsHubClient } from "@/components/digests/DigestsHubClient";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export default function DigestsPage() {
   if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {

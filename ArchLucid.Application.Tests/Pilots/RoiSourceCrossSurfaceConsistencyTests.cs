@@ -42,7 +42,8 @@ public sealed class RoiSourceCrossSurfaceConsistencyTests
             deltas,
             snapshot,
             extractorCollectionTimestampUtc: UtcNow.AddDays(-1),
-            scorecardBaselines: null);
+            scorecardBaselines: null,
+            freshnessEvaluationUtc: UtcNow);
 
         response.RoiMetricSources.Should().BeEquivalentTo(catalogRows);
 
@@ -81,7 +82,8 @@ public sealed class RoiSourceCrossSurfaceConsistencyTests
             staleDeltas,
             staleSnapshot,
             extractorCollectionTimestampUtc: UtcNow.AddDays(-45),
-            scorecardBaselines: null);
+            scorecardBaselines: null,
+            freshnessEvaluationUtc: UtcNow);
 
         staleDisposition.Should().Be("HOLD");
         staleResponse.RoiSourceFreshnessDisposition.Should().Be(staleDisposition);
@@ -106,7 +108,8 @@ public sealed class RoiSourceCrossSurfaceConsistencyTests
             BuildPilotDeltas() with { EstimatedUsdSavings = 100m },
             benchmarkSnapshot,
             extractorCollectionTimestampUtc: UtcNow.AddDays(-1),
-            scorecardBaselines: null);
+            scorecardBaselines: null,
+            freshnessEvaluationUtc: UtcNow);
 
         warnDisposition.Should().Be("WARN");
         warnResponse.RoiSourceFreshnessDisposition.Should().Be(warnDisposition);
@@ -130,7 +133,8 @@ public sealed class RoiSourceCrossSurfaceConsistencyTests
             deltas,
             snapshot,
             extractorCollectionTimestampUtc: UtcNow.AddDays(-1),
-            scorecardBaselines: null);
+            scorecardBaselines: null,
+            freshnessEvaluationUtc: UtcNow);
 
         string deltasJson = JsonSerializer.Serialize(
             new

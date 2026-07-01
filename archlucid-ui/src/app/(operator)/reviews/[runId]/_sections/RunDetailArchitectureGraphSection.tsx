@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -5,7 +6,6 @@ import { ArchitectureGraphViewer } from "@/components/ArchitectureGraphViewer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 

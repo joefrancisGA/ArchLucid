@@ -10,17 +10,17 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
     class="space-y-2"
   >
     <h1
-      class="text-xl font-semibold tracking-tight text-al-text-primary"
+      class="text-xl font-semibold leading-7 tracking-tight text-al-text-primary"
     >
       Example analysis — provenance and explanation
     </h1>
     <p
-      class="text-sm text-neutral-600 dark:text-neutral-400"
+      class="text-[13px] font-normal leading-5 text-al-text-primary"
     >
       Provenance graph and citations-bound explanation for the example architecture review.
     </p>
     <div
-      class="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-xs text-al-text-primary dark:border-amber-700/50"
+      class="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 dark:border-amber-700/50 text-xs font-normal leading-[18px] text-al-text-secondary"
       data-testid="demo-explain-status-banner"
     >
       <span
@@ -58,13 +58,13 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
         class="space-y-1"
       >
         <h2
-          class="text-sm font-semibold text-al-text-primary"
+          class="text-[15px] font-semibold leading-[22px] text-al-text-primary"
           id="demo-explain-graph-heading"
         >
           Provenance graph
         </h2>
         <p
-          class="text-xs text-neutral-500"
+          class="text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           3
            nodes · 
@@ -73,34 +73,34 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
         </p>
       </header>
       <ol
-        class="space-y-2 text-sm"
+        class="space-y-2 text-[13px] font-normal leading-5 text-al-text-primary"
         data-testid="demo-explain-provenance-graph-nodes"
       >
         <li
           class="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900"
         >
           <p
-            class="font-medium text-neutral-900 dark:text-neutral-100"
+            class="text-[15px] font-semibold leading-[22px] text-al-text-primary"
           >
             Review baseline
              
             <span
-              class="rounded bg-neutral-200 px-1 py-0.5 text-xs font-normal text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+              class="rounded bg-neutral-200 px-1 py-0.5 text-al-text-primary dark:bg-neutral-800 text-[11px] font-medium leading-none"
             >
               Review package
             </span>
           </p>
           <p
-            class="mt-0.5 font-mono text-[11px] text-neutral-500"
+            class="mt-0.5 font-mono text-[11px] font-normal leading-[15px] text-al-text-secondary"
           >
             n-run
           </p>
           <ul
-            class="mt-1 list-disc pl-5 text-xs text-neutral-600 dark:text-neutral-400"
+            class="mt-1 list-disc pl-5 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             <li>
               <span
-                class="text-neutral-500"
+                class="text-al-text-secondary"
               >
                 Produced
                  →
@@ -116,27 +116,27 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
           class="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900"
         >
           <p
-            class="font-medium text-neutral-900 dark:text-neutral-100"
+            class="text-[15px] font-semibold leading-[22px] text-al-text-primary"
           >
             Signed review record v3
              
             <span
-              class="rounded bg-neutral-200 px-1 py-0.5 text-xs font-normal text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+              class="rounded bg-neutral-200 px-1 py-0.5 text-al-text-primary dark:bg-neutral-800 text-[11px] font-medium leading-none"
             >
               Signed review record
             </span>
           </p>
           <p
-            class="mt-0.5 font-mono text-[11px] text-neutral-500"
+            class="mt-0.5 font-mono text-[11px] font-normal leading-[15px] text-al-text-secondary"
           >
             n-manifest
           </p>
           <ul
-            class="mt-1 list-disc pl-5 text-xs text-neutral-600 dark:text-neutral-400"
+            class="mt-1 list-disc pl-5 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             <li>
               <span
-                class="text-neutral-500"
+                class="text-al-text-secondary"
               >
                 Surfaced
                  →
@@ -152,18 +152,18 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
           class="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900"
         >
           <p
-            class="font-medium text-neutral-900 dark:text-neutral-100"
+            class="text-[15px] font-semibold leading-[22px] text-al-text-primary"
           >
             Public storage
              
             <span
-              class="rounded bg-neutral-200 px-1 py-0.5 text-xs font-normal text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+              class="rounded bg-neutral-200 px-1 py-0.5 text-al-text-primary dark:bg-neutral-800 text-[11px] font-medium leading-none"
             >
               Finding
             </span>
           </p>
           <p
-            class="mt-0.5 font-mono text-[11px] text-neutral-500"
+            class="mt-0.5 font-mono text-[11px] font-normal leading-[15px] text-al-text-secondary"
           >
             n-finding
           </p>
@@ -179,13 +179,13 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
         class="space-y-1"
       >
         <h2
-          class="text-sm font-semibold text-al-text-primary"
+          class="text-[15px] font-semibold leading-[22px] text-al-text-primary"
           id="demo-explain-explanation-heading"
         >
           Aggregate explanation & citations
         </h2>
         <p
-          class="text-xs text-neutral-500"
+          class="text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           6
            findings · 
@@ -200,19 +200,19 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
           data-testid="explanation-evidence-basis-badges"
         >
           <span
-            class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium inline-flex max-w-full min-h-[20px] items-center rounded-sm border px-2 py-0.5 text-[11px] font-medium leading-none border-amber-700/50 bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]"
+            class="inline-flex max-w-full min-h-[20px] items-center rounded-sm border px-2 py-0.5 border-amber-700/50 bg-[var(--al-status-warn-bg)] text-xs font-normal leading-[18px] text-al-text-secondary"
             title="Illustrative sample output; do not present as buyer evidence."
           >
             Demo-derived
           </span>
           <span
-            class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium inline-flex max-w-full min-h-[20px] items-center rounded-sm border px-2 py-0.5 text-[11px] font-medium leading-none border-emerald-800/50 bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)]"
+            class="inline-flex max-w-full min-h-[20px] items-center rounded-sm border px-2 py-0.5 border-emerald-800/50 bg-[var(--al-status-ready-bg)] text-xs font-normal leading-[18px] text-al-text-secondary"
             title="2 persisted citations support this explanation."
           >
             Evidence-backed
           </span>
           <span
-            class="text-[11px] font-medium text-amber-900 dark:text-amber-100"
+            class="dark:text-amber-100 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             Review before external sponsor send.
           </span>
@@ -222,17 +222,17 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
         class="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900"
       >
         <h3
-          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          class="text-[15px] font-semibold leading-[22px] text-al-text-primary"
         >
           Overall assessment
         </h3>
         <p
-          class="mt-1 text-sm text-neutral-700 dark:text-neutral-300"
+          class="mt-1 text-[13px] font-normal leading-5 text-al-text-primary"
         >
           Healthy baseline with two open mediums.
         </p>
         <p
-          class="mt-1 text-xs text-neutral-500"
+          class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           Risk posture: 
           <code>
@@ -242,12 +242,12 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
       </div>
       <div>
         <h3
-          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          class="text-[15px] font-semibold leading-[22px] text-al-text-primary"
         >
           Themes
         </h3>
         <ul
-          class="mt-1 list-disc pl-5 text-sm text-neutral-700 dark:text-neutral-300"
+          class="mt-1 list-disc pl-5 text-[13px] font-normal leading-5 text-al-text-primary"
         >
           <li>
             Theme A
@@ -261,20 +261,20 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
         data-testid="demo-explain-citations"
       >
         <h3
-          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          class="text-[15px] font-semibold leading-[22px] text-al-text-primary"
         >
           Citations (
           2
           )
         </h3>
         <ul
-          class="mt-1 space-y-1 text-sm text-neutral-700 dark:text-neutral-300"
+          class="mt-1 space-y-1 text-[13px] font-normal leading-5 text-al-text-primary"
         >
           <li
-            class="font-mono text-xs"
+            class="font-mono text-[11px] font-normal leading-[15px] text-al-text-secondary"
           >
             <span
-              class="rounded bg-neutral-100 px-1 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+              class="rounded bg-neutral-100 px-1 py-0.5 text-al-text-primary dark:bg-neutral-800 text-[11px] font-medium leading-none"
             >
               Signed review record
             </span>
@@ -284,7 +284,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
             </span>
              
             <span
-              class="text-neutral-500"
+              class="text-al-text-secondary"
             >
               (
               m-1
@@ -292,10 +292,10 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
             </span>
           </li>
           <li
-            class="font-mono text-xs"
+            class="font-mono text-[11px] font-normal leading-[15px] text-al-text-secondary"
           >
             <span
-              class="rounded bg-neutral-100 px-1 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+              class="rounded bg-neutral-100 px-1 py-0.5 text-al-text-primary dark:bg-neutral-800 text-[11px] font-medium leading-none"
             >
               Finding
             </span>
@@ -305,7 +305,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
             </span>
              
             <span
-              class="text-neutral-500"
+              class="text-al-text-secondary"
             >
               (
               f-1

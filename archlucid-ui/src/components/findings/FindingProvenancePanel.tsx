@@ -1,11 +1,11 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { getFindingProvenance, type FindingProvenanceStep, type FindingProvenanceStepKind } from "@/lib/api/finding-provenance";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type FindingProvenancePanelProps = {
   readonly runId: string;

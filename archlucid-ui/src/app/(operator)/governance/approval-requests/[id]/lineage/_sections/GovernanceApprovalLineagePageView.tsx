@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
@@ -9,7 +10,6 @@ import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/Operator
 import { Button } from "@/components/ui/button";
 import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { GovernanceApprovalLineageDetailContent } from "./GovernanceApprovalLineageDetailContent";
 import type { UseGovernanceApprovalLineagePageModel } from "./use-governance-approval-lineage-page";

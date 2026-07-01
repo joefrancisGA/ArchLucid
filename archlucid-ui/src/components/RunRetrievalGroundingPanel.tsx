@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
@@ -7,7 +8,6 @@ import type {
   RunRetrievalGroundingRow,
 } from "@/types/agent-forensics";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { cn } from "@/lib/utils";
 
 type RunRetrievalGroundingPanelProps = {
   payload: RunRetrievalGroundingPayload | null;

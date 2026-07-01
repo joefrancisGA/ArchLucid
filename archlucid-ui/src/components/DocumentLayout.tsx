@@ -1,5 +1,5 @@
-import { OPERATOR_DOCUMENT_ARTICLE_BODY, OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_DOCUMENT_ARTICLE_BODY, OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 export type DocumentTocItem = {
   id: string;

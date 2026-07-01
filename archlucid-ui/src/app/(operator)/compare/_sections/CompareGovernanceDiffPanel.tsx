@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
@@ -9,7 +10,6 @@ import {
   type CompareManifestGovernanceSnapshot,
 } from "@/lib/compare-effective-governance-diff";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type CompareGovernanceDiffPanelProps = {
   readonly view: CompareGovernanceDiffView | null;

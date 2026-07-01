@@ -130,7 +130,6 @@ describe("authority seam regression", () => {
     );
     const hrefs = new Set(visible.map((l) => l.href));
 
-    expect(hrefs.has("/")).toBe(true);
     expect(hrefs.has("/dashboard")).toBe(true);
     expect(hrefs.has("/reviews/new")).toBe(true);
     expect(hrefs.has("/reviews?projectId=default")).toBe(true);

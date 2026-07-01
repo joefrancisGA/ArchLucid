@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background,
@@ -46,7 +47,6 @@ import {
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { ReasoningTraceReadMore } from "@/components/ReasoningTraceReadMore";
 import Link from "next/link";
 

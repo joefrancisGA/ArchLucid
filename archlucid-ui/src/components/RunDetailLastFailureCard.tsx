@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

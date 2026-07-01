@@ -2,7 +2,10 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CommandPalette } from "@/components/CommandPalette";
-import { COMMAND_PALETTE_DISPLAY_SHORTCUT } from "@/lib/keyboard-shortcut-display";
+import {
+  COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
+  COMMAND_PALETTE_DISPLAY_SHORTCUT,
+} from "@/lib/keyboard-shortcut-display";
 
 const mockPush = vi.fn();
 
@@ -58,7 +61,7 @@ describe("CommandPalette", () => {
 
     const trigger = screen.getByRole("button", { name: "Open command palette" });
 
-    expect(trigger).toHaveAttribute("aria-keyshortcuts", "Control+K");
+    expect(trigger).toHaveAttribute("aria-keyshortcuts", COMMAND_PALETTE_ARIA_KEYSHORTCUTS);
     expect(trigger.getAttribute("aria-label")).not.toMatch(/Ctrl|⌘/);
   });
 

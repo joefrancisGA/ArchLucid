@@ -830,6 +830,89 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/aws-extractor/hosted/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["HostedAwsExtractorRunBody"];
+                    "application/json": components["schemas"]["HostedAwsExtractorRunBody"];
+                    "text/json": components["schemas"]["HostedAwsExtractorRunBody"];
+                };
+            };
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HostedAwsExtractorRunResponse"];
+                        "text/json": components["schemas"]["HostedAwsExtractorRunResponse"];
+                        "text/plain": components["schemas"]["HostedAwsExtractorRunResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/azure-extractor/hosted/configuration": {
         parameters: {
             query?: never;
@@ -1668,6 +1751,89 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/gcp-extractor/hosted/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["HostedGcpExtractorRunBody"];
+                    "application/json": components["schemas"]["HostedGcpExtractorRunBody"];
+                    "text/json": components["schemas"]["HostedGcpExtractorRunBody"];
+                };
+            };
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HostedGcpExtractorRunResponse"];
+                        "text/json": components["schemas"]["HostedGcpExtractorRunResponse"];
+                        "text/plain": components["schemas"]["HostedGcpExtractorRunResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -15548,6 +15714,127 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/aws-extractor/connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AwsTier2ConnectionResponse"][];
+                        "text/json": components["schemas"]["AwsTier2ConnectionResponse"][];
+                        "text/plain": components["schemas"]["AwsTier2ConnectionResponse"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["AwsTier2ConnectionConfigureBody"];
+                    "application/json": components["schemas"]["AwsTier2ConnectionConfigureBody"];
+                    "text/json": components["schemas"]["AwsTier2ConnectionConfigureBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AwsTier2ConnectionResponse"];
+                        "text/json": components["schemas"]["AwsTier2ConnectionResponse"];
+                        "text/plain": components["schemas"]["AwsTier2ConnectionResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/aws-extractor/connections/{connectionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    connectionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/azure-extractor/connections": {
         parameters: {
             query?: never;
@@ -18937,6 +19224,212 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/findings/{findingId}/remediation-assignment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    findingId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["FindingRemediationAssignmentRequest"];
+                    "application/json": null | components["schemas"]["FindingRemediationAssignmentRequest"];
+                    "text/json": null | components["schemas"]["FindingRemediationAssignmentRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/gcp-extractor/connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GcpTier2ConnectionResponse"][];
+                        "text/json": components["schemas"]["GcpTier2ConnectionResponse"][];
+                        "text/plain": components["schemas"]["GcpTier2ConnectionResponse"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["GcpTier2ConnectionConfigureBody"];
+                    "application/json": components["schemas"]["GcpTier2ConnectionConfigureBody"];
+                    "text/json": components["schemas"]["GcpTier2ConnectionConfigureBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GcpTier2ConnectionResponse"];
+                        "text/json": components["schemas"]["GcpTier2ConnectionResponse"];
+                        "text/plain": components["schemas"]["GcpTier2ConnectionResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/gcp-extractor/connections/{connectionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    connectionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/governance-preview/compare-environments": {
         parameters: {
             query?: never;
@@ -21922,6 +22415,174 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/integrations/itsm/connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantItsmConnectorConnectionsListResponse"];
+                        "text/json": components["schemas"]["TenantItsmConnectorConnectionsListResponse"];
+                        "text/plain": components["schemas"]["TenantItsmConnectorConnectionsListResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/integrations/itsm/connections/{provider}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    provider: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantItsmConnectorConnectionResponse"];
+                        "text/json": components["schemas"]["TenantItsmConnectorConnectionResponse"];
+                        "text/plain": components["schemas"]["TenantItsmConnectorConnectionResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    provider: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["TenantItsmConnectorConnectionUpsertRequest"];
+                    "application/json": null | components["schemas"]["TenantItsmConnectorConnectionUpsertRequest"];
+                    "text/json": null | components["schemas"]["TenantItsmConnectorConnectionUpsertRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantItsmConnectorConnectionResponse"];
+                        "text/json": components["schemas"]["TenantItsmConnectorConnectionResponse"];
+                        "text/plain": components["schemas"]["TenantItsmConnectorConnectionResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    provider: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/integrations/itsm/correlations": {
         parameters: {
             query?: never;
@@ -22176,6 +22837,17 @@ export interface paths {
                         "text/plain": components["schemas"]["CreateItsmOutboundIssueResponse"];
                     };
                 };
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AsyncJobResponse"];
+                        "text/json": components["schemas"]["AsyncJobResponse"];
+                        "text/plain": components["schemas"]["AsyncJobResponse"];
+                    };
+                };
                 /** @description Bad Request */
                 400: {
                     headers: {
@@ -22211,6 +22883,81 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/integrations/itsm/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantItsmOutboundSettingsResponse"];
+                        "text/json": components["schemas"]["TenantItsmOutboundSettingsResponse"];
+                        "text/plain": components["schemas"]["TenantItsmOutboundSettingsResponse"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["TenantItsmOutboundSettingsUpsertRequest"];
+                    "application/json": null | components["schemas"]["TenantItsmOutboundSettingsUpsertRequest"];
+                    "text/json": null | components["schemas"]["TenantItsmOutboundSettingsUpsertRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantItsmOutboundSettingsResponse"];
+                        "text/json": components["schemas"]["TenantItsmOutboundSettingsResponse"];
+                        "text/plain": components["schemas"]["TenantItsmOutboundSettingsResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -22500,6 +23247,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/integrations/webhooks/jira/tenants/{tenantId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    tenantId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/integrations/webhooks/servicenow": {
         parameters: {
             query?: never;
@@ -22514,6 +23318,63 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/integrations/webhooks/servicenow/tenants/{tenantId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    tenantId: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -32222,6 +33083,7 @@ export interface components {
         ArchitectureRiskRegisterEntry: {
             /** Format: int32 */
             agingDays?: number;
+            assignedToUserId?: null | string;
             category?: string;
             evidenceHref?: string;
             findingId?: string;
@@ -32234,6 +33096,8 @@ export interface components {
             /** Format: uuid */
             manifestId?: null | string;
             ownerUserId?: null | string;
+            /** Format: date-time */
+            remediationDueUtc?: null | string;
             resourceId?: null | string;
             /** Format: date-time */
             revisitDueUtc?: null | string;
@@ -32449,6 +33313,23 @@ export interface components {
             /** Format: date-time */
             timestampUtc?: string;
         };
+        AwsTier2ConnectionConfigureBody: {
+            accountId: string;
+            region: string;
+            roleArn: string;
+        };
+        AwsTier2ConnectionResponse: {
+            accountId: string;
+            /** Format: uuid */
+            connectionId?: string;
+            /** Format: date-time */
+            lastPolledUtc?: null | string;
+            region: string;
+            roleArn: string;
+            status: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
         AzureExtractorChunkUploadStartBody: {
             fileName?: string;
             /** Format: int64 */
@@ -32630,6 +33511,26 @@ export interface components {
             decisionTraces?: unknown[];
             manifest?: components["schemas"]["GoldenManifest"];
             warnings?: string[];
+        };
+        CommittedEffectiveGovernanceSnapshotDescriptor: {
+            /** Format: int32 */
+            complianceRuleKeyCount?: number;
+            complianceRuleKeys?: string[];
+            /** Format: int32 */
+            conflictCount?: number;
+            /** Format: date-time */
+            generatedUtc?: string;
+            hasEffectivePolicy?: boolean;
+            packAssignments?: components["schemas"]["CommittedGovernancePackAssignmentSnapshot"][];
+            ruleSetHash?: string;
+            ruleSetId?: string;
+            ruleSetVersion?: string;
+        };
+        CommittedGovernancePackAssignmentSnapshot: {
+            /** Format: uuid */
+            policyPackId?: string;
+            policyPackVersion?: string;
+            scopeLevel?: string;
         };
         ComparisonExplanationResult: {
             highLevelSummary?: string;
@@ -33997,6 +34898,7 @@ export interface components {
         };
         Finding: {
             agentExecutionTraceId?: null | string;
+            assignedToUserId?: null | string;
             category?: string;
             classification?: null | components["schemas"]["FindingClassification"];
             confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
@@ -34032,6 +34934,8 @@ export interface components {
             rationale?: string;
             recommendedActions?: string[];
             relatedNodeIds?: string[];
+            /** Format: date-time */
+            remediationDueUtc?: null | string;
             requestInputRef?: null | string;
             reviewNotes?: null | string;
             /** Format: date-time */
@@ -34155,6 +35059,7 @@ export interface components {
             lineRange?: null | string;
         };
         FindingInspectResponse: {
+            assignedToUserId?: null | string;
             /** Format: uuid */
             auditRowId?: null | string;
             confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
@@ -34185,6 +35090,8 @@ export interface components {
             reasoningTrace?: null | string;
             reasoningTraceDigestSha256?: null | string;
             recommendedActions?: string[];
+            /** Format: date-time */
+            remediationDueUtc?: null | string;
             /** Format: date-time */
             revisitDueUtc?: null | string;
             /** Format: uuid */
@@ -34222,6 +35129,13 @@ export interface components {
             severity?: string;
             title?: string;
             traceCompleteness?: null | components["schemas"]["FindingTraceCompletenessScore"];
+        };
+        FindingRemediationAssignmentRequest: {
+            assignedToUserId?: null | string;
+            /** Format: date-time */
+            remediationDueUtc?: null | string;
+            /** Format: uuid */
+            runId?: string;
         };
         FindingSeverity: number;
         FindingTraceCompletenessScore: {
@@ -34279,6 +35193,23 @@ export interface components {
         FindingsSnapshotGenerationStatus: number;
         FirstTenantFunnelEventRequest: {
             event?: null | string;
+        };
+        GcpTier2ConnectionConfigureBody: {
+            projectId: string;
+            serviceAccountEmail: string;
+            workloadIdentityPoolProvider: string;
+        };
+        GcpTier2ConnectionResponse: {
+            /** Format: uuid */
+            connectionId?: string;
+            /** Format: date-time */
+            lastPolledUtc?: null | string;
+            projectId: string;
+            serviceAccountEmail: string;
+            status: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            workloadIdentityPoolProvider: string;
         };
         GeneratePolicyPackRequest: {
             prompt: string;
@@ -34537,6 +35468,21 @@ export interface components {
         GovernanceReviewsAwaitingActionResponse: {
             items?: components["schemas"]["GovernanceReviewAwaitingActionItem"][];
         };
+        GovernedFindingCoverageMetric: {
+            /** Format: int32 */
+            advisoryCount?: number;
+            /** Format: int32 */
+            governedCount?: number;
+            /** Format: double */
+            governedPercentage?: null | number | string;
+            isAvailable?: boolean;
+            /** Format: int32 */
+            totalDecisionGradeCount?: number;
+            /** Format: int32 */
+            withEvidenceRefsCount?: number;
+            /** Format: int32 */
+            withPolicyRuleCount?: number;
+        };
         GraphEdge: {
             edgeId?: string;
             edgeType?: string;
@@ -34630,6 +35576,18 @@ export interface components {
             leaseExpiresUtc?: string;
             leaseName?: string;
         };
+        HostedAwsExtractorRunBody: {
+            /** Format: uuid */
+            connectionId?: string;
+            /** Format: uuid */
+            runId?: null | string;
+        };
+        HostedAwsExtractorRunResponse: {
+            /** Format: uuid */
+            packageId?: string;
+            /** Format: int32 */
+            resourceCount?: number;
+        };
         HostedAzureExtractorConfigurationResponse: {
             customerAppId: string;
             customerTenantId: string;
@@ -34650,6 +35608,18 @@ export interface components {
             subscriptionId: string;
         };
         HostedAzureExtractorRunResponse: {
+            /** Format: uuid */
+            packageId?: string;
+            /** Format: int32 */
+            resourceCount?: number;
+        };
+        HostedGcpExtractorRunBody: {
+            /** Format: uuid */
+            connectionId?: string;
+            /** Format: uuid */
+            runId?: null | string;
+        };
+        HostedGcpExtractorRunResponse: {
             /** Format: uuid */
             packageId?: string;
             /** Format: int32 */
@@ -35222,6 +36192,7 @@ export interface components {
             /** Format: uuid */
             decisionTraceId?: string;
             decisions?: components["schemas"]["ResolvedArchitectureDecision"][];
+            effectiveGovernanceAtCommit?: null | components["schemas"]["CommittedEffectiveGovernanceSnapshotDescriptor"];
             feasibilityVerdict?: null | components["schemas"]["FeasibilityVerdict"];
             /** Format: uuid */
             findingsSnapshotId?: string;
@@ -35315,6 +36286,7 @@ export interface components {
             createdUtc: string;
             /** Format: int32 */
             decisionCount: number;
+            effectiveGovernanceAtCommit?: null | components["schemas"]["CommittedEffectiveGovernanceSnapshotDescriptor"];
             feasibilityVerdict?: null | components["schemas"]["FeasibilityVerdict"];
             hasUnresolvedIssues?: boolean;
             hasWarnings?: boolean;
@@ -35681,6 +36653,7 @@ export interface components {
             /** Format: date-time */
             extractorCollectionTimestampUtc?: null | string;
             findingsBySeverity?: components["schemas"]["PilotRunDeltaSeverityCountResponse"][];
+            governedFindingCoverage?: null | components["schemas"]["GovernedFindingCoverageMetric"];
             isDemoTenant?: boolean;
             /** Format: int32 */
             llmCallCount?: number;
@@ -36469,6 +37442,7 @@ export interface components {
             reviewedByUserName?: null | string;
             /** Format: uuid */
             runId?: string;
+            sourceEvidenceLinks?: components["schemas"]["RecommendationSourceEvidenceLink"][];
             status?: string;
             suggestedAction?: string;
             /** Format: uuid */
@@ -36477,6 +37451,10 @@ export interface components {
             urgency?: string;
             /** Format: uuid */
             workspaceId?: string;
+        };
+        RecommendationSourceEvidenceLink: {
+            id?: string;
+            kind?: string;
         };
         RecordBulkFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
@@ -37250,6 +38228,12 @@ export interface components {
             createdUtc?: string;
             documentIds?: string[];
             documentMetadataMalformed?: boolean;
+            /** Format: double */
+            graphRagExpansionLatencyMs?: null | number | string;
+            /** Format: int32 */
+            graphRagNeighborsAdded?: null | number;
+            /** Format: int32 */
+            graphRagSeedHits?: null | number;
             /** Format: int32 */
             retrievedChunkCount?: number;
             retrievedChunkIds?: string[];
@@ -37274,7 +38258,16 @@ export interface components {
             averageCitationCoverage?: number | string;
             disposition?: string;
             expectedAgentsMissingTraces?: string[];
+            /** Format: double */
+            graphRagNeighborHitRate?: number | string;
+            graphRagPilotFloorDisposition?: string;
             operatorDetail?: null | string;
+            /** Format: int32 */
+            totalGraphRagNeighborsAdded?: number;
+            /** Format: int32 */
+            totalGraphRagSeedHits?: number;
+            /** Format: int32 */
+            totalRetrievalTokensIn?: number;
             /** Format: int32 */
             totalRetrievedChunks?: number;
             /** Format: int32 */
@@ -37687,6 +38680,54 @@ export interface components {
         TenantIntegrationsOperationsResponse: {
             connectors?: components["schemas"]["ConnectorSurfaceStatusResponse"][];
             integrationEventBus?: components["schemas"]["IntegrationEventBusStatusResponse"];
+        };
+        TenantItsmConnectorConnectionResponse: {
+            authUserName?: null | string;
+            credentialKeyVaultSecretName?: null | string;
+            inboundWebhookKeyVaultSecretName?: null | string;
+            instanceBaseUrl?: null | string;
+            isConfigured?: boolean;
+            isEnabled?: boolean;
+            label?: null | string;
+            provider: string;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        TenantItsmConnectorConnectionUpsertRequest: {
+            authUserName: string;
+            credentialKeyVaultSecretName: string;
+            inboundWebhookKeyVaultSecretName?: null | string;
+            instanceBaseUrl: string;
+            isEnabled?: boolean;
+            label?: null | string;
+        };
+        TenantItsmConnectorConnectionsListResponse: {
+            connections: components["schemas"]["TenantItsmConnectorConnectionResponse"][];
+        };
+        TenantItsmDeploymentCredentialSummary: {
+            jiraConfigured?: boolean;
+            jiraServiceAccountEmailMasked?: null | string;
+            serviceNowConfigured?: boolean;
+            serviceNowUsernameMasked?: null | string;
+        };
+        TenantItsmOutboundSettingsResponse: {
+            deploymentCredentials?: components["schemas"]["TenantItsmDeploymentCredentialSummary"];
+            hasTenantOverrides?: boolean;
+            jiraIssueTypeBySeverityJson?: null | string;
+            jiraProjectKeyOverride?: null | string;
+            jiraSendInfoSeverity?: boolean;
+            nativeEnabled?: boolean;
+            serviceNowAutoCreateCmdbCi?: boolean;
+            /** Format: uuid */
+            tenantId: string;
+        };
+        TenantItsmOutboundSettingsUpsertRequest: {
+            jiraIssueTypeBySeverityJson?: null | string;
+            jiraProjectKeyOverride?: null | string;
+            jiraSendInfoSeverity?: null | boolean;
+            serviceNowAutoCreateCmdbCi?: null | boolean;
         };
         TenantLinkEntraRequest: {
             entraOid?: null | string;

@@ -1,10 +1,10 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { BUYER_COMPARE_SECONDARY_PAGE_LEAD } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type CompareBuyerScopedGateProps = {
   readonly onLoadSampleComparison: () => void;

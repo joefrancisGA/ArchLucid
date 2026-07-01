@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 import { PolicyPackImpactPreviewPanel } from "@/components/PolicyPackImpactPreviewPanel";
@@ -18,7 +19,6 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import type { PolicyPacksPageTab } from "./policy-packs-page-view-model";
 

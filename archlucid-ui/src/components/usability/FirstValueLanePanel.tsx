@@ -1,6 +1,6 @@
 "use client";
-import { ENTERPRISE_STATUS_LABELS, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { ENTERPRISE_STATUS_LABELS, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";

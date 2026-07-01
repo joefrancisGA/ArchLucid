@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -5,7 +6,6 @@ import { OperatorMalformedCallout } from "@/components/OperatorShellMessage";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type RunDetailManifestSummaryAlertsProps = {
   readonly manifestSummaryFailure: ApiLoadFailureState | null;

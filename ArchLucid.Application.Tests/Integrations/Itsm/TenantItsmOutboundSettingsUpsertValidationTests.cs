@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Integrations.Itsm;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class TenantItsmOutboundSettingsUpsertValidationTests
 {
     [Fact]

@@ -1,6 +1,6 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { formatFindings, formatHours, percentDelta } from "./formatDelta";
 import { pickPriorForSameRequest } from "./pick-prior-for-same-request";

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -14,7 +15,6 @@ import {
   type CuratedRulesDocument,
 } from "@/lib/policy-pack-curated-rules-v1";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type PolicyPackNaturalLanguageBuilderProps = {
   readonly canMutatePacks: boolean;

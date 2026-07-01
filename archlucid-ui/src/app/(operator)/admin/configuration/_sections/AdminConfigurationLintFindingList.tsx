@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { normalizePath } from "./admin-configuration-helpers";
 import type { AdminConfigLintFinding } from "./admin-configuration-types";

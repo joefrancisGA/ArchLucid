@@ -1,10 +1,10 @@
+import { cn } from "@/lib/utils";
 import {
   BUYER_ASK_GROUNDING_ONCE,
   BUYER_ASK_REVIEW_ANCHORS_LINE,
   BUYER_ASK_REVIEW_ANCHORS_SUMMARY,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 

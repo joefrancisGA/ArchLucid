@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.TestSupport\ArchLucid.TestSupport.csproj" />
     <ProjectReference Include="..\ArchLucid.Capabilities.Cost\ArchLucid.Capabilities.Cost.csproj" />
+    <ProjectReference Include="..\ArchLucid.Integrations.AwsExtractor\ArchLucid.Integrations.AwsExtractor.csproj" />
     <ProjectReference Include="..\ArchLucid.Integrations.AzureDevOps\ArchLucid.Integrations.AzureDevOps.csproj" />
     <ProjectReference Include="..\ArchLucid.ArtifactSynthesis\ArchLucid.ArtifactSynthesis.csproj" />
     <ProjectReference Include="..\ArchLucid.Backfill.Cli\ArchLucid.Backfill.Cli.csproj" />
@@ -49,6 +50,7 @@
     <ProjectReference Include="..\ArchLucid.Worker\ArchLucid.Worker.csproj" />
     <ProjectReference Include="..\ArchLucid.Mcp\ArchLucid.Mcp.csproj" />
     <ProjectReference Include="..\ArchLucid.Integrations.AzureExtractor\ArchLucid.Integrations.AzureExtractor.csproj" />
+    <ProjectReference Include="..\ArchLucid.Integrations.GcpExtractor\ArchLucid.Integrations.GcpExtractor.csproj" />
     <ProjectReference Include="..\ArchLucid.AgentSimulator\ArchLucid.AgentSimulator.csproj" />
     <ProjectReference Include="..\ArchLucid.Jobs.Cli\ArchLucid.Jobs.Cli.csproj" />
   </ItemGroup>

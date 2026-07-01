@@ -9,6 +9,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "../fixtures";
 import { escapeRegExpSource } from "./escape-reg-exp-source";
+import { expectAnyLocatorVisible } from "./locator-readiness";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_DEMO_RUN_ID);
 
@@ -59,7 +60,15 @@ export async function expectNoGenericErrorBoundary(page: Page): Promise<void> {
   await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
 }
 
+/** CTO demo pack replaces the classic "Executive summary" label with the above-fold hero (mock E2E default). */
+export async function expectBuyerExecutiveSummarySurface(page: Page): Promise<void> {
+  await expectAnyLocatorVisible([
+    page.getByTestId("cto-demo-executive-above-fold"),
+    page.getByText("Executive summary", { exact: true }),
+  ]);
+}
+
 /** Layer strip stepper is present on curated spine routes in buyer-polished mock E2E. */
 export async function expectBuyerGoldenJourneyStepper(page: Page): Promise<void> {
-  await expect(page.getByTestId("buyer-golden-journey-stepper")).toBeVisible();
+  await expect(page.getByTestId("buyer-golden-journey-stepper")).toBeVisible({ timeout: 30_000 });
 }

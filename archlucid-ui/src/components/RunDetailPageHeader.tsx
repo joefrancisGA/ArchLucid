@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
@@ -24,7 +25,6 @@ import {
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 function runPackageExportHref(runId: string, format: "docx" | "pdf" | "html"): string {

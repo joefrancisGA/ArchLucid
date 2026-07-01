@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
@@ -7,7 +8,6 @@ import type { PreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-b
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type PreCommitGovernanceBlockPanelProps = {
   readonly runId: string;

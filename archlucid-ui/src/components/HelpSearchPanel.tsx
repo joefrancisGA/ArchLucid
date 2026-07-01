@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { ArrowLeft, BookOpen, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -30,7 +31,6 @@ import { type HelpDocSearchRecord, searchHelpDocumentation } from "@/lib/help-in
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type HelpSearchPanelProps = {
   open: boolean;

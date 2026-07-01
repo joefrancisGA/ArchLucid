@@ -1,8 +1,8 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import { OPERATOR_HOME_SECTION_HEADING, OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /**
  * Compact five-step golden path for buyer-polished home — one primary narrative instead of many equal-weight CTAs.

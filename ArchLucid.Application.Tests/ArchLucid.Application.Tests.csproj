@@ -27,6 +27,7 @@
     <PackageReference Include="PdfPig" />
     <PackageReference Include="Verify.Xunit" />
     <PackageReference Include="WireMock.Net" />
+    <PackageReference Include="Scriban.Signed" />
     <PackageReference Include="Handlebars.Net.Helpers.Humanizer" />
     <PackageReference Include="Humanizer" />
     <PackageReference Include="xunit" />

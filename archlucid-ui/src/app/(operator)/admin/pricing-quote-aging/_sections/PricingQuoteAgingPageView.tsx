@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
@@ -13,7 +14,6 @@ import {
   OPERATOR_TYPOGRAPHY,
   operatorSemanticSurface,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { pricingQuoteAgingRowTone } from "@/lib/pricing-quote-aging";
 import { acknowledgePricingQuoteRequest, closePricingQuoteRequest } from "@/lib/trial-funnel-ops";
 

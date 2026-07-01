@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -17,7 +18,6 @@ import {
   alertTuningRecommendButtonTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { ThresholdCandidateEvaluation, ThresholdRecommendationResult } from "@/types/alert-tuning";
 
 const SIMPLE_RULE_TYPES = [

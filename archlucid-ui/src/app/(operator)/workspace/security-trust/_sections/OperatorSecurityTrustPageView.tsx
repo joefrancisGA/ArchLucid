@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { LayerHeader } from "@/components/LayerHeader";
@@ -19,7 +20,6 @@ import {
   OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_LABEL,
   OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE,
 } from "@/lib/operator-security-trust-content";
-import { cn } from "@/lib/utils";
 
 const securityTrustLinkClassName = cn(
   OPERATOR_TYPOGRAPHY.body,

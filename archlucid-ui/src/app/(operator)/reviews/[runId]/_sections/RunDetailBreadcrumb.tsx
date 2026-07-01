@@ -1,10 +1,10 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type RunDetailBreadcrumbProps = {
   readonly headline: string;

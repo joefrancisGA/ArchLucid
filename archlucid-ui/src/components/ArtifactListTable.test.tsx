@@ -35,7 +35,7 @@ describe("ArtifactListTable", () => {
 
     const links = screen.getAllByRole("link", { name: "Download" });
     expect(links).toHaveLength(2);
-    expect(links[0].getAttribute("href")).toContain("/api/proxy/v1/artifacts/manifests/manifest-1/artifact/");
+    expect(links[0].getAttribute("href")).toContain("/api/proxy/v1/artifacts/signed-records/manifest-1/artifact/");
   });
 
   it("renders headers with zero data rows when artifact list is empty", () => {
@@ -50,7 +50,7 @@ describe("ArtifactListTable", () => {
 
     const preview = screen.getByRole("link", { name: "Preview" });
     expect(preview.getAttribute("href")).toBe(
-      "/manifests/manifest-1/artifacts/artifact-guid-1",
+      "/signed-records/manifest-1/artifacts/artifact-guid-1",
     );
   });
 

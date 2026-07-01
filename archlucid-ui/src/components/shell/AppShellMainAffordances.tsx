@@ -47,10 +47,19 @@ const ContextualPageHintStrip = dynamic(
   { loading: () => null },
 );
 
+const BuyerGoldenJourneyLayerContextStrip = dynamic(
+  () =>
+    import("@/components/shell/BuyerGoldenJourneyLayerContextStrip").then(
+      (module) => module.BuyerGoldenJourneyLayerContextStrip,
+    ),
+  { loading: () => null },
+);
+
 /** Non-critical main-column affordances loaded after the shell paints. */
 export function AppShellMainAffordances() {
   return (
     <>
+      <BuyerGoldenJourneyLayerContextStrip />
       <Breadcrumbs />
       <OperatorRecentViewsTracker />
       <ReviewsListReturnStateTracker />

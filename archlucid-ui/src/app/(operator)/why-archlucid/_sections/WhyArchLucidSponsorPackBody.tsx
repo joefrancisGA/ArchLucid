@@ -1,7 +1,7 @@
+import { cn } from "@/lib/utils";
 import type { SponsorEvidencePackPayload } from "@/lib/api";
 import { formatWhyPageInstant } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-helpers";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type WhyArchLucidSponsorPackBodyProps = {
   readonly sponsorPack: SponsorEvidencePackPayload;

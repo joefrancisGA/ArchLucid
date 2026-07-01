@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -16,7 +17,6 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import type { ShowcaseHomeAhaMoment } from "@/lib/showcase-home-aha-moment";
-import { cn } from "@/lib/utils";
 
 type SampleReviewAhaMomentPanelProps = {
   readonly moment: ShowcaseHomeAhaMoment;

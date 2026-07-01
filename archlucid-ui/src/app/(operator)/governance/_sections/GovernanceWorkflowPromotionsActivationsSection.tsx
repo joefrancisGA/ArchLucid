@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,6 @@ import {
 } from "@/lib/governance-workflow-release-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { GovernanceEnvironmentActivation, GovernancePromotionRecord } from "@/types/governance-workflow";
 import type { MutableRefObject } from "react";
 import { formatGovernanceBusinessInstant } from "./governance-workflow-helpers";

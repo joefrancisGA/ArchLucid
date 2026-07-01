@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -29,7 +30,6 @@ import { computeWorkspaceHealthSlaStats } from "@/lib/workspace-health-sla";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { ComplianceDriftTrendPoint, GovernanceDashboardSummary } from "@/types/governance-dashboard";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 

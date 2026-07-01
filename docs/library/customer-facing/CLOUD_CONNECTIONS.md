@@ -55,7 +55,7 @@ Do **not** assign Owner, Contributor, User Access Administrator, or broad direct
 
 ## Workload identity federation {#workload-identity-federation}
 
-ArchLucid-hosted cloud-connected ingestion uses **Azure AD workload identity federation**:
+ArchLucid-hosted cloud-connected ingestion uses **Microsoft Entra ID workload identity federation**:
 
 - Your tenant creates a federated credential on the read-only service principal.
 - The credential trusts ArchLucid's user-assigned managed identity issuer and subject.

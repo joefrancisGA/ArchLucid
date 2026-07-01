@@ -1,6 +1,6 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";

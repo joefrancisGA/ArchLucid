@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   OPERATOR_KPI_CARD_DESCRIPTION,
@@ -5,7 +6,6 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
-import { cn } from "@/lib/utils";
 import type { EffectivePolicyPackSet, PolicyPack } from "@/types/policy-packs";
 
 export type PolicyPacksMetricStripProps = {

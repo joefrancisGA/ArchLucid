@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { ReactElement } from "react";
 
@@ -17,7 +18,6 @@ import {
 } from "@/lib/sidebar-nav-link-filters";
 import type { SidebarCollapsibleNavGroupId } from "@/lib/sidebar-nav-group-expansion-storage";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
-import { cn } from "@/lib/utils";
 
 type SidebarNavClusterProps = {
   readonly row: NavGroupWithVisibleLinks;

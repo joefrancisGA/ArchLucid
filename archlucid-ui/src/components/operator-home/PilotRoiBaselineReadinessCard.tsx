@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 
@@ -23,7 +24,6 @@ import {
   PILOT_BASELINE_WIZARD_SAVED_EVENT,
 } from "@/lib/pilot-baseline-wizard-events";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function openPilotBaselineWizard(): void {
   window.dispatchEvent(new Event(PILOT_BASELINE_WIZARD_OPEN_EVENT));

@@ -1,7 +1,7 @@
+import { cn } from "@/lib/utils";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /** Suspense fallback shown while the Compare form client component is initializing (reading URL params). */
 export function CompareSuspenseFallback() {

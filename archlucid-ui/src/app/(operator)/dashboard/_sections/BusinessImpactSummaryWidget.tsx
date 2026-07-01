@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -17,7 +18,6 @@ import {
   OPERATOR_KPI_CARD_TITLE,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lucide-react";
 
 function formatUsd(value: number | undefined): string {

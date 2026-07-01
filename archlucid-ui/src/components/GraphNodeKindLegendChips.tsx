@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 const KINDS: ReadonlyArray<{ k: string; c: string }> = [
   { k: "Decision", c: "bg-blue-100 text-blue-900 dark:bg-blue-950/50 dark:text-blue-200" },
@@ -17,7 +18,7 @@ export function GraphNodeKindLegendChips(props: { className?: string }) {
       {KINDS.map((x) => (
         <li
           key={x.k}
-          className={cn("inline-flex rounded-full px-2.5 py-0.5 font-semibold uppercase tracking-wide ${x.c}", OPERATOR_NAV_GROUP_LABEL)}
+          className={cn("inline-flex rounded-full px-2.5 py-0.5 font-semibold uppercase tracking-wide", x.c, OPERATOR_NAV_GROUP_LABEL)}
         >
           {x.k}
         </li>

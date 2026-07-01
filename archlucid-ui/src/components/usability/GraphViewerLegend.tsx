@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 /** Legend for evidence graph node types and default layout hints. */
 export function GraphViewerLegend() {

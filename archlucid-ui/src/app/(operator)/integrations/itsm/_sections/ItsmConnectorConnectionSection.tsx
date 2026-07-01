@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,6 @@ import {
   upsertTenantItsmConnectorConnection,
 } from "@/lib/api/itsm-outbound-api";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type Provider = "jira" | "servicenow";
 

@@ -1,4 +1,11 @@
-import { apiGet, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
+import {
+  apiGet,
+  applyCorrelationHeaders,
+  ensureOidcBearerReady,
+  resolveRequest,
+  throwApiRequestError,
+} from "@/lib/api/http";
+import { BACKGROUND_JOB_STATE } from "@/lib/background-job-state";
 import type { components } from "@/lib/openapi-schemas";
 
 export type BackgroundJobInfo = components["schemas"]["BackgroundJobInfo"];
@@ -34,7 +41,7 @@ export async function waitForBackgroundJobTerminal(
   while (Date.now() < deadline) {
     const info = await fetchBackgroundJob(jobId);
 
-    if (info.state === "Succeeded" || info.state === "Failed") {
+    if (info.state === BACKGROUND_JOB_STATE.Succeeded || info.state === BACKGROUND_JOB_STATE.Failed) {
       return info;
     }
 

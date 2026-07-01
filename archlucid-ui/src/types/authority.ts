@@ -1,4 +1,5 @@
 import type { components } from "@/lib/openapi-schemas";
+import type { CompareEffectiveGovernanceAtCommitSnapshot } from "@/lib/compare-effective-governance-diff";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 /**
@@ -49,6 +50,8 @@ export type ManifestSummary = ManifestSummaryResponseSchema &
   > & {
     /** Present when authority pipeline attached ADR 0050 verdict to the manifest. */
     feasibilityVerdict?: ManifestFeasibilityVerdict | null;
+    /** Wire extension when manifest export includes policy-at-commit metadata (compare / run detail). */
+    effectiveGovernanceAtCommit?: CompareEffectiveGovernanceAtCommitSnapshot | null;
   };
 
 /** A single diff entry from run or manifest comparison (section/key/before/after). */

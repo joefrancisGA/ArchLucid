@@ -1,6 +1,6 @@
+import { cn } from "@/lib/utils";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { OPERATOR_SHELL_STICKY_TOP_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type HelpTopicTableOfContentsProps = {
   readonly headings: readonly HelpMarkdownHeading[];

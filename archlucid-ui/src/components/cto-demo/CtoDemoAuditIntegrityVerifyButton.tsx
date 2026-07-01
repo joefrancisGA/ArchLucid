@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,6 @@ import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError } from "@/lib/toast";
-import { cn } from "@/lib/utils";
 
 function isCtoDemoAuditIntegrityVisible(): boolean {
   return isCtoDemoPackEnv() || (isBuyerPolishedOperatorShellEnv() && readBuyerCtoDemoTourActive());

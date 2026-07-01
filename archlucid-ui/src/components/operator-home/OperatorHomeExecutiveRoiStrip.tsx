@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -21,7 +22,6 @@ import {
   resolveRunSavingsUsd,
 } from "@/lib/roi-resolution-priority";
 import { formatUsd } from "@/lib/roi-assumptions";
-import { cn } from "@/lib/utils";
 
 /** Compact executive ROI strip on Overview after the first committed review package. */
 export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {

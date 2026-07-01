@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,6 @@ import {
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchAdminRagHealth, type AdminRagCorpusHealthItem } from "@/lib/rag-health-admin";
 

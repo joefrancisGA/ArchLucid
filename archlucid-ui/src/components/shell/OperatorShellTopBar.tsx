@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { cn } from "@/lib/utils";
 import { CircleHelp } from "lucide-react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
@@ -21,7 +22,6 @@ import {
   OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
 } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
-import { cn } from "@/lib/utils";
 
 const CommandPalette = dynamic(
   () => import("@/components/CommandPalette").then((module) => module.CommandPalette),

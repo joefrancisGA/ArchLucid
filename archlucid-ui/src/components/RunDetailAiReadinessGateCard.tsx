@@ -1,11 +1,11 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
-import { cn } from "@/lib/utils";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   isAgentOutputPilotStrictSponsorSafe,

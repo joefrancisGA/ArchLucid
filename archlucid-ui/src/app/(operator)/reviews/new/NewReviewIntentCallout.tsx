@@ -1,9 +1,9 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /**
  * Surfaces query-string intent from {@link PostCommitRetentionRail} next-cycle dialog — lineage attachment remains API-owned.

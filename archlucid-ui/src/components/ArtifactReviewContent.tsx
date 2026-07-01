@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
 import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import type { PreparedArtifactBody } from "@/lib/artifact-review-helpers";

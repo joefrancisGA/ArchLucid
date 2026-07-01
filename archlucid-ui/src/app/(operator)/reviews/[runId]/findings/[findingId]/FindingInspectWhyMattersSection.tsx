@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import type { ReactElement } from "react";
@@ -9,7 +10,6 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
 import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { resolvePolicyRuleIdFromInspect, resolvePolicyRuleLabelFromInspect } from "@/lib/finding-policy-evidence-citations";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 

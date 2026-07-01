@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -7,7 +8,6 @@ import { ComplianceDriftOpenResolvedChart } from "@/components/ComplianceDriftOp
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getComplianceDriftTrend } from "@/lib/api";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 function rollingBounds30Days(): { fromUtc: string; toUtc: string } {

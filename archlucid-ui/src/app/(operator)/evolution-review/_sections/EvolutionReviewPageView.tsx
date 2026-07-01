@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
@@ -10,7 +11,6 @@ import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/Operator
 import { buildEvolutionSimulationReportFileUrl } from "@/lib/evolution-simulation-report-urls";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
 

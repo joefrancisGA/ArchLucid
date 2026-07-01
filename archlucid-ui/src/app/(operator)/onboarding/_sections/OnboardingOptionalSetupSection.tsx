@@ -1,12 +1,12 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { FinishSetupWizardPanel } from "@/components/FinishSetupWizardPanel";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY = "archlucid_onboarding_disclosure_optional_setup_v1";
 

@@ -1,11 +1,11 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type StageKey = "context" | "graph" | "findings" | "manifest";
 

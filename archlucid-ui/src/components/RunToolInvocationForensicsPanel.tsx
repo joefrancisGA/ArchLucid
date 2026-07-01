@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunToolInvocationForensicsRawCell } from "@/components/RunToolInvocationForensicsRawCell";
 import type { AgentTraceRawSnapshot, RunToolInvocationForensicRow } from "@/types/agent-forensics";

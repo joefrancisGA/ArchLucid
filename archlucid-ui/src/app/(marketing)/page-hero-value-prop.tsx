@@ -1,10 +1,10 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ArrowDown, ArrowRight, FileText, PackageCheck, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { getShowcaseWalkthroughHref } from "@/lib/buyer-safe-review-navigation";
-import { cn } from "@/lib/utils";
 
 type ValuePropFlowPanel = {
   readonly Icon: typeof FileText;

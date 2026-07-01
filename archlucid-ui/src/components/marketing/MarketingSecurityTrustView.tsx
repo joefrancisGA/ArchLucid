@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";

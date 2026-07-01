@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { diffPolicyPackContent, type PolicyPackDiffItem } from "@/lib/policy-pack-diff";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";

@@ -1,10 +1,10 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export type InspectorPanelProps = {
   title: string;

@@ -84,14 +84,17 @@ public sealed class AuditPathClassificationArchitectureTests
         "BillingWebhookTrialActivator",
         "AuthorityPipelineStagesExecutor",
         "AuthorityCommittedPipelineFinalizer",
-        "SqlTrialFunnelCommitHook"
+        "SqlTrialFunnelCommitHook",
+        "HostedAwsExtractorRunService",
+        "HostedGcpExtractorRunService"
     ];
 
     private static string FindRepoRoot()
     {
-        for (DirectoryInfo? d = new(AppContext.BaseDirectory); d != null; d = d.Parent)
+        for (DirectoryInfo? d = new(AppContext.BaseDirectory); d is not null; d = d.Parent)
         {
             string sln = Path.Combine(d.FullName, "ArchLucid.sln");
+
             if (File.Exists(sln))
                 return d.FullName;
         }
@@ -261,7 +264,7 @@ public sealed class AuditPathClassificationArchitectureTests
     {
         Stack<string> names = new();
 
-        for (SyntaxNode? n = method.Parent; n != null; n = n.Parent)
+        for (SyntaxNode? n = method.Parent; n is not null; n = n.Parent)
         {
             if (n is TypeDeclarationSyntax td)
                 names.Push(td.Identifier.Text);

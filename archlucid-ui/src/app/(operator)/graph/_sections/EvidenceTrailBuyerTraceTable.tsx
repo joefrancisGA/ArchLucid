@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
@@ -8,7 +9,6 @@ import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { truncateForList } from "@/lib/truncate-for-list";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 
 export type EvidenceTrailBuyerTraceTableProps = {

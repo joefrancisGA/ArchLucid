@@ -1,9 +1,9 @@
+import { cn } from "@/lib/utils";
 import { Lock } from "lucide-react";
 import type { ReactElement } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type GovernanceApprovalAttestationBlockProps = {
   /** The governance decision value (e.g. "Approved", "ApprovedWithMonitoring", "Rejected"). */

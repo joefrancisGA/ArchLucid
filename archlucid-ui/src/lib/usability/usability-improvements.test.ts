@@ -32,10 +32,10 @@ describe("usability improvements", () => {
     expect(signal.elapsedMinutes).toBe(0);
   });
 
-  it("readCorePilotProgressSnapshot returns five steps", () => {
+  it("readCorePilotProgressSnapshot returns seven steps", () => {
     const snapshot = readCorePilotProgressSnapshot();
 
-    expect(snapshot.totalCount).toBe(5);
+    expect(snapshot.totalCount).toBe(7);
   });
 
   it("parseCorePilotProgressFromSnapshot treats empty server snapshot as zero complete", () => {

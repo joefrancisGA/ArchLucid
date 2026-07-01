@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -6,7 +7,6 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "First 30 days — governance operating preset",

@@ -10,7 +10,7 @@ describe("CompareBuyerScopedGate", () => {
     expect(screen.getByTestId("compare-buyer-scoped-gate")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /back to review package/i })).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization/manifest",
+      "/reviews/claims-intake-modernization/signed-record",
     );
     expect(screen.getByRole("button", { name: /load sample claims intake comparison/i })).toBeInTheDocument();
   });

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
@@ -11,7 +12,6 @@ import {
   policyPacksPageLeadReaderBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type PolicyPacksMarketingIntroProps = {
   buyerPolishedShell: boolean;

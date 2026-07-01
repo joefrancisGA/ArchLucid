@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { HealthcareClaimsPolicyPackDetail } from "@/app/(operator)/governance/policy-packs/[id]/HealthcareClaimsPolicyPackDetail";
@@ -8,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function isHealthcareClaimsDemonstrationPack(policyPackId: string): boolean {
   const normalized = policyPackId.trim().toLowerCase();

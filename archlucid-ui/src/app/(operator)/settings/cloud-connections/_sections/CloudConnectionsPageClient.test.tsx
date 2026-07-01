@@ -65,7 +65,7 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByText("Connect Azure")).toBeInTheDocument();
     expect(screen.getByText("Connect AWS")).toBeInTheDocument();
     expect(screen.getByText("Connect GCP")).toBeInTheDocument();
-    expect(screen.getByText("Automated connections")).toBeInTheDocument();
+    expect(screen.getByText(/Automated Azure connection \(optional\)/i)).toBeInTheDocument();
     expect(screen.getByText("Create Azure identity")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connections-available-azure")).toBeInTheDocument();
     expect(screen.getByLabelText(/Only Reader and Cost Management Reader/i)).toBeInTheDocument();

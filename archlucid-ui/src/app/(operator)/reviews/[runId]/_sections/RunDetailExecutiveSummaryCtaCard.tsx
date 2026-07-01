@@ -1,10 +1,10 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_OPEN_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type RunDetailExecutiveSummaryCtaCardProps = {
   readonly runId: string;

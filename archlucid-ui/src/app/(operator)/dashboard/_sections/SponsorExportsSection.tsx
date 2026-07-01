@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -7,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getArtifactDownloadUrl } from "@/lib/api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";

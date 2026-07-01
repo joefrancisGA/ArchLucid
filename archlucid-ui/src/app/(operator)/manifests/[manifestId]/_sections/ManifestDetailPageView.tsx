@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
@@ -45,7 +46,6 @@ import {
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-model";
 

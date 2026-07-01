@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback } from "react";
 
@@ -16,7 +17,6 @@ import {
   type OperatorCoArchitectIntentFocus,
 } from "@/lib/operator-co-architect-copy";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function writeStoredIntent(next: OperatorCoArchitectIntentFocus): void {
   try {

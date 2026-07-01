@@ -167,13 +167,14 @@ const nextConfig: NextConfig = {
       // Canonical signed-records aliases reuse existing manifests App Router tree (TB-399).
       { source: "/signed-records", destination: "/manifests" },
       { source: "/signed-records/:path*", destination: "/manifests/:path*" },
-      // Run-scoped signed record deep link lands on the review package (manifest summary section).
-      { source: "/reviews/:id/signed-record", destination: "/reviews/:id" },
       // Friendly demo URL while reusing manifest detail implementation (`SHOWCASE_STATIC_DEMO_*`).
+      // Must precede the generic run-scoped signed-record rewrite below.
       {
         source: "/reviews/claims-intake-modernization/signed-record",
         destination: "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
       },
+      // Run-scoped signed record deep link lands on the review package (manifest summary section).
+      { source: "/reviews/:id/signed-record", destination: "/reviews/:id" },
       // Governance canonical URLs reuse existing App Router trees (TB-405).
       { source: "/governance/resolution", destination: "/governance-resolution" },
       { source: "/governance/resolution/:path*", destination: "/governance-resolution/:path*" },

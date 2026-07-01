@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -9,7 +10,6 @@ import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabi
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { CoverageChecklistPanel } from "@/components/usability/CoverageChecklistPanel";
 import { InsightDensityCurationBanner } from "@/components/usability/InsightDensityCurationBanner";
 import type { FindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidenceBasisBadges";
@@ -6,7 +7,6 @@ import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { isDeterministicExplanationFallback, normalizeFiniteRatio } from "@/types/explanation";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type RunDetailSponsorModeExplanationCardProps = {
   readonly explanationSummary: RunExplanationSummary | null;

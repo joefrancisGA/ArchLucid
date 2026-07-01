@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { notFound } from "next/navigation";
@@ -12,7 +13,6 @@ import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { type ApiResponseWithTrace, getArchitectureRunProvenance } from "@/lib/api";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 

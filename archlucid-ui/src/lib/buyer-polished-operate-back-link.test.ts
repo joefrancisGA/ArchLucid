@@ -15,7 +15,7 @@ describe("buyerPolishedOperateBackLink", () => {
       label: "Back to review package",
       href: "/reviews/claims-intake-modernization",
     });
-    expect(buyerPolishedOperateBackLink("/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890")).toEqual({
+    expect(buyerPolishedOperateBackLink("/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890")).toEqual({
       label: "Back to review package",
       href: "/reviews/claims-intake-modernization",
     });

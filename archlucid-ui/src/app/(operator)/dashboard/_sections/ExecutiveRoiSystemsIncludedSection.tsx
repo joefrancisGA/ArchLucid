@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -15,7 +16,6 @@ import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { presentExecutiveEstimatedSavings } from "@/lib/executive-estimated-savings-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveExecutiveSystemRowScopeLabel } from "@/lib/roi-sponsor-scope-labels";
-import { cn } from "@/lib/utils";
 
 type ExecutiveRoiSystemsIncludedSectionProps = {
   readonly summary: ExecutiveRoiSummary;

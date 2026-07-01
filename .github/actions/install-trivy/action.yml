@@ -4,7 +4,7 @@ inputs:
   version:
     description: "Trivy release tag (with or without leading v), e.g. v0.69.3"
     required: false
-    default: "v0.69.3"
+    default: "v0.71.2"
 runs:
   using: "composite"
   steps:
@@ -44,4 +44,4 @@ runs:
         chmod +x "${install_dir}/trivy"
 
         echo "${install_dir}" >> "${GITHUB_PATH}"
-        "${install_dir}/trivy" --version
+        TRIVY_SKIP_VERSION_CHECK=true "${install_dir}/trivy" --version

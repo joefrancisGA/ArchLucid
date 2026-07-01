@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
@@ -50,7 +51,6 @@ import {
   OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { useAppShellStickyOffsetSync } from "@/hooks/useAppShellStickyOffsetSync";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 import type { HelpTabId } from "@/components/HelpPanel";

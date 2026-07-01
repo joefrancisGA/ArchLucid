@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import type { LearningSummaryResponse } from "@/types/learning";
 

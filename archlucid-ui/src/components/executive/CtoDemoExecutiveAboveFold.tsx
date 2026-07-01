@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -14,7 +15,6 @@ import { getFindingEvidenceInspectHref } from "@/lib/finding-evidence-navigation
 import { severityFromTrace, severitySortRank } from "@/lib/executive-finding-severity";
 import { decisionGradeExecutiveTraceRows } from "@/lib/executive-decision-grade-trace-rows";
 import { verdictTierFromRiskPosture, verdictTierLabel, verdictTierTone } from "@/lib/verdict-taxonomy";
-import { cn } from "@/lib/utils";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import type { RunExplanationSummary } from "@/types/explanation";
 

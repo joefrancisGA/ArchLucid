@@ -1,8 +1,8 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type ReviewSubmitPhaseId = "mapping" | "policy" | "findings";
 

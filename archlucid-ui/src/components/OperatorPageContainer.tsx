@@ -1,10 +1,10 @@
+import { cn } from "@/lib/utils";
 import { forwardRef, type HTMLAttributes } from "react";
 
 import {
   OPERATOR_PAGE_CONTAINER,
   type OperatorPageContainerVariant,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type OperatorPageContainerProps = HTMLAttributes<HTMLDivElement> & {
   /** Width profile for the page work surface. Defaults to workflow wizard width. */

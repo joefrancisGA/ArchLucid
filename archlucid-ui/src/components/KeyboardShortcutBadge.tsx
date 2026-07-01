@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { COMMAND_PALETTE_DISPLAY_SHORTCUT } from "@/lib/keyboard-shortcut-display";
 
 export type KeyboardShortcutBadgeProps = {

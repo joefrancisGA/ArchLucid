@@ -17,12 +17,12 @@ describe("FindingPolicyCitationHero", () => {
           pack: {
             packId: "healthcare-claims-v3",
             packName: "Healthcare Claims Policy Pack v3",
-            href: "/policy-packs?packId=healthcare-claims-v3",
+            href: "/governance/policy-packs?packId=healthcare-claims-v3",
           },
           policy: {
             ruleId: "sec-base-001",
             ruleLabel: "Security baseline ingress rule",
-            href: "/policy-packs?ruleId=sec-base-001",
+            href: "/governance/policy-packs?ruleId=sec-base-001",
           },
           evidence: [],
         }}
@@ -40,7 +40,7 @@ describe("FindingPolicyCitationHero", () => {
           pack: {
             packId: "azure-wa",
             packName: "Azure Well-Architected",
-            href: "/policy-packs?packId=azure-wa",
+            href: "/governance/policy-packs?packId=azure-wa",
           },
           policy: null,
           evidence: [

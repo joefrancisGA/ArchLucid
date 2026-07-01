@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { StatusPill } from "@/components/StatusPill";
 import { StatusTag } from "@/components/ui/status-tag";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -5,7 +6,6 @@ import {
   ARCHITECTURE_REVIEW_LABELS,
   PIPELINE_STATUS_LABELS,
 } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 export type RunPipelineLabel =

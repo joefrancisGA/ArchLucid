@@ -12,6 +12,7 @@ import {
   DEMO_WORKSPACE_B_REGULATED_RUN_ID,
   injectDemoWorkspaceOperatorScope,
 } from "./helpers/demo-workspace-live-scope";
+import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
 import {
   countFindingsInAuthorityRunDetailPayload,
@@ -36,6 +37,8 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 90_000 });
 
     expect(health.ok(), await health.text()).toBeTruthy();
+
+    await ensureDemoWorkspaceSeedReady(request);
   });
 
   test("regulated storyline surfaces Pack A/B findings, severities, consulting DOCX, whitelabel export JSON", async ({
@@ -60,11 +63,15 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_B_LIVE_IDS);
     await page.goto(`/reviews/${DEMO_WORKSPACE_B_REGULATED_RUN_ID}`, { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 90_000 });
+    const sectionNav = page.getByRole("navigation", { name: "Review detail sections" });
+
+    await expect(sectionNav).toBeVisible({ timeout: 90_000 });
 
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 90_000 });
 
     await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0);
+
+    await expect(sectionNav.getByRole("link", { name: "Outcome" })).toBeVisible();
 
     /** Pack A narrative (Responsible AI governance engine + rule identifiers from seed fixtures). */
     await expect(page.locator("main").getByText(/Promoted scoring ensemble lacks immutable lineage hash/i)).toBeVisible({
