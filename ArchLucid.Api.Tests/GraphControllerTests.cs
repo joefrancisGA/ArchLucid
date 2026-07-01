@@ -38,22 +38,32 @@ public sealed class GraphControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        Mock<IAuthorityQueryService> authority = authorityQueryService ?? new Mock<IAuthorityQueryService>();
-        authority
-            .Setup(s => s.GetRunDetailAsync(Scope, RunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunDetailDto?)null);
+        Mock<IAuthorityQueryService> authorityMock = new();
+        IAuthorityQueryService authorityService = authorityQueryService ?? authorityMock.Object;
 
-        Mock<IRunRepository> runs = runRepository ?? new Mock<IRunRepository>();
-        runs
-            .Setup(r => r.GetByIdAsync(Scope, RunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunRecord?)null);
+        if (authorityQueryService is null)
+        {
+            authorityMock
+                .Setup(s => s.GetRunDetailAsync(Scope, RunId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((RunDetailDto?)null);
+        }
+
+        Mock<IRunRepository> runsMock = new();
+        IRunRepository runsService = runRepository ?? runsMock.Object;
+
+        if (runRepository is null)
+        {
+            runsMock
+                .Setup(r => r.GetByIdAsync(Scope, RunId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((RunRecord?)null);
+        }
 
         IOptions<KnowledgeGraphLimitsOptions> options = Options.Create(limits ?? new KnowledgeGraphLimitsOptions
         {
             FullGraphResponseMaxNodes = 500
         });
 
-        return new GraphController(authority.Object, runs.Object, scopeProvider.Object, options)
+        return new GraphController(authorityService, runsService, scopeProvider.Object, options)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

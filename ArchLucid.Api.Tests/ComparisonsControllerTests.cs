@@ -78,7 +78,7 @@ public sealed class ComparisonsControllerTests
             .Setup(s => s.AnalyzeDriftAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new DriftAnalysisResult { Summary = "ok" });
         replay
-            .Setup(s => s.ReplayAsync(It.IsAny<Application.ReplayComparisonRequest>(), It.IsAny<bool>(),
+            .Setup(s => s.ReplayAsync(It.IsAny<Application.Analysis.ReplayComparisonRequest>(), It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ReplayComparisonResult
             {
@@ -104,7 +104,7 @@ public sealed class ComparisonsControllerTests
             .Returns("# drift");
 
         IValidator<ComparisonHistoryQuery> historyValidator = new ComparisonHistoryQueryValidator();
-        IValidator<ReplayComparisonRequest> replayValidator = new ReplayComparisonRequestValidator();
+        IValidator<ArchLucid.Api.Models.ReplayComparisonRequest> replayValidator = new ReplayComparisonRequestValidator();
         Mock<IOptionsMonitor<BatchReplayOptions>> batchOptionsMonitor = new();
         batchOptionsMonitor.Setup(o => o.CurrentValue).Returns(new BatchReplayOptions());
         IValidator<BatchReplayComparisonRequest> batchValidator =

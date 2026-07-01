@@ -1,6 +1,7 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Validators;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
