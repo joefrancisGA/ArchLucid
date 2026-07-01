@@ -10,6 +10,7 @@ import { tryStaticDemoExplanationSummary } from "@/lib/operator-static-demo";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { ExecutiveReviewFirstViewport } from "@/components/executive/ExecutiveReviewFirstViewport";
+import { RunDetailPackageSubnav } from "@/components/RunDetailPackageSubnav";
 import { ExecutiveReviewHandoffActions } from "@/components/executive/ExecutiveReviewHandoffActions";
 import { CtoDemoReadOnlySnapshotBanner } from "@/components/cto-demo/CtoDemoReadOnlySnapshotBanner";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
@@ -148,6 +149,7 @@ export default async function ExecutiveReviewFindingsPage({
   return (
     <div className="space-y-6" data-testid="executive-review-page">
       {readOnlySnapshot ? <CtoDemoReadOnlySnapshotBanner /> : null}
+      <RunDetailPackageSubnav runId={runId} active="executive-summary" />
       <CtoDemoBuyerValueStrip stepIndex={0} />
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <Link

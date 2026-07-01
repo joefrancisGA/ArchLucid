@@ -41,6 +41,7 @@ import { ReviewAgentExecutionLogSection } from "@/components/reviews/ReviewAgent
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
 import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
 import { ReviewPackageEvidenceDensityStrip } from "@/components/usability/ReviewPackageEvidenceDensityStrip";
+import { RunDetailPackageSubnav } from "@/components/RunDetailPackageSubnav";
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
 import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
@@ -179,6 +180,10 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
     >
       <CtoDemoReviewRouteGuard runId={m.resolvedDetail.run.runId} />
       <RunDetailBreadcrumb headline={m.headline} />
+
+      {m.manifestId ? (
+        <RunDetailPackageSubnav runId={m.resolvedDetail.run.runId} active="review-package" />
+      ) : null}
 
       {showDemoMarketingChrome ? <OperatorDemoStaticBanner /> : null}
       {m.usedStaticDemoRun ? <DemoDataBadge variant="banner" className="mb-2" /> : null}
