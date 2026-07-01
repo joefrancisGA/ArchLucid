@@ -7,7 +7,7 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
-using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Interfaces;
 

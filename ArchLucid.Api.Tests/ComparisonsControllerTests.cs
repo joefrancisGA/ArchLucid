@@ -5,7 +5,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Host.Core.Configuration;
 
 using FluentAssertions;

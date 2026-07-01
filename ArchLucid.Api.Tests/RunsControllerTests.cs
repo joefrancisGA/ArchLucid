@@ -10,8 +10,8 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Feedback;
-using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
