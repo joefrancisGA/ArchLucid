@@ -12,7 +12,7 @@
 | Deployability | 5 |
 | AI/Agent readiness | 3 |
 | Architectural integrity | 8 |
-| Adoption friction | 111 |
+| Adoption friction | 110 |
 | Commercial / marketability | 3 |
 | Data consistency | 5 |
 | Cutting-edge AI | 3 |
@@ -15665,6 +15665,8 @@ Update the nav label for `/advisory` in `OperateAnalysisNavGroupBuilder` and in 
 ---
 
 ## TB-530 — Rename "Integration readiness" to "Connection status" (P2)
+
+**Status:** **Done** (2026-06-30)
 
 **Why:** "Integration readiness" sounds like a prerequisites checklist, not a connector health dashboard. Enterprise administrators expect "Connection status" or "Connector health" for a health monitoring view.
 

@@ -25,10 +25,10 @@ describe("marketing hero CTA → Clarity wiring", () => {
     delete (window as Window & { clarity?: typeof clarity }).clarity;
   });
 
-  it("clicking Request walkthrough fires cta_walkthrough_click with UTM dimensions from the page", () => {
+  it("clicking the optional walkthrough CTA fires cta_walkthrough_click with UTM dimensions from the page", () => {
     render(<WalkthroughRequestCta />);
 
-    fireEvent.click(screen.getByRole("link", { name: /request walkthrough/i }));
+    fireEvent.click(screen.getByRole("link", { name: /request optional walkthrough/i }));
 
     expect(clarity.mock.calls).toContainEqual(["set", "cta_source", "hero"]);
     expect(clarity.mock.calls).toContainEqual(["set", "cta_utm_source", "src"]);
@@ -37,10 +37,10 @@ describe("marketing hero CTA → Clarity wiring", () => {
     expect(clarity.mock.calls).toContainEqual(["event", "cta_walkthrough_click"]);
   });
 
-  it("clicking Try the self-demo fires cta_self_demo_click with UTM dimensions", () => {
+  it("clicking the inspect-sample-review CTA fires cta_self_demo_click with UTM dimensions", () => {
     render(<SelfDemoRequestCta />);
 
-    fireEvent.click(screen.getByRole("link", { name: /try the self-demo/i }));
+    fireEvent.click(screen.getByRole("link", { name: /inspect a governed sample review/i }));
 
     expect(clarity.mock.calls).toContainEqual(["set", "cta_source", "hero"]);
     expect(clarity.mock.calls).toContainEqual(["set", "cta_utm_source", "src"]);

@@ -50,7 +50,8 @@ test.describe("live-api-journey", () => {
     page,
     request,
   }) => {
-    test.setTimeout(180_000);
+    // Polling alone can use 90s + 60s + 90s; UI steps add more — 180s caused request-context disposal at commit in CI.
+    test.setTimeout(360_000);
 
     const createBody = {
       requestId: `E2E-LIVE-${Date.now()}`,

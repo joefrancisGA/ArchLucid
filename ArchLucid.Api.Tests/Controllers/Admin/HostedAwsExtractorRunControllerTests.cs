@@ -1,5 +1,4 @@
 using ArchLucid.Api.Controllers.Admin;
-using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.AwsExtractor;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Scoping;

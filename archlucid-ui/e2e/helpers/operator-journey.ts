@@ -206,18 +206,25 @@ export async function gotoManifestEmptyArtifactsOperatorCase(page: Page): Promis
 
 // --- Assertions (only where duplicated across specs) ---
 
-/** Opens buyer-polished run deliverables and switches to the ARB/audit artifact tab. */
-export async function openBuyerRunDetailArchitectureReviewBoardDeliverables(page: Page): Promise<Locator> {
+/** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */
+export async function ensureBuyerDeliverablesSectionExpanded(page: Page): Promise<void> {
   const deliverablesDetails = page.locator("#artifacts-exports details").first();
   const deliverablesSummary = deliverablesDetails.locator("summary", { hasText: /^Deliverables$/ });
 
-  await expect(deliverablesSummary).toBeVisible();
+  await expect(deliverablesSummary).toBeVisible({ timeout: 60_000 });
 
   const detailsOpen: boolean = await deliverablesDetails.evaluate((element) => (element as HTMLDetailsElement).open);
 
   if (!detailsOpen) {
     await deliverablesSummary.click();
   }
+
+  await expect(deliverablesDetails).toHaveAttribute("open", "");
+}
+
+/** Opens buyer-polished run deliverables and switches to the ARB/audit artifact tab. */
+export async function openBuyerRunDetailArchitectureReviewBoardDeliverables(page: Page): Promise<Locator> {
+  await ensureBuyerDeliverablesSectionExpanded(page);
 
   const architectureReviewBoardTab = page.getByRole("tab", { name: "Architecture review board artifacts" });
 

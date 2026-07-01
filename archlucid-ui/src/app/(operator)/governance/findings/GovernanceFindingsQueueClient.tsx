@@ -28,6 +28,21 @@ import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWor
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
+import {
+  ARCHITECTURE_RISK_REGISTER_CONTAINS_COPY,
+  ARCHITECTURE_RISK_REGISTER_EMPTY_BODY,
+  ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE,
+  ARCHITECTURE_RISK_REGISTER_GLOSSARY,
+  ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE,
+  ARCHITECTURE_RISK_REGISTER_PAGE_TITLE,
+  ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF,
+  computeArchitectureRiskRegisterSummary,
+  matchesRiskRegisterFilter,
+  RISK_REGISTER_FILTER_LABELS,
+  RISK_REGISTER_QUICK_FILTERS,
+  riskRegisterFilterFromQuery,
+  type RiskRegisterFilter,
+} from "@/lib/architecture-risk-register-page";
 import { downloadGovernanceFindingsItsmJsonExport } from "@/lib/run-findings-itsm-export";
 import {
   readGroupByResourcePreference,
@@ -80,62 +95,6 @@ import {
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
-type RiskRegisterFilter = "all" | "stale" | "waiver-expiring";
-
-const ARCHITECTURE_RISK_REGISTER_SUBTITLE =
-  "Track architecture risks across review packages, including owner, disposition, age, evidence, and linked decisions.";
-
-const ARCHITECTURE_RISK_REGISTER_EMPTY_FLOW =
-  "Risks appear here after review findings are accepted into governance or review decisions create follow-up risk items.";
-
-const WAIVER_EXPIRING_WINDOW_DAYS = 14;
-
-function riskRegisterFilterFromQuery(raw: string | null): RiskRegisterFilter {
-  if (raw === "stale") {
-    return "stale";
-  }
-
-  if (raw === "waiver-expiring") {
-    return "waiver-expiring";
-  }
-
-  return "all";
-}
-
-function matchesRiskRegisterFilter(row: GovernanceFindingQueueRow, filter: RiskRegisterFilter): boolean {
-  if (filter === "all") {
-    return true;
-  }
-
-  if (row.recordKind !== "finding") {
-    return false;
-  }
-
-  if (filter === "stale") {
-    return row.isStale === true;
-  }
-
-  const expiresRaw = row.waiverExpiresAtUtc?.trim() ?? "";
-
-  if (expiresRaw.length === 0) {
-    return false;
-  }
-
-  const expiresMs = Date.parse(expiresRaw);
-
-  if (Number.isNaN(expiresMs)) {
-    return false;
-  }
-
-  const windowMs = WAIVER_EXPIRING_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-
-  return expiresMs <= Date.now() + windowMs;
-}
-
-// ---------------------------------------------------------------------------
-// Saved filter presets (localStorage, no backend required)
-// ---------------------------------------------------------------------------
-
 const FILTER_PRESET_STORAGE_KEY = "archlucid.governance.filterPresets.v1";
 
 type FilterPreset = {
@@ -144,11 +103,7 @@ type FilterPreset = {
   readonly filter: RiskRegisterFilter;
 };
 
-const FILTER_PRESET_LABELS: Record<RiskRegisterFilter, string> = {
-  all: "All risks",
-  stale: "Stale",
-  "waiver-expiring": "Waiver expiring (14d)",
-};
+const FILTER_PRESET_LABELS: Record<RiskRegisterFilter, string> = RISK_REGISTER_FILTER_LABELS;
 
 function loadSavedPresets(): FilterPreset[] {
   try {
@@ -266,6 +221,7 @@ function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceF
       recordKind: "finding",
       traceConfidenceLevel: null,
       ownerUserId: entry.ownerUserId ?? null,
+      latestDisposition: entry.latestDisposition ?? null,
       agingDays: entry.agingDays,
       waiverExpiresAtUtc: entry.waiverExpiresAtUtc ?? null,
       lastReviewedUtc: entry.lastReviewedUtc ?? null,
@@ -605,6 +561,7 @@ export default function GovernanceFindingsQueueClient() {
     () => rows.filter((row) => matchesRiskRegisterFilter(row, registerFilter)),
     [rows, registerFilter],
   );
+  const registerSummary = useMemo(() => computeArchitectureRiskRegisterSummary(rows), [rows]);
   const findingRows = displayedRows.filter((row) => row.recordKind === "finding");
   const decisionRows = displayedRows.filter((row) => row.recordKind === "decision");
 
@@ -720,53 +677,78 @@ export default function GovernanceFindingsQueueClient() {
         </nav>
       ) : null}
       <OperatorPageHeader
-        title={buyerPolishedShell ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE : "Architecture risk register"}
+        title={buyerPolishedShell ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE : ARCHITECTURE_RISK_REGISTER_PAGE_TITLE}
+        subtitle={
+          buyerPolishedShell ? undefined : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE
+        }
+        titleTestId="architecture-risk-register-page-title"
+        metadata={
+          !buyerPolishedShell && !loading ? (
+            <>
+              <span data-testid="architecture-risk-register-summary-open">
+                Open risks: {registerSummary.openRisks}
+              </span>
+              <span data-testid="architecture-risk-register-summary-expiring">
+                Expiring exceptions: {registerSummary.expiringExceptions}
+              </span>
+              <span data-testid="architecture-risk-register-summary-owner">
+                Pending owner: {registerSummary.pendingOwner}
+              </span>
+              <span data-testid="architecture-risk-register-summary-overdue">
+                Overdue review: {registerSummary.overdueReview}
+              </span>
+            </>
+          ) : undefined
+        }
       />
 
         <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
-        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {buyerPolishedShell ? (
-            <>
-              {BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD}{" "}
-              <Link
-                className={OPERATOR_LINK.inline}
-                href={`/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
-              >
-                Governance approval
-              </Link>
-              .
-            </>
-          ) : (
-            ARCHITECTURE_RISK_REGISTER_SUBTITLE
-          )}
-        </p>
+        {buyerPolishedShell ? (
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD}{" "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={`/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+            >
+              Governance approval
+            </Link>
+            .
+          </p>
+        ) : null}
 
         {!buyerPolishedShell && !loading && rows.length > 0 ? (
           <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
+            <div
+              className="flex flex-wrap items-center gap-2"
+              data-testid="architecture-risk-register-filters"
+              aria-label="Risk register filters"
+            >
               <Button
                 type="button"
                 size="sm"
                 variant={registerFilter === "all" ? "default" : "outline"}
                 onClick={() => setRegisterFilter("all")}
               >
-                All risks
+                {RISK_REGISTER_FILTER_LABELS.all}
               </Button>
+              {RISK_REGISTER_QUICK_FILTERS.map((filter) => (
+                <Button
+                  key={filter}
+                  type="button"
+                  size="sm"
+                  variant={registerFilter === filter ? "default" : "outline"}
+                  onClick={() => setRegisterFilter(filter)}
+                >
+                  {RISK_REGISTER_FILTER_LABELS[filter]}
+                </Button>
+              ))}
               <Button
                 type="button"
                 size="sm"
                 variant={registerFilter === "stale" ? "default" : "outline"}
                 onClick={() => setRegisterFilter("stale")}
               >
-                Stale
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={registerFilter === "waiver-expiring" ? "default" : "outline"}
-                onClick={() => setRegisterFilter("waiver-expiring")}
-              >
-                Waiver expiring (14d)
+                {RISK_REGISTER_FILTER_LABELS.stale}
               </Button>
               {registerFilter !== "all" && !savedPresets.some((p) => p.filter === registerFilter) ? (
                 <Button
@@ -854,7 +836,7 @@ export default function GovernanceFindingsQueueClient() {
 
         {!loading && rows.length > 0 && displayedRows.length === 0 ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            No risks match the selected filter. Try All risks or adjust waiver/stale criteria.
+            No risks match the selected filter. Try All or choose a different operational filter.
           </p>
         ) : null}
 
@@ -1078,22 +1060,29 @@ export default function GovernanceFindingsQueueClient() {
         {!loading && rows.length === 0 ? (
           <EnterpriseCompactEmptyState
             testId="governance-findings-empty-state"
-            title="No architecture risks yet"
+            title={ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE}
             description={
               loadFailed
                 ? buyerPolishedShell
                   ? "We could not load the architecture risk register for this workspace. Check your connection, or return to reviews and try again."
                   : "We could not load the architecture risk register for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
-                : ARCHITECTURE_RISK_REGISTER_EMPTY_FLOW
+                : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
             }
             actions={[
               { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
               {
-                label: buyerPolishedShell ? BUYER_GOVERNANCE_PAGE_TITLE : "Governance workflow",
+                label: buyerPolishedShell ? BUYER_GOVERNANCE_PAGE_TITLE : "Open governance workflow",
                 href: "/governance",
                 variant: "outline",
               },
             ]}
+            footer={
+              !buyerPolishedShell ? (
+                <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>
+                  View policy packs
+                </Link>
+              ) : undefined
+            }
           />
         ) : null}
 
@@ -1103,12 +1092,15 @@ export default function GovernanceFindingsQueueClient() {
               What the risk register contains
             </summary>
             <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {ARCHITECTURE_RISK_REGISTER_EMPTY_FLOW} Each row links back to its source review package and signed
-              review record — not a separate risk subsystem.
+              {ARCHITECTURE_RISK_REGISTER_CONTAINS_COPY}
             </p>
           </details>
         ) : null}
-        <ProductConceptsGlossary className="mt-4" />
+        <ProductConceptsGlossary
+          className="mt-4"
+          entries={[...ARCHITECTURE_RISK_REGISTER_GLOSSARY]}
+          defaultOpen={false}
+        />
       </div>
     </>
   );

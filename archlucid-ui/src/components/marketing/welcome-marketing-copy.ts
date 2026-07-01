@@ -6,6 +6,23 @@ export const WELCOME_HERO_PITCH =
 export const WELCOME_HERO_CTA_SUBHEADING =
   "See an architecture review package built for governance — not slide decks alone.";
 
+/**
+ * Architect-led reassurance shown under the hero subheading: leads with self-serve inspection and
+ * names the two non-negotiable trust properties (evidence traceability, audit trail). No claim here
+ * exceeds shipped behavior — keep aligned with the Trust Center and `/security-trust`.
+ *
+ * TERMINOLOGY RULE (do not "fix" back to "review"): "evaluation" here means the BUYER's activity of
+ * evaluating ArchLucid on entry CTAs (signup / try / hero). This is intentionally allowed and is NOT
+ * the banned product-status adjective use ("evaluation value report", "evaluation standards" → "review",
+ * shipped under TB-456/457/458, COPY_TERMINOLOGY_AUDIT §2). Never write "evaluation workspace"; never use
+ * "evaluation" to describe the product's maturity or a product surface. The curated showcase/demo package
+ * is the "sample review package" — the dominant shipped term across 15+ surfaces (SampleReviewPackageSummary,
+ * FrictionlessTrialLauncher, /see-it, /demo/preview); "example review" exists only as a synonym in the
+ * TB-473/474 renamed badges, so keep marketing copy on "sample review" for consistency.
+ */
+export const WELCOME_HERO_EVALUATION_REASSURANCE =
+  "Inspect a governed sample review with fabricated data, then bring your own architecture evidence when ready. Every finding traces to evidence; every governance decision leaves an audit trail. No sales call required.";
+
 export const WELCOME_PROBLEM_HEADING = "Architecture review is broken when diagrams are the only artifact";
 
 export const WELCOME_PROBLEM_BODY =

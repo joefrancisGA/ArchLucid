@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+
 import { axeLiveE2eDisableRuleIdsNow } from "./axe-rule-allowlist";
 import { runAxe } from "./helpers/axe-helper";
 
@@ -7,6 +9,9 @@ import { runAxe } from "./helpers/axe-helper";
  * Pilot group `<nav aria-label>` — always `group.label` from `PilotNavGroupBuilder` (`SidebarNav` sets `aria-label={group.label}`).
  */
 const pilotNavGroupAriaLabel = "Review work";
+
+/** Canonical reviews list route — pilot sidebar + minimal-shell header both link here. */
+const reviewsListNavHref = "/reviews?projectId=default";
 
 /** Waits until the desktop sidebar pilot nav cluster is visible (links are always expanded). */
 async function ensureCorePilotSectionExpanded(page: Page): Promise<void> {
@@ -22,21 +27,29 @@ async function ensureCorePilotSectionExpanded(page: Page): Promise<void> {
   await page.getByRole("navigation", { name: pilotNavGroupAriaLabel }).waitFor({ state: "visible", timeout: 60_000 });
 }
 
-/** Pilot **Reviews** link (sidebar) or minimal-shell header fallback — both honor SPA routing + route announcer. */
 async function navigateToReviewsViaOperatorShell(page: Page): Promise<void> {
   await ensureCorePilotSectionExpanded(page);
 
-  const pilotReviews = page
-    .getByRole("navigation", { name: pilotNavGroupAriaLabel })
-    .getByRole("link", { name: "Reviews" });
+  const sidebarNav = page.getByTestId("sidebar-nav");
 
-  if ((await pilotReviews.count()) > 0) {
-    await pilotReviews.click();
+  if ((await sidebarNav.count()) > 0) {
+    const reviewsLink = sidebarNav.locator(`a[href="${reviewsListNavHref}"]`).first();
+
+    await expect(reviewsLink).toBeVisible({ timeout: 60_000 });
+    await reviewsLink.click();
 
     return;
   }
 
-  await page.getByTestId("app-shell-minimal-root").getByRole("link", { name: "Reviews" }).click();
+  const minimalRoot = page.getByTestId("app-shell-minimal-root");
+  const minimalReviewsLink = minimalRoot
+    .locator(`a[href="${reviewsListNavHref}"]`)
+    .or(minimalRoot.getByRole("link", { name: OPERATOR_NAV_LINK_LABELS.reviewPackage }))
+    .or(minimalRoot.getByRole("link", { name: "Reviews" }))
+    .first();
+
+  await expect(minimalReviewsLink).toBeVisible({ timeout: 60_000 });
+  await minimalReviewsLink.click();
 }
 
 /** Live API + SQL focus/announcer checks (merge-blocking via `ui-e2e-live`). */

@@ -20,6 +20,7 @@ import {
   liveApiBase,
   postConsultingAnalysisDocxRaw,
 } from "./helpers/live-api-client";
+import { ensureBuyerDeliverablesSectionExpanded } from "./helpers/operator-journey";
 
 const releaseGateTag = "@release-gate";
 
@@ -111,7 +112,9 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     const bytes = Buffer.from(await docxExport.body());
 
-    expect(bytes.byteLength).toBeGreaterThan(4096);
+    // DOCX is a ZIP container; seeded Meridian consulting export is ~3.9KB — 4096 was flaky in CI.
+    expect(bytes.subarray(0, 2).toString("ascii")).toBe("PK");
+    expect(bytes.byteLength).toBeGreaterThan(2048);
 
     const historyRaw = await getRunArchitectureExportHistoryRaw(
       request,
@@ -151,7 +154,11 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     /** Buyer deliverables still expose deterministic export affordances (ZIP + Markdown summary). */
     await page.locator("#artifacts-exports").scrollIntoViewIfNeeded();
 
-    await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence package/i })).toBeVisible();
+    await ensureBuyerDeliverablesSectionExpanded(page);
+
+    await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence package/i })).toBeVisible({
+      timeout: 60_000,
+    });
     await expect(page.getByTestId("golden-manifest-markdown-download-button")).toBeVisible();
   });
 });

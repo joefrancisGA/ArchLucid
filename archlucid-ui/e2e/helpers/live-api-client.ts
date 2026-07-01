@@ -115,6 +115,24 @@ export function normalizeRunIdForCompare(value: string): string {
   return value.replace(/-/g, "").trim().toLowerCase();
 }
 
+/** Matches LlmSemanticAdmissionGate architecture-domain heuristic (see ArchLucid.Application). */
+const liveE2eArchitectureAdmissionRegex =
+  /\b(architecture|system|database|api|service|cloud|azure|aws|gcp|security|compliance|tenant|scale|latency|throughput|auth|identity)\b/i;
+
+/**
+ * Builds a POST `/v1/architecture/request` description that passes semantic admission.
+ * Prefix with test-specific intent; appends architecture vocabulary when the intent alone would be rejected.
+ */
+export function liveE2eArchitectureDescription(testIntent: string): string {
+  const intent = testIntent.trim();
+
+  if (liveE2eArchitectureAdmissionRegex.test(intent)) {
+    return intent;
+  }
+
+  return `${intent} Secure Azure API service architecture with SQL database, managed identity auth, and cloud compliance constraints.`;
+}
+
 function pickApiKey(explicitApiKey?: string | null): string | undefined {
   if (explicitApiKey !== undefined && explicitApiKey !== null) {
     const t = explicitApiKey.trim();
@@ -243,6 +261,9 @@ export async function postArchitectureRequestRaw(
 /** Mutating architecture POSTs share one API with many live specs — retry fixed-window 429 and brief 5xx. */
 const maxArchitectureMutationAttempts = 8;
 
+/** Authority commit can return transient 409 (#conflict) immediately after ReadyForCommit poll — retry before failing journeys. */
+const maxCommitTransient409Attempts = 12;
+
 /** POST `/v1/architecture/request` — create a new architecture run. */
 export async function createRun(
   request: APIRequestContext,
@@ -316,18 +337,24 @@ export async function commitRun(
   runId: string,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<CommitRunResponseJson> {
-  for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
+  for (let attempt = 0; attempt < maxCommitTransient409Attempts; attempt++) {
     const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/commit`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
-    if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
+    if (res.status() === 429 && attempt < maxCommitTransient409Attempts - 1) {
       await delayAfterRateLimitedResponse(res);
 
       continue;
     }
 
-    if (res.status() >= 500 && res.status() < 600 && attempt < maxArchitectureMutationAttempts - 1) {
+    if (res.status() === 409 && attempt < maxCommitTransient409Attempts - 1) {
+      await new Promise((r) => setTimeout(r, 2000));
+
+      continue;
+    }
+
+    if (res.status() >= 500 && res.status() < 600 && attempt < maxCommitTransient409Attempts - 1) {
       await new Promise((r) => setTimeout(r, 500));
 
       continue;

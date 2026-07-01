@@ -1,5 +1,5 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_CAPTION_TEXT_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
@@ -45,7 +45,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
 
   if (items.length === 0) {
     return (
-      <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="showcase-pipeline-cards-empty">
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body, MARKETING_CAPTION_TEXT_CLASS)} data-testid="showcase-pipeline-cards-empty">
         No review-trail events in this preview payload yet.
       </p>
     );
@@ -76,7 +76,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
               <div className="min-w-0">
                 <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{label}</p>
                 <time
-                  className={cn("mt-1 block font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                  className={cn("mt-1 block font-medium", OPERATOR_TYPOGRAPHY.helper, MARKETING_CAPTION_TEXT_CLASS)}
                   dateTime={row.occurredUtc}
                 >
                   {safeLocaleTime(row.occurredUtc)}

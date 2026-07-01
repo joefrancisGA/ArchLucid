@@ -13,7 +13,7 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     prefix: "/governance/findings",
     hint: {
       id: "governance-findings-queue",
-      message: "Filter stale risks or expiring waivers, then open a row to inspect evidence and linked decisions.",
+      message: "Start with open risks, expiring exceptions, or risks without owners — then open a row to inspect evidence and linked decisions.",
       learnMoreHref: "/help/governance-approval",
     },
   },

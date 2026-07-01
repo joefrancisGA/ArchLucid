@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.GcpExtractor;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.GcpExtractor;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -73,7 +74,7 @@ public sealed class GcpTier2ConnectionControllerTests
             WorkloadIdentityPoolProvider =
                 "projects/1/locations/global/workloadIdentityPools/pool/providers/provider",
             ServiceAccountEmail = "svc@test.iam.gserviceaccount.com",
-            Status = GcpConnectionStatus.Active,
+            Status = GcpConnectionStatus.Connected,
             UpdatedUtc = DateTimeOffset.UtcNow,
         };
 
@@ -117,7 +118,7 @@ public sealed class GcpTier2ConnectionControllerTests
             WorkloadIdentityPoolProvider =
                 "projects/1/locations/global/workloadIdentityPools/pool/providers/provider",
             ServiceAccountEmail = "svc@test.iam.gserviceaccount.com",
-            Status = GcpConnectionStatus.Active,
+            Status = GcpConnectionStatus.Connected,
             UpdatedUtc = DateTimeOffset.UtcNow,
         };
 

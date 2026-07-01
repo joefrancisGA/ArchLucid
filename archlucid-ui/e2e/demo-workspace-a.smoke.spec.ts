@@ -15,6 +15,7 @@ import {
   getAuthorityRunDetailRaw,
   liveApiBase,
 } from "./helpers/live-api-client";
+import { ensureBuyerDeliverablesSectionExpanded } from "./helpers/operator-journey";
 
 const releaseGateTag = "@release-gate";
 
@@ -81,7 +82,11 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await page.locator("#artifacts-exports").scrollIntoViewIfNeeded();
 
-    await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence package/i })).toBeVisible();
+    await ensureBuyerDeliverablesSectionExpanded(page);
+
+    await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence package/i })).toBeVisible({
+      timeout: 60_000,
+    });
 
     /** Affordance only — do not trigger Markdown download blob (release gate verifies control presence). */
     await expect(page.getByTestId("golden-manifest-markdown-download-button")).toBeVisible();

@@ -17,6 +17,7 @@ import {
   postGovernanceApproveRaw,
   resolveLiveApiBase,
   resolveLiveAuthActorName,
+  liveE2eArchitectureDescription,
   searchAudit,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -51,7 +52,9 @@ test.describe("live-api-negative-paths", () => {
 
     const createBody = {
       requestId: `E2E-LIVE-SELF-APPR-${Date.now()}`,
-      description: "Live E2E: governance self-approval must return 400 and emit GovernanceSelfApprovalBlocked.",
+      description: liveE2eArchitectureDescription(
+        "Live E2E: governance self-approval must return 400 and emit GovernanceSelfApprovalBlocked.",
+      ),
       systemName: "SelfApprovalTest",
       environment: "prod",
       cloudProvider: 1,
@@ -157,7 +160,9 @@ test.describe("live-api-negative-paths", () => {
 
     const createBody = {
       requestId: `E2E-LIVE-DBL-COMMIT-${Date.now()}`,
-      description: "Live E2E: double commit must fail after successful commit.",
+      description: liveE2eArchitectureDescription(
+        "Live E2E: double commit must fail after successful commit.",
+      ),
       systemName: "DoubleCommitNegative",
       environment: "prod",
       cloudProvider: 1,
