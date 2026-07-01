@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchLucid.Contracts.Abstractions.Integrations;
 
 using Google.Apis.Auth.OAuth2;
@@ -7,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Integrations.GcpExtractor;
 
+[ExcludeFromCodeCoverage]
 public sealed class HostedGcpExtractorClient(
     GcpWorkloadIdentityCredentialFactory credentialFactory,
     ILogger<HostedGcpExtractorClient> logger) : IHostedGcpExtractorClient

@@ -86,6 +86,42 @@ public sealed class ScopeIdentityBindingMiddlewareTests
         body.Should().Contain("x-tenant-id");
     }
 
+    [Fact]
+    public async Task InvokeAsync_unauthenticated_request_invokes_next()
+    {
+        DefaultHttpContext context = CreateContext();
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_api_key_without_tenant_claim_allows_blank_x_tenant_id_header()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.Name, "ApiKeyAdmin")],
+            AuthServiceCollectionExtensions.ApiKeySchemeName));
+        context.Request.Headers["x-tenant-id"] = "   ";
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
+    }
+
     private static DefaultHttpContext CreateContext()
     {
         DefaultHttpContext context = new() { Request = { Path = "/v1/runs" } };

@@ -25,6 +25,22 @@ namespace ArchLucid.Core.Tenancy
     }
 }
 
+namespace Dapper
+{
+    public static class SqlMapper
+    {
+        public static System.Collections.Generic.IEnumerable<T> Query<T>(
+            System.Data.IDbConnection cnn,
+            string sql,
+            object? param = null,
+            System.Data.IDbTransaction? transaction = null,
+            bool buffered = true,
+            int? commandTimeout = null,
+            System.Data.CommandType? commandType = null) =>
+            throw null!;
+    }
+}
+
 """;
 
     private const string RegistryJson = """
@@ -53,8 +69,39 @@ public sealed class BadExemptionRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.EmptyExemptionJustificationRule)
-            .WithSpan(22, 2, 22, 60)
+            .WithSpan(38, 2, 38, 60)
             .WithArguments("ArchLucid.Persistence.Probe.BadExemptionRepository");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
+    public async Task ARCH006a_reports_unanalyzable_sql_when_scoped_table_referenced()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class DynamicRunsRepository
+{
+    public void Load(IDbConnection connection, string filterColumn)
+    {
+        _ = SqlMapper.Query<int>(
+            connection,
+            "SELECT RunId FROM dbo.Runs WHERE " + filterColumn + " IS NULL");
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
+            .WithSpan(43, 13, 45, 77)
+            .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
     }

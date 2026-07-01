@@ -53,4 +53,19 @@ public sealed class TenantScopedTableRegistryTests
 
         Assert.Same(TenantScopedTableRegistry.Empty, registry);
     }
+
+    [Fact]
+    public void RequiresTripleScope_is_false_for_tenant_id_only_table()
+    {
+        TenantScopedTableRegistry registry = TenantScopedTableRegistry.LoadFromAdditionalFile(MinimalRegistryJson);
+
+        Assert.False(registry.RequiresTripleScope("dbo.TenantSettings"));
+        Assert.True(registry.RequiresTenantIdScope("dbo.TenantSettings"));
+    }
+
+    [Fact]
+    public void NormalizeTableName_adds_dbo_prefix_for_bare_table_name()
+    {
+        Assert.Equal("dbo.Runs", TenantScopedTableRegistry.NormalizeTableName("Runs"));
+    }
 }

@@ -43,4 +43,17 @@ public sealed class GcpWorkloadIdentityCredentialFactoryTests
 
         act.Should().Throw<ArgumentException>();
     }
+
+    [Fact]
+    public void CreateImpersonatedCredential_returns_google_credential()
+    {
+        Mock<IGcpSubjectTokenProvider> tokenProvider = new();
+        GcpWorkloadIdentityCredentialFactory factory = new(tokenProvider.Object);
+
+        Google.Apis.Auth.OAuth2.GoogleCredential credential = factory.CreateImpersonatedCredential(
+            "projects/1/locations/global/workloadIdentityPools/pool/providers/provider",
+            "svc@test.iam.gserviceaccount.com");
+
+        credential.Should().NotBeNull();
+    }
 }
