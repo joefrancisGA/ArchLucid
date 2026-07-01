@@ -114,12 +114,16 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     enterpriseFootnote: "Read-only tiles; writes stay in workflow, findings queue, and audit.",
   },
   "governance-findings": {
-    layerBadge: "Governance",
-    headline: "Risk register — Track owned architecture risks, dispositions, waivers, and review decisions.",
-    useWhen: "Answer what risks the organization owns now without opening each review; filter stale risks and expiring waivers.",
+    layerBadge: "Risk register",
+    headline:
+      "Track architecture risks created from accepted findings, waivers, exceptions, and governance decisions.",
+    useWhen:
+      "Use this register to assign owners, monitor aging risks, review exceptions before expiry, and prepare audit evidence.",
     firstPilotNote:
       "After Pilot proof, use review detail for drill-down; this register queues portfolio-level owned risks and decisions.",
-    enterpriseFootnote: "Review-scoped detail on inspect routes; portfolio register on /governance/findings.",
+    enterpriseFootnote:
+      "Each risk should remain traceable to the review package, evidence, policy rule, and signed review record that produced it.",
+    omitReviewPackageScopeHelp: true,
   },
   "governance-first-30-days": {
     layerBadge: "Governance",

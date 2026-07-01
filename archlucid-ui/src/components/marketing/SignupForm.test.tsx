@@ -18,7 +18,7 @@ describe("SignupForm", () => {
   it("blocks submit when validation fails", async () => {
     render(<SignupForm />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Create trial workspace/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Create your workspace/i }));
 
     expect(await screen.findByText(/Enter a valid email/i)).toBeInTheDocument();
     expect(pushMock).not.toHaveBeenCalled();
@@ -44,7 +44,7 @@ describe("SignupForm", () => {
     fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "ops@example.com" } });
     fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
     fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
-    fireEvent.click(screen.getByRole("button", { name: /Create trial workspace/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Create your workspace/i }));
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled();
@@ -93,7 +93,7 @@ describe("SignupForm", () => {
     fireEvent.change(screen.getByTestId("signup-baseline-hours"), { target: { value: "16" } });
     fireEvent.change(screen.getByTestId("signup-baseline-source"), { target: { value: "team estimate" } });
 
-    fireEvent.click(screen.getByRole("button", { name: /Create trial workspace/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Create your workspace/i }));
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled();

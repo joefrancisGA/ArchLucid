@@ -18,6 +18,7 @@ export type GovernanceFindingQueueRow = {
   recordKind: GovernanceFindingQueueRecordKind;
   traceConfidenceLevel?: FindingConfidenceLevel | null;
   ownerUserId?: string | null;
+  latestDisposition?: string | null;
   agingDays?: number;
   waiverExpiresAtUtc?: string | null;
   lastReviewedUtc?: string | null;

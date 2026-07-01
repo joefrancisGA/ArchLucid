@@ -11,6 +11,7 @@ using ArchLucid.Core.Secrets;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Integrations;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
 using ArchLucid.TestSupport.Http;
 

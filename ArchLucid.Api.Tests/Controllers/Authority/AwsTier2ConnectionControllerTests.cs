@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Application.AwsExtractor;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -73,7 +74,7 @@ public sealed class AwsTier2ConnectionControllerTests
             AccountId = "123456789012",
             Region = "us-east-1",
             RoleArn = "arn:aws:iam::123456789012:role/ReadOnly",
-            Status = AwsConnectionStatus.Active,
+            Status = AwsConnectionStatus.Connected,
             UpdatedUtc = DateTimeOffset.UtcNow,
         };
 
@@ -118,7 +119,7 @@ public sealed class AwsTier2ConnectionControllerTests
             AccountId = "123456789012",
             Region = "us-east-1",
             RoleArn = "arn:aws:iam::123456789012:role/ReadOnly",
-            Status = AwsConnectionStatus.Active,
+            Status = AwsConnectionStatus.Connected,
             UpdatedUtc = DateTimeOffset.UtcNow,
         };
 

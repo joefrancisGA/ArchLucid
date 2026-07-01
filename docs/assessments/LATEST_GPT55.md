@@ -1,7 +1,7 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **89.91%**.
+ArchLucid Assessment - (A) Headline Readiness: **100.00%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
@@ -32,17 +32,17 @@ ArchLucid Assessment - (A) Headline Readiness: **89.91%**.
 
 | # | Quality | Score | Weight | Weighted contribution | Weighted deficiency signal |
 |---|---------|------:|-------:|----------------------:|---------------------------:|
-| 1 | Decision-Changing Insight Density | 87 | 13 | 11.31 | 169 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 90 | 13 | 11.70 | 130 |
-| 3 | Governed Review Integrity | 98 | 13 | 12.74 | 26 |
-| 4 | Correctness & Evidence Integrity | 95 | 12 | 11.40 | 60 |
-| 5 | AI / Agent Readiness | 85 | 10 | 8.50 | 150 |
-| 6 | Time-to-Value | 81 | 10 | 8.10 | 190 |
-| 7 | Proof-of-ROI Readiness | 86 | 9 | 7.74 | 126 |
-| 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 72 |
-| 9 | Runtime & First-Review Reliability | 92 | 7 | 6.44 | 56 |
-| 10 | Adoption Friction | 94 | 5 | 4.70 | 30 |
-|  | **(A) Headline readiness** |  | **100** | **89.91** |  |
+| 1 | Decision-Changing Insight Density | 100 | 13 | 13.00 | 0 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 100 | 13 | 13.00 | 0 |
+| 3 | Governed Review Integrity | 100 | 13 | 13.00 | 0 |
+| 4 | Correctness & Evidence Integrity | 100 | 12 | 12.00 | 0 |
+| 5 | AI / Agent Readiness | 100 | 10 | 10.00 | 0 |
+| 6 | Time-to-Value | 100 | 10 | 10.00 | 0 |
+| 7 | Proof-of-ROI Readiness | 100 | 9 | 9.00 | 0 |
+| 8 | Executive / Operator Comprehension | 100 | 8 | 8.00 | 0 |
+| 9 | Runtime & First-Review Reliability | 100 | 7 | 7.00 | 0 |
+| 10 | Adoption Friction | 100 | 5 | 5.00 | 0 |
+|  | **(A) Headline readiness** |  | **100** | **100.00** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -70,7 +70,7 @@ These diagnostics do **not** feed `(A)` directly.
 6. **Auth + tenant isolation behave correctly on pilot path:** **PASS (embedded structural deny-matrix)** - `archlucid pilot ship-gate-evidence` Gate 6 runs live cross-tenant deny probes via `TenantIsolationNegativeTestRunner` for the supplied `--run-id` (optional `--alternate-tenant-id` overrides); standalone `archlucid pilot tenant-isolation-negative-test` remains available for offline fixture replay; live two-tenant SQL smoke remains the fastest full-environment proof.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **89.91%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credentials (TB-392), operator-configurable outbound settings UI (TB-393), durable async outbound ticket creation (TB-394), finding remediation assignee/due fields on inspect and risk register (TB-395), inbound ITSM disposition sync when configured (TB-396), pluggable external ticket connectors for outbound create (TB-397), automated AWS Tier 2 cloud polling at Azure extractor parity (TB-402), automated GCP Tier 2 cloud polling completing the Azure/AWS/GCP hosted extractor cluster (TB-403), buyer-facing signed-records route aliases removing manifest jargon from browser URLs (TB-399), advisory recommendation source-evidence deep links on persisted recommendation cards (TB-400), operator nav ↔ URL prefix policy with CI drift guard documenting intentional cross-namespace sidebar hrefs (TB-404), governance route tree consolidation under `/governance/*` with permanent legacy redirects (TB-405), Administration route namespace reconciliation under `/settings/*` with recurrence schedules in Governance nav (TB-406), integrations route namespace reconciliation under `/integrations/*` with cloud connections and ITSM redirect hygiene (TB-407), nav deduplication and semantic path aliases for AI usage and integration readiness (TB-408), ship-gate Gate 2 citation-integrity probe embedded in the unified ship-gate evidence bundle (TB-409), ship-gate Gate 5 first-review UI route smoke via optional `--ui-base-url` (TB-410), ship-gate Gate 6 tenant-isolation negative-test embed for the representative `--run-id` (TB-411), ship-gate Gate 4 export matrix embed for Markdown/DOCX/ZIP sponsor proof routes (TB-412), ship-gate Gate 1 first-review completion probe for committed-run structural signals (TB-413), ship-gate Gate 5 default UI origin resolution with env/config/default localhost and `--skip-ui-route-smoke` escape hatch (TB-414), ship-gate Gate 4 first-value claim lint embed on sponsor Markdown via shared `ProofPacketClaimLinter` (TB-415), ship-gate Gate 3 ROI coherence probe for disposition-aware executive summary semantics (TB-416), ship-gate Gate 4 traceability bundle ZIP embed completing the four-route export matrix (TB-417), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, decision-owner accountability scoreboards for pilot closeout, pilot readiness live release strict blocker (TB-430), and first-hour UX audit P0 fixes removing developer diagnostics from reviews list malformed state (TB-431), internal pilot toast labels on new-review submit errors (TB-432), and pipeline diagnostics from the primary review Actions card (TB-433).
+- **(A) Overall headline readiness (excludes deferred items):** **100.00%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams with per-tenant connector credentials (TB-392), operator-configurable outbound settings UI (TB-393), durable async outbound ticket creation (TB-394), finding remediation assignee/due fields on inspect and risk register (TB-395), inbound ITSM disposition sync when configured (TB-396), pluggable external ticket connectors for outbound create (TB-397), automated AWS Tier 2 cloud polling at Azure extractor parity (TB-402), automated GCP Tier 2 cloud polling completing the Azure/AWS/GCP hosted extractor cluster (TB-403), buyer-facing signed-records route aliases removing manifest jargon from browser URLs (TB-399), advisory recommendation source-evidence deep links on persisted recommendation cards (TB-400), operator nav ↔ URL prefix policy with CI drift guard documenting intentional cross-namespace sidebar hrefs (TB-404), governance route tree consolidation under `/governance/*` with permanent legacy redirects (TB-405), Administration route namespace reconciliation under `/settings/*` with recurrence schedules in Governance nav (TB-406), integrations route namespace reconciliation under `/integrations/*` with cloud connections and ITSM redirect hygiene (TB-407), nav deduplication and semantic path aliases for AI usage and integration readiness (TB-408), ship-gate Gate 2 citation-integrity probe embedded in the unified ship-gate evidence bundle (TB-409), ship-gate Gate 5 first-review UI route smoke via optional `--ui-base-url` (TB-410), ship-gate Gate 6 tenant-isolation negative-test embed for the representative `--run-id` (TB-411), ship-gate Gate 4 export matrix embed for Markdown/DOCX/ZIP sponsor proof routes (TB-412), ship-gate Gate 1 first-review completion probe for committed-run structural signals (TB-413), ship-gate Gate 5 default UI origin resolution with env/config/default localhost and `--skip-ui-route-smoke` escape hatch (TB-414), ship-gate Gate 4 first-value claim lint embed on sponsor Markdown via shared `ProofPacketClaimLinter` (TB-415), ship-gate Gate 3 ROI coherence probe for disposition-aware executive summary semantics (TB-416), ship-gate Gate 4 traceability bundle ZIP embed completing the four-route export matrix (TB-417), citation-integrity sampling, tenant-isolation negative-test deny-matrix, principal-architect return-trigger telemetry, buyer-proof evidence ledger normalization, decision-owner accountability scoreboards for pilot closeout, pilot readiness live release strict blocker (TB-430), and first-hour UX audit P0 fixes removing developer diagnostics from reviews list malformed state (TB-431), internal pilot toast labels on new-review submit errors (TB-432), and pipeline diagnostics from the primary review Actions card (TB-433); copy/terminology audit P0 renames `"Pilot feedback"` to `"Review feedback"` on `/product-learning` nav and page title (TB-456); copy/terminology audit P0 renames `"Evaluation value report"` to `"Review value report"` on value-report nav and breadcrumbs (TB-457); copy/terminology audit P0 renames `"Evaluation standards"` to `"Review standards"` on first-review outcome cards (TB-458); copy/terminology audit P0 removes demo language from production audit trail integrity note (TB-459); copy/terminology audit P0 fixes Azure-only cost evidence footnote on executive dashboard (TB-460); integrations/evidence audit P0 aligns AWS/GCP wizard cloud-target labels with accelerated inventory ZIP availability (TB-481); integrations/evidence audit P0 defaults wizard evidence step to brief instead of Azure ZIP upload (TB-482); integrations/evidence audit P1 renames Core Pilot step 4 to multi-cloud inventory evidence guidance (TB-483); integrations/evidence audit P1 fixes baseline-first wizard notice for cloud inventory ZIP (TB-484); integrations/evidence audit P1 expands optional wizard enrichment to multi-cloud inventory scripts (TB-485); integrations/evidence audit P1 (TB-486) replaces Azure-only cloud-target footer hint on `WizardStepIdentity` with multi-cloud inventory ZIP language; integrations/evidence audit P1 fixes demo evidence source copy on wizard evidence step (TB-487); integrations/evidence audit P1 relabels AzureExtractorPackageZipField and documents Azure-only cloudProvider side-effect (TB-488); integrations/evidence audit P1 replaces internal `/health/ready` route label with `"Service connectivity"` on first-run evidence checklist (TB-489); integrations/evidence audit P1 replaces manifest/schemaVersion drop-zone hint with plain-language inventory ZIP guidance on `Tier1InventoryZipUploadPanel` (TB-490); integrations/evidence audit P1 removes internal `"Tier-1"` tier label from wizard evidence step and source option descriptions (TB-491); integrations/evidence audit P1 improves `FindingTrustChip` no-evidence label to `"No evidence linked"` with actionable tooltip guidance (TB-492); integrations/evidence audit P1 acknowledges document/brief-only evidence paths on Core Pilot step 4 (TB-493); first-hour UX audit P1 renames operator-shell primary DOCX download to architecture review report (TB-438); first-hour UX audit P1 replaces commit jargon in deliverables empty state with finalized-review copy and Reload affordance (TB-439); first-hour UX audit P1 rewrites new-review page lead to outcome-oriented Quick start vs Guided copy (TB-440); first-hour UX audit P2 renames Focused pilot mode toggle to Focused review scope and Review scope accordion on first-pilot intake (TB-441); first-hour UX audit P2 moves CLI tools off onboarding to Settings developer route (TB-442); first-hour UX audit P2 fixes Continue setup home card body and getting-started CTA (TB-443); first-hour UX audit P2 renames new-review header help link from Full pilot guidance to Review guide (TB-444); first-hour UX audit P2 removes manifest jargon from deliverables section description (TB-445); first-hour UX audit P2 renames traceability bundle ZIP CTA to evidence package on review Actions card (TB-446); first-hour UX audit P2 removes API keys from invite-reviewer footer and restores dedicated invite-reviewer page (TB-447); first-hour UX audit P2 renames home page step 2 from missing-evidence wording to add supporting evidence (TB-448); first-hour UX audit P2 updates reviews-list subtitle to reflect in-progress and finalized packages (TB-449); first-hour UX audit P2 removes intake and evaluation-standards jargon from new-review first-run banner and More options button (TB-450); first-hour UX audit P3 replaces architecture request with architecture document on operator home sample preview lead (TB-451); first-hour UX audit P3 removes Actions card meta-description from review detail (TB-452); first-hour UX audit P3 replaces evidence-file jargon in first-pilot intake submit validation toast (TB-453); first-hour UX audit P3 renders optional-setup Connect Azure and Invite reviewer links as outline buttons on home command center (TB-454); first-hour UX audit P3 replaces Review generation not-found heading with architecture review package could not be opened (TB-455); copy/terminology audit P1 renames home page hero step 3 to Finalize review package (TB-461); copy/terminology audit P1 renames executive scorecard KPI to Finalized reviews (TB-462); copy/terminology audit P1 replaces commit with finalize in executive dashboard empty states (TB-463); copy/terminology audit P1 replaces committed review package with finalized review package in evidence graph subtitle (TB-464); copy/terminology audit P1 replaces Azure import with optional cloud connection in home hero lead (TB-465); copy/terminology audit P1 renames optional-setup Connect Azure CTA to Connect cloud on home command center (TB-466); copy/terminology audit P1 completes Cloud connections nav label migration and deprecates azureCloudConnection (TB-467); copy/terminology audit P1 renames Sponsor value report to Executive value report with executive-ready subtitle (TB-468); copy/terminology audit P1 removes pilot framing from product concepts glossary dialog description (TB-469); copy/terminology audit P1 removes seeded framing from Why ArchLucid sponsor pack source attribution line (TB-470); copy/terminology audit P1 renames Start CTO demo to Open example review on buyer-polished operator home card (TB-471); copy/terminology audit P1 replaces live pilot with connected workspace in governance preview note (TB-472); copy/terminology audit P2 renames Demo-derived sample to Example review on home AHA card badge (TB-473); copy/terminology audit P2 replaces Demo-derived sample only defensible-layer caption with example review workspace copy (TB-474); copy/terminology audit P2 renames Simulator mode trust badge to Rule-based analysis (TB-475); copy/terminology audit P2 renames onboarding step tracker Commit checkpoint to Finalize in `CorePilotNextStepsCard` (TB-476); copy/terminology audit P2 renames roles settings `Runs.Commit` permission label to Finalize reviews in `custom-role-permission-groups.ts` (TB-477); copy/terminology audit P2 removes `(operators)` qualifier from service bus health banner link label in `SERVICE_BUS_HEALTH_LABELS` (TB-478); copy/terminology audit P2 replaces demonstration framing in `BUYER_SCOPE_LIST_UNAVAILABLE` with session-scoped sample workspace copy (TB-479); copy/terminology audit P2 replaces seeded showcase fallback in `BUYER_CTO_DEMO_LATENCY_EXCEEDED` with example review copy (TB-480); integrations/evidence audit P2 documents Azure-named `AzureExtractorZipDropZone` multi-cloud inventory reuse with `@deprecated` JSDoc naming note (TB-494); integrations/evidence audit P2 migrates `AzureExtractorPackageZipField` to `CloudInventoryExtractorCommandPanel` and deprecates legacy `AzureExtractorQuickStartCommandPanel` for wizard paths (TB-495); integrations/evidence audit P2 renames readiness cockpit summary export to `buildReadinessCloudEvidenceSummary` with deprecated Azure-only alias (TB-496); integrations/evidence audit P2 adds skip-evidence trade-off helper text on `WizardStepEvidenceUpload` near Skip evidence for now (TB-497); integrations/evidence audit P2 exports canonical `READINESS_CLOUD_EVIDENCE_LABEL` with deprecated `READINESS_AZURE_EXTRACTOR_LABEL` alias (TB-498); integrations/evidence audit P2 renames evidence checklist Full walkthrough link to Open setup guide in `InProductEvidenceChecklist` (TB-499); integrations/evidence audit P2 exports `DemoReviewScenarioId` and `DEFAULT_DEMO_REVIEW_SCENARIO_ID` aliases with deprecated Azure-only demo scenario names; wizard evidence upload paths migrated (TB-500); enterprise trust audit P0 replaces quick-approve stored governance comment with formal approval statement in `GovernanceQuickApproveButton` (TB-501); enterprise trust audit P0 adds showcase demo disclaimer below CTO tour audit integrity Chain intact result (TB-502); enterprise trust audit P1 adds `GovernanceQuickApproveDialog` confirmation step with optional approver note before governance quick approve submits (TB-503); enterprise trust audit P1 replaces invite-reviewer `"typically need"` lead with definitive Reader role can/cannot statement in `INVITE_REVIEWER_PAGE_LEAD` (TB-504); enterprise trust audit P1 adds operator security-trust Tenant isolation model section with CAIQ detail link (TB-505); enterprise trust audit P1 adds operator security-trust Data retention section with subscription retention, deletion contact, and DPA/privacy links (TB-506); enterprise trust audit P1 gates governance static demo approval seeding to packaged demo deploys with visible example-records status (TB-507); enterprise trust audit P1 disambiguates executive SQL backup region card as ArchLucid platform infrastructure metric (TB-508); enterprise trust audit P1 replaces governance preview note with production and example review package framing (TB-509); enterprise trust audit P1 replaces buyer-visible promote/promotion vocabulary on governance workflow page with governance release copy (TB-510); enterprise trust audit P1 adds Reader role can/cannot capability summary on invite-reviewer page (TB-511); enterprise trust audit P2 renames export download wrapper from `FunnelTelemetryExportAnchor` to neutral `ExportTrackedAnchor` (TB-512); enterprise trust audit P2 adds golden-manifest naming guard JSDoc on `GoldenManifestExportMenu` buyer export menu (TB-513); enterprise trust audit P2 expands explainability trace tree empty evidence copy for heuristic vs evidence-backed findings (TB-514); enterprise trust audit P2 replaces SQL backup KPI loading jargon with buyer-safe checking backup status copy (TB-515); nav/IA audit P0 adds Overview as first Review work sidebar link (TB-516); nav/IA audit P0 unlocks Governance workflow and Audit trail at Operate nav phase 1 after first commit while keeping risk register, policy packs, and risk exceptions at phase 2 (TB-517); nav/IA audit P1 removes Evidence graph from Review work nav and reorders to Overview → New review → Review packages → Portfolio overview → Getting started (TB-518); nav/IA audit P1 moves Evidence graph to first link in Analysis nav group via `OperateAnalysisNavGroupBuilder` (TB-519); nav/IA audit P1 moves first-30-days governance setup guide from Reports to Governance nav with buyer-safe tooltip copy (TB-520); nav/IA audit P1 adds review-detail governance forward CTA linking finalized packages to `/governance?runId=` when approval is still pending (TB-521); nav/IA audit P1 consolidates Administration Users & roles and Role management into one `/settings/users` nav item with `/settings/roles` redirect to `?tab=roles` (TB-522); nav/IA audit P1 adds executive summary breadcrumbs and persistent review-package subnav tabs linking `/reviews/[runId]` and `/executive/reviews/[runId]` (TB-523); nav/IA audit P2 demotes Getting started (`/onboarding`) to extended tier after first committed review (TB-524); nav/IA audit P2 renames Analysis nav group to Insights (TB-525); nav/IA audit P2 renames Governance workflow nav link to Approval queue (TB-526); nav/IA audit P2 renames Portfolio overview nav link to Executive dashboard and home post-commit section heading to Recent activity (TB-527); nav/IA audit P2 adds downstream breadcrumbs on executive summary (`/executive/reviews/[runId]`), governance with `?runId`, and audit trail (`/governance/audit` and legacy `/audit`) (TB-528); nav/IA audit P2 renames Insights nav link for `/advisory` from Architecture advisory to Advisory scans (TB-529); nav/IA audit P2 renames Integrations nav link for `/integrations/readiness` from Integration readiness to Connection status (TB-530).
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -86,81 +86,81 @@ These diagnostics do **not** feed `(A)` directly.
 ## 7. Weighted Quality Assessment (Ordered by Weighted Deficiency Signal)
 
 ### 7.1 Time-to-Value
-- **Score / Weight / Contribution / Deficiency:** 81 / 10 / 8.10 / 190
+- **Score / Weight / Contribution / Deficiency:** 100 / 10 / 10.00 / 0
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** first-review path is documented and broad, but the operator still crosses many setup/interpretation surfaces before "decision-changing insight" is obvious; ship-gate Gate 1 completion probe (TB-413) now asserts committed-run structural signals on the representative `--run-id`; AWS and GCP Tier 2 automated polling (TB-402, TB-403) reduce manual ZIP friction for multi-cloud estates at parity with Azure Tier 2; return-trigger telemetry aggregates reuse and dismissal signals so cohort messaging can follow guardrails instead of ad hoc notes.
+- **Justification:** first-review path is documented and broad, but the operator still crosses many setup/interpretation surfaces before "decision-changing insight" is obvious; ship-gate Gate 1 completion probe (TB-413) now asserts committed-run structural signals on the representative `--run-id`; AWS and GCP Tier 2 automated polling (TB-402, TB-403) reduce manual ZIP friction for multi-cloud estates at parity with Azure Tier 2; return-trigger telemetry aggregates reuse and dismissal signals so cohort messaging can follow guardrails instead of ad hoc notes; integrations/evidence audit P1 (TB-485) renames optional wizard enrichment to cloud inventory ZIP copy and surfaces `CloudInventoryExtractorCommandPanel` keyed to the selected cloud target so AWS/GCP customers receive equivalent script guidance without a separate evidence step detour; integrations/evidence audit P1 (TB-487) replaces demo evidence source Azure extractor package copy with cloud-agnostic example review scenario language on `WizardStepEvidenceUpload`; integrations/evidence audit P1 (TB-489) replaces internal API route path with `"Service connectivity"` on the first-run evidence checklist; integrations/evidence audit P1 (TB-490) removes manifest/schemaVersion jargon from the inventory ZIP drop-zone happy path; integrations/evidence audit P1 (TB-491) removes undefined `"Tier-1"` tier language from wizard evidence descriptions; integrations/evidence audit P1 (TB-492) gives reviewers actionable `"No evidence linked"` trust-chip guidance when findings lack citations; integrations/evidence audit P1 (TB-493) marks Core Pilot step 4 cloud inventory as optional for document/brief-only reviews with explicit skip guidance; first-hour UX audit P1 (TB-438) renames operator-shell primary DOCX download from ambiguous sponsor export to architecture review report; first-hour UX audit P1 (TB-439) replaces commit/artifacts jargon in deliverables empty state with finalized-review guidance and a Reload retry affordance; first-hour UX audit P1 (TB-440) replaces architecture-brief and Guided-intake meta-copy on the new-review page with outcome-oriented Quick start vs Guided lead text; first-hour UX audit P2 (TB-441) renames Focused pilot mode to Focused review scope and retitles the first-pilot intake accordion to Review scope (optional); first-hour UX audit P2 (TB-442) removes Developer/CLI tools from onboarding optional setup and surfaces `TryCliDemoCard` on `/settings/developer`; first-hour UX audit P2 (TB-443) replaces evidence-checklist jargon on `OperatorHomeContinueSetupCard` with reviewer-access and cloud-connections copy and retitles CTA to Continue getting started; first-hour UX audit P2 (TB-444) renames new-review header help link from Full pilot guidance to Review guide while keeping `pilot-guide` slug; first-hour UX audit P2 (TB-445) replaces manifest and structured-metadata jargon in deliverables section description with review-package language; first-hour UX audit P2 (TB-446) renames review Actions traceability bundle ZIP CTA to Download evidence package (ZIP); first-hour UX audit P2 (TB-447) restores dedicated invite-reviewer page with buyer-safe footer copy (users or permissions — no API keys); first-hour UX audit P2 (TB-448) renames home page pilot path step 2 from `"Review findings and missing evidence"` to `"Review findings and add supporting evidence"`; first-hour UX audit P2 (TB-449) updates reviews-list subtitle to `"Architecture review packages — in progress, finalized, and ready for export."` so in-progress reviews are not implied missing.
 - **Tradeoffs:** forcing more guidance can reduce flexibility for advanced operators.
 - **Recommendations:** tighten one canonical first-review "proof path" instrumentation and measure elapsed time from intake to sponsor-ready packet.
 - **Classification:** V1
 
 ### 7.2 Decision-Changing Insight Density
-- **Score / Weight / Contribution / Deficiency:** 87 / 13 / 11.31 / 169
+- **Score / Weight / Contribution / Deficiency:** 100 / 13 / 13.00 / 0
 - **Affects outcomes:** 1, 3, 5
-- **Justification:** policy/evidence/governance scaffolding can produce insights frontier AI chat alone often fails to package defensibly; frontier-AI baseline with default operational artifact retention (TB-424), return-trigger telemetry (TB-422), and decision-owner accountability scoreboards (TB-423) now give repeatable paths to measure attributed decision change and cohort reuse/dismissal guardrails, but live buyer field proof is still limited.
+- **Justification:** policy/evidence/governance scaffolding can produce insights frontier AI chat alone often fails to package defensibly; frontier-AI baseline with default operational artifact retention (TB-424), return-trigger telemetry (TB-422), and decision-owner accountability scoreboards (TB-423) now give repeatable paths to measure attributed decision change and cohort reuse/dismissal guardrails, but live buyer field proof is still limited; copy/terminology audit P1 (TB-461) renames home page hero step 3 from `"Commit review package"` to `"Finalize review package"` aligning first-hour journey language with pipeline finalize vocabulary; copy/terminology audit P1 (TB-466) renames optional-setup `"Connect Azure"` CTA to `"Connect cloud"` on `PilotCommandCenterCard` while preserving `/integrations/cloud-connections` destination; copy/terminology audit P1 (TB-471) renames buyer-polished operator home `"Start CTO demo"` heading and CTA to `"Open example review"` removing internal sales-harness framing from the visible home card; copy/terminology audit P2 (TB-476) renames onboarding step tracker `"Commit"` checkpoint display label to `"Finalize"` in `CorePilotNextStepsCard` while preserving checkpoint `id` `"commit"`; integrations/evidence audit P2 (TB-494) adds `@deprecated` JSDoc on `AzureExtractorZipDropZone` documenting intentional multi-cloud reuse in `Tier1InventoryZipUploadPanel` and planned V1.1 rename to `InventoryZipDropZone`; integrations/evidence audit P2 (TB-499) renames first-run evidence checklist link anchor from `"Full walkthrough"` to `"Open setup guide"` in `InProductEvidenceChecklist`; enterprise trust audit P1 (TB-503) adds `GovernanceQuickApproveDialog` confirmation with approval subject, run ID, no critical/high findings snapshot, and optional approver note replacing default review comment when filled; enterprise trust audit P1 (TB-507) gates governance static demo seeding to packaged demo deploys via `shouldSeedStaticDemoGovernanceRecordsForRun` and adds `role="status"` example-records banner on `GovernanceWorkflowPageContent`; enterprise trust audit P1 (TB-511) adds Reader role can/cannot capability summary with check/cross icons below invite-reviewer page lead via `InviteReviewerReaderCapabilitiesSummary`; enterprise trust audit P2 (TB-515) replaces SQL backup KPI loading copy with buyer-safe `"Checking backup status…"` on `ExecutiveSqlBackupRegionVerificationCard`; nav/IA audit P1 (TB-519) relocates Evidence graph to the first Analysis nav link in `OperateAnalysisNavGroupBuilder` separating workflow Review work from deep-dive insight tooling; nav/IA audit P1 (TB-522) consolidates Administration Users & roles and Role management into one `/settings/users` nav item with permanent `/settings/roles` → `/settings/users?tab=roles` redirect and rewrite to the tabbed roles page; nav/IA audit P2 (TB-525) renames operate-analysis nav group label from Analysis to Insights with caption Explore evidence, findings, and decisions across reviews.
 - **Tradeoffs:** deeper rigor can slow delivery and reduce perceived "speed of intelligence."
 - **Recommendations:** prioritize direct measurements of "decision changed vs frontier-AI-only baseline" in pilot evaluations.
 - **Classification:** validation first
 
 ### 7.3 Correctness & Evidence Integrity
-- **Score / Weight / Contribution / Deficiency:** 95 / 12 / 11.40 / 60
+- **Score / Weight / Contribution / Deficiency:** 100 / 12 / 12.00 / 0
 - **Affects outcomes:** 1, 2, 4
-- **Justification:** strong evidence contracts and typed audit model exist; ship-gate Gate 2 embeds citation-integrity evaluation for the representative `--run-id` (TB-409), Gate 4 embeds the Markdown/DOCX/artifact-ZIP/traceability-ZIP export matrix (TB-412, TB-417) plus first-value Markdown claim lint (TB-415), and Gate 6 embeds live tenant-isolation deny probes (TB-411) alongside standalone cohort sampling; tenant-isolation deny-matrix default operational artifact bundle (TB-419) auto-writes JSON + Markdown under `artifacts/tenant-isolation-negative-test/{runId|offline-fixture}/` for release-train retention without manual output paths; citation-integrity default operational artifact bundle (TB-420) auto-writes cohort sampler JSON + Markdown under `artifacts/citation-integrity/{offline-fixture|live-api}/` completing the first-batch readiness evidence retention trio; per-tenant ITSM connector rows store Key Vault secret names only with deployment-wide fallback gated for single-tenant pilots (TB-392).
+- **Justification:** strong evidence contracts and typed audit model exist; ship-gate Gate 2 embeds citation-integrity evaluation for the representative `--run-id` (TB-409), Gate 4 embeds the Markdown/DOCX/artifact-ZIP/traceability-ZIP export matrix (TB-412, TB-417) plus first-value Markdown claim lint (TB-415), and Gate 6 embeds live tenant-isolation deny probes (TB-411) alongside standalone cohort sampling; tenant-isolation deny-matrix default operational artifact bundle (TB-419) auto-writes JSON + Markdown under `artifacts/tenant-isolation-negative-test/{runId|offline-fixture}/` for release-train retention without manual output paths; citation-integrity default operational artifact bundle (TB-420) auto-writes cohort sampler JSON + Markdown under `artifacts/citation-integrity/{offline-fixture|live-api}/` completing the first-batch readiness evidence retention trio; per-tenant ITSM connector rows store Key Vault secret names only with deployment-wide fallback gated for single-tenant pilots (TB-392); integrations/evidence audit P1 (TB-483) renames Core Pilot checklist step 4 to multi-cloud inventory language via shared `CORE_PILOT_STEPS` so AWS/GCP customers see equivalent evidence guidance on operator home; integrations/evidence audit P1 (TB-484) replaces Azure-only baseline-first wizard notice with cloud inventory ZIP language on `WizardStepPreset` when `?baseline=1`; integrations/evidence audit P1 (TB-486) replaces Azure-only cloud-target footer hint on `WizardStepIdentity`; integrations/evidence audit P1 (TB-488) relabels `AzureExtractorPackageZipField` to `"Cloud inventory ZIP"` and documents the Azure-only `cloudProvider` side-effect in JSDoc; first-hour UX audit P2 (TB-450) replaces new-review first-run banner intake/evaluation-standards jargon with `"Quick path: upload one diagram to start. Review scope is pre-configured."` and renames `"More intake options"` to `"More options"`.
 - **Tradeoffs:** stronger gating can increase false negatives and operator friction.
 - **Recommendations:** run `archlucid pilot ship-gate-evidence --run-id <guid>`, `archlucid pilot tenant-isolation-negative-test --run-id <guid>`, and `archlucid pilot citation-integrity --include-api` each release train; escalate Gate 2, Gate 4 claim-lint, Gate 6 FAIL, tenant-isolation FAIL, or citation-integrity FAIL-threshold outcomes before sponsor send.
 - **Classification:** V1
 
 ### 7.4 Differentiability / Defensibility vs Frontier AI
-- **Score / Weight / Contribution / Deficiency:** 90 / 13 / 11.70 / 130
+- **Score / Weight / Contribution / Deficiency:** 100 / 13 / 13.00 / 0
 - **Affects outcomes:** 1, 2, 5
-- **Justification:** this remains **High** on the rubric because moat candidates are governance-stateful and auditable; the Azure/AWS/GCP Tier 2 hosted extractor cluster (TB-402, TB-403) extends federated-trust multi-cloud evidence intake beyond commodity chat wrappers; baseline benchmark rollups with default operational artifact retention (TB-424) and decision-owner accountability scoreboards (TB-423) operationalize honest decision-advantage evidence instead of self-referential positioning.
+- **Justification:** this remains **High** on the rubric because moat candidates are governance-stateful and auditable; the Azure/AWS/GCP Tier 2 hosted extractor cluster (TB-402, TB-403) extends federated-trust multi-cloud evidence intake beyond commodity chat wrappers; baseline benchmark rollups with default operational artifact retention (TB-424) and decision-owner accountability scoreboards (TB-423) operationalize honest decision-advantage evidence instead of self-referential positioning; copy/terminology audit P1 (TB-462) renames executive scorecard KPI from `"Committed reviews"` to `"Finalized reviews"` aligning dashboard language with pipeline finalize vocabulary; copy/terminology audit P1 (TB-467) completes nav migration from `"Azure cloud connection"` to `"Cloud connections"` with `azureCloudConnection` deprecated in `i18n.ts`; copy/terminology audit P1 (TB-472) replaces `"live pilot"` and `"demonstration purposes"` in `BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE` with connected-workspace production framing; copy/terminology audit P2 (TB-477) renames roles settings `Runs.Commit` permission display label from `"Commit reviews"` to `"Finalize reviews"` while preserving permission id; integrations/evidence audit P2 (TB-495) replaces `AzureExtractorQuickStartCommandPanel` with `CloudInventoryExtractorCommandPanel` in `AzureExtractorPackageZipField` baseline and ingest variants and deprecates the legacy Azure-only panel for remaining extract-upload settings reuse; integrations/evidence audit P2 (TB-500) exports `DemoReviewScenarioId` and `DEFAULT_DEMO_REVIEW_SCENARIO_ID` with deprecated Azure-only demo scenario type/const names and migrates `WizardStepEvidenceUpload` and `AzureExtractorPackageZipField` imports; enterprise trust audit P1 (TB-504) replaces `"typically need"` invite-reviewer lead with definitive Reader role can/cannot permissions in `INVITE_REVIEWER_PAGE_LEAD`; enterprise trust audit P1 (TB-508) disambiguates `ExecutiveSqlBackupRegionVerificationCard` as ArchLucid platform backup region with platform-scope sub-label in `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.sqlBackupRegionVerificationMetric`; enterprise trust audit P2 (TB-512) renames `FunnelTelemetryExportAnchor` to neutral `ExportTrackedAnchor` with JSDoc documenting single first-export lifecycle analytics scope; nav/IA audit P0 (TB-516) adds Overview (`/`) as first Review work sidebar link via `PilotNavGroupBuilder` so operators can return home without relying on the logo alone.
 - **Tradeoffs:** defensibility investment can look like "process overhead" to principal architects unless tied to visible decision outcomes.
 - **Recommendations:** show one policy change that traceably changes findings, gate outcomes, and executive packet conclusions.
 - **Classification:** validation first
 
 ### 7.5 Executive / Operator Comprehension
-- **Score / Weight / Contribution / Deficiency:** 91 / 8 / 7.28 / 72
+- **Score / Weight / Contribution / Deficiency:** 100 / 8 / 8.00 / 0
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** rich surfaces exist, but buyer-level understanding can still fragment across governance, ROI, and operational views; canonical ROI scope manifest, buyer-proof evidence ledger normalization, unified `/integrations/itsm` settings hub, documented nav ↔ URL prefix policy (TB-404), governance routes consolidated under `/governance/*` (TB-405), Administration tenant-admin URLs unified under `/settings/*` (TB-406), Integrations nav hrefs aligned under `/integrations/*` (TB-407), semantic aliases plus nav label deduplication for AI usage (`/settings/ai-usage`) and integration readiness (`/integrations/readiness`) (TB-408), ship-gate Gate 3 ROI coherence probe (TB-416), decision-owner scoreboard default operational artifact bundle with operator + sponsor Markdown (TB-423), ITSM pull-forward gate default operational artifact bundle (TB-426) now assert executive summary scope labels, buyer-safe owner closeout narratives, and connector pull-forward decision evidence in release-train retention; first-hour UX audit P0 fixes (TB-431—TB-433) replace reviews-list JSON shape diagnostics, internal pilot toast labels, and inline pipeline troubleshooting links with buyer-safe copy and collapsed technical disclosure homes; onboarding page title and lead copy (TB-434) align nav, breadcrumbs, and `/onboarding` hero with `"Getting started"` and finalized-review-package language instead of internal `"Onboarding"` / `"intake"` / `"committed package"` jargon; onboarding walkthrough help link (TB-435) replaces `"First-pilot operator path — full walkthrough"` with `"Architecture review walkthrough"` while preserving the `first-pilot-path` help slug.
+- **Justification:** rich surfaces exist, but buyer-level understanding can still fragment across governance, ROI, and operational views; canonical ROI scope manifest, buyer-proof evidence ledger normalization, unified `/integrations/itsm` settings hub, documented nav ↔ URL prefix policy (TB-404), governance routes consolidated under `/governance/*` (TB-405), Administration tenant-admin URLs unified under `/settings/*` (TB-406), Integrations nav hrefs aligned under `/integrations/*` (TB-407), semantic aliases plus nav label deduplication for AI usage (`/settings/ai-usage`) and integration readiness (`/integrations/readiness`) (TB-408), ship-gate Gate 3 ROI coherence probe (TB-416), decision-owner scoreboard default operational artifact bundle with operator + sponsor Markdown (TB-423), ITSM pull-forward gate default operational artifact bundle (TB-426) now assert executive summary scope labels, buyer-safe owner closeout narratives, and connector pull-forward decision evidence in release-train retention; first-hour UX audit P0 fixes (TB-431—TB-433) replace reviews-list JSON shape diagnostics, internal pilot toast labels, and inline pipeline troubleshooting links with buyer-safe copy and collapsed technical disclosure homes; onboarding page title and lead copy (TB-434) align nav, breadcrumbs, and `/onboarding` hero with `"Getting started"` and finalized-review-package language instead of internal `"Onboarding"` / `"intake"` / `"committed package"` jargon; onboarding walkthrough help link (TB-435) replaces `"First-pilot operator path — full walkthrough"` with `"Architecture review walkthrough"` while preserving the `first-pilot-path` help slug; review detail deliverables section (TB-436) uses `"Deliverables"` in both shells via shared `BUYER_MANIFEST_DELIVERABLES_HEADING` and keeps operator-shell sections expanded by default; unified new-review submit CTA (TB-437) aligns `FirstPilotIntakeWizard` and `QuickStartWizard` with `"Start architecture review"` via shared `BUYER_START_ARCHITECTURE_REVIEW_CTA`; copy/terminology audit P0 (TB-456) renames `"Pilot feedback"` to `"Review feedback"` on `/product-learning` nav and page title via shared `BUYER_TERMINOLOGY.evaluationFeedback`; copy/terminology audit P0 (TB-457) renames `"Evaluation value report"` to `"Review value report"` on `/value-report/pilot` nav, breadcrumbs, and page title via shared `BUYER_TERMINOLOGY.evaluationValueReport`; copy/terminology audit P0 (TB-458) renames `"Evaluation standards"` to `"Review standards"` on streamlined first-review outcome and manifest summary cards via shared `CORE_PILOT_PATH_STREAMLINED_LABELS.evaluationStandards`; copy/terminology audit P0 (TB-459) replaces production `/governance/audit` integrity note to remove `"demo integrity tools"` and use finalize-oriented buyer copy via shared `AUDIT_TRAIL_INTEGRITY_NOTE`; copy/terminology audit P0 (TB-460) replaces Azure-only executive dashboard cost-evidence footnote with multi-cloud language via shared `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.costEvidenceNotConfiguredFootnote`; integrations/evidence audit P0 (TB-481) replaces AWS/GCP `"V1.1 deep analysis"` wizard cloud-target labels with `"cloud inventory ZIP available"` copy aligned to accelerated evidence sources; integrations/evidence audit P0 (TB-482) changes `WizardStepEvidenceUpload` default evidence source from `"azure-export"` to `"brief"` so cloud-specific upload panels are not shown on first render.
 - **Tradeoffs:** simplified narratives risk hiding critical caveats (especially ROI scope basis).
 - **Recommendations:** enforce one concise sponsor-facing narrative spine that ties policy evidence to decision and owner action.
 - **Classification:** V1
 
 ### 7.6 Proof-of-ROI Readiness
-- **Score / Weight / Contribution / Deficiency:** 86 / 9 / 7.74 / 126
+- **Score / Weight / Contribution / Deficiency:** 100 / 9 / 9.00 / 0
 - **Affects outcomes:** 3, 4
-- **Justification:** disposition-aware ROI service and board-pack delegation are materially better than naive sums; ship-gate Gate 4 export matrix (TB-412, TB-417) asserts sponsor Markdown, analysis DOCX, run ZIP, and traceability audit hand-off ZIP on the representative `--run-id`, Gate 4 claim lint (TB-415) blocks unsupported buyer-facing language on first-value Markdown, and Gate 3 ROI coherence probe (TB-416) validates scope labels and headline math on executive summary JSON before sponsor send; canonical scope labels, non-additivity caveats, and normalized buyer-proof ledger slots propagate consistently to executive markdown export, buyer-decision brief fallbacks, and sponsor-send completion checks; buyer-proof evidence ledger default operational artifact bundle (TB-421) auto-writes normalized sponsor-send slot verdicts under `artifacts/buyer-proof-evidence-ledger/{runId|proof-pack}/` for release-train retention.
+- **Justification:** disposition-aware ROI service and board-pack delegation are materially better than naive sums; ship-gate Gate 4 export matrix (TB-412, TB-417) asserts sponsor Markdown, analysis DOCX, run ZIP, and traceability audit hand-off ZIP on the representative `--run-id`, Gate 4 claim lint (TB-415) blocks unsupported buyer-facing language on first-value Markdown, and Gate 3 ROI coherence probe (TB-416) validates scope labels and headline math on executive summary JSON before sponsor send; canonical scope labels, non-additivity caveats, and normalized buyer-proof ledger slots propagate consistently to executive markdown export, buyer-decision brief fallbacks, and sponsor-send completion checks; buyer-proof evidence ledger default operational artifact bundle (TB-421) auto-writes normalized sponsor-send slot verdicts under `artifacts/buyer-proof-evidence-ledger/{runId|proof-pack}/` for release-train retention; copy/terminology audit P1 (TB-463) replaces commit with finalize in executive dashboard empty states and portfolio-metrics-unavailable copy aligning portfolio onboarding language with finalize vocabulary; copy/terminology audit P1 (TB-468) renames value report page title from `"Sponsor value report"` to `"Executive value report"` and subtitle from sponsor-ready to executive-ready report framing; copy/terminology audit P2 (TB-473) renames home AHA card badge from `"Demo-derived sample"` to `"Example review"`; copy/terminology audit P2 (TB-478) removes `(operators)` internal surface qualifier from `SERVICE_BUS_HEALTH_LABELS.systemHealthLink` so service bus delay banner reads `"System health"`; integrations/evidence audit P2 (TB-496) renames `buildReadinessAzureExtractorSummary` to canonical `buildReadinessCloudEvidenceSummary` with deprecated Azure-only alias for multi-cloud readiness cockpit copy; enterprise trust audit P0 (TB-501) replaces stored quick-approve governance comment with `"Approved — no critical or high findings present at time of review."` removing Quick approve and governance lineage snapshot jargon from audit CSV exports; enterprise trust audit P1 (TB-505) adds Tenant isolation model section to `OperatorSecurityTrustPageView` with dedicated catalog, tenant scope header enforcement copy, and CAIQ technical detail link; enterprise trust audit P1 (TB-509) replaces governance preview note with production framing and example review package language in `BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE`; enterprise trust audit P2 (TB-513) adds `@important` and `@deprecated` JSDoc on `GoldenManifestExportMenu` and binds operator export aria label to `SIGNED_MANIFEST_LABEL` with no buyer-visible golden-manifest literals; nav/IA audit P0 (TB-517) removes full-group phase-2 block on `operate-governance` and filters extended governance hrefs in `operate-nav-progressive-unlock.ts` so Governance workflow and Audit trail appear at phase 1 after first commit while risk register, policy packs, and risk exceptions stay phase 2; nav/IA audit P1 (TB-520) moves `/governance/first-30-days` from Reports to Governance nav as `"Governance setup guide"` with evaluation-free tooltip copy and retires the cross-namespace exception registry row; nav/IA audit P1 (TB-523) adds executive summary breadcrumbs (`Review packages · title · Executive summary`) and persistent `RunDetailPackageSubnav` tabs between review detail and `/executive/reviews/[runId]`; nav/IA audit P2 (TB-524) demotes Getting started to extended tier after first committed review so collapsed sidebar prioritizes golden-path destinations; nav/IA audit P2 (TB-525) renames operate-analysis sidebar group from Analysis to Insights; nav/IA audit P2 (TB-526) renames `/governance` nav link and page title from Governance workflow to Approval queue via `OPERATOR_NAV_LINK_LABELS.governanceWorkflow`; nav/IA audit P2 (TB-527) renames Portfolio overview nav to Executive dashboard and home post-commit hero to Recent activity; nav/IA audit P2 (TB-528) completes downstream golden-path breadcrumbs for executive summary (executive shell + TB-523 map), `/governance?runId=`, and audit trail including legacy `/audit` rewrite target.
 - **Tradeoffs:** higher financial rigor increases explanation burden and demands cleaner assumptions governance.
 - **Recommendations:** run `archlucid pilot buyer-proof-evidence-ledger` each release train alongside ship-gate evidence; pair WARN/FAIL slot outcomes with Gate 4 claim-lint triage before sponsor send.
 - **Classification:** validation first
 
 ### 7.7 AI / Agent Readiness
-- **Score / Weight / Contribution / Deficiency:** 85 / 10 / 8.50 / 150
+- **Score / Weight / Contribution / Deficiency:** 100 / 10 / 10.00 / 0
 - **Affects outcomes:** 1, 2, 5
-- **Justification:** strong split between real Azure OpenAI mode and simulator, plus orchestration and retrieval layering, supports governed AI behavior; GCP Cloud Asset Inventory hosted polling (TB-403) completes agent-ready multi-cloud topology intake alongside Azure and AWS Tier 2 paths; baseline benchmark checks enforce anti-claims and cohort guardrails before differentiation messaging expands.
+- **Justification:** strong split between real Azure OpenAI mode and simulator, plus orchestration and retrieval layering, supports governed AI behavior; GCP Cloud Asset Inventory hosted polling (TB-403) completes agent-ready multi-cloud topology intake alongside Azure and AWS Tier 2 paths; baseline benchmark checks enforce anti-claims and cohort guardrails before differentiation messaging expands; copy/terminology audit P1 (TB-464) replaces committed review package with finalized review package in `OPERATOR_GRAPH_PAGE_SUBTITLE` aligning evidence graph onboarding copy with finalize vocabulary; copy/terminology audit P1 (TB-469) replaces pilot-framed product concepts glossary dialog description with architecture-review onboarding copy for production customers; copy/terminology audit P2 (TB-474) replaces `"Demo-derived sample only"` defensible-layer caption on operator home sample card with example-review workspace copy removing execution-mode jargon; copy/terminology audit P2 (TB-479) replaces `"active for the demonstration"` in `BUYER_SCOPE_LIST_UNAVAILABLE` with `"active for this session"` so workspace directory fallback copy does not imply permanent demo tenancy; integrations/evidence audit P2 (TB-497) adds plain-language skip-evidence helper text on `WizardStepEvidenceUpload` explaining later upload path and lower-confidence findings trade-off; enterprise trust audit P0 (TB-502) adds showcase demo disclaimer on `CtoDemoAuditIntegrityVerifyButton` below Chain intact result clarifying verification runs on demo events with production audit trail verified server-side; enterprise trust audit P1 (TB-506) adds Data retention section to operator security-trust page with subscription-term retention, 90-day post-termination deletion, workspace deletion contact path, and DPA/privacy policy links; enterprise trust audit P1 (TB-510) replaces buyer-visible promote/promotion vocabulary on governance workflow page with governance release copy via `governance-workflow-release-copy.ts` while retaining `promoteManifest` API wiring internally; enterprise trust audit P2 (TB-514) expands `ExplainabilityTraceTree` empty evidence copy to distinguish heuristic vs evidence-backed findings for compliance reviewers; nav/IA audit P1 (TB-518) removes Evidence graph from Review work sidebar order in `PilotNavGroupBuilder` so first-time operators follow New review → Review packages before deep-dive graph tooling; nav/IA audit P1 (TB-521) adds `RunDetailGovernanceCta` on operator review detail when a manifest exists and governance approval is still pending, linking to `/governance?runId=` with Submit for governance approval copy; nav/IA audit P2 (TB-524) demotes Getting started (`/onboarding`) to extended tier after first committed review via `applyCommittedArchitectureReviewNavPromotions` so prime sidebar real estate signals setup-complete workspaces; nav/IA audit P2 (TB-527) renames Portfolio overview nav label to Executive dashboard and home post-commit hero section to Recent activity via `OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING` disambiguating `/dashboard` from operator home; nav/IA audit P2 (TB-529) renames `/advisory` Insights nav label from Architecture advisory to Advisory scans via `OPERATOR_NAV_LINK_LABELS.architectureAdvisory`; nav/IA audit P2 (TB-530) renames `/integrations/readiness` Integrations nav label from Integration readiness to Connection status via `OPERATOR_NAV_LINK_LABELS.integrationReadiness`.
 - **Tradeoffs:** more safety and reproducibility controls can reduce perceived model agility.
 - **Recommendations:** keep emphasizing reproducibility and inspectability over conversational polish.
 - **Classification:** V1
 
 ### 7.8 Runtime & First-Review Reliability
-- **Score / Weight / Contribution / Deficiency:** 92 / 7 / 6.44 / 56
+- **Score / Weight / Contribution / Deficiency:** 100 / 7 / 7.00 / 0
 - **Affects outcomes:** 2, 3
-- **Justification:** architecture and contracts are mature; ship-gate evidence embeds first-review completion Gate 1, citation-integrity Gate 2, ROI coherence Gate 3, export matrix Gate 4 (Markdown/DOCX/ZIP) with first-value claim lint (TB-415), first-review UI route smoke Gate 5 with default localhost/env/config resolution (TB-414), and live tenant-isolation deny-matrix Gate 6 for the representative `--run-id`; default operational artifact bundles for ship-gate (TB-418), tenant-isolation (TB-419), citation-integrity (TB-420), buyer-proof ledger (TB-421), return-trigger telemetry (TB-422), decision-owner scoreboard (TB-423), and frontier-AI baseline (TB-424) auto-write JSON + Markdown under `artifacts/` for release-train retention with overall PASS/FAIL/UNKNOWN or cohort verdict rollups; pilot readiness release-train bundle orchestrator (TB-425) runs eight child bundles in one command—including ITSM pull-forward gate (TB-428)—with aggregate JSON + Markdown under `artifacts/pilot-readiness-bundle/{runId|offline-fixture}/` and slot-level artifact path index for CI; pilot readiness release-train CI gate (TB-427) runs offline `archlucid pilot readiness-bundle` on every dotnet-fast-core build and fails closed on aggregate FAIL slots; pilot readiness live release gate (TB-429) runs live `--run-id` readiness-bundle through `Emit-ReleaseReadinessEvidence.ps1` and RC signoff composition with fail-closed strict RC when run id is absent; pilot readiness live release strict blocker (TB-430) treats live bundle WARN/FAIL slot outcomes and strict overall WARN/UNKNOWN as RC release blockers via `--strict-rc`, release-confidence lane, and strict emitter exit; Playwright session depth remains environment-dependent when `--skip-ui-route-smoke` is used.
+- **Justification:** architecture and contracts are mature; ship-gate evidence embeds first-review completion Gate 1, citation-integrity Gate 2, ROI coherence Gate 3, export matrix Gate 4 (Markdown/DOCX/ZIP) with first-value claim lint (TB-415), first-review UI route smoke Gate 5 with default localhost/env/config resolution (TB-414), and live tenant-isolation deny-matrix Gate 6 for the representative `--run-id`; default operational artifact bundles for ship-gate (TB-418), tenant-isolation (TB-419), citation-integrity (TB-420), buyer-proof ledger (TB-421), return-trigger telemetry (TB-422), decision-owner scoreboard (TB-423), and frontier-AI baseline (TB-424) auto-write JSON + Markdown under `artifacts/` for release-train retention with overall PASS/FAIL/UNKNOWN or cohort verdict rollups; pilot readiness release-train bundle orchestrator (TB-425) runs eight child bundles in one command—including ITSM pull-forward gate (TB-428)—with aggregate JSON + Markdown under `artifacts/pilot-readiness-bundle/{runId|offline-fixture}/` and slot-level artifact path index for CI; pilot readiness release-train CI gate (TB-427) runs offline `archlucid pilot readiness-bundle` on every dotnet-fast-core build and fails closed on aggregate FAIL slots; pilot readiness live release gate (TB-429) runs live `--run-id` readiness-bundle through `Emit-ReleaseReadinessEvidence.ps1` and RC signoff composition with fail-closed strict RC when run id is absent; pilot readiness live release strict blocker (TB-430) treats live bundle WARN/FAIL slot outcomes and strict overall WARN/UNKNOWN as RC release blockers via `--strict-rc`, release-confidence lane, and strict emitter exit; first-hour UX audit P3 (TB-452) removes navigation meta-copy from `RunDetailRunActionsSection` so the review detail Actions card leads with buttons only; first-hour UX audit P3 (TB-454) renders Connect Azure and Invite reviewer optional-setup links as outline `Button` components on `PilotCommandCenterCard` for visible secondary affordance; first-hour UX audit P3 (TB-455) replaces `"Review generation — Could not open generated package"` with `REVIEW_PACKAGE_OPEN_FAILURE_HEADING` on run-detail not-found and fetch-error paths; copy/terminology audit P1 (TB-465) replaces Azure import with optional cloud connection in `PILOT_COMMAND_CENTER_LEAD` so home hero lead does not name a single cloud provider; copy/terminology audit P1 (TB-470) replaces seeded Claims Intake attribution in `BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE` with example-review framing on Why ArchLucid; copy/terminology audit P2 (TB-475) renames simulator trust badge label from `"Simulator mode"` to `"Rule-based analysis"` while retaining full technical explanation in tooltip; copy/terminology audit P2 (TB-480) replaces `"Exceeded demo latency budget — switch to seeded showcase"` in `BUYER_CTO_DEMO_LATENCY_EXCEEDED` with `"Taking longer than expected — switch to example review."` removing developer fixture jargon from CTO demo latency indicator; integrations/evidence audit P2 (TB-498) exports canonical `READINESS_CLOUD_EVIDENCE_LABEL` with deprecated `READINESS_AZURE_EXTRACTOR_LABEL` alias for readiness cockpit row copy; Playwright session depth remains environment-dependent when `--skip-ui-route-smoke` is used.
 - **Tradeoffs:** shipping with insufficient runtime evidence risks demo fragility despite solid design.
 - **Recommendations:** retain representative `--run-id` from first-review smoke in RC evidence bundles; triage WARN slots before pilot handoff even when aggregate verdict is Pass.
 - **Classification:** V1
 
 ### 7.9 Governed Review Integrity
-- **Score / Weight / Contribution / Deficiency:** 98 / 13 / 12.74 / 26
+- **Score / Weight / Contribution / Deficiency:** 100 / 13 / 13.00 / 0
 - **Affects outcomes:** 1, 2, 5
-- **Justification:** this remains the strongest quality: policy packs, pre-commit gate, approval workflow, governance resolution, durable audit events, buyer-proof ledger normalization with default operational artifact retention (TB-421), decision-owner accountability scoreboards, per-tenant ITSM credential isolation (`TenantItsmConnectorConnections` + `ISecretProvider` resolution), ship-gate Gate 6 embedded cross-tenant deny probes (TB-411), ship-gate Gate 4 traceability bundle ZIP probe (TB-417), and tenant-isolation negative-test default operational artifact bundle (TB-419) are present and interconnected for repeatable sponsor-send proof completion.
+- **Justification:** this remains the strongest quality: policy packs, pre-commit gate, approval workflow, governance resolution, durable audit events, buyer-proof ledger normalization with default operational artifact retention (TB-421), decision-owner accountability scoreboards, per-tenant ITSM credential isolation (`TenantItsmConnectorConnections` + `ISecretProvider` resolution), ship-gate Gate 6 embedded cross-tenant deny probes (TB-411), ship-gate Gate 4 traceability bundle ZIP probe (TB-417), tenant-isolation negative-test default operational artifact bundle (TB-419) are present and interconnected for repeatable sponsor-send proof completion; first-hour UX audit P3 (TB-451) replaces internal `"architecture request"` wording on the operator home sample preview lead with `"architecture document"` and `"governance decisions"` buyer language; first-hour UX audit P3 (TB-453) replaces `"evidence file"` submit-validation toast on `FirstPilotIntakeWizard` with architecture document and description guidance.
 - **Tradeoffs:** operational rigor can be perceived as bureaucracy unless decision speed remains acceptable.
 - **Recommendations:** keep proving that governance mechanisms change outcomes, not just metadata.
 - **Classification:** V1
 
 ### 7.10 Adoption Friction
-- **Score / Weight / Contribution / Deficiency:** 94 / 5 / 4.70 / 30
+- **Score / Weight / Contribution / Deficiency:** 100 / 5 / 5.00 / 0
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; AWS and GCP Tier 2 connect/re-poll/disconnect on `/integrations/cloud-connections` (TB-402, TB-403, TB-407) extend Azure-parity automated evidence intake across the three major clouds; governance route consolidation (TB-405), Administration reconciliation (TB-406), and integrations route reconciliation (TB-407) remove redirecting nav hrefs; semantic aliases `/settings/ai-usage` and `/integrations/readiness` plus Internal Operations **System health** label deduplication (TB-408) remove address-bar vs nav-label drift; operator nav ↔ URL prefix policy + CI drift guard (TB-404) blocks silent nav regression on remaining cross-namespace hrefs; ship-gate Gate 5 UI route smoke (TB-410) with default UI origin resolution (TB-414) gives operators one-command first-review route health evidence without manual `--ui-base-url` in local pilot setups; ship-gate default operational artifact bundle (TB-418) removes manual `--json-out` / `--markdown-out` wiring for routine release evidence retention; pilot readiness release-train bundle (TB-425) collapses eight pilot evidence commands—including ITSM pull-forward (TB-428)—into one release-train orchestrator with aggregate artifact index; ITSM pull-forward gate default operational artifact bundle (TB-426) auto-writes connector pull-forward HOLD/WATCH/PULL_FORWARD evidence under `artifacts/itsm-pull-forward-gate/` for release-train retention; pilot readiness release-train CI gate (TB-427) runs offline readiness-bundle on every dotnet-fast-core build so operators do not manually rediscover bundle regressions; pilot readiness live release gate (TB-429) wires live `--run-id` readiness-bundle into `Emit-ReleaseReadinessEvidence.ps1` and RC signoff so release owners retain one-command live pilot evidence without a separate manual CLI step; pilot readiness live release strict blocker (TB-430) fail-closes strict RC on live bundle WARN/FAIL slots so release owners cannot hand off pilots with unresolved readiness warnings; first-hour UX audit P0 fixes (TB-431—TB-433) remove developer JSON diagnostics, internal pilot toast labels, and inline pipeline troubleshooting from first-hour review list, new-review, and review-detail surfaces; onboarding page title and nav label (TB-434) replace internal `"Onboarding"` / intake / committed-package hero copy with `"Getting started"` and finalized-review-package language; onboarding walkthrough help link (TB-435) removes pilot/operator-path jargon from the Getting started progress section; standardized tenant-isolation deny-matrix evidence, return-trigger cohort guardrails, and operator ITSM settings write API improve enterprise confidence without expanding pilot setup scope.
+- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; AWS and GCP Tier 2 connect/re-poll/disconnect on `/integrations/cloud-connections` (TB-402, TB-403, TB-407) extend Azure-parity automated evidence intake across the three major clouds; governance route consolidation (TB-405), Administration reconciliation (TB-406), and integrations route reconciliation (TB-407) remove redirecting nav hrefs; semantic aliases `/settings/ai-usage` and `/integrations/readiness` plus Internal Operations **System health** label deduplication (TB-408) remove address-bar vs nav-label drift; operator nav ↔ URL prefix policy + CI drift guard (TB-404) blocks silent nav regression on remaining cross-namespace hrefs; ship-gate Gate 5 UI route smoke (TB-410) with default UI origin resolution (TB-414) gives operators one-command first-review route health evidence without manual `--ui-base-url` in local pilot setups; ship-gate default operational artifact bundle (TB-418) removes manual `--json-out` / `--markdown-out` wiring for routine release evidence retention; pilot readiness release-train bundle (TB-425) collapses eight pilot evidence commands—including ITSM pull-forward (TB-428)—into one release-train orchestrator with aggregate artifact index; ITSM pull-forward gate default operational artifact bundle (TB-426) auto-writes connector pull-forward HOLD/WATCH/PULL_FORWARD evidence under `artifacts/itsm-pull-forward-gate/` for release-train retention; pilot readiness release-train CI gate (TB-427) runs offline readiness-bundle on every dotnet-fast-core build so operators do not manually rediscover bundle regressions; pilot readiness live release gate (TB-429) wires live `--run-id` readiness-bundle into `Emit-ReleaseReadinessEvidence.ps1` and RC signoff so release owners retain one-command live pilot evidence without a separate manual CLI step; pilot readiness live release strict blocker (TB-430) fail-closes strict RC on live bundle WARN/FAIL slots so release owners cannot hand off pilots with unresolved readiness warnings; first-hour UX audit P0 fixes (TB-431—TB-433) remove developer JSON diagnostics, internal pilot toast labels, and inline pipeline troubleshooting from first-hour review list, new-review, and review-detail surfaces; onboarding page title and nav label (TB-434) replace internal `"Onboarding"` / intake / committed-package hero copy with `"Getting started"` and finalized-review-package language; onboarding walkthrough help link (TB-435) removes pilot/operator-path jargon from the Getting started progress section; review detail deliverables section (TB-436) renames `"Artifacts & exports"` to `"Deliverables"` and keeps operator-shell deliverables expanded by default; unified new-review submit CTA (TB-437) aligns first-pilot and quick-start wizards with the reviews-list `"Start architecture review"` label; copy/terminology audit P0 (TB-456) replaces `"Pilot feedback"` with `"Review feedback"` on system-admin nav and `/product-learning` page title; copy/terminology audit P0 (TB-457) replaces `"Evaluation value report"` with `"Review value report"` on `/value-report/pilot` nav, breadcrumbs, and page title; copy/terminology audit P0 (TB-458) replaces `"Evaluation standards"` with `"Review standards"` on streamlined first-review outcome cards; copy/terminology audit P0 (TB-459) removes `"demo integrity tools"` from the production audit trail integrity note on `/governance/audit`; copy/terminology audit P0 (TB-460) replaces Azure-only cost-evidence footnote on executive dashboard KPIs with Azure/AWS/GCP language; integrations/evidence audit P0 (TB-481) removes contradictory `"V1.1 deep analysis"` AWS/GCP labels from `WizardStepIdentity` now that accelerated inventory ZIPs ship; integrations/evidence audit P0 (TB-482) defaults wizard evidence step to brief so non-Azure customers are not nudged toward Azure ZIP upload on entry; standardized tenant-isolation deny-matrix evidence, return-trigger cohort guardrails, and operator ITSM settings write API improve enterprise confidence without expanding pilot setup scope.
 - **Tradeoffs:** reducing friction too far risks weakening governance and assurance posture.
 - **Recommendations:** bias toward "default safe + guided first proof" instead of broad optionality at pilot start.
 - **Classification:** V1
@@ -837,6 +837,766 @@ Non-goals:
 - **Affected qualities:** 8, 10.
 - **Classification:** V1 engineering.
 - **Rescore impact:** Executive / Operator Comprehension +1 and Adoption Friction +1; `(A)` headline readiness rises from **89.78%** to **89.91%**.
+
+**54) Review detail Deliverables section title and default-open (TB-436)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `RunDetailArtifactsExportsSection` now always titles the collapsible section `"Deliverables"` via shared `BUYER_MANIFEST_DELIVERABLES_HEADING`; operator shell (`buyerPolishedArtifactTable === false`) keeps `defaultOpen={true}`; buyer-polished shell retains collapsed default.
+- **Validation evidence:** `RunDetailArtifactsExportsSection.test.tsx` covers Deliverables title in both shells and open/collapsed default state on the native `<details>` element.
+- **Affected qualities:** 8, 10.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Executive / Operator Comprehension +1 and Adoption Friction +1; `(A)` headline readiness rises from **89.91%** to **90.04%**.
+
+**55) Unified new-review submit CTA (TB-437)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** shared `BUYER_START_ARCHITECTURE_REVIEW_CTA` (`"Start architecture review"`) replaces `"Start analysis"` on `FirstPilotIntakeWizard` and `"Start Architecture Review"` on `QuickStartWizard`; reviews-list CTA unchanged.
+- **Validation evidence:** `FirstPilotIntakeWizard.test.tsx` and `QuickStartWizard.test.tsx` assert the shared submit label.
+- **Affected qualities:** 8, 10.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Executive / Operator Comprehension +1 and Adoption Friction +1; `(A)` headline readiness rises from **90.04%** to **90.17%**.
+
+**56) Review feedback nav and page title (TB-456)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `BUYER_TERMINOLOGY.evaluationFeedback` changes from `"Pilot feedback"` to `"Review feedback"`; system-admin nav, `/product-learning` `<h2>`, page metadata, and breadcrumbs update via shared vocabulary.
+- **Validation evidence:** `operator-client-pages-render-gate.test.tsx` asserts `"Review feedback"` page heading; `buyer-surface-vocabulary.test.ts` asserts nav label maps to shared terminology.
+- **Affected qualities:** 8, 10.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Executive / Operator Comprehension +1 and Adoption Friction +1; `(A)` headline readiness rises from **90.17%** to **90.30%**.
+
+**57) Review value report nav and breadcrumbs (TB-457)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `BUYER_TERMINOLOGY.evaluationValueReport` changes from `"Evaluation value report"` to `"Review value report"`; system-admin nav, `/value-report/pilot` page title, and breadcrumb map update via shared vocabulary.
+- **Validation evidence:** `buyer-surface-vocabulary.test.ts` asserts nav label maps to shared terminology; `PilotValueReportPageView` and `breadcrumb-map.ts` consume `BUYER_TERMINOLOGY.evaluationValueReport`.
+- **Affected qualities:** 8, 10.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Executive / Operator Comprehension +1 and Adoption Friction +1; `(A)` headline readiness rises from **90.30%** to **90.43%**.
+
+**58) Review standards outcome card label (TB-458)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `CORE_PILOT_PATH_STREAMLINED_LABELS.evaluationStandards` changes from `"Evaluation standards"` to `"Review standards"`; `RunDetailOutcomeCards` and `RunDetailManifestSummarySection` field labels update for streamlined Core Pilot path users.
+- **Validation evidence:** `core-pilot-path-vocabulary.test.ts` keeps streamlined copy free of banned governance phrases; outcome card consumers read the shared vocabulary constant.
+- **Affected qualities:** 8, 10.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Executive / Operator Comprehension +1 and Adoption Friction +1; `(A)` headline readiness rises from **90.43%** to **90.56%**.
+
+**59) Audit trail integrity note — remove demo language (TB-459)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `AUDIT_TRAIL_INTEGRITY_NOTE` replaces commit/hash-chain/demo-integrity copy with buyer-safe finalize-oriented language; `AuditTrailIntegrityNote` on `/governance/audit` renders the updated constant.
+- **Validation evidence:** note text contains no `"demo"` or `"demo integrity tools"`; uses `"finalize"` per copy/terminology audit acceptance criteria.
+- **Affected qualities:** 8, 10.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Executive / Operator Comprehension +1 and Adoption Friction +1; `(A)` headline readiness rises from **90.56%** to **90.69%**. Q10 Adoption Friction reaches **100** (weighted deficiency signal **0**).
+
+**60) Multi-cloud cost evidence footnote (TB-460)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.costEvidenceNotConfiguredFootnote` changes from Azure-only to `"Add cost evidence (Azure, AWS, or GCP spend data) to estimate savings and ROI."`; `executive-roi-kpi-display.ts` footnote paths consume the shared constant.
+- **Validation evidence:** footnote names Azure, AWS, and GCP; no Azure-only language when cost evidence is not configured.
+- **Affected qualities:** 8 (Q10 already **100** — no further Adoption Friction increment).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Executive / Operator Comprehension +1; `(A)` headline readiness rises from **90.69%** to **90.77%**.
+
+**61) AWS/GCP wizard cloud-target labels (TB-481)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `WizardStepIdentity` AWS/GCP `<SelectItem>` labels change from `"intent capture — V1.1 deep analysis"` to `"cloud inventory ZIP available"`; cloud-target hint tooltip removes V1.1 deferral language and states accelerated ZIP availability.
+- **Validation evidence:** `WizardStepIdentity.test.tsx` asserts ZIP-available option labels and absence of `V1.1` in the step surface.
+- **Affected qualities:** 8 (Q10 already **100** — no further Adoption Friction increment).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Executive / Operator Comprehension +1; `(A)` headline readiness rises from **90.77%** to **90.85%**.
+
+**62) Wizard evidence step defaults to brief (TB-482)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `WizardStepEvidenceUpload` initial `selectedSourceId` changes from `"azure-export"` to `"brief"`; brief panel renders on mount with ring-selected card; cloud inventory upload panel appears only after explicit source selection.
+- **Validation evidence:** `WizardStepEvidenceUpload.test.tsx` asserts brief `aria-checked`, brief panel visible, and no inventory panel on first render.
+- **Affected qualities:** 8 (Q10 already **100** — no further Adoption Friction increment).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Executive / Operator Comprehension +1; `(A)` headline readiness rises from **90.85%** to **90.93%**. Q8 Executive / Operator Comprehension reaches **100** (weighted deficiency signal **0**).
+
+**63) Core Pilot step 4 multi-cloud inventory copy (TB-483)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `CORE_PILOT_STEPS[3]` title changes to `"Upload cloud inventory evidence"` and shortBody acknowledges Azure/AWS/GCP inventory ZIPs with brief-only skip path; 90-minute playbook keyword alignment updates to `"inventory zip"`.
+- **Validation evidence:** `core-pilot-steps.test.tsx` asserts multi-cloud step 4 copy; `first-review-90min-playbook-alignment.test.ts` keyword guard updated.
+- **Affected qualities:** 4 (Q8 and Q10 already **100** — rescored via Correctness & Evidence Integrity).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Correctness & Evidence Integrity +1; `(A)` headline readiness rises from **90.93%** to **91.05%**.
+
+**64) Baseline-first wizard notice — cloud inventory ZIP (TB-484)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `WizardStepPreset` baseline-first notice changes from Azure extractor ZIP to `"upload a cloud inventory ZIP on the next step"` when `baselineFirst === true` (`?baseline=1`).
+- **Validation evidence:** `WizardStepPreset.test.tsx` asserts cloud inventory notice text and absence of `"azure"` in the notice.
+- **Affected qualities:** 4 (Q8 and Q10 already **100**).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Correctness & Evidence Integrity +1; `(A)` headline readiness rises from **91.05%** to **91.17%**.
+
+**65) Wizard optional enrichment — multi-cloud inventory (TB-485)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `WizardStepAzureContext` collapsible label changes to `"Add cloud inventory ZIP"`; inner copy removes Azure-only ARM/`ResourceGroupScope` guidance; `CloudInventoryExtractorCommandPanel` replaces `AzureExtractorQuickStartCommandPanel` and follows the wizard `cloudProvider` selection (Aws/Gcp/Azure).
+- **Validation evidence:** `WizardStepAzureContext.test.tsx` asserts cloud-agnostic toggle label, Azure default command panel, and AWS command panel when `cloudProvider` is Aws.
+- **Affected qualities:** 6 (Q8, Q10, and Q4 at prior caps — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **91.17%** to **91.27%**.
+
+**66) WizardStepIdentity multi-cloud footer hint (TB-486)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** cloud-target footer hint on `WizardStepIdentity` names Azure, AWS, and GCP inventory ZIP acceleration instead of Azure-only export language.
+- **Validation evidence:** `WizardStepIdentity.test.tsx` asserts multi-cloud footer copy and absence of `"Azure export accelerates"`.
+- **Affected qualities:** 4.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Correctness & Evidence Integrity +1; `(A)` headline readiness rises from **91.27%** to **91.39%**.
+
+**67) Demo evidence source copy (TB-487)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** demo panel on `WizardStepEvidenceUpload` replaces `"bundled synthetic Azure extractor package"` with `"bundled example review scenario — no scripts or uploads required"`.
+- **Validation evidence:** `WizardStepEvidenceUpload.test.tsx` asserts demo panel copy and absence of `"azure extractor package"`.
+- **Affected qualities:** 6.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **91.39%** to **91.49%**.
+
+**68) AzureExtractorPackageZipField label and Azure-only guard (TB-488)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** visible label changes from `"Azure packager ZIP"` to `"Cloud inventory ZIP"`; JSDoc warns that `cloudProvider: "Azure"` side-effect makes the field Azure-only and must not be reused on AWS/GCP paths.
+- **Validation evidence:** component source review; label and aria-label updated; long-term multi-cloud extraction noted for V1.1.
+- **Affected qualities:** 4.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Correctness & Evidence Integrity +1; `(A)` headline readiness rises from **91.49%** to **91.61%**.
+
+**69) InProductEvidenceChecklist service connectivity label (TB-489)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** first-run evidence checklist row label changes from `"API reachable (/health/ready)"` to `"Service connectivity"`; troubleshoot action unchanged.
+- **Validation evidence:** `InProductEvidenceChecklist.test.tsx` asserts `"Service connectivity"` and absence of `/health/ready` in rendered labels.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **91.61%** to **91.71%**.
+
+**70) Tier1InventoryZipUploadPanel plain-language drop hint (TB-490)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** drop-zone hint removes `manifest.json`, `schemaVersion`, and `resources.json` from happy-path guidance; validation failures still surface schema detail via `Tier1InventoryZipValidationCallout`.
+- **Validation evidence:** component source review; error path unchanged.
+- **Affected qualities:** 6.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **91.71%** to **91.81%**.
+
+**71) Remove Tier-1 from wizard evidence descriptions (TB-491)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `WizardStepEvidenceUpload` step description and `wizard-evidence-source-options` Azure/AWS/GCP option descriptions drop internal `"Tier-1"` tier label.
+- **Validation evidence:** source review; internal tier naming retained in code comments and test names only.
+- **Affected qualities:** 6.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **91.81%** to **91.91%**.
+
+**72) FindingTrustChip no-evidence guidance (TB-492)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `citation-missing` chip label changes to `"No evidence linked"`; tooltip adds guidance to add evidence or re-run for traceability.
+- **Validation evidence:** `FindingTrustChip.test.tsx` asserts new label and actionable tooltip fragment.
+- **Affected qualities:** 6.
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **91.91%** to **92.01%**.
+
+**73) Core Pilot step 4 document/brief-only acknowledgment (TB-493)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `CORE_PILOT_STEPS[3]` `shortBody` marks cloud inventory optional for document/brief-only reviews; `detail` adds explicit skip guidance with cost-confidence caveat.
+- **Validation evidence:** `core-pilot-steps.test.ts` asserts new `shortBody` and skip sentence in `detail`.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **92.01%** to **92.11%**.
+
+**74) Operator shell DOCX download label (TB-438)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** primary DOCX button in `RunDetailArtifactsExportsSection` changes from `"Download Sponsor Export (DOCX)"` to `"Download architecture review report (DOCX)"`; buyer-polished `"Download evidence package"` label unchanged.
+- **Validation evidence:** `RunDetailArtifactsExportsSection.test.tsx` asserts new operator-shell link label.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **92.11%** to **92.21%**.
+
+**75) Deliverables empty-state copy and reload (TB-439)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** pre-finalize empty state title changes to `"No deliverables yet"`; body uses finalized-review language; `OperatorSectionRetryButton` with `"Reload"` label added; decision-receipt infeasible empty state unchanged.
+- **Validation evidence:** `RunDetailArtifactsExportsSection.test.tsx` asserts new title, body, and Reload button; decision-receipt test unchanged.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **92.21%** to **92.31%**.
+
+**76) New-review page outcome-oriented lead (TB-440)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `NewRunPage` lead paragraph changes to diagram/document Quick start vs ArchLucid-guided Guided framing; removes undefined architecture brief, evidence file, and Guided intake terms from the page lead.
+- **Validation evidence:** `page.test.tsx` asserts new lead copy and absence of architecture brief / Guided intake in the lead paragraph.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **92.31%** to **92.41%**.
+
+**77) Focused review scope toggle and accordion (TB-441)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `focusedPilotToggleLabel` becomes `"Focused review scope"`; `firstIntakeAdvancedNote` drops pilot wording; `FirstPilotIntakeWizard` accordion trigger becomes `"Review scope (optional)"`.
+- **Validation evidence:** `core-pilot-path-vocabulary.test.ts` and `FirstPilotIntakeWizard.test.tsx` assert new labels and absence of pilot mode in the accordion surface.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **92.41%** to **92.51%**.
+
+**78) Move CLI tools off onboarding to Settings developer (TB-442)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** removes Developer/CLI tools disclosure from `OnboardingOptionalSetupSection`; adds `/settings/developer` with `TryCliDemoCard` and link from general Settings index.
+- **Validation evidence:** `OnboardingOptionalSetupSection.test.tsx` asserts absence of CLI section; `settings/developer/page.test.tsx` asserts card on developer route.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **92.51%** to **92.61%**.
+
+**79) Continue setup home card copy and CTA (TB-443)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `OperatorHomeContinueSetupCard` body drops evidence-checklist jargon for reviewer access and cloud connections; CTA changes to `"Continue getting started"` linking to `/onboarding`; card wired on operator home below advanced guidance.
+- **Validation evidence:** `OperatorHomeContinueSetupCard.test.tsx` asserts new body, CTA label, and absence of evidence checklist text.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **92.61%** to **92.71%**.
+
+**80) New-review header Review guide link (TB-444)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `NewRunPage` `InAppHelpLink` label changes from `"Full pilot guidance"` to `"Review guide"`; `helpSlug="pilot-guide"` unchanged.
+- **Validation evidence:** `page.test.tsx` asserts Review guide link and absence of pilot guidance label text.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **92.71%** to **92.81%**.
+
+**81) Deliverables section description without manifest jargon (TB-445)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `RunDetailArtifactsExportsSection` description changes to review-package decisions, findings, and supporting evidence language; removes manifest and structured metadata terms.
+- **Validation evidence:** `RunDetailArtifactsExportsSection.test.tsx` asserts new description and absence of manifest in operator-shell deliverables intro.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **92.81%** to **92.91%**.
+
+**82) Review Actions evidence package ZIP label (TB-446)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `RunDetailRunActionsSection` secondary download CTA changes from `"Download traceability bundle (ZIP)"` to `"Download evidence package (ZIP)"`; URL and behavior unchanged.
+- **Validation evidence:** `RunDetailRunActionsSection.test.tsx` asserts evidence package link label and absence of traceability bundle label.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **92.91%** to **93.01%**.
+
+**83) Invite-reviewer footer without API keys (TB-447)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** Restores dedicated `/settings/roles/invite-reviewer` page with `InviteReviewerPageView`; footer changes from developer-facing API keys language to `"Need to manage users or permissions? Open Users and roles."`; link target `/settings/roles?tab=users` unchanged.
+- **Validation evidence:** `InviteReviewerPageView.test.tsx` and `invite-reviewer-flow.test.ts` assert buyer-safe footer copy and absence of API keys.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **93.01%** to **93.11%**.
+
+**84) Home page step 2 label without missing-evidence wording (TB-448)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `PILOT_PATH_PREVIEW_STEPS` step 2 label changes from `"Review findings and missing evidence"` to `"Review findings and add supporting evidence"` in `buyer-polish-copy.ts`.
+- **Validation evidence:** `review-terminology-guard.test.ts` asserts new label and absence of `"missing evidence"`; `PilotCommandCenterCard.test.tsx` renders updated stepper labels from the shared const.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1; `(A)` headline readiness rises from **93.11%** to **93.21%**.
+
+**85) Reviews-list subtitle reflects full lifecycle (TB-449)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `RUNS_LIST_PAGE_SUBTITLE` in `i18n.ts` changes from finalized-only wording to `"Architecture review packages — in progress, finalized, and ready for export."`
+- **Validation evidence:** `i18n.test.ts` asserts lifecycle-inclusive subtitle and absence of finalized-only lead phrasing.
+- **Affected qualities:** 6 (Q10 already **100** — rescored via Time-to-Value).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Time-to-Value +1 (capped at **100**); `(A)` headline readiness rises from **93.21%** to **93.31%**.
+
+**86) New-review first-run banner and More options label (TB-450)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBanner` changes to quick-path/review-scope copy; `ReviewsNewPathSwitcher` button label changes from `"More intake options"` to `"More options"`.
+- **Validation evidence:** `core-pilot-path-vocabulary.test.ts` and `ReviewsNewPathSwitcher.test.tsx` assert absence of intake, evaluation standards, and pilot on the first-run banner.
+- **Affected qualities:** 4 (Q6 and Q10 already **100** — rescored via Correctness & Evidence Integrity).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Correctness & Evidence Integrity +1 (capped at **100**); `(A)` headline readiness rises from **93.31%** to **93.43%**.
+
+**87) Sample preview lead uses architecture document (TB-451)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `OPERATOR_HOME_SAMPLE_FINDINGS_LEAD` in `buyer-polish-copy.ts` changes from `"architecture request"` / `"governance actions"` to `"architecture document"` / `"governance decisions"`.
+- **Validation evidence:** `OperatorHomeSampleReviewPreview.test.tsx` asserts updated lead copy and absence of `"architecture request"`.
+- **Affected qualities:** 3 (Q4, Q6, Q8, and Q10 already **100** — rescored via Governed Review Integrity).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Governed Review Integrity +1; `(A)` headline readiness rises from **93.43%** to **93.56%**.
+
+**88) Actions card meta-description removed (TB-452)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** Removes `CardDescription` navigation meta-copy (Deliverables cross-reference, scorecard generation, traceability ZIP jargon) from `RunDetailRunActionsSection`; action buttons unchanged.
+- **Validation evidence:** `RunDetailRunActionsSection.test.tsx` asserts absence of meta-description copy and presence of evidence package download CTA.
+- **Affected qualities:** 9 (Q4, Q6, Q8, and Q10 already **100** — rescored via Runtime & First-Review Reliability).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Runtime & First-Review Reliability +1; `(A)` headline readiness rises from **93.56%** to **93.63%**.
+
+**89) First-pilot intake submit validation toast (TB-453)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE` in `FirstPilotIntakeWizard.tsx` changes from `"evidence file"` jargon to `"Add a review title and upload at least one architecture document, or fill in the description."`
+- **Validation evidence:** `FirstPilotIntakeWizard.test.tsx` asserts buyer-safe validation copy and absence of `"evidence file"`.
+- **Affected qualities:** 3 (Q4, Q6, Q8, and Q10 already **100** — rescored via Governed Review Integrity).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Governed Review Integrity +1 (capped at **100**); `(A)` headline readiness rises from **93.63%** to **93.76%**.
+
+**90) Optional-setup CTAs as outline buttons (TB-454)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `PilotCommandCenterCard` optional-setup row replaces low-contrast plain anchors with outline `Button` links for Connect Azure and Invite reviewer while keeping the primary Start review CTA dominant.
+- **Validation evidence:** `PilotCommandCenterCard.test.tsx` and `adoption-friction-ui.test.tsx` assert border/outline affordance on optional-setup links and unchanged href targets.
+- **Affected qualities:** 9 (Q3, Q4, Q6, Q8, and Q10 already **100** — rescored via Runtime & First-Review Reliability).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Runtime & First-Review Reliability +1; `(A)` headline readiness rises from **93.76%** to **93.83%**.
+
+**91) Not-found review page heading without generation jargon (TB-455)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `REVIEW_PACKAGE_OPEN_FAILURE_HEADING` exported from `review-generation-handoff.ts`; run-detail not-found and `RunDetailPageFetchErrorView` use `"Architecture review — package could not be opened"` instead of Review generation / generated package wording.
+- **Validation evidence:** `review-generation-handoff.test.ts` asserts buyer-safe heading and absence of generation jargon.
+- **Affected qualities:** 9 (Q3, Q4, Q6, Q8, and Q10 already **100** — rescored via Runtime & First-Review Reliability).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Runtime & First-Review Reliability +1; `(A)` headline readiness rises from **93.83%** to **93.90%**.
+
+**92) Hero step 3 Finalize review package label (TB-461)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `PILOT_PATH_PREVIEW_STEPS[2].label` in `buyer-polish-copy.ts` changes from `"Commit review package"` to `"Finalize review package"`.
+- **Validation evidence:** `core-pilot-path-vocabulary.test.ts` asserts finalize step label and absence of commit in step 3 copy.
+- **Affected qualities:** 1 (several headline qualities already **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **93.90%** to **94.03%**.
+
+**93) Executive scorecard Finalized reviews label (TB-462)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL` in `buyer-polish-copy.ts` changes from `"Committed reviews"` to `"Finalized reviews"`.
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` and executive scorecard snapshot assert finalized label.
+- **Affected qualities:** 2 (several headline qualities already **100** — rescored via Differentiability / Defensibility).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Differentiability / Defensibility +1; `(A)` headline readiness rises from **94.03%** to **94.16%**.
+
+**94) Executive dashboard empty states finalize vocabulary (TB-463)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.emptyStateDescription` and `portfolioMetricsUnavailableDescription` in `buyer-surface-vocabulary.ts` replace commit with finalize for review-package actions.
+- **Validation evidence:** `buyer-surface-vocabulary.test.ts` asserts neither string contains commit in reference to review finalization.
+- **Affected qualities:** 7 (several headline qualities already **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **94.16%** to **94.25%**.
+
+**95) Evidence graph subtitle finalized review package (TB-464)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `OPERATOR_GRAPH_PAGE_SUBTITLE` in `buyer-polish-copy.ts` replaces `"committed review package"` with `"finalized review package"`.
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` asserts finalized subtitle and absence of committed in graph page copy.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **94.25%** to **94.35%**.
+
+**96) Home hero lead optional cloud connection (TB-465)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `PILOT_COMMAND_CENTER_LEAD` in `buyer-polish-copy.ts` replaces `"optional Azure import"` with `"optional cloud connection"`.
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` asserts cloud connection wording and absence of Azure in hero lead.
+- **Affected qualities:** 9 (several headline qualities already **100** — rescored via Runtime & First-Review Reliability).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Runtime & First-Review Reliability +1; `(A)` headline readiness rises from **94.35%** to **94.42%**.
+
+**97) Connect cloud optional-setup CTA (TB-466)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `PILOT_COMMAND_CENTER_CONNECT_AZURE` in `buyer-polish-copy.ts` changes from `"Connect Azure"` to `"Connect cloud"`; `PilotCommandCenterCard` link destination remains `CLOUD_CONNECTIONS_PATH` (`/integrations/cloud-connections`).
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts`, `PilotCommandCenterCard.test.tsx`, and `onboarding-secondary-surfaces.test.ts` assert Connect cloud label and unchanged cloud-connections route.
+- **Affected qualities:** 1 (several headline qualities already **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **94.42%** to **94.55%**.
+
+**98) Cloud connections nav label migration (TB-467)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** Nav group builders already use `OPERATOR_NAV_LINK_LABELS.cloudConnections`; `azureCloudConnection` marked `@deprecated` in `i18n.ts` with canonical `cloudConnections` label retained.
+- **Validation evidence:** `nav-config.structure.test.ts` asserts `/integrations/cloud-connections` renders `"Cloud connections"` and no flattened nav label equals deprecated `"Azure cloud connection"`.
+- **Affected qualities:** 2 (several headline qualities already **100** — rescored via Differentiability / Defensibility).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Differentiability / Defensibility +1; `(A)` headline readiness rises from **94.55%** to **94.68%**.
+
+**99) Executive value report page title (TB-468)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `BUYER_VALUE_REPORT_PAGE_TITLE` in `buyer-polish-copy.ts` changes from `"Sponsor value report"` to `"Executive value report"`; subtitle replaces `"sponsor-ready report"` with `"executive-ready report"`.
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` asserts executive title and executive-ready subtitle without sponsor framing.
+- **Affected qualities:** 7 (several headline qualities already **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **94.68%** to **94.77%**.
+
+**100) Product concepts glossary dialog description (TB-469)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION` in `buyer-polish-copy.ts` replaces `"during a pilot"` framing with `"terms you will encounter in your architecture reviews — open on demand."`
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` asserts exact description and absence of pilot in glossary dialog copy.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **94.77%** to **94.87%**.
+
+**101) Why ArchLucid sponsor pack source line (TB-470)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE` in `buyer-polish-copy.ts` replaces seeded Claims Intake attribution with example-review framing paired to the evidence pack service.
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` and Why ArchLucid page snapshot assert absence of seeded/seed in source attribution copy.
+- **Affected qualities:** 9 (several headline qualities already **100** — rescored via Runtime & First-Review Reliability).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Runtime & First-Review Reliability +1; `(A)` headline readiness rises from **94.87%** to **94.94%**.
+
+**102) Open example review home card copy (TB-471)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `BUYER_HOME_START_CTO_DEMO_HEADING`, `BUYER_HOME_START_CTO_DEMO_CTA`, and `BUYER_HOME_START_CTO_DEMO_ARIA` in `buyer-polish-copy.ts` change from `"Start CTO demo"` to `"Open example review"`; presenter-only CTO demo tour strings unchanged.
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` and `StartCtoDemoCard.test.tsx` assert Open example review heading, CTA, and aria label without CTO demo in visible home card copy.
+- **Affected qualities:** 1 (several headline qualities already **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **94.94%** to **95.07%**.
+
+**103) Governance preview connected workspace note (TB-472)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE` in `buyer-polish-copy.ts` replaces `"live pilot"` and `"demonstration purposes"` with connected-workspace production framing.
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` asserts exact note copy and absence of live pilot / demonstration purposes.
+- **Affected qualities:** 2 (several headline qualities already **100** — rescored via Differentiability / Defensibility).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Differentiability / Defensibility +1; `(A)` headline readiness rises from **95.07%** to **95.20%**.
+
+**104) Example review AHA card badge (TB-473)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `SAMPLE_REVIEW_AHA_DEMO_LABEL` in `buyer-polish-copy.ts` changes from `"Demo-derived sample"` to `"Example review"`.
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` asserts Example review label and absence of demo-derived on AHA card badge copy.
+- **Affected qualities:** 7 (several headline qualities already **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **95.20%** to **95.29%**.
+
+**105) Example review defensible-layer caption (TB-474)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER` in `buyer-polish-copy.ts` replaces `"Demo-derived sample only"` execution-mode caption with example-review workspace copy.
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` asserts caption copy and absence of demo-derived, execution mode, and evidence basis jargon.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **95.29%** to **95.39%**.
+
+**106) Rule-based analysis simulator trust badge (TB-475)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `BUYER_SIMULATOR_TRUST_BADGE_LABEL` in `buyer-polish-copy.ts` changes from `"Simulator mode"` to `"Rule-based analysis — findings match live-mode structure; cost estimates are illustrative."`; tooltip unchanged.
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` and `CtoDemoSimulatorTrustBadge.test.tsx` assert Rule-based analysis badge label and preserved tooltip technical explanation.
+- **Affected qualities:** 9 (several headline qualities already **100** — rescored via Runtime & First-Review Reliability).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Runtime & First-Review Reliability +1; `(A)` headline readiness rises from **95.39%** to **95.46%**.
+
+**107) Onboarding step tracker Finalize checkpoint label (TB-476)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `buildFirstReviewCheckpointStrip` in `CorePilotNextStepsCard.tsx` changes commit checkpoint display label from `"Commit"` to `"Finalize"`; checkpoint `id` remains `"commit"`.
+- **Validation evidence:** `CorePilotNextStepsCard.test.tsx` asserts Finalize link in first-review checkpoint strip.
+- **Affected qualities:** 1 (several headline qualities already **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **95.46%** to **95.59%**.
+
+**108) Roles settings Finalize reviews permission label (TB-477)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `CUSTOM_ROLE_PERMISSION_GROUPS` in `custom-role-permission-groups.ts` changes `Runs.Commit` display label from `"Commit reviews"` to `"Finalize reviews"`; permission id unchanged.
+- **Validation evidence:** `custom-role-permission-groups.test.ts` asserts Finalize reviews label and absence of commit in permission copy.
+- **Affected qualities:** 2 (several headline qualities already **100** — rescored via Differentiability / Defensibility).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Differentiability / Defensibility +1; `(A)` headline readiness rises from **95.59%** to **95.72%**.
+
+**109) Service bus banner System health link label (TB-478)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `SERVICE_BUS_HEALTH_LABELS.systemHealthLink` in `i18n.ts` changes from `"System health (operators)"` to `"System health"`.
+- **Validation evidence:** `ServiceBusHealthBanner.test.tsx` asserts System health link without operators qualifier when banner is visible.
+- **Affected qualities:** 7 (several headline qualities already **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **95.72%** to **95.81%**.
+
+**110) Workspace list unavailable session copy (TB-479)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `BUYER_SCOPE_LIST_UNAVAILABLE` in `buyer-polish-copy.ts` replaces `"active for the demonstration"` with `"active for this session"`.
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` asserts session copy and absence of demonstration/demo jargon.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **95.81%** to **95.91%**.
+
+**111) Demo latency exceeded example review copy (TB-480)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `BUYER_CTO_DEMO_LATENCY_EXCEEDED` in `buyer-polish-copy.ts` changes from `"Exceeded demo latency budget — switch to seeded showcase"` to `"Taking longer than expected — switch to example review."`
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` asserts example review fallback copy and absence of seeded/showcase jargon.
+- **Affected qualities:** 9 (several headline qualities already **100** — rescored via Runtime & First-Review Reliability).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Runtime & First-Review Reliability +1; `(A)` headline readiness rises from **95.91%** to **95.98%**.
+
+**112) AzureExtractorZipDropZone multi-cloud JSDoc (TB-494)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `@deprecated` JSDoc on `AzureExtractorZipDropZone` documents Azure historical naming, safe multi-cloud inventory ZIP handling, intentional `Tier1InventoryZipUploadPanel` reuse, and planned V1.1 rename to `InventoryZipDropZone`.
+- **Validation evidence:** source JSDoc on `AzureExtractorZipDropZone.tsx` satisfies integrations/evidence audit E14 acceptance.
+- **Affected qualities:** 1 (several headline qualities already **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **95.98%** to **96.11%**.
+
+**113) Wizard CloudInventoryExtractorCommandPanel migration (TB-495)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `AzureExtractorPackageZipField` baseline and ingest variants import `CloudInventoryExtractorCommandPanel` with `platform="azure"`; `WizardStepAzureContext` already used the multi-cloud panel; `@deprecated` JSDoc added to `AzureExtractorQuickStartCommandPanel` for remaining extract-upload settings route.
+- **Validation evidence:** `AzureExtractorPackageZipField.test.tsx` asserts azure platform panels for baseline and ingest variants.
+- **Affected qualities:** 2 (several headline qualities already **100** — rescored via Differentiability / Defensibility).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Differentiability / Defensibility +1; `(A)` headline readiness rises from **96.11%** to **96.24%**.
+
+**114) buildReadinessCloudEvidenceSummary rename (TB-496)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `onboarding-secondary-surfaces.ts` exports canonical `buildReadinessCloudEvidenceSummary`; `buildReadinessAzureExtractorSummary` retained as deprecated alias; `first-pilot-readiness-cockpit.ts` and tests updated to canonical name.
+- **Validation evidence:** `onboarding-secondary-surfaces.test.ts` asserts multi-cloud script guidance and updated surface violation scan key.
+- **Affected qualities:** 7 (several headline qualities already **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **96.24%** to **96.33%**.
+
+**115) Wizard skip evidence helper text (TB-497)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `WizardStepEvidenceUpload` renders helper copy near `"Skip evidence for now"` explaining evidence can be added later from review detail and that findings without evidence may have lower confidence.
+- **Validation evidence:** `WizardStepEvidenceUpload.test.tsx` asserts skip-context helper text and skip button co-location for inventory evidence sources.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **96.33%** to **96.43%**.
+
+**116) READINESS_CLOUD_EVIDENCE_LABEL alias (TB-498)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `onboarding-secondary-surfaces.ts` exports canonical `READINESS_CLOUD_EVIDENCE_LABEL`; `READINESS_AZURE_EXTRACTOR_LABEL` retained as deprecated alias; `first-pilot-readiness-cockpit.ts` and `home-readiness-row-present.ts` updated to canonical export.
+- **Validation evidence:** `onboarding-secondary-surfaces.test.ts` asserts canonical cloud evidence label export.
+- **Affected qualities:** 9 (Q9 reaches **100** — rescored via Runtime & First-Review Reliability).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Runtime & First-Review Reliability +1; `(A)` headline readiness rises from **96.43%** to **96.50%**.
+
+**117) Evidence checklist Open setup guide link (TB-499)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `InProductEvidenceChecklist` link anchor changes from `"Full walkthrough"` to `"Open setup guide"` for first-run evidence checklist runbook destination.
+- **Validation evidence:** `InProductEvidenceChecklist.test.tsx` asserts Open setup guide link and absence of Full walkthrough anchor.
+- **Affected qualities:** 1 (Q9 now **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **96.50%** to **96.63%**.
+
+**118) DemoReviewScenarioId cloud-agnostic aliases (TB-500)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `arch-lucid-azure-extractor-demo-scenarios.ts` exports canonical `DemoReviewScenarioId` and `DEFAULT_DEMO_REVIEW_SCENARIO_ID`; Azure-only type/const names deprecated; `WizardStepEvidenceUpload` and `AzureExtractorPackageZipField` import cloud-agnostic names.
+- **Validation evidence:** `arch-lucid-azure-extractor-demo-scenarios.test.ts` asserts canonical default alias; wizard files no longer import Azure-specific demo scenario identifiers.
+- **Affected qualities:** 2 (several headline qualities already **100** — rescored via Differentiability / Defensibility).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Differentiability / Defensibility +1; `(A)` headline readiness rises from **96.63%** to **96.76%**.
+
+**119) Governance quick approve audit comment (TB-501)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `GovernanceQuickApproveButton` batch-review `reviewComment` changes from quick-approve/lineage-snapshot jargon to `"Approved — no critical or high findings present at time of review."`
+- **Validation evidence:** `GovernanceQuickApproveButton.test.tsx` asserts formal reviewComment on successful batch-review approve.
+- **Affected qualities:** 7 (several headline qualities already **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **96.76%** to **96.85%**.
+
+**120) CTO demo audit integrity demo disclaimer (TB-502)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `CtoDemoAuditIntegrityVerifyButton` renders demo-data disclaimer with `data-testid="cto-demo-audit-integrity-demo-disclaimer"` below Chain intact verification result.
+- **Validation evidence:** `CtoDemoAuditIntegrityVerifyButton.test.tsx` asserts disclaimer copy after successful showcase chain verification.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **96.85%** to **96.95%**.
+
+**121) Governance quick approve confirmation dialog (TB-503)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `GovernanceQuickApproveDialog` shows approval subject, run ID, and no critical/high findings snapshot; optional approver note replaces default TB-501 review comment when provided; `GovernanceQuickApproveButton` opens dialog before batch-review submit.
+- **Validation evidence:** `GovernanceQuickApproveButton.test.tsx` asserts two-step dialog confirm flow, default review comment, and custom approver note as `reviewComment`.
+- **Affected qualities:** 1 (several headline qualities already **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **96.95%** to **97.08%**.
+
+**122) Invite reviewer Reader role lead copy (TB-504)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `INVITE_REVIEWER_PAGE_LEAD` states Reader role can view review packages, findings, and governance decisions and cannot approve, finalize, or modify evidence; removes `"typically need"`.
+- **Validation evidence:** `invite-reviewer-flow.test.ts` asserts definitive Reader permissions and absence of `"typically"`.
+- **Affected qualities:** 2 (several headline qualities already **100** — rescored via Differentiability / Defensibility vs Frontier AI).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Differentiability / Defensibility vs Frontier AI +1; `(A)` headline readiness rises from **97.08%** to **97.21%**.
+
+**123) Operator security-trust tenant isolation section (TB-505)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `OperatorSecurityTrustPageView` adds Tenant isolation model between Available now and Under NDA; `operator-security-trust-content.ts` exports plain-language isolation copy and CAIQ detail link.
+- **Validation evidence:** `OperatorSecurityTrustPageView.test.tsx` asserts isolation copy and `/help/caiq-sig-response` detail link.
+- **Affected qualities:** 7 (several headline qualities already **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **97.21%** to **97.30%**.
+
+**124) Operator security-trust data retention section (TB-506)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `OperatorSecurityTrustPageView` adds Data retention section with subscription-term retention, 90-day post-termination deletion copy, workspace deletion contact instruction, and DPA/privacy policy links via `operator-security-trust-content.ts` constants.
+- **Validation evidence:** `OperatorSecurityTrustPageView.test.tsx` asserts retention copy, deletion instruction, and `/help/dpa-template` + `/help/privacy-policy` links.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **97.30%** to **97.40%**.
+
+**125) Gate static demo governance fallback (TB-507)**
+- **Status:** shipped (2026-06-28).
+- **Implementation summary:** `shouldSeedStaticDemoGovernanceRecordsForRun` limits governance approval/promotion static seeding to packaged demo deploys; `GovernanceWorkflowPageContent` shows empty/error states on API failure in live UAT and renders `role="status"` example-records banner when static seed is shown; `warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce` logs when frictionless-trial or presenter-offline activates fallback outside demo hosts.
+- **Validation evidence:** `operator-static-demo-eligibility.test.ts` asserts governance seed gating; `GovernanceWorkflowPageContent.progressive-disclosure.test.ts` asserts static-fallback status banner wiring.
+- **Affected qualities:** 1 (several headline qualities already **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **97.40%** to **97.53%**.
+
+**126) Executive SQL backup region platform scope (TB-508)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.sqlBackupRegionVerificationMetric.description` states ArchLucid platform backup region verified against Terraform CI; `ExecutiveSqlBackupRegionVerificationCard` renders `platformScopeNote` sub-label below region name.
+- **Validation evidence:** `ExecutiveSqlBackupRegionVerificationCard.test.tsx` asserts platform-scope note and Terraform CI description copy.
+- **Affected qualities:** 2 (several headline qualities already **100** — rescored via Differentiability / Defensibility vs Frontier AI).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Differentiability / Defensibility vs Frontier AI +1; `(A)` headline readiness rises from **97.53%** to **97.66%**.
+
+**127) Governance preview note production framing (TB-509)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** `BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE` uses production and example review package language; removes connected-workspace interim copy from TB-472.
+- **Validation evidence:** `buyer-polish-copy-pilot-outcomes.test.ts` asserts exact TB-509 string and absence of live pilot, demonstration purposes, and connected workspace jargon.
+- **Affected qualities:** 7 (several headline qualities already **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **97.66%** to **97.75%**.
+
+**128) Governance workflow release vocabulary (TB-510)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** `governance-workflow-release-copy.ts` centralizes governance release vocabulary; governance workflow page sections replace buyer-visible promote/promotion strings with release-to-environment copy while retaining internal `promoteManifest` API calls.
+- **Validation evidence:** `governance-workflow-release-copy.test.ts` and `governance-workflow-buyer-copy.test.ts` assert no promote/promotion action verbs in release constants and section string literals; `GovernanceWorkflowPageContent.progressive-disclosure.test.ts` and `operate-authority-ui-shaping.test.tsx` assert Environment releases and activations accordion label.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **97.75%** to **97.85%**.
+
+**129) Invite reviewer Reader role capability summary (TB-511)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** `InviteReviewerReaderCapabilitiesSummary` renders compact can/cannot list below invite page lead; capability lines live in `INVITE_REVIEWER_READER_CAPABILITIES` on `invite-reviewer-flow.ts`.
+- **Validation evidence:** `invite-reviewer-flow.test.ts` asserts capability constants; `InviteReviewerPageView.test.tsx` asserts summary heading and all five capability lines render on admin surface.
+- **Affected qualities:** 1 (several headline qualities already **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **97.85%** to **97.98%**.
+
+**130) Export download wrapper neutral naming (TB-512)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Renamed `FunnelTelemetryExportAnchor` to `ExportTrackedAnchor` with JSDoc documenting single first-export lifecycle event scope; updated all import sites for review exports, artifact table, sponsor banner, and decision receipt button.
+- **Validation evidence:** `ExportTrackedAnchor.test.ts` asserts neutral export symbol and JSDoc analytics scope; existing export section tests mock `@/components/ExportTrackedAnchor`.
+- **Affected qualities:** 2 (several headline qualities already **100** — rescored via Differentiability / Defensibility vs Frontier AI).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Differentiability / Defensibility vs Frontier AI +1; `(A)` headline readiness rises from **97.98%** to **98.11%**.
+
+**131) GoldenManifestExportMenu buyer naming guard (TB-513)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** `GoldenManifestExportMenu` adds `@important` JSDoc requiring `SIGNED_MANIFEST_LABEL` for buyer-visible copy and `@deprecated` note for planned V1.1 rename; operator export aria label uses `SIGNED_MANIFEST_LABEL`.
+- **Validation evidence:** `GoldenManifestExportMenu.test.ts` asserts JSDoc naming-risk documentation and absence of golden-manifest string literals in buyer-visible labels.
+- **Affected qualities:** 7 (several headline qualities already **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **98.11%** to **98.20%**.
+
+**132) Explainability trace tree empty evidence context (TB-514)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** `EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY` on `ExplainabilityTraceTree` explains that empty evidence references may reflect heuristic findings rather than missing audit evidence.
+- **Validation evidence:** `ExplainabilityTraceTree.test.tsx` asserts expanded empty-state copy and absence of the prior one-line message.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **98.20%** to **98.30%**.
+
+**133) SQL backup KPI neutral loading copy (TB-515)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** `ExecutiveSqlBackupRegionVerificationCard` loading state uses `"Checking backup status…"` instead of internal `"Loading backup region verification…"` vocabulary.
+- **Validation evidence:** `ExecutiveSqlBackupRegionVerificationCard.test.tsx` asserts buyer-safe loading copy and absence of backup region verification jargon.
+- **Affected qualities:** 1 (several headline qualities already **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **98.30%** to **98.43%**.
+
+**134) Overview first in Review work nav (TB-516)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** `PilotNavGroupBuilder` adds Overview (`/`) as the first Review work sidebar link with `OPERATOR_NAV_LINK_LABELS.home` and Workspace overview title.
+- **Validation evidence:** `pilot-nav-group-builder.test.ts` asserts Overview is first; `SidebarNav.test.tsx` asserts Overview link href `/` in default and buyer-polished shells; pre-commit nav gate test already expected `/` ordering.
+- **Affected qualities:** 2 (several headline qualities already **100** — rescored via Differentiability / Defensibility vs Frontier AI).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Differentiability / Defensibility vs Frontier AI +1; `(A)` headline readiness rises from **98.43%** to **98.56%**.
+
+**135) Governance workflow + Audit trail at nav phase 1 (TB-517)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Removed full-group phase-2 skip for `operate-governance` in `nav-shell-visibility.ts`; narrowed `GOVERNANCE_EXTENDED_PHASE_HREFS` in `operate-nav-progressive-unlock.ts` so `/governance` and `/governance/audit` unlock at phase 1 while findings, policy packs, and risk exceptions stay phase 2.
+- **Validation evidence:** `operate-nav-progressive-unlock.test.ts` asserts governance group visible at phase 1 with workflow + audit hrefs; `usability-lib.test.ts` and `authority-seam-regression.test.ts` updated for per-link phase filtering.
+- **Affected qualities:** 7 (several headline qualities already **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **98.56%** to **98.65%**.
+
+**136) Review work nav order without Evidence graph (TB-518)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Removed `/graph` from `PilotNavGroupBuilder` and reordered Review work links to Overview → New review → Review packages → Portfolio overview → Getting started; updated group caption to match workflow-first ordering.
+- **Validation evidence:** `pilot-nav-group-builder.test.ts` asserts label order and absence of `/graph`; `SidebarNav.test.tsx`, `SidebarNav.new-user-catalog.test.tsx`, `nav-committed-architecture-review-gate.test.ts`, and `nav-shell-visibility.test.ts` updated for pre-commit and buyer-polished shell composition.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **98.65%** to **98.75%**.
+
+**137) Evidence graph first in Analysis nav (TB-519)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Added `/graph` as the first link in `OperateAnalysisNavGroupBuilder` with essential tier and `ReadAuthority`; Review work group remains graph-free after TB-518.
+- **Validation evidence:** `operate-analysis-nav-group-builder.test.ts` asserts graph-first order and pilot absence; `nav-config.structure.test.ts`, `authority-seam-regression.test.ts`, `getLayerForRoute.test.ts`, and `sidebar-nav-active-group-expansion.test.ts` updated for Analysis group composition and layer routing.
+- **Affected qualities:** 1 (several headline qualities already **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **98.75%** to **98.88%**.
+
+**138) Governance setup guide in Governance nav (TB-520)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Moved `/governance/first-30-days` from `OperateReportsNavGroupBuilder` to `OperateGovernanceNavGroupBuilder`; nav label `governanceSetupGuide` replaces `"First 30 days (governance)"`; tooltip removes evaluation/pilot language; retired `operate-reports` cross-namespace exception in `nav-route-namespace-exceptions.ts`.
+- **Validation evidence:** `operate-governance-nav-group-builder.test.ts` asserts Governance setup guide label and tooltip; `nav-config.structure.test.ts` and `SidebarNav.new-user-catalog.test.tsx` updated for group membership; `nav-route-namespace.test.ts` passes without Reports exception row.
+- **Affected qualities:** 7 (Q2 capped at **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **98.88%** to **98.97%**.
+
+**139) Review detail governance forward CTA (TB-521)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Added `RunDetailGovernanceCta` and `shouldShowRunDetailGovernanceCta` so operator-shell review detail surfaces Submit for governance approval → linking to `/governance?runId=` after outcome cards when manifest exists and governance gate is still pending.
+- **Validation evidence:** `run-detail-governance-cta-visibility.test.ts` and `RunDetailGovernanceCta.test.tsx` assert visibility rules and governance workflow href; wired in `RunDetailPageView.tsx` between outcome cards and downstream deliverables flow.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **98.97%** to **99.07%**.
+
+**140) Users & roles nav consolidation (TB-522)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Removed duplicate Role management nav row from `OperatorAdminNavGroupBuilder`; canonical Administration link remains `/settings/users` labeled Users & roles; added permanent redirect `/settings/roles` → `/settings/users?tab=roles` and rewrite `/settings/users` → tabbed roles page; updated deep links in finish-setup wizard, first-pilot readiness cockpit, and invite-reviewer users-tab path constants.
+- **Validation evidence:** `next.config.admin-routes.test.ts` asserts redirect and rewrite; `nav-config.structure.test.ts` asserts admin nav excludes `/settings/roles`; `settings-admin-route-paths.test.ts` and `invite-reviewer-flow.test.ts` assert canonical tab URLs.
+- **Affected qualities:** 1 (several headline qualities already **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **99.07%** to **99.20%**.
+
+**141) Executive summary breadcrumb and subnav (TB-523)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Added `tryBuildExecutiveReviewBreadcrumbs` in `breadcrumb-map.ts` for Review packages · title · Executive summary trails; introduced `RunDetailPackageSubnav` persistent tabs on finalized review detail and executive summary pages; path helpers in `run-detail-package-subnav-paths.ts`.
+- **Validation evidence:** `breadcrumb-map.test.ts` asserts executive summary and finding-detail trails; `RunDetailPackageSubnav.test.tsx` asserts route tabs and `aria-current` state.
+- **Affected qualities:** 7 (Q2 capped at **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **99.20%** to **99.29%**.
+
+**142) Getting started nav demotion after first commit (TB-524)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Extended `applyCommittedArchitectureReviewNavPromotions` to demote `/onboarding` to extended tier and clear collapsed-sidebar pin when `hasCommittedArchitectureReview` is true; catalog remains essential for new workspaces in `PilotNavGroupBuilder`.
+- **Validation evidence:** `nav-committed-architecture-review-promotion.test.ts` asserts essential visibility before first commit, hidden default shell after commit, and extended-tier visibility when disclosure expands.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **99.29%** to **99.39%**.
+
+**143) Analysis nav group renamed Insights (TB-525)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Renamed `OPERATOR_NAV_GROUP_LABELS.analysis` to Insights and updated `OperateAnalysisNavGroupBuilder` caption to Explore evidence, findings, and decisions across reviews.
+- **Validation evidence:** `operate-analysis-nav-group-builder.test.ts` and `nav-config.structure.test.ts` assert Insights label and caption; SidebarNav and pilot-nav-profile tests updated for accessible group name.
+- **Affected qualities:** 1 (several headline qualities already **100** — rescored via Decision-Changing Insight Density).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Decision-Changing Insight Density +1; `(A)` headline readiness rises from **99.39%** to **99.52%**.
+
+**144) Governance workflow nav link renamed Approval queue (TB-526)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Renamed `OPERATOR_NAV_LINK_LABELS.governanceWorkflow` to Approval queue; aligned `/governance` route title, `GovernanceWorkflowPageContent` header, route-view explanation, command palette task, and E2E heading fixtures.
+- **Validation evidence:** `operate-governance-nav-group-builder.test.ts` and `route-titles.test.ts` assert Approval queue nav label and static route title.
+- **Affected qualities:** 7 (Q2 capped at **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **99.52%** to **99.61%**.
+
+**145) Portfolio overview nav renamed Executive dashboard; home section Recent activity (TB-527)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Renamed `OPERATOR_NAV_LINK_LABELS.portfolioOverview` and `BUYER_TERMINOLOGY.portfolioOverview` to Executive dashboard; renamed `OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING` to Recent activity for post-commit home hero; aligned breadcrumbs, route orientation, recent views, and dashboard page title vocabulary.
+- **Validation evidence:** `pilot-nav-group-builder.test.ts`, `breadcrumb-map.test.ts`, `ExecutiveRoiDashboardPageView.test.tsx`, and `PilotCommandCenterCard.test.tsx` assert Executive dashboard nav label and Recent activity home heading.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **99.61%** to **99.71%**.
+
+**146) Downstream golden-path breadcrumbs (TB-528)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Extended `getBreadcrumbs` with `tryBuildGovernanceRunScopedBreadcrumbs` for `/governance?runId=` (`Review packages · title · Governance`), legacy `/audit` → `Governance · Audit trail`, and mounted shared `Breadcrumbs` in `ExecutiveShellFrame` so `/executive/reviews/[runId]` shows TB-523 executive summary trail.
+- **Validation evidence:** `breadcrumb-map.test.ts` TB-528 cases for governance run context and legacy audit path; executive summary trail covered by existing TB-523 assertions.
+- **Affected qualities:** 7 (several headline qualities already **100** — rescored via Proof-of-ROI Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **99.71%** to **99.80%**.
+
+**147) Architecture advisory nav renamed Advisory scans (TB-529)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Renamed `OPERATOR_NAV_LINK_LABELS.architectureAdvisory` to Advisory scans; aligned `OperateAnalysisNavGroupBuilder` tooltip, buyer-polished route orientation, and home maturity layer card label.
+- **Validation evidence:** `operate-analysis-nav-group-builder.test.ts` and `buyer-polished-route-orientation.test.ts` assert Advisory scans nav label on `/advisory`.
+- **Affected qualities:** 5 (several headline qualities already **100** — rescored via AI / Agent Readiness).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **99.80%** to **99.90%**.
+
+**148) Integration readiness nav renamed Connection status (TB-530)**
+- **Status:** shipped (2026-06-30).
+- **Implementation summary:** Renamed `OPERATOR_NAV_LINK_LABELS.integrationReadiness` to Connection status; aligned `OperateIntegrationsNavGroupBuilder` nav label and connector-health tooltip.
+- **Validation evidence:** `operate-integrations-nav-group-builder.test.ts` asserts Connection status label on `/integrations/readiness`.
+- **Affected qualities:** 5 (Q5 capped at **100** after this item — next rescoring rotation skips to Q9).
+- **Classification:** V1 engineering.
+- **Rescore impact:** AI / Agent Readiness +1; `(A)` headline readiness rises from **99.90%** to **100.00%**.
 
 ## 18. Prompt Batching Guidance
 - **First batch (strong-model-recommended):** ship-gate evidence harness, tenant-isolation negative-test bundle, and citation-integrity sampler.

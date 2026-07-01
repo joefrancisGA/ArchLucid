@@ -47,7 +47,7 @@ export type MarketingTierPricingSectionProps = {
   signupHref: string;
   /** Visible label for the primary signup CTA button. */
   signupCallToActionLabel?: string;
-  /** When false, omit the trailing “Start free trial” button (e.g. welcome page already has a hero CTA). */
+  /** When false, omit the trailing “Start an evaluation” button (e.g. welcome page already has a hero CTA). */
   showSignupCallToAction?: boolean;
   /** DOM id of the quote panel on the same page (Pro / Enterprise “Talk to sales” scroll target). */
   quoteSectionDomId?: string;
@@ -252,7 +252,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                         )
                       ) : null}
                       <Button asChild variant="outline" className="w-full">
-                        <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start free trial"}</Link>
+                        <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start an evaluation"}</Link>
                       </Button>
                     </>
                   ) : null}
@@ -281,7 +281,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
           {props.showSignupCallToAction !== false ? (
             <div className="mt-8 flex justify-center">
               <Button asChild variant="primary" size="lg">
-                <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start free trial"}</Link>
+                <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start an evaluation"}</Link>
               </Button>
             </div>
           ) : null}

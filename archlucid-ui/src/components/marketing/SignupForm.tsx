@@ -415,7 +415,7 @@ export function SignupForm() {
 
         <div className="flex flex-wrap gap-3 pt-2">
           <Button type="submit" disabled={submitting} variant="primary">
-            {submitting ? "Creating…" : "Create trial workspace"}
+            {submitting ? "Creating…" : "Create your workspace"}
           </Button>
           <Button asChild type="button" variant="ghost">
             <Link href="/welcome">Back</Link>

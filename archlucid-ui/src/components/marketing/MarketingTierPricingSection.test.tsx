@@ -70,11 +70,11 @@ describe("MarketingTierPricingSection", () => {
 
     const teamScope = within(teamCard);
     teamScope.getByRole("button", { name: /request quote/i });
-    teamScope.getByRole("link", { name: /start free trial/i });
+    teamScope.getByRole("link", { name: /start an evaluation/i });
 
     expect(teamScope.queryByTestId("pricing-team-subscribe-stripe")).not.toBeInTheDocument();
 
-    const trial = teamScope.getByRole("link", { name: /start free trial/i });
+    const trial = teamScope.getByRole("link", { name: /start an evaluation/i });
     expect(trial.getAttribute("href")).toContain("/signup?");
     expect(trial.getAttribute("href")).toContain("utm_source=pricing_page");
 
@@ -113,7 +113,7 @@ describe("MarketingTierPricingSection", () => {
     expect(stripeSubscribe).toHaveTextContent(/subscribe with stripe/i);
 
     teamScope.getByRole("button", { name: /request quote/i });
-    teamScope.getByRole("link", { name: /start free trial/i });
+    teamScope.getByRole("link", { name: /start an evaluation/i });
   });
 
   it("uses NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL for Team primary CTA href when flag is true", async () => {

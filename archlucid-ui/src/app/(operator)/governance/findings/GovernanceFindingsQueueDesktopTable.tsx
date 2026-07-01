@@ -25,6 +25,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import { cn } from "@/lib/utils";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
@@ -32,6 +33,7 @@ import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evi
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { groupGovernanceFindingQueueRows } from "@/lib/group-governance-finding-queue-rows";
+import { governanceQueueDispositionLabel } from "@/lib/architecture-risk-register-page";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
 
 import {
@@ -61,14 +63,6 @@ function formatRiskRegisterUtcLabel(utc: string | null | undefined): string {
     month: "short",
     day: "numeric",
   });
-}
-
-function manifestRecordHref(runId: string, manifestId: string): string {
-  if (manifestId !== "—") {
-    return `/signed-records/${encodeURIComponent(manifestId)}`;
-  }
-
-  return `/reviews/${encodeURIComponent(runId)}/signed-record`;
 }
 
 function governanceQueueGraphEvidenceHref(row: GovernanceFindingQueueRow): string | null {
@@ -155,21 +149,174 @@ function GovernanceFindingsQueueTableHead(props: {
             />
           </EnterpriseTableHeaderCell>
         ) : null}
-        <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
-        {buyerPolishedShell ? <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell> : null}
-        <EnterpriseTableHeaderCell>{buyerPolishedShell ? "Record" : "Record kind"}</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>{buyerPolishedShell ? "Record summary" : "Finding"}</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-        {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>{SIGNED_MANIFEST_LABEL}</EnterpriseTableHeaderCell>}
-        <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-        {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>}
-        {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>Last reviewed</EnterpriseTableHeaderCell>}
-        {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>Next review</EnterpriseTableHeaderCell>}
-        {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>Aging</EnterpriseTableHeaderCell>}
-        <EnterpriseTableHeaderCell>Recommended action</EnterpriseTableHeaderCell>
+        {buyerPolishedShell ? (
+          <>
+            <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Record</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Record summary</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Recommended action</EnterpriseTableHeaderCell>
+          </>
+        ) : (
+          <>
+            <EnterpriseTableHeaderCell>Risk</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Source review package</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Disposition</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Age</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Exception expiry</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Last decision</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+          </>
+        )}
         <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
       </EnterpriseTableHeadRow>
     </EnterpriseTableHead>
+  );
+}
+
+function riskExceptionActionHref(row: GovernanceFindingQueueRow): string {
+  if ((row.waiverExpiresAtUtc?.trim() ?? "").length > 0) {
+    return "/governance/risk-exceptions";
+  }
+
+  return inspectHref(row.runId, row.findingId);
+}
+
+function riskExceptionActionLabel(row: GovernanceFindingQueueRow): string {
+  if ((row.waiverExpiresAtUtc?.trim() ?? "").length > 0) {
+    return "View exception";
+  }
+
+  return "Create exception";
+}
+
+function GovernanceFindingsQueueOperationalRowCells(props: {
+  readonly row: GovernanceFindingQueueRow;
+}): ReactElement {
+  const { row } = props;
+  const graphHref = governanceQueueGraphEvidenceHref(row);
+  const evidenceChipHref =
+    graphHref ??
+    (row.evidenceHref !== undefined && row.evidenceHref.trim().length > 0 ? row.evidenceHref : null);
+
+  return (
+    <>
+      <EnterpriseTableCell className="font-medium text-al-text-primary">
+        <Link className={OPERATOR_LINK.inline} href={inspectHref(row.runId, row.findingId)}>
+          {row.title}
+        </Link>
+        {row.recordKind === "finding" && row.policyRuleId ? (
+          <div className="mt-1">
+            <FindingPolicyTraceabilityBadges
+              {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
+            />
+          </div>
+        ) : row.category && row.recordKind === "finding" ? (
+          <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+            Policy area: {row.category}
+          </div>
+        ) : null}
+        <div
+          className={cn(
+            "mt-0.5 flex flex-wrap items-center gap-1 font-mono font-normal text-al-text-secondary",
+            OPERATOR_TYPOGRAPHY.micro,
+          )}
+        >
+          <span>{row.findingId}</span>
+          <CopyIdButton value={row.findingId} aria-label="Copy finding ID" />
+        </div>
+        {evidenceChipHref !== null ? (
+          <div className="mt-1">
+            <FindingEvidenceLinkChip href={evidenceChipHref} evidenceRefCount={row.evidenceRefCount} />
+          </div>
+        ) : null}
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>
+        <Link className={OPERATOR_LINK.inline} href={`/reviews/${encodeURIComponent(row.runId)}`}>
+          {row.runLabel}
+        </Link>
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>{governanceQueueSeverityCell(row, false)}</EnterpriseTableCell>
+      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+        {row.recordKind === "finding" ? row.ownerUserId ?? "—" : "—"}
+      </EnterpriseTableCell>
+      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+        {governanceQueueDispositionLabel(row)}
+      </EnterpriseTableCell>
+      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+        {row.recordKind === "finding" && row.agingDays !== undefined ? `${row.agingDays}d` : "—"}
+      </EnterpriseTableCell>
+      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.waiverExpiresAtUtc) : "—"}
+      </EnterpriseTableCell>
+      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.lastReviewedUtc) : "—"}
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>
+        <div>{row.status}</div>
+        {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
+          <div className={cn("mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+            {row.humanReviewStatusLabel}
+          </div>
+        ) : null}
+        {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
+          <div className={cn("mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+            ITSM: {row.itsmLinkedTicketsSummary}
+          </div>
+        ) : null}
+        {row.isStale ? (
+          <span
+            className={cn(
+              "ml-1 rounded border border-amber-600/40 bg-al-surface-raised px-1.5 py-0.5 font-semibold uppercase text-al-text-primary dark:border-amber-700/50",
+              OPERATOR_TYPOGRAPHY.badge,
+            )}
+          >
+            Stale
+          </span>
+        ) : null}
+      </EnterpriseTableCell>
+    </>
+  );
+}
+
+function GovernanceFindingsQueueOperationalActions(props: {
+  readonly row: GovernanceFindingQueueRow;
+}): ReactElement {
+  const { row } = props;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Button asChild variant="outline" size="sm" className="h-8">
+        <Link href={inspectHref(row.runId, row.findingId)}>View risk</Link>
+      </Button>
+      <Button asChild variant="outline" size="sm" className="h-8">
+        <Link href={`/reviews/${encodeURIComponent(row.runId)}`}>Open source review</Link>
+      </Button>
+      {row.recordKind === "finding" ? (
+        <>
+          <Button asChild variant="outline" size="sm" className="h-8">
+            <Link href={inspectHref(row.runId, row.findingId)}>Add/update owner</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="h-8">
+            <Link href={riskExceptionActionHref(row)}>{riskExceptionActionLabel(row)}</Link>
+          </Button>
+          <CopyGovernanceQueueWorkItemButton
+            runId={row.runId}
+            findingId={row.findingId}
+            findingTitle={row.title}
+            severityLabel={row.severity}
+            recommendedAction={row.recommended}
+            statusLabel={row.status}
+            compact
+          />
+          <ItsmOutboundQuickActions findingId={row.findingId} compact />
+        </>
+      ) : null}
+    </div>
   );
 }
 
@@ -208,140 +355,99 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
                 />
               </EnterpriseTableCell>
             ) : null}
-            <EnterpriseTableCell>{governanceQueueSeverityCell(row, buyerPolishedShell)}</EnterpriseTableCell>
             {buyerPolishedShell ? (
-              <EnterpriseTableCell>
-                {row.recordKind === "decision" ? (
-                  <span className="text-al-text-secondary">—</span>
-                ) : row.traceConfidenceLevel === "High" ||
-                  row.traceConfidenceLevel === "Medium" ||
-                  row.traceConfidenceLevel === "Low" ? (
-                  <FindingConfidenceBadge level={row.traceConfidenceLevel} />
-                ) : (
-                  <span className="text-al-text-secondary">—</span>
-                )}
-              </EnterpriseTableCell>
-            ) : null}
-            <EnterpriseTableCell className="text-al-text-primary">
-              {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
-            </EnterpriseTableCell>
-            <EnterpriseTableCell className="font-medium text-al-text-primary">
-              <Link
-                className={OPERATOR_LINK.inline}
-                href={inspectHref(row.runId, row.findingId)}
-              >
-                {row.title}
-              </Link>
-              {row.recordKind === "finding" && row.policyRuleId ? (
-                <div className="mt-1">
-                  <FindingPolicyTraceabilityBadges
-                    {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
-                  />
-                </div>
-              ) : row.category && row.recordKind === "finding" ? (
-                <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                  Policy area: {row.category}
-                </div>
-              ) : null}
-              {buyerPolishedShell ? null : (
-                <div
-                  className={cn(
-                    "mt-0.5 flex flex-wrap items-center gap-1 font-mono font-normal text-al-text-secondary",
-                    OPERATOR_TYPOGRAPHY.micro,
+              <>
+                <EnterpriseTableCell>{governanceQueueSeverityCell(row, buyerPolishedShell)}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  {row.recordKind === "decision" ? (
+                    <span className="text-al-text-secondary">—</span>
+                  ) : row.traceConfidenceLevel === "High" ||
+                    row.traceConfidenceLevel === "Medium" ||
+                    row.traceConfidenceLevel === "Low" ? (
+                    <FindingConfidenceBadge level={row.traceConfidenceLevel} />
+                  ) : (
+                    <span className="text-al-text-secondary">—</span>
                   )}
-                >
-                  <span>{row.findingId}</span>
-                  <CopyIdButton value={row.findingId} aria-label="Copy finding ID" />
-                </div>
-              )}
-              {evidenceChipHref !== null ? (
-                <div className="mt-1">
-                  <FindingEvidenceLinkChip
-                    href={evidenceChipHref}
-                    evidenceRefCount={row.evidenceRefCount}
-                  />
-                </div>
-              ) : null}
-            </EnterpriseTableCell>
-            <EnterpriseTableCell>
-              <Link
-                className={OPERATOR_LINK.inline}
-                href={`/reviews/${encodeURIComponent(row.runId)}`}
-              >
-                {row.runLabel}
-              </Link>
-            </EnterpriseTableCell>
-            {buyerPolishedShell ? null : (
-              <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                <Link
-                  className={cn("font-sans", OPERATOR_LINK.inline)}
-                  href={manifestRecordHref(row.runId, row.manifestId)}
-                >
-                  Open signed record
-                </Link>
-              </EnterpriseTableCell>
-            )}
-            <EnterpriseTableCell>
-              <div>{row.status}</div>
-              {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
-                <div className={cn("mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                  {row.humanReviewStatusLabel}
-                </div>
-              ) : null}
-              {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
-                <div className={cn("mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                  ITSM: {row.itsmLinkedTicketsSummary}
-                </div>
-              ) : null}
-              {row.isStale ? (
-                <span
-                  className={cn(
-                    "ml-1 rounded border border-amber-600/40 bg-al-surface-raised px-1.5 py-0.5 font-semibold uppercase text-al-text-primary dark:border-amber-700/50",
-                    OPERATOR_TYPOGRAPHY.badge,
-                  )}
-                >
-                  Stale
-                </span>
-              ) : null}
-            </EnterpriseTableCell>
-            {buyerPolishedShell ? null : (
-              <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-                {row.recordKind === "finding" ? row.ownerUserId ?? "—" : "—"}
-              </EnterpriseTableCell>
-            )}
-            {buyerPolishedShell ? null : (
-              <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-                {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.lastReviewedUtc) : "—"}
-              </EnterpriseTableCell>
-            )}
-            {buyerPolishedShell ? null : (
-              <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-                {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.revisitDueUtc) : "—"}
-              </EnterpriseTableCell>
-            )}
-            {buyerPolishedShell ? null : (
-              <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-                {row.recordKind === "finding" && row.agingDays !== undefined
-                  ? `${row.agingDays}d`
-                  : "—"}
-              </EnterpriseTableCell>
-            )}
-            <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-              {row.recommended}
-            </EnterpriseTableCell>
-            <EnterpriseTableCell>
-              <div className="flex flex-col gap-2">
-                <Button asChild variant="outline" size="sm" className="h-8">
-                  <Link href={inspectHref(row.runId, row.findingId)}>
-                    {buyerPolishedShell
-                      ? row.recordKind === "decision"
-                        ? "View decision"
-                        : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA
-                      : "Open"}
+                </EnterpriseTableCell>
+                <EnterpriseTableCell className="text-al-text-primary">
+                  {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
+                </EnterpriseTableCell>
+                <EnterpriseTableCell className="font-medium text-al-text-primary">
+                  <Link
+                    className={OPERATOR_LINK.inline}
+                    href={inspectHref(row.runId, row.findingId)}
+                  >
+                    {row.title}
                   </Link>
-                </Button>
-                {row.recordKind === "finding" ? (
-                  <>
+                  {row.recordKind === "finding" && row.policyRuleId ? (
+                    <div className="mt-1">
+                      <FindingPolicyTraceabilityBadges
+                        {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
+                      />
+                    </div>
+                  ) : row.category && row.recordKind === "finding" ? (
+                    <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                      Policy area: {row.category}
+                    </div>
+                  ) : null}
+                  {evidenceChipHref !== null ? (
+                    <div className="mt-1">
+                      <FindingEvidenceLinkChip
+                        href={evidenceChipHref}
+                        evidenceRefCount={row.evidenceRefCount}
+                      />
+                    </div>
+                  ) : null}
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <Link
+                    className={OPERATOR_LINK.inline}
+                    href={`/reviews/${encodeURIComponent(row.runId)}`}
+                  >
+                    {row.runLabel}
+                  </Link>
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <div>{row.status}</div>
+                  {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
+                    <div className={cn("mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                      {row.humanReviewStatusLabel}
+                    </div>
+                  ) : null}
+                  {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
+                    <div className={cn("mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                      ITSM: {row.itsmLinkedTicketsSummary}
+                    </div>
+                  ) : null}
+                  {row.isStale ? (
+                    <span
+                      className={cn(
+                        "ml-1 rounded border border-amber-600/40 bg-al-surface-raised px-1.5 py-0.5 font-semibold uppercase text-al-text-primary dark:border-amber-700/50",
+                        OPERATOR_TYPOGRAPHY.badge,
+                      )}
+                    >
+                      Stale
+                    </span>
+                  ) : null}
+                </EnterpriseTableCell>
+                <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+                  {row.recommended}
+                </EnterpriseTableCell>
+              </>
+            ) : (
+              <GovernanceFindingsQueueOperationalRowCells row={row} />
+            )}
+            <EnterpriseTableCell>
+              {buyerPolishedShell ? (
+                <div className="flex flex-col gap-2">
+                  <Button asChild variant="outline" size="sm" className="h-8">
+                    <Link href={inspectHref(row.runId, row.findingId)}>
+                      {row.recordKind === "decision"
+                        ? "View decision"
+                        : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA}
+                    </Link>
+                  </Button>
+                  {row.recordKind === "finding" ? (
                     <CopyGovernanceQueueWorkItemButton
                       runId={row.runId}
                       findingId={row.findingId}
@@ -351,10 +457,11 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
                       statusLabel={row.status}
                       compact
                     />
-                    {!buyerPolishedShell ? <ItsmOutboundQuickActions findingId={row.findingId} compact /> : null}
-                  </>
-                ) : null}
-              </div>
+                  ) : null}
+                </div>
+              ) : (
+                <GovernanceFindingsQueueOperationalActions row={row} />
+              )}
             </EnterpriseTableCell>
           </EnterpriseTableRow>
         );

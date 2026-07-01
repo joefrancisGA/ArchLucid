@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-28 (TB-435 **Done** — onboarding walkthrough help link label). Prior: 2026-06-28 (TB-434 **Done** — onboarding page title and lead copy). Prior: 2026-06-28 (TB-431–TB-433 **Done** — first-hour UX audit P0 copy/IA fixes). Prior: 2026-07-01 (TB-430 **Done** — pilot readiness live release strict blocker).
+**Updated:** 2026-06-30 (TB-530 **Done** — Integration readiness nav renamed Connection status). Prior: 2026-06-30 (TB-529 **Done** — Architecture advisory nav renamed Advisory scans). Prior: 2026-06-30 (TB-525 **Done** — Analysis nav group renamed Insights). Prior: 2026-06-30 (TB-519 **Done** — Evidence graph first in Analysis nav). Prior: 2026-06-28 (TB-506 **Done** — security-trust data retention section). Prior: 2026-06-28 (TB-505 **Done** — security-trust tenant isolation section). Prior: 2026-06-28 (TB-479 **Done** — workspace list unavailable session copy). Prior: 2026-06-28 (TB-478 **Done** — service bus banner System health link label). Prior: 2026-06-28 (TB-477 **Done** — roles settings Finalize reviews permission label). Prior: 2026-06-28 (TB-476 **Done** — onboarding step tracker Finalize checkpoint label). Prior: 2026-06-28 (TB-475 **Done** — Rule-based analysis simulator trust badge). Prior: 2026-06-28 (TB-474 **Done** — example review defensible-layer caption). Prior: 2026-06-29 (TB-516–TB-534 added — nav/IA audit 19 P0–P2 items; FIRST_HOUR_JOURNEY_AUDIT.md and NAV_IA_AUDIT.md recreated). Prior: 2026-06-29 (TB-501–TB-515 added — enterprise trust audit 15 P0–P2 items). Prior: 2026-06-28 (TB-470 **Done** — Why ArchLucid sponsor pack source line). Prior: 2026-06-28 (TB-469 **Done** — product concepts glossary dialog description). Prior: 2026-06-28 (TB-468 **Done** — Executive value report page title). Prior: 2026-06-28 (TB-467 **Done** — Cloud connections nav label migration). Prior: 2026-06-28 (TB-461 **Done** — hero step 3 Finalize review package). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -12,24 +12,25 @@
 | Deployability | 5 |
 | AI/Agent readiness | 3 |
 | Architectural integrity | 8 |
-| Adoption friction | 45 |
+| Adoption friction | 110 |
 | Commercial / marketability | 3 |
-| Data consistency | 4 |
+| Data consistency | 5 |
 | Cutting-edge AI | 3 |
-| Explainability | 2 |
+| Explainability | 3 |
 | Proof-of-ROI / executive value | 3 |
-| Trustworthiness | 1 |
+| Trustworthiness | 10 |
 | Maintainability | 3 |
 | Traceability | 3 |
 | Interoperability | 8 |
-| Compliance readiness | 2 |
-| Performance | 1 |
+| Compliance readiness | 3 |
+| Performance | 14 |
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
-| **Total (unique)** | **~87** |
+| Code hygiene | 8 |
+| **Total (unique)** | **~203** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-398** (full enterprise ITSM connector — **V2**; owner promotion required). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-392** (per-tenant Jira/ServiceNow credentials — V1.1). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -146,6 +147,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-402 — TB-403** were added 2026-06-27 as the **V1.1 automated cloud polling** cluster. [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) commits to AWS/GCP topology ingestion via Terraform and customer-controlled inventory ZIPs (Phase 1–3); it explicitly defers **Tier 2 live API connectors** (long-lived credentials inside the customer AWS/GCP account). These two items add **hosted automated polling** for AWS (**TB-402**) and GCP (**TB-403**) at **full parity with the Azure Tier 2 extractor** shipped in V1 (see `V1_SCOPE.md §2.16`, `CloudConnectionsPageClient.tsx`, and `Integrations.AzureExtractor`). Tier 2 for Azure wires a hosted poller that holds a minimal read-only credential, runs on a schedule, uploads an inventory ZIP via `/v1/extractor/azure/upload`, and exposes a management UI at `/settings/cloud-connections`. TB-402 and TB-403 replicate that same end-to-end stack for AWS and GCP respectively. They do **not** duplicate `TB-214` (non-Azure JSON upload path, DEFERRED owner-gated), `TB-341` (multi-source evidence picker V1.1 badges), `TB-343` (cloud-connections plural copy reconciliation — Done 2026-06-19), or Phase 1–4 of `MULTI_CLOUD_ANALYSIS_V1_1.md` (topology analysis + pricing — distinct from the polling credential/scheduler/UI cluster). Owner must confirm acceptable credential model (Entra Workload Identity Federation, IAM role-ARN trust, or GCP Workload Identity before implementation begins; items are blocked on that pending question — **PQ-CLOUD-01**).
 
+**TB-560 — TB-573** were added 2026-06-30 from an **archlucid-ui performance audit** (Next.js 15 App Router; canvas `canvases/ui-performance-backlog.canvas.tsx`). The operator product shell pays a large client bundle and hydration tax: `OperatorShellTopBar` statically imports `CommandPalette` (~617 lines + `cmdk`) on every page; `FindingEvidenceGraph` statically imports `reactflow` + CSS; only **4** TanStack Query hooks exist while **80+** components still use ad-hoc `useEffect`+`fetch`; and several monolithic client files (`GovernanceFindingsQueueClient` ~1115 lines, `AlertsInboxContent` ~903, `RunsDashboardPanel` ~822) widen re-render and hydration scope. **TB-560**–**TB-565** (P1) are highest leverage (dynamic imports, Query expansion, mega-component splits, `optimizePackageImports`); **TB-566**–**TB-572** (P2) push server/client boundaries, ISR, context memoization, Suspense streaming, and telemetry deferral; **TB-573** (P2) establishes bundle-analyzer baseline + Lighthouse CI regression gate. Does **not** duplicate **TB-319** (pilot-critical performance *evidence* step — **Done**); these are engineering fixes toward fast first paint and navigation. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1 (TanStack Query), §4 (operator route caching), §7 (nested Suspense).
+
 **TB-399** was added 2026-06-23 as the **V1.1 follow-on** to the manifest terminology copy sweep (global guard **TB-355** / **TB-366**). V1 removed "manifest" from on-page labels, help, compare copy, and error strings; **browser URLs still expose** `/manifests/` and `/reviews/{runId}/manifest`, which buyers see in the address bar, bookmarks, and shared links. **TB-399** adds **buyer-facing route aliases + permanent redirects** (same pattern as `/runs` ? `/reviews` in `next.config.ts`) without renaming API contracts, persistence, or internal `manifestId` fields. **Out of scope:** `/manifest.webmanifest` (PWA platform convention); backend `/v1/authority/manifests/*` paths. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) ?9, **TB-273** (BDA manifest terminology cluster), `buyer-safe-review-navigation.ts`, `NAV_CONFIG_CONTRACT.md`.
 
 **TB-337 ? TB-344** were added 2026-06-15 from a **product-drift / onboarding narrative realignment** assessment (product-strategist + enterprise-architect + UX-architect review of the operator first-run experience). **Canonical write-up:** [`docs/architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md`](../architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md). **Finding:** the *positioning* (brand category "Architecture Proof Engine", `/welcome`, `/why`, `/get-started`, the quick-review brief-first wizard) is correctly framed as a multi-source **architecture review and governance platform**, but the highest-visibility *operator first-run spine* teaches an **Azure-assessment** mental model ? the empty-state component is literally named `OperatorHomeAzureExtractorEmptyState`, its step 1 is "Upload your Azure environment", and Core Pilot step 1 is "Upload Azure architecture context". The correction reframes intake around **"provide architecture evidence"** with Azure positioned as the **accelerated** (fastest-to-production-faithful) path, **not** the entry condition ? without weakening the Azure onboarding experience. **TB-337?339** (P0) are the copy/component-name reframes on the three highest-visibility surfaces; **TB-340** (P1, owner-confirm) makes `cloudProvider` optional so pre-deployment/paper/AWS-shop reviews are first-class at intake; **TB-341** (P1) surfaces a multi-source evidence picker with honest disabled "V1.1" badges; **TB-342** (P1) is the secondary-surface copy sweep; **TB-343** (P2) reconciles the "cloud providers" plural in cloud-connections with the Azure-only reality; **TB-344** (P2) adds a CI drift guard so the first-run spine cannot silently regress to Azure-only framing. **These do not build any non-Azure ingestion or multi-cloud target analysis** ? that remains **TB-214** (non-Azure evidence JSON, DEFERRED V1.1, owner-gated) and [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) / [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6n. They are framing/labeling/optionality + guard work using **only what ships in V1**. Do not duplicate **TB-169** (Pilot-vs-Operate progressive disclosure ? different axis), **TB-215** (evidence upload mechanic in wizard), or **TB-320/321/328** (KPI/route/severity drift guards ? same guard *pattern*, different surface). Honors [`POSITIONING.md`](../go-to-market/POSITIONING.md) ?7 (no claims of multi-cloud before V1.1), [`V1_SCOPE.md`](V1_SCOPE.md) ?2.19 (Azure-only `CloudProvider` enum + Azure-first extractor remain the shipped contract), and [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **Pending question PQ-DRIFT-01** (owner): confirm `cloudProvider` may be optional/`NotApplicable` at intake while V1 deep analysis stays Azure-only (TB-340).
@@ -158,6 +161,20 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
+| TB-560 | Dynamic-import `CommandPalette` from operator shell top bar — defer `cmdk` + ~617-line palette chunk until shortcut/open; `next/dynamic({ ssr: false })` + loading placeholder | Performance P1 — **V1.1** | S |
+| TB-561 | Dynamic-import `FindingEvidenceGraph` — defer `reactflow` + CSS from shell bundle; `next/dynamic({ ssr: false })` + skeleton | Performance P1 — **V1.1** | S |
+| TB-562 | Expand TanStack Query across operator shell — migrate high-traffic `useEffect`+`fetch` reads (home, governance queue, alerts inbox, billing, executive dashboard) to shared query keys with tenant/run scope | Performance P1 — **V1.1**; extends **UI_ARCHITECTURE_V1_1.md** §1 | L |
+| TB-563 | Decompose `GovernanceFindingsQueueClient` (~1115 lines) — list, filter bar, row, detail pane slots + colocated hooks; enable per-section lazy load / Suspense | Performance P1 — **V1.1** | L |
+| TB-564 | Decompose `AlertsInboxContent` (~903) + `RunsDashboardPanel` (~822) — server loader + client interactive slices (pattern: `RunDetailBelowFoldSections`) | Performance P1 — **V1.1** | L |
+| TB-565 | Add `experimental.optimizePackageImports` in `next.config.ts` for `lucide-react`, `recharts`, `@radix-ui/*` | Performance P1 — **V1.1** | XS |
+| TB-566 | Push `"use client"` boundaries down — server-render marketing `WelcomeMarketingPage` sections + settings `*PageView.tsx` that only render props; thin `*Client.tsx` for mutations | Performance P2 — **V1.1** | M |
+| TB-567 | ISR (`revalidate = 300`) on `/welcome`, `/pricing`, `/trust` marketing routes (parity with `see-it`, `live-demo`) | Performance P2 — **V1.1** | XS |
+| TB-568 | Memoize + split operator shell context providers — narrow `WorkspaceActiveRunProvider` / governance mode re-render blast radius in `AppShellClient` | Performance P2 — **V1.1** | S |
+| TB-569 | Migrate `ExecutiveDashboardDataContext` from provider-level `useEffect` fetch to React Query shared key | Performance P2 — **V1.1** | S |
+| TB-570 | Audit static `recharts` imports — ensure all chart paths use `dynamic()` wrapper (no bypass via alternate call sites) | Performance P2 — **V1.1** | XS |
+| TB-571 | Nested `Suspense` on run detail + governance hub — stream below-fold sections (`RunDetailBelowFoldSections`, findings queue) | Performance P2 — **V1.1**; **UI_ARCHITECTURE_V1_1.md** §7 | M |
+| TB-572 | Defer App Insights initialization until `requestIdleCallback` or first interaction | Performance P2 — **V1.1** | XS |
+| TB-573 | Bundle baseline + Lighthouse CI gate — `npm run build:analyze` per-route First Load JS snapshot; GitHub Action fails on regression threshold for `/reviews` | Performance P2 — **V1.1** | S |
 | TB-404 | Operator nav ↔ URL prefix policy + CI drift guard — document canonical path namespaces per nav group; Vitest asserts every `nav-config` href matches its section prefix or an explicit documented exception registry | Maintainability P1 — **V1.1**; prerequisite for TB-405?408 | S |
 | TB-405 | Governance route tree consolidation — move `/audit`, `/alerts`, `/policy-packs`, `/governance-resolution` under `/governance/*`; 301 redirects from legacy paths; retire duplicate `/governance/policy-packs` list route or redirect to canonical | Adoption friction P1 — **V1.1** | M |
 | TB-406 | Administration route namespace reconciliation — `/workspace/security-trust` → `/settings/security-trust`; align **Users & roles** (`/admin/users`) with **Role management** (`/settings/roles`) under one prefix; move **Recurrence schedules** nav to Governance or add Administration-prefixed alias | **Done** (2026-06-28) — Adoption friction P1 **V1.1** | M |
@@ -12887,7 +12904,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-436 — Rename "Artifacts & exports" → "Deliverables" and open by default in operator shell
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -12919,7 +12936,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-437 — Unify new-review submit CTA to "Start architecture review"
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -12951,7 +12968,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-438 — Rename "Download Sponsor Export (DOCX)" primary download button
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -12980,7 +12997,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-439 — Fix "Wait for the review to commit" empty-state copy
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13012,7 +13029,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-440 — Rewrite new-review page path description to be outcome-oriented
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13041,7 +13058,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-441 — Rename "Focused pilot mode" toggle to "Focused review scope"
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13074,7 +13091,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-442 — Move CLI tools section out of primary Onboarding page
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13104,7 +13121,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-443 — Fix "Continue setup" home card copy and CTA label
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13134,7 +13151,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-444 — Rename "Full pilot guidance" link on new-review page header
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13163,7 +13180,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-445 — Fix "manifest's decisions" jargon in artifacts section description
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13192,7 +13209,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-446 — Rename "traceability bundle (ZIP)" CTA in review Actions card
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13220,7 +13237,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-447 — Remove "API keys" from Invite Reviewer page footer
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13249,7 +13266,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-448 — Fix "Review findings and missing evidence" step label on home page
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13279,7 +13296,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-449 — Fix reviews-list subtitle to reflect in-progress and finalized reviews
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13308,7 +13325,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-450 — Fix "More intake options" and first-run banner copy on new-review page
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13340,7 +13357,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-451 — Replace "architecture request" with "architecture document" in sample preview copy
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13369,7 +13386,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-452 — Remove meta-description paragraph from review Actions card
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13398,7 +13415,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-453 — Fix submit-validation error message on first-pilot intake wizard
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13427,7 +13444,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-454 — Increase visibility of "Invite reviewer" optional-setup CTA on home page
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13458,7 +13475,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ## TB-455 — Fix "Review generation" error heading on not-found review page
 
-**Status:** **Open**
+**Status:** **Done** (2026-06-28)
 
 **Architectural quality:** Adoption friction
 
@@ -13477,8 +13494,3243 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 **Affected files:**
 
-- `archlucid-ui/src/app/(operator)/reviews/[runId]/page.tsx`
+**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+
+---
+
+## TB-456 — Rename "Pilot feedback" to "Review feedback" across nav and page title
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C01. Severity: **P0**.
+
+**Problem:** `BUYER_TERMINOLOGY.evaluationFeedback = "Pilot feedback"` is used as the nav label (system admin) and the `<h2>` page title on `/product-learning`. Accessible to any `ReadAuthority` user. "Pilot feedback" signals the product is in pre-release evaluation, eroding confidence for enterprise customers in production.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`, change `evaluationFeedback: "Pilot feedback"` → `evaluationFeedback: "Review feedback"`.
+2. All nav builders and `ProductLearningPageView` heading update automatically.
+
+**Acceptance criteria:**
+
+- `/product-learning` page title reads "Review feedback." System-admin nav label reads "Review feedback."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`
 
 **Size estimate:** **XS**
 
-**Cross-ref:** TB-431–TB-455 cluster (first-hour UX audit).
+**Cross-ref:** TB-456–TB-480 cluster (copy/terminology audit 2026-06-28). TB-457.
+
+---
+
+## TB-457 — Rename "Evaluation value report" to "Review value report" in nav and breadcrumbs
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C02. Severity: **P0**.
+
+**Problem:** `BUYER_TERMINOLOGY.evaluationValueReport = "Evaluation value report"` is the `/value-report/pilot` nav label and breadcrumb entry. "Evaluation" frames this as a pre-purchase artefact.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`, change `evaluationValueReport: "Evaluation value report"` → `evaluationValueReport: "Review value report"`.
+
+**Acceptance criteria:**
+
+- Nav label and breadcrumb read "Review value report."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster.
+
+---
+
+## TB-458 — Rename "Evaluation standards" to "Review standards" on first-review outcome card
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C03. Severity: **P0**.
+
+**Problem:** `CORE_PILOT_PATH_STREAMLINED_LABELS.evaluationStandards = "Evaluation standards"` is the field label for the policy pack on the review detail outcome card for streamlined Core Pilot users. A customer running their first real production review sees "Evaluation standards" as the label for the governance policy they are governed by.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/core-pilot-path-vocabulary.ts`, change `evaluationStandards: "Evaluation standards"` → `evaluationStandards: "Review standards"`.
+
+**Acceptance criteria:**
+
+- The outcome card field label reads "Review standards."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/core-pilot-path-vocabulary.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-441 (same file).
+
+---
+
+## TB-459 — Remove "demo integrity tools" clause from audit trail integrity note
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C04. Severity: **P0**.
+
+**Problem:** `AUDIT_TRAIL_INTEGRITY_NOTE` ends with `"…when demo integrity tools are enabled."` This note is rendered on the production `/governance/audit` page. "Demo integrity tools" should never appear on the live audit trail of an enterprise workspace.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, replace `AUDIT_TRAIL_INTEGRITY_NOTE` with: `"Append-only audit trail — every create, finalize, governance decision, and export is recorded with actor, action type, and timestamp. Filter or sort below to inspect the complete event timeline."`
+
+**Acceptance criteria:**
+
+- The audit trail note does not contain "demo" or "demo integrity tools."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-461–TB-464 (commit→finalize sweep).
+
+---
+
+## TB-460 — Fix Azure-only cost evidence footnote on executive dashboard
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C05. Severity: **P0**.
+
+**Problem:** `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.costEvidenceNotConfiguredFootnote = "Add Azure cost evidence to estimate savings and ROI."` Only Azure is named despite AWS and GCP support.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`, change `costEvidenceNotConfiguredFootnote` to: `"Add cost evidence (Azure, AWS, or GCP spend data) to estimate savings and ROI."`
+
+**Acceptance criteria:**
+
+- The footnote is cloud-agnostic or names multiple clouds.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-465–TB-467 (Azure-first sweep).
+
+---
+
+## TB-461 — Rename step-3 label "Commit review package" to "Finalize review package"
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C06. Severity: **P1**.
+
+**Problem:** `PILOT_PATH_PREVIEW_STEPS[2].label = "Commit review package"` is step 3 in the home page hero card. The pipeline status system uses "Finalized / Ready to finalize" throughout; this step still says "Commit."
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change `PILOT_PATH_PREVIEW_STEPS[2].label` from `"Commit review package"` to `"Finalize review package"`.
+
+**Acceptance criteria:**
+
+- Home page hero step 3 reads "Finalize review package."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-462–TB-464. TB-448 (step 2 — same file).
+
+---
+
+## TB-462 — Rename "Committed reviews" to "Finalized reviews" on executive scorecard
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C07. Severity: **P1**.
+
+**Problem:** `BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL = "Committed reviews"` is inconsistent with "Finalized" used throughout the pipeline status system.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to `"Finalized reviews"`.
+
+**Acceptance criteria:**
+
+- Executive scorecard KPI reads "Finalized reviews."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-461, TB-463, TB-464.
+
+---
+
+## TB-463 — Replace "commit" with "finalize" in executive dashboard empty states
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C08. Severity: **P1**.
+
+**Problem:** `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.emptyStateDescription` and `portfolioMetricsUnavailableDescription` both use "commit" (e.g. "Portfolio metrics appear after you commit at least one review package."). These appear in the most prominent dashboard empty state.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`, replace "commit" → "finalize" in both strings.
+
+**Acceptance criteria:**
+
+- Neither string contains "commit" in reference to the review finalization action.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-461, TB-462, TB-464.
+
+---
+
+## TB-464 — Replace "committed review package" in evidence graph subtitle
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C09. Severity: **P1**.
+
+**Problem:** `OPERATOR_GRAPH_PAGE_SUBTITLE` uses "committed review package" while all other subtitles use "finalized."
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, replace `"committed review package"` with `"finalized review package"` in `OPERATOR_GRAPH_PAGE_SUBTITLE`.
+
+**Acceptance criteria:**
+
+- Evidence graph subtitle reads "…for a finalized review package."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-461–TB-463.
+
+---
+
+## TB-465 — Remove "Azure import" from home page hero lead
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C10. Severity: **P1**.
+
+**Problem:** `PILOT_COMMAND_CENTER_LEAD` ends with `"or an optional Azure import."` Azure is the only cloud named in the primary home page hero lead.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change ending to `"or an optional cloud connection."`
+
+**Acceptance criteria:**
+
+- Hero lead does not name a specific cloud provider.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-460, TB-466, TB-467. TB-454 (styling — same card).
+
+---
+
+## TB-466 — Rename "Connect Azure" optional-setup CTA to "Connect cloud"
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C11. Severity: **P1**.
+
+**Problem:** `PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect Azure"` is the optional-setup link on the home page hero card. Only Azure is named.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change `PILOT_COMMAND_CENTER_CONNECT_AZURE` to `"Connect cloud"`. Verify the link still routes to `/integrations/cloud-connections`.
+
+**Acceptance criteria:**
+
+- The optional-setup CTA reads "Connect cloud." Destination route unchanged.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+- `archlucid-ui/src/components/usability/PilotCommandCenterCard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-454, TB-465, TB-467.
+
+---
+
+## TB-467 — Complete migration from "Azure cloud connection" to "Cloud connections" in nav
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C12. Severity: **P1**.
+
+**Problem:** `OPERATOR_NAV_LINK_LABELS.azureCloudConnection = "Azure cloud connection"` is still referenced in nav group builders. `cloudConnections: "Cloud connections"` is already the canonical label in `i18n.ts` but the migration is incomplete.
+
+**V1 scope:**
+
+1. Replace all uses of `azureCloudConnection` in nav group builders with `cloudConnections`.
+2. Mark `azureCloudConnection` `@deprecated` in `i18n.ts`.
+
+**Acceptance criteria:**
+
+- No nav group builder renders "Azure cloud connection" as a visible label.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/i18n.ts`
+- Nav group builder files referencing `azureCloudConnection`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-460, TB-465, TB-466.
+
+---
+
+## TB-468 — Rename "Sponsor value report" to "Executive value report"
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C13. Severity: **P1**.
+
+**Problem:** `BUYER_VALUE_REPORT_PAGE_TITLE = "Sponsor value report"` and related subtitle use internal sales framing.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`: `BUYER_VALUE_REPORT_PAGE_TITLE` → `"Executive value report"`. Replace "sponsor-ready report" → "executive-ready report" in the subtitle.
+
+**Acceptance criteria:**
+
+- Page title reads "Executive value report."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-457.
+
+---
+
+## TB-469 — Remove "during a pilot" from product-concepts glossary dialog description
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C14. Severity: **P1**.
+
+**Problem:** `PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION` contains "during a pilot." Enterprise customers already in production see this every time they open the glossary.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to: `"Short definitions for terms you will encounter in your architecture reviews — open on demand."`
+
+**Acceptance criteria:**
+
+- The glossary dialog description does not contain "pilot."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster.
+
+---
+
+## TB-470 — Remove "seeded" from Why ArchLucid source attribution line
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C15. Severity: **P1**.
+
+**Problem:** `BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE` contains "the seeded Claims Intake review." "Seeded" implies artificially manufactured data.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, replace with: `"Aggregated proof from the evidence pack service — paired with the example Claims Intake review below."`
+
+**Acceptance criteria:**
+
+- The string does not contain "seeded" or "seed."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-473, TB-474.
+
+---
+
+## TB-471 — Rename "Start CTO demo" to "Open example review" in buyer-polished operator home
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C16. Severity: **P1**.
+
+**Problem:** `BUYER_HOME_START_CTO_DEMO_HEADING = "Start CTO demo"` and `BUYER_HOME_START_CTO_DEMO_CTA = "Start CTO demo"` appear on the operator home page in buyer-polished mode. "CTO demo" is internal sales-harness language implying the product is a demo.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`: change heading and CTA to `"Open example review"`. Update aria label to match. Presenter-only strings (e.g. `BUYER_CTO_DEMO_TOUR_HEADING`) are unchanged.
+
+**Acceptance criteria:**
+
+- Visible heading and CTA read "Open example review." No "CTO demo" in the visible home page card heading or primary CTA.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-472.
+
+---
+
+## TB-472 — Replace "live pilot" with "live workspace" in governance preview note
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C17. Severity: **P1**.
+
+**Problem:** `BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE` contains "In a live pilot, an architect…" and "for demonstration purposes." Both phrases imply the governance capability is pre-production.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to: `"In a connected workspace, an architect with Execute authority approves here. The view below shows the post-approval state."`
+
+**Acceptance criteria:**
+
+- The note does not contain "live pilot" or "demonstration purposes."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-471.
+
+---
+
+## TB-473 — Rename "Demo-derived sample" label on home page AHA card
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C18. Severity: **P2**.
+
+**Problem:** `SAMPLE_REVIEW_AHA_DEMO_LABEL = "Demo-derived sample"` is a visible badge on the first-value AHA card on the home page. "Demo-derived" conflates the example concept with sales-demo mode.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to `"Example review"`.
+
+**Acceptance criteria:**
+
+- The AHA card badge reads "Example review."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-474.
+
+---
+
+## TB-474 — Replace "Demo-derived sample only" in home page defensible-layer caption
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C19. Severity: **P2**.
+
+**Problem:** `OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER` contains "Demo-derived sample only" and "execution mode" as a sub-caption on the home page sample review card.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to: `"Example review — not your workspace data. Open the full package for findings, evidence, and the signed record."`
+
+**Acceptance criteria:**
+
+- The sub-caption does not contain "Demo-derived," "execution mode," or "evidence basis."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-473.
+
+---
+
+## TB-475 — Rename "Simulator mode" trust badge to "Rule-based analysis"
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C20. Severity: **P2**.
+
+**Problem:** `BUYER_SIMULATOR_TRUST_BADGE_LABEL = "Simulator mode — structurally identical findings, no cloud LLM charges"` is a visible trust badge on review detail pages when the review used simulator execution. "Simulator mode" implies findings are not real.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to: `"Rule-based analysis — findings match live-mode structure; cost estimates are illustrative."` Keep full technical explanation in tooltip.
+
+**Acceptance criteria:**
+
+- Badge reads "Rule-based analysis." No remaining "Simulator mode" in the badge label.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster.
+
+---
+
+## TB-476 — Rename "Commit" step label in onboarding step tracker
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C21. Severity: **P2**.
+
+**Problem:** `CorePilotNextStepsCard.tsx` step tracker shows "Commit" as the display label for the finalization checkpoint. Inconsistent with "Finalize" in all pipeline status labels.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/components/CorePilotNextStepsCard.tsx`, change the display label for the "commit" checkpoint to `"Finalize"`. The checkpoint `id` remains `"commit"`.
+
+**Acceptance criteria:**
+
+- The onboarding step tracker displays "Finalize."
+
+**Affected files:**
+
+- `archlucid-ui/src/components/CorePilotNextStepsCard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-461–TB-464.
+
+---
+
+## TB-477 — Rename "Commit reviews" permission label to "Finalize reviews" in role settings
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C22. Severity: **P2**.
+
+**Problem:** `custom-role-permission-groups.ts` has `{ id: "Runs.Commit", label: "Commit reviews" }`. Admin users see "Commit reviews" in the Roles settings UI while the rest of the product uses "Finalize." API key `Runs.Commit` is unchanged.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/app/(operator)/settings/roles/_sections/custom-role-permission-groups.ts`, change `label: "Commit reviews"` → `label: "Finalize reviews"`.
+
+**Acceptance criteria:**
+
+- Roles settings UI displays "Finalize reviews." `id` is unchanged.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/settings/roles/_sections/custom-role-permission-groups.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-461–TB-464.
+
+---
+
+## TB-478 — Remove "(operators)" qualifier from system-health link label in service bus banner
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C23. Severity: **P2**.
+
+**Problem:** `SERVICE_BUS_HEALTH_LABELS.systemHealthLink = "System health (operators)"`. The parenthetical is an internal surface qualifier visible to all users during a service delay.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/i18n.ts`, change to `"System health"`.
+
+**Acceptance criteria:**
+
+- Service bus banner link reads "System health."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster.
+
+---
+
+## TB-479 — Replace "active for the demonstration" in workspace list unavailable copy
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C24. Severity: **P2**.
+
+**Problem:** `BUYER_SCOPE_LIST_UNAVAILABLE` ends with "active for the demonstration." Enterprise customers encountering this post-sale infer they are permanently in a demo.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to: `"Workspace directory is unavailable in this environment. The sample workspace remains active for this session."`
+
+**Acceptance criteria:**
+
+- The string does not contain "demonstration" or "demo."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster. TB-473, TB-474.
+
+---
+
+## TB-480 — Replace "seeded showcase" in demo latency-exceeded message
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Copy, terminology, and product language audit (2026-06-28), finding C25. Severity: **P3**.
+
+**Problem:** `BUYER_CTO_DEMO_LATENCY_EXCEEDED = "Exceeded demo latency budget — switch to seeded showcase"` exposes developer fixture terminology to sales reps and buyers during a demo.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change to: `"Taking longer than expected — switch to example review."`
+
+**Acceptance criteria:**
+
+- The message does not contain "seeded" or "seed."
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456–TB-480 cluster (copy/terminology audit 2026-06-28).
+
+---
+
+## TB-481 — Fix AWS/GCP cloud-target dropdown labels: "V1.1 deep analysis" contradicts available Tier-1 ZIPs
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E01. Severity: **P0**.
+
+**Problem:** `WizardStepIdentity` cloud target `<Select>` labels AWS as `"Amazon Web Services (intent capture — V1.1 deep analysis)"` and GCP as `"Google Cloud Platform (intent capture — V1.1 deep analysis)"`. However, `wizard-evidence-source-options.ts` marks `aws-inventory` and `gcp-inventory` as `availability: "accelerated"` (Fastest badge). The dropdown tells AWS/GCP customers they get analysis only in V1.1, while the evidence picker already offers accelerated ZIP paths for those clouds. This is a direct contradiction that shrinks perceived product value for non-Azure customers.
+
+**V1 scope:**
+
+1. In `WizardStepIdentity.tsx` change:
+   - `"Amazon Web Services (intent capture — V1.1 deep analysis)"` → `"Amazon Web Services (cloud inventory ZIP available)"`
+   - `"Google Cloud Platform (intent capture — V1.1 deep analysis)"` → `"Google Cloud Platform (cloud inventory ZIP available)"`
+2. Update the inline hint tooltip to remove: `"Aws and Gcp capture target-cloud intent for multi-cloud RFPs; attach Terraform or other IaC for best results until V1.1 deep analysis ships."` → `"Choose the cloud target that matches your workload. AWS and GCP inventory ZIPs are available as accelerated evidence sources."`
+
+**Acceptance criteria:**
+
+- AWS and GCP select options no longer say "V1.1" when Tier-1 ZIPs are already available.
+- No mention of "V1.1" inside `WizardStepIdentity.tsx`.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepIdentity.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-466, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-482 — Change default evidence source selection from "azure-export" to "brief"
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E02. Severity: **P0**.
+
+**Problem:** `WizardStepEvidenceUpload` initialises `useState<WizardEvidenceSourceId>("azure-export")`. Every user opening the evidence step sees the Azure ZIP upload panel by default. A customer with AWS, GCP, or document-only evidence must actively switch away from Azure. This is the most visible point-of-entry evidence-drift in the wizard.
+
+**V1 scope:**
+
+1. In `WizardStepEvidenceUpload.tsx` change the initial state from `"azure-export"` to `"brief"`.
+2. Verify the brief panel copy renders cleanly as the zero-state.
+
+**Acceptance criteria:**
+
+- When the evidence step mounts, no cloud-specific upload panel is shown by default.
+- "Brief" card is visually selected (ring highlight) on first render.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-483 — Rename Core Pilot step 4 from "Upload Azure extractor ZIP" to "Upload cloud inventory evidence"
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E03. Severity: **P1**.
+
+**Problem:** `CORE_PILOT_STEPS[3].title = "Upload Azure extractor ZIP"` and its `shortBody` says "Attach Tier-1 inventory evidence so cost findings and ROI cite measured Azure spend." Step 4 of the 7-step onboarding pilot checklist is Azure-only. Customers running AWS or GCP workloads see a step that does not apply to them and has no equivalent guidance.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/core-pilot-steps.ts`, update step 4:
+   - `title`: `"Upload cloud inventory evidence"` (was `"Upload Azure extractor ZIP"`)
+   - `shortBody`: `"Attach a Tier-1 cloud inventory ZIP (Azure, AWS, or GCP) so cost findings and ROI cite measured spend — or skip if using document/brief evidence only."`
+2. Keep `primaryLabel: "Upload inventory ZIP"` (already cloud-agnostic) and `primaryHref: EXTRACT_UPLOAD_SETTINGS_PATH` (unchanged).
+
+**Acceptance criteria:**
+
+- Step 4 title and body do not mention Azure exclusively.
+- AWS and GCP inventory ZIP paths are acknowledged.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/core-pilot-steps.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-484 — Fix baseline-first wizard notice: replace "Azure extractor ZIP" with "cloud inventory evidence"
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E04. Severity: **P1**.
+
+**Problem:** `WizardStepPreset` renders a notice when `baselineFirst === true`: `"Baseline-first path: upload the Azure extractor ZIP on the next step, then confirm system identity and brief."` An AWS or GCP customer navigating via `?baseline=1` sees Azure-specific instructions.
+
+**V1 scope:**
+
+1. In `WizardStepPreset.tsx`, change the baseline-first notice to:
+   `"Baseline-first path: upload a cloud inventory ZIP on the next step, then confirm system identity and brief."`
+
+**Acceptance criteria:**
+
+- The baseline-first notice does not mention Azure.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepPreset.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-485 — WizardStepAzureContext: rename label and expand to cloud-agnostic optional enrichment
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E05. Severity: **P1**.
+
+**Problem:** `WizardStepAzureContext` renders an optional enrichment collapsible labelled `"Add Azure inventory ZIP"`. AWS and GCP inventory ZIPs are available (`WizardStepEvidenceUpload` shows them as "Fastest"), but the dedicated optional-enrichment section in the full wizard only surfaces Azure. This creates an asymmetric experience: Azure gets its own prominent step; AWS/GCP customers must know to go to the separate evidence upload step.
+
+**V1 scope:**
+
+1. Rename the collapsible trigger label from `"Add Azure inventory ZIP"` to `"Add cloud inventory ZIP"`.
+2. Inside `WizardStepAzureContext`, replace the inner description: replace `"Run read-only ARM inventory packaging from your ArchLucid checkout"` with `"Run the read-only inventory script for your cloud provider locally, then attach the ZIP to prefill wizard fields."` Remove the Azure-specific `-ResourceGroupScope` snippet from this surface (it can stay in the help docs).
+3. Surface the `CloudInventoryExtractorCommandPanel` (already multi-cloud) instead of the Azure-only `AzureExtractorQuickStartCommandPanel`.
+
+**Acceptance criteria:**
+
+- Collapsible trigger does not say "Azure" on its face.
+- AWS/GCP customers receive equivalent guidance inside the section.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepAzureContext.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-466, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-486 — Remove Azure-only mention from WizardStepIdentity cloud-target footer hint
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E06. Severity: **P1**.
+
+**Problem:** The helper text below the cloud target select: `"Evidence-only is the default first-pilot path. Azure export accelerates topology and cost findings when InfoSec approves the script."` — Azure is the only cloud named. AWS and GCP customers receive no equivalent framing for their inventory scripts.
+
+**V1 scope:**
+
+1. In `WizardStepIdentity.tsx`, update the footer hint to:
+   `"Evidence-only is the default first-pilot path. A cloud inventory ZIP (Azure, AWS, or GCP) accelerates topology and cost findings when your InfoSec team approves the extractor script."`
+
+**Acceptance criteria:**
+
+- Footer hint mentions all three clouds or is cloud-agnostic.
+- Azure is not the only cloud named.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepIdentity.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481, TB-485, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-487 — Fix demo source description: remove "Azure extractor package" from demo evidence copy
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E07. Severity: **P1**.
+
+**Problem:** In `WizardStepEvidenceUpload`, the demo source panel reads: `"Choose a bundled synthetic Azure extractor package — no PowerShell script required."` The demo option exists precisely so users can experience ArchLucid without any real evidence. Describing it as an "Azure extractor package" implies the demo only showcases Azure architecture, which narrows the perceived scope.
+
+**V1 scope:**
+
+1. In `WizardStepEvidenceUpload.tsx`, change the demo panel helper text from:
+   `"Choose a bundled synthetic Azure extractor package — no PowerShell script required. Demo outputs are labeled Simulator."`
+   to:
+   `"Choose a bundled example review scenario — no scripts or uploads required. Demo outputs are labeled Simulator."`
+
+**Acceptance criteria:**
+
+- Demo source description does not contain "Azure extractor package."
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-488 — AzureExtractorPackageZipField: label and hardcoded cloudProvider=Azure on non-Azure ZIP upload
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction + correctness risk
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E08. Severity: **P1**.
+
+**Problem:** `AzureExtractorPackageZipField` renders a `<Label>` reading `"Azure packager ZIP"` — visible to operators in the full wizard. More critically, line 84 executes `setValue("cloudProvider", "Azure", ...)` whenever any ZIP is applied through this field. If an AWS/GCP customer navigates to a surface that embeds this component, their review is silently set to `cloudProvider: "Azure"`. The component is embedded in `WizardStepAzureContext` which is logically an Azure-only section, but the naming risk remains if the component is reused.
+
+**V1 scope:**
+
+1. Add a JSDoc comment to `AzureExtractorPackageZipField` warning that the `cloudProvider: "Azure"` side-effect makes this component Azure-only and it must not be reused for AWS/GCP evidence paths.
+2. Change the visible `<Label>` from `"Azure packager ZIP"` to `"Cloud inventory ZIP"` so if the section header already says "Azure" the label does not double-stamp Azure.
+3. Long-term (V1.1): extract the `cloudProvider` side-effect into a prop so the component can be made genuinely multi-cloud.
+
+**Acceptance criteria:**
+
+- Label visible to users does not say "Azure packager ZIP."
+- A code comment warns future developers about the `cloudProvider` side-effect.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/AzureExtractorPackageZipField.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-485, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-489 — InProductEvidenceChecklist: replace "API reachable (/health/ready)" with plain-language label
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E09. Severity: **P1**.
+
+**Problem:** The first row of the first-run evidence checklist shows `"API reachable (/health/ready)"` as its label — an internal API route path visible to operator customers. Enterprise admins running a first-review setup should see a status name, not a route.
+
+**V1 scope:**
+
+1. In `InProductEvidenceChecklist.tsx`, change the `api-health` row label from `"API reachable (/health/ready)"` to `"Service connectivity"`.
+2. Retain `actionHref: "/help/troubleshooting"` and `actionLabel: "Troubleshoot"` unchanged.
+
+**Acceptance criteria:**
+
+- No internal API path is visible in the evidence checklist label.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/usability/InProductEvidenceChecklist.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-490 — Tier1InventoryZipUploadPanel: replace internal schema validation hint with plain language
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E10. Severity: **P1**.
+
+**Problem:** `Tier1InventoryZipUploadPanel` renders a hint visible to customers: `"Client-side checks require manifest.json (schemaVersion 1) and resources.json at the archive root. Maximum size N MB."` This tells customers the internal schema version and file structure requirements of the ZIP, which are implementation details.
+
+**V1 scope:**
+
+1. In `Tier1InventoryZipUploadPanel.tsx`, change the `<p>` hint to:
+   `"Drop the inventory ZIP output from the extractor script. Maximum size {maxMb} MB. The file is validated locally before upload."`
+2. Keep the `manifest.json`/`resources.json` detail available in an error message if validation fails (which it already does via `Tier1InventoryZipValidationCallout`).
+
+**Acceptance criteria:**
+
+- The drop-zone hint does not mention `schemaVersion`, `manifest.json`, or `resources.json` in the happy-path guidance.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/Tier1InventoryZipUploadPanel.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-491 — Remove "Tier-1" internal tier label from customer-facing wizard description
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E11. Severity: **P1**.
+
+**Problem:** `WizardStepEvidenceUpload` description reads: `"...a Tier-1 cloud inventory ZIP (Azure, AWS, or GCP)..."`. "Tier-1" is an internal ArchLucid tier classification that customers never see defined anywhere in the wizard.
+
+**V1 scope:**
+
+1. In `WizardStepEvidenceUpload.tsx`, change `"a Tier-1 cloud inventory ZIP (Azure, AWS, or GCP)"` to `"a cloud inventory ZIP (Azure, AWS, or GCP)"`.
+2. In `wizard-evidence-source-options.ts`, review option descriptions for any other "Tier-1" occurrences visible to customers.
+
+**Acceptance criteria:**
+
+- "Tier-1" does not appear in any customer-visible string in `WizardStepEvidenceUpload`.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`
+- `archlucid-ui/src/lib/wizard-evidence-source-options.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-492 — FindingTrustChip: improve "Citation missing" label to include guidance direction
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E12. Severity: **P1**.
+
+**Problem:** When `evidenceRefCount <= 0` and confidence is not "Low", `FindingTrustChip` shows label `"Citation missing"` with tooltip `"No evidence references are attached to this finding."`. The label is technically accurate but gives the reviewer no indication of what action to take.
+
+**V1 scope:**
+
+1. In `FindingTrustChip.tsx`, change the `citation-missing` model:
+   - `label`: `"No evidence linked"` (was `"Citation missing"`)
+   - `title` (tooltip): `"No evidence references are attached to this finding. Add evidence to the review or re-run to improve traceability."`
+
+**Acceptance criteria:**
+
+- The label shown to reviewers does not say "Citation missing."
+- The tooltip provides a path forward.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/FindingTrustChip.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-493 — Core pilot checklist: add non-cloud-inventory evidence acknowledgment to step 4
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E13. Severity: **P1**.
+
+**Problem:** The 7-step `CORE_PILOT_STEPS` array step 4 has no guidance for operators using document-based or brief-only evidence. After TB-483, the step title is cloud-agnostic, but the body should also acknowledge that cloud inventory is optional.
+
+**V1 scope:**
+
+1. After TB-483 lands, update `CORE_PILOT_STEPS[3].detail` to add: `"If you are using brief, document, or diagram evidence only, skip this step — findings will still run and may have lower confidence on cost claims."`
+2. Update `shortBody` to: `"Optional for document/brief-only reviews — cloud inventory required for cost ROI accuracy."`
+
+**Acceptance criteria:**
+
+- Step 4 `detail` or `shortBody` explicitly acknowledges document/brief evidence paths as valid.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/core-pilot-steps.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-483, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-494 — Add JSDoc naming note to AzureExtractorZipDropZone used for multi-cloud inventory
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Code hygiene
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E14. Severity: **P2**.
+
+**Problem:** `AzureExtractorZipDropZone` is used inside `Tier1InventoryZipUploadPanel` for AWS and GCP inventory ZIPs. The component's name embeds "Azure" even though it handles any ZIP file.
+
+**V1 scope:**
+
+1. Add a JSDoc comment to `AzureExtractorZipDropZone.tsx`: `"@deprecated for multi-cloud use — this component is safe for any inventory ZIP but is named for Azure for historical reasons. Use in Tier1InventoryZipUploadPanel is intentional. Rename to InventoryZipDropZone planned for V1.1."`
+
+**Acceptance criteria:**
+
+- A code comment explains the naming mismatch.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/AzureExtractorZipDropZone.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-495 — Migrate WizardStepAzureContext and AzureExtractorPackageZipField to CloudInventoryExtractorCommandPanel
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Code hygiene
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E15. Severity: **P2**.
+
+**Problem:** Two command panel components coexist: legacy `AzureExtractorQuickStartCommandPanel` (Azure-only) and new `CloudInventoryExtractorCommandPanel` (multi-cloud). `WizardStepAzureContext` and `AzureExtractorPackageZipField` still import the legacy component.
+
+**V1 scope:**
+
+1. In `WizardStepAzureContext.tsx`, replace `AzureExtractorQuickStartCommandPanel` with `CloudInventoryExtractorCommandPanel` passing `platform="azure"`.
+2. In `AzureExtractorPackageZipField.tsx`, replace the legacy panel usages with `CloudInventoryExtractorCommandPanel`.
+3. After all import sites migrate, add `@deprecated` JSDoc to `AzureExtractorQuickStartCommandPanel`.
+
+**Acceptance criteria:**
+
+- `WizardStepAzureContext` and `AzureExtractorPackageZipField` import only `CloudInventoryExtractorCommandPanel`.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepAzureContext.tsx`
+- `archlucid-ui/src/components/wizard/steps/AzureExtractorPackageZipField.tsx`
+- `archlucid-ui/src/components/wizard/AzureExtractorQuickStartCommandPanel.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-494, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-496 — Rename buildReadinessAzureExtractorSummary to buildReadinessCloudEvidenceSummary
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Code hygiene
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E16. Severity: **P2**.
+
+**Problem:** `buildReadinessAzureExtractorSummary` already returns multi-cloud instructions but its name implies it is Azure-only.
+
+**V1 scope:**
+
+1. In `onboarding-secondary-surfaces.ts`, add `export { buildReadinessAzureExtractorSummary as buildReadinessCloudEvidenceSummary }` and deprecate the old name.
+2. Update all call sites.
+
+**Acceptance criteria:**
+
+- Canonical export is `buildReadinessCloudEvidenceSummary`; old name has `@deprecated`.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/onboarding-secondary-surfaces.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-497 — Add evidence-quality context to "Skip evidence for now" button in wizard
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E17. Severity: **P2**.
+
+**Problem:** `WizardStepEvidenceUpload` shows `"Skip evidence for now"` with no inline explanation of what skipping means for review quality. First-time users don't know if findings will run, how accurate they'll be, or whether they can add evidence later.
+
+**V1 scope:**
+
+1. In `WizardStepEvidenceUpload.tsx`, add helper text near the skip button:
+   `"Skipping evidence is OK — you can add files or cloud inventory from the review detail page after the review is created. Findings without evidence may have lower confidence."`
+
+**Acceptance criteria:**
+
+- A plain-language note appears near "Skip evidence for now" explaining the trade-off and that evidence can be added later.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-498 — Export READINESS_CLOUD_EVIDENCE_LABEL alias and deprecate READINESS_AZURE_EXTRACTOR_LABEL
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Code hygiene
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E18. Severity: **P2**.
+
+**Problem:** `READINESS_AZURE_EXTRACTOR_LABEL = "Tier-1 cloud inventory ZIP"` has an Azure-specific name despite its value being multi-cloud. Developer searches for multi-cloud evidence guidance may miss this constant.
+
+**V1 scope:**
+
+1. Add alias `READINESS_CLOUD_EVIDENCE_LABEL` in `onboarding-secondary-surfaces.ts`.
+2. Mark `READINESS_AZURE_EXTRACTOR_LABEL` as `@deprecated`.
+3. Update call sites.
+
+**Acceptance criteria:**
+
+- New canonical export is `READINESS_CLOUD_EVIDENCE_LABEL`.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/onboarding-secondary-surfaces.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-491, TB-496, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-499 — InProductEvidenceChecklist: improve "Full walkthrough" link anchor text
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E19. Severity: **P2**.
+
+**Problem:** The evidence checklist renders a link with anchor text `"Full walkthrough"` — generic and does not communicate destination or purpose to enterprise admins.
+
+**V1 scope:**
+
+1. In `InProductEvidenceChecklist.tsx`, change link text from `"Full walkthrough"` to `"Open setup guide"`.
+
+**Acceptance criteria:**
+
+- Link anchor text communicates destination purpose.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/usability/InProductEvidenceChecklist.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-500 — Add cloud-agnostic aliases for AzureExtractorDemoScenarioId type and default constant
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Code hygiene
+
+**Source:** Integrations and evidence-ingestion audit (2026-06-28), finding E20. Severity: **P2**.
+
+**Problem:** `AzureExtractorDemoScenarioId` and `DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID` are Azure-specific names for a cloud-agnostic mechanism (bundled example review scenarios). Consumer code in `WizardStepEvidenceUpload.tsx` and `AzureExtractorPackageZipField.tsx` imports these names, perpetuating Azure-specificity in the demo path.
+
+**V1 scope:**
+
+1. In `arch-lucid-azure-extractor-demo-scenarios.ts`, add type alias `DemoReviewScenarioId = AzureExtractorDemoScenarioId` and const `DEFAULT_DEMO_REVIEW_SCENARIO_ID = DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID`.
+2. Mark originals `@deprecated`.
+3. Migrate wizard files to use the new aliases.
+
+**Acceptance criteria:**
+
+- `WizardStepEvidenceUpload.tsx` and `AzureExtractorPackageZipField.tsx` import cloud-agnostic names.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/arch-lucid-azure-extractor-demo-scenarios.ts`
+- `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`
+- `archlucid-ui/src/components/wizard/steps/AzureExtractorPackageZipField.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-487, TB-494, TB-481–TB-500 cluster (integrations/evidence audit 2026-06-28).
+
+---
+
+## TB-501 — Remove "Quick approve" from stored governance decision comment
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Trustworthiness + Adoption friction
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T01. Severity: **P0**.
+
+**Problem:** `GovernanceQuickApproveButton` submits a governance decision with `reviewComment: "Quick approve — no Critical/High findings in governance lineage snapshot."` This string is persisted in the approval record and exported in the run-scoped audit CSV. Enterprise buyers who export their audit trail for compliance review see the phrase "Quick approve" and "governance lineage snapshot" — internal implementation terms — in a field that should read as a formal governance decision record. This directly undermines the claim that the governance workflow produces audit-ready artifacts.
+
+**V1 scope:**
+
+1. In `GovernanceQuickApproveButton.tsx`, change the `reviewComment` from:
+   `"Quick approve — no Critical/High findings in governance lineage snapshot."`
+   to:
+   `"Approved — no critical or high findings present at time of review."`
+
+**Acceptance criteria:**
+
+- The stored governance comment does not contain "Quick approve" or "governance lineage snapshot."
+- The exported audit CSV comment reads as a formal decision statement.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/GovernanceQuickApproveButton.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-502 — Label audit integrity verification as demo data during CTO tour
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T02. Severity: **P0**.
+
+**Problem:** `CtoDemoAuditIntegrityVerifyButton` runs `verifyAuditIntegrityChain(getDemoSampleAuditTrailEvents())` — verifying a hash chain of bundled synthetic demo events — and displays "Chain intact" with an event count and head hash. Nothing in the UI labels this as demo data. A buyer watching the CTO tour sees "Chain intact" and believes they are observing the production system's tamper-evident audit chain, not a calculated result over synthetic showcase events. This is a material misrepresentation of the audit capability.
+
+**V1 scope:**
+
+1. In `CtoDemoAuditIntegrityVerifyButton.tsx`, add a sub-label below the "Chain intact" result:
+   `"Verified against showcase demo events. Your production audit trail is verified server-side via the same algorithm."`
+2. Add a `data-testid="cto-demo-audit-integrity-demo-disclaimer"` for test coverage.
+
+**Acceptance criteria:**
+
+- A plain-language note tells demo viewers the verification ran against demo data, not production.
+- A link or pointer to the production audit trail exists.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/cto-demo/CtoDemoAuditIntegrityVerifyButton.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-503 — Add confirmation dialog or mandatory justification to governance quick approve
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Trustworthiness + Governance
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T03. Severity: **P1**.
+
+**Problem:** `GovernanceQuickApproveButton` approves a governance decision with a single click. Even with the buyer-polished label "Approve (no critical/high findings)", a one-click governance approval with no confirmation dialog or mandatory written justification raises immediate questions during enterprise security review. Regulated buyers expect that governance decisions require at minimum an acknowledgment step or a reviewers-note field. The current implementation lets an executor approve a review package in one click with no friction that proves a human made a deliberate decision.
+
+**V1 scope:**
+
+1. Introduce a confirmation popover or dialog on the quick approve button that shows:
+   - The approval subject (review package name / run ID)
+   - "No critical/high findings detected" confirmation
+   - An optional but encouraged free-text note field ("Approver note")
+   - Two buttons: "Confirm approval" and "Cancel"
+2. The confirmation step should be a `<Dialog>` or `<Popover>` — not just a `window.confirm`.
+3. The free-text note, if filled, replaces the `reviewComment` value from TB-501.
+
+**Acceptance criteria:**
+
+- Quick approve requires at minimum one additional click in a dialog to complete.
+- Approver has the opportunity to record a reason.
+- Governance decision record shows either the free-text reason or the default approved comment from TB-501.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/GovernanceQuickApproveButton.tsx`
+- New component: `GovernanceQuickApproveDialog.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-501, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-504 — Strengthen invite reviewer role description from "typically need" to definitive statement
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Adoption friction + Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T04. Severity: **P1**.
+
+**Problem:** `INVITE_REVIEWER_PAGE_LEAD = "Invite a colleague to participate in architecture reviews for this workspace. Reviewers typically need read access to review packages and findings."` — "typically need" is vague and non-committal. Enterprise security reviewers and workspace admins who are granting access need to understand precisely what the assigned role can and cannot do. The phrase "typically need" implies situational judgment when the role should be deterministic.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/invite-reviewer-flow.ts`, change `INVITE_REVIEWER_PAGE_LEAD` to:
+   `"Invite a colleague to participate in architecture reviews for this workspace. Reviewers are assigned the Reader role: they can view review packages, findings, and governance decisions, but cannot approve, finalize, or modify evidence."`
+
+**Acceptance criteria:**
+
+- The invite page lead explicitly states what the reviewer role can and cannot do.
+- The word "typically" is removed.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/invite-reviewer-flow.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-505 — Add tenant isolation mechanism explanation to operator security-trust page
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T05. Severity: **P1**.
+
+**Problem:** The operator `OperatorSecurityTrustPageView` lists trust artifacts (DPA, CAIQ, SOC 2 self-assessment) but provides no explanation of HOW tenant isolation is implemented. The marketing trust center mentions "tenant isolation" and the CTO demo shows "Each customer receives a dedicated database catalog." The procurement-facing operator page is silent on the mechanism. A security architect doing internal approval would ask: row-level security? separate schema? separate database? The operator page provides no answer.
+
+**V1 scope:**
+
+1. In `OperatorSecurityTrustPageView.tsx`, add a new section "Tenant isolation model" between the "Available now" and "Under NDA" sections containing:
+   `"Each workspace is bound to a dedicated database catalog. API requests carry a tenant scope header that the data layer enforces on every query. There is no cross-tenant data path in the standard operating model."`
+2. Link to the existing CAIQ or CUSTOMER_TRUST_AND_ACCESS doc for technical detail.
+
+**Acceptance criteria:**
+
+- The operator security-trust page explains the tenant isolation model in plain language.
+- A link to the detailed technical document is provided.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/workspace/security-trust/_sections/OperatorSecurityTrustPageView.tsx`
+- `archlucid-ui/src/lib/operator-security-trust-content.ts` (add constant)
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-506 — Add data retention/deletion information to operator settings or security-trust page
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Trustworthiness + Compliance readiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T06. Severity: **P1**.
+
+**Problem:** There is no visible data retention policy or data-deletion controls in the operator settings or security-trust page. Regulated enterprise buyers (HIPAA, SOX, GDPR, FedRAMP candidates) require clear answers to "how long is our architecture review data retained?" and "how do we request deletion?" during procurement. The current UI has no surface for this information. Buyers who cannot answer this question during procurement may not proceed.
+
+**V1 scope:**
+
+1. Add a "Data retention" section to `OperatorSecurityTrustPageView` containing at minimum:
+   - A plain-language statement of the standard retention period.
+   - Instructions for requesting data deletion (e.g., `"Contact security@archlucid.net to request workspace data deletion."`).
+   - A link to the DPA or privacy policy for contractual terms.
+2. Optionally add a `OPERATOR_SECURITY_TRUST_DATA_RETENTION_NOTE` constant to `operator-security-trust-content.ts`.
+
+**Acceptance criteria:**
+
+- The operator security-trust page answers "how long is data retained?" and "how do I request deletion?"
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/workspace/security-trust/_sections/OperatorSecurityTrustPageView.tsx`
+- `archlucid-ui/src/lib/operator-security-trust-content.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-505, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-507 — Gate static demo governance fallback so it cannot seed approvals in a live non-demo workspace
+
+**Status:** **Done** (2026-06-28)
+
+**Architectural quality:** Trustworthiness + Data consistency
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T07. Severity: **P1**.
+
+**Problem:** `GovernanceWorkflowPageContent` initialises `approvals` state with `tryStaticDemoGovernanceApprovalRequests()` as the demo seed when `isStaticDemoFallbackActiveForShowcase` is true. If a buyer is conducting UAT in a workspace where the static demo fallback is active (e.g., the API is temporarily unavailable), their governance page will show pre-seeded demo approval records that look identical to real records. The governance list would display a completed example review's approval chain — without any indication it's demo data. This is a data-boundary breach: demo data appearing in what looks like a live workspace.
+
+**V1 scope:**
+
+1. Ensure `isStaticDemoPayloadFallbackEnabled()` is strictly false in all non-demo production workspaces. Add a runtime assertion or clear log warning when the static fallback is activated outside demo environments.
+2. On the governance page, if `initialDemoApprovals` is populated from the static demo, add a visible `role="status"` note: `"Showing example approval records — live governance data unavailable. Refresh to reload live data."` so the boundary is explicit.
+
+**Acceptance criteria:**
+
+- A live customer workspace that temporarily loses API connectivity shows an empty state or loading state, not demo governance records.
+- Any static-fallback state is visibly labeled as example/demo data.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+- `archlucid-ui/src/lib/operator-static-demo.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-508 — Disambiguate ExecutiveSqlBackupRegionVerificationCard — ArchLucid infra vs. customer data
+
+**Status:** **Done** (2026-06-30)
+
+**Architectural quality:** Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T08. Severity: **P1**.
+
+**Problem:** `ExecutiveSqlBackupRegionVerificationCard` appears on the executive dashboard and displays a backup region name with a check mark or warning triangle. The title "Database backup region check" and the region label are drawn from ArchLucid's own infrastructure Terraform verification artifact — not the customer's data. A buyer who sees this card might believe it is reporting on the backup region of their architecture review data or their own systems. The source and scope of this metric are not labeled on the card.
+
+**V1 scope:**
+
+1. Update `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.sqlBackupRegionVerificationMetric.description` to say:
+   `"ArchLucid platform database backup region — verified against Terraform CI. Shows where ArchLucid stores your workspace data."`
+2. Add a sub-label on the card below the region name: `"ArchLucid platform infrastructure — not your architecture workloads."` — to be clear this is ArchLucid's own backup, which is relevant to buyers as a vendor trust signal.
+
+**Acceptance criteria:**
+
+- The card clearly identifies itself as an ArchLucid infrastructure metric, not the customer's own systems.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveSqlBackupRegionVerificationCard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-509 — Remove "live pilot" framing from governance preview note copy
+
+**Status:** **Done** (2026-06-30)
+
+**Architectural quality:** Adoption friction + Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T09. Severity: **P1**.
+
+**Problem:** `BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE = "In a live pilot, an architect with Execute authority approves here. The view below shows the post-approval state for demonstration purposes."` — "In a live pilot" implies the customer is in a pilot/test phase, not a production system. Enterprise buyers who have already purchased or are in UAT should see governance framing that assumes production use. "For demonstration purposes" is also trust-breaking when shown to a buyer who is evaluating the governance workflow as a production capability.
+
+**V1 scope:**
+
+1. In `archlucid-ui/src/lib/buyer-polish-copy.ts`, change `BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE` to:
+   `"In production, an architect with Execute authority approves here. This view shows the post-approval state from the example review package."`
+
+**Acceptance criteria:**
+
+- The note does not say "live pilot" or "for demonstration purposes."
+- The note explains the read-only demo state without implying pre-production framing.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/buyer-polish-copy.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-456, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-510 — Replace "promoteManifest" with a governance-vocabulary API call name in buyer surfaces
+
+**Status:** **Done** (2026-06-30)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T10. Severity: **P1**.
+
+**Problem:** `GovernanceWorkflowPageContent` imports and calls `promoteManifest` — a CI/CD-flavored verb visible in import statements and toast/error messages. Buyers who see "promote" in governance-related UI text or error messages receive a developer deployment signal, not a governance signal. The governance workflow should use "governance approval" and "finalization" language throughout, not deployment-pipeline vocabulary.
+
+**V1 scope:**
+
+1. Check every customer-facing string in `GovernanceWorkflowPageContent.tsx` and its sub-components for any "promote," "promotion," or "promotion record" text.
+2. In any visible label or error message, replace "promoted" with "governance-approved" or "approved and promoted to implementation planning."
+3. `GovernancePromotionRecord` is an API type name — not customer-visible directly; no rename needed at the API level, but UI strings derived from this type should use governance vocabulary.
+
+**Acceptance criteria:**
+
+- No buyer-visible text on the governance page contains "promote" or "promotion" as a standalone action verb.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+- `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPromotionsActivationsSection.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-511 — Add role capability summary to invite reviewer flow
+
+**Status:** **Done** (2026-06-30)
+
+**Architectural quality:** Adoption friction + Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T11. Severity: **P1**.
+
+**Problem:** The invite reviewer flow (`InviteReviewerPageClient`) and `INVITE_REVIEWER_PAGE_LEAD` do not explain what a reviewer can and cannot do after being invited. Enterprise workspace admins granting access want to know: can the reviewer approve? can they export? can they see all workspaces? The current page is silent on capabilities beyond "read access." Combined with TB-504 (changing "typically need" to definitive language), this item adds a capability summary block to the invite flow itself.
+
+**V1 scope:**
+
+1. After TB-504 updates `INVITE_REVIEWER_PAGE_LEAD`, add a capability summary section below the lead on `InviteReviewerPageView.tsx`:
+
+```
+Reader role capabilities:
+✓ View review packages, findings, and governance decisions
+✓ Export signed review records and audit CSVs
+✗ Cannot approve governance requests
+✗ Cannot finalize review packages
+✗ Cannot modify evidence or review settings
+```
+
+2. This can be a compact `<ul>` with check/cross icons.
+
+**Acceptance criteria:**
+
+- The invite page shows explicit can/cannot capabilities for the Reader role.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/settings/roles/_sections/InviteReviewerPageView.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-504, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-512 — Rename FunnelTelemetryExportAnchor to a neutral export wrapper component name
+
+**Status:** **Done** (2026-06-30)
+
+**Architectural quality:** Code hygiene + Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T12. Severity: **P2**.
+
+**Problem:** `FunnelTelemetryExportAnchor` wraps all download/export links and calls `recordFirstExportOpenedOnce()`. The component name is an internal analytics name. If a security reviewer or buyer inspects React component tree or browser developer tools, seeing "FunnelTelemetryExport" on a download link implies invisible marketing analytics are attached to security-sensitive export actions. The intent is benign (first-download funnel event), but the name raises trust questions.
+
+**V1 scope:**
+
+1. Rename `FunnelTelemetryExportAnchor` to `ExportTrackedAnchor` or `TrackedDownloadAnchor`.
+2. Add a JSDoc comment explaining the telemetry is a single first-export lifecycle event for onboarding funnel, not persistent surveillance.
+3. Update all import sites.
+
+**Acceptance criteria:**
+
+- Component is not named with "funnel" or "telemetry" in a context visible to security reviewers.
+- JSDoc comment documents the analytics scope.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/FunnelTelemetryExportAnchor.tsx`
+- All files importing `FunnelTelemetryExportAnchor`
+
+**Size estimate:** **S**
+
+**Cross-ref:** TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-513 — Add JSDoc and deprecation note to GoldenManifestExportMenu for buyer surface use
+
+**Status:** **Done** (2026-06-30)
+
+**Architectural quality:** Code hygiene
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T13. Severity: **P2**.
+
+**Problem:** `GoldenManifestExportMenu` is rendered in `RunDetailArtifactsExportsSection` for buyer-facing export. The component name contains "GoldenManifest" — an internal term. While `trustEvidenceGoldenManifestFieldTitle()` performs translation in data fields, the component itself may render "golden manifest" text if any internal label leaks through. Additionally, the prop `goldenManifestJsonForExport: unknown` in the parent passes raw API data.
+
+**V1 scope:**
+
+1. Add a JSDoc comment to `GoldenManifestExportMenu.tsx`: `"@important Verify all buyer-visible string labels use SIGNED_MANIFEST_LABEL, not 'golden manifest'. The trustEvidenceGoldenManifestFieldTitle guard covers data-layer field names but not hardcoded strings inside this component."`
+2. Audit every string inside `GoldenManifestExportMenu` for any residual "golden manifest" literals.
+3. If any labels still say "golden manifest" to the user, replace with `SIGNED_MANIFEST_LABEL`.
+
+**Acceptance criteria:**
+
+- No buyer-visible text inside `GoldenManifestExportMenu` says "golden manifest."
+- A JSDoc comment documents the naming risk.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/GoldenManifestExportMenu.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-470, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-514 — Add "demo data" context note to ExplainabilityTraceTree empty state
+
+**Status:** **Done** (2026-06-30)
+
+**Architectural quality:** Trustworthiness
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T14. Severity: **P2**.
+
+**Problem:** `ExplainabilityTraceTree` shows `"No evidence references recorded."` as the empty state when a finding has no linked evidence. In a governance-approved review package, this message appears without explanation of what it means for auditability. A compliance reviewer auditing the package sees "no evidence references" on an approved finding and cannot determine whether this is expected (heuristic finding) or a gap (evidence was not attached). The `FindingTrustChip` provides the trust label, but it may not be visible in all contexts where the trace tree renders.
+
+**V1 scope:**
+
+1. In `ExplainabilityTraceTree.tsx`, change the empty state text from `"No evidence references recorded."` to:
+   `"No evidence references recorded for this finding. Evidence-backed findings show source references here. Heuristic findings rely on model reasoning rather than explicit evidence."`
+
+**Acceptance criteria:**
+
+- Empty evidence reference state explains the difference between heuristic and evidence-backed findings.
+- Compliance reviewers understand what "no references" means without inferring failure.
+
+**Affected files:**
+
+- `archlucid-ui/src/components/explainability/ExplainabilityTraceTree.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-492, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-515 — Replace "Loading backup region verification…" with neutral KPI loading state
+
+**Status:** **Done** (2026-06-30)
+
+**Architectural quality:** Adoption friction
+
+**Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T15. Severity: **P2**.
+
+**Problem:** `ExecutiveSqlBackupRegionVerificationCard` shows `"Loading backup region verification…"` in the loading state. "Backup region verification" is internal infrastructure vocabulary on an executive dashboard card that a buyer CTO would see. The loading message uses the technical component description, not a buyer-safe label.
+
+**V1 scope:**
+
+1. In `ExecutiveSqlBackupRegionVerificationCard.tsx`, change the loading message from `"Loading backup region verification…"` to use `v.title` or `"Checking backup status…"` for consistency with the card header.
+
+**Acceptance criteria:**
+
+- The loading state message matches the card title vocabulary, not the internal API term.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveSqlBackupRegionVerificationCard.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** TB-508, TB-501–TB-515 cluster (enterprise trust audit 2026-06-29).
+
+---
+
+## TB-516 — Add Overview (`/`) as first nav item in pilot nav group (P0)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** No nav item links to the home page. The logo is the only return path. Any user who navigates to Reviews, Governance, or Settings has no visible way back — a dead end for the most common recovery pattern.
+
+**Approach:**
+
+Add as the first link in `PilotNavGroupBuilder.build()`:
+
+```typescript
+{
+  href: "/",
+  label: OPERATOR_NAV_LINK_LABELS.home,
+  title: "Workspace overview",
+  icon: Home,
+  tier: "essential",
+  defaultVisibleInCollapsedSidebar: true,
+},
+```
+
+`OPERATOR_NAV_LINK_LABELS.home` already resolves to `"Overview"` in `i18n.ts`.
+
+**Acceptance criteria:**
+
+- "Overview" appears as the first item in the left nav for all users.
+- Clicking it navigates to `/`.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/pilot-nav-group-builder.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N01 (2026-06-28).
+
+---
+
+## TB-517 — Unlock Governance and Audit trail at nav phase 1 (after first commit) (P0)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** The entire Governance nav group — including the Audit trail — is hidden until `operateNavUnlockPhase >= 2`. Users who have committed a review have no nav path to governance approval or the audit trail. Product looks incomplete.
+
+**Approach:**
+
+In `nav-shell-visibility.ts`, change the governance group gate from a full-group phase-2 block to a per-link filter: show Governance workflow (`/governance`) and Audit trail (`/governance/audit`) at phase 1. Keep Risk register, Policy packs, Risk exceptions at phase 2.
+
+Alternatively split `operate-governance` into `operate-governance-core` (phase 1) and `operate-governance-extended` (phase 2).
+
+**Acceptance criteria:**
+
+- Users with `operateNavUnlockPhase >= 1` see Governance workflow and Audit trail in the sidebar.
+- Users with `operateNavUnlockPhase < 1` do not see them.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/nav-shell-visibility.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Nav/IA audit N02 (2026-06-28).
+
+---
+
+## TB-518 — Reorder Review Work nav: move Evidence graph after Review packages (P1)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** "Evidence graph" is the second nav item in Review Work — before "Review packages." First-time users click it first and find an empty state. The nav order implies the graph is a primary workflow task, not a deep-dive tool.
+
+**Approach:**
+
+In `PilotNavGroupBuilder`, reorder links to: Overview → New review → Review packages → Portfolio overview → Getting started. The Evidence graph link should also move groups (see TB-519).
+
+**Acceptance criteria:**
+
+- Review Work nav order matches: Overview, New review, Review packages, Portfolio overview, Getting started.
+- Evidence graph is no longer in Review Work.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/pilot-nav-group-builder.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N03, TB-519 (2026-06-28).
+
+---
+
+## TB-519 — Move Evidence graph from Review Work into the Analysis/Insights group (P1)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** Evidence graph is an analytical deep-dive tool, not a workflow task. It belongs with Ask, Search, and Compare — not alongside New review and Review packages. The current placement breaks the Review Work / Analysis boundary.
+
+**Approach:**
+
+Remove Evidence graph from `PilotNavGroupBuilder`. Add it as the first link in `OperateAnalysisNavGroupBuilder.build()` so it appears before `/ask`. Also rename the Analysis group label to "Insights" (see TB-525).
+
+**Acceptance criteria:**
+
+- Evidence graph appears as the first link in the Insights/Analysis group.
+- Evidence graph is absent from the Review Work group.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/pilot-nav-group-builder.ts`
+- `archlucid-ui/src/lib/operate-analysis-nav-group-builder.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N04, TB-518, TB-525 (2026-06-28).
+
+---
+
+## TB-520 — Move "First 30 days (governance)" from Reports to Governance group; rename (P1)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** "First 30 days (governance)" (`/governance/first-30-days`) is in the Reports group but is a governance setup guide. Its tooltip says "after evaluation" — reinforcing pilot language. Enterprise IT leaders look for this in Governance, not Reports.
+
+**Approach:**
+
+Remove the link from `OperateReportsNavGroupBuilder` and add it to `OperateGovernanceNavGroupBuilder`. Rename to "Governance setup guide". Remove "after evaluation" from its tooltip.
+
+**Acceptance criteria:**
+
+- "Governance setup guide" appears in the Governance nav group.
+- "First 30 days (governance)" no longer appears in Reports.
+- Tooltip contains no "evaluation" or "pilot" language.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-reports-nav-group-builder.ts`
+- `archlucid-ui/src/lib/operate-governance-nav-group-builder.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N05, TB-441 (2026-06-28).
+
+---
+
+## TB-521 — Add forward CTA from review detail to governance when review is commit-ready (P1)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** There is no persistent forward-path CTA from the review detail page to `/governance`. The golden path (Reviews → Review detail → Governance) is broken. Users must stumble onto the Governance nav item or miss this step entirely.
+
+**Approach:**
+
+When a review has a `manifestId`, no governance decision yet, and is in the operator shell, render a `RunDetailGovernanceCta` component between the outcome cards and deliverables section. Link to `/governance?runId={runId}` with label "Submit for governance approval →".
+
+**Acceptance criteria:**
+
+- A CTA card linking to governance appears on the review detail page when the review is ready for governance approval.
+- The CTA does not appear when a governance decision already exists.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Nav/IA audit N06 (2026-06-28).
+
+---
+
+## TB-522 — Consolidate "Users & roles" and "Role management" into one nav item (P1)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** Admin group has two overlapping nav items: "Users & roles" (`/settings/users`) and "Role management" (`/settings/roles`). A first-time admin cannot distinguish them. Creates friction at a sensitive administration surface.
+
+**Approach:**
+
+Remove `href: "/settings/roles"` from `OperatorAdminNavGroupBuilder`. Keep `href: "/settings/users"` with label "Users & roles". Add a redirect from `/settings/roles` to `/settings/users?tab=roles` so existing links continue to work.
+
+**Acceptance criteria:**
+
+- Only one "Users & roles" nav item appears in the Administration group.
+- `/settings/roles` redirects to `/settings/users?tab=roles`.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operator-admin-nav-group-builder.ts`
+- `archlucid-ui/next.config.ts`
+- `archlucid-ui/src/lib/settings-admin-route-paths.ts`
+- `archlucid-ui/src/lib/invite-reviewer-flow.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Nav/IA audit N07 (2026-06-28).
+
+---
+
+## TB-523 — Add breadcrumb and stable nav entry for executive summary (P1)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** The executive summary (`/executive/reviews/[runId]`) is not in the left nav at all. It is reachable only from a CTA card on the review detail page. After navigating away users have no return path. Executive summary is step 3 of the golden path and the primary output for sponsor handoff.
+
+**Approach:**
+
+Add "Executive summary" as a persistent tab on the review detail page with a stable anchor in the breadcrumb, or add it as a visible nav deep-link when a committed review is selected. Breadcrumb: "Review packages · [title] · Executive summary".
+
+**Acceptance criteria:**
+
+- A user can reach the executive summary page from the breadcrumb after having navigated away.
+- The executive summary has a breadcrumb back to the review packages list.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/breadcrumb-map.ts`
+- `archlucid-ui/src/components/RunDetailPackageSubnav.tsx`
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
+- `archlucid-ui/src/app/(executive)/executive/reviews/[runId]/page.tsx`
+
+**Size estimate:** **M**
+
+**Cross-ref:** Nav/IA audit N08, N13 (2026-06-28).
+
+---
+
+## TB-524 — Demote "Getting started" nav item to `extended` tier after first review is committed (P2)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** "Getting started" (TB-434 rename of "Onboarding") is `tier: "essential"` and `defaultVisibleInCollapsedSidebar: true` — permanently shown in the top nav. After the first review is committed, it occupies prime nav real estate and signals the product is still being set up.
+
+**Approach:**
+
+Pass `hasCommittedArchitectureReview` to `PilotNavGroupBuilder` (or filter in `listNavGroupsVisibleInOperatorShell`) and set `tier: hasCommittedArchitectureReview ? "extended" : "essential"` on the onboarding link. Coordinate with TB-434.
+
+**Acceptance criteria:**
+
+- "Getting started" is in the extended/collapsed tier after the first review is committed.
+- "Getting started" is in the essential/visible tier for new workspaces.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/pilot-nav-group-builder.ts`
+- `archlucid-ui/src/lib/nav-committed-architecture-review-promotion.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N09, TB-434 (2026-06-28).
+
+---
+
+## TB-525 — Rename "Analysis" nav group to "Insights" (P2)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** "Analysis" is a generic term that does not communicate what these tools do for a governance reviewer. "Insights" better describes the exploratory nature of Ask, Search, Compare, and Evidence graph.
+
+**Approach:**
+
+Change the `analysis` key in `i18n.ts` from `"Analysis"` to `"Insights"`. Add caption: "Explore evidence, findings, and decisions across reviews."
+
+**Acceptance criteria:**
+
+- The nav group formerly labeled "Analysis" displays as "Insights".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/i18n.ts`
+- `archlucid-ui/src/lib/operate-analysis-nav-group-builder.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N10, TB-519 (2026-06-28).
+
+---
+
+## TB-526 — Rename "Governance workflow" first link to "Approval queue" (P2)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** The Governance nav group's first link is labeled "Governance workflow." Group = Governance; first link = Governance workflow. The repetition makes it look like two levels of governance. "Approval queue" clarifies the page's purpose.
+
+**Approach:**
+
+Update the label for `/governance` in `OperateGovernanceNavGroupBuilder` from "Governance workflow" to "Approval queue". Update the page title (`/governance`) to match.
+
+**Acceptance criteria:**
+
+- The first Governance nav link reads "Approval queue".
+- The `/governance` page title reads "Approval queue".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-governance-nav-group-builder.ts`
+- `archlucid-ui/src/lib/i18n.ts`
+- `archlucid-ui/src/lib/route-static-titles.ts`
+- `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N11 (2026-06-28).
+
+---
+
+## TB-527 — Rename "Portfolio overview" nav item to "Executive dashboard" and disambiguate home (P2)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** "Portfolio overview" in the nav goes to `/dashboard` (Executive ROI dashboard). The home page `/` also shows "Workspace overview" after first review. Two dashboard-like destinations with overlapping names cause confusion.
+
+**Approach:**
+
+Rename the nav item label "Portfolio overview" → "Executive dashboard" in `PilotNavGroupBuilder`. Rename the home page section heading "Workspace overview" → "Recent activity".
+
+**Acceptance criteria:**
+
+- Nav item for `/dashboard` reads "Executive dashboard".
+- Home page post-commit section heading reads "Recent activity".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/pilot-nav-group-builder.ts`
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N12 (2026-06-28).
+
+---
+
+## TB-528 — Add breadcrumbs to executive summary, governance, and audit trail pages (P2)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** The review detail breadcrumb shows only "Review packages · [review title]". No breadcrumb exists on the executive view or governance pages downstream. Users lose location context after the first hop on the golden path.
+
+**Approach:**
+
+Add breadcrumbs to:
+1. `/executive/reviews/[runId]` — "Review packages · [title] · Executive summary"
+2. `/governance` when `?runId` is present — "Reviews · [title] · Governance"
+3. `/governance/audit` — "Governance · Audit trail"
+
+**Acceptance criteria:**
+
+- All three downstream pages show a breadcrumb with a back-link to the review or governance context.
+
+**Affected files:**
+
+- Relevant page components for `/executive/reviews/[runId]`, `/governance`, `/governance/audit`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Nav/IA audit N13, N08, TB-523 (2026-06-28).
+
+---
+
+## TB-529 — Rename "Architecture advisory" to "Advisory scans" (P2)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** "Architecture advisory" sounds like a professional services offering, not an automated scan scheduling feature. The name misrepresents the page's function and may raise pricing/scope expectations.
+
+**Approach:**
+
+Update the nav label for `/advisory` in `OperateAnalysisNavGroupBuilder` and in `i18n.ts`.
+
+**Acceptance criteria:**
+
+- The nav item for `/advisory` reads "Advisory scans".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-analysis-nav-group-builder.ts`
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N14 (2026-06-28).
+
+---
+
+## TB-530 — Rename "Integration readiness" to "Connection status" (P2)
+
+**Status:** **Done** (2026-06-30)
+
+**Why:** "Integration readiness" sounds like a prerequisites checklist, not a connector health dashboard. Enterprise administrators expect "Connection status" or "Connector health" for a health monitoring view.
+
+**Approach:**
+
+Update the nav label for `/integrations/readiness` in `OperateIntegrationsNavGroupBuilder` and in `i18n.ts`.
+
+**Acceptance criteria:**
+
+- The nav item for `/integrations/readiness` reads "Connection status".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-integrations-nav-group-builder.ts`
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N15 (2026-06-28).
+
+---
+
+## TB-531 — Rename "Policy resolution" to "Standards & rules" (P2)
+
+**Why:** "Policy resolution" is the internal technical term for conflict resolution between policy packs. Enterprise reviewers call these "standards" or "compliance rules." The current label leaks implementation vocabulary.
+
+**Approach:**
+
+Update the nav label for `/governance/resolution` in `OperateGovernanceNavGroupBuilder` and in `i18n.ts`.
+
+**Acceptance criteria:**
+
+- The nav item for `/governance/resolution` reads "Standards & rules".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-governance-nav-group-builder.ts`
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N16 (2026-06-28).
+
+---
+
+## TB-532 — Add governance progress nudge after first review commit (P2)
+
+**Why:** After the first review is committed, there is no affordance in the nav indicating that governance features exist and are now unlocked. Users have no signal to progress to the Governance workflow.
+
+**Approach:**
+
+When `hasCommittedArchitectureReview` is `true` AND `operateNavUnlockPhase < 2`, render a "Governance available" call-to-action strip below the Review Work nav group — a progress nudge, not a nav item.
+
+**Acceptance criteria:**
+
+- A contextual strip appears below the Review Work group prompting the user to try governance after their first commit.
+- The strip does not appear once `operateNavUnlockPhase >= 2`.
+
+**Affected files:**
+
+- Operator shell sidebar component
+
+**Size estimate:** **S**
+
+**Cross-ref:** Nav/IA audit N17, TB-517 (2026-06-28).
+
+---
+
+## TB-533 — Move "Recurrence schedules" out of Governance group (P3)
+
+**Why:** "Recurrence schedules" (`/governance/recurrence-schedules`) is in the Governance nav group but is a scheduling configuration tool, not a governance decision workflow. Its placement blurs the boundary between governance decisions and settings configuration.
+
+**Approach:**
+
+Move the link to the Integrations group or to Settings. If retained in Governance, add a visible separator between approval workflow items and configuration items.
+
+**Acceptance criteria:**
+
+- "Recurrence schedules" no longer appears among governance approval workflow items.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-governance-nav-group-builder.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N18 (2026-06-28).
+
+---
+
+## TB-534 — Rename "Change simulation" to "Impact preview" (P3)
+
+**Why:** "Change simulation" (`/evolution-review`) in the Analysis group does not communicate governance context. "Impact preview" is more descriptive of the page's purpose: previewing the expected governance impact of proposed architecture changes.
+
+**Approach:**
+
+Update the nav label and page title for `/evolution-review` in `OperateAnalysisNavGroupBuilder` and `i18n.ts`. New title: "Preview expected impact of proposed architecture changes on governance posture."
+
+**Acceptance criteria:**
+
+- The nav item for `/evolution-review` reads "Impact preview".
+- The page title reads "Impact preview".
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/operate-analysis-nav-group-builder.ts`
+- `archlucid-ui/src/lib/i18n.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Nav/IA audit N19 (2026-06-28).
+
+---
+
+## TB-535 — Distinguish `warning`/`medium` severity badges from `error`/`high` (P1)
+
+**Why:** `severityTagClass("warning")` and `"medium"` render with an inline white background (`bg-al-surface-raised`) while `"error"` and `"high"` use the semantic `--al-status-warn-bg` token. Visual output is near-identical amber, collapsing the severity gradient for governance reviewers who rely on color to triage findings.
+
+**Approach:**
+
+In `design-tokens.ts`, change the `warning`/`medium` case to use a visibly lighter treatment:
+
+```typescript
+case "warning":
+case "medium":
+  return `${STATUS_TAG_BASE} border-amber-500/40 bg-amber-50/60 text-amber-900 dark:border-amber-600/40 dark:bg-amber-950/30 dark:text-amber-200`;
+```
+
+Or introduce a new CSS variable `--al-status-warn-secondary-bg/fg` for the lighter tier.
+
+**Acceptance criteria:**
+
+- "Warning" / "Medium" severity badges are visibly distinct (lighter) from "Error" / "High" badges.
+- Both still use amber family color semantics.
+
+**Affected files:** `archlucid-ui/src/lib/design-tokens.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V01 (2026-06-29).
+
+---
+
+## TB-536 — Fix GraphStaticFallback copy: remove "Sample" from production loading state (P1)
+
+**Why:** `GraphStaticFallback` renders "Sample evidence trail — the interactive graph appears here when the viewer finishes loading." This component fires during normal React Flow initialization in production. Enterprise architects waiting for their real graph see "Sample" and may assume they are looking at demo data.
+
+**Approach:**
+
+In `GraphStaticFallback.tsx`:
+
+```tsx
+// aria-label change:
+"Evidence trail: context, primary finding, decisions, and finalized signed package"
+
+// Body copy change:
+"Evidence trail — the interactive graph appears once the viewer has loaded."
+```
+
+**Acceptance criteria:**
+
+- The word "Sample" does not appear in `GraphStaticFallback` rendered output.
+- `aria-label` accurately describes the content without "Sample".
+
+**Affected files:** `archlucid-ui/src/components/GraphStaticFallback.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V02 (2026-06-29).
+
+---
+
+## TB-537 — Rename FindingInspectFindingBody CTA from "artifacts & graph" to "Open review summary" (P1)
+
+**Why:** For non-demo runs, `reviewContextLabel = "Open review detail (artifacts & graph)"`. "artifacts & graph" is internal pipeline vocabulary in a buyer-visible CTA on the finding inspect page.
+
+**Approach:**
+
+```typescript
+const reviewContextLabel =
+  surface === "executive" ? "Open risk review" : "Open review summary";
+```
+
+**Acceptance criteria:**
+
+- The CTA for non-executive finding inspect reads "Open review summary".
+- Demo and live paths use the same label.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectFindingBody.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V03, leakage audit L06, link audit R01 (2026-06-29).
+
+---
+
+## TB-538 — Remove deprecated OPERATOR_TYPOGRAPHY aliases and migrate consumers (P2)
+
+**Why:** `OPERATOR_TYPOGRAPHY` exports deprecated aliases `title`, `section`, `meta` (lines 133–138 of `design-tokens.ts`). Consumers using these names bypass TypeScript enforcement of canonical names and will silently diverge if tokens change.
+
+**Approach:**
+
+1. Grep for `OPERATOR_TYPOGRAPHY\.title`, `\.section`, `\.meta` across `archlucid-ui/src`.
+2. Migrate each consumer to `pageTitle`, `sectionTitle`, `helper` respectively.
+3. Remove (or add TypeScript `@deprecated` to) the alias entries in `design-tokens.ts`.
+
+**Acceptance criteria:**
+
+- No consumer references `OPERATOR_TYPOGRAPHY.title`, `.section`, or `.meta`.
+- Deprecated entries removed or marked with `@deprecated` causing TypeScript warnings.
+
+**Affected files:** `archlucid-ui/src/lib/design-tokens.ts` + all consumers identified by grep.
+
+**Size estimate:** **S**
+
+**Cross-ref:** Visual polish audit V05 (2026-06-29).
+
+---
+
+## TB-539 — OperatorCorePilotDiagnosticsChecklist KPI tiles: use OPERATOR_TYPOGRAPHY.kpiValue (P2)
+
+**Why:** Metric `<dd>` elements use inline `text-lg font-bold` — smaller and using `bold` instead of `semibold` vs. the `kpiValue` / `executiveDashboardMetric` tokens. Creates visual inconsistency with all other metric tiles in the product.
+
+**Approach:**
+
+Replace `text-lg font-bold text-neutral-900 dark:text-neutral-100` on `<dd>` elements with `OPERATOR_TYPOGRAPHY.executiveDashboardMetric` from `design-tokens`.
+
+**Affected files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V06 (2026-06-29).
+
+---
+
+## TB-540 — Fix governance page toast double-style concatenation (P2)
+
+**Why:** The governance toast class string concatenates an inline base (`rounded-lg px-4 py-3 shadow-lg`) with the callout token class, producing duplicate `rounded-*` and `px-*/py-*` declarations and a redundant trailing `border` class.
+
+**Approach:**
+
+Extract toast positioning to a wrapper class. Use only the callout token for surface styling:
+
+```tsx
+<div
+  role="status"
+  className="fixed bottom-6 right-6 z-50 max-w-sm"
+>
+  <div className={cn(
+    OPERATOR_TYPOGRAPHY.body,
+    "shadow-lg",
+    toast.kind === "ok" ? DESIGN_TOKENS.callout.success : DESIGN_TOKENS.callout.blocked,
+  )}>
+    {toast.message}
+  </div>
+</div>
+```
+
+**Affected files:** `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V07 (2026-06-29).
+
+---
+
+## TB-541 — Add explicit `cn` import to planning-table-styles.ts (P2)
+
+**Why:** `planning-table-styles.ts` calls `cn()` without a visible import statement. Either the import is missing (lint error) or relies on an implicit barrel. Explicit imports are required by the no-inline-imports workspace rule.
+
+**Approach:**
+
+Add to the top of the file:
+```typescript
+import { cn } from "@/lib/utils";
+```
+
+**Affected files:** `archlucid-ui/src/components/planning/planning-table-styles.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V10 (2026-06-29).
+
+---
+
+## TB-542 — OperatorCorePilotDiagnosticsChecklist: use OPERATOR_CARD.nested for metric tiles (P2)
+
+**Why:** Metric tile `<div>` elements use inline `px-2 py-2`. The token `OPERATOR_CARD.nested = "p-3"` exists exactly for "Nested raised surface inside a card (metrics, run rows, empty states)."
+
+**Approach:**
+
+Replace `className="rounded-md border border-neutral-200 px-2 py-2 dark:border-neutral-700"` with `className={cn("rounded-md border border-neutral-200 dark:border-neutral-700", OPERATOR_CARD.nested)}` using the imported token.
+
+**Affected files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V08 (2026-06-29).
+
+---
+
+## TB-543 — Fix FirstWeekRouteGuidance "home" variant: replace native `<details>` with OperatorHomeDisclosureSection (P2)
+
+**Why:** The home variant uses a native `<details>`/`<summary>` element while all peer expandable guidance sections use `OperatorHomeDisclosureSection`. Creates visual and behavioral inconsistency (no animation, different focus ring, different typography baseline).
+
+**Approach:**
+
+In `FirstWeekRouteGuidance.tsx`, replace the `"home"` branch:
+
+```tsx
+import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+
+// home branch:
+return (
+  <OperatorHomeDisclosureSection
+    title={FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY}
+    titleId="first-week-guidance-home"
+    sectionTestId={`first-week-route-guidance-home`}
+    storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.firstWeekGuidance}
+    defaultExpanded={false}
+  >
+    <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{config.useWhen}</p>
+    <GuidanceBody {...config} />
+  </OperatorHomeDisclosureSection>
+);
+```
+
+**Affected files:** `archlucid-ui/src/components/FirstWeekRouteGuidance.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Visual polish audit V09 (2026-06-29).
+
+---
+
+## TB-544 — Rename "Unknown" severity badge to "Unclassified" and add distinct visual treatment (P1)
+
+**Why:** `severityTagClass("unknown")` renders same visual as `enterpriseStatusTagClass("neutral")`. Enterprise reviewers see "Unknown" severity in findings tables with no visual distinction from a missing-data state. The label "Unknown" is more alarming than "Unclassified."
+
+**Approach:**
+
+1. In `SEVERITY_LABELS`, change `unknown: "Unknown"` → `unknown: "Unclassified"`.
+2. In `severityTagClass("unknown")`, change to a visually distinct dashed or muted treatment:
+   ```typescript
+   case "unknown":
+     return `${STATUS_TAG_BASE} border-dashed border-neutral-400 bg-al-surface-raised text-al-text-secondary dark:border-neutral-600`;
+   ```
+
+**Acceptance criteria:**
+
+- "Unknown" severity is displayed as "Unclassified".
+- The badge is visually distinct from the neutral status badge.
+
+**Affected files:** `archlucid-ui/src/lib/design-tokens.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Visual polish audit V04 (2026-06-29).
+
+---
+
+## TB-545 — Rename FindingInspectContextDebugPanel toggle from "Debug: View Raw Context" (P0)
+
+**Why:** The toggle label "Debug: View Raw Context" is visible to all operators on the finding inspect page. Enterprise buyers, CTOs, and auditors opening a finding see a "Debug" toggle — an unconditional trust signal that this is an engineering prototype, not an enterprise product. The description also references "LLM user prompt" which may surprise buyers before they understand ArchLucid's AI trust model.
+
+**Approach:**
+
+```tsx
+// Label: change
+"Debug: View Raw Context"
+// To:
+"Evidence trace detail"
+
+// Description: change
+"Shows cited evidence excerpts, provenance context steps, and the redacted LLM user prompt the model saw."
+// To:
+"Shows the evidence excerpts and analysis context used to produce this finding."
+```
+
+Optionally gate behind `AdminAuthority`:
+```tsx
+if (callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) return null;
+```
+
+**Acceptance criteria:**
+
+- No operator on the finding inspect page sees the word "Debug".
+- The word "LLM" is not visible in the panel description.
+
+**Affected files:** `archlucid-ui/src/components/findings/FindingInspectContextDebugPanel.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Leakage audit L01 (2026-06-29).
+
+---
+
+## TB-546 — Gate OperatorCorePilotDiagnosticsChecklist to AdminAuthority (P0)
+
+**Why:** The checklist exposes internal telemetry language visible to all full-shell operators: "Server-tracked onboarding signals (this deployment)", "process-lifetime for this deployment and reset when the API host restarts", "Registration/session signal", "Finalization signal", "finalize counter", "pipeline persists". This is a DevOps monitoring panel, not a user-facing product feature.
+
+**Approach:**
+
+Option A — authority gate (fast path):
+```tsx
+const { callerAuthorityRank } = useOperatorNavAuthority();
+if (callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
+  return null;
+}
+```
+
+Option B — rewrite as user-facing first-review progress card, removing all deployment/pipeline language.
+
+**Acceptance criteria:**
+
+- Non-admin operators do not see "Server-tracked onboarding signals", "process-lifetime", "Registration/session signal", or "finalize counter" copy.
+
+**Affected files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+
+**Size estimate:** **XS** (Option A) / **M** (Option B)
+
+**Cross-ref:** Leakage audit L02 (2026-06-29).
+
+---
+
+## TB-547 — Remove "dev"/"test" environment defaults from governance approval submit form (P1)
+
+**Why:** `submitSource` defaults to `"dev"` and `submitTarget` to `"test"` — DevOps environment names pre-filled in an architecture review governance approval form. Operators submitting their first approval see these values and may assume they are managing software deployments.
+
+**Approach:**
+
+```typescript
+const [submitSource, setSubmitSource] = useState<string>("");
+const [submitTarget, setSubmitTarget] = useState<string>("");
+```
+
+Add placeholders to the input fields: `placeholder="e.g. source-environment"` / `placeholder="e.g. target-environment"`. Add a help tooltip: "Source and target represent the review states in your governance process."
+
+**Acceptance criteria:**
+
+- Governance approval form shows no pre-filled environment values.
+- Placeholder text guides operators without exposing internal defaults.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Leakage audit L03 (2026-06-29).
+
+---
+
+## TB-548 — Replace "Review package promoted." governance toast with governance vocabulary (P1)
+
+**Why:** "Promoted" is deployment pipeline vocabulary. The action in the governance workflow is approving an architecture review package for decision support, not promoting software to an environment.
+
+**Approach:**
+
+```typescript
+// Change:
+setToast({ kind: "ok", message: "Review package promoted." });
+// To:
+setToast({ kind: "ok", message: "Review package approved for release." });
+```
+
+Also review other toasts in the file for similar pipeline vocabulary.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Leakage audit L04 (2026-06-29).
+
+---
+
+## TB-549 — Gate RunTraceViewerLink to admin authority or add "Support reference" label (P1)
+
+**Why:** `RunTraceViewerLink` renders hex trace IDs and a "View trace" link to internal observability infrastructure — visible to all operators on finding inspect and error surfaces. Enterprise governance reviewers and auditors do not need access to distributed tracing; this looks like internal DevOps tooling in a product UI.
+
+**Approach:**
+
+Add authority gate:
+```tsx
+if (callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
+  // Render copy-only minimal version without external trace link
+  return <span className="font-mono text-neutral-500">Support ref: {preview}</span>;
+}
+```
+
+Or wrap in an expandable "Technical details (for support)" disclosure that collapses by default.
+
+**Acceptance criteria:**
+
+- Non-admin operators do not see the "View trace" external link to internal infrastructure.
+- The trace ID is either hidden or labeled as a support reference.
+
+**Affected files:** `archlucid-ui/src/components/RunTraceViewerLink.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Leakage audit L05 (2026-06-29).
+
+---
+
+## TB-550 — Fix FindingInspectFindingBody live-path CTA label (P1)
+
+Duplicate of TB-537 — tracked from leakage audit perspective. See TB-537 for implementation.
+
+**Cross-ref:** Leakage audit L06, TB-537 (2026-06-29).
+
+---
+
+## TB-551 — Fix governance demo manifest version `"3.4.1"` pre-fill (P2)
+
+**Why:** In demo/static mode, `submitManifestVersion` is pre-filled with `"3.4.1"` — a raw internal version string visible in the approval submit form as the default value.
+
+**Approach:**
+
+Use a descriptive demo placeholder: `"3.4.1 (Claims Intake example)"` and ensure it only pre-fills when `isStaticDemoPayloadFallbackEnabled()` — not for the buyer-polished shell which should show an empty field.
+
+**Acceptance criteria:**
+
+- The buyer-polished shell governance form shows an empty version field.
+- Static demo mode shows a descriptive placeholder, not a raw version number.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Leakage audit L07 (2026-06-29).
+
+---
+
+## TB-552 — Rename "Approval workflow quickstart" to "How governance approval works" (P2)
+
+**Why:** The "Approval workflow quickstart" accordion in the non-buyer operator shell exposes `GovernanceInteractiveQuickstartCard` with steps labeled "promote manifest" and "activate environment". This reads as a developer tutorial for calling APIs, not a governance workflow reference.
+
+**Approach:**
+
+1. Rename the accordion trigger label from `"Approval workflow quickstart"` to `"How governance approval works"`.
+2. In `GovernanceInteractiveQuickstartCard`, replace API-verb labels with governance vocabulary:
+   - "promote manifest" → "approve and advance review package"
+   - "activate environment" → "record go-live"
+   - "submit approval request" → "request governance approval"
+
+**Affected files:**
+- `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+- `archlucid-ui/src/components/GovernanceInteractiveQuickstartCard.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Leakage audit L08 (2026-06-29).
+
+---
+
+## TB-553 — Unify FindingInspectFindingBody reviewContextLabel (P1)
+
+Duplicate of TB-537 — tracked from link integrity perspective. See TB-537 for implementation.
+
+**Cross-ref:** Link integrity audit R01, TB-537 (2026-06-29).
+
+---
+
+## TB-554 — Add audit trail CTA to governance empty states (P1)
+
+**Why:** When `activeRunId === null` on the governance page, the empty state has no link to the audit trail. Read-only reviewers who arrive at governance without loading a specific review have no forward path to the audit trail — a dead end for step 8→9 of the golden path.
+
+**Approach:**
+
+In `archlucid-ui/src/lib/empty-state-presets.ts`, add a secondary action to `GOVERNANCE_WORKFLOW_IDLE` and `GOVERNANCE_WORKFLOW_IDLE_READER`:
+
+```typescript
+secondaryAction: {
+  label: "View audit trail →",
+  href: "/governance/audit",
+},
+```
+
+Update the `EmptyState` component to render `secondaryAction` when present (as a link below the main CTA).
+
+**Acceptance criteria:**
+
+- Both governance empty states include a "View audit trail →" link.
+- The link routes to `/governance/audit`.
+
+**Affected files:**
+- `archlucid-ui/src/lib/empty-state-presets.ts`
+- `archlucid-ui/src/components/EmptyState.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** Link integrity audit R02 (2026-06-29).
+
+---
+
+## TB-555 — Add sample-data disclosure to review error boundary recovery CTA (P1)
+
+**Why:** In static-demo or buyer-polished mode, the review-detail error boundary links to `SHOWCASE_STATIC_DEMO_MANIFEST_ID` without disclosing that this is demo data. An operator who hit a real error (e.g., network timeout) is silently redirected to a static demo record without being told their real data is unaffected.
+
+**Approach:**
+
+Add a disclaimer below the demo CTA group:
+
+```tsx
+<p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+  The sample above uses demo data. Your reviews remain available at{" "}
+  <Link href="/reviews?projectId=default" className={OPERATOR_LINK.nav}>
+    Reviews list
+  </Link>.
+</p>
+```
+
+**Acceptance criteria:**
+
+- The review error boundary in demo/buyer-polished mode shows a note clarifying the linked content is sample data.
+- A direct link to the reviews list is present.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/reviews/[runId]/error.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Link integrity audit R03 (2026-06-29).
+
+---
+
+## TB-556 — Fix error boundary "Read-only walkthrough" link from marketing route to operator-appropriate route (P2)
+
+**Why:** The error boundary links to `/demo/preview` (a marketing-surface route) as a recovery CTA inside the operator shell. Clicking it takes users out of the product and into a marketing demo page.
+
+**Approach:**
+
+```tsx
+// Change:
+<Link href="/demo/preview">{isBuyerPolished ? "Read-only walkthrough" : "View sample walkthrough"}</Link>
+// To:
+<Link href={`/showcase/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
+  View sample review
+</Link>
+```
+
+**Acceptance criteria:**
+
+- The recovery CTA in buyer/operator error states routes to `/showcase/[demoRunId]`, not `/demo/preview`.
+- CTA label is "View sample review" in all modes.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/reviews/[runId]/error.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Link integrity audit R04 (2026-06-29).
+
+---
+
+## TB-557 — Verify `#first-run-workflow-panel` anchor resolves on all home variants (P2)
+
+**Why:** `OperatorCorePilotDiagnosticsChecklist` contains `href="#first-run-workflow-panel"`. If the target element (`id="first-run-workflow-panel"`) is not rendered on the current home page variant, clicking "Jump to first review checklist" silently does nothing.
+
+**Approach:**
+
+1. Verify the `id="first-run-workflow-panel"` target is always in the DOM when `OperatorCorePilotDiagnosticsChecklist` renders.
+2. Add a test asserting that `document.getElementById("first-run-workflow-panel")` is not null when this component is mounted.
+3. If the target is conditionally rendered, provide a fallback `href="/reviews/new"` (the actual first review action) instead of the anchor.
+
+**Acceptance criteria:**
+
+- Clicking "Jump to first review checklist" either scrolls to the target or routes to a useful fallback.
+
+**Affected files:** `archlucid-ui/src/components/OperatorCorePilotDiagnosticsChecklist.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Link integrity audit R05 (2026-06-29).
+
+---
+
+## TB-558 — Add help tooltip to governance environment fields (P2)
+
+**Why:** The governance submit form's "Source environment" and "Target environment" fields have no explanation for operators unfamiliar with the approval workflow. Users don't know what to enter, and the fields look like software deployment infrastructure (especially with the "dev"/"test" defaults removed by TB-547).
+
+**Approach:**
+
+Add a `<TooltipProvider>` / `<Tooltip>` help icon next to each field label explaining: "Source and target describe the review state transitions in your governance process (e.g., 'review-pending' → 'approved')."
+
+Or add an inline helper text below the field cluster: `"Enter the review state names used in your organization's governance workflow."`
+
+**Affected files:** The governance submit section component (locate via `GovernanceWorkflowSubmitSection`).
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Link integrity audit R06 (2026-06-29).
+
+---
+
+## TB-559 — Remove demo version pre-fill from governance submit form in non-static-demo modes (P2)
+
+**Why:** `setSubmitManifestVersion(isDemoShell ? "3.4.1" : "")` — the `isDemoShell` check includes the buyer-polished shell. The buyer-polished shell is not necessarily the static demo; it's a polished presentation mode for live buyer demos with real data. A buyer demo with real data should show an empty version field.
+
+**Approach:**
+
+Change:
+```typescript
+const [submitManifestVersion, setSubmitManifestVersion] = useState(isDemoShell ? "3.4.1" : "");
+```
+To:
+```typescript
+const [submitManifestVersion, setSubmitManifestVersion] = useState(
+  isStaticDemoPayloadFallbackEnabled() ? "3.4.1 (Claims Intake example)" : "",
+);
+```
+
+**Acceptance criteria:**
+
+- The buyer-polished shell governance form shows an empty version field.
+- Static demo mode shows `"3.4.1 (Claims Intake example)"` as a descriptive pre-fill.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** Leakage audit TB-551, link audit R07 (2026-06-29).
+
+---
+
+## TB-560 — Dynamic-import `CommandPalette` from operator shell top bar (P1)
+
+**Why:** `OperatorShellTopBar.tsx` statically imports `CommandPalette.tsx` (~617 lines) and `cmdk` on every operator page load. Most sessions never open the palette, but every route pays parse/hydrate cost for this chunk in the shell bundle.
+
+**Approach:**
+
+1. Replace the static import in `OperatorShellTopBar.tsx` with `next/dynamic(() => import("…/CommandPalette"), { ssr: false, loading: () => … })`.
+2. Preserve keyboard shortcut behavior (preload on first `keydown` for `/` or `Ctrl+K` if already implemented; otherwise lazy load on open only).
+3. Run `npm run build:analyze` before/after and record First Load JS for `/reviews` and `/governance`.
+
+**Acceptance criteria:**
+
+- `CommandPalette` and `cmdk` are not in the initial operator shell shared chunk.
+- Palette opens with acceptable delay (<200 ms on dev hardware) after shortcut or click.
+- Existing CommandPalette Vitest/Playwright coverage still passes.
+
+**Affected files:** `archlucid-ui/src/components/shell/OperatorShellTopBar.tsx`, `archlucid-ui/src/components/CommandPalette.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** UI performance audit PERF-01 (2026-06-30); canvas `canvases/ui-performance-backlog.canvas.tsx`.
+
+---
+
+## TB-561 — Dynamic-import `FindingEvidenceGraph` (reactflow + CSS) (P1)
+
+**Why:** `FindingEvidenceGraph.tsx` statically imports `reactflow` and `reactflow/dist/style.css`. Users who never open a finding evidence graph still download and parse the reactflow bundle (~350 KB minified baseline).
+
+**Approach:**
+
+1. Wrap `FindingEvidenceGraph` in `next/dynamic({ ssr: false })` at every call site (or export a lazy wrapper from the component module).
+2. Show a skeleton matching `GraphStaticFallback` styling while the chunk loads.
+3. Ensure reactflow CSS loads with the dynamic chunk, not the shell.
+
+**Acceptance criteria:**
+
+- `reactflow` is absent from First Load JS on routes that do not render the graph.
+- Graph renders correctly after lazy load on finding inspect / evidence surfaces.
+- No regression in graph interaction tests.
+
+**Affected files:** `archlucid-ui/src/components/findings/FindingEvidenceGraph.tsx` and importers
+
+**Size estimate:** **S**
+
+**Cross-ref:** UI performance audit PERF-02 (2026-06-30); **TB-536** (GraphStaticFallback copy).
+
+---
+
+## TB-562 — Expand TanStack Query across operator shell (P1)
+
+**Why:** Only four shell-status query hooks exist (`use-tenant-trial-status-query`, `use-tenant-usage-status-query`, `use-llm-monthly-budget-status-query`, `use-health-ready-summary-query`). **80+** components use raw `useEffect`+`fetch` with no deduplication, stale-while-revalidate, or cache restore on back-navigation. Duplicate `/api/proxy` calls fire on shell + page mount.
+
+**Approach:**
+
+1. Prioritize high-traffic reads: operator home, governance findings queue, alerts inbox, billing/settings banners, executive dashboard provider data.
+2. Add `use-*-query.ts` hooks colocated under `src/hooks/` or feature folders; align query keys to tenant/workspace/run scope headers (reuse `operator-query-stale-time.ts` defaults: 60s stale, 5min GC).
+3. Wire mutation invalidation for writes that affect cached lists.
+4. Document pattern in `UI_ARCHITECTURE_V1_1.md` §1 as partially shipped (not fully deferred).
+
+**Acceptance criteria:**
+
+- Network waterfall on operator home load shows deduplicated proxy calls for migrated surfaces.
+- Back-navigation restores from cache without loading flash where data is fresh.
+- No business rules moved client-side — hooks wrap existing API client functions only.
+
+**Affected files:** `archlucid-ui/src/hooks/use-*-query.ts` (new/extended), `archlucid-ui/src/components/OperatorQueryProvider.tsx`, `archlucid-ui/src/lib/query/operator-query-client.ts`, governance/alerts/home/executive consumers listed in audit
+
+**Size estimate:** **L**
+
+**Cross-ref:** [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1; UI performance audit PERF-03 (2026-06-30).
+
+---
+
+## TB-563 — Decompose `GovernanceFindingsQueueClient` (~1115 lines) (P1)
+
+**Why:** Single client component owns list rendering, filters, pagination, drawer detail, and mutations. Any state change re-renders the full subtree; no independent Suspense or lazy sections.
+
+**Approach:**
+
+1. Split into slot components: `GovernanceFindingsFilterBar`, `GovernanceFindingsList`, `GovernanceFindingRow`, `GovernanceFindingDetailPane` (each in own file per repo convention).
+2. Colocate data hooks (`useGovernanceFindingsQuery`, etc.) — prefer **TB-562** Query hooks.
+3. Optionally lazy-load detail pane below fold.
+
+**Acceptance criteria:**
+
+- Main file under ~200 lines; each child component focused on one concern.
+- Filter changes do not re-render closed detail panes unnecessarily (memo boundaries or colocated state).
+- Existing governance findings Vitest coverage preserved or improved.
+
+**Affected files:** `archlucid-ui/src/components/GovernanceFindingsQueueClient.tsx` → new sibling modules under `archlucid-ui/src/components/governance/findings/` (or equivalent)
+
+**Size estimate:** **L**
+
+**Cross-ref:** UI performance audit PERF-04 (2026-06-30).
+
+---
+
+## TB-564 — Decompose `AlertsInboxContent` + `RunsDashboardPanel` (P1)
+
+**Why:** Both are monolithic client components (~903 and ~822 lines) fetching at top-level `useEffect`. They block parallel server data fetching and widen hydration scope on home and reviews surfaces.
+
+**Approach:**
+
+1. Introduce server loaders / `load*PageModel` for initial list data where `(operator)` route policy allows (follow `RunDetailBelowFoldSections` pattern).
+2. Split interactive slices (filters, row actions, expanders) into client islands.
+3. Coordinate with **TB-562** for client-side refresh paths.
+
+**Acceptance criteria:**
+
+- Above-fold content can render from server props without waiting for client fetch on migrated routes.
+- Component files decomposed; no single file >400 lines without documented reason.
+- Home and reviews list smoke tests pass.
+
+**Affected files:** `archlucid-ui/src/components/AlertsInboxContent.tsx`, `archlucid-ui/src/components/RunsDashboardPanel.tsx`, related page loaders under `archlucid-ui/src/app/(operator)/`
+
+**Size estimate:** **L**
+
+**Cross-ref:** UI performance audit PERF-05 (2026-06-30); **TB-345**–**TB-353** (home first-run UX — complementary, not duplicate).
+
+---
+
+## TB-565 — Add `experimental.optimizePackageImports` (P1)
+
+**Why:** Next.js 15 supports import-time tree-shaking for barrel-heavy packages. `lucide-react`, `recharts`, and `@radix-ui/*` are imported widely; unused exports may inflate shared chunks. Nav group builders importing many Lucide icons are a known risk.
+
+**Approach:**
+
+1. Add to `archlucid-ui/next.config.ts`:
+
+```typescript
+experimental: {
+  optimizePackageImports: [
+    "lucide-react",
+    "recharts",
+    "@radix-ui/react-dialog",
+    "@radix-ui/react-dropdown-menu",
+    // … other @radix-ui/react-* in package.json
+  ],
+},
+```
+
+2. Run `npm run build:analyze` before/after; confirm shared chunk delta.
+3. No functional code changes required unless analyze reveals a broken import (fix forward).
+
+**Acceptance criteria:**
+
+- Config merged without breaking `next build`.
+- Documented First Load JS improvement on at least one operator route, or explicit "no measurable change" note in PR.
+- All UI Vitest + typecheck green.
+
+**Affected files:** `archlucid-ui/next.config.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** UI performance audit PERF-06 (2026-06-30).
+
+---
+
+## TB-566 — Push `"use client"` boundaries down (P2)
+
+**Why:** **200+** `.tsx` files carry `"use client"`. Many settings `*PageView.tsx` only render props; `WelcomeMarketingPage` could be mostly server-rendered with client islands for forms/CTAs.
+
+**Approach:**
+
+1. Audit `*PageView.tsx` under `(operator)/settings/` — convert prop-only views to server components; keep `*Client.tsx` for mutations.
+2. Refactor `(marketing)/welcome/page.tsx` to compose server sections + client `SignupForm` / CTA islands.
+3. Track `"use client"` count in PR description (target: measurable reduction on marketing + settings routes).
+
+**Acceptance criteria:**
+
+- Welcome marketing route ships less client JS (verify via build analyze).
+- Settings pages that only display server-fetched props are server components.
+- No hydration mismatch errors in Playwright marketing/operator smoke.
+
+**Affected files:** `archlucid-ui/src/app/(marketing)/welcome/page.tsx`, `archlucid-ui/src/components/marketing/WelcomeMarketingPage.tsx`, `archlucid-ui/src/app/(operator)/settings/**/*PageView.tsx`
+
+**Size estimate:** **M**
+
+**Cross-ref:** UI performance audit PERF-07 (2026-06-30).
+
+---
+
+## TB-567 — ISR on remaining static marketing routes (P2)
+
+**Why:** `see-it`, `live-demo`, `demo/preview`, and `showcase/[runId]` already use `revalidate = 300`. `/welcome`, `/pricing`, and `/trust` appear static but may still hit origin on every cold visit.
+
+**Approach:**
+
+1. Add `export const revalidate = 300` (or `operator-static-route-policy` equivalent) to welcome, pricing, and trust page modules.
+2. Confirm no authenticated/session-dependent data on those pages (marketing layout only).
+3. Verify Clarity/consent loaders remain client-only and ISR-safe.
+
+**Acceptance criteria:**
+
+- TTFB for cold marketing visits served from CDN edge where deployed.
+- Content updates propagate within revalidate window.
+- Marketing E2E still passes.
+
+**Affected files:** `archlucid-ui/src/app/(marketing)/welcome/page.tsx`, `archlucid-ui/src/app/(marketing)/pricing/page.tsx`, `archlucid-ui/src/app/(marketing)/trust/page.tsx`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** UI performance audit PERF-08 (2026-06-30); `operator-static-route-policy.ts`.
+
+---
+
+## TB-568 — Memoize + split operator shell context providers (P2)
+
+**Why:** `AppShellClient` nests 7+ React context providers (`OperatorQueryProvider`, `GovernanceModeProvider`, `WorkspaceActiveRunProvider`, etc.). Context value changes re-render large subtrees.
+
+**Approach:**
+
+1. Audit each provider value object — wrap in `useMemo` where not already memoized.
+2. Move `WorkspaceActiveRunProvider` closer to run-scoped routes if feasible without breaking shell chrome.
+3. Add a Vitest or React DevTools profiling note in PR if measurable re-render reduction.
+
+**Acceptance criteria:**
+
+- Documented list of memoized context values in `AppShellClient` (or extracted provider modules).
+- Governance mode / active-run toggles do not re-render unrelated shell regions (verify with targeted test or manual profiling checklist).
+
+**Affected files:** `archlucid-ui/src/components/AppShellClient.tsx`, `archlucid-ui/src/hooks/use-governance-mode.ts`
+
+**Size estimate:** **S**
+
+**Cross-ref:** UI performance audit PERF-09 (2026-06-30); [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §2.
+
+---
+
+## TB-569 — Migrate `ExecutiveDashboardDataContext` to React Query (P2)
+
+**Why:** Executive dashboard fetches at provider level in `useEffect` on every mount — no cache restore on back-navigation, duplicates **TB-562** goals for one high-visibility surface.
+
+**Approach:**
+
+1. Replace provider fetch with `useQuery` + shared key scoped to tenant/executive window.
+2. Keep context as thin selector over query result if needed for deep consumers.
+3. Align stale time with other executive KPI reads.
+
+**Acceptance criteria:**
+
+- Navigating away and back to executive dashboard shows cached data immediately when fresh.
+- Loading/error states unchanged from operator perspective.
+- Unit tests cover query key scoping.
+
+**Affected files:** `archlucid-ui/src/components/executive/ExecutiveDashboardDataContext.tsx`
+
+**Size estimate:** **S**
+
+**Cross-ref:** UI performance audit PERF-10 (2026-06-30); **TB-562**, **TB-103**–**TB-105** (ROI data consistency — complementary).
+
+---
+
+## TB-570 — Audit static `recharts` imports (P2)
+
+**Why:** `ExecutiveRoiSystemicIssueTrendChart.tsx` imports `recharts` statically; parent `ExecutiveRoiSummarySection` wraps it in `dynamic()`. Other call sites may bypass the split.
+
+**Approach:**
+
+1. Grep `from "recharts"` across `archlucid-ui/src`.
+2. Ensure every production path uses a dynamic wrapper or is behind a dynamically imported parent.
+3. Add a lightweight Vitest or ESLint advisory (optional) banning static recharts import outside `*-chart.tsx` dynamic entry points.
+
+**Acceptance criteria:**
+
+- Grep shows no static recharts import on operator home/reviews hot paths.
+- Executive dashboard charts still render.
+
+**Affected files:** `archlucid-ui/src/components/executive/ExecutiveRoiSystemicIssueTrendChart.tsx` and any other recharts importers
+
+**Size estimate:** **XS**
+
+**Cross-ref:** UI performance audit PERF-11 (2026-06-30).
+
+---
+
+## TB-571 — Nested `Suspense` on run detail + governance hub (P2)
+
+**Why:** `loading.tsx` covers primary routes; independent below-fold sections (run detail outcomes, governance queue) still block first paint until all data resolves. Deferred in **UI_ARCHITECTURE_V1_1.md** §7.
+
+**Approach:**
+
+1. Wrap `RunDetailBelowFoldSections` and governance findings main list in `<Suspense fallback={…}>`.
+2. Ensure server components / async children can stream where `(operator)` `force-dynamic` policy allows.
+3. Match skeleton styling to existing `loading.tsx` patterns.
+
+**Acceptance criteria:**
+
+- Above-fold run detail header/metadata paints before below-fold sections on throttled network (manual or Playwright `slow 3g` spot check).
+- No duplicate fetch regressions (coordinate with **TB-562**).
+
+**Affected files:** `archlucid-ui/src/app/(operator)/reviews/[runId]/page.tsx`, `archlucid-ui/src/components/RunDetailBelowFoldSections.tsx`, `archlucid-ui/src/app/(operator)/governance/page.tsx`
+
+**Size estimate:** **M**
+
+**Cross-ref:** [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §7; UI performance audit PERF-12 (2026-06-30).
+
+---
+
+## TB-572 — Defer App Insights initialization (P2)
+
+**Why:** `AppInsightsTelemetryInit` runs on every operator session during initial render. Telemetry is valuable but not critical-path for first paint.
+
+**Approach:**
+
+1. Move `@microsoft/applicationinsights-web` initialization into `requestIdleCallback` (with `setTimeout` fallback) or first user interaction handler.
+2. Preserve existing dynamic import in `telemetry.ts`.
+3. Confirm RUM still captures first navigation after deferral.
+
+**Acceptance criteria:**
+
+- App Insights initializes after first paint on operator load (verify in Performance tab).
+- No lost session telemetry for standard navigation flows.
+- CSP unchanged.
+
+**Affected files:** `archlucid-ui/src/components/AppInsightsTelemetryInit.tsx`, `archlucid-ui/src/lib/telemetry.ts`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** UI performance audit PERF-13 (2026-06-30).
+
+---
+
+## TB-573 — Bundle baseline + Lighthouse CI gate (P2)
+
+**Why:** Without a baseline, bundle regressions from future PRs go unnoticed. `@next/bundle-analyzer` and `build:analyze` already exist but are not gated in CI.
+
+**Approach:**
+
+1. Run `npm run build:analyze` in `archlucid-ui`; record First Load JS for `/welcome`, `/reviews`, `/reviews/[runId]` (fixture id), `/governance` in `docs/library/` or committed JSON snapshot under `archlucid-ui/` (choose one canonical artifact).
+2. Add GitHub Action (or extend existing UI CI) with Lighthouse CI or custom script comparing against snapshot threshold (warn first, fail after baseline stable).
+3. Document runbook in `archlucid-ui/AGENTS.md` or `docs/library/TEST_EXECUTION_MODEL.md`.
+
+**Acceptance criteria:**
+
+- Baseline artifact checked in or generated in CI with documented update process.
+- PR that adds >N KB to `/reviews` First Load JS fails or warns per team policy.
+- **TB-560**–**TB-565** PRs reference before/after metrics.
+
+**Affected files:** `archlucid-ui/next.config.ts`, `archlucid-ui/package.json`, `.github/workflows/` (new or extended), `docs/library/TEST_EXECUTION_MODEL.md`
+
+**Size estimate:** **S**
+
+**Cross-ref:** UI performance audit PERF-14 (2026-06-30); **TB-319** (pilot-critical performance evidence — Done, different layer).
