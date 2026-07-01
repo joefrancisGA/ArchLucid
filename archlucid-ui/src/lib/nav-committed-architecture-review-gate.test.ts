@@ -49,7 +49,6 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
     expect(hrefs).toEqual([
       "/",
       "/reviews/new",
-      "/graph",
       "/reviews",
       "/dashboard",
       "/onboarding",

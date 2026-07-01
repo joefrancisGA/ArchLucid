@@ -1,6 +1,5 @@
 import {
   ClipboardList,
-  GitGraph,
   Home,
   LayoutDashboard,
   ListOrdered,
@@ -24,7 +23,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: New review → Evidence graph → Review packages → Portfolio overview; then onboarding and governance follow-up.",
+        "Buyer-first path: Overview → New review → Review packages → Portfolio overview; then Getting started and governance follow-up.",
       links: [
         {
           href: "/",
@@ -40,15 +39,6 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           title: this.shortcutTitle("Create an architecture review", "alt+n"),
           keyShortcut: "alt+n",
           icon: Rocket,
-          tier: "essential",
-          defaultVisibleInCollapsedSidebar: true,
-        },
-        {
-          href: "/graph",
-          label: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
-          title: this.shortcutTitle("Trace evidence, findings, and decisions", "alt+y"),
-          keyShortcut: "alt+y",
-          icon: GitGraph,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,
         },

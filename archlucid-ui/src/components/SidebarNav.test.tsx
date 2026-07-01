@@ -213,7 +213,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     const nav = screen.getByRole("navigation", { name: "Review work" });
     expect(within(nav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(nav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
-    expect(within(nav).getByRole("link", { name: "Evidence graph" })).toHaveAttribute("href", "/graph");
+    expect(within(nav).queryByRole("link", { name: "Evidence graph" })).toBeNull();
 
     expect(screen.getByTestId("operate-features-unlock-panel")).toBeInTheDocument();
     expect(screen.queryByTestId("sidebar-group-toggle-operate-analysis")).toBeNull();

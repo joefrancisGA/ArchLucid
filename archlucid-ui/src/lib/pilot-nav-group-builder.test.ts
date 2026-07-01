@@ -66,16 +66,16 @@ describe("PilotNavGroupBuilder", () => {
     expect(overviewLink?.title).toBe("Workspace overview");
   });
 
-  it("keeps Review work focused on first-review essentials only", () => {
+  it("keeps Review work focused on first-review essentials only (TB-518)", () => {
     const group = new PilotNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.label)).toEqual([
       "Overview",
       "New review",
-      "Evidence graph",
       "Review packages",
       "Portfolio overview",
       "Getting started",
     ]);
+    expect(group.links.some((link) => link.href === "/graph")).toBe(false);
   });
 });
