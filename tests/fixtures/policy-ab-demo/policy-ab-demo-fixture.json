@@ -17,5 +17,11 @@
     "addedRuleKeys": ["demo-ctrl-network-isolation"],
     "defaultGateBlocked": false,
     "strictGateBlocked": true
+  },
+  "diffArtifact": {
+    "producer": "ArchLucid.Application.Governance.PolicyPackBeforeAfterDiff.PolicyPackBeforeAfterDiffDemoService",
+    "regressionTest": "ArchLucid.Application.Tests.Governance.PolicyPackBeforeAfterDiffDemoTests",
+    "markdownRenderer": "PolicyPackBeforeAfterDiffMarkdownRenderer",
+    "bundleFileNames": ["policy-pack-before-after-diff.json", "policy-pack-before-after-diff.md"]
   }
 }

@@ -287,6 +287,72 @@ if ($null -ne $simulation -and ($simulation.PSObject.Properties.Name -contains '
 
 Save-JsonArtifact -FileName 'summary.json' -Object $summary
 
+# Phase E — before/after diff artifact (sales/demo bundle)
+$beforeBlocked = $false
+$afterBlocked = $false
+
+if ($null -ne $baselineDryRun -and ($baselineDryRun.PSObject.Properties.Name -contains 'gateResult')) {
+    $beforeBlocked = [bool]$baselineDryRun.gateResult.blocked
+}
+
+if ($null -ne $strictDryRun -and ($strictDryRun.PSObject.Properties.Name -contains 'gateResult')) {
+    $afterBlocked = [bool]$strictDryRun.gateResult.blocked
+}
+
+$diffArtifact = @{
+    demoLabel          = 'policy-pack-delta-demo (live API bundle)'
+    runId              = $runIdNormalized
+    before             = @{
+        configurationLabel = 'Configuration A — baseline dry-run (allow path)'
+        gateBlocked        = $beforeBlocked
+        dryRunArtifact     = 'phase-b1-dry-run-baseline-allow.json'
+    }
+    after              = @{
+        configurationLabel = 'Configuration B — strict dry-run (block path)'
+        gateBlocked        = $afterBlocked
+        dryRunArtifact     = 'phase-b2-dry-run-strict-block.json'
+    }
+    changes            = @{
+        gateBlockedFlipped = ($beforeBlocked -ne $afterBlocked)
+        executiveSummaryLinesAdded = @(
+            if ($afterBlocked -and -not $beforeBlocked) { 'Pre-commit gate: blocked (commit would not proceed)' }
+        ) | Where-Object { $_ -ne $null }
+        executiveSummaryLinesRemoved = @(
+            if ($beforeBlocked -and -not $afterBlocked) { 'Pre-commit gate: allowed (commit would proceed)' }
+        ) | Where-Object { $_ -ne $null }
+    }
+    auditTrailCitations = @(
+        @{
+            eventType = 'GovernanceDryRunRequested'
+            runId     = $runIdNormalized
+            note      = 'Emitted by POST /v1/governance/policy-packs/dry-run for baseline and strict arms; filter phase-d-audit-governance-events.csv'
+        }
+    )
+    canonicalFixture   = 'tests/fixtures/policy-ab-demo/policy-ab-demo-fixture.json'
+    canonicalTest      = 'ArchLucid.Application.Tests.Governance.PolicyPackBeforeAfterDiffDemoTests'
+}
+
+Save-JsonArtifact -FileName 'policy-pack-before-after-diff.json' -Object $diffArtifact
+
+$markdownLines = @(
+    '# Policy pack before/after diff (live API bundle)',
+    '',
+    "- **Run id:** ``$runIdNormalized``",
+    "- **Before gate blocked:** $beforeBlocked (see phase-b1-dry-run-baseline-allow.json)",
+    "- **After gate blocked:** $afterBlocked (see phase-b2-dry-run-strict-block.json)",
+    "- **Gate flipped:** $($beforeBlocked -ne $afterBlocked)",
+    '',
+    '## Audit trail',
+    'Filter `phase-d-audit-governance-events.csv` for `GovernanceDryRunRequested` and, when assignments are persisted, `PolicyPackAssignmentCreated`.',
+    '',
+    '## Canonical synthetic fixture',
+    'For deterministic CI regression and fully structured finding/rule/executive-summary deltas, run `PolicyPackBeforeAfterDiffDemoTests` in ArchLucid.Application.Tests.'
+)
+
+$markdownPath = Join-Path $bundleDir 'policy-pack-before-after-diff.md'
+$markdownLines | Set-Content -LiteralPath $markdownPath -Encoding UTF8
+Write-Host "Wrote $markdownPath"
+
 Write-Host ''
 Write-Host 'Delta demo complete.' -ForegroundColor Green
 Write-Host "  Baseline dry-run blocked: $($summary.baselineBlocked)"

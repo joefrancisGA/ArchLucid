@@ -195,7 +195,22 @@ From repo root (Development API @ `http://127.0.0.1:5128`, DevelopmentBypass or 
   -OutputDirectory artifacts/policy-pack-delta-demo
 ```
 
-Outputs: JSON artifacts for baseline dry-run, strict dry-run, pre-commit simulation, and audit CSV slice metadata under a timestamped folder.
+Outputs: JSON artifacts for baseline dry-run, strict dry-run, pre-commit simulation, audit CSV slice metadata, **`policy-pack-before-after-diff.json`**, and **`policy-pack-before-after-diff.md`** under a timestamped folder.
+
+**Canonical structured diff (CI):** `dotnet test ArchLucid.Application.Tests --filter FullyQualifiedName~PolicyPackBeforeAfterDiffDemoTests` produces a Verify snapshot of the full finding / rule-priority / executive-summary delta using the synthetic fixture (`tests/fixtures/policy-ab-demo/policy-ab-demo-fixture.json`).
+
+---
+
+## Phase E — Before/after diff artifact (bundle)
+
+After Phases B1–B2, the automation script writes:
+
+| File | Purpose |
+|------|---------|
+| `policy-pack-before-after-diff.json` | Machine-readable gate flip + pointers to dry-run JSON arms |
+| `policy-pack-before-after-diff.md` | Talk-track summary for sponsors |
+
+When you **persist** a stricter assignment (`POST /v1/policy-packs/{id}/assign`), re-export audit CSV and cite **`PolicyPackAssignmentCreated`** alongside **`GovernanceDryRunRequested`**.
 
 ---
 
