@@ -32,7 +32,7 @@ export function CoverageChecklistPanel(props: CoverageChecklistPanelProps): Reac
         >
           Coverage checklist
         </h3>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.meta)}>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Basic hygiene observations demoted from decision-grade findings — review for completeness, not governance blocking.
         </p>
       </div>
@@ -48,7 +48,7 @@ export function CoverageChecklistPanel(props: CoverageChecklistPanelProps): Reac
               <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{item.title}</span>
             </div>
             {item.category !== null ? (
-              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.meta)}>{item.category}</p>
+              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{item.category}</p>
             ) : null}
             {item.recommendation !== null && item.recommendation.length > 0 ? (
               <p className={cn("m-0 mt-1 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.recommendation}</p>

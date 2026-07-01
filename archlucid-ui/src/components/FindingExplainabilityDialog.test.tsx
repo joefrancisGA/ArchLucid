@@ -5,7 +5,7 @@ import { FindingExplainabilityDialog } from "@/components/FindingExplainabilityD
 import * as api from "@/lib/api";
 import type { FindingExplainability } from "@/types/explanation";
 
-vi.mock("@/components/findings/FindingEvidenceGraph", () => ({
+vi.mock("@/components/findings/FindingEvidenceGraphLazy", () => ({
   FindingEvidenceGraph: () => <div data-testid="finding-evidence-graph">Evidence graph mock</div>,
 }));
 

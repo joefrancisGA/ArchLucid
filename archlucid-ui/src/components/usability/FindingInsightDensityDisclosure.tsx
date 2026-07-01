@@ -23,7 +23,7 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
       className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40", props.className)}
       data-testid="finding-insight-density-disclosure"
     >
-      <summary className={cn("cursor-pointer font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.meta)}>
+      <summary className={cn("cursor-pointer font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Insight density signals
       </summary>
       <dl className={cn("m-0 mt-2 space-y-2", OPERATOR_TYPOGRAPHY.body)}>

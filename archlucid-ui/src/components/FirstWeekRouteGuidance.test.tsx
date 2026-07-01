@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
@@ -76,6 +76,9 @@ describe("FirstWeekRouteGuidance", () => {
 
     expect(screen.getByText("Recommended first session path")).toBeInTheDocument();
     expect(screen.queryByText(/Use this when:/)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Expand Recommended first session path/i }));
+
     expect(screen.getByText(/evidence-only/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start new review" })).toHaveAttribute("href", "/reviews/new");
   });

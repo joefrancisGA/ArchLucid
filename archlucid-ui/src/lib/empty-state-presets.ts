@@ -105,6 +105,10 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   ],
   helpTopicPath: "governance",
   gettingStarted: governanceWorkflowIdleGettingStartedOperator,
+  secondaryAction: {
+    label: "View audit trail →",
+    href: "/governance/audit",
+  },
 };
 
 /** Idle state when the principal is below Execute: inspection-first copy (mutations stay API-gated). */
@@ -119,4 +123,8 @@ export const GOVERNANCE_WORKFLOW_IDLE_READER: EmptyStateProps = {
   ],
   helpTopicPath: "governance",
   gettingStarted: governanceWorkflowIdleGettingStartedReader,
+  secondaryAction: {
+    label: "View audit trail →",
+    href: "/governance/audit",
+  },
 };

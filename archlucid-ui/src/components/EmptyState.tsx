@@ -24,6 +24,8 @@ export type EmptyStateProps = {
   title: string;
   description: ReactNode;
   actions?: EmptyStateAction[];
+  /** Optional text link below primary actions (e.g. audit trail on governance idle). */
+  secondaryAction?: EmptyStateAction;
   helpTopicPath?: string;
   /** When true, empty state is caused by active filters rather than missing data. */
   filteredEmpty?: boolean;
@@ -39,6 +41,7 @@ export function EmptyState({
   title,
   description,
   actions,
+  secondaryAction,
   helpTopicPath,
   gettingStarted,
   filteredEmpty = false,
@@ -83,6 +86,14 @@ export function EmptyState({
                 );
               })}
             </div>
+          ) : null}
+          {secondaryAction !== undefined ? (
+            <Link
+              href={secondaryAction.href}
+              className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
+            >
+              {secondaryAction.label}
+            </Link>
           ) : null}
           {helpTopicPath ? (
             <Link

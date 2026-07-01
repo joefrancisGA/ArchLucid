@@ -20,6 +20,8 @@ import {
   buildMarketingSocialMetadata,
 } from "@/lib/marketing-open-graph";
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Pricing",
   description: `ArchLucid ${BRAND_CATEGORY} — packaging and pricing overview — request a demo or quote.`,

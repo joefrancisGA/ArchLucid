@@ -152,7 +152,7 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
     >
       <header className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{copy.pageTitle}</h1>
-        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.meta}`}>{copy.summary}</p>
+        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>{copy.summary}</p>
         <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>
           See{" "}
           <Link

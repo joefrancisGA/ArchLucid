@@ -82,7 +82,7 @@ export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps)
       {showHeroStat ? (
         <div className={cn("p-3", DESIGN_TOKENS.surface.card)} data-testid="cto-demo-hero-stat">
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.executiveDashboardMetric)}>{heroStat}</p>
-          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.meta)}>{heroSubStat}</p>
+          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{heroSubStat}</p>
         </div>
       ) : null}
       <div className="space-y-1">

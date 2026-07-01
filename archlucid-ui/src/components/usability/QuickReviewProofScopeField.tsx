@@ -46,7 +46,7 @@ export function QuickReviewProofScopeField(props: QuickReviewProofScopeFieldProp
       <legend className={cn(OPERATOR_TYPOGRAPHY.label, "font-medium text-al-text-primary")}>
         What do you want proven?
       </legend>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.meta, "text-al-text-secondary")}>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
         Select at least one proof dimension. Policy packs and execution modes are optional under Advanced configuration.
       </p>
       <div className="flex flex-wrap gap-3" role="group" aria-label="Proof scope">

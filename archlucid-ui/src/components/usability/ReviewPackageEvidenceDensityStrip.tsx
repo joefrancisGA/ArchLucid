@@ -34,19 +34,19 @@ export function ReviewPackageEvidenceDensityStrip(
       data-testid="review-package-evidence-density-strip"
       role="status"
     >
-      <span className={cn(OPERATOR_TYPOGRAPHY.meta, "font-medium text-al-text-secondary")}>Evidence basis</span>
+      <span className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium text-al-text-secondary")}>Evidence basis</span>
       <dl className="m-0 flex flex-wrap items-center gap-x-3 gap-y-1">
         <div className="inline-flex items-baseline gap-1">
-          <dt className={cn(OPERATOR_TYPOGRAPHY.meta, "text-al-text-secondary")}>Findings</dt>
+          <dt className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>Findings</dt>
           <dd className={cn("m-0 tabular-nums", OPERATOR_TYPOGRAPHY.dataValue)}>{countDisplay(props.findingCount)}</dd>
         </div>
         <div className="inline-flex items-baseline gap-1">
-          <dt className={cn(OPERATOR_TYPOGRAPHY.meta, "text-al-text-secondary")}>Evidence links</dt>
+          <dt className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>Evidence links</dt>
           <dd className={cn("m-0 tabular-nums", OPERATOR_TYPOGRAPHY.dataValue)}>{props.evidenceArtifactCount}</dd>
         </div>
         {props.policiesCheckedLabel !== null ? (
           <div className="inline-flex items-baseline gap-1">
-            <dt className={cn(OPERATOR_TYPOGRAPHY.meta, "text-al-text-secondary")}>Policies</dt>
+            <dt className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>Policies</dt>
             <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.dataValue)}>{props.policiesCheckedLabel}</dd>
           </div>
         ) : null}
@@ -57,7 +57,7 @@ export function ReviewPackageEvidenceDensityStrip(
       {props.auditTrailHref !== null ? (
         <Link
           href={props.auditTrailHref}
-          className={cn(OPERATOR_TYPOGRAPHY.meta, "ml-auto font-medium text-al-accent-interactive underline underline-offset-2")}
+          className={cn(OPERATOR_TYPOGRAPHY.helper, "ml-auto font-medium text-al-accent-interactive underline underline-offset-2")}
         >
           View audit trail
         </Link>

@@ -373,10 +373,10 @@ export function FirstPilotReadinessCockpit() {
               {curatedHome ? BUYER_COMMAND_CENTER_RECOMMENDED_HEADING : "Recommended next step"}
             </p>
             {curatedHome ? null : (
-              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.meta)}>{commandCenter.headline}</p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{commandCenter.headline}</p>
             )}
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{commandCenter.summary}</p>
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.meta)} data-testid="first-pilot-command-center-evidence-note">
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-pilot-command-center-evidence-note">
               Buyer-facing RC requires real-mode evidence; simulator or fallback outputs stay labeled in exports and sponsor
               materials.
             </p>
@@ -392,7 +392,7 @@ export function FirstPilotReadinessCockpit() {
             </div>
             {!curatedHome
               && (commandCenter.phase === "sponsor-packet-send" || commandCenter.phase === "sponsor-packet-hold") ? (
-              <div className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.meta)}>
+              <div className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
                 <p className="m-0">{FIRST_PILOT_SPONSOR_PROOF_DIAGNOSTICS_LINE}</p>
                 <FirstPilotTechnicalCommandDisclosure commands={[FIRST_PILOT_SPONSOR_PROOF_CLI_COMMAND]} />
               </div>
@@ -432,7 +432,7 @@ export function FirstPilotReadinessCockpit() {
                 className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
                 data-testid="first-pilot-tier1-inventory-commands"
               >
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.meta)}>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   Tier-1 inventory scripts (Azure, AWS, GCP) — run locally, then upload from{" "}
                   <Link href="/reviews/new" className="font-medium text-teal-800 underline dark:text-teal-300">
                     New review

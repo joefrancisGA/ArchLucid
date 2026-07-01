@@ -39,7 +39,9 @@ export function GovernanceInteractiveQuickstartCard({
       data-testid="governance-interactive-quickstart"
     >
       <CardHeader className={cn("space-y-1 pb-2", suppressCardTitle && "pt-0")}>
-        {suppressCardTitle ? null : <CardTitle className={OPERATOR_TYPOGRAPHY.body}>Governance quick path</CardTitle>}
+        {suppressCardTitle ? null : (
+          <CardTitle className={OPERATOR_TYPOGRAPHY.body}>How governance approval works</CardTitle>
+        )}
         <CardDescription>
           Use this sequence the first time you move a finalized review record through approval. Skipping steps is fine once
           your team knows the rhythm.
@@ -60,9 +62,8 @@ export function GovernanceInteractiveQuickstartCard({
             {" — "}
             finalize so you have a review record version to submit below.
           </li>
-          <li>
-            Load that review in the approval section on this page, then submit for approval when your role allows.
-          </li>
+          <li>Request governance approval, then approve and advance the review package when your role allows.</li>
+          <li>Record go-live by releasing the approved review record to the target environment.</li>
         </ol>
       </CardContent>
       {hideFirst30DaysLink ? null : (

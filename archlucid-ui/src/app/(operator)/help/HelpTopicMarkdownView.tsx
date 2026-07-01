@@ -24,7 +24,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
       <HelpTopicHashScroll />
       <header className={cn("border-b border-neutral-200 pb-5 dark:border-neutral-800", OPERATOR_LAYOUT.sectionHeadingStack)}>
         <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{entry.title}</h1>
-        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.meta}`}>{entry.summary}</p>
+        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>{entry.summary}</p>
         {entry.audience === "developer" ? (
           <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.label}`}>
             Engineering runbook — CLI commands, environment variables, and log detail. For symptom-first operator help,

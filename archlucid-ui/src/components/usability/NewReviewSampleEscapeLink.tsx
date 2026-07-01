@@ -14,7 +14,7 @@ const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN
 export function NewReviewSampleEscapeLink(props: { readonly className?: string }): React.JSX.Element {
   return (
     <p
-      className={cn("m-0", OPERATOR_TYPOGRAPHY.meta, "text-al-text-secondary", props.className)}
+      className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary", props.className)}
       data-testid="new-review-sample-escape"
     >
       {NEW_REVIEW_SAMPLE_ESCAPE_LEAD}{" "}

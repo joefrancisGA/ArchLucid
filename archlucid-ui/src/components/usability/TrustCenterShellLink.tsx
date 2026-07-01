@@ -18,10 +18,10 @@ export function TrustCenterShellLink(props: TrustCenterShellLinkProps): React.JS
       className={cn(
         variant === "header"
           ? cn(
-              OPERATOR_TYPOGRAPHY.meta,
+              OPERATOR_TYPOGRAPHY.helper,
               "inline-flex h-8 items-center rounded-md px-2 font-medium text-al-text-secondary no-underline hover:bg-neutral-100 hover:text-al-text-primary dark:hover:bg-neutral-800",
             )
-          : cn(OPERATOR_TYPOGRAPHY.meta, "font-medium text-al-accent-interactive underline underline-offset-2"),
+          : cn(OPERATOR_TYPOGRAPHY.helper, "font-medium text-al-accent-interactive underline underline-offset-2"),
         props.className,
       )}
       data-testid="trust-center-shell-link"

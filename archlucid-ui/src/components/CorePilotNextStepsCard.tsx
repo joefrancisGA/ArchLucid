@@ -164,7 +164,7 @@ function FirstReviewCheckpointStrip(props: {
             key={checkpoint.id}
             className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
           >
-            <span className={cn("tabular-nums text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.meta)}>
+            <span className={cn("tabular-nums text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {index + 1}.
             </span>
             <Link href={checkpoint.href} className={cn("font-medium text-al-text-primary underline-offset-2 hover:underline", OPERATOR_TYPOGRAPHY.helper)}>

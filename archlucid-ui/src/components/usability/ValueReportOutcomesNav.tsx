@@ -37,7 +37,7 @@ export function ValueReportOutcomesNav(): React.JSX.Element | null {
             href={tab.href}
             className={cn(
               "rounded-md px-3 py-1.5 no-underline",
-              OPERATOR_TYPOGRAPHY.meta,
+              OPERATOR_TYPOGRAPHY.helper,
               active
                 ? "border border-neutral-300 bg-al-surface-raised font-semibold text-al-text-primary dark:border-neutral-600"
                 : "text-al-text-secondary hover:bg-al-layer-hover hover:text-al-text-primary",

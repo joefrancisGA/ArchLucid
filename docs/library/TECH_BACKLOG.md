@@ -15879,6 +15879,8 @@ const reviewContextLabel =
 
 ## TB-538 — Remove deprecated OPERATOR_TYPOGRAPHY aliases and migrate consumers (P2)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** `OPERATOR_TYPOGRAPHY` exports deprecated aliases `title`, `section`, `meta` (lines 133–138 of `design-tokens.ts`). Consumers using these names bypass TypeScript enforcement of canonical names and will silently diverge if tokens change.
 
 **Approach:**
@@ -15991,6 +15993,8 @@ Replace `className="rounded-md border border-neutral-200 px-2 py-2 dark:border-n
 ---
 
 ## TB-543 — Fix FirstWeekRouteGuidance "home" variant: replace native `<details>` with OperatorHomeDisclosureSection (P2)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** The home variant uses a native `<details>`/`<summary>` element while all peer expandable guidance sections use `OperatorHomeDisclosureSection`. Creates visual and behavioral inconsistency (no animation, different focus ring, different typography baseline).
 
@@ -16151,6 +16155,8 @@ Add placeholders to the input fields: `placeholder="e.g. source-environment"` / 
 
 ## TB-548 — Replace "Review package promoted." governance toast with governance vocabulary (P1)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** "Promoted" is deployment pipeline vocabulary. The action in the governance workflow is approving an architecture review package for decision support, not promoting software to an environment.
 
 **Approach:**
@@ -16173,6 +16179,8 @@ Also review other toasts in the file for similar pipeline vocabulary.
 ---
 
 ## TB-549 — Gate RunTraceViewerLink to admin authority or add "Support reference" label (P1)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** `RunTraceViewerLink` renders hex trace IDs and a "View trace" link to internal observability infrastructure — visible to all operators on finding inspect and error surfaces. Enterprise governance reviewers and auditors do not need access to distributed tracing; this looks like internal DevOps tooling in a product UI.
 
@@ -16203,6 +16211,8 @@ Or wrap in an expandable "Technical details (for support)" disclosure that colla
 
 ## TB-550 — Fix FindingInspectFindingBody live-path CTA label (P1)
 
+**Status:** **Done** (2026-07-01) — duplicate of TB-537.
+
 Duplicate of TB-537 — tracked from leakage audit perspective. See TB-537 for implementation.
 
 **Cross-ref:** Leakage audit L06, TB-537 (2026-06-29).
@@ -16210,6 +16220,8 @@ Duplicate of TB-537 — tracked from leakage audit perspective. See TB-537 for i
 ---
 
 ## TB-551 — Fix governance demo manifest version `"3.4.1"` pre-fill (P2)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** In demo/static mode, `submitManifestVersion` is pre-filled with `"3.4.1"` — a raw internal version string visible in the approval submit form as the default value.
 
@@ -16231,6 +16243,8 @@ Use a descriptive demo placeholder: `"3.4.1 (Claims Intake example)"` and ensure
 ---
 
 ## TB-552 — Rename "Approval workflow quickstart" to "How governance approval works" (P2)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** The "Approval workflow quickstart" accordion in the non-buyer operator shell exposes `GovernanceInteractiveQuickstartCard` with steps labeled "promote manifest" and "activate environment". This reads as a developer tutorial for calling APIs, not a governance workflow reference.
 
@@ -16254,6 +16268,8 @@ Use a descriptive demo placeholder: `"3.4.1 (Claims Intake example)"` and ensure
 
 ## TB-553 — Unify FindingInspectFindingBody reviewContextLabel (P1)
 
+**Status:** **Done** (2026-07-01) — duplicate of TB-537.
+
 Duplicate of TB-537 — tracked from link integrity perspective. See TB-537 for implementation.
 
 **Cross-ref:** Link integrity audit R01, TB-537 (2026-06-29).
@@ -16261,6 +16277,8 @@ Duplicate of TB-537 — tracked from link integrity perspective. See TB-537 for 
 ---
 
 ## TB-554 — Add audit trail CTA to governance empty states (P1)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** When `activeRunId === null` on the governance page, the empty state has no link to the audit trail. Read-only reviewers who arrive at governance without loading a specific review have no forward path to the audit trail — a dead end for step 8→9 of the golden path.
 
@@ -16294,6 +16312,8 @@ Update the `EmptyState` component to render `secondaryAction` when present (as a
 
 ## TB-555 — Add sample-data disclosure to review error boundary recovery CTA (P1)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** In static-demo or buyer-polished mode, the review-detail error boundary links to `SHOWCASE_STATIC_DEMO_MANIFEST_ID` without disclosing that this is demo data. An operator who hit a real error (e.g., network timeout) is silently redirected to a static demo record without being told their real data is unaffected.
 
 **Approach:**
@@ -16324,6 +16344,8 @@ Add a disclaimer below the demo CTA group:
 
 ## TB-556 — Fix error boundary "Read-only walkthrough" link from marketing route to operator-appropriate route (P2)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** The error boundary links to `/demo/preview` (a marketing-surface route) as a recovery CTA inside the operator shell. Clicking it takes users out of the product and into a marketing demo page.
 
 **Approach:**
@@ -16352,6 +16374,8 @@ Add a disclaimer below the demo CTA group:
 
 ## TB-557 — Verify `#first-run-workflow-panel` anchor resolves on all home variants (P2)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** `OperatorCorePilotDiagnosticsChecklist` contains `href="#first-run-workflow-panel"`. If the target element (`id="first-run-workflow-panel"`) is not rendered on the current home page variant, clicking "Jump to first review checklist" silently does nothing.
 
 **Approach:**
@@ -16374,6 +16398,8 @@ Add a disclaimer below the demo CTA group:
 
 ## TB-558 — Add help tooltip to governance environment fields (P2)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** The governance submit form's "Source environment" and "Target environment" fields have no explanation for operators unfamiliar with the approval workflow. Users don't know what to enter, and the fields look like software deployment infrastructure (especially with the "dev"/"test" defaults removed by TB-547).
 
 **Approach:**
@@ -16391,6 +16417,8 @@ Or add an inline helper text below the field cluster: `"Enter the review state n
 ---
 
 ## TB-559 — Remove demo version pre-fill from governance submit form in non-static-demo modes (P2)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** `setSubmitManifestVersion(isDemoShell ? "3.4.1" : "")` — the `isDemoShell` check includes the buyer-polished shell. The buyer-polished shell is not necessarily the static demo; it's a polished presentation mode for live buyer demos with real data. A buyer demo with real data should show an empty version field.
 
@@ -16422,6 +16450,8 @@ const [submitManifestVersion, setSubmitManifestVersion] = useState(
 
 ## TB-560 — Dynamic-import `CommandPalette` from operator shell top bar (P1)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** `OperatorShellTopBar.tsx` statically imports `CommandPalette.tsx` (~617 lines) and `cmdk` on every operator page load. Most sessions never open the palette, but every route pays parse/hydrate cost for this chunk in the shell bundle.
 
 **Approach:**
@@ -16445,6 +16475,8 @@ const [submitManifestVersion, setSubmitManifestVersion] = useState(
 ---
 
 ## TB-561 — Dynamic-import `FindingEvidenceGraph` (reactflow + CSS) (P1)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** `FindingEvidenceGraph.tsx` statically imports `reactflow` and `reactflow/dist/style.css`. Users who never open a finding evidence graph still download and parse the reactflow bundle (~350 KB minified baseline).
 
@@ -16543,6 +16575,8 @@ const [submitManifestVersion, setSubmitManifestVersion] = useState(
 
 ## TB-565 — Add `experimental.optimizePackageImports` (P1)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** Next.js 15 supports import-time tree-shaking for barrel-heavy packages. `lucide-react`, `recharts`, and `@radix-ui/*` are imported widely; unused exports may inflate shared chunks. Nav group builders importing many Lucide icons are a known risk.
 
 **Approach:**
@@ -16603,6 +16637,8 @@ experimental: {
 ---
 
 ## TB-567 — ISR on remaining static marketing routes (P2)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** `see-it`, `live-demo`, `demo/preview`, and `showcase/[runId]` already use `revalidate = 300`. `/welcome`, `/pricing`, and `/trust` appear static but may still hit origin on every cold visit.
 
@@ -16675,6 +16711,8 @@ experimental: {
 
 ## TB-570 — Audit static `recharts` imports (P2)
 
+**Status:** **Done** (2026-07-01)
+
 **Why:** `ExecutiveRoiSystemicIssueTrendChart.tsx` imports `recharts` statically; parent `ExecutiveRoiSummarySection` wraps it in `dynamic()`. Other call sites may bypass the split.
 
 **Approach:**
@@ -16720,6 +16758,8 @@ experimental: {
 ---
 
 ## TB-572 — Defer App Insights initialization (P2)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** `AppInsightsTelemetryInit` runs on every operator session during initial render. Telemetry is valuable but not critical-path for first paint.
 

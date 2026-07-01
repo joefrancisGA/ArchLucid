@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 import { Check, Copy, ExternalLink } from "lucide-react";
 import { useCallback, useState } from "react";
 
+import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { buildTraceViewerUrl } from "@/lib/trace-link";
 
 export interface RunTraceViewerLinkProps {
@@ -18,8 +20,10 @@ export interface RunTraceViewerLinkProps {
  * is set), a monospace preview of the id, and a copy-to-clipboard control.
  */
 export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
+  const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const [copied, setCopied] = useState(false);
   const traceUrl = buildTraceViewerUrl(traceId ?? undefined);
+  const isAdmin = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
   const handleCopy = useCallback(async () => {
     if (!traceId) {
@@ -41,6 +45,30 @@ export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
 
   const preview =
     traceId.length > 8 ? `${traceId.slice(0, 8)}…` : traceId;
+
+  if (!isAdmin) {
+    return (
+      <div className={cn("mt-1 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}>
+        <span className="font-mono text-neutral-500 dark:text-neutral-400" title={traceId}>
+          Support ref: {preview}
+        </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-neutral-600 dark:text-neutral-400"
+          onClick={handleCopy}
+          aria-label="Copy support reference"
+        >
+          {copied ? (
+            <Check className="h-3.5 w-3.5" aria-hidden />
+          ) : (
+            <Copy className="h-3.5 w-3.5" aria-hidden />
+          )}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("mt-1 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}>

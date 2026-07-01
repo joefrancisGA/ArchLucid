@@ -17,7 +17,7 @@ export function AdminAwsCloudConnectionsPageClient(): React.ReactElement {
     <div className="w-full max-w-3xl space-y-6" data-testid="admin-aws-cloud-connections-page">
       <header className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{AWS_CLOUD_CONNECTIONS_ADMIN_LABEL}</h1>
-        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.meta}`}>{AWS_CLOUD_CONNECTIONS_ADMIN_SUMMARY}</p>
+        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>{AWS_CLOUD_CONNECTIONS_ADMIN_SUMMARY}</p>
       </header>
 
       <Card data-testid="admin-aws-cloud-connections-scope">

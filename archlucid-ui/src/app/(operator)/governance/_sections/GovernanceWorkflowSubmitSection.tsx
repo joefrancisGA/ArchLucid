@@ -179,8 +179,12 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
             </div>
+            <p className={cn("m-0 sm:col-span-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Source and target describe the review state transitions in your governance process (for example
+              review-pending → approved).
+            </p>
+          </div>
             <div className="grid gap-2">
               <Label htmlFor="gov-submit-comment">Request comment (optional)</Label>
               <Textarea

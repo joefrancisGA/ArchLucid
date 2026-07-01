@@ -20,7 +20,7 @@ export function FindingEvidenceRefSnippets(props: FindingEvidenceRefSnippetsProp
       data-testid="finding-evidence-ref-snippets"
       aria-label="Source evidence excerpts"
     >
-      <p className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.meta)}>Source evidence</p>
+      <p className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Source evidence</p>
       <ul className="m-0 list-none space-y-1 p-0">
         {props.snippets.map((snippet, index) => (
           <li

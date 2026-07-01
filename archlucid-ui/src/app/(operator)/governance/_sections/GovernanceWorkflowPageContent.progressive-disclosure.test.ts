@@ -11,7 +11,7 @@ const source = readFileSync(
 
 describe("GovernanceWorkflowPageContent progressive disclosure", () => {
   it("collapses operator quickstart behind advanced accordion", () => {
-    expect(source).toContain('triggerLabel="Approval workflow quickstart"');
+    expect(source).toContain('triggerLabel="How governance approval works"');
     expect(source).toContain("GovernanceInteractiveQuickstartCard");
     expect(source).not.toMatch(/\)\s*:\s*\(\s*\n\s*<GovernanceInteractiveQuickstartCard \/>/);
   });

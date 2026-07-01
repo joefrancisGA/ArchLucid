@@ -130,7 +130,7 @@ export function ItsmIntegrationPageClient(): React.ReactElement {
 
       <header className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>Jira &amp; ServiceNow</h1>
-        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.meta}`}>
+        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>
           Register per-tenant Key Vault secret names and optional outbound routing overrides. ArchLucid never stores raw
           API tokens in SQL — workers resolve secrets at execution time. See{" "}
           <Link href={INTEGRATIONS_READINESS_PATH} className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>

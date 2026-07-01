@@ -3,7 +3,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import {
   resolveFirstWeekRouteGuidanceForShell,
   FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY,
@@ -76,22 +78,22 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
 
   if (props.variant === "home") {
     return (
-      <details
-        aria-label="First-week guidance"
-        data-testid={`first-week-route-guidance-${props.variant}`}
-        className={cn("max-w-prose rounded-md border border-neutral-200/90 bg-neutral-50/80 px-3 py-2.5 leading-snug text-neutral-800 dark:border-neutral-700/80 dark:bg-neutral-900/40 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
+      <OperatorHomeDisclosureSection
+        title={FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY}
+        titleId="first-week-guidance-home"
+        sectionTestId="first-week-route-guidance-home"
+        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.firstWeekGuidance}
+        defaultExpanded={false}
+        sectionClassName="max-w-prose"
       >
-        <summary className="cursor-pointer font-semibold text-neutral-800 dark:text-neutral-100">
-          {FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY}
-        </summary>
-        <p className={cn("m-0 mt-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{config.useWhen}</p>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{config.useWhen}</p>
         <GuidanceBody
           useWhen={config.useWhen}
           bridgeCopy={config.bridgeCopy}
           operateDeferralNote={config.operateDeferralNote}
           primaryAction={config.primaryAction}
         />
-      </details>
+      </OperatorHomeDisclosureSection>
     );
   }
 

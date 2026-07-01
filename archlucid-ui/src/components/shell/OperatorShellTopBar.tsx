@@ -1,11 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { CircleHelp } from "lucide-react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
-import { CommandPalette } from "@/components/CommandPalette";
 import { GlobalSearchBar } from "@/components/GlobalSearchBar";
 import { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
@@ -22,6 +22,11 @@ import {
 } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { cn } from "@/lib/utils";
+
+const CommandPalette = dynamic(
+  () => import("@/components/CommandPalette").then((module) => module.CommandPalette),
+  { ssr: false },
+);
 
 type OperatorShellTopBarProps = {
   readonly onOpenHelpSearch: () => void;

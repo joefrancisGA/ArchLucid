@@ -8,6 +8,8 @@ import {
   buildMarketingSocialMetadata,
 } from "@/lib/marketing-open-graph";
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Welcome",
   description: `ArchLucid ${BRAND_CATEGORY} — trial signup and product overview.`,

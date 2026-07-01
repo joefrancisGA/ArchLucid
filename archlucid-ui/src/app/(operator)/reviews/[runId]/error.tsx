@@ -8,11 +8,11 @@ import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChromeMount";
 import { Button } from "@/components/ui/button";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reportClientError } from "@/lib/error-telemetry";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
 /**
@@ -65,12 +65,19 @@ export default function RunDetailSegmentError({
             </Link>
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href="/demo/preview">{isBuyerPolished ? "Read-only walkthrough" : "View sample walkthrough"}</Link>
+            <Link href={`/showcase/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>View sample review</Link>
           </Button>
           <Button type="button" variant="outline" asChild>
             <Link href="/reviews?projectId=default">Back to reviews</Link>
           </Button>
         </div>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          The sample above uses demo data. Your reviews remain available at{" "}
+          <Link href="/reviews?projectId=default" className={OPERATOR_LINK.nav}>
+            Reviews list
+          </Link>
+          .
+        </p>
         </div>
       </RunDetailMinimalChromeMount>
     );

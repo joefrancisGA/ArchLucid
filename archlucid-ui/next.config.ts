@@ -73,7 +73,22 @@ const nextConfig: NextConfig = {
   // `page_client-reference-manifest.js` during `Collecting build traces` (upstream Next + NFT).
   // Docker/Linux builds are unaffected; set ARCHLUCID_SKIP_STANDALONE_OUTPUT=1 locally to finish `npm run build`.
   ...(skipStandaloneOutput ? {} : { output: "standalone" as const }),
-  ...(disableWebpackBuildWorkerOnWindows ? { experimental: { webpackBuildWorker: false } } : {}),
+  experimental: {
+    ...(disableWebpackBuildWorkerOnWindows ? { webpackBuildWorker: false } : {}),
+    optimizePackageImports: [
+      "lucide-react",
+      "recharts",
+      "@radix-ui/react-alert-dialog",
+      "@radix-ui/react-collapsible",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-label",
+      "@radix-ui/react-progress",
+      "@radix-ui/react-select",
+      "@radix-ui/react-separator",
+      "@radix-ui/react-slot",
+      "@radix-ui/react-tooltip",
+    ],
+  },
   transpilePackages: ["reactflow"],
   async headers() {
     return [

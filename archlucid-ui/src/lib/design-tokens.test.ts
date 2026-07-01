@@ -72,6 +72,13 @@ describe("design-tokens TB-119 typography", () => {
     expect(OPERATOR_KPI_CARD_DESCRIPTION).toBe(OPERATOR_TYPE_SCALE.helper);
   });
 
+  it("does not expose deprecated OPERATOR_TYPOGRAPHY aliases (TB-538)", () => {
+    expect("meta" in OPERATOR_TYPOGRAPHY).toBe(false);
+    expect("title" in OPERATOR_TYPE_SCALE).toBe(false);
+    expect("section" in OPERATOR_TYPE_SCALE).toBe(false);
+    expect("meta" in OPERATOR_TYPE_SCALE).toBe(false);
+  });
+
   it("badge typography uses 11px medium scale for status chips", () => {
     expect(OPERATOR_TYPOGRAPHY.badge).toContain("text-[11px]");
     expect(OPERATOR_TYPOGRAPHY.badge).toContain("font-medium");

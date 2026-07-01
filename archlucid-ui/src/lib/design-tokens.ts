@@ -130,12 +130,6 @@ export const OPERATOR_TYPE_SCALE = {
   tab: "text-xs font-semibold leading-4 text-al-text-primary",
   /** Dense metadata / chips — 11/15, normal. */
   micro: "text-[11px] font-normal leading-[15px] text-al-text-secondary",
-  /** @deprecated Use {@link pageTitle}. */
-  title: "text-xl font-semibold leading-7 tracking-tight text-al-text-primary",
-  /** @deprecated Use {@link sectionTitle}. */
-  section: "text-lg font-semibold leading-[26px] text-al-text-primary",
-  /** @deprecated Use {@link helper}. */
-  meta: "text-xs font-normal leading-[18px] text-al-text-secondary",
 } as const;
 
 /** Sidebar group labels — uppercase tab scale. */
@@ -180,7 +174,6 @@ export const OPERATOR_TYPOGRAPHY = {
   sectionTitle: OPERATOR_TYPE_SCALE.sectionTitle,
   cardTitle: OPERATOR_TYPE_SCALE.cardTitle,
   body: OPERATOR_TYPE_SCALE.body,
-  meta: OPERATOR_TYPE_SCALE.helper,
   helper: OPERATOR_TYPE_SCALE.helper,
   label: OPERATOR_TYPE_SCALE.helper,
   navLabel: OPERATOR_TYPE_SCALE.navLabel,
@@ -279,8 +272,8 @@ export const MARKETING_TYPOGRAPHY = {
   sectionTitle: OPERATOR_TYPE_SCALE.sectionTitle,
   cardTitle: OPERATOR_TYPOGRAPHY.cardTitle,
   body: OPERATOR_TYPOGRAPHY.body,
-  meta: OPERATOR_TYPOGRAPHY.meta,
-  eyebrow: `${OPERATOR_TYPOGRAPHY.meta} font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300`,
+  meta: OPERATOR_TYPOGRAPHY.helper,
+  eyebrow: `${OPERATOR_TYPOGRAPHY.helper} font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300`,
 } as const;
 
 export const MARKETING_SURFACES = {

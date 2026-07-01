@@ -19,7 +19,7 @@ export function StatusVocabularyLegend() {
       className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="status-vocabulary-legend"
     >
-      <summary className={cn("cursor-pointer select-none", OPERATOR_TYPOGRAPHY.meta, "text-neutral-700 dark:text-neutral-300")}>
+      <summary className={cn("cursor-pointer select-none", OPERATOR_TYPOGRAPHY.helper, "text-neutral-700 dark:text-neutral-300")}>
         Status labels — what they mean
       </summary>
       <ul className="m-0 mt-2 list-none space-y-1.5 p-0">

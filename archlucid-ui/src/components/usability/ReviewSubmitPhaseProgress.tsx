@@ -42,7 +42,7 @@ export function ReviewSubmitPhaseProgress(props: ReviewSubmitPhaseProgressProps)
         Starting your review package…
       </p>
       {props.minutesEstimate !== undefined ? (
-        <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.meta, "text-al-text-secondary")}>
+        <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
           {props.minutesEstimate}
         </p>
       ) : null}
@@ -56,7 +56,7 @@ export function ReviewSubmitPhaseProgress(props: ReviewSubmitPhaseProgressProps)
             <li
               key={phase.id}
               className={cn(
-                OPERATOR_TYPOGRAPHY.meta,
+                OPERATOR_TYPOGRAPHY.helper,
                 isActive ? "font-medium text-al-text-primary" : isComplete ? "text-al-text-secondary" : "text-al-text-secondary/70",
               )}
               aria-current={isActive ? "step" : undefined}

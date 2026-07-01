@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { ExplainabilityTraceTree } from "@/components/explainability/ExplainabilityTraceTree";
-import { FindingEvidenceGraph } from "@/components/findings/FindingEvidenceGraph";
+import { FindingEvidenceGraph } from "@/components/findings/FindingEvidenceGraphLazy";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";

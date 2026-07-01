@@ -30,9 +30,9 @@ export function PilotPathPreviewStepper(props: PilotPathPreviewStepperProps): Re
           >
             {index + 1}
           </span>
-          <span className={cn(OPERATOR_TYPOGRAPHY.meta, "text-al-text-secondary")}>{step.label}</span>
+          <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>{step.label}</span>
           {index < props.steps.length - 1 ? (
-            <span className={cn(OPERATOR_TYPOGRAPHY.meta, "text-al-text-secondary/60")} aria-hidden>
+            <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary/60")} aria-hidden>
               →
             </span>
           ) : null}

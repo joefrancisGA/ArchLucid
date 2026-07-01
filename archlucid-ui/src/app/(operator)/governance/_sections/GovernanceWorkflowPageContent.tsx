@@ -99,7 +99,9 @@ export function GovernanceWorkflowPageContent() {
   const initialDemoActiveRunId: string | null = isDemoShell ? SHOWCASE_STATIC_DEMO_RUN_ID : null;
 
   const [submitRunId, setSubmitRunId] = useState(isDemoShell ? SHOWCASE_STATIC_DEMO_RUN_ID : "");
-  const [submitManifestVersion, setSubmitManifestVersion] = useState(isDemoShell ? "3.4.1" : "");
+  const [submitManifestVersion, setSubmitManifestVersion] = useState(
+    isStaticDemoFallbackActiveForShowcase ? "3.4.1 (Claims Intake example)" : "",
+  );
   const [submitSource, setSubmitSource] = useState<string>("");
   const [submitTarget, setSubmitTarget] = useState<string>("");
   const [submitComment, setSubmitComment] = useState("");
@@ -559,7 +561,7 @@ export function GovernanceWorkflowPageContent() {
           <GovernanceInteractiveQuickstartCard hideFirst30DaysLink suppressCardTitle className="mb-0" />
         </CollapsibleSection>
       ) : (
-        <AdvancedOptionsAccordion triggerLabel="Approval workflow quickstart" defaultOpen={false} className="mb-6">
+        <AdvancedOptionsAccordion triggerLabel="How governance approval works" defaultOpen={false} className="mb-6">
           <GovernanceInteractiveQuickstartCard hideFirst30DaysLink suppressCardTitle className="mb-0" />
         </AdvancedOptionsAccordion>
       )}

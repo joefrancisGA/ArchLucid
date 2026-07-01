@@ -8,7 +8,7 @@ export function AuditTrailIntegrityNote(props: { readonly className?: string }):
     <p
       className={cn(
         "m-0 max-w-3xl rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 text-al-text-secondary dark:border-neutral-700",
-        OPERATOR_TYPOGRAPHY.meta,
+        OPERATOR_TYPOGRAPHY.helper,
         props.className,
       )}
       role="note"
