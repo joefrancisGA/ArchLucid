@@ -31,7 +31,8 @@ class TestStickinessBatchTb057(unittest.TestCase):
         self.assertIn("Architecture risk register", page_constants_text)
         self.assertIn("getArchitectureDecisionRegister", client_text)
         self.assertIn("decisionRegisterRows", client_text)
-        self.assertIn("waiver-expiring", client_text)
+        self.assertIn("matchesRiskRegisterFilter", client_text)
+        self.assertIn("waiver-expiring", page_constants_text)
 
         csv_text = csv_module.read_text(encoding="utf-8")
         self.assertIn("lastReviewedUtc", csv_text)
