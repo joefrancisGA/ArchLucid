@@ -20,12 +20,15 @@ class TestStickinessBatchTb057(unittest.TestCase):
             / "findings"
             / "GovernanceFindingsQueueClient.tsx"
         )
+        page_constants = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "architecture-risk-register-page.ts"
         csv_module = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "architecture-risk-register-csv.ts"
         reader = REPO_ROOT / "ArchLucid.Persistence" / "Governance" / "ArchitectureRiskRegisterReader.cs"
         i18n = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "i18n.ts"
 
         client_text = client.read_text(encoding="utf-8")
-        self.assertIn("Architecture risk register", client_text)
+        page_constants_text = page_constants.read_text(encoding="utf-8")
+        self.assertIn("ARCHITECTURE_RISK_REGISTER_PAGE_TITLE", client_text)
+        self.assertIn("Architecture risk register", page_constants_text)
         self.assertIn("getArchitectureDecisionRegister", client_text)
         self.assertIn("decisionRegisterRows", client_text)
         self.assertIn("waiver-expiring", client_text)
