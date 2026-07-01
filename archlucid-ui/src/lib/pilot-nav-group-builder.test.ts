@@ -57,10 +57,20 @@ describe("PilotNavGroupBuilder", () => {
     expect(securityTrustLink?.requiredAuthority).toBe("ReadAuthority");
   });
 
+  it("lists Overview first in Review work nav (TB-516)", () => {
+    const group = new PilotNavGroupBuilder().build();
+    const overviewLink = group.links[0];
+
+    expect(overviewLink?.href).toBe("/");
+    expect(overviewLink?.label).toBe("Overview");
+    expect(overviewLink?.title).toBe("Workspace overview");
+  });
+
   it("keeps Review work focused on first-review essentials only", () => {
     const group = new PilotNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.label)).toEqual([
+      "Overview",
       "New review",
       "Evidence graph",
       "Review packages",
