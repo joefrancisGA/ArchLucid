@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { CronExpressionBuilder } from "@/components/advisory/CronExpressionBuilder";
 import { normalizeRunIdForRecurrenceApi } from "@/components/RunDetailRecurrenceScheduleCard";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -13,24 +14,12 @@ import {
   type ArchitectureReviewRecurrenceSchedule,
 } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatRecurrenceScheduleUtcLabel } from "@/lib/recurrence-schedule-utc-format";
+import { RECURRENCE_SCHEDULES_MANAGE_PATH } from "@/lib/recurrence-schedules-copy";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_CRON = "0 8 * * 1";
 const DEFAULT_NAME = "Weekly architecture review";
-
-function formatNextRunUtc(nextRunUtc: string | null | undefined): string {
-  if (!nextRunUtc) {
-    return "Pending schedule calculation";
-  }
-
-  const parsed = new Date(nextRunUtc);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return nextRunUtc;
-  }
-
-  return parsed.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC";
-}
 
 type RecurrenceSchedulePostCommitCardProps = {
   readonly runId: string;
@@ -46,6 +35,7 @@ export function RecurrenceSchedulePostCommitCard({
   const [schedules, setSchedules] = useState<ArchitectureReviewRecurrenceSchedule[]>([]);
   const [name, setName] = useState(DEFAULT_NAME);
   const [cronExpression, setCronExpression] = useState(DEFAULT_CRON);
+  const [isEnabled, setIsEnabled] = useState(true);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -95,7 +85,7 @@ export function RecurrenceSchedulePostCommitCard({
         sourceRunId: normalizedRunId,
         name: name.trim() || DEFAULT_NAME,
         cronExpression: cronExpression.trim() || DEFAULT_CRON,
-        isEnabled: true,
+        isEnabled,
       });
 
       setStatusMessage("Recurrence scheduled.");
@@ -131,10 +121,15 @@ export function RecurrenceSchedulePostCommitCard({
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>
               {existing.name} — {existing.cronExpression}
             </p>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>Next run: {formatNextRunUtc(existing.nextRunUtc)}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>
+              Next run: {formatRecurrenceScheduleUtcLabel(existing.nextRunUtc)}
+            </p>
             <Link
-              href="/governance/recurrence-schedules"
-              className={cn("font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
+              href={RECURRENCE_SCHEDULES_MANAGE_PATH}
+              className={cn(
+                "font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               data-testid="recurrence-schedule-manage-link"
             >
               Manage all recurrence schedules
@@ -149,25 +144,49 @@ export function RecurrenceSchedulePostCommitCard({
             }}
           >
             <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
-              <span className={OPERATOR_TYPOGRAPHY.label}>Display name</span>
+              <span className={OPERATOR_TYPOGRAPHY.label}>
+                Schedule name <span className="text-red-700 dark:text-red-400">*</span>
+              </span>
               <input
-                className={cn("rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
+                required
+                className={cn(
+                  "rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900",
+                  OPERATOR_TYPOGRAPHY.body,
+                )}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 data-testid="recurrence-schedule-name"
               />
             </label>
-            <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
-              <span className={OPERATOR_TYPOGRAPHY.label}>Cron expression (UTC)</span>
+            <CronExpressionBuilder
+              value={cronExpression}
+              onChange={setCronExpression}
+              disabled={busy}
+              inputClassName={cn(
+                "w-full rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+            />
+            <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
               <input
-                className={cn("rounded border border-neutral-300 bg-white px-2 py-1 font-mono dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
-                value={cronExpression}
-                onChange={(e) => setCronExpression(e.target.value)}
-                data-testid="recurrence-schedule-cron"
+                type="checkbox"
+                checked={isEnabled}
+                disabled={busy}
+                onChange={(event) => setIsEnabled(event.target.checked)}
+                data-testid="recurrence-schedule-enabled"
               />
+              <span>
+                {isEnabled
+                  ? "Enabled — scheduled follow-up reviews will run automatically"
+                  : "Disabled — schedule is saved but will not trigger follow-up reviews"}
+              </span>
             </label>
-            {statusMessage ? <p className={cn("m-0 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>{statusMessage}</p> : null}
-            {errorMessage ? <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{errorMessage}</p> : null}
+            {statusMessage ? (
+              <p className={cn("m-0 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>{statusMessage}</p>
+            ) : null}
+            {errorMessage ? (
+              <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{errorMessage}</p>
+            ) : null}
             <Button
               type="submit"
               size="sm"

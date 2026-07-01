@@ -31,6 +31,7 @@ export type LayerGuidancePageKey =
   | "governance-first-30-days"
   | "governance-resolution"
   | "governance-workflow"
+  | "recurrence-schedules"
   | "risk-exceptions"
   | "policy-packs"
   | "alert-rules"
@@ -217,6 +218,17 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote:
       "After Pilot proof when your team promotes finalized architecture snapshots through governed stages.",
     enterpriseFootnote: "Approvals follow the configured approval path for packages in this workspace.",
+  },
+  "recurrence-schedules": {
+    layerBadge: "Governance",
+    headline:
+      "Define repeatable review cadences for committed architecture records — quarterly control reviews, annual policy attestations, post-remediation follow-ups, and architecture board checkpoints.",
+    useWhen:
+      "Create a schedule when a governed review package must be re-reviewed on a fixed cadence so accepted risks, policy exceptions, and control obligations do not lapse after approval.",
+    firstPilotNote:
+      "After Pilot proof when governance leads need automated follow-up instead of calendar reminders for recurring architecture reviews.",
+    enterpriseFootnote:
+      "Schedules clone a committed review package on the cadence you define; manage approvals and risk disposition on linked governance surfaces.",
   },
   "risk-exceptions": {
     layerBadge: "Governance",

@@ -30,7 +30,7 @@ describe("RecurrenceSchedulePostCommitCard", () => {
     fireEvent.change(screen.getByTestId("recurrence-schedule-name"), {
       target: { value: "Monday review" },
     });
-    fireEvent.change(screen.getByTestId("recurrence-schedule-cron"), {
+    fireEvent.change(screen.getByTestId("cron-expression-input"), {
       target: { value: "0 9 * * 2" },
     });
     fireEvent.click(screen.getByTestId("recurrence-schedule-submit"));
