@@ -79,7 +79,11 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
         )}
       </TraceSection>
 
-      <TraceSection title="Evidence cited" testId="explainability-trace-evidence">
+      <TraceSection
+        title="Evidence cited"
+        testId="explainability-trace-evidence"
+        defaultOpen={evidenceRefs.length === 0}
+      >
         {evidenceRefs.length === 0 ? (
           <p className="m-0 text-neutral-600 dark:text-neutral-400">{EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY}</p>
         ) : (
