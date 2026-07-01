@@ -28,7 +28,7 @@ public sealed class McpRetrievalToolsControllerTests
     {
         McpRetrievalToolsController controller = CreateController(Mock.Of<IRetrievalQueryService>());
 
-        IActionResult action = await controller.PolicyPackSearchAsync(null, CancellationToken.None);
+        IActionResult action = await controller.PolicyPackSearchAsync(null!, CancellationToken.None);
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -37,6 +37,8 @@ public sealed class McpRetrievalToolsControllerTests
     [Fact]
     public async Task PolicyPackSearchAsync_returns_hits_from_retrieval_service()
     {
+        Mock<IRetrievalQueryService> query = new();
+
         query
             .Setup(q => q.SearchAsync(
                 It.Is<RetrievalQuery>(r => r.QueryText == "network baseline"),
