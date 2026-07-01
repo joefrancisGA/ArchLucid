@@ -96,10 +96,10 @@ describe("GovernanceFindingsQueueClient", () => {
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
   });
 
-  it("maps governance findings breadcrumb to Governance / Risk register", () => {
+  it("maps governance findings breadcrumb to Governance / Findings", () => {
     expect(getBreadcrumbs("/governance/findings")).toEqual([
       { label: "Governance", href: "/governance" },
-      { label: "Risk register" },
+      { label: "Findings" },
     ]);
   });
 
@@ -107,8 +107,8 @@ describe("GovernanceFindingsQueueClient", () => {
     const explanation = routeViewExplanationForPathname("/governance/findings");
 
     expect(explanation?.title).toBe("Risk register");
-    expect(explanation?.summary).toContain("Review architecture risks created from findings");
-    expect(explanation?.nextAction).toContain("open risks, expiring exceptions, or risks without owners");
+    expect(explanation?.summary).toContain("Track architecture risks created from findings");
+    expect(explanation?.nextAction).toContain("Open review packages or governance workflow to create risk records");
   });
 
   it("renders empty state guidance, actions, summary metrics, and collapsed terminology", async () => {
