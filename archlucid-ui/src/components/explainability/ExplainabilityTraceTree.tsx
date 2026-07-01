@@ -8,6 +8,10 @@ import { ChevronDown } from "lucide-react";
 import type { FindingExplainability } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 
+/** Empty evidence section — distinguishes heuristic vs evidence-backed findings for compliance reviewers (TB-514). */
+export const EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY =
+  "No evidence references recorded for this finding. Evidence-backed findings show source references here. Heuristic findings rely on model reasoning rather than explicit evidence.";
+
 export type ExplainabilityTraceTreeProps = {
   readonly data: FindingExplainability;
 };
@@ -77,7 +81,7 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
 
       <TraceSection title="Evidence cited" testId="explainability-trace-evidence">
         {evidenceRefs.length === 0 ? (
-          <p className="m-0 text-neutral-600 dark:text-neutral-400">No evidence references recorded.</p>
+          <p className="m-0 text-neutral-600 dark:text-neutral-400">{EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY}</p>
         ) : (
           <ul className="m-0 list-disc space-y-1 pl-5">
             {evidenceRefs.map((ref, index) => (

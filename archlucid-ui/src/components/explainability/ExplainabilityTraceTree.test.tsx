@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { ExplainabilityTraceTree } from "@/components/explainability/ExplainabilityTraceTree";
+import { ExplainabilityTraceTree, EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY } from "@/components/explainability/ExplainabilityTraceTree";
 import type { FindingExplainability } from "@/types/explanation";
 
 const sample: FindingExplainability = {
@@ -35,5 +35,20 @@ describe("ExplainabilityTraceTree", () => {
     expect(screen.getByTestId("explainability-trace-evidence")).toBeInTheDocument();
     expect(screen.getByTestId("explainability-trace-confidence")).toBeInTheDocument();
     expect(screen.getByText("High")).toBeInTheDocument();
+  });
+
+  it("explains heuristic vs evidence-backed findings when evidence references are empty (TB-514)", () => {
+    const withoutEvidenceRefs: FindingExplainability = {
+      ...sample,
+      evidence: {
+        ...sample.evidence!,
+        evidenceRefs: [],
+      },
+    };
+
+    render(<ExplainabilityTraceTree data={withoutEvidenceRefs} />);
+
+    expect(screen.getByText(EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY)).toBeInTheDocument();
+    expect(screen.queryByText(/^No evidence references recorded\.$/)).not.toBeInTheDocument();
   });
 });
