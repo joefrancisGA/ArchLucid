@@ -148,7 +148,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   replayReview: "Validate review package",
   askReview: "Ask this review",
   searchEvidence: "Search review evidence",
-  architectureAdvisory: "Architecture advisory",
+  architectureAdvisory: "Advisory scans",
   recommendationTuning: "Recommendation tuning",
   pilotFeedback: BUYER_TERMINOLOGY.evaluationFeedback,
   planning: "Planning",

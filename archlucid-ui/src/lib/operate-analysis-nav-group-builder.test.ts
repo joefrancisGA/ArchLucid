@@ -20,9 +20,10 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     expect(graphLink?.keyShortcut).toBe("alt+y");
   });
 
-  it("keeps Evidence graph out of Review work nav (TB-519)", () => {
-    const pilot = new PilotNavGroupBuilder().build();
+  it("labels advisory nav as Advisory scans (TB-529)", () => {
+    const group = new OperateAnalysisNavGroupBuilder().build();
+    const advisoryLink = group.links.find((link) => link.href === "/advisory");
 
-    expect(pilot.links.some((link) => link.href === "/graph")).toBe(false);
+    expect(advisoryLink?.label).toBe("Advisory scans");
   });
 });

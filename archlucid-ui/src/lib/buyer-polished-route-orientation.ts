@@ -1,3 +1,4 @@
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
   BUYER_SURFACE_VOCABULARY,
@@ -187,7 +188,7 @@ export function buyerPolishedRouteOrientation(
 
   if (path.startsWith("/advisory")) {
     return {
-      label: "Architecture advisory",
+      label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
       line: "Recommended changes based on committed review packages.",
     };
   }

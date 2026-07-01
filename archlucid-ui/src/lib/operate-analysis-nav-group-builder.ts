@@ -67,7 +67,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/advisory",
           label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
-          title: "Architecture advisory recommendations and improvement plans",
+          title: "Scheduled advisory scans and improvement recommendations",
           icon: Lightbulb,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",
