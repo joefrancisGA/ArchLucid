@@ -48,7 +48,7 @@ describe("ExplainabilityTraceTree", () => {
 
     render(<ExplainabilityTraceTree data={withoutEvidenceRefs} />);
 
-    expect(screen.getByText(EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY)).toBeInTheDocument();
-    expect(screen.queryByText(/^No evidence references recorded\.$/)).not.toBeInTheDocument();
+    expect(screen.getByText(EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY, { hidden: true })).toBeInTheDocument();
+    expect(screen.queryByText(/^No evidence references recorded\.$/, { hidden: true })).not.toBeInTheDocument();
   });
 });
