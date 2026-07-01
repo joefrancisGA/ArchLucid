@@ -13,8 +13,11 @@
     <RootNamespace>ArchLucid.Integrations.GcpExtractor</RootNamespace>
 
     <AssemblyName>ArchLucid.Integrations.GcpExtractor</AssemblyName>
-
   </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ArchLucid.Application.Tests" />
+  </ItemGroup>
 
 
 

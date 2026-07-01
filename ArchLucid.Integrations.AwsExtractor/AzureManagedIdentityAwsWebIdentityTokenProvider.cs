@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchLucid.Core.Configuration;
 
 using Azure.Core;
@@ -10,6 +12,7 @@ namespace ArchLucid.Integrations.AwsExtractor;
 /// <summary>
 ///     Presents ArchLucid managed identity token to AWS STS AssumeRoleWithWebIdentity (PQ-CLOUD-01 option a).
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed class AzureManagedIdentityAwsWebIdentityTokenProvider(
     IOptionsMonitor<HostedAwsExtractorOptions> optionsMonitor) : IAwsOidcWebIdentityTokenProvider
 {

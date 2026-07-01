@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using Amazon;
 using Amazon.ResourceExplorer2;
 using Amazon.ResourceExplorer2.Model;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Integrations.AwsExtractor;
 
+[ExcludeFromCodeCoverage]
 public sealed class HostedAwsExtractorClient(
     IAwsOidcWebIdentityTokenProvider webIdentityTokenProvider,
     ILogger<HostedAwsExtractorClient> logger) : IHostedAwsExtractorClient

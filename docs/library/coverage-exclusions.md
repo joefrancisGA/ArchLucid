@@ -58,6 +58,10 @@ These classes delegate directly to Azure SDKs or HTTP clients with minimal or no
 | `AzureAiSearchVectorIndex` | Retrieval | Passthrough adapter over `IAzureSearchClient` |
 | `NotConfiguredAzureSearchClient` | Retrieval | Sentinel; every method throws `InvalidOperationException` |
 | `HttpWebhookPoster` | Api | POSTs JSON via `IHttpClientFactory`; delivery channels mock `IWebhookPoster` |
+| `HostedAwsExtractorClient` | Integrations.AwsExtractor | AWS STS AssumeRoleWithWebIdentity + Resource Explorer search; exercised via hosted-run integration tests with live AWS |
+| `AzureManagedIdentityAwsWebIdentityTokenProvider` | Integrations.AwsExtractor | Azure `ManagedIdentityCredential` token exchange for AWS web identity |
+| `HostedGcpExtractorClient` | Integrations.GcpExtractor | GCP Workload Identity + Cloud Asset Inventory search; exercised via hosted-run integration tests with live GCP |
+| `AzureManagedIdentityGcpSubjectTokenProvider` | Integrations.GcpExtractor | Azure `ManagedIdentityCredential` subject token for GCP WIF |
 
 ## Category 2: Configuration / Options DTOs
 
