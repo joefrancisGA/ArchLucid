@@ -45,4 +45,16 @@ describe("InviteReviewerPageView", () => {
 
     expect(screen.queryByTestId("invite-reviewer-footer")).not.toBeInTheDocument();
   });
+
+  it("shows Reader role capability summary below the page lead (TB-511)", () => {
+    render(<InviteReviewerPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("invite-reviewer-reader-capabilities")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Reader role capabilities:" })).toBeInTheDocument();
+    expect(screen.getByText("View review packages, findings, and governance decisions")).toBeInTheDocument();
+    expect(screen.getByText("Export signed review records and audit CSVs")).toBeInTheDocument();
+    expect(screen.getByText("Cannot approve governance requests")).toBeInTheDocument();
+    expect(screen.getByText("Cannot finalize review packages")).toBeInTheDocument();
+    expect(screen.getByText("Cannot modify evidence or review settings")).toBeInTheDocument();
+  });
 });

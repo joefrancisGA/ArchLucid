@@ -18,6 +18,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
+import { InviteReviewerReaderCapabilitiesSummary } from "./InviteReviewerReaderCapabilitiesSummary";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
 
 type Props = {
@@ -107,6 +108,7 @@ function InviteReviewerPageHeader(): React.JSX.Element {
       <div>
         <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{INVITE_REVIEWER_PAGE_TITLE}</h1>
         <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{INVITE_REVIEWER_PAGE_LEAD}</p>
+        <InviteReviewerReaderCapabilitiesSummary />
       </div>
     </header>
   );
