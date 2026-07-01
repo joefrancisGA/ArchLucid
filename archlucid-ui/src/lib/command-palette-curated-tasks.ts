@@ -23,5 +23,5 @@ export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
   { label: "Audit Trail", href: "/governance/audit", searchValue: "task I want audit compliance csv export evidence" },
   { label: "Digests & subscriptions", href: "/digests", searchValue: "task I want digest email subscriptions" },
   { label: "Policy packs", href: "/governance/policy-packs", searchValue: "task I want policy governance rules" },
-  { label: "Governance workflow", href: "/governance", searchValue: "task I want governance approval promotion" },
+  { label: "Approval queue", href: "/governance", searchValue: "task I want governance approval promotion" },
 ];

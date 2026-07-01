@@ -2,6 +2,8 @@
  * Plain-language "Explain this view" copy for high-density operator routes.
  */
 
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+
 export type RouteViewExplanation = {
   readonly title: string;
   readonly summary: string;
@@ -29,14 +31,14 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
     prefix: "/governance/findings",
     explanation: {
       title: "Risk register",
-      summary: "Track architecture risks created from findings, waivers, and governance decisions.",
-      nextAction: "Open review packages or governance workflow to create risk records.",
+      summary: "Review architecture risks created from findings, waivers, exceptions, and governance decisions.",
+      nextAction: "Start with open risks, expiring exceptions, or risks without owners.",
     },
   },
   {
     prefix: "/governance",
     explanation: {
-      title: "Governance workflow",
+      title: OPERATOR_NAV_LINK_LABELS.governanceWorkflow,
       summary: "Approvals, promotions, and policy activations for committed architecture reviews.",
       nextAction: "Start from pending approvals or open the architecture risk register to clear blocking items.",
     },

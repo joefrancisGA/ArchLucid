@@ -83,7 +83,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     const reviewNav = page.getByRole("navigation", { name: "Review work" });
 
     await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "Governance workflow" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Approval queue" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Insights" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
 
@@ -111,7 +111,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     const governanceNav = page.getByRole("navigation", { name: "Governance", exact: true });
     const riskRegisterLink = governanceNav.getByRole("link", { name: /Risk register/i });
-    const governanceWorkflowLink = governanceNav.getByRole("link", { name: /Governance workflow/i });
+    const governanceWorkflowLink = governanceNav.getByRole("link", { name: /Approval queue/i });
 
     await expect(governanceNav).toBeVisible({ timeout: 15_000 });
     // Pilot profile keeps advanced-tier workflow routes hidden until extended+advanced disclosure is on.

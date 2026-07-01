@@ -1,5 +1,5 @@
-import { BUYER_ASK_PAGE_TITLE, BUYER_GOVERNANCE_PAGE_TITLE } from "@/lib/buyer-polish-copy";
-import { RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
+import { BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
 function escapeRegExpLiteral(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -21,8 +21,8 @@ export const ASK_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(
   "i",
 );
 
-/** Buyer-polished `/governance` uses {@link BUYER_GOVERNANCE_PAGE_TITLE}; full-operator shell uses "Governance workflow". */
+/** `/governance` page title — {@link OPERATOR_NAV_LINK_LABELS.governanceWorkflow} (TB-526). */
 export const GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(
-  `^(Governance workflow|Governance approval|${escapeRegExpLiteral(BUYER_GOVERNANCE_PAGE_TITLE)})$`,
+  `^${escapeRegExpLiteral(OPERATOR_NAV_LINK_LABELS.governanceWorkflow)}$`,
   "i",
 );

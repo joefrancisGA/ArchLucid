@@ -4,6 +4,14 @@ import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-g
 import { OperateReportsNavGroupBuilder } from "@/lib/operate-reports-nav-group-builder";
 
 describe("OperateGovernanceNavGroupBuilder", () => {
+  it("labels /governance first link Approval queue (TB-526)", () => {
+    const group = new OperateGovernanceNavGroupBuilder().build();
+    const workflowLink = group.links[0];
+
+    expect(workflowLink?.href).toBe("/governance");
+    expect(workflowLink?.label).toBe("Approval queue");
+  });
+
   it("includes Governance setup guide in governance nav (TB-520)", () => {
     const group = new OperateGovernanceNavGroupBuilder().build();
     const setupGuide = group.links.find((link) => link.href === "/governance/first-30-days");

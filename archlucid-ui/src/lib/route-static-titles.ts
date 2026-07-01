@@ -13,7 +13,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/alert-rules": "Alert rules",
   "/compare": "Compare",
   "/graph": "Graph",
-  "/governance": "Governance",
+  "/governance": OPERATOR_NAV_LINK_LABELS.governanceWorkflow,
   "/governance/dashboard": "Executive Workspace Health",
   "/governance/findings": "Architecture risk register",
   "/governance/decision-register": "Decision register",

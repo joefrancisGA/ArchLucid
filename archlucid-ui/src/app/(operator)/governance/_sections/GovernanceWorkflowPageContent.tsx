@@ -49,10 +49,10 @@ import {
   tryStaticDemoGovernancePromotions,
   warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce,
 } from "@/lib/operator-static-demo";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
   BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
-  BUYER_GOVERNANCE_PAGE_TITLE,
   BUYER_GOVERNANCE_SEGREGATION_OF_DUTIES,
   BUYER_GOVERNANCE_WORKFLOW_LIVE_INTRO,
 } from "@/lib/buyer-polish-copy";
@@ -500,7 +500,7 @@ export function GovernanceWorkflowPageContent() {
       <CtoDemoSegregationCallout />
       <CtoDemoGovernancePreviewHint />
       <OperatorPageHeader
-        title={buyerPolishedShell ? BUYER_GOVERNANCE_PAGE_TITLE : "Governance workflow"}
+        title={OPERATOR_NAV_LINK_LABELS.governanceWorkflow}
         docsPageKey="/governance"
         subtitle={
           showBuyerApprovalStory

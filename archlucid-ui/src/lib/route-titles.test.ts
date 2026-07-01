@@ -7,6 +7,7 @@ describe("getRouteTitle — static routes", () => {
     expect(getRouteTitle("/")).toBe("Overview");
     expect(getRouteTitle("/alerts")).toBe("Alerts");
     expect(getRouteTitle("/reviews/new")).toBe("New review");
+    expect(getRouteTitle("/governance")).toBe("Approval queue");
   });
 });
 
