@@ -35,7 +35,7 @@ export async function postBulkEvidenceMultipartWithProgress(
   await ensureOidcBearerReady();
 
   const path = `/v1/architecture/run/${encodeURIComponent(runId)}/evidence/bulk`;
-  const { url, headers } = resolveRequest(path);
+  const { url, headers } = await resolveRequest(path);
   const requestHeaders = withCorrelationHeaders(headers);
 
   const formData = new FormData();

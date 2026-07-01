@@ -10,12 +10,16 @@ import {
   recordReviewGenerationHandoff,
   reviewDetailHrefAfterGeneration,
 } from "@/lib/review-generation-handoff";
+import { OPERATOR_SCOPE_COOKIE_NAME } from "@/lib/operator-scope-cookie";
+import { writeOperatorScopeToStorage } from "@/lib/operator-scope-storage";
 
 const RUN_ID = "11111111-1111-1111-1111-111111111111";
 
 describe("review-generation-handoff", () => {
   afterEach(() => {
     clearReviewGenerationHandoff(RUN_ID);
+    localStorage.clear();
+    document.cookie = `${OPERATOR_SCOPE_COOKIE_NAME}=; Max-Age=0; Path=/; SameSite=Lax`;
   });
 
   it("builds generation redirect href with query flag", () => {
@@ -37,10 +41,19 @@ describe("review-generation-handoff", () => {
   });
 
   it("buildReviewGenerationRedirect records before returning href", () => {
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
     const href = buildReviewGenerationRedirect(RUN_ID, "socratic-intake");
 
     expect(href).toContain(`${FROM_GENERATION_QUERY_KEY}=1`);
     expect(readReviewGenerationHandoff(RUN_ID)?.source).toBe("socratic-intake");
+    expect(readReviewGenerationHandoff(RUN_ID)?.projectId).toBe("cccccccc-cccc-cccc-cccc-cccccccccccc");
+    expect(document.cookie).toContain(`${OPERATOR_SCOPE_COOKIE_NAME}=`);
   });
 
   it("uses buyer-safe open-failure heading without generation jargon", () => {

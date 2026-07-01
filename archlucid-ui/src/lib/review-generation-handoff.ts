@@ -1,4 +1,5 @@
-import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
+import { writeOperatorScopeCookieFromHeaders } from "@/lib/operator-scope-cookie";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 
 /** Query key signaling app-initiated navigation immediately after review generation. */
 export const FROM_GENERATION_QUERY_KEY = "fromGeneration";
@@ -48,13 +49,14 @@ export function recordReviewGenerationHandoff(
     return;
   }
 
-  const scope = readOperatorScopeFromStorage();
+  const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
+  writeOperatorScopeCookieFromHeaders(scopeHeaders);
   const record: ReviewGenerationHandoffRecord = {
     runId: trimmedRunId,
     recordedAtUtc: new Date().toISOString(),
-    workspaceId: scope?.workspaceId ?? null,
-    projectId: scope?.projectId ?? null,
-    tenantId: scope?.tenantId ?? null,
+    workspaceId: scopeHeaders["x-workspace-id"]?.trim() ?? null,
+    projectId: scopeHeaders["x-project-id"]?.trim() ?? null,
+    tenantId: scopeHeaders["x-tenant-id"]?.trim() ?? null,
     jobId: extras?.jobId?.trim() ?? null,
     source,
   };

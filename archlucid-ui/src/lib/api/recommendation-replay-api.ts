@@ -4,7 +4,7 @@ import { ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrel
 
 export async function rebuildLearningProfile(): Promise<LearningProfile> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest("/v1/recommendation-learning/rebuild");
+  const { url, headers } = await resolveRequest("/v1/recommendation-learning/rebuild");
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, {
@@ -24,7 +24,7 @@ export async function rebuildLearningProfile(): Promise<LearningProfile> {
 /** Replays an authority chain for a run using the specified mode (ReconstructOnly, RebuildManifest, RebuildArtifacts). */
 export async function replayRun(runId: string, mode: string): Promise<ReplayResponse> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest("/v1/authority/replay");
+  const { url, headers } = await resolveRequest("/v1/authority/replay");
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, {

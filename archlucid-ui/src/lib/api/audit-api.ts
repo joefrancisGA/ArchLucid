@@ -109,7 +109,7 @@ export async function downloadAuditExportCsv(params: {
   }
 
   await ensureOidcBearerReady();
-  const { url, headers } = resolveBinaryGetRequest(`/v1/audit/export?${query.toString()}`);
+  const { url, headers } = await resolveBinaryGetRequest(`/v1/audit/export?${query.toString()}`);
   const h = withCorrelationHeaders(new Headers(headers));
   h.set("Accept", "text/csv");
   const response = await fetch(url, { cache: "no-store", headers: h });

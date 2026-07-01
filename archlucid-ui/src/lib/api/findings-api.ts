@@ -86,7 +86,7 @@ export async function downloadRunFindingsCsv(runId: string): Promise<void> {
 
   await ensureOidcBearerReady();
   const path = `/v1/architecture/run/${encodeURIComponent(runId)}/findings/export/csv`;
-  const { url, headers } = resolveBinaryGetRequest(path);
+  const { url, headers } = await resolveBinaryGetRequest(path);
   const requestHeaders = withCorrelationHeaders(new Headers(headers));
   requestHeaders.set("Accept", "text/csv");
   const response = await fetch(url, { cache: "no-store", headers: requestHeaders });

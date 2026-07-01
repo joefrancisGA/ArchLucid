@@ -28,7 +28,7 @@ export async function getImprovementPlan(runId: string, compareToRunId?: string)
 /** Fetches the most recent recommendation learning profile, or null if none exists (404). */
 export async function getLatestLearningProfile(): Promise<LearningProfile | null> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest("/v1/recommendation-learning/latest");
+  const { url, headers } = await resolveRequest("/v1/recommendation-learning/latest");
   const h = withCorrelationHeaders(headers);
   const response = await fetch(url, { cache: "no-store", headers: h });
   const text = await response.text();

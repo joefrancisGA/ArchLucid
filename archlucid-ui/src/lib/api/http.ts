@@ -9,7 +9,7 @@ import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
-import { getScopeHeaders } from "@/lib/scope";
+import { getServerResolvedScopeHeaders } from "@/lib/server-operator-scope";
 import { SERVER_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
 
@@ -76,15 +76,23 @@ export function getBearerToken(): string | undefined {
   return getAccessTokenForApi();
 }
 
+async function resolveScopeHeadersForRequest(): Promise<Record<string, string>> {
+  if (isBrowser()) {
+    return getEffectiveBrowserProxyScopeHeaders();
+  }
+
+  return getServerResolvedScopeHeaders();
+}
+
 /**
  * Same routing as JSON calls, but Accept allows binary artifact bodies (UTF-8 text from synthesis).
  */
-export function resolveBinaryGetRequest(path: string): { url: string; headers: HeadersInit } {
+export async function resolveBinaryGetRequest(path: string): Promise<{ url: string; headers: HeadersInit }> {
   if (isBrowser()) {
     const url = browserProxyUrl(path);
     const headers: Record<string, string> = {
       Accept: "*/*",
-      ...getEffectiveBrowserProxyScopeHeaders(),
+      ...(await resolveScopeHeadersForRequest()),
     };
     const bearer = getBearerToken();
 
@@ -99,7 +107,7 @@ export function resolveBinaryGetRequest(path: string): { url: string; headers: H
   const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
   const headers: Record<string, string> = {
     Accept: "*/*",
-    ...getScopeHeaders(),
+    ...(await resolveScopeHeadersForRequest()),
     ...getServerUpstreamAuthHeaders(),
   };
 
@@ -111,16 +119,20 @@ export function resolveBinaryGetRequest(path: string): { url: string; headers: H
  * Server (RSC): direct to backend with API key + scope headers.
  * Browser: same-origin `/api/proxy` so secrets stay server-side.
  */
-export function resolveRequest(path: string): { url: string; headers: HeadersInit } {
+export async function resolveRequest(path: string): Promise<{ url: string; headers: HeadersInit }> {
   if (isBrowser()) {
     const url = browserProxyUrl(path);
     const headers: Record<string, string> = {
       Accept: "application/json",
-      ...getEffectiveBrowserProxyScopeHeaders(),
+      ...(await resolveScopeHeadersForRequest()),
       ...audienceHeadersForCurrentShell(),
     };
     const bearer = getBearerToken();
-    if (bearer) headers.Authorization = `Bearer ${bearer}`;
+
+    if (bearer) {
+      headers.Authorization = `Bearer ${bearer}`;
+    }
+
     return { url, headers };
   }
 
@@ -128,7 +140,7 @@ export function resolveRequest(path: string): { url: string; headers: HeadersIni
   const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
   const headers: Record<string, string> = {
     Accept: "application/json",
-    ...getScopeHeaders(),
+    ...(await resolveScopeHeadersForRequest()),
     ...getServerUpstreamAuthHeaders(),
     ...audienceHeadersForCurrentShell(),
   };
@@ -218,7 +230,7 @@ export async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseW
   }
 
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest(path);
+  const { url, headers } = await resolveRequest(path);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   const response = await fetch(url, serverFetchInit(h));
   captureTraceContextFromResponse(response);
@@ -246,7 +258,7 @@ export async function apiPostJson<T>(
   options?: { readonly extraHeaders?: Record<string, string> },
 ): Promise<T> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest(path);
+  const { url, headers } = await resolveRequest(path);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
 
@@ -275,7 +287,7 @@ export async function apiPostJson<T>(
 /** PATCHes a JSON body to the ArchLucid API and returns the parsed response. Throws on HTTP errors. */
 export async function apiPatchJson<T>(path: string, body: unknown): Promise<T> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest(path);
+  const { url, headers } = await resolveRequest(path);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(
@@ -297,7 +309,7 @@ export async function apiPatchJson<T>(path: string, body: unknown): Promise<T> {
 /** POSTs a JSON body to the ArchLucid API and expects no response body. Throws on HTTP errors. */
 export async function apiPostNoContent(path: string, body: unknown): Promise<void> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest(path);
+  const { url, headers } = await resolveRequest(path);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(
@@ -317,7 +329,7 @@ export async function apiPostNoContent(path: string, body: unknown): Promise<voi
 /** PUTs a JSON body to the ArchLucid API and returns the parsed response. Throws on HTTP errors. */
 export async function apiPutJson<T>(path: string, body: unknown): Promise<T> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest(path);
+  const { url, headers } = await resolveRequest(path);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, serverFetchInit(h, { method: "PUT", body: JSON.stringify(body) }));
@@ -340,7 +352,7 @@ export async function apiPutJson<T>(path: string, body: unknown): Promise<T> {
 /** PUTs a JSON body to the ArchLucid API and expects no response body. Throws on HTTP errors. */
 export async function apiPutNoContent(path: string, body: unknown): Promise<void> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest(path);
+  const { url, headers } = await resolveRequest(path);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, serverFetchInit(h, { method: "PUT", body: JSON.stringify(body) }));
@@ -357,7 +369,7 @@ export async function apiPutNoContent(path: string, body: unknown): Promise<void
 /** DELETEs a path; returns void on 2xx. Throws on HTTP errors. */
 export async function apiDelete(path: string): Promise<void> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest(path);
+  const { url, headers } = await resolveRequest(path);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   const response = await fetch(url, serverFetchInit(h, { method: "DELETE" }));
   captureTraceContextFromResponse(response);

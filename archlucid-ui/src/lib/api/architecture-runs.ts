@@ -332,7 +332,7 @@ export async function fetchArtifactContentUtf8(
 ): Promise<ArtifactContentFetchResult> {
   await ensureOidcBearerReady();
   const path = `/v1/artifacts/signed-records/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
-  const { url, headers } = resolveBinaryGetRequest(path);
+  const { url, headers } = await resolveBinaryGetRequest(path);
   const h = withCorrelationHeaders(headers);
   const response = await fetch(url, {
     cache: "no-store",
@@ -413,7 +413,7 @@ export async function getRunExplanationSummary(runId: string): Promise<RunExplan
  */
 export async function getFirstValueReportMarkdown(runId: string): Promise<string | null> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest(`/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`);
+  const { url, headers } = await resolveRequest(`/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`);
   const h = withCorrelationHeaders(headers);
   h.set("Accept", "text/markdown");
   const response = await fetch(url, { cache: "no-store", headers: h });

@@ -1,3 +1,7 @@
+import {
+  clearOperatorScopeCookie,
+  writeOperatorScopeCookieFromHeaders,
+} from "@/lib/operator-scope-cookie";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { registrationScopeHeaders } from "@/lib/registration-session";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID, getScopeHeaders } from "@/lib/scope";
@@ -73,6 +77,11 @@ export function writeOperatorScopeToStorage(record: OperatorScopeRecord): void {
         projectLabel: record.projectLabel,
       }),
     );
+    writeOperatorScopeCookieFromHeaders({
+      "x-tenant-id": record.tenantId,
+      "x-workspace-id": record.workspaceId,
+      "x-project-id": record.projectId,
+    });
     window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
   } catch {
     /* quota / private mode */
@@ -85,6 +94,7 @@ export function clearOperatorScopeStorage(): void {
   }
   try {
     window.localStorage.removeItem(STORAGE_KEY);
+    clearOperatorScopeCookie();
     window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
   } catch {
     /* */
@@ -103,21 +113,30 @@ export function getEffectiveBrowserProxyScopeHeaders(): Record<string, string> {
 
   const fromOperator = readOperatorScopeFromStorage();
   if (fromOperator !== null) {
-    return {
+    const headers = {
       "x-tenant-id": fromOperator.tenantId,
       "x-workspace-id": fromOperator.workspaceId,
       "x-project-id": fromOperator.projectId,
     };
+    writeOperatorScopeCookieFromHeaders(headers);
+
+    return headers;
   }
 
   if (!isLikelySignedIn()) {
     const reg = registrationScopeHeaders();
+
     if (reg !== null) {
+      writeOperatorScopeCookieFromHeaders(reg);
+
       return reg;
     }
   }
 
-  return getScopeHeaders();
+  const devDefaults = getScopeHeaders();
+  writeOperatorScopeCookieFromHeaders(devDefaults);
+
+  return devDefaults;
 }
 
 /** Display strings for the header when labels are missing. Dev-default UUIDs use neutral copy (no "development" leak in screenshots). */

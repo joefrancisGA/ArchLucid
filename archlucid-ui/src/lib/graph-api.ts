@@ -26,7 +26,7 @@ export async function getArchitectureGraphTemporalSnapshot(
   const path = `/v1/graph/snapshot?runId=${encodeURIComponent(rid)}&asOf=${encodeURIComponent(asOfIsoUtc)}`;
 
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest(path);
+  const { url, headers } = await resolveRequest(path);
   const fetchHeaders = withCorrelationHeaders(headers);
   const response = await fetch(url, {
     cache: "no-store",

@@ -39,8 +39,8 @@ import {
 // NOTE: quickDecisionFindings is computed only for the ADR generator input; it is not part of the
 // critical-path RunDetailPageModel so the heavy finding scan doesn't block first-screen rendering.
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
-import { getScopeHeaders } from "@/lib/scope";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { getServerResolvedScopeHeaders } from "@/lib/server-operator-scope";
 import {
   projectIdFromScopeHeaders,
   runProjectMatchesEffectiveScope,
@@ -120,7 +120,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
 
   const effectiveScopeHeaders = isBrowser()
     ? getEffectiveBrowserProxyScopeHeaders()
-    : getScopeHeaders();
+    : await getServerResolvedScopeHeaders();
   const effectiveProjectId = projectIdFromScopeHeaders(effectiveScopeHeaders);
 
   if (!runProjectMatchesEffectiveScope(resolvedDetail.run.projectId, effectiveProjectId)) {

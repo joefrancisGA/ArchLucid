@@ -39,7 +39,7 @@ export async function createAdvisorySchedule(body: {
 /** Triggers an immediate execution of an advisory scan schedule. */
 export async function runAdvisoryScheduleNow(scheduleId: string): Promise<void> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest(
+  const { url, headers } = await resolveRequest(
     `/v1/advisory-scheduling/schedules/${encodeURIComponent(scheduleId)}/run`,
   );
   const h = withCorrelationHeaders(headers);

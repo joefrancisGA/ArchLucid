@@ -103,7 +103,7 @@ export async function getTenantMeasuredRoi(): Promise<TenantMeasuredRoiPayload> 
  */
 export async function getDemoExplain(): Promise<DemoExplainResponse | null> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest("/v1/demo/explain");
+  const { url, headers } = await resolveRequest("/v1/demo/explain");
   const h = withCorrelationHeaders(headers);
   const response = await fetch(url, { cache: "no-store", headers: h });
   const text = await response.text();

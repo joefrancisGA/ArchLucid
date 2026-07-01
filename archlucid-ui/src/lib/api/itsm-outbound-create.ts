@@ -38,7 +38,7 @@ async function postOutboundCreateRequest(
   provider: "Jira" | "ServiceNow",
 ): Promise<{ status: number; body: unknown }> {
   await ensureOidcBearerReady();
-  const { url, headers } = resolveRequest("/v1/integrations/itsm/outbound/issues");
+  const { url, headers } = await resolveRequest("/v1/integrations/itsm/outbound/issues");
   const { headers: h, correlationId } = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
 

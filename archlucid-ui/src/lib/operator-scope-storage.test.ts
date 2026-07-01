@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { getEffectiveBrowserProxyScopeHeaders, writeOperatorScopeToStorage, ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "./operator-scope-storage";
+import { OPERATOR_SCOPE_COOKIE_NAME } from "./operator-scope-cookie";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "./scope";
 
 describe("operator-scope-storage", () => {
@@ -21,6 +22,7 @@ describe("operator-scope-storage", () => {
     expect(h["x-tenant-id"]).toBe("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     expect(h["x-workspace-id"]).toBe("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
     expect(h["x-project-id"]).toBe("cccccccc-cccc-cccc-cccc-cccccccccccc");
+    expect(document.cookie).toContain(`${OPERATOR_SCOPE_COOKIE_NAME}=`);
   });
 
   it("getEffectiveBrowserProxyScopeHeaders_fallsBackToDevDefaultsWhenNoOverride", () => {
