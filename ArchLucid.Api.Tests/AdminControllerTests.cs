@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Contracts.Admin;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;

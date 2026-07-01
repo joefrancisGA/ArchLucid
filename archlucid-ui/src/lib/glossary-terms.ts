@@ -16,13 +16,13 @@ export const GLOSSARY_TERMS = {
     docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
   },
   golden_manifest: {
-    term: "Signed review record",
-    definition: "The provenance-backed record that closes the authority ledger for committed work (what was decided, bound to lineage). PKI-style cryptographic signing is not claimed for current V1 storage unless a deployment explicitly enables it — treat “signed” as lineage / provenance closure unless an architecture note says otherwise.",
+    term: "Golden manifest",
+    definition: "The provenance-backed record that closes the authority ledger for committed work (what was decided, bound to lineage). PKI-style cryptographic signing of manifests is not claimed for current V1 storage unless a deployment explicitly enables it — treat “signed” as lineage / provenance closure unless an architecture note says otherwise. Treat “manifest” alone as ambiguous until provenance semantics are stated.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   review_package: {
     term: "Review package",
-    definition: "A governed architecture review with signed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
+    definition: "A governed architecture review with manifest, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
     docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
   },
   findings: {
@@ -52,8 +52,7 @@ export const GLOSSARY_TERMS = {
   },
   effective_governance: {
     term: "Effective governance",
-    definition:
-      "The merged policy content for this scope, used for alerts, compliance, and advisory decisions.",
+    definition: "The merged policy content for this scope, used for alerts, compliance, and advisory decisions.",
     docLink: "/docs/library/GLOSSARY.md#effective-governance",
   },
   policy_pack: {
@@ -105,13 +104,13 @@ export const GLOSSARY_TERMS = {
     definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled “Approve” unless they write to governance state.",
   },
   architecture_manifest: {
-    term: "Signed review record",
-    definition: "The provenance-backed record that closes the authority ledger for committed work (what was decided, bound to lineage). PKI-style cryptographic signing is not claimed for current V1 storage unless a deployment explicitly enables it — treat “signed” as lineage / provenance closure unless an architecture note says otherwise.",
+    term: "Architecture manifest",
+    definition: "The provenance-backed record that closes the authority ledger for committed work (what was decided, bound to lineage). PKI-style cryptographic signing of manifests is not claimed for current V1 storage unless a deployment explicitly enables it — treat “signed” as lineage / provenance closure unless an architecture note says otherwise. Treat “manifest” alone as ambiguous until provenance semantics are stated.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   manifest_diff: {
-    term: "Review comparison",
-    definition: "A field-level comparison between two finalized review packages (or their persisted projection), used in Compare to see what changed between reviews.",
+    term: "Manifest diff",
+    definition: "A field-level comparison between two finalized, reviewed manifests (or their persisted projection), used in Compare to see what changed between runs.",
     docLink: "/docs/library/COMPARISON_REPLAY.md",
   },
   comparison_record: {
@@ -126,8 +125,7 @@ export const GLOSSARY_TERMS = {
   },
   governance_resolution: {
     term: "Policy resolution",
-    definition:
-      "The read-only diagnostic view that shows merged policy packs, precedence decisions, and conflicts for the current scope.",
+    definition: "The read-only diagnostic view that shows merged policy packs, precedence decisions, and conflicts for the current scope.",
     docLink: "/docs/library/contributor-reference/GOVERNANCE.md",
   },
 } as const satisfies Readonly<Record<string, GlossaryTermEntry>>;
