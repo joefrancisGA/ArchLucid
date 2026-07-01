@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Api.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Provenance;
 
