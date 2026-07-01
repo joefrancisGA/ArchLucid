@@ -481,6 +481,20 @@ export async function getAuthorityRunDetailRaw(
   });
 }
 
+/** GET `/v1/pilots/runs/{runId}/pilot-run-deltas` — sponsor proof posture used on run detail client panels. */
+export async function getPilotRunDeltasRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope: LiveTenantScopeHeaders,
+  options?: { apiKey?: string | null },
+): Promise<APIResponse> {
+  const encoded = encodeURIComponent(runId);
+
+  return request.get(`${resolveLiveApiBase()}/v1/pilots/runs/${encoded}/pilot-run-deltas`, {
+    headers: mergeTenantScope(liveAcceptHeaders(options?.apiKey), tenantScope),
+  });
+}
+
 /** Counts sealed findings on `findingsSnapshot.findings` from {@link getAuthorityRunDetailRaw} JSON (camelCase wire shape). */
 export function countFindingsInAuthorityRunDetailPayload(payload: unknown): number {
   if (payload === null || typeof payload !== "object") {

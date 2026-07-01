@@ -46,3 +46,51 @@ export function resolveDemoWorkspaceScopeHeadersForRunId(runId: string): Record<
 export function isPinnedDemoWorkspaceRunId(runId: string): boolean {
   return resolveDemoWorkspaceScopeHeadersForRunId(runId) !== null;
 }
+
+function decodeProxyPathRunIdSegment(rawRunId: string): string {
+  try {
+    return decodeURIComponent(rawRunId);
+  } catch {
+    return rawRunId;
+  }
+}
+
+/** Extracts a run id from common `/api/proxy/v1/...` tails (pilots, authority, architecture). */
+export function extractRunIdFromProxyPath(proxyPath: string): string | null {
+  const normalized = proxyPath.replace(/^\/+/, "");
+  const pilots = /^v1\/pilots\/runs\/([^/]+)(?:\/|$)/i.exec(normalized);
+
+  if (pilots?.[1] !== undefined) {
+    return decodeProxyPathRunIdSegment(pilots[1]);
+  }
+
+  const authority = /^v1\/authority\/runs\/([^/]+)(?:\/|$)/i.exec(normalized);
+
+  if (authority?.[1] !== undefined) {
+    return decodeProxyPathRunIdSegment(authority[1]);
+  }
+
+  const architecture = /^v1\/architecture\/run\/([^/]+)(?:\/|$)/i.exec(normalized);
+
+  if (architecture?.[1] !== undefined) {
+    return decodeProxyPathRunIdSegment(architecture[1]);
+  }
+
+  return null;
+}
+
+/**
+ * Pinned SQL-backed demo workspace runs carry scope on RSC fetches; mirror that on browser `/api/proxy`
+ * so pilot-run-deltas and other run-scoped calls succeed in production standalone (live E2E).
+ */
+export function resolveDemoWorkspaceScopeHeadersFromProxyPath(
+  proxyPath: string,
+): Record<string, string> | null {
+  const runId = extractRunIdFromProxyPath(proxyPath);
+
+  if (runId === null) {
+    return null;
+  }
+
+  return resolveDemoWorkspaceScopeHeadersForRunId(runId);
+}

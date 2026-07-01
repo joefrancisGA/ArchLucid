@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   isPinnedDemoWorkspaceRunId,
   resolveDemoWorkspaceScopeHeadersForRunId,
+  resolveDemoWorkspaceScopeHeadersFromProxyPath,
 } from "./demo-workspace-scope";
 
 describe("demo-workspace-scope", () => {
@@ -29,5 +30,17 @@ describe("demo-workspace-scope", () => {
   it("returns null for unrelated run ids", () => {
     expect(resolveDemoWorkspaceScopeHeadersForRunId("00000000-0000-0000-0000-000000000000")).toBeNull();
     expect(isPinnedDemoWorkspaceRunId("00000000-0000-0000-0000-000000000000")).toBe(false);
+  });
+
+  it("extracts pinned demo scope from pilot-run-deltas proxy paths", () => {
+    expect(
+      resolveDemoWorkspaceScopeHeadersFromProxyPath(
+        "v1/pilots/runs/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf/pilot-run-deltas",
+      ),
+    ).toEqual({
+      "x-tenant-id": "11111111-1111-1111-1111-111111111111",
+      "x-workspace-id": "2b2571e1-1884-62a2-1e8b-15a2a70a0342",
+      "x-project-id": "9beb918c-83d4-1385-0486-21f341806c5c",
+    });
   });
 });

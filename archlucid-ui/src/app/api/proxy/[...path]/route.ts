@@ -23,7 +23,7 @@ type ForwardMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
  * Attaches API key, forwards browser Authorization header, and merges scope headers
  * In production-like posture, client scope headers are ignored (see `proxy-scope-resolution.ts`).
  */
-function buildUpstreamHeaders(request: NextRequest): Headers {
+function buildUpstreamHeaders(request: NextRequest, proxyPath?: string): Headers {
   const h = new Headers();
   const key = readServerSideApiKey()?.trim() ?? "";
   const authHeader = request.headers.get("authorization");
@@ -45,7 +45,7 @@ function buildUpstreamHeaders(request: NextRequest): Headers {
     h.set("Authorization", bearerToUse);
   }
 
-  for (const [k, v] of Object.entries(resolveProxyUpstreamScopeHeaders(request.headers))) {
+  for (const [k, v] of Object.entries(resolveProxyUpstreamScopeHeaders(request.headers, undefined, proxyPath))) {
     h.set(k, v);
   }
 
@@ -208,7 +208,8 @@ async function forward(
   pathSegments: string[],
   method: ForwardMethod,
 ): Promise<NextResponse> {
-  const upstreamHeaders = buildUpstreamHeaders(request);
+  const path = pathSegments.length > 0 ? pathSegments.join("/") : "";
+  const upstreamHeaders = buildUpstreamHeaders(request, path);
   const correlationId =
     upstreamHeaders.get(CORRELATION_ID_HEADER)?.trim() ?? generateCorrelationId();
 
@@ -240,7 +241,6 @@ async function forward(
   }
 
   const base = resolved.baseUrl;
-  const path = pathSegments.length > 0 ? pathSegments.join("/") : "";
   const normalizedTailPath = path.length > 0 ? path.toLowerCase() : "";
   const authMePrivateCacheSeconds =
     method === "GET" && normalizedTailPath === "api/auth/me" ? 60 : undefined;
