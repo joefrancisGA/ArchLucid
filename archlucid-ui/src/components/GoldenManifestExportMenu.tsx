@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 export type GoldenManifestExportMenuProps = {
@@ -33,7 +34,13 @@ export type GoldenManifestExportMenuProps = {
 };
 
 /**
- * Export menu for reviewed (golden) manifest artifacts on run detail — Markdown is generated entirely in the browser.
+ * Export menu for finalized review record artifacts on run detail — Markdown is generated entirely in the browser.
+ *
+ * @important Verify all buyer-visible string labels use {@link SIGNED_MANIFEST_LABEL}, not "golden manifest".
+ * The `trustEvidenceGoldenManifestFieldTitle` guard covers data-layer field names but not hardcoded strings inside this component.
+ *
+ * @deprecated Internal API and prop names still use golden-manifest vocabulary. Buyer-visible labels in this file must
+ * stay on {@link SIGNED_MANIFEST_LABEL}; plan a V1.1 rename to `SignedReviewRecordExportMenu` when export surfaces stabilize.
  */
 export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
   const {
@@ -98,7 +105,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     >
       <SelectTrigger
         className={buyerPolishedShell ? "h-9 w-[11rem]" : "h-9 w-[10rem]"}
-        aria-label={buyerPolishedShell ? "More export formats for this package" : "Export signed review record"}
+        aria-label={buyerPolishedShell ? "More export formats for this package" : `Export ${SIGNED_MANIFEST_LABEL.toLowerCase()}`}
       >
         <SelectValue placeholder={buyerPolishedShell ? "More formats" : "Export"} />
       </SelectTrigger>
