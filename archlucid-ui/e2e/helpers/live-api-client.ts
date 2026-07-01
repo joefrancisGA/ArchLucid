@@ -243,8 +243,9 @@ export async function postArchitectureRequestRaw(
 /** Mutating architecture POSTs share one API with many live specs — retry fixed-window 429 and brief 5xx. */
 const maxArchitectureMutationAttempts = 8;
 
-/** Minimum description length to pass live API REJECT-AS-WRITTEN validation in CI. */
-const liveArchitectureDescriptionMinLength = 80;
+/** Mirrors `DraftAdmissionDomainHeuristic` — descriptions must mention architecture-domain terms. */
+const liveArchitectureDomainPattern =
+  /\b(architecture|system|database|api|service|cloud|azure|aws|gcp|security|compliance|tenant|scale|latency|throughput|auth|identity)\b/i;
 
 /** Rich default architecture narrative for live E2E create-run calls. */
 export const liveE2eArchitectureDescription =
@@ -260,7 +261,7 @@ function ensureLiveArchitectureDescription(body: Record<string, unknown>): Recor
   const raw = body.description;
   const description = typeof raw === "string" ? raw.trim() : "";
 
-  if (description.length >= liveArchitectureDescriptionMinLength) {
+  if (liveArchitectureDomainPattern.test(description)) {
     return body;
   }
 

@@ -3839,6 +3839,8 @@ jobs:
           Authentication__ApiKey__AdminKey: "e2e-admin-key-ci"
           Authentication__ApiKey__ReadOnlyKey: "e2e-readonly-key-ci"
           AgentExecution__Mode: Simulator
+          RateLimiting__Registration__PermitLimit: "500"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
         run: |
@@ -4001,6 +4003,8 @@ jobs:
           ArchLucidAuth__JwtLocalAudience: "api://archlucid-live-e2e-jwt"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
+          RateLimiting__Registration__PermitLimit: "500"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
         run: |

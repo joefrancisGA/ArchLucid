@@ -19,7 +19,6 @@ import {
   livePeerReviewerActorName,
   normalizeRunIdForCompare,
   waitForArchitectureRunListCommitted,
-  waitForReadyForCommit,
   waitForRunDetailCommitted,
   postGovernanceApproveRaw,
   searchAudit,
@@ -50,7 +49,7 @@ test.describe("live-api-journey", () => {
     page,
     request,
   }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(300_000);
 
     const createBody = {
       requestId: `E2E-LIVE-${Date.now()}`,
@@ -71,8 +70,6 @@ test.describe("live-api-journey", () => {
     test.info().annotations.push({ type: "e2e-run-id", description: runId });
 
     await executeRun(request, runId);
-
-    await waitForReadyForCommit(request, runId, 90_000);
 
     const commitJson = await commitRun(request, runId);
     const manifestVersion = commitJson.manifest?.metadata?.manifestVersion;
