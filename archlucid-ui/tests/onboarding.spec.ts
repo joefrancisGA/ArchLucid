@@ -20,7 +20,7 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
 
     await page.goto("/signup");
 
-    await expect(page.getByRole("heading", { name: /start your trial/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /start your evaluation/i })).toBeVisible();
 
     await expect(page.getByText(/By continuing you agree/i)).toBeVisible();
     await expect(page.getByRole("link", { name: /privacy policy/i })).toBeVisible();
@@ -29,7 +29,7 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
     await page.getByLabel(/Full name/i).fill("Fresh Tenant Admin");
     await page.getByLabel(/Organization name/i).fill("Contoso Fresh Tenant Org");
 
-    await page.getByRole("button", { name: /Create trial workspace/i }).click();
+    await page.getByRole("button", { name: /Create your workspace/i }).click();
 
     await expect(page).toHaveURL(/\/signup\/verify\?email=fresh-tenant%40example\.com/);
 
