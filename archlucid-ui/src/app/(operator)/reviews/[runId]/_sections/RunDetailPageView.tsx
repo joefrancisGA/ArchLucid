@@ -32,6 +32,7 @@ import {
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { shouldShowRunDetailGovernanceCta } from "@/lib/run-detail-governance-cta-visibility";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
 } from "@/lib/showcase-static-demo";
@@ -51,6 +52,7 @@ import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSecti
 import { RunDetailBuyerModeFallbackBanner } from "./RunDetailBuyerModeFallbackBanner";
 import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConversionSection";
 import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
+import { RunDetailGovernanceCta } from "./RunDetailGovernanceCta";
 import { RunDetailExecutiveBottomLine } from "./RunDetailExecutiveBottomLine";
 import { RunDetailHolisticCriticPanel } from "./RunDetailHolisticCriticPanel";
 import { CtoDemoReviewRouteGuard } from "@/components/cto-demo/CtoDemoReviewRouteGuard";
@@ -161,6 +163,15 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           ruleSetVersion: m.manifestSummaryForUi.ruleSetVersion,
         }
       : null;
+
+  const governanceCtaEl = shouldShowRunDetailGovernanceCta({
+    manifestId: m.manifestId,
+    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
+    operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
+    manifestStatus: m.manifestSummary?.status ?? null,
+  }) ? (
+    <RunDetailGovernanceCta runId={m.resolvedDetail.run.runId} />
+  ) : null;
 
   return (
     <div
@@ -339,7 +350,12 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         runId={m.resolvedDetail.run.runId}
         hasGoldenManifest={Boolean(m.manifestId)}
       />
-      {buyerFinalizedPackage ? null : outcomeCardsEl}
+      {buyerFinalizedPackage ? null : (
+        <>
+          {outcomeCardsEl}
+          {governanceCtaEl}
+        </>
+      )}
 
       {!m.buyerPolishedArtifactTable ? (
         <RunDetailLastFailureCard

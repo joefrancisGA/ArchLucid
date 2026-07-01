@@ -1,0 +1,40 @@
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  RUN_DETAIL_GOVERNANCE_CTA_LABEL,
+  runDetailGovernanceWorkflowHref,
+} from "@/lib/run-detail-governance-cta-visibility";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
+type RunDetailGovernanceCtaProps = {
+  readonly runId: string;
+};
+
+/** Forward-path CTA from review detail to governance workflow when approval is still pending (TB-521). */
+export function RunDetailGovernanceCta(props: RunDetailGovernanceCtaProps): React.JSX.Element {
+  const { runId } = props;
+
+  return (
+    <Card
+      className="rounded-lg border border-teal-200 bg-teal-50/70 shadow-sm dark:border-teal-900 dark:bg-teal-950/20"
+      data-testid="run-detail-governance-cta"
+    >
+      <CardHeader className="pb-2">
+        <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Governance approval
+        </CardTitle>
+        <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
+          This review package is finalized. Continue in Governance to submit source and target environments for approval.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <Button type="button" variant="primary" asChild>
+          <Link href={runDetailGovernanceWorkflowHref(runId)}>{RUN_DETAIL_GOVERNANCE_CTA_LABEL}</Link>
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
