@@ -216,7 +216,7 @@ public sealed class RunQueryControllerTests
 
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail
-            .Setup(s => s.ListRunSummariesOffsetAsync(0, 25, It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListRunSummariesOffsetAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((summaries, false));
 
         RunQueryController controller = CreateController(runDetailQueryService: runDetail.Object);

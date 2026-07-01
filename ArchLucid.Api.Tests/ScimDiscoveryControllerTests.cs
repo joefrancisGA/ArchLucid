@@ -20,7 +20,7 @@ public sealed class ScimDiscoveryControllerTests
         ContentResult content = action.Should().BeOfType<ContentResult>().Subject;
         content.ContentType.Should().Be("application/scim+json; charset=utf-8");
         content.Content.Should().Contain("ServiceProviderConfig");
-        content.Content.Should().Contain("\"supported\": true");
+        content.Content.Should().Contain("\"supported\":true");
     }
 
     [Fact]
@@ -33,7 +33,7 @@ public sealed class ScimDiscoveryControllerTests
         ContentResult content = action.Should().BeOfType<ContentResult>().Subject;
         content.Content.Should().Contain("urn:ietf:params:scim:schemas:core:2.0:User");
         content.Content.Should().Contain("urn:ietf:params:scim:schemas:core:2.0:Group");
-        content.Content.Should().Contain("\"totalResults\": 2");
+        content.Content.Should().Contain("\"totalResults\":2");
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public sealed class ScimDiscoveryControllerTests
         IActionResult action = controller.ResourceTypes();
 
         ContentResult content = action.Should().BeOfType<ContentResult>().Subject;
-        content.Content.Should().Contain("\"endpoint\": \"/Users\"");
-        content.Content.Should().Contain("\"endpoint\": \"/Groups\"");
+        content.Content.Should().Contain("\"endpoint\":\"/Users\"");
+        content.Content.Should().Contain("\"endpoint\":\"/Groups\"");
     }
 }

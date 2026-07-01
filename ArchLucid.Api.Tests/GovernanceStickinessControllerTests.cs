@@ -53,13 +53,17 @@ public sealed class GovernanceStickinessControllerTests
             .ReturnsAsync(Array.Empty<RiskExceptionRecord>());
 
         Mock<IArchitectureRiskRegisterService> riskRegisterService = riskRegister ?? new Mock<IArchitectureRiskRegisterService>();
-        riskRegisterService
-            .Setup(r => r.GetRegisterAsync(
-                Scope.TenantId,
-                Scope.ProjectId,
-                It.IsAny<int>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ArchitectureRiskRegisterResponse());
+
+        if (riskRegister is null)
+        {
+            riskRegisterService
+                .Setup(r => r.GetRegisterAsync(
+                    Scope.TenantId,
+                    Scope.ProjectId,
+                    It.IsAny<int>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ArchitectureRiskRegisterResponse());
+        }
 
         Mock<IArchitectureDecisionRegisterService> decisionRegister = new();
         decisionRegister

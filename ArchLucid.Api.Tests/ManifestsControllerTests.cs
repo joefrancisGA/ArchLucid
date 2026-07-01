@@ -161,7 +161,8 @@ public sealed class ManifestsControllerTests
             await controller.CompareManifests(LeftVersion, RightVersion, CancellationToken.None);
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
-        ManifestCompareResponse body = ok.Value.Should().BeOfType<ManifestCompareResponse>().Subject;
+        ArchLucid.Api.Models.ManifestCompareResponse body =
+            ok.Value.Should().BeOfType<ArchLucid.Api.Models.ManifestCompareResponse>().Subject;
         body.Diff.AddedServices.Should().Contain("svc-b");
     }
 
