@@ -54,13 +54,48 @@ def should_scan_path(path: str) -> bool:
     return True
 
 
+def strip_raw_string_literals(source: str) -> str:
+    """Drop bodies of C# triple-quoted raw string literals (analyzer tests embed stub sources)."""
+    lines: list[str] = []
+    in_raw = False
+
+    for line in source.splitlines():
+        if not in_raw:
+            open_idx = line.find('"""')
+
+            if open_idx == -1:
+                lines.append(line)
+                continue
+
+            after_open = line[open_idx + 3 :]
+            close_idx = after_open.find('"""')
+
+            if close_idx != -1:
+                lines.append(line[: open_idx + 3] + after_open[close_idx:])
+                continue
+
+            in_raw = True
+            lines.append(line[: open_idx + 3])
+            continue
+
+        close_idx = line.find('"""')
+
+        if close_idx == -1:
+            continue
+
+        in_raw = False
+        lines.append(line[close_idx:])
+
+    return "\n".join(lines)
+
+
 def root_type_names(source: str) -> set[str]:
     names: set[str] = set()
     type_nesting = 0
     pending_type_open = False
     skip_next_block_open = False
 
-    for line in source.splitlines():
+    for line in strip_raw_string_literals(source).splitlines():
         stripped = line.strip()
 
         if stripped.startswith("//"):
