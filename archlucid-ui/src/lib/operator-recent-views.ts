@@ -2,6 +2,8 @@
  * Tracks recently visited operator routes in localStorage for quick resume on Home.
  */
 
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+
 export const OPERATOR_RECENT_VIEWS_STORAGE_KEY = "archlucid.operatorRecentViews.v1";
 
 export type OperatorRecentViewKind = "review" | "finding" | "manifest" | "page";
@@ -105,7 +107,7 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
   }
 
   if (path.startsWith("/dashboard")) {
-    return "Portfolio overview";
+    return BUYER_TERMINOLOGY.portfolioOverview;
   }
 
   return path.replace(/^\//u, "").replace(/\//gu, " · ") || null;

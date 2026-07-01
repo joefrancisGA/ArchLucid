@@ -32,7 +32,7 @@ export const BUYER_TERMINOLOGY = {
   evaluationValueReport: "Review value report",
   reviewScorecard: "Review scorecard",
   governanceDashboard: "Governance dashboard",
-  portfolioOverview: "Portfolio overview",
+  portfolioOverview: "Executive dashboard",
 } as const;
 
 /** `/product-learning` — pilot feedback dashboard copy (58R/59R surfaces). */
@@ -69,8 +69,8 @@ export const PILOT_FEEDBACK_VOCABULARY = {
  */
 export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   pageTitle: "Executive summary",
-  /** `/dashboard` portfolio surface — aligns with sidebar “Portfolio overview”. */
-  portfolioPageTitle: "Portfolio overview",
+  /** `/dashboard` portfolio surface — aligns with sidebar “Executive dashboard”. */
+  portfolioPageTitle: "Executive dashboard",
   portfolioPageLead:
     "Track governance posture, remediation progress, and estimated ROI across committed review packages.",
   pageLead:

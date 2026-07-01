@@ -36,7 +36,7 @@ describe("buyerPolishedRouteOrientation", () => {
   it("orients the portfolio dashboard route", () => {
     const o = buyerPolishedRouteOrientation("/dashboard");
 
-    expect(o?.label).toBe("Portfolio overview");
+    expect(o?.label).toBe("Executive dashboard");
     expect(o?.line).toContain("committed review packages");
   });
 

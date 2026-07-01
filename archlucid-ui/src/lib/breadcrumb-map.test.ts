@@ -78,7 +78,7 @@ describe("getBreadcrumbs", () => {
 
   it("maps operator ROI dashboard as portfolio overview", () => {
     expect(getBreadcrumbs("/dashboard")).toEqual([
-      { label: "Portfolio overview" },
+      { label: "Executive dashboard" },
     ]);
   });
 

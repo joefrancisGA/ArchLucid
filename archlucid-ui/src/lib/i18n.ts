@@ -117,7 +117,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator workspace landing (`/`) — left nav label; logo also routes here. */
   home: "Overview",
   /** Operator-shell ROI dashboard — distinct from the executive route group. */
-  portfolioOverview: "Portfolio overview",
+  portfolioOverview: "Executive dashboard",
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   reviewPackage: "Review packages",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,

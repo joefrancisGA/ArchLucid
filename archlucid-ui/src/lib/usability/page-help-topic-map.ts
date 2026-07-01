@@ -12,7 +12,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/onboarding", topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: "Start review" } },
   { prefix: "/reviews", topic: { slug: "review-packages", label: "Review packages" } },
-  { prefix: "/dashboard", topic: { slug: "executive-summary", label: "Portfolio overview" } },
+  { prefix: "/dashboard", topic: { slug: "executive-summary", label: "Executive dashboard" } },
   { prefix: "/graph", topic: { slug: "evidence-trail", label: "Evidence trail" } },
   { prefix: "/compare", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review package" } },

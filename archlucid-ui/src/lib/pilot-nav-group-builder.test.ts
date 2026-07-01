@@ -12,7 +12,7 @@ describe("PilotNavGroupBuilder", () => {
 
   it("uses buyer-safe portfolio overview nav title without illustrative metrics leak", () => {
     const group = new PilotNavGroupBuilder().build();
-    const dashboardLink = group.links.find((link) => link.label === "Portfolio overview");
+    const dashboardLink = group.links.find((link) => link.label === "Executive dashboard");
 
     expect(dashboardLink).toBeDefined();
     expect(dashboardLink?.title).toContain("Track ROI");
@@ -25,7 +25,7 @@ describe("PilotNavGroupBuilder", () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "");
 
     const group = new PilotNavGroupBuilder().build();
-    const dashboardLink = group.links.find((link) => link.label === "Portfolio overview");
+    const dashboardLink = group.links.find((link) => link.label === "Executive dashboard");
 
     expect(dashboardLink?.href).toBe("/dashboard");
   });
@@ -35,7 +35,7 @@ describe("PilotNavGroupBuilder", () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "");
 
     const group = new PilotNavGroupBuilder().build();
-    const dashboardLink = group.links.find((link) => link.label === "Portfolio overview");
+    const dashboardLink = group.links.find((link) => link.label === "Executive dashboard");
 
     expect(dashboardLink?.href).toBe(getShowcaseExecutiveHref());
   });
@@ -73,7 +73,7 @@ describe("PilotNavGroupBuilder", () => {
       "Overview",
       "New review",
       "Review packages",
-      "Portfolio overview",
+      "Executive dashboard",
       "Getting started",
     ]);
     expect(group.links.some((link) => link.href === "/graph")).toBe(false);

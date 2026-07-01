@@ -63,7 +63,7 @@ export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
 
 export const PILOT_COMMAND_CENTER_HEADING = "Start your first review";
 
-export const OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING = "Workspace overview";
+export const OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING = "Recent activity";
 
 /** Hero title on `/` — first-run CTA until the tenant has a committed architecture review. */
 export function resolveOperatorHomeHeroHeading(hasWorkspaceActivity: boolean): string {
