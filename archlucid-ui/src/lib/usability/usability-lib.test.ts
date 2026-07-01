@@ -26,18 +26,31 @@ describe("usability lib", () => {
     expect(phase0).toEqual([]);
   });
 
-  it("filterNavLinksByOperateUnlockPhase hides governance until phase 2", () => {
-    const links = [{ href: "/compare" }, { href: "/audit" }];
+  it("filterNavLinksByOperateUnlockPhase keeps governance workflow and audit at phase 1", () => {
+    const links = [
+      { href: "/compare" },
+      { href: "/governance" },
+      { href: "/governance/audit" },
+      { href: "/governance/findings" },
+    ];
     const phase1 = filterNavLinksByOperateUnlockPhase(links, true, 1);
 
-    expect(phase1.map((l) => l.href)).toEqual(["/compare"]);
+    expect(phase1.map((l) => l.href)).toEqual(["/compare", "/governance", "/governance/audit"]);
   });
 
   it("filterNavLinksByOperateUnlockPhase keeps recurrence schedules visible in phase 1", () => {
-    const links = [{ href: "/compare" }, { href: "/governance/recurrence-schedules" }, { href: "/audit" }];
+    const links = [
+      { href: "/compare" },
+      { href: "/governance/recurrence-schedules" },
+      { href: "/governance/audit" },
+    ];
     const phase1 = filterNavLinksByOperateUnlockPhase(links, true, 1);
 
-    expect(phase1.map((l) => l.href)).toEqual(["/compare", "/governance/recurrence-schedules"]);
+    expect(phase1.map((l) => l.href)).toEqual([
+      "/compare",
+      "/governance/recurrence-schedules",
+      "/governance/audit",
+    ]);
   });
 
   it("pageHelpTopicForPathname maps review routes", () => {

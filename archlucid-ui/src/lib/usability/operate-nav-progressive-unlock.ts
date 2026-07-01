@@ -28,13 +28,16 @@ const LEGACY_SIDEBAR_PREFERENCE_KEYS = [
   "archlucid-nav-collapsed-pilot-expanded",
 ] as const;
 
-/** Hrefs hidden until phase 2 (governance cluster). */
-const GOVERNANCE_PHASE_HREFS = new Set<string>([
+/** Extended governance hrefs hidden until phase 2; workflow + audit trail unlock at phase 1 (TB-517). */
+const GOVERNANCE_EXTENDED_PHASE_HREFS = new Set<string>([
+  "/governance/findings",
+  "/governance/risk-exceptions",
+  "/governance/policy-packs",
+  "/governance/resolution",
+  "/governance/decision-register",
+  "/governance/alerts",
   "/alerts",
   "/policy-packs",
-  "/governance",
-  "/audit",
-  "/governance/decision-register",
 ]);
 
 /** Duplicate/near-duplicate routes hidden from primary nav (deep links still work). */
@@ -183,5 +186,5 @@ export function filterNavLinksByOperateUnlockPhase<T extends { href: string }>(
     return filtered;
   }
 
-  return filtered.filter((link) => !GOVERNANCE_PHASE_HREFS.has(link.href.split("?")[0] ?? ""));
+  return filtered.filter((link) => !GOVERNANCE_EXTENDED_PHASE_HREFS.has(link.href.split("?")[0] ?? ""));
 }

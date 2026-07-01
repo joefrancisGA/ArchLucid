@@ -85,6 +85,7 @@ describe("SidebarNav (primary navigation)", () => {
 
     const reviewNav = screen.getByRole("navigation", { name: "Review work" });
     expect(reviewNav).toBeInTheDocument();
+    expect(within(reviewNav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(reviewNav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
     expect(within(reviewNav).getByRole("link", { name: "Getting started" })).toHaveAttribute("href", "/onboarding");
     expect(within(reviewNav).queryByRole("link", { name: "Risk register" })).toBeNull();
@@ -210,7 +211,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     expect(screen.getByText("Review work")).toBeInTheDocument();
 
     const nav = screen.getByRole("navigation", { name: "Review work" });
-    expect(within(nav).queryByRole("link", { name: "Overview" })).toBeNull();
+    expect(within(nav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(nav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
     expect(within(nav).getByRole("link", { name: "Evidence graph" })).toHaveAttribute("href", "/graph");
 
@@ -222,9 +223,9 @@ describe("SidebarNav buyer-polished desktop shell", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();
+      expect(screen.getByTestId("sidebar-group-toggle-operate-governance")).toBeInTheDocument();
     });
 
-    expect(screen.queryByTestId("sidebar-group-toggle-operate-governance")).toBeNull();
     expect(screen.queryByRole("navigation", { name: "Governance" })).toBeNull();
   });
 });

@@ -50,12 +50,12 @@ describe("operate-nav-progressive-unlock", () => {
     expect(ids).toContain("operator-admin");
   });
 
-  it("shows analysis at phase 1 but keeps governance hidden until phase 2", () => {
+  it("shows governance workflow and audit at phase 1 but keeps extended governance until phase 2", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       true,
       true,
-      AUTHORITY_RANK.ReadAuthority,
+      AUTHORITY_RANK.ExecuteAuthority,
       false,
       "all",
       true,
@@ -64,7 +64,16 @@ describe("operate-nav-progressive-unlock", () => {
     const ids = rows.map((row) => row.group.id);
 
     expect(ids).toContain("operate-analysis");
-    expect(ids).not.toContain("operate-governance");
+    expect(ids).toContain("operate-governance");
+
+    const governance = rows.find((row) => row.group.id === "operate-governance");
+    const hrefs = governance?.visibleLinks.map((link) => link.href) ?? [];
+
+    expect(hrefs).toContain("/governance");
+    expect(hrefs).toContain("/governance/audit");
+    expect(hrefs).not.toContain("/governance/findings");
+    expect(hrefs).not.toContain("/governance/policy-packs");
+    expect(hrefs).not.toContain("/governance/risk-exceptions");
   });
 
   it("defaults stored phase to 0 for new users", () => {

@@ -34,7 +34,7 @@ describe("authority seam regression", () => {
     const readerVisible = filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.ReadAuthority);
     const hrefsRead = new Set(readerVisible.map((l) => l.href));
 
-    expect(hrefsRead.has("/alerts")).toBe(true);
+    expect(hrefsRead.has("/governance/alerts")).toBe(true);
     expect(hrefsRead.has("/governance")).toBe(false);
 
     const executeVisible = filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.ExecuteAuthority);
@@ -192,7 +192,7 @@ describe("authority seam regression", () => {
       false,
       "all",
       true,
-      2, // Phase 2 required: operate-governance group is skipped at phase < 2
+      2, // Phase 2 required for extended governance links (findings, policy packs, risk exceptions)
     );
 
     const governance = rows.find((r) => r.group.id === "operate-governance");
@@ -323,7 +323,7 @@ describe("authority seam regression", () => {
    * **`nav-tier.ts`** (before authority in **`nav-shell-visibility.ts`**).
    */
   it("keeps Operate governance Alerts inbox on advanced tier in nav-config", () => {
-    const alerts = enterpriseLinks?.find((l) => l.href === "/alerts");
+    const alerts = enterpriseLinks?.find((l) => l.href === "/governance/alerts");
 
     expect(alerts?.tier).toBe("advanced");
   });
