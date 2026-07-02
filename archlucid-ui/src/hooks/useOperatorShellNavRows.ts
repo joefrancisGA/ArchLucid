@@ -64,7 +64,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const reviewNavAdvanced = navAdvanced;
   const effectiveHasCommittedArchitectureReview = hasCommittedArchitectureReview || buyerPolishedShell;
   const navGateHasCommittedArchitectureReview =
-    effectiveHasCommittedArchitectureReview || effectiveOperateUnlockPhase >= 1;
+    hasCommittedArchitectureReview || effectiveOperateUnlockPhase >= 1;
   const omitAdminClusters = demoUi && !buyerPolishedShell;
 
   return useMemo(() => {

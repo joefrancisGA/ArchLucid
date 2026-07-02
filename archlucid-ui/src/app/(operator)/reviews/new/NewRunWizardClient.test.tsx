@@ -116,7 +116,7 @@ async function skipEvidenceStep() {
   });
 
   await act(async () => {
-    fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-step"));
+    fireEvent.click(screen.getByTestId("wizard-evidence-brief-continue"));
   });
 }
 

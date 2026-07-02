@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/executive/dashboard",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/AuthPanel", () => ({
@@ -39,8 +40,9 @@ describe("ExecutiveShellFrame", () => {
     );
 
     expect(screen.getByTestId("executive-operator-shell-switcher")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Architect" })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: "Executive" })).toHaveAttribute("href", "/executive/dashboard");
+    const switcher = screen.getByTestId("executive-operator-shell-switcher");
+    expect(within(switcher).getByRole("link", { name: "Architect" })).toHaveAttribute("href", "/");
+    expect(within(switcher).getByRole("link", { name: "Executive" })).toHaveAttribute("href", "/executive/dashboard");
   });
 
   it("highlights the active route link", () => {

@@ -593,7 +593,10 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       expect(submitRunTrigger!.disabled).toBe(false);
     });
 
-    expect(screen.getByTestId("governance-submit-approval-button")).not.toBeDisabled();
+    const submitVersion = document.getElementById("gov-submit-version") as HTMLInputElement | null;
+
+    expect(submitVersion).not.toBeNull();
+    expect(submitVersion!.readOnly).toBe(false);
   });
 
   /**

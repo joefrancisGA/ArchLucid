@@ -28,6 +28,10 @@ export function pathMatchesSettingsUsers(pathname: string): boolean {
   );
 }
 
+export function pathMatchesLegacySettingsRoles(pathname: string): boolean {
+  return pathMatchesRoutePrefix(pathname, LEGACY_SETTINGS_ROLES_PATH);
+}
+
 export function pathMatchesSettingsSecurityTrust(pathname: string): boolean {
   return (
     pathMatchesRoutePrefix(pathname, SETTINGS_SECURITY_TRUST_PATH)

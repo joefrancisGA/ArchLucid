@@ -188,8 +188,17 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
     });
   }
 
+  async function selectAzureInventoryEvidenceSource(): Promise<void> {
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-azure-export"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("wizard-evidence-upload-dropzone")).toBeInTheDocument();
+    });
+  }
+
   it("renders the optional evidence step after preset selection", async () => {
     await advanceToEvidenceStep();
+    await selectAzureInventoryEvidenceSource();
 
     expect(screen.getByTestId("wizard-evidence-upload-dropzone")).toBeInTheDocument();
   });
@@ -209,6 +218,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
 
   it("uploads evidence after review creation when a file was selected", async () => {
     await advanceToEvidenceStep();
+    await selectAzureInventoryEvidenceSource();
 
     const zipFile = createValidInventoryZip("evidence.zip");
     const input = screen.getByTestId("wizard-evidence-upload-dropzone-input");
@@ -256,6 +266,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
 
   it("shows inline upload failure on the tracking step without blocking review creation", async () => {
     await advanceToEvidenceStep();
+    await selectAzureInventoryEvidenceSource();
 
     const zipFile = createValidInventoryZip("bad-evidence.zip");
     const input = screen.getByTestId("wizard-evidence-upload-dropzone-input");

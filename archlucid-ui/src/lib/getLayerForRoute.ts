@@ -2,6 +2,7 @@ import { NAV_GROUPS } from "@/lib/nav-config";
 import { pathMatchesAiUsageSettings } from "@/lib/ai-usage-nav-paths";
 import { pathMatchesCloudConnections, pathMatchesIntegrationsReadiness } from "@/lib/integrations-nav-paths";
 import {
+  pathMatchesLegacySettingsRoles,
   pathMatchesSettingsSecurityTrust,
   pathMatchesSettingsSupport,
   pathMatchesSettingsUsers,
@@ -89,6 +90,7 @@ export function getLayerForRoute(pathname: string): LayerId {
 
   if (
     pathMatchesSettingsUsers(normalized)
+    || pathMatchesLegacySettingsRoles(normalized)
     || pathMatchesSettingsSecurityTrust(normalized)
     || pathMatchesSettingsSupport(normalized)
   ) {

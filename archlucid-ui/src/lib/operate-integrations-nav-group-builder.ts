@@ -1,4 +1,4 @@
-import { CloudCog, CalendarClock, Hash, Plug, Ticket, UsersRound, Webhook } from "lucide-react";
+import { CloudCog, Hash, Plug, Ticket, UsersRound, Webhook } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
@@ -77,14 +77,6 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           icon: Webhook,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",
-        },
-        {
-          href: "/governance/recurrence-schedules",
-          label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
-          title: "Recurrence schedules — automated follow-up architecture reviews after finalize",
-          icon: CalendarClock,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
         },
       ],
     };
