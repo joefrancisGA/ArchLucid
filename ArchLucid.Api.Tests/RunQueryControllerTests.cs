@@ -104,10 +104,7 @@ public sealed class RunQueryControllerTests
             .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
-        Mock<IAgentExecutionTraceRepository> traces = new();
-        traces
-            .Setup(t => t.GetByRunIdAsync(Scope, RunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<AgentExecutionTrace>());
+        Mock<IAgentExecutionTraceRepository> traces = CreateAgentExecutionTraceRepositoryMock();
 
         RunQueryController controller = CreateController(
             runDetailQueryService: runDetail.Object,
@@ -297,7 +294,7 @@ public sealed class RunQueryControllerTests
             authorityRunRepository ?? Mock.Of<IRunRepository>(),
             Mock.Of<IDecisionNodeRepository>(),
             Mock.Of<IAgentEvidencePackageRepository>(),
-            agentExecutionTraceRepository ?? Mock.Of<IAgentExecutionTraceRepository>(),
+            agentExecutionTraceRepository ?? CreateAgentExecutionTraceRepositoryMock().Object,
             Mock.Of<IAgentToolInvocationRecordRepository>(),
             findingEvidenceChainService ?? Mock.Of<IFindingEvidenceChainService>(),
             Mock.Of<IFindingInspectReadRepository>(),
@@ -316,5 +313,20 @@ public sealed class RunQueryControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
+    }
+
+    private static Mock<IAgentExecutionTraceRepository> CreateAgentExecutionTraceRepositoryMock()
+    {
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        WireDefaultLlmCostSliceRepositoryMock(traces);
+
+        return traces;
+    }
+
+    private static void WireDefaultLlmCostSliceRepositoryMock(Mock<IAgentExecutionTraceRepository> traces)
+    {
+        traces
+            .Setup(t => t.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AgentExecutionTraceLlmCostSlice>());
     }
 }
