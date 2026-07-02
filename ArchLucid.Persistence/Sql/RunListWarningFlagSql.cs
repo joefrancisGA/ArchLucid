@@ -5,16 +5,67 @@ namespace ArchLucid.Persistence.Sql;
 /// </summary>
 internal static class RunListWarningFlagSql
 {
-    /// <summary>
-    ///     <c>dbo.Runs.RunId</c> — required after <see cref="LeftJoinAggregates" /> because fsWarn/govWarn also project RunId.
-    /// </summary>
-    public const string RunsRunId = "dbo.Runs.RunId";
+    /// <summary><c>dbo.Runs</c> alias for list paths that attach <see cref="LeftJoinAggregates" />.</summary>
+    public const string RunsTableAlias = "r";
 
-    /// <summary>Projected columns; pair with <see cref="LeftJoinAggregates" /> after <c>FROM dbo.Runs</c>.</summary>
+    /// <summary>Opening FROM clause; pair with <see cref="LeftJoinAggregates" />.</summary>
+    public const string FromRunsNoLock = "FROM dbo.Runs r WITH (NOLOCK)";
+
+    /// <summary>
+    ///     Core run columns for dashboard list paths. All columns use <see cref="RunsTableAlias" /> because
+    ///     fsWarn/govWarn also project <c>RunId</c>.
+    /// </summary>
+    public const string SelectRunColumns = """
+                                           r.RunId, r.TenantId, r.WorkspaceId, r.ScopeProjectId, r.ProjectId, r.Description, r.CreatedUtc,
+                                           r.ContextSnapshotId, r.GraphSnapshotId, r.FindingsSnapshotId,
+                                           r.GoldenManifestId, r.DecisionTraceId, r.ArtifactBundleId, r.ArchivedUtc,
+                                           r.ArchitectureRequestId, r.LegacyRunStatus, r.CompletedUtc, r.CurrentManifestVersion, r.OtelTraceId,
+                                           r.IsDemoWelcomeRun,
+                                           r.IsPublicShowcase, r.IsPinned, r.RealModeFellBackToSimulator, r.PilotAoaiDeploymentSnapshot,
+                                           r.EngineProvenanceJson,
+                                           r.StructuralExecutionMode,
+                                           r.RetryCount, r.LastFailureReason
+                                           """;
+
+    /// <summary>Projected columns; pair with <see cref="LeftJoinAggregates" /> after <see cref="FromRunsNoLock" />.</summary>
     public const string SelectColumns = """
                                         ISNULL(fsWarn.HasWarnings, 0) AS HasWarnings,
                                         ISNULL(govWarn.HasGovernanceWarnings, 0) AS HasGovernanceWarnings
                                         """;
+
+    /// <summary>Ambient scope filter shared by recent-in-scope list shapes.</summary>
+    public const string ScopeWhereTail = """
+                                         r.TenantId = @TenantId
+                                           AND r.WorkspaceId = @WorkspaceId
+                                           AND r.ScopeProjectId = @ScopeProjectId
+                                           AND r.ArchivedUtc IS NULL
+                                         """;
+
+    /// <summary>Project slug filter prefix for per-project list shapes.</summary>
+    public const string ProjectWherePrefix = """
+                                             r.ProjectId = @ProjectSlug
+                                               AND
+                                             """;
+
+    /// <summary>Keyset continuation predicate for run lists ordered by created time then run id.</summary>
+    public const string KeysetCursorPredicate = """
+                                                AND (
+                                                    (@CursorRunId IS NULL AND @CursorCreatedUtc IS NULL)
+                                                    OR (
+                                                        r.RunId <> @CursorRunId
+                                                        AND (
+                                                            r.CreatedUtc < @CursorCreatedUtc
+                                                            OR (r.CreatedUtc = @CursorCreatedUtc AND r.RunId < @CursorRunId)
+                                                        )
+                                                    )
+                                                )
+                                                """;
+
+    /// <summary>Stable keyset ordering for run lists.</summary>
+    public const string KeysetOrderBy = "ORDER BY r.CreatedUtc DESC, r.RunId DESC";
+
+    /// <summary>Default recent-first ordering for unpaged run lists.</summary>
+    public const string CreatedUtcDescOrderBy = "ORDER BY r.CreatedUtc DESC";
 
     /// <summary>
     ///     Pre-aggregated findings and open-alert presence keyed by <c>RunId</c> for dashboard list paths.
@@ -27,7 +78,7 @@ internal static class RunListWarningFlagSql
                                                  FROM dbo.FindingsSnapshots fs WITH (NOLOCK)
                                                  WHERE fs.ArchivedUtc IS NULL
                                                  GROUP BY fs.RunId
-                                             ) fsWarn ON fsWarn.RunId = dbo.Runs.RunId
+                                             ) fsWarn ON fsWarn.RunId = r.RunId
                                              LEFT JOIN (
                                                  SELECT
                                                      ar.RunId,
@@ -35,6 +86,6 @@ internal static class RunListWarningFlagSql
                                                  FROM dbo.AlertRecords ar WITH (NOLOCK)
                                                  WHERE ar.Status = N'Open'
                                                  GROUP BY ar.RunId
-                                             ) govWarn ON govWarn.RunId = dbo.Runs.RunId
+                                             ) govWarn ON govWarn.RunId = r.RunId
                                              """;
 }

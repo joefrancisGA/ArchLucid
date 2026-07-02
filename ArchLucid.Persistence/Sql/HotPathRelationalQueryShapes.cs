@@ -13,57 +13,26 @@ internal static class HotPathRelationalQueryShapes
     /// <summary>Dashboard run list by project slug (<c>SqlRunRepository.ListByProjectAsync</c>).</summary>
     public const string RunsListByProjectNoLock = $"""
                                                   SELECT TOP (@Take)
-                                                      {RunListWarningFlagSql.RunsRunId}, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                                      ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                                      GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                                      ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                                      IsDemoWelcomeRun,
-                                                      IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                                      EngineProvenanceJson,
-                                                      StructuralExecutionMode,
-                                                      RetryCount, LastFailureReason,
+                                                      {RunListWarningFlagSql.SelectRunColumns},
                                                       {RunListWarningFlagSql.SelectColumns}
-                                                  FROM dbo.Runs WITH (NOLOCK)
+                                                  {RunListWarningFlagSql.FromRunsNoLock}
                                                   {RunListWarningFlagSql.LeftJoinAggregates}
-                                                  WHERE ProjectId = @ProjectSlug
-                                                    AND TenantId = @TenantId
-                                                    AND WorkspaceId = @WorkspaceId
-                                                    AND ScopeProjectId = @ScopeProjectId
-                                                    AND ArchivedUtc IS NULL
-                                                  ORDER BY CreatedUtc DESC;
+                                                  WHERE {RunListWarningFlagSql.ProjectWherePrefix}
+                                                    {RunListWarningFlagSql.ScopeWhereTail}
+                                                  {RunListWarningFlagSql.CreatedUtcDescOrderBy};
                                                   """;
 
     /// <summary>Keyset-paged run list by project (<c>SqlRunRepository.ListByProjectKeysetAsync</c>).</summary>
     public const string RunsListByProjectKeysetNoLock = $"""
                                                         SELECT TOP (@Fetch)
-                                                            {RunListWarningFlagSql.RunsRunId}, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                                            ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                                            GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                                            ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                                            IsDemoWelcomeRun,
-                                                            IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                                            EngineProvenanceJson,
-                                                            StructuralExecutionMode,
-                                                            RetryCount, LastFailureReason,
+                                                            {RunListWarningFlagSql.SelectRunColumns},
                                                             {RunListWarningFlagSql.SelectColumns}
-                                                        FROM dbo.Runs WITH (NOLOCK)
+                                                        {RunListWarningFlagSql.FromRunsNoLock}
                                                         {RunListWarningFlagSql.LeftJoinAggregates}
-                                                        WHERE ProjectId = @ProjectSlug
-                                                          AND TenantId = @TenantId
-                                                          AND WorkspaceId = @WorkspaceId
-                                                          AND ScopeProjectId = @ScopeProjectId
-                                                          AND ArchivedUtc IS NULL
-                                                          AND (
-                                                              (@CursorRunId IS NULL AND @CursorCreatedUtc IS NULL)
-                                                              OR (
-                                                                  {RunListWarningFlagSql.RunsRunId} <> @CursorRunId
-                                                                  AND (
-                                                                      CreatedUtc < @CursorCreatedUtc
-                                                                      OR (CreatedUtc = @CursorCreatedUtc AND {RunListWarningFlagSql.RunsRunId} < @CursorRunId)
-                                                                  )
-                                                              )
-                                                          )
-                                                        ORDER BY CreatedUtc DESC, {RunListWarningFlagSql.RunsRunId} DESC;
+                                                        WHERE {RunListWarningFlagSql.ProjectWherePrefix}
+                                                          {RunListWarningFlagSql.ScopeWhereTail}
+                                                          {RunListWarningFlagSql.KeysetCursorPredicate}
+                                                        {RunListWarningFlagSql.KeysetOrderBy};
                                                         """;
 
     /// <summary>
@@ -88,78 +57,36 @@ internal static class HotPathRelationalQueryShapes
     /// <summary>Recent runs in ambient scope (<c>SqlRunRepository.ListRecentInScopeAsync</c>).</summary>
     public const string RunsListRecentInScopeNoLock = $"""
                                                       SELECT TOP (@Take)
-                                                          {RunListWarningFlagSql.RunsRunId}, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                                          ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                                          GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                                          ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                                          IsDemoWelcomeRun,
-                                                          IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                                          EngineProvenanceJson,
-                                                          StructuralExecutionMode,
-                                                          RetryCount, LastFailureReason,
+                                                          {RunListWarningFlagSql.SelectRunColumns},
                                                           {RunListWarningFlagSql.SelectColumns}
-                                                      FROM dbo.Runs WITH (NOLOCK)
+                                                      {RunListWarningFlagSql.FromRunsNoLock}
                                                       {RunListWarningFlagSql.LeftJoinAggregates}
-                                                      WHERE TenantId = @TenantId
-                                                        AND WorkspaceId = @WorkspaceId
-                                                        AND ScopeProjectId = @ScopeProjectId
-                                                        AND ArchivedUtc IS NULL
-                                                      ORDER BY CreatedUtc DESC;
+                                                      WHERE {RunListWarningFlagSql.ScopeWhereTail}
+                                                      {RunListWarningFlagSql.CreatedUtcDescOrderBy};
                                                       """;
 
     /// <summary>Offset-paged recent runs in scope (<c>SqlRunRepository.ListRecentInScopeOffsetAsync</c>).</summary>
     public const string RunsListRecentInScopeOffsetNoLock = $"""
                                                             SELECT
-                                                                {RunListWarningFlagSql.RunsRunId}, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                                                IsDemoWelcomeRun,
-                                                                IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                                                EngineProvenanceJson,
-                                                                StructuralExecutionMode,
-                                                                RetryCount, LastFailureReason,
+                                                                {RunListWarningFlagSql.SelectRunColumns},
                                                                 {RunListWarningFlagSql.SelectColumns}
-                                                            FROM dbo.Runs WITH (NOLOCK)
+                                                            {RunListWarningFlagSql.FromRunsNoLock}
                                                             {RunListWarningFlagSql.LeftJoinAggregates}
-                                                            WHERE TenantId = @TenantId
-                                                              AND WorkspaceId = @WorkspaceId
-                                                              AND ScopeProjectId = @ScopeProjectId
-                                                              AND ArchivedUtc IS NULL
-                                                            ORDER BY CreatedUtc DESC
+                                                            WHERE {RunListWarningFlagSql.ScopeWhereTail}
+                                                            {RunListWarningFlagSql.CreatedUtcDescOrderBy}
                                                             OFFSET @Offset ROWS FETCH NEXT @Fetch ROWS ONLY;
                                                             """;
 
     /// <summary>Keyset recent runs in scope (<c>SqlRunRepository.ListRecentInScopeKeysetAsync</c>).</summary>
     public const string RunsListRecentInScopeKeysetNoLock = $"""
                                                             SELECT TOP (@Fetch)
-                                                                {RunListWarningFlagSql.RunsRunId}, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                                                IsDemoWelcomeRun,
-                                                                IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                                                EngineProvenanceJson,
-                                                                StructuralExecutionMode,
-                                                                RetryCount, LastFailureReason,
+                                                                {RunListWarningFlagSql.SelectRunColumns},
                                                                 {RunListWarningFlagSql.SelectColumns}
-                                                            FROM dbo.Runs WITH (NOLOCK)
+                                                            {RunListWarningFlagSql.FromRunsNoLock}
                                                             {RunListWarningFlagSql.LeftJoinAggregates}
-                                                            WHERE TenantId = @TenantId
-                                                              AND WorkspaceId = @WorkspaceId
-                                                              AND ScopeProjectId = @ScopeProjectId
-                                                              AND ArchivedUtc IS NULL
-                                                              AND (
-                                                                  (@CursorRunId IS NULL AND @CursorCreatedUtc IS NULL)
-                                                                  OR (
-                                                                      {RunListWarningFlagSql.RunsRunId} <> @CursorRunId
-                                                                      AND (
-                                                                          CreatedUtc < @CursorCreatedUtc
-                                                                          OR (CreatedUtc = @CursorCreatedUtc AND {RunListWarningFlagSql.RunsRunId} < @CursorRunId)
-                                                                      )
-                                                                  )
-                                                              )
-                                                            ORDER BY CreatedUtc DESC, {RunListWarningFlagSql.RunsRunId} DESC;
+                                                            WHERE {RunListWarningFlagSql.ScopeWhereTail}
+                                                              {RunListWarningFlagSql.KeysetCursorPredicate}
+                                                            {RunListWarningFlagSql.KeysetOrderBy};
                                                             """;
 
     /// <summary>Default audit timeline (<c>DapperAuditRepository.GetByScopeAsync</c>); omits <c>DataJson</c> (TB-577).</summary>
