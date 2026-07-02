@@ -33,7 +33,7 @@ public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQu
         Guid runGuid = Guid.TryParseExact(runId, "N", out Guid g1) ? g1 : Guid.TryParse(runId, out Guid g2) ? g2 : Guid.Empty;
         IReadOnlyList<AuditEvent> audits = runGuid == Guid.Empty
             ? []
-            : await _auditRepository.GetFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, new AuditEventFilter { RunId = runGuid, Take = 1000 },
+            : await _auditRepository.GetFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, new AuditEventFilter { RunId = runGuid, Take = 1000, IncludeDataJson = true },
                 cancellationToken);
         bool auditTruncated = audits.Count >= 1000;
         object summary = new

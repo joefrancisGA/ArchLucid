@@ -26,6 +26,36 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         ArgumentNullException.ThrowIfNull(traces);
         ArgumentNullException.ThrowIfNull(costEstimator);
 
+        return ComputeCore(
+            traces.Select(static t => (
+                t.ModelDeploymentName,
+                t.InputTokenCount,
+                t.OutputTokenCount,
+                t.ReasoningTokenCount)),
+            costEstimator);
+    }
+
+    /// <param name="slices">Token/deployment projection rows (typically from <c>GetLlmCostSlicesByRunIdAsync</c>).</param>
+    public static AgentExecutionTraceRunLlmCostSummary Compute(
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices,
+        ILlmCostEstimator costEstimator)
+    {
+        ArgumentNullException.ThrowIfNull(slices);
+        ArgumentNullException.ThrowIfNull(costEstimator);
+
+        return ComputeCore(
+            slices.Select(static s => (
+                s.ModelDeploymentName,
+                s.InputTokenCount,
+                s.OutputTokenCount,
+                s.ReasoningTokenCount)),
+            costEstimator);
+    }
+
+    private static AgentExecutionTraceRunLlmCostSummary ComputeCore(
+        IEnumerable<(string? ModelDeploymentName, int? InputTokenCount, int? OutputTokenCount, int? ReasoningTokenCount)> rows,
+        ILlmCostEstimator costEstimator)
+    {
         long promptSum = 0;
         long completionSum = 0;
         decimal costAccum = 0m;
@@ -33,13 +63,13 @@ public static class AgentExecutionTraceRunLlmCostAggregator
 
         HashSet<string> measurableDeployments = new(StringComparer.Ordinal);
 
-        foreach (AgentExecutionTrace trace in traces)
+        foreach ((string? modelDeploymentName, int? inputTokenCount, int? outputTokenCount, int? reasoningTokenCount) in rows)
         {
-            int inTok = trace.InputTokenCount ?? 0;
-            int outTok = trace.OutputTokenCount ?? 0;
+            int inTok = inputTokenCount ?? 0;
+            int outTok = outputTokenCount ?? 0;
             // TB-196: use persisted reasoning token count (added by TB-033) rather than hard-coding 0,
             // so o-series / reasoning-model runs include that cost component in the estimate.
-            int reasoningTok = trace.ReasoningTokenCount ?? 0;
+            int reasoningTok = reasoningTokenCount ?? 0;
 
             promptSum += inTok;
             completionSum += outTok;
@@ -47,9 +77,9 @@ public static class AgentExecutionTraceRunLlmCostAggregator
             if (inTok <= 0 && outTok <= 0 && reasoningTok <= 0)
                 continue;
 
-            string resolvedDeployment = string.IsNullOrWhiteSpace(trace.ModelDeploymentName)
+            string resolvedDeployment = string.IsNullOrWhiteSpace(modelDeploymentName)
                 ? AgentExecutionTraceModelMetadata.UnspecifiedDeploymentName
-                : trace.ModelDeploymentName.Trim();
+                : modelDeploymentName.Trim();
 
             string? deploymentForCost =
                 resolvedDeployment == AgentExecutionTraceModelMetadata.UnspecifiedDeploymentName
@@ -64,11 +94,11 @@ public static class AgentExecutionTraceRunLlmCostAggregator
                 anyCost = true;
             }
 
-            if (!string.IsNullOrWhiteSpace(trace.ModelDeploymentName))
-                measurableDeployments.Add(trace.ModelDeploymentName.Trim());
+            if (!string.IsNullOrWhiteSpace(modelDeploymentName))
+                measurableDeployments.Add(modelDeploymentName.Trim());
         }
 
-        string modelLabel = BuildModelLabel(traces, measurableDeployments);
+        string modelLabel = BuildModelLabelFromDeployments(measurableDeployments, rows);
 
         decimal? estimatedUsd = null;
         string costBasis = RunLlmCostEstimationBasis.Unavailable;
@@ -90,19 +120,19 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, modelLabel, costBasis);
     }
 
-    private static string BuildModelLabel(
-        IReadOnlyList<AgentExecutionTrace> traces,
-        HashSet<string> measurableDeployments)
+    private static string BuildModelLabelFromDeployments(
+        HashSet<string> measurableDeployments,
+        IEnumerable<(string? ModelDeploymentName, int? InputTokenCount, int? OutputTokenCount, int? ReasoningTokenCount)> rows)
     {
         if (measurableDeployments.Count > 0)
             return string.Join(", ", measurableDeployments.Order(StringComparer.Ordinal));
 
         HashSet<string> fallback = new(StringComparer.Ordinal);
 
-        foreach (AgentExecutionTrace trace in traces)
+        foreach ((string? modelDeploymentName, _, _, _) in rows)
         {
-            if (!string.IsNullOrWhiteSpace(trace.ModelDeploymentName))
-                fallback.Add(trace.ModelDeploymentName.Trim());
+            if (!string.IsNullOrWhiteSpace(modelDeploymentName))
+                fallback.Add(modelDeploymentName.Trim());
         }
 
         return fallback.Count > 0 ? string.Join(", ", fallback.Order(StringComparer.Ordinal)) : string.Empty;

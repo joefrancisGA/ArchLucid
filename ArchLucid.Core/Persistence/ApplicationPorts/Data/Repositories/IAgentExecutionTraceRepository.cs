@@ -89,6 +89,14 @@ public interface IAgentExecutionTraceRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Returns token/deployment slices for LLM cost aggregation without deserializing full <c>TraceJson</c> (TB-577).
+    /// </summary>
+    Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> GetLlmCostSlicesByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Returns a page of traces for the run ordered by <c>CreatedUtc</c> ascending,
     ///     together with the total row count for that run.
     /// </summary>

@@ -162,14 +162,10 @@ internal static class HotPathRelationalQueryShapes
                                                             ORDER BY CreatedUtc DESC, RunId DESC;
                                                             """;
 
-    /// <summary>Default audit timeline (<c>DapperAuditRepository.GetByScopeAsync</c>).</summary>
-    public const string AuditEventsGetByScopeNoLock = """
+    /// <summary>Default audit timeline (<c>DapperAuditRepository.GetByScopeAsync</c>); omits <c>DataJson</c> (TB-577).</summary>
+    public const string AuditEventsGetByScopeNoLock = $"""
                                                 SELECT TOP (@Take)
-                                                    EventId, OccurredUtc, EventType,
-                                                    ActorUserId, ActorUserName,
-                                                    TenantId, WorkspaceId, ProjectId,
-                                                    RunId, ManifestId, ArtifactId,
-                                                    DataJson, CorrelationId
+                                                    {AuditEventListSql.SelectColumnsWithoutDataJson}
                                                 FROM dbo.AuditEvents WITH (NOLOCK)
                                                 WHERE TenantId = @TenantId
                                                   AND WorkspaceId = @WorkspaceId
@@ -180,8 +176,21 @@ internal static class HotPathRelationalQueryShapes
     /// <summary>
     ///     Opening clause for filtered audit search (<c>DapperAuditRepository.GetFilteredAsync</c>);
     ///     dynamic filters append <c>AND …</c> before <see cref="AuditEventsFilteredOrderByOccurredUtcEventIdDesc" />.
+    ///     Omits <c>DataJson</c> unless <see cref="AuditEventFilter.IncludeDataJson" /> (TB-577).
     /// </summary>
-    public const string AuditEventsFilteredSelectFromWhereScopeNoLock = """
+    public const string AuditEventsFilteredSelectFromWhereScopeNoLock = $"""
+                                                                  SELECT TOP (@Take)
+                                                                      {AuditEventListSql.SelectColumnsWithoutDataJson}
+                                                                  FROM dbo.AuditEvents WITH (NOLOCK)
+                                                                  WHERE TenantId = @TenantId
+                                                                    AND WorkspaceId = @WorkspaceId
+                                                                    AND ProjectId = @ProjectId
+                                                                  """;
+
+    /// <summary>
+    ///     Filtered audit export/stream opening clause including full <c>DataJson</c> payload.
+    /// </summary>
+    public const string AuditEventsFilteredSelectFromWhereScopeWithDataJsonNoLock = """
                                                                   SELECT TOP (@Take)
                                                                       EventId, OccurredUtc, EventType,
                                                                       ActorUserId, ActorUserName,

@@ -24,11 +24,11 @@ internal static class RunAgentExecutionLlmCostEstimateAppender
         ArgumentNullException.ThrowIfNull(traceRepository);
         ArgumentNullException.ThrowIfNull(costEstimator);
 
-        IReadOnlyList<AgentExecutionTrace> traces =
-            await traceRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices =
+            await traceRepository.GetLlmCostSlicesByRunIdAsync(scope, runId, cancellationToken);
 
         AgentExecutionTraceRunLlmCostSummary summary =
-            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, costEstimator);
+            AgentExecutionTraceRunLlmCostAggregator.Compute(slices, costEstimator);
 
         response.AgentExecutionLlmCostEstimate = new RunAgentLlmCostEstimateResponse
         {

@@ -87,6 +87,40 @@ public abstract class AuditRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task GetByScope_list_projection_omits_stored_data_json_payload()
+    {
+        SkipIfSqlServerUnavailable();
+        IAuditRepository repo = CreateRepository();
+        AuditEvent evt = NewEvent();
+        evt.DataJson = """{"detail":"large-payload"}""";
+
+        await repo.AppendAsync(evt, CancellationToken.None);
+
+        IReadOnlyList<AuditEvent> list =
+            await repo.GetByScopeAsync(TenantId, WorkspaceId, ProjectId, 50, CancellationToken.None);
+
+        AuditEvent loaded = list.First(x => x.EventId == evt.EventId);
+        loaded.DataJson.Should().Be("{}");
+    }
+
+    [SkippableFact]
+    public async Task GetFilteredAsync_IncludeDataJson_true_returns_stored_payload()
+    {
+        SkipIfSqlServerUnavailable();
+        IAuditRepository repo = CreateRepository();
+        AuditEvent evt = NewEvent("PayloadType");
+        evt.DataJson = """{"detail":"large-payload"}""";
+
+        await repo.AppendAsync(evt, CancellationToken.None);
+
+        AuditEventFilter filter = new() { EventType = "PayloadType", Take = 50, IncludeDataJson = true };
+        IReadOnlyList<AuditEvent> list =
+            await repo.GetFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
+
+        list.First(x => x.EventId == evt.EventId).DataJson.Should().Contain("large-payload");
+    }
+
+    [SkippableFact]
     public async Task GetByScope_filters_other_project()
     {
         SkipIfSqlServerUnavailable();

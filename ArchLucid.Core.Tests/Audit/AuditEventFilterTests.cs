@@ -47,4 +47,12 @@ public sealed class AuditEventFilterTests
         filter.RunId.Should().Be(runId);
         filter.Take.Should().Be(25);
     }
+
+    [Fact]
+    public void Default_IncludeDataJson_is_false()
+    {
+        AuditEventFilter filter = new();
+
+        filter.IncludeDataJson.Should().BeFalse();
+    }
 }

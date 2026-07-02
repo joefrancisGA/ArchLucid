@@ -62,4 +62,14 @@ public sealed class AuditEventFilter
         get;
         set;
     } = 100;
+
+    /// <summary>
+    ///     When true, filtered list queries include <see cref="AuditEvent.DataJson" />.
+    ///     Default false for admin list/search hot paths (TB-577); export APIs always load payloads.
+    /// </summary>
+    public bool IncludeDataJson
+    {
+        get;
+        set;
+    }
 }

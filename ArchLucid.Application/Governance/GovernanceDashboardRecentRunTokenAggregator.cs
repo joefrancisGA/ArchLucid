@@ -1,6 +1,7 @@
 using ArchLucid.Application;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -53,13 +54,13 @@ internal static class GovernanceDashboardRecentRunTokenAggregator
                 if (summary.CreatedUtc < windowStartUtc)
                     return (promptTotal, completionTotal);
 
-                IReadOnlyList<Contracts.Agents.AgentExecutionTrace> traces =
-                    await traceRepository.GetByRunIdAsync(scope, summary.RunId, cancellationToken).ConfigureAwait(false);
+                IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices =
+                    await traceRepository.GetLlmCostSlicesByRunIdAsync(scope, summary.RunId, cancellationToken).ConfigureAwait(false);
 
-                foreach (Contracts.Agents.AgentExecutionTrace trace in traces)
+                foreach (AgentExecutionTraceLlmCostSlice slice in slices)
                 {
-                    promptTotal += trace.InputTokenCount ?? 0;
-                    completionTotal += trace.OutputTokenCount ?? 0;
+                    promptTotal += slice.InputTokenCount ?? 0;
+                    completionTotal += slice.OutputTokenCount ?? 0;
                 }
 
                 runsScanned++;

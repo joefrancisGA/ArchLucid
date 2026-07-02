@@ -127,7 +127,7 @@ public sealed class DapperAuditRepository(
                     },
                     cancellationToken: ct));
 
-            return rows.ToList();
+            return AuditEventListProjection.MaterializeWithoutDataJson(rows);
         }
         finally
         {
@@ -149,7 +149,11 @@ public sealed class DapperAuditRepository(
         int take = Math.Clamp(filter.Take <= 0 ? 100 : filter.Take, 1, 500);
 
         // RCSI-backed read committed: no dirty reads on audit listing (see migration 091).
-        StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeNoLock);
+        string selectPrefix = filter.IncludeDataJson
+            ? HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeWithDataJsonNoLock
+            : HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeNoLock;
+
+        StringBuilder sql = new(selectPrefix);
 
         DynamicParameters parameters = new();
         parameters.Add("TenantId", tenantId);
@@ -170,7 +174,10 @@ public sealed class DapperAuditRepository(
             IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
                 new CommandDefinition(sql.ToString(), parameters, cancellationToken: ct));
 
-            return rows.ToList();
+            if (filter.IncludeDataJson)
+                return rows.ToList();
+
+            return AuditEventListProjection.MaterializeWithoutDataJson(rows);
         }
         finally
         {
@@ -286,7 +293,7 @@ public sealed class DapperAuditRepository(
         ValidateFilteredExportFilter(filter);
 
         int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000);
-        StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeNoLock);
+        StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeWithDataJsonNoLock);
         DynamicParameters parameters = new();
         parameters.Add("TenantId", tenantId);
         parameters.Add("WorkspaceId", workspaceId);

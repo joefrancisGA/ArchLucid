@@ -87,7 +87,7 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
             }
         }
 
-        return list;
+        return AuditEventListProjection.MaterializeWithoutDataJson(list);
     }
 
     /// <inheritdoc />
@@ -127,7 +127,10 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
             }
         }
 
-        return list;
+        if (filter.IncludeDataJson)
+            return list;
+
+        return AuditEventListProjection.MaterializeWithoutDataJson(list);
     }
 
     /// <inheritdoc />

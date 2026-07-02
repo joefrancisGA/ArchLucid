@@ -60,7 +60,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                 .Take(n)
                 .ToList();
 
-        return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
+        return Task.FromResult<IReadOnlyList<AuditEvent>>(AuditEventListProjection.MaterializeWithoutDataJson(result));
     }
 
     public Task<IReadOnlyList<AuditEvent>> GetFilteredAsync(
@@ -84,7 +84,10 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                 .ToList();
         }
 
-        return Task.FromResult<IReadOnlyList<AuditEvent>>(snapshot);
+        if (filter.IncludeDataJson)
+            return Task.FromResult<IReadOnlyList<AuditEvent>>(snapshot);
+
+        return Task.FromResult<IReadOnlyList<AuditEvent>>(AuditEventListProjection.MaterializeWithoutDataJson(snapshot));
     }
 
     public Task<int> CountFilteredAsync(
