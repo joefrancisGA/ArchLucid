@@ -27,6 +27,29 @@ public static class HotPathCacheEviction
         await cache.RemoveAsync(HotPathCacheKeys.Run(scope, runId), ct);
     }
 
+    /// <summary>
+    ///     Bumps the scope revision stamp read by <see cref="Repositories.CachingRunRepository" /> so prior run list
+    ///     cache entries are bypassed without enumerating take/project key variants (TB-578).
+    /// </summary>
+    public static async Task InvalidateRunListScopeAsync(
+        IHotPathReadCache cache,
+        ScopeContext scope,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(cache);
+        ArgumentNullException.ThrowIfNull(scope);
+
+        string revisionKey = HotPathCacheKeys.RunListScopeRevision(scope);
+
+        await cache.RemoveAsync(revisionKey, ct);
+
+        await cache.GetOrCreateAsync(
+            revisionKey,
+            _ => Task.FromResult<RunListScopeRevisionState?>(
+                new RunListScopeRevisionState { Revision = TimeProvider.System.GetUtcNow().Ticks }),
+            ct);
+    }
+
     public static async Task RemovePolicyPackAsync(IHotPathReadCache cache, Guid policyPackId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(cache);

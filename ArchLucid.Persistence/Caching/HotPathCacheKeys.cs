@@ -23,20 +23,28 @@ public static class HotPathCacheKeys
         return $"{Prefix}run:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{runId:N}";
     }
 
-    /// <summary>First keyset page lists (project slug + take) — TTL short (<c>15s</c>).</summary>
-    public static string RunListByProjectFirstPage(ScopeContext scope, string projectSlug, int take)
+    /// <summary>Scope revision stamp for run list cache keys (<see cref="RunListByProjectFirstPage" />).</summary>
+    public static string RunListScopeRevision(ScopeContext scope)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        return $"{Prefix}runlist:proj:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{take:D}:{projectSlug}";
+        return $"{Prefix}runlist-rev:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}";
+    }
+
+    /// <summary>First keyset page lists (project slug + take) — TTL short (<c>15s</c>).</summary>
+    public static string RunListByProjectFirstPage(ScopeContext scope, string projectSlug, int take, long revision)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return $"{Prefix}runlist:proj:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:r{revision}:{take:D}:{projectSlug}";
     }
 
     /// <summary>First keyset page lists (recent in scope).</summary>
-    public static string RunListRecentInScopeFirstPage(ScopeContext scope, int take)
+    public static string RunListRecentInScopeFirstPage(ScopeContext scope, int take, long revision)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        return $"{Prefix}runlist:scope:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{take:D}";
+        return $"{Prefix}runlist:scope:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:r{revision}:{take:D}";
     }
 
     /// <summary>Policy pack metadata by surrogate key.</summary>

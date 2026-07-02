@@ -62,4 +62,37 @@ public sealed class HotPathCacheKeysTests
         key.Should().StartWith("al:hot:epps:");
         key.Should().EndWith(":r42");
     }
+
+    [SkippableFact]
+    public void RunListByProjectFirstPage_includes_scope_revision()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
+        };
+
+        string key = HotPathCacheKeys.RunListByProjectFirstPage(scope, "default", 20, 99);
+
+        key.Should().StartWith("al:hot:runlist:proj:");
+        key.Should().Contain(":r99:");
+        key.Should().EndWith(":default");
+    }
+
+    [SkippableFact]
+    public void RunListRecentInScopeFirstPage_includes_scope_revision()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+        };
+
+        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, 50, 7);
+
+        key.Should().Contain(":r7:");
+        key.Should().EndWith(":50");
+    }
 }
