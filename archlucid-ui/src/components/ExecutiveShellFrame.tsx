@@ -11,6 +11,7 @@ import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ExecutiveShellDeferredChrome } from "@/components/executive/ExecutiveShellDeferredChrome";
+import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
@@ -40,8 +41,9 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
   const pathname = usePathname();
 
   return (
-    <TooltipProvider delayDuration={200}>
-      <ShellReadySurface className="min-h-screen overflow-x-hidden bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+    <OperatorQueryProvider>
+      <TooltipProvider delayDuration={200}>
+        <ShellReadySurface className="min-h-screen overflow-x-hidden bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
         <a href="#main-content" className="skip-to-main">
           Skip to main content
         </a>
@@ -111,5 +113,6 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
         </main>
       </ShellReadySurface>
     </TooltipProvider>
+    </OperatorQueryProvider>
   );
 }
