@@ -55,6 +55,7 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
         cancellationToken.ThrowIfCancellationRequested();
+
         lock (_gate)
         {
             int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
