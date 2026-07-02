@@ -11,6 +11,7 @@ using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
+using ArchLucid.Persistence.Sql;
 using ArchLucid.Persistence.Telemetry;
 
 using Dapper;
@@ -279,29 +280,81 @@ public sealed class SqlFindingsSnapshotRepository(
         if (ranks.Count == 0)
             return;
 
+        List<(string FindingId, int PriorityRank)> normalized = ranks
+            .Where(static rank => !string.IsNullOrWhiteSpace(rank.FindingId))
+            .Select(static rank => (rank.FindingId.Trim(), rank.PriorityRank))
+            .ToList();
+
+        if (normalized.Count == 0)
+            return;
+
         await using SqlConnection connection = await _writeConnectionFactory.CreateOpenConnectionAsync(ct);
 
-        foreach ((string findingId, int priorityRank) in ranks)
+        string scopeSql = scope.TenantId == Guid.Empty
+            ? string.Empty
+            : " AND fr.TenantId = @ScopeTenantId AND fr.WorkspaceId = @ScopeWorkspaceId AND fr.ProjectId = @ScopeProjectId";
+
+        const string updateHeader = """
+                                    UPDATE fr
+                                    SET PriorityRank = v.PriorityRank
+                                    FROM dbo.FindingRecords fr
+                                    INNER JOIN (VALUES
+                                    """;
+
+        const string updateFooter = """
+                                    ) AS v(FindingId, PriorityRank)
+                                      ON fr.FindingsSnapshotId = @FsId AND fr.FindingId = v.FindingId
+                                    """;
+
+        await SqlChunkedDapperBatch.ExecuteChunksAsync(
+            connection,
+            transaction: null,
+            normalized.Count,
+            SqlChunkedDapperBatch.DefaultMaxRowsPerCommand,
+            (offset, rowCount) => BuildFindingPriorityRankUpdateChunk(
+                updateHeader,
+                updateFooter,
+                scopeSql,
+                findingsSnapshotId,
+                scope,
+                normalized,
+                offset,
+                rowCount),
+            ct).ConfigureAwait(false);
+    }
+
+    private static SqlChunkedBatchCommand BuildFindingPriorityRankUpdateChunk(
+        string updateHeader,
+        string updateFooter,
+        string scopeSql,
+        Guid findingsSnapshotId,
+        ScopeContext scope,
+        IReadOnlyList<(string FindingId, int PriorityRank)> ranks,
+        int offset,
+        int rowCount)
+    {
+        StringBuilder commandText = new(updateHeader.Length + updateFooter.Length + scopeSql.Length + rowCount * 48);
+        commandText.Append(updateHeader);
+        DynamicParameters parameters = new();
+        parameters.Add("FsId", findingsSnapshotId);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
+
+        for (int i = 0; i < rowCount; i++)
         {
-            if (string.IsNullOrWhiteSpace(findingId))
-                continue;
+            (string findingId, int priorityRank) = ranks[offset + i];
 
-            DynamicParameters updateParameters = new();
-            updateParameters.Add("FsId", findingsSnapshotId);
-            updateParameters.Add("FindingId", findingId.Trim());
-            updateParameters.Add("PriorityRank", priorityRank);
-            RepositoryScopePredicate.AddScopeTripleIfNeeded(updateParameters, scope);
+            if (i > 0)
+                commandText.Append(',');
 
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    """
-                    UPDATE dbo.FindingRecords
-                    SET PriorityRank = @PriorityRank
-                    WHERE FindingsSnapshotId = @FsId AND FindingId = @FindingId
-                    """ + RepositoryScopePredicate.AndTripleWhere(scope) + ";",
-                    updateParameters,
-                    cancellationToken: ct));
+            commandText.Append($"(@FindingId{i},@PriorityRank{i})");
+            parameters.Add($"FindingId{i}", findingId);
+            parameters.Add($"PriorityRank{i}", priorityRank);
         }
+
+        commandText.Append(updateFooter);
+        commandText.Append(scopeSql);
+        commandText.Append(';');
+        return new SqlChunkedBatchCommand(commandText.ToString(), parameters);
     }
 
     private sealed class FindingMetaSqlRow

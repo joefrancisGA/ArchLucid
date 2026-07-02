@@ -383,20 +383,40 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
                 },
                 cancellationToken: ct));
 
-        List<Guid> retried = [];
+        List<Guid> ids = candidateIds.ToList();
 
-        foreach (Guid outboxId in candidateIds)
+        if (ids.Count == 0)
         {
-            bool ok = await ResetDeadLetterForRetryAsync(outboxId, ct).ConfigureAwait(false);
-
-            if (ok)
-                retried.Add(outboxId);
+            return new IntegrationOutboxDeadLetterBulkRetryResult
+            {
+                RetriedCount = 0,
+                RetriedOutboxIds = []
+            };
         }
+
+        const string bulkUpdateSql = """
+            UPDATE dbo.IntegrationEventOutbox
+            SET DeadLetteredUtc = NULL,
+                RetryCount = 0,
+                NextRetryUtc = NULL,
+                LastErrorMessage = NULL
+            OUTPUT INSERTED.OutboxId
+            WHERE OutboxId IN @OutboxIds
+              AND DeadLetteredUtc IS NOT NULL;
+            """;
+
+        IEnumerable<Guid> retried = await connection.QueryAsync<Guid>(
+            new CommandDefinition(
+                bulkUpdateSql,
+                new { OutboxIds = ids },
+                cancellationToken: ct));
+
+        List<Guid> retriedList = retried.ToList();
 
         return new IntegrationOutboxDeadLetterBulkRetryResult
         {
-            RetriedCount = retried.Count,
-            RetriedOutboxIds = retried
+            RetriedCount = retriedList.Count,
+            RetriedOutboxIds = retriedList
         };
     }
 

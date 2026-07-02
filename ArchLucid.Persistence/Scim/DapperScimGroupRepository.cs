@@ -1,10 +1,12 @@
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
+using System.Text;
 
 namespace ArchLucid.Persistence.Scim;
 
@@ -137,17 +139,53 @@ public sealed class DapperScimGroupRepository(ISqlConnectionFactory connectionFa
         await connection.ExecuteAsync(
             new CommandDefinition(del, new { GroupId = groupId, TenantId = tenantId }, tran, cancellationToken: cancellationToken));
 
-        const string ins = """
-                           INSERT INTO dbo.ScimGroupMembers (TenantId, GroupId, UserId)
-                           VALUES (@TenantId, @GroupId, @UserId);
-                           """;
+        if (userIds.Count == 0)
+        {
+            await tran.CommitAsync(cancellationToken);
+            return;
+        }
 
-        foreach (Guid userId in userIds)
+        const string insertHeader = """
+                                    INSERT INTO dbo.ScimGroupMembers (TenantId, GroupId, UserId)
+                                    VALUES
+                                    """;
 
-            await connection.ExecuteAsync(
-                new CommandDefinition(ins, new { TenantId = tenantId, GroupId = groupId, UserId = userId }, tran, cancellationToken: cancellationToken));
+        await SqlChunkedDapperBatch.ExecuteChunksAsync(
+            connection,
+            tran,
+            userIds.Count,
+            SqlChunkedDapperBatch.DefaultMaxRowsPerCommand,
+            (offset, rowCount) => BuildScimGroupMemberInsertChunk(insertHeader, tenantId, groupId, userIds, offset, rowCount),
+            cancellationToken).ConfigureAwait(false);
 
         await tran.CommitAsync(cancellationToken);
+    }
+
+    private static SqlChunkedBatchCommand BuildScimGroupMemberInsertChunk(
+        string insertHeader,
+        Guid tenantId,
+        Guid groupId,
+        IReadOnlyList<Guid> userIds,
+        int offset,
+        int rowCount)
+    {
+        StringBuilder commandText = new(insertHeader.Length + rowCount * 40);
+        commandText.Append(insertHeader);
+        DynamicParameters parameters = new();
+        parameters.Add("TenantId", tenantId);
+        parameters.Add("GroupId", groupId);
+
+        for (int i = 0; i < rowCount; i++)
+        {
+            if (i > 0)
+                commandText.Append(',');
+
+            commandText.Append($"(@TenantId,@GroupId,@UserId{i})");
+            parameters.Add($"UserId{i}", userIds[offset + i]);
+        }
+
+        commandText.Append(';');
+        return new SqlChunkedBatchCommand(commandText.ToString(), parameters);
     }
 
     /// <inheritdoc />
