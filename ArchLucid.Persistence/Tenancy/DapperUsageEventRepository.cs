@@ -45,6 +45,7 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
             return;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync(ct);
 
         foreach (UsageEvent usageEvent in events)
 
@@ -52,7 +53,10 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
                 new CommandDefinition(
                     InsertSql,
                     MapParameters(usageEvent),
+                    transaction: transaction,
                     cancellationToken: ct));
+
+        await transaction.CommitAsync(ct);
     }
 
     public async Task<IReadOnlyList<TenantUsageSummary>> AggregateByKindAsync(

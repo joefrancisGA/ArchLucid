@@ -9,6 +9,7 @@ using ArchLucid.Core.Metering;
 using ArchLucid.Core.Secrets;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Configuration.Secrets;
+using ArchLucid.Host.Composition.Metering;
 using ArchLucid.Persistence.Metering;
 
 using Microsoft.AspNetCore.Identity;
@@ -23,6 +24,7 @@ public static partial class ServiceCollectionExtensions
     {
         services.Configure<ArchLucid.Core.Metering.MeteringOptions>(
             configuration.GetSection(ArchLucid.Core.Metering.MeteringOptions.SectionName));
+        services.PostConfigure<ArchLucid.Core.Metering.MeteringOptions>(static options => options.Normalize());
         services.Configure<ArchLucidSecretOptions>(configuration.GetSection(ArchLucidSecretOptions.SectionName));
         services.Configure<TrialAuthOptions>(configuration.GetSection(TrialAuthOptions.SectionPath));
         services.Configure<TrialLifecycleSchedulerOptions>(
@@ -46,6 +48,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ITrialLocalIdentityService, TrialLocalIdentityService>();
 
         services.AddScoped<IUsageMeteringService, UsageMeteringService>();
+        services.AddSingleton<ApiRequestUsageEventBuffer>();
+        services.AddSingleton<IApiRequestUsageEventBuffer>(static sp => sp.GetRequiredService<ApiRequestUsageEventBuffer>());
+        services.AddHostedService<ApiRequestUsageEventBatchFlushHostedService>();
         services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();
         services.AddScoped<IDefaultPolicyPackSeeder, DefaultPolicyPackSeeder>();
         services.AddScoped<ITrialTenantBootstrapService, TrialTenantBootstrapService>();

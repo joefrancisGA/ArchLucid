@@ -10,15 +10,18 @@ namespace ArchLucid.Api.Middleware;
 ///     enabled.
 /// </summary>
 /// <remarks>
-///     Implements <see cref="IMiddleware" /> so <see cref="IUsageMeteringService" /> (scoped) is resolved per request, not
-///     at pipeline build time.
+///     Implements <see cref="IMiddleware" /> so <see cref="IApiRequestUsageEventBuffer" /> (singleton) is resolved per
+///     request without blocking on SQL (TB-582).
 /// </remarks>
 internal sealed class ApiRequestMeteringMiddleware(
     IScopeContextProvider scopeProvider,
-    IUsageMeteringService usageMetering,
+    IApiRequestUsageEventBuffer apiRequestUsageBuffer,
     IOptionsMonitor<MeteringOptions> meteringOptions,
     ILogger<ApiRequestMeteringMiddleware> logger) : IMiddleware
 {
+    private readonly IApiRequestUsageEventBuffer _apiRequestUsageBuffer =
+        apiRequestUsageBuffer ?? throw new ArgumentNullException(nameof(apiRequestUsageBuffer));
+
     private readonly ILogger<ApiRequestMeteringMiddleware> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -27,9 +30,6 @@ internal sealed class ApiRequestMeteringMiddleware(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-
-    private readonly IUsageMeteringService _usageMetering =
-        usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -54,27 +54,24 @@ internal sealed class ApiRequestMeteringMiddleware(
 
         try
         {
-            await _usageMetering
-                .RecordAsync(
-                    new UsageEvent
-                    {
-                        TenantId = scope.TenantId,
-                        WorkspaceId = scope.WorkspaceId,
-                        ProjectId = scope.ProjectId,
-                        Kind = UsageMeterKind.ApiRequest,
-                        Quantity = 1,
-                        RecordedUtc = TimeProvider.System.GetUtcNow(),
-                        CorrelationId = context.TraceIdentifier,
-                        IdempotencyKey = UsageEventIdempotencyKeys.ForApiRequest(context.TraceIdentifier)
-                    },
-                    CancellationToken.None)
-                .ConfigureAwait(false);
+            _apiRequestUsageBuffer.Enqueue(
+                new UsageEvent
+                {
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    Kind = UsageMeterKind.ApiRequest,
+                    Quantity = 1,
+                    RecordedUtc = TimeProvider.System.GetUtcNow(),
+                    CorrelationId = context.TraceIdentifier,
+                    IdempotencyKey = UsageEventIdempotencyKeys.ForApiRequest(context.TraceIdentifier)
+                });
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
 
-                _logger.LogWarning(ex, "Usage metering failed for API request (tenant {TenantId}).", scope.TenantId);
+                _logger.LogWarning(ex, "Usage metering enqueue failed for API request (tenant {TenantId}).", scope.TenantId);
         }
     }
 }
