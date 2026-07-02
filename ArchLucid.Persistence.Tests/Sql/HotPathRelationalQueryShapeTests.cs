@@ -20,6 +20,21 @@ public sealed class HotPathRelationalQueryShapeTests
 
     [SkippableTheory]
     [MemberData(nameof(RunListShapeConstantsMemberData))]
+    public void Run_list_shapes_omit_engine_provenance_json(string sql)
+    {
+        sql.Should().NotContain("EngineProvenanceJson");
+        sql.Should().Contain("StructuralExecutionMode");
+    }
+
+    [SkippableFact]
+    public void Run_list_projection_constant_omits_engine_provenance_json()
+    {
+        RunListSql.SelectColumnsWithoutEngineProvenanceJson.Should().NotContain("EngineProvenanceJson");
+        RunListSql.SelectColumnsWithoutEngineProvenanceJson.Should().Contain("PilotAoaiDeploymentSnapshot");
+    }
+
+    [SkippableTheory]
+    [MemberData(nameof(RunListShapeConstantsMemberData))]
     public void Run_list_shapes_use_join_aggregates_for_warning_flags_not_correlated_exists(string sql)
     {
         sql.Should().Contain("ISNULL(fsWarn.HasWarnings, 0) AS HasWarnings");

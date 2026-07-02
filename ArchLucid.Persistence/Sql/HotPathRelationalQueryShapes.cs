@@ -13,15 +13,7 @@ internal static class HotPathRelationalQueryShapes
     /// <summary>Dashboard run list by project slug (<c>SqlRunRepository.ListByProjectAsync</c>).</summary>
     public const string RunsListByProjectNoLock = $"""
                                                   SELECT TOP (@Take)
-                                                      RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                                      ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                                      GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                                      ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                                      IsDemoWelcomeRun,
-                                                      IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                                      EngineProvenanceJson,
-                                                      StructuralExecutionMode,
-                                                      RetryCount, LastFailureReason,
+                                                      {RunListSql.SelectColumnsWithoutEngineProvenanceJson},
                                                       {RunListWarningFlagSql.SelectColumns}
                                                   FROM dbo.Runs WITH (NOLOCK)
                                                   {RunListWarningFlagSql.LeftJoinAggregates}
@@ -36,15 +28,7 @@ internal static class HotPathRelationalQueryShapes
     /// <summary>Keyset-paged run list by project (<c>SqlRunRepository.ListByProjectKeysetAsync</c>).</summary>
     public const string RunsListByProjectKeysetNoLock = $"""
                                                         SELECT TOP (@Fetch)
-                                                            RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                                            ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                                            GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                                            ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                                            IsDemoWelcomeRun,
-                                                            IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                                            EngineProvenanceJson,
-                                                            StructuralExecutionMode,
-                                                            RetryCount, LastFailureReason,
+                                                            {RunListSql.SelectColumnsWithoutEngineProvenanceJson},
                                                             {RunListWarningFlagSql.SelectColumns}
                                                         FROM dbo.Runs WITH (NOLOCK)
                                                         {RunListWarningFlagSql.LeftJoinAggregates}
@@ -88,15 +72,7 @@ internal static class HotPathRelationalQueryShapes
     /// <summary>Recent runs in ambient scope (<c>SqlRunRepository.ListRecentInScopeAsync</c>).</summary>
     public const string RunsListRecentInScopeNoLock = $"""
                                                       SELECT TOP (@Take)
-                                                          RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                                          ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                                          GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                                          ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                                          IsDemoWelcomeRun,
-                                                          IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                                          EngineProvenanceJson,
-                                                          StructuralExecutionMode,
-                                                          RetryCount, LastFailureReason,
+                                                          {RunListSql.SelectColumnsWithoutEngineProvenanceJson},
                                                           {RunListWarningFlagSql.SelectColumns}
                                                       FROM dbo.Runs WITH (NOLOCK)
                                                       {RunListWarningFlagSql.LeftJoinAggregates}
@@ -110,15 +86,7 @@ internal static class HotPathRelationalQueryShapes
     /// <summary>Offset-paged recent runs in scope (<c>SqlRunRepository.ListRecentInScopeOffsetAsync</c>).</summary>
     public const string RunsListRecentInScopeOffsetNoLock = $"""
                                                             SELECT
-                                                                RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                                                IsDemoWelcomeRun,
-                                                                IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                                                EngineProvenanceJson,
-                                                                StructuralExecutionMode,
-                                                                RetryCount, LastFailureReason,
+                                                                {RunListSql.SelectColumnsWithoutEngineProvenanceJson},
                                                                 {RunListWarningFlagSql.SelectColumns}
                                                             FROM dbo.Runs WITH (NOLOCK)
                                                             {RunListWarningFlagSql.LeftJoinAggregates}
@@ -133,15 +101,7 @@ internal static class HotPathRelationalQueryShapes
     /// <summary>Keyset recent runs in scope (<c>SqlRunRepository.ListRecentInScopeKeysetAsync</c>).</summary>
     public const string RunsListRecentInScopeKeysetNoLock = $"""
                                                             SELECT TOP (@Fetch)
-                                                                RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                                                IsDemoWelcomeRun,
-                                                                IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                                                                EngineProvenanceJson,
-                                                                StructuralExecutionMode,
-                                                                RetryCount, LastFailureReason,
+                                                                {RunListSql.SelectColumnsWithoutEngineProvenanceJson},
                                                                 {RunListWarningFlagSql.SelectColumns}
                                                             FROM dbo.Runs WITH (NOLOCK)
                                                             {RunListWarningFlagSql.LeftJoinAggregates}
