@@ -105,6 +105,18 @@ export const PILOT_PATH_PREVIEW_STEPS = [
   { id: "commit", label: "Finalize review package" },
 ] as const;
 
+/** Section A on operator home — first review package path before a committed review exists. */
+export const OPERATOR_HOME_FIRST_REVIEW_SECTION_TITLE = "Start your first review";
+
+/** Dominant first-hour path strip — Pilot first, Operate later. */
+export const OPERATOR_HOME_PILOT_FIRST_OPERATE_LATER_HEADING = "First-hour path";
+
+export const OPERATOR_HOME_PILOT_FIRST_OPERATE_LATER_BODY =
+  "Pilot first, Operate later — complete one review package before opening analysis or governance depth.";
+
+/** Section B on operator home — optional setup, walkthroughs, and workspace context. */
+export const OPERATOR_HOME_WORKSPACE_SETUP_SECTION_TITLE = "Workspace setup";
+
 export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Setup and walkthroughs";
 
 export const OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY =
