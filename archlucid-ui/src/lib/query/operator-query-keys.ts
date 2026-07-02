@@ -6,6 +6,7 @@ export const operatorQueryKeys = {
   healthReadySummary: ["operator", "health", "ready-summary"] as const,
   llmMonthlyBudgetStatus: ["operator", "llm", "monthly-budget-status"] as const,
   executiveRoiSummary: ["operator", "roi", "executive-summary"] as const,
+  complianceDriftTrend30d: ["operator", "governance", "compliance-drift-trend", "30d"] as const,
   corePilotCommitContext: ["operator", "core-pilot", "commit-context"] as const,
   pilotRecentDeltas: (count: number) => ["operator", "pilots", "recent-deltas", { count }] as const,
   runsByProjectPaged: (params: RunsByProjectPagedParams) => ["operator", "runs", "paged", params] as const,
