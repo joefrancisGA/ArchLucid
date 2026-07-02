@@ -51,6 +51,17 @@ public sealed class HotPathCacheOptions
     } = 60;
 
     /// <summary>
+    ///     Optional in-process (L1) TTL when Redis L2 is active. When unset (&lt;= 0), host composition uses
+    ///     <c>min(15, AbsoluteExpirationSeconds / 4)</c> so replicas share Redis while limiting per-instance staleness
+    ///     (TB-580).
+    /// </summary>
+    public int LocalCacheExpirationSeconds
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
     ///     StackExchange.Redis connection string when <see cref="Provider" /> is <c>Redis</c> (e.g. Azure Cache for
     ///     Redis).
     /// </summary>

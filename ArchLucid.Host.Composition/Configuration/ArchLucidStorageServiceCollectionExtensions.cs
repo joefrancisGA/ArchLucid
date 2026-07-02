@@ -286,19 +286,20 @@ public static class ArchLucidStorageServiceCollectionExtensions
         {
             // Hot-path repository decorators stay off; optional consumers (e.g. `GET /v1/demo/preview`) still use
             // IHotPathReadCache without enabling SQL hot-path repository decorators.
-            RegisterHybridCacheCore(services, snapshot);
+            RegisterHybridCacheCore(services, snapshot, distributedL2Enabled: false);
             services.AddSingleton<IHotPathReadCache, HybridHotPathReadCache>();
 
             return;
         }
 
         string provider = HotPathCacheProviderResolver.ResolveEffectiveProvider(snapshot);
+        bool distributedL2Enabled = string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase);
 
         if (string.Equals(provider, "Memory", StringComparison.OrdinalIgnoreCase) &&
             snapshot.ExpectedApiReplicaCount > 1)
             services.AddHostedService<HotPathMemoryReplicaCoherenceHostedLogger>();
 
-        if (string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase))
+        if (distributedL2Enabled)
         {
             string redis = snapshot.RedisConnectionString.Trim();
 
@@ -309,17 +310,17 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
 
             TryRegisterStackExchangeRedisDistributedCache(services, redis);
+            services.AddHostedService<HotPathRedisDistributedCacheHostedLogger>();
         }
 
-        RegisterHybridCacheCore(services, snapshot);
+        RegisterHybridCacheCore(services, snapshot, distributedL2Enabled);
         services.AddSingleton<IHotPathReadCache, HybridHotPathReadCache>();
-
-        if (string.Equals(provider, "Memory", StringComparison.OrdinalIgnoreCase) &&
-            snapshot.ExpectedApiReplicaCount > 1)
-            services.AddHostedService<HotPathMemoryReplicaCoherenceHostedLogger>();
     }
 
-    private static void RegisterHybridCacheCore(IServiceCollection services, HotPathCacheOptions snapshot)
+    private static void RegisterHybridCacheCore(
+        IServiceCollection services,
+        HotPathCacheOptions snapshot,
+        bool distributedL2Enabled)
     {
         int seconds = snapshot.AbsoluteExpirationSeconds;
 
@@ -327,7 +328,8 @@ public static class ArchLucidStorageServiceCollectionExtensions
             seconds = 60;
 
         seconds = Math.Clamp(seconds, 1, 3600);
-        TimeSpan ttl = TimeSpan.FromSeconds(seconds);
+        TimeSpan distributedTtl = TimeSpan.FromSeconds(seconds);
+        TimeSpan localTtl = ResolveLocalCacheExpiration(snapshot, distributedL2Enabled, seconds);
 
         services.AddHybridCache(options =>
         {
@@ -335,10 +337,28 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
             options.DefaultEntryOptions = new HybridCacheEntryOptions
             {
-                Expiration = ttl,
-                LocalCacheExpiration = ttl
+                Expiration = distributedTtl,
+                LocalCacheExpiration = localTtl
             };
         });
+    }
+
+    internal static TimeSpan ResolveLocalCacheExpiration(
+        HotPathCacheOptions snapshot,
+        bool distributedL2Enabled,
+        int absoluteExpirationSeconds)
+    {
+        if (!distributedL2Enabled)
+            return TimeSpan.FromSeconds(absoluteExpirationSeconds);
+
+        int localSeconds = snapshot.LocalCacheExpirationSeconds;
+
+        if (localSeconds <= 0)
+            localSeconds = Math.Clamp(absoluteExpirationSeconds / 4, 1, 15);
+        else
+            localSeconds = Math.Clamp(localSeconds, 1, absoluteExpirationSeconds);
+
+        return TimeSpan.FromSeconds(localSeconds);
     }
 
     /// <summary>
