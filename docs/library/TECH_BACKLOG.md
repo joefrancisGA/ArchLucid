@@ -163,7 +163,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 |----|-------|----------------|------|
 | TB-560 | Dynamic-import `CommandPalette` from operator shell top bar — defer `cmdk` + ~617-line palette chunk until shortcut/open; `next/dynamic({ ssr: false })` + loading placeholder | Performance P1 — **V1.1** | S |
 | TB-561 | Dynamic-import `FindingEvidenceGraph` — defer `reactflow` + CSS from shell bundle; `next/dynamic({ ssr: false })` + skeleton | Performance P1 — **V1.1** | S |
-| TB-562 | Expand TanStack Query across operator shell — migrate high-traffic `useEffect`+`fetch` reads (home, governance queue, alerts inbox, billing, executive dashboard) to shared query keys with tenant/run scope | Performance P1 — **V1.1**; extends **UI_ARCHITECTURE_V1_1.md** §1 | L |
+| TB-562 | Expand TanStack Query across operator shell — migrate high-traffic `useEffect`+`fetch` reads (home, governance queue, alerts inbox, billing, executive dashboard) to shared query keys with tenant/run scope | **Done** (2026-07-01) — Performance P1 **V1.1**; extends **UI_ARCHITECTURE_V1_1.md** §1 | L |
 | TB-563 | Decompose `GovernanceFindingsQueueClient` (~1115 lines) — list, filter bar, row, detail pane slots + colocated hooks; enable per-section lazy load / Suspense | Performance P1 — **V1.1** | L |
 | TB-564 | Decompose `AlertsInboxContent` (~903) + `RunsDashboardPanel` (~822) — server loader + client interactive slices (pattern: `RunDetailBelowFoldSections`) | Performance P1 — **V1.1** | L |
 | TB-565 | Add `experimental.optimizePackageImports` in `next.config.ts` for `lucide-react`, `recharts`, `@radix-ui/*` | Performance P1 — **V1.1** | XS |
@@ -16501,6 +16501,8 @@ const [submitManifestVersion, setSubmitManifestVersion] = useState(
 ---
 
 ## TB-562 — Expand TanStack Query across operator shell (P1)
+
+**Status:** **Done** (2026-07-01)
 
 **Why:** Only four shell-status query hooks exist (`use-tenant-trial-status-query`, `use-tenant-usage-status-query`, `use-llm-monthly-budget-status-query`, `use-health-ready-summary-query`). **80+** components use raw `useEffect`+`fetch` with no deduplication, stale-while-revalidate, or cache restore on back-navigation. Duplicate `/api/proxy` calls fire on shell + page mount.
 

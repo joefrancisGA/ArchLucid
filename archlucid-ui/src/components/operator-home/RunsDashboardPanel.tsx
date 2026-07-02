@@ -3,9 +3,10 @@
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
+import { useRunsByProjectPagedQuery } from "@/hooks/use-runs-by-project-paged-query";
 import { formatFindings, formatHours, safeCommittedRunWindowCount } from "@/components/BeforeAfterDelta/formatDelta";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorHomeWorkspaceEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceEmptyState";
@@ -15,7 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { listRunsByProjectPaged, restoreArchitectureRequest } from "@/lib/api";
+import { restoreArchitectureRequest } from "@/lib/api";
+import { invalidateOperatorHomeRunsCaches } from "@/lib/operator-query-invalidation";
 import {
   RUNS_DASHBOARD_LABELS,
 } from "@/lib/i18n";
@@ -185,63 +187,67 @@ type RunsDashboardPanelProps = {
  */
 export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelProps = {}) {
   const [tab, setTab] = useState<TabId>("recent");
-  const [phase, setPhase] = useState<"loading" | "ready" | "error">("loading");
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [runsListAuthorityUnusable, setRunsListAuthorityUnusable] = useState(false);
-  const [items, setItems] = useState<RunSummary[]>([]);
   const [governanceWarningsOnly, setGovernanceWarningsOnly] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [restoreBusyRequestId, setRestoreBusyRequestId] = useState<string | null>(null);
   const { status: deltaStatus, data: deltaData } = useDeltaQuery({ count: 5 });
 
-  const outcomesWindow =
-    deltaStatus === "ready" && deltaData !== null ? safeCommittedRunWindowCount(deltaData.returnedCount) : null;
+  const runsPagedParams = useMemo(
+    () => ({
+      projectId: DEFAULT_PROJECT_ID,
+      page: 1,
+      pageSize: PREVIEW_MAX,
+      includeArchived: showArchived,
+    }),
+    [showArchived],
+  );
+  const runsQuery = useRunsByProjectPagedQuery(runsPagedParams);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setPhase("loading");
-      setFailure(null);
-      setRunsListAuthorityUnusable(false);
-
-      try {
-        const raw: unknown = await listRunsByProjectPaged(DEFAULT_PROJECT_ID, 1, PREVIEW_MAX, {
-          includeArchived: showArchived,
-        });
-        const coerced = coerceRunSummaryPaged(raw);
-
-        if (cancelled) {
-          return;
-        }
-
-        if (!coerced.ok) {
-          setRunsListAuthorityUnusable(true);
-          setFailure(uiFailureFromMessage(coerced.message));
-          setPhase("error");
-
-          return;
-        }
-
-        setItems(coerced.value.items);
-        setPhase("ready");
-      } catch (e) {
-        if (cancelled) {
-          return;
-        }
-
-        setRunsListAuthorityUnusable(true);
-        setFailure(toApiLoadFailure(e));
-        setPhase("error");
-      }
+  const runsLoadState = useMemo(() => {
+    if (runsQuery.isPending) {
+      return {
+        phase: "loading" as const,
+        failure: null as ApiLoadFailureState | null,
+        items: [] as RunSummary[],
+        runsListAuthorityUnusable: false,
+      };
     }
 
-    void load();
+    if (runsQuery.isError) {
+      return {
+        phase: "error" as const,
+        failure: toApiLoadFailure(runsQuery.error),
+        items: [] as RunSummary[],
+        runsListAuthorityUnusable: true,
+      };
+    }
 
-    return () => {
-      cancelled = true;
+    const coerced = coerceRunSummaryPaged(runsQuery.data);
+
+    if (!coerced.ok) {
+      return {
+        phase: "error" as const,
+        failure: uiFailureFromMessage(coerced.message),
+        items: [] as RunSummary[],
+        runsListAuthorityUnusable: true,
+      };
+    }
+
+    return {
+      phase: "ready" as const,
+      failure: null as ApiLoadFailureState | null,
+      items: coerced.value.items,
+      runsListAuthorityUnusable: false,
     };
-  }, [showArchived]);
+  }, [runsQuery.isPending, runsQuery.isError, runsQuery.error, runsQuery.data]);
+
+  const phase = runsLoadState.phase;
+  const failure = runsLoadState.failure;
+  const items = runsLoadState.items;
+  const runsListAuthorityUnusable = runsLoadState.runsListAuthorityUnusable;
+
+  const outcomesWindow =
+    deltaStatus === "ready" && deltaData !== null ? safeCommittedRunWindowCount(deltaData.returnedCount) : null;
 
   const effectiveItems = useMemo(() => {
     if (items.length > 0) {
@@ -326,6 +332,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
 
     try {
       await restoreArchitectureRequest(requestId);
+      await invalidateOperatorHomeRunsCaches();
       setShowArchived(false);
     } finally {
       setRestoreBusyRequestId(null);

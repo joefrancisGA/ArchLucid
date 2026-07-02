@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { OperatorHomeExecutiveRoiStrip } from "@/components/operator-home/OperatorHomeExecutiveRoiStrip";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ROI_DISPOSITION_TRAINING_TOOLTIP_LABEL } from "@/lib/roi-disposition-training-copy";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
@@ -20,7 +21,7 @@ describe("OperatorHomeExecutiveRoiStrip", () => {
   it("renders nothing before the tenant has a committed architecture review", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
 
-    const { container } = render(<OperatorHomeExecutiveRoiStrip />);
+    const { container } = renderWithOperatorQuery(<OperatorHomeExecutiveRoiStrip />);
 
     expect(container).toBeEmptyDOMElement();
   });
@@ -39,7 +40,7 @@ describe("OperatorHomeExecutiveRoiStrip", () => {
       headlineSavingsScopeDescription: "Disposition-aware portfolio headline",
     });
 
-    render(
+    renderWithOperatorQuery(
       <TooltipProvider>
         <OperatorHomeExecutiveRoiStrip />
       </TooltipProvider>,

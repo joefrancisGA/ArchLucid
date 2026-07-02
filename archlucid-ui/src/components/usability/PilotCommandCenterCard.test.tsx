@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
@@ -52,7 +53,7 @@ describe("PilotCommandCenterCard", () => {
   it("shows first-review hero copy before committed workspace activity", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
 
-    render(<PilotCommandCenterCard />);
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
 
     expect(
       screen.getByRole("heading", { level: 2, name: PILOT_COMMAND_CENTER_HEADING }),
@@ -63,7 +64,7 @@ describe("PilotCommandCenterCard", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);
 
-    render(<PilotCommandCenterCard />);
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
 
     expect(
       screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING }),
@@ -73,7 +74,7 @@ describe("PilotCommandCenterCard", () => {
   it("uses dynamic next-best-action copy from Core Pilot commit context", async () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
 
-    render(<PilotCommandCenterCard />);
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
 
     await waitFor(() => {
       expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent("Start review");
@@ -86,7 +87,7 @@ describe("PilotCommandCenterCard", () => {
   it("shows workflow steps below the header row before first commit", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
 
-    render(<PilotCommandCenterCard />);
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
 
@@ -99,13 +100,13 @@ describe("PilotCommandCenterCard", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);
 
-    render(<PilotCommandCenterCard />);
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
 
     expect(screen.queryByTestId("pilot-command-center-optional-setup")).toBeNull();
   });
 
   it("renders optional setup links as outline buttons with visible affordance", () => {
-    render(<PilotCommandCenterCard />);
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
 
     const connectCloud = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE });
     const inviteReviewer = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER });

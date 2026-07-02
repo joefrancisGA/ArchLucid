@@ -8,7 +8,7 @@ import { useEffect, useState, type ReactElement } from "react";
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   resolveRepeatReviewActivation,
@@ -26,7 +26,7 @@ export function RepeatReviewActivationPrompt(): ReactElement | null {
     let cancelled = false;
 
     void (async () => {
-      const ctx = await fetchCorePilotCommitContext();
+      const ctx = await fetchCorePilotCommitContextCached();
 
       if (cancelled) {
         return;

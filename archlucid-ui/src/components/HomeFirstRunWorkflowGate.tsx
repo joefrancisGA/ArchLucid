@@ -3,7 +3,7 @@
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
 import { SamplePackageShortcutsCard } from "@/components/operator-home/SamplePackageShortcutsCard";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
-import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import {
   isBuyerPolishedOperatorShellEnv,
   isBuyerSafeDemoMarketingChromeEnv,
@@ -54,7 +54,7 @@ export function HomeFirstRunWorkflowGate() {
 
     void (async () => {
       try {
-        const ctx = await fetchCorePilotCommitContext();
+        const ctx = await fetchCorePilotCommitContextCached();
 
         if (!cancelled) {
           setCommitCtx(ctx);

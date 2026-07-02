@@ -1,6 +1,10 @@
-import { listRunsByProjectPaged } from "@/lib/api";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
+import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
+import { fetchRunsByProjectPagedCached } from "@/lib/runs-by-project-paged-client";
+import { fetchTenantTrialStatusCached } from "@/lib/tenant-trial-status-client";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -42,23 +46,12 @@ export const PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT: CorePilotCommitContext = {
 /** True when tenant trial status records a first commit timestamp. */
 export async function fetchTrialAnchoredCommit(): Promise<boolean> {
   try {
-    const res = await fetch("/api/proxy/v1/tenant/trial-status", {
-      credentials: "include",
-      signal: AbortSignal.timeout(FETCH_BUDGET_MS),
-    });
-
-    if (!res.ok) {
-      return false;
-    }
-
-    const json: unknown = await res.json();
+    const payload = await fetchTenantTrialStatusCached();
 
     return (
-      json !== null &&
-      typeof json === "object" &&
-      "firstCommitUtc" in json &&
-      typeof (json as { firstCommitUtc?: unknown }).firstCommitUtc === "string" &&
-      (json as { firstCommitUtc: string }).firstCommitUtc.length > 0
+      payload !== null &&
+      typeof payload.firstCommitUtc === "string" &&
+      payload.firstCommitUtc.length > 0
     );
   } catch {
     return false;
@@ -105,7 +98,11 @@ export async function fetchCorePilotCommitContext(): Promise<CorePilotCommitCont
 
   try {
     const raw: unknown = await Promise.race([
-      listRunsByProjectPaged(DEFAULT_PROJECT_ID, 1, COMMIT_SCAN_PAGE_SIZE),
+      fetchRunsByProjectPagedCached({
+        projectId: DEFAULT_PROJECT_ID,
+        page: 1,
+        pageSize: COMMIT_SCAN_PAGE_SIZE,
+      }),
       new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error("timeout")), FETCH_BUDGET_MS);
       }),
@@ -120,4 +117,26 @@ export async function fetchCorePilotCommitContext(): Promise<CorePilotCommitCont
   } catch {
     return buildCorePilotCommitContextFromRunItems([], trialAnchoredCommit);
   }
+}
+
+/** Clears cached commit-context composite reads (TB-562). */
+export async function invalidateCorePilotCommitContextCache(): Promise<void> {
+  await getOperatorQueryClient().invalidateQueries({ queryKey: operatorQueryKeys.corePilotCommitContext });
+}
+
+/** Imperative read through the shared TanStack Query cache (TB-562). */
+export async function fetchCorePilotCommitContextCached(
+  options?: { force?: boolean },
+): Promise<CorePilotCommitContext> {
+  const queryClient = getOperatorQueryClient();
+
+  if (options?.force === true) {
+    await invalidateCorePilotCommitContextCache();
+  }
+
+  return queryClient.fetchQuery({
+    queryKey: operatorQueryKeys.corePilotCommitContext,
+    queryFn: fetchCorePilotCommitContext,
+    staleTime: OPERATOR_QUERY_STALE_MS,
+  });
 }

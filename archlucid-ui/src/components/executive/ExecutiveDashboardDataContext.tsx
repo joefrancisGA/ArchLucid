@@ -2,13 +2,12 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
+import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
 import { getComplianceDriftTrend } from "@/lib/api";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
-export type ExecutiveDashboardData = {
-  summary: ExecutiveRoiSummary | null;
+export type ExecutiveDashboardData = {  summary: ExecutiveRoiSummary | null;
   summaryLoading: boolean;
   summaryError: string | null;
   driftPoints: ComplianceDriftTrendPoint[];
@@ -29,39 +28,19 @@ function rollingBounds30Days(): { fromUtc: string; toUtc: string } {
 
 /** Fetches executive-summary and compliance-drift once; children read via `useExecutiveDashboardData()`. */
 export function ExecutiveDashboardDataProvider({ children }: { children: ReactNode }): React.JSX.Element {
-  const [summary, setSummary] = useState<ExecutiveRoiSummary | null>(null);
-  const [summaryLoading, setSummaryLoading] = useState(true);
-  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const summaryQuery = useExecutiveRoiSummaryQuery();
+  const summary = summaryQuery.data ?? null;
+  const summaryLoading = summaryQuery.isPending;
+  const summaryError =
+    summaryQuery.isError
+      ? summaryQuery.error instanceof Error
+        ? summaryQuery.error.message
+        : "Failed to load executive KPIs."
+      : null;
 
   const [driftPoints, setDriftPoints] = useState<ComplianceDriftTrendPoint[]>([]);
   const [driftLoading, setDriftLoading] = useState(true);
   const [driftError, setDriftError] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const json = await fetchExecutiveRoiSummaryClient();
-
-        if (!cancelled) {
-          setSummary(json);
-        }
-      } catch (e: unknown) {
-        if (!cancelled) {
-          setSummaryError(e instanceof Error ? e.message : "Failed to load executive KPIs.");
-        }
-      } finally {
-        if (!cancelled) {
-          setSummaryLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     let cancelled = false;

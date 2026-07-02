@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import React, { useMemo } from "react";
+
+import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
 import {
   formatExecutiveRoiPricingBasisLabel,
   formatRoiCostEvidenceFreshnessWarning,
@@ -17,7 +19,6 @@ import {
   OPERATOR_KPI_CARD_TITLE,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lucide-react";
 
 function formatUsd(value: number | undefined): string {
@@ -60,44 +61,14 @@ export function BusinessImpactSummaryWidget({
   surface = "operator",
 }: BusinessImpactSummaryWidgetProps = {}) {
   const executiveSurface = surface === "executive";
-  const [data, setData] = useState<ExecutiveRoiSummary | null>(summaryProp ?? null);
-  const [isLoading, setIsLoading] = useState(loadingProp ?? true);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined;
-
-  useEffect(() => {
-    if (usesExternalSummary) {
-      setData(summaryProp ?? null);
-      setIsLoading(loadingProp ?? false);
-      setFailure(null);
-
-      return undefined;
-    }
-
-    let mounted = true;
-
-    void (async () => {
-      try {
-        const json = await fetchExecutiveRoiSummaryClient();
-
-        if (mounted) {
-          setData(json);
-        }
-      } catch (err: unknown) {
-        if (mounted) {
-          setFailure(toApiLoadFailure(err));
-        }
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
-  }, [loadingProp, summaryProp, usesExternalSummary]);
+  const summaryQuery = useExecutiveRoiSummaryQuery({ enabled: !usesExternalSummary });
+  const data = usesExternalSummary ? (summaryProp ?? null) : (summaryQuery.data ?? null);
+  const isLoading = usesExternalSummary ? (loadingProp ?? false) : summaryQuery.isPending && data === null;
+  const failure = useMemo(
+    () => (usesExternalSummary || !summaryQuery.isError ? null : toApiLoadFailure(summaryQuery.error)),
+    [summaryQuery.error, summaryQuery.isError, usesExternalSummary],
+  );
 
   if (failure) {
     return <OperatorApiProblem failure={failure} />;

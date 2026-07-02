@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
+
+import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
@@ -13,7 +15,6 @@ import {
   PILOT_PATH_PREVIEW_STEPS,
   resolveOperatorHomeHeroHeading,
 } from "@/lib/buyer-polish-copy";
-import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
@@ -39,33 +40,15 @@ const DEFAULT_NEXT_ACTION: PilotNextBestAction = {
 export function PilotCommandCenterCard(): React.JSX.Element {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const heroHeading = resolveOperatorHomeHeroHeading(hasCommittedArchitectureReview);
-  const [nextAction, setNextAction] = useState<PilotNextBestAction>(DEFAULT_NEXT_ACTION);
+  const commitQuery = useCorePilotCommitContextQuery();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadNextAction(): Promise<void> {
-      try {
-        const ctx = await fetchCorePilotCommitContext();
-
-        if (cancelled) {
-          return;
-        }
-
-        setNextAction(resolvePilotNextBestAction(ctx, hasCommittedArchitectureReview));
-      } catch {
-        if (!cancelled) {
-          setNextAction(DEFAULT_NEXT_ACTION);
-        }
-      }
+  const nextAction = useMemo((): PilotNextBestAction => {
+    if (commitQuery.isPending || commitQuery.isError || commitQuery.data === undefined) {
+      return DEFAULT_NEXT_ACTION;
     }
 
-    void loadNextAction();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [hasCommittedArchitectureReview]);
+    return resolvePilotNextBestAction(commitQuery.data, hasCommittedArchitectureReview);
+  }, [commitQuery.isPending, commitQuery.isError, commitQuery.data, hasCommittedArchitectureReview]);
 
   return (
     <section

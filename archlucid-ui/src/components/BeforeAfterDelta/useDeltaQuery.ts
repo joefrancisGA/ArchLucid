@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { usePilotRecentDeltasQuery } from "@/hooks/use-pilot-recent-deltas-query";
 
 import type { RecentPilotRunDeltasPayload } from "./types";
 
@@ -12,8 +12,7 @@ import type { RecentPilotRunDeltasPayload } from "./types";
  * Centralises three things so each variant component is presentation-only:
  *  1. The `/api/proxy/v1/pilots/runs/recent-deltas` URL shape and `count` query param.
  *  2. The JWT-vs-registration-scope header dance via `mergeRegistrationScopeForProxy`.
- *  3. The "loading | ready | error" state machine + cancellation on unmount so a
- *     route navigation mid-flight does not log a setState-on-unmounted warning.
+ *  3. The "loading | ready | error" state machine backed by TanStack Query (TB-562).
  *
  * Returns `data === null` when the panel should render nothing (loading, error,
  * or zero committed runs) — the variants treat the three terminal states the same
@@ -29,44 +28,18 @@ export type UseDeltaQueryOptions = {
   count: number;
 };
 
-const RECENT_DELTAS_PROXY_PATH = "/api/proxy/v1/pilots/runs/recent-deltas";
-
 export function useDeltaQuery({ count }: UseDeltaQueryOptions): DeltaQueryState {
-  const [state, setState] = useState<DeltaQueryState>({ status: "loading", data: null });
+  const query = usePilotRecentDeltasQuery(count);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load(): Promise<void> {
-      try {
-        const url = `${RECENT_DELTAS_PROXY_PATH}?count=${encodeURIComponent(String(count))}`;
-        const res = await fetch(
-          url,
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
-
-        if (!res.ok) {
-          if (!cancelled) setState({ status: "error", data: null });
-
-          return;
-        }
-
-        const payload = (await res.json()) as RecentPilotRunDeltasPayload;
-
-        if (cancelled) return;
-
-        setState({ status: "ready", data: payload });
-      } catch {
-        if (!cancelled) setState({ status: "error", data: null });
-      }
+  return useMemo((): DeltaQueryState => {
+    if (query.isPending) {
+      return { status: "loading", data: null };
     }
 
-    void load();
+    if (query.isError || query.data === null) {
+      return { status: "error", data: null };
+    }
 
-    return () => {
-      cancelled = true;
-    };
-  }, [count]);
-
-  return state;
+    return { status: "ready", data: query.data };
+  }, [query.isPending, query.isError, query.data]);
 }

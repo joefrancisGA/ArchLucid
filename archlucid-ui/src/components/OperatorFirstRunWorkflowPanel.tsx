@@ -13,7 +13,7 @@ import {
 } from "@/lib/api";
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
-import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
   CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT,
@@ -78,7 +78,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
 
     void (async () => {
       try {
-        const ctx = await fetchCorePilotCommitContext();
+        const ctx = await fetchCorePilotCommitContextCached();
 
         if (!cancelled) {
           setCommitCtx(ctx);

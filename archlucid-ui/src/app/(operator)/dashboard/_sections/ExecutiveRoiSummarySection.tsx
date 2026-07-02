@@ -1,7 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+
+import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
 
 import { downloadExecutiveRoiBoardPack } from "@/lib/api/executive-roi-board-pack-api";
 
@@ -41,7 +43,6 @@ import { showError } from "@/lib/toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
-import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
 import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -82,9 +83,13 @@ export function ExecutiveRoiSummarySection({
   surface = "operator",
 }: ExecutiveRoiSummarySectionProps = {}) {
   const executiveSurface = surface === "executive";
-  const [data, setData] = useState<ExecutiveRoiSummary | null>(summaryProp ?? null);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined || summaryErrorProp !== undefined;
+  const summaryQuery = useExecutiveRoiSummaryQuery({ enabled: !usesExternalSummary });
+  const data = usesExternalSummary ? (summaryProp ?? null) : (summaryQuery.data ?? null);
+  const failure = useMemo(
+    () => (usesExternalSummary || !summaryQuery.isError ? null : toApiLoadFailure(summaryQuery.error)),
+    [summaryQuery.error, summaryQuery.isError, usesExternalSummary],
+  );
   const [boardPackBusy, setBoardPackBusy] = useState(false);
   const [includeBoardPackNarrative, setIncludeBoardPackNarrative] = useState(false);
   const onDownloadExecutiveSummary = useCallback(() => {
@@ -178,35 +183,6 @@ export function ExecutiveRoiSummarySection({
     }
   }, []);
 
-  useEffect(() => {
-    if (usesExternalSummary) {
-      setData(summaryProp ?? null);
-      setFailure(null);
-
-      return undefined;
-    }
-
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const json = await fetchExecutiveRoiSummaryClient();
-
-        if (!cancelled) {
-          setData(json);
-        }
-      } catch (e: unknown) {
-        if (!cancelled) {
-          setFailure(toApiLoadFailure(e));
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [summaryProp, usesExternalSummary]);
-
   if (usesExternalSummary && summaryErrorProp) {
     return (
       <Card>
@@ -236,7 +212,7 @@ export function ExecutiveRoiSummarySection({
   }
 
   const displayData = usesExternalSummary ? (summaryProp ?? null) : data;
-  const showLoading = usesExternalSummary ? (loadingProp ?? false) : displayData === null;
+  const showLoading = usesExternalSummary ? (loadingProp ?? false) : summaryQuery.isPending && displayData === null;
 
   if (showLoading || displayData === null) {
     return (

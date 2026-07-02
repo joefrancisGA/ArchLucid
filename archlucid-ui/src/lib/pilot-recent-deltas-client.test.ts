@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  fetchExecutiveRoiSummaryCached,
-  invalidateExecutiveRoiSummaryCache,
-} from "@/lib/fetch-executive-roi-summary-client";
+  fetchPilotRecentDeltasCached,
+  invalidatePilotRecentDeltasCache,
+} from "@/lib/pilot-recent-deltas-client";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
 vi.mock("@/lib/auth-config", () => ({
@@ -18,10 +18,10 @@ vi.mock("@/lib/oidc/session", () => ({
   isLikelySignedIn: () => true,
 }));
 
-describe("fetchExecutiveRoiSummaryCached", () => {
+describe("fetchPilotRecentDeltasCached", () => {
   beforeEach(async () => {
     resetOperatorQueryClientForTests();
-    await invalidateExecutiveRoiSummaryCache();
+    await invalidatePilotRecentDeltasCache();
   });
 
   afterEach(() => {
@@ -30,29 +30,20 @@ describe("fetchExecutiveRoiSummaryCached", () => {
 
   it("dedupes concurrent reads into one network request", async () => {
     const fetchMock = vi.fn(async () => {
-      return new Response(
-        JSON.stringify({
-          totalEstimatedUsdSavings: 1000,
-          systemCount: 1,
-          latestRunCount: 1,
-          systems: [],
-          topSystemicIssues: [],
-        }),
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
+      return new Response(JSON.stringify({ returnedCount: 2, deltas: [] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     });
 
     vi.stubGlobal("fetch", fetchMock);
 
     const [first, second] = await Promise.all([
-      fetchExecutiveRoiSummaryCached(),
-      fetchExecutiveRoiSummaryCached(),
+      fetchPilotRecentDeltasCached(5),
+      fetchPilotRecentDeltasCached(5),
     ]);
 
-    expect(first.totalEstimatedUsdSavings).toBe(1000);
+    expect(first?.returnedCount).toBe(2);
     expect(second).toEqual(first);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });

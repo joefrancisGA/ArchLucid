@@ -11,9 +11,11 @@ The items below remain **out of scope for V1** and are intentionally deferred to
 
 ## 1. Client data-fetching layer (TanStack Query / SWR)
 
-**Why deferred:** Pilot-scale usage tolerates imperative `fetch` + local `useState`; no cross-tab cache or automatic dedupe is a V1 contract requirement.
+**Status:** **Partially shipped** (2026-07-01, **TB-562**). Operator shell high-traffic reads (home runs list, pilot recent deltas, executive ROI summary, core-pilot commit context) use TanStack Query via `OperatorQueryProvider`, shared keys in `operator-query-keys.ts`, and `use-*-query.ts` hooks with 60s stale / 5min GC defaults. Governance queue, alerts inbox, and billing banners remain on imperative fetch until follow-on batches.
 
-**V1.1 intent:** Introduce a shared fetching layer with dedupe, stale-while-revalidate, mutation invalidation keys aligned to tenant/run scope headers, without moving business rules client-side.
+**Why deferred (remainder):** Pilot-scale usage tolerates imperative `fetch` + local `useState` for low-traffic surfaces; full-shell migration is incremental.
+
+**V1.1 intent:** Continue migrating remaining `useEffect`+`fetch` reads with dedupe, stale-while-revalidate, mutation invalidation keys aligned to tenant/run scope headers, without moving business rules client-side.
 
 ## 2. Global client state beyond current Context scopes
 
