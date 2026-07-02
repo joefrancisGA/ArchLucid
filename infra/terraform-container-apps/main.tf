@@ -274,9 +274,13 @@ resource "azurerm_container_app" "api" {
           secret_name = "hot-path-redis-connection"
         }
       }
-
-
-
+      dynamic "env" {
+        for_each = local.hot_path_cache_redis_configured ? [1] : []
+        content {
+          name  = "HotPathCache__ExpectedApiReplicaCount"
+          value = tostring(var.api_max_replicas)
+        }
+      }
       dynamic "env" {
         for_each = local.background_jobs_durable ? [1] : []
         content {
@@ -518,6 +522,13 @@ resource "azurerm_container_app" "worker" {
             }
           }
 
+          dynamic "env" {
+            for_each = local.hot_path_cache_redis_configured ? [1] : []
+            content {
+              name  = "HotPathCache__ExpectedApiReplicaCount"
+              value = tostring(var.api_max_replicas)
+            }
+          }
 
           value = var.background_jobs_queue_name
         }
