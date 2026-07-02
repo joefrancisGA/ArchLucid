@@ -75,6 +75,7 @@ public sealed class RunDetailQueryService(
     public async Task<ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
         if (!TryParseRunGuid(runId, out Guid runGuid))
         {
             if (logger.IsEnabled(LogLevel.Debug))
@@ -84,6 +85,7 @@ public sealed class RunDetailQueryService(
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         RunRecord? record = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
         if (record is null)
         {
             if (logger.IsEnabled(LogLevel.Debug))
@@ -105,6 +107,7 @@ public sealed class RunDetailQueryService(
 
         GoldenManifest? manifest = await unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
         List<DecisionTraceDto> decisionTraces = [];
+
         if (manifest is null)
         {
             if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion) && logger.IsEnabled(LogLevel.Warning))
@@ -114,6 +117,7 @@ public sealed class RunDetailQueryService(
         else if (record.DecisionTraceId is { } authorityTraceId)
         {
             DecisionTraceDto? authorityTrace = await authorityDecisionTraceRepository.GetByIdAsync(scope, authorityTraceId, cancellationToken);
+
             if (authorityTrace is not null)
                 decisionTraces = [authorityTrace];
         }
@@ -177,6 +181,7 @@ public sealed class RunDetailQueryService(
         DateTime? cursorUtc = null;
         Guid? cursorRunId = null;
         (DateTime CreatedUtc, Guid RunId)? decoded = RunCursorCodec.TryDecode(cursor);
+
         if (decoded.HasValue)
         {
             cursorUtc = decoded.Value.CreatedUtc;
@@ -196,6 +201,7 @@ public sealed class RunDetailQueryService(
             IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r)
         }).ToList();
         string? next = null;
+
         if (!page.HasMore || page.Items.Count <= 0)
             return (items, page.HasMore, next);
         RunRecord last = page.Items[^1];

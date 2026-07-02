@@ -297,6 +297,7 @@ public sealed class AgentResultRepository(
         }
 
         List<AgentResult> results = [];
+
         foreach (string json in rows)
         {
             AgentResult? result;

@@ -21,13 +21,17 @@ public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQu
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(scope);
+
         if (string.IsNullOrWhiteSpace(runId))
             throw new ArgumentException("Run id is required.", nameof(runId));
+
         if (scope is null)
             throw new ArgumentNullException(nameof(scope));
+
         if (maxZipBytes <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxZipBytes));
         ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
         if (detail is null)
             return null;
         Guid runGuid = Guid.TryParseExact(runId, "N", out Guid g1) ? g1 : Guid.TryParse(runId, out Guid g2) ? g2 : Guid.Empty;

@@ -50,6 +50,7 @@ public static class AgentTopologyProposalGraphMerge
                 continue;
 
             AgentTopologyProposal? proposal = result.ProposedChanges;
+
             if (proposal is null)
                 continue;
 

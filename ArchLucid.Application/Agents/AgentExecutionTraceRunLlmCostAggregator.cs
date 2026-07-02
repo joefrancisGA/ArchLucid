@@ -104,6 +104,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         string costBasis = RunLlmCostEstimationBasis.Unavailable;
 
         // Reasoning-only traces (TB-196) have zero prompt/completion sums but may still produce a USD estimate.
+
         if (promptSum + completionSum <= 0 && !anyCost)
             return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, modelLabel, costBasis);
 
