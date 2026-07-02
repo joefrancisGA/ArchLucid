@@ -18,6 +18,8 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import type { AlertsInboxPageModel } from "./_sections/alerts-inbox-page-model";
+
 const TAB_PARAM = "tab";
 
 const ALERTS_HUB_ORIENT_DISMISS_KEY = "archlucid-alerts-hub-orient-v1-dismissed";
@@ -33,11 +35,15 @@ const TAB_LABEL: Record<AlertHubTabId, string> = {
 /** Tabs that contain credible sample data for buyer-facing demos. Config-heavy tabs are hidden. */
 const BUYER_DEMO_TAB_ALLOWLIST = new Set<AlertHubTabId>(["inbox"]);
 
+export type AlertsHubClientProps = {
+  readonly initialInboxModel?: AlertsInboxPageModel | null;
+};
+
 /**
  * Single `/alerts` surface: inbox, rules, routing, composite, and merged simulation + tuning.
  * Tab state is in the query string for deep links and browser history.
  */
-export function AlertsHubClient() {
+export function AlertsHubClient({ initialInboxModel = null }: AlertsHubClientProps = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -185,7 +191,7 @@ export function AlertsHubClient() {
         aria-label={visibleTabIds.length > 1 ? undefined : "Alert inbox"}
         data-testid="alert-hub-panel"
       >
-        {activeTab === "inbox" ? <AlertsInboxContent /> : null}
+        {activeTab === "inbox" ? <AlertsInboxContent initialModel={initialInboxModel} /> : null}
         {activeTab === "rules" ? <AlertRulesContent /> : null}
         {activeTab === "routing" ? <AlertRoutingContent /> : null}
         {activeTab === "composite" ? <CompositeAlertRulesContent /> : null}

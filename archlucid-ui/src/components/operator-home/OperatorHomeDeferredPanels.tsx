@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 
+import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import { RunsDashboardPanel } from "@/components/operator-home/RunsDashboardPanel";
 
 const BeforeAfterDeltaPanel = dynamic(
@@ -19,10 +20,11 @@ const OperatorHomeWorkspaceStatusSection = dynamic(
 
 type OperatorHomeRunsPanelProps = {
   readonly hideHeading?: boolean;
+  readonly initialModel?: OperatorHomeRunsDashboardModel | null;
 };
 
 export function OperatorHomeRunsPanel(props: OperatorHomeRunsPanelProps) {
-  return <RunsDashboardPanel hideHeading={props.hideHeading} />;
+  return <RunsDashboardPanel hideHeading={props.hideHeading} initialModel={props.initialModel ?? null} />;
 }
 
 export function OperatorHomeDeltaPanel() {

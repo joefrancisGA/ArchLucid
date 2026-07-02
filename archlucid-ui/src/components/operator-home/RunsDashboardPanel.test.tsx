@@ -1,4 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { ReactElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
@@ -39,6 +41,18 @@ import type { RunSummary } from "@/types/authority";
 const listRuns = vi.mocked(listRunsByProjectPaged);
 
 const originalFetch = globalThis.fetch;
+
+function renderRunsDashboardPanel(ui: ReactElement = <RunsDashboardPanel />) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+}
 
 function stubFetchForDashboard() {
   globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
@@ -81,7 +95,7 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    render(<RunsDashboardPanel />);
+    renderRunsDashboardPanel();
 
     expect(screen.getByRole("heading", { name: /^architecture reviews$/i })).toBeInTheDocument();
     await waitFor(() => {
@@ -107,7 +121,7 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    render(<RunsDashboardPanel />);
+    renderRunsDashboardPanel();
 
     expect(await screen.findByTestId("recent-runs-home-panel")).toBeInTheDocument();
     const link = await screen.findByRole("link", { name: "Sample" });
@@ -135,7 +149,7 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    render(<RunsDashboardPanel />);
+    renderRunsDashboardPanel();
 
     expect(await screen.findByTestId(`run-home-list-insight-${run.runId}`)).toHaveTextContent(
       "4 findings · 1 monitored risk · package finalized",
@@ -157,7 +171,7 @@ describe("RunsDashboardPanel", () => {
       });
       stubFetchForDashboard();
 
-      render(<RunsDashboardPanel />);
+      renderRunsDashboardPanel();
 
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
@@ -176,7 +190,7 @@ describe("RunsDashboardPanel", () => {
       listRuns.mockRejectedValue(new Error("runs unavailable"));
       stubFetchForDashboard();
 
-      render(<RunsDashboardPanel />);
+      renderRunsDashboardPanel();
 
       await waitFor(() => {
         expect(screen.getByTestId("runs-dashboard-recent-error")).toBeInTheDocument();
@@ -205,7 +219,7 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    render(<RunsDashboardPanel />);
+    renderRunsDashboardPanel();
 
     await waitFor(() => {
       expect(screen.getByRole("tab", { name: /needs attention/i })).toBeInTheDocument();
@@ -242,7 +256,7 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    render(<RunsDashboardPanel />);
+    renderRunsDashboardPanel();
 
     expect(await screen.findByRole("link", { name: "Clear" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Needs follow-up" })).toBeInTheDocument();
@@ -272,7 +286,7 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    render(<RunsDashboardPanel />);
+    renderRunsDashboardPanel();
 
     expect(await screen.findByTestId("run-governance-warning-indicator")).toBeInTheDocument();
   });
@@ -298,7 +312,7 @@ describe("RunsDashboardPanel", () => {
       });
       stubFetchForDashboard();
 
-      render(<RunsDashboardPanel />);
+      renderRunsDashboardPanel();
 
       await waitFor(() => {
         expect(screen.getByTestId("runs-dashboard-buyer-proof-summary")).toBeInTheDocument();
@@ -331,7 +345,7 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    render(<RunsDashboardPanel />);
+    renderRunsDashboardPanel();
 
     await waitFor(() => {
       expect(screen.getByRole("tab", { name: "Approved" })).toHaveAttribute(
@@ -364,7 +378,7 @@ describe("RunsDashboardPanel", () => {
       });
       stubFetchForDashboard();
 
-      render(<RunsDashboardPanel />);
+      renderRunsDashboardPanel();
 
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
