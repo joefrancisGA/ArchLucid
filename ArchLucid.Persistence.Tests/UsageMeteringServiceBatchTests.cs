@@ -1,4 +1,5 @@
 using ArchLucid.Core.Metering;
+using ArchLucid.Persistence.Metering;
 using ArchLucid.Persistence.Options;
 using ArchLucid.Persistence.Tenancy;
 
