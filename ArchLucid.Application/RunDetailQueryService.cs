@@ -118,11 +118,14 @@ public sealed class RunDetailQueryService(
                 decisionTraces = [authorityTrace];
         }
 
-        IReadOnlyList<AgentExecutionTrace> executionTraces = await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice> costSlices = await _agentExecutionTraceRepository
+            .GetLlmCostSlicesByRunIdAsync(scope, runId, cancellationToken);
         ArchLucid.Contracts.Runs.RunAgentLlmCostEstimateDto? costEstimate = null;
-        if (executionTraces.Count > 0)
+
+        if (costSlices.Count > 0)
         {
-            AgentExecutionTraceRunLlmCostSummary costSummary = AgentExecutionTraceRunLlmCostAggregator.Compute(executionTraces, _llmCostEstimator);
+            AgentExecutionTraceRunLlmCostSummary costSummary =
+                AgentExecutionTraceRunLlmCostAggregator.Compute(costSlices, _llmCostEstimator);
             costEstimate = new ArchLucid.Contracts.Runs.RunAgentLlmCostEstimateDto
             {
                 EstimatedCostUsd = costSummary.EstimatedCostUsd,

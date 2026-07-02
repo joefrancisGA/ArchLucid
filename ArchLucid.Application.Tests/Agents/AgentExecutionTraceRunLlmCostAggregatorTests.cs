@@ -19,7 +19,7 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
         Mock<ILlmCostEstimator> estimator = new();
 
         AgentExecutionTraceRunLlmCostSummary summary =
-            AgentExecutionTraceRunLlmCostAggregator.Compute([], estimator.Object);
+            AgentExecutionTraceRunLlmCostAggregator.Compute(Array.Empty<AgentExecutionTrace>(), estimator.Object);
 
         summary.PromptTokens.Should().Be(0);
         summary.CompletionTokens.Should().Be(0);
@@ -201,5 +201,32 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
         summary.PromptTokens.Should().Be((long)tokensPerTrace * 2);
         summary.PromptTokens.Should().BeGreaterThan(int.MaxValue);
         summary.EstimatedCostUsd.Should().Be(2m);
+    }
+
+    [Fact]
+    public void Compute_Slices_MatchesTraceOverload()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(e => e.EstimateUsd(100, 40, 0, "dep-a"))
+            .Returns(1.0m);
+
+        List<AgentExecutionTraceLlmCostSlice> slices =
+        [
+            new()
+            {
+                ModelDeploymentName = "dep-a",
+                InputTokenCount = 100,
+                OutputTokenCount = 40,
+            },
+        ];
+
+        AgentExecutionTraceRunLlmCostSummary summary =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(slices, estimator.Object);
+
+        summary.PromptTokens.Should().Be(100);
+        summary.CompletionTokens.Should().Be(40);
+        summary.EstimatedCostUsd.Should().Be(1.0m);
+        summary.ModelLabel.Should().Be("dep-a");
     }
 }

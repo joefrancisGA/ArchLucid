@@ -133,6 +133,17 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("WorkspaceId = @WorkspaceId");
         sql.Should().Contain("ProjectId = @ProjectId");
         sql.Should().Contain("ORDER BY OccurredUtc DESC, EventId DESC");
+        sql.Should().NotContain("DataJson");
+    }
+
+    [SkippableFact]
+    public void Audit_filtered_list_shape_omits_data_json_export_shape_includes_it()
+    {
+        const string listPrefix = HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeNoLock;
+        const string exportPrefix = HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeWithDataJsonNoLock;
+
+        listPrefix.Should().NotContain("DataJson");
+        exportPrefix.Should().Contain("DataJson");
     }
 
     [SkippableFact]

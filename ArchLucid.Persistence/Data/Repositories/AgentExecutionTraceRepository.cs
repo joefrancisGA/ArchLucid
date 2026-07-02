@@ -7,6 +7,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -496,6 +497,40 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             cancellationToken: cancellationToken));
 
         return DeserializeTraces(rows, $"run '{runId}'");
+    }
+
+    public async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> GetLlmCostSlicesByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        RunChildRunScopeSql.RequireScope(scope);
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        string sql = $"""
+                      SELECT {AgentExecutionTraceLlmCostProjectionSql.SelectColumns}
+                      FROM AgentExecutionTraces t
+                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      WHERE t.RunId = @RunId
+                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                      ORDER BY t.CreatedUtc
+                      {SqlPagingSyntax.FirstRowsOnly(500)};
+                      """;
+
+        IEnumerable<AgentExecutionTraceLlmCostSlice> rows = await connection.QueryAsync<AgentExecutionTraceLlmCostSlice>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                },
+                cancellationToken: cancellationToken));
+
+        return rows.ToList();
     }
 
     public async Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(

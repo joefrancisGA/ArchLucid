@@ -50,15 +50,15 @@ public sealed class TenantLlmCostTopRunRanker(
         foreach (RunSummaryDto summary in summaries)
         {
             string runHex = summary.RunId.ToString("N");
-            IReadOnlyList<AgentExecutionTrace> traces = await _traceRepository
-                .GetByRunIdAsync(scope, runHex, cancellationToken)
+            IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices = await _traceRepository
+                .GetLlmCostSlicesByRunIdAsync(scope, runHex, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (traces.Count == 0)
+            if (slices.Count == 0)
                 continue;
 
             AgentExecutionTraceRunLlmCostSummary aggregate =
-                AgentExecutionTraceRunLlmCostAggregator.Compute(traces, _costEstimator);
+                AgentExecutionTraceRunLlmCostAggregator.Compute(slices, _costEstimator);
 
             if (aggregate.PromptTokens + aggregate.CompletionTokens <= 0 && aggregate.EstimatedCostUsd is null or <= 0m)
                 continue;
@@ -69,7 +69,7 @@ public sealed class TenantLlmCostTopRunRanker(
                 EstimatedCostUsd = aggregate.EstimatedCostUsd ?? 0m,
                 PromptTokens = aggregate.PromptTokens,
                 CompletionTokens = aggregate.CompletionTokens,
-                LlmCallCount = traces.Count,
+                LlmCallCount = slices.Count,
             });
         }
 

@@ -170,6 +170,25 @@ public sealed class CosmosAgentExecutionTraceRepository(
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> GetLlmCostSlicesByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<AgentExecutionTrace> traces = await GetByRunIdAsync(scope, runId, cancellationToken);
+
+        return traces
+            .Select(static t => new AgentExecutionTraceLlmCostSlice
+            {
+                ModelDeploymentName = t.ModelDeploymentName,
+                InputTokenCount = t.InputTokenCount,
+                OutputTokenCount = t.OutputTokenCount,
+                ReasoningTokenCount = t.ReasoningTokenCount,
+            })
+            .ToList();
+    }
+
+    /// <inheritdoc />
     public async Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
         ScopeContext scope,
         string runId,

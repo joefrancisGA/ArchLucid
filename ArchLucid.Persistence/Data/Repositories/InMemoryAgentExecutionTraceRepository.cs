@@ -254,6 +254,32 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     }
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> GetLlmCostSlicesByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        _ = scope;
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            List<AgentExecutionTraceLlmCostSlice> list = _items
+                .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
+                .OrderBy(t => t.CreatedUtc)
+                .Select(static t => new AgentExecutionTraceLlmCostSlice
+                {
+                    ModelDeploymentName = t.ModelDeploymentName,
+                    InputTokenCount = t.InputTokenCount,
+                    OutputTokenCount = t.OutputTokenCount,
+                    ReasoningTokenCount = t.ReasoningTokenCount,
+                })
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(list);
+        }
+    }
+
+    /// <inheritdoc />
     public Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
         ScopeContext scope,
         string runId,

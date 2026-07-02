@@ -101,11 +101,11 @@ public sealed class AuthorityRunDetailOperatorEnricher(
         CancellationToken cancellationToken)
     {
         ScopeContext scope = ScopeContextRunChildExtensions.FromRunRecord(detail.Run);
-        IReadOnlyList<AgentExecutionTrace> traces =
-            await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runHex, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices =
+            await _agentExecutionTraceRepository.GetLlmCostSlicesByRunIdAsync(scope, runHex, cancellationToken).ConfigureAwait(false);
 
         AgentExecutionTraceRunLlmCostSummary summary =
-            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, _llmCostEstimator);
+            AgentExecutionTraceRunLlmCostAggregator.Compute(slices, _llmCostEstimator);
 
         detail.AgentExecutionLlmCostEstimate = new RunAgentLlmCostEstimateDto
         {

@@ -589,6 +589,14 @@ public sealed class AgentExecutionTraceRecorderReproTests
             return _inner.GetByRunIdAsync(scope, runId, cancellationToken);
         }
 
+        public Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> GetLlmCostSlicesByRunIdAsync(
+            ScopeContext scope,
+            string runId,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.GetLlmCostSlicesByRunIdAsync(scope, runId, cancellationToken);
+        }
+
         public Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(ScopeContext scope, string runId, int offset, int limit, CancellationToken cancellationToken = default)
         {
             return _inner.GetPagedByRunIdAsync(scope, runId, offset, limit, cancellationToken);
