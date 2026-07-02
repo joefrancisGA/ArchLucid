@@ -1,0 +1,74 @@
+"use client";
+
+import { AlertsInboxActionLoopDialog, AlertsInboxTriageActionDialog } from "@/components/alerts/AlertsInboxDialogs";
+import { AlertsInboxAlertListSection } from "@/components/alerts/AlertsInboxAlertListSection";
+import { AlertsInboxControls } from "@/components/alerts/AlertsInboxControls";
+import { AlertsInboxPageIntro } from "@/components/alerts/AlertsInboxPageIntro";
+import { useAlertsInboxController } from "@/components/alerts/use-alerts-inbox-controller";
+import type { AlertsInboxPageModel } from "@/app/(operator)/alerts/_sections/alerts-inbox-page-model";
+
+export type AlertsInboxInteractiveClientProps = {
+  /** Server-loaded inbox snapshot for first paint (TB-564). */
+  initialModel?: AlertsInboxPageModel | null;
+};
+
+export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInboxInteractiveClientProps = {}) {
+  const controller = useAlertsInboxController(initialModel);
+
+  return (
+    <div className="w-full max-w-3xl">
+      <AlertsInboxPageIntro
+        canMutateAlertInbox={controller.canMutateAlertInbox}
+        buyerPolishedShell={controller.buyerPolishedShell}
+        failure={controller.failure}
+      />
+
+      <AlertsInboxControls
+        status={controller.status}
+        page={controller.page}
+        totalPages={controller.totalPages}
+        totalCount={controller.totalCount}
+        loading={controller.loading}
+        buyerPolishedShell={controller.buyerPolishedShell}
+        canMutateAlertInbox={controller.canMutateAlertInbox}
+        visibleAlertCount={controller.visibleAlerts.length}
+        selectedAlertCount={controller.selectedAlertIds.length}
+        batchAckBusy={controller.batchAckBusy}
+        allVisibleSelected={controller.allVisibleSelected}
+        pageMixSummary={controller.pageMixSummary}
+        hasLoadFailure={controller.failure !== null}
+        onStatusChange={controller.changeStatusFilter}
+        onRefresh={() => {
+          void controller.load();
+        }}
+        onAcknowledgeSelected={() => {
+          void controller.onAcknowledgeSelected();
+        }}
+        onToggleSelectAllVisible={controller.toggleSelectAllVisible}
+      />
+
+      <AlertsInboxAlertListSection controller={controller} emptyFilteredProps={controller.emptyFilteredProps} />
+
+      <AlertsInboxTriageActionDialog
+        pendingAction={controller.pendingAction}
+        actionComment={controller.actionComment}
+        actionBusy={controller.actionBusy}
+        canMutateAlertInbox={controller.canMutateAlertInbox}
+        onActionCommentChange={controller.setActionComment}
+        onClose={controller.clearPendingAction}
+        onConfirm={() => {
+          void controller.onConfirmActionDialog();
+        }}
+      />
+
+      <AlertsInboxActionLoopDialog
+        actionLoopAlertId={controller.actionLoopAlertId}
+        actionLoopFindingHref={controller.actionLoopFindingHref}
+        actionLoopData={controller.actionLoopData}
+        actionLoopLoading={controller.actionLoopLoading}
+        actionLoopError={controller.actionLoopError}
+        onClose={controller.closeActionLoopDialog}
+      />
+    </div>
+  );
+}
