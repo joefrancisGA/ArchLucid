@@ -187,6 +187,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             }
 
             List<KeyValuePair<string, object?>> tagList = [];
+
             foreach (KeyValuePair<string, object?> t in tags)
             {
                 tagList.Add(t);
@@ -243,6 +244,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         meterListener.SetMeasurementEventCallback<double>((_, measurement, tags, _) =>
         {
             List<KeyValuePair<string, object?>> tagList = [];
+
             foreach (KeyValuePair<string, object?> t in tags)
             {
                 tagList.Add(t);
