@@ -1,10 +1,10 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
 
-import { getComplianceDriftTrend } from "@/lib/api";
+import { useComplianceDriftTrendQuery } from "@/hooks/use-compliance-drift-trend-query";
+import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 export type ExecutiveDashboardData = {
@@ -18,82 +18,38 @@ export type ExecutiveDashboardData = {
 
 const ExecutiveDashboardDataContext = createContext<ExecutiveDashboardData | undefined>(undefined);
 
-function rollingBounds30Days(): { fromUtc: string; toUtc: string } {
-  const to = new Date();
-  const from = new Date(to);
-
-  from.setUTCDate(from.getUTCDate() - 30);
-
-  return { fromUtc: from.toISOString(), toUtc: to.toISOString() };
-}
-
 /** Fetches executive-summary and compliance-drift once; children read via `useExecutiveDashboardData()`. */
 export function ExecutiveDashboardDataProvider({ children }: { children: ReactNode }): React.JSX.Element {
-  const [summary, setSummary] = useState<ExecutiveRoiSummary | null>(null);
-  const [summaryLoading, setSummaryLoading] = useState(true);
-  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const summaryQuery = useExecutiveRoiSummaryQuery();
+  const driftQuery = useComplianceDriftTrendQuery();
 
-  const [driftPoints, setDriftPoints] = useState<ComplianceDriftTrendPoint[]>([]);
-  const [driftLoading, setDriftLoading] = useState(true);
-  const [driftError, setDriftError] = useState(false);
+  const summary = summaryQuery.data ?? null;
+  const summaryLoading = summaryQuery.isPending;
+  const summaryError =
+    summaryQuery.isError
+      ? summaryQuery.error instanceof Error
+        ? summaryQuery.error.message
+        : "Failed to load executive KPIs."
+      : null;
 
-  useEffect(() => {
-    let cancelled = false;
+  const driftPoints = driftQuery.data ?? [];
+  const driftLoading = driftQuery.isPending;
+  const driftError = driftQuery.isError;
 
-    void (async () => {
-      try {
-        const json = await fetchExecutiveRoiSummaryClient();
-
-        if (!cancelled) {
-          setSummary(json);
-        }
-      } catch (e: unknown) {
-        if (!cancelled) {
-          setSummaryError(e instanceof Error ? e.message : "Failed to load executive KPIs.");
-        }
-      } finally {
-        if (!cancelled) {
-          setSummaryLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    const bounds = rollingBounds30Days();
-
-    void (async () => {
-      try {
-        const data = await getComplianceDriftTrend(bounds.fromUtc, bounds.toUtc, 1440);
-
-        if (!cancelled) {
-          setDriftPoints(data);
-        }
-      } catch {
-        if (!cancelled) {
-          setDriftError(true);
-        }
-      } finally {
-        if (!cancelled) {
-          setDriftLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const value = useMemo<ExecutiveDashboardData>(
+    () => ({
+      summary,
+      summaryLoading,
+      summaryError,
+      driftPoints,
+      driftLoading,
+      driftError,
+    }),
+    [summary, summaryLoading, summaryError, driftPoints, driftLoading, driftError],
+  );
 
   return (
-    <ExecutiveDashboardDataContext.Provider
-      value={{ summary, summaryLoading, summaryError, driftPoints, driftLoading, driftError }}
-    >
+    <ExecutiveDashboardDataContext.Provider value={value}>
       {children}
     </ExecutiveDashboardDataContext.Provider>
   );

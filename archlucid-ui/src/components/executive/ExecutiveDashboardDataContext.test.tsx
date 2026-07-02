@@ -16,6 +16,7 @@ import {
   ExecutiveDashboardDataProvider,
   useExecutiveDashboardData,
 } from "./ExecutiveDashboardDataContext";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 function Consumer(): React.JSX.Element {
   const { summaryLoading, summary } = useExecutiveDashboardData();
@@ -29,7 +30,7 @@ function Consumer(): React.JSX.Element {
 
 describe("ExecutiveDashboardDataContext", () => {
   it("exposes fetched data to a consuming child", async () => {
-    render(
+    renderWithOperatorQuery(
       <ExecutiveDashboardDataProvider>
         <Consumer />
       </ExecutiveDashboardDataProvider>,
