@@ -175,7 +175,7 @@ public sealed class CloudTier2ConnectionEndpointTests(GreenfieldSqlApiFactory fi
             {
                 tenantId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
                 clientId = "11111111-2222-3333-4444-555555555555",
-                subscriptionIds = "sub-integration-test"
+                subscriptionIds = "22222222-3333-4444-5555-666666666666"
             });
 
         post.StatusCode.Should().Be(HttpStatusCode.OK);
