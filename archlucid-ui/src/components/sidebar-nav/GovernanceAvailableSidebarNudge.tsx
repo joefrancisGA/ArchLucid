@@ -16,7 +16,7 @@ type GovernanceAvailableSidebarNudgeProps = {
 export function GovernanceAvailableSidebarNudge(
   props: GovernanceAvailableSidebarNudgeProps,
 ): ReactElement | null {
-  if (!props.hasCommittedArchitectureReview || props.operateNavUnlockPhase >= 2) {
+  if (!props.hasCommittedArchitectureReview || props.operateNavUnlockPhase !== 1) {
     return null;
   }
 
