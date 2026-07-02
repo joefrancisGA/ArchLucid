@@ -63,13 +63,11 @@ public sealed class TenantLlmCostTopRunRankerTests
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), runAHex, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), runAHex, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
-                new AgentExecutionTrace
+                new AgentExecutionTraceLlmCostSlice
                 {
-                    TraceId = "t-a",
-                    AgentType = AgentType.Topology,
                     InputTokenCount = 100,
                     OutputTokenCount = 50,
                     ModelDeploymentName = "gpt-test",
@@ -77,13 +75,11 @@ public sealed class TenantLlmCostTopRunRankerTests
             ]);
 
         traces
-            .Setup(repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), runBHex, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), runBHex, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
-                new AgentExecutionTrace
+                new AgentExecutionTraceLlmCostSlice
                 {
-                    TraceId = "t-b",
-                    AgentType = AgentType.Topology,
                     InputTokenCount = 500,
                     OutputTokenCount = 200,
                     ModelDeploymentName = "gpt-test",

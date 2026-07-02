@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Trust;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Persistence.Data.Repositories;
@@ -81,10 +82,10 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(t => t.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
-                new AgentExecutionTrace
+                new AgentExecutionTraceLlmCostSlice
                 {
                     ModelDeploymentName = "gpt-4o",
                     InputTokenCount = 100,
@@ -170,8 +171,8 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId.ToString("N"), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .Setup(t => t.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AgentExecutionTraceLlmCostSlice>());
 
         Mock<ILlmCostEstimator> estimator = new();
         Mock<IRunTrustEvidenceCardBuilder> trustBuilder = new();
