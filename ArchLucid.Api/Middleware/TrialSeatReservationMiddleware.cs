@@ -47,12 +47,27 @@ internal sealed class TrialSeatReservationMiddleware(RequestDelegate next)
             return;
         }
 
-        TrialSeatAccountant accountant = context.RequestServices.GetRequiredService<TrialSeatAccountant>();
         IScopeContextProvider scopes = context.RequestServices.GetRequiredService<IScopeContextProvider>();
+        ScopeContext scope = scopes.GetCurrentScope();
+
+        if (scope.TenantId != Guid.Empty)
+        {
+            ITenantTrialSeatSkipCache skipCache =
+                context.RequestServices.GetRequiredService<ITenantTrialSeatSkipCache>();
+
+            if (skipCache.IsSeatClaimNotRequired(scope.TenantId))
+            {
+                await next(context);
+
+                return;
+            }
+        }
+
+        TrialSeatAccountant accountant = context.RequestServices.GetRequiredService<TrialSeatAccountant>();
 
         try
         {
-            await accountant.TryReserveSeatAsync(scopes.GetCurrentScope(), principalKey, context.RequestAborted);
+            await accountant.TryReserveSeatAsync(scope, principalKey, context.RequestAborted);
         }
         catch (TrialLimitExceededException ex)
         {

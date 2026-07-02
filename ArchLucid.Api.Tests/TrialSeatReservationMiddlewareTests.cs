@@ -246,6 +246,39 @@ public sealed class TrialSeatReservationMiddlewareTests
     }
 
     [SkippableFact]
+    public async Task InvokeAsync_cached_non_trial_skips_tenant_lookup()
+    {
+        Mock<ITenantRepository> tenants = new();
+        bool nextCalled = false;
+        TrialSeatReservationMiddleware middleware = new(_ =>
+        {
+            nextCalled = true;
+            return Task.CompletedTask;
+        });
+
+        DefaultHttpContext http = CreateHttpContext(
+            "/v1/runs",
+            AuthenticatedPrincipal(
+                new Claim("sub", "user-sub"),
+                new Claim("tenant_id", TenantId.ToString("D"))),
+            tenants);
+
+        ITenantTrialSeatSkipCache skipCache = http.RequestServices.GetRequiredService<ITenantTrialSeatSkipCache>();
+        skipCache.RememberSeatClaimNotRequired(TenantId);
+
+        await middleware.InvokeAsync(http);
+
+        nextCalled.Should().BeTrue();
+        tenants.Verify(
+            repository => repository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        tenants.Verify(
+            repository =>
+                repository.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task InvokeAsync_trial_limit_exceeded_writes_402_and_skips_next()
     {
         Mock<ITenantRepository> tenants = new();
