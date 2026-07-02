@@ -60,7 +60,7 @@ import {
   fetchAlertActionLoop,
   listAlertsPaged,
 } from "@/lib/api";
-import { ALERTS_INBOX_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";

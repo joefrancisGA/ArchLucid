@@ -1,8 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EstimatedLlmCostBarChart } from "@/components/EstimatedLlmCostBarChart";
 import { LlmBudgetUtilizationMeter } from "@/components/LlmBudgetUtilizationMeter";
@@ -13,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { formatCostReportingEstimatedUsd } from "./cost-reporting-page-helpers";
 import type { CostReportingSettingsPageViewModel } from "./cost-reporting-settings-page-view-model";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type Props = {
   readonly model: CostReportingSettingsPageViewModel;

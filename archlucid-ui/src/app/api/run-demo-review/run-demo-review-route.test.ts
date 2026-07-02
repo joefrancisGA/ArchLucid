@@ -2,7 +2,6 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { POST } from "./route";
-import { CORRELATION_ID_HEADER } from "@/lib/correlation";
 
 describe("POST /api/run-demo-review", () => {
   const fetchMock = vi.fn();

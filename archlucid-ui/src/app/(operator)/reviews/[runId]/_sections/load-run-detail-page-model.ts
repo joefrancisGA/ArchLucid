@@ -166,7 +166,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let progressInitialSummary: RunSummary | null = null;
 
   try {
-    progressInitialSummary = await getRunSummary(runId, apiScopeOptions);
+    progressInitialSummary = await getRunSummary(runId);
   } catch {
     progressInitialSummary = null;
   }

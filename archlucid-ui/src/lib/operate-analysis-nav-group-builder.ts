@@ -1,5 +1,4 @@
 import {
-  Activity,
   GitBranch,
   GitCompare,
   GitGraph,

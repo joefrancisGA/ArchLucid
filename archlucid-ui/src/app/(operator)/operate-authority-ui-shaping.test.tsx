@@ -264,15 +264,6 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     );
   }
 
-  async function openPolicyPacksAuthorTab(): Promise<void> {
-    await expandPolicyPacksAuthoringTools();
-    fireEvent.click(screen.getByTestId("policy-packs-tab-author"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("policy-packs-author-tab")).toBeInTheDocument();
-    });
-  }
-
   async function expandPolicyPacksAdvancedOptions(): Promise<void> {
     const toggle = screen.getByRole("button", { name: /^Inspect tools and JSON lifecycle$/ });
 

@@ -105,11 +105,6 @@ function hrefRendered(href: string): boolean {
   return document.querySelector(`a[href="${href}"]`) !== null;
 }
 
-function unlockOperateFeatures(): void {
-  fireEvent.click(screen.getByTestId("nav-advanced-unlock"));
-}
-
-/** Advance directly to phase 2 so the operate-governance group becomes visible. */
 function unlockAllOperateFeatures(): void {
   act(() => {
     writeOperateNavUnlockPhase(2);

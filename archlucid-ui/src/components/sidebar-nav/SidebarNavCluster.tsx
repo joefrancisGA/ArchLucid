@@ -14,7 +14,6 @@ import {
   filterSidebarNavClusterLinks,
   presentSidebarNavLinkForCluster,
   isSidebarNavLinkAdvancedInDemo,
-  presentSidebarNavLink,
 } from "@/lib/sidebar-nav-link-filters";
 import type { SidebarCollapsibleNavGroupId } from "@/lib/sidebar-nav-group-expansion-storage";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";

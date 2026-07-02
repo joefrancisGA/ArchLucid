@@ -61,7 +61,6 @@ import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
   BUYER_GOVERNANCE_PAGE_TITLE,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer-demo-content-gating";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";

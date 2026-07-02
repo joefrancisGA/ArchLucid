@@ -3,7 +3,7 @@ import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 const GOLDEN_MANIFEST_TITLE_PATTERN = /golden manifest/i;
 
 /** Proof-chain step label for the committed review record step. */
-export function trustEvidenceProofChainManifestStepLabel(_buyerPolishedShell: boolean): string {
+export function trustEvidenceProofChainManifestStepLabel(): string {
   return SIGNED_MANIFEST_LABEL;
 }
 
@@ -23,7 +23,6 @@ export function trustEvidenceGoldenManifestFieldTitle(title: string, buyerPolish
 /** Maps internal API/demo golden-manifest field detail lines to buyer-safe copy. */
 export function trustEvidenceGoldenManifestFieldDetail(
   detail: string | null | undefined,
-  _buyerPolishedShell: boolean,
 ): string | null | undefined {
   if (detail === null || detail === undefined) {
     return detail;

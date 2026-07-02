@@ -23,11 +23,6 @@ import {
   type ReviewsNewActivePath,
 } from "./reviews-new-path-switcher-state";
 
-const QuickReviewWizard = dynamic(
-  () => import("./QuickReviewWizard").then((module) => module.QuickReviewWizard),
-  { loading: () => <NewRunWizardSkeleton /> },
-);
-
 const FirstPilotIntakeWizard = dynamic(
   () => import("./FirstPilotIntakeWizard").then((module) => module.FirstPilotIntakeWizard),
   { loading: () => <NewRunWizardSkeleton /> },

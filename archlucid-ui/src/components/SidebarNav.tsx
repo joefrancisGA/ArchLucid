@@ -48,7 +48,6 @@ export function SidebarNav() {
     dismissAutoUnlockHint,
     navExpanded,
     navAdvanced,
-    shellShowExtended,
     shellShowAdvanced,
   } = useOperatorShellNavRows();
   const [settingsOpen, setSettingsOpen] = useState(false);

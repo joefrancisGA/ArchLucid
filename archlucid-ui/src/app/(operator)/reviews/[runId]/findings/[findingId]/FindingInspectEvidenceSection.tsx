@@ -91,7 +91,7 @@ function EvidenceCitationList(props: {
   readonly buyerPolishedShell: boolean;
   readonly citationEvidence?: readonly { readonly label: string; readonly href: string }[];
 }): ReactElement {
-  const { evidence, reviewContextHref, reviewContextLabel, buyerPolishedShell, citationEvidence } = props;
+  const { evidence, reviewContextHref, reviewContextLabel, buyerPolishedShell } = props;
 
   if (evidence.length === 0) {
     return (

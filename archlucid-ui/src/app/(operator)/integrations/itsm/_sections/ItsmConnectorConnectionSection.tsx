@@ -12,7 +12,7 @@ import {
   type TenantItsmConnectorConnectionResponse,
   upsertTenantItsmConnectorConnection,
 } from "@/lib/api/itsm-outbound-api";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type Provider = "jira" | "servicenow";
 

@@ -35,7 +35,7 @@ import { ItsmConnectorProbeCard } from "../../_sections/itsm/ItsmConnectorProbeC
 export function ItsmIntegrationPageClient(): React.ReactElement {
   const canMutate = useOperateCapability();
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
-  const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
+  const [, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
   const [jiraConnection, setJiraConnection] = useState<TenantItsmConnectorConnectionResponse | null>(null);
   const [serviceNowConnection, setServiceNowConnection] = useState<TenantItsmConnectorConnectionResponse | null>(
     null,

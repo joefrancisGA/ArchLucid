@@ -172,11 +172,11 @@ function ProofChainView(props: { readonly card: RunTrustEvidenceCard; readonly b
         />
         <ProofChainStep
           index={3}
-          label={trustEvidenceProofChainManifestStepLabel(buyerPolishedShell)}
+          label={trustEvidenceProofChainManifestStepLabel()}
           field={{
             ...card.goldenManifest,
             title: trustEvidenceGoldenManifestFieldTitle(card.goldenManifest.title, buyerPolishedShell),
-            detail: trustEvidenceGoldenManifestFieldDetail(card.goldenManifest.detail, buyerPolishedShell),
+            detail: trustEvidenceGoldenManifestFieldDetail(card.goldenManifest.detail),
           }}
         />
         <ProofChainStep
@@ -228,7 +228,7 @@ export function RunTrustEvidenceCardSection(props: {
       key="manifest"
       title={trustEvidenceGoldenManifestFieldTitle(card.goldenManifest.title, buyerPolishedShell)}
       status={card.goldenManifest.status}
-      detail={trustEvidenceGoldenManifestFieldDetail(card.goldenManifest.detail, buyerPolishedShell)}
+      detail={trustEvidenceGoldenManifestFieldDetail(card.goldenManifest.detail)}
     />,
     <FieldRow
       key="audit"
