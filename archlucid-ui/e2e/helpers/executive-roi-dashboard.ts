@@ -164,11 +164,14 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
 
 
 
-/** Wait until portfolio layout leaves the global empty state after executive-summary hydrates. */
+/** Wait until portfolio layout leaves the global empty state and committed-review ROI panels mount. */
 
 export async function waitForExecutiveRoiDashboardHydrated(page: Page): Promise<void> {
 
   await expect(page.getByTestId("executive-dashboard-empty-state")).toHaveCount(0, { timeout: 30_000 });
+
+  // Portfolio layout hides findings/ROI until executive-summary finishes loading (hasCommittedReviews gate).
+  await expect(page.getByTestId("exec-roi-identified-vs-realized-panel")).toBeVisible({ timeout: 60_000 });
 
 }
 
