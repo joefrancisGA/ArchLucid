@@ -166,7 +166,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-562 | Expand TanStack Query across operator shell — migrate high-traffic `useEffect`+`fetch` reads (home, governance queue, alerts inbox, billing, executive dashboard) to shared query keys with tenant/run scope | **Done** (2026-07-01) — Performance P1 **V1.1**; extends **UI_ARCHITECTURE_V1_1.md** §1 | L |
 | TB-563 | Decompose `GovernanceFindingsQueueClient` (~1115 lines) — list, filter bar, row, detail pane slots + colocated hooks; enable per-section lazy load / Suspense | **Done** (2026-07-01) — Performance P1 **V1.1** | L |
 | TB-564 | Decompose `AlertsInboxContent` (~903) + `RunsDashboardPanel` (~822) — server loader + client interactive slices (pattern: `RunDetailBelowFoldSections`) | **Done** (2026-07-01) — Performance P1 **V1.1** | L |
-| TB-565 | Add `experimental.optimizePackageImports` in `next.config.ts` for `lucide-react`, `recharts`, `@radix-ui/*` | Performance P1 — **V1.1** | XS |
+| TB-565 | Add `experimental.optimizePackageImports` in `next.config.ts` for `lucide-react`, `recharts`, `@radix-ui/*` | **Done** (2026-07-01) — Performance P1 **V1.1** | XS |
 | TB-566 | Push `"use client"` boundaries down — server-render marketing `WelcomeMarketingPage` sections + settings `*PageView.tsx` that only render props; thin `*Client.tsx` for mutations | Performance P2 — **V1.1** | M |
 | TB-567 | ISR (`revalidate = 300`) on `/welcome`, `/pricing`, `/trust` marketing routes (parity with `see-it`, `live-demo`) | Performance P2 — **V1.1** | XS |
 | TB-568 | Memoize + split operator shell context providers — narrow `WorkspaceActiveRunProvider` / governance mode re-render blast radius in `AppShellClient` | Performance P2 — **V1.1** | S |
