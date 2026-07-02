@@ -1,5 +1,6 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
@@ -8,6 +9,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -127,9 +129,33 @@ public sealed class AgentResultRepository(
                 $"All results in a batch must belong to the same run. Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
                 nameof(results));
 
-        foreach (AgentResult result in results)
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken).ConfigureAwait(false);
+
+        IDbTransaction? localTransaction = null;
+
+        try
         {
-            await CreateAsync(result, cancellationToken, connection, transaction).ConfigureAwait(false);
+            if (transaction is null && ownsConnection)
+            {
+                localTransaction = conn.BeginTransaction();
+                transaction = localTransaction;
+            }
+
+            await InsertAgentResultsBatchAsync(conn, transaction, results, cancellationToken).ConfigureAwait(false);
+
+            localTransaction?.Commit();
+        }
+        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        {
+            string runId = results[0].RunId;
+            string taskId = results[0].TaskId;
+            throw new AgentResultDuplicateConflictException(runId, taskId, ex);
+        }
+        finally
+        {
+            localTransaction?.Dispose();
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
         }
     }
 
@@ -404,5 +430,77 @@ public sealed class AgentResultRepository(
         {
             ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
         }
+    }
+
+    private static async Task InsertAgentResultsBatchAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        IReadOnlyList<AgentResult> results,
+        CancellationToken cancellationToken)
+    {
+        List<(AgentResult Result, string ResultJson)> serialized = results
+            .Select(static result => (result, JsonSerializer.Serialize(result, ContractJson.Default)))
+            .ToList();
+
+        const string insertHeader = """
+                                    INSERT INTO AgentResults
+                                    (
+                                        ResultId,
+                                        TaskId,
+                                        RunId,
+                                        AgentType,
+                                        Confidence,
+                                        CalibratedConfidence,
+                                        ProposedEvidenceJson,
+                                        PromptVariantKey,
+                                        ResultJson,
+                                        CreatedUtc
+                                    )
+                                    VALUES
+                                    """;
+
+        await SqlChunkedDapperBatch.ExecuteChunksAsync(
+            connection,
+            transaction,
+            serialized.Count,
+            SqlChunkedDapperBatch.DefaultMaxRowsPerCommand,
+            (offset, rowCount) => BuildAgentResultInsertChunk(insertHeader, serialized, offset, rowCount),
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private static SqlChunkedBatchCommand BuildAgentResultInsertChunk(
+        string insertHeader,
+        IReadOnlyList<(AgentResult Result, string ResultJson)> serialized,
+        int offset,
+        int rowCount)
+    {
+        StringBuilder commandText = new(insertHeader.Length + rowCount * 120);
+        commandText.Append(insertHeader);
+        DynamicParameters parameters = new();
+
+        for (int i = 0; i < rowCount; i++)
+        {
+            (AgentResult result, string resultJson) = serialized[offset + i];
+
+            if (i > 0)
+                commandText.Append(',');
+
+            commandText.Append(
+                $"(@ResultId{i},@TaskId{i},@RunId{i},@AgentType{i},@Confidence{i},@CalibratedConfidence{i},@ProposedEvidenceJson{i},@PromptVariantKey{i},@ResultJson{i},@CreatedUtc{i})");
+
+            parameters.Add($"ResultId{i}", result.ResultId);
+            parameters.Add($"TaskId{i}", result.TaskId);
+            parameters.Add($"RunId{i}", RunChildRunScopeSql.ToSqlRunId(result.RunId));
+            parameters.Add($"AgentType{i}", result.AgentType.ToString());
+            parameters.Add($"Confidence{i}", result.Confidence);
+            parameters.Add($"CalibratedConfidence{i}", result.CalibratedConfidence);
+            parameters.Add($"ProposedEvidenceJson{i}", result.ProposedEvidenceJson);
+            parameters.Add($"PromptVariantKey{i}", result.PromptVariantKey);
+            parameters.Add($"ResultJson{i}", resultJson);
+            parameters.Add($"CreatedUtc{i}", result.CreatedUtc);
+        }
+
+        commandText.Append(';');
+        return new SqlChunkedBatchCommand(commandText.ToString(), parameters);
     }
 }

@@ -54,6 +54,35 @@ public abstract class AgentResultRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task CreateMany_persists_all_results()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentResultRepository repo = CreateRepository();
+        string requestId = "arr-many-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask taskA = NewTaskRow(runId, "res-task-a");
+        AgentTask taskB = NewTaskRow(runId, "res-task-b");
+
+        await PrepareRunTaskChainAsync(requestId, runId, taskA, CancellationToken.None);
+        await PrepareRunTaskChainAsync(requestId, runId, taskB, CancellationToken.None);
+
+        DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
+
+        await repo.CreateManyAsync(
+            [
+                NewResult(runId, taskA.TaskId, "r-a", createdUtc),
+                NewResult(runId, taskB.TaskId, "r-b", createdUtc.AddSeconds(1))
+            ],
+            CancellationToken.None);
+
+        IReadOnlyList<AgentResult> loaded =
+            await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
+
+        loaded.Should().HaveCount(2);
+        loaded.Select(static r => r.ResultId).Should().BeEquivalentTo(["r-a", "r-b"]);
+    }
+
+    [SkippableFact]
     public async Task CreateMany_throws_when_task_already_exists_for_run()
     {
         SkipIfSqlServerUnavailable();
