@@ -416,6 +416,61 @@ public sealed class FindingsOrchestratorTests
         snapshot.EngineFailures[0].OccurredUtc.Should().Be(fixedUtc.UtcDateTime);
     }
 
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_runs_engines_in_parallel()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        int inFlight = 0;
+        int maxInFlight = 0;
+        object sync = new();
+
+        async Task<IReadOnlyList<Finding>> DelayedAnalyze(GraphSnapshot _, CancellationToken ct)
+        {
+            lock (sync)
+            {
+                inFlight++;
+                maxInFlight = Math.Max(maxInFlight, inFlight);
+            }
+
+            try
+            {
+                await Task.Delay(40, ct);
+                return [];
+            }
+            finally
+            {
+                lock (sync)
+                {
+                    inFlight--;
+                }
+            }
+        }
+
+        Mock<IFindingEngine> e1 = new(MockBehavior.Strict);
+        e1.Setup(x => x.EngineType).Returns("e1");
+        e1.Setup(x => x.Category).Returns("Security");
+        e1.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()))
+            .Returns((GraphSnapshot g, CancellationToken ct) => DelayedAnalyze(g, ct));
+
+        Mock<IFindingEngine> e2 = new(MockBehavior.Strict);
+        e2.Setup(x => x.EngineType).Returns("e2");
+        e2.Setup(x => x.Category).Returns("Topology");
+        e2.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()))
+            .Returns((GraphSnapshot g, CancellationToken ct) => DelayedAnalyze(g, ct));
+
+        Mock<IFindingPayloadValidator> validator = new();
+        FindingsOrchestrator sut = new(
+            [e1.Object, e2.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
+
+        await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
+
+        maxInFlight.Should().BeGreaterThanOrEqualTo(2);
+    }
+
     private sealed class FakeTimeProviderForOrchestrator(DateTimeOffset utcNow) : TimeProvider
     {
         public override DateTimeOffset GetUtcNow()

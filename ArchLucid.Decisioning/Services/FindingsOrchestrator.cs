@@ -78,23 +78,21 @@ public partial class FindingsOrchestrator(
         List<Exception> engineExceptions = [];
         int successfulEngineInvocations = 0;
 
-        foreach (IFindingEngine engine in engines)
+        List<IFindingEngine> engineList = [.. engines];
+        Task<EngineInvocationOutcome>[] invocationTasks = engineList
+            .Select(engine => InvokeEngineAsync(engine, graphSnapshot, ct))
+            .ToArray();
+
+        EngineInvocationOutcome[] outcomes = await AwaitEngineInvocationsAsync(invocationTasks);
+
+        foreach (EngineInvocationOutcome outcome in outcomes)
         {
-            Stopwatch sw = Stopwatch.StartNew();
-            IReadOnlyList<Finding> findings;
-            try
+            IFindingEngine engine = outcome.Engine;
+
+            if (outcome.Exception is not null)
             {
-                findings = await engine.AnalyzeAsync(graphSnapshot, ct);
-            }
-            catch (OperationCanceledException)
-            {
-                sw.Stop();
-                throw;
-            }
-            catch (Exception ex)
-            {
-                sw.Stop();
-                LogEngineFailed(ex, runId, engine.EngineType, engine.Category, sw.ElapsedMilliseconds);
+                Exception ex = outcome.Exception;
+                LogEngineFailed(ex, runId, engine.EngineType, engine.Category, outcome.DurationMs);
                 ArchLucidInstrumentation.RecordFindingEngineFailure(engine.EngineType, engine.Category);
                 engineExceptions.Add(ex);
                 engineFailures.Add(
@@ -104,16 +102,17 @@ public partial class FindingsOrchestrator(
                         Category = engine.Category,
                         ErrorMessage = ex.Message,
                         ExceptionType = ex.GetType().Name,
-                        DurationMs = sw.ElapsedMilliseconds,
+                        DurationMs = outcome.DurationMs,
                         OccurredUtc = _clock.UtcNowDateTime()
                     });
 
                 continue;
             }
 
+            IReadOnlyList<Finding> findings = outcome.Findings ?? [];
+
             successfulEngineInvocations++;
-            sw.Stop();
-            LogEngineCompleted(runId, engine.EngineType, engine.Category, sw.ElapsedMilliseconds, findings.Count);
+            LogEngineCompleted(runId, engine.EngineType, engine.Category, outcome.DurationMs, findings.Count);
 
             foreach (Finding finding in findings)
             {
@@ -189,6 +188,57 @@ public partial class FindingsOrchestrator(
 
         return snapshot;
     }
+
+    private static async Task<EngineInvocationOutcome[]> AwaitEngineInvocationsAsync(
+        Task<EngineInvocationOutcome>[] invocationTasks)
+    {
+        try
+        {
+            return await Task.WhenAll(invocationTasks);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (AggregateException aggregate) when (aggregate.InnerExceptions.Count == 1
+                                                   && aggregate.InnerExceptions[0] is OperationCanceledException canceled)
+        {
+            throw canceled;
+        }
+    }
+
+    private async Task<EngineInvocationOutcome> InvokeEngineAsync(
+        IFindingEngine engine,
+        GraphSnapshot graphSnapshot,
+        CancellationToken ct)
+    {
+        Stopwatch sw = Stopwatch.StartNew();
+
+        try
+        {
+            IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, ct);
+            sw.Stop();
+
+            return new EngineInvocationOutcome(engine, findings, null, sw.ElapsedMilliseconds);
+        }
+        catch (OperationCanceledException)
+        {
+            sw.Stop();
+            throw;
+        }
+        catch (Exception ex)
+        {
+            sw.Stop();
+
+            return new EngineInvocationOutcome(engine, null, ex, sw.ElapsedMilliseconds);
+        }
+    }
+
+    private sealed record EngineInvocationOutcome(
+        IFindingEngine Engine,
+        IReadOnlyList<Finding>? Findings,
+        Exception? Exception,
+        long DurationMs);
 
     private bool TryAcceptValidatedFinding(
         IFindingPayloadValidator validator,

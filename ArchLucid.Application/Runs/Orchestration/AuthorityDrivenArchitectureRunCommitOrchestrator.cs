@@ -289,17 +289,29 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         IReadOnlyList<AgentResult>? agentResultsForTelemetry;
         try
         {
-            evidencePackageForTelemetry = await GetEvidencePackageForCommitOrThrowAsync(runId, cancellationToken);
             if (runRecord.ContextSnapshotId is not { } contextSnapshotId || runRecord.GraphSnapshotId is not { } graphId ||
                 runRecord.FindingsSnapshotId is not { } findingsId)
                 throw new InvalidOperationException(
                     $"Run '{runId}' is missing architecture run pipeline snapshot ids (ContextSnapshotId, GraphSnapshotId, and FindingsSnapshotId are all required for architecture run commit).");
-            GraphSnapshot? graph = await _graphSnapshotRepository.GetByIdAsync(scope, graphId, cancellationToken);
+
+            Task<AgentEvidencePackage> evidenceTask = GetEvidencePackageForCommitOrThrowAsync(runId, cancellationToken);
+            Task<GraphSnapshot?> graphTask = _graphSnapshotRepository.GetByIdAsync(scope, graphId, cancellationToken);
+            Task<IReadOnlyList<AgentResult>> agentResultsTask =
+                _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+            Task<FindingsSnapshot?> findingsTask = _findingsSnapshotRepository.GetByIdAsync(scope, findingsId, cancellationToken);
+
+            await Task.WhenAll(evidenceTask, graphTask, agentResultsTask, findingsTask);
+
+            evidencePackageForTelemetry = await evidenceTask;
+            GraphSnapshot? graph = await graphTask;
+
             if (graph is null)
                 throw new InvalidOperationException($"Graph snapshot '{graphId:D}' for run '{runId}' was not found.");
-            agentResultsForTelemetry = await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+
+            agentResultsForTelemetry = await agentResultsTask;
             GraphSnapshot graphForDecision = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, agentResultsForTelemetry);
-            FindingsSnapshot? findings = await _findingsSnapshotRepository.GetByIdAsync(scope, findingsId, cancellationToken);
+            FindingsSnapshot? findings = await findingsTask;
+
             if (findings is null)
                 throw new InvalidOperationException($"Findings snapshot '{findingsId:D}' for run '{runId}' was not found.");
             CommitPipelineManifestReuseResult? reusedManifest = await _commitPipelineManifestReuseService.TryReusePipelineManifestAsync(
