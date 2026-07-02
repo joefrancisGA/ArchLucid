@@ -51,6 +51,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ITrialTenantBootstrapService, TrialTenantBootstrapService>();
         services.AddScoped<IMarketingAttributionService, MarketingAttributionService>();
         services.AddScoped<TrialLimitGate>();
+        services.AddSingleton<ITenantTrialSeatSkipCache, TenantTrialSeatSkipCache>();
         services.AddScoped<TrialSeatAccountant>();
         services.AddScoped<ITenantUsageStatusService, TenantUsageStatusService>();
         services.AddScoped<TrialLifecycleTransitionEngine>();

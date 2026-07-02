@@ -7,6 +7,7 @@ using ArchLucid.Core.Tenancy;
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
 using Moq;
@@ -30,9 +31,11 @@ public sealed class TrialSeatReservationMiddlewareTests
         };
 
         ServiceCollection services = [];
+        services.AddMemoryCache();
         services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
         services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
         services.AddSingleton(tenants.Object);
+        services.AddSingleton<ITenantTrialSeatSkipCache, TenantTrialSeatSkipCache>();
         services.AddSingleton<TrialSeatAccountant>();
 
         http.RequestServices = services.BuildServiceProvider();
@@ -43,6 +46,20 @@ public sealed class TrialSeatReservationMiddlewareTests
     private static ClaimsPrincipal AuthenticatedPrincipal(params Claim[] claims)
     {
         return new ClaimsPrincipal(new ClaimsIdentity(claims, "Bearer"));
+    }
+
+    private static void SetupActiveTrialTenant(Mock<ITenantRepository> tenants, Guid tenantId)
+    {
+        tenants.Setup(repository => repository.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "trial",
+                    Slug = "trial",
+                    TrialStatus = TrialLifecycleStatus.Active,
+                    TrialSeatsLimit = 3,
+                });
     }
 
     [Theory]
@@ -127,6 +144,7 @@ public sealed class TrialSeatReservationMiddlewareTests
     public async Task InvokeAsync_reserves_seat_using_sub_when_present()
     {
         Mock<ITenantRepository> tenants = new();
+        SetupActiveTrialTenant(tenants, TenantId);
         tenants.Setup(repository =>
                 repository.TryClaimTrialSeatAsync(TenantId, "user-sub", It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -157,6 +175,7 @@ public sealed class TrialSeatReservationMiddlewareTests
     public async Task InvokeAsync_reserves_seat_using_object_identifier_when_sub_absent()
     {
         Mock<ITenantRepository> tenants = new();
+        SetupActiveTrialTenant(tenants, TenantId);
         tenants.Setup(repository =>
                 repository.TryClaimTrialSeatAsync(TenantId, "oid-value", It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -186,9 +205,51 @@ public sealed class TrialSeatReservationMiddlewareTests
     }
 
     [SkippableFact]
+    public async Task InvokeAsync_converted_tenant_skips_seat_claim_sql()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(repository => repository.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = TenantId,
+                    Name = "paid",
+                    Slug = "paid",
+                    TrialStatus = TrialLifecycleStatus.Converted,
+                    TrialSeatsLimit = 3,
+                });
+
+        bool nextCalled = false;
+        TrialSeatReservationMiddleware middleware = new(_ =>
+        {
+            nextCalled = true;
+            return Task.CompletedTask;
+        });
+
+        DefaultHttpContext http = CreateHttpContext(
+            "/v1/runs",
+            AuthenticatedPrincipal(
+                new Claim("sub", "user-sub"),
+                new Claim("tenant_id", TenantId.ToString("D"))),
+            tenants);
+
+        await middleware.InvokeAsync(http);
+
+        nextCalled.Should().BeTrue();
+        tenants.Verify(
+            repository => repository.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()),
+            Times.Once);
+        tenants.Verify(
+            repository =>
+                repository.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task InvokeAsync_trial_limit_exceeded_writes_402_and_skips_next()
     {
         Mock<ITenantRepository> tenants = new();
+        SetupActiveTrialTenant(tenants, TenantId);
         tenants.Setup(repository =>
                 repository.TryClaimTrialSeatAsync(TenantId, "user-sub", It.IsAny<CancellationToken>()))
             .ThrowsAsync(

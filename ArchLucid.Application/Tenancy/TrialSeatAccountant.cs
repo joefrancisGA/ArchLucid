@@ -7,21 +7,42 @@ namespace ArchLucid.Application.Tenancy;
 ///     Reserves a trial seat for the authenticated principal on first use per tenant (idempotent per tenant + principal
 ///     key).
 /// </summary>
-public sealed class TrialSeatAccountant(ITenantRepository tenantRepository)
+public sealed class TrialSeatAccountant(
+    ITenantRepository tenantRepository,
+    ITenantTrialSeatSkipCache seatSkipCache)
 {
-    private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly ITenantTrialSeatSkipCache _seatSkipCache =
+        seatSkipCache ?? throw new ArgumentNullException(nameof(seatSkipCache));
 
     /// <summary>
-    ///     Attempts to claim a seat for <paramref name = "principalKey"/> when the tenant is on a metered active trial.
+    ///     Attempts to claim a seat for <paramref name="principalKey" /> when the tenant is on a metered active trial.
     /// </summary>
-    public Task TryReserveSeatAsync(ScopeContext scope, string principalKey, CancellationToken cancellationToken)
+    public async Task TryReserveSeatAsync(ScopeContext scope, string principalKey, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(principalKey);
         ArgumentNullException.ThrowIfNull(scope);
+
         if (scope.TenantId == Guid.Empty)
-            return Task.CompletedTask;
-        return string.IsNullOrWhiteSpace(principalKey)
-            ? Task.CompletedTask
-            : _tenantRepository.TryClaimTrialSeatAsync(scope.TenantId, principalKey, cancellationToken);
+            return;
+
+        if (string.IsNullOrWhiteSpace(principalKey))
+            return;
+
+        if (_seatSkipCache.IsSeatClaimNotRequired(scope.TenantId))
+            return;
+
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (!TenantTrialSeatPolicy.RequiresSeatClaim(tenant))
+        {
+            _seatSkipCache.RememberSeatClaimNotRequired(scope.TenantId);
+
+            return;
+        }
+
+        await _tenantRepository.TryClaimTrialSeatAsync(scope.TenantId, principalKey, cancellationToken);
     }
 }
