@@ -208,6 +208,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         RunRecord? statusPatch = await runRepository.GetByIdAsync(jobScope, entry.RunId, cancellationToken);
 
         string nextAfterMaterialize;
+
         if (statusPatch is null)
             nextAfterMaterialize = "run_legacy_status_patch_skipped";
         else if (!string.Equals(
