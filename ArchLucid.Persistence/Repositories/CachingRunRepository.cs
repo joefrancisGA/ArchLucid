@@ -14,7 +14,7 @@ namespace ArchLucid.Persistence.Repositories;
 /// </summary>
 public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache hotPathReadCache) : IRunRepository
 {
-    /// <summary>Short TTL match for dashboard lists (does not invalidate on unrelated writes).</summary>
+    /// <summary>Short TTL for dashboard first-page lists; scope revision bump invalidates on writes (TB-578).</summary>
     private const int ListAbsoluteExpirationSeconds = 15;
 
     private readonly IHotPathReadCache _hotPathReadCache =
@@ -55,7 +55,8 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         ArgumentNullException.ThrowIfNull(scope);
 
         int safeTake = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
-        string key = HotPathCacheKeys.RunListByProjectFirstPage(scope, projectId, safeTake);
+        long revision = await ReadRunListScopeRevisionAsync(scope, ct);
+        string key = HotPathCacheKeys.RunListByProjectFirstPage(scope, projectId, safeTake, revision);
 
         IReadOnlyList<RunRecord>? cached = await _hotPathReadCache.GetOrCreateAsync(
             key,
@@ -81,7 +82,8 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
             return await _inner.ListByProjectKeysetAsync(scope, projectId, cursorCreatedUtc, cursorRunId, take, ct);
 
         int clampedTake = RunPagination.ClampTake(take);
-        string key = HotPathCacheKeys.RunListByProjectFirstPage(scope, projectId, clampedTake);
+        long revision = await ReadRunListScopeRevisionAsync(scope, ct);
+        string key = HotPathCacheKeys.RunListByProjectFirstPage(scope, projectId, clampedTake, revision);
 
         RunListPage? cached = await _hotPathReadCache.GetOrCreateAsync(
             key,
@@ -99,7 +101,8 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         ArgumentNullException.ThrowIfNull(scope);
 
         int safeTake = Math.Clamp(take <= 0 ? 200 : take, 1, 200);
-        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, safeTake);
+        long revision = await ReadRunListScopeRevisionAsync(scope, ct);
+        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, safeTake, revision);
 
         IReadOnlyList<RunRecord>? cached = await _hotPathReadCache.GetOrCreateAsync(
             key,
@@ -124,7 +127,8 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
             return await _inner.ListRecentInScopeKeysetAsync(scope, cursorCreatedUtc, cursorRunId, take, ct);
 
         int clampedTake = RunPagination.ClampTake(take);
-        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, clampedTake);
+        long revision = await ReadRunListScopeRevisionAsync(scope, ct);
+        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, clampedTake, revision);
 
         RunListPage? cached = await _hotPathReadCache.GetOrCreateAsync(
             key,
@@ -151,7 +155,8 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         if (safeOffset > 0)
             return await _inner.ListRecentInScopeOffsetAsync(scope, safeOffset, safeLimit, ct);
 
-        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, safeLimit);
+        long revision = await ReadRunListScopeRevisionAsync(scope, ct);
+        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, safeLimit, revision);
 
         RunListPage? cached = await _hotPathReadCache.GetOrCreateAsync(
             key,
@@ -183,6 +188,8 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         RunStaleUncommittedPurgeBatchResult result =
             await _inner.HardDeleteStaleUncommittedRunsBatchAsync(createdBeforeUtc, batchSize, ct);
 
+        await InvalidateRunListCachesForArchivedRowsAsync(result.Deleted, ct);
+
         foreach (ArchivedRunScopeRow row in result.Deleted)
         {
             ScopeContext scope = new() { TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId };
@@ -203,6 +210,8 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         RunSamplePurgeBatchResult result =
             await _inner.HardDeleteSampleRunsBatchAsync(tenantId, createdBeforeUtc, batchSize, ct);
 
+        await InvalidateRunListCachesForArchivedRowsAsync(result.Deleted, ct);
+
         foreach (ArchivedRunScopeRow row in result.Deleted)
         {
             ScopeContext scope = new() { TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId };
@@ -222,7 +231,9 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     {
         await _inner.SaveAsync(run, ct, connection, transaction);
 
-        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, ScopeForRun(run), run.RunId, ct);
+        ScopeContext scope = ScopeForRun(run);
+        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, run.RunId, ct);
+        await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, ct);
     }
 
     /// <inheritdoc />
@@ -234,7 +245,9 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     {
         await _inner.UpdateAsync(run, ct, connection, transaction);
 
-        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, ScopeForRun(run), run.RunId, ct);
+        ScopeContext scope = ScopeForRun(run);
+        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, run.RunId, ct);
+        await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, ct);
     }
 
     /// <inheritdoc />
@@ -257,7 +270,10 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
             ct);
 
         if (updated)
+        {
             await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, runId, ct);
+            await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, ct);
+        }
 
         return updated;
     }
@@ -267,6 +283,8 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         CancellationToken ct)
     {
         RunArchiveBatchResult batch = await _inner.ArchiveRunsCreatedBeforeAsync(cutoffUtc, ct);
+
+        await InvalidateRunListCachesForArchivedRowsAsync(batch.ArchivedRuns, ct);
 
         foreach (ArchivedRunScopeRow row in batch.ArchivedRuns)
         {
@@ -283,6 +301,8 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     {
         RunArchiveByIdsResult result = await _inner.ArchiveRunsByIdsAsync(runIds, ct);
 
+        await InvalidateRunListCachesForArchivedRowsAsync(result.ArchivedRuns, ct);
+
         foreach (ArchivedRunScopeRow row in result.ArchivedRuns)
         {
             ScopeContext scope = new() { TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId };
@@ -291,6 +311,40 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         }
 
         return result;
+    }
+
+    private async Task<long> ReadRunListScopeRevisionAsync(ScopeContext scope, CancellationToken ct)
+    {
+        string revisionKey = HotPathCacheKeys.RunListScopeRevision(scope);
+
+        RunListScopeRevisionState? state = await _hotPathReadCache.GetOrCreateAsync(
+            revisionKey,
+            _ => Task.FromResult<RunListScopeRevisionState?>(new RunListScopeRevisionState { Revision = 0 }),
+            ct);
+
+        return state?.Revision ?? 0;
+    }
+
+    private async Task InvalidateRunListCachesForArchivedRowsAsync(
+        IReadOnlyList<ArchivedRunScopeRow> rows,
+        CancellationToken ct)
+    {
+        HashSet<(Guid TenantId, Guid WorkspaceId, Guid ProjectId)> seen = [];
+
+        foreach (ArchivedRunScopeRow row in rows)
+        {
+            if (!seen.Add((row.TenantId, row.WorkspaceId, row.ScopeProjectId)))
+                continue;
+
+            ScopeContext scope = new()
+            {
+                TenantId = row.TenantId,
+                WorkspaceId = row.WorkspaceId,
+                ProjectId = row.ScopeProjectId,
+            };
+
+            await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, ct);
+        }
     }
 
     private static ScopeContext ScopeForRun(RunRecord run)
