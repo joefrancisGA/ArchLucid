@@ -13,7 +13,7 @@ internal static class RunListWarningFlagSql
 
     /// <summary>
     ///     Core run columns for dashboard list paths. All columns use <see cref="RunsTableAlias" /> because
-    ///     fsWarn/govWarn also project <c>RunId</c>.
+    ///     fsWarn/govWarn also project <c>RunId</c>. Omits <c>EngineProvenanceJson</c> (TB-585); detail reads load it separately.
     /// </summary>
     public const string SelectRunColumns = """
                                            r.RunId, r.TenantId, r.WorkspaceId, r.ScopeProjectId, r.ProjectId, r.Description, r.CreatedUtc,
@@ -22,7 +22,6 @@ internal static class RunListWarningFlagSql
                                            r.ArchitectureRequestId, r.LegacyRunStatus, r.CompletedUtc, r.CurrentManifestVersion, r.OtelTraceId,
                                            r.IsDemoWelcomeRun,
                                            r.IsPublicShowcase, r.IsPinned, r.RealModeFellBackToSimulator, r.PilotAoaiDeploymentSnapshot,
-                                           r.EngineProvenanceJson,
                                            r.StructuralExecutionMode,
                                            r.RetryCount, r.LastFailureReason
                                            """;

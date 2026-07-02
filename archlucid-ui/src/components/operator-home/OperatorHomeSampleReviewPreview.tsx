@@ -11,6 +11,7 @@ import {
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
   OPERATOR_HOME_SAMPLE_FINDINGS_HEADING,
+  OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL,
   OPERATOR_HOME_SAMPLE_FINDINGS_LEAD,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
@@ -53,6 +54,12 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
       </CardHeader>
 
       <CardContent className={OPERATOR_CARD.content}>
+        <p
+          className={cn("m-0 mb-2", OPERATOR_TYPE_SCALE.helper, "font-medium text-al-text-secondary")}
+          data-testid="operator-home-sample-review-includes-label"
+        >
+          {OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL}
+        </p>
         <ul
           className="m-0 list-none space-y-2 p-0"
           data-testid="operator-home-sample-review-finding-list"
@@ -81,12 +88,12 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
         </ul>
 
         <div className={cn("flex flex-wrap items-center pt-3", OPERATOR_LAYOUT.inlineGap)}>
-          <Button asChild variant="outline" size="sm" className="h-8">
+          <Button asChild variant="primary" size="sm" className="h-8">
             <Link href={runSampleReviewHref} data-testid="operator-home-sample-review-run">
               {OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}
             </Link>
           </Button>
-          <Button asChild variant="primary" size="sm" className="h-8">
+          <Button asChild variant="outline" size="sm" className="h-8">
             <Link href={openCompletedSampleHref} data-testid="operator-home-sample-review-open">
               {OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA}
             </Link>

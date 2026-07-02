@@ -39,8 +39,11 @@ public sealed class HotPathRelationalQueryShapeTests
     {
         sql.Should().Contain("ISNULL(fsWarn.HasWarnings, 0) AS HasWarnings");
         sql.Should().Contain("ISNULL(govWarn.HasGovernanceWarnings, 0) AS HasGovernanceWarnings");
-        sql.Should().Contain(") fsWarn ON fsWarn.RunId = dbo.Runs.RunId");
-        sql.Should().Contain(") govWarn ON govWarn.RunId = dbo.Runs.RunId");
+        sql.Should().Contain(") fsWarn ON fsWarn.RunId = r.RunId");
+        sql.Should().Contain(") govWarn ON govWarn.RunId = r.RunId");
+        sql.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
+        sql.Should().Contain("r.RunId, r.TenantId");
+        sql.Should().NotContain("\n    RunId, TenantId");
         sql.Should().Contain("GROUP BY fs.RunId");
         sql.Should().Contain("GROUP BY ar.RunId");
         sql.Should().NotContain("CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots");
@@ -59,13 +62,13 @@ public sealed class HotPathRelationalQueryShapeTests
         const string sql = HotPathRelationalQueryShapes.RunsListByProjectNoLock;
 
         sql.Should().Contain("SELECT TOP (@Take)");
-        sql.Should().Contain("FROM dbo.Runs WITH (NOLOCK)");
+        sql.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
         sql.Should().Contain("ProjectId = @ProjectSlug");
         sql.Should().Contain("TenantId = @TenantId");
         sql.Should().Contain("WorkspaceId = @WorkspaceId");
         sql.Should().Contain("ScopeProjectId = @ScopeProjectId");
         sql.Should().Contain("ArchivedUtc IS NULL");
-        sql.Should().Contain("ORDER BY CreatedUtc DESC");
+        sql.Should().Contain("ORDER BY r.CreatedUtc DESC");
         sql.Should().Contain("StructuralExecutionMode");
     }
 
@@ -74,12 +77,12 @@ public sealed class HotPathRelationalQueryShapeTests
     {
         const string sql = HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock;
 
-        sql.Should().Contain("FROM dbo.Runs WITH (NOLOCK)");
+        sql.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
         sql.Should().Contain("SELECT TOP (@Fetch)");
         sql.Should().Contain("@CursorRunId");
         sql.Should().Contain("@CursorCreatedUtc");
         sql.Should().Contain("ArchivedUtc IS NULL");
-        sql.Should().Contain("ORDER BY CreatedUtc DESC, RunId DESC");
+        sql.Should().Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
     }
 
     [SkippableFact]
@@ -103,12 +106,12 @@ public sealed class HotPathRelationalQueryShapeTests
         const string sql = HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock;
 
         sql.Should().Contain("SELECT TOP (@Take)");
-        sql.Should().Contain("FROM dbo.Runs WITH (NOLOCK)");
+        sql.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
         sql.Should().Contain("TenantId = @TenantId");
         sql.Should().Contain("WorkspaceId = @WorkspaceId");
         sql.Should().Contain("ScopeProjectId = @ScopeProjectId");
         sql.Should().Contain("ArchivedUtc IS NULL");
-        sql.Should().Contain("ORDER BY CreatedUtc DESC");
+        sql.Should().Contain("ORDER BY r.CreatedUtc DESC");
     }
 
     [SkippableFact]
@@ -116,12 +119,12 @@ public sealed class HotPathRelationalQueryShapeTests
     {
         const string sql = HotPathRelationalQueryShapes.RunsListRecentInScopeOffsetNoLock;
 
-        sql.Should().Contain("FROM dbo.Runs WITH (NOLOCK)");
+        sql.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
         sql.Should().Contain("TenantId = @TenantId");
         sql.Should().Contain("WorkspaceId = @WorkspaceId");
         sql.Should().Contain("ScopeProjectId = @ScopeProjectId");
         sql.Should().Contain("ArchivedUtc IS NULL");
-        sql.Should().Contain("ORDER BY CreatedUtc DESC");
+        sql.Should().Contain("ORDER BY r.CreatedUtc DESC");
         sql.Should().Contain("OFFSET @Offset ROWS FETCH NEXT @Fetch ROWS ONLY");
     }
 
@@ -130,10 +133,10 @@ public sealed class HotPathRelationalQueryShapeTests
     {
         const string sql = HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock;
 
-        sql.Should().Contain("FROM dbo.Runs WITH (NOLOCK)");
+        sql.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
         sql.Should().Contain("SELECT TOP (@Fetch)");
         sql.Should().Contain("@CursorRunId");
-        sql.Should().Contain("ORDER BY CreatedUtc DESC, RunId DESC");
+        sql.Should().Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
         sql.Should().NotContain("ProjectId = @ProjectSlug");
     }
 

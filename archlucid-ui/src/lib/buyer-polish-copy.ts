@@ -32,7 +32,10 @@ export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Try a sample review";
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD =
-  "See how ArchLucid turns an architecture document into findings, governance decisions, and a completed review package.";
+  "Not ready to use your own architecture yet? Run a sample review to see how ArchLucid turns architecture evidence into findings, governance decisions, and a completed review package.";
+
+/** Quiet label above the non-clickable sample finding preview rows — signals "content", not "actions". */
+export const OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL = "Sample includes:";
 
 export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Run sample review";
 
