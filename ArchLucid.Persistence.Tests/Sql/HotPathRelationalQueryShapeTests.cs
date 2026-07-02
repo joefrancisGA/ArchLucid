@@ -9,6 +9,35 @@ namespace ArchLucid.Persistence.Tests.Sql;
 [Trait("Category", "Unit")]
 public sealed class HotPathRelationalQueryShapeTests
 {
+    private static readonly string[] RunListShapeConstants =
+    [
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock,
+        HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock,
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock,
+        HotPathRelationalQueryShapes.RunsListRecentInScopeOffsetNoLock,
+        HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock,
+    ];
+
+    [SkippableTheory]
+    [MemberData(nameof(RunListShapeConstantsMemberData))]
+    public void Run_list_shapes_use_join_aggregates_for_warning_flags_not_correlated_exists(string sql)
+    {
+        sql.Should().Contain("ISNULL(fsWarn.HasWarnings, 0) AS HasWarnings");
+        sql.Should().Contain("ISNULL(govWarn.HasGovernanceWarnings, 0) AS HasGovernanceWarnings");
+        sql.Should().Contain(") fsWarn ON fsWarn.RunId = dbo.Runs.RunId");
+        sql.Should().Contain(") govWarn ON govWarn.RunId = dbo.Runs.RunId");
+        sql.Should().Contain("GROUP BY fs.RunId");
+        sql.Should().Contain("GROUP BY ar.RunId");
+        sql.Should().NotContain("CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots");
+        sql.Should().NotContain("CASE WHEN EXISTS (SELECT 1 FROM dbo.AlertRecords");
+    }
+
+    public static IEnumerable<object[]> RunListShapeConstantsMemberData()
+    {
+        foreach (string shape in RunListShapeConstants)
+            yield return [shape];
+    }
+
     [SkippableFact]
     public void Runs_list_by_project_retains_nolock_scope_archived_filter_and_created_order()
     {
