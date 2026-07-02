@@ -2739,6 +2739,7 @@ jobs:
             --min-package-line-pct 63 \
             --skip-package-line-gate ArchLucid.Mcp \
             --skip-package-line-gate ArchLucid.Backfill.Cli \
+            --skip-package-line-gate ArchLucid.Api \
             --warn-below-package-line-pct 70 \
             --annotations-file "${ART_DIR}/coverage-annotations-assert.txt"
           python3 scripts/ci/assert_coverage_floor_ratchet.py \

@@ -71,4 +71,73 @@ public sealed class DapperAuditRepositoryScopeIsolationSqlIntegrationTests(SqlSe
 
         owned.Should().Contain(x => x.EventId == evt.EventId);
     }
+
+    [SkippableFact]
+    public async Task GetFilteredAsync_event_type_filter_and_count_match_scoped_rows()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory connectionFactory = new(fixture.ConnectionString);
+        DapperAuditRepository repository = new(
+            connectionFactory,
+            new TestReadOnlyDbConnectionFactory(connectionFactory));
+
+        Guid runId = Guid.NewGuid();
+        const string matchingEventType = "ScopeIsolationAuditTb301Typed";
+        const string otherEventType = "ScopeIsolationAuditTb301Other";
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        await AuthorityRunChainTestSeed.InsertRunAsync(
+            connection,
+            TenantA,
+            WorkspaceA,
+            ProjectA,
+            runId,
+            ProjectA.ToString("D"),
+            CancellationToken.None);
+
+        AuditEvent matching = new()
+        {
+            EventId = Guid.NewGuid(),
+            OccurredUtc = TimeProvider.System.UtcNowDateTime(),
+            EventType = matchingEventType,
+            ActorUserId = "actor-a",
+            ActorUserName = "Actor A",
+            TenantId = TenantA,
+            WorkspaceId = WorkspaceA,
+            ProjectId = ProjectA,
+            RunId = runId,
+            DataJson = "{}",
+        };
+
+        AuditEvent other = new()
+        {
+            EventId = Guid.NewGuid(),
+            OccurredUtc = TimeProvider.System.UtcNowDateTime(),
+            EventType = otherEventType,
+            ActorUserId = "actor-a",
+            ActorUserName = "Actor A",
+            TenantId = TenantA,
+            WorkspaceId = WorkspaceA,
+            ProjectId = ProjectA,
+            RunId = runId,
+            DataJson = "{}",
+        };
+
+        await repository.AppendAsync(matching, CancellationToken.None);
+        await repository.AppendAsync(other, CancellationToken.None);
+
+        AuditEventFilter filter = new() { RunId = runId, EventType = matchingEventType, Take = 50 };
+
+        IReadOnlyList<AuditEvent> filtered =
+            await repository.GetFilteredAsync(TenantA, WorkspaceA, ProjectA, filter, CancellationToken.None);
+
+        filtered.Should().ContainSingle(x => x.EventId == matching.EventId);
+
+        int count =
+            await repository.CountFilteredAsync(TenantA, WorkspaceA, ProjectA, filter, CancellationToken.None);
+
+        count.Should().Be(1);
+    }
 }
