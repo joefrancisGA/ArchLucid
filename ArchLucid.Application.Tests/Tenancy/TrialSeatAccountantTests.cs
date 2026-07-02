@@ -4,6 +4,8 @@ using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Caching.Memory;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.Tenancy;
@@ -16,10 +18,12 @@ public sealed class TrialSeatAccountantTests
     {
         Guid tenantId = Guid.NewGuid();
         Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateActiveTrialTenant(tenantId));
         tenants.Setup(t => t.TryClaimTrialSeatAsync(tenantId, "user-1", It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        TrialSeatAccountant accountant = new(tenants.Object);
+        TrialSeatAccountant accountant = CreateAccountant(tenants.Object);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> twice = async () =>
@@ -30,19 +34,96 @@ public sealed class TrialSeatAccountantTests
 
         await twice.Should().NotThrowAsync();
         tenants.Verify(t => t.TryClaimTrialSeatAsync(tenantId, "user-1", It.IsAny<CancellationToken>()), Times.Exactly(2));
+        tenants.Verify(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [SkippableFact]
     public async Task TryReserveSeatAsync_empty_tenant_skips_repository()
     {
         Mock<ITenantRepository> tenants = new();
-        TrialSeatAccountant accountant = new(tenants.Object);
+        TrialSeatAccountant accountant = CreateAccountant(tenants.Object);
         ScopeContext scope = new() { TenantId = Guid.Empty, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         await accountant.TryReserveSeatAsync(scope, "user-1", CancellationToken.None);
 
         tenants.Verify(
+            t => t.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        tenants.Verify(
             t => t.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task TryReserveSeatAsync_converted_tenant_skips_updlock_claim()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "paid",
+                    Slug = "paid",
+                    TrialStatus = TrialLifecycleStatus.Converted,
+                    TrialSeatsLimit = 3,
+                });
+
+        TrialSeatAccountant accountant = CreateAccountant(tenants.Object);
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
+        await accountant.TryReserveSeatAsync(scope, "user-1", CancellationToken.None);
+
+        tenants.Verify(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
+        tenants.Verify(
+            t => t.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task TryReserveSeatAsync_cached_non_trial_skips_get_by_id_and_claim()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "paid",
+                    Slug = "paid",
+                    TrialStatus = TrialLifecycleStatus.Converted,
+                });
+
+        TrialSeatAccountant accountant = CreateAccountant(tenants.Object);
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
+        await accountant.TryReserveSeatAsync(scope, "user-1", CancellationToken.None);
+        await accountant.TryReserveSeatAsync(scope, "user-1", CancellationToken.None);
+
+        tenants.Verify(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
+        tenants.Verify(
+            t => t.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    private static TrialSeatAccountant CreateAccountant(ITenantRepository tenants)
+    {
+        ITenantTrialSeatSkipCache skipCache = new TenantTrialSeatSkipCache(new MemoryCache(new MemoryCacheOptions()));
+
+        return new TrialSeatAccountant(tenants, skipCache);
+    }
+
+    private static TenantRecord CreateActiveTrialTenant(Guid tenantId)
+    {
+        return new TenantRecord
+        {
+            Id = tenantId,
+            Name = "trial",
+            Slug = "trial",
+            TrialStatus = TrialLifecycleStatus.Active,
+            TrialSeatsLimit = 5,
+        };
     }
 }
