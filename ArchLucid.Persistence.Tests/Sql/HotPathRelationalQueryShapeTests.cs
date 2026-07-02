@@ -64,7 +64,7 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("@CursorRunId");
         sql.Should().Contain("@CursorCreatedUtc");
         sql.Should().Contain("ArchivedUtc IS NULL");
-        sql.Should().Contain("ORDER BY CreatedUtc DESC, RunId DESC");
+        sql.Should().Contain("ORDER BY CreatedUtc DESC, dbo.Runs.RunId DESC");
     }
 
     [SkippableFact]
@@ -118,7 +118,7 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("FROM dbo.Runs WITH (NOLOCK)");
         sql.Should().Contain("SELECT TOP (@Fetch)");
         sql.Should().Contain("@CursorRunId");
-        sql.Should().Contain("ORDER BY CreatedUtc DESC, RunId DESC");
+        sql.Should().Contain("ORDER BY CreatedUtc DESC, dbo.Runs.RunId DESC");
         sql.Should().NotContain("ProjectId = @ProjectSlug");
     }
 

@@ -5,6 +5,11 @@ namespace ArchLucid.Persistence.Sql;
 /// </summary>
 internal static class RunListWarningFlagSql
 {
+    /// <summary>
+    ///     <c>dbo.Runs.RunId</c> — required after <see cref="LeftJoinAggregates" /> because fsWarn/govWarn also project RunId.
+    /// </summary>
+    public const string RunsRunId = "dbo.Runs.RunId";
+
     /// <summary>Projected columns; pair with <see cref="LeftJoinAggregates" /> after <c>FROM dbo.Runs</c>.</summary>
     public const string SelectColumns = """
                                         ISNULL(fsWarn.HasWarnings, 0) AS HasWarnings,
