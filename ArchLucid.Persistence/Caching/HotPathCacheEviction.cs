@@ -66,4 +66,50 @@ public static class HotPathCacheEviction
 
         return invalidator.InvalidateTenantAsync(tenantId, ct);
     }
+
+    /// <summary>
+    ///     Bumps the scope revision stamp read by <see cref="Audit.CachingAuditRepository" /> so prior audit list cache
+    ///     entries are bypassed without enumerating filter/take variants (TB-581).
+    /// </summary>
+    public static async Task InvalidateAuditListScopeAsync(
+        IHotPathReadCache cache,
+        ScopeContext scope,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(cache);
+        ArgumentNullException.ThrowIfNull(scope);
+
+        string revisionKey = HotPathCacheKeys.AuditListScopeRevision(scope);
+
+        await cache.RemoveAsync(revisionKey, ct);
+
+        await cache.GetOrCreateAsync(
+            revisionKey,
+            _ => Task.FromResult<RunListScopeRevisionState?>(
+                new RunListScopeRevisionState { Revision = TimeProvider.System.GetUtcNow().Ticks }),
+            ct);
+    }
+
+    /// <summary>
+    ///     Bumps the scope revision stamp read by <see cref="Governance.CachingPolicyPackRepository" /> list cache
+    ///     (TB-581).
+    /// </summary>
+    public static async Task InvalidatePolicyPackListScopeAsync(
+        IHotPathReadCache cache,
+        ScopeContext scope,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(cache);
+        ArgumentNullException.ThrowIfNull(scope);
+
+        string revisionKey = HotPathCacheKeys.PolicyPackListScopeRevision(scope);
+
+        await cache.RemoveAsync(revisionKey, ct);
+
+        await cache.GetOrCreateAsync(
+            revisionKey,
+            _ => Task.FromResult<RunListScopeRevisionState?>(
+                new RunListScopeRevisionState { Revision = TimeProvider.System.GetUtcNow().Ticks }),
+            ct);
+    }
 }

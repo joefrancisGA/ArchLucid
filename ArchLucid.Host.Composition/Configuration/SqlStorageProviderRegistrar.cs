@@ -361,7 +361,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<AuthorityRunOrchestrator>();
         services.AddScoped<IAuthorityRunOrchestrator, DtfAuthorityRunOrchestrator>();
         services.AddScoped<IAuditSqlRetryPolicyProvider, AuditSqlRetryPolicyProvider>();
-        services.AddScoped<IAuditRepository, DapperAuditRepository>();
+        ArchLucidStorageServiceCollectionExtensions.RegisterAuditRepository(services, configuration);
         services.AddScoped<IPilotScorecardMetricsReader, DapperPilotScorecardMetricsReader>();
         services.AddScoped<IPilotReportCardMetricsReader, DapperPilotReportCardMetricsReader>();
         services.AddScoped<IPilotBaselineRepository, DapperPilotBaselineRepository>();

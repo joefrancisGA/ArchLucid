@@ -22,6 +22,7 @@ using KgProjectionCacheOptions = ArchLucid.KnowledgeGraph.Configuration.Knowledg
 using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.Persistence.AzureExtractorChunkUpload;
+using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Connections;
@@ -412,6 +413,25 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.AddScoped<
             ICommittedArchitectureReviewFlagReader,
             SqlCommittedArchitectureReviewFlagReader>();
+    }
+
+    internal static void RegisterAuditRepository(IServiceCollection services, IConfiguration configuration)
+    {
+        HotPathCacheOptions hotPath = configuration
+                                          .GetSection(HotPathCacheOptions.SectionName)
+                                          .Get<HotPathCacheOptions>()
+                                      ?? new HotPathCacheOptions();
+
+        if (!hotPath.Enabled)
+        {
+            services.AddScoped<IAuditRepository, DapperAuditRepository>();
+            return;
+        }
+
+        services.AddScoped<DapperAuditRepository>();
+        services.AddScoped<IAuditRepository>(sp => new CachingAuditRepository(
+            sp.GetRequiredService<DapperAuditRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
     }
 
     internal static void RegisterArtifactLargePayloadBlobStore(IServiceCollection services, IConfiguration configuration)

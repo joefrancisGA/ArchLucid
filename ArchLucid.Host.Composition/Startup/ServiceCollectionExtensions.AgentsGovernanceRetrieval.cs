@@ -43,12 +43,15 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Host.Composition.AzureOpenAI;
+using ArchLucid.Host.Composition.Caching;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Host.Core.Resilience;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Caching;
+using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Core.Admin;
 using ArchLucid.Retrieval.Admin;
 using ArchLucid.Retrieval.Agentic;
@@ -860,7 +863,7 @@ public static partial class ServiceCollectionExtensions
         }
 
         services.AddScoped<IGovernanceWorkflowService, GovernanceWorkflowService>();
-        services.AddScoped<IGovernanceDashboardService, GovernanceDashboardService>();
+        RegisterGovernanceDashboardService(services, configuration);
         services.AddScoped<IGovernanceLineageService, GovernanceLineageService>();
         services.AddScoped<IGovernanceRationaleService, GovernanceRationaleService>();
         services.AddScoped<IComplianceDriftTrendService, ComplianceDriftTrendService>();
@@ -868,6 +871,26 @@ public static partial class ServiceCollectionExtensions
         services.AddHttpClient(
             ApprovalSlaMonitor.SlaEscalationHttpClientName,
             static client => client.Timeout = TimeSpan.FromMinutes(2));
+    }
+
+    private static void RegisterGovernanceDashboardService(IServiceCollection services, IConfiguration configuration)
+    {
+        HotPathCacheOptions hotPath = configuration
+                                          .GetSection(HotPathCacheOptions.SectionName)
+                                          .Get<HotPathCacheOptions>()
+                                      ?? new HotPathCacheOptions();
+
+        if (!hotPath.Enabled)
+        {
+            services.AddScoped<IGovernanceDashboardService, GovernanceDashboardService>();
+            return;
+        }
+
+        services.AddScoped<GovernanceDashboardService>();
+        services.AddScoped<IGovernanceDashboardService>(sp => new CachingGovernanceDashboardService(
+            sp.GetRequiredService<GovernanceDashboardService>(),
+            sp.GetRequiredService<IHotPathReadCache>(),
+            sp.GetRequiredService<IScopeContextProvider>()));
     }
 
     private static void RegisterRetrieval(IServiceCollection services, IConfiguration configuration)
