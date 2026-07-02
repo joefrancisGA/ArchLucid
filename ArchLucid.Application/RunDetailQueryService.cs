@@ -83,7 +83,7 @@ public sealed class RunDetailQueryService(
         }
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        RunRecord? record = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+        RunRecord? record = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
         if (record is null)
         {
             if (logger.IsEnabled(LogLevel.Debug))
@@ -91,19 +91,19 @@ public sealed class RunDetailQueryService(
             return null;
         }
 
-        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
         ArchitectureRun run = RunRecordToArchitectureRunMapper.ToArchitectureRun(record, tasks.Select(t => t.TaskId).ToList());
-        List<AgentResult> results = (await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken)).ToList();
+        List<AgentResult> results = (await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false)).ToList();
 
         if (record.FindingsSnapshotId is { } findingsSnapshotId)
         {
             IReadOnlyDictionary<string, FindingMuteFlag> flags =
-                await findingRecordMuteRepository.GetMuteFlagsAsync(findingsSnapshotId, scope, cancellationToken);
+                await findingRecordMuteRepository.GetMuteFlagsAsync(findingsSnapshotId, scope, cancellationToken).ConfigureAwait(false);
 
             FindingMuteFlagApplier.Apply(results, flags);
         }
 
-        GoldenManifest? manifest = await unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
+        GoldenManifest? manifest = await unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
         List<DecisionTraceDto> decisionTraces = [];
         if (manifest is null)
         {
@@ -113,13 +113,13 @@ public sealed class RunDetailQueryService(
         }
         else if (record.DecisionTraceId is { } authorityTraceId)
         {
-            DecisionTraceDto? authorityTrace = await authorityDecisionTraceRepository.GetByIdAsync(scope, authorityTraceId, cancellationToken);
+            DecisionTraceDto? authorityTrace = await authorityDecisionTraceRepository.GetByIdAsync(scope, authorityTraceId, cancellationToken).ConfigureAwait(false);
             if (authorityTrace is not null)
                 decisionTraces = [authorityTrace];
         }
 
         IReadOnlyList<AgentExecutionTraceLlmCostSlice> costSlices = await _agentExecutionTraceRepository
-            .GetLlmCostSlicesByRunIdAsync(scope, runId, cancellationToken);
+            .GetLlmCostSlicesByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
         ArchLucid.Contracts.Runs.RunAgentLlmCostEstimateDto? costEstimate = null;
 
         if (costSlices.Count > 0)
@@ -155,7 +155,7 @@ public sealed class RunDetailQueryService(
     public async Task<IReadOnlyList<RunSummary>> ListRunSummariesAsync(CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<RunRecord> records = await runRepository.ListRecentInScopeAsync(scope, 200, cancellationToken);
+        IReadOnlyList<RunRecord> records = await runRepository.ListRecentInScopeAsync(scope, 200, cancellationToken).ConfigureAwait(false);
         return records.Select(r => new RunSummary
         {
             RunId = r.RunId.ToString("N"),
@@ -183,7 +183,7 @@ public sealed class RunDetailQueryService(
             cursorRunId = decoded.Value.RunId;
         }
 
-        RunListPage page = await runRepository.ListRecentInScopeKeysetAsync(scope, cursorUtc, cursorRunId, take, cancellationToken);
+        RunListPage page = await runRepository.ListRecentInScopeKeysetAsync(scope, cursorUtc, cursorRunId, take, cancellationToken).ConfigureAwait(false);
         IReadOnlyList<RunSummary> items = page.Items.Select(r => new RunSummary
         {
             RunId = r.RunId.ToString("N"),
@@ -214,7 +214,7 @@ public sealed class RunDetailQueryService(
             scope,
             RunPagination.NormalizeOffset(offset),
             RunPagination.ClampLimit(limit),
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
         IReadOnlyList<RunSummary> items = page.Items.Select(r => new RunSummary
         {
             RunId = r.RunId.ToString("N"),

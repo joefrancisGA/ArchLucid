@@ -51,7 +51,7 @@ public sealed class SqlGoldenManifestRepository(
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         await using SqlTransaction tx = owned.BeginTransaction();
 
         try
@@ -109,7 +109,7 @@ public sealed class SqlGoldenManifestRepository(
         if (connection is not null)
             return await SupersedeUnreferencedActiveGoldenManifestsCoreAsync(scope, newManifestId, connection, transaction, cancellationToken);
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using SqlTransaction tx = owned.BeginTransaction();
 
         try
@@ -167,7 +167,7 @@ public sealed class SqlGoldenManifestRepository(
                     SupersededStatus = nameof(GoldenManifestLifecycleStatus.Superseded)
                 },
                 transaction,
-                cancellationToken: cancellationToken));
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return rows.AsList();
     }
@@ -197,7 +197,7 @@ public sealed class SqlGoldenManifestRepository(
         try
         {
             await using SqlConnection connection =
-                await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct);
+                await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
             GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
                 new CommandDefinition(
                     sql,
@@ -209,14 +209,14 @@ public sealed class SqlGoldenManifestRepository(
                         ManifestId = manifestId
                     },
                     flags: CommandFlags.None,
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
 
             if (row is null)
                 return null;
 
-            row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct);
+            row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct).ConfigureAwait(false);
 
-            return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
+            return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct).ConfigureAwait(false);
         }
         finally
         {
@@ -254,7 +254,7 @@ public sealed class SqlGoldenManifestRepository(
                            ORDER BY CreatedUtc DESC;
                            """;
 
-        await using SqlConnection connection = await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
             new CommandDefinition(
                 sql,
@@ -265,14 +265,14 @@ public sealed class SqlGoldenManifestRepository(
                     scope.ProjectId,
                     ManifestVersion = manifestVersion
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         if (row is null)
             return null;
 
-        row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct);
+        row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct).ConfigureAwait(false);
 
-        return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
+        return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -307,7 +307,7 @@ public sealed class SqlGoldenManifestRepository(
                            """;
 
         await using SqlConnection connection =
-            await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+            await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<GoldenManifestStorageRow> rows = await connection.QueryAsync<GoldenManifestStorageRow>(
             new CommandDefinition(
@@ -320,15 +320,15 @@ public sealed class SqlGoldenManifestRepository(
                     ExcludeRunId = excludeRunId,
                     MaxManifests = maxManifests,
                 },
-                cancellationToken: cancellationToken));
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         List<ManifestDocument> documents = [];
 
         foreach (GoldenManifestStorageRow row in rows)
         {
-            GoldenManifestStorageRow hydratedRow = await ApplyManifestBlobOverlayIfPresentAsync(row, cancellationToken);
+            GoldenManifestStorageRow hydratedRow = await ApplyManifestBlobOverlayIfPresentAsync(row, cancellationToken).ConfigureAwait(false);
             ManifestDocument? document =
-                await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, hydratedRow, cancellationToken);
+                await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, hydratedRow, cancellationToken).ConfigureAwait(false);
 
             if (document is not null)
                 documents.Add(document);
@@ -448,7 +448,7 @@ public sealed class SqlGoldenManifestRepository(
             LifecycleStatus = nameof(GoldenManifestLifecycleStatus.Active)
         };
 
-        await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+        await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct)).ConfigureAwait(false);
 
         await InsertRelationalPhase1Async(manifest, connection, transaction, ct);
     }
@@ -499,7 +499,7 @@ public sealed class SqlGoldenManifestRepository(
                         manifest.ProjectId
                     },
                     transaction,
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
     }
 
     private static async Task InsertGoldenManifestWarningsRelationalAsync(
@@ -532,7 +532,7 @@ public sealed class SqlGoldenManifestRepository(
                         manifest.ProjectId
                     },
                     transaction,
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
     }
 
     private static async Task InsertGoldenManifestProvSourceFindingsRelationalAsync(
@@ -566,7 +566,7 @@ public sealed class SqlGoldenManifestRepository(
                         manifest.ProjectId
                     },
                     transaction,
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
     }
 
     private static async Task InsertGoldenManifestProvSourceGraphNodesRelationalAsync(
@@ -600,7 +600,7 @@ public sealed class SqlGoldenManifestRepository(
                         manifest.ProjectId
                     },
                     transaction,
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
     }
 
     private static async Task InsertGoldenManifestProvAppliedRulesRelationalAsync(
@@ -634,7 +634,7 @@ public sealed class SqlGoldenManifestRepository(
                         manifest.ProjectId
                     },
                     transaction,
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
     }
 
     private static async Task InsertGoldenManifestDecisionsRelationalAsync(
@@ -698,7 +698,7 @@ public sealed class SqlGoldenManifestRepository(
                         manifest.ProjectId
                     },
                     transaction,
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
 
             for (int e = 0; e < decision.SupportingFindingIds.Count; e++)
 
@@ -716,7 +716,7 @@ public sealed class SqlGoldenManifestRepository(
                             manifest.ProjectId
                         },
                         transaction,
-                        cancellationToken: ct));
+                        cancellationToken: ct)).ConfigureAwait(false);
 
             for (int n = 0; n < decision.RelatedNodeIds.Count; n++)
 
@@ -734,7 +734,7 @@ public sealed class SqlGoldenManifestRepository(
                             manifest.ProjectId
                         },
                         transaction,
-                        cancellationToken: ct));
+                        cancellationToken: ct)).ConfigureAwait(false);
         }
     }
 
@@ -745,7 +745,7 @@ public sealed class SqlGoldenManifestRepository(
         if (string.IsNullOrWhiteSpace(row.ManifestPayloadBlobUri))
             return row;
 
-        string? json = await blobStore.ReadAsync(row.ManifestPayloadBlobUri!, ct);
+        string? json = await blobStore.ReadAsync(row.ManifestPayloadBlobUri!, ct).ConfigureAwait(false);
 
         if (string.IsNullOrEmpty(json))
             return row;
