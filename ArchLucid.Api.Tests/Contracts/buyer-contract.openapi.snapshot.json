@@ -3522,6 +3522,12 @@
             "format": "int32",
             "type": "integer"
           },
+          "assignedToUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "category": {
             "type": "string"
           },
@@ -3568,6 +3574,13 @@
             ]
           },
           "ownerUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "remediationDueUtc": {
+            "format": "date-time",
             "type": [
               "null",
               "string"
@@ -4283,6 +4296,63 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "AwsTier2ConnectionConfigureBody": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "roleArn": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountId",
+          "region",
+          "roleArn"
+        ],
+        "type": "object"
+      },
+      "AwsTier2ConnectionResponse": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "lastPolledUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "region": {
+            "type": "string"
+          },
+          "roleArn": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountId",
+          "region",
+          "roleArn",
+          "status"
+        ],
         "type": "object"
       },
       "AzureExtractorChunkUploadStartBody": {
@@ -9724,6 +9794,12 @@
               "string"
             ]
           },
+          "assignedToUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "category": {
             "type": "string"
           },
@@ -9876,6 +9952,13 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "remediationDueUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "requestInputRef": {
             "type": [
@@ -10367,6 +10450,12 @@
       },
       "FindingInspectResponse": {
         "properties": {
+          "assignedToUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "auditRowId": {
             "format": "uuid",
             "type": [
@@ -10525,6 +10614,13 @@
             },
             "type": "array"
           },
+          "remediationDueUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "revisitDueUtc": {
             "format": "date-time",
             "type": [
@@ -10654,6 +10750,28 @@
                 "$ref": "#/components/schemas/FindingTraceCompletenessScore"
               }
             ]
+          }
+        },
+        "type": "object"
+      },
+      "FindingRemediationAssignmentRequest": {
+        "properties": {
+          "assignedToUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "remediationDueUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
           }
         },
         "type": "object"
@@ -10857,6 +10975,63 @@
             ]
           }
         },
+        "type": "object"
+      },
+      "GcpTier2ConnectionConfigureBody": {
+        "properties": {
+          "projectId": {
+            "type": "string"
+          },
+          "serviceAccountEmail": {
+            "type": "string"
+          },
+          "workloadIdentityPoolProvider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "projectId",
+          "serviceAccountEmail",
+          "workloadIdentityPoolProvider"
+        ],
+        "type": "object"
+      },
+      "GcpTier2ConnectionResponse": {
+        "properties": {
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "lastPolledUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "serviceAccountEmail": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "workloadIdentityPoolProvider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "projectId",
+          "serviceAccountEmail",
+          "status",
+          "workloadIdentityPoolProvider"
+        ],
         "type": "object"
       },
       "GeneratePolicyPackRequest": {
@@ -12040,6 +12215,35 @@
         },
         "type": "object"
       },
+      "HostedAwsExtractorRunBody": {
+        "properties": {
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "HostedAwsExtractorRunResponse": {
+        "properties": {
+          "packageId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "resourceCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "HostedAzureExtractorConfigurationResponse": {
         "properties": {
           "customerAppId": {
@@ -12107,6 +12311,35 @@
         "type": "object"
       },
       "HostedAzureExtractorRunResponse": {
+        "properties": {
+          "packageId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "resourceCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "HostedGcpExtractorRunBody": {
+        "properties": {
+          "connectionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "HostedGcpExtractorRunResponse": {
         "properties": {
           "packageId": {
             "format": "uuid",
@@ -17941,6 +18174,12 @@
             "format": "uuid",
             "type": "string"
           },
+          "sourceEvidenceLinks": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationSourceEvidenceLink"
+            },
+            "type": "array"
+          },
           "status": {
             "type": "string"
           },
@@ -17959,6 +18198,17 @@
           },
           "workspaceId": {
             "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RecommendationSourceEvidenceLink": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
             "type": "string"
           }
         },
@@ -26142,6 +26392,9 @@
       "name": "AuthorityRunEvents"
     },
     {
+      "name": "AwsTier2Connection"
+    },
+    {
       "name": "AzureExtractorUpload"
     },
     {
@@ -26247,6 +26500,12 @@
       "name": "FindingMute"
     },
     {
+      "name": "FindingRemediationAssignment"
+    },
+    {
+      "name": "GcpTier2Connection"
+    },
+    {
       "name": "Governance"
     },
     {
@@ -26265,10 +26524,16 @@
       "name": "Graph"
     },
     {
+      "name": "HostedAwsExtractorRun"
+    },
+    {
       "name": "HostedAzureExtractorAdmin"
     },
     {
       "name": "HostedAzureExtractorRun"
+    },
+    {
+      "name": "HostedGcpExtractorRun"
     },
     {
       "name": "IdentityProviderConfiguration"
