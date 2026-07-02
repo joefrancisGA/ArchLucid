@@ -45,7 +45,7 @@ export function OperatorHomeFirstReviewSection(props: OperatorHomeFirstReviewSec
         <OperatorHomeSampleReviewPreview />
         <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
           <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
-          <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
+          <OperatorHomeRunsPanel hideHeading />
         </section>
         <OperatorHomeFirstReviewProgressCard checklistVariant={checklistVariant} />
       </div>

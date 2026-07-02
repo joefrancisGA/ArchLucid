@@ -52,7 +52,7 @@ export function OperatorHomeFirstReviewProgressCard(
       data-testid="operator-home-first-review-progress"
     >
       <CorePilotProgressTrackerSummary headingId="operator-home-first-review-progress-heading" />
-      <CorePilotChecklist variant={checklistVariant} embedded />
+      <CorePilotChecklist variant={checklistVariant} />
     </section>
   );
 }

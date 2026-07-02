@@ -31,7 +31,7 @@ export function OperatorHomeFirstReviewPathStrip(): React.JSX.Element | null {
       >
         {OPERATOR_HOME_PILOT_FIRST_OPERATE_LATER_HEADING}
       </h3>
-      <p className={cn("m-0 mt-1 max-w-prose", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}>
+      <p className={cn("m-0 mt-1 max-w-prose", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
         {OPERATOR_HOME_PILOT_FIRST_OPERATE_LATER_BODY}
       </p>
       <PilotPathPreviewStepper steps={PILOT_PATH_PREVIEW_STEPS} className="mt-2" />
