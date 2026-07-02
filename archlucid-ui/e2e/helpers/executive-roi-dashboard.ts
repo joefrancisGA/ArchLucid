@@ -168,6 +168,13 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
 
 export async function waitForExecutiveRoiDashboardHydrated(page: Page): Promise<void> {
 
+  // Portfolio layout keeps primary KPI chrome mounted while summary loads; ROI panels appear once committed reviews hydrate.
+  await expect(
+    page
+      .getByTestId("executive-primary-decisions-needed")
+      .or(page.getByTestId("exec-roi-identified-vs-realized-panel")),
+  ).toBeVisible({ timeout: 60_000 });
+
   await expect(page.getByTestId("executive-dashboard-empty-state")).toHaveCount(0, { timeout: 30_000 });
 
   // Portfolio layout hides findings/ROI until executive-summary finishes loading (hasCommittedReviews gate).
