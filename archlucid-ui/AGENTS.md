@@ -36,6 +36,8 @@ From **`archlucid-ui/`**:
 |------|---------|
 | Install deps | `npm ci` |
 | Lint / unit tests | See **`package.json`** scripts (Vitest). |
+| First Load JS budget (TB-573) | `npm run build 2>&1 \| tee .next-build.log` then `npm run check:first-load-js -- --log .next-build.log` — baseline in **`performance/first-load-js-baseline.v1.json`**. |
+| Refresh First Load JS baseline | After an intentional bundle change: `npm run write:first-load-js-baseline -- --log .next-build.log` |
 | E2E | Playwright scripts in **`package.json`** (often require API / env — see **`docs/engineering/BUILD.md`**). |
 
 Repo-wide build graph: **`docs/engineering/BUILD.md`**.

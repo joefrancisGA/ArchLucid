@@ -3294,6 +3294,31 @@ jobs:
           npm run typecheck
           npm run build
 
+  ui-first-load-js-budget:
+    name: "Operator UI: First Load JS budget (TB-573)"
+    needs: gitleaks
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Production build and First Load JS regression gate
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npm ci
+          npm run build 2>&1 | tee .next-build.log
+          npm run check:first-load-js -- --log .next-build.log
+
   ui-playwright-mock-smoke:
     name: "Operator UI: Playwright mock functional (mock API)"
     needs: gitleaks
