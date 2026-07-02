@@ -713,9 +713,6 @@ public sealed class AuthorityPipelineStagesExecutorTests
             .Setup(r => r.SaveAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
 
-        Mock<IManifestHashService> hash = new();
-        hash.Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>())).Returns("computed");
-
         SynthesizedArtifact oneArtifact = new()
         {
             ArtifactId = Guid.NewGuid(),
@@ -816,7 +813,6 @@ public sealed class AuthorityPipelineStagesExecutorTests
             decision.Object,
             traceRepo.Object,
             manifestRepo.Object,
-            hash.Object,
             synth.Object,
             bundleRepo.Object,
             audit.Object,

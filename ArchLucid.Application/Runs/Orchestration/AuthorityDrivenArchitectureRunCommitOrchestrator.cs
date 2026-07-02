@@ -58,6 +58,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IFindingsSnapshotRepository findingsSnapshotRepository,
     IAgentEvaluationService agentEvaluationService,
     IDecisionEngine decisionEngine,
+    ICommitPipelineManifestReuseService commitPipelineManifestReuseService,
     IDecisionEngineV2 decisionEngineV2,
     IDecisionNodeRepository decisionNodeRepository,
     DecisioningIdTraceRepository decisionTraceRepository,
@@ -98,6 +99,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         _agentEvaluationService = agentEvaluationService ?? throw new ArgumentNullException(nameof(agentEvaluationService));
 
     private readonly IDecisionEngine _decisionEngine = decisionEngine ?? throw new ArgumentNullException(nameof(decisionEngine));
+
+    private readonly ICommitPipelineManifestReuseService _commitPipelineManifestReuseService =
+        commitPipelineManifestReuseService ?? throw new ArgumentNullException(nameof(commitPipelineManifestReuseService));
+
     private readonly IDecisionEngineV2 _decisionEngineV2 = decisionEngineV2 ?? throw new ArgumentNullException(nameof(decisionEngineV2));
 
     private readonly IDecisionNodeRepository
@@ -297,7 +302,26 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             FindingsSnapshot? findings = await _findingsSnapshotRepository.GetByIdAsync(scope, findingsId, cancellationToken);
             if (findings is null)
                 throw new InvalidOperationException($"Findings snapshot '{findingsId:D}' for run '{runId}' was not found.");
-            (manifestModel, traceDto) = await _decisionEngine.DecideAsync(runGuid, contextSnapshotId, graphForDecision, findings, cancellationToken);
+            CommitPipelineManifestReuseResult? reusedManifest = await _commitPipelineManifestReuseService.TryReusePipelineManifestAsync(
+                run,
+                runGuid,
+                contextSnapshotId,
+                graph,
+                graphForDecision,
+                findings,
+                scope,
+                cancellationToken);
+
+            if (reusedManifest is not null)
+            {
+                manifestModel = reusedManifest.Manifest;
+                traceDto = reusedManifest.TraceDto;
+            }
+            else
+            {
+                (manifestModel, traceDto) = await _decisionEngine.DecideAsync(runGuid, contextSnapshotId, graphForDecision, findings, cancellationToken);
+            }
+
             trace = DecisionTraceRecordMapper.ToDomain(traceDto);
             ApplyRuleAuditScope(trace, scope);
             ApplyAuthorityManifestScope(manifestModel, scope);
@@ -469,7 +493,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             RuleSetId = manifestModel.RuleSetId,
             RuleSetVersion = manifestModel.RuleSetVersion,
             RuleSetHash = manifestModel.RuleSetHash,
-            CreatedUtc = manifestModel.CreatedUtc
+            CreatedUtc = manifestModel.CreatedUtc,
+            PrecomputedManifestHash = manifestModel.ManifestHash
         };
     }
 

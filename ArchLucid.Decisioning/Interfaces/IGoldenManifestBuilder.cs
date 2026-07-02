@@ -13,4 +13,9 @@ public interface IGoldenManifestBuilder
         FindingsSnapshot findingsSnapshot,
         DecisionTrace trace,
         DecisionRuleSet ruleSet);
+
+    /// <summary>
+    ///     Rebuilds graph-derived topology slices on an existing manifest after post-seed topology merge (TB-575).
+    /// </summary>
+    void RefreshGraphDerivedTopology(ManifestDocument manifest, GraphSnapshot graphSnapshot);
 }

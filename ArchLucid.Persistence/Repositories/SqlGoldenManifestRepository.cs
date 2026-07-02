@@ -90,7 +90,7 @@ public sealed class SqlGoldenManifestRepository(
             scope,
             keying,
             authorityPersistBody);
-        model.ManifestHash = contractHash.ComputeHash(model);
+        model.ManifestHash = GoldenManifestPersistedHashResolver.Resolve(keying, model, contractHash);
         await SaveAsync(model, ct, connection, transaction);
         return model;
     }

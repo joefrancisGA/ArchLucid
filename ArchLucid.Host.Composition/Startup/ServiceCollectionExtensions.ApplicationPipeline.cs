@@ -223,6 +223,7 @@ public static partial class ServiceCollectionExtensions
         // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is the single commit implementation.
         services.AddScoped<PostCommitProjectionEnqueuer>();
         services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
+        services.AddScoped<ICommitPipelineManifestReuseService, CommitPipelineManifestReuseService>();
         services.AddScoped<ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler, ArchLucid.Application.Runs.Orchestration.Events.ReviewCompletedEventHandler>();
         services.AddScoped<ISampleRunPurgeService, SampleRunPurgeService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();

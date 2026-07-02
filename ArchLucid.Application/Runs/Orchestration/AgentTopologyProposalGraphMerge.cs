@@ -14,6 +14,17 @@ namespace ArchLucid.Application.Runs.Orchestration;
 /// </summary>
 public static class AgentTopologyProposalGraphMerge
 {
+    /// <summary>
+    ///     <c>true</c> when topology agent proposals would add nodes to the persisted graph snapshot view.
+    /// </summary>
+    public static bool WouldChangeGraphForCommit(GraphSnapshot graph, IReadOnlyList<AgentResult> results)
+    {
+        ArgumentNullException.ThrowIfNull(graph);
+        ArgumentNullException.ThrowIfNull(results);
+
+        return !ReferenceEquals(graph, WithMergedTopologyProposals(graph, results));
+    }
+
     public static GraphSnapshot WithMergedTopologyProposals(
         GraphSnapshot graph,
         IReadOnlyList<AgentResult> results)

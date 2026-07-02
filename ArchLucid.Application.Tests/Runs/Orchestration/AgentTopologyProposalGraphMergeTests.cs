@@ -152,4 +152,39 @@ public sealed class AgentTopologyProposalGraphMergeTests
         GraphNode svc = merged.Nodes.Should().ContainSingle(n => n.Label == "payments-api").Subject;
         svc.ReasoningTrace.Should().Be(reasoning);
     }
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_false_when_no_topology_proposals()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            Nodes = [],
+            Edges = [],
+        };
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, []).Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_topology_adds_nodes()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            Nodes = [],
+            Edges = [],
+        };
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedServices = [new ManifestService { ServiceName = "api", ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService }],
+            },
+        };
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [topology]).Should().BeTrue();
+    }
 }

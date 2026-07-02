@@ -73,6 +73,31 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         return manifest;
     }
 
+    /// <inheritdoc />
+    public void RefreshGraphDerivedTopology(ManifestDocument manifest, GraphSnapshot graphSnapshot)
+    {
+        ArgumentNullException.ThrowIfNull(manifest);
+        ArgumentNullException.ThrowIfNull(graphSnapshot);
+
+        manifest.Topology.Resources.Clear();
+        manifest.Topology.Services.Clear();
+        manifest.Topology.Datastores.Clear();
+
+        PopulateTopologyFromGraph(manifest, graphSnapshot);
+        PopulateTypedTopologyFromGraph(manifest, graphSnapshot);
+
+        manifest.Topology.Resources = manifest.Topology.Resources
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Topology.Services = manifest.Topology.Services
+            .OrderBy(x => x.ServiceName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Topology.Datastores = manifest.Topology.Datastores
+            .OrderBy(x => x.DatastoreName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
     private static void NormalizeManifestOrdering(ManifestDocument manifest)
     {
         manifest.Requirements.Covered = manifest.Requirements.Covered

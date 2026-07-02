@@ -65,4 +65,13 @@ public sealed class SaveContractsManifestOptions
         get;
         init;
     } = TimeProvider.System.UtcNowDateTime();
+
+    /// <summary>
+    ///     When set, persistence skips recomputing the manifest hash (must match <paramref name="ManifestModel" /> content).
+    /// </summary>
+    public string? PrecomputedManifestHash
+    {
+        get;
+        init;
+    }
 }
