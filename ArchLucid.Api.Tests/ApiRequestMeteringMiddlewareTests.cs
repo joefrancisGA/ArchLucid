@@ -33,13 +33,13 @@ public sealed class ApiRequestMeteringMiddlewareTests
     }
 
     [SkippableFact]
-    public async Task InvokeAsync_when_metering_disabled_does_not_record()
+    public async Task InvokeAsync_when_metering_disabled_does_not_enqueue()
     {
         Mock<IScopeContextProvider> scopes = new();
-        Mock<IUsageMeteringService> meter = new();
+        Mock<IApiRequestUsageEventBuffer> buffer = new();
         ApiRequestMeteringMiddleware middleware = new(
             scopes.Object,
-            meter.Object,
+            buffer.Object,
             CreateMeteringOptions(false).Object,
             NullLogger<ApiRequestMeteringMiddleware>.Instance);
 
@@ -55,23 +55,20 @@ public sealed class ApiRequestMeteringMiddlewareTests
 
         await middleware.InvokeAsync(context, _ => Task.CompletedTask);
 
-        meter.Verify(
-            usage =>
-                usage.RecordAsync(It.IsAny<UsageEvent>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+        buffer.Verify(usage => usage.Enqueue(It.IsAny<UsageEvent>()), Times.Never);
     }
 
     [Theory]
     [InlineData("/")]
     [InlineData("/openapi/v1.json")]
     [InlineData("/api/v1/runs")]
-    public async Task InvokeAsync_when_path_not_version_api_prefix_does_not_record(string path)
+    public async Task InvokeAsync_when_path_not_version_api_prefix_does_not_enqueue(string path)
     {
         Mock<IScopeContextProvider> scopes = new();
-        Mock<IUsageMeteringService> meter = new();
+        Mock<IApiRequestUsageEventBuffer> buffer = new();
         ApiRequestMeteringMiddleware middleware = new(
             scopes.Object,
-            meter.Object,
+            buffer.Object,
             CreateMeteringOptions(true).Object,
             NullLogger<ApiRequestMeteringMiddleware>.Instance);
 
@@ -87,22 +84,19 @@ public sealed class ApiRequestMeteringMiddlewareTests
 
         await middleware.InvokeAsync(context, _ => Task.CompletedTask);
 
-        meter.Verify(
-            usage =>
-                usage.RecordAsync(It.IsAny<UsageEvent>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+        buffer.Verify(usage => usage.Enqueue(It.IsAny<UsageEvent>()), Times.Never);
     }
 
     [Theory]
     [InlineData("/v1/health/ready")]
     [InlineData("/v1/swagger/index.html")]
-    public async Task InvokeAsync_when_path_contains_health_or_swagger_does_not_record(string path)
+    public async Task InvokeAsync_when_path_contains_health_or_swagger_does_not_enqueue(string path)
     {
         Mock<IScopeContextProvider> scopes = new();
-        Mock<IUsageMeteringService> meter = new();
+        Mock<IApiRequestUsageEventBuffer> buffer = new();
         ApiRequestMeteringMiddleware middleware = new(
             scopes.Object,
-            meter.Object,
+            buffer.Object,
             CreateMeteringOptions(true).Object,
             NullLogger<ApiRequestMeteringMiddleware>.Instance);
 
@@ -118,20 +112,17 @@ public sealed class ApiRequestMeteringMiddlewareTests
 
         await middleware.InvokeAsync(context, _ => Task.CompletedTask);
 
-        meter.Verify(
-            usage =>
-                usage.RecordAsync(It.IsAny<UsageEvent>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+        buffer.Verify(usage => usage.Enqueue(It.IsAny<UsageEvent>()), Times.Never);
     }
 
     [SkippableFact]
-    public async Task InvokeAsync_when_tenant_id_empty_does_not_record()
+    public async Task InvokeAsync_when_tenant_id_empty_does_not_enqueue()
     {
         Mock<IScopeContextProvider> scopes = new();
-        Mock<IUsageMeteringService> meter = new();
+        Mock<IApiRequestUsageEventBuffer> buffer = new();
         ApiRequestMeteringMiddleware middleware = new(
             scopes.Object,
-            meter.Object,
+            buffer.Object,
             CreateMeteringOptions(true).Object,
             NullLogger<ApiRequestMeteringMiddleware>.Instance);
 
@@ -147,24 +138,17 @@ public sealed class ApiRequestMeteringMiddlewareTests
 
         await middleware.InvokeAsync(context, _ => Task.CompletedTask);
 
-        meter.Verify(
-            usage =>
-                usage.RecordAsync(It.IsAny<UsageEvent>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+        buffer.Verify(usage => usage.Enqueue(It.IsAny<UsageEvent>()), Times.Never);
     }
 
     [SkippableFact]
-    public async Task InvokeAsync_when_eligible_records_api_request_meter_event()
+    public async Task InvokeAsync_when_eligible_enqueues_api_request_meter_event()
     {
         Mock<IScopeContextProvider> scopes = new();
-        Mock<IUsageMeteringService> meter = new();
-        meter.Setup(usage =>
-                usage.RecordAsync(It.IsAny<UsageEvent>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
+        Mock<IApiRequestUsageEventBuffer> buffer = new();
         ApiRequestMeteringMiddleware middleware = new(
             scopes.Object,
-            meter.Object,
+            buffer.Object,
             CreateMeteringOptions(true).Object,
             NullLogger<ApiRequestMeteringMiddleware>.Instance);
 
@@ -177,32 +161,30 @@ public sealed class ApiRequestMeteringMiddlewareTests
 
         await middleware.InvokeAsync(context, _ => Task.CompletedTask);
 
-        meter.Verify(
+        buffer.Verify(
             usage =>
-                usage.RecordAsync(
+                usage.Enqueue(
                     It.Is<UsageEvent>(evt =>
                         evt.Kind == UsageMeterKind.ApiRequest
                         && evt.TenantId == NonEmptyTenant
                         && evt.WorkspaceId == ScopeIds.DefaultWorkspace
                         && evt.ProjectId == ScopeIds.DefaultProject
                         && evt.Quantity == 1L
-                        && evt.CorrelationId == "trace-1"),
-                    It.IsAny<CancellationToken>()),
+                        && evt.CorrelationId == "trace-1")),
             Times.Once);
     }
 
     [SkippableFact]
-    public async Task InvokeAsync_when_record_throws_does_not_propagate_after_successful_next()
+    public async Task InvokeAsync_when_enqueue_throws_does_not_propagate_after_successful_next()
     {
         Mock<IScopeContextProvider> scopes = new();
-        Mock<IUsageMeteringService> meter = new();
-        meter.Setup(usage =>
-                usage.RecordAsync(It.IsAny<UsageEvent>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new InvalidOperationException("meter store offline"));
+        Mock<IApiRequestUsageEventBuffer> buffer = new();
+        buffer.Setup(usage => usage.Enqueue(It.IsAny<UsageEvent>()))
+            .Throws(new InvalidOperationException("meter buffer offline"));
 
         ApiRequestMeteringMiddleware middleware = new(
             scopes.Object,
-            meter.Object,
+            buffer.Object,
             CreateMeteringOptions(true).Object,
             NullLogger<ApiRequestMeteringMiddleware>.Instance);
 
