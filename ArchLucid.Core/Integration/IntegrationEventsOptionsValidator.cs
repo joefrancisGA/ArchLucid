@@ -81,6 +81,13 @@ public sealed class IntegrationEventsOptionsValidator : IValidateOptions<Integra
                 $"{IntegrationEventsOptions.SectionName}:{nameof(IntegrationEventsOptions.OutboxMaxBackoffSeconds)} "
                 + "must be at least 1.");
         }
+
+        if (options.OutboxMaxConcurrentBatchEntries < 1)
+        {
+            failures.Add(
+                $"{IntegrationEventsOptions.SectionName}:{nameof(IntegrationEventsOptions.OutboxMaxConcurrentBatchEntries)} "
+                + "must be at least 1.");
+        }
     }
 
     private static void ValidateProcessorBounds(IntegrationEventsOptions options, List<string> failures)

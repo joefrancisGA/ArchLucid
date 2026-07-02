@@ -61,6 +61,13 @@ public sealed class IntegrationEventsOptions
         set;
     } = 300;
 
+    /// <summary>Maximum outbox rows published concurrently within one dequeued batch.</summary>
+    public int OutboxMaxConcurrentBatchEntries
+    {
+        get;
+        set;
+    } = 4;
+
     /// <summary>When true, the worker hosts a Service Bus subscription processor for integration events.</summary>
     public bool ConsumerEnabled
     {

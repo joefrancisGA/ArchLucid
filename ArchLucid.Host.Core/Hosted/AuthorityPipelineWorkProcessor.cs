@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
@@ -48,27 +49,42 @@ public sealed class AuthorityPipelineWorkProcessor(
     {
         AuthorityPipelineWorkProcessorOptions opts = VerifiedOptions(_processorOptions.Value);
 
+        using IServiceScope dequeueScope = _scopeFactory.CreateScope();
+        IAuthorityPipelineWorkRepository workOutbox =
+            dequeueScope.ServiceProvider.GetRequiredService<IAuthorityPipelineWorkRepository>();
+
+        IReadOnlyList<AuthorityPipelineWorkOutboxEntry> batch =
+            await workOutbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, cancellationToken)
+                .ConfigureAwait(false);
+
+        await BoundedBatchParallelism.ForEachAsync(
+            batch,
+            opts.MaxConcurrentBatchEntries,
+            (entry, ct) => ProcessEntryWithIsolationAsync(entry, opts, ct),
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task ProcessEntryWithIsolationAsync(
+        AuthorityPipelineWorkOutboxEntry entry,
+        AuthorityPipelineWorkProcessorOptions opts,
+        CancellationToken cancellationToken)
+    {
         using IServiceScope scope = _scopeFactory.CreateScope();
         IAuthorityPipelineWorkRepository workOutbox =
             scope.ServiceProvider.GetRequiredService<IAuthorityPipelineWorkRepository>();
 
-        IReadOnlyList<AuthorityPipelineWorkOutboxEntry> batch =
-            await workOutbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, cancellationToken);
-
-        foreach (AuthorityPipelineWorkOutboxEntry entry in batch)
-
-            try
-            {
-                await ProcessEntryAsync(scope, entry, workOutbox, cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                await OnProcessingFailedAsync(scope, workOutbox, entry, ex, opts, cancellationToken);
-            }
+        try
+        {
+            await ProcessEntryAsync(scope, entry, workOutbox, cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            await OnProcessingFailedAsync(scope, workOutbox, entry, ex, opts, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     private async Task ProcessEntryAsync(
@@ -317,6 +333,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         int maxAttempts = ClampInt(configured.MaxAttemptsBeforeDeadLetter, 1, 999);
         int baseSecs = ClampInt(configured.RetryBackoffBaseSeconds, 1, 86_400);
         int maxSecs = ClampInt(configured.RetryBackoffMaxSeconds, 1, 86_400 * 7);
+        int maxConcurrent = ClampInt(configured.MaxConcurrentBatchEntries, 1, MaxBatch);
 
         if (maxSecs < baseSecs)
             maxSecs = baseSecs;
@@ -327,6 +344,7 @@ public sealed class AuthorityPipelineWorkProcessor(
             MaxAttemptsBeforeDeadLetter = maxAttempts,
             RetryBackoffBaseSeconds = baseSecs,
             RetryBackoffMaxSeconds = maxSecs,
+            MaxConcurrentBatchEntries = maxConcurrent,
         };
     }
 

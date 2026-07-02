@@ -79,6 +79,7 @@ public sealed class IntegrationEventsOptionsValidatorTests
         {
             OutboxMaxPublishAttempts = 0,
             OutboxMaxBackoffSeconds = 0,
+            OutboxMaxConcurrentBatchEntries = 0,
             MaxConcurrentCalls = 0,
             PrefetchCount = -1,
         };
@@ -86,6 +87,6 @@ public sealed class IntegrationEventsOptionsValidatorTests
         ValidateOptionsResult result = _sut.Validate(Options.DefaultName, options);
 
         result.Failed.Should().BeTrue();
-        result.Failures.Should().HaveCountGreaterThanOrEqualTo(4);
+        result.Failures.Should().HaveCountGreaterThanOrEqualTo(5);
     }
 }
