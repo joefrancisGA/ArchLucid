@@ -40,7 +40,6 @@ public sealed class AuthorityPipelineStagesExecutor(
     IDecisionEngine decisionEngine,
     IDecisionTraceRepository decisionTraceRepository,
     IGoldenManifestRepository goldenManifestRepository,
-    IManifestHashService manifestHashService,
     IArtifactSynthesisService artifactSynthesisService,
     IArtifactBundleRepository artifactBundleRepository,
     IAuditService auditService,
@@ -113,9 +112,6 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private readonly ILogger<AuthorityPipelineStagesExecutor> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
-
-    private readonly IManifestHashService _manifestHashService =
-        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -280,7 +276,6 @@ public sealed class AuthorityPipelineStagesExecutor(
 
             ApplyScope(trace, scope);
             ApplyScope(manifest, scope);
-            manifest.ManifestHash = _manifestHashService.ComputeHash(manifest);
 
             await SaveTraceAsync(trace, uow, token);
             await SaveManifestAsync(manifest, uow, token);

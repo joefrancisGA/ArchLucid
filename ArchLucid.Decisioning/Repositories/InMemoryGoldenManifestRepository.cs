@@ -69,7 +69,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
             scope,
             keying,
             authorityPersistBody);
-        model.ManifestHash = manifestHashService.ComputeHash(model);
+        model.ManifestHash = GoldenManifestPersistedHashResolver.Resolve(keying, model, manifestHashService);
         lock (_lock)
         {
             _store.Add(model);
