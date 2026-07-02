@@ -8,7 +8,6 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Trust;
 using ArchLucid.Core.AgentEvaluation;
-using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Persistence.Data.Repositories;
