@@ -1,3 +1,4 @@
-# Merged Cobertura root line %% baseline (ratchet anchor). Not invoked in CI until V1.1 — see `assert_coverage_floor_ratchet.py` + `docs/library/V1_DEFERRED.md`.
-# When re-enabled: pass when merged line >= (baseline − slack%%), default slack 2.
-97.00
+# Merged Cobertura root line % baseline (ratchet anchor). CI: assert_coverage_floor_ratchet.py (slack 2%).
+# Interim measured ~67% merged line; ratchet toward 75 then V1.1 target 95 (see docs/library/coverage-exclusions.md).
+# Pass when merged line >= (baseline - slack%), default slack 2.
+69.00
