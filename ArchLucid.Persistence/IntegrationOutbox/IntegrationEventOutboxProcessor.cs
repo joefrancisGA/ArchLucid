@@ -1,5 +1,6 @@
 using System.Diagnostics;
 
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 
@@ -17,6 +18,8 @@ public sealed class IntegrationEventOutboxProcessor(
     IOptions<IntegrationEventsOptions> integrationEventsOptions,
     ILogger<IntegrationEventOutboxProcessor> logger) : IIntegrationEventOutboxProcessor
 {
+    private const int MaxBatch = 25;
+
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
@@ -29,102 +32,120 @@ public sealed class IntegrationEventOutboxProcessor(
     /// <inheritdoc />
     public async Task ProcessPendingBatchAsync(CancellationToken ct)
     {
-        using IServiceScope scope = _scopeFactory.CreateScope();
-        IIntegrationEventOutboxRepository outbox = scope.ServiceProvider.GetRequiredService<IIntegrationEventOutboxRepository>();
-        IIntegrationEventPublisher publisher = scope.ServiceProvider.GetRequiredService<IIntegrationEventPublisher>();
+        using IServiceScope dequeueScope = _scopeFactory.CreateScope();
+        IIntegrationEventOutboxRepository outbox =
+            dequeueScope.ServiceProvider.GetRequiredService<IIntegrationEventOutboxRepository>();
 
         IntegrationEventsOptions opts = _integrationEventsOptions.Value;
         int maxAttempts = Math.Clamp(opts.OutboxMaxPublishAttempts, 1, 100);
         int maxBackoffSeconds = Math.Clamp(opts.OutboxMaxBackoffSeconds, 1, 86_400);
+        int maxConcurrent = Math.Clamp(opts.OutboxMaxConcurrentBatchEntries, 1, MaxBatch);
 
-        IReadOnlyList<IntegrationEventOutboxEntry> batch = await outbox.DequeuePendingAsync(25, ct);
+        IReadOnlyList<IntegrationEventOutboxEntry> batch = await outbox.DequeuePendingAsync(MaxBatch, ct)
+            .ConfigureAwait(false);
 
-        foreach (IntegrationEventOutboxEntry entry in batch)
+        await BoundedBatchParallelism.ForEachAsync(
+            batch,
+            maxConcurrent,
+            (entry, token) => ProcessEntryAsync(entry, maxAttempts, maxBackoffSeconds, token),
+            ct).ConfigureAwait(false);
+    }
+
+    private async Task ProcessEntryAsync(
+        IntegrationEventOutboxEntry entry,
+        int maxAttempts,
+        int maxBackoffSeconds,
+        CancellationToken ct)
+    {
+        using IServiceScope scope = _scopeFactory.CreateScope();
+        IIntegrationEventOutboxRepository outbox =
+            scope.ServiceProvider.GetRequiredService<IIntegrationEventOutboxRepository>();
+        IIntegrationEventPublisher publisher =
+            scope.ServiceProvider.GetRequiredService<IIntegrationEventPublisher>();
+
+        using Activity? activity = ArchLucidInstrumentation.IntegrationEventOutbox.StartActivity(
+            "IntegrationEventOutbox.ProcessEntry");
+        string correlationId = entry.RunId.HasValue
+            ? FormattableString.Invariant($"run:{entry.RunId.Value:D}")
+            : FormattableString.Invariant($"integration-outbox:{entry.OutboxId:D}");
+        activity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, correlationId);
+        activity?.SetTag("archlucid.outbox_id", entry.OutboxId.ToString("D"));
+        activity?.SetTag("archlucid.event_type", entry.EventType);
+
+        if (entry.RunId.HasValue)
+
+            activity?.SetTag("archlucid.run_id", entry.RunId.Value.ToString("D"));
+
+
+        using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
+
+        try
         {
-            using Activity? activity = ArchLucidInstrumentation.IntegrationEventOutbox.StartActivity(
-                "IntegrationEventOutbox.ProcessEntry");
-            string correlationId = entry.RunId.HasValue
-                ? FormattableString.Invariant($"run:{entry.RunId.Value:D}")
-                : FormattableString.Invariant($"integration-outbox:{entry.OutboxId:D}");
-            activity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, correlationId);
-            activity?.SetTag("archlucid.outbox_id", entry.OutboxId.ToString("D"));
-            activity?.SetTag("archlucid.event_type", entry.EventType);
-
-            if (entry.RunId.HasValue)
-
-                activity?.SetTag("archlucid.run_id", entry.RunId.Value.ToString("D"));
-
-
-            using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
-
-            try
-            {
-                IReadOnlyDictionary<string, object>? applicationProperties =
-                    IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
-                        entry.EventType,
-                        entry.PayloadUtf8);
-
-                await publisher.PublishAsync(
+            IReadOnlyDictionary<string, object>? applicationProperties =
+                IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
                     entry.EventType,
-                    entry.PayloadUtf8,
-                    entry.MessageId,
-                    applicationProperties,
-                    ct);
+                    entry.PayloadUtf8);
 
-                await outbox.MarkProcessedAsync(entry.OutboxId, ct);
-                ArchLucidInstrumentation.RecordIntegrationEventDeliverySuccess(entry.EventType);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            await publisher.PublishAsync(
+                entry.EventType,
+                entry.PayloadUtf8,
+                entry.MessageId,
+                applicationProperties,
+                ct).ConfigureAwait(false);
+
+            await outbox.MarkProcessedAsync(entry.OutboxId, ct).ConfigureAwait(false);
+            ArchLucidInstrumentation.RecordIntegrationEventDeliverySuccess(entry.EventType);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            ArchLucidInstrumentation.RecordIntegrationEventDeliveryFailure(entry.EventType);
+
+            int newRetryCount = entry.RetryCount + 1;
+            string err = ex.Message;
+
+            if (err.Length > 2048)
+
+                err = err[..2048];
+
+
+            if (newRetryCount >= maxAttempts)
             {
-                ArchLucidInstrumentation.RecordIntegrationEventDeliveryFailure(entry.EventType);
+                await outbox.RecordPublishFailureAsync(
+                    entry.OutboxId,
+                    newRetryCount,
+                    nextRetryUtc: null,
+                    deadLetteredUtc: TimeProvider.System.UtcNowDateTime(),
+                    lastErrorMessage: err,
+                    ct).ConfigureAwait(false);
 
-                int newRetryCount = entry.RetryCount + 1;
-                string err = ex.Message;
+                _logger.LogError(
+                    ex,
+                    "Integration event outbox dead-lettered after {RetryCount} failures (outbox {OutboxId}, event {EventType}).",
+                    newRetryCount,
+                    entry.OutboxId,
+                    entry.EventType);
+            }
+            else
+            {
+                TimeSpan delay = IntegrationEventOutboxRetryCalculator.DelayUntilNextAttempt(newRetryCount, maxBackoffSeconds);
+                DateTime nextUtc = TimeProvider.System.UtcNowDateTime().Add(delay);
 
-                if (err.Length > 2048)
+                await outbox.RecordPublishFailureAsync(
+                    entry.OutboxId,
+                    newRetryCount,
+                    nextRetryUtc: nextUtc,
+                    deadLetteredUtc: null,
+                    lastErrorMessage: err,
+                    ct).ConfigureAwait(false);
 
-                    err = err[..2048];
-
-
-                if (newRetryCount >= maxAttempts)
-                {
-                    await outbox.RecordPublishFailureAsync(
-                        entry.OutboxId,
-                        newRetryCount,
-                        nextRetryUtc: null,
-                        deadLetteredUtc: TimeProvider.System.UtcNowDateTime(),
-                        lastErrorMessage: err,
-                        ct);
-
-                    _logger.LogError(
-                        ex,
-                        "Integration event outbox dead-lettered after {RetryCount} failures (outbox {OutboxId}, event {EventType}).",
-                        newRetryCount,
-                        entry.OutboxId,
-                        entry.EventType);
-                }
-                else
-                {
-                    TimeSpan delay = IntegrationEventOutboxRetryCalculator.DelayUntilNextAttempt(newRetryCount, maxBackoffSeconds);
-                    DateTime nextUtc = TimeProvider.System.UtcNowDateTime().Add(delay);
-
-                    await outbox.RecordPublishFailureAsync(
-                        entry.OutboxId,
-                        newRetryCount,
-                        nextRetryUtc: nextUtc,
-                        deadLetteredUtc: null,
-                        lastErrorMessage: err,
-                        ct);
-
-                    _logger.LogWarning(
-                        ex,
-                        "Integration event outbox publish failed (attempt {RetryCount}/{Max}); next retry after {NextRetryUtc} (outbox {OutboxId}, event {EventType}).",
-                        newRetryCount,
-                        maxAttempts,
-                        nextUtc,
-                        entry.OutboxId,
-                        entry.EventType);
-                }
+                _logger.LogWarning(
+                    ex,
+                    "Integration event outbox publish failed (attempt {RetryCount}/{Max}); next retry after {NextRetryUtc} (outbox {OutboxId}, event {EventType}).",
+                    newRetryCount,
+                    maxAttempts,
+                    nextUtc,
+                    entry.OutboxId,
+                    entry.EventType);
             }
         }
     }

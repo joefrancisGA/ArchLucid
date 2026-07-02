@@ -26,6 +26,7 @@ public sealed class IntegrationEventsOptionsTests
         o.TransactionalOutboxEnabled.Should().BeFalse();
         o.OutboxMaxPublishAttempts.Should().Be(6);
         o.OutboxMaxBackoffSeconds.Should().Be(300);
+        o.OutboxMaxConcurrentBatchEntries.Should().Be(4);
         o.ConsumerEnabled.Should().BeFalse();
         o.SubscriptionName.Should().BeNull();
         o.MaxConcurrentCalls.Should().Be(4);

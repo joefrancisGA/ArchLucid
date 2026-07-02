@@ -273,6 +273,68 @@ public sealed class IntegrationEventOutboxProcessorTests
             Times.Once);
     }
 
+    [SkippableFact]
+    public async Task ProcessPendingBatchAsync_respects_outbox_max_concurrent_batch_entries()
+    {
+        int inFlight = 0;
+        int peak = 0;
+        object sync = new();
+
+        Mock<IIntegrationEventPublisher> publisher = new();
+        publisher
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
+            .Returns(async () =>
+            {
+                lock (sync)
+                {
+                    inFlight++;
+
+                    if (inFlight > peak)
+                        peak = inFlight;
+                }
+
+                await Task.Delay(50).ConfigureAwait(false);
+
+                lock (sync)
+                    inFlight--;
+            });
+
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        List<IntegrationEventOutboxEntry> entries = Enumerable.Range(0, 6)
+            .Select(_ => new IntegrationEventOutboxEntry
+            {
+                OutboxId = Guid.NewGuid(),
+                RunId = Guid.NewGuid(),
+                EventType = "t",
+                MessageId = null,
+                PayloadUtf8 = [1],
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                RetryCount = 0
+            })
+            .ToList();
+
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(entries);
+
+        IntegrationEventsOptions opts = new()
+        {
+            OutboxMaxConcurrentBatchEntries = 2,
+        };
+
+        IntegrationEventOutboxProcessor sut = CreateProcessor(outbox.Object, publisher.Object, opts);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        peak.Should().BeLessOrEqualTo(2);
+        peak.Should().BeGreaterOrEqualTo(2);
+        outbox.Verify(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Exactly(entries.Count));
+    }
+
     private static IntegrationEventOutboxProcessor CreateProcessor(
         IIntegrationEventOutboxRepository outbox,
         IIntegrationEventPublisher publisher,

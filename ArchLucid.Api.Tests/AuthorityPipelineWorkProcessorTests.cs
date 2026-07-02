@@ -206,6 +206,65 @@ public sealed class AuthorityPipelineWorkProcessorTests
         outbox.Verify(r => r.MarkProcessedAsync(invalidEntry.OutboxId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    [Fact]
+    public async Task ProcessPendingBatchAsync_creates_isolated_scope_per_dequeued_entry()
+    {
+        Mock<IAuthorityPipelineWorkRepository> outbox = new();
+        Mock<IAuthorityRunOrchestrator> orchestrator = new();
+
+        List<AuthorityPipelineWorkOutboxEntry> entries =
+        [
+            CreateInvalidPayloadEntry(),
+            CreateInvalidPayloadEntry(),
+            CreateInvalidPayloadEntry(),
+        ];
+
+        outbox.Setup(r => r.DequeuePendingAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(entries);
+
+        int scopeCreates = 0;
+        IServiceProvider provider = BuildProvider(outbox, orchestrator);
+        Mock<IServiceScopeFactory> scopeFactory = new();
+        scopeFactory.Setup(f => f.CreateScope()).Returns(() =>
+        {
+            Interlocked.Increment(ref scopeCreates);
+            Mock<IServiceScope> scope = new();
+            scope.Setup(s => s.ServiceProvider).Returns(provider);
+            scope.Setup(s => s.Dispose());
+            return scope.Object;
+        });
+
+        AuthorityPipelineWorkProcessorOptions options = new()
+        {
+            MaxConcurrentBatchEntries = 3,
+        };
+
+        AuthorityPipelineWorkProcessor sut = new(
+            scopeFactory.Object,
+            Options.Create(options),
+            TimeProvider.System,
+            NullLogger<AuthorityPipelineWorkProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        scopeCreates.Should().BeGreaterOrEqualTo(entries.Count + 1);
+        outbox.Verify(r => r.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Exactly(entries.Count));
+    }
+
+    private static AuthorityPipelineWorkOutboxEntry CreateInvalidPayloadEntry()
+    {
+        return new AuthorityPipelineWorkOutboxEntry
+        {
+            OutboxId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            AttemptCount = 0,
+            PayloadJson = "{}",
+        };
+    }
+
     private static AuthorityPipelineWorkOutboxEntry CreateEntryWithValidPayload()
     {
         Guid runId = Guid.NewGuid();
@@ -262,10 +321,15 @@ public sealed class AuthorityPipelineWorkProcessorTests
 
     private static Mock<IServiceScopeFactory> CreateScopeFactory(IServiceProvider provider)
     {
-        Mock<IServiceScope> scope = new();
-        scope.Setup(s => s.ServiceProvider).Returns(provider);
         Mock<IServiceScopeFactory> scopeFactory = new();
-        scopeFactory.Setup(f => f.CreateScope()).Returns(scope.Object);
+        scopeFactory.Setup(f => f.CreateScope()).Returns(() =>
+        {
+            Mock<IServiceScope> scope = new();
+            scope.Setup(s => s.ServiceProvider).Returns(provider);
+            scope.Setup(s => s.Dispose());
+            return scope.Object;
+        });
+
         return scopeFactory;
     }
 
