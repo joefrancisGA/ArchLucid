@@ -44,7 +44,6 @@ import {
 // critical-path RunDetailPageModel so the heavy finding scan doesn't block first-screen rendering.
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
-import { getServerResolvedScopeHeaders } from "@/lib/server-operator-scope";
 import {
   projectIdFromScopeHeaders,
   runProjectMatchesEffectiveScope,
@@ -68,19 +67,32 @@ export type LoadRunDetailPageModelResult =
   | { kind: "malformed-response"; message: string }
   | { kind: "success"; model: RunDetailPageModel };
 
+async function resolveServerScopeHeadersForRun(runId: string): Promise<Record<string, string>> {
+  const demoScopeHeaders = resolveDemoWorkspaceScopeHeadersForRunId(runId);
+
+  if (demoScopeHeaders !== null) {
+    return demoScopeHeaders;
+  }
+
+  const { getServerResolvedScopeHeaders } = await import("@/lib/server-operator-scope");
+
+  return getServerResolvedScopeHeaders();
+}
+
 /** Fetches and coerces run-detail plus dependent resources for the run detail route. */
 export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDetailPageModelResult> {
   let runDetailResponse: ApiResponseWithTrace<RunDetail> | null = null;
   let loadFailure: ApiLoadFailureState | null = null;
   let usedStaticDemoRun = false;
 
-  const serverDemoScopeHeaders = isBrowser() ? null : resolveDemoWorkspaceScopeHeadersForRunId(runId);
-  const scopeHeadersOverride = serverDemoScopeHeaders ?? undefined;
+  const serverScopeHeaders = isBrowser() ? null : await resolveServerScopeHeadersForRun(runId);
+  const apiScopeOptions =
+    serverScopeHeaders !== null ? { scopeHeaders: serverScopeHeaders } : undefined;
 
   const fetchRunDetail = isBuyerPolishedOperatorShellEnv() ? getBuyerRunDetailSummary : getRunDetail;
 
   try {
-    runDetailResponse = await fetchRunDetail(runId, { scopeHeaders: scopeHeadersOverride });
+    runDetailResponse = await fetchRunDetail(runId, apiScopeOptions);
   } catch (e) {
     const fallback = tryStaticDemoRunDetail(runId);
 
@@ -127,7 +139,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
 
   const effectiveScopeHeaders = isBrowser()
     ? getEffectiveBrowserProxyScopeHeaders()
-    : await getServerResolvedScopeHeaders();
+    : serverScopeHeaders!;
   const effectiveProjectId = projectIdFromScopeHeaders(effectiveScopeHeaders);
 
   if (
@@ -154,7 +166,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let progressInitialSummary: RunSummary | null = null;
 
   try {
-    progressInitialSummary = await getRunSummary(runId);
+    progressInitialSummary = await getRunSummary(runId, apiScopeOptions);
   } catch {
     progressInitialSummary = null;
   }
@@ -173,8 +185,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let explanationSummary: RunExplanationSummary | null = null;
   let explanationFailure: ApiLoadFailureState | null = null;
 
-  const dependentFetchScopeOptions =
-    scopeHeadersOverride !== undefined ? { scopeHeaders: scopeHeadersOverride } : undefined;
+  const dependentFetchScopeOptions = apiScopeOptions;
 
   if (manifestId) {
     try {

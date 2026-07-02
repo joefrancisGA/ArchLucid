@@ -9,6 +9,7 @@ import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { getScopeHeaders } from "@/lib/scope";
 import { SERVER_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
 
@@ -80,9 +81,9 @@ async function resolveScopeHeadersForRequest(): Promise<Record<string, string>> 
     return getEffectiveBrowserProxyScopeHeaders();
   }
 
-  const { getServerResolvedScopeHeaders } = await import("@/lib/server-operator-scope");
-
-  return getServerResolvedScopeHeaders();
+  // Server RSC loaders that need cookie scope must pass `scopeHeaders` explicitly
+  // (see load-run-detail-page-model.ts). Shared http helpers stay client-importable.
+  return getScopeHeaders();
 }
 
 /**
