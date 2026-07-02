@@ -18,7 +18,7 @@ export async function fetchBackgroundJob(jobId: string): Promise<BackgroundJobIn
 export async function fetchBackgroundJobResultJson<T>(jobId: string): Promise<T> {
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest(`/v1/jobs/${encodeURIComponent(jobId)}/file`);
-  const { headers: h, correlationId } = withCorrelationHeaders(headers);
+  const { headers: h, correlationId } = applyCorrelationHeaders(headers);
 
   const response = await fetch(url, { method: "GET", headers: h });
   const text = await response.text();

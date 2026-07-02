@@ -10,7 +10,6 @@ import { CloudInventoryExtractorCommandPanel } from "@/components/wizard/CloudIn
 import { AzureExtractorPackageZipField } from "@/components/wizard/steps/AzureExtractorPackageZipField";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 function resolveInventoryPlatform(cloudProvider: WizardFormValues["cloudProvider"]): CloudInventoryPlatform {

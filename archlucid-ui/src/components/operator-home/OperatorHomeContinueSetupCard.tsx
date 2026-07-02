@@ -19,7 +19,7 @@ export function OperatorHomeContinueSetupCard() {
         >
           Continue setup
         </h2>
-        <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}>
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
           Finish workspace setup, reviewer access, and optional cloud connections.
         </p>
       </div>

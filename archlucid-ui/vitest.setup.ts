@@ -3,6 +3,19 @@ import { afterEach, vi } from "vitest";
 
 import "@testing-library/jest-dom/vitest";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+    push: vi.fn(),
+    refresh: vi.fn(),
+    replace: vi.fn(),
+  }),
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 process.env.NEXT_PUBLIC_OPERATOR_NAV_SHOW_PRE_RELEASE_ROUTES = "1";
 
 /** Default UI is buyer-polished unless `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`; pin full operator for tests. */

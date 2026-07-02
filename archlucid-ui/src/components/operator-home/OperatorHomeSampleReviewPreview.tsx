@@ -47,7 +47,7 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
         <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
           {OPERATOR_HOME_SAMPLE_FINDINGS_HEADING}
         </CardTitle>
-        <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-neutral-600 dark:text-neutral-400")}>
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
           {OPERATOR_HOME_SAMPLE_FINDINGS_LEAD}
         </p>
       </CardHeader>
@@ -64,16 +64,16 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
               data-testid={`operator-home-sample-review-finding-${finding.id}`}
             >
               <div className={cn("flex flex-wrap items-center gap-2", OPERATOR_LAYOUT.inlineGap)}>
-                <span className={cn(OPERATOR_TYPE_SCALE.meta, "font-medium text-al-text-secondary")}>
+                <span className={cn(OPERATOR_TYPE_SCALE.helper, "font-medium text-al-text-secondary")}>
                   {index + 1}.
                 </span>
-                <span className={cn(OPERATOR_TYPE_SCALE.meta, "font-semibold text-al-text-primary")}>
+                <span className={cn(OPERATOR_TYPE_SCALE.helper, "font-semibold text-al-text-primary")}>
                   {finding.title}
                 </span>
                 <span className="text-neutral-300 dark:text-neutral-700">—</span>
                 <SeverityTag severity={finding.severity} />
               </div>
-              <p className={cn("m-0 mt-1 ml-5", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}>
+              <p className={cn("m-0 mt-1 ml-5", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
                 {finding.summary}
               </p>
             </li>

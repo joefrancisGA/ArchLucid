@@ -45,7 +45,7 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
           <div className="flex flex-wrap items-center gap-2">
             <h2
               id="sample-first-review-heading"
-              className={cn("m-0", OPERATOR_TYPE_SCALE.title, "text-neutral-900 dark:text-neutral-50")}
+              className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-50")}
             >
               {BUYER_HOME_SAMPLE_PACKAGE_HEADLINE}
             </h2>
@@ -64,7 +64,7 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
                 >
                   Approved with monitoring
                 </span>
-                <span className={OPERATOR_TYPE_SCALE.meta}>
+                <span className={OPERATOR_TYPE_SCALE.helper}>
                   {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} monitored risk
                 </span>
               </div>
@@ -84,7 +84,7 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
                 >
                   Approved with monitoring
                 </span>
-                <span className={OPERATOR_TYPE_SCALE.meta}>
+                <span className={OPERATOR_TYPE_SCALE.helper}>
                   {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} monitored residual risk · audit evidence ready
                 </span>
               </div>

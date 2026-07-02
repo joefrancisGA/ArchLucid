@@ -40,7 +40,7 @@ async function postOutboundCreateRequest(
 ): Promise<{ status: number; body: unknown }> {
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest("/v1/integrations/itsm/outbound/issues");
-  const { headers: h, correlationId } = withCorrelationHeaders(headers);
+  const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
 
   const response = await fetch(

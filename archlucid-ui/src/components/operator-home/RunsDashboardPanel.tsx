@@ -390,7 +390,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               : null}
             {tab === "outcomes" ? RUNS_DASHBOARD_LABELS.reviewOutcomes : null}
           </CardTitle>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-neutral-600 dark:text-neutral-400")}>
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
             {tab === "recent"
               ? buyerPolishedShell
                 ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY

@@ -75,11 +75,11 @@ export function PilotCommandCenterCard(): React.JSX.Element {
     >
       <div className="heroHeader flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="min-w-0 flex-1 space-y-1">
-          <h2 id="pilot-command-center-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.title)}>
+          <h2 id="pilot-command-center-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}>
             {heroHeading}
           </h2>
           <p
-            className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}
+            className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
             data-testid="pilot-command-center-lead"
           >
             {nextAction.bridgeCopy}
@@ -104,7 +104,7 @@ export function PilotCommandCenterCard(): React.JSX.Element {
 
       {!hasCommittedArchitectureReview ? (
         <div className="heroOptionalSetup mt-2 space-y-2" data-testid="pilot-command-center-optional-setup">
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}>
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
             {PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL}
           </p>
           <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>

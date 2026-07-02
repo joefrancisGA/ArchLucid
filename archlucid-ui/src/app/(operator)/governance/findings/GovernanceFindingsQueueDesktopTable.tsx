@@ -24,7 +24,6 @@ import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
 } from "@/lib/buyer-polish-copy";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
