@@ -1551,26 +1551,30 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Install Pester
+      - name: Install Pester and PSScriptAnalyzer
         shell: pwsh
         run: |
           [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
           $gallery = Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue
-          if (-not $gallery) {
-            Register-PSRepository -Name PSGallery -SourceLocation 'https://www.powershellgallery.com/api/v2' -InstallationPolicy Trusted
-          }
-          else {
+          if ($gallery) {
             Set-PSRepository PSGallery -InstallationPolicy Trusted
           }
-          Install-Module Pester -Force -Scope CurrentUser -MinimumVersion 5.0.0 -MaximumVersion 5.99.99 -Repository PSGallery
-
-      - name: Install PSScriptAnalyzer
-        shell: pwsh
-        run: |
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
-            Register-PSRepository -Name PSGallery -SourceLocation 'https://www.powershellgallery.com/api/v2' -InstallationPolicy Trusted
+          else {
+            try {
+              Register-PSRepository -Default -InstallationPolicy Trusted
+            }
+            catch {
+              if ($_.Exception.Message -notmatch 'already exists') {
+                throw
+              }
+            }
           }
+
+          if (Get-Command Set-PSResourceRepository -ErrorAction SilentlyContinue) {
+            Set-PSResourceRepository -Name PSGallery -Trusted -ErrorAction SilentlyContinue
+          }
+
+          Install-Module Pester -Force -Scope CurrentUser -MinimumVersion 5.0.0 -MaximumVersion 5.99.99 -Repository PSGallery
           Install-Module PSScriptAnalyzer -Force -Scope CurrentUser -MinimumVersion 1.21.0 -Repository PSGallery
 
       - name: PSScriptAnalyzer security gate (Get-ArchLucidAzurePackage.ps1)
