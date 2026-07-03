@@ -403,19 +403,14 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void Retrieval_must_not_depend_on_Persistence()
     {
+        // NetArchTest HaveDependencyOn("ArchLucid.Persistence") false-positives on Core-hosted persistence ports
+        // (ArchLucid.Core.Persistence.* and ArchLucid.Persistence.* shims compiled into ArchLucid.Core).
         Assembly retrieval = typeof(RetrievalQueryService).Assembly;
+        AssemblyName[] references = retrieval.GetReferencedAssemblies();
 
-        TestResult result = Types
-            .InAssembly(retrieval)
-            .That()
-            .DoNotHaveName("ScopedAzureRetailPriceTenantCostSettingsContext")
-            .ShouldNot()
-            .HaveDependencyOn("ArchLucid.Persistence")
-            .GetResult();
-
-        result.IsSuccessful.Should().BeTrue(
-            because: "Retrieval stays above SQL/Dapper. Offending types: {0}",
-            FormatFailingTypeNames(result));
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Persistence",
+            because: "Retrieval stays above SQL/Dapper; depend on persistence ports in Core, not the Persistence implementation assembly.");
     }
 
     [Fact]
