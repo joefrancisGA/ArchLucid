@@ -14,7 +14,6 @@ import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
-import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
 import {
@@ -74,7 +73,6 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
               className="flex min-w-0 flex-wrap items-center gap-2"
             >
               <ScopeSwitcher density="compact" />
-              <ExecutiveOperatorShellSwitcher />
             </div>
             <AuthPanel />
             <div className="flex items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">

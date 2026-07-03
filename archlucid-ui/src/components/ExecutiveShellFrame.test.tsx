@@ -1,5 +1,7 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
+import { PERSONA_SHELL_WORKSPACE_LABEL } from "@/lib/persona-shell-vocabulary";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/executive/dashboard",
@@ -32,17 +34,16 @@ describe("ExecutiveShellFrame", () => {
     expect(screen.getByTestId("executive-shell-nav-scorecard")).toHaveAttribute("href", "/executive/scorecard");
   });
 
-  it("renders the operator / executive switcher in the executive top bar", () => {
+  it("renders an architect workspace handoff link instead of a persona switcher", () => {
     render(
       <ExecutiveShellFrame>
         <p>child</p>
       </ExecutiveShellFrame>,
     );
 
-    expect(screen.getByTestId("executive-operator-shell-switcher")).toBeInTheDocument();
-    const switcher = screen.getByTestId("executive-operator-shell-switcher");
-    expect(within(switcher).getByRole("link", { name: "Architect" })).toHaveAttribute("href", "/");
-    expect(within(switcher).getByRole("link", { name: "Executive" })).toHaveAttribute("href", "/executive/dashboard");
+    expect(screen.queryByTestId("executive-operator-shell-switcher")).not.toBeInTheDocument();
+    expect(screen.getByTestId("executive-shell-architect-workspace-link")).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: PERSONA_SHELL_WORKSPACE_LABEL })).toBeInTheDocument();
   });
 
   it("highlights the active route link", () => {

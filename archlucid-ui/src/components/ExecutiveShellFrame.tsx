@@ -14,10 +14,10 @@ import { ExecutiveShellDeferredChrome } from "@/components/executive/ExecutiveSh
 import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
-import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
+import { PERSONA_SHELL_WORKSPACE_LABEL } from "@/lib/persona-shell-vocabulary";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 
 export type ExecutiveShellFrameProps = {
@@ -90,7 +90,11 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
               data-testid="executive-shell-topbar-session"
               className="flex min-w-0 flex-wrap items-center justify-end gap-2"
             >
-              <ExecutiveOperatorShellSwitcher />
+              <Button asChild variant="ghost" size="sm" className="shrink-0 text-neutral-700 dark:text-neutral-300">
+                <Link href="/" data-testid="executive-shell-architect-workspace-link">
+                  {PERSONA_SHELL_WORKSPACE_LABEL}
+                </Link>
+              </Button>
               <ScopeSwitcher density="compact" />
               <AuthPanel />
               {isUiAuthorityThemeEvalEnabledEnv() ? <AuthorityThemeToggle /> : null}
