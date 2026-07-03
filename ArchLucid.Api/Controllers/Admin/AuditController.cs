@@ -92,6 +92,7 @@ public sealed class AuditController(
         [FromQuery] string? actorUserId = null,
         [FromQuery] Guid? runId = null,
         [FromQuery] int take = 100,
+        [FromQuery] bool includeDataJson = false,
         CancellationToken ct = default)
     {
         (DateTime OccurredUtc, Guid EventId)? opaque = AuditEventCursorCodec.TryDecode(cursor);
@@ -129,7 +130,8 @@ public sealed class AuditController(
             CorrelationId = correlationId,
             ActorUserId = actorUserId,
             RunId = runId,
-            Take = clampedTake + 1
+            Take = clampedTake + 1,
+            IncludeDataJson = includeDataJson,
         };
 
         IReadOnlyList<AuditEvent> rows = await repo.GetFilteredAsync(
