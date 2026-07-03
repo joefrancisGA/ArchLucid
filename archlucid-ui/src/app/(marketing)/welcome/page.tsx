@@ -9,7 +9,8 @@ import {
   MARKETING_WELCOME_OG_DESCRIPTION,
   buildMarketingSocialMetadata,
 } from "@/lib/marketing-open-graph";
-export { revalidate } from "@/lib/next/marketing-isr-route-policy";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Welcome",

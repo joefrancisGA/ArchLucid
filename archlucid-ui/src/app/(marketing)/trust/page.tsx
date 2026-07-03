@@ -12,7 +12,8 @@ import {
   parseTrustCenterLastReviewedUtc,
   readTrustCenterMarkdown,
 } from "@/lib/trust-center-marketing";
-export { revalidate } from "@/lib/next/marketing-isr-route-policy";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Trust Center",

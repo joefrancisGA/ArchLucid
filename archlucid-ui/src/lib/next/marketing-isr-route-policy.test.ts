@@ -14,9 +14,9 @@ describe("marketing-isr-route-policy (TB-567)", () => {
     expect(revalidate).toBe(300);
   });
 
-  it.each(tb567MarketingRoutes)("route /%s re-exports the shared ISR policy", (routeSegment) => {
+  it.each(tb567MarketingRoutes)("route /%s exports inline ISR revalidate for Next.js segment config", (routeSegment) => {
     const source = readFileSync(join(appRoot, routeSegment, "page.tsx"), "utf8");
 
-    expect(source).toContain('export { revalidate } from "@/lib/next/marketing-isr-route-policy"');
+    expect(source).toContain("export const revalidate = 300;");
   });
 });
