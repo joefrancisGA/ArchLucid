@@ -12,7 +12,6 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.Data.Infrastructure;
