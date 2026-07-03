@@ -1,5 +1,4 @@
-using System.Diagnostics;
-
+using ArchLucid.Api.Diagnostics;
 using ArchLucid.Core.Diagnostics;
 
 using Asp.Versioning;
@@ -24,25 +23,11 @@ namespace ArchLucid.Api.Controllers;
 [AllowUnscopedRoute]
 [ApiVersionNeutral]
 [EnableRateLimiting("fixed")]
-public sealed class VersionController(IHostEnvironment environment, TimeProvider timeProvider) : ControllerBase
+public sealed class VersionController(IHostEnvironment environment, IConfiguration configuration, TimeProvider timeProvider)
+    : ControllerBase
 {
-    private static readonly BuildProvenance Provenance =
-        BuildProvenance.FromAssembly(typeof(VersionController).Assembly);
-
     /// <summary>Returns application version, commit SHA, runtime framework, and environment name.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(BuildInfoResponse), StatusCodes.Status200OK)]
-    public IActionResult Get()
-    {
-        Process process = Process.GetCurrentProcess();
-        long processUptimeSeconds = (long)(timeProvider.GetUtcNow() - process.StartTime.ToUniversalTime()).TotalSeconds;
-
-        BuildInfoResponse response = BuildInfoResponse.FromProvenance(
-            Provenance,
-            "ArchLucid.Api",
-            environment.EnvironmentName,
-            processUptimeSeconds);
-
-        return Ok(response);
-    }
+    public IActionResult Get() => Ok(ApiBuildInfoFactory.Create(environment, configuration, timeProvider));
 }

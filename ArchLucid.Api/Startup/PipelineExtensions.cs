@@ -2,6 +2,7 @@ using System.Diagnostics;
 
 using ArchLucid.Api.Auth;
 using ArchLucid.Api.Auth.Services;
+using ArchLucid.Api.Diagnostics;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Security;
@@ -147,6 +148,11 @@ internal static class PipelineExtensions
         app.UseMiddleware<ApiRequestMeteringMiddleware>();
         app.MapHealthChecks("/health/live",
                 new HealthCheckOptions { Predicate = static check => check.Tags.Contains(ReadinessTags.Live) })
+            .AllowAnonymous();
+        app.MapGet(
+                "/health/version",
+                (IHostEnvironment environment, IConfiguration configuration, TimeProvider timeProvider) =>
+                    Results.Ok(ApiBuildInfoFactory.Create(environment, configuration, timeProvider)))
             .AllowAnonymous();
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
             {

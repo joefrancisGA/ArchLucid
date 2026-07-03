@@ -35,6 +35,7 @@ export type VersionInfoResponse = {
   application?: string;
   informationalVersion?: string;
   commitSha?: string | null;
+  buildTimestamp?: string;
   environment?: string;
   processUptimeSeconds?: number;
 };
