@@ -114,7 +114,7 @@ Findings engine work (~221 ms in baseline attribution) runs during **create**, n
 | 7 | Wire **Redis L2 + replica count** before horizontal scale-out (**TB-094** infra done) | **TB-580** **Done** | Avoid miss storms |
 | 8 | Extend **HotPathCache** or short-TTL cache to governance dashboard / audit search | **TB-581** **Done** | Documented coverage gaps |
 
-Additional medium/low items: **TB-582**–**TB-593** — **TB-582**–**TB-586** **Done** (2026-07-02); **TB-587**–**TB-593** remain open (DevOps HTTP resilience, commit dedupe loads, manifest CPU, hybrid-cache hits, SQL pool/MARS, k6 gaps, findings cache).
+Additional medium/low items: **TB-582**–**TB-593** — **TB-582**–**TB-587** **Done** (2026-07-02); **TB-588**–**TB-593** remain open (commit dedupe loads, manifest CPU, hybrid-cache hits, SQL pool/MARS, k6 gaps, findings cache).
 
 ---
 
@@ -122,7 +122,7 @@ Additional medium/low items: **TB-582**–**TB-593** — **TB-582**–**TB-586**
 
 | ID range | Scope |
 |----------|--------|
-| **TB-574**–**TB-593** | Backend performance assessment recommendations — canonical detail in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md); **TB-574**–**TB-586** **Done** (2026-07-02); **TB-587**–**TB-593** open |
+| **TB-574**–**TB-593** | Backend performance assessment recommendations — canonical detail in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md); **TB-574**–**TB-587** **Done** (2026-07-02); **TB-588**–**TB-593** open |
 | **TB-003**, **TB-094**, **TB-155**, **TB-319** | Done — related performance work; do not duplicate |
 | **TB-560**–**TB-573** | Open — UI operator-shell performance (separate audit) |
 | **TB-018** | Open — warm tenant catalogs (signup latency) |
@@ -137,7 +137,7 @@ Additional medium/low items: **TB-582**–**TB-593** — **TB-582**–**TB-586**
 | **TB-094** | Done | Terraform Redis for hot-path cache — runtime wiring is **TB-580** |
 | **TB-155** | Done | ROI cache vs live governance KPIs |
 | **TB-319** | Done | Pilot-critical performance evidence script |
-| **TB-574**–**TB-593** | Partial — **TB-574**–**TB-586** **Done** (2026-07-02); **TB-587**–**TB-593** open — see [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) |
+| **TB-574**–**TB-593** | Partial — **TB-574**–**TB-587** **Done** (2026-07-02); **TB-588**–**TB-593** open — see [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) |
 | **TB-018** | Open | Warm tenant catalogs (signup latency) |
 | **TB-560–573** | Open | Next.js operator-shell performance (UI, not API SQL) |
 

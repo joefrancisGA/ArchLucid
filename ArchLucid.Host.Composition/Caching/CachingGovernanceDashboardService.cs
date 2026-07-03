@@ -38,7 +38,14 @@ public sealed class CachingGovernanceDashboardService(
 
         GovernanceDashboardSummary? summary = await _cache.GetOrCreateAsync(
             key,
-            innerCt => _inner.GetDashboardAsync(tenantId, maxPending, maxDecisions, maxChanges, innerCt),
+            async innerCt =>
+            {
+                GovernanceDashboardSummary result = await _inner
+                    .GetDashboardAsync(tenantId, maxPending, maxDecisions, maxChanges, innerCt)
+                    .ConfigureAwait(false);
+
+                return (GovernanceDashboardSummary?)result;
+            },
             cancellationToken,
             absoluteExpirationSecondsOverride: DashboardAbsoluteExpirationSeconds);
 
