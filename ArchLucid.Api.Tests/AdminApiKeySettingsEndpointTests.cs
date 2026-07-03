@@ -71,9 +71,25 @@ public sealed class AdminApiKeySettingsEndpointTests(ApiKeyReaderAndAdminArchLuc
         AuditEvent issued = auditPage.Items.First(static e =>
             string.Equals(e.EventType, AuditEventTypes.AdminApiKeyRotationMaterialIssued, StringComparison.Ordinal));
 
-        issued.DataJson.Should().NotBeNullOrWhiteSpace();
-        issued.DataJson.Should().NotContain(body.PlaintextKey, "rotation audit must not persist key material");
-        issued.DataJson.Should().Contain("deploymentAction");
-        issued.DataJson.Should().Contain("configPath");
+        issued.DataJson.Should().Be("{}");
+        issued.DataJson.Should().NotContain(body.PlaintextKey, "default audit search must not return key material");
+
+        using HttpResponseMessage auditWithPayloadResponse = await client.GetAsync(
+            $"/v1/audit/search?eventType={AuditEventTypes.AdminApiKeyRotationMaterialIssued}&take=10&includeDataJson=true");
+
+        await auditWithPayloadResponse.EnsureSuccessForTestAsync();
+        CursorPagedResponse<AuditEvent>? auditWithPayloadPage =
+            await auditWithPayloadResponse.Content.ReadFromJsonAsync<CursorPagedResponse<AuditEvent>>(JsonOptions);
+
+        auditWithPayloadPage.Should().NotBeNull();
+        auditWithPayloadPage!.Items.Should().NotBeEmpty();
+
+        AuditEvent issuedWithPayload = auditWithPayloadPage.Items.First(static e =>
+            string.Equals(e.EventType, AuditEventTypes.AdminApiKeyRotationMaterialIssued, StringComparison.Ordinal));
+
+        issuedWithPayload.DataJson.Should().NotBeNullOrWhiteSpace();
+        issuedWithPayload.DataJson.Should().NotContain(body.PlaintextKey, "rotation audit must not persist key material");
+        issuedWithPayload.DataJson.Should().Contain("deploymentAction");
+        issuedWithPayload.DataJson.Should().Contain("configPath");
     }
 }
