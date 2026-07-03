@@ -8,7 +8,7 @@ namespace ArchLucid.Decisioning.Tests.Findings;
 [Trait("Category", "Unit")]
 public sealed class FindingsSnapshotTypeIndexTests
 {
-    [SkippableFact]
+    [Fact]
     public void GetByType_returns_matching_findings_in_single_pass()
     {
         FindingsSnapshot snapshot = new()

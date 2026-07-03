@@ -7,6 +7,7 @@ using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Rules;
 
 using DomainRuleAuditTracePayload = ArchLucid.Decisioning.DecisionTraces.RuleAuditTracePayload;
 using DomainRuleAuditTraceWarning = ArchLucid.Decisioning.DecisionTraces.RuleAuditTraceWarning;
@@ -55,6 +56,7 @@ public class RuleBasedDecisionEngine(
         List<DecisionRule> rules = ruleSet.Rules
             .OrderByDescending(r => r.Priority)
             .ToList();
+        DecisionRuleFindingTypeIndex rulesByFindingType = new(rules);
 
         DomainRuleAuditTracePayload audit = new()
         {
@@ -68,12 +70,7 @@ public class RuleBasedDecisionEngine(
 
         foreach (Finding finding in findingsSnapshot.Findings)
         {
-            List<DecisionRule> matchingRules = rules
-                .Where(r => string.Equals(
-                    r.AppliesToFindingType,
-                    finding.FindingType,
-                    StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            IReadOnlyList<DecisionRule> matchingRules = rulesByFindingType.GetByFindingType(finding.FindingType);
 
             if (matchingRules.Count == 0)
             {
