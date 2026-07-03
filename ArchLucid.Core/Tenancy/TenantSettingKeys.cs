@@ -8,4 +8,9 @@ public static class TenantSettingKeys
 
     /// <summary>JSON blob for operator-entered realized-value attestation (item 20 hybrid model).</summary>
     public const string RealizedValueAttestation = "RealizedValue.Attestation";
+
+    /// <summary>
+    ///     Tenant opt-in for manifest-derived fine-tuning export (<c>Disabled</c>, <c>Enabled</c>, <c>Withdrawn</c>).
+    /// </summary>
+    public const string FineTuningManifestConsent = "FineTuning.ManifestConsent";
 }
