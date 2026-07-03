@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_CARD, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -13,12 +14,7 @@ export function OperatorHomeContinueSetupCard() {
       data-testid="home-block-continue-setup"
     >
       <div className={cn("min-w-0 flex-1", OPERATOR_LAYOUT.sectionHeadingStack)}>
-        <h2
-          id="continue-setup-heading"
-          className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}
-        >
-          Continue setup
-        </h2>
+        <OperatorHomeCardSectionTitle id="continue-setup-heading">Continue setup</OperatorHomeCardSectionTitle>
         <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
           Finish workspace setup, reviewer access, and optional cloud connections.
         </p>

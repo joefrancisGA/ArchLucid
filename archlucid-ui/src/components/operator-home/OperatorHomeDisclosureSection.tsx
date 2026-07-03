@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useId, useLayoutEffect, useState, type ReactNode } from "react";
 
+import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { Button } from "@/components/ui/button";
 import {
   collapseAriaLabel,
@@ -11,7 +12,7 @@ import {
   readOperatorHomeDisclosureExpanded,
   writeOperatorHomeDisclosureExpanded,
 } from "@/lib/operator-home-disclosure-storage";
-import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type OperatorHomeDisclosureSectionProps = {
   title: string;
@@ -20,7 +21,7 @@ type OperatorHomeDisclosureSectionProps = {
   storageKey: string;
   legacyStorageKeys?: readonly string[];
   defaultExpanded: boolean;
-  /** Slim rows for low-priority home sections — tighter padding; title scale stays at card level. */
+  /** Slim rows for low-priority home sections — smaller chevron; title uses peer card scale and padding. */
   density?: "default" | "slim";
   description?: ReactNode;
   collapsedSummary?: ReactNode;
@@ -81,22 +82,16 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
       aria-labelledby={titleId}
       className={cn(
         "rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950",
-        slim ? OPERATOR_LAYOUT.disclosure.slim : OPERATOR_LAYOUT.disclosure.default,
         sectionClassName,
       )}
       data-testid={sectionTestId}
       data-disclosure-expanded={hydrated ? String(expanded) : undefined}
       {...sectionDataAttributes}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className={cn(OPERATOR_CARD.header, "flex flex-row items-start justify-between gap-3 pb-0")}>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2
-              id={titleId}
-              className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}
-            >
-              {title}
-            </h2>
+            <OperatorHomeCardSectionTitle id={titleId}>{title}</OperatorHomeCardSectionTitle>
             {headerAside}
           </div>
 
@@ -141,7 +136,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
       </div>
 
       {showExpandedContent ? (
-        <div id={`${titleId}-panel`} className={cn(slim ? OPERATOR_LAYOUT.disclosure.bodyOffsetSlim : OPERATOR_LAYOUT.disclosure.bodyOffset, bodyClassName)}>
+        <div id={`${titleId}-panel`} className={cn(OPERATOR_CARD.content, bodyClassName)}>
           {children}
         </div>
       ) : null}

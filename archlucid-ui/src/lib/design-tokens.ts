@@ -139,6 +139,9 @@ export const OPERATOR_NAV_GROUP_LABEL = `${OPERATOR_TYPE_SCALE.tab} uppercase tr
 export const OPERATOR_HOME_PRIMARY_SECTION_HEADING =
   "m-0 text-xl font-bold leading-7 tracking-tight text-al-text-primary";
 
+/** Peer overview card h2 — matches {@link OPERATOR_TYPE_SCALE.cardTitle} and CardTitle chrome. */
+export const OPERATOR_HOME_CARD_SECTION_HEADING = `m-0 tracking-tight ${OPERATOR_TYPE_SCALE.cardTitle}`;
+
 /** Zone headings one step below primary — e.g. First-hour path, Latest in workspace. */
 export const OPERATOR_HOME_SECTION_HEADING = `m-0 ${OPERATOR_TYPE_SCALE.sectionTitle}`;
 

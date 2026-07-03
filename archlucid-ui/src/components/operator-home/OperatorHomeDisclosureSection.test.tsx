@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
-import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 
 afterEach(() => {
   localStorage.clear();
@@ -55,7 +55,8 @@ describe("OperatorHomeDisclosureSection", () => {
 
     expect(heading.className).toContain("font-semibold");
     expect(heading.className).toContain("text-[15px]");
-    expect(OPERATOR_TYPE_SCALE.cardTitle).toContain("text-[15px]");
+    expect(heading.className).toContain("tracking-tight");
+    expect(OPERATOR_HOME_CARD_SECTION_HEADING).toContain("tracking-tight");
     expect(heading.className).not.toContain("text-xs");
   });
 
