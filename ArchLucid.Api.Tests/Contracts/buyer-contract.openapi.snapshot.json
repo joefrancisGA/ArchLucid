@@ -4644,6 +4644,9 @@
           "assemblyVersion": {
             "type": "string"
           },
+          "buildTimestamp": {
+            "type": "string"
+          },
           "commitSha": {
             "type": [
               "null",
