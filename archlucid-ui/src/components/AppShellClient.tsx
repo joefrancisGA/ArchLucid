@@ -25,6 +25,7 @@ import {
   useOperatorChromeMode,
 } from "@/components/OperatorChromeModeContext";
 import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
+import { DeploymentBuildFingerprintStrip } from "@/components/shell/DeploymentBuildFingerprintStrip";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
@@ -443,8 +444,9 @@ function AppShellInner({ children }: AppShellClientProps) {
               className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
               aria-label="Trust and compliance"
             >
-              <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex items-center justify-end gap-3 px-4 lg:px-6")}>
+              <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-col items-end gap-1 px-4 lg:px-6")}>
                 <TrustCenterShellLink variant="footer" />
+                <DeploymentBuildFingerprintStrip className="text-right" />
               </div>
             </footer>
           ) : !isNextPublicDemoMode() && !hideWorkspaceHealthFooter ? (
@@ -452,8 +454,9 @@ function AppShellInner({ children }: AppShellClientProps) {
               className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
               aria-label="Workspace footer"
             >
-              <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex items-center px-4 lg:px-6")}>
+              <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-col gap-1 px-4 lg:px-6")}>
                 <SystemHealthStatusStrip className="mb-0 min-w-0 flex-1" />
+                <DeploymentBuildFingerprintStrip />
               </div>
             </footer>
           ) : null}

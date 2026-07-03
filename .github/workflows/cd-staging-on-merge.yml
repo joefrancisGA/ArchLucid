@@ -62,6 +62,11 @@ jobs:
           # DEPLOY_SHA is the exact commit being deployed; always the workflow_run head SHA regardless of IMAGE_TAG override.
           echo "DEPLOY_SHA=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_ENV"
 
+      - name: Capture deployment build metadata
+        run: |
+          echo "BUILD_TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+          echo "DEPLOY_ENV=staging" >> "$GITHUB_ENV"
+
       - name: Detect ACR configuration
         id: acr
         env:
@@ -105,8 +110,10 @@ jobs:
           tags: |
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:${{ env.IMAGE_TAG }}
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:latest-staging
-          # BUILD_SHA stamps SourceRevisionId into the assembly so GET /version returns the deploying commit.
-          build-args: BUILD_SHA=${{ github.event.workflow_run.head_sha }}
+          build-args: |
+            BUILD_SHA=${{ github.event.workflow_run.head_sha }}
+            BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
+            DEPLOY_ENV=${{ env.DEPLOY_ENV }}
           push: true
           pull: true
           provenance: false
@@ -124,7 +131,14 @@ jobs:
           tags: |
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:${{ env.IMAGE_TAG }}
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:latest-staging
-          build-args: BUILD_SHA=${{ github.event.workflow_run.head_sha }}
+          build-args: |
+            BUILD_SHA=${{ github.event.workflow_run.head_sha }}
+            BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
+            DEPLOY_ENV=${{ env.DEPLOY_ENV }}
+            NEXT_PUBLIC_BUILD_COMMIT_SHA=${{ github.event.workflow_run.head_sha }}
+            NEXT_PUBLIC_BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
+            NEXT_PUBLIC_DEPLOY_ENV=${{ env.DEPLOY_ENV }}
+            NEXT_PUBLIC_API_UPSTREAM_HOST=${{ vars.API_UPSTREAM_HOST }}
           push: true
           pull: true
           provenance: false
@@ -248,10 +262,12 @@ jobs:
           echo "Deploy API image: ${API_IMAGE}"
           A_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE" \
             --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
+              "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$DEPLOY_SHA" \
             --query "properties.latestRevisionName" -o tsv)
           if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
             W_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --image "$API_IMAGE" \
               --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
+                "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$DEPLOY_SHA" \
               --query "properties.latestRevisionName" -o tsv)
           fi
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ] && [ -n "${UI_IMAGE}" ]; then

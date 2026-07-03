@@ -130,6 +130,12 @@ RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 \
 
 FROM ${DOTNET_ASPNET_IMAGE} AS runtime
 
+ARG BUILD_SHA=""
+ARG BUILD_TIMESTAMP=""
+ARG DEPLOY_ENV=""
+ENV ARCHLUCID_BUILD_COMMIT_SHA=${BUILD_SHA}
+ENV ARCHLUCID_BUILD_TIMESTAMP=${BUILD_TIMESTAMP}
+
 # ICU for globalisation; wget for HEALTHCHECK (already present in Alpine aspnet image).
 # apk upgrade + explicit OpenSSL floor (CVE-2026-28390) so cached layers cannot keep 3.5.5-r0.
 RUN apk update --no-cache \

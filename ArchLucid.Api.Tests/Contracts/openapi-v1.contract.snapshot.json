@@ -4650,6 +4650,9 @@
               "string"
             ]
           },
+          "buildTimestamp": {
+            "type": "string"
+          },
           "environment": {
             "type": "string"
           },
