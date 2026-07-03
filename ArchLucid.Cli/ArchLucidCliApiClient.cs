@@ -55,6 +55,7 @@ public sealed class ArchLucidApiClient
     public ArchLucidApiClient(string baseUrl, ArchLucidProjectScaffolder.ArchLucidCliConfig? cliConfig = null)
     {
         string? invalidReason = GetInvalidApiBaseUrlReason(baseUrl);
+
         if (invalidReason is not null)
             throw new ArgumentException(invalidReason, nameof(baseUrl));
 
@@ -97,6 +98,7 @@ public sealed class ArchLucidApiClient
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
+
         if (!string.IsNullOrWhiteSpace(apiKey))
         {
             http.DefaultRequestHeaders.Remove("X-Api-Key");
@@ -119,6 +121,7 @@ public sealed class ArchLucidApiClient
         ArchLucidProjectScaffolder.ArchLucidCliConfig? cliConfig = null)
     {
         string? invalidReason = GetInvalidApiBaseUrlReason(baseUrl);
+
         if (invalidReason is not null)
             throw new ArgumentException(invalidReason, nameof(baseUrl));
 
@@ -146,6 +149,7 @@ public sealed class ArchLucidApiClient
                 "API base URL is empty. Set apiUrl in archlucid.json in the project folder or ARCHLUCID_API_URL (example: http://localhost:5128).";
 
         string trimmed = baseUrl.Trim();
+
         if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
 
             return
@@ -296,6 +300,7 @@ public sealed class ArchLucidApiClient
         try
         {
             Gen.ArchitectureRequest? body = MapToGenerated(request);
+
             if (body is null)
                 return CreateRunResult.Fail(null, "Invalid architecture request payload.");
 
@@ -597,6 +602,7 @@ public sealed class ArchLucidApiClient
         {
             result.RunId = runId;
             Gen.AgentResult? genResult = MapToGenerated(result);
+
             if (genResult is null)
                 return new SubmitResultResult(false, null, "Invalid agent result payload.");
 
@@ -926,6 +932,7 @@ public sealed class ArchLucidApiClient
             var body = new { format, replayMode, profile, persistReplay };
 
             HttpResponseMessage response = await _http.PostAsJsonAsync(uri, body, _jsonOptions, ct);
+
             if (!response.IsSuccessStatusCode)
             {
                 string contentError = await response.Content.ReadAsStringAsync(ct);
@@ -938,6 +945,7 @@ public sealed class ArchLucidApiClient
                     out IEnumerable<string>? persistedValues))
             {
                 string? persistedId = persistedValues.FirstOrDefault();
+
                 if (!string.IsNullOrWhiteSpace(persistedId))
 
                     Console.WriteLine($"PersistedReplayRecordId: {persistedId}");
@@ -949,6 +957,7 @@ public sealed class ArchLucidApiClient
             fileName = fileName.Trim('"');
 
             string targetPath = fileName;
+
             if (!string.IsNullOrWhiteSpace(outPath))
 
                 if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) ||
@@ -961,6 +970,7 @@ public sealed class ArchLucidApiClient
                 else
                 {
                     string? dir = Path.GetDirectoryName(outPath);
+
                     if (!string.IsNullOrWhiteSpace(dir))
 
                         Directory.CreateDirectory(dir);
@@ -1061,6 +1071,7 @@ public sealed class ArchLucidApiClient
             };
 
             HttpResponseMessage response = await _http.PostAsJsonAsync(uri, body, _jsonOptions, ct);
+
             if (!response.IsSuccessStatusCode)
             {
                 string contentError = await response.Content.ReadAsStringAsync(ct);
@@ -1075,6 +1086,7 @@ public sealed class ArchLucidApiClient
             fileName = fileName.Trim('"');
 
             string targetPath = fileName;
+
             if (!string.IsNullOrWhiteSpace(outPath))
 
                 if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) ||
@@ -1087,6 +1099,7 @@ public sealed class ArchLucidApiClient
                 else
                 {
                     string? dir = Path.GetDirectoryName(outPath);
+
                     if (!string.IsNullOrWhiteSpace(dir))
 
                         Directory.CreateDirectory(dir);
@@ -1250,6 +1263,7 @@ public sealed class ArchLucidApiClient
         {
             JsonDocument doc = JsonDocument.Parse(json);
             JsonElement root = doc.RootElement;
+
             if (root.TryGetProperty("detail", out JsonElement detail))
                 return detail.GetString();
 

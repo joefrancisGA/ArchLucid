@@ -34,8 +34,10 @@ public sealed class TrialTenantBootstrapService(
     {
         ArgumentNullException.ThrowIfNull(auditActorEmail);
         ArgumentNullException.ThrowIfNull(result);
+
         if (string.IsNullOrWhiteSpace(auditActorEmail))
             throw new ArgumentException("Audit actor email is required.", nameof(auditActorEmail));
+
         if (result.WasAlreadyProvisioned)
             return;
 
