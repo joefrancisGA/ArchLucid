@@ -9,6 +9,7 @@ import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { getScopeHeaders } from "@/lib/scope";
 import { SERVER_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
 
@@ -80,9 +81,9 @@ async function resolveScopeHeadersForRequest(): Promise<Record<string, string>> 
     return getEffectiveBrowserProxyScopeHeaders();
   }
 
-  const { getServerResolvedScopeHeaders } = await import("@/lib/server-operator-scope");
-
-  return getServerResolvedScopeHeaders();
+  // Server RSC loaders that need cookie scope must pass `scopeHeaders` explicitly
+  // (see load-run-detail-page-model.ts). Shared http helpers stay client-importable.
+  return getScopeHeaders();
 }
 
 /**
@@ -120,7 +121,10 @@ export async function resolveBinaryGetRequest(path: string): Promise<{ url: stri
  * Server (RSC): direct to backend with API key + scope headers.
  * Browser: same-origin `/api/proxy` so secrets stay server-side.
  */
-export async function resolveRequest(path: string): Promise<{ url: string; headers: HeadersInit }> {
+export async function resolveRequest(
+  path: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<{ url: string; headers: HeadersInit }> {
   if (isBrowser()) {
     const url = browserProxyUrl(path);
     const headers: Record<string, string> = {
@@ -141,7 +145,7 @@ export async function resolveRequest(path: string): Promise<{ url: string; heade
   const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
   const headers: Record<string, string> = {
     Accept: "application/json",
-    ...(await resolveScopeHeadersForRequest()),
+    ...(options?.scopeHeaders ?? (await resolveScopeHeadersForRequest())),
     ...getServerUpstreamAuthHeaders(),
     ...audienceHeadersForCurrentShell(),
   };
@@ -223,7 +227,10 @@ function notifyIfIdempotencyReplayed(response: Response): void {
   }
 }
 
-export async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseWithTrace<T>> {
+export async function apiGetJsonWithTrace<T>(
+  path: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<ApiResponseWithTrace<T>> {
   const sandboxPayload = trySandboxMockJsonForApiGet(path);
 
   if (sandboxPayload !== undefined) {
@@ -231,7 +238,7 @@ export async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseW
   }
 
   await ensureOidcBearerReady();
-  const { url, headers } = await resolveRequest(path);
+  const { url, headers } = await resolveRequest(path, options);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   const response = await fetch(url, serverFetchInit(h));
   captureTraceContextFromResponse(response);
@@ -246,8 +253,11 @@ export async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseW
 }
 
 /** GETs JSON from the ArchLucid API. Throws {@link ApiRequestError} on HTTP errors. */
-export async function apiGet<T>(path: string): Promise<T> {
-  const { data } = await apiGetJsonWithTrace<T>(path);
+export async function apiGet<T>(
+  path: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<T> {
+  const { data } = await apiGetJsonWithTrace<T>(path, options);
 
   return data;
 }

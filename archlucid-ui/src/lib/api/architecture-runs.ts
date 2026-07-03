@@ -166,7 +166,11 @@ export async function listRunsByProjectPaged(
   projectId: string,
   page: number,
   pageSize: number,
-  options?: { readonly cursor?: string | null; readonly includeArchived?: boolean },
+  options?: {
+    readonly cursor?: string | null;
+    readonly includeArchived?: boolean;
+    readonly scopeHeaders?: Record<string, string>;
+  },
 ): Promise<PagedResponse<RunSummary>> {
   const q = new URLSearchParams();
 
@@ -184,6 +188,7 @@ export async function listRunsByProjectPaged(
 
   return apiGet<PagedResponse<RunSummary>>(
     `/v1/authority/projects/${encodeURIComponent(projectId)}/runs?${q}`,
+    options?.scopeHeaders !== undefined ? { scopeHeaders: options.scopeHeaders } : undefined,
   );
 }
 
@@ -198,13 +203,19 @@ export async function getRunSummary(runId: string): Promise<RunSummary> {
 }
 
 /** Fetches the full run detail envelope (run metadata, snapshots, manifest, trace, bundle). */
-export async function getRunDetail(runId: string): Promise<ApiResponseWithTrace<RunDetail>> {
-  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}`);
+export async function getRunDetail(
+  runId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<ApiResponseWithTrace<RunDetail>> {
+  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}`, options);
 }
 
 /** Buyer-proof run detail — whitelisted fields only (TB-283). */
-export async function getBuyerRunDetailSummary(runId: string): Promise<ApiResponseWithTrace<RunDetail>> {
-  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}/buyer-summary`);
+export async function getBuyerRunDetailSummary(
+  runId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<ApiResponseWithTrace<RunDetail>> {
+  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}/buyer-summary`, options);
 }
 
 export type RunOperatorGovernanceDispositionRequest = {
@@ -291,13 +302,19 @@ export async function getRunRetrievalGrounding(
 }
 
 /** Fetches golden manifest summary (decision count, warnings, status, etc.). */
-export async function getManifestSummary(manifestId: string): Promise<ManifestSummary> {
-  return apiGet<ManifestSummary>(`/v1/authority/signed-records/${manifestId}/summary`);
+export async function getManifestSummary(
+  manifestId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<ManifestSummary> {
+  return apiGet<ManifestSummary>(`/v1/authority/signed-records/${manifestId}/summary`, options);
 }
 
 /** Lists all synthesized artifacts for a manifest (metadata only, no binary content). */
-export async function listArtifacts(manifestId: string): Promise<ArtifactDescriptor[]> {
-  return apiGet<ArtifactDescriptor[]>(`/v1/artifacts/signed-records/${manifestId}`);
+export async function listArtifacts(
+  manifestId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<ArtifactDescriptor[]> {
+  return apiGet<ArtifactDescriptor[]>(`/v1/artifacts/signed-records/${manifestId}`, options);
 }
 
 /** JSON metadata for one artifact (no binary download). */
@@ -403,8 +420,14 @@ export async function explainRun(runId: string): Promise<RunExplanation> {
 }
 
 /** Aggregate executive explanation (themes, posture, counts) with nested full explanation payload. */
-export async function getRunExplanationSummary(runId: string): Promise<RunExplanationSummary> {
-  return apiGet<RunExplanationSummary>(`/v1/explain/runs/${encodeURIComponent(runId)}/aggregate`);
+export async function getRunExplanationSummary(
+  runId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<RunExplanationSummary> {
+  return apiGet<RunExplanationSummary>(
+    `/v1/explain/runs/${encodeURIComponent(runId)}/aggregate`,
+    options,
+  );
 }
 
 /**

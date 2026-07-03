@@ -20,6 +20,8 @@ export async function loadOperatorHomeRunsDashboardModel(): Promise<OperatorHome
   const page = 1;
   const pageSize = OPERATOR_HOME_RUNS_DASHBOARD_PAGE_SIZE;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { getServerResolvedScopeHeaders } = await import("@/lib/server-operator-scope");
+  const scopeHeaders = await getServerResolvedScopeHeaders();
 
   let items: RunSummary[] = [];
   let totalCount = 0;
@@ -28,7 +30,10 @@ export async function loadOperatorHomeRunsDashboardModel(): Promise<OperatorHome
   let usedStaticRunsFallback = false;
 
   try {
-    const raw: unknown = await listRunsByProjectPaged(projectId, page, pageSize, { includeArchived: false });
+    const raw: unknown = await listRunsByProjectPaged(projectId, page, pageSize, {
+      includeArchived: false,
+      scopeHeaders,
+    });
     const coerced = coerceRunSummaryPaged(raw, { page });
 
     if (!coerced.ok) {

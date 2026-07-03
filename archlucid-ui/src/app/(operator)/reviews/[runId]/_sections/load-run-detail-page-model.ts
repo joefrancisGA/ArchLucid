@@ -40,7 +40,6 @@ import {
 // critical-path RunDetailPageModel so the heavy finding scan doesn't block first-screen rendering.
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
-import { getServerResolvedScopeHeaders } from "@/lib/server-operator-scope";
 import {
   projectIdFromScopeHeaders,
   runProjectMatchesEffectiveScope,
@@ -64,16 +63,26 @@ export type LoadRunDetailPageModelResult =
   | { kind: "malformed-response"; message: string }
   | { kind: "success"; model: RunDetailPageModel };
 
+async function resolveServerScopeHeadersForRun(): Promise<Record<string, string>> {
+  const { getServerResolvedScopeHeaders } = await import("@/lib/server-operator-scope");
+
+  return getServerResolvedScopeHeaders();
+}
+
 /** Fetches and coerces run-detail plus dependent resources for the run detail route. */
 export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDetailPageModelResult> {
   let runDetailResponse: ApiResponseWithTrace<RunDetail> | null = null;
   let loadFailure: ApiLoadFailureState | null = null;
   let usedStaticDemoRun = false;
 
+  const serverScopeHeaders = isBrowser() ? null : await resolveServerScopeHeadersForRun();
+  const apiScopeOptions =
+    serverScopeHeaders !== null ? { scopeHeaders: serverScopeHeaders } : undefined;
+
   const fetchRunDetail = isBuyerPolishedOperatorShellEnv() ? getBuyerRunDetailSummary : getRunDetail;
 
   try {
-    runDetailResponse = await fetchRunDetail(runId);
+    runDetailResponse = await fetchRunDetail(runId, apiScopeOptions);
   } catch (e) {
     const fallback = tryStaticDemoRunDetail(runId);
 
@@ -120,7 +129,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
 
   const effectiveScopeHeaders = isBrowser()
     ? getEffectiveBrowserProxyScopeHeaders()
-    : await getServerResolvedScopeHeaders();
+    : serverScopeHeaders!;
   const effectiveProjectId = projectIdFromScopeHeaders(effectiveScopeHeaders);
 
   if (!runProjectMatchesEffectiveScope(resolvedDetail.run.projectId, effectiveProjectId)) {
@@ -162,9 +171,9 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
       explanationResult,
     ] = await Promise.all([
       progressSummaryPromise,
-      loadRunDetailManifestSummary(manifestId),
-      loadRunDetailArtifacts(runId, manifestId),
-      loadRunDetailExplanationSummary(runId),
+      loadRunDetailManifestSummary(manifestId, apiScopeOptions),
+      loadRunDetailArtifacts(runId, manifestId, apiScopeOptions),
+      loadRunDetailExplanationSummary(runId, apiScopeOptions),
     ]);
 
     progressInitialSummary = resolvedProgressSummary;
@@ -326,9 +335,12 @@ type RunDetailExplanationLoadResult = {
   failure: ApiLoadFailureState | null;
 };
 
-async function loadRunDetailManifestSummary(manifestId: string): Promise<RunDetailManifestSummaryLoadResult> {
+async function loadRunDetailManifestSummary(
+  manifestId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<RunDetailManifestSummaryLoadResult> {
   try {
-    const rawSummary: unknown = await getManifestSummary(manifestId);
+    const rawSummary: unknown = await getManifestSummary(manifestId, options);
     const coercedSummary = coerceManifestSummary(rawSummary);
 
     if (!coercedSummary.ok) {
@@ -350,9 +362,10 @@ async function loadRunDetailManifestSummary(manifestId: string): Promise<RunDeta
 async function loadRunDetailArtifacts(
   runId: string,
   manifestId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<RunDetailArtifactsLoadResult> {
   try {
-    const rawArtifacts: unknown = await listArtifacts(manifestId);
+    const rawArtifacts: unknown = await listArtifacts(manifestId, options);
     const coercedArtifacts = coerceArtifactDescriptorList(rawArtifacts);
 
     if (!coercedArtifacts.ok) {
@@ -371,9 +384,12 @@ async function loadRunDetailArtifacts(
   }
 }
 
-async function loadRunDetailExplanationSummary(runId: string): Promise<RunDetailExplanationLoadResult> {
+async function loadRunDetailExplanationSummary(
+  runId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<RunDetailExplanationLoadResult> {
   try {
-    const summary = await getRunExplanationSummary(runId);
+    const summary = await getRunExplanationSummary(runId, options);
 
     return { summary, failure: null };
   } catch (e) {
