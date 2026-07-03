@@ -370,7 +370,7 @@ export function writeDemoScreenshotsReports(outDir: string, report: DemoScreensh
     ...report.routes.map((r) => {
       const issues = r.issues.length > 0 ? r.issues.join("; ") : "";
 
-      return `| \`${r.route}\` | ${r.screenshotFile ?? "—"} | **${r.status}** | ${issues.replace(/\|/g, "\\|")} |`; // lgtm[js/incomplete-sanitization] markdown table pipe escape for e2e report only.
+      return `| \`${r.route}\` | ${r.screenshotFile ?? "—"} | **${r.status}** | ${issues.replace(/\\/g, "\\\\").replace(/\|/g, "\\|")} |`; // lgtm[js/incomplete-sanitization] markdown table pipe escape for e2e report only.
     }),
     "",
     `**Failed routes (exit):** ${report.exitFailedRouteCount}`,

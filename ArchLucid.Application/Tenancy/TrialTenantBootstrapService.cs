@@ -62,7 +62,7 @@ public sealed class TrialTenantBootstrapService(
                     _logger.LogInformation(
                         "Skipping trial bootstrap for tenant {TenantId}: email verification policy blocked provisioning for {Email}.",
                         result.TenantId,
-                        LogSanitizer.Sanitize(auditActorEmail)); // lgtm[cs/exposure-of-sensitive-information] email sanitized for log sink; TenantId is Guid.
+                        LogSanitizer.Sanitize(auditActorEmail)); // codeql[cs/exposure-of-sensitive-information] email sanitized for log sink; TenantId is Guid.
                 ArchLucidInstrumentation.RecordTrialSignupFailure("email_verification", "policy_blocked");
                 await _auditService.LogAsync(
                     new AuditEvent

@@ -54,7 +54,7 @@ public static class OutboxAwareIntegrationEventPublishing
             {
                 if (logger.IsEnabled(LogLevel.Warning))
 
-                    logger.LogWarningIntegrationEventSerializationFailed(ex, eventType); // lgtm[cs/exposure-of-sensitive-information] canonical event type urn.
+                    logger.LogWarningIntegrationEventSerializationFailed(ex, eventType); // codeql[cs/exposure-of-sensitive-information] canonical event type urn.
 
                 return;
             }
@@ -86,7 +86,7 @@ public static class OutboxAwareIntegrationEventPublishing
             {
                 if (logger.IsEnabled(LogLevel.Warning))
 
-                    logger.LogWarningIntegrationEventOutboxEnqueueFailed(ex, eventType); // lgtm[cs/exposure-of-sensitive-information] canonical event type urn.
+                    logger.LogWarningIntegrationEventOutboxEnqueueFailed(ex, eventType); // codeql[cs/exposure-of-sensitive-information] canonical event type urn.
             }
 
             return;

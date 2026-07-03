@@ -16,7 +16,7 @@ describe("OperatorSecurityTrustPageView", () => {
     );
     expect(screen.getByText(/SOC 2 Type II readiness and audit engagement planning/i)).toBeInTheDocument();
     expect(screen.queryByText(/Formal SOC 2 Type II audit engagement/i)).not.toBeInTheDocument();
-    expect(document.body.textContent ?? "").not.toMatch(/github\.com\/.*\/blob\//i);
+    expect(document.body.textContent ?? "").not.toMatch(/github\.com\/.*\/blob\//i); // codeql[js/regex/missing-regexp-anchor] intentional substring scan in guard test.
   });
 
   it("renders tenant isolation model with CAIQ technical detail link", () => {
