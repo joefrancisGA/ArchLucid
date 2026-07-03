@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -100,6 +101,9 @@ public sealed class DapperPolicyPackRepository(
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Batch pack metadata lookup by PolicyPackId within the active tenant catalog; ids originate from scoped assignments.")]
     public async Task<IReadOnlyList<PolicyPack>> GetByIdsAsync(IReadOnlyCollection<Guid> policyPackIds, CancellationToken ct)
     {
         if (policyPackIds is null || policyPackIds.Count == 0)
