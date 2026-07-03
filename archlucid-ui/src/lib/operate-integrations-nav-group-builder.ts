@@ -1,4 +1,4 @@
-import { CloudCog, Hash, Plug, Ticket, UsersRound, Webhook, Workflow } from "lucide-react";
+import { CalendarClock, CloudCog, Hash, Plug, Ticket, UsersRound, Webhook, Workflow } from "lucide-react";
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
   INTEGRATIONS_JIRA_PATH,
