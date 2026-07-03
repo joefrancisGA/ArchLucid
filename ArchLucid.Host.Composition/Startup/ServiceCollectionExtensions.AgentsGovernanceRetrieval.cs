@@ -62,7 +62,13 @@ using ArchLucid.Retrieval.PolicyPacks;
 using ArchLucid.Retrieval.Reranking;
 using ArchLucid.Retrieval.Pricing;
 using ArchLucid.Retrieval.Queries;
-using ArchLucid.Retrieval.Summarization;
+using ArchLucid.Retrieval.FineTuning;
+using ArchLucid.Retrieval.FineTuning.Consent;
+using ArchLucid.Retrieval.FineTuning.Evaluation;
+using ArchLucid.Retrieval.FineTuning.Export;
+using ArchLucid.Retrieval.FineTuning.Orchestration;
+using ArchLucid.Retrieval.FineTuning.Redaction;
+using ArchLucid.Retrieval.FineTuning.Registry;
 
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Caching.Memory;
@@ -879,6 +885,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<RetrievalRerankingOptions>(configuration.GetSection(RetrievalRerankingOptions.SectionPath));
         services.Configure<AdvancedRetrievalOptions>(configuration.GetSection(AdvancedRetrievalOptions.SectionPath));
         services.Configure<PriorManifestRetrievalOptions>(configuration.GetSection(PriorManifestRetrievalOptions.SectionPath));
+        services.Configure<FineTuningOptions>(configuration.GetSection(FineTuningOptions.SectionPath));
         services.Configure<ManifestChunkSummarizationOptions>(
             configuration.GetSection(ManifestChunkSummarizationOptions.SectionPath));
 
@@ -903,6 +910,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IGraphRagNeighborExpander, GraphRagNeighborExpander>();
         services.AddScoped<IRetrievalQueryService, RetrievalQueryService>();
         services.AddScoped<IRetrievalRunCompletionIndexer, RetrievalRunCompletionIndexer>();
+
+        RegisterFineTuning(services, configuration);
 
         services.Configure<AzureSearchOptions>(configuration.GetSection(AzureSearchOptions.SectionPath));
 
@@ -1010,6 +1019,29 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IEmbeddingService, FakeEmbeddingService>();
         }
 
+    }
+
+    private static void RegisterFineTuning(IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<IFineTuningConsentService, FineTuningConsentService>();
+        services.AddScoped<IAcceptedManifestTrainingRedactor, AcceptedManifestTrainingRedactor>();
+        services.AddScoped<IAcceptedManifestTrainingDataExporter, AcceptedManifestTrainingDataExporter>();
+        services.AddScoped<IFineTuningPromotionGate, GoldenCohortFineTuningPromotionGate>();
+        services.AddScoped<OnlineFineTuningOrchestrationService>();
+
+        FineTuningOptions fineTuningOptions = new();
+        configuration.GetSection(FineTuningOptions.SectionPath).Bind(fineTuningOptions);
+
+        if (fineTuningOptions.Enabled && !string.IsNullOrWhiteSpace(fineTuningOptions.BaseModelDeploymentName))
+        {
+            services.AddSingleton<IFineTuningJobOrchestrator, AzureOpenAiFineTuningJobOrchestrator>();
+        }
+        else
+        {
+            services.AddSingleton<IFineTuningJobOrchestrator, DisabledFineTuningJobOrchestrator>();
+        }
+
+        services.AddSingleton<IFineTunedModelRegistry, InMemoryFineTunedModelRegistry>();
     }
 
     private static void RegisterAzureOpenAiCircuitBreakerOptions(IServiceCollection services, IConfiguration configuration)

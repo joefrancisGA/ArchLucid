@@ -67,6 +67,8 @@
     "dbo.TenantLifecycleTransitions",
     "dbo.TenantOnboardingState",
     "dbo.TenantSettings",
-    "dbo.TenantTrialSeatOccupants"
+    "dbo.TenantTrialSeatOccupants",
+    "dbo.FineTuningTrainingExportAudits",
+    "dbo.FineTunedModelRegistryEntries"
   ]
 }

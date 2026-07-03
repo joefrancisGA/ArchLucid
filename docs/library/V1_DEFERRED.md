@@ -73,26 +73,27 @@ Docs describe **templates and gaps** that depend on **customer subscription and 
 
 ---
 
-## 6. First-party ITSM, Confluence, Slack, Teams, webhooks, and recipes — **V1.1** window (*Resolved 2026-05-18*)
+## 6. First-party ITSM, Confluence, Slack, Teams, webhooks, and recipes — **Jira/ServiceNow/Confluence/Slack/Teams promoted to V1 GA (owner scope 2026-07-03)**; webhooks/recipes remain **V1.1**
 
-**Jira**, **ServiceNow**, **Confluence**, and **Slack** first-party surfaces are **in scope for V1.1** per [V1_SCOPE.md](V1_SCOPE.md) **§2.13–§2.15** — **owner scope update 2026-05-18**, superseding *Resolved 2026-05-05 / 2026-05-06* **V1 GA** pinning for those connectors. **Microsoft Teams** incoming-webhook chat-ops, **CloudEvents** outbound **HTTPS webhooks**, and **customer-operated** bridges under **[`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)** are **in scope for V1.1** as **buyer-contract** integration paths per **V1_SCOPE.md** **§2.8**, **§2.14**, and **§3** — **not** V1 GA commitments (implementation may ship earlier). **`(A)` headline assessments** treat absence of these program surfaces as **non-deduction** for V1 GA (same pattern as other deferred program items); **`V1`** integration posture for scoring remains **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** CI surfaces, and **§2.16+** HTTP paths per **V1_SCOPE.md**.
+**Promotion (2026-07-03):** **Jira**, **ServiceNow**, **Confluence**, **Slack**, and **Microsoft Teams** first-party connectors are **promoted from V1.1 to V1 GA** — **owner scope update 2026-07-03**, superseding the *Resolved 2026-05-18* V1.1-window pinning below. Rationale: [`CONNECTOR_READINESS_MATRIX.md`](CONNECTOR_READINESS_MATRIX.md) already shows all five as **Shipped** or **Shipped + manual vendor** — real product code, automated CI conformance tests, and (for Jira/ServiceNow/Confluence/Slack) manual live-vendor smoke runbooks exist today. Treating shipped-and-tested connectors as a "not V1" program window created a scope/docs gap identical in kind to the AWS/GCP and RAG-V2 gaps found the same day in this repo's assessment cycle — the engineering was done; only the contract label was stale. See **TB-599–TB-602** in [`TECH_BACKLOG.md`](TECH_BACKLOG.md) for the tightening work this promotion requires (OAuth upgrade, native-create default posture, live-validation parity, and buyer-copy sweep).
 
-**V1.1 customer-owned bridges (optional):** Power Automate and Logic Apps walkthroughs under **[`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)** — align with the **V1.1** buyer contract alongside first-party connectors. Summary hub: [ITSM_BRIDGE_V1_RECIPES.md](ITSM_BRIDGE_V1_RECIPES.md).
+**Still V1.1 (not promoted — not named in the 2026-07-03 decision):** **CloudEvents** outbound **HTTPS webhooks** and **customer-operated** bridges under **[`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)** remain **in scope for V1.1** as **buyer-contract** integration paths per **V1_SCOPE.md** **§2.8** and **§3** — **not** V1 GA commitments (implementation may ship earlier). **`(A)` headline assessments** treat absence of these two program surfaces as **non-deduction** for V1 GA. **`V1` integration posture for scoring now includes** **Jira**, **ServiceNow**, **Confluence**, **Slack**, and **Microsoft Teams** first-party connectors, alongside **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** CI surfaces, and **§2.16+** HTTP paths per **V1_SCOPE.md**.
+
+**V1.1 customer-owned bridges (optional, unchanged):** Power Automate and Logic Apps walkthroughs under **[`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)** — align with the **V1.1** buyer contract. Summary hub: [ITSM_BRIDGE_V1_RECIPES.md](ITSM_BRIDGE_V1_RECIPES.md).
 
 **Rules:**
 
-- **First-party implementation priority (V1.1):** **ServiceNow** → **Atlassian pair** — **Confluence** **before** **Jira**, engineered **together** in one workstream / release tranche (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)) unless an owner reorder is recorded.
-- **Release-window** calendar dates are **not** implied unless [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) pins one.
-- New ITSM/documentation connectors **must not** widen without their own owner decision — **Azure DevOps Work Items** stays `[Planned]` until separately promoted.
+- **First-party implementation priority (historical, now shipped):** **ServiceNow** → **Atlassian pair** — **Confluence** **before** **Jira**, engineered **together** in one workstream / release tranche (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)) — recorded here for history; all five connectors have shipped.
+- New ITSM/documentation connectors **must not** widen without their own owner decision — **Azure DevOps Work Items** stays `[Planned]` until separately promoted. **TB-398** (full enterprise connector: OAuth flows, field-mapping UI, custom workflow mapping, bidirectional status sync, tenant onboarding wizard) stays **V2** — this promotion covers the **first-party MVP** shape only, not the enterprise-tier stretch goal.
 - Each connector **must** consume the same Authority-shaped event payloads the existing webhooks ship; no parallel finding-projection schema per target.
 
 ---
 
-## 6a. Chat-ops — Microsoft Teams and Slack (*Resolved 2026-05-18*)
+## 6a. Chat-ops — Microsoft Teams and Slack — **promoted to V1 GA (owner scope 2026-07-03)**
 
-**Microsoft Teams** incoming-webhook delivery and **Slack** first-party **outbound** chat-ops (**`EnabledTriggersJson`** / trigger catalog parity, **Key Vault** secret-name references, Authority-shaped payloads) are **in scope for V1.1** per [`V1_SCOPE.md`](V1_SCOPE.md) **§2.14** — **owner scope updates 2026-05-18**, superseding prior **V1 GA** buyer-contract posture for Teams-shaped delivery.
+**Microsoft Teams** incoming-webhook delivery and **Slack** first-party **outbound** chat-ops (**`EnabledTriggersJson`** / trigger catalog parity, **Key Vault** secret-name references, Authority-shaped payloads) are **promoted from V1.1 to V1 GA** per [`V1_SCOPE.md`](V1_SCOPE.md) **§2.14** — **owner scope update 2026-07-03**, superseding the *Resolved 2026-05-18* V1.1-window posture. Both ship as **"Shipped + manual vendor"** per [`CONNECTOR_READINESS_MATRIX.md`](CONNECTOR_READINESS_MATRIX.md).
 
-**V1.1+ / follow-on candidate (not separately promoted without owner row):** **In-Slack interactive** approvals / acknowledgements (**approve / ack** buttons on Slack messages surfaced by ArchLucid).
+**V1.1+ / follow-on candidate (not separately promoted without owner row):** **In-Slack interactive** approvals / acknowledgements (**approve / ack** buttons on Slack messages surfaced by ArchLucid). This narrower interactive-actions slice is **not** part of the 2026-07-03 promotion.
 
 **Still open / unpinned without separate promotion (no calendar dates implied):** Slack **App Directory** listing and OAuth installation UX marketed as **first-class** product onboarding.
 
@@ -403,19 +404,21 @@ Canonical detail: [AZURE_EXTRACTOR.md](AZURE_EXTRACTOR.md) (Automated continuous
 
 ---
 
-## 6q. RAG quality — V1.1 and V2 expansion (engineering backlog 2026-05-23)
+## 6q. RAG quality — V1.1 and V2 expansion (engineering backlog 2026-05-23; remainder column corrected 2026-07-03)
 
 **V1 GA posture:** Retrieval infrastructure **ships** (`ArchLucid.Retrieval`, `AskService` retrieval, ADR 0004 outbox). **V1 quality improvements** (corpus seam, policy-pack indexing, tenant prior-manifest chunks, Retail structured lookup, platform docs, faithfulness eval) are **engineering backlog** — **[`TECH_BACKLOG.md`](TECH_BACKLOG.md) TB-021** and **[`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) RAG-V1-*** — schedulable from assessments; **not** separate V1 GA product-contract rows unless promoted via [`V1_SCOPE.md`](V1_SCOPE.md) change control.
 
+**Correction (2026-07-03):** a code-level audit (triggered by a `docs/assessments/LATEST_GPT55.md` note) found the **"None" remainder** claim below was inaccurate for all three **RAG-V2-*** rows, and flatly false for **RAG-V2-003**. This table also conflicts with `docs/assessments/CuttingEdgeAITechnology_06022026.MD` (2026-06-02), which independently lists all three as "V2 by design" — a second unreconciled drift on the same three items, noted here for the next owner pass.
+
 **V1 shipped / V1 scope (pull-forward from V1.1/V2 backlog):**
 
-| ID | Title | V1 scope | V1.1/V2 remainder |
+| ID | Title | V1 scope | V1.1/V2 remainder (corrected 2026-07-03) |
 |----|-------|----------|----------------|
 | **RAG-V1.1-001** | Reference-architecture exemplar retrieval | Exemplar indexer + Topology agent style-prior injection (fail-open) | Owner-curated exemplar library; fingerprint-based matching |
 | **RAG-V1.1-002** | MCP read-only retrieval tools (3 tools) | HTTP bridge at `/v1/mcp/retrieval/*` (non-GA) | Streamable HTTP MCP membrane; **not** the seven governance tools in MCP §5.1 (**CPB-D02**) |
-| **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | Pulled forward to V1 scope | None |
-| **RAG-V2-002** | Agentic retrieval (HyDE, rerank, query rewrite) | Pulled forward to V1 scope | None |
-| **RAG-V2-003** | Online fine-tuning on accepted manifests | Pulled forward to V1 scope | None |
+| **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | `GraphRagNeighborExpander` ships, DI-wired by default (**not** "None" remainder) | **Single 1-hop neighbor expansion only** — not multi-hop traversal or community summarization. The feature's own production-config lint (`GraphRagProductionLikeConfigurationLint.cs`) states verbatim quality is **"unproven without a production vector index."** No ablation eval isolates its quality contribution. See **TB-595**, **TB-596**, **TB-597**. |
+| **RAG-V2-002** | Agentic retrieval (HyDE, rerank, query rewrite) | `AgenticRetrievalCompletionClient` ships real LLM-backed rewrite + HyDE with fail-open heuristic fallback; reranking via real Azure AI Search semantic ranker (**not** "None" remainder) | **Single-shot** query rewrite + single-shot HyDE, not iterative/multi-hop agentic retrieval; no eval isolates its quality contribution separate from base retrieval. See **TB-595**, **TB-598**. |
+| **RAG-V2-003** | Online fine-tuning on accepted manifests | **Foundation shipped (2026-07-03, TB-594)** — ADR 0056, DPA addendum, consent-gated export, orchestration seam, registry, eval gate; **off by default** until tenant opt-in + promotion. Remainder: wire promoted deployment into live agent completion routing. | **Partial remainder** — engineering foundation complete; runtime routing + live Azure job hardening remain. See **TB-594**. |
 
 **Deferred to V1.1:**
 
