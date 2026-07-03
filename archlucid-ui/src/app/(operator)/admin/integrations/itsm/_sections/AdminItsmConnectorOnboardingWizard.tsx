@@ -154,8 +154,9 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
             </div>
             {!nativeEnabled ? (
               <p className="m-0 text-al-text-secondary">
-                Set deployment flag <code className={OPERATOR_TYPOGRAPHY.micro}>Integrations:Itsm:NativeEnabled=true</code> before
-                one-click Jira/ServiceNow create is available. Clipboard export and correlations remain enabled.
+                Native outbound create is disabled for this deployment. Set{" "}
+                <code className={OPERATOR_TYPOGRAPHY.micro}>Integrations:Itsm:NativeEnabled=true</code> to re-enable
+                one-click Jira/ServiceNow create after smoke validation. Clipboard export and correlations remain enabled.
               </p>
             ) : null}
 

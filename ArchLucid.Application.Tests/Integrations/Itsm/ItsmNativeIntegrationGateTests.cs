@@ -14,19 +14,19 @@ namespace ArchLucid.Application.Tests.Integrations.Itsm;
 public sealed class ItsmNativeIntegrationGateTests
 {
     [Fact]
-    public void IsNativeCreateEnabled_returns_false_by_default()
+    public void IsNativeCreateEnabled_returns_true_by_default()
     {
         ItsmNativeIntegrationGate sut = CreateGate(new IntegrationsItsmOptions());
 
-        sut.IsNativeCreateEnabled().Should().BeFalse();
+        sut.IsNativeCreateEnabled().Should().BeTrue();
     }
 
     [Fact]
-    public void IsNativeCreateEnabled_returns_true_when_configured()
+    public void IsNativeCreateEnabled_returns_false_when_explicitly_disabled()
     {
-        ItsmNativeIntegrationGate sut = CreateGate(new IntegrationsItsmOptions { NativeEnabled = true });
+        ItsmNativeIntegrationGate sut = CreateGate(new IntegrationsItsmOptions { NativeEnabled = false });
 
-        sut.IsNativeCreateEnabled().Should().BeTrue();
+        sut.IsNativeCreateEnabled().Should().BeFalse();
     }
 
     private static ItsmNativeIntegrationGate CreateGate(IntegrationsItsmOptions options)

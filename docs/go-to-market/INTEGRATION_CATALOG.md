@@ -47,7 +47,7 @@ Use this table for **first-pilot and procurement “day one”** integrations. D
 | Procurement / trust artifacts | Procurement ZIP build script | `scripts/build_procurement_pack.ps1` · [`TRUST_CENTER.md`](TRUST_CENTER.md) |
 | Custom agent logic (advanced, in-repo) | Register `IAgentHandler` in host | [`CUSTOM_AGENT_HANDLER_GUIDE.md`](../library/CUSTOM_AGENT_HANDLER_GUIDE.md) |
 | Custom agent logic (isolated service) | HTTPS webhook `AgentResult` contract | [`CUSTOM_AGENT_HANDLERS.md`](../library/CUSTOM_AGENT_HANDLERS.md) |
-| Push finding → Jira / ServiceNow incident | First-party Jira / ServiceNow connectors (V1 GA) | `POST /v1/integrations/itsm/outbound/issues` — §1 *V1 GA* below; native create gated by `Integrations:Itsm:NativeEnabled` (**TB-599**) |
+| Push finding → Jira / ServiceNow incident | First-party Jira / ServiceNow connectors (V1 GA) | `POST /v1/integrations/itsm/outbound/issues` — §1 *V1 GA* below; native create enabled by default via `Integrations:Itsm:NativeEnabled` (opt out with `false`) |
 | Chat-ops (Teams / Slack) notifications | First-party Teams / Slack incoming webhooks (V1 GA) | §2.14 — [`CONNECTOR_READINESS_MATRIX.md`](../library/CONNECTOR_READINESS_MATRIX.md) |
 | Outbound CloudEvents / Service Bus fan-out | **Not V1-required** | V1.1 §2.8 — [`INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
 | Confluence page publish | First-party Confluence connector (V1 GA) | §2.15 |
@@ -73,7 +73,7 @@ Also:
 
 ### V1 GA — integration seams (native create gated by config)
 
-V1 ships **correlation register**, **copy-as-work-item**, **ITSM-aware findings export**, and **inbound webhook sync**. One-click outbound Jira/ServiceNow create is **off by default** via **`Integrations:Itsm:NativeEnabled=false`** ([`../library/CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md)) — a deliberate "configure credentials first" onboarding gate, not a V1.1 restriction; the default-posture decision is tracked in **TB-599**.
+V1 ships **correlation register**, **copy-as-work-item**, **ITSM-aware findings export**, and **inbound webhook sync**. One-click outbound Jira/ServiceNow create is **on by default** via **`Integrations:Itsm:NativeEnabled=true`** ([`../library/CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md)); deployments that need a credential-first onboarding gate may set **`false`** to return **404** from outbound create while clipboard export and correlations remain enabled.
 
 ### V1 GA — first-party ITSM connectors (promoted from V1.1 — owner scope 2026-07-03)
 

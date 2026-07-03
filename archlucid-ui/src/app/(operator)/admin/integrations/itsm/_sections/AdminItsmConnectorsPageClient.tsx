@@ -92,8 +92,8 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
             <p className="m-0">Native outbound create is enabled for this deployment.</p>
           ) : (
             <p className="m-0">
-              Native outbound create is disabled for this deployment (clipboard export still available). Enable{" "}
-              <code className={OPERATOR_TYPOGRAPHY.micro}>Integrations:Itsm:NativeEnabled</code> after smoke validation.
+              Native outbound create is disabled for this deployment (clipboard export still available). Re-enable with{" "}
+              <code className={OPERATOR_TYPOGRAPHY.micro}>Integrations:Itsm:NativeEnabled=true</code> after smoke validation.
             </p>
           )}
           {settings?.hasTenantOverrides ? (

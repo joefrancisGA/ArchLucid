@@ -1,6 +1,6 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v3)
 
-**Pass date:** 2026-07-03. **Prompt:** [`ASSESSMENT_PROMPT_V3.MD`](ASSESSMENT_PROMPT_V3.MD) (v2 retired same day — see supersede notice on [`ASSESSMENT_PROMPT_V2.md`](ASSESSMENT_PROMPT_V2.md)). **Reasoning engine:** Claude (Sonnet), simulator-aware; no live Azure OpenAI call made during this pass. **Source materials inspected:** `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, `CONNECTOR_READINESS_MATRIX.md`, `MULTI_CLOUD_ANALYSIS_V1_1.md`, `TECH_BACKLOG.md` (TB-021, TB-594–TB-608 region), `RAG_QUALITY_TECHNICAL_BACKLOG.md`, `GTM_BACKLOG.md`, plus code: `CloudProvider.cs`, `AgenticRetrievalCompletionClient.cs`, `GraphRagNeighborExpander.cs`, `CostRetailGroundingBuilder.cs`, `InMemoryVectorIndex.cs`.
+**Pass date:** 2026-07-03. **Rescore (same day):** TB-599 closed — `Integrations:Itsm:NativeEnabled` now defaults `true`; Time-to-Value +2 and Adoption Friction +2 per §2 methodology (no other pillar changes). **Prompt:** [`ASSESSMENT_PROMPT_V3.MD`](ASSESSMENT_PROMPT_V3.MD) (v2 retired same day — see supersede notice on [`ASSESSMENT_PROMPT_V2.md`](ASSESSMENT_PROMPT_V2.md)). **Reasoning engine:** Claude (Sonnet), simulator-aware; no live Azure OpenAI call made during this pass. **Source materials inspected:** `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, `CONNECTOR_READINESS_MATRIX.md`, `MULTI_CLOUD_ANALYSIS_V1_1.md`, `TECH_BACKLOG.md` (TB-021, TB-594–TB-608 region), `RAG_QUALITY_TECHNICAL_BACKLOG.md`, `GTM_BACKLOG.md`, plus code: `CloudProvider.cs`, `AgenticRetrievalCompletionClient.cs`, `GraphRagNeighborExpander.cs`, `CostRetailGroundingBuilder.cs`, `InMemoryVectorIndex.cs`.
 
 ---
 
@@ -39,7 +39,7 @@ Sourced from open `GTM_BACKLOG.md` rows (M-series / G-REAL-series), ranked by cr
 
 ## 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 68.28%`. Readiness excludes deferred (V1.1/V2) items per the governing scope docs. Computed fresh this pass from the Weighted Quality Model in §2 — no score carried forward from any prior assessment file.
+`ArchLucid Assessment – (A) Headline Readiness: 68.48%`. Readiness excludes deferred (V1.1/V2) items per the governing scope docs. Computed fresh this pass from the Weighted Quality Model in §2 — no score carried forward from any prior assessment file.
 
 ## 2. Scorecard
 
@@ -50,12 +50,12 @@ Sourced from open `GTM_BACKLOG.md` rows (M-series / G-REAL-series), ranked by cr
 | 3 | Governed Review Integrity | 78 | 13 | 10.14 | 286 |
 | 4 | Correctness & Evidence Integrity | 75 | 12 | 9.00 | 300 |
 | 5 | AI / Agent Readiness | 58 | 10 | 5.80 | 420 |
-| 6 | Time-to-Value | 65 | 10 | 6.50 | 350 |
+| 6 | Time-to-Value | 67 | 10 | 6.70 | 330 |
 | 7 | Proof-of-ROI Readiness | 62 | 9 | 5.58 | 342 |
 | 8 | Executive / Operator Comprehension | 72 | 8 | 5.76 | 224 |
 | 9 | Runtime & First-Review Reliability | 80 | 7 | 5.60 | 140 |
-| 10 | Adoption Friction | 60 | 5 | 3.00 | 200 |
-| | **(A) Headline readiness** | | **100** | **68.28** | |
+| 10 | Adoption Friction | 62 | 5 | 3.10 | 190 |
+| | **(A) Headline readiness** | | **100** | **68.48** | |
 
 ## 3. Diagnostic Scores (non-headline)
 
@@ -63,7 +63,7 @@ Sourced from open `GTM_BACKLOG.md` rows (M-series / G-REAL-series), ranked by cr
 * **Frontier-AI Survival Probability (12-month):** 55–70%, moderate confidence. Reference class: vertical AI-wrapper tools without proprietary data/workflow moats have a poor 12-month survival rate against frontier-model feature absorption; ArchLucid's governance/audit/policy-pack layer is the kind of enterprise-workflow surface area that historically survives longer than generic-analysis wrappers, which is why the range sits above a coin flip rather than below it.
 * **30-Day Voluntary Usage Probability:** 35–50%, low-moderate confidence — no live pilot cohort exists yet (G-REAL-06 not started), so this is extrapolated from product shape, not measured usage.
 * **Executive Purchase Probability:** 25–40%, low confidence — same caveat; sales-led motion with TEST-mode trial exists but zero completed real-mode pilots to cite as proof.
-* **Reconciliation with headline:** the 68.28% headline reflects built infrastructure quality, not market validation — the wide, low-confidence ranges on usage/purchase are expected and should not be read as contradicting the headline; they are a different axis (market proof vs. engineering readiness).
+* **Reconciliation with headline:** the 68.48% headline reflects built infrastructure quality, not market validation — the wide, low-confidence ranges on usage/purchase are expected and should not be read as contradicting the headline; they are a different axis (market proof vs. engineering readiness).
 
 ## 4. V1 Ship Gate
 
@@ -80,7 +80,7 @@ All six PASS. No FAIL caps the headline this pass.
 
 ## 5. Executive Summary
 
-**(A) Overall headline readiness — 68.28%.** ArchLucid ships a materially non-commodity governed-review core: versioned policy packs actually drive findings and the pre-commit gate; every finding traces evidence → policy → recommendation → decision → audit record; and the golden-manifest/authority-chain model gives a defensible run-of-record. First-party connectors for Jira, ServiceNow, Confluence, Slack, and Microsoft Teams shipped and were promoted from V1.1 to V1 GA this cycle (owner scope 2026-07-03) after code review confirmed all five already ship with automated conformance tests. Multi-cloud target analysis (Azure/AWS/GCP) is likewise V1 GA at full parity across extraction, ingestion, and cost-estimate paths. The gap between this and a higher score is concentrated in three places: (1) the "RAG-V2" capabilities pulled into V1 scope — Graph-RAG and agentic retrieval — ship at meaningfully shallower depth (single 1-hop neighbor expansion, single-shot query rewrite) than the "production-grade" language in some docs implies, and online fine-tuning has only a manifest-level foundation; (2) AWS/GCP cost findings currently get no structured retail-price citation, only illustrative framing, even though the underlying pricing clients exist elsewhere in the codebase; (3) the newly-promoted connectors carry real but bounded tightening debt (OAuth still basic-auth/API-token, ITSM native-create defaults off, live-validation scripts missing for three of five connectors).
+**(A) Overall headline readiness — 68.48%.** ArchLucid ships a materially non-commodity governed-review core: versioned policy packs actually drive findings and the pre-commit gate; every finding traces evidence → policy → recommendation → decision → audit record; and the golden-manifest/authority-chain model gives a defensible run-of-record. First-party connectors for Jira, ServiceNow, Confluence, Slack, and Microsoft Teams shipped and were promoted from V1.1 to V1 GA this cycle (owner scope 2026-07-03) after code review confirmed all five already ship with automated conformance tests. Multi-cloud target analysis (Azure/AWS/GCP) is likewise V1 GA at full parity across extraction, ingestion, and cost-estimate paths. The gap between this and a higher score is concentrated in three places: (1) the "RAG-V2" capabilities pulled into V1 scope — Graph-RAG and agentic retrieval — ship at meaningfully shallower depth (single 1-hop neighbor expansion, single-shot query rewrite) than the "production-grade" language in some docs implies, and online fine-tuning has only a manifest-level foundation; (2) AWS/GCP cost findings currently get no structured retail-price citation, only illustrative framing, even though the underlying pricing clients exist elsewhere in the codebase; (3) the newly-promoted connectors carry real but bounded tightening debt (OAuth still basic-auth/API-token, live-validation scripts missing for three of five connectors).
 
 **(B) Procurement / market realism (weight 0).** SOC 2 posture is self-assessment + roadmap, which is the correct V1 posture (CPA attestation is V1.1-backlog TB-135, external pen-test is V2 TB-136) — buyers doing security review will ask for the roadmap, not be blocked by its absence at this stage. Trust Center and connector docs are now internally consistent after this session's sweep; before this pass, three buyer-facing docs still said "V1.1" for connectors the scope docs called V1 GA, which is exactly the kind of inconsistency a procurement reviewer would flag.
 
@@ -106,9 +106,9 @@ All six PASS. No FAIL caps the headline this pass.
 
 **Proof-of-ROI Readiness — score 62, weight 9, deficiency 342.** `GET /v1/roi/executive-summary` and the board-pack export are real and disposition-aware, which is the harder, more credible design. The specific gap: AWS/GCP cost findings get `groundingMissing: true` / illustrative framing only — no structured retail-price citation — even though `AwsPublicPricingClient`/`GcpCloudBillingCatalogClient` already exist and are wired into the deterministic cost-estimate path, just not into the Cost agent's LLM narrative grounding (TB-603). This matters more now that multi-cloud is V1 GA — a buyer running an AWS-heavy portfolio gets a visibly weaker citation experience than an Azure-heavy one. Affects: proof-of-ROI, correctness.
 
-**Time-to-Value — score 65, weight 10, deficiency 350.** First-review path is reliable (ship gate all-PASS) and onboarding copy has had multiple cleanup passes. `Integrations:Itsm:NativeEnabled` defaulting `false` means the one-click ITSM create a buyer might expect from a "V1 GA connector" claim actually 404s until an operator flips a flag and configures credentials (TB-599) — a real, if small, first-hour friction point on a capability now marketed as GA. Affects: time-to-value, adoption friction.
+**Time-to-Value — score 67, weight 10, deficiency 330.** First-review path is reliable (ship gate all-PASS) and onboarding copy has had multiple cleanup passes. **TB-599 closed this cycle:** `Integrations:Itsm:NativeEnabled` now defaults `true`, so one-click ITSM create is no longer blocked by a hidden deployment flag — remaining first-hour friction is credential configuration, not a config-wall surprise on a V1 GA connector claim. Affects: time-to-value.
 
-**Adoption Friction — score 60, weight 5, deficiency 200.** Same TB-599 issue, plus the newly-promoted connectors' auth model (basic auth / API token, not OAuth) will be a blocker for enterprise buyers whose vendor security policy mandates OAuth (TB-600) — a bounded, known, already-ticketed gap rather than an open unknown.
+**Adoption Friction — score 62, weight 5, deficiency 190.** The newly-promoted connectors' auth model (basic auth / API token, not OAuth) will still be a blocker for enterprise buyers whose vendor security policy mandates OAuth (TB-600) — a bounded, known, already-ticketed gap rather than an open unknown.
 
 **Differentiability / Defensibility — score 68, weight 13, deficiency 416.** High on the Governed-Review-Integrity axis (policy packs demonstrably change findings/gate outcomes/audit trail); medium-pulled-down on the RAG-V2 axis specifically because "Graph-RAG" and "agentic retrieval" read as more defensible/harder-to-reproduce than their current 1-hop/single-shot implementations actually are. Affects: differentiability, decision advantage, frontier-AI survival.
 
@@ -120,18 +120,17 @@ All six PASS. No FAIL caps the headline this pass.
 
 **Runtime & First-Review Reliability — score 80, weight 7, deficiency 140.** All six ship-gate items PASS with concrete evidence; this is the most mature category in the product.
 
-## 8. Top 10 Weaknesses (ranked)
+## 8. Top 9 Weaknesses (ranked)
 
 1. **RAG-V2 depth vs. label mismatch (Graph-RAG, agentic retrieval)** — design uncertainty, not a V1 blocker; fastest fix is the TB-597/TB-598 owner decisions plus TB-595 ablation evidence.
 2. **No live pilot cohort yet** — market uncertainty, not a V1 blocker in the engineering sense but the single biggest gap in the diagnostic scores (§3); fastest path is G-REAL-06.
 3. **AWS/GCP Cost-agent grounding gap** — design uncertainty; TB-603 is scoped and ready to pick up.
-4. **ITSM native-create default posture ambiguity** — design uncertainty (an owner decision, not an engineering unknown); TB-599.
-5. **OAuth gap on newly-promoted connectors** — design uncertainty; TB-600, larger effort (L).
-6. **Live-validation script parity gap (Teams/Slack/Confluence)** — design uncertainty; TB-601.
-7. **Stale "(V1.1)" copy on connector docs** — design uncertainty, now mostly corrected this session; TB-602 remainder is the "Build your own" recipe table distinction.
-8. **Retrieval-quality ablation harness absent** — design uncertainty; TB-595 blocks a confident answer to weakness #1.
-9. **No production-vector-index provenance marker for Graph-RAG runs** — design uncertainty; TB-596 (currently advisory-lint only).
-10. **Upsert-time tenant validation on indexed chunks** — design uncertainty, lowest severity of the ten (query-time filtering already enforced); TB-604.
+4. **OAuth gap on newly-promoted connectors** — design uncertainty; TB-600, larger effort (L).
+5. **Live-validation script parity gap (Teams/Slack/Confluence)** — design uncertainty; TB-601.
+6. **Stale "(V1.1)" copy on connector docs** — design uncertainty, now mostly corrected this session; TB-602 remainder is the "Build your own" recipe table distinction.
+7. **Retrieval-quality ablation harness absent** — design uncertainty; TB-595 blocks a confident answer to weakness #1.
+8. **No production-vector-index provenance marker for Graph-RAG runs** — design uncertainty; TB-596 (currently advisory-lint only).
+9. **Upsert-time tenant validation on indexed chunks** — design uncertainty, lowest severity of the nine (query-time filtering already enforced); TB-604.
 
 ## 9. Frontier-AI Analysis
 
@@ -178,7 +177,7 @@ A skilled architect manually maintains standards docs, pastes them into a chat s
 
 ## 14. Adoption & Monetization
 
-**30-Day Voluntary Usage:** strongest positive factor is the pre-commit gate creating a forcing function to return; strongest negative factor is that `Integrations:Itsm:NativeEnabled` defaults off, so a first-week user who expects one-click Jira/ServiceNow create hits a config wall (TB-599). **Executive Purchase:** strongest driver is the audit/governance story for regulated buyers; strongest blocker is zero completed real-mode pilots to cite. Why buy over more frontier-AI licenses: governance, policy packs, evidence traceability, audit trail, repeatability across operators — none of which more AI licenses alone provide. **Top 6 monetization blockers:** (1) no completed pilot proof — validation, not implementation; (2) OAuth gap for enterprise buyers with strict vendor policy — TB-600, implementation; (3) ITSM native-create default friction — TB-599, owner decision; (4) unproven retrieval-quality claims under technical scrutiny — TB-595, validation; (5) AWS/GCP cost-citation gap for multi-cloud-heavy buyers — TB-603, implementation; (6) SOC 2 CPA absence for buyers with a hard compliance gate — V1.1-backlog, not a V1 blocker. **Top 6 enterprise adoption blockers:** (1) live-validation script gap for 3 of 5 promoted connectors (TB-601, testability); (2) stale "(V1.1)" copy eroding trust in scope claims during procurement review (TB-602 remainder, trust); (3) OAuth gap (TB-600, security-policy fit); (4) no live pilot case study (market, not product); (5) RAG-V2 depth-vs-label gap surfacing in technical due diligence (TB-597/598, trust); (6) upsert-time tenant validation gap, low severity but a security-review question mark (TB-604).
+**30-Day Voluntary Usage:** strongest positive factor is the pre-commit gate creating a forcing function to return; strongest negative factor is zero completed real-mode pilots to validate repeat-use claims. **Executive Purchase:** strongest driver is the audit/governance story for regulated buyers; strongest blocker is zero completed real-mode pilots to cite. Why buy over more frontier-AI licenses: governance, policy packs, evidence traceability, audit trail, repeatability across operators — none of which more AI licenses alone provide. **Top 6 monetization blockers:** (1) no completed pilot proof — validation, not implementation; (2) OAuth gap for enterprise buyers with strict vendor policy — TB-600, implementation; (3) unproven retrieval-quality claims under technical scrutiny — TB-595, validation; (4) AWS/GCP cost-citation gap for multi-cloud-heavy buyers — TB-603, implementation; (5) live-validation script gap for promoted connectors — TB-601, testability; (6) SOC 2 CPA absence for buyers with a hard compliance gate — V1.1-backlog, not a V1 blocker. **Top 6 enterprise adoption blockers:** (1) live-validation script gap for 3 of 5 promoted connectors (TB-601, testability); (2) stale "(V1.1)" copy eroding trust in scope claims during procurement review (TB-602 remainder, trust); (3) OAuth gap (TB-600, security-policy fit); (4) no live pilot case study (market, not product); (5) RAG-V2 depth-vs-label gap surfacing in technical due diligence (TB-597/598, trust); (6) upsert-time tenant validation gap, low severity but a security-review question mark (TB-604).
 
 ## 15. Most Important Truth
 
@@ -194,17 +193,13 @@ ArchLucid's governed-review infrastructure is real and durable, but every headli
 
 **Not worth doing before V1:** (1) multi-hop Graph-RAG expansion before TB-595 ablation evidence justifies the effort; (2) an iterative agentic-retrieval loop before the same evidence exists; (3) further UI copy polish beyond the TB-602 remainder — diminishing returns until pilot feedback (M-20) exists. **Diminishing-returns areas:** RAG-V2 depth-building, additional nav/IA polish, further copy audits without new user feedback. **Founder behaviors that could delay validation:** treating "Graph-RAG"/"agentic retrieval" labels as done rather than probing their own depth caveats; continuing engineering before G-REAL-06 pilots start; over-indexing on SOC 2 CPA readiness (correctly out of `(A)` scope). **Features that feel enterprise-important but may not move V1 adoption:** OAuth upgrade (TB-600) is real but should not jump ahead of getting a first pilot signed, since basic-auth already unblocks a pilot.
 
-**ITSM special attention:** the V1.1→V1 GA promotion this cycle (owner scope 2026-07-03) means Jira/ServiceNow/Confluence/Slack/Teams are no longer "not a V1 gate" — do not treat TB-599–TB-602 as optional polish; TB-599 in particular (native-create default posture) is a live buyer-facing gap on a capability now marketed as GA.
+**ITSM special attention:** the V1.1→V1 GA promotion this cycle (owner scope 2026-07-03) means Jira/ServiceNow/Confluence/Slack/Teams are no longer "not a V1 gate" — do not treat **TB-600–TB-602** as optional polish; **TB-599** (native-create default posture) **closed 2026-07-03**.
 
 ## 17. Top Improvement Opportunities
 
-**Verify-before-listing gate applied.** Every item below was checked against `TECH_BACKLOG.md` and the referenced source files this pass; none are shipped. Items shipped this cycle (V1 GA connector promotion docs, TB-021 closeout, RAG-V2 doc-accuracy corrections, this file's own rewrite) are acknowledged here in one line and do not get their own tier entry: **TB-021 closed (RAG-V1 foundation, all 12 sub-items verified shipped); ITSM V1 GA promotion documentation now consistent across `V1_SCOPE.md`/`V1_DEFERRED.md`/`CONNECTOR_READINESS_MATRIX.md`/`INTEGRATION_CATALOG.md`/`CONNECTOR_SMOKE_INDEX.md`/the CTO-demo route registry.**
+**Verify-before-listing gate applied.** Every item below was checked against `TECH_BACKLOG.md` and the referenced source files this pass; none are shipped except where noted. Items shipped this cycle (V1 GA connector promotion docs, TB-021 closeout, RAG-V2 doc-accuracy corrections, **TB-599 native-create default `true`**, this file's own rewrite/rescore) are acknowledged here in one line and do not get their own tier entry: **TB-021 closed (RAG-V1 foundation, all 12 sub-items verified shipped); TB-599 closed (`Integrations:Itsm:NativeEnabled` defaults `true` with documented opt-out); ITSM V1 GA promotion documentation now consistent across `V1_SCOPE.md`/`V1_DEFERRED.md`/`CONNECTOR_READINESS_MATRIX.md`/`INTEGRATION_CATALOG.md`/`CONNECTOR_SMOKE_INDEX.md`/the CTO-demo route registry.**
 
 ### Tier 1 — Must Fix
-
-**TB-599 — ITSM native-create default posture decision.** Why it matters: `Integrations:Itsm:NativeEnabled` defaults `false`, so `POST /v1/integrations/itsm/outbound/issues` 404s out of the box on a capability now marketed as V1 GA. Expected impact: removes first-week friction (§7 Time-to-Value, Adoption Friction). Evidence: `IntegrationsItsmOptions`, `CONFIGURATION_REFERENCE.md`. Actionability: high — this is an owner decision (flip default vs. keep as deliberate onboarding gate and fix the copy), not an engineering unknown. Design Uncertainty Reduced: 8/10. Market Uncertainty Reduced: 2/10. Classification: **blocked on owner decision**.
-
-> **Cursor prompt (once the owner decides "flip default to true"):** Current problem: `Integrations:Itsm:NativeEnabled` defaults `false` in `appsettings.json`/`appsettings.Production.json`, causing native ITSM create to 404 without explicit tenant opt-in. Desired behavior: default `true` for new tenants, with a documented per-tenant opt-out in `CONFIGURATION_REFERENCE.md` and `INTEGRATION_CATALOG.md`. Scope boundaries: config default + docs only; do not change the outbound create logic itself. Acceptance criteria: new tenant fixture defaults to enabled; existing tenant behavior unchanged unless explicitly reset; docs no longer say the flag exists "to restore V1.1 connector posture." Tests to add/update: `IntegrationsItsmOptionsTests` default-value assertion. Non-goals: OAuth changes (TB-600), live-validation scripts (TB-601).
 
 **TB-597 / TB-598 — Graph-RAG and agentic-retrieval depth decisions.** Why it matters: current 1-hop / single-shot implementations are real but shallower than "Graph-RAG"/"agentic retrieval" imply; a technical buyer probing depth is a credible dismissal trigger (§11). Expected impact: resolves the §7 AI/Agent Readiness and Differentiability deductions either by shipping deeper implementations or by correcting doc language to match shipped depth. Evidence: `GraphRagNeighborExpander.CollectOneHopNeighbors`, `AgenticRetrievalCompletionClient`. Actionability: high — owner decision on which path (extend vs. relabel). Design Uncertainty Reduced: 7/10. Market Uncertainty Reduced: 3/10. Classification: **blocked on owner decision**; depends on TB-595 ablation results to justify engineering effort if "extend" is chosen.
 
@@ -230,15 +225,15 @@ ArchLucid's governed-review infrastructure is real and durable, but every headli
 
 ## 18. Prompt Batching Guidance
 
-**First batch (safe-for-Sonnet):** TB-599 config-default change + docs (once owner decides), TB-601 live-validation script parity (mirrors existing pattern), TB-603 AWS/GCP retail-price lookup (mirrors existing `IAzureRetailPriceStructuredLookup` pattern). **Second batch (safe-for-Sonnet, needs care):** TB-595 ablation harness (touches the eval pipeline — moderate blast radius), TB-602 remainder copy fix. **Third batch (strong-model-recommended):** TB-597/TB-598 depth-extension work, if the owner decision lands on "extend" rather than "relabel" — this touches retrieval-quality-sensitive code and benefits from Opus-level review given the stakes of getting retrieval regressions wrong.
+**First batch (safe-for-Sonnet):** TB-601 live-validation script parity (mirrors existing pattern), TB-603 AWS/GCP retail-price lookup (mirrors existing `IAzureRetailPriceStructuredLookup` pattern). **Second batch (safe-for-Sonnet, needs care):** TB-595 ablation harness (touches the eval pipeline — moderate blast radius), TB-602 remainder copy fix. **Third batch (strong-model-recommended):** TB-597/TB-598 depth-extension work, if the owner decision lands on "extend" rather than "relabel" — this touches retrieval-quality-sensitive code and benefits from Opus-level review given the stakes of getting retrieval regressions wrong.
 
 ## 19. Model Usage Guidance
 
-**Composer-safe:** M-17 outreach-list formatting, deploy-checklist pre-staging (M-09), script-flag verification (G-REAL-07 prep). **Sonnet-safe (reduced pricing makes this the default choice for most of the list above):** TB-599/TB-601/TB-603 engineering, M-08 copy alignment, M-18 outreach message drafting, TB-595 ablation harness. **Strong-model-recommended (Opus):** M-20 objection synthesis into strategic copy changes; TB-597/TB-598 if "extend" is chosen, given retrieval-regression stakes; any refactor touching tenant-isolation logic (TB-604) given the security sensitivity even though the task itself is small.
+**Composer-safe:** M-17 outreach-list formatting, deploy-checklist pre-staging (M-09), script-flag verification (G-REAL-07 prep). **Sonnet-safe (reduced pricing makes this the default choice for most of the list above):** TB-601/TB-603 engineering, M-08 copy alignment, M-18 outreach message drafting, TB-595 ablation harness. **Strong-model-recommended (Opus):** M-20 objection synthesis into strategic copy changes; TB-597/TB-598 if "extend" is chosen, given retrieval-regression stakes; any refactor touching tenant-isolation logic (TB-604) given the security sensitivity even though the task itself is small.
 
 ## 20. Pending Questions For Later
 
-* **Blocks V1 (owner decision needed):** TB-599 native-create default posture; TB-597/TB-598 RAG-V2 depth-vs-relabel.
+* **Blocks V1 (owner decision needed):** TB-597/TB-598 RAG-V2 depth-vs-relabel.
 * **Blocks V1.1:** none newly identified this pass.
 * **Requires customer validation:** whether buyers actually probe Graph-RAG/agentic-retrieval depth in due diligence (informs how urgent TB-597/598 really are) — best answered by G-REAL-06 pilots, not more engineering.
 * **Requires founder decision:** OAuth upgrade (TB-600) sequencing relative to signing the first pilot — recommend not blocking pilot #1 on this given basic-auth already works.

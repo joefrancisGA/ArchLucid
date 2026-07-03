@@ -25,7 +25,7 @@ Signup first-touch uses a first-party cookie (`marketing-first-touch.ts`) propag
 
 | Key | Default | Purpose |
 |-----|---------|---------|
-| `Integrations:Itsm:NativeEnabled` | `false` | When `false` (V1 GA default), `POST /v1/integrations/itsm/outbound/issues` returns **404** and the operator UI hides one-click Jira/ServiceNow create. **Copy-as-work-item**, correlation register (`GET`/`POST` `/v1/integrations/itsm/correlations`), and ITSM export columns remain enabled. Set `true` to restore TB-063 native create behaviour. `GET /v1/integrations/itsm/health` exposes `nativeEnabled` for UI gating. |
+| `Integrations:Itsm:NativeEnabled` | `true` | When `true` (V1 GA default), `POST /v1/integrations/itsm/outbound/issues` is available once deployment credentials are configured; `GET /v1/integrations/itsm/health` exposes `nativeEnabled` for UI gating. Set `false` to disable one-click Jira/ServiceNow create (returns **404** from outbound create) while **copy-as-work-item**, correlation register (`GET`/`POST` `/v1/integrations/itsm/correlations`), and ITSM export columns remain enabled. |
 
 Outbound vendor credentials remain under **`Integrations:ItsmOutbound:*`** and **`Integrations:ItsmInbound:*`** (unchanged).
 
