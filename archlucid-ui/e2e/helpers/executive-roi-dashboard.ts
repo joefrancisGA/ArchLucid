@@ -168,10 +168,10 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
 
 export async function waitForExecutiveRoiDashboardHydrated(page: Page): Promise<void> {
 
-  await expect(page.getByTestId("executive-dashboard-empty-state")).toHaveCount(0, { timeout: 60_000 });
-
-  // Portfolio layout hides findings/ROI until executive-summary finishes loading (hasCommittedReviews gate).
+  // Prefer the committed-review panel — empty-state count flakes when TanStack Query settles before summary data.
   await expect(page.getByTestId("exec-roi-identified-vs-realized-panel")).toBeVisible({ timeout: 60_000 });
+
+  await expect(page.getByTestId("executive-dashboard-empty-state")).toHaveCount(0, { timeout: 15_000 });
 
 }
 
@@ -189,7 +189,7 @@ export function prepareExecutiveRoiDashboardProxyWaits(page: Page): {
 
   const summaryResponse = page
 
-    .waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 30_000 })
+    .waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 60_000 })
 
     .catch(() => null);
 

@@ -30,8 +30,16 @@ export async function mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings(
       return buyerSummaryDetail;
     }
 
+    const buyerRun = buyerSummaryDetail.run;
+    const operatorRun = operatorEnvelope.value.run;
+
     return {
       ...buyerSummaryDetail,
+      run: {
+        ...buyerRun,
+        goldenManifestId: buyerRun.goldenManifestId ?? operatorRun.goldenManifestId,
+        hasGoldenManifest: buyerRun.hasGoldenManifest ?? operatorRun.hasGoldenManifest,
+      },
       results: operatorResults,
     };
   } catch {

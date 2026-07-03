@@ -208,7 +208,11 @@ export async function gotoManifestEmptyArtifactsOperatorCase(page: Page): Promis
 
 /** Outcome strip deep link to signed record / legacy manifest detail (TB-399 canonical URLs). */
 export function outcomeStripSignedRecordLink(outcomeStrip: Locator): Locator {
-  return outcomeStrip.locator('a[href^="/signed-records/"], a[href^="/manifests/"]').first();
+  return outcomeStrip
+    .locator(
+      '[data-testid="run-detail-finalized-package-link"], a[href^="/signed-records/"], a[href^="/manifests/"], a[href$="/signed-record"]',
+    )
+    .first();
 }
 
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */
