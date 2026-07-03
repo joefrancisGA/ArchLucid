@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-07-02 (TB-573 **Done** — First Load JS baseline + CI regression gate). Prior: 2026-07-02 (TB-576 **Done** — run-list warning flags via join aggregates). Prior: 2026-07-02 (TB-575 **Done** — reuse pipeline manifest on commit). Prior: 2026-06-30 (TB-530 **Done** — Integration readiness nav renamed Connection status). Prior: 2026-06-30 (TB-525 **Done** — Analysis nav group renamed Insights). Prior: 2026-06-30 (TB-519 **Done** — Evidence graph first in Analysis nav). Prior: 2026-06-28 (TB-506 **Done** — security-trust data retention section). Prior: 2026-06-28 (TB-505 **Done** — security-trust tenant isolation section). Prior: 2026-06-28 (TB-479 **Done** — workspace list unavailable session copy). Prior: 2026-06-28 (TB-478 **Done** — service bus banner System health link label). Prior: 2026-06-28 (TB-477 **Done** — roles settings Finalize reviews permission label). Prior: 2026-06-28 (TB-476 **Done** — onboarding step tracker Finalize checkpoint label). Prior: 2026-06-28 (TB-475 **Done** — Rule-based analysis simulator trust badge). Prior: 2026-06-28 (TB-474 **Done** — example review defensible-layer caption). Prior: 2026-06-29 (TB-516–TB-534 added — nav/IA audit 19 P0–P2 items; FIRST_HOUR_JOURNEY_AUDIT.md and NAV_IA_AUDIT.md recreated). Prior: 2026-06-29 (TB-501–TB-515 added — enterprise trust audit 15 P0–P2 items). Prior: 2026-06-28 (TB-470 **Done** — Why ArchLucid sponsor pack source line). Prior: 2026-06-28 (TB-469 **Done** — product concepts glossary dialog description). Prior: 2026-06-28 (TB-468 **Done** — Executive value report page title). Prior: 2026-06-28 (TB-467 **Done** — Cloud connections nav label migration). Prior: 2026-06-28 (TB-461 **Done** — hero step 3 Finalize review package). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
+**Updated:** 2026-07-02 (TB-577–**TB-586** **Done** — backend performance assessment batch: JSON projection, run-list cache revision, parallel commit/findings, Redis L2, governance/audit cache, metering batching, ConfigureAwait, SQL write batching, run-list projection trim, worker outbox parallelism). Prior: 2026-07-02 (TB-573 **Done** — First Load JS baseline + CI regression gate). Prior: 2026-07-02 (TB-576 **Done** — run-list warning flags via join aggregates). Prior: 2026-06-30 (TB-530 **Done** — Integration readiness nav renamed Connection status). Prior: 2026-06-30 (TB-525 **Done** — Analysis nav group renamed Insights). Prior: 2026-06-30 (TB-519 **Done** — Evidence graph first in Analysis nav). Prior: 2026-06-28 (TB-506 **Done** — security-trust data retention section). Prior: 2026-06-28 (TB-505 **Done** — security-trust tenant isolation section). Prior: 2026-06-28 (TB-479 **Done** — workspace list unavailable session copy). Prior: 2026-06-28 (TB-478 **Done** — service bus banner System health link label). Prior: 2026-06-28 (TB-477 **Done** — roles settings Finalize reviews permission label). Prior: 2026-06-28 (TB-476 **Done** — onboarding step tracker Finalize checkpoint label). Prior: 2026-06-28 (TB-475 **Done** — Rule-based analysis simulator trust badge). Prior: 2026-06-28 (TB-474 **Done** — example review defensible-layer caption). Prior: 2026-06-29 (TB-516–TB-534 added — nav/IA audit 19 P0–P2 items; FIRST_HOUR_JOURNEY_AUDIT.md and NAV_IA_AUDIT.md recreated). Prior: 2026-06-29 (TB-501–TB-515 added — enterprise trust audit 15 P0–P2 items). Prior: 2026-06-28 (TB-470 **Done** — Why ArchLucid sponsor pack source line). Prior: 2026-06-28 (TB-469 **Done** — product concepts glossary dialog description). Prior: 2026-06-28 (TB-468 **Done** — Executive value report page title). Prior: 2026-06-28 (TB-467 **Done** — Cloud connections nav label migration). Prior: 2026-06-28 (TB-461 **Done** — hero step 3 Finalize review package). Prior: 2026-06-28 (TB-444 **Done** — new-review header Review guide link). Prior: 2026-06-28 (TB-443 **Done** — Continue setup home card copy and CTA). Prior: 2026-06-28 (TB-442 **Done** — move CLI tools off onboarding to Settings developer). Prior: 2026-06-28 (TB-441 **Done** — Focused review scope toggle and accordion label). Prior: 2026-06-28 (TB-440 **Done** — outcome-oriented new-review page lead). Prior: 2026-06-28 (TB-439 **Done** — deliverables empty-state copy and reload). Prior: 2026-06-28 (TB-438 **Done** — operator shell DOCX download label). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -149,7 +149,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-560 — TB-573** were added 2026-06-30 from an **archlucid-ui performance audit** (Next.js 15 App Router; canvas `canvases/ui-performance-backlog.canvas.tsx`). The operator product shell pays a large client bundle and hydration tax: `OperatorShellTopBar` statically imports `CommandPalette` (~617 lines + `cmdk`) on every page; `FindingEvidenceGraph` statically imports `reactflow` + CSS; only **4** TanStack Query hooks exist while **80+** components still use ad-hoc `useEffect`+`fetch`; and several monolithic client files (`GovernanceFindingsQueueClient` ~1115 lines, `AlertsInboxContent` ~903, `RunsDashboardPanel` ~822) widen re-render and hydration scope. **TB-560**–**TB-565** (P1) are highest leverage (dynamic imports, Query expansion, mega-component splits, `optimizePackageImports`); **TB-566**–**TB-572** (P2) push server/client boundaries, ISR, context memoization, Suspense streaming, and telemetry deferral; **TB-573** **Done** (2026-07-02) — First Load JS baseline + CI regression gate (`ui-first-load-js-budget`, +25 kB tolerance). Does **not** duplicate **TB-319** (pilot-critical performance *evidence* step — **Done**); these are engineering fixes toward fast first paint and navigation. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1 (TanStack Query), §4 (operator route caching), §7 (nested Suspense).
 
-**TB-574 — TB-593** were added 2026-07-02 from [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (persistence, API middleware, commit/findings hot paths, caching). **TB-574** **Done** (2026-07-02) — trial-seat middleware short-circuit for non-trial tenants (`TenantTrialSeatSkipCache`, `TenantTrialSeatPolicy`). **TB-575** **Done** (2026-07-02) — reuse pipeline golden manifest at commit and pass precomputed hash to save (largest commit CPU win). **TB-576** **Done** (2026-07-02) — run-list `HasWarnings` / `HasGovernanceWarnings` via LEFT JOIN aggregates instead of per-row correlated `EXISTS` (`RunListWarningFlagSql`). **TB-577**–**TB-593** remain open (JSON projection, cache eviction, parallel commit loads, Redis L2, governance/audit cache, metering batching, and related medium/low items). Cross-ref [`PERFORMANCE.md`](PERFORMANCE.md), [`API_PERFORMANCE_TARGETS.md`](API_PERFORMANCE_TARGETS.md).
+**TB-574 — TB-593** were added 2026-07-02 from [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (persistence, API middleware, commit/findings hot paths, caching). **TB-574**–**TB-586** **Done** (2026-07-02) — trial-seat middleware short-circuit; pipeline manifest reuse at commit; run-list warning-flag join aggregates; audit/trace JSON projection; run-list scope-revision eviction; parallel commit loads and finding engines; Redis L2 + replica count; governance/audit/policy-pack hot-path cache; API metering batching; `ConfigureAwait(false)` on hot reads; SQL write batching; run-list `EngineProvenanceJson` projection trim; authority-pipeline and integration-outbox worker batch parallelism (`BoundedBatchParallelism`). **TB-587**–**TB-593** remain open (DevOps HTTP resilience, commit dedupe loads, manifest CPU, hybrid-cache hit cost, SQL pool/MARS, k6 gaps, findings cache). Cross-ref [`PERFORMANCE.md`](PERFORMANCE.md), [`API_PERFORMANCE_TARGETS.md`](API_PERFORMANCE_TARGETS.md).
 
 **TB-399** was added 2026-06-23 as the **V1.1 follow-on** to the manifest terminology copy sweep (global guard **TB-355** / **TB-366**). V1 removed "manifest" from on-page labels, help, compare copy, and error strings; **browser URLs still expose** `/manifests/` and `/reviews/{runId}/manifest`, which buyers see in the address bar, bookmarks, and shared links. **TB-399** adds **buyer-facing route aliases + permanent redirects** (same pattern as `/runs` ? `/reviews` in `next.config.ts`) without renaming API contracts, persistence, or internal `manifestId` fields. **Out of scope:** `/manifest.webmanifest` (PWA platform convention); backend `/v1/authority/manifests/*` paths. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) ?9, **TB-273** (BDA manifest terminology cluster), `buyer-safe-review-navigation.ts`, `NAV_CONFIG_CONTRACT.md`.
 
@@ -177,8 +177,26 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-571 | Nested `Suspense` on run detail + governance hub — stream below-fold sections (`RunDetailBelowFoldSections`, findings queue) | Performance P2 — **V1.1**; **UI_ARCHITECTURE_V1_1.md** §7 | M |
 | TB-572 | Defer App Insights initialization until `requestIdleCallback` or first interaction | Performance P2 — **V1.1** | XS |
 | TB-573 | Bundle baseline + Lighthouse CI gate — `npm run build:analyze` per-route First Load JS snapshot; GitHub Action fails on regression threshold for `/reviews` | **Done** (2026-07-02) — Performance P2 **V1.1** | S |
+| TB-574 | Short-circuit trial-seat reservation middleware for paid and non-trial tenants (`TenantTrialSeatSkipCache`, warm skip policy) | **Done** (2026-07-02) — Performance P1 **V1** | S |
 | TB-575 | Reuse pipeline golden manifest on commit when findings and rule audit unchanged; refresh graph-derived topology after post-seed merge only; pass precomputed hash to save | **Done** (2026-07-02) — Performance P1 **V1** | M |
 | TB-576 | Replace run-list correlated `EXISTS` for warning flags with LEFT JOIN aggregates (`RunListWarningFlagSql`); shape tests assert no correlated subqueries on dashboard list paths | **Done** (2026-07-02) — Performance P1 **V1** | S |
+| TB-577 | Project or lazy-load JSON on audit list and trace LLM cost read paths | **Done** (2026-07-02) — Performance P1 **V1** | M |
+| TB-578 | Bump run-list scope revision (or evict list cache keys) on run writes | **Done** (2026-07-02) — Performance P1 **V1** | S |
+| TB-579 | Parallelize independent commit loads and finding engines with bounded `Task.WhenAll` | **Done** (2026-07-02) — Performance P1 **V1** | S |
+| TB-580 | Wire Redis L2 hybrid cache and `ExpectedApiReplicaCount` for horizontal scale-out | **Done** (2026-07-02) — Performance P1 **V1** | M |
+| TB-581 | Extend hot-path cache to governance dashboard, audit list/search, and policy-pack list | **Done** (2026-07-02) — Performance P1 **V1** | M |
+| TB-582 | Batch API request usage metering off the request path | **Done** (2026-07-02) — Performance P2 **V1** | S |
+| TB-583 | Add `ConfigureAwait(false)` on hot read paths (`RunDetailQueryService`, persistence repos) | **Done** (2026-07-02) — Performance P2 **V1** | M |
+| TB-584 | Batch SQL write paths (usage events, agent results, finding ranks, SCIM sync, outbox retry) | **Done** (2026-07-02) — Performance P2 **V1** | M |
+| TB-585 | Omit `EngineProvenanceJson` from run-list SQL projection | **Done** (2026-07-02) — Performance P2 **V1** | XS |
+| TB-586 | Bounded parallel fan-out for authority-pipeline and integration-outbox worker batches | **Done** (2026-07-02) — Performance P2 **V1** | S |
+| TB-587 | Azure DevOps HTTP client Polly resilience (parity with ITSM/ARM) | Performance P2 — **V1** | S |
+| TB-588 | Deduplicate redundant commit loads (run, findings, evidence, policy packs) | Performance P2 — **V1** | M |
+| TB-589 | Reduce manifest builder CPU (`DefaultGoldenManifestBuilder` scans, repeated hashing) | Performance P2 — **V1** | M |
+| TB-590 | Reduce hybrid-cache JSON round-trip cost on L2 hits | Performance P2 — **V1** | S |
+| TB-591 | Tune SQL connection pool and MARS defaults | Performance P3 — **V1** | XS |
+| TB-592 | Close k6 coverage gaps for non-gated governance/audit routes | Performance P3 — **V1** | S |
+| TB-593 | Findings snapshot read cache on hot paths | Performance P3 — **V1** | S |
 | TB-404 | Operator nav ↔ URL prefix policy + CI drift guard — document canonical path namespaces per nav group; Vitest asserts every `nav-config` href matches its section prefix or an explicit documented exception registry | Maintainability P1 — **V1.1**; prerequisite for TB-405?408 | S |
 | TB-405 | Governance route tree consolidation — move `/audit`, `/alerts`, `/policy-packs`, `/governance-resolution` under `/governance/*`; 301 redirects from legacy paths; retire duplicate `/governance/policy-packs` list route or redirect to canonical | Adoption friction P1 — **V1.1** | M |
 | TB-406 | Administration route namespace reconciliation — `/workspace/security-trust` → `/settings/security-trust`; align **Users & roles** (`/admin/users`) with **Role management** (`/settings/roles`) under one prefix; move **Recurrence schedules** nav to Governance or add Administration-prefixed alias | **Done** (2026-06-28) — Adoption friction P1 **V1.1** | M |
@@ -16867,3 +16885,139 @@ experimental: {
 **Size estimate:** **S**
 
 **Cross-ref:** [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (H3, priority #3); **TB-575** (commit CPU — complementary hot-path work).
+
+---
+
+## TB-574 — Short-circuit trial-seat middleware for non-trial tenants (P1)
+
+**Status:** **Done** (2026-07-02)
+
+**Why:** Trial-seat reservation middleware issued transactional `UPDLOCK` SQL on most authenticated requests, dominating per-request middleware cost (assessment finding H1).
+
+**Approach (shipped):** Added `TenantTrialSeatSkipCache` and trial-seat policy short-circuit so paid and non-trial tenants bypass the reservation SQL when the skip cache is warm.
+
+**Affected files:** `ArchLucid.Api/Middleware/TrialSeatReservationMiddleware.cs`, `ArchLucid.Persistence/Tenancy/TenantTrialSeatSkipCache.cs`, `ArchLucid.Core/Tenancy/TenantTrialSeatPolicy.cs`
+
+**Cross-ref:** [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (H1, priority #1).
+
+---
+
+## TB-577 — Project JSON on audit list and trace LLM cost paths (P1)
+
+**Status:** **Done** (2026-07-02)
+
+**Why:** Audit list/search/export and trace LLM cost paths loaded full JSON blobs per row (assessment finding H2).
+
+**Approach (shipped):** Narrowed SQL projections and read paths so list/search surfaces avoid deserializing full `DataJson` / trace payloads where summaries suffice.
+
+**Cross-ref:** [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (H2, priority #4).
+
+---
+
+## TB-578 — Bump run-list scope revision on run writes (P1)
+
+**Status:** **Done** (2026-07-02)
+
+**Why:** Run list cache keys were not evicted on write — only per-run keys — causing stale dashboard lists (assessment finding M4).
+
+**Approach (shipped):** Scope-revision bump on run writes so list cache keys invalidate coherently.
+
+**Cross-ref:** [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (M4, priority #5).
+
+---
+
+## TB-579 — Parallelize commit loads and finding engines (P1)
+
+**Status:** **Done** (2026-07-02)
+
+**Why:** Independent commit loads and finding engines ran sequentially (assessment findings M6, M7).
+
+**Approach (shipped):** Bounded `Task.WhenAll` for independent commit repository loads and parallel finding-engine execution with preserved failure semantics.
+
+**Cross-ref:** [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (M6, M7, priority #6).
+
+---
+
+## TB-580 — Wire Redis L2 hybrid cache and replica count (P1)
+
+**Status:** **Done** (2026-07-02)
+
+**Why:** Production default used in-memory HybridCache L1 only; horizontal scale-out risked miss storms (assessment finding H6).
+
+**Approach (shipped):** Runtime wiring for Redis L2 and `ExpectedApiReplicaCount` configuration (`HotPathCacheProviderResolver`, production appsettings).
+
+**Cross-ref:** [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (H6, priority #7); **TB-094** (infra).
+
+---
+
+## TB-581 — Extend hot-path cache to governance dashboard and audit search (P1)
+
+**Status:** **Done** (2026-07-02)
+
+**Why:** Governance dashboard, audit list/search, and policy-pack list bypassed hot-path cache (assessment finding H7).
+
+**Approach (shipped):** `CachingGovernanceDashboardService`, `CachingAuditRepository`, and policy-pack list cache decorators on hot read paths.
+
+**Cross-ref:** [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (H7, priority #8).
+
+---
+
+## TB-582 — Batch API request usage metering off the request path (P2)
+
+**Status:** **Done** (2026-07-02)
+
+**Why:** API usage metering persisted a write per `/v*` request when enabled (assessment finding M1).
+
+**Approach (shipped):** Batched metering persistence off the request hot path.
+
+**Cross-ref:** [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (M1).
+
+---
+
+## TB-583 — Add ConfigureAwait(false) on hot read paths (P2)
+
+**Status:** **Done** (2026-07-02)
+
+**Why:** Hot read services and persistence repos omitted `ConfigureAwait(false)`, adding sync-context capture overhead (assessment findings M2, M3).
+
+**Approach (shipped):** `ConfigureAwait(false)` on `RunDetailQueryService` and hot persistence read paths.
+
+**Cross-ref:** [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (M2, M3).
+
+---
+
+## TB-584 — Batch SQL write paths (P2)
+
+**Status:** **Done** (2026-07-02)
+
+**Why:** Per-row `ExecuteAsync` loops on usage events, agent results, finding ranks, SCIM sync, and outbox retry (assessment finding M8).
+
+**Approach (shipped):** `SqlChunkedDapperBatch` helper and batched writes across the listed repositories.
+
+**Cross-ref:** [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (M8).
+
+---
+
+## TB-585 — Omit EngineProvenanceJson from run-list SQL projection (P2)
+
+**Status:** **Done** (2026-07-02)
+
+**Why:** Run lists selected `EngineProvenanceJson` without a covering index INCLUDE, widening IO (assessment finding M9).
+
+**Approach (shipped):** Trimmed run-list projection in `RunListSql` so list queries omit `EngineProvenanceJson`.
+
+**Cross-ref:** [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (M9).
+
+---
+
+## TB-586 — Bounded parallel fan-out for worker outbox batches (P2)
+
+**Status:** **Done** (2026-07-02)
+
+**Why:** Authority pipeline and integration outbox workers dequeued batches of 25 but processed entries sequentially (assessment finding M10).
+
+**Approach (shipped):** Added `BoundedBatchParallelism` with configurable `MaxConcurrentBatchEntries` / `OutboxMaxConcurrentBatchEntries` (default 4); each entry processed in an isolated DI scope to preserve lease/idempotency.
+
+**Affected files:** `ArchLucid.Core/Concurrency/BoundedBatchParallelism.cs`, `AuthorityPipelineWorkProcessor.cs`, `IntegrationEventOutboxProcessor.cs`
+
+**Cross-ref:** [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (M10).
