@@ -11,15 +11,11 @@ vi.mock("@/lib/operator-run-picker-client", () => ({
   loadProjectRunsMergedWithDemoFallback: vi.fn(async () => ({ items: [] })),
 }));
 
-vi.mock("@/lib/core-pilot-commit-context", () => ({
-  fetchCorePilotCommitContext: vi.fn(async () => ({
-    hasCommittedManifest: false,
-    committedReviewCount: 0,
-    latestRunId: null,
-    firstCommittedRunId: null,
-    secondCommittedRunId: null,
-  })),
-}));
+vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
+  const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
+
+  return createCorePilotCommitContextModuleMock(importOriginal);
+});
 
 describe("FirstValueLanePanel", () => {
   it("renders four lane phases with status markers", async () => {

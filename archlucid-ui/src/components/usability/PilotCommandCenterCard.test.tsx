@@ -18,19 +18,20 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 }));
 
 vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/core-pilot-commit-context")>();
+  const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
+  const mockModule = await createCorePilotCommitContextModuleMock(importOriginal);
+  const fetchCorePilotCommitContext = vi.mocked(mockModule.fetchCorePilotCommitContext);
 
-  return {
-    ...actual,
-    fetchCorePilotCommitContext: vi.fn(async () => ({
-      hasCommittedManifest: false,
-      committedReviewCount: 0,
-      latestRunId: null,
-      firstCommittedRunId: null,
-      secondCommittedRunId: null,
-      latestRunReadyToFinalize: false,
-    })),
-  };
+  fetchCorePilotCommitContext.mockResolvedValue({
+    hasCommittedManifest: false,
+    committedReviewCount: 0,
+    latestRunId: null,
+    firstCommittedRunId: null,
+    secondCommittedRunId: null,
+    latestRunReadyToFinalize: false,
+  });
+
+  return mockModule;
 });
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";

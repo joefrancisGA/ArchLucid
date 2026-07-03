@@ -48,6 +48,7 @@ vi.mock("@/lib/api", () => ({
 }));
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
+import { optIntoAdvancedNewRunWizardConfiguration } from "./new-run-wizard-test-helpers";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 const WIZARD_DRAFT_STORAGE_KEY = "archlucid_new_run_wizard_draft_v1";
@@ -73,6 +74,12 @@ async function renderNewRunWizard() {
     { timeout: 15_000 },
   );
 
+  const allStepsButton = screen.queryByRole("button", { name: /All steps \(\d+\)/ });
+
+  if (allStepsButton === null) {
+    await optIntoAdvancedNewRunWizardConfiguration();
+  }
+
   await waitFor(
     () => {
       expect(screen.getByRole("button", { name: /All steps \(\d+\)/ })).toBeInTheDocument();
@@ -80,11 +87,11 @@ async function renderNewRunWizard() {
     { timeout: 15_000 },
   );
 
-  const allStepsButton = screen.getByRole("button", { name: /All steps \(\d+\)/ });
+  const fullModeButton = screen.getByRole("button", { name: /All steps \(\d+\)/ });
 
-  if (allStepsButton.getAttribute("aria-pressed") !== "true") {
+  if (fullModeButton.getAttribute("aria-pressed") !== "true") {
     await act(async () => {
-      fireEvent.click(allStepsButton);
+      fireEvent.click(fullModeButton);
     });
   }
 
@@ -210,15 +217,19 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
+      await new Promise((resolve) => setTimeout(resolve, 50));
     });
 
     await waitFor(() => {
       expect(createArchitectureRunMock).toHaveBeenCalled();
     });
 
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Track pipeline" })).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByRole("heading", { name: "Track pipeline" })).toBeInTheDocument();
+      },
+      { timeout: 15_000 },
+    );
 
     await waitFor(() => {
       expect(getRunSummaryMock).toHaveBeenCalledWith("integration-run-1");

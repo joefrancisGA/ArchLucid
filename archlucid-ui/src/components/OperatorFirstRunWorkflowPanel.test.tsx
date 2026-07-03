@@ -15,13 +15,11 @@ vi.mock("@/lib/operator-run-picker-client", () => ({
   loadProjectRunsMergedWithDemoFallback: vi.fn(async () => ({ items: [], loadError: false })),
 }));
 
-vi.mock("@/lib/core-pilot-commit-context", () => ({
-  fetchCorePilotCommitContext: vi.fn(async () => ({
-    hasCommittedManifest: false,
-    latestRunId: null,
-    firstCommittedRunId: null,
-  })),
-}));
+vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
+  const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
+
+  return createCorePilotCommitContextModuleMock(importOriginal);
+});
 
 vi.mock("@/lib/api", async () => {
   const actual = await vi.importActual<typeof import("@/lib/api")>("@/lib/api");

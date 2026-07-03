@@ -1,9 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/core-pilot-commit-context", () => ({
-  fetchCorePilotCommitContext: vi.fn(),
-}));
+vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
+  const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
+
+  return createCorePilotCommitContextModuleMock(importOriginal);
+});
 
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
