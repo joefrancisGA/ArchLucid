@@ -24,6 +24,7 @@ import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 
 export type HelpTabId = "guides" | "shortcuts" | "troubleshooting";
 
@@ -190,18 +191,14 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
               </Button>
             ) : null}
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
+          <DismissControl
             className={cn(
-              "h-8 shrink-0 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100",
+              "h-8 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100",
               OPERATOR_TYPOGRAPHY.button,
             )}
-            onClick={dismissCorePilotPinForSession}
-          >
-            Dismiss for this session
-          </Button>
+            label="Dismiss for this session"
+            onDismiss={dismissCorePilotPinForSession}
+          />
         </div>
       </div>
     );

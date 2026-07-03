@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
-import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { useWorkspaceBaselineArtifactsPresence } from "@/hooks/use-workspace-baseline-artifacts";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -98,23 +98,18 @@ export function ExecutiveDashboardBaselineWarningBanner({
         </p>
       </div>
 
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        aria-label="Dismiss baseline reminder for this session"
+      <DismissControl
+        ariaLabel="Dismiss baseline reminder for this session"
         data-testid="executive-baseline-upload-warning-dismiss"
-        className="shrink-0 self-end border-neutral-400 bg-al-surface-raised text-al-text-primary hover:bg-[var(--al-layer-hover)] sm:self-start dark:border-neutral-600"
-        onClick={() => {
+        className="self-end border-neutral-400 text-al-text-primary sm:self-start dark:border-neutral-600"
+        onDismiss={() => {
           if (typeof window !== "undefined") {
             window.sessionStorage.setItem(EXECUTIVE_DASHBOARD_BASELINE_WARNING_DISMISSED_SESSION_KEY, "1");
           }
 
           setSessionDismissed(true);
         }}
-      >
-        Dismiss
-      </Button>
+      />
     </div>
   );
 }

@@ -1,12 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -168,19 +168,15 @@ export function TrialBanner() {
           </Button>
         </div>
       </div>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 shrink-0 text-amber-900 hover:bg-amber-100 dark:text-amber-100 dark:hover:bg-amber-900/60"
-        aria-label="Dismiss trial banner for 24 hours"
-        onClick={() => {
+      <DismissControl
+        iconOnly
+        ariaLabel="Dismiss trial banner for 24 hours"
+        className="text-amber-900 hover:bg-amber-100 dark:text-amber-100 dark:hover:bg-amber-900/60"
+        onDismiss={() => {
           snoozeTrialBanner24h();
           setDismissed(true);
         }}
-      >
-        <X className="h-4 w-4" aria-hidden />
-      </Button>
+      />
     </div>
   );
 }

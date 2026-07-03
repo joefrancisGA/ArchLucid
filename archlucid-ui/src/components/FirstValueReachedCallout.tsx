@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 const DISMISS_KEY = "archlucid_first_value_callout_dismissed_v1";
@@ -104,9 +105,7 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
         <Button asChild size="sm" variant="outline">
           <Link href="/help/first-pilot-path">What this means</Link>
         </Button>
-        <Button type="button" size="sm" variant="ghost" onClick={dismiss} data-testid="first-value-reached-dismiss">
-          Dismiss
-        </Button>
+        <DismissControl data-testid="first-value-reached-dismiss" onDismiss={dismiss} />
       </div>
     </div>
   );

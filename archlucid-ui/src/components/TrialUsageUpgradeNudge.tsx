@@ -1,11 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import {
   Dialog,
   DialogContent,
@@ -204,20 +204,16 @@ export function TrialUsageUpgradeNudge() {
           </div>
         </div>
         {expiredTrial ? null : (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 shrink-0 text-amber-900 hover:bg-amber-100 dark:text-amber-100 dark:hover:bg-amber-900/60"
-            aria-label="Dismiss trial upgrade nudge for 24 hours"
-            onClick={() => {
+          <DismissControl
+            iconOnly
+            ariaLabel="Dismiss trial upgrade nudge for 24 hours"
+            className="text-amber-900 hover:bg-amber-100 dark:text-amber-100 dark:hover:bg-amber-900/60"
+            onDismiss={() => {
               dismissTrialUpgradeNudge24h(activeTrigger);
               setDismissedLocally(true);
               setExpiredModalOpen(false);
             }}
-          >
-            <X className="h-4 w-4" aria-hidden />
-          </Button>
+          />
         )}
       </div>
 

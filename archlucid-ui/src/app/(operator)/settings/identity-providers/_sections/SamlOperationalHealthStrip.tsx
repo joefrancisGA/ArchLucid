@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -141,17 +142,12 @@ export function SamlOperationalHealthStrip(props: SamlOperationalHealthStripProp
                 Rotation runbook
               </Link>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="shrink-0 border-amber-800/40 bg-white/70 text-amber-950 hover:bg-white dark:border-amber-400/40 dark:bg-amber-950/60 dark:text-amber-50 dark:hover:bg-amber-950"
+            <DismissControl
+              ariaLabel={SAML_SIGNING_CERT_EXPIRY_BANNER_DISMISS_LABEL}
+              className="border-amber-800/40 text-amber-950 dark:text-amber-50"
               data-testid="saml-signing-cert-expiry-banner-dismiss"
-              aria-label={SAML_SIGNING_CERT_EXPIRY_BANNER_DISMISS_LABEL}
-              onClick={dismissSigningCertBanner}
-            >
-              Dismiss
-            </Button>
+              onDismiss={dismissSigningCertBanner}
+            />
           </div>
         ) : null}
 

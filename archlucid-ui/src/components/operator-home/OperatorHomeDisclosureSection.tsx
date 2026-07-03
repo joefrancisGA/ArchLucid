@@ -11,7 +11,7 @@ import {
   readOperatorHomeDisclosureExpanded,
   writeOperatorHomeDisclosureExpanded,
 } from "@/lib/operator-home-disclosure-storage";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type OperatorHomeDisclosureSectionProps = {
   title: string;
@@ -20,7 +20,7 @@ type OperatorHomeDisclosureSectionProps = {
   storageKey: string;
   legacyStorageKeys?: readonly string[];
   defaultExpanded: boolean;
-  /** Slim rows for low-priority home sections — tighter padding and subordinate title scale. */
+  /** Slim rows for low-priority home sections — tighter padding; title scale stays at card level. */
   density?: "default" | "slim";
   description?: ReactNode;
   collapsedSummary?: ReactNode;
@@ -93,10 +93,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
           <div className="flex flex-wrap items-center gap-2">
             <h2
               id={titleId}
-              className={cn(
-                "m-0 font-semibold text-al-text-primary",
-                slim ? OPERATOR_TYPOGRAPHY.helper : OPERATOR_TYPOGRAPHY.cardTitle,
-              )}
+              className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}
             >
               {title}
             </h2>

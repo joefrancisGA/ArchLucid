@@ -6,7 +6,7 @@ import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
@@ -106,16 +106,10 @@ export function AfterCorePilotChecklistHint() {
             </h3>
             <p className={cn("m-0 mt-0.5 text-teal-800/90 dark:text-teal-200/90", OPERATOR_TYPOGRAPHY.helper)}>Expand your pilot — optional next steps</p>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="shrink-0 border-teal-300 text-teal-900 hover:bg-teal-100 dark:border-teal-700 dark:text-teal-100 dark:hover:bg-teal-900/50"
+          <DismissControl
             data-testid="after-core-pilot-whats-next-dismiss"
-            onClick={onDismiss}
-          >
-            Dismiss
-          </Button>
+            onDismiss={onDismiss}
+          />
         </CardHeader>
         <CardContent className="space-y-4">
           <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} data-testid="after-core-pilot-intro">

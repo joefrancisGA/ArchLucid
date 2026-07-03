@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { components } from "@/lib/api-types.generated";
 import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -263,9 +264,7 @@ export function ApiKeysSettingsPageClient() {
                 />
               </label>
             )}
-            <Button type="button" size="sm" variant="secondary" onClick={() => setRotateReveal(null)}>
-              Dismiss
-            </Button>
+            <DismissControl onDismiss={() => setRotateReveal(null)} />
           </CardContent>
         </Card>
       ) : null}

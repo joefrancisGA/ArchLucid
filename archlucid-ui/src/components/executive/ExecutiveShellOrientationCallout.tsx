@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const DISMISS_KEY = "archlucid_executive_shell_orientation_dismissed_v1";
@@ -56,9 +56,7 @@ export function ExecutiveShellOrientationCallout(props: ExecutiveShellOrientatio
               <strong className="font-medium">Scorecard</strong> — value metrics and recommended actions.
             </p>
           </div>
-          <Button type="button" variant="outline" size="sm" className="shrink-0 self-start" onClick={dismiss}>
-            Dismiss
-          </Button>
+          <DismissControl className="self-start" onDismiss={dismiss} />
         </div>
       </div>
     </div>

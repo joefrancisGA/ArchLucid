@@ -4,7 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { ReactElement } from "react";
 
-import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 
 type OperateUnlockAutoHintProps = {
@@ -27,16 +27,11 @@ export function OperateUnlockAutoHint(props: OperateUnlockAutoHintProps): ReactE
       <p className={cn("m-0 leading-relaxed text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
         {CORE_PILOT_PATH_STREAMLINED_LABELS.operateAutoUnlockHint}
       </p>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className={cn("h-auto px-0 py-0 font-medium text-teal-800 hover:bg-transparent hover:underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
+      <DismissControl
+        className={cn("h-auto px-0 font-medium text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="operate-unlock-auto-hint-dismiss"
-        onClick={props.onDismiss}
-      >
-        Dismiss
-      </Button>
+        onDismiss={props.onDismiss}
+      />
     </div>
   );
 }

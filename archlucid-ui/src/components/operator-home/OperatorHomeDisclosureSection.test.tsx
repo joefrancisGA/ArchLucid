@@ -2,7 +2,9 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
+import { OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
 afterEach(() => {
   localStorage.clear();
@@ -32,6 +34,29 @@ describe("OperatorHomeDisclosureSection", () => {
     fireEvent.click(screen.getByRole("button", { name: "Expand Workspace readiness" }));
 
     expect(screen.getByText("Expanded body")).toBeInTheDocument();
+  });
+
+  it("renders slim-density card titles at the same scale as peer overview cards (TB-347)", () => {
+    render(
+      <OperatorHomeDisclosureSection
+        title={OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE}
+        titleId="operator-home-advanced-guidance-heading"
+        sectionTestId="disclosure-slim-title-test"
+        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance}
+        defaultExpanded={false}
+        density="slim"
+        collapsedSummary="Collapsed summary"
+      >
+        <p>Expanded body</p>
+      </OperatorHomeDisclosureSection>,
+    );
+
+    const heading = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE });
+
+    expect(heading.className).toContain("font-semibold");
+    expect(heading.className).toContain("text-[15px]");
+    expect(OPERATOR_TYPE_SCALE.cardTitle).toContain("text-[15px]");
+    expect(heading.className).not.toContain("text-xs");
   });
 
   it("keeps collapsed sections closed before hydration when defaultExpanded is false", () => {

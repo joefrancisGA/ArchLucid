@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
@@ -57,17 +57,9 @@ export function CtoDemoReviewRouteGuard(props: CtoDemoReviewRouteGuardProps): Re
             Go to showcase
           </Link>
         </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="ghost"
-          onClick={() => {
+        <DismissControl data-testid="cto-demo-review-route-guard-dismiss" onDismiss={() => {
             setDismissed(true);
-          }}
-          data-testid="cto-demo-review-route-guard-dismiss"
-        >
-          Dismiss
-        </Button>
+          }} />
       </div>
     </div>
   );

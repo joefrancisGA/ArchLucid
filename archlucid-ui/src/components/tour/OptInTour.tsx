@@ -109,7 +109,7 @@ export function OptInTour({ isOpen, onClose }: OptInTourProps) {
             className={cn("rounded p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.body)}
             onClick={handleClose}
             data-testid="opt-in-tour-close"
-            aria-label="Close tour"
+            aria-label="Dismiss tour"
           >
             ✕
           </button>

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import {
   dismissFirstVisitHelp,
   firstVisitHelpSlugForPathname,
@@ -59,14 +60,7 @@ export function FirstVisitHelpAutoOpen() {
         <Button asChild type="button" size="sm">
           <Link href={`/help/${slug}`}>Open help</Link>
         </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="ghost"
-          onClick={close}
-        >
-          Dismiss
-        </Button>
+        <DismissControl onDismiss={close} />
       </div>
     </div>
   );

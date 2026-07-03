@@ -2,10 +2,10 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { DismissControl } from "@/components/usability/DismissControl";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
 function explainViewDismissKey(pathname: string): string {
@@ -41,11 +41,11 @@ export function ExplainThisViewBanner() {
     >
       <div className="flex items-start justify-between gap-2">
         <p className="m-0 font-semibold text-neutral-900 dark:text-neutral-50">{explanation.title}</p>
-        <button
-          type="button"
-          className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-200/80 hover:text-neutral-800 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
-          aria-label={`Dismiss ${explanation.title} help`}
-          onClick={() => {
+        <DismissControl
+          iconOnly
+          ariaLabel={`Dismiss ${explanation.title} help`}
+          className="h-auto w-auto shrink-0 p-1 text-neutral-500 hover:bg-neutral-200/80 hover:text-neutral-800 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+          onDismiss={() => {
             try {
               sessionStorage.setItem(explainViewDismissKey(pathname), "1");
             }
@@ -55,9 +55,7 @@ export function ExplainThisViewBanner() {
 
             setDismissed(true);
           }}
-        >
-          <X className="h-4 w-4" aria-hidden />
-        </button>
+        />
       </div>
       <p className="m-0 mt-1 text-neutral-700 dark:text-neutral-300">{explanation.summary}</p>
       <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">

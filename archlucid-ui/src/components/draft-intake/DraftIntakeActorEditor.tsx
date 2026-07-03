@@ -5,6 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -254,19 +255,14 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
             >
               {GUIDED_INTAKE_ADD_SELECTED_ACTORS_BUTTON}
             </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
+            <DismissControl
               disabled={panelDisabled}
               data-testid="draft-intake-actor-dismiss-suggestions"
-              onClick={() => {
+              onDismiss={() => {
                 setSuggestionPanelOpen(false);
                 setSelectedSuggestionKeys(new Set());
               }}
-            >
-              Dismiss
-            </Button>
+            />
           </div>
         </div>
       ) : null}

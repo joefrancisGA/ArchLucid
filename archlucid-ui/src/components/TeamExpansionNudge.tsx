@@ -1,11 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -133,19 +133,15 @@ export function TeamExpansionNudge() {
           </Button>
         </div>
       </div>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 shrink-0 text-sky-900 hover:bg-sky-100 dark:text-sky-100 dark:hover:bg-sky-900/60"
-        aria-label="Dismiss Team expansion nudge for 24 hours"
-        onClick={() => {
+      <DismissControl
+        iconOnly
+        ariaLabel="Dismiss Team expansion nudge for 24 hours"
+        className="text-sky-900 hover:bg-sky-100 dark:text-sky-100 dark:hover:bg-sky-900/60"
+        onDismiss={() => {
           dismissTeamExpansionNudge24h(activeTrigger);
           setDismissedLocally(true);
         }}
-      >
-        <X className="h-4 w-4" aria-hidden />
-      </Button>
+      />
     </div>
   );
 }

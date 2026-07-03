@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { pageContextualHintForPathname, pageHintDismissStorageKey } from "@/lib/page-contextual-hints";
 
 /** Dismissible per-route hint strip — complements the Help drawer contextual copy. */
@@ -67,9 +67,7 @@ export function ContextualPageHintStrip(): React.JSX.Element | null {
           </>
         ) : null}
       </p>
-      <Button type="button" variant="ghost" size="sm" className="h-7 shrink-0" onClick={onDismiss}>
-        Dismiss
-      </Button>
+      <DismissControl className="h-7" onDismiss={onDismiss} />
     </div>
   );
 }

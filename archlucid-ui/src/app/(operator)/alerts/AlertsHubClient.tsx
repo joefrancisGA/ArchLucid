@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import { AlertSimulationTuningSection } from "@/components/alerts/AlertSimulationTuningSection";
@@ -125,16 +126,7 @@ export function AlertsHubClient({ initialInboxModel = null }: AlertsHubClientPro
               </li>
             </ol>
           </div>
-          <button
-            type="button"
-            className={cn(
-              "shrink-0 rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-al-text-primary hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
-              OPERATOR_TYPOGRAPHY.button,
-            )}
-            onClick={dismissHubOrient}
-          >
-            Dismiss
-          </button>
+          <DismissControl className={OPERATOR_TYPOGRAPHY.button} onDismiss={dismissHubOrient} />
         </div>
       ) : null}
       {visibleTabIds.length > 1 ? (

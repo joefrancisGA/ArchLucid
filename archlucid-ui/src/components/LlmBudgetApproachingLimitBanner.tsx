@@ -2,10 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { X } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
@@ -70,18 +69,14 @@ export function LlmBudgetApproachingLimitBanner() {
           .
         </p>
       </div>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 shrink-0 text-amber-900 hover:bg-amber-100 dark:text-amber-100 dark:hover:bg-amber-900/60"
-        aria-label="Dismiss LLM budget warning for this session"
-        onClick={() => {
+      <DismissControl
+        iconOnly
+        ariaLabel="Dismiss LLM budget warning for this session"
+        className="text-amber-900 hover:bg-amber-100 dark:text-amber-100 dark:hover:bg-amber-900/60"
+        onDismiss={() => {
           setDismissed(true);
         }}
-      >
-        <X className="h-4 w-4" aria-hidden />
-      </Button>
+      />
     </div>
   );
 }

@@ -1,11 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { usePilotRoiBaselineCompleteness } from "@/hooks/use-pilot-roi-baseline-completeness";
 import {
   OPERATOR_ROI_ESTIMATE_ADD_CTA,
@@ -103,27 +103,19 @@ export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
         >
           {OPERATOR_ROI_ESTIMATE_ADD_CTA}
         </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="ghost"
+        <DismissControl
           className="h-7"
+          label={OPERATOR_ROI_ESTIMATE_DISMISS_CTA}
           data-testid="pilot-roi-baseline-readiness-skip"
-          onClick={dismissPrompt}
-        >
-          {OPERATOR_ROI_ESTIMATE_DISMISS_CTA}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 shrink-0 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
-          aria-label="Dismiss ROI baseline prompt"
+          onDismiss={dismissPrompt}
+        />
+        <DismissControl
+          iconOnly
+          ariaLabel="Dismiss ROI baseline prompt"
+          className="h-7 w-7 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
           data-testid="pilot-roi-baseline-readiness-dismiss"
-          onClick={dismissPrompt}
-        >
-          <X className="h-3.5 w-3.5" aria-hidden />
-        </Button>
+          onDismiss={dismissPrompt}
+        />
       </div>
     </section>
   );
