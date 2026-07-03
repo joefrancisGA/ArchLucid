@@ -34,7 +34,7 @@ public sealed class SecurityTrustPublicationControllerIntegrationTests(ArchLucid
         post.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         HttpResponseMessage search = await Client.GetAsync(
-            "/v1/audit/search?eventType=SecurityAssessmentPublished&take=5");
+            "/v1/audit/search?eventType=SecurityAssessmentPublished&take=5&includeDataJson=true");
 
         search.StatusCode.Should().Be(HttpStatusCode.OK);
         string raw = await search.Content.ReadAsStringAsync();

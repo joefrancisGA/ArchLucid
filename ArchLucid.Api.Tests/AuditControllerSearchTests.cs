@@ -190,6 +190,34 @@ public sealed class AuditControllerSearchTests
     }
 
     [SkippableFact]
+    public async Task SearchAudit_WithIncludeDataJson_PassesFilterToRepo()
+    {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+        Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
+        repo
+            .Setup(r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        HttpResponseMessage response = await client.GetAsync("/v1/audit/search?includeDataJson=true");
+
+        await response.EnsureSuccessForTestAsync();
+        repo.Verify(
+            r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.Is<AuditEventFilter>(f => f.IncludeDataJson),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task GetEventTypes_ReturnsAllConstants()
     {
         await using ArchLucidApiFactory plain = new();
