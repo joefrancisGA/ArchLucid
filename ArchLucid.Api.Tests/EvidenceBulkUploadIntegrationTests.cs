@@ -47,12 +47,38 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
         response.StatusCode.Should().Be(HttpStatusCode.OK, failureBody);
 
         using var scope = Factory.Services.CreateScope();
-        var auditRepo = scope.ServiceProvider.GetRequiredService<IAuditRepository>();
-        var events = await auditRepo.GetByScopeAsync(ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject, 100, CancellationToken.None);
+        IAuditRepository auditRepo = scope.ServiceProvider.GetRequiredService<IAuditRepository>();
+        IReadOnlyList<AuditEvent> events = await auditRepo.GetByScopeAsync(
+            ScopeIds.DefaultTenant,
+            ScopeIds.DefaultWorkspace,
+            ScopeIds.DefaultProject,
+            100,
+            CancellationToken.None);
 
-        var bulkEvents = events.Where(e => e.RunId == Guid.Parse(runId) && e.EventType == AuditEventTypes.EvidenceBulkAttached).ToList();
+        List<AuditEvent> bulkEvents = events
+            .Where(e => e.RunId == Guid.Parse(runId) && e.EventType == AuditEventTypes.EvidenceBulkAttached)
+            .ToList();
+
         bulkEvents.Should().HaveCount(1);
-        bulkEvents[0].DataJson.Should().Contain("200");
+        bulkEvents[0].DataJson.Should().Be("{}");
+
+        AuditEventFilter payloadFilter = new()
+        {
+            EventType = AuditEventTypes.EvidenceBulkAttached,
+            RunId = Guid.Parse(runId),
+            Take = 10,
+            IncludeDataJson = true,
+        };
+
+        IReadOnlyList<AuditEvent> bulkWithPayload = await auditRepo.GetFilteredAsync(
+            ScopeIds.DefaultTenant,
+            ScopeIds.DefaultWorkspace,
+            ScopeIds.DefaultProject,
+            payloadFilter,
+            CancellationToken.None);
+
+        bulkWithPayload.Should().HaveCount(1);
+        bulkWithPayload[0].DataJson.Should().Contain("200");
     }
 
     [SkippableFact]
