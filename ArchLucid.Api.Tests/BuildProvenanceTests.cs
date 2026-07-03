@@ -69,6 +69,7 @@ public sealed class BuildProvenanceTests
         BuildInfoResponse response = BuildInfoResponse.FromProvenance(provenance, "TestApp", "Production");
 
         response.FileVersion.Should().BeNull();
-        response.CommitSha.Should().BeNull();
+        response.CommitSha.Should().Be("unknown");
+        response.BuildTimestamp.Should().Be("unknown");
     }
 }

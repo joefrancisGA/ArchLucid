@@ -65237,6 +65237,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("commitSha")]
         public string? CommitSha { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("buildTimestamp")]
+        public string? BuildTimestamp { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("environment")]
         public string? Environment { get; set; } = default!;
 

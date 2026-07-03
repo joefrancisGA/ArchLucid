@@ -33419,6 +33419,7 @@ export interface components {
         BuildInfoResponse: {
             application?: string;
             assemblyVersion?: string;
+            buildTimestamp?: string;
             commitSha?: null | string;
             environment?: string;
             fileVersion?: null | string;
