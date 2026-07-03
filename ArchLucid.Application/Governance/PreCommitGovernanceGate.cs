@@ -48,7 +48,7 @@ public sealed class PreCommitGovernanceGate(
     public Task<PreCommitGateResult> EvaluateAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(runId);
-        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, null, cancellationToken);
+        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, null, null, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -56,7 +56,19 @@ public sealed class PreCommitGovernanceGate(
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentException.ThrowIfNullOrWhiteSpace(goldenManifestWireJson);
-        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, goldenManifestWireJson, cancellationToken);
+        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, goldenManifestWireJson, null, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public Task<PreCommitGateResult> EvaluateAsync(
+        string runId,
+        string goldenManifestWireJson,
+        PreCommitGovernancePreloadedData? preloadedData,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(runId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(goldenManifestWireJson);
+        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, goldenManifestWireJson, preloadedData, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -66,11 +78,16 @@ public sealed class PreCommitGovernanceGate(
         ArgumentNullException.ThrowIfNull(runId);
         return syntheticCount < 0
             ? throw new ArgumentOutOfRangeException(nameof(syntheticCount), syntheticCount, "Count must be non-negative.")
-            : SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, null, cancellationToken);
+            : SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, null, null, cancellationToken);
     }
 
-    private async Task<PreCommitGateResult> SimulateSyntheticFindingsInternalAsync(string runId, FindingSeverity? syntheticSeverity, int syntheticCount,
-        string? goldenManifestWireJson, CancellationToken cancellationToken)
+    private async Task<PreCommitGateResult> SimulateSyntheticFindingsInternalAsync(
+        string runId,
+        FindingSeverity? syntheticSeverity,
+        int syntheticCount,
+        string? goldenManifestWireJson,
+        PreCommitGovernancePreloadedData? preloadedData,
+        CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         if (goldenManifestWireJson is not null && _authorityCommitSchemaValidationOptions.Value.ValidateGoldenManifestSchema)
@@ -83,19 +100,28 @@ public sealed class PreCommitGovernanceGate(
         if (!_options.Value.PreCommitGateEnabled || !Guid.TryParse(runId, out Guid runKey))
             return PreCommitGateResult.Allowed();
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken);
-
-        if (run is null || !run.FindingsSnapshotId.HasValue)
-            return PreCommitGateResult.Allowed();
-
-        IReadOnlyList<PolicyPackAssignment> assignments =
-            await _policyPackAssignmentRepository.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
+        IReadOnlyList<PolicyPackAssignment> assignments = preloadedData?.ScopePolicyPackAssignments
+            ?? await _policyPackAssignmentRepository.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
 
         PolicyPackAssignment? enforcing = assignments.Where(static a => a.IsEnabled && (a.BlockCommitOnCritical || a.BlockCommitMinimumSeverity.HasValue))
             .OrderByDescending(static a => a.AssignedUtc).FirstOrDefault();
 
-        FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(scope, run.FindingsSnapshotId.Value, cancellationToken);
-        List<Finding> findings = snapshot?.Findings is { Count: > 0 } ? snapshot.Findings.ToList() : [];
+        List<Finding> findings;
+
+        if (preloadedData?.FindingsSnapshotFindings is { } preloadedFindings)
+        {
+            findings = preloadedFindings.Count > 0 ? preloadedFindings.ToList() : [];
+        }
+        else
+        {
+            RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken);
+
+            if (run is null || !run.FindingsSnapshotId.HasValue)
+                return PreCommitGateResult.Allowed();
+
+            FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(scope, run.FindingsSnapshotId.Value, cancellationToken);
+            findings = snapshot?.Findings is { Count: > 0 } ? snapshot.Findings.ToList() : [];
+        }
 
         if (syntheticSeverity is { } sev && syntheticCount > 0)
         {

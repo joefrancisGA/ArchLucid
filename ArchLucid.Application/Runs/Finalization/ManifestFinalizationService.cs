@@ -113,7 +113,7 @@ public sealed class ManifestFinalizationService(
         RunStateTransitionEnforcement.EnsureCommitAllowedLegacy(_runStateTransitionService, request.RunId, locked.LegacyRunStatus);
         if (locked.FindingsSnapshotId is null || locked.FindingsSnapshotId.Value != request.ExpectedFindingsSnapshotId)
             throw new InvalidOperationException("Findings snapshot on the run record does not match the expected findings for finalization.");
-        await EnsureFindingsSnapshotFinalizableAsync(request.ExpectedFindingsSnapshotId, cancellationToken);
+        await EnsureFindingsSnapshotFinalizableAsync(request.ExpectedFindingsSnapshotId, request.PreloadedFindingsSnapshot, cancellationToken);
         if (request.ExpectedArtifactBundleId is { } expectedBundle)
         {
             if (locked.ArtifactBundleId is null || locked.ArtifactBundleId.Value != expectedBundle)
@@ -122,7 +122,10 @@ public sealed class ManifestFinalizationService(
 
         RuleAuditTracePayload audit = request.Trace.RequireRuleAudit();
         await decisionTraceRepository.SaveAsync(DecisionTraceRecordMapper.ToDto(request.Trace), cancellationToken, connection, transaction);
-        await _committedEffectiveGovernanceSnapshotCapturer.ApplyToManifestAsync(request.ManifestModel, cancellationToken);
+        await _committedEffectiveGovernanceSnapshotCapturer.ApplyToManifestAsync(
+            request.ManifestModel,
+            BuildGovernanceSnapshotCaptureOptions(request),
+            cancellationToken);
         ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
             cancellationToken, connection, transaction, request.ManifestModel);
         DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
@@ -218,7 +221,7 @@ public sealed class ManifestFinalizationService(
         RunStateTransitionEnforcement.EnsureCommitAllowedLegacy(_runStateTransitionService, request.RunId, header.LegacyRunStatus);
         if (header.FindingsSnapshotId is null || header.FindingsSnapshotId.Value != request.ExpectedFindingsSnapshotId)
             throw new InvalidOperationException("Findings snapshot on the run record does not match the expected findings for finalization.");
-        await EnsureFindingsSnapshotFinalizableAsync(request.ExpectedFindingsSnapshotId, cancellationToken);
+        await EnsureFindingsSnapshotFinalizableAsync(request.ExpectedFindingsSnapshotId, request.PreloadedFindingsSnapshot, cancellationToken);
         if (request.ExpectedArtifactBundleId is { } expectedBundle)
         {
             if (header.ArtifactBundleId is null || header.ArtifactBundleId.Value != expectedBundle)
@@ -226,7 +229,10 @@ public sealed class ManifestFinalizationService(
         }
 
         await decisionTraceRepository.SaveAsync(DecisionTraceRecordMapper.ToDto(request.Trace), cancellationToken);
-        await _committedEffectiveGovernanceSnapshotCapturer.ApplyToManifestAsync(request.ManifestModel, cancellationToken);
+        await _committedEffectiveGovernanceSnapshotCapturer.ApplyToManifestAsync(
+            request.ManifestModel,
+            BuildGovernanceSnapshotCaptureOptions(request),
+            cancellationToken);
         ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
             cancellationToken, authorityPersistBody: request.ManifestModel);
         RuleAuditTracePayload audit = request.Trace.RequireRuleAudit();
@@ -317,10 +323,30 @@ public sealed class ManifestFinalizationService(
         }
     }
 
-    private async Task EnsureFindingsSnapshotFinalizableAsync(Guid findingsSnapshotId, CancellationToken cancellationToken)
+    private static CommittedEffectiveGovernanceSnapshotCaptureOptions? BuildGovernanceSnapshotCaptureOptions(ManifestFinalizationRequest request)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        FindingsSnapshot? snapshot = await findingsSnapshotRepository.GetByIdAsync(scope, findingsSnapshotId, cancellationToken);
+        if (request.PreloadedScopePolicyPackAssignments is null)
+            return null;
+
+        return new CommittedEffectiveGovernanceSnapshotCaptureOptions
+        {
+            PreloadedScopePolicyPackAssignments = request.PreloadedScopePolicyPackAssignments
+        };
+    }
+
+    private async Task EnsureFindingsSnapshotFinalizableAsync(
+        Guid findingsSnapshotId,
+        FindingsSnapshot? preloadedSnapshot,
+        CancellationToken cancellationToken)
+    {
+        FindingsSnapshot? snapshot = preloadedSnapshot;
+
+        if (snapshot is null)
+        {
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+            snapshot = await findingsSnapshotRepository.GetByIdAsync(scope, findingsSnapshotId, cancellationToken);
+        }
+
         if (snapshot is null)
             throw new InvalidOperationException($"Findings snapshot '{findingsSnapshotId:D}' was not found for finalization.");
         if (snapshot.GenerationStatus is FindingsSnapshotGenerationStatus.Generating or FindingsSnapshotGenerationStatus.Failed)

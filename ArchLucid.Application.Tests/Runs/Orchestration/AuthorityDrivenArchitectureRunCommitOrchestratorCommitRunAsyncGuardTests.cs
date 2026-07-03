@@ -8,6 +8,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
@@ -158,6 +159,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<IManifestFinalizationService>(),
             Mock.Of<IPreCommitGovernanceGate>(),
             Mock.Of<IPreCommitGovernanceBlockExplainer>(),
+            Mock.Of<IPolicyPackAssignmentRepository>(),
             actor.Object,
             baselineAudit.Object,
             Mock.Of<IAuditService>(),

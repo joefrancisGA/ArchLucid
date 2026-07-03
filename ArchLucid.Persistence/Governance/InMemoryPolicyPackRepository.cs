@@ -56,6 +56,23 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
             return Task.FromResult(_items.FirstOrDefault(x => x.PolicyPackId == policyPackId && !x.IsDeleted));
     }
 
+    public Task<IReadOnlyList<PolicyPack>> GetByIdsAsync(IReadOnlyCollection<Guid> policyPackIds, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        if (policyPackIds is null || policyPackIds.Count == 0)
+            return Task.FromResult<IReadOnlyList<PolicyPack>>(Array.Empty<PolicyPack>());
+
+        HashSet<Guid> idSet = policyPackIds.ToHashSet();
+        lock (_gate)
+        {
+            List<PolicyPack> result = _items
+                .Where(x => idSet.Contains(x.PolicyPackId) && !x.IsDeleted)
+                .ToList();
+            return Task.FromResult<IReadOnlyList<PolicyPack>>(result);
+        }
+    }
+
     public Task<IReadOnlyList<PolicyPack>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

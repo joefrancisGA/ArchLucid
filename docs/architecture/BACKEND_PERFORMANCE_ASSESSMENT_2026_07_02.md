@@ -105,14 +105,14 @@ Findings engine work (~221 ms in baseline attribution) runs during **create**, n
 
 | Priority | Action | Backlog | Rationale |
 |----------|--------|---------|-----------|
-| 1 | Scope or short-circuit **trial-seat middleware** for non-trial tenants | **TB-574** **Done** | Highest fixed per-request tax |
-| 2 | **Reuse or incrementally update** pipeline manifest on commit when only topology merge differs; **pass hash** from decide to save | **TB-575** **Done** | Largest commit CPU win |
-| 3 | Replace run-list **correlated EXISTS** with join aggregates or persisted flags | **TB-576** **Done** | Highest dashboard SQL cost |
-| 4 | **Project or lazy-load** JSON columns on run detail / audit export paths | **TB-577** **Done** | Payload cost scales with data |
-| 5 | **Evict run list cache keys** (or scope revision bump) on run writes | **TB-578** **Done** | Correctness + perceived freshness |
-| 6 | Add **`Task.WhenAll`** for independent commit loads and parallel finding engines (preserve failure semantics) | **TB-579** **Done** | Low-effort wins |
-| 7 | Wire **Redis L2 + replica count** before horizontal scale-out (**TB-094** infra done) | **TB-580** **Done** | Avoid miss storms |
-| 8 | Extend **HotPathCache** or short-TTL cache to governance dashboard / audit search | **TB-581** **Done** | Documented coverage gaps |
+| 1 | Scope or short-circuit **trial-seat middleware** for non-trial tenants | **TB-574** | Highest fixed per-request tax |
+| 2 | **Reuse or incrementally update** pipeline manifest on commit when only topology merge differs; **pass hash** from decide to save | **TB-575** | Largest commit CPU win |
+| 3 | Replace run-list **correlated EXISTS** with join aggregates or persisted flags | **TB-576** | Highest dashboard SQL cost |
+| 4 | **Project or lazy-load** JSON columns on run detail / audit export paths | **TB-577** | Payload cost scales with data |
+| 5 | **Evict run list cache keys** (or scope revision bump) on run writes | **TB-578** | Correctness + perceived freshness |
+| 6 | Add **`Task.WhenAll`** for independent commit loads and parallel finding engines (preserve failure semantics) | **TB-579** | Low-effort wins |
+| 7 | Wire **Redis L2 + replica count** before horizontal scale-out (**TB-094** infra done) | **TB-580** | Avoid miss storms |
+| 8 | Extend **HotPathCache** or short-TTL cache to governance dashboard / audit search | **TB-581** | Documented coverage gaps |
 
 Additional medium/low items: **TB-582**–**TB-593** — **TB-582**–**TB-588** **Done** (2026-07-02); **TB-589**–**TB-593** remain open (manifest CPU, hybrid-cache hits, SQL pool/MARS, k6 gaps, findings cache).
 
@@ -122,7 +122,7 @@ Additional medium/low items: **TB-582**–**TB-593** — **TB-582**–**TB-588**
 
 | ID range | Scope |
 |----------|--------|
-| **TB-574**–**TB-593** | Backend performance assessment recommendations — canonical detail in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md); **TB-574**–**TB-588** **Done** (2026-07-02); **TB-589**–**TB-593** open |
+| **TB-574**–**TB-593** | All recommendations from this assessment — canonical detail in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) |
 | **TB-003**, **TB-094**, **TB-155**, **TB-319** | Done — related performance work; do not duplicate |
 | **TB-560**–**TB-573** | Open — UI operator-shell performance (separate audit) |
 | **TB-018** | Open — warm tenant catalogs (signup latency) |
@@ -137,7 +137,7 @@ Additional medium/low items: **TB-582**–**TB-593** — **TB-582**–**TB-588**
 | **TB-094** | Done | Terraform Redis for hot-path cache — runtime wiring is **TB-580** |
 | **TB-155** | Done | ROI cache vs live governance KPIs |
 | **TB-319** | Done | Pilot-critical performance evidence script |
-| **TB-574**–**TB-593** | Partial — **TB-574**–**TB-588** **Done** (2026-07-02); **TB-589**–**TB-593** open — see [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) |
+| **TB-574**–**TB-593** | Open | This assessment — see [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) |
 | **TB-018** | Open | Warm tenant catalogs (signup latency) |
 | **TB-560–573** | Open | Next.js operator-shell performance (UI, not API SQL) |
 

@@ -17,6 +17,7 @@ using DecisionTraceDto = ArchLucid.Contracts.Persistence.DecisionTraces.Decision
 using RuleAuditTraceDto = ArchLucid.Contracts.Persistence.DecisionTraces.RuleAuditTraceDto;
 using RuleAuditTracePayload = ArchLucid.Contracts.Persistence.DecisionTraces.RuleAuditTracePayload;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
@@ -67,6 +68,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IManifestFinalizationService manifestFinalizationService,
     IPreCommitGovernanceGate preCommitGovernanceGate,
     IPreCommitGovernanceBlockExplainer preCommitGovernanceBlockExplainer,
+    IPolicyPackAssignmentRepository policyPackAssignmentRepository,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
     IAuditService auditService,
@@ -148,6 +150,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IPreCommitGovernanceBlockExplainer _preCommitGovernanceBlockExplainer =
         preCommitGovernanceBlockExplainer ?? throw new ArgumentNullException(nameof(preCommitGovernanceBlockExplainer));
+
+    private readonly IPolicyPackAssignmentRepository _policyPackAssignmentRepository =
+        policyPackAssignmentRepository ?? throw new ArgumentNullException(nameof(policyPackAssignmentRepository));
 
     private readonly IAuthorityCommitProjectionBuilder _projectionBuilder = projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
@@ -249,7 +254,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         if (runRecord is null)
             throw new RunNotFoundException(runId);
         ArchitectureRun? run =
-            await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(_runRepository, _scopeContextProvider, _taskRepository, runId, cancellationToken);
+            await ArchitectureRunAuthorityReader.TryGetArchitectureRunFromRecordAsync(_scopeContextProvider, _taskRepository, runId, runRecord,
+                cancellationToken);
         if (run is null)
             throw new RunNotFoundException(runId);
         CommitRunResult? idempotent = await TryReturnAuthorityCommittedIdempotentAsync(run, runId, cancellationToken);
@@ -287,6 +293,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         Cm.GoldenManifest contract;
         AgentEvidencePackage? evidencePackageForTelemetry;
         IReadOnlyList<AgentResult>? agentResultsForTelemetry;
+        FindingsSnapshot? findingsForFinalization;
+        IReadOnlyList<PolicyPackAssignment>? scopePolicyPackAssignments;
         try
         {
             if (runRecord.ContextSnapshotId is not { } contextSnapshotId || runRecord.GraphSnapshotId is not { } graphId ||
@@ -299,8 +307,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             Task<IReadOnlyList<AgentResult>> agentResultsTask =
                 _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
             Task<FindingsSnapshot?> findingsTask = _findingsSnapshotRepository.GetByIdAsync(scope, findingsId, cancellationToken);
+            Task<IReadOnlyList<PolicyPackAssignment>> scopeAssignmentsTask =
+                _policyPackAssignmentRepository.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
 
-            await Task.WhenAll(evidenceTask, graphTask, agentResultsTask, findingsTask);
+            await Task.WhenAll(evidenceTask, graphTask, agentResultsTask, findingsTask, scopeAssignmentsTask);
 
             evidencePackageForTelemetry = await evidenceTask;
             GraphSnapshot? graph = await graphTask;
@@ -311,6 +321,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             agentResultsForTelemetry = await agentResultsTask;
             GraphSnapshot graphForDecision = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, agentResultsForTelemetry);
             FindingsSnapshot? findings = await findingsTask;
+            scopePolicyPackAssignments = await scopeAssignmentsTask;
+            findingsForFinalization = findings;
 
             if (findings is null)
                 throw new InvalidOperationException($"Findings snapshot '{findingsId:D}' for run '{runId}' was not found.");
@@ -349,6 +361,11 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 actor,
                 contractWireJson,
                 NormalizeGovernanceBypassJustification(commitOptions?.BypassJustification),
+                new PreCommitGovernancePreloadedData
+                {
+                    FindingsSnapshotFindings = findings.Findings,
+                    ScopePolicyPackAssignments = scopePolicyPackAssignments
+                },
                 cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -373,7 +390,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     ManifestModel = manifestModel,
                     Contract = contract,
                     Keying = BuildSaveContractsManifestOptions(manifestModel, trace),
-                    Trace = trace
+                    Trace = trace,
+                    PreloadedFindingsSnapshot = findingsForFinalization,
+                    PreloadedScopePolicyPackAssignments = scopePolicyPackAssignments
                 }, cancellationToken);
 
             if (finalization.WasIdempotentReturn)
@@ -402,7 +421,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         ManifestDocument persisted =
             finalization.PersistedManifest ?? throw new InvalidOperationException("Manifest finalization returned no persisted model.");
-        await EnsureDecisionEngineV2NodesMaterializedAsync(runId, request, cancellationToken);
+        await EnsureDecisionEngineV2NodesMaterializedAsync(
+            runId,
+            request,
+            evidencePackageForTelemetry,
+            agentResultsForTelemetry,
+            cancellationToken);
         await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunCompleted, actor, runId,
             $"ManifestVersion={contract.Metadata.ManifestVersion}; SystemName={contract.SystemName}; WarningCount={persisted.Warnings.Count}; CommitPath=authority",
             cancellationToken);
@@ -541,7 +565,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation("Commit run idempotent return (authority): RunId={RunId} ManifestId={ManifestId} TraceId={TraceId}",
                 LogSanitizer.Sanitize(runId), goldenId.ToString("D"), traceId.ToString("D"));
-        await EnsureDecisionEngineV2NodesMaterializedAsync(runId, request, cancellationToken);
+        await EnsureDecisionEngineV2NodesMaterializedAsync(runId, request, preloadedEvidence: null, preloadedAgentResults: null, cancellationToken);
         return new CommitRunResult
         {
             Manifest = contract,
@@ -554,7 +578,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     ///     Persists coordinator <see cref = "IDecisionEngineV2"/> decision nodes when missing so read
     ///     <c>GET /v1/architecture/run/{runId}/decisions</c> is populated after authority commit (idempotent).
     /// </summary>
-    private async Task EnsureDecisionEngineV2NodesMaterializedAsync(string runId, ArchitectureRequest request, CancellationToken cancellationToken)
+    private async Task EnsureDecisionEngineV2NodesMaterializedAsync(
+        string runId,
+        ArchitectureRequest request,
+        AgentEvidencePackage? preloadedEvidence,
+        IReadOnlyList<AgentResult>? preloadedAgentResults,
+        CancellationToken cancellationToken)
     {
         IReadOnlyList<DecisionNode> existing = DecisionRecordMapper.ToDomain(
             await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken));
@@ -564,8 +593,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(commitNodesScope, runId, cancellationToken);
         if (tasks.Count == 0)
             return;
-        AgentEvidencePackage evidence = await GetEvidencePackageForCommitOrThrowAsync(runId, cancellationToken);
-        IReadOnlyList<AgentResult> results = await _agentResultRepository.GetByRunIdAsync(commitNodesScope, runId, cancellationToken);
+        AgentEvidencePackage evidence = preloadedEvidence ?? await GetEvidencePackageForCommitOrThrowAsync(runId, cancellationToken);
+        IReadOnlyList<AgentResult> results = preloadedAgentResults
+            ?? await _agentResultRepository.GetByRunIdAsync(commitNodesScope, runId, cancellationToken);
         if (results.Count == 0)
             return;
         IReadOnlyList<AgentEvaluation> evaluations = await _agentEvaluationService.EvaluateAsync(runId, request, evidence, tasks, results, cancellationToken);
@@ -638,9 +668,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         string actor,
         string goldenManifestWireJson,
         string? governanceBypassJustification,
+        PreCommitGovernancePreloadedData? preloadedData,
         CancellationToken cancellationToken)
     {
-        PreCommitGateResult gateResult = await _preCommitGovernanceGate.EvaluateAsync(runId, goldenManifestWireJson, cancellationToken);
+        PreCommitGateResult gateResult = await _preCommitGovernanceGate.EvaluateAsync(runId, goldenManifestWireJson, preloadedData, cancellationToken);
         if (gateResult.WarnOnly)
         {
             await EmitPreCommitWarnedAuditAsync(gateResult, runId, actor, cancellationToken);

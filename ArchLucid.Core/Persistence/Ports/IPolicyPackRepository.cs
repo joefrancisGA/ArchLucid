@@ -17,6 +17,8 @@ public interface IPolicyPackRepository
 
     Task<PolicyPack?> GetByIdAsync(Guid policyPackId, CancellationToken ct);
 
+    Task<IReadOnlyList<PolicyPack>> GetByIdsAsync(IReadOnlyCollection<Guid> policyPackIds, CancellationToken ct);
+
     Task<IReadOnlyList<PolicyPack>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

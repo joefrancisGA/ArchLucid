@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -97,6 +98,33 @@ public sealed class DapperPolicyPackRepository(
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<PolicyPack>(
             new CommandDefinition(sql, new { PolicyPackId = policyPackId }, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Batch pack metadata lookup by PolicyPackId within the active tenant catalog; ids originate from scoped assignments.")]
+    public async Task<IReadOnlyList<PolicyPack>> GetByIdsAsync(IReadOnlyCollection<Guid> policyPackIds, CancellationToken ct)
+    {
+        if (policyPackIds is null || policyPackIds.Count == 0)
+            return Array.Empty<PolicyPack>();
+
+        Guid[] ids = policyPackIds.Distinct().ToArray();
+
+        const string sql = """
+                           SELECT
+                               PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               Name, Description, PackType, Status,
+                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted
+                           FROM dbo.PolicyPacks
+                           WHERE PolicyPackId IN @PolicyPackIds
+                             AND IsDeleted = 0;
+                           """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<PolicyPack> rows = await connection.QueryAsync<PolicyPack>(
+            new CommandDefinition(sql, new { PolicyPackIds = ids }, cancellationToken: ct));
+        return rows.ToList();
     }
 
     /// <inheritdoc />

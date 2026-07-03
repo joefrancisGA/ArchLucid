@@ -102,4 +102,27 @@ public abstract class PolicyPackRepositoryContractTests
         loaded.Name.Should().Be("after");
         loaded.Status.Should().Be(PolicyPackStatus.Active);
     }
+
+    [SkippableFact]
+    public async Task GetByIdsAsync_returns_matching_packs_and_ignores_unknown()
+    {
+        SkipIfSqlServerUnavailable();
+        IPolicyPackRepository repo = CreateRepository();
+        Guid tenantId = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
+        Guid workspaceId = Guid.Parse("c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2");
+        Guid projectId = Guid.Parse("c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3");
+        PolicyPack packA = NewPack(tenantId, workspaceId, projectId, "batch-a");
+        PolicyPack packB = NewPack(tenantId, workspaceId, projectId, "batch-b");
+
+        await repo.CreateAsync(packA, CancellationToken.None);
+        await repo.CreateAsync(packB, CancellationToken.None);
+
+        IReadOnlyList<PolicyPack> loaded = await repo.GetByIdsAsync(
+            [packA.PolicyPackId, packB.PolicyPackId, Guid.NewGuid()],
+            CancellationToken.None);
+
+        loaded.Should().HaveCount(2);
+        loaded.Should().Contain(x => x.PolicyPackId == packA.PolicyPackId);
+        loaded.Should().Contain(x => x.PolicyPackId == packB.PolicyPackId);
+    }
 }
