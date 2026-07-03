@@ -1,6 +1,4 @@
-> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v3). Use this prompt for clean-slate weighted readiness passes. Product-state grounding aligns with `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` as of 2026-07-02.
->
-> **v3 changes vs v2 (why this revision exists):** the v2 rolling output (`docs/assessments/LATEST_GPT55.md`) drifted into a 100.00% headline that directly contradicted its own 25–40% Executive Purchase Probability, driven by an invented, never-requested "Rescore impact" ratchet that incremented the headline pass-over-pass. The same drift caused the Executive Summary to become a run-on enumeration of 90+ individual TB-ticket IDs and ballooned the file to ~4–6x its historical size. v3 adds **(1)** a mandatory headline/diagnostic reconciliation gate, **(2)** an explicit ban on cumulative score deltas and previous-pass anchoring, and **(3)** a pointer-based shipped-ledger rule that offloads ticket-level detail to `docs/library/TECH_BACKLOG.md` instead of reproducing it inline. See Operating Rules, Scoring Method, and §5/§17 below.
+> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v3). Use this prompt for clean-slate weighted readiness passes. Supersedes [`ASSESSMENT_PROMPT_V2.md`](ASSESSMENT_PROMPT_V2.md) (2026-07-03) after a v2 pass reproduced ~150 already-shipped `TECH_BACKLOG.md` entries as open §17 "Top Improvement Opportunities" and drifted the headline to a self-contradictory 100.00% via an invented cumulative "Rescore impact" ratchet. Product-state grounding aligns with `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` as of 2026-07-03.
 
 # ArchLucid Strategic Release and Market Readiness Assessment (v3)
 
@@ -51,21 +49,26 @@ The following are **already implemented**. Assess whether they *materially chang
 
 **Governance / policy (the intended moat):** the bundled `PlatformDefault` policy packs (current count per `docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`; versioned rule sets, scope assignments, effective governance resolution; manifest `bundled-policy-packs-v1.manifest.json`); pre-commit governance gate (`ArchLucid:Governance:PreCommitGateEnabled`) that blocks commit on severity thresholds; approval workflow with segregation of duties, SLA tracking, escalation; governance dashboard.
 
-**Evidence / audit / traceability:** the typed append-only audit catalog with CSV export (current coverage per `docs/library/AUDIT_COVERAGE_MATRIX.md` and `docs/library/AUDIT_EVENT_MODEL.md`); citation contract (cost/savings lines from an uploaded Azure extractor ZIP must cite `manifest.json` `collectionTimestamp` + schema version); golden manifest + authority chain as the run-of-record.
+**Evidence / audit / traceability:** the typed append-only audit catalog with CSV export (current coverage per `docs/library/AUDIT_COVERAGE_MATRIX.md` and `docs/library/AUDIT_EVENT_MODEL.md`); citation contract (cost/savings lines from an uploaded cloud extractor ZIP must cite `manifest.json` `collectionTimestamp` + schema version); golden manifest + authority chain as the run-of-record.
 
 **Executive packaging / ROI:** `GET /v1/roi/executive-summary` (latest committed run per system, finding dedup by stable `FindingId`, **disposition-aware** portfolio basis), dashboard panel, and a board-pack export delegating to the same service. Note: per-system rows intentionally do **not** sum to the disposition-aware headline.
 
-**ITSM seams (shipping in V1):** `POST /v1/integrations/itsm/outbound/issues` (Jira + ServiceNow) → ticket from persisted Authority-shaped finding; persists `dbo.ItsmFindingCorrelations` (stable `FindingId`); per-tenant settings; durable audit events (`Integration.JiraIssueCreate*`, `Integration.ServiceNowIncidentCreate*`).
+**First-party connectors (V1 GA as of 2026-07-03):** `POST /v1/integrations/itsm/outbound/issues` (Jira + ServiceNow) → ticket from persisted Authority-shaped finding; persists `dbo.ItsmFindingCorrelations` (stable `FindingId`); per-tenant settings; durable audit events (`Integration.JiraIssueCreate*`, `Integration.ServiceNowIncidentCreate*`); Confluence Cloud page-publish; Slack and Microsoft Teams incoming-webhook notifications. All five ship **Shipped** / **Shipped + manual vendor** per `docs/library/CONNECTOR_READINESS_MATRIX.md` — see `V1_SCOPE.md` §2.13–§2.15 and `V1_DEFERRED.md` §6/§6a for the promotion record and **TB-599–TB-602** for remaining tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep).
 
-**AI substrate:** real mode uses **platform-provisioned Azure OpenAI** (hosted SaaS); **simulator mode** gives deterministic execution/CI; orchestration (`AuthorityRunOrchestrator`) lives in `ArchLucid.Application` (the prior "orchestrator-in-Persistence" issue is **remediated** — do not re-flag); retrieval ships (`ArchLucid.Retrieval`, `AskService`, ADR 0004 outbox); RAG quality is scoped backlog (TB-021), not a missing surface.
+**Multi-cloud target analysis (V1 GA as of 2026-07-03):** Azure, AWS, and GCP extractor/polling paths all ship at parity per `docs/library/MULTI_CLOUD_ANALYSIS_V1_1.md` (all four phases shipped on master). Do not describe AWS/GCP as a pending V1.1 commitment; residual gap is Cost-agent structured retail-price grounding for AWS/GCP (**TB-603**), not extraction/ingestion.
+
+**RAG-V2 items (pulled forward to V1 scope, per `V1_DEFERRED.md` §6q):** Graph-RAG neighbor expansion (`GraphRagNeighborExpander`, **single 1-hop only** — see **TB-597** depth decision), agentic retrieval (`AgenticRetrievalCompletionClient`, **single-shot** query rewrite + HyDE + managed semantic rerank — see **TB-598** depth decision), and online fine-tuning (manifest foundation shipped **TB-594**; full loop is a further build-out). Do not describe these as unqualified "production-grade" without noting the depth caveats; see **TB-595**/**TB-596** for the ablation-harness and posture-audit gaps.
+
+**AI substrate:** real mode uses **platform-provisioned Azure OpenAI** (hosted SaaS); **simulator mode** gives deterministic execution/CI; orchestration (`AuthorityRunOrchestrator`) lives in `ArchLucid.Application` (the prior "orchestrator-in-Persistence" issue is **remediated** — do not re-flag); retrieval ships (`ArchLucid.Retrieval`, `AskService`, ADR 0004 outbox); RAG-V1 quality foundation is **closed** (**TB-021**, closeout audit 2026-07-03, all 12 `RAG-V1-000`–`RAG-V1-011` sub-items verified shipped) — residual items are **TB-603**/**TB-604**, not a missing surface.
 
 Source of truth: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/TRUST_CENTER.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 
-**Shipped-ledger check — pointer only, never inline enumeration (v3, replaces the v2 "Already-shipped ledger" rule).** `docs/library/TECH_BACKLOG.md` is the single canonical, continuously-maintained ledger of shipped/backlog TB-numbered work (it already carries its own rolling "Updated:" line and per-item status). Before proposing any §17 improvement, check `TECH_BACKLOG.md` (and the prior pass's §17, if one exists) **only** to confirm a capability does not already exist — never as a source of scores, prior conclusions, or prose to reproduce.
-
-* **Do not** name, count, list, or narrate individual TB-numbered tickets in §5 (Executive Summary) or in the headline/scorecard sections. If shipped work materially changed a weighted-quality score since a prior pass, describe it as a **current-state capability statement** ("the ROI endpoint now labels basis breakdowns per canonical scope-label semantics"), not as a changelog entry, and do not cite the ticket ID inline — cite `TECH_BACKLOG.md` by reference (e.g. "see `TECH_BACKLOG.md` for the copy/terminology and integrations/evidence audit clusters") if a pointer is needed at all.
-* **Do not** invent categories of tickets to summarize by name-and-count either (e.g. "47 copy/terminology fixes") inside §5 — one sentence naming the *capability area* (e.g. "buyer-facing terminology and navigation were audited and corrected this pass") is sufficient. Ticket-level detail belongs exclusively in `TECH_BACKLOG.md`.
-* §17 "shipped" items follow the format in **Report Structure §17** below (one line + pointer; no Cursor prompt; no score delta).
+**Already-shipped ledger (do not re-propose) — verify-before-listing gate (mandatory).** Before proposing **any** §17 improvement or listing any item as open, you MUST:
+1. Grep `docs/library/TECH_BACKLOG.md` for the specific capability/component name and check whether a matching item is already marked **Done** / **Shipped** / **closed**.
+2. Grep the actual source files referenced (not just docs) to confirm the capability is genuinely absent or incomplete in code — a doc claiming something ships is not sufficient; a doc claiming something is missing when code shows otherwise is also not sufficient. Resolve the discrepancy before listing.
+3. If the item is already shipped, do **not** list it in §17 under any tier, and do not fabricate a "Rescore impact" or cumulative score delta for it. Shipped work gets, at most, a single flat one-line pointer in a "Shipped this cycle" acknowledgment — never its own Tier 1–3 entry.
+4. **Never treat a historical `TECH_BACKLOG.md` changelog as a source of new improvement opportunities.** §17 opportunities must come from a fresh gap found *this pass* (code/doc discrepancy, missing test, unresolved owner decision), not a replay of past "Done" entries.
+5. **Score deltas are prohibited.** Do not report "(A) headline readiness moves from X% to Y%" as a running ratchet across items. Each pass computes `(A)` **fresh** from the Weighted Quality Model in this same document — there is no cumulative score state carried between items or between passes.
 
 **GTM V1.1 backlog — do not list in §17.** Assessment improvements **#2**, **#3**, **#5**, and **#6** are routed to `docs/go-to-market/GTM_BACKLOG.md` (**M-90**, **M-44**, **M-91**, **M-92**). They are market-execution / cohort work, not V1 engineering or assessment prescription. **Do not** surface them as Tier 1–3 improvement opportunities, Cursor prompts, or "still open" assessment gaps in future passes. See **`.cursor/rules/GTM-V1_1-assessment-exclusions.mdc`**.
 
@@ -73,16 +76,15 @@ Source of truth: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `doc
 
 # Operating Rules
 
-* **Clean-slate assessment, and clean-slate is authoritative over the shipped-ledger check.** Do not reference previous assessments, prior scores, prior headline percentages, or earlier conclusions; override historical comparison behavior. Compute every score in this pass **from current repo/product state only.** The shipped-ledger check (above) exists solely to avoid *proposing duplicate engineering work* in §17 — it must never be used to anchor, increment, carry forward, or justify a score. If these two rules ever appear to conflict, clean-slate scoring wins.
-* **No cumulative or incremental score deltas, anywhere.** Never write phrasing like "headline rises from X% to Y%," "+1 to Quality N," or any other pass-over-pass or item-over-item score adjustment. Each of the 10 weighted-quality scores in §2 is a fresh, independent 1–100 judgment of current state — not a previous number plus an adjustment. This applies to the headline, the scorecard, and every item in §17.
+* Clean-slate assessment. Do not reference previous assessments, prior scores, or earlier conclusions; override historical comparison behavior.
 * Do not use subagents or distributed analysis.
 * Orient using the **Source Materials** read list before broad repo scans.
 * Treat explicitly deferred V1.1/V2 items as out of scope (see **Out of `(A)` Headline — Do Not Penalize**); do not penalize readiness for them.
 * Distinguish **design uncertainty** (reducible by building/testing/docs) from **market uncertainty** (reducible only by pilots, buyer interviews, production usage). If uncertainty is primarily market, prefer validation over implementation.
-* Avoid proposing improvements that already appear implemented (see **Product State Grounding**).
+* Avoid proposing improvements that already appear implemented (see **Product State Grounding** and the **verify-before-listing gate**).
 * Prefer smaller high-confidence backlogs over larger speculative ones.
-* **File-size discipline.** Target the full report at roughly the size of a typical historical pass (300–600 lines / 30–50KB). If a draft exceeds that materially, the most likely cause is ticket-level enumeration (banned above) or over-long treatment of already-shipped §17 items (which get one line each, not a full writeup) — trim those first, not the diagnostic or scoring sections.
 * Persist by **overwriting the rolling pass file under `docs/assessments/`** (currently `docs/assessments/LATEST_GPT55.md`) in place. Do **not** create new dated multi-thousand-line files; archive any prior snapshot under `docs/archive/assessments/`.
+* **File-size discipline.** The rolling pass file should read as a current-state assessment, not an accumulated changelog. If §17 or the executive summary starts enumerating dozens of historical ticket IDs, that is a signal the verify-before-listing gate was skipped — stop and re-apply it.
 
 ---
 
@@ -99,7 +101,7 @@ Read in this order (per `docs/library/ASSESSMENT_INPUTS.md`) before grepping bro
 7. `docs/library/API_CONTRACTS.md` — HTTP/OpenAPI contract of record
 8. `docs/library/CONFIGURATION_REFERENCE.md`
 9. `docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`, `docs/library/AUDIT_COVERAGE_MATRIX.md`
-10. `docs/library/TECH_BACKLOG.md` — shipped-ledger check (pointer only; see Product State Grounding)
+10. `docs/go-to-market/GTM_BACKLOG.md` — human-owner execution backlog (source for §0)
 11. `.cursor/rules/Assessment-Scope-V1_1.mdc` — `(A)` vs `(B)` boundary
 
 State which of these (and any code regions) you actually inspected.
@@ -118,9 +120,11 @@ Per `V1_SCOPE.md §3`, `V1_DEFERRED.md §6*`, `Assessment-Scope-V1_1.mdc`. Discu
 * MCP membrane absence in V1 (MCP is V1.1; `/v1/mcp/retrieval/*` is non-GA).
 * Assistive-technology participant user testing as a headline gate.
 * Sales-engineer-led LLM onboarding on hosted SaaS (platform-provisioned Azure OpenAI is the V1 posture).
-* AWS/GCP target analysis (V1.1); multi-region active/active (V1.1).
+* CloudEvents outbound webhooks and customer-operated recipe bridges (V1.1) — **not** first-party Jira/ServiceNow/Confluence/Slack/Teams, which are V1 GA as of 2026-07-03.
+* Multi-region active/active (V1.1). AWS/GCP target analysis is **V1 GA** — do not list it here.
 * Live commerce un-hold — Stripe live keys, Marketplace `Published`, DNS cutover (V1.1, owner-only; all wiring + TEST-mode trial already ship in V1).
 * V2 platform items — Redis-as-default substrate, DTF / Container Apps Jobs, automated tenant-erasure pipeline.
+* GTM V1.1 backlog items **#2/#3/#5/#6** (M-90/M-44/M-91/M-92) — see exclusion rule above.
 
 Deduct `(A)` only for in-contract V1 / named V1.1 engineering gates.
 
@@ -134,22 +138,12 @@ Score each weighted quality from **1–100** using the weighted quality model de
 * Weighted deficiency signal = `(100 − score) × weight`
 * **(A) Headline Readiness** = `sum(score × weight) / 100` (weights total **100**)
 * Rank urgent qualities by **weighted deficiency signal**, not raw score.
+* **Compute fresh every pass.** Do not carry forward, ratchet, or accumulate a delta from any prior assessment. A resting state of exactly 100.00% across all ten categories is presumptively wrong — investigate before publishing it.
 
 Provide two labeled scores:
 
 * **`(A)` V1 headline readiness** — only in-contract V1 / named V1.1 engineering gates.
 * **`(B)` Procurement / market-motion realism** — informational, **weight 0** in `(A)`. Buyer friction (SOC 2 CPA, RFP rigidity, procurement timing); GTM pipeline only if asked.
-
-## Headline / Diagnostic Reconciliation Gate (mandatory, v3)
-
-Before finalizing `(A)`, run this check and report the result in §3:
-
-1. Compute `(A)` and the four diagnostic scores in §3 (Decision Advantage Score, Frontier-AI Survival Probability, 30-Day Voluntary Usage Probability, Executive Purchase Probability) independently, from current-state evidence.
-2. **A headline `(A)` of 95% or higher is presumptively suspect** if either probability range's upper bound (30-Day Usage or Executive Purchase) is below 60%, or if any single weighted quality scored 100 with zero deficiency signal. Treat this as a signal to re-examine the weighted-quality scores for missed deficiencies — not as confirmation the product is complete.
-3. Resolve the check one of two ways, and state which:
-   * **(a) Lower the relevant weighted-quality score(s)** with named evidence (e.g., a real gap in Time-to-Value or Adoption Friction that the market-probability numbers are already implicitly pricing in), or
-   * **(b) Explicitly justify the divergence** in the §3 "Tension call-out" — product readiness and market-conversion probability are legitimately different constructs (e.g., a fully-built capability nobody has bought yet), and the justification must name *why* the gap is that large, not merely restate that a gap exists.
-4. A headline of 100.00% (all ten qualities at 100, zero deficiency signal across the board) is **not an acceptable resting state** for this product at its current stage of market validation; if your independent scoring lands there, treat it as a prompt to re-audit before finalizing, not as a result to report as-is.
 
 ## Weighted Quality Model (total = 100)
 
@@ -166,7 +160,7 @@ Before finalizing `(A)`, run this check and report the result in §3:
 | 9 | Runtime & First-Review Reliability | 7 |
 | 10 | Adoption Friction | 5 |
 
-For each quality provide: Score · Weight · Weighted contribution · Weighted deficiency signal · Justification · Tradeoffs · Recommendations · Classification (V1 / V1.1 / V2 / blocked on user input / market validation required). For each, note which outcome(s) it affects. Justifications describe **current-state capability**, not implementation history — do not cite ticket IDs here (see Product State Grounding).
+For each quality provide: Score · Weight · Weighted contribution · Weighted deficiency signal · Justification · Tradeoffs · Recommendations · Classification (V1 / V1.1 / V2 / blocked on user input / market validation required). For each, note which outcome(s) it affects.
 
 ## Category interpretation
 
@@ -174,12 +168,12 @@ For each quality provide: Score · Weight · Weighted contribution · Weighted d
 * **Differentiability / Defensibility** — use the rubric below. Credit only governed, policy-aware, evidence-backed, repeatable review infrastructure, not critique eloquence. This category **is** the Defensibility score; do not produce a separate orphan defensibility number.
 * **Governed Review Integrity** — does *changing a policy pack* change findings, priorities, recommendations, decisions, executive reporting, and the pre-commit gate outcome, with full traceability and audit reconstruction?
 * **Correctness & Evidence Integrity** — coherent states; preserved review/session/workspace identity; **no hallucinated or uncited policy/evidence claims**; no false confidence.
-* **AI / Agent Readiness** — grounded, inspectable, repeatable, policy-aware, safe; account for real-Azure-OpenAI vs simulator separation and Application-layer orchestration. "Uses AI" ≠ "AI-ready."
+* **AI / Agent Readiness** — grounded, inspectable, repeatable, policy-aware, safe; account for real-Azure-OpenAI vs simulator separation, Application-layer orchestration, and RAG-V2 depth caveats (Graph-RAG 1-hop only, agentic retrieval single-shot). "Uses AI" ≠ "AI-ready."
 * **Time-to-Value** — speed to a credible review package or "I did not think of that" moment.
-* **Proof-of-ROI Readiness** — credibility (not mere presence) of the ROI story: `GET /v1/roi/executive-summary` + board-pack export, cost evidence, savings basis labels, disposition-aware totals.
+* **Proof-of-ROI Readiness** — credibility (not mere presence) of the ROI story: `GET /v1/roi/executive-summary` + board-pack export, cost evidence, savings basis labels, disposition-aware totals, and (for AWS/GCP) whether cost findings carry structured retail-price grounding or only illustrative framing (**TB-603**).
 * **Executive / Operator Comprehension** — understandable to architects, operators, executives, and governance stakeholders without excessive explanation.
 * **Runtime & First-Review Reliability** — does first review generation, commit, manifest, and export work reliably end to end? (UI breakage is also a **ship gate** below.)
-* **Adoption Friction** — effort to configure identity, ingest evidence, run the pilot path, validate security, and fit existing operations.
+* **Adoption Friction** — effort to configure identity, ingest evidence, run the pilot path, validate security, and fit existing operations; account for `Integrations:Itsm:NativeEnabled` defaulting `false` out of the box (**TB-599**).
 
 ## Differentiability Rubric
 
@@ -211,8 +205,27 @@ Before any narrative, answer each **PASS / FAIL / UNKNOWN** with one-line eviden
 
 Produce sections in this exact order. Put **all scores up front**, narrative below, and a hard divider between **diagnosis** and **prescription**.
 
+## 0. Tasks For Human (mandatory, always first)
+
+Purpose: give the founder one ranked, sequenced worklist of everything in this assessment cycle that **requires a human** (owner decision, live-vendor credential, buyer/pilot interaction, procurement motion, budget/leadership commitment) — as distinct from engineering work a coding agent can pick up directly.
+
+**Sourcing rule:** pull candidate items from `docs/go-to-market/GTM_BACKLOG.md` (open M-series rows) plus any owner-decision items surfaced elsewhere in this pass (e.g. a `TECH_BACKLOG.md` item whose acceptance criteria is "owner decision needed"). Do **not** invent tasks not traceable to one of those sources. Exclude GTM V1.1-backlog-excluded items (#2/#3/#5/#6 — M-90/M-44/M-91/M-92) unless the user has explicitly directed picking them up this cycle.
+
+**Ranking rule:** order by criticality — rollout-gate / revenue-blocking items first, then trust/procurement-blocking, then polish/optimization. Within a criticality tier, order by dependency (an item that unblocks a later item comes first) so the list reads as a valid execution sequence, not just a priority sort.
+
+**Sequencing rule:** if item B depends on item A's output (e.g. a cohort needs a script that doesn't exist yet), A must appear before B, and B's entry must name the dependency explicitly.
+
+**Per-item fields (mandatory, in a table):**
+| Field | Content |
+|---|---|
+| # | Sequence position (1, 2, 3…) |
+| Task | Short imperative title, with the GTM backlog ID (e.g. `M-xxx`) |
+| Why ranked here | One line: criticality + dependency reasoning |
+| Engine-assistable? | Yes / Partial / No — can a coding agent do any part of this (e.g. drafting a script, a survey, an email template, a rehearsal doc) even though the human must execute the live/social/financial part? |
+| Recommended engine | Name one of **Composer**, **Sonnet**, **Opus**, or **Fable** (or "N/A — human only") with a one-line cost/effectiveness rationale. Default to **Sonnet** for most drafting/scripting work given its current reduced price makes it the best cost/effectiveness tradeoff; reserve **Opus** for high-stakes strategic framing (e.g. procurement objection rehearsal scripts, executive-facing narrative) where reasoning depth materially changes outcome; reserve **Composer** for fast, low-stakes, high-volume mechanical drafts; reserve **Fable** only if the task is narrative/creative-writing-shaped (e.g. a case-study story) rather than technical or analytical. |
+
 ## 1. Title & Headline
-`ArchLucid Assessment – (A) Headline Readiness: XX.XX%`. State: readiness excludes deferred items; reasoning engine used (real Azure OpenAI vs simulator if relevant); timestamp; source materials inspected. Do not state or imply this number relative to any prior pass.
+`ArchLucid Assessment – (A) Headline Readiness: XX.XX%`. State: readiness excludes deferred items; reasoning engine used (real Azure OpenAI vs simulator if relevant); timestamp; source materials inspected.
 
 ## 2. Scorecard
 Single table of all 10 weighted qualities (score, weight, weighted contribution, weighted deficiency signal) + the computed `(A)` headline %. No prose scores elsewhere.
@@ -222,14 +235,13 @@ Report and explicitly state these do **not** feed the headline, then reconcile a
 * Decision Advantage Score (1–100) — likelihood ArchLucid changes a decision frontier AI alone would not.
 * Frontier-AI Survival Probability (12-month) — with calibration.
 * 30-Day Voluntary Usage Probability and Executive Purchase Probability — with calibration.
-* **Reconciliation Gate result (v3, mandatory):** state whether the Headline / Diagnostic Reconciliation Gate (see Scoring Method) triggered, and which resolution path — (a) score lowered with evidence, or (b) divergence explicitly justified — was taken.
 If any diagnostic score sharply contradicts the headline (e.g. low defensibility vs high headline), say so and explain.
 
 ## 4. V1 Ship Gate
 The six PASS/FAIL/UNKNOWN items above, each with evidence and (for FAIL/UNKNOWN) the fastest resolution path.
 
 ## 5. Executive Summary
-* **(A) Overall headline readiness** (excludes deferred items). Describe *current-state capability* in prose (what the product does today), never as a list of ticket IDs and never as a delta from a prior pass. If you need to substantiate a claim with a pointer, cite a doc (`TECH_BACKLOG.md`, `V1_SCOPE.md`, etc.), not a ticket ID enumeration.
+* **(A) Overall headline readiness** (excludes deferred items). Write this as **prose describing current-state capability**, not an enumeration of ticket IDs — a reader should be able to understand the state of the product without cross-referencing `TECH_BACKLOG.md`.
 * **(B) Procurement / market realism** (weight 0): procurement friction, trust posture, SOC posture (self-assessment + roadmap; CPA gap `(B)` only), buyer risk, supportability, security-review expectations. Do not penalize `(A)`.
 * **Commercial picture** (compelling today vs unproven). The V1 motion is **sales-led** (pricing page + order form + TEST-mode trial); live commerce un-hold is V1.1 owner-only — not a V1 blocker.
 * **Enterprise picture** (trust vs hesitation).
@@ -237,12 +249,12 @@ The six PASS/FAIL/UNKNOWN items above, each with evidence and (for FAIL/UNKNOWN)
 * **Frontier-AI picture** (becoming more or less valuable as frontier AI improves — one sentence verdict).
 
 ## 6. Deferred Scope Uncertainty (only if needed)
-For deferred items that create uncertainty but must not penalize `(A)`: why deferred; whether deferral is safe for V1; what V1 seam/placeholder is needed (note where the seam already exists — e.g. ITSM outbound create + `ItsmFindingCorrelations`). Current taxonomy:
-* **V1.1:** first-party Jira/ServiceNow connectors + bidirectional status sync (V1 ships outbound create today); Confluence publish; Slack/Teams; webhooks + recipes; MCP membrane; AWS/GCP analysis; multi-region; commerce un-hold.
+For deferred items that create uncertainty but must not penalize `(A)`: why deferred; whether deferral is safe for V1; what V1 seam/placeholder is needed. Current taxonomy:
+* **V1.1:** CloudEvents webhooks + customer-operated recipes; MCP membrane; multi-region; commerce un-hold. (Jira/ServiceNow/Confluence/Slack/Teams first-party connectors are **V1 GA**, not V1.1 — do not list them here.)
 * **V2:** third-party pen-test program; SOC 2 CPA; automated tenant-erasure; Redis-as-default; DTF / Container Apps Jobs.
 
 ## 7. Weighted Quality Assessment (detail)
-Per the 10 categories, ordered by **weighted deficiency signal**. Use the per-category format from **Scoring Method**. No ticket IDs; no score deltas.
+Per the 10 categories, ordered by **weighted deficiency signal**. Use the per-category format from **Scoring Method**.
 
 ## 8. Top 10 Weaknesses (ranked, most serious first)
 For each: why it matters; design vs market uncertainty; whether it is a V1 blocker; fastest credible fix or validation path. Cover release readiness, trust, buyer value, adoption, correctness, operational risk, policy-aware differentiation, evidence traceability, review-package credibility.
@@ -270,7 +282,7 @@ The surfaces exist (see grounding) — judge whether they change behavior:
 Persona: principal architect; daily Claude/GPT/Gemini/Cursor user; deep cloud expertise; low patience for process; skeptical of governance theater; prefers direct tools over platforms. Answer: what makes them say "I need this" / "I did not think of that"; what makes them voluntarily return, recommend, spend their own budget; what causes immediate dismissal; the single most likely dismissal trigger and its likelihood today (calibrated). Answer directly: **would they believe ArchLucid is materially better than "Claude + a good prompt + my company standards pasted in"?**
 
 ## 12. Founder Delusion Check (be direct)
-Strongest assumptions with weakest evidence; capabilities that look differentiated but are already frontier-AI commodity; capabilities that look ordinary but may be the strongest moat; activities that could burn months without improving any of the five outcomes; if features froze for six months, what most improves the five outcomes; the most dangerous attractive distraction; the most boring thing that may be the real moat. **If the Reconciliation Gate triggered in §3, name here whether "treating architecture completeness as a proxy for purchase probability" (a known founder-risk pattern) contributed to it.**
+Strongest assumptions with weakest evidence; capabilities that look differentiated but are already frontier-AI commodity; capabilities that look ordinary but may be the strongest moat; activities that could burn months without improving any of the five outcomes; if features froze for six months, what most improves the five outcomes; the most dangerous attractive distraction; the most boring thing that may be the real moat.
 
 ## 13. Competitive Reality Check & Moat Assessment
 Vs a skilled architect using frontier AI: what they already do manually; what ArchLucid does substantially faster / more consistently; what resists prompting; what is commodity within 12 months; what gets more valuable as AI improves; what requires enterprise workflow vs model intelligence; what requires customer-specific policy state vs one-off prompting. Then: current moat; potential future moat; weakest moat assumption; most durable moat assumption; probably-illusory moat; boring-but-durable moat; what would make the moat obvious to a buyer.
@@ -292,22 +304,21 @@ One blunt sentence + short explanation. Do not soften.
 
 ## 16. Stop Doing List (be direct)
 Top 3 improvements not worth doing before V1; top 3 diminishing-returns areas; top 3 founder behaviors that could delay validation; top 3 features that feel enterprise-important but may not improve V1 adoption.
-**ITSM special attention (current state):** first-party Jira/ServiceNow connectors are **V1.1-committed** (sequencing ServiceNow → Confluence → Jira), not a V1 gate; a minimal V1 outbound slice already ships (stable `FindingId`, `ItsmFindingCorrelations`, per-tenant settings, audit events). Do **not** recommend building seams that exist. Judge instead: is the V1 outbound slice sufficient for pilots; is the V1.1 connector scope/sequencing right; should anything be pulled forward or pushed out based on buyer evidence?
 
 ## 17. Top Improvement Opportunities (5–15; stop when confidence drops)
 
+**Verify-before-listing gate applies here (see Product State Grounding above) — this is the section most prone to drift.** Every item MUST pass the four-step verification before it appears below. Shipped work never gets its own Tier entry — at most a one-line "Shipped this cycle" pointer with no fabricated score-delta.
+
 **Validation-first ordering (mandatory).** When all six V1 ship gates PASS and no in-contract V1/V1.1 engineering gate is open, this section MUST **lead with market-validation work** — pilot design, buyer-interview scripts, proof-packet cohort (TB-141/142), and the cheapest experiment that would move 30-Day Voluntary Usage or Executive Purchase probability — before any engineering item. Any **new** engineering proposal in this state must justify itself explicitly against the five ranked outcomes (and name which one it moves); "completeness," "polish," or "elegance" are not acceptable justifications. Prefer recommending **zero** new engineering items over manufacturing low-confidence ones.
 
-**Shipped-item format (v3, mandatory — replaces v2's full writeup-per-shipped-item pattern).** If a §17 candidate turns out to already be shipped per the `TECH_BACKLOG.md` check, do **not** give it a full Tier writeup, a Cursor prompt, or a score delta. Instead list it once, in a single flat "Already Shipped (this pass)" list at the end of §17, one line each: *capability area — one-sentence current-state description — pointer to `TECH_BACKLOG.md`.* No ticket ID enumeration beyond a single ID if one pointer is genuinely needed, no implementation narrative, no rescore math.
-
-For genuinely open items, group into **Tier 1 – Must Fix**, **Tier 2 – High Leverage**, **Tier 3 – Hold For Reassessment**. For each: Title · Tier · Why it matters · Expected impact · Affected qualities · Evidence · Actionability · Design Uncertainty Reduced (1–10) · Market Uncertainty Reduced (1–10) · Classification (V1 / V1.1 / V2 / validation first / blocked on user input). Items whose dominant lever is **Market Uncertainty Reduced** must be expressed as validation plans, not Cursor prompts.
-For actionable V1/V1.1 **engineering** items that are **not yet shipped**, generate complete **Cursor prompts** including: current problem, desired behavior, scope boundaries, acceptance criteria, tests to add/update, non-goals.
+Group into **Tier 1 – Must Fix**, **Tier 2 – High Leverage**, **Tier 3 – Hold For Reassessment**. For each: Title · Tier · Why it matters · Expected impact · Affected qualities · Evidence · Actionability · Design Uncertainty Reduced (1–10) · Market Uncertainty Reduced (1–10) · Classification (V1 / V1.1 / V2 / validation first / blocked on user input). Items whose dominant lever is **Market Uncertainty Reduced** must be expressed as validation plans, not Cursor prompts.
+For actionable V1/V1.1 **engineering** items, generate complete **Cursor prompts** including: current problem, desired behavior, scope boundaries, acceptance criteria, tests to add/update, non-goals.
 
 ## 18. Prompt Batching Guidance
 First / Second / Third batch. Prioritize: (1) reliability of first review generation; (2) clarity of guided intake; (3) evidence/policy traceability; (4) review-package credibility; (5) demo reliability; (6) executive/operator comprehension. Mark each batch safe-for-Composer / safe-for-Sonnet / strong-model-recommended.
 
 ## 19. Model Usage Guidance
-Composer-safe / Sonnet-safe / strong-model-recommended / Opus-or-Gemini-assessment-recommended. Strong models for: strategic assessment, policy-aware moat evaluation, refactors affecting review generation, security/auth/workspace routing, evidence-graph semantics, cross-document guidance. Cheaper models for: copy cleanup, UI polish, snapshot updates, minor component refactors, straightforward routing fixes.
+Composer-safe / Sonnet-safe / strong-model-recommended / Opus-or-Gemini-assessment-recommended. Strong models for: strategic assessment, policy-aware moat evaluation, refactors affecting review generation, security/auth/workspace routing, evidence-graph semantics, cross-document guidance. Cheaper models for: copy cleanup, UI polish, snapshot updates, minor component refactors, straightforward routing fixes. Note Sonnet 5's current reduced price when recommending it over Opus for tasks where reasoning depth is not the limiting factor.
 
 ## 20. Pending Questions For Later (only truly blocking)
 Separate: blocks V1 / blocks V1.1 / requires customer validation / requires founder decision.
