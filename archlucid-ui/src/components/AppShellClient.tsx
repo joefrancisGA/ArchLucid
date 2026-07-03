@@ -24,11 +24,10 @@ import {
   useOperatorChromeMode,
 } from "@/components/OperatorChromeModeContext";
 import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
-import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
+import { OperatorShellProviders } from "@/components/OperatorShellProviders";
 import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
-import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
 import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -293,8 +292,7 @@ function AppShellInner({ children }: AppShellClientProps) {
 
   if (chromeMode === "minimal") {
     return (
-      <OperatorNavAuthorityProvider>
-        <WorkspaceActiveRunProvider>
+      <OperatorShellProviders>
           <AppInsightsTelemetryInit />
           <SessionIdleTimeoutGuard />
           <UserAppearancePreferenceSync />
@@ -388,14 +386,12 @@ function AppShellInner({ children }: AppShellClientProps) {
               onOpenGuidesPanel={openHelpGuidesPanel}
             />
           </TooltipProvider>
-        </WorkspaceActiveRunProvider>
-      </OperatorNavAuthorityProvider>
+      </OperatorShellProviders>
     );
   }
 
   return (
-    <OperatorNavAuthorityProvider>
-      <WorkspaceActiveRunProvider>
+    <OperatorShellProviders>
       <AppInsightsTelemetryInit />
       <SessionIdleTimeoutGuard />
       <UserAppearancePreferenceSync />
@@ -483,7 +479,6 @@ function AppShellInner({ children }: AppShellClientProps) {
           <BuyerCtoDemoTourOverlay />
         </Suspense>
       </TooltipProvider>
-      </WorkspaceActiveRunProvider>
-    </OperatorNavAuthorityProvider>
+    </OperatorShellProviders>
   );
 }

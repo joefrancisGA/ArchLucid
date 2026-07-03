@@ -7,7 +7,14 @@ vi.mock("next/navigation", () => ({
 
 import { WELCOME_HERO_PITCH, WELCOME_WORKFLOW_STEPS } from "@/components/marketing/welcome-marketing-copy";
 
+import { WelcomeMarketingProofAtGlanceSection } from "./WelcomeMarketingProofAtGlanceSection";
 import { WelcomeMarketingPage } from "./WelcomeMarketingPage";
+
+function renderWelcomePage() {
+  return render(
+    <WelcomeMarketingPage serverStaticSections={<WelcomeMarketingProofAtGlanceSection />} />,
+  );
+}
 
 describe("WelcomeMarketingPage", () => {
   beforeEach(() => {
@@ -41,7 +48,7 @@ describe("WelcomeMarketingPage", () => {
   });
 
   it("renders hero, pillars, and pricing cards from fetched JSON", async () => {
-    render(<WelcomeMarketingPage />);
+    renderWelcomePage();
 
     expect(screen.getByRole("heading", { level: 1, name: /Defensible architecture, on demand/i })).toBeInTheDocument();
     expect(screen.getByTestId("welcome-hero-pitch")).toHaveTextContent(WELCOME_HERO_PITCH);
@@ -67,7 +74,7 @@ describe("WelcomeMarketingPage", () => {
   });
 
   it("hero stack: subheading, self-serve inspection before optional walkthrough, correct hrefs, tertiary, FAQ cross-links", () => {
-    render(<WelcomeMarketingPage />);
+    renderWelcomePage();
 
     expect(screen.getByTestId("welcome-hero-cta-subheading")).toHaveTextContent(
       /architecture review package built for governance/i,

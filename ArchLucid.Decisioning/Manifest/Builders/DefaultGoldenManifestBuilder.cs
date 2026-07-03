@@ -49,16 +49,18 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             }
         };
 
-        PopulateRequirements(manifest, findingsSnapshot);
+        FindingsSnapshotTypeIndex findingsByType = new(findingsSnapshot);
+
+        PopulateRequirements(manifest, findingsByType);
         PopulateTopologyFromGraph(manifest, graphSnapshot);
         PopulateTypedTopologyFromGraph(manifest, graphSnapshot);
-        PopulateTopology(manifest, findingsSnapshot);
-        PopulateSecurity(manifest, findingsSnapshot);
-        PopulateCompliance(manifest, findingsSnapshot);
-        PopulateCost(manifest, findingsSnapshot);
-        PopulatePolicyApplicability(manifest, findingsSnapshot);
-        PopulatePolicySection(manifest, findingsSnapshot);
-        PopulateCoverageWarnings(manifest, findingsSnapshot);
+        PopulateTopology(manifest, findingsByType);
+        PopulateSecurity(manifest, findingsByType);
+        PopulateCompliance(manifest, findingsByType);
+        PopulateCost(manifest, findingsByType);
+        PopulatePolicyApplicability(manifest, findingsByType);
+        PopulatePolicySection(manifest, findingsByType);
+        PopulateCoverageWarnings(manifest, findingsByType);
         PopulateConstraints(manifest, findingsSnapshot, audit);
         PopulateProvenance(manifest, findingsSnapshot, audit);
 
@@ -193,9 +195,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             .ToList();
     }
 
-    private static void PopulateRequirements(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
+    private static void PopulateRequirements(ManifestDocument manifest, FindingsSnapshotTypeIndex findingsByType)
     {
-        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.RequirementFinding))
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.RequirementFinding))
         {
             RequirementFindingPayload? payload = FindingPayloadConverter.ToRequirementPayload(finding);
 
@@ -308,9 +310,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         return Enum.TryParse(raw, true, out TEnum e) ? e : default;
     }
 
-    private static void PopulateTopology(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
+    private static void PopulateTopology(ManifestDocument manifest, FindingsSnapshotTypeIndex findingsByType)
     {
-        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.TopologyGap))
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.TopologyGap))
         {
             TopologyGapFindingPayload? payload = FindingPayloadConverter.ToTopologyGapPayload(finding);
 
@@ -329,9 +331,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         }
     }
 
-    private static void PopulateSecurity(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
+    private static void PopulateSecurity(ManifestDocument manifest, FindingsSnapshotTypeIndex findingsByType)
     {
-        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.SecurityControlFinding))
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.SecurityControlFinding))
         {
             SecurityControlFindingPayload? payload = FindingPayloadConverter.ToSecurityControlPayload(finding);
 
@@ -375,9 +377,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
     private static void PopulateCompliance(
         ManifestDocument manifest,
-        FindingsSnapshot findingsSnapshot)
+        FindingsSnapshotTypeIndex findingsByType)
     {
-        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.ComplianceFinding))
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.ComplianceFinding))
         {
             ComplianceFindingPayload? payload = FindingPayloadConverter.ToCompliancePayload(finding);
 
@@ -409,9 +411,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         }
     }
 
-    private static void PopulateCost(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
+    private static void PopulateCost(ManifestDocument manifest, FindingsSnapshotTypeIndex findingsByType)
     {
-        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.CostConstraintFinding))
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.CostConstraintFinding))
         {
             CostConstraintFindingPayload? payload = FindingPayloadConverter.ToCostConstraintPayload(finding);
 
@@ -438,9 +440,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         }
     }
 
-    private static void PopulatePolicyApplicability(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
+    private static void PopulatePolicyApplicability(ManifestDocument manifest, FindingsSnapshotTypeIndex findingsByType)
     {
-        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyApplicabilityFinding))
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.PolicyApplicabilityFinding))
         {
             PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
 
@@ -470,9 +472,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         }
     }
 
-    private static void PopulatePolicySection(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
+    private static void PopulatePolicySection(ManifestDocument manifest, FindingsSnapshotTypeIndex findingsByType)
     {
-        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyApplicabilityFinding))
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.PolicyApplicabilityFinding))
         {
             PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
 
@@ -510,7 +512,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                 });
         }
 
-        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyCoverageFinding))
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.PolicyCoverageFinding))
         {
             PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
 
@@ -545,9 +547,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
     private static void PopulateCoverageWarnings(
         ManifestDocument manifest,
-        FindingsSnapshot findingsSnapshot)
+        FindingsSnapshotTypeIndex findingsByType)
     {
-        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.TopologyCoverageFinding))
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.TopologyCoverageFinding))
         {
             TopologyCoverageFindingPayload? payload = FindingPayloadConverter.ToTopologyCoveragePayload(finding);
 
@@ -574,7 +576,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             });
         }
 
-        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.SecurityCoverageFinding))
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.SecurityCoverageFinding))
         {
             SecurityCoverageFindingPayload? payload = FindingPayloadConverter.ToSecurityCoveragePayload(finding);
 
@@ -598,7 +600,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             });
         }
 
-        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyCoverageFinding))
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.PolicyCoverageFinding))
         {
             PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
 
@@ -621,7 +623,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             });
         }
 
-        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.RequirementCoverageFinding))
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.RequirementCoverageFinding))
         {
             RequirementCoverageFindingPayload? payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
 

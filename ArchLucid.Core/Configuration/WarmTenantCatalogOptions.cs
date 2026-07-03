@@ -24,4 +24,11 @@ public sealed class WarmTenantCatalogOptions
         get;
         init;
     } = 30;
+
+    /// <summary>Log a warning when unclaimed standbys fall below this count after replenish (TB-018).</summary>
+    public int LowDepthWarningThreshold
+    {
+        get;
+        init;
+    } = 1;
 }

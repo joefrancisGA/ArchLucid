@@ -1,5 +1,18 @@
-import GovernanceFindingsQueueClient from "./GovernanceFindingsQueueClient";
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
 
+import { GovernanceFindingsQueueSkeleton } from "./GovernanceFindingsQueueSkeleton";
+
+const GovernanceFindingsQueueClient = dynamic(
+  () => import("./GovernanceFindingsQueueClient"),
+  { ssr: false, loading: () => <GovernanceFindingsQueueSkeleton /> },
+);
+
+/** Governance findings hub with deferred queue chunk (TB-571). */
 export default function GovernanceFindingsPage() {
-  return <GovernanceFindingsQueueClient />;
+  return (
+    <Suspense fallback={<GovernanceFindingsQueueSkeleton />}>
+      <GovernanceFindingsQueueClient />
+    </Suspense>
+  );
 }

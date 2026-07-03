@@ -95,4 +95,22 @@ public sealed class HotPathCacheKeysTests
         key.Should().Contain(":r7:");
         key.Should().EndWith(":50");
     }
+
+    [SkippableFact]
+    public void FindingsSnapshot_includes_scope_and_id()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
+        };
+
+        Guid snapshotId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
+        string key = HotPathCacheKeys.FindingsSnapshot(scope, snapshotId);
+
+        key.Should().StartWith("al:hot:fs:");
+        key.Should().Contain("55555555555555555555555555555555");
+    }
 }

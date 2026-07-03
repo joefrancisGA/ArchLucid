@@ -1,8 +1,5 @@
-using System.Text.Json;
-
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Coordination.Caching;
-using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
@@ -11,8 +8,8 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Persistence.Caching;
 
 /// <summary>
-///     Hybrid (L1 + optional L2 Redis) implementation of <see cref="IHotPathReadCache" /> using JSON payloads aligned with
-///     <see cref="JsonEntitySerializer.EntityJsonOptions" />.
+///     Hybrid (L1 + optional L2 Redis) implementation of <see cref="IHotPathReadCache" /> using typed cache slots so L1
+///     hits avoid a manual JSON round-trip (TB-590).
 /// </summary>
 public sealed class HybridHotPathReadCache(
     HybridCache hybridCache,
@@ -42,7 +39,7 @@ public sealed class HybridHotPathReadCache(
 
         int factoryInvoked = 0;
 
-        HotPathWireEnvelope envelope = await _hybridCache
+        HotPathTypedCacheSlot<T> slot = await _hybridCache
             .GetOrCreateAsync(
                 key,
                 async innerCt =>
@@ -50,14 +47,9 @@ public sealed class HybridHotPathReadCache(
                     Interlocked.Exchange(ref factoryInvoked, 1);
                     ArchLucidInstrumentation.RecordHotPathReadCacheMiss();
 
-                    T? created = await factory(innerCt);
+                    T? created = await factory(innerCt).ConfigureAwait(false);
 
-                    if (created is null)
-                        return new HotPathWireEnvelope(false, null);
-
-                    byte[] payload = JsonSerializer.SerializeToUtf8Bytes(created, JsonEntitySerializer.EntityJsonOptions);
-
-                    return new HotPathWireEnvelope(true, payload);
+                    return new HotPathTypedCacheSlot<T>(created is not null, created);
                 },
                 entryOptions,
                 cancellationToken: ct)
@@ -66,13 +58,13 @@ public sealed class HybridHotPathReadCache(
         if (factoryInvoked == 0)
             ArchLucidInstrumentation.RecordHotPathReadCacheHit();
 
-        if (!envelope.HasValue)
+        if (!slot.IsPresent)
             return null;
 
-        if (envelope.Payload is not { Length: > 0 })
+        if (slot.Value is null)
         {
             _logger.LogWarning(
-                "HotPath hybrid cache entry for key {CacheKey} is invalid (missing payload); refreshing.",
+                "HotPath hybrid cache entry for key {CacheKey} is invalid (present flag without value); refreshing.",
                 LogSanitizer.Sanitize(key));
 
             await _hybridCache.RemoveAsync(key, ct).ConfigureAwait(false);
@@ -80,21 +72,7 @@ public sealed class HybridHotPathReadCache(
             return null;
         }
 
-        try
-        {
-            return JsonSerializer.Deserialize<T>(envelope.Payload, JsonEntitySerializer.EntityJsonOptions);
-        }
-        catch (JsonException ex)
-        {
-            _logger.LogWarning(
-                ex,
-                "HotPath hybrid cache entry for key {CacheKey} is corrupt; refreshing.",
-                LogSanitizer.Sanitize(key));
-
-            await _hybridCache.RemoveAsync(key, ct).ConfigureAwait(false);
-
-            return null;
-        }
+        return slot.Value;
     }
 
     /// <inheritdoc />

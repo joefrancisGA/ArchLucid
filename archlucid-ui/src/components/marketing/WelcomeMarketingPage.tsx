@@ -99,7 +99,9 @@ const PILLARS: readonly WelcomePillar[] = [
 ];
 
 /** Public marketing landing: hero, problem/solution, workflow, use cases, proof, pillars, pricing. */
-export function WelcomeMarketingPage() {
+export function WelcomeMarketingPage(props: { readonly serverStaticSections?: ReactNode }) {
+  const { serverStaticSections } = props;
+
   return (
     <MarketingPageShell>
       <section aria-labelledby="hero-heading" className="mb-12 text-center">
@@ -215,87 +217,7 @@ export function WelcomeMarketingPage() {
 
       <WelcomeMarketingUseCasesSection />
 
-      <section
-        aria-labelledby="welcome-proof-heading"
-        className="mb-12"
-        data-testid="welcome-proof-at-a-glance"
-      >
-        <h2 id="welcome-proof-heading" className={`mb-4 ${MARKETING_TYPOGRAPHY.sectionTitle}`}>
-          Proof at a glance
-        </h2>
-        <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-3">
-          <li className={MARKETING_SURFACES.card}>
-            <p className={`m-0 ${MARKETING_TYPOGRAPHY.cardTitle}`}>Decision-grade outputs</p>
-            <p className={`m-0 mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
-              Structured findings with a versioned review package you can hand to ARB and audit partners.
-            </p>
-            <p className={cn("m-0 mt-3 font-medium", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link className={MARKETING_SURFACES.inlineLink} href="/why">
-                Why teams standardize on ArchLucid
-              </Link>
-            </p>
-          </li>
-          <li className={MARKETING_SURFACES.card}>
-            <p className={`m-0 ${MARKETING_TYPOGRAPHY.cardTitle}`}>Evidence you can follow</p>
-            <p className={`m-0 mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
-              Trace graph tie-outs and audit milestones—not an ephemeral chat transcript.
-            </p>
-            <p className={cn("m-0 mt-3 font-medium", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link className={MARKETING_SURFACES.inlineLink} href="/see-it">
-                See it in 30 seconds
-              </Link>
-            </p>
-          </li>
-          <li className={MARKETING_SURFACES.card}>
-            <p className={`m-0 ${MARKETING_TYPOGRAPHY.cardTitle}`}>Procurement-ready posture</p>
-            <p className={`m-0 mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
-              Published Trust Center materials and downloadable diligence anchors—know what to verify.
-            </p>
-            <p className={cn("m-0 mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-medium", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
-                Open Trust Center
-              </Link>
-              <Link className={MARKETING_SURFACES.inlineLink} href="/security-trust">
-                Security and trust detail
-              </Link>
-            </p>
-          </li>
-        </ul>
-      </section>
-
-      <section aria-labelledby="walkthrough-heading" className={`mb-14 ${MARKETING_SURFACES.sectionPanel}`}>
-        <h2 id="walkthrough-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
-          First-time visitor path
-        </h2>
-        <p className={`mt-2 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
-          Hosted SaaS evaluation workspace: create an architecture review request, let the pipeline finish, finalize when ready,
-          then open your review package — no local Docker required for the buyer story.
-        </p>
-        <ol className={`mt-4 list-decimal space-y-2 pl-5 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
-          <li>
-            <Link className={MARKETING_SURFACES.inlineLink} href="/see-it">
-              See it (30s)
-            </Link>{" "}
-            — fastest visual proof; then{" "}
-            <Link className={MARKETING_SURFACES.inlineLink} href="/why">
-              Why ArchLucid
-            </Link>{" "}
-            for positioning depth.
-          </li>
-          <li>
-            <Link className={MARKETING_SURFACES.inlineLink} href="/compliance-journey">
-              Compliance journey
-            </Link>{" "}
-            — how reviewers map controls to shipped mechanisms.
-          </li>
-          <li>
-            <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
-              Trust Center
-            </Link>
-            , privacy, and procurement-linked evidence.
-          </li>
-        </ol>
-      </section>
+      {serverStaticSections}
 
       <section aria-labelledby="pillars-heading" className="mb-14">
         <h2 id="pillars-heading" className={`mb-6 ${MARKETING_TYPOGRAPHY.sectionTitle}`}>

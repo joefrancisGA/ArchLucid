@@ -147,9 +147,9 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-402 — TB-403** were added 2026-06-27 as the **V1.1 automated cloud polling** cluster. [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) commits to AWS/GCP topology ingestion via Terraform and customer-controlled inventory ZIPs (Phase 1–3); it explicitly defers **Tier 2 live API connectors** (long-lived credentials inside the customer AWS/GCP account). These two items add **hosted automated polling** for AWS (**TB-402**) and GCP (**TB-403**) at **full parity with the Azure Tier 2 extractor** shipped in V1 (see `V1_SCOPE.md §2.16`, `CloudConnectionsPageClient.tsx`, and `Integrations.AzureExtractor`). Tier 2 for Azure wires a hosted poller that holds a minimal read-only credential, runs on a schedule, uploads an inventory ZIP via `/v1/extractor/azure/upload`, and exposes a management UI at `/settings/cloud-connections`. TB-402 and TB-403 replicate that same end-to-end stack for AWS and GCP respectively. They do **not** duplicate `TB-214` (non-Azure JSON upload path, DEFERRED owner-gated), `TB-341` (multi-source evidence picker V1.1 badges), `TB-343` (cloud-connections plural copy reconciliation — Done 2026-06-19), or Phase 1–4 of `MULTI_CLOUD_ANALYSIS_V1_1.md` (topology analysis + pricing — distinct from the polling credential/scheduler/UI cluster). Owner must confirm acceptable credential model (Entra Workload Identity Federation, IAM role-ARN trust, or GCP Workload Identity before implementation begins; items are blocked on that pending question — **PQ-CLOUD-01**).
 
-**TB-560 — TB-573** were added 2026-06-30 from an **archlucid-ui performance audit** (Next.js 15 App Router; canvas `canvases/ui-performance-backlog.canvas.tsx`). The operator product shell pays a large client bundle and hydration tax: `OperatorShellTopBar` statically imports `CommandPalette` (~617 lines + `cmdk`) on every page; `FindingEvidenceGraph` statically imports `reactflow` + CSS; only **4** TanStack Query hooks exist while **80+** components still use ad-hoc `useEffect`+`fetch`; and several monolithic client files (`GovernanceFindingsQueueClient` ~1115 lines, `AlertsInboxContent` ~903, `RunsDashboardPanel` ~822) widen re-render and hydration scope. **TB-560**–**TB-565** (P1) are highest leverage (dynamic imports, Query expansion, mega-component splits, `optimizePackageImports`); **TB-561**–**TB-565** **Done** (2026-07-01) — `FindingEvidenceGraph` reactflow lazy chunk, TanStack Query on operator-home/executive reads, component decompositions, and `optimizePackageImports`. **TB-566**–**TB-572** (P2) push server/client boundaries, ISR, context memoization, Suspense streaming, and telemetry deferral; **TB-573** **Done** (2026-07-02) — First Load JS baseline + CI regression gate (`ui-first-load-js-budget`, +25 kB tolerance). Does **not** duplicate **TB-319** (pilot-critical performance *evidence* step — **Done**); these are engineering fixes toward fast first paint and navigation. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1 (TanStack Query), §4 (operator route caching), §7 (nested Suspense).
+**TB-560 — TB-573** were added 2026-06-30 from an **archlucid-ui performance audit** (Next.js 15 App Router; canvas `canvases/ui-performance-backlog.canvas.tsx`). The operator product shell pays a large client bundle and hydration tax: `OperatorShellTopBar` statically imports `CommandPalette` (~617 lines + `cmdk`) on every page; `FindingEvidenceGraph` statically imports `reactflow` + CSS; only **4** TanStack Query hooks exist while **80+** components still use ad-hoc `useEffect`+`fetch`; and several monolithic client files (`GovernanceFindingsQueueClient` ~1115 lines, `AlertsInboxContent` ~903, `RunsDashboardPanel` ~822) widen re-render and hydration scope. **TB-560**–**TB-565** (P1) are highest leverage (dynamic imports, Query expansion, mega-component splits, `optimizePackageImports`); **TB-561**–**TB-565** **Done** (2026-07-01). **TB-566**–**TB-571** **Done** (2026-07-03) — welcome server sections, memoized shell providers, executive dashboard React Query, nested Suspense on governance findings. **TB-567**, **TB-570**, **TB-572** **Done** (2026-07-01). **TB-573** **Done** (2026-07-02) — First Load JS baseline + CI regression gate (`ui-first-load-js-budget`, +25 kB tolerance). Does **not** duplicate **TB-319** (pilot-critical performance *evidence* step — **Done**); these are engineering fixes toward fast first paint and navigation. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1 (TanStack Query), §4 (operator route caching), §7 (nested Suspense).
 
-**TB-574 — TB-593** were added 2026-07-02 from [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (persistence, API middleware, commit/findings hot paths, caching). **TB-574**–**TB-586** **Done** (2026-07-02) — trial-seat middleware short-circuit; pipeline manifest reuse at commit; run-list warning-flag join aggregates; audit/trace JSON projection; run-list scope-revision eviction; parallel commit loads and finding engines; Redis L2 + replica count; governance/audit/policy-pack hot-path cache; API metering batching; `ConfigureAwait(false)` on hot reads; SQL write batching; run-list `EngineProvenanceJson` projection trim; authority-pipeline and integration-outbox worker batch parallelism (`BoundedBatchParallelism`). **TB-587** **Done** (2026-07-02) — Azure DevOps commit-status and PR-decorator named `HttpClient` instances use `AddOutboundExternalHttpResilience()` (parity with ITSM/webhooks). **TB-588** **Done** (2026-07-02) — deduplicated redundant commit-path loads (single run fetch, parallel scope assignments, preloaded pre-commit gate + finalization findings, batched policy-pack lookup, reused evidence/agent results for decision-node materialization). **TB-589**–**TB-593** remain open (manifest CPU, hybrid-cache hit cost, SQL pool/MARS, k6 gaps, findings cache). Cross-ref [`PERFORMANCE.md`](PERFORMANCE.md), [`API_PERFORMANCE_TARGETS.md`](API_PERFORMANCE_TARGETS.md).
+**TB-574 — TB-593** were added 2026-07-02 from [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (persistence, API middleware, commit/findings hot paths, caching). **TB-574**–**TB-586** **Done** (2026-07-02) — trial-seat middleware short-circuit; pipeline manifest reuse at commit; run-list warning-flag join aggregates; audit/trace JSON projection; run-list scope-revision eviction; parallel commit loads and finding engines; Redis L2 + replica count; governance/audit/policy-pack hot-path cache; API metering batching; `ConfigureAwait(false)` on hot reads; SQL write batching; run-list `EngineProvenanceJson` projection trim; authority-pipeline and integration-outbox worker batch parallelism (`BoundedBatchParallelism`). **TB-587** **Done** (2026-07-02) — Azure DevOps commit-status and PR-decorator named `HttpClient` instances use `AddOutboundExternalHttpResilience()` (parity with ITSM/webhooks). **TB-588** **Done** (2026-07-02) — deduplicated redundant commit-path loads (single run fetch, parallel scope assignments, preloaded pre-commit gate + finalization findings, batched policy-pack lookup, reused evidence/agent results for decision-node materialization). **TB-589**–**TB-593** **Done** (2026-07-03) — manifest CPU index, hybrid-cache typed L2 slots, SQL pool/MARS normalizer, k6 governance/audit scenarios, findings snapshot read cache. Cross-ref [`PERFORMANCE.md`](PERFORMANCE.md), [`API_PERFORMANCE_TARGETS.md`](API_PERFORMANCE_TARGETS.md).
 
 **TB-399** was added 2026-06-23 as the **V1.1 follow-on** to the manifest terminology copy sweep (global guard **TB-355** / **TB-366**). V1 removed "manifest" from on-page labels, help, compare copy, and error strings; **browser URLs still expose** `/manifests/` and `/reviews/{runId}/manifest`, which buyers see in the address bar, bookmarks, and shared links. **TB-399** adds **buyer-facing route aliases + permanent redirects** (same pattern as `/runs` ? `/reviews` in `next.config.ts`) without renaming API contracts, persistence, or internal `manifestId` fields. **Out of scope:** `/manifest.webmanifest` (PWA platform convention); backend `/v1/authority/manifests/*` paths. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) ?9, **TB-273** (BDA manifest terminology cluster), `buyer-safe-review-navigation.ts`, `NAV_CONFIG_CONTRACT.md`.
 
@@ -169,12 +169,12 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-563 | Decompose `GovernanceFindingsQueueClient` (~1115 lines) — list, filter bar, row, detail pane slots + colocated hooks; enable per-section lazy load / Suspense | **Done** (2026-07-01) — Performance P1 **V1.1** | L |
 | TB-564 | Decompose `AlertsInboxContent` (~903) + `RunsDashboardPanel` (~822) — server loader + client interactive slices (pattern: `RunDetailBelowFoldSections`) | **Done** (2026-07-01) — Performance P1 **V1.1** | L |
 | TB-565 | Add `experimental.optimizePackageImports` in `next.config.ts` for `lucide-react`, `recharts`, `@radix-ui/*` | **Done** (2026-07-01) — Performance P1 **V1.1** | XS |
-| TB-566 | Push `"use client"` boundaries down — server-render marketing `WelcomeMarketingPage` sections + settings `*PageView.tsx` that only render props; thin `*Client.tsx` for mutations | Performance P2 — **V1.1** | M |
+| TB-566 | Push `"use client"` boundaries down — server-render marketing `WelcomeMarketingPage` sections + settings `*PageView.tsx` that only render props; thin `*Client.tsx` for mutations | **Done** (2026-07-03) — Performance P2 **V1.1** | M |
 | TB-567 | ISR (`revalidate = 300`) on `/welcome`, `/pricing`, `/trust` marketing routes (parity with `see-it`, `live-demo`) | Performance P2 — **V1.1** | XS |
-| TB-568 | Memoize + split operator shell context providers — narrow `WorkspaceActiveRunProvider` / governance mode re-render blast radius in `AppShellClient` | Performance P2 — **V1.1** | S |
-| TB-569 | Migrate `ExecutiveDashboardDataContext` from provider-level `useEffect` fetch to React Query shared key | Performance P2 — **V1.1** | S |
+| TB-568 | Memoize + split operator shell context providers — narrow `WorkspaceActiveRunProvider` / governance mode re-render blast radius in `AppShellClient` | **Done** (2026-07-03) — Performance P2 **V1.1** | S |
+| TB-569 | Migrate `ExecutiveDashboardDataContext` from provider-level `useEffect` fetch to React Query shared key | **Done** (2026-07-03) — Performance P2 **V1.1** | S |
 | TB-570 | Audit static `recharts` imports — ensure all chart paths use `dynamic()` wrapper (no bypass via alternate call sites) | Performance P2 — **V1.1** | XS |
-| TB-571 | Nested `Suspense` on run detail + governance hub — stream below-fold sections (`RunDetailBelowFoldSections`, findings queue) | Performance P2 — **V1.1**; **UI_ARCHITECTURE_V1_1.md** §7 | M |
+| TB-571 | Nested `Suspense` on run detail + governance hub — stream below-fold sections (`RunDetailBelowFoldSections`, findings queue) | **Done** (2026-07-03) — Performance P2 **V1.1**; **UI_ARCHITECTURE_V1_1.md** §7 | M |
 | TB-572 | Defer App Insights initialization until `requestIdleCallback` or first interaction | Performance P2 — **V1.1** | XS |
 | TB-573 | Bundle baseline + Lighthouse CI gate — `npm run build:analyze` per-route First Load JS snapshot; GitHub Action fails on regression threshold for `/reviews` | **Done** (2026-07-02) — Performance P2 **V1.1** | S |
 | TB-574 | Short-circuit trial-seat reservation middleware for paid and non-trial tenants (`TenantTrialSeatSkipCache`, warm skip policy) | **Done** (2026-07-02) — Performance P1 **V1** | S |
@@ -2092,6 +2092,8 @@ After each smoke wave, update **`docs/library/CONNECTOR_READINESS_MATRIX.md`** (
 ---
 
 ## TB-018 ? Warm tenant catalogs in elastic pool (signup latency)
+
+**Status:** **Done** (2026-07-03)
 
 **Context:** Hosted **`SystemWithPerTenantCatalogs`** signup currently runs **`SqlTenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync`** which **always executes** **`DatabaseMigrator.RunTenant`** before mirroring **`dbo.Tenants`**. Migrating hundreds of migrations on-demand adds seconds to tens of seconds under load ? acceptable at low signup rate, poor for bursts.
 
@@ -16642,6 +16644,8 @@ experimental: {
 
 ## TB-566 — Push `"use client"` boundaries down (P2)
 
+**Status:** **Done** (2026-07-03)
+
 **Why:** **200+** `.tsx` files carry `"use client"`. Many settings `*PageView.tsx` only render props; `WelcomeMarketingPage` could be mostly server-rendered with client islands for forms/CTAs.
 
 **Approach:**
@@ -16692,6 +16696,8 @@ experimental: {
 
 ## TB-568 — Memoize + split operator shell context providers (P2)
 
+**Status:** **Done** (2026-07-03)
+
 **Why:** `AppShellClient` nests 7+ React context providers (`OperatorQueryProvider`, `GovernanceModeProvider`, `WorkspaceActiveRunProvider`, etc.). Context value changes re-render large subtrees.
 
 **Approach:**
@@ -16714,6 +16720,8 @@ experimental: {
 ---
 
 ## TB-569 — Migrate `ExecutiveDashboardDataContext` to React Query (P2)
+
+**Status:** **Done** (2026-07-03)
 
 **Why:** Executive dashboard fetches at provider level in `useEffect` on every mount — no cache restore on back-navigation, duplicates **TB-562** goals for one high-visibility surface.
 
@@ -16763,6 +16771,8 @@ experimental: {
 ---
 
 ## TB-571 — Nested `Suspense` on run detail + governance hub (P2)
+
+**Status:** **Done** (2026-07-03)
 
 **Why:** `loading.tsx` covers primary routes; independent below-fold sections (run detail outcomes, governance queue) still block first paint until all data resolves. Deferred in **UI_ARCHITECTURE_V1_1.md** §7.
 

@@ -95,6 +95,27 @@ export const options = {
       exec: "advisoryRecommendations",
       startTime: "10s",
     },
+    governance_dashboard: {
+      executor: "constant-vus",
+      vus: Number(__ENV.K6_GOVERNANCE_DASHBOARD_VUS || 2),
+      duration: __ENV.K6_GOVERNANCE_DASHBOARD_DURATION || "20s",
+      exec: "governanceDashboard",
+      startTime: "15s",
+    },
+    audit_list: {
+      executor: "constant-vus",
+      vus: Number(__ENV.K6_AUDIT_LIST_VUS || 2),
+      duration: __ENV.K6_AUDIT_LIST_DURATION || "20s",
+      exec: "auditList",
+      startTime: "20s",
+    },
+    audit_search: {
+      executor: "constant-vus",
+      vus: Number(__ENV.K6_AUDIT_SEARCH_VUS || 2),
+      duration: __ENV.K6_AUDIT_SEARCH_DURATION || "20s",
+      exec: "auditSearch",
+      startTime: "25s",
+    },
     ...architectureRequestScenario,
   },
   thresholds: {
@@ -120,6 +141,30 @@ export function advisoryRecommendations() {
   const url = `${base}/v1/advisory/runs/${runId}/recommendations`;
   const res = http.get(url, { headers: headers() });
   check(res, { "advisory list 2xx/404/401/429": (r) => okRead(r) });
+  sleep(0.05);
+}
+
+/** TB-592: governance dashboard hot read (non-gated merge path). */
+export function governanceDashboard() {
+  const url = `${base}/v1/governance/dashboard?maxPending=20&maxDecisions=20&maxChanges=20`;
+  const res = http.get(url, { headers: headers() });
+  check(res, { "governance dashboard 2xx/404/401/429": (r) => okRead(r) });
+  sleep(0.05);
+}
+
+/** TB-592: audit list hot read. */
+export function auditList() {
+  const url = `${base}/v1/audit?take=50`;
+  const res = http.get(url, { headers: headers() });
+  check(res, { "audit list 2xx/404/401/429": (r) => okRead(r) });
+  sleep(0.05);
+}
+
+/** TB-592: audit search hot read (without heavy DataJson projection). */
+export function auditSearch() {
+  const url = `${base}/v1/audit/search?take=50&includeDataJson=false`;
+  const res = http.get(url, { headers: headers() });
+  check(res, { "audit search 2xx/404/401/429": (r) => okRead(r) });
   sleep(0.05);
 }
 
