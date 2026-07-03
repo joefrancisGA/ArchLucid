@@ -98,9 +98,9 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | G-REAL-05 | CPA SOC 2 CPA program kickoff (**TB-135**) — organizational, not engineering | Owner | V1.1 | Not started | Assessment **Imp-13** pending question; zero `(A)` weight per `V1_1-assurance-backlog.mdc` |
 | G-FAITH-01 | Set repo variable `ARCHLUCID_FAITHFULNESS_NIGHTLY_ENFORCE=true` after ≥5 green nightly baselines | Owner | P1 | Not started | Assessment **Imp-3** — enables `--enforce` on `golden-cohort-nightly.yml` deterministic faithfulness job |
 | G-CONTENT-01 | Enrich remaining **20** bundled policy packs (+5 curated rules each) | Owner / content | V1.1 | Not started | Assessment **Imp-4** partial — flagship packs **azure-waf**, **ai-governance**, **security-baseline** shipped 2026-06-18 |
-| G-REAL-02 | Playwright smoke sign-off — Workspace A self-demo (**M-04**) | QA / owner | P0 | Not started | Human verification after engineering **#30** |
-| G-REAL-03 | Playwright smoke sign-off — Workspace B regulated scenario (**M-05**) | QA / owner | P0 | Not started | Human verification after engineering **#30** |
-| G-REAL-04 | Review sample architecture report from Workspace B (**M-06**) | Owner | P0 | Not started | Content review against landing-page claims |
+| G-REAL-02 | Playwright smoke sign-off — Workspace A self-demo (**M-04**) | QA / owner | P0 | **Done** | Owner sign-off **2026-07-03** — Workspace A Playwright smoke verified; human verification after engineering **#30** |
+| G-REAL-03 | Playwright smoke sign-off — Workspace B regulated scenario (**M-05**) | QA / owner | P0 | **Done** | Owner sign-off **2026-07-03** — Workspace B Playwright smoke verified; human verification after engineering **#30** |
+| G-REAL-04 | Review sample architecture report from Workspace B (**M-06**) | Owner | P0 | **In progress** | Agent claim-vs-copy review **Done 2026-07-03** — [`M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md`](M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md); owner final sign-off pending (optional live DOCX visual check) |
 
 ---
 
@@ -113,9 +113,9 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | M-01 | Finalize one-sentence positioning tagline and update `POSITIONING.md` | Copy | P0 | Done | None — `POSITIONING.md` exists as basis |
 | M-02 | Write one-minute verbal pitch (elevator script) | Copy | P0 | Done | `ELEVATOR_PITCH.md` written 2026-05-21 — 30-sec, 1-min, 2-min, and consulting-line variants — `EXECUTIVE_SPONSOR_BRIEF.md` as basis |
 | M-03 | Write five-minute demo script aligned to marketing vocabulary (Capture → Evidence → Review → Findings → Decisions → Report) | Copy | P0 | Done | Five-minute live-call script added to `DEMO_VIDEO_SCRIPT.md` 2026-05-21; includes Q&A prompts |
-| M-04 | Verify self-demo workspace (Workspace A — ArchLucid reviews ArchLucid) passes Playwright smoke | QA sign-off | P0 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |
-| M-05 | Verify synthetic regulated scenario workspace (Workspace B — AI governance + cloud posture) passes Playwright smoke | QA sign-off | P0 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |
-| M-06 | Download and review generated sample architecture review report from Workspace B; confirm section coverage matches landing-page narrative | Content review | P0 | Not started | **Improvement #28 — COMPLETED (2026-05-17)** |
+| M-04 | Verify self-demo workspace (Workspace A — ArchLucid reviews ArchLucid) passes Playwright smoke | QA sign-off | P0 | **Done** | Owner sign-off **2026-07-03** — Workspace A Playwright smoke verified; **Improvement #30 — COMPLETED (2026-05-17)** |
+| M-05 | Verify synthetic regulated scenario workspace (Workspace B — AI governance + cloud posture) passes Playwright smoke | QA sign-off | P0 | **Done** | Owner sign-off **2026-07-03** — Workspace B Playwright smoke verified; **Improvement #30 — COMPLETED (2026-05-17)** |
+| M-06 | Download and review generated sample architecture review report from Workspace B; confirm section coverage matches landing-page narrative | Content review | P0 | **In progress** | Agent mechanical review **Done 2026-07-03** — [`M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md`](M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md) (7 match / 4 partial / 1 routing mismatch); owner final sign-off pending; **Improvement #28 — COMPLETED (2026-05-17)** |
 | M-07 | Capture 6–8 polished screenshots across the full operator workflow (Capture, Evidence, Review, Findings, Decisions, Report, whitelabeled export) | Production | P0 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |
 | M-08 | Review and align `POSITIONING.md` "audit chain / signed manifest" differentiator language; ensure it appears in the one-minute pitch and demo script | Copy | P0 | Not started | **Finding-confidence UX** in review UI (**engineering backlog**) — aligns differentiability copy |
 
@@ -123,7 +123,7 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 
 | # | Task | Type | Priority | Status | Depends on (technical) |
 |---|------|------|----------|--------|------------------------|
-| M-09 | Landing page full content — hero copy, problem/solution sections, core workflow narrative, use cases (include Azure WAF + CAF/LZ bundled packs with disclaimer), proof section | Copy + UI | P1 | In progress | **Improvements #31 + #32 — COMPLETED (2026-05-17)**; homepage copy/sections landed 2026-05-21 (`WelcomeMarketingPage` + modular sections). **Remaining:** owner sign-off, M-06 sample report review, M-07 screenshots, deploy. |
+| M-09 | Landing page full content — hero copy, problem/solution sections, core workflow narrative, use cases (include Azure WAF + CAF/LZ bundled packs with disclaimer), proof section | Copy + UI | P1 | In progress | **Improvements #31 + #32 — COMPLETED (2026-05-17)**; homepage copy/sections landed 2026-05-21 (`WelcomeMarketingPage` + modular sections). **Remaining:** owner sign-off, M-06 owner final sign-off (agent review done), M-07 screenshots, deploy. |
 | M-10 | LinkedIn post 1: "Architecture review is broken — diagrams are not evidence" | Content | P1 | Not started | None |
 | M-11 | LinkedIn post 2: "Architecture decisions need provenance — not just Confluence pages" | Content | P1 | Not started | None |
 | M-12 | LinkedIn post 3: "Why AI-assisted architecture review needs human signoff" | Content | P1 | Not started | None |
@@ -169,7 +169,7 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | M-87 | Publish long-form LinkedIn article: "Architecture Decision Records" | Content | P1 | Done (draft) | Full article draft in [`LINKEDIN_CONTENT_V2.md`](LINKEDIN_CONTENT_V2.md) 2026-06-20 (~1,550 words + link-post); owner to publish. ADR vs decision record; M-26 SKU; [`LINKEDIN_CONTENT_V1.md`](LINKEDIN_CONTENT_V1.md) M-15 alignment. |
 | M-88 | Publish long-form LinkedIn article: "Checking in Broken Code" | Content | P1 | Done (draft) | Full article draft in [`LINKEDIN_CONTENT_V2.md`](LINKEDIN_CONTENT_V2.md) 2026-06-21 (~1,450 words + link-post); owner to publish. Scoped compile: [`scripts/ci/agent-compile-check.ps1`](../../scripts/ci/agent-compile-check.ps1); tree safety + pre-commit: [`docs/engineering/AGENTS.md`](../engineering/AGENTS.md). |
 | M-89 | Publish long-form LinkedIn article: "Gemini Takes the Initiative, but not in a Good Way" | Content | P1 | Not started | Draft and publish from personal profile; follow proof-gated claims in [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md). |
-| M-16 | Create one short demo video (screen recording of Workspace A self-demo flow) | Production | P1 | Not started | **Improvement #30 — COMPLETED (2026-05-17)**. **Deferred (planning 2026-05-21):** record after M-04 smoke + M-07 screenshots; M-18 may use live demo until video exists. |
+| M-16 | Create one short demo video (screen recording of Workspace A self-demo flow) | Production | P1 | Not started | **Improvement #30 — COMPLETED (2026-05-17)**. **Deferred (planning 2026-05-21):** record after M-07 screenshots; M-04 smoke sign-off **Done (2026-07-03)**; M-18 may use live demo until video exists. |
 
 ### Phase 3 — Early conversations (Days 31–60)
 

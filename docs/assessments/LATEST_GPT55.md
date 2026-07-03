@@ -8,22 +8,32 @@
 
 Sourced from open `GTM_BACKLOG.md` rows (M-series / G-REAL-series), ranked by criticality then dependency. Excludes GTM V1.1-backlog items #2/#3/#5/#6 (M-90/M-44/M-91/M-92) per standing exclusion rule.
 
+**Completed (owner sign-off this cycle):**
+
+| Task | Sign-off |
+|------|----------|
+| **M-04/G-REAL-02** — Playwright smoke sign-off, Workspace A self-demo | **Done — owner 2026-07-03** |
+| **M-05/G-REAL-03** — Playwright smoke sign-off, Workspace B regulated scenario | **Done — owner 2026-07-03** |
+
+**Agent work complete — owner sign-off pending:**
+
+| Task | Status |
+|------|--------|
+| **M-06/G-REAL-04** — Workspace B sample report vs landing-page claims | Agent mechanical review **Done 2026-07-03** — see [`M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md`](../go-to-market/M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md). **Owner:** final sign-off (optional live DOCX visual check). |
+
 | # | Task | Why ranked here | Engine-assistable? | Recommended engine |
 |---|------|------------------|---------------------|---------------------|
-| 1 | **M-04/G-REAL-02** — Playwright smoke sign-off, Workspace A self-demo | Foundational QA gate; nothing pilot-facing should proceed until this passes | No — human verification step, though the smoke suite itself is already automated | N/A — human sign-off only |
-| 2 | **M-05/G-REAL-03** — Playwright smoke sign-off, Workspace B regulated scenario | Same gate, second workspace; parallel to #1 | No | N/A — human sign-off only |
-| 3 | **M-06/G-REAL-04** — Review Workspace B sample report against landing-page narrative claims | Confirms marketing claims match actual product output before any outreach; depends on #2 | Partial — an agent can diff report sections against `POSITIONING.md` claims and flag mismatches | **Sonnet** — mechanical claim-vs-copy comparison, low reasoning depth needed, cheap at current pricing |
-| 4 | **M-07** — Capture 6–8 polished screenshots across the operator workflow | Feeds M-09 (landing page) and M-16 (demo video); depends on #1/#2 being green | No — requires a human-operated browser session for polish/framing | N/A — human only |
-| 5 | **M-08** — Align `POSITIONING.md` "audit chain / signed manifest" language with the one-minute pitch and demo script | Copy consistency gate before any outreach; independent of #1–#4 | Yes — drafting/aligning copy across documents is a good agent task | **Sonnet** — copy alignment across a few known docs; reduced pricing makes it the best cost/effectiveness choice over Opus for this scope |
-| 6 | **M-09** — Finish landing page (owner sign-off, deploy) | Blocks all outreach (M-17/M-18); remaining work is owner sign-off + deploy, not new copy | Partial — an agent can pre-stage the deploy checklist and flag any open TODOs in the page content | **Composer** — mechanical checklist/deploy-readiness pass, no deep reasoning required |
-| 7 | **M-16** — Record short demo video (Workspace A self-demo flow) | Depends on #1 and #4 (smoke green + screenshots in hand); feeds M-18 outreach | No — requires a human-narrated recording | N/A — human only |
-| 8 | **M-17** — Build outreach list of 20 architects/CTOs/security leaders | Independent prep work; can run in parallel with #1–#7 | Partial — an agent can help structure/dedupe a candidate list the human supplies, not source real contacts | **Composer** — low-stakes list formatting/dedup |
-| 9 | **M-18** — Send 20 outreach messages offering a 10-minute demo | Depends on #6 (landing page live) and #7 (demo video) | Partial — an agent can draft the outreach message template | **Sonnet** — persuasive, buyer-facing copy benefits from more careful phrasing than Composer-tier drafting |
-| 10 | **M-19** — Run 5–10 live demos against Workspace A/B | Depends on #9 (outreach must land replies first) | No — live human-led demo calls | N/A — human only |
-| 11 | **M-20** — Track objections from demos; refine positioning and demo script | Depends on #10 producing real objections to synthesize | Partial — an agent can synthesize raw notes into a structured objection log and suggest copy edits | **Opus** — synthesizing qualitative buyer feedback into strategic copy changes benefits from deeper reasoning than routine drafting |
-| 12 | **M-39** — Apply `PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md` on every real pilot; reach ≥3 qualifying G4 rows | Depends on G-REAL-06 pilots existing; checklist itself already shipped | No — requires live pilot execution | N/A — human only |
-| 13 | **G-REAL-06** — Execute three committed real-mode pilot runs | Stage 1 exit gate; depends on #1/#2 (smoke green) and ideally #10 (a demoed prospect willing to pilot) | No — real customer-facing pilot execution | N/A — human only |
-| 14 | **G-REAL-07** — Collect proof packets per pilot run (`collect-first-pilot-proof.ps1`) | Directly depends on #13; script already exists | Partial — an agent can pre-validate the script's flags/output shape before the human runs it live | **Composer** — mechanical script-invocation verification |
+| 1 | **M-07** — Capture 6–8 polished screenshots across the operator workflow | Feeds M-09 (landing page) and M-16 (demo video); both workspace smokes green — no blocking smoke sign-off remains | No — requires a human-operated browser session for polish/framing | N/A — human only |
+| 2 | **M-08** — Align `POSITIONING.md` "audit chain / signed manifest" language with the one-minute pitch and demo script | Copy consistency gate before any outreach; independent of #1 | Yes — drafting/aligning copy across documents is a good agent task | **Sonnet** — copy alignment across a few known docs; reduced pricing makes it the best cost/effectiveness choice over Opus for this scope |
+| 3 | **M-09** — Finish landing page (owner sign-off, deploy) | Blocks all outreach (M-17/M-18); remaining work is owner sign-off + deploy, not new copy | Partial — an agent can pre-stage the deploy checklist and flag any open TODOs in the page content | **Composer** — mechanical checklist/deploy-readiness pass, no deep reasoning required |
+| 4 | **M-16** — Record short demo video (Workspace A self-demo flow) | Workspace A smoke signed off; depends on #1 (screenshots in hand); feeds M-18 outreach | No — requires a human-narrated recording | N/A — human only |
+| 5 | **M-17** — Build outreach list of 20 architects/CTOs/security leaders | Independent prep work; can run in parallel with #1–#4 | Partial — an agent can help structure/dedupe a candidate list the human supplies, not source real contacts | **Composer** — low-stakes list formatting/dedup |
+| 6 | **M-18** — Send 20 outreach messages offering a 10-minute demo | Depends on #3 (landing page live) and #4 (demo video) | Partial — an agent can draft the outreach message template | **Sonnet** — persuasive, buyer-facing copy benefits from more careful phrasing than Composer-tier drafting |
+| 7 | **M-19** — Run 5–10 live demos against Workspace A/B | Depends on #6 (outreach must land replies first) | No — live human-led demo calls | N/A — human only |
+| 8 | **M-20** — Track objections from demos; refine positioning and demo script | Depends on #7 producing real objections to synthesize | Partial — an agent can synthesize raw notes into a structured objection log and suggest copy edits | **Opus** — synthesizing qualitative buyer feedback into strategic copy changes benefits from deeper reasoning than routine drafting |
+| 9 | **M-39** — Apply `PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md` on every real pilot; reach ≥3 qualifying G4 rows | Depends on G-REAL-06 pilots existing; checklist itself already shipped | No — requires live pilot execution | N/A — human only |
+| 10 | **G-REAL-06** — Execute three committed real-mode pilot runs | Stage 1 exit gate; both workspace smokes signed off 2026-07-03; ideally #7 (a demoed prospect willing to pilot) | No — real customer-facing pilot execution | N/A — human only |
+| 11 | **G-REAL-07** — Collect proof packets per pilot run (`collect-first-pilot-proof.ps1`) | Directly depends on #10; script already exists | Partial — an agent can pre-validate the script's flags/output shape before the human runs it live | **Composer** — mechanical script-invocation verification |
 
 ---
 
