@@ -53,6 +53,11 @@ vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
 }));
 
+vi.mock("@/components/CommandPaletteLazy", () => ({
+  CommandPalette: () => null,
+  preloadCommandPaletteChunk: vi.fn(),
+}));
+
 describe("OperatorShellTopBar", () => {
   beforeEach(() => {
     buyerPolishedMock.value = false;
