@@ -9,6 +9,7 @@ import {
   clearOperateNavAutoUnlockHintPending,
   dismissOperateNavAutoUnlockHint,
   markOperateNavAutoUnlockHintPending,
+  OPERATE_NAV_UNLOCK_STORAGE_KEY,
   readOperateNavUnlockPhase,
   shouldShowOperateNavAutoUnlockHint,
   type OperateNavUnlockPhase,
@@ -42,11 +43,23 @@ export function useOperateNavUnlockPhase(): {
       return;
     }
 
-    if (readOperateNavUnlockPhase() === 0) {
-      markOperateNavAutoUnlockHintPending();
-      advanceOperateNavUnlockToAnalysis();
-      refreshPhase();
+    let storedPhaseRaw: string | null = null;
+
+    try {
+      storedPhaseRaw = window.localStorage.getItem(OPERATE_NAV_UNLOCK_STORAGE_KEY);
     }
+    catch {
+      return;
+    }
+
+    // Respect an explicit pilot/unlock phase (including phase 0) once persisted.
+    if (storedPhaseRaw !== null) {
+      return;
+    }
+
+    markOperateNavAutoUnlockHintPending();
+    advanceOperateNavUnlockToAnalysis();
+    refreshPhase();
   }, [hasCommittedArchitectureReview, mounted, refreshPhase]);
 
   useEffect(() => {

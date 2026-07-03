@@ -44467,6 +44467,14 @@
                 "string"
               ]
             }
+          },
+          {
+            "in": "query",
+            "name": "includeDataJson",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
           }
         ],
         "responses": {

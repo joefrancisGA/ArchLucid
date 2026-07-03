@@ -41,4 +41,18 @@ describe("useOperateNavUnlockPhase", () => {
 
     expect(localStorage.getItem(OPERATE_NAV_UNLOCK_STORAGE_KEY)).toBeNull();
   });
+
+  it("respects an explicit pilot phase 0 after first committed review", async () => {
+    localStorage.setItem(OPERATE_NAV_UNLOCK_STORAGE_KEY, "0");
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
+
+    renderHook(() => useOperateNavUnlockPhase());
+
+    await waitFor(() => {
+      expect(readOperateNavUnlockPhase()).toBe(0);
+    });
+
+    expect(localStorage.getItem(OPERATE_NAV_UNLOCK_STORAGE_KEY)).toBe("0");
+    expect(localStorage.getItem(OPERATE_NAV_AUTO_UNLOCK_HINT_PENDING_KEY)).toBeNull();
+  });
 });
