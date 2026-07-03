@@ -60,6 +60,7 @@ using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.PolicyPacks;
 using ArchLucid.Retrieval.Reranking;
+using ArchLucid.Retrieval.Summarization;
 using ArchLucid.Retrieval.Pricing;
 using ArchLucid.Retrieval.Queries;
 using ArchLucid.Retrieval.FineTuning;
