@@ -38,7 +38,6 @@ export async function mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings(
       run: {
         ...buyerRun,
         goldenManifestId: buyerRun.goldenManifestId ?? operatorRun.goldenManifestId,
-        hasGoldenManifest: buyerRun.hasGoldenManifest ?? operatorRun.hasGoldenManifest,
       },
       results: operatorResults,
     };

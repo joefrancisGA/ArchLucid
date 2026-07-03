@@ -18,7 +18,6 @@ function buyerSummaryWithoutFindings(): RunDetail {
       projectId: "33333333-3333-3333-3333-333333333333",
       createdUtc: "2026-06-23T04:00:00.000Z",
       goldenManifestId: "f0000001-0000-4000-8000-000000000001",
-      hasGoldenManifest: true,
     },
     executionFlavorBuyerSummary: "Policy-aware demo review.",
   };
@@ -95,7 +94,6 @@ describe("mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings", () => {
         run: {
           ...operatorDetailWithFindings().run,
           goldenManifestId: "f0000001-0000-4000-8000-000000000001",
-          hasGoldenManifest: true,
         },
       },
       traceId: "trace-1",
@@ -106,7 +104,6 @@ describe("mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings", () => {
         runId: "operator-demo-review-e2e",
         projectId: "33333333-3333-3333-3333-333333333333",
         createdUtc: "2026-06-23T04:00:00.000Z",
-        hasGoldenManifest: true,
       },
       executionFlavorBuyerSummary: "Policy-aware demo review.",
     };
