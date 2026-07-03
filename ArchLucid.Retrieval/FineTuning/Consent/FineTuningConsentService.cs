@@ -1,20 +1,19 @@
-using ArchLucid.Core.Tenancy;
-using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Core.Persistence.ApplicationPorts.FineTuning;
 using ArchLucid.Retrieval.FineTuning.Models;
 
 namespace ArchLucid.Retrieval.FineTuning.Consent;
 
 /// <summary>Tenant-settings backed manifest fine-tuning consent (default disabled).</summary>
-public sealed class FineTuningConsentService(ITenantSettingsRepository tenantSettingsRepository) : IFineTuningConsentService
+public sealed class FineTuningConsentService(IFineTuningManifestConsentReader consentReader) : IFineTuningConsentService
 {
-    private readonly ITenantSettingsRepository _tenantSettingsRepository =
-        tenantSettingsRepository ?? throw new ArgumentNullException(nameof(tenantSettingsRepository));
+    private readonly IFineTuningManifestConsentReader _consentReader =
+        consentReader ?? throw new ArgumentNullException(nameof(consentReader));
 
     /// <inheritdoc />
     public async Task<FineTuningConsentStatus> GetConsentAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        string? raw = await _tenantSettingsRepository
-            .TryGetAsync(tenantId, TenantSettingKeys.FineTuningManifestConsent, cancellationToken)
+        string? raw = await _consentReader
+            .TryGetRawConsentAsync(tenantId, cancellationToken)
             .ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(raw))

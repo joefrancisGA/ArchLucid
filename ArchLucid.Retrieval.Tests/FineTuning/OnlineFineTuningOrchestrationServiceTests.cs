@@ -20,8 +20,8 @@ public sealed class FineTuningConsentServiceTests
     [Fact]
     public async Task GetConsentAsync_defaults_to_disabled_when_unset()
     {
-        InMemoryTenantSettingsRepositoryDouble settings = new();
-        FineTuningConsentService consent = new(settings);
+        InMemoryFineTuningManifestConsentReaderDouble reader = new();
+        FineTuningConsentService consent = new(reader);
 
         FineTuningConsentStatus status = await consent.GetConsentAsync(Guid.NewGuid(), CancellationToken.None);
 

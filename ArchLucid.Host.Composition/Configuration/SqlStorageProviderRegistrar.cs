@@ -403,6 +403,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantItsmOutboundSettingsRepository, SqlTenantItsmOutboundSettingsRepository>();
         services.AddScoped<ITenantItsmConnectorConnectionRepository, SqlTenantItsmConnectorConnectionRepository>();
         services.AddScoped<ITenantSettingsRepository, SqlTenantSettingsRepository>();
+        services.AddScoped<IFineTuningManifestConsentReader, TenantSettingsFineTuningManifestConsentReader>();
         services.AddScoped<IFineTuningTrainingExportAuditRepository, SqlFineTuningTrainingExportAuditRepository>();
         services.AddScoped<ITenantIdentityProviderConfigurationRepository, SqlTenantIdentityProviderConfigurationRepository>();
         services.AddScoped<ITenantHostedExtractorConfigurationRepository, SqlTenantHostedExtractorConfigurationRepository>();

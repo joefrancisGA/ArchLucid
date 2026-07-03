@@ -2,6 +2,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
+using ArchLucid.Core.Persistence.ApplicationPorts.FineTuning;
 using ArchLucid.Retrieval.FineTuning;
 using ArchLucid.Retrieval.FineTuning.Consent;
 using ArchLucid.Retrieval.FineTuning.Models;
@@ -82,6 +83,20 @@ internal sealed class FakeFineTuningConsentService(FineTuningConsentStatus statu
         }
 
         return Task.CompletedTask;
+    }
+}
+
+internal sealed class InMemoryFineTuningManifestConsentReaderDouble : IFineTuningManifestConsentReader
+{
+    private readonly Dictionary<Guid, string> _values = new();
+
+    public void Set(Guid tenantId, string value) => _values[tenantId] = value;
+
+    public Task<string?> TryGetRawConsentAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        _values.TryGetValue(tenantId, out string? value);
+
+        return Task.FromResult<string?>(value);
     }
 }
 
