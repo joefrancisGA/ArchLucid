@@ -64,7 +64,7 @@ public sealed class ArchLucidApiClientWireTests
     }
 
     [Fact]
-    public async Task VersionAsync_deserializes_BuildInfoResponse()
+    public async Task Version2Async_deserializes_BuildInfoResponse()
     {
         using HttpMessageHandler handler = new StubPipelineHandler();
         using HttpClient http = new HttpClient(handler);
@@ -73,7 +73,7 @@ public sealed class ArchLucidApiClientWireTests
             BaseUrl = "https://unit.test/",
         };
 
-        BuildInfoResponse info = await client.VersionAsync();
+        BuildInfoResponse info = await client.Version2Async();
 
         Assert.Equal("ArchLucid", info.Application);
         Assert.Equal("1.0.0.0", info.AssemblyVersion);
