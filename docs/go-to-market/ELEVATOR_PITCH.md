@@ -28,7 +28,7 @@
 >
 > You bring your architecture materials — topology, requirements, constraints, existing evidence. ArchLucid runs a governed multi-agent analysis: topology, cost, compliance, design quality. It surfaces a prioritized findings board where every risk is severity-ranked, evidence-cited, and paired with a concrete recommended action.
 >
-> The output is a defensible review package: a versioned manifest, a findings register, and an exportable report your ARB, your CTO, and your auditors can follow — not a chat transcript.
+> The output is a defensible review package: a signed manifest anchored to a full audit chain, a findings register, and an exportable report your ARB, your CTO, and your auditors can follow — not a chat transcript.
 >
 > I offer this as a service-led engagement — we run the review together on your real architecture context and you walk away with the report. Want to see what that looks like for a system like yours?"
 
@@ -44,7 +44,7 @@
 >
 > ArchLucid is built specifically for this gap. It coordinates a multi-agent pipeline — four specialized AI agents cover topology, cost, compliance, and design quality — against a structured architecture request. Every finding it surfaces carries an explainability trace: what was examined, which rules applied, what was concluded, and why. Every decision recorded against that finding is auditable and replayable.
 >
-> The output is what I call a review package: a versioned manifest, structured findings, stated limits where the system does not conclude, and an executive summary your sponsor can read in five minutes. Exportable as DOCX or PDF, whitelabeled if needed.
+> The output is what I call a review package: a signed manifest anchored to a full audit chain, structured findings, stated limits where the system does not conclude, and an executive summary your sponsor can read in five minutes. Exportable as DOCX or PDF, whitelabeled if needed.
 >
 > I offer this as a productized service — an ArchLucid AI and Cloud Architecture Readiness Review — where I run the workflow on your real architecture context and deliver the package. The cost is in the range of a few days of senior architect time at a fraction of the calendar delay.
 >
