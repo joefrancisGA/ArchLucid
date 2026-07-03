@@ -5,7 +5,7 @@ import { GovernanceFindingsQueueSkeleton } from "./GovernanceFindingsQueueSkelet
 
 const GovernanceFindingsQueueClient = dynamic(
   () => import("./GovernanceFindingsQueueClient"),
-  { ssr: false, loading: () => <GovernanceFindingsQueueSkeleton /> },
+  { loading: () => <GovernanceFindingsQueueSkeleton /> },
 );
 
 /** Governance findings hub with deferred queue chunk (TB-571). */

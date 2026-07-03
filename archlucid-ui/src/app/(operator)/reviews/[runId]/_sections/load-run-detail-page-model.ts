@@ -40,6 +40,7 @@ import {
   resolveQuickDecisionFindingsForRunDetail,
   severityBadgeLabel,
 } from "@/lib/quick-decision-summary-derive";
+import { mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings } from "@/lib/run-detail-findings-hydration";
 // NOTE: quickDecisionFindings is computed only for the ADR generator input; it is not part of the
 // critical-path RunDetailPageModel so the heavy finding scan doesn't block first-screen rendering.
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
@@ -89,7 +90,8 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   const apiScopeOptions =
     serverScopeHeaders !== null ? { scopeHeaders: serverScopeHeaders } : undefined;
 
-  const fetchRunDetail = isBuyerPolishedOperatorShellEnv() ? getBuyerRunDetailSummary : getRunDetail;
+  const usedBuyerRunDetailSummary = isBuyerPolishedOperatorShellEnv();
+  const fetchRunDetail = usedBuyerRunDetailSummary ? getBuyerRunDetailSummary : getRunDetail;
 
   try {
     runDetailResponse = await fetchRunDetail(runId, apiScopeOptions);
@@ -135,7 +137,15 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     return { kind: "malformed-response", message: envelope.message };
   }
 
-  const resolvedDetail = envelope.value;
+  let resolvedDetail = envelope.value;
+
+  if (usedBuyerRunDetailSummary) {
+    resolvedDetail = await mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings(
+      runId,
+      resolvedDetail,
+      apiScopeOptions,
+    );
+  }
 
   const effectiveScopeHeaders = isBrowser()
     ? getEffectiveBrowserProxyScopeHeaders()

@@ -77,7 +77,39 @@ vi.mock("@/components/operator-home/OperatorHomeAdvancedGuidancePanel", () => ({
   OperatorHomeAdvancedGuidancePanel: () => <div data-testid="operator-home-advanced-guidance" />,
 }));
 
+vi.mock("@/components/cto-demo/CtoDemoExecutiveLandingRedirect", () => ({
+  CtoDemoExecutiveLandingRedirect: () => null,
+}));
+
+vi.mock("./_sections/load-operator-home-runs-dashboard-model", () => ({
+  loadOperatorHomeRunsDashboardModel: vi.fn(),
+}));
+
 import HomePage from "./page";
+import { loadOperatorHomeRunsDashboardModel } from "./_sections/load-operator-home-runs-dashboard-model";
+import type { OperatorHomeRunsDashboardModel } from "./_sections/operator-home-runs-dashboard-model";
+
+const mockLoadOperatorHomeRunsDashboardModel = vi.mocked(loadOperatorHomeRunsDashboardModel);
+
+function defaultRunsDashboard(buyerPolishedShell = false): OperatorHomeRunsDashboardModel {
+  return {
+    projectId: "default",
+    page: 1,
+    pageSize: 5,
+    items: [],
+    totalCount: 0,
+    loadFailure: null,
+    malformedMessage: null,
+    usedStaticRunsFallback: false,
+    buyerPolishedShell,
+  };
+}
+
+async function renderHomePage(): Promise<void> {
+  const page = await HomePage();
+
+  renderWithOperatorQuery(page);
+}
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -85,6 +117,7 @@ afterEach(() => {
 });
 
 beforeEach(() => {
+  mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(defaultRunsDashboard());
   listRunsByProjectPaged.mockResolvedValue({
     items: [],
     totalCount: 0,
@@ -129,8 +162,9 @@ describe("HomePage — buyer-polished shell", () => {
 
   it("keeps the home launchpad focused on hero, merged sample tour card, reviews, and collapsed setup section", async () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
+    mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(defaultRunsDashboard(true));
 
-    renderWithOperatorQuery(<HomePage />);
+    await renderHomePage();
 
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("review package");
@@ -163,7 +197,7 @@ describe("HomePage (55R smoke — landing)", () => {
   useOperatorQueryTestLifecycle();
 
   it("renders compact hero, merged sample tour card, reviews panel, and collapsed setup section", async () => {
-    renderWithOperatorQuery(<HomePage />);
+    await renderHomePage();
 
     expect(screen.getByRole("heading", { name: "Workspace activity" })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-example-request-panel")).toBeNull();
@@ -193,7 +227,7 @@ describe("HomePage (55R smoke — landing)", () => {
   });
 
   it("exposes create-first-request CTA from sample tour card", async () => {
-    renderWithOperatorQuery(<HomePage />);
+    await renderHomePage();
 
     const runsLinks = screen
       .getAllByRole("link")
@@ -204,7 +238,7 @@ describe("HomePage (55R smoke — landing)", () => {
   });
 
   it("exposes primary workflow destinations matching shell review paths", async () => {
-    renderWithOperatorQuery(<HomePage />);
+    await renderHomePage();
 
     await waitFor(() => {
       expect(screen.getByRole("link", { name: "Open full reviews list" })).toHaveAttribute(

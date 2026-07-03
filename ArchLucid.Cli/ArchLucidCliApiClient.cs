@@ -177,7 +177,7 @@ public sealed class ArchLucidApiClient
     {
         try
         {
-            Gen.BuildInfoResponse info = await _api.VersionAsync(ct);
+            Gen.BuildInfoResponse info = await _api.Version2Async(ct);
 
             return JsonSerializer.Serialize(info, _jsonOptions);
         }

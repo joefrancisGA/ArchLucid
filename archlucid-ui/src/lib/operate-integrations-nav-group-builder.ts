@@ -78,14 +78,6 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",
         },
-        {
-          href: "/governance/recurrence-schedules",
-          label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
-          title: "Recurrence schedules — automated follow-up architecture reviews after finalize",
-          icon: CalendarClock,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
       ],
     };
   }

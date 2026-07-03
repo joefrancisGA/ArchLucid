@@ -3,6 +3,26 @@ import { afterEach, vi } from "vitest";
 
 import "@testing-library/jest-dom/vitest";
 
+import { emptyCorePilotCommitContext } from "@/testing/core-pilot-commit-context.mock";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+
+vi.mock("@/lib/use-core-pilot-commit-presentation-context", () => ({
+  useCorePilotCommitPresentationContext: () => ({
+    hasCommittedManifest: false,
+    latestCommittedRunId: null,
+  }),
+}));
+
+vi.mock("@/hooks/use-core-pilot-commit-context-query", () => ({
+  useCorePilotCommitContextQuery: () => ({
+    isPending: false,
+    isError: false,
+    isFetching: false,
+    isFetched: true,
+    data: emptyCorePilotCommitContext,
+  }),
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     back: vi.fn(),
@@ -51,4 +71,5 @@ if (typeof globalThis.ResizeObserver === "undefined") {
 
 afterEach(() => {
   cleanup();
+  resetOperatorQueryClientForTests();
 });

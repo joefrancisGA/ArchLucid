@@ -20,10 +20,11 @@ vi.mock("@/lib/operator-run-picker-client", () => ({
 }));
 
 vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/core-pilot-commit-context")>();
+  const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
+  const mockModule = await createCorePilotCommitContextModuleMock(importOriginal);
 
   return {
-    ...actual,
+    ...mockModule,
     fetchTrialAnchoredCommit: vi.fn(async () => false),
   };
 });

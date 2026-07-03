@@ -293,7 +293,7 @@ public static class SanitizedLoggerWarningExtensions
         logger.LogWarning(
             ex,
             "Failed to publish integration event type {EventType} to Service Bus.",
-            safeEventType); // lgtm[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
+            safeEventType); // codeql[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
     }
 
     /// <summary>
@@ -317,7 +317,7 @@ public static class SanitizedLoggerWarningExtensions
         logger.LogWarning(
             ex,
             "Integration event serialization failed for {EventType}",
-            safeEventType); // lgtm[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
+            safeEventType); // codeql[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
     }
 
     /// <summary>
@@ -337,7 +337,7 @@ public static class SanitizedLoggerWarningExtensions
         logger.LogWarning(
             ex,
             "Integration event outbox enqueue failed for {EventType}",
-            safeEventType); // lgtm[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
+            safeEventType); // codeql[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
     }
 
     /// <summary>
@@ -357,6 +357,6 @@ public static class SanitizedLoggerWarningExtensions
         logger.LogWarning(
             ex,
             "Integration event publish failed for {EventType}",
-            safeEventType); // lgtm[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
+            safeEventType); // codeql[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
     }
 }

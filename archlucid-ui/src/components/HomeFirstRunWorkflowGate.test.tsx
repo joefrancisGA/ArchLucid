@@ -9,9 +9,11 @@ vi.mock("@/lib/demo-ui-env", () => ({
   isOperatorExperienceFullShellEnv: vi.fn(() => true),
 }));
 
-vi.mock("@/lib/core-pilot-commit-context", () => ({
-  fetchCorePilotCommitContext: vi.fn(),
-}));
+vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
+  const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
+
+  return createCorePilotCommitContextModuleMock(importOriginal);
+});
 
 vi.mock("@/components/OperatorFirstRunWorkflowPanel", () => ({
   OperatorFirstRunWorkflowPanel: () => <div data-testid="first-run-panel-mock" />,
@@ -31,8 +33,11 @@ describe("HomeFirstRunWorkflowGate", () => {
 
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue({
       hasCommittedManifest: true,
+      committedReviewCount: 1,
       latestRunId: "run-1",
       firstCommittedRunId: "run-1",
+      secondCommittedRunId: null,
+      latestRunReadyToFinalize: false,
     });
 
     render(<HomeFirstRunWorkflowGate />);
@@ -47,8 +52,11 @@ describe("HomeFirstRunWorkflowGate", () => {
 
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue({
       hasCommittedManifest: false,
+      committedReviewCount: 0,
       latestRunId: null,
       firstCommittedRunId: null,
+      secondCommittedRunId: null,
+      latestRunReadyToFinalize: false,
     });
 
     render(<HomeFirstRunWorkflowGate />);

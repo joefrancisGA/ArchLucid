@@ -6,6 +6,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { WelcomeMarketingPage } from "@/components/marketing/WelcomeMarketingPage";
+import { WelcomeMarketingProofAtGlanceSection } from "@/components/marketing/WelcomeMarketingProofAtGlanceSection";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 
 describe("Welcome marketing brand category", () => {
@@ -40,7 +41,9 @@ describe("Welcome marketing brand category", () => {
   });
 
   it("renders the brand-category eyebrow using BRAND_CATEGORY (not the legacy string)", () => {
-    const { getByTestId } = render(<WelcomeMarketingPage />);
+    const { getByTestId } = render(
+      <WelcomeMarketingPage serverStaticSections={<WelcomeMarketingProofAtGlanceSection />} />,
+    );
 
     const eyebrow = getByTestId("welcome-brand-category-eyebrow");
     const text = eyebrow.textContent ?? "";

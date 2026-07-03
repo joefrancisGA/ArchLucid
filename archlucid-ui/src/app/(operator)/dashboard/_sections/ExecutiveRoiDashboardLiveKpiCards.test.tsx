@@ -1,6 +1,8 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
 
 import { ExecutiveRoiDashboardLiveKpiCards } from "./ExecutiveRoiDashboardLiveKpiCards";
@@ -14,6 +16,8 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
 }));
 
 describe("ExecutiveRoiDashboardLiveKpiCards", () => {
+  useOperatorQueryTestLifecycle();
+
   beforeEach(() => {
     vi.stubGlobal(
       "fetch",
@@ -36,10 +40,14 @@ describe("ExecutiveRoiDashboardLiveKpiCards", () => {
   });
 
   it("renders drill-through links with expected hrefs", async () => {
-    render(<ExecutiveRoiDashboardLiveKpiCards />);
+    renderWithOperatorQuery(<ExecutiveRoiDashboardLiveKpiCards />);
 
     await waitFor(() => {
       expect(screen.getByTestId("kpi-tile-resolved-30d-link")).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("kpi-tile-resolved-30d-link")).toHaveTextContent("3");
     });
 
     expect(screen.getByTestId("kpi-tile-resolved-30d-link")).toHaveAttribute(
@@ -54,14 +62,13 @@ describe("ExecutiveRoiDashboardLiveKpiCards", () => {
       "href",
       EXECUTIVE_KPI_DRILL_THROUGH.expiringWaivers,
     );
-    expect(screen.getByText("3")).toBeInTheDocument();
   });
 
   it("shows pilot day badge when firstCommitUtc is present", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-06-01T12:00:00.000Z"));
 
-    render(<ExecutiveRoiDashboardLiveKpiCards />);
+    renderWithOperatorQuery(<ExecutiveRoiDashboardLiveKpiCards />);
 
     await vi.waitFor(() => {
       expect(screen.getByTestId("exec-kpi-pilot-day-badge")).toHaveTextContent("Day 30 of your ArchLucid pilot");

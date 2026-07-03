@@ -27,6 +27,7 @@ import {
   operatorDemoReviewApiResponse,
   OPERATOR_DEMO_REVIEW_RUN_ID,
 } from "./fixtures/index";
+import { toMockBuyerRunDetailSummary } from "./fixtures/buyer-run-detail-summary";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
 import type { RunDetail } from "@/types/authority";
@@ -417,7 +418,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         if (detail === null) {
           sendJson(res, 404, { detail: "Review not found." });
         } else {
-          sendJson(res, 200, detail);
+          sendJson(res, 200, toMockBuyerRunDetailSummary(detail));
         }
 
         return;

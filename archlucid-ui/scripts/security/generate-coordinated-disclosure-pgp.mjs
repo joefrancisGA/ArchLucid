@@ -11,7 +11,7 @@
 
 import * as openpgp from "openpgp";
 import { randomBytes } from "crypto";
-import { existsSync, mkdirSync, writeFileSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
@@ -23,12 +23,6 @@ const REPO_UI_ROOT = join(__dirname, "..", "..");
 const PUBLIC_PGP = join(REPO_UI_ROOT, "public", ".well-known", "pgp-key.txt");
 
 const force = process.argv.includes("--force");
-
-
-if (existsSync(PUBLIC_PGP) && !force) {
-  console.error(`Refusing to overwrite ${PUBLIC_PGP}. Pass --force to replace.`);
-  process.exit(1);
-}
 
 // Non-predictable passphrase binds the exported private key; custodian should re-wrap in their vault/keyring after import.
 const passphrase = randomBytes(32).toString("base64url");
@@ -67,14 +61,25 @@ const fpPretty = groups.join(" ");
 const shortId = fpHex.slice(-16);
 
 mkdirSync(dirname(PUBLIC_PGP), { recursive: true });
-writeFileSync(PUBLIC_PGP, publicKey, "utf8"); // lgtm[js/file-system-race] writes committed public key artifact only.
+
+try {
+  writeFileSync(PUBLIC_PGP, publicKey, { encoding: "utf8", flag: force ? "w" : "wx" });
+} catch (error) {
+  if (error?.code === "EEXIST") {
+    console.error(`Refusing to overwrite ${PUBLIC_PGP}. Pass --force to replace.`);
+    process.exit(1);
+  }
+
+  throw error;
+}
 
 const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-const base = join(tmpdir(), `archlucid-security-coordinated-disclosure-${stamp}`); // lgtm[js/file-system-race] one-shot operator CLI with unique stamp.
+const base = join(tmpdir(), `archlucid-security-coordinated-disclosure-${stamp}`);
+const secretWriteOptions = { encoding: "utf8", mode: 0o600 };
 
-writeFileSync(`${base}-PRIVATE.asc`, privateKey, "utf8"); // lgtm[js/insecure-temporary-file] ephemeral keygen handoff artifact.
-writeFileSync(`${base}-REVOCATION.asc`, revocationCertificate, "utf8"); // lgtm[js/insecure-temporary-file] ephemeral keygen handoff artifact.
-writeFileSync(`${base}-PASSPHRASE.txt`, passphrase, "utf8"); // lgtm[js/insecure-temporary-file] ephemeral keygen handoff artifact.
+writeFileSync(`${base}-PRIVATE.asc`, privateKey, secretWriteOptions);
+writeFileSync(`${base}-REVOCATION.asc`, revocationCertificate, secretWriteOptions);
+writeFileSync(`${base}-PASSPHRASE.txt`, passphrase, secretWriteOptions);
 
 console.error("");
 console.error("PUBLIC key →", PUBLIC_PGP);

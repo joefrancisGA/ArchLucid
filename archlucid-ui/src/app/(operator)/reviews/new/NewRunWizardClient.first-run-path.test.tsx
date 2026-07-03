@@ -37,13 +37,11 @@ vi.mock("@/lib/api", () => ({
   }),
 }));
 
-vi.mock("@/lib/core-pilot-commit-context", () => ({
-  fetchCorePilotCommitContext: vi.fn().mockResolvedValue({
-    hasCommittedManifest: false,
-    firstCommittedRunId: null,
-    latestRunId: null,
-  }),
-}));
+vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
+  const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
+
+  return createCorePilotCommitContextModuleMock(importOriginal);
+});
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 

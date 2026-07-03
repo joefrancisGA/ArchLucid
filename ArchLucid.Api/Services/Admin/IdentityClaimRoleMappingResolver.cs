@@ -56,7 +56,10 @@ public static class IdentityClaimRoleMappingResolver
 
         if (!string.IsNullOrWhiteSpace(mapping.CustomGroupClaimRegex))
         {
-            regex = new Regex(mapping.CustomGroupClaimRegex, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase); // lgtm[cs/regex-injection] admin-provisioned IdP regex.
+            regex = new Regex(
+                mapping.CustomGroupClaimRegex,
+                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase,
+                TimeSpan.FromSeconds(2));
         }
 
         foreach (string rawValue in sampleClaimValues)

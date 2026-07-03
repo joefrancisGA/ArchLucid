@@ -24,7 +24,7 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-help")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-lead")).toHaveTextContent(
-      "Each architecture review is tracked as one review package from capture through signed review record and export.",
+      "Each architecture review is tracked as one review package — the same object from capture through signed review record and export.",
     );
     expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
     expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
