@@ -18,6 +18,15 @@ public interface IPreCommitGovernanceGate
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Authority commit path with optional preloaded findings and scope assignments (TB-588).
+    /// </summary>
+    Task<PreCommitGateResult> EvaluateAsync(
+        string runId,
+        string goldenManifestWireJson,
+        PreCommitGovernancePreloadedData? preloadedData,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Computes the gate against the persisted findings snapshot plus <paramref name="syntheticCount" /> in-memory
     ///     findings (no database writes).
     /// </summary>

@@ -100,6 +100,30 @@ public sealed class DapperPolicyPackRepository(
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<PolicyPack>> GetByIdsAsync(IReadOnlyCollection<Guid> policyPackIds, CancellationToken ct)
+    {
+        if (policyPackIds is null || policyPackIds.Count == 0)
+            return Array.Empty<PolicyPack>();
+
+        Guid[] ids = policyPackIds.Distinct().ToArray();
+
+        const string sql = """
+                           SELECT
+                               PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               Name, Description, PackType, Status,
+                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted
+                           FROM dbo.PolicyPacks
+                           WHERE PolicyPackId IN @PolicyPackIds
+                             AND IsDeleted = 0;
+                           """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<PolicyPack> rows = await connection.QueryAsync<PolicyPack>(
+            new CommandDefinition(sql, new { PolicyPackIds = ids }, cancellationToken: ct));
+        return rows.ToList();
+    }
+
+    /// <inheritdoc />
     /// <remarks>Authoring-scope list for the operator UI; not the same query as hierarchical assignment listing.</remarks>
     public async Task<IReadOnlyList<PolicyPack>> ListByScopeAsync(
         Guid tenantId,

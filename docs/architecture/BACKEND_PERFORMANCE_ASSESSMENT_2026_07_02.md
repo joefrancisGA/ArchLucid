@@ -55,7 +55,7 @@ Current in-process commit (~763 ms) uses ~**12%** of the k6 Tier-3 p95 ceiling (
 | M2 | Application | **`RunDetailQueryService`** — 7+ sequential repository calls; no `ConfigureAwait(false)` | `RunDetailQueryService.cs:86-121` |
 | M3 | Persistence | **~160+ async persistence files** omit `ConfigureAwait(false)` on hot repos (`SqlRunRepository`, etc.) | Partial adoption vs ~40 files that use it |
 | M4 | Cache correctness | **Run list cache keys not evicted on write** — only per-run key removed; list TTL 15s | `CachingRunRepository.cs:18,64,108,225,237`; `HotPathCacheKeys.cs:27-40` |
-| M5 | Commit path | **Redundant fetches** at commit: run 2×, findings 2–3×, evidence/results 2×, policy packs N+1 | `AuthorityDrivenArchitectureRunCommitOrchestrator.cs`; `PreCommitGovernanceGate.cs`; `CommittedEffectiveGovernanceSnapshotCapturer.cs:50-58` |
+| M5 | Commit path | **Redundant fetches** at commit: run 2×, findings 2–3×, evidence/results 2×, policy packs N+1 — **Done (TB-588, 2026-07-02)** | `AuthorityDrivenArchitectureRunCommitOrchestrator.cs`; `PreCommitGovernanceGate.cs`; `CommittedEffectiveGovernanceSnapshotCapturer.cs` |
 | M6 | Commit path | Independent loads (graph, agent results, findings) are **sequential** — `Task.WhenAll` opportunity | `AuthorityDrivenArchitectureRunCommitOrchestrator.cs:292-299` |
 | M7 | Create pipeline | **9+ finding engines awaited sequentially** in `FindingsOrchestrator` | `FindingsOrchestrator.cs:81-142`; `ServiceCollectionExtensions.Decisioning.cs:47-56` |
 | M8 | Write batching | Per-row `ExecuteAsync` in loops: usage events, finding rank updates, agent results, SCIM sync, outbox bulk retry | `DapperUsageEventRepository.cs:49-55`; `AgentResultRepository.cs:130-132`; `DapperIntegrationEventOutboxRepository.cs:388-394` |
@@ -114,7 +114,7 @@ Findings engine work (~221 ms in baseline attribution) runs during **create**, n
 | 7 | Wire **Redis L2 + replica count** before horizontal scale-out (**TB-094** infra done) | **TB-580** | Avoid miss storms |
 | 8 | Extend **HotPathCache** or short-TTL cache to governance dashboard / audit search | **TB-581** | Documented coverage gaps |
 
-Additional medium/low items: **TB-582**–**TB-593** (metering batching, `ConfigureAwait`, write batching, index/projection, worker parallelism, DevOps HTTP resilience, commit dedupe loads, manifest CPU, hybrid-cache hits, SQL pool/MARS, k6 gaps, findings cache).
+Additional medium/low items: **TB-582**–**TB-593** — **TB-582**–**TB-588** **Done** (2026-07-02); **TB-589**–**TB-593** remain open (manifest CPU, hybrid-cache hits, SQL pool/MARS, k6 gaps, findings cache).
 
 ---
 

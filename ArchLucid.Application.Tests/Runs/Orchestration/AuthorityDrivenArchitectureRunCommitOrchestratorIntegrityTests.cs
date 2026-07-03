@@ -9,6 +9,7 @@ using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
@@ -57,7 +58,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
         Mock<IPreCommitGovernanceGate> gate = new();
         gate
             .Setup(g =>
-                g.EvaluateAsync(runId, wireJson, It.IsAny<CancellationToken>()))
+                g.EvaluateAsync(runId, wireJson, It.IsAny<PreCommitGovernancePreloadedData?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PreCommitGateResult
             {
                 Blocked = true,
@@ -76,7 +77,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
         AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
 
         Func<Task> act = async () =>
-            await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, wireJson, null, CancellationToken.None);
+            await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, wireJson, null, null, CancellationToken.None);
 
         (await act.Should().ThrowAsync<PreCommitGovernanceBlockedException>())
             .Which.Result.Reason.Should().Be("policy");
@@ -87,7 +88,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
                     e.EventType == AuditEventTypes.GovernancePreCommitBlocked && e.RunId == runGuid && e.ActorUserId == actor),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-        gate.Verify(g => g.EvaluateAsync(runId, wireJson, It.IsAny<CancellationToken>()), Times.Once);
+        gate.Verify(g => g.EvaluateAsync(runId, wireJson, It.IsAny<PreCommitGovernancePreloadedData?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [SkippableFact]
@@ -100,7 +101,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
         Mock<IPreCommitGovernanceGate> gate = new();
         gate
             .Setup(g =>
-                g.EvaluateAsync(runId, wireJson, It.IsAny<CancellationToken>()))
+                g.EvaluateAsync(runId, wireJson, It.IsAny<PreCommitGovernancePreloadedData?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PreCommitGateResult
             {
                 Blocked = true,
@@ -118,7 +119,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
 
         AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
 
-        await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, wireJson, "INC123 emergency release", CancellationToken.None);
+        await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, wireJson, "INC123 emergency release", null, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -131,7 +132,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.GovernancePreCommitBlocked),
                 It.IsAny<CancellationToken>()),
             Times.Never);
-        gate.Verify(g => g.EvaluateAsync(runId, wireJson, It.IsAny<CancellationToken>()), Times.Once);
+        gate.Verify(g => g.EvaluateAsync(runId, wireJson, It.IsAny<PreCommitGovernancePreloadedData?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [SkippableFact]
@@ -144,7 +145,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
         Mock<IPreCommitGovernanceGate> gate = new();
         gate
             .Setup(g =>
-                g.EvaluateAsync(runId, wireJson, It.IsAny<CancellationToken>()))
+                g.EvaluateAsync(runId, wireJson, It.IsAny<PreCommitGovernancePreloadedData?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PreCommitGateResult
             {
                 WarnOnly = true,
@@ -161,7 +162,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
 
         AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
 
-        await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, wireJson, null, CancellationToken.None);
+        await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, wireJson, null, null, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -184,7 +185,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
         Mock<IPreCommitGovernanceGate> gate = new();
         gate
             .Setup(g =>
-                g.EvaluateAsync(runId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                g.EvaluateAsync(runId, It.IsAny<string>(), It.IsAny<PreCommitGovernancePreloadedData?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PreCommitGateResult.Allowed());
 
         Mock<IAuditService> audit = new();
@@ -193,7 +194,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
 
         AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
 
-        await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, "actor", "{}", null, CancellationToken.None);
+        await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, "actor", "{}", null, null, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
@@ -208,7 +209,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
         Mock<IPreCommitGovernanceGate> gate = new();
         gate
             .Setup(g =>
-                g.EvaluateAsync(runId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                g.EvaluateAsync(runId, It.IsAny<string>(), It.IsAny<PreCommitGovernancePreloadedData?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PreCommitGateResult
             {
                 WarnOnly = true,
@@ -224,7 +225,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
 
         AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
 
-        await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, "actor", "{}", null, CancellationToken.None);
+        await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, "actor", "{}", null, null, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -334,6 +335,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
             Mock.Of<IManifestFinalizationService>(),
             gate,
             Mock.Of<IPreCommitGovernanceBlockExplainer>(),
+            Mock.Of<IPolicyPackAssignmentRepository>(),
             actor.Object,
             baselineAudit.Object,
             audit,

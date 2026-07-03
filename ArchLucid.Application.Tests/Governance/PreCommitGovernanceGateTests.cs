@@ -1234,6 +1234,46 @@ public sealed class PreCommitGovernanceGateTests
         result.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-error");
     }
 
+    [SkippableFact]
+    public async Task EvaluateAsync_with_preloaded_data_skips_run_and_findings_repository_reads()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Mock<IRunRepository> runs = new();
+        Mock<IFindingsSnapshotRepository> findings = new();
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.ListByScopeAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<PolicyPackAssignment>());
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        PreCommitGovernanceGate sut = CreateGate(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            scopeProvider.Object,
+            runs.Object,
+            findings.Object,
+            assignments.Object);
+
+        PreCommitGateResult result = await sut.EvaluateAsync(
+            runId,
+            "{}",
+            new PreCommitGovernancePreloadedData
+            {
+                FindingsSnapshotFindings = [],
+                ScopePolicyPackAssignments = []
+            },
+            CancellationToken.None);
+
+        result.Blocked.Should().BeFalse();
+        runs.Verify(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        findings.Verify(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        assignments.Verify(
+            r => r.ListByScopeAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static PreCommitGovernanceGate CreateGate(
         IOptions<PreCommitGovernanceGateOptions> gateOptions,
         IScopeContextProvider scopeProvider,

@@ -6,4 +6,9 @@ namespace ArchLucid.Application.Governance;
 public interface ICommittedEffectiveGovernanceSnapshotCapturer
 {
     Task ApplyToManifestAsync(ManifestDocument manifest, CancellationToken cancellationToken = default);
+
+    Task ApplyToManifestAsync(
+        ManifestDocument manifest,
+        CommittedEffectiveGovernanceSnapshotCaptureOptions? options,
+        CancellationToken cancellationToken = default);
 }

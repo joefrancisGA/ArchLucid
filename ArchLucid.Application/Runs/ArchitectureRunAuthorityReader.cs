@@ -38,6 +38,26 @@ public static class ArchitectureRunAuthorityReader
         return RunRecordToArchitectureRunMapper.ToArchitectureRun(record, taskIds);
     }
 
+    /// <summary>
+    ///     Builds <see cref="ArchitectureRun" /> from an already-loaded <see cref="RunRecord" /> (avoids a second run fetch).
+    /// </summary>
+    public static async Task<ArchitectureRun?> TryGetArchitectureRunFromRecordAsync(
+        IScopeContextProvider scopeContextProvider,
+        IAgentTaskRepository taskRepository,
+        string runId,
+        RunRecord record,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scopeContextProvider);
+        ArgumentNullException.ThrowIfNull(taskRepository);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentNullException.ThrowIfNull(record);
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<string> taskIds = tasks.Select(t => t.TaskId).ToList();
+        return RunRecordToArchitectureRunMapper.ToArchitectureRun(record, taskIds);
+    }
+
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
         return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);

@@ -71,8 +71,8 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturerTests
 
         Mock<IPolicyPackRepository> packs = new();
         packs
-            .Setup(r => r.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PolicyPack { PolicyPackId = packId, Name = "Enterprise Baseline", TenantId = tenantId });
+            .Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new PolicyPack { PolicyPackId = packId, Name = "Enterprise Baseline", TenantId = tenantId }]);
 
         CommittedEffectiveGovernanceSnapshotCapturer sut = new(
             scopeProvider.Object,

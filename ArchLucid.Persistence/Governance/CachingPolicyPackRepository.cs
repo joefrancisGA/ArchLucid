@@ -46,6 +46,30 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
     }
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<PolicyPack>> GetByIdsAsync(IReadOnlyCollection<Guid> policyPackIds, CancellationToken ct)
+    {
+        if (policyPackIds is null || policyPackIds.Count == 0)
+            return Task.FromResult<IReadOnlyList<PolicyPack>>(Array.Empty<PolicyPack>());
+
+        return GetByIdsViaCachedSinglesAsync(policyPackIds, ct);
+    }
+
+    private async Task<IReadOnlyList<PolicyPack>> GetByIdsViaCachedSinglesAsync(IReadOnlyCollection<Guid> policyPackIds, CancellationToken ct)
+    {
+        List<PolicyPack> result = [];
+
+        foreach (Guid policyPackId in policyPackIds.Distinct())
+        {
+            PolicyPack? pack = await GetByIdAsync(policyPackId, ct).ConfigureAwait(false);
+
+            if (pack is not null)
+                result.Add(pack);
+        }
+
+        return result;
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<PolicyPack>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

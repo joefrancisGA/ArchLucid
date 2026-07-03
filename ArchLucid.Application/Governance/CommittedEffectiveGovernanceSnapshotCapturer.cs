@@ -28,7 +28,14 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <inheritdoc />
-    public async Task ApplyToManifestAsync(ManifestDocument manifest, CancellationToken cancellationToken = default)
+    public Task ApplyToManifestAsync(ManifestDocument manifest, CancellationToken cancellationToken = default) =>
+        ApplyToManifestAsync(manifest, options: null, cancellationToken);
+
+    /// <inheritdoc />
+    public async Task ApplyToManifestAsync(
+        ManifestDocument manifest,
+        CommittedEffectiveGovernanceSnapshotCaptureOptions? options,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(manifest);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -38,14 +45,16 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
             scope.ProjectId,
             cancellationToken);
 
-        IReadOnlyList<PolicyPackAssignment> assignments = await _policyPackAssignmentRepository.ListByScopeAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            cancellationToken);
+        IReadOnlyList<PolicyPackAssignment> assignments = options?.PreloadedScopePolicyPackAssignments
+            ?? await _policyPackAssignmentRepository.ListByScopeAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                cancellationToken);
 
         bool focusedPilotMode = PilotModeGovernanceScope.IsActive;
         List<CommittedGovernancePackAssignmentSnapshot> packRows = [];
+        List<PolicyPackAssignment> applicableAssignments = [];
 
         foreach (PolicyPackAssignment assignment in assignments)
         {
@@ -55,9 +64,20 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
             if (!focusedPilotMode && !assignment.IsEnabled)
                 continue;
 
-            PolicyPack? pack = await _policyPackRepository.GetByIdAsync(assignment.PolicyPackId, cancellationToken);
+            applicableAssignments.Add(assignment);
+        }
 
-            if (pack is null)
+        IReadOnlyList<PolicyPack> loadedPacks = applicableAssignments.Count == 0
+            ? Array.Empty<PolicyPack>()
+            : await _policyPackRepository.GetByIdsAsync(
+                applicableAssignments.Select(static assignment => assignment.PolicyPackId).Distinct().ToList(),
+                cancellationToken);
+
+        Dictionary<Guid, PolicyPack> packById = loadedPacks.ToDictionary(static pack => pack.PolicyPackId);
+
+        foreach (PolicyPackAssignment assignment in applicableAssignments)
+        {
+            if (!packById.TryGetValue(assignment.PolicyPackId, out PolicyPack? pack))
                 continue;
 
             if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(pack.Name))

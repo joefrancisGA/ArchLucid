@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Interfaces;
 
@@ -69,6 +71,20 @@ public sealed class ManifestFinalizationRequest
     }
 
     public required DecisionTrace Trace
+    {
+        get;
+        init;
+    }
+
+    /// <summary>When set, finalization skips reloading the findings snapshot row (TB-588).</summary>
+    public FindingsSnapshot? PreloadedFindingsSnapshot
+    {
+        get;
+        init;
+    }
+
+    /// <summary>When set, governance snapshot capture skips reloading scope assignments (TB-588).</summary>
+    public IReadOnlyList<PolicyPackAssignment>? PreloadedScopePolicyPackAssignments
     {
         get;
         init;

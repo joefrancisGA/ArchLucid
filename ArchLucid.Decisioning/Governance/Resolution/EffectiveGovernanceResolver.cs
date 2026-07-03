@@ -75,11 +75,17 @@ public sealed class EffectiveGovernanceResolver(
             // is pure waste.
             Dictionary<(Guid PackId, string Version), PolicyPackContentDocument> contentCache = [];
 
+            IReadOnlyList<PolicyPack> loadedPacks = applicable.Count == 0
+                ? Array.Empty<PolicyPack>()
+                : await packRepository.GetByIdsAsync(
+                    applicable.Select(static assignment => assignment.PolicyPackId).Distinct().ToList(),
+                    ct);
+
+            Dictionary<Guid, PolicyPack> packById = loadedPacks.ToDictionary(static pack => pack.PolicyPackId);
+
             foreach (PolicyPackAssignment assignment in applicable)
             {
-                PolicyPack? pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct);
-
-                if (pack is null)
+                if (!packById.TryGetValue(assignment.PolicyPackId, out PolicyPack? pack))
                 {
                     skippedNotes.Add(
                         string.Format(
