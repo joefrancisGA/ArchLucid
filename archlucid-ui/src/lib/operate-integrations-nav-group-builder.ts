@@ -1,5 +1,4 @@
-import { CloudCog, CalendarClock, Hash, Plug, Ticket, UsersRound, Webhook } from "lucide-react";
-
+import { CloudCog, CalendarClock, Hash, Plug, Ticket, UsersRound, Webhook, Workflow } from "lucide-react";
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
   INTEGRATIONS_JIRA_PATH,
@@ -50,7 +49,8 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           href: INTEGRATIONS_SERVICENOW_PATH,
           label: OPERATOR_NAV_LINK_LABELS.servicenow,
           title: OPERATOR_NAV_LINK_LABELS.servicenow,
-          icon: Ticket,
+          // Workflow evokes ITSM/service-desk routing; no Lucide ServiceNow mark in-tree.
+          icon: Workflow,
           tier: "extended",
           requiredAuthority: "AdminAuthority",
         },
