@@ -176,7 +176,7 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | # | Task | Type | Priority | Status | Depends on (technical) |
 |---|------|------|----------|--------|------------------------|
 | M-17 | Build outreach list: 20 architects / CTOs / security leaders (LinkedIn network, former colleagues — avoid employer conflicts and NDA-covered clients) | Outreach | P2 | Not started | None |
-| M-18 | Send 20 outreach messages: offer 10-minute demo + feedback call (not a sales pitch) | Outreach | P2 | Not started | M-09 (landing page live), M-16 (demo video available) |
+| M-18 | Send 20 outreach messages: offer 10-minute demo + feedback call (not a sales pitch) | Outreach | P2 | **In progress** | Agent message drafting **Done 2026-07-03** — [`M18_OUTREACH_MESSAGE_TEMPLATE.md`](M18_OUTREACH_MESSAGE_TEMPLATE.md) (connection note, warm DM, follow-up bump, persona-flavored openers, tracking log). **Owner:** personalize and send once still-open dependencies clear — M-09 (landing page live), M-16 (demo video available), and M-17 (list built) |
 | M-19 | Run 5–10 live demos against Workspace A and Workspace B | Sales | P2 | Not started | **Improvement #30 — COMPLETED (2026-05-17)**; M-03 (demo script) |
 | M-20 | Track objections from demos; refine one-sentence positioning and demo script | Copy iteration | P2 | Not started | M-19 (demos must start) |
 | M-21 | Identify the one strongest buyer segment from demo feedback | Positioning | P2 | Not started | M-20 |
