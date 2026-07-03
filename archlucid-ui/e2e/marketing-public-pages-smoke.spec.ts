@@ -24,11 +24,11 @@ test.describe.parallel("marketing public pages smoke @marketing-public-smoke", (
   test("welcome hero — three CTAs, self-demo navigation, early access thanks (mocked POST)", async ({ page }) => {
     await page.goto("/welcome", { waitUntil: "load" });
 
-    await expect(page.getByRole("link", { name: /request walkthrough/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /try the self-demo/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /request optional walkthrough/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /inspect a governed sample review/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /join early access/i })).toBeVisible();
 
-    await page.getByRole("link", { name: /try the self-demo/i }).click();
+    await page.getByRole("link", { name: /inspect a governed sample review/i }).click();
     await page.waitForURL(/\/(runs|reviews)\/[^/]+/i, { timeout: 60_000 });
 
     await page.goto("/welcome", { waitUntil: "load" });

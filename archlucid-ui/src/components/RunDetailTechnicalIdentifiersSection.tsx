@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -31,7 +32,6 @@ import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
-import { cn } from "@/lib/utils";
 import {
   buildEvidenceBackedIntakeBrief,
   FIRST_PILOT_MIN_BRIEF_CHARS,

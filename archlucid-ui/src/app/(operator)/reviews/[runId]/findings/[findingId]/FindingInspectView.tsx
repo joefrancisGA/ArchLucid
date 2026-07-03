@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
@@ -21,7 +22,6 @@ import {
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/finding-policy-evidence-citations";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";

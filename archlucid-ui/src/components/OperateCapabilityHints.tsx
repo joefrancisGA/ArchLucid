@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
@@ -26,7 +27,6 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const pageCueClassName =
   (cn("mb-2 max-w-3xl leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper));

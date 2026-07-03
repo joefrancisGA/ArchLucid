@@ -47,7 +47,7 @@ describe("first-pilot-buyer-copy", () => {
     const inventoryRow = rows.find((row) => row.id === "azure-extractor");
 
     expect(inventoryRow?.label).toContain("Tier-1 cloud inventory");
-    expect(inventoryRow?.cta?.toLowerCase()).toBe("cloud inventory guide");
+    expect(inventoryRow?.cta?.toLowerCase()).toBe("add evidence");
     expect(inventoryRow?.href).toBe("/help/cloud-connections");
     expect(inventoryRow?.summary).toContain("Get-ArchLucidAwsPackage.ps1");
   });

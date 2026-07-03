@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,6 @@ import {
   triggerAwsTier2HostedRun,
 } from "@/lib/api/aws-cloud-connections-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function formatTimestamp(value: string | null): string {
   if (!value) {

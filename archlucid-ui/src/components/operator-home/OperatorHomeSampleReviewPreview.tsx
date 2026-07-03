@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
@@ -10,6 +11,7 @@ import {
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
   OPERATOR_HOME_SAMPLE_FINDINGS_HEADING,
+  OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL,
   OPERATOR_HOME_SAMPLE_FINDINGS_LEAD,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
@@ -22,7 +24,6 @@ import {
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
   reviewIntakeExampleTemplateHref,
 } from "@/lib/operator-home-example-request";
-import { cn } from "@/lib/utils";
 
 const openCompletedSampleHref = showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId);
 const runSampleReviewHref = reviewIntakeExampleTemplateHref(OPERATOR_HOME_EXAMPLE_TEMPLATE_ID);
@@ -47,12 +48,18 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
         <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
           {OPERATOR_HOME_SAMPLE_FINDINGS_HEADING}
         </CardTitle>
-        <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-neutral-600 dark:text-neutral-400")}>
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
           {OPERATOR_HOME_SAMPLE_FINDINGS_LEAD}
         </p>
       </CardHeader>
 
       <CardContent className={OPERATOR_CARD.content}>
+        <p
+          className={cn("m-0 mb-2", OPERATOR_TYPE_SCALE.helper, "font-medium text-al-text-secondary")}
+          data-testid="operator-home-sample-review-includes-label"
+        >
+          {OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL}
+        </p>
         <ul
           className="m-0 list-none space-y-2 p-0"
           data-testid="operator-home-sample-review-finding-list"
@@ -64,16 +71,16 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
               data-testid={`operator-home-sample-review-finding-${finding.id}`}
             >
               <div className={cn("flex flex-wrap items-center gap-2", OPERATOR_LAYOUT.inlineGap)}>
-                <span className={cn(OPERATOR_TYPE_SCALE.meta, "font-medium text-al-text-secondary")}>
+                <span className={cn(OPERATOR_TYPE_SCALE.helper, "font-medium text-al-text-secondary")}>
                   {index + 1}.
                 </span>
-                <span className={cn(OPERATOR_TYPE_SCALE.meta, "font-semibold text-al-text-primary")}>
+                <span className={cn(OPERATOR_TYPE_SCALE.helper, "font-semibold text-al-text-primary")}>
                   {finding.title}
                 </span>
                 <span className="text-neutral-300 dark:text-neutral-700">—</span>
                 <SeverityTag severity={finding.severity} />
               </div>
-              <p className={cn("m-0 mt-1 ml-5", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}>
+              <p className={cn("m-0 mt-1 ml-5", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
                 {finding.summary}
               </p>
             </li>
@@ -81,12 +88,12 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
         </ul>
 
         <div className={cn("flex flex-wrap items-center pt-3", OPERATOR_LAYOUT.inlineGap)}>
-          <Button asChild variant="outline" size="sm" className="h-8">
+          <Button asChild variant="primary" size="sm" className="h-8">
             <Link href={runSampleReviewHref} data-testid="operator-home-sample-review-run">
               {OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}
             </Link>
           </Button>
-          <Button asChild variant="primary" size="sm" className="h-8">
+          <Button asChild variant="outline" size="sm" className="h-8">
             <Link href={openCompletedSampleHref} data-testid="operator-home-sample-review-open">
               {OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA}
             </Link>

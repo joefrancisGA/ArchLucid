@@ -1,8 +1,8 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type RunDetailBuyerModeFallbackBannerProps = {
   readonly realModeFellBackToSimulator: boolean;

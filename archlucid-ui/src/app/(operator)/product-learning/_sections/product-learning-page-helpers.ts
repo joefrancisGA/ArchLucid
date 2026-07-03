@@ -1,5 +1,5 @@
-import { normalizeFindingSeverity, OPERATOR_TYPOGRAPHY, severityTagClass } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { normalizeFindingSeverity, OPERATOR_TYPOGRAPHY, severityTagClass } from "@/lib/design-tokens";
 
 import type { ProductLearningTimeRangeKey } from "./product-learning-types";
 

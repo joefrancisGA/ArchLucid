@@ -1,7 +1,7 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type FindingEvidenceLinkChipProps = {
   readonly href: string;

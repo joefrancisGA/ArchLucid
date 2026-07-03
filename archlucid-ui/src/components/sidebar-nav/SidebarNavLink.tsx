@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 
@@ -9,7 +10,6 @@ import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { pilotNavLinkTestId } from "@/lib/pilot-nav-link-test-ids";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { navLinkQuestionSubtitle } from "@/lib/usability/nav-link-question-subtitles";
-import { cn } from "@/lib/utils";
 
 type SidebarNavLinkLabelProps = {
   readonly presented: NavLinkItem;

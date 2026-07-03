@@ -1,14 +1,15 @@
 import {
+  applyCorrelationHeaders,
   ensureOidcBearerReady,
   resolveRequest,
   throwApiRequestError,
-  withCorrelationHeaders,
 } from "@/lib/api/http";
 import {
   fetchBackgroundJobResultJson,
   waitForBackgroundJobTerminal,
   type BackgroundJobInfo,
 } from "@/lib/api/background-jobs-api";
+import { BACKGROUND_JOB_STATE } from "@/lib/background-job-state";
 import type { components } from "@/lib/openapi-schemas";
 
 export type CreateItsmOutboundIssueResponse = components["schemas"]["CreateItsmOutboundIssueResponse"];
@@ -29,7 +30,7 @@ function mapJobResultToResponse(result: ItsmOutboundCreateJobResult): CreateItsm
 
   return {
     provider: result.provider ?? "ITSM",
-    externalKey: result.externalKey ?? undefined,
+    externalKey: result.externalKey ?? null,
   };
 }
 
@@ -39,7 +40,7 @@ async function postOutboundCreateRequest(
 ): Promise<{ status: number; body: unknown }> {
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest("/v1/integrations/itsm/outbound/issues");
-  const { headers: h, correlationId } = withCorrelationHeaders(headers);
+  const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
 
   const response = await fetch(
@@ -82,11 +83,11 @@ export async function createItsmOutboundIssueWithJobPolling(
 
   const terminal = await waitForBackgroundJobTerminal(jobId, { pollIntervalMs: 400, timeoutMs: 60_000 });
 
-  if (onJobPending && terminal.state === "Running") {
+  if (onJobPending && terminal.state === BACKGROUND_JOB_STATE.Running) {
     onJobPending(terminal);
   }
 
-  if (terminal.state === "Failed") {
+  if (terminal.state === BACKGROUND_JOB_STATE.Failed) {
     throw new Error(terminal.error ?? "ITSM create job failed.");
   }
 

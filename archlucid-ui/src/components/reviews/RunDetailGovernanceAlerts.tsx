@@ -1,5 +1,5 @@
-import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import type { RunDetail } from "@/types/authority";
 
 type RunDetailGovernanceAlertsProps = {

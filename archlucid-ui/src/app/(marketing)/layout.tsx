@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -15,7 +16,6 @@ import { MARKETING_LAYOUT } from "@/lib/design-tokens";
 import { getMarketingClarityProjectId } from "@/lib/marketing-analytics-consent";
 import { resolveMarketingLiveDemoApiBase } from "@/lib/marketing-live-demo-api-base";
 import { isMarketingLiveDemoLinkEnabled } from "@/lib/public-demo-mode";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Welcome",

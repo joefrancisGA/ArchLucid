@@ -1,9 +1,9 @@
+import { cn } from "@/lib/utils";
 import { BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE } from "@/lib/buyer-polish-copy";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { WhyArchLucidPageState } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
 import { WhyArchLucidSponsorPackBody } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidSponsorPackBody";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type WhyArchLucidSponsorEvidencePackSectionProps = {
   readonly state: WhyArchLucidPageState;

@@ -5,6 +5,7 @@ import { OperatorHomeSampleReviewPreview } from "@/components/operator-home/Oper
 import {
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
+  OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL,
   OPERATOR_HOME_SAMPLE_FINDINGS_LEAD,
 } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_HOME_SAMPLE_FINDINGS } from "@/lib/showcase-home-sample-findings";
@@ -31,12 +32,23 @@ describe("OperatorHomeSampleReviewPreview (TB-353)", () => {
 
     expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_SAMPLE_FINDINGS_LEAD)).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-sample-review-includes-label")).toHaveTextContent(
+      OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL,
+    );
     expect(screen.queryByText(/architecture request/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("operator-home-sample-review-finding-list")).toBeInTheDocument();
 
     for (const finding of SHOWCASE_HOME_SAMPLE_FINDINGS) {
-      expect(screen.getByTestId(`operator-home-sample-review-finding-${finding.id}`)).toBeInTheDocument();
+      const row = screen.getByTestId(`operator-home-sample-review-finding-${finding.id}`);
+      expect(row).toBeInTheDocument();
       expect(screen.getByText(finding.title)).toBeInTheDocument();
+
+      // Preview rows are sample content, not actions: no button/link semantics or keyboard focus.
+      expect(row.tagName).toBe("LI");
+      expect(row.querySelector("button, a")).toBeNull();
+      expect(row).not.toHaveAttribute("role", "button");
+      expect(row).not.toHaveAttribute("role", "link");
+      expect(row).not.toHaveAttribute("tabindex");
     }
 
     expect(screen.getByTestId("operator-home-sample-review-run")).toHaveAttribute(
@@ -47,8 +59,17 @@ describe("OperatorHomeSampleReviewPreview (TB-353)", () => {
       "href",
       showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
     );
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA })).toBeInTheDocument();
+
+    const runCta = screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA });
+    const openCta = screen.getByRole("link", { name: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA });
+    expect(runCta).toBeInTheDocument();
+    expect(openCta).toBeInTheDocument();
+
+    // "Run sample review" is the primary next step (filled primary-action styling);
+    // "Open completed sample" is secondary (outline styling).
+    expect(runCta.className).toContain("al-primary-action-bg");
+    expect(openCta.className).not.toContain("al-primary-action-bg");
+    expect(openCta.className).toContain("border-neutral-300");
   });
 
   it("hides once the tenant has a committed architecture review", () => {

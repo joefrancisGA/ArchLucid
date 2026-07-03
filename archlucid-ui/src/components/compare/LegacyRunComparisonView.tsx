@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { sortDiffItems } from "@/lib/compare-display-sort";
 import type { RunComparison } from "@/types/authority";

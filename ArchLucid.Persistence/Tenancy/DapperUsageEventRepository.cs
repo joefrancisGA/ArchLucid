@@ -46,6 +46,11 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
         if (events.Count == 0)
             return;
 
+        List<UsageEvent> eventsToInsert = SelectDistinctIdempotencyKeysForBatchInsert(events);
+
+        if (eventsToInsert.Count == 0)
+            return;
+
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
         await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync(ct);
 
@@ -68,9 +73,9 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
         await SqlChunkedDapperBatch.ExecuteChunksAsync(
             connection,
             transaction,
-            events.Count,
+            eventsToInsert.Count,
             SqlChunkedDapperBatch.DefaultMaxRowsPerCommand,
-            (offset, rowCount) => BuildUsageEventInsertChunk(insertHeader, insertFooter, events, offset, rowCount),
+            (offset, rowCount) => BuildUsageEventInsertChunk(insertHeader, insertFooter, eventsToInsert, offset, rowCount),
             ct).ConfigureAwait(false);
 
         await transaction.CommitAsync(ct);
@@ -153,6 +158,27 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
             new CommandDefinition(sql, parameters, cancellationToken: ct));
 
         return rows.Select(static r => r.ToUsageEvent()).ToList();
+    }
+
+    private static List<UsageEvent> SelectDistinctIdempotencyKeysForBatchInsert(IReadOnlyList<UsageEvent> events)
+    {
+        List<UsageEvent> selected = new(events.Count);
+        HashSet<(Guid TenantId, string IdempotencyKey)> seenKeys = new();
+
+        foreach (UsageEvent usageEvent in events)
+        {
+            if (!string.IsNullOrWhiteSpace(usageEvent.IdempotencyKey))
+            {
+                (Guid TenantId, string IdempotencyKey) key = (usageEvent.TenantId, usageEvent.IdempotencyKey);
+
+                if (!seenKeys.Add(key))
+                    continue;
+            }
+
+            selected.Add(usageEvent);
+        }
+
+        return selected;
     }
 
     private static object MapParameters(UsageEvent usageEvent) =>

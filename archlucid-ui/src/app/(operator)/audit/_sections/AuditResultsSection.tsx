@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
@@ -30,7 +31,6 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { cn } from "@/lib/utils";
 import { AuditEventsOperatorTable } from "./AuditEventsOperatorTable";
 import { AuditTimelineEventCard } from "./AuditTimelineEventCard";
 import { BuyerAuditEventsTechnicalAppendix } from "./BuyerAuditEventsTechnicalAppendix";

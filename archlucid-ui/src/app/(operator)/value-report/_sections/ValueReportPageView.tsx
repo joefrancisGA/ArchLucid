@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
@@ -15,8 +16,7 @@ import {
   BUYER_VALUE_REPORT_PERIOD_UTC_HELP,
 } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { DESIGN_TOKENS, OPERATOR_KPI_CARD_TITLE, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { UseValueReportPageModel } from "./use-value-report-page";
 import { ValueReportEmptyState } from "./ValueReportEmptyState";

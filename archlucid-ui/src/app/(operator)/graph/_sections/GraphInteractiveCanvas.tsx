@@ -1,11 +1,11 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 
 import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
 import { GraphStaticFallback } from "@/components/GraphStaticFallback";
 import type { GraphViewModel } from "@/types/graph";
-import { cn } from "@/lib/utils";
 
 const GraphViewer = dynamic(
   () => import("@/components/GraphViewer").then((m) => m.GraphViewer),

@@ -119,6 +119,23 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock("./policy-packs/_sections/load-policy-packs-page-data", () => ({
+  loadPolicyPacksPageData: () =>
+    Promise.resolve({
+      packs: [],
+      effective: { tenantId: "", workspaceId: "", projectId: "", packs: [] },
+      effectiveContent: {
+        complianceRuleIds: [],
+        complianceRuleKeys: [],
+        alertRuleIds: [],
+        compositeAlertRuleIds: [],
+        advisoryDefaults: {},
+        metadata: {},
+      },
+      failure: null,
+    }),
+}));
+
 import {
   alertToolingListRefreshButtonTitleReader,
   alertSimulationCurrentBehaviorHeadingReader,
@@ -152,7 +169,7 @@ import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedule
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
 import GovernanceResolutionPage from "./governance-resolution/page";
 import GovernanceWorkflowPage from "./governance/page";
-import PolicyPacksPage from "./policy-packs/page";
+import PolicyPacksPage from "./governance/policy-packs/page";
 
 const emptyGovernanceResolutionPayload = {
   tenantId: "t-ui-shape",
@@ -245,15 +262,6 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       },
       { timeout: 8000 },
     );
-  }
-
-  async function openPolicyPacksAuthorTab(): Promise<void> {
-    await expandPolicyPacksAuthoringTools();
-    fireEvent.click(screen.getByTestId("policy-packs-tab-author"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("policy-packs-author-tab")).toBeInTheDocument();
-    });
   }
 
   async function expandPolicyPacksAdvancedOptions(): Promise<void> {
@@ -585,7 +593,10 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       expect(submitRunTrigger!.disabled).toBe(false);
     });
 
-    expect(screen.getByTestId("governance-submit-approval-button")).not.toBeDisabled();
+    const submitVersion = document.getElementById("gov-submit-version") as HTMLInputElement | null;
+
+    expect(submitVersion).not.toBeNull();
+    expect(submitVersion!.readOnly).toBe(false);
   });
 
   /**

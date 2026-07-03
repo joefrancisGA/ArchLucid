@@ -5,6 +5,8 @@
 import { expect, test } from "@playwright/test";
 
 import {
+  enrichArchitectureRequestBody,
+  liveE2eArchitectureDescription,
   resolveLiveJwtMode,
   liveApiBase,
   liveAcceptHeaders,
@@ -59,9 +61,9 @@ test.describe("live-api-jwt-auth", () => {
   test("POST /v1/architecture/request with valid JWT creates a run", async ({ request }) => {
     const res = await request.post(`${liveApiBase}/v1/architecture/request`, {
       headers: liveJsonHeaders(),
-      data: {
+      data: enrichArchitectureRequestBody({
         requestId: `E2E-JWT-${Date.now()}`,
-        description: "Live E2E JWT auth create run".padEnd(80, " "),
+        description: liveE2eArchitectureDescription,
         systemName: "JwtAuthGate",
         environment: "prod",
         cloudProvider: 1,
@@ -69,7 +71,7 @@ test.describe("live-api-jwt-auth", () => {
         requiredCapabilities: ["SQL"],
         assumptions: [] as string[],
         priorManifestVersion: null as string | null,
-      },
+      }),
     });
 
     expect(res.status()).toBeGreaterThanOrEqual(200);
@@ -82,9 +84,9 @@ test.describe("live-api-jwt-auth", () => {
   test("soft: audit search after run lists actor aligned with JWT name claim", async ({ request }) => {
     const create = await request.post(`${liveApiBase}/v1/architecture/request`, {
       headers: liveJsonHeaders(),
-      data: {
+      data: enrichArchitectureRequestBody({
         requestId: `E2E-JWT-AUDIT-${Date.now()}`,
-        description: "Live E2E JWT audit actor".padEnd(80, " "),
+        description: liveE2eArchitectureDescription,
         systemName: "JwtAuditActor",
         environment: "prod",
         cloudProvider: 1,
@@ -92,7 +94,7 @@ test.describe("live-api-jwt-auth", () => {
         requiredCapabilities: ["SQL"],
         assumptions: [] as string[],
         priorManifestVersion: null as string | null,
-      },
+      }),
     });
 
     expect(create.ok()).toBeTruthy();

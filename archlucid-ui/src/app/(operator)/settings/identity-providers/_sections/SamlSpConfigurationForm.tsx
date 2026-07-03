@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -22,7 +23,6 @@ import {
   type SamlSpConfigurationFormValues,
 } from "@/lib/saml-sp-configuration-form-state";
 import { showSuccess } from "@/lib/toast";
-import { cn } from "@/lib/utils";
 
 const ARCHLUCID_ROLES = ["Admin", "Operator", "Reader", "Auditor"] as const;
 

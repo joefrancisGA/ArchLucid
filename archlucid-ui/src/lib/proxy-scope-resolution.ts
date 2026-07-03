@@ -1,3 +1,4 @@
+import { resolveDemoWorkspaceScopeHeadersFromProxyPath } from "@/lib/demo-workspace-scope";
 import {
   DEV_SCOPE_PROJECT_ID,
   DEV_SCOPE_TENANT_ID,
@@ -64,15 +65,26 @@ function readTrustedServerScopeHeaders(): Record<string, string> | null {
 
 /**
  * Resolves upstream scope headers for `/api/proxy` — ignores client scope in production-like posture.
+ * When `proxyPath` references a pinned demo-workspace run, scope headers match RSC run-detail loads.
  */
 export function resolveProxyUpstreamScopeHeaders(
   incomingHeaders: Headers,
   allowClientScope: boolean = isProxyClientScopeForwardingAllowed(),
+  proxyPath?: string,
 ): Record<string, string> {
+  const demoScopeFromPath =
+    proxyPath !== undefined && proxyPath.length > 0
+      ? resolveDemoWorkspaceScopeHeadersFromProxyPath(proxyPath)
+      : null;
+
   if (!allowClientScope) {
     const fromBearer = readProxyScopeFromAuthorizationHeader(incomingHeaders.get("authorization"));
 
     if (fromBearer !== null) {
+      if (demoScopeFromPath !== null) {
+        return { ...fromBearer, ...demoScopeFromPath };
+      }
+
       return { ...fromBearer };
     }
   }
@@ -95,6 +107,10 @@ export function resolveProxyUpstreamScopeHeaders(
     }
 
     resolved[key] = fallback;
+  }
+
+  if (demoScopeFromPath !== null) {
+    return { ...resolved, ...demoScopeFromPath };
   }
 
   return resolved;

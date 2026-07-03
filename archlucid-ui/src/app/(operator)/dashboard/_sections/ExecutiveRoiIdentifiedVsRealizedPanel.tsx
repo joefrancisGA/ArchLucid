@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { RoiDispositionTrainingTooltip } from "@/components/roi/RoiDispositionTrainingTooltip";
@@ -11,7 +12,6 @@ import {
 } from "@/lib/executive-roi-identified-vs-realized";
 import { presentExecutiveEstimatedSavings } from "@/lib/executive-estimated-savings-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { resolveExecutiveHeadlineScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 import {

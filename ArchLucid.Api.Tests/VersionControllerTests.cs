@@ -6,6 +6,7 @@ using ArchLucid.Core.Diagnostics;
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 using Moq;
@@ -21,8 +22,9 @@ public sealed class VersionControllerTests
     {
         Mock<IHostEnvironment> env = new();
         env.SetupGet(e => e.EnvironmentName).Returns("Staging");
+        Mock<IConfiguration> configuration = new();
 
-        VersionController controller = new(env.Object, TimeProvider.System);
+        VersionController controller = new(env.Object, configuration.Object, TimeProvider.System);
 
         IActionResult result = controller.Get();
 
@@ -35,6 +37,7 @@ public sealed class VersionControllerTests
         response.AssemblyVersion.Should().NotBeNullOrWhiteSpace();
         response.RuntimeFramework.Should().Contain(".NET");
         response.ProcessUptimeSeconds.Should().BeGreaterThanOrEqualTo(0);
+        response.BuildTimestamp.Should().Be("unknown");
     }
 
     [SkippableFact]
@@ -42,8 +45,9 @@ public sealed class VersionControllerTests
     {
         Mock<IHostEnvironment> env = new();
         env.SetupGet(e => e.EnvironmentName).Returns("Production");
+        Mock<IConfiguration> configuration = new();
 
-        VersionController controller = new(env.Object, TimeProvider.System);
+        VersionController controller = new(env.Object, configuration.Object, TimeProvider.System);
 
         OkObjectResult ok = (OkObjectResult)controller.Get();
         string json = JsonSerializer.Serialize(ok.Value,
@@ -58,6 +62,7 @@ public sealed class VersionControllerTests
         root.TryGetProperty("runtimeFramework", out _).Should().BeTrue();
         root.TryGetProperty("environment", out _).Should().BeTrue();
         root.TryGetProperty("commitSha", out _).Should().BeTrue();
+        root.TryGetProperty("buildTimestamp", out _).Should().BeTrue();
         root.TryGetProperty("fileVersion", out _).Should().BeTrue();
         root.TryGetProperty("processUptimeSeconds", out _).Should().BeTrue();
     }

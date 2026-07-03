@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
@@ -20,7 +21,6 @@ import {
   BUYER_GOVERNANCE_DECISION_REGISTER_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const BUYER_CONFIDENCE_OPTIONS = ["Evidence-backed", "Model-assisted", "Unknown"] as const;
 

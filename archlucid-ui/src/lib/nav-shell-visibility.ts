@@ -10,8 +10,6 @@ import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import {
   GOVERNANCE_AUDIT_PATH,
-  GOVERNANCE_POLICY_PACKS_PATH,
-  GOVERNANCE_RESOLUTION_PATH,
 } from "@/lib/governance-route-paths";
 import {
   filterNavLinksByOperateUnlockPhase,

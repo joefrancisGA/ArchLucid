@@ -1,5 +1,5 @@
-import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 
 import {
@@ -29,7 +29,11 @@ export function ExplanationEvidenceBasisBadges(props: ExplanationEvidenceBasisBa
       {badges.map((badge) => (
         <span
           key={badge.label}
-          className={cn("inline-flex items-center rounded-full border px-2 py-0.5 font-medium ${badgeClass(badge.warnBeforeSponsorSend)}", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn(
+            "inline-flex items-center rounded-full border px-2 py-0.5 font-medium",
+            badgeClass(badge.warnBeforeSponsorSend),
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
           title={badge.detail}
         >
           {badge.display}

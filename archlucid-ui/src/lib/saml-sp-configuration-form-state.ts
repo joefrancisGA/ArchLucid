@@ -1,5 +1,6 @@
 import type { TenantIdentityProviderConfigurationRecord } from "@/lib/admin-identity-provider-api";
 import type { IdentityProviderActivateBody } from "@/lib/admin-identity-provider-api";
+import { TENANT_IDENTITY_PROTOCOL } from "@/lib/tenant-identity-protocol";
 
 const ARCHLUCID_ROLES = ["Admin", "Operator", "Reader", "Auditor"] as const;
 
@@ -37,7 +38,7 @@ export function hydrateSamlSpConfigurationFormValues(
 ): SamlSpConfigurationFormValues {
   const defaults = createDefaultSamlSpConfigurationFormValues();
 
-  if (record === null || record.protocol !== "Saml") {
+  if (record === null || record.protocol !== TENANT_IDENTITY_PROTOCOL.Saml) {
     return defaults;
   }
 

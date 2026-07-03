@@ -1,3 +1,5 @@
+> **SUPERSEDED (2026-07-03) — use [`ASSESSMENT_PROMPT_V3.MD`](ASSESSMENT_PROMPT_V3.MD) instead.** A 2026-07-03 pass run against this v2 prompt reproduced ~150 already-shipped `TECH_BACKLOG.md` entries as if they were open §17 "Top Improvement Opportunities," and drifted the headline to a self-contradictory 100.00% via an invented cumulative "Rescore impact" ratchet this file never actually specified. v3 adds a mandatory verify-before-listing gate, bans score-delta ratcheting, and adds a `§0 Tasks For Human` section. Kept here for historical reference only — do not run new assessment passes against this file.
+>
 > **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v2). Use this prompt for clean-slate weighted readiness passes. Product-state grounding aligns with `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` as of 2026-06-24.
 
 # ArchLucid Strategic Release and Market Readiness Assessment (v2)

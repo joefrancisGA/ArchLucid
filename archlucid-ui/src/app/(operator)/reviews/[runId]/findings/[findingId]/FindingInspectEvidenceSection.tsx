@@ -1,10 +1,10 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import type { ReactElement } from "react";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/finding-policy-evidence-citations";
 import type { FindingInspectEvidence } from "@/types/finding-inspect";
 
@@ -91,7 +91,7 @@ function EvidenceCitationList(props: {
   readonly buyerPolishedShell: boolean;
   readonly citationEvidence?: readonly { readonly label: string; readonly href: string }[];
 }): ReactElement {
-  const { evidence, reviewContextHref, reviewContextLabel, buyerPolishedShell, citationEvidence } = props;
+  const { evidence, reviewContextHref, reviewContextLabel, buyerPolishedShell } = props;
 
   if (evidence.length === 0) {
     return (

@@ -1,6 +1,6 @@
+import { cn } from "@/lib/utils";
 import { BUYER_WHY_ARCHLUCID_SOURCES_LINE } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export function WhyArchLucidPageFooter() {
   return (

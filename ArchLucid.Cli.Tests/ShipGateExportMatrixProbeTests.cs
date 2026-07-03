@@ -41,7 +41,7 @@ public sealed class ShipGateExportMatrixProbeTests
                 {
                     return Task.FromResult(BytesResponse(
                         HttpStatusCode.OK,
-                        [0x50, 0x4B, 0x03, 0x04, 0x00, 0x00, 0x00, 0x00],
+                        ShipGateExportMatrixTestFixtures.ZipStubBody(),
                         "application/zip"));
                 }
 
@@ -49,7 +49,7 @@ public sealed class ShipGateExportMatrixProbeTests
                 {
                     return Task.FromResult(BytesResponse(
                         HttpStatusCode.OK,
-                        [0x50, 0x4B, 0x03, 0x04, 0x00, 0x00, 0x00, 0x00],
+                        ShipGateExportMatrixTestFixtures.ZipStubBody(),
                         "application/zip"));
                 }
 
@@ -98,7 +98,7 @@ public sealed class ShipGateExportMatrixProbeTests
                 {
                     return Task.FromResult(BytesResponse(
                         HttpStatusCode.OK,
-                        [0x50, 0x4B, 0x03, 0x04, 0x00, 0x00, 0x00, 0x00],
+                        ShipGateExportMatrixTestFixtures.ZipStubBody(),
                         "application/zip"));
                 }
 

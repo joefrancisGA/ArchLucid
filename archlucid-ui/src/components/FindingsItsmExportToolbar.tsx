@@ -1,6 +1,6 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { FileJson, FileSpreadsheet } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { downloadRunFindingsCsv } from "@/lib/api";
 import { downloadRunFindingsItsmJsonExport } from "@/lib/run-findings-itsm-export";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import { showError } from "@/lib/toast";
 
 export type FindingsItsmExportToolbarProps = {
   runId: string;

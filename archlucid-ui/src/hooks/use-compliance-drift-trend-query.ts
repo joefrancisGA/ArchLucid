@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { getComplianceDriftTrend } from "@/lib/api";
+import { isBrowser } from "@/lib/api/http";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
@@ -25,5 +26,6 @@ export function useComplianceDriftTrendQuery() {
   return useQuery<ComplianceDriftTrendPoint[]>({
     queryKey: operatorQueryKeys.complianceDriftTrend30d,
     queryFn: fetchComplianceDriftTrend30Days,
+    enabled: isBrowser(),
   });
 }

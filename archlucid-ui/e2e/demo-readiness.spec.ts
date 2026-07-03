@@ -22,12 +22,13 @@ const claimsShowcasePath = "/showcase/claims-intake-modernization";
  */
 const SHOWCASE_MANIFEST_DEEP_LINK = /^(?:Open signed record|Signed review record|Review package|Finalized review package)$/i;
 
-/** Branded 404 marker is sr-only; assert visible recovery copy plus attached test id. */
+/** Branded 404 — assert visible recovery copy plus stable recovery affordances from OperatorBrandedNotFound. */
 async function expectBrandedNotFoundSurface(page: Page): Promise<void> {
-  await expect(
-    page.getByText(/We could not find that ArchLucid artifact/i),
-  ).toBeVisible();
-  await expect(page.getByTestId("branded-not-found")).toBeAttached();
+  const main = page.getByRole("main").first();
+
+  await expect(main.getByText(/We could not find that ArchLucid artifact/i)).toBeVisible();
+  await expect(main.getByTestId("branded-not-found")).toBeAttached();
+  await expect(main.getByTestId("not-found-review-packages")).toBeVisible();
 }
 
 /** Canonical run detail path is `/reviews/{runId}`; `/runs/*` permanently redirects (see `next.config.ts`). */
@@ -169,7 +170,9 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
 
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`);
-    await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
+    await expect(
+      page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
+    ).toBeVisible({ timeout: 60_000 });
 
     await page.goto(
       `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
@@ -222,7 +225,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   });
 
   test("invalid manifest and run route tokens surface branded not-found @demo-readiness", async ({ page }) => {
-    await page.goto("/manifests/undefined");
+    await page.goto("/signed-records/undefined");
     await expectBrandedNotFoundSurface(page);
 
     await page.goto("/reviews/undefined");

@@ -1,9 +1,9 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { FindingInspectJsonPayload } from "@/components/FindingInspectJsonPayload";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type FindingInspectReasoningPayloadDetailsProps = {
   readonly reasoningTrace: string | null | undefined;

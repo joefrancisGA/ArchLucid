@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -51,8 +52,8 @@ public sealed class RunDetailQueryServiceApplicationTests
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
         executionTraceRepo
-            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runN, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AgentExecutionTraceLlmCostSlice>());
 
         RunRecord record = new()
         {
@@ -116,8 +117,8 @@ public sealed class RunDetailQueryServiceApplicationTests
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
         executionTraceRepo
-            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runN, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AgentExecutionTraceLlmCostSlice>());
 
         RunRecord record = new()
         {

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
@@ -10,7 +11,6 @@ import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordReviewGenerationHandoff, reviewDetailHrefAfterGeneration } from "@/lib/review-generation-handoff";
-import { cn } from "@/lib/utils";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { RunSummary } from "@/types/authority";
 

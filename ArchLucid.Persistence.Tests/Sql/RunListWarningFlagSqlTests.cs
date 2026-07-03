@@ -25,5 +25,7 @@ public sealed class RunListWarningFlagSqlTests
         joins.Should().Contain("FROM dbo.AlertRecords ar WITH (NOLOCK)");
         joins.Should().Contain("ar.Status = N'Open'");
         joins.Should().Contain("GROUP BY ar.RunId");
+        joins.Should().Contain(") fsWarn ON fsWarn.RunId = r.RunId");
+        joins.Should().Contain(") govWarn ON govWarn.RunId = r.RunId");
     }
 }

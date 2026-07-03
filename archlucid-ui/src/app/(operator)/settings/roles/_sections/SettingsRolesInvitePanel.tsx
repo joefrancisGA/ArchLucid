@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -18,7 +19,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
 

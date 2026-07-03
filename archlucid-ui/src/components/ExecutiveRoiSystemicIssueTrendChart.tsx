@@ -1,6 +1,6 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import {
   Bar,
@@ -102,8 +102,11 @@ export function ExecutiveRoiSystemicIssueTrendChart(props: ExecutiveRoiSystemicI
             <XAxis dataKey="monthLabel" tick={{ fontSize: 11 }} />
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={32} />
             <Tooltip
-              formatter={(value: number, name: string) => [`${value} findings`, name]}
-              labelFormatter={(label: string) => `${label} · ${pricingBasisLabel}`}
+              formatter={(value, name) => {
+                const count = safeCount(value);
+                return [`${count} findings`, String(name ?? "")];
+              }}
+              labelFormatter={(label) => `${label == null ? "" : String(label)} · ${pricingBasisLabel}`}
             />
             <Legend wrapperStyle={{ fontSize: "12px" }} />
             {normalized.map((entry) => (

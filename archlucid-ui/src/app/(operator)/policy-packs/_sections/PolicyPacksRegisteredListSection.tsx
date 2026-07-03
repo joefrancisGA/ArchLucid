@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
   policyPacksCurrentPacksHeadingOperator,
   policyPacksCurrentPacksHeadingReader,
@@ -8,7 +9,6 @@ import {
 import { policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
 import { isStandardBaselinePolicyPackName } from "@/lib/policy-pack-standard-baseline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { StatusTag } from "@/components/ui/status-tag";

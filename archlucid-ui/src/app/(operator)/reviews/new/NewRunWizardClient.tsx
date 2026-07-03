@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -31,7 +32,6 @@ import { isAcceleratorPackId, resolveAcceleratorWizardPreset } from "@/lib/accel
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
-import { cn } from "@/lib/utils";
 import { applyWizardPreset } from "@/lib/wizard-presets";
 import {
   parseWizardPresetDeeplinkToken,

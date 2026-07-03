@@ -61,6 +61,36 @@ const CURATED_DOC_PATHS = [
 
 /** @typedef {{ docPath: string; docTitle: string; sectionSlug: string; sectionHeading: string; excerpt: string }} HelpDocSearchRecord */
 
+const REVIEW_PACKAGE_LABEL = "Review package";
+const SIGNED_MANIFEST_LABEL = "Signed review record";
+const ARCHITECTURE_REVIEW_LABEL = "Architecture review";
+
+/**
+ * Mirrors `help-product-language.ts` for build-time help search excerpts.
+ * @param {string} text
+ */
+function applyHelpProductLanguageToExcerpt(text) {
+  let result = text
+    .replace(/\bcannot create runs\b/gi, "cannot create reviews")
+    .replace(/\bcreate runs\b/gi, "create reviews")
+    .replace(/\barchitecture runs\b/gi, "architecture reviews")
+    .replace(/\barchitecture run\b/gi, "architecture review")
+    .replace(/\bgolden manifests\b/gi, `${SIGNED_MANIFEST_LABEL.toLowerCase()}s`)
+    .replace(/\bgolden manifest\b/gi, SIGNED_MANIFEST_LABEL.toLowerCase())
+    .replace(/\bcommitted manifests\b/gi, `committed ${REVIEW_PACKAGE_LABEL.toLowerCase()}s`)
+    .replace(/\bcommitted manifest\b/gi, `committed ${REVIEW_PACKAGE_LABEL.toLowerCase()}`)
+    .replace(/\bmanifest not found\b/gi, `${REVIEW_PACKAGE_LABEL.toLowerCase()} not found`)
+    .replace(/\bmanifest exists\b/gi, `${REVIEW_PACKAGE_LABEL.toLowerCase()} exists`)
+    .replace(/\bfor that manifest\b/gi, `for that ${REVIEW_PACKAGE_LABEL.toLowerCase()}`)
+    .replace(/\bArchitecture run execution failed\b/gi, `${ARCHITECTURE_REVIEW_LABEL} execution failed`)
+    .replace(/\ba single architecture run\b/gi, `a single ${ARCHITECTURE_REVIEW_LABEL.toLowerCase()}`)
+    .replace(/\]\(\/runs\//g, "](/reviews/")
+    .replace(/\]\(\/runs\/new\)/g, "](/reviews/new)")
+    .replace(/\[(\/runs\/[^\]]+)\]/g, (_match, path) => `[${path.replace(/^\/runs\//, "/reviews/")}]`);
+
+  return result;
+}
+
 /**
  * @param {string} text
  */
@@ -180,7 +210,7 @@ function collectFirstParagraph(lines, startIdx) {
     excerpt = `${excerpt.slice(0, 317)}…`;
   }
 
-  return excerpt;
+  return applyHelpProductLanguageToExcerpt(excerpt);
 }
 
 /**

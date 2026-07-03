@@ -1,12 +1,12 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useId, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type AdvancedOptionsAccordionProps = {
   children: ReactNode;

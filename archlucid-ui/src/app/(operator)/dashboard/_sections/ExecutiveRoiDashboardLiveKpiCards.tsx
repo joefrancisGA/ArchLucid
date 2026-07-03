@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -21,7 +22,6 @@ import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { computePilotDayNumber } from "@/lib/executive-pilot-day";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type LiveKpiState = {
   summary: ExecutiveRoiSummary | null;

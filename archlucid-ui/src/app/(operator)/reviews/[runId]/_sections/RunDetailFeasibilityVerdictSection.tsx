@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
@@ -9,7 +10,6 @@ import {
 } from "@/lib/feasibility-verdict-display";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 

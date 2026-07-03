@@ -88,6 +88,11 @@ RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 \
 # ── Stage 2: publish ────────────────────────────────────────────────
 FROM restore AS publish
 
+# BUILD_SHA is injected by CI/CD (docker build --build-arg BUILD_SHA=<git-sha>).
+# The SDK embeds it as the AssemblyInformationalVersion +suffix so BuildProvenance.CommitSha
+# returns the deploying commit and GET /version reflects the exact image.
+ARG BUILD_SHA=""
+
 COPY . .
 # Re-sync Pilots after full-tree COPY (wrong context, stale cache, or incomplete checkout).
 COPY ArchLucid.Persistence/Pilots/*.cs     ArchLucid.Persistence/Pilots/
@@ -105,22 +110,31 @@ RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 \
         --self-contained false \
         -o /app \
         /p:PublishReadyToRun=false \
+        /p:SourceRevisionId=${BUILD_SHA} \
     && dotnet publish ArchLucid.Worker/ArchLucid.Worker.csproj \
         -c Release \
         -r linux-musl-x64 \
         --self-contained false \
         -o /app \
         /p:PublishReadyToRun=false \
+        /p:SourceRevisionId=${BUILD_SHA} \
     && dotnet publish ArchLucid.Jobs.Cli/ArchLucid.Jobs.Cli.csproj \
         -c Release \
         -r linux-musl-x64 \
         --self-contained false \
         -o /app \
-        /p:PublishReadyToRun=false
+        /p:PublishReadyToRun=false \
+        /p:SourceRevisionId=${BUILD_SHA}
 
 # ── Stage 3: runtime ───────────────────────────────────────────────
 
 FROM ${DOTNET_ASPNET_IMAGE} AS runtime
+
+ARG BUILD_SHA=""
+ARG BUILD_TIMESTAMP=""
+ARG DEPLOY_ENV=""
+ENV ARCHLUCID_BUILD_COMMIT_SHA=${BUILD_SHA}
+ENV ARCHLUCID_BUILD_TIMESTAMP=${BUILD_TIMESTAMP}
 
 # ICU for globalisation; wget for HEALTHCHECK (already present in Alpine aspnet image).
 # apk upgrade + explicit OpenSSL floor (CVE-2026-28390) so cached layers cannot keep 3.5.5-r0.

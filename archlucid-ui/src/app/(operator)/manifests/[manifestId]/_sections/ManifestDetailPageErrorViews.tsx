@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -15,7 +16,6 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiTransientLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type ManifestDetailPageErrorFrameProps = {
   readonly buyerPolishedLayout: boolean;

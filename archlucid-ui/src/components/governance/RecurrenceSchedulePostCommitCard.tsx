@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -16,7 +17,6 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRecurrenceScheduleUtcLabel } from "@/lib/recurrence-schedule-utc-format";
 import { RECURRENCE_SCHEDULES_MANAGE_PATH } from "@/lib/recurrence-schedules-copy";
-import { cn } from "@/lib/utils";
 
 const DEFAULT_CRON = "0 8 * * 1";
 const DEFAULT_NAME = "Weekly architecture review";

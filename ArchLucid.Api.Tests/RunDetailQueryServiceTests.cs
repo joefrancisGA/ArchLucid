@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -60,8 +61,8 @@ public sealed class RunDetailQueryServiceTests
 
         Mock<IAgentExecutionTraceRepository> executionTraceRepo = new();
         executionTraceRepo
-            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AgentExecutionTraceLlmCostSlice>());
 
         _sut = new RunDetailQueryService(
             _runRepo.Object,

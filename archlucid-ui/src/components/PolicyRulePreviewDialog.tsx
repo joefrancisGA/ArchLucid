@@ -1,6 +1,6 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -35,35 +35,59 @@ export type PolicyRulePreviewDialogProps = {
   readonly initialPreview?: PolicyRulePreview | null;
 };
 
-function previewFromProps(props: PolicyRulePreviewDialogProps): PolicyRulePreview {
-  if (props.initialPreview !== null && props.initialPreview !== undefined) {
-    return props.initialPreview;
+type PolicyRulePreviewSource = Pick<
+  PolicyRulePreviewDialogProps,
+  "ruleId" | "ruleLabel" | "packId" | "packName" | "packVersion" | "initialPreview"
+>;
+
+function previewFromSource(source: PolicyRulePreviewSource): PolicyRulePreview {
+  if (source.initialPreview !== null && source.initialPreview !== undefined) {
+    return source.initialPreview;
   }
 
   return buildPolicyRulePreviewFallback({
-    ruleId: props.ruleId,
-    ruleLabel: props.ruleLabel,
-    packId: props.packId,
-    packName: props.packName,
-    packVersion: props.packVersion,
+    ruleId: source.ruleId,
+    ruleLabel: source.ruleLabel,
+    packId: source.packId,
+    packName: source.packName,
+    packVersion: source.packVersion,
   });
 }
 
 /** Side-panel style dialog showing the policy rule text behind a finding. */
 export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): ReactElement {
-  const [preview, setPreview] = useState<PolicyRulePreview>(() => previewFromProps(props));
+  const {
+    open,
+    onOpenChange,
+    ruleId,
+    ruleLabel,
+    packId,
+    packName,
+    packVersion,
+    initialPreview,
+  } = props;
+  const [preview, setPreview] = useState<PolicyRulePreview>(() => previewFromSource(props));
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!props.open) {
+    if (!open) {
       return;
     }
 
-    setPreview(previewFromProps(props));
+    setPreview(
+      previewFromSource({
+        ruleId,
+        ruleLabel,
+        packId,
+        packName,
+        packVersion,
+        initialPreview,
+      }),
+    );
     setLoadError(null);
 
-    if (props.initialPreview?.hasCuratedRuleText === true) {
+    if (initialPreview?.hasCuratedRuleText === true) {
       return;
     }
 
@@ -75,13 +99,13 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
       try {
         const effective = await getEffectivePolicyPacks();
         const resolved =
-          lookupPolicyRulePreviewInEffectivePacks(props.ruleId, effective.packs) ??
+          lookupPolicyRulePreviewInEffectivePacks(ruleId, effective.packs) ??
           buildPolicyRulePreviewFallback({
-            ruleId: props.ruleId,
-            ruleLabel: props.ruleLabel,
-            packId: props.packId,
-            packName: props.packName,
-            packVersion: props.packVersion,
+            ruleId,
+            ruleLabel,
+            packId,
+            packName,
+            packVersion,
           });
 
         if (!cancelled) {
@@ -101,18 +125,10 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
     return () => {
       cancelled = true;
     };
-  }, [
-    props.open,
-    props.ruleId,
-    props.ruleLabel,
-    props.packId,
-    props.packName,
-    props.packVersion,
-    props.initialPreview,
-  ]);
+  }, [open, ruleId, ruleLabel, packId, packName, packVersion, initialPreview]);
 
   return (
-    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl" data-testid="policy-rule-preview-dialog">
         <DialogHeader>
           <DialogTitle>Policy rule</DialogTitle>

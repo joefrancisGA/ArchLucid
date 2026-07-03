@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -7,7 +8,6 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, isApiTransientLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { REVIEW_PACKAGE_OPEN_FAILURE_HEADING } from "@/lib/review-generation-handoff";
-import { cn } from "@/lib/utils";
 
 export function RunDetailPageFetchErrorView(props: {
   readonly runId: string;

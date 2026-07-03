@@ -122,6 +122,7 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         // Api-only hosts register ArchLucid.Api.Workers.RetentionPurgeWorker in Program (same lease + purge logic).
+
         if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
             return;
 
@@ -133,6 +134,7 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         // Api-only hosts register ArchLucid.Api.Workers.SampleRunTtlPurgeWorker in Program (same lease + purge logic).
+
         if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
             return;
 
@@ -144,6 +146,7 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         // Api-only hosts register ArchLucid.Api.Workers.DraftIntakeReaperWorker in Program (same lease + purge logic).
+
         if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
             return;
 
@@ -155,6 +158,7 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         // Api-only hosts register ArchLucid.Api.Workers.TenantErasurePurgeWorker in Program (same lease + purge logic).
+
         if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
             return;
 
@@ -439,7 +443,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IThresholdRecommendationService, ThresholdRecommendationService>();
 
         services.AddScoped<PolicyPackResolver>();
-        services.AddScoped<CachingPolicyPackResolver>();
+        services.AddScoped<CachingPolicyPackResolver>(static sp =>
+            new CachingPolicyPackResolver(
+                sp.GetRequiredService<PolicyPackResolver>(),
+                sp.GetRequiredService<IHotPathReadCache>()));
         services.AddScoped<ArchLucid.Core.Governance.PolicyPacks.IPolicyPackResolver>(static sp =>
             sp.GetRequiredService<CachingPolicyPackResolver>());
         services.AddScoped<ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackResolver>(static sp =>

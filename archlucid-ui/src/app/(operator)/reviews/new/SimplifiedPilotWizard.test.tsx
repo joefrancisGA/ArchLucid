@@ -41,7 +41,10 @@ function makeArchLucidPackageZip(): File {
     subscriptionId: "11111111-1111-1111-1111-111111111111",
     scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/MyRg",
   };
-  const zipped = zipSync({ "manifest.json": strToU8(JSON.stringify(manifest)) });
+  const zipped = zipSync({
+    "manifest.json": strToU8(JSON.stringify(manifest)),
+    "resources.json": strToU8("[]"),
+  });
   const blob = new Blob([zipped], { type: "application/zip" });
 
   return new File([blob], "azure-pack.zip", { type: "application/zip" });

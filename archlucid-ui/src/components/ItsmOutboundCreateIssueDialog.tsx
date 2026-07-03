@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,6 @@ import {
 } from "@/lib/api/itsm-outbound-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
-import { cn } from "@/lib/utils";
 import { showSuccess } from "@/lib/toast";
 
 export type ItsmOutboundProvider = "Jira" | "ServiceNow";

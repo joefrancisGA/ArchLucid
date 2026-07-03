@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 /**
  * Non-interactive placeholder shown while the React Flow chunk loads or initializes.
  * Gives screenshot and demo paths a credible “evidence trail” silhouette instead of an empty box.

@@ -66,7 +66,6 @@ type RequestedGroup = {
 };
 
 const REVIEW_WORK_HREFS: ReadonlyArray<string> = [
-  "/",
   "/reviews/new",
   "/reviews?projectId=default",
   "/dashboard",
@@ -106,11 +105,6 @@ function hrefRendered(href: string): boolean {
   return document.querySelector(`a[href="${href}"]`) !== null;
 }
 
-function unlockOperateFeatures(): void {
-  fireEvent.click(screen.getByTestId("nav-advanced-unlock"));
-}
-
-/** Advance directly to phase 2 so the operate-governance group becomes visible. */
 function unlockAllOperateFeatures(): void {
   act(() => {
     writeOperateNavUnlockPhase(2);
@@ -152,10 +146,14 @@ describe("SidebarNav — new-user buyer-polished catalog (no committed review)",
     });
 
     for (const group of OPERATE_COLLAPSED_GROUPS) {
-      fireEvent.click(screen.getByTestId(group.toggleTestId));
+      const toggle = screen.getByTestId(group.toggleTestId);
+
+      if (toggle.getAttribute("aria-expanded") !== "true") {
+        fireEvent.click(toggle);
+      }
 
       await waitFor(() => {
-        expect(screen.getByTestId(group.toggleTestId)).toHaveAttribute("aria-expanded", "true");
+        expect(toggle).toHaveAttribute("aria-expanded", "true");
       });
 
       for (const href of group.hrefs) {

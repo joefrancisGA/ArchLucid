@@ -2,7 +2,12 @@ import { expect, test } from "@playwright/test";
 import { strToU8, zipSync } from "fflate";
 
 function archLucidZipBuffer(manifest: Record<string, unknown>): Buffer {
-  return Buffer.from(zipSync({ "manifest.json": strToU8(JSON.stringify(manifest)) }));
+  return Buffer.from(
+    zipSync({
+      "manifest.json": strToU8(JSON.stringify(manifest)),
+      "resources.json": strToU8("[]"),
+    }),
+  );
 }
 
 test.describe("Azure extractor ZIP wizard field", () => {

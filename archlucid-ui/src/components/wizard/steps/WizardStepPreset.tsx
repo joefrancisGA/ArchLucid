@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -21,7 +22,6 @@ import { verticalBriefWizardPresets } from "@/lib/vertical-wizard-presets";
 import { starterArchitectureTemplates } from "@/data/starter-templates";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 const HERO_VERTICAL_IDS = new Set<string>(["vertical-healthcare", "vertical-financial-services"]);

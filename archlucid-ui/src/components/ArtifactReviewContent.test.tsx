@@ -73,12 +73,12 @@ describe("ArtifactReviewContent (55R smoke — artifact detail panel)", () => {
           pack: {
             packId: "azure-wa",
             packName: "Azure Well-Architected",
-            href: "/policy-packs?packId=azure-wa",
+            href: "/governance/policy-packs?packId=azure-wa",
           },
           policy: {
             ruleId: "sec-001",
             ruleLabel: "SEC-001",
-            href: "/policy-packs?ruleId=sec-001",
+            href: "/governance/policy-packs?ruleId=sec-001",
           },
         }}
       />,

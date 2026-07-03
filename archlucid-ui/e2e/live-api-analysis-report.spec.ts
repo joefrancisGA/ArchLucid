@@ -12,6 +12,7 @@ import {
   executeRun,
   getDocxArchitecturePackageExportRaw,
   liveApiBase,
+  liveE2eArchitectureDescription,
   postAnalysisReportRaw,
   searchAudit,
   waitForReadyForCommit,
@@ -34,7 +35,7 @@ test.describe("live-api-analysis-report", () => {
 
     const createBody = {
       requestId: `E2E-LIVE-REPORT-${Date.now()}`,
-      description: "Live E2E: analysis report generation.",
+      description: liveE2eArchitectureDescription("Live E2E: analysis report generation."),
       systemName: "AnalysisReportTest",
       environment: "prod",
       cloudProvider: 1,

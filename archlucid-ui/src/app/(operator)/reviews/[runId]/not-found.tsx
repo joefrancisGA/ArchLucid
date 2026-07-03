@@ -1,8 +1,8 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /** Review detail not-found — stale or unknown review id. */
 export default function ReviewDetailNotFound() {

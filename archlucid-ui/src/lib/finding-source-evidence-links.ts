@@ -7,7 +7,7 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
 } from "@/lib/showcase-static-demo";
 import type { FindingInspectEvidence, FindingInspectPayload } from "@/types/finding-inspect";
-import { signedRecordDetailPath, signedRecordSectionPath } from "@/lib/signed-records-paths";
+import { signedRecordSectionPath } from "@/lib/signed-records-paths";
 
 export type FindingSourceEvidenceLinkKind =
   | "manifestSection"

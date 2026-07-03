@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -8,7 +9,6 @@ import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabu
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PILOT_NAV_PROFILE_HELP_HREF } from "@/lib/pilot-nav-profile-alignment";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
-import { cn } from "@/lib/utils";
 
 type OperateFeaturesUnlockPanelProps = {
   readonly phase: OperateNavUnlockPhase;

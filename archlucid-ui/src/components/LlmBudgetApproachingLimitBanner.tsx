@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -14,7 +15,6 @@ import {
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
-import { cn } from "@/lib/utils";
 
 const LLM_BUDGET_WARN_POLL_MS = 60_000;
 

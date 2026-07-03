@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -15,7 +16,6 @@ import {
   ITSM_CONNECTORS_ADMIN_SUMMARY,
 } from "@/lib/itsm-connectors-admin-scope";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { AdminItsmConnectorOnboardingWizard } from "./AdminItsmConnectorOnboardingWizard";
 import { ItsmConnectorProbeCard } from "@/app/(operator)/integrations/_sections/itsm/ItsmConnectorProbeCard";

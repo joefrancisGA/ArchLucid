@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -8,7 +9,6 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import type { RecommendationLearningPageViewModel } from "./recommendation-learning-page-view-model";
 import {

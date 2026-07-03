@@ -1,16 +1,21 @@
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-const redirect = vi.fn();
-
-vi.mock("next/navigation", () => ({
-  redirect: (...args: unknown[]) => redirect(...args),
+vi.mock("@/app/(operator)/settings/cost-reporting/_sections/load-cost-reporting-settings-page-data", () => ({
+  loadCostReportingSettingsPageData: vi.fn(async () => ({ demo: false })),
 }));
 
-import AiUsageAndCostLegacyPage from "./page";
+vi.mock("@/app/(operator)/settings/cost-reporting/_sections/CostReportingSettingsPageClient", () => ({
+  CostReportingSettingsPageClient: () => <div data-testid="cost-reporting-settings-page-client" />,
+}));
 
-describe("AiUsageAndCostLegacyPage", () => {
-  it("redirects legacy internal route to Administration AI usage", () => {
-    AiUsageAndCostLegacyPage();
-    expect(redirect).toHaveBeenCalledWith("/settings/ai-usage");
+import AiUsageAndCostPage from "./page";
+
+describe("AiUsageAndCostPage", () => {
+  it("renders the cost reporting settings surface", async () => {
+    const page = await AiUsageAndCostPage();
+    render(page);
+
+    expect(screen.getByTestId("cost-reporting-settings-page-client")).toBeInTheDocument();
   });
 });

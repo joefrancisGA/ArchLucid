@@ -1,24 +1,5 @@
 namespace ArchLucid.Cli.Commands;
 
-internal sealed class BuyerProofEvidenceLedgerOutputResolution
-{
-    public string? JsonPath
-    {
-        get;
-        init;
-    }
-
-    public string? MarkdownPath
-    {
-        get;
-        init;
-    }
-
-    public bool WillWriteJson => !string.IsNullOrWhiteSpace(JsonPath);
-
-    public bool WillWriteMarkdown => !string.IsNullOrWhiteSpace(MarkdownPath);
-}
-
 internal static class BuyerProofEvidenceLedgerOutputPaths
 {
     internal const string ArtifactDirectorySegment = "buyer-proof-evidence-ledger";
@@ -50,9 +31,10 @@ internal static class BuyerProofEvidenceLedgerOutputPaths
         if (!string.IsNullOrWhiteSpace(report.RunId))
             return report.RunId.Trim();
 
-        string proofDirectory = report.ProofDirectory.Trim().TrimEnd(
-            Path.DirectorySeparatorChar,
-            Path.AltDirectorySeparatorChar);
+        // Normalize Windows-style backslashes so Path.GetFileName works on Linux CI.
+        string proofDirectory = report.ProofDirectory.Trim()
+            .Replace('\\', '/')
+            .TrimEnd('/');
 
         return Path.GetFileName(proofDirectory);
     }

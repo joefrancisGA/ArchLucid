@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -13,7 +14,6 @@ import {
   type SqlBackupRegionVerification,
 } from "@/lib/sql-backup-region-verification";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 function verificationStatusIcon(verified: boolean) {
   if (verified) {

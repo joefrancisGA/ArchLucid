@@ -1,7 +1,7 @@
+import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { loadAlertsInboxPageModel } from "./_sections/load-alerts-inbox-page-model";
 import { AlertsHubClient } from "./AlertsHubClient";

@@ -144,6 +144,11 @@ class BuildRcEvidenceSignoffBundleTests(unittest.TestCase):
             + "\n",
             encoding="utf-8",
         )
+        (bundle / "pilot-readiness-live-release-gate.json").write_text(
+            json.dumps({"disposition": "PASS", "detail": "Synthetic PASS for signoff bundle unit test"})
+            + "\n",
+            encoding="utf-8",
+        )
 
         json_out = self.temp_dir / "signoff-pass.json"
         md_out = self.temp_dir / "signoff-pass.md"

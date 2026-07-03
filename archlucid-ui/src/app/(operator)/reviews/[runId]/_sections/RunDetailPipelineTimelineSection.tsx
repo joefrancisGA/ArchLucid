@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -8,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { PipelineTimelineItem } from "@/types/authority";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";

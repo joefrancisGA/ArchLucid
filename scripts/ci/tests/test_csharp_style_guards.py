@@ -47,6 +47,35 @@ public class Second { }
 
         self.assertEqual(len(single_class.root_type_names(source)), 2)
 
+    def test_ignores_type_declarations_inside_raw_string_literals(self) -> None:
+        raw_delim = '"""'
+        source = f"""
+namespace ArchLucid.Analyzers.Tests;
+
+public sealed class TenantScopedQueryScopeBindingAnalyzerTests
+{{
+    private const string SharedStubs = {raw_delim}
+
+namespace Dapper
+{{
+    public static class SqlMapper
+    {{
+    }}
+}}
+
+public sealed class BadExemptionRepository
+{{
+}}
+
+{raw_delim};
+}}
+"""
+
+        self.assertEqual(
+            single_class.root_type_names(source),
+            {"TenantScopedQueryScopeBindingAnalyzerTests"},
+        )
+
 
 class TestControlFlowSpacingGuard(unittest.TestCase):
     def test_allows_blank_line_before_if(self) -> None:

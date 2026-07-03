@@ -78,12 +78,16 @@ public sealed class SqlGoldenManifestRepository(
     {
         if (contract is null)
             throw new ArgumentNullException(nameof(contract));
+
         if (scope is null)
             throw new ArgumentNullException(nameof(scope));
+
         if (keying is null)
             throw new ArgumentNullException(nameof(keying));
+
         if (contractHash is null)
             throw new ArgumentNullException(nameof(contractHash));
+
         ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
         ManifestDocument model = ContractGoldenManifestPersistence.ResolveGoldenManifestForContractSave(
             contract,

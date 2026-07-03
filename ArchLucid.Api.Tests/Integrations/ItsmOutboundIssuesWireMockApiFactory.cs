@@ -50,6 +50,7 @@ public sealed class ItsmOutboundIssuesWireMockApiFactory : ArchLucidApiFactory
                         ["Integrations:ItsmOutbound:ServiceNow:Username"] = "svc",
                         ["Integrations:ItsmOutbound:ServiceNow:Password"] = "pwd",
                         ["Integrations:Itsm:NativeEnabled"] = "true",
+                        ["Integrations:ItsmOutbound:DurableAsyncCreateEnabled"] = "false",
                     });
             });
 

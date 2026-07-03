@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { Fragment, useCallback, useEffect, useState } from "react";
 
@@ -13,7 +14,6 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { replayModeLabel, REPLAY_MODE_PLAIN_OPTIONS } from "@/lib/replay-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /** Warn-only cost band estimate for architecture comparison replay (distinct from review-package validation). */
 

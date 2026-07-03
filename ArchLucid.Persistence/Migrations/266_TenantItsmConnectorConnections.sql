@@ -1,5 +1,5 @@
 /*
-  261: Per-tenant Jira / ServiceNow connector references (Key Vault secret names only — never raw tokens).
+  266: Per-tenant Jira / ServiceNow connector references (Key Vault secret names only — never raw tokens).
 
   RLS: not applied — API enforces caller tenant via IScopeContextProvider (same posture as TenantTeamsIncomingWebhookConnections).
 */

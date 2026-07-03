@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -21,7 +22,6 @@ import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import { ITSM_CONNECTOR_SMOKE_HELP } from "@/lib/itsm-connectors-admin-scope";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { isItsmNativeCreateDefaultPathReady } from "@/lib/itsm-native-create-readiness";
-import { cn } from "@/lib/utils";
 
 import { ItsmConnectorProbeCard } from "./ItsmConnectorProbeCard";
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 
@@ -14,7 +15,6 @@ import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-conte
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
-import { cn } from "@/lib/utils";
 
 type Phase = "loading" | "ready";
 

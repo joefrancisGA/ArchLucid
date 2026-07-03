@@ -24,7 +24,6 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/customer-facing/operator_troubleshooting.md": "troubleshooting",
   "docs/library/customer-facing/operator_admin_diagnostics.md": "admin-diagnostics",
   "docs/library/operator_quickstart.md": "getting-started",
-  "docs/library/security.md": "operator-auth-roles",
   "docs/library/release_smoke.md": "developer-troubleshooting",
   "docs/library/audit_coverage_matrix.md": "audit-trail",
   "docs/library/pre_commit_governance_gate.md": "governance-approval",

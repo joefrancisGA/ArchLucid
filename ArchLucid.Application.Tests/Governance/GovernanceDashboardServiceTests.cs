@@ -1,17 +1,16 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
-using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Contracts.Architecture;
 
 using FluentAssertions;
 
 using Moq;
-
-using ArchLucid.Core.Scoping;
 namespace ArchLucid.Application.Tests.Governance;
 
 [Trait("Category", "Unit")]
@@ -131,12 +130,12 @@ public sealed class GovernanceDashboardServiceTests
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<AgentExecutionTrace>
-            {
-                new() { InputTokenCount = 120, OutputTokenCount = 45 },
-                new() { InputTokenCount = 80, OutputTokenCount = 55 },
-            });
+            .Setup(t => t.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AgentExecutionTraceLlmCostSlice { InputTokenCount = 120, OutputTokenCount = 45 },
+                new AgentExecutionTraceLlmCostSlice { InputTokenCount = 80, OutputTokenCount = 55 },
+            ]);
 
         IGovernanceDashboardService sut = new GovernanceDashboardService(
             approvals.Object,

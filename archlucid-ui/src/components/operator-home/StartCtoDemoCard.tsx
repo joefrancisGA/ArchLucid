@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -13,7 +14,6 @@ import {
 import { evaluateBuyerCtoDemoReadiness } from "@/lib/buyer-cto-demo-readiness";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getStartCtoDemoTourHref } from "@/lib/buyer-cto-demo-tour";
-import { cn } from "@/lib/utils";
 
 /** Primary buyer-polished CTA — lands on step 1 of the golden journey without setup or pipeline wait. */
 export function StartCtoDemoCard(): React.JSX.Element {

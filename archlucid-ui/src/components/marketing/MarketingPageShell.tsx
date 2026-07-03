@@ -1,7 +1,7 @@
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import { MARKETING_LAYOUT } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type MarketingPageShellProps = {
   readonly children: ReactNode;

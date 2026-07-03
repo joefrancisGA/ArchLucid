@@ -6,7 +6,7 @@
       "id": "core-pilot-step-1",
       "sourceModule": "archlucid-ui/src/lib/core-pilot-steps.ts",
       "titleField": "CORE_PILOT_STEPS[0].title",
-      "requiredTitle": "Provide architecture evidence"
+      "requiredTitle": "Start demo review or new request"
     },
     {
       "id": "operating-rail-ingest",

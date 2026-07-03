@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -23,7 +24,6 @@ import {
   tryStaticDemoGoldenManifestComparison,
   tryStaticDemoRunComparison,
 } from "@/lib/operator-static-demo";
-import { cn } from "@/lib/utils";
 import { CompareBuyerScopedGate } from "@/app/(operator)/compare/_sections/CompareBuyerScopedGate";
 import { CompareDemoQuickPick } from "@/app/(operator)/compare/_sections/CompareDemoQuickPick";
 import { CompareInsufficientFinalizedEmptyState } from "@/app/(operator)/compare/_sections/CompareInsufficientFinalizedEmptyState";

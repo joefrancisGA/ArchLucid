@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReviewIntakeExampleTemplate } from "@/lib/operator-home-example-request";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

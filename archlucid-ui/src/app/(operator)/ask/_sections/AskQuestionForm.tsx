@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { RefObject } from "react";
 
@@ -7,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { BUYER_ASK_INPUT_PLACEHOLDER } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { cn } from "@/lib/utils";
 import {
   ASK_BUYER_PROMPT_GROUPS,
   ASK_DEEP_LINK_RUN_PROMPTS,

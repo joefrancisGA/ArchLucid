@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { AuthorityThemeDevSelector } from "@/components/settings/AuthorityThemeDevSelector";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
@@ -5,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
   return (

@@ -1,10 +1,10 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type RunDetailWhatsNextSectionProps = {
   readonly runId: string;

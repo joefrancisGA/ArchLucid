@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 import { CtoDemoHowItWorksTrigger } from "@/components/cto-demo/CtoDemoHowItWorksTrigger";
@@ -8,7 +9,6 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_DEMO_TENANT_NAME } from "@/lib/showcase-static-demo";
-import { cn } from "@/lib/utils";
 
 /** Step 1 trust note — makes tenant isolation tangible at the executive landing moment. */
 export function CtoDemoExecutiveTenantIsolationCallout(): React.JSX.Element | null {

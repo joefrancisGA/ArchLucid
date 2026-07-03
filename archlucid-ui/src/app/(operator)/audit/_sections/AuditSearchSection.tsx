@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 
 import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
@@ -20,7 +21,6 @@ import { BUYER_AUDIT_REFERENCE_ID_LABEL } from "@/lib/buyer-polish-copy";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { auditRunIdInputDisplayValue, auditRunIdParseInputValue } from "./audit-page-helpers";
 
 type AuditSearchSectionProps = {

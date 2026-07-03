@@ -1,7 +1,7 @@
 "use client";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { BUYER_CTO_DEMO_READ_ONLY_SNAPSHOT_BANNER } from "@/lib/buyer-polish-copy";
 
 export function CtoDemoReadOnlySnapshotBanner(): React.JSX.Element {

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -16,7 +17,6 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import type { ShowcaseHomeAhaMoment } from "@/lib/showcase-home-aha-moment";
-import { cn } from "@/lib/utils";
 
 type SampleReviewAhaMomentPanelProps = {
   readonly moment: ShowcaseHomeAhaMoment;
@@ -32,7 +32,7 @@ function AhaDetail(props: { readonly label: string; readonly body: string }): Re
   return (
     <div className="space-y-1">
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label, "text-al-text-primary")}>{props.label}</p>
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary leading-relaxed")}>{props.body}</p>
+      <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary leading-relaxed")}>{props.body}</p>
     </div>
   );
 }
@@ -50,7 +50,7 @@ export function SampleReviewAhaMomentPanel(props: SampleReviewAhaMomentPanelProp
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
           {demoLabel ? (
-            <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "font-semibold uppercase tracking-wide text-amber-800 dark:text-amber-200")}>
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "font-semibold uppercase tracking-wide text-amber-800 dark:text-amber-200")}>
               {demoLabel}
             </p>
           ) : null}
@@ -61,7 +61,7 @@ export function SampleReviewAhaMomentPanel(props: SampleReviewAhaMomentPanelProp
             {heading}
           </h3>
           {lead ? (
-            <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}>{lead}</p>
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>{lead}</p>
           ) : null}
         </div>
         <Button asChild variant="outline" size="sm" className="h-8 shrink-0">

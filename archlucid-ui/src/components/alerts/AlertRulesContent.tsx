@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
@@ -32,7 +33,6 @@ import {
   alertRulesEmptyGettingStartedReader,
 } from "@/lib/alerts-hub-empty-guidance";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { AlertRule } from "@/types/alerts";
 
 const RULE_TYPES = [

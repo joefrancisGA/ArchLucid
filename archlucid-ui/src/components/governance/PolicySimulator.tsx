@@ -1,6 +1,6 @@
 "use client";
-import { OPERATOR_CALLOUT_BLOCKED_CLASS, OPERATOR_CALLOUT_SUCCESS_CLASS, OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_CALLOUT_BLOCKED_CLASS, OPERATOR_CALLOUT_SUCCESS_CLASS, OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { ReactNode } from "react";
 

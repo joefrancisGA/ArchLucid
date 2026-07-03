@@ -28,7 +28,8 @@ public static class PilotRunDeltasResponseMapper
         PilotRunDeltas deltas,
         ValueReportSnapshot valueWindowSnapshot,
         DateTime? extractorCollectionTimestampUtc = null,
-        PilotBaselineRecord? scorecardBaselines = null)
+        PilotBaselineRecord? scorecardBaselines = null,
+        DateTime? freshnessEvaluationUtc = null)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -40,12 +41,14 @@ public static class PilotRunDeltasResponseMapper
 
         IReadOnlyList<RoiMetricSourceRow> roiSources = RoiMetricSourceCatalogBuilder.Build(valueWindowSnapshot);
 
+        DateTime evaluationUtc = freshnessEvaluationUtc ?? TimeProvider.System.UtcNowDateTime();
+
         string roiFreshnessDisposition = RoiMetricSourceFreshnessRules.ResolveDisposition(
             extractorCollectionTimestampUtc,
             deltas.IsDemoTenant,
             deltas.EstimatedUsdSavings,
             roiSources,
-            TimeProvider.System.UtcNowDateTime());
+            evaluationUtc);
 
         return MapCore(deltas, extractorCollectionTimestampUtc, completeness, roiSources, roiFreshnessDisposition);
     }

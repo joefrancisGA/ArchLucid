@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -13,7 +14,6 @@ import {
   SAML_SP_SIGNING_CERT_WARNING_DAYS,
   type SamlSigningCertExpiryBannerDecision,
 } from "@/lib/saml-signing-cert-expiry";
-import { cn } from "@/lib/utils";
 
 type AdminSamlOperationalHealthResponse = components["schemas"]["AdminSamlOperationalHealthResponse"];
 

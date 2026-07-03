@@ -57,6 +57,8 @@ async function main(): Promise<void> {
     env: {
       ...process.env,
       ARCHLUCID_API_BASE_URL: LIVE_API_BASE,
+      ARCHLUCID_PROXY_ALLOW_CLIENT_SCOPE_HEADERS:
+        process.env.ARCHLUCID_PROXY_ALLOW_CLIENT_SCOPE_HEADERS ?? "true",
       NODE_ENV: "production",
       PORT: process.env.PORT ?? "3000",
       HOSTNAME: "0.0.0.0",

@@ -113,7 +113,7 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
                     e.EventType == AuditEventTypes.ArchitectureDocxExportGenerated &&
-                    e.CorrelationId != null &&
+                    !string.IsNullOrWhiteSpace(e.CorrelationId) &&
                     e.CorrelationId.StartsWith("analysis-report-consulting-docx-async:", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -214,7 +214,8 @@ public sealed class BackgroundJobWorkUnitExecutorTests
         BackgroundJobFile file = await sut.ExecuteAsync(unit, CancellationToken.None);
 
         file.FileName.Should().Be("itsm-outbound-create-result.json");
-        ItsmOutboundCreateJobResult? parsed = JsonSerializer.Deserialize<ItsmOutboundCreateJobResult>(file.Bytes);
+        JsonSerializerOptions deserOpts = new() { PropertyNameCaseInsensitive = true };
+        ItsmOutboundCreateJobResult? parsed = JsonSerializer.Deserialize<ItsmOutboundCreateJobResult>(file.Bytes, deserOpts);
         parsed.Should().NotBeNull();
         parsed!.Kind.Should().Be(ItsmOutboundCreateTerminalKind.Succeeded);
         parsed.ExternalKey.Should().Be("DP-42");

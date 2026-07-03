@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,6 @@ import {
 } from "@/lib/buyer-safe-review-navigation";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { cn } from "@/lib/utils";
 
 /** Right-rail example package shortcuts — secondary links (primary CTA lives on the hero card). */
 export function SamplePackageShortcutsCard(): React.JSX.Element {

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useMemo } from "react";
 
@@ -20,7 +21,6 @@ import {
   resolveRunSavingsUsd,
 } from "@/lib/roi-resolution-priority";
 import { formatUsd } from "@/lib/roi-assumptions";
-import { cn } from "@/lib/utils";
 
 /** Compact executive ROI strip on Overview after the first committed review package. */
 export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {
@@ -43,7 +43,7 @@ export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {
         className={cn(OPERATOR_SURFACE_CARD_CLASS, "p-4")}
         data-testid="operator-home-roi-strip-loading"
       >
-        <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}>Loading executive summary…</p>
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>Loading executive summary…</p>
       </section>
     );
   }
@@ -84,18 +84,18 @@ export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {
     >
       <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", OPERATOR_LAYOUT.inlineGap)}>
         <div className="min-w-0 space-y-1">
-          <h2 id="operator-home-roi-strip-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.title)}>
+          <h2 id="operator-home-roi-strip-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}>
             <span className="inline-flex items-center gap-1">
               Executive ROI
               <RoiDispositionTrainingTooltip />
             </span>
           </h2>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}>
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
             <span className="font-medium text-al-text-primary">{savingsLabel}</span>
             {" "}
             estimated savings ({scopeLabel})
           </p>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary/80")}>
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary/80")}>
             {summary.systemCount} system{summary.systemCount === 1 ? "" : "s"} · {summary.latestRunCount} committed review
             {summary.latestRunCount === 1 ? "" : "s"}
           </p>

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { FindingInspectContextDebugPanel } from "@/components/findings/FindingInspectContextDebugPanel";
@@ -30,7 +31,6 @@ import {
   buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/finding-policy-evidence-citations";
-import { cn } from "@/lib/utils";
 
 import { FindingInspectFindingBody } from "../FindingInspectFindingBody";
 import { FindingInspectItsmWorkflowPanel } from "../FindingInspectItsmWorkflowPanel";

@@ -3002,6 +3002,82 @@ IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
 
 GO
 
+/* ---- DbUp 038 parity: governance workflow tables (see Migrations/038_GovernanceWorkflow.sql) ----
+   Greenfield CREATE with final column set so subsequent migration-parity ALTER blocks are no-ops.
+   TenantId/WorkspaceId/ProjectId are NOT NULL from greenfield (migration 118 backfill only needed for
+   legacy rows). FK to dbo.Tenants is added separately below after Tenants is created (per-tenant
+   catalog topology: dbo.Tenants lives in the system catalog, not here). */
+
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.GovernanceApprovalRequests
+    (
+        ApprovalRequestId    NVARCHAR(64)     NOT NULL CONSTRAINT PK_GovernanceApprovalRequests PRIMARY KEY,
+        RunId                NVARCHAR(64)     NOT NULL,
+        ManifestVersion      NVARCHAR(128)    NOT NULL,
+        SourceEnvironment    NVARCHAR(32)     NOT NULL,
+        TargetEnvironment    NVARCHAR(32)     NOT NULL,
+        Status               NVARCHAR(32)     NOT NULL,
+        RequestedBy          NVARCHAR(200)    NOT NULL,
+        ReviewedBy           NVARCHAR(200)    NULL,
+        RequestComment       NVARCHAR(MAX)    NULL,
+        ReviewComment        NVARCHAR(MAX)    NULL,
+        RequestedUtc         DATETIME2        NOT NULL,
+        ReviewedUtc          DATETIME2        NULL,
+        SlaDeadlineUtc       DATETIME2        NULL,    -- DbUp 058
+        SlaBreachNotifiedUtc DATETIME2        NULL,    -- DbUp 058
+        RequestedByActorKey  NVARCHAR(256)    NULL,    -- DbUp 130
+        ReviewedByActorKey   NVARCHAR(256)    NULL,    -- DbUp 130
+        TenantId             UNIQUEIDENTIFIER NOT NULL, -- DbUp 118
+        WorkspaceId          UNIQUEIDENTIFIER NOT NULL, -- DbUp 118
+        ProjectId            UNIQUEIDENTIFIER NOT NULL, -- DbUp 118
+        INDEX IX_GovernanceApprovalRequests_RunId NONCLUSTERED (RunId)
+    );
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.GovernancePromotionRecords
+    (
+        PromotionRecordId NVARCHAR(64)     NOT NULL CONSTRAINT PK_GovernancePromotionRecords PRIMARY KEY,
+        RunId             NVARCHAR(64)     NOT NULL,
+        ManifestVersion   NVARCHAR(128)    NOT NULL,
+        SourceEnvironment NVARCHAR(32)     NOT NULL,
+        TargetEnvironment NVARCHAR(32)     NOT NULL,
+        PromotedBy        NVARCHAR(200)    NOT NULL,
+        PromotedUtc       DATETIME2        NOT NULL,
+        ApprovalRequestId NVARCHAR(64)     NULL,
+        Notes             NVARCHAR(MAX)    NULL,
+        TenantId          UNIQUEIDENTIFIER NOT NULL, -- DbUp 118
+        WorkspaceId       UNIQUEIDENTIFIER NOT NULL, -- DbUp 118
+        ProjectId         UNIQUEIDENTIFIER NOT NULL, -- DbUp 118
+        INDEX IX_GovernancePromotionRecords_RunId NONCLUSTERED (RunId)
+    );
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.GovernanceEnvironmentActivations
+    (
+        ActivationId    NVARCHAR(64)     NOT NULL CONSTRAINT PK_GovernanceEnvironmentActivations PRIMARY KEY,
+        RunId           NVARCHAR(64)     NOT NULL,
+        ManifestVersion NVARCHAR(128)    NOT NULL,
+        Environment     NVARCHAR(64)     NOT NULL, -- DbUp 143 widened from 32 to 64; greenfield starts wide
+        IsActive        BIT              NOT NULL,
+        ActivatedUtc    DATETIME2        NOT NULL,
+        TenantId        UNIQUEIDENTIFIER NOT NULL, -- DbUp 118
+        WorkspaceId     UNIQUEIDENTIFIER NOT NULL, -- DbUp 118
+        ProjectId       UNIQUEIDENTIFIER NOT NULL, -- DbUp 118
+        INDEX IX_GovernanceEnvironmentActivations_Environment_IsActive NONCLUSTERED (Environment, IsActive)
+    );
+END;
+
+GO
+
 /* ---- DbUp 058 parity: SLA tracking on governance approval requests ---- */
 
 IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
@@ -3028,7 +3104,8 @@ GO
 
 /* ---- DbUp 059 parity: SLA breach monitoring + blob upload failure indexes ---- */
 
-IF NOT EXISTS (
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_GovernanceApprovalRequests_PendingSlaBreached'
       AND object_id = OBJECT_ID(N'dbo.GovernanceApprovalRequests'))
@@ -3041,7 +3118,8 @@ END
 
 GO
 
-IF NOT EXISTS (
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_GovernanceApprovalRequests_Status_RequestedUtc'
       AND object_id = OBJECT_ID(N'dbo.GovernanceApprovalRequests'))
@@ -3117,7 +3195,8 @@ END
 
 GO
 
-IF NOT EXISTS (
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
+   AND NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_GovernanceEnvironmentActivations_RunId_ActivatedUtc'
       AND object_id = OBJECT_ID(N'dbo.GovernanceEnvironmentActivations'))
@@ -3128,7 +3207,8 @@ END
 
 GO
 
-IF NOT EXISTS (
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
+   AND NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_GovernanceEnvironmentActivations_Environment_ActivatedUtc'
       AND object_id = OBJECT_ID(N'dbo.GovernanceEnvironmentActivations'))
@@ -3140,7 +3220,8 @@ END
 
 GO
 
-IF NOT EXISTS (
+IF OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL
+   AND NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_GovernancePromotionRecords_RunId_PromotedUtc'
       AND object_id = OBJECT_ID(N'dbo.GovernancePromotionRecords'))
@@ -3541,7 +3622,9 @@ BEGIN
         RequestFingerprint VARBINARY(32)     NOT NULL,
         CreatedUtc          DATETIME2(7)     NOT NULL CONSTRAINT DF_CommitRunIdempotency_CreatedUtc DEFAULT SYSUTCDATETIME(),
         CONSTRAINT PK_CommitRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, RunId, IdempotencyKeyHash),
-        CONSTRAINT FK_CommitRunIdempotency_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        -- FK_CommitRunIdempotency_Tenants is added below after dbo.Tenants is created (ordering fix).
+        -- In SystemWithPerTenantCatalogs mode dbo.Tenants lives in the system catalog; the guarded
+        -- ALTER TABLE below is a no-op on tenant catalogs and adds the FK on single-catalog installs.
         CONSTRAINT FK_CommitRunIdempotency_Runs_RunId FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId)
     );
 END;
@@ -3568,7 +3651,7 @@ BEGIN
         Role        NVARCHAR(32)      NOT NULL,
         CreatedUtc  DATETIME2(7)     NOT NULL CONSTRAINT DF_ProjectRoleAssignments_CreatedUtc DEFAULT SYSUTCDATETIME(),
         CONSTRAINT PK_ProjectRoleAssignments PRIMARY KEY (TenantId, ProjectId, UserId),
-        CONSTRAINT FK_ProjectRoleAssignments_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        -- FK_ProjectRoleAssignments_Tenants is added below after dbo.Tenants is created (ordering fix).
         CONSTRAINT FK_ProjectRoleAssignments_ScimUsers FOREIGN KEY (UserId) REFERENCES dbo.ScimUsers (Id),
         CONSTRAINT CK_ProjectRoleAssignments_Role CHECK (Role IN (N'Reader', N'Operator', N'ProjectAdmin'))
     );
@@ -4098,6 +4181,28 @@ BEGIN
         CONSTRAINT UQ_Tenants_Slug2 UNIQUE (Slug)
     );
 END;
+
+GO
+
+/* ---- Deferred FKs to dbo.Tenants: added after dbo.Tenants is created above ----
+   These constraints were previously inline in CREATE TABLE which ran before dbo.Tenants existed,
+   causing 'FK_CommitRunIdempotency_Tenants references invalid table dbo.Tenants' on greenfield.
+   Guard with OBJECT_ID(N'dbo.Tenants') so they are no-ops in SystemWithPerTenantCatalogs mode
+   where dbo.Tenants is in the system catalog, not the tenant catalog. */
+
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_CommitRunIdempotency_Tenants')
+    ALTER TABLE dbo.CommitRunIdempotency
+        ADD CONSTRAINT FK_CommitRunIdempotency_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id);
+
+GO
+
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.ProjectRoleAssignments', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ProjectRoleAssignments_Tenants')
+    ALTER TABLE dbo.ProjectRoleAssignments
+        ADD CONSTRAINT FK_ProjectRoleAssignments_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id);
 
 GO
 
@@ -4704,7 +4809,7 @@ END;
 
 GO
 
-/* 261: Per-tenant Jira / ServiceNow connector references (see Migrations/261_TenantItsmConnectorConnections.sql). */
+/* 266: Per-tenant Jira / ServiceNow connector references (see Migrations/266_TenantItsmConnectorConnections.sql). */
 IF OBJECT_ID(N'dbo.TenantItsmConnectorConnections', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.TenantItsmConnectorConnections
@@ -4730,6 +4835,7 @@ BEGIN
         CONSTRAINT FK_TenantItsmConnectorConnections_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
     );
 END;
+
 GO
 
 /* 083: Tenant health scores + product feedback (see Migrations/083_TenantHealthScores_ProductFeedback.sql). */
@@ -4892,7 +4998,9 @@ END;
 
 GO
 
+-- Guard: dbo.Tenants is absent in tenant catalogs (SystemWithPerTenantCatalogs topology).
 IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
         FROM sys.foreign_keys AS fk
@@ -4906,6 +5014,7 @@ END;
 GO
 
 IF OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
         FROM sys.foreign_keys AS fk
@@ -4919,6 +5028,7 @@ END;
 GO
 
 IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
         FROM sys.foreign_keys AS fk
@@ -6294,6 +6404,13 @@ BEGIN
         WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = x.RunId);
     END;
 
+    IF OBJECT_ID(N'dbo.CloudInventoryExtractorPackages', N'U') IS NOT NULL
+    BEGIN
+        DELETE x
+        FROM dbo.CloudInventoryExtractorPackages AS x
+        WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = x.RunId);
+    END;
+
     DELETE et
     FROM dbo.AgentExecutionTraces AS et
     WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE TRY_CAST(et.RunId AS UNIQUEIDENTIFIER) = p.RunId);
@@ -6809,7 +6926,7 @@ BEGIN
         CreatedUtc               DATETIME2(7)      NOT NULL
             CONSTRAINT DF_CommitRunIdempotency_CreatedUtc DEFAULT SYSUTCDATETIME(),
         CONSTRAINT PK_CommitRunIdempotency PRIMARY KEY CLUSTERED (TenantId, WorkspaceId, ProjectId, RunId, IdempotencyKeyHash),
-        CONSTRAINT FK_CommitRunIdempotency_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        -- FK_CommitRunIdempotency_Tenants omitted here; added via guarded ALTER TABLE after dbo.Tenants.
         CONSTRAINT CK_CommitRunIdempotency_RunIdLen CHECK (LEN(RunId) > 0)
     );
 
@@ -6830,7 +6947,7 @@ BEGIN
         Role            NVARCHAR(32)     NOT NULL,
         CreatedUtc       DATETIME2(7)     NOT NULL CONSTRAINT DF_ProjectRoleAssignments_CreatedUtc DEFAULT SYSUTCDATETIME(),
         CONSTRAINT PK_ProjectRoleAssignments PRIMARY KEY CLUSTERED (TenantId, ProjectId, UserId),
-        CONSTRAINT FK_ProjectRoleAssignments_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        -- FK_ProjectRoleAssignments_Tenants omitted here; added via guarded ALTER TABLE after dbo.Tenants.
         CONSTRAINT FK_ProjectRoleAssignments_ScimUsers FOREIGN KEY (UserId) REFERENCES dbo.ScimUsers (Id),
         CONSTRAINT CK_ProjectRoleAssignments_Role CHECK (Role IN (N'Reader', N'Operator', N'ProjectAdmin'))
     );
@@ -6929,6 +7046,70 @@ BEGIN
     CREATE INDEX IX_TenantHostedExtractorConfigurations_TenantId
         ON dbo.TenantHostedExtractorConfigurations (TenantId)
         INCLUDE (SubscriptionId, CustomerAppId, UpdatedUtc);
+END;
+
+GO
+
+/* ---- DbUp 263 parity: hosted AWS extractor connections (see Migrations/263_TenantAwsConnectionRecords.sql) ---- */
+IF OBJECT_ID(N'dbo.TenantAwsConnectionRecords', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantAwsConnectionRecords
+    (
+        ConnectionId        UNIQUEIDENTIFIER  NOT NULL
+            CONSTRAINT DF_TenantAwsConnectionRecords_ConnectionId DEFAULT (NEWSEQUENTIALID()),
+        TenantId            UNIQUEIDENTIFIER  NOT NULL,
+        AccountId           NVARCHAR(32)      NOT NULL,
+        Region              NVARCHAR(32)      NOT NULL,
+        RoleArn             NVARCHAR(256)     NOT NULL,
+        Status              NVARCHAR(32)      NOT NULL
+            CONSTRAINT DF_TenantAwsConnectionRecords_Status DEFAULT (N'Connected'),
+        LastPolledUtc       DATETIMEOFFSET(7) NULL,
+        CreatedUtc          DATETIMEOFFSET(7) NOT NULL
+            CONSTRAINT DF_TenantAwsConnectionRecords_CreatedUtc DEFAULT (SYSUTCDATETIME()),
+        UpdatedUtc          DATETIMEOFFSET(7) NOT NULL
+            CONSTRAINT DF_TenantAwsConnectionRecords_UpdatedUtc DEFAULT (SYSUTCDATETIME()),
+        UpdatedByActorId    NVARCHAR(256)     NOT NULL,
+        CONSTRAINT PK_TenantAwsConnectionRecords PRIMARY KEY (ConnectionId),
+        CONSTRAINT UQ_TenantAwsConnectionRecords_TenantAccount UNIQUE (TenantId, AccountId),
+        CONSTRAINT FK_TenantAwsConnectionRecords_Tenants
+            FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE INDEX IX_TenantAwsConnectionRecords_TenantId
+        ON dbo.TenantAwsConnectionRecords (TenantId)
+        INCLUDE (AccountId, Region, Status, LastPolledUtc, UpdatedUtc);
+END;
+
+GO
+
+/* ---- DbUp 264 parity: hosted GCP extractor connections (see Migrations/264_TenantGcpConnectionRecords.sql) ---- */
+IF OBJECT_ID(N'dbo.TenantGcpConnectionRecords', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantGcpConnectionRecords
+    (
+        ConnectionId                    UNIQUEIDENTIFIER  NOT NULL
+            CONSTRAINT DF_TenantGcpConnectionRecords_ConnectionId DEFAULT (NEWSEQUENTIALID()),
+        TenantId                        UNIQUEIDENTIFIER  NOT NULL,
+        ProjectId                       NVARCHAR(64)      NOT NULL,
+        WorkloadIdentityPoolProvider    NVARCHAR(512)     NOT NULL,
+        ServiceAccountEmail             NVARCHAR(256)     NOT NULL,
+        Status                          NVARCHAR(32)      NOT NULL
+            CONSTRAINT DF_TenantGcpConnectionRecords_Status DEFAULT (N'Connected'),
+        LastPolledUtc                   DATETIMEOFFSET(7) NULL,
+        CreatedUtc                      DATETIMEOFFSET(7) NOT NULL
+            CONSTRAINT DF_TenantGcpConnectionRecords_CreatedUtc DEFAULT (SYSUTCDATETIME()),
+        UpdatedUtc                      DATETIMEOFFSET(7) NOT NULL
+            CONSTRAINT DF_TenantGcpConnectionRecords_UpdatedUtc DEFAULT (SYSUTCDATETIME()),
+        UpdatedByActorId                NVARCHAR(256)     NOT NULL,
+        CONSTRAINT PK_TenantGcpConnectionRecords PRIMARY KEY (ConnectionId),
+        CONSTRAINT UQ_TenantGcpConnectionRecords_TenantProject UNIQUE (TenantId, ProjectId),
+        CONSTRAINT FK_TenantGcpConnectionRecords_Tenants
+            FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE INDEX IX_TenantGcpConnectionRecords_TenantId
+        ON dbo.TenantGcpConnectionRecords (TenantId)
+        INCLUDE (ProjectId, Status, LastPolledUtc, UpdatedUtc);
 END;
 
 GO
@@ -7345,4 +7526,26 @@ BEGIN
 
     CREATE INDEX IX_DraftRequests_Scope_Status_UpdatedUtc
         ON dbo.DraftRequests (TenantId, WorkspaceId, ProjectId, Status, UpdatedUtc DESC);
+END;
+
+GO
+
+/* 265: Persist navigable sourceEvidenceLinks on advisory recommendations (TB-400). */
+IF OBJECT_ID(N'dbo.RecommendationRecords', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.RecommendationRecords', N'SourceEvidenceLinksJson') IS NULL
+BEGIN
+    ALTER TABLE dbo.RecommendationRecords
+        ADD SourceEvidenceLinksJson NVARCHAR(MAX) NOT NULL
+            CONSTRAINT DF_RecommendationRecords_SourceEvidenceLinksJson DEFAULT (N'[]');
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.RecommendationRecords', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.RecommendationRecords', N'SourceEvidenceLinksJson') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_RecommendationRecords_SourceEvidenceLinksJson_IsJson')
+   AND NOT EXISTS (SELECT 1 FROM dbo.RecommendationRecords AS t WHERE ISJSON(t.SourceEvidenceLinksJson) <> 1)
+BEGIN
+    ALTER TABLE dbo.RecommendationRecords ADD CONSTRAINT CK_RecommendationRecords_SourceEvidenceLinksJson_IsJson
+        CHECK (ISJSON(SourceEvidenceLinksJson) = 1);
 END;

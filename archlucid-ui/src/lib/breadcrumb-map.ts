@@ -1,7 +1,7 @@
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
-import { pathMatchesCloudConnections, pathMatchesIntegrationsReadiness } from "@/lib/integrations-nav-paths";
+import { pathMatchesCloudConnections } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";

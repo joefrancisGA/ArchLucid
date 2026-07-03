@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -9,7 +10,6 @@ import {
   RUN_DETAIL_DECISION_DELTA_ROW_TEST_ID,
 } from "@/lib/run-detail-decision-delta-alignment";
 import type { RunDetailDecisionDeltaView } from "@/lib/run-detail-decision-delta";
-import { cn } from "@/lib/utils";
 
 export type RunDetailDecisionDeltaPanelProps = {
   readonly runId: string;

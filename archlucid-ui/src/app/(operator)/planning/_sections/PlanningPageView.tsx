@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
@@ -15,7 +16,6 @@ import { PlanningThemesTable } from "@/components/planning/PlanningThemesTable";
 import { PLANNING_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
 
 import type { PlanningPageViewModel } from "./planning-page-view-model";
 

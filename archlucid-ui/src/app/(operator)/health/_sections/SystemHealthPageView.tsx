@@ -1,15 +1,16 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { StatusPill } from "@/components/StatusPill";
+import { DeploymentBuildFingerprintStrip } from "@/components/shell/DeploymentBuildFingerprintStrip";
 import { planningTableCls, planningThTdCls } from "@/components/planning/planning-table-styles";
 import { Button } from "@/components/ui/button";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { formatProcessUptime } from "@/lib/format-process-uptime";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import type { SystemHealthPageViewModel } from "./system-health-page-view-model";
 
@@ -111,10 +112,22 @@ export function SystemHealthPageView(props: Props) {
             <span className={OPERATOR_TYPOGRAPHY.cardTitle}>Commit: </span>
             <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{m.version?.commitSha ?? "—"}</span>
           </p>
+          <p className="m-0 mt-1">
+            <span className={OPERATOR_TYPOGRAPHY.cardTitle}>Build timestamp: </span>
+            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{m.version?.buildTimestamp ?? "—"}</span>
+          </p>
+          <p className="m-0 mt-1">
+            <span className={OPERATOR_TYPOGRAPHY.cardTitle}>Environment: </span>
+            <span>{m.version?.environment ?? "—"}</span>
+          </p>
           <p className="m-0 mt-1" data-testid="system-health-uptime">
             <span className={OPERATOR_TYPOGRAPHY.cardTitle}>Process uptime: </span>
             <span>{formatProcessUptime(m.version?.processUptimeSeconds)}</span>
           </p>
+        </div>
+        <div className="mt-3" data-testid="system-health-ui-build-identity">
+          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>UI build</p>
+          <DeploymentBuildFingerprintStrip className="mt-1" />
         </div>
       </section>
 

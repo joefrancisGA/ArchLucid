@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import {
@@ -6,7 +7,6 @@ import {
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type FindingInspectRecommendedActionSectionProps = {
   readonly tone: "detail" | "inspect";

@@ -1,8 +1,10 @@
+using Microsoft.Extensions.Configuration;
+
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
-///     Lightweight, non-secret build identity payload returned by <c>GET /version</c>
-///     and included in CLI <c>doctor</c> output for support handoff.
+///     Lightweight, non-secret build identity payload returned by <c>GET /version</c>,
+///     <c>GET /health/version</c>, and included in CLI <c>doctor</c> output for support handoff.
 /// </summary>
 public sealed class BuildInfoResponse
 {
@@ -36,6 +38,13 @@ public sealed class BuildInfoResponse
         init;
     }
 
+    /// <summary>UTC build timestamp from <see cref="DeploymentBuildMetadata.BuildTimestampVariable" /> when set by CD.</summary>
+    public string BuildTimestamp
+    {
+        get;
+        init;
+    } = "unknown";
+
     public string RuntimeFramework
     {
         get;
@@ -63,7 +72,8 @@ public sealed class BuildInfoResponse
         BuildProvenance provenance,
         string applicationName,
         string environmentName,
-        long processUptimeSeconds = 0)
+        long processUptimeSeconds = 0,
+        IConfiguration? configuration = null)
     {
         ArgumentNullException.ThrowIfNull(provenance);
 
@@ -73,7 +83,8 @@ public sealed class BuildInfoResponse
             InformationalVersion = provenance.InformationalVersion,
             AssemblyVersion = provenance.AssemblyVersion,
             FileVersion = provenance.FileVersion,
-            CommitSha = provenance.CommitSha,
+            CommitSha = DeploymentBuildMetadata.ResolveCommitSha(provenance, configuration),
+            BuildTimestamp = DeploymentBuildMetadata.ResolveBuildTimestamp(configuration),
             RuntimeFramework = provenance.RuntimeFrameworkDescription,
             Environment = environmentName,
             ProcessUptimeSeconds = processUptimeSeconds

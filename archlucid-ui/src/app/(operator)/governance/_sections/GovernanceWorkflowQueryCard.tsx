@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,7 +21,6 @@ import {
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_PLACEHOLDER,
 } from "@/lib/governance-workflow-release-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type GovernanceWorkflowQueryCardProps = {
   hideGovernanceQueryLoadCard: boolean;

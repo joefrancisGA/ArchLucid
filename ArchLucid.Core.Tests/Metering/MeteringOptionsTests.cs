@@ -1,5 +1,7 @@
 using ArchLucid.Core.Metering;
 
+using FluentAssertions;
+
 namespace ArchLucid.Core.Tests.Metering;
 
 [Trait("Suite", "Core")]

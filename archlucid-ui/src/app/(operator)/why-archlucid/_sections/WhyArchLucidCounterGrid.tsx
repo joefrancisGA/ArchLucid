@@ -1,8 +1,8 @@
+import { cn } from "@/lib/utils";
 import type { WhyArchLucidSnapshot } from "@/lib/api";
 import { formatWhyPageInstant } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-helpers";
 import { WhyArchLucidCounter } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidCounter";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type WhyArchLucidCounterGridProps = {
   readonly snapshot: WhyArchLucidSnapshot;

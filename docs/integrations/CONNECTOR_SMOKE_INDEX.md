@@ -6,13 +6,13 @@ Each recipe under [smoke/](smoke/) is written so an operator can execute it **wi
 
 **Catalog entry point:** [go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md) · **Readiness matrix (status, tests, code):** [library/CONNECTOR_READINESS_MATRIX.md](../library/CONNECTOR_READINESS_MATRIX.md)
 
-**Scope contract:** [library/V1_SCOPE.md](../library/V1_SCOPE.md) §2.16 (Azure extractor) is **V1**; **§2.13–§2.15** first-party ITSM / Slack / Confluence are **V1.1** — smoke in the ITSM section below validates those surfaces when implemented. **ITSM/chat/doc connectors are not required for V1 first-pilot success.**
+**Scope contract:** [library/V1_SCOPE.md](../library/V1_SCOPE.md) §2.16 (Azure extractor) and **§2.13–§2.15** first-party **Jira** / **ServiceNow** / **Confluence** / **Slack** / **Teams** are all **V1 GA** (connectors promoted from V1.1 — owner scope 2026-07-03; see [`../library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6/§6a) — smoke in the section below validates those surfaces.
 
 **Customer-owned bridges** (Logic Apps / Power Automate), **canonical OpenAPI (`/openapi/v1.json`)**, and **webhook configuration** entry tables: [integrations/recipes/README.md](recipes/README.md).
 
-## V1 GA buyer-contract surfaces — smoke pointers
+## V1 GA buyer-contract surfaces — smoke pointers (core platform)
 
-These shipped surfaces support V1 pilots and workflow handoff. They are **not** the same as V1.1 ITSM/chat connectors below.
+These shipped surfaces support V1 pilots and workflow handoff. First-party ITSM/chat/doc connectors are also **V1 GA** — see the next section.
 
 | Surface | Smoke / runbook pointer | Primary automated tests | Notes |
 |---------|-------------------------|-------------------------|-------|
@@ -24,7 +24,7 @@ These shipped surfaces support V1 pilots and workflow handoff. They are **not** 
 | **Azure extractor ZIP** | [smoke/CONNECTOR_SMOKE_AZURE_EXTRACTOR.md](smoke/CONNECTOR_SMOKE_AZURE_EXTRACTOR.md) | `ArchLucid.Api.Tests/AzureExtractorUploadEndpointTests.cs` | Customer-run collector + upload |
 | **Procurement pack ZIP** | [../go-to-market/PROCUREMENT_PACK_INDEX.md](../go-to-market/PROCUREMENT_PACK_INDEX.md) | `scripts/ci/tests/test_procurement_pack_validation.py` | `python scripts/build_procurement_pack.py --dry-run --deal-ready` |
 
-## V1.1 first-party connectors — smoke doc ↔ tests
+## V1 GA first-party connectors — smoke doc ↔ tests (promoted from V1.1 — owner scope 2026-07-03)
 
 | Connector | Smoke recipe | Primary automated tests (repository paths) | Evidence type for those tests |
 |-----------|--------------|--------------------------------------------|-------------------------------|

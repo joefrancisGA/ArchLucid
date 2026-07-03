@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useSearchParams } from "next/navigation";
@@ -37,18 +38,17 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { CtoDemoGovernancePreviewHint } from "@/components/OperateCapabilityHints";
-import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
   isStaticDemoPayloadFallbackEnabled,
   shouldSeedStaticDemoGovernanceRecordsForRun,
-  SHOWCASE_STATIC_DEMO_RUN_ID,
   STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS,
   tryStaticDemoGovernanceApprovalRequests,
   tryStaticDemoGovernancePromotions,
   warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce,
 } from "@/lib/operator-static-demo";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,

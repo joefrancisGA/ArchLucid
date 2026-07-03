@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +23,6 @@ import {
   testWebhookSubscription,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
-import { cn } from "@/lib/utils";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   labelForWebhookEventId,
@@ -37,7 +37,7 @@ import {
   presentWebhookConnectionTestRequestFailure,
   presentWebhookConnectionTestToasts,
 } from "@/lib/webhook-subscription-connection-test";
-import { showError, showSuccess } from "@/lib/toast";
+import { showSuccess } from "@/lib/toast";
 
 import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
 

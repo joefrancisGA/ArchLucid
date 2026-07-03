@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
@@ -16,7 +17,6 @@ import {
 } from "@/lib/operator-home-example-request";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
@@ -39,7 +39,7 @@ export function OperatorHomeExampleRequestPanel(): React.JSX.Element | null {
         <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
           Example request
         </CardTitle>
-        <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-neutral-600 dark:text-neutral-400")}>
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
           {OPERATOR_HOME_EXAMPLE_DESCRIPTION}
         </p>
       </CardHeader>

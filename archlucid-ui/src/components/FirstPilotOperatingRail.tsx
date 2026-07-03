@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
@@ -29,7 +30,6 @@ import {
   mapOperatingRailStepToStatusTagLabel,
 } from "@/lib/first-pilot-operator-status-vocabulary";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const RAIL_LEGACY_MINIMIZED_STORAGE_KEY = "archlucid_first_pilot_operating_rail_minimized_v1";
 

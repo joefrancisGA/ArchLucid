@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import { OperateAnalysisNavGroupBuilder } from "@/lib/operate-analysis-nav-group-builder";
-import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
 
 describe("OperateAnalysisNavGroupBuilder", () => {
   it("uses Insights group label and caption (TB-525)", () => {

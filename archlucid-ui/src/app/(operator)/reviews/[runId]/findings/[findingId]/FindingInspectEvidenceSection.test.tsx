@@ -31,12 +31,12 @@ describe("FindingInspectEvidenceSection", () => {
           pack: {
             packId: "sec-pack",
             packName: "Security Architecture Baseline",
-            href: "/policy-packs?packId=sec-pack",
+            href: "/governance/policy-packs?packId=sec-pack",
           },
           policy: {
             ruleId: "sec-base-001",
             ruleLabel: "Deny public ingress",
-            href: "/policy-packs?ruleId=sec-base-001",
+            href: "/governance/policy-packs?ruleId=sec-base-001",
           },
           evidence: [
             {

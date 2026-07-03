@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 

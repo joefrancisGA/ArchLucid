@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { CollapsibleJsonTree } from "@/components/CollapsibleJsonTree";
 import { PolicyPackDiffView } from "@/components/PolicyPackDiffView";
 import {
@@ -14,7 +15,6 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type {
   EffectivePolicyPackSet,
   PolicyPackContentDocument,

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useEffect, useId, useMemo, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -9,7 +10,6 @@ import { getFindingLlmAudit } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import type { FindingLlmAudit } from "@/types/explanation";
 import type { FindingProvenance } from "@/lib/api/finding-provenance";
@@ -120,7 +120,6 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
           type="checkbox"
           className="h-4 w-4 shrink-0 accent-teal-700"
           checked={enabled}
-          aria-controls="finding-inspect-context-debug-body"
           onChange={(event) => {
             setEnabled(event.target.checked);
           }}

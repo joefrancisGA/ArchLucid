@@ -364,4 +364,31 @@ public sealed class ClientErrorTelemetryControllerTests
 
         result.Should().BeAssignableTo<ObjectResult>();
     }
+
+    [SkippableFact]
+    public async Task PostTeamExpansionNudgeShown_valid_trigger_returns_204_and_audits()
+    {
+        CapturingAuditService audit = new();
+        ClientErrorTelemetryController controller = CreateController(auditServiceOverride: audit);
+
+        IActionResult result = await controller.PostTeamExpansionNudgeShown(
+            new TeamExpansionNudgeTelemetryRequest { Trigger = "seats" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+        audit.Events.Should().ContainSingle();
+        audit.Events[0].EventType.Should().Be(AuditEventTypes.TeamExpansionNudgeShown);
+    }
+
+    [SkippableFact]
+    public async Task PostTeamExpansionNudgeClicked_invalid_trigger_returns_400()
+    {
+        ClientErrorTelemetryController controller = CreateController();
+
+        IActionResult result = await controller.PostTeamExpansionNudgeClicked(
+            new TeamExpansionNudgeTelemetryRequest { Trigger = "invalid" },
+            CancellationToken.None);
+
+        result.Should().BeAssignableTo<ObjectResult>();
+    }
 }

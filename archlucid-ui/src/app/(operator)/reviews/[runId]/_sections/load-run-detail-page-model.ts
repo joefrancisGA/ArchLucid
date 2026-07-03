@@ -13,6 +13,10 @@ import {
 import { buildAdrGeneratorRunInput } from "@/lib/adr-from-run";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  isPinnedDemoWorkspaceRunId,
+  resolveDemoWorkspaceScopeHeadersForRunId,
+} from "@/lib/demo-workspace-scope";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
 import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
@@ -63,7 +67,13 @@ export type LoadRunDetailPageModelResult =
   | { kind: "malformed-response"; message: string }
   | { kind: "success"; model: RunDetailPageModel };
 
-async function resolveServerScopeHeadersForRun(): Promise<Record<string, string>> {
+async function resolveServerScopeHeadersForRun(runId: string): Promise<Record<string, string>> {
+  const demoScopeHeaders = resolveDemoWorkspaceScopeHeadersForRunId(runId);
+
+  if (demoScopeHeaders !== null) {
+    return demoScopeHeaders;
+  }
+
   const { getServerResolvedScopeHeaders } = await import("@/lib/server-operator-scope");
 
   return getServerResolvedScopeHeaders();
@@ -75,7 +85,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let loadFailure: ApiLoadFailureState | null = null;
   let usedStaticDemoRun = false;
 
-  const serverScopeHeaders = isBrowser() ? null : await resolveServerScopeHeadersForRun();
+  const serverScopeHeaders = isBrowser() ? null : await resolveServerScopeHeadersForRun(runId);
   const apiScopeOptions =
     serverScopeHeaders !== null ? { scopeHeaders: serverScopeHeaders } : undefined;
 
@@ -132,7 +142,10 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     : serverScopeHeaders!;
   const effectiveProjectId = projectIdFromScopeHeaders(effectiveScopeHeaders);
 
-  if (!runProjectMatchesEffectiveScope(resolvedDetail.run.projectId, effectiveProjectId)) {
+  if (
+    !isPinnedDemoWorkspaceRunId(runId)
+    && !runProjectMatchesEffectiveScope(resolvedDetail.run.projectId, effectiveProjectId)
+  ) {
     return { kind: "not-found", reason: "workspace-mismatch" };
   }
 

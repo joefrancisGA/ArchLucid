@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,7 +15,6 @@ import {
 } from "@/lib/usability/first-visit-help";
 import { FIRST_VISIT_HELP_THREE_THINGS } from "@/lib/onboarding-secondary-surfaces";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /** Auto-surfaces contextual help once per session on operator home; remembers dismissal per path. */
 export function FirstVisitHelpAutoOpen() {

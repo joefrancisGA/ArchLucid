@@ -24,7 +24,10 @@ export function ExecutiveDashboardDataProvider({ children }: { children: ReactNo
   const driftQuery = useComplianceDriftTrendQuery();
 
   const summary = summaryQuery.data ?? null;
-  const summaryLoading = summaryQuery.isPending;
+  const summaryLoading =
+    summaryQuery.isPending ||
+    summaryQuery.isFetching ||
+    (summary === null && !summaryQuery.isFetched);
   const summaryError =
     summaryQuery.isError
       ? summaryQuery.error instanceof Error
@@ -33,7 +36,10 @@ export function ExecutiveDashboardDataProvider({ children }: { children: ReactNo
       : null;
 
   const driftPoints = driftQuery.data ?? [];
-  const driftLoading = driftQuery.isPending;
+  const driftLoading =
+    driftQuery.isPending ||
+    driftQuery.isFetching ||
+    (driftPoints.length === 0 && !driftQuery.isFetched);
   const driftError = driftQuery.isError;
 
   const value = useMemo<ExecutiveDashboardData>(

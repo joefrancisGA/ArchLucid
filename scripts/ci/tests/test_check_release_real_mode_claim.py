@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -64,7 +65,7 @@ def test_gate_pass_with_pipeline_profile(tmp_path: Path) -> None:
         json.dumps(
             {
                 "schema": "archlucid.real-llm-evidence-gate.v2",
-                "generatedUtc": "2026-06-01T12:00:00Z",
+                "generatedUtc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "disposition": "PASS",
                 "fullPipelineProfile": {"mergeSuccess": True},
                 "gitCommitSha": "abc123def456",
@@ -94,7 +95,7 @@ def test_gate_commit_sha_mismatch_fails(tmp_path: Path) -> None:
         json.dumps(
             {
                 "schema": "archlucid.real-llm-evidence-gate.v2",
-                "generatedUtc": "2026-06-01T12:00:00Z",
+                "generatedUtc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "disposition": "PASS",
                 "fullPipelineProfile": {"mergeSuccess": True},
                 "gitCommitSha": "deadbeef0001",

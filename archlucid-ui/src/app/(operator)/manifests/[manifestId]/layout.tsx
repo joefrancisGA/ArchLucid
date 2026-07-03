@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-
-import { isInvalidManifestRouteId } from "@/lib/route-dynamic-param";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -12,18 +9,7 @@ export const metadata: Metadata = {
   title: "Signed review record",
 };
 
-export default async function ManifestLayout({
-  children,
-  params,
-}: {
-  children: ReactNode;
-  params: Promise<{ manifestId: string }>;
-}) {
-  const { manifestId } = await params;
-
-  if (isInvalidManifestRouteId(manifestId)) {
-    notFound();
-  }
-
+/** Invalid manifest ids fail in `page.tsx` so segment `not-found.tsx` renders with branded recovery chrome. */
+export default function ManifestLayout({ children }: { children: ReactNode }) {
   return children;
 }

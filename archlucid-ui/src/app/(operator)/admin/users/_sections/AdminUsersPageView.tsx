@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
@@ -7,7 +8,6 @@ import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 import { adminUsersEmptyStateDescription, adminUsersEmptyStateTitle } from "./admin-users-page-empty-copy";
 import type { AdminUsersPageViewModel } from "./admin-users-page-view-model";

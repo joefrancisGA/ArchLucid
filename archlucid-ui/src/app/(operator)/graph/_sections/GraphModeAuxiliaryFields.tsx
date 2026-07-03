@@ -1,6 +1,6 @@
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { GraphMode } from "@/app/(operator)/graph/_sections/graph-page-helpers";
 

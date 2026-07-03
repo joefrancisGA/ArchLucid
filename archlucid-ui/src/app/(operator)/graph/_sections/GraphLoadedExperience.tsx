@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import Link from "next/link";
 
@@ -23,7 +24,6 @@ import {
 } from "@/lib/graph-view-model-export";
 import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import type { EvidenceTrailPresentationView, GraphMode } from "@/app/(operator)/graph/_sections/graph-page-helpers";
 import { GraphInteractiveCanvas } from "@/app/(operator)/graph/_sections/GraphInteractiveCanvas";
 import type { GraphViewModel } from "@/types/graph";

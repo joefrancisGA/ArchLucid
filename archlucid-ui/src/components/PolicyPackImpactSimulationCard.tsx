@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { GovernanceDryRunModal } from "@/components/GovernanceDryRunModal";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

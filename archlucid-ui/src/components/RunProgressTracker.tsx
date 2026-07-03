@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,6 @@ import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { getRunStageTimeline } from "@/lib/api/architecture-runs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { cn } from "@/lib/utils";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
 import type { RunSummary } from "@/types/authority";
 import type { StageTimelineSummary } from "@/types/stage-timeline";

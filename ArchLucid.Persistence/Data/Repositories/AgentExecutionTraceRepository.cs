@@ -155,6 +155,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             return;
 
         AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
+
         if (trace is null)
             return;
 
@@ -250,6 +251,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             return;
 
         AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
+
         if (trace is null)
             return;
 
@@ -316,6 +318,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             return;
 
         AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
+
         if (trace is null)
             return;
 
@@ -368,6 +371,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             return;
 
         AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
+
         if (trace is null)
             return;
 
@@ -418,6 +422,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             return;
 
         AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
+
         if (trace is null)
             return;
 
@@ -742,6 +747,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         string context)
     {
         List<AgentExecutionTrace> traces = [];
+
         foreach (string json in jsonRows)
         {
             AgentExecutionTrace? trace;

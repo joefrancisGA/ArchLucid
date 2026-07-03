@@ -1,5 +1,5 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const REVIEW_TRAIL_KINDS: ReadonlyArray<{ k: string; role: string; c: string }> = [
   {

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { GovernanceQuickApproveButton } from "@/components/GovernanceQuickApproveButton";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
@@ -31,7 +32,6 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import type { MutableRefObject } from "react";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import {
   formatGovernanceBusinessInstant,
   governanceApprovalCardTitle,

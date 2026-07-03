@@ -40,8 +40,23 @@ public sealed class AdvancedRetrievalOptions
         set;
     } = 8;
 
+    /// <summary>
+    ///     Maximum seconds to wait for LLM query rewrite / HyDE before falling back to heuristics (CI #2268: unbounded
+    ///     completion waits can hang retrieval search when the model endpoint stalls).
+    /// </summary>
+    public int ExpansionTimeoutSeconds
+    {
+        get;
+        set;
+    } = 5;
+
     public int GetEffectiveMaxGraphNeighborNodes()
     {
         return Math.Clamp(MaxGraphNeighborNodes, 1, 32);
+    }
+
+    public TimeSpan GetEffectiveExpansionTimeout()
+    {
+        return TimeSpan.FromSeconds(Math.Clamp(ExpansionTimeoutSeconds, 1, 30));
     }
 }

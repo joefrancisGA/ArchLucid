@@ -632,6 +632,7 @@ public sealed class AuthorityPipelineStagesExecutor(
     private async Task SaveGraphAsync(GraphSnapshot snapshot, ScopeContext scope, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
         // Cosmos graph snapshots replicate through dbo.CosmosGraphSnapshotOutbox after SQL authority commit.
+
         if (_cosmosDbOptionsMonitor.CurrentValue.GraphSnapshotsEnabled)
         {
             if (uow.SupportsExternalTransaction)

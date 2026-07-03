@@ -11,6 +11,7 @@ import {
   executeRun,
   getAlertRulesRaw,
   liveApiBase,
+  liveE2eArchitectureDescription,
   postAlertRuleRaw,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -30,7 +31,7 @@ test.describe("live-api-alert-rules", () => {
 
     const createBody = {
       requestId: `E2E-ALERT-${Date.now()}`,
-      description: "Seed run for alert rule E2E.",
+      description: liveE2eArchitectureDescription("Seed run for alert rule E2E."),
       systemName: "E2EAlertRules",
       environment: "prod",
       cloudProvider: 1,

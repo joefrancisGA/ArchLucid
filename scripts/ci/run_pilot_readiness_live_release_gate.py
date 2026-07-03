@@ -24,7 +24,7 @@ def repo_root() -> Path:
 
 
 def load_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
 def resolve_live_bundle_report_path(root: Path, run_id: str) -> Path:

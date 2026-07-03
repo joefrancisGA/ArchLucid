@@ -149,7 +149,7 @@ test.describe("trial funnel — mocked end-to-end", () => {
     await page.getByTestId("signup-baseline-hours").fill("16");
     await page.getByTestId("signup-baseline-source").fill("team estimate");
 
-    await page.getByRole("button", { name: /Create trial workspace/i }).click();
+    await page.getByRole("button", { name: /Create your workspace/i }).click();
 
     await expect(page).toHaveURL(/\/signup\/verify\?email=ops%40example\.com/);
 

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -30,7 +31,6 @@ import {
   SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
 } from "@/lib/showcase-static-demo";
 import type { ManifestSummary } from "@/types/authority";
-import { cn } from "@/lib/utils";
 
 export type ManifestDetailSummaryPanelProps = {
   readonly summary: ManifestSummary;

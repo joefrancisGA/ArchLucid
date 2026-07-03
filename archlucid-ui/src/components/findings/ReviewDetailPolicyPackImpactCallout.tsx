@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
@@ -5,7 +6,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { policyPacksAuthorHref, policyPacksEditHref } from "@/lib/policy-packs-deep-link";
-import { cn } from "@/lib/utils";
 
 export type ReviewDetailPolicyPackImpactCalloutProps = {
   readonly ruleSetId: string;

@@ -32,13 +32,13 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
     await page.goto(`/reviews/${DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID}`, { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 90_000 });
+    const sectionNav = page.getByRole("navigation", { name: "Review detail sections" });
+
+    await expect(sectionNav).toBeVisible({ timeout: 90_000 });
 
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 90_000 });
 
     await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0);
-
-    const sectionNav = page.getByRole("navigation", { name: "Review detail sections" });
 
     await expect(sectionNav.getByRole("link", { name: "Outcome" })).toBeVisible();
     await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible();

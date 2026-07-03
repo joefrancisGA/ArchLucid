@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { ClipboardCheck, FileCheck2, Package, Target } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
@@ -18,7 +19,6 @@ import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } fr
 import { writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge, operatorSemanticSurface } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const SESSION_DISMISS_KEY = "archlucid_welcome_dismissed_session";
 

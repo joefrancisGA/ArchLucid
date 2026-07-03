@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
@@ -6,7 +7,6 @@ import {
   deriveAiOutputGovernanceLabel,
   type AiOutputGovernanceKind,
 } from "@/lib/ai-output-governance-label";
-import { cn } from "@/lib/utils";
 
 const STATUS_KIND_BY_GOVERNANCE: Readonly<Record<AiOutputGovernanceKind, EnterpriseStatusKind>> = {
   governed: "approved",

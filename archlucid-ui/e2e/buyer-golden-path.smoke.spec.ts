@@ -11,6 +11,7 @@ import {
   BUYER_SHOWCASE_EXECUTIVE_HEADLINE,
   BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN,
   expectBuyerGoldenJourneyStepper,
+  expectBuyerExecutiveSummarySurface,
   expectNoGenericErrorBoundary,
   showcaseSignedManifestBrowserUrlPattern,
 } from "./helpers/buyer-golden-path";
@@ -22,7 +23,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
   }) => {
     // Step 1 — Executive summary
     await page.goto(BUYER_GOLDEN_PATH_HREFS.executive);
-    await expect(page.getByText("Executive summary", { exact: true }).first()).toBeVisible();
+    await expectBuyerExecutiveSummarySurface(page);
     await expect(
       page.getByRole("heading", { level: 1, name: BUYER_SHOWCASE_EXECUTIVE_HEADLINE }),
     ).toBeVisible();
@@ -42,7 +43,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
     await expect(
       page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 

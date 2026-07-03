@@ -206,6 +206,11 @@ export async function gotoManifestEmptyArtifactsOperatorCase(page: Page): Promis
 
 // --- Assertions (only where duplicated across specs) ---
 
+/** Outcome strip deep link to signed record / legacy manifest detail (TB-399 canonical URLs). */
+export function outcomeStripSignedRecordLink(outcomeStrip: Locator): Locator {
+  return outcomeStrip.locator('a[href^="/signed-records/"], a[href^="/manifests/"]').first();
+}
+
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */
 export async function ensureBuyerDeliverablesSectionExpanded(page: Page): Promise<void> {
   const deliverablesDetails = page.locator("#artifacts-exports details").first();

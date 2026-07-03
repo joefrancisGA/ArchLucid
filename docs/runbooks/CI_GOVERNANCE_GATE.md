@@ -63,7 +63,7 @@ GET  /v1/pilots/runs/{runId}/pilot-run-deltas   (PilotStrict / sponsor-send post
 Use when your organization forbids long-lived API keys in CI:
 
 1. Configure **`ArchLucidAuth:Mode=JwtBearer`** per [`GENERIC_OIDC_SETUP.md`](GENERIC_OIDC_SETUP.md).
-2. In CI, obtain an access token from your IdP (GitHub OIDC → Azure AD federated credential, Azure DevOps service connection, etc.).
+2. In CI, obtain an access token from your IdP (GitHub OIDC → Microsoft Entra ID federated credential, Azure DevOps service connection, etc.).
 3. Export `ARCHLUCID_BEARER_TOKEN` instead of (or in addition to) the API key. The script sends `Authorization: Bearer …`.
 
 **Note:** Token exchange wiring is IdP-specific; this runbook does not prescribe a single YAML action. Validate with `GET /v1/admin/auth/configuration-diagnostics` (admin scope) before enabling production gates.

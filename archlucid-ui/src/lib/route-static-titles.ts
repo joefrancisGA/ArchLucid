@@ -26,7 +26,6 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/ask": "Ask",
   "/replay": "Replay",
   "/audit": "Audit",
-  "/alerts": "Alerts",
   "/health": "System health",
   "/planning": "Planning",
   "/onboarding": OPERATOR_NAV_LINK_LABELS.onboarding,

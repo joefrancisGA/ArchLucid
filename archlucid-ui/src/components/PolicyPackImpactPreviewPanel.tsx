@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
@@ -10,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { simulatePolicyPackAgainstRun } from "@/lib/api/policy-governance-api";
-import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure, uiFailureFromMessage, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { components } from "@/lib/openapi-schemas";
 import {
@@ -21,7 +22,6 @@ import {
   summarizePolicyImpactGateResult,
   type PolicyImpactPreviewGateSummary,
 } from "@/lib/policy-pack-impact-preview";
-import { cn } from "@/lib/utils";
 import type { PolicyPackContentDocument, PolicyPackVersion } from "@/types/policy-packs";
 
 export type PolicyPackImpactPreviewPanelProps = {
@@ -87,7 +87,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
     const trimmedRunId = runId.trim();
 
     if (trimmedRunId.length === 0) {
-      setFailure({ message: "Enter a committed review ID to preview policy impact.", problem: null, correlationId: null });
+      setFailure(uiFailureFromMessage("Enter a committed review ID to preview policy impact."));
       setBaselineResult(null);
       setStricterResult(null);
 

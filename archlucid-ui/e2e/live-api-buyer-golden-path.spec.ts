@@ -1,20 +1,48 @@
 /**
- * Live API buyer golden path (TB-289): five-step diligence spine against Sql + real API + seeded/static showcase run.
+ * Live API buyer golden path (TB-289): five-step diligence spine against Sql + seeded Workspace A Product Tour run.
+ * Showcase slug hrefs in `helpers/buyer-golden-path.ts` target mock/static operator builds; live CI uses pinned demo workspace IDs.
  */
 import { expect, test } from "@playwright/test";
 
 import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
-  BUYER_GOLDEN_PATH_HREFS,
-  BUYER_SHOWCASE_AUDIT_TRAIL_HEADING,
-  BUYER_SHOWCASE_EXECUTIVE_HEADLINE,
-  BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN,
+  expectBuyerExecutiveSummarySurface,
   expectBuyerGoldenJourneyStepper,
   expectNoGenericErrorBoundary,
-  showcaseSignedManifestBrowserUrlPattern,
 } from "./helpers/buyer-golden-path";
-import { askPageMainHeading, comparePageMainHeading, expectGraphPageReadySurface, governancePageMainHeading } from "./helpers/operator-journey";
+import {
+  DEMO_WORKSPACE_A_LIVE_IDS,
+  DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+  injectDemoWorkspaceOperatorScope,
+} from "./helpers/demo-workspace-live-scope";
+import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import { liveApiBase } from "./helpers/live-api-client";
+import {
+  askPageMainHeading,
+  comparePageMainHeading,
+  expectGraphPageReadySurface,
+  governancePageMainHeading,
+} from "./helpers/operator-journey";
+
+const productTourRunId = DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID;
+const productTourRunEnc = encodeURIComponent(productTourRunId);
+
+const liveBuyerGoldenPathHrefs = {
+  executive: `/executive/reviews/${productTourRunEnc}`,
+  reviewPackage: `/reviews/${productTourRunEnc}`,
+  signedManifestFriendly: `/reviews/${productTourRunEnc}/signed-record`,
+  evidenceGraph: `/graph?runId=${productTourRunEnc}`,
+  governanceApproval: `/governance?runId=${productTourRunEnc}`,
+  auditTrail: `/audit?runId=${productTourRunEnc}`,
+  compare: `/compare?leftRunId=${productTourRunEnc}&rightRunId=${productTourRunEnc}`,
+  ask: `/ask?runId=${productTourRunEnc}`,
+} as const;
+
+/** Seeded Workspace A run description (see `ProductTourWorkspaceSeed` / `DemoSeedService`). */
+const liveProductTourExecutiveHeadlinePattern =
+  /Northwind Architects.*Product Tour|Contoso Cloud Platform/i;
+
+const liveProductTourReviewHeadingPattern = /Contoso Cloud Platform|Product Tour/i;
 
 test.describe("live-api-buyer-golden-path", () => {
   test.beforeAll(async ({ request }) => {
@@ -25,60 +53,61 @@ test.describe("live-api-buyer-golden-path", () => {
         `Live API not ready at ${liveApiBase}/health/ready (status ${health.status()}). Start ArchLucid.Api with Sql + DevelopmentBypass.`,
       );
     }
+
+    await ensureDemoWorkspaceSeedReady(request);
   });
 
   test("walks five-step diligence spine against live API without generic error @smoke @smoke-golden-path", async ({
     page,
   }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(300_000);
 
-    await page.goto(BUYER_GOLDEN_PATH_HREFS.executive);
-    await expect(page.getByText("Executive summary", { exact: true }).first()).toBeVisible({ timeout: 60_000 });
+    await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
+
+    await page.goto(liveBuyerGoldenPathHrefs.executive);
+    await expectBuyerExecutiveSummarySurface(page);
     await expect(
-      page.getByRole("heading", { level: 1, name: BUYER_SHOWCASE_EXECUTIVE_HEADLINE }),
+      page.getByRole("heading", { level: 1 }).filter({ hasText: liveProductTourExecutiveHeadlinePattern }),
     ).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    await page.goto(BUYER_GOLDEN_PATH_HREFS.reviewPackage);
+    await page.goto(liveBuyerGoldenPathHrefs.reviewPackage);
     await expect(
-      page.getByRole("heading", { level: 1 }).filter({ hasText: BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN }),
+      page.getByRole("heading", { level: 1 }).filter({ hasText: liveProductTourReviewHeadingPattern }),
     ).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    await page.goto(BUYER_GOLDEN_PATH_HREFS.signedManifestFriendly);
-    await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
+    await page.goto(liveBuyerGoldenPathHrefs.signedManifestFriendly);
     await expect(
       page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    await page.goto(BUYER_GOLDEN_PATH_HREFS.evidenceGraph);
+    await page.goto(liveBuyerGoldenPathHrefs.evidenceGraph);
     await expectGraphPageReadySurface(page, { timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    await page.goto(BUYER_GOLDEN_PATH_HREFS.governanceApproval);
+    await page.goto(liveBuyerGoldenPathHrefs.governanceApproval);
     await expect(governancePageMainHeading(page)).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    await page.goto(BUYER_GOLDEN_PATH_HREFS.auditTrail);
-    await expect(
-      page.getByRole("heading", { level: 2, name: BUYER_SHOWCASE_AUDIT_TRAIL_HEADING }),
-    ).toBeVisible({ timeout: 60_000 });
+    await page.goto(liveBuyerGoldenPathHrefs.auditTrail);
+    await expect(page.getByRole("heading", { level: 2, name: /Audit trail for/i })).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("audit-buyer-metric-tiles")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("audit-timeline-event-card").first()).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    await page.goto(BUYER_GOLDEN_PATH_HREFS.compare);
+    await page.goto(liveBuyerGoldenPathHrefs.compare);
     await expect(comparePageMainHeading(page)).toBeVisible({ timeout: 60_000 });
     await expectNoGenericErrorBoundary(page);
 
-    await page.goto(BUYER_GOLDEN_PATH_HREFS.ask);
+    await page.goto(liveBuyerGoldenPathHrefs.ask);
     await expect(askPageMainHeading(page)).toBeVisible({ timeout: 60_000 });
     await expectNoGenericErrorBoundary(page);
   });

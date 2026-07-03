@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { CtoDemoAgendaPreviewCard } from "@/components/cto-demo/CtoDemoAgendaPreviewCard";
@@ -20,7 +21,6 @@ import {
 } from "@/lib/buyer-cto-demo-readiness";
 import { writeBuyerCtoDemoPreflightAcknowledged } from "@/lib/buyer-cto-demo-tour";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type CtoDemoPreflightGateProps = {
   readonly onAcknowledged: () => void;

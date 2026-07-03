@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { HTMLAttributes } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +8,6 @@ import {
   severityTagClass,
   type FindingSeverityKind,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type SeverityTagProps = {
   /** Raw severity from API; normalized before display. */

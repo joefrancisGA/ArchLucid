@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
-import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
+import { CORE_PILOT_STEP_COUNT, CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { PILOT_CHECKLIST_PANEL_STORAGE_KEY } from "@/lib/core-pilot-checklist-storage";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 
@@ -33,7 +33,7 @@ describe("CorePilotChecklist", () => {
   it("persists checkbox state in localStorage under archlucid-pilot-checklist", async () => {
     localStorage.setItem(
       PILOT_CHECKLIST_PANEL_STORAGE_KEY,
-      JSON.stringify({ steps: [false, false, false, false, false], hidden: false }),
+      JSON.stringify({ steps: Array.from({ length: CORE_PILOT_STEP_COUNT }, () => false), hidden: false }),
     );
     localStorage.setItem(
       OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist,
@@ -65,7 +65,10 @@ describe("CorePilotChecklist", () => {
   it("shows congratulations when all steps are marked, then collapses via chevron", async () => {
     localStorage.setItem(
       PILOT_CHECKLIST_PANEL_STORAGE_KEY,
-      JSON.stringify({ steps: [true, true, true, true, false], hidden: false }),
+      JSON.stringify({
+        steps: Array.from({ length: CORE_PILOT_STEP_COUNT }, (_, index) => index < CORE_PILOT_STEP_COUNT - 1),
+        hidden: false,
+      }),
     );
     localStorage.setItem(
       OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist,

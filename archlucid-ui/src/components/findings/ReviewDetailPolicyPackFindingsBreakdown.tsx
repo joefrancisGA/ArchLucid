@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import type { ReactElement } from "react";
@@ -7,7 +8,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PolicyPackFindingGroup } from "@/lib/group-findings-by-policy-pack";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
 import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
-import { cn } from "@/lib/utils";
 
 export type ReviewDetailPolicyPackFindingsBreakdownProps = {
   readonly groups: readonly PolicyPackFindingGroup[];

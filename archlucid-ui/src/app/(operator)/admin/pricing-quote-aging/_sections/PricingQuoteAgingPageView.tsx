@@ -1,19 +1,16 @@
 "use client";
 
-import Link from "next/link";
-
+import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import {
-  OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
   operatorSemanticSurface,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 import { pricingQuoteAgingRowTone } from "@/lib/pricing-quote-aging";
 import { acknowledgePricingQuoteRequest, closePricingQuoteRequest } from "@/lib/trial-funnel-ops";
 

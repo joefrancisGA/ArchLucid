@@ -153,7 +153,11 @@ function buildGroupsFromFindings(
 
   return [...groups.values()]
     .sort((a, b) => b.findingCount - a.findingCount || a.packDisplayName.localeCompare(b.packDisplayName))
-    .map(({ representativeRuleId: _ignored, ...group }) => group);
+    .map((group) => {
+      const { representativeRuleId, ...rest } = group;
+      void representativeRuleId;
+      return rest;
+    });
 }
 
 /** Summarizes how many findings map to each inferred policy pack (for review detail hero strip). */
@@ -163,7 +167,11 @@ export function summarizeQuickDecisionFindingsByPolicyPack(
   manifestRuleSetVersion?: string | null,
 ): readonly PolicyPackFindingGroup[] {
   return buildGroupsFromFindings(findings, manifestRuleSetId ?? null, manifestRuleSetVersion ?? null).map(
-    ({ findings: _findings, ...summary }) => summary,
+    (group) => {
+      const { findings: groupedFindings, ...summary } = group;
+      void groupedFindings;
+      return summary;
+    },
   );
 }
 

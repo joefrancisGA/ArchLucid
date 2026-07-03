@@ -59,6 +59,7 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         lock (_gate)
         {
             int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
             if (i < 0)
                 return Task.CompletedTask;
 

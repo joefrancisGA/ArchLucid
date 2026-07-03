@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -7,7 +8,6 @@ import type { RunDetail } from "@/types/authority";
 
 import { runDetailSectionHeadingClass } from "@/app/(operator)/reviews/[runId]/_sections/run-detail-section-heading";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type ReviewChainOfCustodySectionProps = {
   readonly run: RunDetail["run"];

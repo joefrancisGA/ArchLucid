@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class ShipGateUiBaseUrlResolverTests
 {
     private const string ExplicitUrl = "https://ops.example.com";
