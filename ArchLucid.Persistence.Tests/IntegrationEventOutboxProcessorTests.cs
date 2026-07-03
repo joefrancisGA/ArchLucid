@@ -163,8 +163,7 @@ public sealed class IntegrationEventOutboxProcessorTests
                 1,
                 It.Is<DateTime?>(n => n.HasValue),
                 null,
-                // Moq captures this as an expression tree; `is` / `is not` is not allowed (CS8122).
-                It.Is<string?>(s => s != null && s.Contains("sb down", StringComparison.Ordinal)),
+                It.Is<string>(s => s.Contains("sb down", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -267,8 +266,7 @@ public sealed class IntegrationEventOutboxProcessorTests
                 1,
                 It.IsAny<DateTime?>(),
                 null,
-                // Moq captures this as an expression tree; `is` / `is not` is not allowed (CS8122).
-                It.Is<string?>(s => s != null && s.Length == 2048),
+                It.Is<string>(s => s.Length == 2048),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
