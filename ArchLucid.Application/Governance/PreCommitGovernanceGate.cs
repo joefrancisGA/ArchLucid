@@ -90,9 +90,11 @@ public sealed class PreCommitGovernanceGate(
         CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
         if (goldenManifestWireJson is not null && _authorityCommitSchemaValidationOptions.Value.ValidateGoldenManifestSchema)
         {
             SchemaValidationResult manifestSchemaResult = _schemaValidationService.ValidateGoldenManifestJson(goldenManifestWireJson);
+
             if (!manifestSchemaResult.IsValid)
                 throw new GoldenManifestSchemaValidationException(manifestSchemaResult);
         }

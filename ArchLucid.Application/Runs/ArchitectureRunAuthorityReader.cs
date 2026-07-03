@@ -26,10 +26,12 @@ public static class ArchitectureRunAuthorityReader
         ArgumentNullException.ThrowIfNull(scopeContextProvider);
         ArgumentNullException.ThrowIfNull(taskRepository);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return null;
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         RunRecord? record = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
         if (record is null)
             return null;
         // Implementations (and loose test doubles) may return null; treat as no tasks so callers still get a run shape.

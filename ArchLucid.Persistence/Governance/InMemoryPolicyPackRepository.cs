@@ -42,6 +42,7 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
         lock (_gate)
         {
             int i = _items.FindIndex(x => x.PolicyPackId == pack.PolicyPackId);
+
             if (i >= 0)
                 _items[i] = pack;
         }
