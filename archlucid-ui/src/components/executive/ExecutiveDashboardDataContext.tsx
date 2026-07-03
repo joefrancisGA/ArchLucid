@@ -35,7 +35,7 @@ export function ExecutiveDashboardDataProvider({ children }: { children: ReactNo
         : "Failed to load executive KPIs."
       : null;
 
-  const driftPoints = driftQuery.data ?? [];
+  const driftPoints = useMemo(() => driftQuery.data ?? [], [driftQuery.data]);
   const driftLoading =
     driftQuery.isPending ||
     driftQuery.isFetching ||
