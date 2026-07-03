@@ -28,6 +28,18 @@ public sealed class HybridHotPathReadCacheTests
     }
 
     [SkippableFact]
+    public void HotPathTypedCacheSlot_preserves_negative_cache_semantics()
+    {
+        HotPathTypedCacheSlot<string> absent = new(false, null);
+        HotPathTypedCacheSlot<string> present = new(true, "cached");
+
+        absent.IsPresent.Should().BeFalse();
+        absent.Value.Should().BeNull();
+        present.IsPresent.Should().BeTrue();
+        present.Value.Should().Be("cached");
+    }
+
+    [SkippableFact]
     public async Task GetOrCreateAsync_negative_cache_materializes_factory_once()
     {
         int calls = 0;

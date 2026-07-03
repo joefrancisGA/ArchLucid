@@ -9,7 +9,7 @@ namespace ArchLucid.Persistence.Tests;
 
 internal static class HybridHotPathCacheTestFactory
 {
-    public static HybridHotPathReadCache Create(HotPathCacheOptions options, bool addDistributedMemoryCache = false)
+    public static HybridHotPathReadCache Create(HotPathCacheOptions options)
     {
         ServiceCollection services = [];
 
@@ -38,9 +38,6 @@ internal static class HybridHotPathCacheTestFactory
                 LocalCacheExpiration = ttl
             };
         });
-
-        if (addDistributedMemoryCache)
-            services.AddDistributedMemoryCache();
 
         services.AddSingleton<HybridHotPathReadCache>();
 
