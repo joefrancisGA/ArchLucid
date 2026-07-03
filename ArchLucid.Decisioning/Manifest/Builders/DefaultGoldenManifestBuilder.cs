@@ -50,10 +50,10 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         };
 
         FindingsSnapshotTypeIndex findingsByType = new(findingsSnapshot);
+        FindingsSnapshotIdIndex findingsById = new(findingsSnapshot);
 
         PopulateRequirements(manifest, findingsByType);
         PopulateTopologyFromGraph(manifest, graphSnapshot);
-        PopulateTypedTopologyFromGraph(manifest, graphSnapshot);
         PopulateTopology(manifest, findingsByType);
         PopulateSecurity(manifest, findingsByType);
         PopulateCompliance(manifest, findingsByType);
@@ -61,7 +61,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         PopulatePolicyApplicability(manifest, findingsByType);
         PopulatePolicySection(manifest, findingsByType);
         PopulateCoverageWarnings(manifest, findingsByType);
-        PopulateConstraints(manifest, findingsSnapshot, audit);
+        PopulateConstraints(manifest, findingsById, audit);
         PopulateProvenance(manifest, findingsSnapshot, audit);
 
         manifest.Metadata.Status = manifest.UnresolvedIssues.Items.Count == 0
@@ -86,7 +86,6 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         manifest.Topology.Datastores.Clear();
 
         PopulateTopologyFromGraph(manifest, graphSnapshot);
-        PopulateTypedTopologyFromGraph(manifest, graphSnapshot);
 
         manifest.Topology.Resources = manifest.Topology.Resources
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -234,26 +233,15 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
     private static void PopulateTopologyFromGraph(ManifestDocument manifest, GraphSnapshot graphSnapshot)
     {
-        foreach (GraphNode node in graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource))
+        foreach (GraphNode node in graphSnapshot.Nodes)
         {
+            if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
+                continue;
 
             if (string.IsNullOrWhiteSpace(node.Label))
                 continue;
+
             manifest.Topology.Resources.Add(node.Label);
-        }
-    }
-
-    /// <summary>
-    ///     PR A0.5 / owner 35f — <see cref="GraphNode.Properties" /> carry optional
-    ///     <c>serviceType</c>, <c>runtimePlatform</c>, <c>datastoreType</c> keys (enum names, case-insensitive).
-    /// </summary>
-    private static void PopulateTypedTopologyFromGraph(ManifestDocument manifest, GraphSnapshot graphSnapshot)
-    {
-        foreach (GraphNode node in graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource))
-        {
-
-            if (string.IsNullOrWhiteSpace(node.Label))
-                continue;
 
             string? category = node.Category;
             bool isDatastore = string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
@@ -270,18 +258,18 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                         DatastoreType = ParseEnumKey<DatastoreType>(node.Properties, "datastoreType"),
                         RuntimePlatform = ParseEnumKey<RuntimePlatform>(node.Properties, "runtimePlatform")
                     });
+
+                continue;
             }
-            else
-            {
-                manifest.Topology.Services.Add(
-                    new Cm.ManifestService
-                    {
-                        ServiceId = node.NodeId,
-                        ServiceName = node.Label,
-                        ServiceType = ParseEnumKey<ServiceType>(node.Properties, "serviceType"),
-                        RuntimePlatform = ParseEnumKey<RuntimePlatform>(node.Properties, "runtimePlatform")
-                    });
-            }
+
+            manifest.Topology.Services.Add(
+                new Cm.ManifestService
+                {
+                    ServiceId = node.NodeId,
+                    ServiceName = node.Label,
+                    ServiceType = ParseEnumKey<ServiceType>(node.Properties, "serviceType"),
+                    RuntimePlatform = ParseEnumKey<RuntimePlatform>(node.Properties, "runtimePlatform")
+                });
         }
     }
 
@@ -649,12 +637,13 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
     private static void PopulateConstraints(
         ManifestDocument manifest,
-        FindingsSnapshot findingsSnapshot,
+        FindingsSnapshotIdIndex findingsById,
         RuleAuditTracePayload trace)
     {
-        foreach (Finding finding in trace.AcceptedFindingIds
-                     .Select(findingId => findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId))
-                     .OfType<Finding>())
+        foreach (string findingId in trace.AcceptedFindingIds)
+        {
+            if (!findingsById.TryGet(findingId, out Finding? finding) || finding is null)
+                continue;
 
             if (finding.Severity is FindingSeverity.Critical or FindingSeverity.Error)
 
@@ -663,6 +652,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             else if (finding.Severity is FindingSeverity.Info or FindingSeverity.Warning)
 
                 manifest.Constraints.Preferences.Add(finding.Title);
+        }
     }
 
     private static void PopulateProvenance(
