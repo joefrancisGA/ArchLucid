@@ -4644,14 +4644,14 @@
           "assemblyVersion": {
             "type": "string"
           },
+          "buildTimestamp": {
+            "type": "string"
+          },
           "commitSha": {
             "type": [
               "null",
               "string"
             ]
-          },
-          "buildTimestamp": {
-            "type": "string"
           },
           "environment": {
             "type": "string"
@@ -24331,6 +24331,19 @@
         },
         "tags": [
           "AuthDebug"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/health/version": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ArchLucid.Api"
         ],
         "x-archlucid-audience": "operator"
       }
