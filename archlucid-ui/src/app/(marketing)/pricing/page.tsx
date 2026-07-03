@@ -19,8 +19,7 @@ import {
   MARKETING_PRICING_OG_DESCRIPTION,
   buildMarketingSocialMetadata,
 } from "@/lib/marketing-open-graph";
-
-export const revalidate = 300;
+export { revalidate } from "@/lib/next/marketing-isr-route-policy";
 
 export const metadata: Metadata = {
   title: "Pricing",

@@ -72,6 +72,8 @@ using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Concurrency;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Conversation;
+using ArchLucid.Persistence.Coordination.Caching;
+using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Compare;
 using ArchLucid.Persistence.Coordination.Diagnostics;
 using ArchLucid.Persistence.Coordination.Evolution;
@@ -138,15 +140,23 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         bool enforceServerCertificateTrust =
             ArchLucidConfigurationBridge.ShouldEnforceSqlServerCertificateTrust(configuration);
 
-        string connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(
+        services.Configure<WarmTenantCatalogOptions>(configuration.GetSection(WarmTenantCatalogOptions.SectionPath));
+        services.Configure<SqlConnectionPoolOptions>(configuration.GetSection(SqlConnectionPoolOptions.SectionPath));
+
+        SqlConnectionPoolOptions poolSnapshot =
+            configuration.GetSection(SqlConnectionPoolOptions.SectionPath).Get<SqlConnectionPoolOptions>()
+            ?? new SqlConnectionPoolOptions();
+
+        string connectionString = SqlConnectionStringPoolNormalizer.Apply(
+            ArchLucidConfigurationBridge.ResolveSqlConnectionString(
                                       configuration,
                                       enforceServerCertificateTrust)
                                   ?? throw new InvalidOperationException(
-                                      "Missing connection string 'ArchLucid'.");
+                                      "Missing connection string 'ArchLucid'."),
+            poolSnapshot);
 
         services.Configure<SqlServerOptions>(configuration.GetSection(SqlServerOptions.SectionName));
         services.Configure<SqlTopologyOptions>(configuration.GetSection(SqlTopologyOptions.SectionPath));
-        services.Configure<WarmTenantCatalogOptions>(configuration.GetSection(WarmTenantCatalogOptions.SectionPath));
 
         ArchLucidStorageServiceCollectionExtensions.RegisterArtifactLargePayloadBlobStore(services, configuration);
         ArchLucidStorageServiceCollectionExtensions.RegisterHotPathReadCaching(services, configuration);
@@ -322,7 +332,20 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IGraphSnapshotRepository, SqlGraphSnapshotRepository>();
         services.AddScoped<IGraphSnapshotSqlAuthorityWriter>(static sp => sp.GetRequiredService<SqlGraphSnapshotRepository>());
         services.AddScoped<ICosmosGraphSnapshotOutboxRepository, DapperCosmosGraphSnapshotOutboxRepository>();
-        services.AddScoped<IFindingsSnapshotRepository, SqlFindingsSnapshotRepository>();
+        services.AddScoped<IFindingsSnapshotRepository>(sp =>
+        {
+            SqlFindingsSnapshotRepository inner = sp.GetRequiredService<SqlFindingsSnapshotRepository>();
+            HotPathCacheOptions hotPath = sp.GetRequiredService<IOptions<HotPathCacheOptions>>().Value;
+
+            if (!hotPath.Enabled)
+                return inner;
+
+            return new CachingFindingsSnapshotRepository(
+                inner,
+                sp.GetRequiredService<IHotPathReadCache>(),
+                sp.GetRequiredService<IScopeContextProvider>());
+        });
+        services.AddScoped<SqlFindingsSnapshotRepository>();
         services.AddScoped<IFindingInspectReadRepository, DapperFindingInspectReadRepository>();
         services.AddScoped<IRunFindingExternalTrackingReadRepository, DapperRunFindingExternalTrackingReadRepository>();
         services.AddScoped<IFindingRecordMuteRepository, DapperFindingRecordMuteRepository>();
@@ -363,7 +386,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<AuthorityRunOrchestrator>();
         services.AddScoped<IAuthorityRunOrchestrator, DtfAuthorityRunOrchestrator>();
         services.AddScoped<IAuditSqlRetryPolicyProvider, AuditSqlRetryPolicyProvider>();
-        services.AddScoped<IAuditRepository, DapperAuditRepository>();
+        ArchLucidStorageServiceCollectionExtensions.RegisterAuditRepository(services, configuration);
         services.AddScoped<IPilotScorecardMetricsReader, DapperPilotScorecardMetricsReader>();
         services.AddScoped<IPilotReportCardMetricsReader, DapperPilotReportCardMetricsReader>();
         services.AddScoped<IPilotBaselineRepository, DapperPilotBaselineRepository>();

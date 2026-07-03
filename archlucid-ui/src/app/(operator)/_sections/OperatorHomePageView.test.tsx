@@ -9,6 +9,10 @@ vi.mock("@/components/operator-home/BuyerPolishedHomeHeroSection", () => ({
   ),
 }));
 
+vi.mock("@/components/operator-home/OperatorHomeExecutiveRoiStrip", () => ({
+  OperatorHomeExecutiveRoiStrip: () => <div data-testid="home-block-executive-roi" />,
+}));
+
 vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
   OperatorHomeDeltaPanel: () => <div data-testid="home-block-delta-panel" />,
   OperatorHomeRunsPanel: () => <div data-testid="home-block-runs-dashboard" />,
@@ -56,10 +60,30 @@ vi.mock("@/components/OperatorHomeGate", () => ({
 import { OperatorHomePageView } from "./OperatorHomePageView";
 import { OPERATOR_HOME_PRIMARY_SECTION_HEADING } from "@/lib/design-tokens";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
+import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
+
+const mockRunsDashboard: OperatorHomePageViewModel["runsDashboard"] = {
+  projectId: "default",
+  page: 1,
+  pageSize: 5,
+  items: [],
+  totalCount: 0,
+  loadFailure: null,
+  malformedMessage: null,
+  usedStaticRunsFallback: false,
+  buyerPolishedShell: false,
+};
+
+function mockHomeModel(buyerPolishedShell: boolean): OperatorHomePageViewModel {
+  return {
+    buyerPolishedShell,
+    runsDashboard: { ...mockRunsDashboard, buyerPolishedShell },
+  };
+}
 
 describe("OperatorHomePageView", () => {
   it("renders an elevated Workspace activity section heading in buyer-polished home (TB-347)", () => {
-    render(<OperatorHomePageView model={{ buyerPolishedShell: true }} />);
+    render(<OperatorHomePageView model={mockHomeModel(true)} />);
 
     const heading = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_RECENT_REVIEWS_HEADING });
 
@@ -69,13 +93,13 @@ describe("OperatorHomePageView", () => {
   });
 
   it("renders the same Workspace activity heading in full operator home (TB-347)", () => {
-    render(<OperatorHomePageView model={{ buyerPolishedShell: false }} />);
+    render(<OperatorHomePageView model={mockHomeModel(false)} />);
 
     expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
   });
 
   it("orders buyer-polished home as hero, merged sample tour card, reviews, then collapsed setup section", () => {
-    render(<OperatorHomePageView model={{ buyerPolishedShell: true }} />);
+    render(<OperatorHomePageView model={mockHomeModel(true)} />);
 
     expect(screen.getByTestId("operator-home-hero-section")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-sample-review-preview")).toBeInTheDocument();
@@ -95,7 +119,7 @@ describe("OperatorHomePageView", () => {
   });
 
   it("keeps operator shell hero, merged sample tour card, reviews, workspace context, and setup section in order", () => {
-    render(<OperatorHomePageView model={{ buyerPolishedShell: false }} />);
+    render(<OperatorHomePageView model={mockHomeModel(false)} />);
 
     expect(screen.getByTestId("home-block-pilot-command-center")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-sample-review-preview")).toBeInTheDocument();

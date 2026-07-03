@@ -1,14 +1,15 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
+
+import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
-import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
-import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function formatUsd(value: number | null | undefined): string {
@@ -34,37 +35,20 @@ export function ExecutiveOrphanCandidatesCard({ surface = "operator" }: Executiv
   const orphanDescription = executiveSurface
     ? "Resources flagged for cleanup from the latest committed review"
     : "Server-classified from latest committed review";
-  const [data, setData] = useState<{ count: number; savings: number | null } | null>(null);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const summaryQuery = useExecutiveRoiSummaryQuery();
+  const data = useMemo(() => {
+    if (summaryQuery.data === undefined) {
+      return null;
+    }
 
-  useEffect(() => {
-    let cancelled = false;
+    const orphans = summaryQuery.data.orphanCandidates;
 
-    void (async () => {
-      try {
-        const json = await fetchExecutiveRoiSummaryClient();
-
-        if (cancelled) {
-          return;
-        }
-
-        const orphans = json.orphanCandidates;
-
-        setData({
-          count: orphans?.candidateCount ?? 0,
-          savings: orphans?.annualSavingsUsd ?? null,
-        });
-      } catch (e: unknown) {
-        if (!cancelled) {
-          setFailure(toApiLoadFailure(e));
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
+    return {
+      count: orphans?.candidateCount ?? 0,
+      savings: orphans?.annualSavingsUsd ?? null,
     };
-  }, []);
+  }, [summaryQuery.data]);
+  const failure = summaryQuery.isError ? toApiLoadFailure(summaryQuery.error) : null;
 
   if (failure) {
     return (

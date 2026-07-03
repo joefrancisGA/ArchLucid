@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
@@ -26,11 +25,10 @@ import {
 } from "@/components/OperatorChromeModeContext";
 import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
 import { DeploymentBuildFingerprintStrip } from "@/components/shell/DeploymentBuildFingerprintStrip";
-import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
+import { OperatorShellProviders } from "@/components/OperatorShellProviders";
 import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
-import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
 import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -41,6 +39,7 @@ import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   pathMatchesGovernanceAlerts,
   pathMatchesGovernanceAudit,
@@ -51,6 +50,7 @@ import {
   OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { useAppShellStickyOffsetSync } from "@/hooks/useAppShellStickyOffsetSync";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 import type { HelpTabId } from "@/components/HelpPanel";
@@ -293,8 +293,7 @@ function AppShellInner({ children }: AppShellClientProps) {
 
   if (chromeMode === "minimal") {
     return (
-      <OperatorNavAuthorityProvider>
-        <WorkspaceActiveRunProvider>
+      <OperatorShellProviders>
           <AppInsightsTelemetryInit />
           <SessionIdleTimeoutGuard />
           <UserAppearancePreferenceSync />
@@ -388,14 +387,12 @@ function AppShellInner({ children }: AppShellClientProps) {
               onOpenGuidesPanel={openHelpGuidesPanel}
             />
           </TooltipProvider>
-        </WorkspaceActiveRunProvider>
-      </OperatorNavAuthorityProvider>
+      </OperatorShellProviders>
     );
   }
 
   return (
-    <OperatorNavAuthorityProvider>
-      <WorkspaceActiveRunProvider>
+    <OperatorShellProviders>
       <AppInsightsTelemetryInit />
       <SessionIdleTimeoutGuard />
       <UserAppearancePreferenceSync />
@@ -485,7 +482,6 @@ function AppShellInner({ children }: AppShellClientProps) {
           <BuyerCtoDemoTourOverlay />
         </Suspense>
       </TooltipProvider>
-      </WorkspaceActiveRunProvider>
-    </OperatorNavAuthorityProvider>
+    </OperatorShellProviders>
   );
 }

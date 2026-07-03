@@ -24,6 +24,7 @@
     "supply-chain-sbom.json",
     "dora-devsecops.json",
     "observability-otel.json",
-    "azure-data-layer-security.json"
+    "azure-data-layer-security.json",
+    "snowflake-security.json"
   ]
 }

@@ -11,7 +11,7 @@ import {
   corePilotStepBadgeLabel,
   type CorePilotCommitProgressState,
 } from "@/lib/core-pilot-commit-progress";
-import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
@@ -111,7 +111,7 @@ export function CorePilotBuyerStepHint() {
       setPhase("loading");
 
       try {
-        const ctx = await fetchCorePilotCommitContext();
+        const ctx = await fetchCorePilotCommitContextCached();
 
         if (cancelled) {
           return;

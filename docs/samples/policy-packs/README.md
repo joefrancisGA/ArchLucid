@@ -10,6 +10,9 @@ These files match the persisted shape described in **`ArchLucid.Decisioning.Gove
 |------|--------|
 | [ai-governance-responsible-ai-rules-v1.json](./ai-governance-responsible-ai-rules-v1.json) | **V1 GA bundled default** — 20 curated AI governance rules (NIST AI RMF / EU AI Act thematic mapping). |
 | [security-architecture-baseline-rules-v1.json](./security-architecture-baseline-rules-v1.json) | **V1 GA bundled default** — 30 curated security architecture rules. |
+| [snowflake-security-rules-v1.json](./snowflake-security-rules-v1.json) | **V1 GA bundled default** — 57 Snowflake-specific security and governance rules. |
+| [snowflake-security.json](./snowflake-security.json) | Policy pack content document for Snowflake Security bundle. |
+| [snowflake-security/README.md](./snowflake-security/README.md) | Snowflake Security usage, evidence checklist, and review workflow. |
 | [azure-waf-rules-v1.json](./azure-waf-rules-v1.json) | **V1 GA bundled default** — 12 Azure Well-Architected pillar rules. |
 | [azure-waf.json](./azure-waf.json) | Policy pack content document for WAF bundle. |
 | [azure-caf-landing-zone-rules-v1.json](./azure-caf-landing-zone-rules-v1.json) | **V1 GA bundled default** — 12 CAF / landing zone rules. |

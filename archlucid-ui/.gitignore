@@ -18,6 +18,9 @@
 /.analyze/
 /out/
 
+# local Next build log capture (TB-573)
+.next-build.log
+
 # production
 /build
 

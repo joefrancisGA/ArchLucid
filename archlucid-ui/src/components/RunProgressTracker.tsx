@@ -38,7 +38,6 @@ function allStagesReady(s: RunSummary | null): boolean {
 }
 
 const POLL_MAX_MS = 180_000;
-const STAGE_TIMELINE_POLL_MS = 3000;
 
 export function RunProgressTracker({ runId, initialSummary }: RunProgressTrackerProps) {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
@@ -91,20 +90,16 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
           setStageTimeline(timeline);
         }
       } catch {
-        /* keep polling summary stream */
+        /* keep summary stream */
       }
     };
 
     void fetchTimeline();
-    const intervalId = window.setInterval(() => {
-      void fetchTimeline();
-    }, STAGE_TIMELINE_POLL_MS);
 
     return () => {
       cancelled = true;
-      window.clearInterval(intervalId);
     };
-  }, [clientPhase, pollEnabled, pollSession, runId]);
+  }, [clientPhase, pollEnabled, pollSession, runId, summary]);
 
   const ctx = stageDone(summary?.hasContextSnapshot);
   const graph = stageDone(summary?.hasGraphSnapshot);

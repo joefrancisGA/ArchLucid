@@ -7,11 +7,11 @@ import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summar
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
-export function useExecutiveRoiSummaryQuery() {
+export function useExecutiveRoiSummaryQuery(options?: { enabled?: boolean }) {
   return useQuery<ExecutiveRoiSummary>({
     queryKey: operatorQueryKeys.executiveRoiSummary,
     queryFn: fetchExecutiveRoiSummaryClient,
     // Avoid SSR proxy fetches (relative `/api/proxy` is browser-only); legacy useEffect only ran client-side.
-    enabled: isBrowser(),
+    enabled: isBrowser() && (options?.enabled ?? true),
   });
 }

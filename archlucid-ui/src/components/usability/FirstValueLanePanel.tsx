@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import {
-  fetchCorePilotCommitContext,
+  fetchCorePilotCommitContextCached,
   type CorePilotCommitContext,
 } from "@/lib/core-pilot-commit-context";
 import {
@@ -89,7 +89,7 @@ export function FirstValueLanePanel(props: { readonly className?: string } = {})
       const [health, merged, ctx] = await Promise.all([
         fetchHealthReadySummary().catch(() => null),
         loadProjectRunsMergedWithDemoFallback("default").catch(() => ({ items: [] })),
-        fetchCorePilotCommitContext().catch(() => emptyCommitContext),
+        fetchCorePilotCommitContextCached().catch(() => emptyCommitContext),
       ]);
 
       if (cancelled) {

@@ -1,24 +1,22 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import type { ReactElement } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import type { CSSProperties, ReactElement } from "react";
+import { useRef } from "react";
 
 import {
   EnterpriseTable,
   EnterpriseTableBody,
-  EnterpriseTableCell,
   EnterpriseTableHead,
   EnterpriseTableHeadRow,
   EnterpriseTableHeaderCell,
-  EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import type { AuditEvent } from "@/lib/api";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
-import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { formatUtc, tryFormatDataJson } from "./audit-page-helpers";
+import { AuditEventOperatorTableRow } from "./AuditEventOperatorTableRow";
+
+/** Estimated row height for audit table virtualization (compact operator rows). */
+const AUDIT_TABLE_ROW_ESTIMATE_PX = 72;
 
 export type AuditEventsOperatorTableProps = {
   readonly events: readonly AuditEvent[];
@@ -28,70 +26,55 @@ export type AuditEventsOperatorTableProps = {
 /** Operator audit log: structured table (TB-117); payload in per-row disclosure. */
 export function AuditEventsOperatorTable(props: AuditEventsOperatorTableProps): ReactElement {
   const { events, ariaLabel } = props;
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: events.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => AUDIT_TABLE_ROW_ESTIMATE_PX,
+    overscan: 8,
+  });
 
   return (
-    <EnterpriseTable ariaLabel={ariaLabel}>
-      <EnterpriseTableHead>
-        <EnterpriseTableHeadRow>
-          <EnterpriseTableHeaderCell>Occurred</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Event</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Actor</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Correlation</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Payload</EnterpriseTableHeaderCell>
-        </EnterpriseTableHeadRow>
-      </EnterpriseTableHead>
-      <EnterpriseTableBody>
-        {events.map((ev) => {
-          const runId = ev.runId?.trim() ?? "";
+    <div
+      ref={parentRef}
+      className="max-h-[min(32rem,70vh)] overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
+    >
+      <EnterpriseTable ariaLabel={ariaLabel} className="border-0">
+        <EnterpriseTableHead className="sticky top-0 z-[1] bg-al-surface-raised shadow-[0_1px_0_0_rgb(229_229_229)] dark:shadow-[0_1px_0_0_rgb(38_38_38)]">
+          <EnterpriseTableHeadRow>
+            <EnterpriseTableHeaderCell>Occurred</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Event</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Actor</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Correlation</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Payload</EnterpriseTableHeaderCell>
+          </EnterpriseTableHeadRow>
+        </EnterpriseTableHead>
+        <EnterpriseTableBody
+          style={{
+            height: `${rowVirtualizer.getTotalSize()}px`,
+            position: "relative",
+          }}
+        >
+          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            const ev = events[virtualRow.index];
+            const rowStyle: CSSProperties = {
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              transform: `translateY(${virtualRow.start}px)`,
+              display: "table",
+              tableLayout: "fixed",
+            };
 
-          return (
-            <EnterpriseTableRow key={ev.eventId}>
-              <EnterpriseTableCell className="whitespace-nowrap tabular-nums">
-                <time dateTime={ev.occurredUtc}>{formatUtc(ev.occurredUtc)}</time>
-              </EnterpriseTableCell>
-              <EnterpriseTableCell>{pipelineEventTypeFriendlyLabel(ev.eventType)}</EnterpriseTableCell>
-              <EnterpriseTableCell>
-                <span className="font-medium text-al-text-primary">{ev.actorUserName}</span>
-                <span className={cn("mt-0.5 block font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                  {ev.actorUserId}
-                </span>
-              </EnterpriseTableCell>
-              <EnterpriseTableCell>
-                {runId.length > 0 ? (
-                  <Link className={OPERATOR_LINK.nav} href={`/reviews/${encodeURIComponent(runId)}`}>
-                    {buyerFacingReviewLinkLabelFromRunId(runId)}
-                  </Link>
-                ) : (
-                  <span className="text-al-text-secondary">—</span>
-                )}
-              </EnterpriseTableCell>
-              <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-                {(ev.correlationId ?? "").trim().length > 0 ? (
-                  <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{ev.correlationId}</span>
-                ) : (
-                  "—"
-                )}
-              </EnterpriseTableCell>
-              <EnterpriseTableCell>
-                <details>
-                  <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
-                    View JSON
-                  </summary>
-                  <pre
-                    className={cn(
-                      "mt-2 max-h-40 overflow-auto rounded-md border border-neutral-200 bg-al-surface-raised p-2 dark:border-neutral-800",
-                      OPERATOR_TYPOGRAPHY.micro,
-                    )}
-                  >
-                    {tryFormatDataJson(ev.dataJson)}
-                  </pre>
-                </details>
-              </EnterpriseTableCell>
-            </EnterpriseTableRow>
-          );
-        })}
-      </EnterpriseTableBody>
-    </EnterpriseTable>
+            return (
+              <AuditEventOperatorTableRow key={ev.eventId} event={ev} style={rowStyle} />
+            );
+          })}
+        </EnterpriseTableBody>
+      </EnterpriseTable>
+    </div>
   );
 }

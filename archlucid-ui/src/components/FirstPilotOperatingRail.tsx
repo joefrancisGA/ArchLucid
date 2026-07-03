@@ -8,7 +8,7 @@ import { OperatorHomeDisclosureSection } from "@/components/operator-home/Operat
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
 import {
   buildFirstPilotOperatingRailSignals,
@@ -59,7 +59,7 @@ export function FirstPilotOperatingRail() {
       const [readyBody, merged, ctx] = await Promise.all([
         fetchHealthReadySummary().catch(() => null),
         loadProjectRunsMergedWithDemoFallback("default").catch(() => ({ items: [] })),
-        fetchCorePilotCommitContext().catch(() => ({
+        fetchCorePilotCommitContextCached().catch(() => ({
           hasCommittedManifest: false,
           latestRunId: null,
           firstCommittedRunId: null,

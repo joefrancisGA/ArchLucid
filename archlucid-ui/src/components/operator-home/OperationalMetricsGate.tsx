@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 
-import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 
 type Phase = "loading" | "ready";
 
@@ -24,7 +24,7 @@ export function OperationalMetricsGate({ children }: { children: ReactNode }) {
       setPhase("loading");
 
       try {
-        const ctx = await fetchCorePilotCommitContext();
+        const ctx = await fetchCorePilotCommitContextCached();
 
         if (cancelled) {
           return;

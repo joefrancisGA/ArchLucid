@@ -108,51 +108,42 @@ export function CompareForm() {
     }
 
     try {
-      const legacy: unknown = await compareRuns(leftAtStart, rightAtStart);
+      const [legacyOutcome, structuredOutcome] = await Promise.allSettled([
+        compareRuns(leftAtStart, rightAtStart),
+        compareGoldenManifestRuns(leftAtStart, rightAtStart),
+      ]);
 
       if (gen !== compareGenerationRef.current) {
         return;
       }
 
-      const coercedLegacy = coerceRunComparison(legacy);
+      if (legacyOutcome.status === "fulfilled") {
+        const coercedLegacy = coerceRunComparison(legacyOutcome.value);
 
-      if (!coercedLegacy.ok) {
+        if (!coercedLegacy.ok) {
+          setResult(null);
+          setLegacyMalformed(coercedLegacy.message);
+        } else {
+          setResult(coercedLegacy.value);
+        }
+      } else {
+        setLegacyFailure(toApiLoadFailure(legacyOutcome.reason));
         setResult(null);
-        setLegacyMalformed(coercedLegacy.message);
+      }
+
+      if (structuredOutcome.status === "fulfilled") {
+        const coercedGolden = coerceGoldenManifestComparison(structuredOutcome.value);
+
+        if (!coercedGolden.ok) {
+          setGolden(null);
+          setGoldenMalformed(coercedGolden.message);
+        } else {
+          setGolden(coercedGolden.value);
+        }
       } else {
-        setResult(coercedLegacy.value);
-      }
-    } catch (err) {
-      if (gen !== compareGenerationRef.current) {
-        return;
-      }
-
-      setLegacyFailure(toApiLoadFailure(err));
-      setResult(null);
-    }
-
-    try {
-      const structured: unknown = await compareGoldenManifestRuns(leftAtStart, rightAtStart);
-
-      if (gen !== compareGenerationRef.current) {
-        return;
-      }
-
-      const coercedGolden = coerceGoldenManifestComparison(structured);
-
-      if (!coercedGolden.ok) {
+        setGoldenFailure(toApiLoadFailure(structuredOutcome.reason));
         setGolden(null);
-        setGoldenMalformed(coercedGolden.message);
-      } else {
-        setGolden(coercedGolden.value);
       }
-    } catch (err) {
-      if (gen !== compareGenerationRef.current) {
-        return;
-      }
-
-      setGoldenFailure(toApiLoadFailure(err));
-      setGolden(null);
     } finally {
       if (gen === compareGenerationRef.current) {
         setLoading(false);

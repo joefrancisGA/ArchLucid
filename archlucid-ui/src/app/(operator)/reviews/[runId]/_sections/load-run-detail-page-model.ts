@@ -165,17 +165,6 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
 
   let progressInitialSummary: RunSummary | null = null;
 
-  try {
-    progressInitialSummary = await getRunSummary(runId);
-  } catch {
-    progressInitialSummary = null;
-  }
-
-  const progressForPipelineUi = effectiveRunSummaryForPipeline(progressInitialSummary, resolvedDetail);
-
-  const showProgressTracker =
-    !manifestId || !pipelineCompleteOnSummary(progressForPipelineUi);
-
   let manifestSummary: ManifestSummary | null = null;
   let artifacts: ArtifactDescriptor[] = [];
   let manifestSummaryFailure: ApiLoadFailureState | null = null;
@@ -185,59 +174,30 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let explanationSummary: RunExplanationSummary | null = null;
   let explanationFailure: ApiLoadFailureState | null = null;
 
-  const dependentFetchScopeOptions = apiScopeOptions;
+  const progressSummaryPromise = getRunSummary(runId).catch(() => null);
 
   if (manifestId) {
-    try {
-      const rawSummary: unknown = await getManifestSummary(manifestId, dependentFetchScopeOptions);
-      const coercedSummary = coerceManifestSummary(rawSummary);
+    const [
+      resolvedProgressSummary,
+      manifestSummaryResult,
+      artifactsResult,
+      explanationResult,
+    ] = await Promise.all([
+      progressSummaryPromise,
+      loadRunDetailManifestSummary(manifestId, apiScopeOptions),
+      loadRunDetailArtifacts(runId, manifestId, apiScopeOptions),
+      loadRunDetailExplanationSummary(runId, apiScopeOptions),
+    ]);
 
-      if (!coercedSummary.ok) {
-        manifestSummaryMalformed = coercedSummary.message;
-      } else {
-        manifestSummary = coercedSummary.value;
-      }
-    } catch (e) {
-      manifestSummaryFailure = toApiLoadFailure(e);
-      const staticSummary = tryStaticDemoManifestSummary(manifestId);
-
-      if (staticSummary !== null) {
-        manifestSummary = staticSummary;
-        manifestSummaryFailure = null;
-      }
-    }
-
-    try {
-      const rawArtifacts: unknown = await listArtifacts(manifestId, dependentFetchScopeOptions);
-      const coercedArtifacts = coerceArtifactDescriptorList(rawArtifacts);
-
-      if (!coercedArtifacts.ok) {
-        artifacts = [];
-        artifactsMalformed = coercedArtifacts.message;
-      } else {
-        artifacts = coercedArtifacts.items;
-      }
-    } catch (e) {
-      artifactsFailure = toApiLoadFailure(e);
-      const staticArtifacts = tryStaticDemoArtifacts(runId, manifestId);
-
-      if (staticArtifacts !== null) {
-        artifacts = staticArtifacts;
-        artifactsFailure = null;
-      }
-    }
-
-    try {
-      explanationSummary = await getRunExplanationSummary(runId, dependentFetchScopeOptions);
-    } catch (e) {
-      explanationFailure = toApiLoadFailure(e);
-      const staticExplanation = tryStaticDemoExplanationSummary(runId);
-
-      if (staticExplanation !== null) {
-        explanationSummary = staticExplanation;
-        explanationFailure = null;
-      }
-    }
+    progressInitialSummary = resolvedProgressSummary;
+    manifestSummary = manifestSummaryResult.summary;
+    manifestSummaryFailure = manifestSummaryResult.failure;
+    manifestSummaryMalformed = manifestSummaryResult.malformed;
+    artifacts = artifactsResult.artifacts;
+    artifactsFailure = artifactsResult.failure;
+    artifactsMalformed = artifactsResult.malformed;
+    explanationSummary = explanationResult.summary;
+    explanationFailure = explanationResult.failure;
 
     if (
       explanationSummary !== null &&
@@ -250,7 +210,14 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
         explanationSummary = staticExplanation;
       }
     }
+  } else {
+    progressInitialSummary = await progressSummaryPromise;
   }
+
+  const progressForPipelineUi = effectiveRunSummaryForPipeline(progressInitialSummary, resolvedDetail);
+
+  const showProgressTracker =
+    !manifestId || !pipelineCompleteOnSummary(progressForPipelineUi);
 
   const buyerPolishedSections = buyerPolishedArtifactTable;
 
@@ -362,4 +329,89 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   };
 
   return { kind: "success", model };
+}
+
+type RunDetailManifestSummaryLoadResult = {
+  summary: ManifestSummary | null;
+  failure: ApiLoadFailureState | null;
+  malformed: string | null;
+};
+
+type RunDetailArtifactsLoadResult = {
+  artifacts: ArtifactDescriptor[];
+  failure: ApiLoadFailureState | null;
+  malformed: string | null;
+};
+
+type RunDetailExplanationLoadResult = {
+  summary: RunExplanationSummary | null;
+  failure: ApiLoadFailureState | null;
+};
+
+async function loadRunDetailManifestSummary(
+  manifestId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<RunDetailManifestSummaryLoadResult> {
+  try {
+    const rawSummary: unknown = await getManifestSummary(manifestId, options);
+    const coercedSummary = coerceManifestSummary(rawSummary);
+
+    if (!coercedSummary.ok) {
+      return { summary: null, failure: null, malformed: coercedSummary.message };
+    }
+
+    return { summary: coercedSummary.value, failure: null, malformed: null };
+  } catch (e) {
+    const staticSummary = tryStaticDemoManifestSummary(manifestId);
+
+    if (staticSummary !== null) {
+      return { summary: staticSummary, failure: null, malformed: null };
+    }
+
+    return { summary: null, failure: toApiLoadFailure(e), malformed: null };
+  }
+}
+
+async function loadRunDetailArtifacts(
+  runId: string,
+  manifestId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<RunDetailArtifactsLoadResult> {
+  try {
+    const rawArtifacts: unknown = await listArtifacts(manifestId, options);
+    const coercedArtifacts = coerceArtifactDescriptorList(rawArtifacts);
+
+    if (!coercedArtifacts.ok) {
+      return { artifacts: [], failure: null, malformed: coercedArtifacts.message };
+    }
+
+    return { artifacts: coercedArtifacts.items, failure: null, malformed: null };
+  } catch (e) {
+    const staticArtifacts = tryStaticDemoArtifacts(runId, manifestId);
+
+    if (staticArtifacts !== null) {
+      return { artifacts: staticArtifacts, failure: null, malformed: null };
+    }
+
+    return { artifacts: [], failure: toApiLoadFailure(e), malformed: null };
+  }
+}
+
+async function loadRunDetailExplanationSummary(
+  runId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<RunDetailExplanationLoadResult> {
+  try {
+    const summary = await getRunExplanationSummary(runId, options);
+
+    return { summary, failure: null };
+  } catch (e) {
+    const staticExplanation = tryStaticDemoExplanationSummary(runId);
+
+    if (staticExplanation !== null) {
+      return { summary: staticExplanation, failure: null };
+    }
+
+    return { summary: null, failure: toApiLoadFailure(e) };
+  }
 }

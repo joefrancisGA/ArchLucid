@@ -76,30 +76,30 @@ public sealed class SqlRunRepository(
 
         if (connection is not null)
         {
-            await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction);
+            await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction).ConfigureAwait(false);
 
             byte[] stamp = await connection.QuerySingleAsync<byte[]>(
-                new CommandDefinition(sql, insertParams, transaction, cancellationToken: ct));
+                new CommandDefinition(sql, insertParams, transaction, cancellationToken: ct)).ConfigureAwait(false);
             run.RowVersion = stamp;
 
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await using SqlTransaction tran = (SqlTransaction)await owned.BeginTransactionAsync(ct);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlTransaction tran = (SqlTransaction)await owned.BeginTransactionAsync(ct).ConfigureAwait(false);
 
         try
         {
-            await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, owned, tran);
+            await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, owned, tran).ConfigureAwait(false);
 
             byte[] ownedStamp =
-                await owned.QuerySingleAsync<byte[]>(new CommandDefinition(sql, insertParams, tran, cancellationToken: ct));
+                await owned.QuerySingleAsync<byte[]>(new CommandDefinition(sql, insertParams, tran, cancellationToken: ct)).ConfigureAwait(false);
             run.RowVersion = ownedStamp;
-            await tran.CommitAsync(ct);
+            await tran.CommitAsync(ct).ConfigureAwait(false);
         }
         catch
         {
-            await tran.RollbackAsync(ct);
+            await tran.RollbackAsync(ct).ConfigureAwait(false);
             throw;
         }
     }
@@ -135,7 +135,7 @@ public sealed class SqlRunRepository(
                                  AND ArchivedUtc IS NULL;
                                """;
 
-            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
             return await connection.QuerySingleOrDefaultAsync<RunRecord>(
                 new CommandDefinition(
@@ -147,7 +147,7 @@ public sealed class SqlRunRepository(
                         scope.WorkspaceId,
                         ScopeProjectId = scope.ProjectId
                     },
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
         }
         finally
         {
@@ -181,13 +181,13 @@ public sealed class SqlRunRepository(
                                  AND ArchivedUtc IS NULL;
                                """;
 
-            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
             return await connection.QuerySingleOrDefaultAsync<RunRecord>(
                 new CommandDefinition(sql, new
                 {
                     RunId = runId
-                }, cancellationToken: ct));
+                }, cancellationToken: ct)).ConfigureAwait(false);
         }
         finally
         {
@@ -234,7 +234,7 @@ public sealed class SqlRunRepository(
                                ORDER BY CreatedUtc DESC, RunId DESC;
                                """;
 
-            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
             return await connection.QuerySingleOrDefaultAsync<RunRecord>(
                 new CommandDefinition(
@@ -247,7 +247,7 @@ public sealed class SqlRunRepository(
                         AuthorityProjectSlug = authorityProjectSlug,
                         AsOfUtc = DateTime.SpecifyKind(asOfUtc, DateTimeKind.Utc)
                     },
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
         }
         finally
         {
@@ -272,7 +272,7 @@ public sealed class SqlRunRepository(
 
         try
         {
-            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
             IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
                 new CommandDefinition(
                     HotPathRelationalQueryShapes.RunsListByProjectNoLock,
@@ -284,7 +284,7 @@ public sealed class SqlRunRepository(
                         ScopeProjectId = scope.ProjectId,
                         Take = Math.Clamp(take <= 0 ? 20 : take, 1, 200)
                     },
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
 
             return rows.ToList();
         }
@@ -317,7 +317,7 @@ public sealed class SqlRunRepository(
 
         try
         {
-            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
             IEnumerable<RunRecord> rowsEnumerable = await connection.QueryAsync<RunRecord>(
                 new CommandDefinition(
                     HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock,
@@ -331,7 +331,7 @@ public sealed class SqlRunRepository(
                         CursorCreatedUtc = cursorCreatedUtc,
                         CursorRunId = cursorRunId
                     },
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
 
             List<RunRecord> rows = rowsEnumerable.ToList();
             bool hasMore = rows.Count > safeTake;
@@ -362,7 +362,7 @@ public sealed class SqlRunRepository(
         {
             // NOLOCK: dashboard / picker list; same tolerance as read-replica staleness (see LOAD_TEST_BASELINE.md). Avoids S-lock blocking behind writers on dbo.Runs.
 
-            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
             IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
                 new CommandDefinition(
                     HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock,
@@ -373,7 +373,7 @@ public sealed class SqlRunRepository(
                         ScopeProjectId = scope.ProjectId,
                         Take = Math.Clamp(take <= 0 ? 200 : take, 1, 200)
                     },
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
 
             return rows.ToList();
         }
@@ -406,7 +406,7 @@ public sealed class SqlRunRepository(
 
         try
         {
-            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
             IEnumerable<RunRecord> rowsEnumerable = await connection.QueryAsync<RunRecord>(
                 new CommandDefinition(
                     HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock,
@@ -419,7 +419,7 @@ public sealed class SqlRunRepository(
                         CursorCreatedUtc = cursorCreatedUtc,
                         CursorRunId = cursorRunId
                     },
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
 
             List<RunRecord> rows = rowsEnumerable.ToList();
             bool hasMore = rows.Count > safeTake;
@@ -455,7 +455,7 @@ public sealed class SqlRunRepository(
 
         try
         {
-            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
             IEnumerable<RunRecord> rowsEnumerable = await connection.QueryAsync<RunRecord>(
                 new CommandDefinition(
                     HotPathRelationalQueryShapes.RunsListRecentInScopeOffsetNoLock,
@@ -467,7 +467,7 @@ public sealed class SqlRunRepository(
                         Offset = safeOffset,
                         Fetch = fetch
                     },
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
 
             List<RunRecord> rows = rowsEnumerable.ToList();
             bool hasMore = rows.Count > safeLimit;
@@ -537,15 +537,15 @@ public sealed class SqlRunRepository(
 
         if (connection is not null)
         {
-            await EnsureCommittedRunHeaderAnchorsUnchangedAsync(connection, transaction, run, ct);
-            await ApplyUpdateAsync(connection, transaction, run, sql, ct);
+            await EnsureCommittedRunHeaderAnchorsUnchangedAsync(connection, transaction, run, ct).ConfigureAwait(false);
+            await ApplyUpdateAsync(connection, transaction, run, sql, ct).ConfigureAwait(false);
 
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await EnsureCommittedRunHeaderAnchorsUnchangedAsync(owned, null, run, ct);
-        await ApplyUpdateAsync(owned, null, run, sql, ct);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await EnsureCommittedRunHeaderAnchorsUnchangedAsync(owned, null, run, ct).ConfigureAwait(false);
+        await ApplyUpdateAsync(owned, null, run, sql, ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -577,8 +577,8 @@ public sealed class SqlRunRepository(
                            EXEC dbo.Archival_CascadeFromArchivedRuns @Archived = @Archived;
                            """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct).ConfigureAwait(false);
 
         try
         {
@@ -590,18 +590,18 @@ public sealed class SqlRunRepository(
                         Cutoff = cutoffUtc.UtcDateTime
                     },
                     tran,
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
 
-            List<ArchivedRunScopeRow> rows = (await multi.ReadAsync<ArchivedRunScopeRow>()).ToList();
-            RunArchiveChildCascadeCounts childCascade = (await multi.ReadAsync<RunArchiveChildCascadeCounts>()).Single();
+            List<ArchivedRunScopeRow> rows = (await multi.ReadAsync<ArchivedRunScopeRow>().ConfigureAwait(false)).ToList();
+            RunArchiveChildCascadeCounts childCascade = (await multi.ReadAsync<RunArchiveChildCascadeCounts>().ConfigureAwait(false)).Single();
 
-            await tran.CommitAsync(ct);
+            await tran.CommitAsync(ct).ConfigureAwait(false);
 
             return new RunArchiveBatchResult { UpdatedCount = rows.Count, ArchivedRuns = rows, ChildCascade = childCascade };
         }
         catch
         {
-            await tran.RollbackAsync(ct);
+            await tran.RollbackAsync(ct).ConfigureAwait(false);
             throw;
         }
     }
@@ -646,8 +646,8 @@ public sealed class SqlRunRepository(
                                 EXEC dbo.Archival_CascadeFromArchivedRuns @Archived = @Archived;
                                 """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct).ConfigureAwait(false);
 
         List<ArchivedRunScopeRow> archived;
         List<Guid> alreadyArchivedRunIds;
@@ -660,17 +660,17 @@ public sealed class SqlRunRepository(
                 new CommandDefinition(batchSql, new
                 {
                     RunIds = distinctOrdered
-                }, tran, cancellationToken: ct));
+                }, tran, cancellationToken: ct)).ConfigureAwait(false);
 
-            archived = (await multi.ReadAsync<ArchivedRunScopeRow>()).ToList();
-            alreadyArchivedRunIds = (await multi.ReadAsync<Guid>()).ToList();
-            childCascade = (await multi.ReadAsync<RunArchiveChildCascadeCounts>()).Single();
+            archived = (await multi.ReadAsync<ArchivedRunScopeRow>().ConfigureAwait(false)).ToList();
+            alreadyArchivedRunIds = (await multi.ReadAsync<Guid>().ConfigureAwait(false)).ToList();
+            childCascade = (await multi.ReadAsync<RunArchiveChildCascadeCounts>().ConfigureAwait(false)).Single();
 
-            await tran.CommitAsync(ct);
+            await tran.CommitAsync(ct).ConfigureAwait(false);
         }
         catch
         {
-            await tran.RollbackAsync(ct);
+            await tran.RollbackAsync(ct).ConfigureAwait(false);
             throw;
         }
 
@@ -725,7 +725,7 @@ public sealed class SqlRunRepository(
                                  OR LegacyRunStatus NOT IN (@CommittedStatus, @FailedStatus, @QualityRejectedStatus));
                            """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
         int count = await connection.QuerySingleAsync<int>(
             new CommandDefinition(
@@ -740,7 +740,7 @@ public sealed class SqlRunRepository(
                     FailedStatus = nameof(ArchitectureRunStatus.Failed),
                     QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         return count;
     }
@@ -756,7 +756,7 @@ public sealed class SqlRunRepository(
 
         int safeBatch = Math.Clamp(batchSize, 1, 10_000);
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
         IEnumerable<ArchivedRunScopeRow> rows = await connection.QueryAsync<ArchivedRunScopeRow>(
             new CommandDefinition(
@@ -767,7 +767,7 @@ public sealed class SqlRunRepository(
                     BatchSize = safeBatch
                 },
                 commandType: CommandType.StoredProcedure,
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         List<ArchivedRunScopeRow> list = rows.AsList();
 
@@ -786,7 +786,7 @@ public sealed class SqlRunRepository(
 
         int safeBatch = Math.Clamp(batchSize, 1, 10_000);
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
         IEnumerable<ArchivedRunScopeRow> rows = await connection.QueryAsync<ArchivedRunScopeRow>(
             new CommandDefinition(
@@ -798,7 +798,7 @@ public sealed class SqlRunRepository(
                     BatchSize = safeBatch
                 },
                 commandType: CommandType.StoredProcedure,
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         List<ArchivedRunScopeRow> list = rows.AsList();
 
@@ -860,7 +860,7 @@ public sealed class SqlRunRepository(
         RunRecord run,
         CancellationToken ct)
     {
-        RunRecord? persisted = await LoadRunForAnchorGuardAsync(connection, transaction, run, ct);
+        RunRecord? persisted = await LoadRunForAnchorGuardAsync(connection, transaction, run, ct).ConfigureAwait(false);
         CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, run);
     }
 
@@ -897,7 +897,7 @@ public sealed class SqlRunRepository(
                     run.ScopeProjectId
                 },
                 transaction,
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
     }
 
     private static async Task ApplyUpdateAsync(
@@ -946,7 +946,7 @@ public sealed class SqlRunRepository(
                         run.RowVersion
                     },
                     transaction,
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
         }
         catch (SqlException ex) when (ex.Number == CommittedRunHeaderAnchorRegistry.TriggerErrorNumber)
         {
@@ -999,7 +999,7 @@ public sealed class SqlRunRepository(
                              AND ArchivedUtc IS NULL;
                            """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
         int rows = await connection.ExecuteAsync(
             new CommandDefinition(
@@ -1015,7 +1015,7 @@ public sealed class SqlRunRepository(
                     OccurredUtc = occurredUtc,
                     ActorUserId = actorUserId.Trim(),
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         return rows > 0;
     }

@@ -1,14 +1,14 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { cn } from "@/lib/utils";
 import { CircleHelp } from "lucide-react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
+import { CommandPalette } from "@/components/CommandPaletteLazy";
 import { GlobalSearchBar } from "@/components/GlobalSearchBar";
 import { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
+import { useCommandPaletteChunkPreload } from "@/hooks/use-command-palette-chunk-preload";
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
@@ -22,11 +22,7 @@ import {
   OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
 } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
-
-const CommandPalette = dynamic(
-  () => import("@/components/CommandPalette").then((module) => module.CommandPalette),
-  { ssr: false },
-);
+import { cn } from "@/lib/utils";
 
 type OperatorShellTopBarProps = {
   readonly onOpenHelpSearch: () => void;
@@ -41,6 +37,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
   const showAuthorityThemeToggle = isUiAuthorityThemeEvalEnabledEnv();
 
   useSearchShortcut();
+  useCommandPaletteChunkPreload();
 
   return (
     <header

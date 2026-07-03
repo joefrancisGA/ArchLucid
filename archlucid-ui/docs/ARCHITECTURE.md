@@ -30,8 +30,8 @@ The UI is **not** a general-purpose SPA. It is a dashboard for operators who und
 | Constraint | Reason |
 |-----------|--------|
 | No heavy client-side state management (Redux, Zustand) | Read-mostly dashboard with no cross-page state; simplicity over power |
-| No CSS framework or design system (Tailwind, MUI, etc.) | Keeps the dependency surface minimal; inline styles for now |
-| No component library beyond React Flow (for graphs) | Avoids lock-in; shell components are small enough to maintain directly |
+| Tailwind CSS + shadcn/Radix primitives styled to IBM Carbon (see `docs/library/UI_DESIGN_SYSTEM.md`) | Enterprise visual standard; not default Tailwind/shadcn aesthetics |
+| Component library: shadcn/Radix + React Flow (graphs) + targeted chart/export libs | Carbon-aligned operator shell; heavy libs code-split per route |
 | Server components by default; `"use client"` only when interactivity requires it | Minimizes JavaScript shipped to the browser; aligns with Next.js App Router best practices |
 | All API secrets stay server-side | `ARCHLUCID_API_KEY` is never exposed to the browser; proxy route enforces this |
 | TypeScript strict mode | Catches type errors at compile time; all types are explicit |
@@ -507,16 +507,16 @@ In development, these are hardcoded in `scope.ts`. In production, they would com
 
 **Trade-off:** More boilerplate than a schema library. If the number of coerce functions grows significantly (20+), migrating to Zod would be justified.
 
-### 9.4 Why inline styles instead of a CSS framework?
+### 9.4 Why Tailwind + Carbon tokens instead of inline-only styling?
 
-**Decision:** Inline `style={{ ... }}` objects, no Tailwind/CSS Modules/styled-components.
+**Decision:** Tailwind utility classes with ArchLucid design tokens (`--al-*`, `design-tokens.ts`) and shadcn/Radix primitives, styled to IBM Carbon with Fluent 2 shell polish.
 
 **Reasoning:**
-- The shell has ~15 pages with simple layouts. A CSS framework adds complexity without proportional benefit.
-- Inline styles are co-located with the component — no file switching.
-- No class name conflicts, no specificity wars, no build-time CSS extraction issues.
+- The operator shell grew well beyond ~15 pages; a tokenized utility system scales layout and spacing consistently (TB-114–TB-120).
+- `EnterpriseTable`, `StatusTag`, and compact operator spacing are shared across reviews, governance, and audit surfaces.
+- Residual inline `style={{ ... }}` remains only for dynamic layout (graph fallbacks, progress bars) where class names cannot express runtime values.
 
-**Trade-off:** No responsive design, no theme system, no dark mode. If the shell grows to 50+ pages or needs branding, migrate to CSS Modules or Tailwind.
+**Trade-off:** Tailwind and Radix add build-time dependencies and bundle surface area; mitigated via `optimizePackageImports`, route-level `dynamic()` for heavy widgets, and Carbon discipline in `.cursor/rules/UI-Enterprise-Design-Standard.mdc`.
 
 ### 9.5 Why server-to-server fetches instead of client-only?
 

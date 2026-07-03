@@ -64,4 +64,67 @@ public static class HotPathCacheKeys
     {
         return $"{Prefix}epps:{tenantId:N}:{workspaceId:N}:{projectId:N}:r{revision}";
     }
+
+    /// <summary>Scope revision stamp for audit list cache keys (TB-581).</summary>
+    public static string AuditListScopeRevision(ScopeContext scope)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return $"{Prefix}auditlist-rev:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}";
+    }
+
+    /// <summary>First-page scoped audit list (no keyset cursor).</summary>
+    public static string AuditListByScopeFirstPage(ScopeContext scope, int take, long revision)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return $"{Prefix}auditlist:scope:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:r{revision}:{take:D}";
+    }
+
+    /// <summary>First-page filtered audit list (no keyset cursor; fingerprint from <see cref="Audit.AuditFilterCacheFingerprint" />).</summary>
+    public static string AuditListFilteredFirstPage(ScopeContext scope, string filterFingerprint, int take, long revision)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(filterFingerprint);
+
+        return $"{Prefix}auditlist:filter:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:r{revision}:{take:D}:{filterFingerprint}";
+    }
+
+    /// <summary>Scope revision stamp for policy-pack list cache keys (TB-581).</summary>
+    public static string PolicyPackListScopeRevision(ScopeContext scope)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return $"{Prefix}pplist-rev:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}";
+    }
+
+    /// <summary>Policy packs authored in the current tenant/workspace/project scope.</summary>
+    public static string PolicyPackListByScope(ScopeContext scope, long revision)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return $"{Prefix}pplist:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:r{revision}";
+    }
+
+    /// <summary>Governance dashboard aggregate for one authority scope and list caps (TB-581).</summary>
+    public static string GovernanceDashboard(
+        ScopeContext scope,
+        Guid tenantId,
+        int maxPending,
+        int maxDecisions,
+        int maxChanges)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return
+            $"{Prefix}govdash:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{tenantId:N}:{maxPending:D}:{maxDecisions:D}:{maxChanges:D}";
+    }
+
+    /// <summary>Findings snapshot by authority scope + snapshot id (TB-593).</summary>
+    public static string FindingsSnapshot(ScopeContext scope, Guid findingsSnapshotId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return $"{Prefix}fs:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{findingsSnapshotId:N}";
+    }
 }

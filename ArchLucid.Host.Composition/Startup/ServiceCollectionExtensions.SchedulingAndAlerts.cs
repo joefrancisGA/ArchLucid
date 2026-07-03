@@ -309,7 +309,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AzureDevOpsIntegrationOptions>(configuration.GetSection(AzureDevOpsIntegrationOptions.SectionName));
         services.AddHttpClient(
             AzureDevOpsCommitStatusPublisher.HttpClientName,
-            static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration));
+            static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration))
+            .AddOutboundExternalHttpResilience();
         services.AddScoped<IAzureDevOpsCommitStatusPublisher, AzureDevOpsCommitStatusPublisher>();
     }
 
@@ -325,7 +326,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AzureDevOpsIntegrationOptions>(configuration.GetSection(AzureDevOpsIntegrationOptions.SectionName));
         services.AddHttpClient(
             AzureDevOpsPullRequestDecorator.HttpClientName,
-            static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration));
+            static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration))
+            .AddOutboundExternalHttpResilience();
         services.AddSingleton<IAzureDevOpsPullRequestDecoratorFactory, AzureDevOpsPullRequestDecoratorFactory>();
         services.AddSingleton<IIntegrationEventHandler, AuthorityRunCompletedAzureDevOpsIntegrationEventHandler>();
         services.AddSingleton<IIntegrationEventHandler, AuthorityRunCompletedChatOpsIntegrationEventHandler>();

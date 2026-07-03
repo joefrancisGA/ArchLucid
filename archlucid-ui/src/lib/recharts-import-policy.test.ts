@@ -47,4 +47,19 @@ describe("recharts import policy (TB-570)", () => {
     expect(roiSectionSource).toContain("dynamic(");
     expect(roiSectionSource).toContain("ExecutiveRoiSystemicIssueTrendChart");
   });
+
+  it("does not statically import recharts on operator home or reviews entry routes", () => {
+    const hotPathModules = [
+      join(SRC_ROOT, "app", "(operator)", "_sections", "OperatorHomePageView.tsx"),
+      join(SRC_ROOT, "app", "(operator)", "page.tsx"),
+      join(SRC_ROOT, "app", "(operator)", "reviews", "page.tsx"),
+      join(SRC_ROOT, "app", "(operator)", "reviews", "[runId]", "page.tsx"),
+    ];
+
+    for (const modulePath of hotPathModules) {
+      const source = readFileSync(modulePath, "utf8");
+
+      expect(source).not.toMatch(/from\s+["']recharts["']/);
+    }
+  });
 });

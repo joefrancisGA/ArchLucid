@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
+
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +14,6 @@ import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failu
 import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
 import {
   presentCostEvidenceFreshness,
   presentExecutiveKpiCount,
@@ -66,6 +67,10 @@ export function ExecutiveRoiDashboardLiveKpiCards({
   const executiveDetails = variant === "executive-details";
   const suppressZeroFootnote = executiveDetails;
   const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined;
+  const summaryQuery = useExecutiveRoiSummaryQuery({ enabled: !usesExternalSummary });
+  const resolvedSummary = usesExternalSummary ? (summaryProp ?? null) : (summaryQuery.data ?? null);
+  const summaryFailure =
+    !usesExternalSummary && summaryQuery.isError ? toApiLoadFailure(summaryQuery.error) : null;
   const [state, setState] = useState<LiveKpiState>({
     summary: summaryProp ?? null,
     staleRiskCount: 0,
@@ -73,7 +78,8 @@ export function ExecutiveRoiDashboardLiveKpiCards({
     decisionsNeededCount: 0,
   });
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [loading, setLoading] = useState(loadingProp ?? true);
+  const [decisionsLoading, setDecisionsLoading] = useState(!usesExternalSummary);
+  const loading = usesExternalSummary ? (loadingProp ?? false) : (summaryQuery.isPending || decisionsLoading);
 
   useEffect(() => {
     if (usesExternalSummary) {
@@ -82,7 +88,6 @@ export function ExecutiveRoiDashboardLiveKpiCards({
         summary: summaryProp ?? null,
         staleRiskCount: summaryProp?.staleArchitectureRiskCount ?? current.staleRiskCount,
       }));
-      setLoading(loadingProp ?? false);
       setFailure(null);
 
       if (loadingProp) {
@@ -94,19 +99,13 @@ export function ExecutiveRoiDashboardLiveKpiCards({
 
     void (async () => {
       try {
-        const summaryPromise = usesExternalSummary
-          ? Promise.resolve(summaryProp ?? null)
-          : fetchExecutiveRoiSummaryClient();
-        const [summary, decisionsNeeded] = await Promise.all([
-          summaryPromise,
-          getGovernanceDecisionsNeededSummary(),
-        ]);
+        const decisionsNeeded = await getGovernanceDecisionsNeededSummary();
 
         if (!cancelled) {
           setState({
-            summary,
+            summary: resolvedSummary,
             staleRiskCount:
-              summary?.staleArchitectureRiskCount ?? decisionsNeeded.staleRisks,
+              resolvedSummary?.staleArchitectureRiskCount ?? decisionsNeeded.staleRisks,
             // TB-155 / EXECUTIVE_KPI_SEMANTIC_CONTRACT: live governance count only (not cached ROI).
             expiringWaiversCount: decisionsNeeded.waiversExpiringWithin14Days,
             decisionsNeededCount: decisionsNeeded.totalDecisionItems,
@@ -118,7 +117,7 @@ export function ExecutiveRoiDashboardLiveKpiCards({
         }
       } finally {
         if (!cancelled) {
-          setLoading(false);
+          setDecisionsLoading(false);
         }
       }
     })();
@@ -126,9 +125,17 @@ export function ExecutiveRoiDashboardLiveKpiCards({
     return () => {
       cancelled = true;
     };
-  }, [loadingProp, summaryProp, usesExternalSummary]);
+  }, [loadingProp, resolvedSummary, summaryProp, usesExternalSummary]);
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
+
+  if (summaryFailure !== null) {
+    return (
+      <div className="sm:col-span-2 lg:col-span-3">
+        <OperatorApiProblem failure={summaryFailure} />
+      </div>
+    );
+  }
 
   if (failure) {
     return (

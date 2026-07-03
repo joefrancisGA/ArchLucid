@@ -32,7 +32,7 @@ function HomeSectionHeading(props: { readonly id?: string; readonly children: st
   );
 }
 
-function BuyerPolishedHomePageBody() {
+function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageViewModel }) {
   return (
     <>
       <BuyerPolishedHomeHeroSection />
@@ -43,7 +43,7 @@ function BuyerPolishedHomePageBody() {
 
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
-        <OperatorHomeRunsPanel hideHeading />
+        <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
       </section>
 
       <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} />
@@ -55,7 +55,7 @@ function BuyerPolishedHomePageBody() {
   );
 }
 
-function OperatorHomePageBody() {
+function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel }) {
   const fullOperatorShell = isOperatorExperienceFullShellEnv();
 
   return (
@@ -68,7 +68,7 @@ function OperatorHomePageBody() {
 
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
-        <OperatorHomeRunsPanel hideHeading />
+        <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
       </section>
 
       <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={fullOperatorShell} />
@@ -92,7 +92,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
     <OperatorHomeGate>
       <OperatorHomeDeferredOnboarding />
       <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
-        {buyerPolishedShell ? <BuyerPolishedHomePageBody /> : <OperatorHomePageBody />}
+        {buyerPolishedShell ? <BuyerPolishedHomePageBody model={model} /> : <OperatorHomePageBody model={model} />}
       </OperatorPageContainer>
     </OperatorHomeGate>
   );

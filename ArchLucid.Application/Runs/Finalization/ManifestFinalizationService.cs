@@ -100,10 +100,8 @@ public sealed class ManifestFinalizationService(
             connection,
             transaction,
             cancellationToken);
-
         if (locked is null)
             throw new RunNotFoundException(request.RunId.ToString("N"));
-
         if (string.Equals(locked.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
         {
             if (locked.GoldenManifestId is not { } manifestId)
@@ -113,11 +111,9 @@ public sealed class ManifestFinalizationService(
         }
 
         RunStateTransitionEnforcement.EnsureCommitAllowedLegacy(_runStateTransitionService, request.RunId, locked.LegacyRunStatus);
-
         if (locked.FindingsSnapshotId is null || locked.FindingsSnapshotId.Value != request.ExpectedFindingsSnapshotId)
             throw new InvalidOperationException("Findings snapshot on the run record does not match the expected findings for finalization.");
         await EnsureFindingsSnapshotFinalizableAsync(request.ExpectedFindingsSnapshotId, request.PreloadedFindingsSnapshot, cancellationToken);
-
         if (request.ExpectedArtifactBundleId is { } expectedBundle)
         {
             if (locked.ArtifactBundleId is null || locked.ArtifactBundleId.Value != expectedBundle)
@@ -212,10 +208,8 @@ public sealed class ManifestFinalizationService(
         CancellationToken cancellationToken)
     {
         RunRecord? header = await runRepository.GetByIdAsync(scope, request.RunId, cancellationToken);
-
         if (header is null)
             throw new RunNotFoundException(request.RunId.ToString("N"));
-
         if (string.Equals(header.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
         {
             if (header.GoldenManifestId is not { } mid)
@@ -225,11 +219,9 @@ public sealed class ManifestFinalizationService(
         }
 
         RunStateTransitionEnforcement.EnsureCommitAllowedLegacy(_runStateTransitionService, request.RunId, header.LegacyRunStatus);
-
         if (header.FindingsSnapshotId is null || header.FindingsSnapshotId.Value != request.ExpectedFindingsSnapshotId)
             throw new InvalidOperationException("Findings snapshot on the run record does not match the expected findings for finalization.");
         await EnsureFindingsSnapshotFinalizableAsync(request.ExpectedFindingsSnapshotId, request.PreloadedFindingsSnapshot, cancellationToken);
-
         if (request.ExpectedArtifactBundleId is { } expectedBundle)
         {
             if (header.ArtifactBundleId is null || header.ArtifactBundleId.Value != expectedBundle)
@@ -357,7 +349,6 @@ public sealed class ManifestFinalizationService(
 
         if (snapshot is null)
             throw new InvalidOperationException($"Findings snapshot '{findingsSnapshotId:D}' was not found for finalization.");
-
         if (snapshot.GenerationStatus is FindingsSnapshotGenerationStatus.Generating or FindingsSnapshotGenerationStatus.Failed)
             throw new InvalidOperationException(
                 $"Findings snapshot '{findingsSnapshotId:D}' is not eligible for finalization (GenerationStatus={snapshot.GenerationStatus}).");

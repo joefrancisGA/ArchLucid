@@ -166,7 +166,11 @@ export async function listRunsByProjectPaged(
   projectId: string,
   page: number,
   pageSize: number,
-  options?: { readonly cursor?: string | null; readonly includeArchived?: boolean },
+  options?: {
+    readonly cursor?: string | null;
+    readonly includeArchived?: boolean;
+    readonly scopeHeaders?: Record<string, string>;
+  },
 ): Promise<PagedResponse<RunSummary>> {
   const q = new URLSearchParams();
 
@@ -184,6 +188,7 @@ export async function listRunsByProjectPaged(
 
   return apiGet<PagedResponse<RunSummary>>(
     `/v1/authority/projects/${encodeURIComponent(projectId)}/runs?${q}`,
+    options?.scopeHeaders !== undefined ? { scopeHeaders: options.scopeHeaders } : undefined,
   );
 }
 

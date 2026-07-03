@@ -13,7 +13,7 @@ import {
   deriveCorePilotCommitProgressState,
   type CorePilotCommitProgressState,
 } from "@/lib/core-pilot-commit-progress";
-import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
@@ -265,7 +265,7 @@ export function CorePilotNextStepsCard() {
       setPhase("loading");
 
       try {
-        const ctx = await fetchCorePilotCommitContext();
+        const ctx = await fetchCorePilotCommitContextCached();
 
         if (cancelled) {
           return;

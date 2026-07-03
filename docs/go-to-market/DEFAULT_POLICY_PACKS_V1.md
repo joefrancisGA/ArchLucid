@@ -4,9 +4,9 @@
 
 **Audience:** pilots, procurement, CS, and sellers explaining what governance content ships **in-tenant by default**.
 
-**Objective:** Declare **24** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / embedded manifest `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`).
+**Objective:** Declare **25** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / embedded manifest `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`).
 
-> **Note:** Pack **#24 — ARC-AMPE Architecture Themes** ships in the bundled manifest as `arc-ampe-architecture-themes.json` ([`POLICY_PACK_ARC_AMPE_DESIGN.md`](../library/POLICY_PACK_ARC_AMPE_DESIGN.md)). The manifest ships **24** content files aligned with tenant provisioning.
+> **Note:** Pack **#25 — Snowflake Security** ships in the bundled manifest as `snowflake-security.json` ([`docs/samples/policy-packs/snowflake-security/README.md`](../samples/policy-packs/snowflake-security/README.md)). The manifest ships **25** content files aligned with tenant provisioning.
 
 ## The "Brain" of the Governance Model
 
@@ -52,7 +52,8 @@ All rows below are seeded as **`PlatformDefault`** (Operator UI: **Bundled defau
 | 21 | Engineering | DORA / DevSecOps Delivery Posture | `dora-001` … | Small corpus OK |
 | 22 | Operations | Observability & OpenTelemetry Baseline | `otel-001` … | |
 | 23 | Data platform | Azure SQL / Cosmos DB Data-Layer Security | `az-data-001` … | |
-| **24** | **Compliance** | **ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities)** | `arc-ampe-pillar-*`, `arc-ampe-id-*`, `arc-ampe-pr-*`, `arc-ampe-de-*`, `arc-ampe-rs-*`, `arc-ampe-rc-*`, `arc-ampe-pf-*`, `arc-ampe-erm-*`, `arc-ampe-data-us-*`, `arc-ampe-vol2-*` | **V1 queued — content authoring next; spec: [`POLICY_PACK_ARC_AMPE_DESIGN.md`](../library/POLICY_PACK_ARC_AMPE_DESIGN.md). Architecture-review themes only — not CMS conformity, SSPP authoring, or attestation.** |
+| 24 | Compliance | ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) | `arc-ampe-pillar-*`, `arc-ampe-id-*`, … | Spec: [`POLICY_PACK_ARC_AMPE_DESIGN.md`](../library/POLICY_PACK_ARC_AMPE_DESIGN.md) |
+| **25** | **Data platform security** | **Snowflake Security** | `sf-id-001`, `sf-rbac-001`, `sf-prot-001`, `sf-stage-001`, … | **Full curated corpus (57 rules)** — [`snowflake-security/README.md`](../samples/policy-packs/snowflake-security/README.md) |
 
 **Appendices (selected):** **[`POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](../library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md)** · **[`POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`](../library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md)**
 

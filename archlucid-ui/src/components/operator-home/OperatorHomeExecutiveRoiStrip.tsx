@@ -2,15 +2,14 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
+import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { RoiDispositionTrainingTooltip } from "@/components/roi/RoiDispositionTrainingTooltip";
 import { Button } from "@/components/ui/button";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
-import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_SURFACE_CARD_CLASS,
@@ -26,52 +25,18 @@ import { formatUsd } from "@/lib/roi-assumptions";
 /** Compact executive ROI strip on Overview after the first committed review package. */
 export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
-  const [summary, setSummary] = useState<ExecutiveRoiSummary | null>(null);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [loading, setLoading] = useState(false);
+  const summaryQuery = useExecutiveRoiSummaryQuery({ enabled: hasCommittedArchitectureReview });
 
-  useEffect(() => {
-    if (!hasCommittedArchitectureReview) {
-      setSummary(null);
-      setFailure(null);
-      setLoading(false);
-
-      return undefined;
-    }
-
-    let cancelled = false;
-    setLoading(true);
-
-    void (async () => {
-      try {
-        const json = await fetchExecutiveRoiSummaryClient();
-
-        if (!cancelled) {
-          setSummary(json);
-          setFailure(null);
-        }
-      } catch (error: unknown) {
-        if (!cancelled) {
-          setSummary(null);
-          setFailure(toApiLoadFailure(error));
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [hasCommittedArchitectureReview]);
+  const failure = useMemo(
+    () => (summaryQuery.isError ? toApiLoadFailure(summaryQuery.error) : null),
+    [summaryQuery.isError, summaryQuery.error],
+  );
 
   if (!hasCommittedArchitectureReview) {
     return null;
   }
 
-  if (loading && summary === null && failure === null) {
+  if (summaryQuery.isPending && summaryQuery.data === undefined && failure === null) {
     return (
       <section
         aria-labelledby="operator-home-roi-strip-heading"
@@ -94,6 +59,8 @@ export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {
       </section>
     );
   }
+
+  const summary = summaryQuery.data ?? null;
 
   if (summary === null) {
     return null;

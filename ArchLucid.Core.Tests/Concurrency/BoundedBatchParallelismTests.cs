@@ -53,7 +53,6 @@ public sealed class BoundedBatchParallelismTests
                 lock (sync)
                 {
                     inFlight++;
-
                     if (inFlight > peak)
                         peak = inFlight;
                 }

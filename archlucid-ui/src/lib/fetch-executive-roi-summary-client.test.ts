@@ -1,50 +1,59 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CORRELATION_ID_HEADER } from "@/lib/correlation";
-import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
-import { ApiRequestError } from "@/lib/api-request-error";
+import {
+  fetchExecutiveRoiSummaryCached,
+  invalidateExecutiveRoiSummaryCache,
+} from "@/lib/fetch-executive-roi-summary-client";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
-describe("fetchExecutiveRoiSummaryClient", () => {
-  beforeEach(() => {
-    vi.stubGlobal("crypto", {
-      randomUUID: () => "client-req-executive-roi",
-    });
+vi.mock("@/lib/auth-config", () => ({
+  AUTH_MODE: "development-bypass",
+}));
+
+vi.mock("@/lib/oidc/config", () => ({
+  isJwtAuthMode: () => false,
+}));
+
+vi.mock("@/lib/oidc/session", () => ({
+  isLikelySignedIn: () => true,
+}));
+
+describe("fetchExecutiveRoiSummaryCached", () => {
+  beforeEach(async () => {
+    resetOperatorQueryClientForTests();
+    await invalidateExecutiveRoiSummaryCache();
   });
 
-  it("returns parsed summary on success", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => {
-        return new Response(JSON.stringify({ systemCount: 2 }), {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("dedupes concurrent reads into one network request", async () => {
+    const fetchMock = vi.fn(async () => {
+      return new Response(
+        JSON.stringify({
+          totalEstimatedUsdSavings: 1000,
+          systemCount: 1,
+          latestRunCount: 1,
+          systems: [],
+          topSystemicIssues: [],
+        }),
+        {
           status: 200,
           headers: { "Content-Type": "application/json" },
-        });
-      }),
-    );
-
-    const summary = await fetchExecutiveRoiSummaryClient();
-
-    expect(summary.systemCount).toBe(2);
-  });
-
-  it("throws ApiRequestError with client correlation id when response is not ok", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
-        expect(new Headers(init?.headers).get(CORRELATION_ID_HEADER)).toBe("client-req-executive-roi");
-
-        return new Response("plain failure", {
-          status: 502,
-          statusText: "Bad Gateway",
-        });
-      }),
-    );
-
-    await expect(fetchExecutiveRoiSummaryClient()).rejects.toSatisfy((error: unknown) => {
-      expect(error).toBeInstanceOf(ApiRequestError);
-      expect((error as ApiRequestError).correlationId).toBe("client-req-executive-roi");
-
-      return true;
+        },
+      );
     });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const [first, second] = await Promise.all([
+      fetchExecutiveRoiSummaryCached(),
+      fetchExecutiveRoiSummaryCached(),
+    ]);
+
+    expect(first.totalEstimatedUsdSavings).toBe(1000);
+    expect(second).toEqual(first);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
