@@ -2209,12 +2209,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CursorPagedResponseOfAuditEvent> SearchAsync(string? cursor, string? eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, System.Guid? beforeEventId, string? correlationId, string? actorUserId, System.Guid? runId, int? take);
+        System.Threading.Tasks.Task<CursorPagedResponseOfAuditEvent> SearchAsync(string? cursor, string? eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, System.Guid? beforeEventId, string? correlationId, string? actorUserId, System.Guid? runId, int? take, bool? includeDataJson);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CursorPagedResponseOfAuditEvent> SearchAsync(string? cursor, string? eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, System.Guid? beforeEventId, string? correlationId, string? actorUserId, System.Guid? runId, int? take, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<CursorPagedResponseOfAuditEvent> SearchAsync(string? cursor, string? eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, System.Guid? beforeEventId, string? correlationId, string? actorUserId, System.Guid? runId, int? take, bool? includeDataJson, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -29704,15 +29704,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CursorPagedResponseOfAuditEvent> SearchAsync(string? cursor, string? eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, System.Guid? beforeEventId, string? correlationId, string? actorUserId, System.Guid? runId, int? take)
+        public virtual System.Threading.Tasks.Task<CursorPagedResponseOfAuditEvent> SearchAsync(string? cursor, string? eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, System.Guid? beforeEventId, string? correlationId, string? actorUserId, System.Guid? runId, int? take, bool? includeDataJson)
         {
-            return SearchAsync(cursor, eventType, fromUtc, toUtc, beforeUtc, beforeEventId, correlationId, actorUserId, runId, take, System.Threading.CancellationToken.None);
+            return SearchAsync(cursor, eventType, fromUtc, toUtc, beforeUtc, beforeEventId, correlationId, actorUserId, runId, take, includeDataJson, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CursorPagedResponseOfAuditEvent> SearchAsync(string? cursor, string? eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, System.Guid? beforeEventId, string? correlationId, string? actorUserId, System.Guid? runId, int? take, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<CursorPagedResponseOfAuditEvent> SearchAsync(string? cursor, string? eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, System.Guid? beforeEventId, string? correlationId, string? actorUserId, System.Guid? runId, int? take, bool? includeDataJson, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -29767,6 +29767,10 @@ namespace ArchLucid.Api.Client.Generated
                     if (take != null)
                     {
                         urlBuilder_.Append(System.Uri.EscapeDataString("take")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(take, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (includeDataJson != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("includeDataJson")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(includeDataJson, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     urlBuilder_.Length--;
 

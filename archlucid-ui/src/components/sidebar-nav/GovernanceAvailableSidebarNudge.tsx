@@ -32,7 +32,7 @@ export function GovernanceAvailableSidebarNudge(
         Your first review is finalized — open the approval queue to record decisions and audit trail entries.
       </p>
       <Link href="/governance" className={cn("mt-2 inline-block", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.helper)}>
-        Open approval queue
+        Open governance workflow
       </Link>
     </div>
   );
