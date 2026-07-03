@@ -6,4 +6,6 @@ export type TenantTrialStatusPayload = {
   daysRemaining?: number | null;
   /** Seeded sample review package id for trial onboarding CTAs when present. */
   trialSampleRunId?: string | null;
+  /** First authority-committed manifest timestamp when the trial is anchored. */
+  firstCommitUtc?: string | null;
 };
