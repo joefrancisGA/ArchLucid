@@ -14222,6 +14222,7 @@ export interface paths {
                     actorUserId?: string;
                     runId?: string;
                     take?: number | string;
+                    includeDataJson?: boolean;
                 };
                 header?: never;
                 path?: never;
