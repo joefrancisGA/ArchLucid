@@ -380,9 +380,15 @@ public static partial class ServiceCollectionExtensions
         if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
         {
             services.AddScoped<DeterministicAgentSimulator>();
+            services.AddScoped<IdempotentAgentExecutor>(static sp =>
+                new IdempotentAgentExecutor(
+                    sp.GetRequiredService<DeterministicAgentSimulator>(),
+                    sp.GetRequiredService<IAgentResultRepository>(),
+                    sp.GetRequiredService<IScopeContextProvider>(),
+                    sp.GetRequiredService<ILogger<IdempotentAgentExecutor>>()));
             services.AddScoped<SimulatorExecutionTraceRecordingExecutor>(static sp =>
                 new SimulatorExecutionTraceRecordingExecutor(
-                    sp.GetRequiredService<DeterministicAgentSimulator>(),
+                    sp.GetRequiredService<IdempotentAgentExecutor>(),
                     sp.GetRequiredService<IAgentExecutionTraceRecorder>()));
             services.AddScoped<IAgentExecutor>(static sp => sp.GetRequiredService<SimulatorExecutionTraceRecordingExecutor>());
             RegisterFakeAgentCompletionClient(services);
