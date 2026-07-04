@@ -5,22 +5,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
-const OUTCOMES_TABS = [
-  { href: "/value-report", label: "Sponsor report", match: (path: string) => path === "/value-report" },
-  { href: "/value-report/pilot", label: "Pilot outcomes", match: (path: string) => path.startsWith("/value-report/pilot") },
-  { href: "/value-report/roi", label: "ROI summary", match: (path: string) => path.startsWith("/value-report/roi") },
-  { href: "/scorecard", label: "Executive scorecard", match: (path: string) => path.startsWith("/scorecard") },
-] as const;
+import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import {
+  isValueReportOutcomesSurface,
+  resolveVisibleValueReportOutcomesTabs,
+} from "@/lib/value-report-outcomes-nav-tabs";
 
 /** Single hub navigation for pilot value surfaces — reduces scattered outcomes routes in the sidebar. */
 export function ValueReportOutcomesNav(): React.JSX.Element | null {
   const pathname = usePathname() ?? "/";
-  const onOutcomesSurface = OUTCOMES_TABS.some((tab) => tab.match(pathname));
+  const onOutcomesSurface = isValueReportOutcomesSurface(pathname);
 
   if (!onOutcomesSurface) {
     return null;
   }
+
+  const visibleTabs = resolveVisibleValueReportOutcomesTabs(isShowSystemAdministrationNavEnabled());
 
   return (
     <nav
@@ -28,7 +28,7 @@ export function ValueReportOutcomesNav(): React.JSX.Element | null {
       aria-label="Pilot outcomes"
       data-testid="value-report-outcomes-nav"
     >
-      {OUTCOMES_TABS.map((tab) => {
+      {visibleTabs.map((tab) => {
         const active = tab.match(pathname);
 
         return (
