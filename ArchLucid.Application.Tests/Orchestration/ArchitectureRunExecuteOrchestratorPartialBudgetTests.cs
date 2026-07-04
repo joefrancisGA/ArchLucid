@@ -85,8 +85,8 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
         Mock<IAgentResultRepository> resultRepo = new();
         resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
         resultRepo
-            .Setup(r => r.CreateAsync(
-                It.IsAny<AgentResult>(),
+            .Setup(r => r.CreateManyAsync(
+                It.IsAny<IReadOnlyList<AgentResult>>(),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<System.Data.IDbConnection?>(),
                 It.IsAny<System.Data.IDbTransaction?>()))
@@ -116,8 +116,8 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
         await act.Should().ThrowAsync<RunCostBudgetExceededPartialPersistRecordedException>();
 
         resultRepo.Verify(
-            r => r.CreateAsync(
-                It.Is<AgentResult>(result => partialResults.Any(p => p.TaskId == result.TaskId)),
+            r => r.CreateManyAsync(
+                It.Is<IReadOnlyList<AgentResult>>(results => results.Any(result => partialResults.Any(p => p.TaskId == result.TaskId))),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<System.Data.IDbConnection?>(),
                 It.IsAny<System.Data.IDbTransaction?>()),
