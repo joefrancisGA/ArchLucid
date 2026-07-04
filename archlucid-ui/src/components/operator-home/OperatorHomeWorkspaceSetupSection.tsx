@@ -1,3 +1,4 @@
+import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import { OperatorHomeAdvancedGuidancePanel } from "@/components/operator-home/OperatorHomeAdvancedGuidancePanel";
 import { OperatorHomeContinueSetupCard } from "@/components/operator-home/OperatorHomeContinueSetupCard";
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
@@ -9,6 +10,7 @@ type OperatorHomeWorkspaceSetupSectionProps = {
   readonly fullOperatorShell?: boolean;
   readonly checklistVariant?: "full" | "compact";
   readonly showWorkspaceStatus?: boolean;
+  readonly runsDashboard: OperatorHomeRunsDashboardModel;
 };
 
 /** Section B — workspace setup: metrics, walkthroughs, and optional admin diagnostics. */
@@ -22,7 +24,10 @@ export function OperatorHomeWorkspaceSetupSection(
       </h2>
 
       <div className={OPERATOR_LAYOUT.sectionStack}>
-        <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={props.showWorkspaceStatus === true} />
+        <OperatorHomeWorkspaceContextDisclosure
+          showWorkspaceStatus={props.showWorkspaceStatus === true}
+          runsDashboard={props.runsDashboard}
+        />
         <OperatorHomeAdvancedGuidancePanel
           buyerPolishedShell={props.buyerPolishedShell}
           fullOperatorShell={props.fullOperatorShell}

@@ -46,7 +46,7 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
         <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
       </section>
 
-      <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} />
+      <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={props.model.runsDashboard} />
 
       <OperatorHomeAdvancedGuidancePanel buyerPolishedShell checklistVariant="compact" />
 
@@ -71,7 +71,10 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
         <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
       </section>
 
-      <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={fullOperatorShell} />
+      <OperatorHomeWorkspaceContextDisclosure
+        showWorkspaceStatus={fullOperatorShell}
+        runsDashboard={props.model.runsDashboard}
+      />
 
       <OperatorHomeAdvancedGuidancePanel
         buyerPolishedShell={false}

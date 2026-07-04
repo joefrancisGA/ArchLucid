@@ -33,8 +33,13 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeWorkspaceContextDisclosure", () => ({
-  OperatorHomeWorkspaceContextDisclosure: ({ showWorkspaceStatus }: { showWorkspaceStatus: boolean }) => (
+  OperatorHomeWorkspaceContextDisclosure: ({
+    showWorkspaceStatus,
+  }: {
+    showWorkspaceStatus: boolean;
+  }) => (
     <div data-testid="home-block-workspace-context">
+      <div data-testid="operator-home-workspace-metrics-summary" />
       {showWorkspaceStatus ? <div data-testid="home-block-workspace-status" /> : null}
     </div>
   ),

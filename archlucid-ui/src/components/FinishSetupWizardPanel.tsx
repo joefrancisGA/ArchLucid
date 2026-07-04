@@ -10,66 +10,20 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
-import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
-import { loadCurrentPrincipal } from "@/lib/current-principal";
-import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
+import {
+  areFinishSetupRequiredStepsComplete,
+  FINISH_SETUP_WIZARD_STEPS,
+} from "@/lib/finish-setup-wizard-steps";
 
 const FINISH_SETUP_STORAGE_KEY = "archlucid.finishSetupWizard.completed.v1";
-
-type SetupStep = {
-  id: string;
-  label: string;
-  description: string;
-  href: string;
-  cta: string;
-  isDone: (ctx: SetupContext) => boolean;
-};
-
-type SetupContext = {
-  healthReady: boolean;
-  healthLoadFailed: boolean;
-  principalAdmin: boolean;
-};
 
 export type FinishSetupWizardPanelProps = {
   /** When nested under onboarding optional setup, use softer framing. */
   readonly variant?: "default" | "optional";
 };
 
-const SETUP_STEPS: SetupStep[] = [
-  {
-    id: "health",
-    label: "Confirm platform health",
-    description: "Required for self-hosted deployments before your first review. API and database migrations must be healthy.",
-    href: "/admin/health",
-    cta: "Open health",
-    isDone: (ctx) => ctx.healthReady && !ctx.healthLoadFailed,
-  },
-  {
-    id: "identity",
-    label: "Configure identity (OIDC / SAML)",
-    description: "Wire your IdP so operators sign in with corporate credentials.",
-    href: "/settings/identity/sso-wizard",
-    cta: "Open SSO wizard",
-    isDone: () => false,
-  },
-  {
-    id: "admin-role",
-    label: "Assign initial Admin role",
-    description: "Grant at least one operator Admin authority for tenant settings and SCIM.",
-    href: SETTINGS_USERS_PATH,
-    cta: "Manage roles",
-    isDone: (ctx) => ctx.principalAdmin,
-  },
-  {
-    id: "extract",
-    label: "Add Azure export evidence (optional)",
-    description: "Optional accelerator: upload an Azure extractor ZIP for production-faithful subscription inventory.",
-    href: "/settings/extract-upload",
-    cta: "Add evidence",
-    isDone: () => false,
-  },
-];
+const SETUP_STEPS = FINISH_SETUP_WIZARD_STEPS;
 
 function readSetupCompleted(): boolean {
   if (typeof window === "undefined") {
@@ -87,49 +41,12 @@ function readSetupCompleted(): boolean {
 /** Guided post-deploy checklist: health, identity, admin role, optional extractor. */
 export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps = {}): React.JSX.Element | null {
   const panelVariant = variant ?? "default";
-  const [ctx, setCtx] = useState<SetupContext>({
-    healthReady: false,
-    healthLoadFailed: true,
-    principalAdmin: false,
-  });
+  const { phase, context } = useFinishSetupReadinessContext();
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     setDismissed(readSetupCompleted());
   }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      const principal = await loadCurrentPrincipal();
-      let healthReady = false;
-      let healthLoadFailed = true;
-
-      try {
-        const health = await fetchHealthReadySummary();
-        healthReady = health !== null && health.status.toLowerCase().includes("healthy");
-        healthLoadFailed = health === null;
-      }
-      catch {
-        healthLoadFailed = true;
-      }
-
-      if (!cancelled) {
-        setCtx({
-          healthReady,
-          healthLoadFailed,
-          principalAdmin: (principal?.authorityRank ?? 0) >= AUTHORITY_RANK.AdminAuthority,
-        });
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const allRequiredDone = SETUP_STEPS.filter((s) => s.id !== "extract").every((s) => s.isDone(ctx));
 
   const onMarkComplete = useCallback(() => {
     try {
@@ -142,9 +59,12 @@ export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps 
     setDismissed(true);
   }, []);
 
-  if (dismissed) {
+  if (dismissed || phase === "loading" || context === null) {
     return null;
   }
+
+  const ctx = context;
+  const allRequiredDone = areFinishSetupRequiredStepsComplete(ctx);
 
   return (
     <section id="finish-setup" className="scroll-mt-24" aria-labelledby="finish-setup-heading" data-testid="finish-setup-wizard">
