@@ -137,21 +137,13 @@ export function FirstValueLanePanel(props: { readonly className?: string } = {})
       aria-labelledby="first-value-lane-heading"
       data-testid="first-value-lane-panel"
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1">
-          <h2 id="first-value-lane-heading" className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {FIRST_VALUE_LANE_HEADING}
-          </h2>
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Minimum path to one sponsor-usable artifact — advanced branches stay out of lane until after first commit.
-          </p>
-        </div>
-        <Link
-          href="/help/first-value-20-minutes"
-          className={cn("shrink-0 font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
-        >
-          Lane runbook
-        </Link>
+      <div className="min-w-0 space-y-1">
+        <h2 id="first-value-lane-heading" className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {FIRST_VALUE_LANE_HEADING}
+        </h2>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Minimum path to one sponsor-usable artifact — advanced branches stay out of lane until after first commit.
+        </p>
       </div>
 
       {laneComplete ? (
