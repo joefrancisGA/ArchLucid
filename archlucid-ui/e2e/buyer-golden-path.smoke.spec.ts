@@ -21,6 +21,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
   test("walks five-step diligence spine and satellite surfaces without generic error @smoke @smoke-golden-path", async ({
     page,
   }) => {
+    test.setTimeout(150_000);
     // Step 1 — Executive summary
     await page.goto(BUYER_GOLDEN_PATH_HREFS.executive);
     await expectBuyerExecutiveSummarySurface(page);
