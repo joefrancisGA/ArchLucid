@@ -28,10 +28,11 @@
     "dbo.EvolutionCandidateChangeSets",
     "dbo.FindingFeedback",
     "dbo.FindingsSnapshots",
-    "dbo.GovernanceEnvironmentActivations",
-    "dbo.GovernancePromotionRecords",
+    "dbo.FineTuningTrainingExportAudits",
     "dbo.GoldenManifestAssumptions",
     "dbo.GoldenManifests",
+    "dbo.GovernanceEnvironmentActivations",
+    "dbo.GovernancePromotionRecords",
     "dbo.IntegrationEventOutbox",
     "dbo.PilotCloseouts",
     "dbo.PolicyPackAssignments",
@@ -53,6 +54,7 @@
     "dbo.TenantHealthScores"
   ],
   "tenantIdOnRow": [
+    "dbo.FineTunedModelRegistryEntries",
     "dbo.IdempotencyRecords",
     "dbo.LlmDailyTenantTokenWindowState",
     "dbo.LlmJudgeDailyTenantTokenWindowState",
@@ -60,15 +62,13 @@
     "dbo.LlmTenantWalletLedger",
     "dbo.LlmTenantWalletState",
     "dbo.SentEmails",
-    "dbo.TenantCostSettings",
     "dbo.TenantAwsConnectionRecords",
+    "dbo.TenantCostSettings",
     "dbo.TenantGcpConnectionRecords",
     "dbo.TenantItsmConnectorConnections",
     "dbo.TenantLifecycleTransitions",
     "dbo.TenantOnboardingState",
     "dbo.TenantSettings",
-    "dbo.TenantTrialSeatOccupants",
-    "dbo.FineTuningTrainingExportAudits",
-    "dbo.FineTunedModelRegistryEntries"
+    "dbo.TenantTrialSeatOccupants"
   ]
 }
