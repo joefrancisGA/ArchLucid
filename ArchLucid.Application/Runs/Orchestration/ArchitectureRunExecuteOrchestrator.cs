@@ -208,6 +208,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (run.Status is ArchitectureRunStatus.Failed or ArchitectureRunStatus.ExecutionCompletedQualityRejected)
         {
             ScopeContext retryScope = scopeContextProvider.GetCurrentScope();
+
             if (TryParseRunGuid(runId, out Guid failedRunGuid))
             {
                 AuditEvent retryRequested = retryScope.CreateAuditEvent(
@@ -232,6 +233,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
 
         ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
+
         if (idempotent is not null)
             return idempotent;
         await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunStarted, actor, runId, null, cancellationToken);
@@ -240,6 +242,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
                                           throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
             RequestContentSafetyResult safety = await requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
+
             if (!safety.IsAllowed)
                 throw new RequestContentSafetyRejectedException(safety.Reasons);
 
@@ -247,6 +250,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             {
             ScopeContext executeScope = _scopeContextProvider.GetCurrentScope();
             IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(executeScope, runId, cancellationToken);
+
             if (tasks.Count == 0)
                 throw new InvalidOperationException($"No tasks found for run '{runId}'.");
             AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
@@ -390,6 +394,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, results, cancellationToken);
             await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded, actor, runId, $"ResultCount={results.Count}",
                 cancellationToken);
+
             if (logger.IsEnabled(LogLevel.Information))
                 logger.LogInformation("Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}", LogSanitizer.Sanitize(runId),
                     results.Count);
@@ -428,6 +433,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     {
         ScopeContext idempotencyScope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<AgentResult> existingResults = await resultRepository.GetByRunIdAsync(idempotencyScope, runId, cancellationToken);
+
         if (_runStateTransitionService.IsExecuteIdempotentTerminalStatus(run.Status))
         {
             if (existingResults.Count > 0)
@@ -444,6 +450,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
 
         // Authority LegacyRunStatus may still read TasksGenerated while execute results already exist; idempotency uses stored results.
+
         if (run.Status != ArchitectureRunStatus.TasksGenerated || existingResults.Count <= 0)
             return null;
 
@@ -502,10 +509,12 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     {
         if (!_runStateTransitionService.HasAllRequiredAgentResults(results))
             return;
+
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return;
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         RunRecord? header = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
         if (header is null)
         {
             if (logger.IsEnabled(LogLevel.Warning))
@@ -514,6 +523,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
 
         string previousLegacyRunStatus = header.LegacyRunStatus ?? "";
+
         if (!_runStateTransitionService.ShouldPromoteLegacyStatusToReadyForCommit(previousLegacyRunStatus))
             return;
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit);

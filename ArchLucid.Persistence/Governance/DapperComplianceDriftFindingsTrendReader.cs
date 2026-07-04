@@ -32,12 +32,13 @@ public sealed class DapperComplianceDriftFindingsTrendReader(IReadOnlyDbConnecti
 
         // DATEADD's offset argument is a 32-bit int (SQL Server hard limit for every datepart, including
         // NANOSECOND). A NANOSECOND-scale offset over a realistic trend window (days/weeks) overflows that
-        // int and SQL Server throws "Arithmetic overflow error converting expression to data type int" ΓÇö
+        // int and SQL Server throws "Arithmetic overflow error converting expression to data type int" —
         // surfaced to callers as a 503 via ApplicationProblemMapper.TryMapDatabaseException. SECOND-scale
         // offsets stay within int32 for date ranges up to ~68 years, and bucketMinutes (the only current
         // caller, GovernanceController) is always a whole number of minutes, so second precision loses
         // nothing. (Floor-division identity floor(floor(a/b)/c) == floor(a/(b*c)) keeps this bucketing
         // identical to the tick-based math InMemoryComplianceDriftFindingsTrendReader uses.)
+
         if (bucketSize.Ticks % TimeSpan.TicksPerSecond != 0)
             throw new ArgumentException("Bucket size must be a whole number of seconds.", nameof(bucketSize));
 

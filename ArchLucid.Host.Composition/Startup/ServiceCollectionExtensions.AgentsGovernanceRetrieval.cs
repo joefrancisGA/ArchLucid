@@ -1122,6 +1122,7 @@ public static partial class ServiceCollectionExtensions
         if (string.IsNullOrEmpty(perGate["FailureThreshold"]))
         {
             int? fromShared = shared.GetValue<int?>("FailureThreshold");
+
             if (fromShared.HasValue)
 
                 options.FailureThreshold = fromShared.Value;
@@ -1131,6 +1132,7 @@ public static partial class ServiceCollectionExtensions
         if (string.IsNullOrEmpty(perGate["DurationOfBreakSeconds"]))
         {
             int? fromShared = shared.GetValue<int?>("DurationOfBreakSeconds");
+
             if (fromShared.HasValue)
 
                 options.DurationOfBreakSeconds = fromShared.Value;
@@ -1140,6 +1142,7 @@ public static partial class ServiceCollectionExtensions
         if (string.IsNullOrEmpty(perGate["HalfOpenSuccessThreshold"]))
         {
             int? fromShared = shared.GetValue<int?>("HalfOpenSuccessThreshold");
+
             if (fromShared.HasValue)
 
                 options.HalfOpenSuccessThreshold = fromShared.Value;

@@ -34,8 +34,10 @@ public sealed class TrialTenantBootstrapService(
     {
         ArgumentNullException.ThrowIfNull(auditActorEmail);
         ArgumentNullException.ThrowIfNull(result);
+
         if (string.IsNullOrWhiteSpace(auditActorEmail))
             throw new ArgumentException("Audit actor email is required.", nameof(auditActorEmail));
+
         if (result.WasAlreadyProvisioned)
             return;
 
@@ -134,7 +136,7 @@ public sealed class TrialTenantBootstrapService(
                     companyProfile?.IndustryVerticalOther,
                     cancellationToken);
 
-                // The registering admin occupies the first trial seat immediately ΓÇö otherwise TrialSeatsUsed
+                // The registering admin occupies the first trial seat immediately — otherwise TrialSeatsUsed
                 // stays 0 until their first authenticated request reaches TrialSeatReservationMiddleware.
                 await _tenantRepository.TryClaimTrialSeatAsync(result.TenantId, auditActorEmail.Trim(), cancellationToken);
 
