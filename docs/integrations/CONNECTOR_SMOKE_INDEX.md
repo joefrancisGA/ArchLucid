@@ -32,8 +32,11 @@ These shipped surfaces support V1 pilots and workflow handoff. First-party ITSM/
 | **ServiceNow** | [CONNECTOR_SMOKE_SERVICENOW.md](smoke/CONNECTOR_SMOKE_SERVICENOW.md) | Same outbound folder: `ItsmOutboundConnectorConformanceTests.cs`, `ItsmOutboundServiceNowVendorHttpConformanceTests.cs`, `ServiceNowUrgencyImpactResolverConformanceTests.cs`, `ItsmOutboundIssueCreationServiceTests.cs`; inbound `ItsmInboundWebhookSyncServiceTests.cs` | Automated (mocked) + **manual / live-provider** for real instance smoke |
 | **Confluence** | [CONNECTOR_SMOKE_CONFLUENCE.md](smoke/CONNECTOR_SMOKE_CONFLUENCE.md) | `ArchLucid.Application.Tests/Integrations/Confluence/ConfluenceFirstValueReportPublisherConformanceTests.cs` | Automated (mocked) + **manual / live-provider** for Cloud publish proof |
 | **Slack** | [CONNECTOR_SMOKE_SLACK.md](smoke/CONNECTOR_SMOKE_SLACK.md) | `ArchLucid.Decisioning.Tests/Alerts/Delivery/AlertSlackWebhookVendorConformanceTests.cs`, `AlertSlackWebhookDeliveryChannelTests.cs`, `FirstPartyAlertWebhookDeliveryConformanceTests.cs`; digest path `ArchLucid.Decisioning.Tests/Advisory/Delivery/DigestSlackWebhookDeliveryChannelTests.cs` | Automated (mocked) + **manual / live-provider** for real workspace webhook |
+| **Teams** | [CONNECTOR_SMOKE_TEAMS.md](smoke/CONNECTOR_SMOKE_TEAMS.md) | `ArchLucid.Api.Tests/TeamsIncomingWebhookConnectionsIntegrationTests.cs`, `ArchLucid.Decisioning.Tests/Alerts/Delivery/AlertTeamsWebhookDeliveryChannelTests.cs`, `FirstPartyAlertWebhookDeliveryConformanceTests.cs`; digest path `ArchLucid.Decisioning.Tests/Advisory/Delivery/DigestTeamsWebhookDeliveryChannelTests.cs` | Automated (mocked) + **manual / live-provider** for real Teams channel webhook |
 
-**API controllers (reference only):** `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs`, `ItsmInboundWebhooksController.cs`, `ArchLucid.Api/Controllers/Admin/ConfluencePublishingAdminController.cs`, `ArchLucid.Api/Controllers/Alerts/AlertRoutingSubscriptionsController.cs`, `ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs`, `ArchLucid.Api/Controllers/Integrations/WebhookConnectionsController.cs`.
+**API controllers (reference only):** `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs`, `ItsmInboundWebhooksController.cs`, `ArchLucid.Api/Controllers/Admin/ConfluencePublishingAdminController.cs`, `ArchLucid.Api/Controllers/Alerts/AlertRoutingSubscriptionsController.cs`, `ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs`, `ArchLucid.Api/Controllers/Integrations/WebhookConnectionsController.cs`, `ArchLucid.Api/Controllers/Integrations/TeamsIncomingWebhookConnectionsController.cs`.
+
+**Scripted live-vendor preflight (TB-601):** [`scripts/integrations/validate-collab-connectors-live.ps1`](../../scripts/integrations/validate-collab-connectors-live.ps1) mirrors the ITSM pattern (`scripts/integrations/validate-itsm-live.ps1`) — an API reachability check to run before the Teams/Slack/Confluence manual vendor steps above, giving all five V1 GA first-party connectors scripted live-validation parity.
 
 ## Evidence types (legend)
 
@@ -58,3 +61,4 @@ These shipped surfaces support V1 pilots and workflow handoff. First-party ITSM/
 | **Confluence** | [CONNECTOR_SMOKE_CONFLUENCE.md](smoke/CONNECTOR_SMOKE_CONFLUENCE.md) |
 | **Jira** | [CONNECTOR_SMOKE_JIRA.md](smoke/CONNECTOR_SMOKE_JIRA.md) |
 | **Slack** | [CONNECTOR_SMOKE_SLACK.md](smoke/CONNECTOR_SMOKE_SLACK.md) |
+| **Teams** | [CONNECTOR_SMOKE_TEAMS.md](smoke/CONNECTOR_SMOKE_TEAMS.md) |
