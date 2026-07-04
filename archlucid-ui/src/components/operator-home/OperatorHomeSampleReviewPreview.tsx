@@ -17,15 +17,10 @@ import {
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { SHOWCASE_HOME_SAMPLE_FINDINGS } from "@/lib/showcase-home-sample-findings";
 import {
-  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
-  showcaseSampleReviewPackageHref,
-} from "@/lib/showcase-sample-review-registry";
-import {
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
   reviewIntakeExampleTemplateHref,
 } from "@/lib/operator-home-example-request";
 
-const openCompletedSampleHref = showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId);
 const runSampleReviewHref = reviewIntakeExampleTemplateHref(OPERATOR_HOME_EXAMPLE_TEMPLATE_ID);
 
 /**
@@ -93,14 +88,9 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
             OPERATOR_LAYOUT.inlineGap,
           )}
         >
-          <Button asChild variant="primary" size="sm" className="h-8">
+          <Button asChild variant="outline" size="sm" className="h-8">
             <Link href={runSampleReviewHref} data-testid="operator-home-sample-review-run">
               {OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="sm" className="h-8">
-            <Link href={openCompletedSampleHref} data-testid="operator-home-sample-review-open">
-              {OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA}
             </Link>
           </Button>
         </div>

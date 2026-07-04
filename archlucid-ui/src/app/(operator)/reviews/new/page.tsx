@@ -8,6 +8,7 @@ import { NewReviewSampleEscapeLink } from "@/components/usability/NewReviewSampl
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer-polish-copy";
 
 const ReviewsNewPathSwitcher = dynamic(
   () => import("./ReviewsNewPathSwitcher").then((module) => module.ReviewsNewPathSwitcher),
@@ -25,8 +26,8 @@ export default function NewRunPage() {
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>New Architecture Review</h2>
         <InAppHelpLink helpSlug="pilot-guide" label="Review guide" variant="text" />
       </div>
-      <p className={cn("mt-1 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
-        Start with a diagram or document (Quick start), or let ArchLucid guide you through what to include (Guided).
+      <p className={cn("mt-1 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-new-page-lead">
+        {REVIEWS_NEW_PAGE_LEAD}
       </p>
       <NewReviewSampleEscapeLink className="mt-2" />
       <div id="new-review-wizard" className="mt-4 scroll-mt-24">

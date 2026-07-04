@@ -5,27 +5,38 @@ import { PilotCommandCenterCard } from "./PilotCommandCenterCard";
 import { RunsListCompareSelectionBar } from "./RunsListCompareSelectionBar";
 import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 import {
+  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
+  PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK,
+  PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
 } from "@/lib/buyer-polish-copy";
 import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
+import {
+  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
+  showcaseSampleReviewPackageHref,
+} from "@/lib/showcase-sample-review-registry";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
 }));
 
 describe("PilotCommandCenterCard", () => {
-  it("renders primary start review CTA, design-first lead, and path preview without a duplicate sample link", () => {
+  it("renders completed-sample primary CTA, first-hour lead, and path preview without a duplicate sample link", () => {
     render(<PilotCommandCenterCard />);
 
-    expect(screen.getByTestId("pilot-next-best-action")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("pilot-next-best-action")).toHaveAttribute(
+      "href",
+      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
+    );
+    expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
+    expect(screen.getByTestId("pilot-command-center-start-own-review")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK })).toBeInTheDocument();
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-help")).toBeNull();
-    expect(screen.getByTestId("pilot-command-center-lead")).toHaveTextContent(
-      "Each architecture review is tracked as one review package — the same object from capture through signed review record and export.",
-    );
+    expect(screen.getByTestId("pilot-command-center-lead")).toHaveTextContent(PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY);
     expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
     expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-cta-row")).toBeInTheDocument();

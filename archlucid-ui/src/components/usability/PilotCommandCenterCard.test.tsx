@@ -4,14 +4,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
+  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_HEADING,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
+  PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
   PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
+import {
+  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
+  showcaseSampleReviewPackageHref,
+} from "@/lib/showcase-sample-review-registry";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
@@ -78,11 +84,15 @@ describe("PilotCommandCenterCard", () => {
     renderWithOperatorQuery(<PilotCommandCenterCard />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent("Start review");
+      expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
     });
 
-    expect(screen.getByTestId("pilot-next-best-action")).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("review package");
+    expect(screen.getByTestId("pilot-next-best-action")).toHaveAttribute(
+      "href",
+      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
+    );
+    expect(screen.getByTestId("pilot-command-center-lead").textContent).toBe(PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY);
+    expect(screen.getByTestId("pilot-command-center-start-own-review")).toHaveAttribute("href", "/reviews/new");
   });
 
   it("shows workflow steps below the header row before first commit", () => {

@@ -10,28 +10,36 @@ import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAutho
 import { Button } from "@/components/ui/button";
 import { PilotPathPreviewStepper } from "@/components/usability/PilotPathPreviewStepper";
 import {
+  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
+  PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK,
+  PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
   PILOT_PATH_PREVIEW_STEPS,
   resolveOperatorHomeHeroHeading,
 } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
+import {
+  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
+  showcaseSampleReviewPackageHref,
+} from "@/lib/showcase-sample-review-registry";
 
 const optionalSetupButtonClass = "h-7";
 
 const DEFAULT_NEXT_ACTION: PilotNextBestAction = {
-  label: "Start review",
-  href: "/reviews/new",
-  bridgeCopy: "Each architecture review is tracked as one review package from capture through signed review record and export.",
+  label: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
+  href: showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
+  bridgeCopy: PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
 };
 
 /**
@@ -78,6 +86,17 @@ export function PilotCommandCenterCard(): React.JSX.Element {
               {nextAction.label}
             </Link>
           </Button>
+          {!hasCommittedArchitectureReview ? (
+            nextAction.href === showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId) ? (
+              <Link
+                href="/reviews/new"
+                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPE_SCALE.helper)}
+                data-testid="pilot-command-center-start-own-review"
+              >
+                {PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK}
+              </Link>
+            ) : null
+          ) : null}
         </div>
       </div>
 

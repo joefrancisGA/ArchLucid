@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA, PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY } from "@/lib/buyer-polish-copy";
 import { resolvePilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
+import {
+  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
+  showcaseSampleReviewPackageHref,
+} from "@/lib/showcase-sample-review-registry";
 
 const emptyCtx: CorePilotCommitContext = {
   hasCommittedManifest: false,
@@ -13,12 +18,12 @@ const emptyCtx: CorePilotCommitContext = {
 };
 
 describe("resolvePilotNextBestAction", () => {
-  it("starts a new review when the tenant has no runs", () => {
+  it("opens the completed sample when the tenant has no runs", () => {
     const action = resolvePilotNextBestAction(emptyCtx, false);
 
-    expect(action.label).toBe("Start review");
-    expect(action.href).toBe("/reviews/new");
-    expect(action.bridgeCopy.length).toBeGreaterThan(0);
+    expect(action.label).toBe(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
+    expect(action.href).toBe(showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId));
+    expect(action.bridgeCopy).toBe(PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY);
   });
 
   it("continues an in-progress review when findings are not ready to finalize", () => {

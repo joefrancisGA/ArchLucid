@@ -85,6 +85,7 @@ vi.mock("./_sections/load-operator-home-runs-dashboard-model", () => ({
   loadOperatorHomeRunsDashboardModel: vi.fn(),
 }));
 
+import { SHOWCASE_SAMPLE_REVIEW_REGISTRY, showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import HomePage from "./page";
 import { loadOperatorHomeRunsDashboardModel } from "./_sections/load-operator-home-runs-dashboard-model";
 import type { OperatorHomeRunsDashboardModel } from "./_sections/operator-home-runs-dashboard-model";
@@ -167,7 +168,7 @@ describe("HomePage — buyer-polished shell", () => {
     await renderHomePage();
 
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("review package");
+    expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("no setup");
     expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
     expect(screen.queryByText("What you'll get")).toBeNull();
     expect(screen.queryByTestId("operator-home-example-request-panel")).toBeNull();
@@ -202,17 +203,17 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.getByRole("heading", { name: "Workspace activity" })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-example-request-panel")).toBeNull();
     expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-next-best-action")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("pilot-next-best-action")).toHaveAttribute(
+      "href",
+      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
+    );
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
     expect(screen.getByTestId("operator-home-sample-review-run")).toHaveAttribute(
       "href",
       "/reviews/new?template=claims-intake-modernization",
     );
-    expect(screen.getByTestId("operator-home-sample-review-open")).toHaveAttribute(
-      "href",
-      "/reviews/claims-intake-modernization",
-    );
+    expect(screen.queryByTestId("operator-home-sample-review-open")).toBeNull();
     expect(screen.getByRole("link", { name: "Run sample review" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open completed sample" })).toHaveAttribute(
       "href",

@@ -9,6 +9,8 @@ vi.mock("@/components/usability/NewReviewSampleEscapeLink", () => ({
   NewReviewSampleEscapeLink: () => null,
 }));
 
+import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer-polish-copy";
+
 import NewRunPage from "./page";
 
 describe("New Architecture Review page", () => {
@@ -19,10 +21,7 @@ describe("New Architecture Review page", () => {
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
     expect(screen.getByRole("link", { name: "Review guide" })).toBeInTheDocument();
     expect(screen.queryByText(/pilot guidance/i)).not.toBeInTheDocument();
-    expect(
-      screen.getByText(/Start with a diagram or document \(Quick start\), or let ArchLucid guide you through what to include \(Guided\)/i),
-    ).toBeInTheDocument();
-    expect(screen.queryByText(/architecture brief/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-page-lead")).toHaveTextContent(REVIEWS_NEW_PAGE_LEAD);
     expect(screen.queryByText(/Guided intake/i)).not.toBeInTheDocument();
   });
 });

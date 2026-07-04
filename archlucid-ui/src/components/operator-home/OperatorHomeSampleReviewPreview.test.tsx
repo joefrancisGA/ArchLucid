@@ -3,16 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeSampleReviewPreview } from "@/components/operator-home/OperatorHomeSampleReviewPreview";
 import {
-  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
   OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL,
   OPERATOR_HOME_SAMPLE_FINDINGS_LEAD,
 } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_HOME_SAMPLE_FINDINGS } from "@/lib/showcase-home-sample-findings";
-import {
-  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
-  showcaseSampleReviewPackageHref,
-} from "@/lib/showcase-sample-review-registry";
 import {
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
   reviewIntakeExampleTemplateHref,
@@ -60,21 +55,14 @@ describe("OperatorHomeSampleReviewPreview (TB-353)", () => {
       "href",
       reviewIntakeExampleTemplateHref(OPERATOR_HOME_EXAMPLE_TEMPLATE_ID),
     );
-    expect(screen.getByTestId("operator-home-sample-review-open")).toHaveAttribute(
-      "href",
-      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
-    );
 
     const runCta = screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA });
-    const openCta = screen.getByRole("link", { name: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA });
     expect(runCta).toBeInTheDocument();
-    expect(openCta).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-sample-review-open")).toBeNull();
 
-    // "Run sample review" is the primary next step (filled primary-action styling);
-    // "Open completed sample" is secondary (outline styling).
-    expect(runCta.className).toContain("al-primary-action-bg");
-    expect(openCta.className).not.toContain("al-primary-action-bg");
-    expect(openCta.className).toContain("border-neutral-300");
+    // Hero owns "Open completed sample"; the card only offers the guided sample run.
+    expect(runCta.className).not.toContain("al-primary-action-bg");
+    expect(runCta.className).toContain("border-neutral-300");
   });
 
   it("hides once the tenant has a committed architecture review", () => {

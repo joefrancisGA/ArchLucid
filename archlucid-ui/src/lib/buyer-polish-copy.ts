@@ -78,6 +78,13 @@ export function resolveOperatorHomeHeroHeading(hasWorkspaceActivity: boolean): s
 export const PILOT_COMMAND_CENTER_LEAD =
   "Create an architecture review from a design brief, uploaded evidence, or an optional cloud connection.";
 
+/** Hero bridge copy when the tenant has no runs — zero-setup evaluation first. */
+export const PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY =
+  "See a finished architecture review package in minutes — no setup required. Start your own when you are ready.";
+
+/** Secondary text link on the home hero when the primary CTA opens the completed sample. */
+export const PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK = "Start your own review";
+
 export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start review";
 
 export const PILOT_COMMAND_CENTER_OUTCOMES_HEADING = "What ArchLucid discovers";
@@ -133,6 +140,10 @@ export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY_FIRST_RUN =
 export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Not ready to configure?";
 
 export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Skip setup — see a finished package";
+
+/** Streamlined first-run lead on `/reviews/new` — avoids path-switcher jargon above the fold. */
+export const REVIEWS_NEW_PAGE_LEAD =
+  "Upload a diagram, brief, or architecture document to start evidence capture. Azure connection is optional.";
 
 export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_TITLE = "Product concepts";
 
