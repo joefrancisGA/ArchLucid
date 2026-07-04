@@ -41,7 +41,7 @@ export function ExecutiveRoiSystemsIncludedSection(
           id="exec-roi-systems-included-heading"
           className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}
         >
-          <span className="inline-flex items-center gap-1">
+          <span className="inline-flex items-baseline gap-1.5">
             Systems included
             <RoiSystemRowMathTooltip />
           </span>
@@ -57,7 +57,7 @@ export function ExecutiveRoiSystemsIncludedSection(
             <EnterpriseTableHeaderCell>System</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Review package</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
-              <span className="inline-flex items-center gap-1">
+              <span className="inline-flex items-baseline gap-1.5">
                 Estimated savings
                 <RoiSystemRowMathTooltip />
               </span>

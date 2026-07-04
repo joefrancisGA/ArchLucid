@@ -1,6 +1,6 @@
 "use client";
 
-import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
+import { InlineHelp } from "@/components/InlineHelp";
 import {
   ROI_DISPOSITION_TRAINING_TOOLTIP_HINT,
   ROI_DISPOSITION_TRAINING_TOOLTIP_LABEL,
@@ -9,8 +9,9 @@ import {
 /** Inline help for disposition-aware headline vs per-system ROI semantics. */
 export function RoiDispositionTrainingTooltip(): React.JSX.Element {
   return (
-    <FieldHelpTooltip
+    <InlineHelp
       label={ROI_DISPOSITION_TRAINING_TOOLTIP_LABEL}
+      ariaLabel="Help: Executive ROI"
       hint={ROI_DISPOSITION_TRAINING_TOOLTIP_HINT}
     />
   );

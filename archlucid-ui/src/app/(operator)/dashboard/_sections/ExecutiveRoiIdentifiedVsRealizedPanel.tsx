@@ -49,7 +49,7 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
           id="exec-roi-identified-vs-realized-heading"
           className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}
         >
-          <span className="inline-flex items-center gap-1">
+          <span className="inline-flex items-baseline gap-1.5">
             Identified vs realized savings
             <RoiDispositionTrainingTooltip />
           </span>
@@ -65,7 +65,7 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
           data-testid="exec-roi-identified-pending-card"
         >
           <div className={cn("font-medium text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-baseline gap-1.5">
               {EXECUTIVE_ROI_IDENTIFIED_PENDING_LABEL}
               <RoiHeadlineMathTooltip />
             </span>
@@ -106,7 +106,7 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
           data-testid="exec-roi-realized-committed-card"
         >
           <div className={cn("font-medium text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}>
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-baseline gap-1.5">
               {EXECUTIVE_ROI_REALIZED_COMMITTED_LABEL}
               <RoiHeadlineMathTooltip />
             </span>

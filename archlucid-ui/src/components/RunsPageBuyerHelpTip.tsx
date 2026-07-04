@@ -17,10 +17,10 @@ export function RunsPageBuyerHelpTip(props: RunsPageBuyerHelpTipProps) {
 
   const label =
     variant === "search"
-      ? "How to use Search review packages on this page"
+      ? "Search review packages on this page"
       : demoMarketing
-        ? "About this demonstration workspace"
-        : "About this workspace";
+        ? "this demonstration workspace"
+        : "this workspace";
 
   const hint =
     variant === "search"

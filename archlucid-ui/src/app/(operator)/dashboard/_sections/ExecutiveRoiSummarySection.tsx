@@ -245,7 +245,7 @@ export function ExecutiveRoiSummarySection({
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-baseline gap-1.5">
               {executiveRoiSummaryCardTitle()}
               <RoiHeadlineMathTooltip />
             </span>

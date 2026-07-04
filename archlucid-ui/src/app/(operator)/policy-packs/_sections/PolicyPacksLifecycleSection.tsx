@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { PolicyPackContentJsonEditor } from "@/components/PolicyPackContentJsonEditor";
-import { InfoTooltip } from "@/components/InfoTooltip";
+import { InlineHelp } from "@/components/InlineHelp";
 import { GovernanceDryRunModal } from "@/components/GovernanceDryRunModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -158,7 +158,10 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
             </div>
             <label className="flex items-center gap-2">
               Pack type
-              <InfoTooltip text="Determines the pack's origin and mutability. ProjectCustom allows full editing." />
+              <InlineHelp
+                label="Pack type"
+                hint="Determines the pack's origin and mutability. ProjectCustom allows full editing."
+              />
               <select
                 value={packType}
                 onChange={(e) => {
@@ -289,7 +292,10 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
             </div>
             <label className="flex items-center gap-2">
               Scope level
-              <InfoTooltip text="The organizational level where this policy pack applies (Tenant, Workspace, or Project)." />
+              <InlineHelp
+                label="Scope level"
+                hint="The organizational level where this policy pack applies (Tenant, Workspace, or Project)."
+              />
               <select
                 value={assignScopeLevel}
                 onChange={(e) => onAssignScopeLevelChange(e.target.value)}
@@ -311,7 +317,10 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                 onChange={(e) => onAssignPinnedChange(e.target.checked)}
               />
               Pinned
-              <InfoTooltip text="Pinned assignments prevent lower scopes from overriding this policy pack." />
+              <InlineHelp
+                label="Pinned"
+                hint="Pinned assignments prevent lower scopes from overriding this policy pack."
+              />
             </label>
             <button
               type="button"

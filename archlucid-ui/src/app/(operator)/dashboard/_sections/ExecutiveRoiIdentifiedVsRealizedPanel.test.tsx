@@ -5,10 +5,7 @@ import { ExecutiveRoiIdentifiedVsRealizedPanel } from "./ExecutiveRoiIdentifiedV
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { resolveExecutiveRoiIdentifiedVsRealized } from "@/lib/executive-roi-identified-vs-realized";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import {
-  ROI_DISPOSITION_TRAINING_TOOLTIP_LABEL,
-  ROI_HEADLINE_MATH_TOOLTIP_LABEL,
-} from "@/lib/roi-disposition-training-copy";
+import { ROI_HEADLINE_MATH_TOOLTIP_LABEL } from "@/lib/roi-disposition-training-copy";
 
 const summary: ExecutiveRoiSummary = {
   totalEstimatedUsdSavings: 120_000,
@@ -42,10 +39,10 @@ describe("ExecutiveRoiIdentifiedVsRealizedPanel", () => {
     );
 
     expect(screen.getByTestId("exec-roi-identified-vs-realized-panel")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: Executive ROI" })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: `About ${ROI_DISPOSITION_TRAINING_TOOLTIP_LABEL}` }),
-    ).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: `About ${ROI_HEADLINE_MATH_TOOLTIP_LABEL}` })).toHaveLength(2);
+      screen.getAllByRole("button", { name: `Help: ${ROI_HEADLINE_MATH_TOOLTIP_LABEL}` }),
+    ).toHaveLength(2);
     expect(screen.getByText("Identified savings (pending approval)")).toBeInTheDocument();
     expect(screen.getByText("Realized savings (committed & applied)")).toBeInTheDocument();
     expect(screen.getByTestId("exec-roi-identified-pending-usd")).toHaveTextContent("$120,000");

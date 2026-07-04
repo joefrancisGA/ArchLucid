@@ -14,7 +14,7 @@ describe("BuyerTitleHint", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "About this section: Explain deliverables rows vs ZIP download.",
+        name: "Help: this section",
       }),
     ).toBeInTheDocument();
   });

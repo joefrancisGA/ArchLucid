@@ -13,7 +13,7 @@ export function BuyerTitleHint(props: BuyerTitleHintProps) {
   return (
     <FieldHelpTooltip
       label="this section"
-      ariaLabel={`About this section: ${text}`}
+      ariaLabel={`Help: this section`}
       hint={text}
       side="bottom"
     />

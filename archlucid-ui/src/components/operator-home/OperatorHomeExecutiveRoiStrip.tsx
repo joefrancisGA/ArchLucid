@@ -85,7 +85,7 @@ export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {
       <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", OPERATOR_LAYOUT.inlineGap)}>
         <div className="min-w-0 space-y-1">
           <h2 id="operator-home-roi-strip-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}>
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-baseline gap-1.5">
               Executive ROI
               <RoiDispositionTrainingTooltip />
             </span>

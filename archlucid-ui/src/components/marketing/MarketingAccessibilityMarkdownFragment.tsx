@@ -7,6 +7,7 @@ import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help-heading-slug";
 import { isMermaidDiagramSource } from "@/lib/help-mermaid";
+import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences } from "@/lib/help-markdown-presentation";
 
 type RenderInlineOptions = {
@@ -220,11 +221,15 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   const isHelp = props.presentation === "help";
   const bodyTextClass = isHelp ? OPERATOR_TYPOGRAPHY.body : "text-neutral-800 dark:text-neutral-200";
   const h2Class = isHelp
-    ? cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-8", OPERATOR_TYPOGRAPHY.sectionTitle)
-    : (cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-8 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle));
+    ? HELP_PAGE_LAYOUT.sectionH2
+    : cn(
+        OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+        "mt-8 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50",
+        OPERATOR_TYPOGRAPHY.pageTitle,
+      );
   const h3Class = isHelp
-    ? cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-6", OPERATOR_TYPOGRAPHY.cardTitle)
-    : (cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-4 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle));
+    ? HELP_PAGE_LAYOUT.sectionH3
+    : cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-4 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle);
   const tableTextClass = isHelp ? OPERATOR_TYPOGRAPHY.body : OPERATOR_TYPOGRAPHY.body;
   const renderOptions: RenderInlineOptions = { linkMode: isHelp ? "help" : "external-only" };
   const markdownBody =
@@ -276,12 +281,12 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       blocks.push(
         <details
           key={`details-${key}`}
-          className="my-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"
+          className={isHelp ? HELP_PAGE_LAYOUT.details : "my-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"}
         >
           <summary className={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
             {summary}
           </summary>
-          <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+          <div className={isHelp ? HELP_PAGE_LAYOUT.detailsBody : "mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700"}>
             {innerMarkdown.length > 0 ? (
               <MarketingAccessibilityMarkdownFragment
                 markdownBody={innerMarkdown}
@@ -401,7 +406,14 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
         blocks.push(
           <blockquote
             key={`bq-${key}`}
-            className={cn("my-4 border-l-4 border-neutral-300 pl-4 italic text-al-text-secondary dark:border-neutral-600", OPERATOR_TYPOGRAPHY.body)}
+            className={
+              isHelp
+                ? HELP_PAGE_LAYOUT.blockquote
+                : cn(
+                    "my-4 border-l-4 border-neutral-300 pl-4 italic text-al-text-secondary dark:border-neutral-600",
+                    OPERATOR_TYPOGRAPHY.body,
+                  )
+            }
           >
             <p className="m-0 leading-relaxed">{renderInline(body, `bq-${key}`, renderOptions)}</p>
           </blockquote>,
@@ -431,16 +443,26 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       const dataStart = isTableDivider(bodyRows[1] ?? "") ? 2 : 1;
 
       blocks.push(
-        <div key={`tbl-${key}`} className="my-4 overflow-x-auto">
-          <table className={cn("w-full border-collapse border border-neutral-200 dark:border-neutral-800", tableTextClass)}>
+        <div key={`tbl-${key}`} className={isHelp ? HELP_PAGE_LAYOUT.tableWrap : "my-4 overflow-x-auto"}>
+          <table
+            className={
+              isHelp
+                ? HELP_PAGE_LAYOUT.table
+                : cn("w-full border-collapse border border-neutral-200 dark:border-neutral-800", tableTextClass)
+            }
+          >
             <caption className="sr-only">{props.tableCaption}</caption>
-            <thead className="bg-neutral-100 dark:bg-neutral-900">
+            <thead className={isHelp ? undefined : "bg-neutral-100 dark:bg-neutral-900"}>
               <tr>
                 {headerCells.map((c, idx) => (
                   <th
                     key={`th-${key}-${idx}`}
                     scope="col"
-                    className="border border-neutral-200 px-3 py-2 text-left font-semibold dark:border-neutral-800"
+                    className={
+                      isHelp
+                        ? HELP_PAGE_LAYOUT.tableHeadCell
+                        : "border border-neutral-200 px-3 py-2 text-left font-semibold dark:border-neutral-800"
+                    }
                   >
                     {renderInline(c, `th-${key}-${idx}`, renderOptions)}
                   </th>
@@ -455,9 +477,25 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                   .filter((c) => c.length > 0);
 
                 return (
-                  <tr key={`tr-${key}-${rIdx}`} className="odd:bg-white even:bg-neutral-50 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/60">
+                  <tr
+                    key={`tr-${key}-${rIdx}`}
+                    className={
+                      isHelp
+                        ? rIdx % 2 === 0
+                          ? HELP_PAGE_LAYOUT.tableRowOdd
+                          : HELP_PAGE_LAYOUT.tableRowEven
+                        : "odd:bg-white even:bg-neutral-50 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/60"
+                    }
+                  >
                     {cells.map((c, cIdx) => (
-                      <td key={`td-${key}-${rIdx}-${cIdx}`} className="border border-neutral-200 px-3 py-2 dark:border-neutral-800">
+                      <td
+                        key={`td-${key}-${rIdx}-${cIdx}`}
+                        className={
+                          isHelp
+                            ? HELP_PAGE_LAYOUT.tableBodyCell
+                            : "border border-neutral-200 px-3 py-2 dark:border-neutral-800"
+                        }
+                      >
                         {renderInline(c, `td-${key}-${rIdx}-${cIdx}`, renderOptions)}
                       </td>
                     ))}
@@ -489,7 +527,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       }
 
       blocks.push(
-        <ul key={`ul-${key}`} className={cn("my-3 list-disc space-y-2 pl-6", bodyTextClass)}>
+        <ul key={`ul-${key}`} className={isHelp ? HELP_PAGE_LAYOUT.bulletList : cn("my-3 list-disc space-y-2 pl-6", bodyTextClass)}>
           {items.map((it, idx) => (
             <li key={`li-${key}-${idx}`}>{renderInline(it, `li-${key}-${idx}`, renderOptions)}</li>
           ))}
@@ -517,7 +555,14 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       }
 
       blocks.push(
-        <ol key={`ol-${key}`} className="my-3 list-decimal space-y-2 pl-6 text-neutral-800 dark:text-neutral-200">
+        <ol
+          key={`ol-${key}`}
+          className={
+            isHelp
+              ? HELP_PAGE_LAYOUT.orderedList
+              : "my-3 list-decimal space-y-2 pl-6 text-neutral-800 dark:text-neutral-200"
+          }
+        >
           {items.map((it, idx) => (
             <li key={`oli-${key}-${idx}`}>{renderInline(it, `oli-${key}-${idx}`, renderOptions)}</li>
           ))}
@@ -547,7 +592,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
     const paragraph = paraLines.join(" ").trim();
     if (paragraph.length > 0) {
       blocks.push(
-        <p key={`p-${key}`} className={cn("my-3 leading-relaxed", bodyTextClass)}>
+        <p key={`p-${key}`} className={isHelp ? HELP_PAGE_LAYOUT.paragraph : cn("my-3 leading-relaxed", bodyTextClass)}>
           {renderInline(paragraph, `p-${key}`, renderOptions)}
         </p>,
       );
@@ -555,5 +600,5 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
     }
   }
 
-  return <div className="space-y-1">{blocks}</div>;
+  return <div className={isHelp ? HELP_PAGE_LAYOUT.proseRoot : "space-y-1"}>{blocks}</div>;
 }

@@ -13,7 +13,7 @@ export function PolicyPackJsonSchemaHelpIcon(props: Readonly<{ readonly ariaLabe
       label="policy-pack JSON schema"
       ariaLabel={props.ariaLabel}
       hint={POLICY_PACK_JSON_SCHEMA_HINT}
-      className="self-start"
+      triggerClassName="self-start"
     />
   );
 }

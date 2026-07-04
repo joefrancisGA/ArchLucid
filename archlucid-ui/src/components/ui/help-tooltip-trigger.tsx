@@ -24,12 +24,12 @@ const SIZE_STYLES: Record<
 > = {
   contextual: {
     button:
-      "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-neutral-500 hover:text-neutral-700 focus-visible:outline focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-neutral-400 dark:hover:text-neutral-200",
-    icon: "h-4 w-4",
+      "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-al-text-secondary transition-colors hover:bg-neutral-100 hover:text-al-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100",
+    icon: "size-[15px]",
   },
   toolbar: {
     button:
-      "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 focus-visible:outline focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200",
+      "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200",
     icon: "size-[18px]",
   },
 };

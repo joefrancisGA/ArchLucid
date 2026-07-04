@@ -1,0 +1,354 @@
+import type { HelpTabId } from "@/components/HelpPanel";
+
+export const HELP_SEARCH_PANEL_SUBTITLE =
+  "Search guides, troubleshooting, and keyboard shortcuts." as const;
+
+export const HELP_SEARCH_PANEL_SEARCHING_SUBTITLE = "Showing matching guides and topics." as const;
+
+export const HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER = "Search guides, topics, or shortcuts…" as const;
+
+export const HELP_SEARCH_PANEL_EMPTY_TITLE = "No help topics found" as const;
+
+export const HELP_SEARCH_PANEL_EMPTY_HINT =
+  "Try searching for review, evidence, findings, governance, SSO, or export." as const;
+
+export const HELP_SEARCH_PANEL_KEYBOARD_HINT = "↑↓ Navigate · Enter Open · Esc Close" as const;
+
+export type HelpSearchPanelAction =
+  | { readonly kind: "route"; readonly href: string; readonly helpSlug: string | null }
+  | { readonly kind: "guides-panel"; readonly tab: HelpTabId }
+  | { readonly kind: "concepts-dialog" }
+  | { readonly kind: "feedback-dialog" };
+
+export type HelpSearchPanelTopic = {
+  readonly id: string;
+  readonly title: string;
+  readonly description: string;
+  readonly keywords: readonly string[];
+  readonly action: HelpSearchPanelAction;
+  readonly adminOnly?: boolean;
+};
+
+export type HelpSearchPanelGroup = {
+  readonly id: string;
+  readonly heading: string;
+  readonly topics: readonly HelpSearchPanelTopic[];
+};
+
+const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "first-review-guide",
+    title: "First-review guide",
+    description: "Complete one review package before configuring advanced workflows.",
+    keywords: ["first review", "first hour", "canonical guide", "getting started", "pilot"],
+    action: { kind: "route", href: "/help/first-hour-operator-path", helpSlug: "first-hour-operator-path" },
+  },
+  {
+    id: "create-first-review",
+    title: "Create your first review package",
+    description: "Start with a brief, diagram, IaC file, or evidence ZIP.",
+    keywords: ["create", "new review", "wizard", "intake", "first review"],
+    action: { kind: "route", href: "/reviews/new", helpSlug: null },
+  },
+  {
+    id: "sample-review",
+    title: "Run a sample review",
+    description: "See how ArchLucid turns evidence into findings and review artifacts.",
+    keywords: ["sample", "example", "claims intake", "demo review", "walkthrough"],
+    action: { kind: "route", href: "/reviews/claims-intake-modernization", helpSlug: null },
+  },
+];
+
+const REVIEW_WORK_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "upload-evidence",
+    title: "Upload architecture evidence",
+    description: "Attach diagrams, IaC, cloud exports, screenshots, and scope notes.",
+    keywords: ["evidence", "upload", "zip", "azure", "intake", "diagram", "iac"],
+    action: { kind: "route", href: "/help/evidence-intake", helpSlug: "evidence-intake" },
+  },
+  {
+    id: "review-findings",
+    title: "Review findings and evidence trail",
+    description: "Trace findings to evidence, rationale, and source artifacts.",
+    keywords: ["findings", "evidence trail", "provenance", "graph", "trace"],
+    action: { kind: "route", href: "/help/evidence-trail", helpSlug: "evidence-trail" },
+  },
+  {
+    id: "finalize-review",
+    title: "Finalize a review package",
+    description: "Create the signed review record and export deliverables.",
+    keywords: ["finalize", "commit", "signed", "export", "deliverables"],
+    action: { kind: "route", href: "/help/governance-approval", helpSlug: "governance-approval" },
+  },
+  {
+    id: "review-artifacts",
+    title: "Review artifacts and proof packet",
+    description: "Download outputs for sponsors, governance, procurement, or audit.",
+    keywords: ["proof packet", "artifacts", "bundle", "audit", "sponsor export", "deliverables"],
+    action: { kind: "route", href: "/help/review-packages", helpSlug: "review-packages" },
+  },
+];
+
+const GOVERNANCE_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "governance-workflow",
+    title: "Governance workflow",
+    description: "Approve, reject, promote, or monitor review packages.",
+    keywords: ["governance", "approval", "promote", "workflow", "disposition"],
+    action: { kind: "route", href: "/help/governance-approval", helpSlug: "governance-approval" },
+  },
+  {
+    id: "risk-register",
+    title: "Risk register",
+    description: "Track accepted risks, owners, exceptions, and follow-up.",
+    keywords: ["risk", "register", "exceptions", "accepted risk", "findings queue"],
+    action: { kind: "route", href: "/governance/findings", helpSlug: null },
+  },
+  {
+    id: "policy-packs",
+    title: "Policy packs",
+    description: "Understand which standards and rules were applied.",
+    keywords: ["policy", "packs", "compliance", "rules", "standards"],
+    action: { kind: "route", href: "/policy-packs", helpSlug: null },
+  },
+];
+
+const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "cloud-connections",
+    title: "Cloud connections",
+    description: "Connect Azure, AWS, or GCP for scheduled read-only evidence collection.",
+    keywords: ["cloud", "azure", "aws", "gcp", "connection", "evidence collection"],
+    action: { kind: "route", href: "/integrations/cloud-connections", helpSlug: "cloud-connections" },
+  },
+  {
+    id: "connect-azure",
+    title: "Connect Azure securely",
+    description: "Workload identity federation, read-only roles, and connection validation.",
+    keywords: ["azure", "federation", "workload identity", "permissions"],
+    action: { kind: "route", href: "/help/cloud-connections-azure", helpSlug: "cloud-connections-azure" },
+  },
+  {
+    id: "users-and-roles",
+    title: "Users and roles",
+    description: "Invite reviewers, approvers, and administrators.",
+    keywords: ["users", "roles", "invite", "admin", "reader", "auditor"],
+    action: { kind: "route", href: "/settings/roles", helpSlug: "operator-auth-roles" },
+  },
+  {
+    id: "sso-identity",
+    title: "SSO and identity",
+    description: "Configure identity providers, SSO, SCIM, and access controls.",
+    keywords: ["sso", "saml", "scim", "entra", "identity", "idp"],
+    action: { kind: "route", href: "/settings/identity/sso-wizard", helpSlug: "enterprise-onboarding" },
+  },
+];
+
+const TROUBLESHOOTING_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "troubleshoot",
+    title: "Troubleshoot common issues",
+    description: "Fix loading, review, evidence, and export problems.",
+    keywords: ["troubleshoot", "error", "fix", "loading", "export", "support"],
+    action: { kind: "route", href: "/help/troubleshooting", helpSlug: "troubleshooting" },
+  },
+  {
+    id: "keyboard-shortcuts",
+    title: "Keyboard shortcuts",
+    description: "Navigate faster using search and shortcut keys.",
+    keywords: ["keyboard", "shortcuts", "hotkeys", "shift+?"],
+    action: { kind: "guides-panel", tab: "shortcuts" },
+  },
+  {
+    id: "contact-support",
+    title: "Contact support",
+    description: "Send support or download a diagnostic bundle.",
+    keywords: ["support", "contact", "bundle", "diagnostics", "ticket"],
+    action: { kind: "guides-panel", tab: "troubleshooting" },
+  },
+];
+
+const ADVANCED_ADMIN_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "admin-diagnostics",
+    title: "Admin diagnostics guide",
+    description: "System status, workspace readiness, and platform health signals.",
+    keywords: ["admin", "diagnostics", "health", "observability", "status"],
+    action: { kind: "route", href: "/help/admin-diagnostics", helpSlug: "admin-diagnostics" },
+    adminOnly: true,
+  },
+  {
+    id: "advanced-diagnostics",
+    title: "Advanced diagnostics",
+    description: "CLI commands, logs, and environment variables for engineering support.",
+    keywords: ["cli", "logs", "environment", "engineering", "developer"],
+    action: { kind: "route", href: "/help/developer-troubleshooting", helpSlug: "developer-troubleshooting" },
+    adminOnly: true,
+  },
+];
+
+export const HELP_SEARCH_PANEL_GROUPS: readonly HelpSearchPanelGroup[] = [
+  { id: "start-here", heading: "Start here", topics: START_HERE_TOPICS },
+  { id: "review-work", heading: "Review work", topics: REVIEW_WORK_TOPICS },
+  { id: "governance", heading: "Governance", topics: GOVERNANCE_TOPICS },
+  { id: "setup", heading: "Setup", topics: SETUP_TOPICS },
+  { id: "troubleshooting", heading: "Troubleshooting and support", topics: TROUBLESHOOTING_TOPICS },
+];
+
+/** Synonyms expand search queries to curated topic ids. */
+export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string[]>> = {
+  "proof packet": ["review-artifacts"],
+  evidence: ["upload-evidence", "review-findings"],
+  findings: ["review-findings"],
+  finalize: ["finalize-review"],
+  export: ["review-artifacts", "finalize-review"],
+  governance: ["governance-workflow", "risk-register", "policy-packs"],
+  sso: ["sso-identity"],
+  azure: ["cloud-connections", "connect-azure"],
+  audit: ["review-artifacts", "governance-workflow"],
+  scim: ["sso-identity"],
+  support: ["contact-support", "troubleshoot"],
+  shortcuts: ["keyboard-shortcuts"],
+};
+
+const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly topicIds: readonly string[] }[] = [
+  { prefix: "/", topicIds: ["first-review-guide", "create-first-review", "sample-review"] },
+  { prefix: "/onboarding", topicIds: ["first-review-guide", "create-first-review", "sample-review"] },
+  {
+    prefix: "/integrations/cloud-connections",
+    topicIds: ["cloud-connections", "connect-azure", "troubleshoot"],
+  },
+  {
+    prefix: "/settings/cloud-connections",
+    topicIds: ["cloud-connections", "connect-azure", "troubleshoot"],
+  },
+  { prefix: "/governance", topicIds: ["governance-workflow", "risk-register", "policy-packs"] },
+  { prefix: "/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
+  { prefix: "/reviews/new", topicIds: ["create-first-review", "upload-evidence", "first-review-guide"] },
+  { prefix: "/reviews", topicIds: ["review-findings", "finalize-review", "review-artifacts"] },
+  { prefix: "/settings/roles", topicIds: ["users-and-roles", "sso-identity"] },
+  { prefix: "/settings/identity", topicIds: ["sso-identity", "users-and-roles"] },
+];
+
+function normalizePathname(pathname: string): string {
+  return (pathname ?? "").split("?")[0] ?? "";
+}
+
+export function listHelpSearchPanelTopics(isAdmin: boolean): HelpSearchPanelTopic[] {
+  const topics: HelpSearchPanelTopic[] = [];
+
+  for (const group of HELP_SEARCH_PANEL_GROUPS) {
+    for (const topic of group.topics) {
+      if (topic.adminOnly === true && !isAdmin) {
+        continue;
+      }
+
+      topics.push(topic);
+    }
+  }
+
+  if (isAdmin) {
+    topics.push(...ADVANCED_ADMIN_TOPICS);
+  }
+
+  return topics;
+}
+
+export function listHelpSearchPanelGroups(isAdmin: boolean): HelpSearchPanelGroup[] {
+  const groups = HELP_SEARCH_PANEL_GROUPS.map((group) => ({
+    ...group,
+    topics: group.topics.filter((topic) => topic.adminOnly !== true || isAdmin),
+  }));
+
+  if (isAdmin) {
+    return [
+      ...groups,
+      {
+        id: "advanced-administration",
+        heading: "Advanced administration",
+        topics: ADVANCED_ADMIN_TOPICS,
+      },
+    ];
+  }
+
+  return groups;
+}
+
+export function recommendedHelpSearchPanelTopicIds(pathname: string): string[] {
+  const path = normalizePathname(pathname);
+
+  if (path === "/") {
+    return [...(ROUTE_RECOMMENDED_TOPIC_IDS.find((row) => row.prefix === "/")?.topicIds ?? [])];
+  }
+
+  const sorted = [...ROUTE_RECOMMENDED_TOPIC_IDS].sort((left, right) => right.prefix.length - left.prefix.length);
+
+  for (const row of sorted) {
+    if (row.prefix === "/") {
+      continue;
+    }
+
+    if (path === row.prefix || path.startsWith(`${row.prefix}/`)) {
+      return [...row.topicIds];
+    }
+  }
+
+  return [];
+}
+
+export function recommendedHelpSearchPanelTopics(
+  pathname: string,
+  isAdmin: boolean,
+): HelpSearchPanelTopic[] {
+  const byId = new Map(listHelpSearchPanelTopics(isAdmin).map((topic) => [topic.id, topic]));
+  const ids = recommendedHelpSearchPanelTopicIds(pathname);
+
+  return ids.map((id) => byId.get(id)).filter((topic): topic is HelpSearchPanelTopic => topic !== undefined);
+}
+
+function topicMatchesQuery(topic: HelpSearchPanelTopic, normalizedQuery: string): boolean {
+  const haystack = `${topic.title} ${topic.description} ${topic.keywords.join(" ")}`.toLowerCase();
+
+  if (haystack.includes(normalizedQuery)) {
+    return true;
+  }
+
+  for (const [alias, topicIds] of Object.entries(HELP_DRAWER_SEARCH_ALIASES)) {
+    if (!normalizedQuery.includes(alias)) {
+      continue;
+    }
+
+    if (topicIds.includes(topic.id)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function filterHelpSearchPanelTopics(
+  topics: readonly HelpSearchPanelTopic[],
+  query: string,
+): HelpSearchPanelTopic[] {
+  const normalizedQuery = query.trim().toLowerCase();
+
+  if (normalizedQuery.length === 0) {
+    return [...topics];
+  }
+
+  return topics.filter((topic) => topicMatchesQuery(topic, normalizedQuery));
+}
+
+/** Returns true when copy contains banned default user-facing help phrases. */
+export function helpSearchPanelTopicHasBannedPublicCopy(topic: HelpSearchPanelTopic): boolean {
+  const corpus = `${topic.title} ${topic.description}`.toLowerCase();
+
+  return (
+    corpus.includes("operator shell") ||
+    corpus.includes("engineering runbook") ||
+    corpus.includes("permission regression") ||
+    corpus.includes("tenant operator") ||
+    corpus.includes("operator path")
+  );
+}

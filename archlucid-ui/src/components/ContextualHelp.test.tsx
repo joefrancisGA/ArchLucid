@@ -18,7 +18,7 @@ describe("ContextualHelp", () => {
     expect(button).toHaveAttribute("data-help-tooltip-trigger");
     expect(button).toHaveAttribute("data-help-tooltip-icon", "info");
     expect(button.querySelector("svg")).not.toBeNull();
-    expect(button).toHaveClass("h-6", "w-6");
+    expect(button).toHaveClass("h-7", "w-7");
     expect(button.className).not.toMatch(/rounded-full/);
   });
 

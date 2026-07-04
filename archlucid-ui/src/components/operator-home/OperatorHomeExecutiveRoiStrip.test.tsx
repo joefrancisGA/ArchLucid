@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeExecutiveRoiStrip } from "@/components/operator-home/OperatorHomeExecutiveRoiStrip";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ROI_DISPOSITION_TRAINING_TOOLTIP_LABEL } from "@/lib/roi-disposition-training-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
@@ -48,9 +47,7 @@ describe("OperatorHomeExecutiveRoiStrip", () => {
 
     expect(await screen.findByTestId("operator-home-roi-strip")).toBeInTheDocument();
     expect(screen.getByText(/125,000/)).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: `About ${ROI_DISPOSITION_TRAINING_TOOLTIP_LABEL}` }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: Executive ROI" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-roi-strip-open-dashboard")).toHaveAttribute("href", "/dashboard");
   });
 });

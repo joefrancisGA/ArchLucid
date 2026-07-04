@@ -45,7 +45,9 @@ describe("ExecutiveRoiSystemsIncludedSection", () => {
     expect(screen.getByText("Portal")).toBeInTheDocument();
     expect(screen.getByTestId("exec-roi-system-savings-run-billing-001")).toHaveTextContent("$30,000");
     expect(screen.getByTestId("exec-roi-system-savings-run-portal-002")).toHaveTextContent("$25,000");
-    expect(screen.getAllByRole("button", { name: `About ${ROI_SYSTEM_ROW_MATH_TOOLTIP_LABEL}` })).toHaveLength(2);
+    expect(
+      screen.getAllByRole("button", { name: `Help: ${ROI_SYSTEM_ROW_MATH_TOOLTIP_LABEL}` }),
+    ).toHaveLength(2);
   });
 
   it("returns null when no systems are included", () => {

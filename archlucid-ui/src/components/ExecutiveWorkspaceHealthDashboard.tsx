@@ -375,8 +375,6 @@ export function ExecutiveWorkspaceHealthDashboard() {
               </h2>
               <FieldHelpTooltip
                 label="the hours estimate"
-                ariaLabel="About the hours estimate"
-                className="self-start"
                 hint={
                   buyerPolishedShell ? (
                     <>
@@ -390,6 +388,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
                     </>
                   )
                 }
+                triggerClassName="self-start"
               />
             </div>
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

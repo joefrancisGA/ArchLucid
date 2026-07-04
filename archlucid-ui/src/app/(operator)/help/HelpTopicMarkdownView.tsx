@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -7,6 +6,7 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -25,9 +25,9 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
   return (
     <article className={OPERATOR_LAYOUT.majorSectionGap}>
       <HelpTopicHashScroll />
-      <header className={cn("border-b border-neutral-200 pb-5 dark:border-neutral-800", OPERATOR_LAYOUT.sectionHeadingStack)}>
+      <header className={HELP_PAGE_LAYOUT.articleHeader}>
         <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{entry.title}</h1>
-        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>{entry.summary}</p>
+        <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>{entry.summary}</p>
         {entry.audience === "developer" ? (
           <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.label}`}>
             Engineering runbook — CLI commands, environment variables, and log detail. For symptom-first operator help,
@@ -40,8 +40,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
         ) : null}
       </header>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_11rem] lg:items-start">
-        <div className="min-w-0 max-w-3xl">
+      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+        <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-topic-content">
           <MarketingAccessibilityMarkdownFragment
             markdownBody={markdown}
             tableCaption={`${entry.title} reference table`}

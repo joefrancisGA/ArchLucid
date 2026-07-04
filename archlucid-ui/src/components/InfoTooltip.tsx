@@ -1,19 +1,14 @@
-import { cn } from "@/lib/utils";
-import React from 'react';
+"use client";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { InlineHelp } from "@/components/InlineHelp";
+
 interface InfoTooltipProps {
   text: string;
+  /** Accessible subject for the help trigger; defaults to the visible field label when provided. */
+  label?: string;
 }
 
-export function InfoTooltip({ text }: InfoTooltipProps) {
-  return (
-    <span 
-      className={cn("inline-flex items-center justify-center w-4 h-4 ml-1 font-bold text-white bg-gray-400 rounded-full cursor-help", OPERATOR_TYPOGRAPHY.helper)}
-      title={text}
-      aria-label={text}
-    >
-      ?
-    </span>
-  );
+/** @deprecated Prefer {@link InlineHelp} with an explicit field label. */
+export function InfoTooltip({ text, label = "this field" }: InfoTooltipProps) {
+  return <InlineHelp label={label} hint={text} />;
 }

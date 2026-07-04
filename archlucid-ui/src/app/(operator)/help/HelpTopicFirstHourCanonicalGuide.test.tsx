@@ -121,6 +121,36 @@ describe("First-review guide", () => {
       expect(links.some((link) => link.getAttribute("href") === item.href)).toBe(true);
     }
   });
+
+  it("renders shared help layout markers for title, content column, and TOC", () => {
+    if (loaded === null || entry === null) {
+      throw new Error("Expected first-review guide to load.");
+    }
+
+    render(<HelpTopicMarkdownView entry={entry} markdown={loaded.markdown} />);
+
+    expect(screen.getByTestId("help-topic-content")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-toc-heading")).toHaveTextContent("On this page");
+    expect(screen.getByText(entry.summary)).toBeInTheDocument();
+  });
+
+  it("applies shared section spacing and table styling in help markdown", () => {
+    if (loaded === null || entry === null) {
+      throw new Error("Expected first-review guide to load.");
+    }
+
+    render(<HelpTopicMarkdownView entry={entry} markdown={loaded.markdown} />);
+
+    const sectionHeading = screen.getByRole("heading", { level: 2, name: "What can wait until later" });
+
+    expect(sectionHeading.className).toContain("mt-10");
+
+    const table = screen.getByRole("table");
+
+    expect(table).toBeInTheDocument();
+    expect(table.querySelector("thead th")?.className).toContain("font-semibold");
+  });
 });
 
 describe("OperatorFirstHourJourneyStrip first-review guide link", () => {
