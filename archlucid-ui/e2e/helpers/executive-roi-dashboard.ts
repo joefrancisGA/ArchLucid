@@ -293,17 +293,25 @@ export async function awaitExecutiveRoiDashboardReady(
 
 ): Promise<void> {
 
+  const hydrated = waitForExecutiveRoiDashboardHydrated(page);
+
   await Promise.race([
 
     roiWaits.summaryResponse,
 
-    waitForExecutiveRoiDashboardHydrated(page),
+    hydrated,
 
   ]);
 
 
 
-  await waitForExecutiveRoiDashboardHydrated(page);
+  // Reuse the same in-flight promise rather than starting a fresh wait cycle: if the race
+
+  // above was won by roiWaits.summaryResponse, this just continues polling; if it was won by
+
+  // `hydrated` itself, this resolves immediately.
+
+  await hydrated;
 
 }
 
