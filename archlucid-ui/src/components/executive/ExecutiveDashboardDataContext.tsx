@@ -26,7 +26,6 @@ export function ExecutiveDashboardDataProvider({ children }: { children: ReactNo
   const summary = summaryQuery.data ?? null;
   const summaryLoading =
     summaryQuery.isPending ||
-    summaryQuery.isFetching ||
     (summary === null && !summaryQuery.isFetched);
   const summaryError =
     summaryQuery.isError

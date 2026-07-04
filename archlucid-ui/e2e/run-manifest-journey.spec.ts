@@ -11,7 +11,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
 import { showcaseSignedManifestBrowserUrlPattern } from "./helpers/buyer-golden-path";
-import { outcomeStripSignedRecordLink } from "./helpers/operator-journey";
+import { reviewOutcomeSummaryStrip, runDetailFinalizedPackageLink } from "./helpers/operator-journey";
 
 const SHOWCASE_RUN_DETAIL_HEADING = /Claims Intake Modernization/i;
 
@@ -27,11 +27,11 @@ test.describe("operator journey — run detail to manifest and back", () => {
       page.getByRole("heading", { level: 1, name: SHOWCASE_RUN_DETAIL_HEADING }),
     ).toBeVisible({ timeout: 60_000 });
 
-    const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
+    const outcomeStrip = reviewOutcomeSummaryStrip(page);
 
     await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
 
-    const manifestLink = outcomeStripSignedRecordLink(outcomeStrip);
+    const manifestLink = runDetailFinalizedPackageLink(page);
     const manifestHref = `/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
 
     await expect(manifestLink).toBeVisible({ timeout: 60_000 });

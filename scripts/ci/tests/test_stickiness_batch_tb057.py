@@ -20,17 +20,27 @@ class TestStickinessBatchTb057(unittest.TestCase):
             / "findings"
             / "GovernanceFindingsQueueClient.tsx"
         )
+        findings_query = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "components"
+            / "governance"
+            / "findings"
+            / "use-governance-findings-query.ts"
+        )
         page_constants = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "architecture-risk-register-page.ts"
         csv_module = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "architecture-risk-register-csv.ts"
         reader = REPO_ROOT / "ArchLucid.Persistence" / "Governance" / "ArchitectureRiskRegisterReader.cs"
         i18n = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "i18n.ts"
 
         client_text = client.read_text(encoding="utf-8")
+        findings_query_text = findings_query.read_text(encoding="utf-8")
         page_constants_text = page_constants.read_text(encoding="utf-8")
         self.assertIn("ARCHITECTURE_RISK_REGISTER_PAGE_TITLE", client_text)
         self.assertIn("Architecture risk register", page_constants_text)
-        self.assertIn("getArchitectureDecisionRegister", client_text)
-        self.assertIn("decisionRegisterRows", client_text)
+        self.assertIn("getArchitectureDecisionRegister", findings_query_text)
+        self.assertIn("decisionRegisterRows", findings_query_text)
         self.assertIn("matchesRiskRegisterFilter", client_text)
         self.assertIn("waiver-expiring", page_constants_text)
 

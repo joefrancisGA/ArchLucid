@@ -58,6 +58,7 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(IWarmTenantCatalogReplenishService),
         typeof(IAuditSqlRetryPolicyProvider),
         typeof(SqlGraphSnapshotRepository),
+        typeof(SqlFindingsSnapshotRepository),
     ];
 
     private static readonly HashSet<Type> InMemoryOnlyServiceTypes =

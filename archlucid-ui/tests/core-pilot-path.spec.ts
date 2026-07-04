@@ -17,7 +17,7 @@ import {
   BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN,
   showcaseSignedManifestBrowserUrlPattern,
 } from "../e2e/helpers/buyer-golden-path";
-import { outcomeStripSignedRecordLink } from "../e2e/helpers/operator-journey";
+import { reviewOutcomeSummaryStrip, runDetailFinalizedPackageLink } from "../e2e/helpers/operator-journey";
 
 const SHOWCASE_RUN_URL_PATTERN = new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`);
 
@@ -54,8 +54,8 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
       page.getByRole("heading", { level: 1 }).filter({ hasText: BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN }),
     ).toBeVisible({ timeout: 60_000 });
 
-    const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
-    const manifestLink = outcomeStripSignedRecordLink(outcomeStrip);
+    const outcomeStrip = reviewOutcomeSummaryStrip(page);
+    const manifestLink = runDetailFinalizedPackageLink(page);
 
     await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
     await expect(manifestLink).toBeVisible({ timeout: 60_000 });

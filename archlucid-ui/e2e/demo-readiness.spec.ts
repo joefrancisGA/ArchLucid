@@ -12,7 +12,7 @@ import {
   isShowcaseSignedManifestBrowserPath,
   showcaseSignedManifestBrowserUrlPattern,
 } from "./helpers/buyer-golden-path";
-import { expectGraphPageReadySurface } from "./helpers/operator-journey";
+import { expectGraphPageReadySurface, runsDashboardBuyerProofSummary } from "./helpers/operator-journey";
 
 const claimsShowcasePath = "/showcase/claims-intake-modernization";
 
@@ -136,7 +136,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   }) => {
     await page.goto("/");
     /** Mock E2E uses buyer-polished demo: home surfaces the featured package proof summary, not a review-title heading. */
-    await expect(page.getByTestId("runs-dashboard-buyer-proof-summary")).toBeVisible();
+    await expect(runsDashboardBuyerProofSummary(page)).toBeVisible();
 
     await page.goto("/reviews/new");
     await expect(page).toHaveURL(/\/reviews\/new/);
