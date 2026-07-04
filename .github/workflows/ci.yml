@@ -1769,16 +1769,42 @@ jobs:
     needs:
       - dotnet-fast-core-build
       - dotnet-fast-core-test
-    if: always() && needs.dotnet-fast-core-build.result == 'success'
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Assert all fast core shards passed
+      - name: Fail with explicit shard list
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [ "${{ needs.dotnet-fast-core-test.result }}" != "success" ]; then
-            echo "::error::Fast core test shard(s) failed or were cancelled."
+          set -euo pipefail
+          failed=()
+
+          build_result="${{ needs.dotnet-fast-core-build.result }}"
+          if [ "$build_result" != "success" ]; then
+            failed+=("dotnet-fast-core-build:${build_result}")
+          else
+            test_result="${{ needs.dotnet-fast-core-test.result }}"
+            if [ "$test_result" != "success" ]; then
+              while IFS= read -r line; do
+                if [ -n "$line" ]; then
+                  failed+=("$line")
+                fi
+              done < <(gh run view "${{ github.run_id }}" --repo "${{ github.repository }}" --json jobs \
+                --jq '.jobs[] | select(.name | test("fast core — test")) | select(.conclusion != null and .conclusion != "success" and .conclusion != "skipped") | "\(.name):\(.conclusion)"' \
+                2>/dev/null || true)
+
+              if [ ${#failed[@]} -eq 0 ]; then
+                failed+=("dotnet-fast-core-test (aggregate):${test_result}")
+              fi
+            fi
+          fi
+
+          if [ ${#failed[@]} -gt 0 ]; then
+            echo "::error::Fast core corset failures: ${failed[*]}"
             exit 1
           fi
+
           echo "Fast core corset completed (build + all shards)."
 
 
