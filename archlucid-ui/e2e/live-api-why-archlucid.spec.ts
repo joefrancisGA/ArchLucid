@@ -17,6 +17,7 @@ import {
   createRun,
   executeRun,
   liveApiBase,
+  liveE2eArchitectureDescription,
   liveJsonHeaders,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -56,7 +57,7 @@ test.describe("live-api-why-archlucid", () => {
     // surfaces (`archlucid_runs_created_total`, `archlucid_findings_produced_total`) are non-zero.
     const createBody = {
       requestId: `E2E-WHY-ARCHLUCID-${Date.now()}`,
-      description: "Live E2E: drive counters for /why-archlucid proof page.",
+      description: liveE2eArchitectureDescription("Live E2E: drive counters for /why-archlucid proof page."),
       systemName: "WhyArchLucidProof",
       environment: "prod",
       cloudProvider: 1,

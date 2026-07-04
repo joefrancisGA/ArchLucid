@@ -10,6 +10,7 @@ import {
   createRun,
   executeRun,
   liveApiBase,
+  liveE2eArchitectureDescription,
   postGovernanceApproveRaw,
   postGovernanceRejectRaw,
   rejectGovernanceRequest,
@@ -49,8 +50,9 @@ test.describe("live-api-governance-rejection", () => {
 
     const createBody = {
       requestId: `E2E-LIVE-REJECT-${Date.now()}`,
-      description:
+      description: liveE2eArchitectureDescription(
         "Live E2E governance rejection path: committed run with approval request rejected by a different actor.",
+      ),
       systemName: "RejectTest",
       environment: "prod",
       cloudProvider: 1,

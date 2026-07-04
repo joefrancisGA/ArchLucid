@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
@@ -86,6 +87,21 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private const int CommitRunTransientMaxAttempts = 12;
     private const int CommitRunTransientBackoffMillisecondsPerAttempt = 150;
     private const int CommitRunManifestReconcilePollAttempts = 8;
+
+    /// <summary>
+    ///     Hard wall-clock ceiling on cumulative time spent retrying either transient SQL errors or unresolved
+    ///     unique-key races inside a single <see cref="CommitRunAsync(string,CommitRunRequest?,CancellationToken)"/>
+    ///     call. Each of the <see cref="CommitRunTransientMaxAttempts"/> attempts re-runs the full commit pipeline
+    ///     (evidence/graph/findings reload, decision engine, governance gate, SQL finalize transaction), so bounding
+    ///     by attempt count alone is not enough: <see cref="SqlTransientDetector"/> treats a plain SQL command
+    ///     timeout (error -2) as retriable, and a contended/wedged resource lets each attempt burn up to the
+    ///     ADO.NET default 30s command timeout; a concurrent-commit race can likewise cost several seconds of full
+    ///     pipeline work per attempt. Either failure mode can compound into minutes of silent server-side hang
+    ///     before the caller ever sees a response. Bounding the retry budget guarantees commit always returns ΓÇö
+    ///     success, or a fast 409 that the existing client-side retry loop (`commitRun` in `live-api-client.ts`)
+    ///     already handles ΓÇö well inside the smallest live E2E test timeout.
+    /// </summary>
+    private static readonly TimeSpan CommitRunTransientRetryBudget = TimeSpan.FromSeconds(20);
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
@@ -176,6 +192,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         string actor = _actorContext.GetActor();
+        Stopwatch commitRetryStopwatch = Stopwatch.StartNew();
         for (int attempt = 1; attempt <= CommitRunTransientMaxAttempts; attempt++)
             try
             {
@@ -213,14 +230,25 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                         "CommitRunAsync (authority) unique-key violation without reconcilable manifest (attempt {Attempt}/{Max}) for RunId={RunId}.", attempt,
                         CommitRunTransientMaxAttempts, LogSanitizer.Sanitize(runId));
 
-                if (attempt >= CommitRunTransientMaxAttempts)
+                if (IsCommitRetryBudgetExhausted(attempt, commitRetryStopwatch))
                     throw new ConflictException(
                         $"Commit for run '{runId}' raced with another commit. The manifest could not be loaded yet; retry the request.");
 
                 await Task.Delay(TimeSpan.FromMilliseconds(CommitRunTransientBackoffMillisecondsPerAttempt * attempt), cancellationToken);
             }
-            catch (Exception ex) when (SqlTransientDetector.IsTransient(ex) && attempt < CommitRunTransientMaxAttempts)
+            catch (Exception ex) when (SqlTransientDetector.IsTransient(ex))
             {
+                if (IsCommitRetryBudgetExhausted(attempt, commitRetryStopwatch))
+                {
+                    if (_logger.IsEnabled(LogLevel.Warning))
+                        _logger.LogWarning(ex,
+                            "CommitRunAsync (authority) transient database error exhausted retry budget (attempt {Attempt}/{Max}, elapsed {ElapsedMs}ms) for RunId={RunId}; returning conflict for client retry.",
+                            attempt, CommitRunTransientMaxAttempts, commitRetryStopwatch.ElapsedMilliseconds, LogSanitizer.Sanitize(runId));
+
+                    throw new ConflictException(
+                        $"Commit for run '{runId}' hit a transient database condition that did not clear in time. Retry the request.");
+                }
+
                 if (_logger.IsEnabled(LogLevel.Warning))
                     _logger.LogWarning(ex, "CommitRunAsync (authority) transient database error (attempt {Attempt}/{Max}) for RunId={RunId}; retrying.",
                         attempt, CommitRunTransientMaxAttempts, LogSanitizer.Sanitize(runId));
@@ -229,6 +257,14 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         throw new InvalidOperationException("CommitRunAsync (authority) exhausted transient retries without returning.");
     }
+
+    /// <summary>
+    ///     True once either the attempt count or the shared <see cref="CommitRunTransientRetryBudget"/> wall-clock
+    ///     ceiling is exhausted, for either the unique-key-violation or transient-SQL retry paths in
+    ///     <see cref="CommitRunAsync(string,CommitRunRequest?,CancellationToken)"/>.
+    /// </summary>
+    private static bool IsCommitRetryBudgetExhausted(int attempt, Stopwatch commitRetryStopwatch) =>
+        attempt >= CommitRunTransientMaxAttempts || commitRetryStopwatch.Elapsed >= CommitRunTransientRetryBudget;
 
     private async Task<CommitRunResult?> TryReconcileAfterConcurrentCommitAsync(string runId, CancellationToken cancellationToken)
     {

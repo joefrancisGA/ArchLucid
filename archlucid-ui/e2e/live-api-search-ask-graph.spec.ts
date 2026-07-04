@@ -12,6 +12,7 @@ import {
   getRunDetailsWithTransientRetries,
   listArchitectureRuns,
   liveApiBase,
+  liveE2eArchitectureDescription,
   postAskRaw,
   toRunGuidPathSegment,
   waitForReadyForCommit,
@@ -36,7 +37,7 @@ test.describe("live-api-search-ask-graph", () => {
     const systemName = `E2ELiveSearchGraph-${Date.now()}`;
     const createBody = {
       requestId: `E2E-SEARCH-${Date.now()}`,
-      description: "Live E2E search / ask / graph path.",
+      description: liveE2eArchitectureDescription("Live E2E search / ask / graph path."),
       systemName,
       environment: "prod",
       cloudProvider: 1,

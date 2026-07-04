@@ -19,7 +19,7 @@ const TAB_LABEL: Record<AdvisoryHubTabId, string> = {
 };
 
 const SCHEDULES_TAB_READER_TITLE =
-  "View schedules and executions; creating schedules and run-now require operator (Execute) access on the API.";
+  "View schedules and executions; creating schedules and running scans now requires Execute-level access.";
 
 export type AdvisoryHubClientProps = {
   readonly initialTab: AdvisoryHubTabId;
@@ -94,7 +94,8 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps) {
                   selected
                     ? "border-neutral-200 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
                     : "border-transparent bg-transparent text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900",
-                  softMuted && !selected && "opacity-70",
+                  /* text-neutral-800 keeps the muted-but-inactive tab at >=4.5:1 on bg-neutral-50 once opacity-70 blends it lighter (text-neutral-600 alone drops below AA under the same blend). */
+                  softMuted && !selected && "text-neutral-800 opacity-70",
                 )}
               >
                 {TAB_LABEL[id]}

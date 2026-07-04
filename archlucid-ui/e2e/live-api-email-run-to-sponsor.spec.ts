@@ -17,6 +17,7 @@ import {
   createRun,
   executeRun,
   liveApiBase,
+  liveE2eArchitectureDescription,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
@@ -40,7 +41,9 @@ test.describe("live-api-email-run-to-sponsor", () => {
 
     const createBody = {
       requestId: `E2E-EMAIL-SPONSOR-${Date.now()}`,
-      description: "Live E2E: drive a committed run so the sponsor PDF CTA renders on /runs/[runId].",
+      description: liveE2eArchitectureDescription(
+        "Live E2E: drive a committed run so the sponsor PDF CTA renders on /runs/[runId].",
+      ),
       systemName: "EmailSponsorPdf",
       environment: "prod",
       cloudProvider: 1,

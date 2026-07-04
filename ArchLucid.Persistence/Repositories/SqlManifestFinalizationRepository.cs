@@ -16,6 +16,15 @@ namespace ArchLucid.Persistence.Repositories;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlManifestFinalizationRepository : IManifestFinalizationSqlRepository
 {
+    /// <summary>
+    ///     Bounded command timeout (well under the ADO.NET 30s default) for the two SQL calls made while this
+    ///     transaction holds the <c>dbo.Runs</c> row lock (<see cref="LockRunForFinalizationAsync"/> and
+    ///     <see cref="ExecuteFinalizeProcedureAsync"/>). A contended/wedged lock now fails fast so
+    ///     <c>AuthorityDrivenArchitectureRunCommitOrchestrator</c>'s bounded transient-retry budget is reached
+    ///     quickly rather than each of its attempts silently burning the full default timeout.
+    /// </summary>
+    private const int FinalizationCommandTimeoutSeconds = 10;
+
     /// <inheritdoc />
     public async Task<ManifestFinalizationLockedRunRow?> LockRunForFinalizationAsync(
         ScopeContext scope,
@@ -54,6 +63,7 @@ public sealed class SqlManifestFinalizationRepository : IManifestFinalizationSql
                     ScopeProjectId = scope.ProjectId
                 },
                 transaction,
+                commandTimeout: FinalizationCommandTimeoutSeconds,
                 cancellationToken: cancellationToken));
     }
 
@@ -98,6 +108,7 @@ public sealed class SqlManifestFinalizationRepository : IManifestFinalizationSql
                     "dbo.sp_FinalizeManifest",
                     sp,
                     transaction,
+                    commandTimeout: FinalizationCommandTimeoutSeconds,
                     commandType: CommandType.StoredProcedure,
                     cancellationToken: cancellationToken));
         }

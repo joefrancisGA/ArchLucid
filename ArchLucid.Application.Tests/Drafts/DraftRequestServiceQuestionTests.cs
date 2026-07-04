@@ -125,6 +125,30 @@ public sealed class DraftRequestServiceQuestionTests
     }
 
     [Fact]
+    public async Task SubmitAsync_SpawnsRun_AfterMustQuestionsSkipped()
+    {
+        DraftRequestResponse created = await CreateAdmissibleDraftAsync();
+
+        DraftAdmissionResponse? admission = await _service.RequestAdmissionAsync(
+            _scope,
+            created.DraftId,
+            CancellationToken.None);
+
+        foreach (string mustKey in admission!.RequiredMustQuestionKeys)
+        {
+            await _service.SkipQuestionAsync(
+                _scope,
+                created.DraftId,
+                new SkipDraftQuestionRequest { QuestionKey = mustKey },
+                CancellationToken.None);
+        }
+
+        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, created.DraftId, CancellationToken.None);
+
+        submit!.Status.Should().Be(DraftRequestStatus.RunSpawned);
+    }
+
+    [Fact]
     public async Task SkipQuestionAsync_RecordsMustSkipOnTransparencyTrail()
     {
         DraftRequestResponse created = await CreateAdmissibleDraftAsync();
