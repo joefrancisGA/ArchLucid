@@ -40,6 +40,32 @@ class TestAssertV1ConnectorCatalogAlignment(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
 
+    def test_scope_commits_detection_positive_v1_ga(self):
+        scope_snippet = (
+            "**ServiceNow** — … **Two-way status sync** (ServiceNow → ArchLucid finding state) "
+            "**ships in V1 GA** …"
+        )
+        jira_snippet = (
+            "**Jira** — … **bi-directional status sync** (Jira → ArchLucid finding state) "
+            "**ships in V1 GA** …"
+        )
+
+        snow, jira = G.scope_commits_inbound_itsm_sync(scope_snippet + jira_snippet)
+
+        self.assertTrue(snow)
+        self.assertTrue(jira)
+
+    def test_catalog_row_patterns_detect_v1_ga_catalog_fragment(self):
+        catalog_frag = (
+            "| **ServiceNow** | … **Two-way** ServiceNow → ArchLucid **status-only** sync ships today (…) |\n"
+            "| **Jira** | … **bi-directional** Jira → ArchLucid status sync ships today (…) |"
+        )
+
+        snow_c, jira_c = G.catalog_committed_row_patterns_present(catalog_frag)
+
+        self.assertTrue(snow_c)
+        self.assertTrue(jira_c)
+
     def test_scope_commits_detection_positive(self):
         scope_snippet = (
             "**ServiceNow** — … **Two-way status sync** (ServiceNow → ArchLucid finding state) "
