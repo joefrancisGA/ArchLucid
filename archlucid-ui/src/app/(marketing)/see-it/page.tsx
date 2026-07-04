@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
+import { Button } from "@/components/ui/button";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import {
   MARKETING_SEE_IT_OG_DESCRIPTION,
@@ -62,13 +63,9 @@ export default async function SeeItMarketingPage() {
           on the executive summary and review package pages.
         </p>
         <div className="mt-4">
-          <Link
-            href="/demo/preview"
-            className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-            data-testid="see-it-cta-demo-preview"
-          >
-            Open full demo preview
-          </Link>
+          <Button asChild variant="primary" data-testid="see-it-cta-demo-preview">
+            <Link href="/demo/preview">Open full demo preview</Link>
+          </Button>
         </div>
       </div>
 

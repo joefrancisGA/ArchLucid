@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
@@ -40,8 +40,7 @@ function formatDate(iso: string): string {
 }
 
 /**
- * Builds the Preview link URL: run-scoped (/runs/{runId}/artifacts/...) when runId is provided
- * (redirects to manifest canonical), otherwise manifest-scoped (/manifests/{manifestId}/artifacts/...).
+ * Builds the Preview link URL: run-scoped when runId is provided, otherwise manifest-scoped.
  */
 function reviewHrefForArtifact(
   manifestId: string,
@@ -145,7 +144,9 @@ export function ArtifactListTable(props: {
             {formatDate(artifact.createdUtc)}
           </td>
           <td className="px-2 py-2.5">
-            <Link href={reviewHref}>{openActionLabel}</Link>
+            <Link href={reviewHref} className={OPERATOR_LINK.nav}>
+              {openActionLabel}
+            </Link>
             <span className="mx-2 text-neutral-300 dark:text-neutral-600">|</span>
             <ExportTrackedAnchor href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>
               {downloadActionLabel}

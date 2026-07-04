@@ -23,7 +23,7 @@ export function extractorUploadConstraints(maxZipBytes: number = ARCH_LUCID_AZUR
     },
     {
       label: "What gets extracted",
-      detail: "Azure resource inventory, tags, and architecture context used as evidence for your review package.",
+      detail: "Azure resource inventory, tags, and architecture context — linked through the evidence trail to findings in your review package.",
     },
   ];
 }

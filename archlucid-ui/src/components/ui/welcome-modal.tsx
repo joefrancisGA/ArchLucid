@@ -41,7 +41,7 @@ type StepDef = {
 export const OPERATOR_FIRST_RUN_WELCOME = {
   title: "Welcome to ArchLucid",
   description:
-    "Use the operator workspace to start architecture reviews, inspect evidence, track findings, and commit review packages.",
+    "Start architecture reviews, inspect evidence, track findings, and finalize review packages from this workspace.",
 } as const;
 
 const OPERATOR_WELCOME_STEPS: ReadonlyArray<StepDef> = [
@@ -58,7 +58,7 @@ const OPERATOR_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Review AI findings",
     description:
-      "When the pipeline completes, open the architecture review to read findings, evidence, and narrative. Finalize when you are ready to lock the signed review record and sponsor exports.",
+      "When the review completes, open it to read findings, evidence, and narrative. Finalize when you are ready to lock the signed review record and sponsor exports.",
     Icon: CheckCircle2,
   },
 ];
@@ -203,8 +203,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
               </Button>
               <Button
                 type="button"
-                variant="default"
-                className="bg-teal-600 hover:bg-teal-700"
+                variant="primary"
                 onClick={() => {
                   onStartTour();
                 }}
@@ -218,7 +217,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
                 <Button type="button" variant="outline" onClick={onDismiss}>
                   Skip tour
                 </Button>
-                <Button type="button" variant="default" className="bg-teal-600 hover:bg-teal-700" onClick={goNext}>
+                <Button type="button" variant="primary" onClick={goNext}>
                   Next
                 </Button>
               </div>
@@ -234,8 +233,8 @@ export function WelcomeModal(props: WelcomeModalProps) {
               <div className="flex w-full flex-col gap-2">
                 <Button
                   type="button"
-                  variant="default"
-                  className="w-full bg-teal-600 hover:bg-teal-700"
+                  variant="primary"
+                  className="w-full"
                   onClick={handleGetStartedInApp}
                 >
                   {buyerShell ? "Open sample executive summary" : "Get started — new review"}

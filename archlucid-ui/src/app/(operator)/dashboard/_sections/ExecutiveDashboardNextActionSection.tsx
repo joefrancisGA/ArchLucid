@@ -80,7 +80,7 @@ export function ExecutiveDashboardNextActionSection(
           href={action.href}
           className={cn("inline-flex", OPERATOR_LINK.inline)}
         >
-          Open in operator view
+          {action.headline}
         </Link>
       </CardContent>
     </Card>

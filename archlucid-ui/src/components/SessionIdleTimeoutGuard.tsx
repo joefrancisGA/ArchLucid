@@ -23,7 +23,9 @@ export function SessionIdleTimeoutGuard() {
 
         const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
 
-        router.push(`/auth/signin?reason=idle-timeout&returnUrl=${returnUrl}`);
+        // Cleaner user-facing route than "/auth/signin?reason=idle-timeout&…"; reason defaults
+        // to idle-timeout there. `/auth/signin?reason=idle-timeout` keeps working for old links.
+        router.push(`/auth/session-expired?returnUrl=${returnUrl}`);
         router.refresh();
       }, IDLE_MS);
     };

@@ -1,9 +1,9 @@
 import {
-  GitBranch,
   GitCompare,
   GitGraph,
   Lightbulb,
   MessageSquare,
+  RefreshCw,
   Search,
 } from "lucide-react";
 
@@ -60,7 +60,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
           href: "/evolution-review",
           label: OPERATOR_NAV_LINK_LABELS.evolutionCandidates,
           title: "Impact preview — preview expected impact of proposed architecture changes on governance posture",
-          icon: GitBranch,
+          icon: RefreshCw,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",
         },

@@ -12,6 +12,9 @@ export function ExtractUploadConstraintsPanel() {
       data-testid="extract-upload-constraints"
     >
       <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>Before you upload</h3>
+      <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+        Package ZIP uploads turn Azure inventory into evidence for your review — findings and signed deliverables trace back to this trail.
+      </p>
       <dl className="m-0 mt-3 grid gap-3 sm:grid-cols-2">
         {constraints.map((row) => (
           <div key={row.label}>

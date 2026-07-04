@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
-import { Badge } from "@/components/ui/badge";
+import { StatusTag } from "@/components/ui/status-tag";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
@@ -24,7 +24,7 @@ function stageDone(flag: boolean | undefined): boolean {
 }
 
 /**
- * Step 7: poll review summary and visualize pipeline stages.
+ * Step 7: poll review summary and visualize review-package stages.
  */
 export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
   const ctx = stageDone(pollSummary?.hasContextSnapshot);
@@ -37,8 +37,8 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
 
   return (
     <WizardStepPanel
-      title="Track pipeline"
-      description="Snapshot stages execute asynchronously. This view uses a live stream when available, with HTTP polling as a fallback."
+      title="Track review progress"
+      description="Review stages run asynchronously. This view streams live updates when available, with HTTP polling as a fallback."
     >
       <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         <strong>Review ID:</strong>{" "}
@@ -47,7 +47,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
 
       <div className="mt-4 space-y-2">
         <div className={cn("flex justify-between text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-          <span>Pipeline progress</span>
+          <span>Review progress</span>
           <span>{completedStages} / 4 stages</span>
         </div>
         <Progress value={progressValue} className="h-2" />
@@ -60,25 +60,25 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             <GlossaryTooltip termKey="context_snapshot">Source context captured</GlossaryTooltip>
           </span>
-          <Badge variant={ctx ? "default" : "secondary"}>{ctx ? "Complete" : "Pending"}</Badge>
+          <StatusTag kind={ctx ? "ready" : "in-progress"} label={ctx ? "Complete" : "Pending"} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             <GlossaryTooltip termKey="knowledge_graph">Evidence graph ready</GlossaryTooltip>
           </span>
-          <Badge variant={graph ? "default" : "secondary"}>{graph ? "Complete" : "Pending"}</Badge>
+          <StatusTag kind={graph ? "ready" : "in-progress"} label={graph ? "Complete" : "Pending"} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             <GlossaryTooltip termKey="findings">Findings complete</GlossaryTooltip>
           </span>
-          <Badge variant={findings ? "default" : "secondary"}>{findings ? "Complete" : "Pending"}</Badge>
+          <StatusTag kind={findings ? "ready" : "in-progress"} label={findings ? "Complete" : "Pending"} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             <GlossaryTooltip termKey="golden_manifest">{SIGNED_MANIFEST_LABEL} ready</GlossaryTooltip>
           </span>
-          <Badge variant={manifest ? "default" : "secondary"}>{manifest ? "Complete" : "Pending"}</Badge>
+          <StatusTag kind={manifest ? "ready" : "in-progress"} label={manifest ? "Complete" : "Pending"} />
         </li>
       </ul>
 

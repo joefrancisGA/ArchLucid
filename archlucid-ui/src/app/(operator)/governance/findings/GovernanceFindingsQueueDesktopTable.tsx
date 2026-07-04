@@ -10,6 +10,7 @@ import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -30,6 +31,7 @@ import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTrace
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evidence-citations";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
+import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import { groupGovernanceFindingQueueRows } from "@/lib/group-governance-finding-queue-rows";
 import { governanceQueueDispositionLabel } from "@/lib/architecture-risk-register-page";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
@@ -255,7 +257,7 @@ function GovernanceFindingsQueueOperationalRowCells(props: {
         {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.lastReviewedUtc) : "—"}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
-        <div>{row.status}</div>
+        <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
         {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
           <div className={cn("mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
             {row.humanReviewStatusLabel}
@@ -288,7 +290,7 @@ function GovernanceFindingsQueueOperationalActions(props: {
 
   return (
     <div className="flex flex-col gap-2">
-      <Button asChild variant="outline" size="sm" className="h-8">
+      <Button asChild variant="primary" size="sm" className="h-8">
         <Link href={inspectHref(row.runId, row.findingId)}>View risk</Link>
       </Button>
       <Button asChild variant="outline" size="sm" className="h-8">
@@ -296,9 +298,6 @@ function GovernanceFindingsQueueOperationalActions(props: {
       </Button>
       {row.recordKind === "finding" ? (
         <>
-          <Button asChild variant="outline" size="sm" className="h-8">
-            <Link href={inspectHref(row.runId, row.findingId)}>Add/update owner</Link>
-          </Button>
           <Button asChild variant="outline" size="sm" className="h-8">
             <Link href={riskExceptionActionHref(row)}>{riskExceptionActionLabel(row)}</Link>
           </Button>
@@ -406,7 +405,7 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
                   </Link>
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>
-                  <div>{row.status}</div>
+                  <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
                   {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
                     <div className={cn("mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                       {row.humanReviewStatusLabel}
@@ -438,7 +437,7 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
             <EnterpriseTableCell>
               {buyerPolishedShell ? (
                 <div className="flex flex-col gap-2">
-                  <Button asChild variant="outline" size="sm" className="h-8">
+                  <Button asChild variant="primary" size="sm" className="h-8">
                     <Link href={inspectHref(row.runId, row.findingId)}>
                       {row.recordKind === "decision"
                         ? "View decision"

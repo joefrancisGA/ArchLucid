@@ -18,6 +18,7 @@ import {
 import { decodeJwtPayload, pickDisplayNameFromPayload } from "@/lib/oidc/jwt-payload";
 import { refreshAccessToken } from "@/lib/oidc/token-client";
 import type { OidcTokenResponse } from "@/lib/oidc/token-client";
+import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 
 const EXPIRY_SKEW_MS = 60_000;
 
@@ -102,24 +103,25 @@ export function consumePkceState(): { state: string; codeVerifier: string; nonce
 
 /**
  * Persists a post-sign-in return URL so the callback can restore the user's position
- * after a session-expiry sign-in. Only relative paths are accepted.
+ * after a session-expiry sign-in. Rejects anything that is not a safe same-origin
+ * relative path (open-redirect protection) — unsafe values are silently dropped.
  */
 export function storePostSignInReturnUrl(url: string): void {
-  if (url.startsWith("/")) {
+  if (isSafeReturnPath(url)) {
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, url);
   }
 }
 
 /**
  * Reads and clears the stored post-sign-in return URL (single-use).
- * Returns null when absent or never written.
+ * Returns null when absent, never written, or (defense in depth) no longer a safe path.
  */
 export function consumePostSignInReturnUrl(): string | null {
   const url = readSessionKey(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
 
   sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
 
-  return url;
+  return isSafeReturnPath(url) ? url : null;
 }
 
 function getExpiresAtMs(): number {

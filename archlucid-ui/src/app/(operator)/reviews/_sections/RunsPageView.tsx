@@ -82,7 +82,7 @@ export function RunsPageView(props: Props) {
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {!isBuyerSafeDemoMarketingChromeEnv() ? (
           <div className="inline-flex items-center gap-1.5">
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="primary" size="sm" asChild>
               <Link href="/reviews/new" className="no-underline">
                 Start architecture review
               </Link>

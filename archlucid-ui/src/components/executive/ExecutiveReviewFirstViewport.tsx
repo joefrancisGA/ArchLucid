@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
+import { buildBuyerReviewPackageDispositionLine } from "@/lib/review-buyer-disposition-line";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -81,20 +82,32 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
   const structuredConfidence = summary.explanation?.structured?.confidence;
   const faithfulnessWarningTrimmed = (summary.faithfulnessWarning ?? "").trim();
 
-  const evidenceConfidenceLine = [
-    typeof structuredConfidence === "number" && Number.isFinite(structuredConfidence)
-      ? `Aggregate model confidence: ${formatAggregateModelConfidence(structuredConfidence)}.`
-      : null,
-    typeof summary.faithfulnessSupportRatio === "number" && Number.isFinite(summary.faithfulnessSupportRatio)
-      ? `Faithfulness support ratio: ${ratioPercentLabel(summary.faithfulnessSupportRatio, "—")}.`
-      : null,
-    faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
-    isDeterministicExplanationFallback(summary)
-      ? "Some narrative was deterministically aligned to the review package when live synthesis was unavailable."
-      : null,
-  ]
-    .filter((s): s is string => s !== null && s.length > 0)
-    .join(" ");
+  const evidenceConfidenceLine = buyerPolishedShell
+    ? [
+        typeof structuredConfidence === "number" && Number.isFinite(structuredConfidence)
+          ? `Synthesis confidence: ${formatAggregateModelConfidence(structuredConfidence)}.`
+          : null,
+        faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
+        isDeterministicExplanationFallback(summary)
+          ? "Some narrative was aligned to the signed review record when live synthesis was unavailable."
+          : null,
+      ]
+        .filter((s): s is string => s !== null && s.length > 0)
+        .join(" ")
+    : [
+        typeof structuredConfidence === "number" && Number.isFinite(structuredConfidence)
+          ? `Aggregate model confidence: ${formatAggregateModelConfidence(structuredConfidence)}.`
+          : null,
+        typeof summary.faithfulnessSupportRatio === "number" && Number.isFinite(summary.faithfulnessSupportRatio)
+          ? `Faithfulness support ratio: ${ratioPercentLabel(summary.faithfulnessSupportRatio, "—")}.`
+          : null,
+        faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
+        isDeterministicExplanationFallback(summary)
+          ? "Some narrative was deterministically aligned to the review package when live synthesis was unavailable."
+          : null,
+      ]
+        .filter((s): s is string => s !== null && s.length > 0)
+        .join(" ");
 
   const remainingRiskParts = [
     `Residual risk posture: ${summary.riskPosture}.`,
@@ -116,6 +129,15 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
       : null,
   ].filter((s): s is string => s !== null && s.length > 0);
 
+  const finalDecisionCaption = buildBuyerReviewPackageDispositionLine({
+    hasGoldenManifest: true,
+    findingCountDisplay: summary.findingCount,
+    warningCountDisplay: null,
+    unresolvedIssueCountDisplay: summary.unresolvedIssueCount,
+    governanceGateLabel: null,
+    aggregateRiskPosture: summary.riskPosture,
+  });
+
   return (
     <div className="space-y-3">
       <div className="grid gap-3 lg:grid-cols-2">
@@ -123,7 +145,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
           <CardHeader className="pb-2">
             <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Final decision</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
-              Approved with monitoring — one residual PHI risk under active oversight; no blocking findings.
+              {finalDecisionCaption}
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
@@ -167,7 +189,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
           <CardHeader className="pb-2">
             <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Evidence confidence</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
-              How strongly the synthesized narrative aligns to persisted artifacts and deterministic checks.
+              How strongly the narrative aligns to evidence in the signed review record.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">

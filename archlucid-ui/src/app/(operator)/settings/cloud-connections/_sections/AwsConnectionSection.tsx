@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   AwsTier2ConnectionResponse,
   configureAwsTier2Connection,
@@ -14,6 +15,7 @@ import {
   listAwsTier2Connections,
   triggerAwsTier2HostedRun,
 } from "@/lib/api/aws-cloud-connections-api";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function formatTimestamp(value: string | null): string {
@@ -30,16 +32,17 @@ function formatTimestamp(value: string | null): string {
   return new Date(parsed).toLocaleString();
 }
 
-function statusBadgeClass(status: string): string {
+/** Maps a raw AWS connection status to the canonical enterprise status vocabulary. */
+function statusTagKind(status: string): EnterpriseStatusKind {
   switch (status.toLowerCase()) {
     case "connected":
-      return "bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100";
+      return "ready";
     case "polling":
-      return "bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-100";
+      return "in-progress";
     case "error":
-      return "bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-100";
+      return "blocked";
     default:
-      return "bg-neutral-100 text-neutral-800 dark:bg-neutral-900 dark:text-neutral-100";
+      return "neutral";
   }
 }
 
@@ -243,14 +246,7 @@ export function AwsConnectionSection() {
                   <p className={cn(OPERATOR_TYPOGRAPHY.body, "font-semibold")}>
                     Account {connection.accountId}
                   </p>
-                  <span
-                    className={cn(
-                      "rounded-full px-2 py-0.5 text-xs font-medium",
-                      statusBadgeClass(connection.status),
-                    )}
-                  >
-                    {connection.status}
-                  </span>
+                  <StatusTag kind={statusTagKind(connection.status)} label={connection.status} />
                 </div>
                 <dl className={cn("grid grid-cols-2 gap-2", OPERATOR_TYPOGRAPHY.body)}>
                   <dt className="text-muted-foreground">Region</dt>

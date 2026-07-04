@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
+import { Button } from "@/components/ui/button";
 import { resolveMarketingLiveDemoApiBase } from "@/lib/marketing-live-demo-api-base";
 
 type QuickStartFindingSummary = Readonly<{ title: string; severity: string }>;
@@ -362,22 +363,16 @@ export function QuickStartClient(): ReactElement {
         </div>
       </div>
 
-      <button
+      <Button
         type="button"
-
+        variant="primary"
         disabled={submitting || (!description.trim() && presetId === undefined)}
-
         onClick={() => {
-
-
           void onSubmit();
-
         }}
-        className="rounded-md bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-neutral-400 dark:bg-sky-500 dark:hover:bg-sky-600"
       >
-        {submitting ? "Running…" : "Run simulator quick-start"}
-
-      </button>
+        {submitting ? "Starting review…" : "Run simulator quick-start"}
+      </Button>
 
       {(submitting || result !== null) && (
         <div className="rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">

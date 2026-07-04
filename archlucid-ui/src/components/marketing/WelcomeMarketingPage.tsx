@@ -164,13 +164,13 @@ export function WelcomeMarketingPage(props: { readonly serverStaticSections?: Re
           </div>
 
           <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:gap-3" data-testid="welcome-hero-secondary-actions">
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="ghost" size="sm">
               <Link href="/see-it">See it in 30 seconds</Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="ghost" size="sm">
               <Link href="/signup">Start an evaluation</Link>
             </Button>
-            <Button asChild variant="secondary" size="lg">
+            <Button asChild variant="ghost" size="sm">
               <Link href="/auth/signin">Sign in</Link>
             </Button>
           </div>

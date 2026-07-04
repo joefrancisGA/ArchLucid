@@ -50,7 +50,7 @@ export function EnterpriseCompactEmptyState(props: EnterpriseCompactEmptyStatePr
                 key={action.href}
                 asChild
                 size="sm"
-                variant={isPrimary ? "default" : "outline"}
+                variant={isPrimary ? "primary" : "outline"}
                 className={isPrimary ? undefined : "border-neutral-300 dark:border-neutral-600"}
               >
                 <Link href={action.href}>{action.label}</Link>

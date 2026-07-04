@@ -82,8 +82,8 @@ export function OperatorUnauthorizedPageClient() {
           your token. Ask your tenant administrator to assign an app role in your identity provider, then sign in again.
         </p>
       )}
-      <Button asChild variant="outline">
-        <Link href="/auth/sign-in">Return to sign-in</Link>
+      <Button asChild variant="primary">
+        <Link href="/auth/signin">Return to sign-in</Link>
       </Button>
     </div>
   );

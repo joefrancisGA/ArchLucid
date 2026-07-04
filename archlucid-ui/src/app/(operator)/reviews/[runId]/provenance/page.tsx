@@ -7,6 +7,7 @@ import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ProvenanceGraphDiagram } from "@/components/ProvenanceGraphDiagram";
 import { ProvenanceNodeExplainCell } from "@/components/ProvenanceNodeExplainCell";
+import { ProvenanceReferenceLink } from "@/components/ProvenanceReferenceLink";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
@@ -164,7 +165,11 @@ export default async function RunProvenancePage({
                     <td className="border-b border-neutral-100 p-2 align-top dark:border-neutral-800">{row.kind}</td>
                     <td className="border-b border-neutral-100 p-2 align-top dark:border-neutral-800">{row.label}</td>
                     <td className="break-all border-b border-neutral-100 p-2 align-top dark:border-neutral-800">
-                      {row.referenceId ?? "—"}
+                      <ProvenanceReferenceLink
+                        runId={runId}
+                        referenceId={row.referenceId}
+                        nodes={graph.nodes}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -193,7 +198,7 @@ export default async function RunProvenancePage({
                     <td className="border-b border-neutral-100 p-2 align-top dark:border-neutral-800">{n.type}</td>
                     <td className="border-b border-neutral-100 p-2 align-top dark:border-neutral-800">{n.name}</td>
                     <td className="break-all border-b border-neutral-100 p-2 align-top dark:border-neutral-800">
-                      {n.referenceId}
+                      <ProvenanceReferenceLink runId={runId} referenceId={n.referenceId} nodes={graph.nodes} />
                     </td>
                     <td className="border-b border-neutral-100 p-2 align-top dark:border-neutral-800">
                       <ProvenanceNodeExplainCell runId={runId} nodeId={n.id} />

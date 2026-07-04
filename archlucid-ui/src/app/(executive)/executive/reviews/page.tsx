@@ -92,9 +92,14 @@ export default async function ExecutiveReviewsPage() {
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
               Finalized reviews appear here after an operator completes the review and locks the architecture package.
             </p>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/reviews/new">Start a review</Link>
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="primary" size="sm">
+                <Link href="/see-it">See a completed sample review</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/reviews/new">Start a review</Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : null}

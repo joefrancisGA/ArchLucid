@@ -107,7 +107,7 @@ export function ReviewsNewPathSwitcher() {
             type="button"
             role="tab"
             aria-selected={activePath === "quick-review"}
-            variant={activePath === "quick-review" ? "default" : "outline"}
+            variant={activePath === "quick-review" ? "primary" : "outline"}
             className="min-w-[10rem]"
             onClick={() => {
               selectPath("quick-review");
@@ -120,7 +120,7 @@ export function ReviewsNewPathSwitcher() {
             type="button"
             role="tab"
             aria-selected={activePath === "guided-intake"}
-            variant={activePath === "guided-intake" ? "default" : "outline"}
+            variant={activePath === "guided-intake" ? "primary" : "outline"}
             className="min-w-[10rem]"
             onClick={() => {
               selectPath("guided-intake");
@@ -133,7 +133,7 @@ export function ReviewsNewPathSwitcher() {
             type="button"
             role="tab"
             aria-selected={activePath === "detailed"}
-            variant={activePath === "detailed" ? "default" : "outline"}
+            variant={activePath === "detailed" ? "primary" : "outline"}
             className="min-w-[10rem]"
             onClick={() => {
               selectPath("detailed");

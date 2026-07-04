@@ -327,6 +327,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           {!submitting ? (
             <Button
               type="button"
+              variant="primary"
               disabled={!canStart}
               onClick={() => {
                 void submitRun();

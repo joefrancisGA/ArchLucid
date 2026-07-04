@@ -38,7 +38,7 @@ const STEPS: readonly Step[] = [
   {
     n: 3,
     title: "Start a sample review & read your first finding",
-    body: "ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the analysis pipeline — no upload required for the first pass. Within a few seconds you get a signed review record with structured findings. Open the review and read your first typed finding — what was flagged, why it was flagged, what evidence backs it — the smallest unit of value the product produces.",
+    body: "ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the review — no upload required for the first pass. Within a few seconds you get a signed review record with structured findings. Open the review and read your first typed finding — what was flagged, why it was flagged, what evidence backs it — the smallest unit of value the product produces.",
   },
   {
     n: 4,
@@ -130,19 +130,20 @@ export default function GetStartedPage(): ReactNode {
           Pick a vertical to start
         </h2>
         <p className={`mt-1 ${MARKETING_TYPOGRAPHY.meta}`}>
-          Defaults mirror the existing briefs in templates/briefs/.
+          Defaults mirror the existing briefs in templates/briefs/. Pick any vertical to open a sample review for that
+          domain — no sign-in required.
         </p>
         <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3" role="list">
           {BUYER_GET_STARTED_VERTICAL_SLUGS.map((slug) => (
             <li key={slug}>
-              <button
-                type="button"
+              <Link
+                href="/try"
                 data-testid={`get-started-vertical-${slug}`}
                 data-vertical-slug={slug}
-                className={`w-full ${MARKETING_SURFACES.card} text-left hover:border-[var(--al-accent-interactive)]`}
+                className={`block w-full ${MARKETING_SURFACES.card} text-left no-underline hover:border-[var(--al-accent-interactive)]`}
               >
                 {VERTICAL_DISPLAY_NAMES[slug]}
-              </button>
+              </Link>
             </li>
           ))}
         </ul>
@@ -175,7 +176,7 @@ export default function GetStartedPage(): ReactNode {
             walks through creating a request, finalizing a signed review record, and reviewing real artifacts.
           </li>
           <li>
-            For the operator path after the sample run, see{" "}
+            For the workspace path after the sample review, see{" "}
             <Link className={MARKETING_SURFACES.inlineLink} href="/pricing">
               pricing
             </Link>{" "}

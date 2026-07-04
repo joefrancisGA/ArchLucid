@@ -188,7 +188,11 @@ export default function DecisionRegisterClient() {
       {!loading && !loadError && decisions.length === 0 ? (
         <EmptyState
           title="No signed decisions yet"
-          description="Committed review packages with architecture decisions will appear here with confidence and supporting findings."
+          description="Finalize a review package to record architecture decisions here. Each entry links to the signed review record and supporting findings."
+          actions={[
+            { label: "Open review packages", href: "/reviews?projectId=default" },
+            { label: "Open governance workflow", href: "/governance" },
+          ]}
         />
       ) : null}
 

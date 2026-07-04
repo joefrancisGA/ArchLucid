@@ -6,8 +6,8 @@ type PageProps = {
 
 /**
  * Backward-compat shim: any hit to /login is forwarded to /auth/signin with query params preserved.
- * The SessionIdleTimeoutGuard now redirects directly to /auth/signin, but external links or
- * bookmarks may still reference /login.
+ * SessionIdleTimeoutGuard now redirects to /auth/session-expired directly, but external links or
+ * bookmarks may still reference /login (or /auth/signin?reason=idle-timeout, still supported there).
  */
 export default async function LoginPage({ searchParams }: PageProps) {
   const params = await searchParams;

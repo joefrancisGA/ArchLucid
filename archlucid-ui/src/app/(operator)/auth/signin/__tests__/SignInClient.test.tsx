@@ -103,7 +103,7 @@ describe("SignInClient — idle-timeout session-expired view", () => {
 
     render(<SignInClient />);
 
-    expect(screen.getByText(/signed out after a period of inactivity/i)).toBeInTheDocument();
+    expect(screen.getByText(/signed you out after a period of inactivity/i)).toBeInTheDocument();
   });
 
   it("does NOT render artifact 404 copy for reason=idle-timeout", () => {
@@ -150,6 +150,72 @@ describe("SignInClient — idle-timeout session-expired view", () => {
         "https://login.example.com/authorize?foo=bar",
       );
     });
+  });
+
+  it("renders the Sign in button using the primary variant, not a plain dark button", () => {
+    setSearchParams({ reason: "idle-timeout" });
+
+    render(<SignInClient />);
+
+    const button = screen.getByTestId("session-expired-sign-in");
+
+    expect(button.className).toContain("var(--al-primary-action-bg)");
+    expect(button.className).not.toContain("bg-neutral-900");
+  });
+
+  it("still works for the legacy /auth/signin?reason=idle-timeout&returnUrl=%2F flow", () => {
+    setSearchParams({ reason: "idle-timeout", returnUrl: "/" });
+
+    render(<SignInClient />);
+
+    expect(screen.getByTestId("session-expired-heading")).toHaveTextContent("Your session expired");
+    expect(screen.getByTestId("session-expired-sign-in")).toBeInTheDocument();
+    expect(window.location.assign).not.toHaveBeenCalled();
+  });
+});
+
+describe("SignInClient — other recognized session-message reasons", () => {
+  beforeEach(() => {
+    vi.stubGlobal("location", {
+      assign: vi.fn(),
+      replace: vi.fn(),
+      href: "http://localhost/auth/signin",
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.clearAllMocks();
+    clearSearchParams();
+  });
+
+  it("renders session-expired copy without auto-redirecting", () => {
+    setSearchParams({ reason: "session-expired" });
+
+    render(<SignInClient />);
+
+    expect(screen.getByText(/your session is no longer active/i)).toBeInTheDocument();
+    expect(window.location.assign).not.toHaveBeenCalled();
+  });
+
+  it("renders unauthorized copy without auto-redirecting", () => {
+    setSearchParams({ reason: "unauthorized" });
+
+    render(<SignInClient />);
+
+    expect(screen.getByText(/you need to sign in to access that page/i)).toBeInTheDocument();
+    expect(window.location.assign).not.toHaveBeenCalled();
+  });
+
+  it("falls back to safe generic copy and does not echo an unrecognized reason value", () => {
+    setSearchParams({ reason: "<script>alert(1)</script>" });
+
+    render(<SignInClient />);
+
+    expect(screen.getByTestId("session-expired-heading")).toHaveTextContent("Your session expired");
+    expect(screen.getByText("Sign in again to continue.")).toBeInTheDocument();
+    expect(screen.queryByText(/script/i)).toBeNull();
+    expect(window.location.assign).not.toHaveBeenCalled();
   });
 });
 
