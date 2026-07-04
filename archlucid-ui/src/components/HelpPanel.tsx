@@ -1,15 +1,15 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
@@ -58,8 +58,38 @@ function allShortcutRowsForSearch(): { key: string; description: string }[] {
   return rows;
 }
 
+type HelpGuideTopicLinkRowProps = {
+  readonly topic: HelpTopic;
+  readonly href: string;
+  readonly onNavigate: () => void;
+};
+
+function HelpGuideTopicLinkRow({ topic, href, onNavigate }: HelpGuideTopicLinkRowProps): React.JSX.Element {
+  return (
+    <li className="list-none">
+      <Link
+        href={href}
+        title={topic.docPath}
+        className={cn(
+          "flex w-full items-start gap-3 rounded-md border border-neutral-200/90 bg-white p-3 text-left shadow-sm transition-colors hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900/50 dark:hover:border-neutral-500 dark:hover:bg-neutral-900",
+          OPERATOR_LINK.nav,
+        )}
+        onClick={onNavigate}
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block font-medium text-neutral-900 dark:text-neutral-100">{topic.title}</span>
+          <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            {topic.summary}
+          </span>
+        </span>
+        <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400 dark:text-neutral-500" aria-hidden />
+      </Link>
+    </li>
+  );
+}
+
 /**
- * Contextual help: guides first, doc topics, keyboard shortcuts in a separate tab. Light, app-aligned styling.
+ * Contextual help guides drawer: guides, keyboard shortcuts, and troubleshooting in one right-edge panel.
  */
 export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPanelProps) {
   const pathname = usePathname() ?? "/";
@@ -172,7 +202,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
     const corePilotGuideHref = getDocHref("docs/CORE_PILOT.md");
 
     return (
-      <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
+      <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800">
         <h3 className={cn("m-0 font-semibold text-teal-900 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
           Core Pilot — suggested next step
         </h3>
@@ -183,11 +213,15 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap gap-2">
             <Button asChild size="sm" variant="primary">
-              <Link href={pilotCtx.step.primaryHref}>{pilotCtx.step.primaryLabel}</Link>
+              <Link href={pilotCtx.step.primaryHref} onClick={() => onOpenChange(false)}>
+                {pilotCtx.step.primaryLabel}
+              </Link>
             </Button>
             {corePilotGuideHref ? (
               <Button asChild size="sm" variant="outline">
-                <Link href={corePilotGuideHref}>Open Core Pilot guide</Link>
+                <Link href={corePilotGuideHref} onClick={() => onOpenChange(false)}>
+                  Open Core Pilot guide
+                </Link>
               </Button>
             ) : null}
           </div>
@@ -206,6 +240,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
     corePilotPinDismissedThisSession,
     dismissCorePilotPinForSession,
     hasCommittedArchitectureReview,
+    onOpenChange,
     pathname,
     query,
   ]);
@@ -221,11 +256,14 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent
-        className="flex max-h-[80vh] max-w-lg flex-col gap-0 overflow-hidden border border-neutral-200 bg-white p-0 sm:max-w-[520px] dark:border-neutral-700 dark:bg-neutral-900"
+      <HelpDrawerContent
+        data-testid="help-guides-panel"
+        closeAriaLabel="Close help guides"
+        aria-label="Help guides and troubleshooting"
+        className="max-w-[min(100vw,520px)]"
       >
         <DialogHeader className="shrink-0 space-y-1 border-b border-neutral-100 px-5 pb-3 pt-5 dark:border-neutral-800">
-          <DialogTitle className="text-left text-lg text-neutral-900 dark:text-neutral-100">Help</DialogTitle>
+          <DialogTitle className="text-left text-lg text-neutral-900 dark:text-neutral-100">Help guides</DialogTitle>
           <DialogDescription className={cn("text-left text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Search ArchLucid guidance, docs, and shortcuts.
           </DialogDescription>
@@ -238,7 +276,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
               aria-hidden
             />
             <Input
-              id="help-search"
+              id="help-guides-search"
               type="search"
               className={cn(
                 "h-9 border-neutral-200 bg-white pl-8 font-normal text-neutral-900 shadow-none placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-teal-500 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
@@ -284,11 +322,11 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4" role="tabpanel">
           {tab === "guides" ? (
             <div className="space-y-4">
               {corePilotPinnedHelp}
-              <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
+              <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800">
                 <h3 className={cn("m-0 font-semibold text-teal-900 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
                   Key concepts
                 </h3>
@@ -306,27 +344,29 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
               {guidesFiltered.length === 0 ? (
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No topics match your search.</p>
               ) : (
-                <ul className="m-0 list-none space-y-2 p-0">
+                <ul className="m-0 space-y-2 p-0">
                   {guidesFiltered.map((topic) => {
                     const href = getDocHref(topic.docPath);
 
+                    if (href === null) {
+                      return (
+                        <li
+                          key={topic.id}
+                          className="rounded-md border border-neutral-200/90 bg-white p-3 dark:border-neutral-600 dark:bg-neutral-900/50"
+                        >
+                          <div className="font-medium text-neutral-900 dark:text-neutral-100">{topic.title}</div>
+                          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{topic.summary}</p>
+                        </li>
+                      );
+                    }
+
                     return (
-                      <li
+                      <HelpGuideTopicLinkRow
                         key={topic.id}
-                        className="rounded-md border border-neutral-200/90 bg-white p-3 shadow-sm dark:border-neutral-600 dark:bg-neutral-900/50"
-                      >
-                        <div className="font-medium text-neutral-900 dark:text-neutral-100">{topic.title}</div>
-                        <p className={cn("mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{topic.summary}</p>
-                        {href ? (
-                          <Link
-                            href={href}
-                            title={topic.docPath}
-                            className={cn("mt-2 inline-block", OPERATOR_LINK.nav)}
-                          >
-                            Open documentation
-                          </Link>
-                        ) : null}
-                      </li>
+                        topic={topic}
+                        href={href}
+                        onNavigate={() => onOpenChange(false)}
+                      />
                     );
                   })}
                 </ul>
@@ -336,7 +376,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
 
           {tab === "troubleshooting" ? (
             <div className="space-y-3">
-              <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
+              <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800">
                 <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Support bundle</p>
                 <p className={cn("mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                   Download a redacted diagnostics ZIP for support tickets (same artefact as Admin → Support).
@@ -346,27 +386,29 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
               {troubleshootingFiltered.length === 0 ? (
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No topics match your search.</p>
               ) : (
-                <ul className="m-0 list-none space-y-2 p-0">
+                <ul className="m-0 space-y-2 p-0">
                   {troubleshootingFiltered.map((topic) => {
                     const href = getDocHref(topic.docPath);
 
+                    if (href === null) {
+                      return (
+                        <li
+                          key={topic.id}
+                          className="rounded-md border border-neutral-200/90 bg-white p-3 dark:border-neutral-600 dark:bg-neutral-900/50"
+                        >
+                          <div className="font-medium text-neutral-900 dark:text-neutral-100">{topic.title}</div>
+                          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{topic.summary}</p>
+                        </li>
+                      );
+                    }
+
                     return (
-                      <li
+                      <HelpGuideTopicLinkRow
                         key={topic.id}
-                        className="rounded-md border border-neutral-200/90 bg-white p-3 shadow-sm dark:border-neutral-600 dark:bg-neutral-900/50"
-                      >
-                        <div className="font-medium text-neutral-900 dark:text-neutral-100">{topic.title}</div>
-                        <p className={cn("mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{topic.summary}</p>
-                        {href ? (
-                          <Link
-                            href={href}
-                            title={topic.docPath}
-                            className={cn("mt-2 inline-block", OPERATOR_LINK.nav)}
-                          >
-                            Open documentation
-                          </Link>
-                        ) : null}
-                      </li>
+                        topic={topic}
+                        href={href}
+                        onNavigate={() => onOpenChange(false)}
+                      />
                     );
                   })}
                 </ul>
@@ -404,16 +446,16 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
           ) : null}
         </div>
 
-        <div className="shrink-0 border-t border-neutral-100 px-5 py-3 dark:border-neutral-800">
+        <footer className="shrink-0 border-t border-neutral-100 px-5 py-3 dark:border-neutral-800">
           <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             In-app:{" "}
-            <Link href="/onboarding" className={OPERATOR_LINK.nav}>
+            <Link href="/onboarding" className={OPERATOR_LINK.nav} onClick={() => onOpenChange(false)}>
               Getting started
             </Link>{" "}
             (first-review checklist on Overview)
           </p>
-        </div>
-      </DialogContent>
+        </footer>
+      </HelpDrawerContent>
     </Dialog>
   );
 }

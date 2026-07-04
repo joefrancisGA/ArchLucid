@@ -1,28 +1,23 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ArrowLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { ArrowLeft, ChevronRight, ExternalLink, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
+import { focusHelpDrawerRow } from "@/components/help/help-drawer-list-keyboard";
+import { HelpDrawerTopicRow } from "@/components/help/HelpDrawerTopicRow";
 import { Button } from "@/components/ui/button";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import type { HelpTabId } from "@/components/HelpPanel";
 import { ProductConceptsGlossaryDialog } from "@/components/usability/ProductConceptsGlossaryDialog";
@@ -81,56 +76,88 @@ function stripMdLinks(text: string): string {
   return text.replace(/\[([^\]]+)\]\(([^)]*)\)/g, "$1");
 }
 
-function HelpTopicRow({
-  topic,
-  selectionValue,
+type HelpDrawerDocHitRowProps = {
+  readonly hit: HelpDocSearchRecord;
+  readonly isHighlighted: boolean;
+  readonly onActivate: (record: HelpDocSearchRecord) => void;
+  readonly onHighlight: () => void;
+};
+
+function HelpDrawerDocHitRow({
+  hit,
+  isHighlighted,
   onActivate,
   onHighlight,
+}: HelpDrawerDocHitRowProps): React.JSX.Element {
+  const excerpt = stripMdLinks(hit.excerpt);
+  const accessibleLabel = `${hit.sectionHeading}. ${excerpt}`;
+
+  return (
+    <li className="list-none">
+      <button
+        type="button"
+        data-help-drawer-row=""
+        aria-label={accessibleLabel}
+        className={cn(
+          "flex w-full cursor-pointer items-start gap-3 rounded-md border px-3 py-3 text-left transition-colors",
+          isHighlighted
+            ? "border-neutral-300 bg-[var(--al-layer-hover)] dark:border-neutral-600 dark:bg-neutral-800/80"
+            : "border-transparent hover:border-neutral-200 hover:bg-neutral-50 dark:hover:border-neutral-700 dark:hover:bg-neutral-900/60",
+        )}
+        onClick={() => {
+          onActivate(hit);
+        }}
+        onFocus={onHighlight}
+        onMouseEnter={onHighlight}
+      >
+        <span className="min-w-0 flex-1">
+          <span
+            className={cn(
+              "block font-semibold text-neutral-900 dark:text-neutral-100",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+          >
+            {hit.sectionHeading}
+          </span>
+          <span
+            className={cn(
+              "mt-1 block line-clamp-2 leading-snug text-neutral-600 dark:text-neutral-400",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+          >
+            {excerpt}
+          </span>
+        </span>
+        <ChevronRight
+          className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400 dark:text-neutral-500"
+          aria-hidden
+        />
+      </button>
+    </li>
+  );
+}
+
+function HelpDrawerGroupHeading({
+  children,
+  id,
 }: {
-  readonly topic: HelpSearchPanelTopic;
-  readonly selectionValue: string;
-  readonly onActivate: (topic: HelpSearchPanelTopic) => void;
-  readonly onHighlight: (selectionValue: string) => void;
+  readonly children: string;
+  readonly id?: string;
 }): React.JSX.Element {
   return (
-    <CommandItem
-      value={selectionValue}
-      keywords={[topic.title, topic.description, ...topic.keywords]}
-      className="group flex cursor-pointer items-start gap-3 rounded-md border border-transparent px-3 py-3 aria-selected:border-neutral-300 aria-selected:bg-[var(--al-layer-hover)] dark:aria-selected:border-neutral-600 dark:aria-selected:bg-neutral-800/80"
-      onPointerDown={() => onHighlight(selectionValue)}
-      onPointerEnter={() => onHighlight(selectionValue)}
-      onSelect={() => onActivate(topic)}
+    <h3
+      id={id}
+      className={cn(
+        "m-0 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400",
+      )}
     >
-      <span className="min-w-0 flex-1">
-        <span
-          className={cn(
-            "block font-semibold text-neutral-900 dark:text-neutral-100",
-            OPERATOR_TYPOGRAPHY.body,
-          )}
-        >
-          {topic.title}
-        </span>
-        <span
-          className={cn(
-            "mt-1 block leading-snug text-neutral-600 dark:text-neutral-400",
-            OPERATOR_TYPOGRAPHY.helper,
-          )}
-        >
-          {topic.description}
-        </span>
-      </span>
-      <ChevronRight
-        className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400 opacity-70 transition-opacity group-aria-selected:opacity-100 dark:text-neutral-500"
-        aria-hidden
-      />
-    </CommandItem>
+      {children}
+    </h3>
   );
 }
 
 /**
- * Slide-over documentation search and inline reader.
- * Empty state: curated help launcher. After typing: indexed search results.
- * Help topics open inline; app routes navigate.
+ * Right-side contextual help drawer: curated launcher, live search, and inline article reader.
  */
 export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpSearchPanelProps) {
   const router = useRouter();
@@ -139,11 +166,12 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const isAdmin = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
   const [query, setQuery] = useState("");
-  const [activeValue, setActiveValue] = useState("");
+  const [highlightedRowId, setHighlightedRowId] = useState("");
   const [article, setArticle] = useState<ArticleState>({ status: "idle" });
   const [conceptsDialogOpen, setConceptsDialogOpen] = useState(false);
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const topicListRef = useRef<HTMLDivElement>(null);
 
   const isSearching = query.trim().length > 0;
   const isViewingArticle = article.status === "loaded" || article.status === "loading" || article.status === "error";
@@ -175,10 +203,37 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   );
   const hits = useMemo(() => (isSearching ? searchHelpDocumentation(query) : []), [isSearching, query]);
 
+  const defaultHighlightedRowId = useMemo(() => {
+    if (isSearching) {
+      if (filteredTopics.length > 0) {
+        return `search:${filteredTopics[0]!.id}`;
+      }
+
+      if (hits.length > 0) {
+        return `doc:${helpRecordSelectionValue(hits[0]!)}`;
+      }
+
+      return "";
+    }
+
+    if (recommendedTopics.length > 0) {
+      return `recommended:${recommendedTopics[0]!.id}`;
+    }
+
+    const firstGroup = visibleGroupsWithoutRecommended.find((group) => group.topics.length > 0);
+    const firstTopic = firstGroup?.topics[0];
+
+    if (firstGroup !== undefined && firstTopic !== undefined) {
+      return `group:${firstGroup.id}:${firstTopic.id}`;
+    }
+
+    return "";
+  }, [filteredTopics, hits, isSearching, recommendedTopics, visibleGroupsWithoutRecommended]);
+
   useEffect(() => {
     if (!open) {
       setQuery("");
-      setActiveValue("");
+      setHighlightedRowId("");
       setArticle({ status: "idle" });
       setConceptsDialogOpen(false);
       setFeedbackDialogOpen(false);
@@ -195,47 +250,14 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   }, [open]);
 
   useEffect(() => {
-    if (!isSearching) {
-      const firstRecommended = recommendedTopics[0];
-      const firstGroup = visibleGroupsWithoutRecommended.find((group) => group.topics.length > 0);
-      const firstGroupTopic = firstGroup?.topics[0];
-
-      if (firstRecommended !== undefined) {
-        setActiveValue(`recommended:${firstRecommended.id}`);
-        return;
-      }
-
-      if (firstGroupTopic !== undefined && firstGroup !== undefined) {
-        setActiveValue(`group:${firstGroup.id}:${firstGroupTopic.id}`);
-        return;
-      }
-
-      setActiveValue("");
-      return;
-    }
-
-    if (filteredTopics.length === 0 && hits.length === 0) {
-      setActiveValue("");
-      return;
-    }
-
-    const firstValue =
-      filteredTopics.length > 0
-        ? `search:${filteredTopics[0]!.id}`
-        : helpRecordSelectionValue(hits[0]!);
-
-    setActiveValue((current) => {
-      if (filteredTopics.some((topic) => current === `search:${topic.id}`)) {
+    setHighlightedRowId((current) => {
+      if (current.length > 0) {
         return current;
       }
 
-      if (hits.some((hit) => helpRecordSelectionValue(hit) === current)) {
-        return current;
-      }
-
-      return firstValue;
+      return defaultHighlightedRowId;
     });
-  }, [filteredTopics, hits, isSearching, recommendedTopics, visibleGroupsWithoutRecommended]);
+  }, [defaultHighlightedRowId]);
 
   const loadArticle = useCallback(async (slug: string) => {
     setArticle({ status: "loading", slug });
@@ -304,6 +326,35 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
 
   function backToSearch(): void {
     setArticle({ status: "idle" });
+
+    window.requestAnimationFrame(() => {
+      searchInputRef.current?.focus();
+    });
+  }
+
+  function openGuidesTab(tab: HelpTabId): void {
+    onOpenChange(false);
+    onOpenGuidesPanel?.(tab);
+  }
+
+  function handleTopicListKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      focusHelpDrawerRow(topicListRef.current, "next");
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      focusHelpDrawerRow(topicListRef.current, "prev");
+    }
+  }
+
+  function handleSearchInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      focusHelpDrawerRow(topicListRef.current, "first");
+    }
   }
 
   const loadingSlug = article.status === "loading" ? article.slug : article.status === "error" ? article.slug : null;
@@ -311,12 +362,10 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent
+        <HelpDrawerContent
           data-testid="help-search-panel"
           closeAriaLabel="Close help"
-          className={cn(
-            "fixed inset-y-0 right-0 top-0 z-[51] flex h-full max-h-none w-full max-w-md translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-none border border-l-neutral-200 border-r-0 border-t-0 p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right sm:max-w-lg dark:border-l-neutral-700 dark:bg-neutral-950",
-          )}
+          aria-label="Contextual help"
         >
           {isViewingArticle ? (
             <>
@@ -401,148 +450,173 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                 </DialogDescription>
               </DialogHeader>
 
-              <Command
-                shouldFilter={false}
-                value={activeValue}
-                onValueChange={setActiveValue}
-                className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-white dark:bg-neutral-950"
-              >
+              <div className="shrink-0 border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
                 <label htmlFor="help-doc-search-input" className="sr-only">
                   Search help
                 </label>
-                <CommandInput
-                  ref={searchInputRef}
-                  id="help-doc-search-input"
-                  placeholder={HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER}
-                  value={query}
-                  onValueChange={setQuery}
-                  aria-label="Search help"
-                  autoFocus
-                />
-
-                <CommandList className="max-h-none flex-1 overflow-y-auto px-1 py-1" aria-label="Help topics">
-                  {isSearching ? (
-                    <>
-                      {filteredTopics.length === 0 && hits.length === 0 ? (
-                        <CommandEmpty
-                          className={cn(
-                            "px-4 py-8 text-left text-neutral-600 dark:text-neutral-300",
-                            OPERATOR_TYPOGRAPHY.body,
-                          )}
-                        >
-                          <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                            {HELP_SEARCH_PANEL_EMPTY_TITLE}
-                          </p>
-                          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{HELP_SEARCH_PANEL_EMPTY_HINT}</p>
-                        </CommandEmpty>
-                      ) : null}
-                      {filteredTopics.length > 0 ? (
-                        <CommandGroup
-                          heading="Topics"
-                          className="px-0 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-neutral-500 dark:[&_[cmdk-group-heading]]:text-neutral-400"
-                        >
-                          {filteredTopics.map((topic) => (
-                            <HelpTopicRow
-                              key={`search-${topic.id}`}
-                              selectionValue={`search:${topic.id}`}
-                              topic={topic}
-                              onActivate={openTopic}
-                              onHighlight={setActiveValue}
-                            />
-                          ))}
-                        </CommandGroup>
-                      ) : null}
-                      {hits.length > 0 ? (
-                        <CommandGroup
-                          heading="Documentation"
-                          className="px-0 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-neutral-500 dark:[&_[cmdk-group-heading]]:text-neutral-400"
-                        >
-                          {hits.map((hit) => {
-                            const selectionValue = helpRecordSelectionValue(hit);
-
-                            return (
-                              <CommandItem
-                                key={selectionValue}
-                                value={selectionValue}
-                                keywords={[hit.docTitle, hit.sectionHeading, hit.excerpt]}
-                                className="group flex cursor-pointer items-start gap-3 rounded-md border border-transparent px-3 py-3 aria-selected:border-neutral-300 aria-selected:bg-[var(--al-layer-hover)] dark:aria-selected:border-neutral-600 dark:aria-selected:bg-neutral-800/80"
-                                onPointerDown={() => setActiveValue(selectionValue)}
-                                onPointerEnter={() => setActiveValue(selectionValue)}
-                                onSelect={() => openSearchHit(hit)}
-                              >
-                                <span className="min-w-0 flex-1">
-                                  <span
-                                    className={cn(
-                                      "block font-semibold text-neutral-900 dark:text-neutral-100",
-                                      OPERATOR_TYPOGRAPHY.body,
-                                    )}
-                                  >
-                                    {hit.sectionHeading}
-                                  </span>
-                                  <span
-                                    className={cn(
-                                      "mt-1 block line-clamp-2 leading-snug text-neutral-600 dark:text-neutral-400",
-                                      OPERATOR_TYPOGRAPHY.helper,
-                                    )}
-                                  >
-                                    {stripMdLinks(hit.excerpt)}
-                                  </span>
-                                </span>
-                                <ChevronRight
-                                  className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400 opacity-70 transition-opacity group-aria-selected:opacity-100 dark:text-neutral-500"
-                                  aria-hidden
-                                />
-                              </CommandItem>
-                            );
-                          })}
-                        </CommandGroup>
-                      ) : null}
-                    </>
-                  ) : (
-                    <>
-                      {recommendedTopics.length > 0 ? (
-                        <CommandGroup
-                          heading="Recommended for this page"
-                          data-testid="help-search-recommended-group"
-                          className="px-0 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-neutral-500 dark:[&_[cmdk-group-heading]]:text-neutral-400"
-                        >
-                          {recommendedTopics.map((topic) => (
-                            <HelpTopicRow
-                              key={`recommended-${topic.id}`}
-                              selectionValue={`recommended:${topic.id}`}
-                              topic={topic}
-                              onActivate={openTopic}
-                              onHighlight={setActiveValue}
-                            />
-                          ))}
-                        </CommandGroup>
-                      ) : null}
-                      {visibleGroupsWithoutRecommended.map((group) =>
-                        group.topics.length === 0 ? null : (
-                        <CommandGroup
-                          key={group.id}
-                          heading={group.heading}
-                          data-testid={`help-search-group-${group.id}`}
-                          className="px-0 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-neutral-500 dark:[&_[cmdk-group-heading]]:text-neutral-400"
-                        >
-                          {group.topics.map((topic) => (
-                            <HelpTopicRow
-                              key={`${group.id}-${topic.id}`}
-                              selectionValue={`group:${group.id}:${topic.id}`}
-                              topic={topic}
-                              onActivate={openTopic}
-                              onHighlight={setActiveValue}
-                            />
-                          ))}
-                        </CommandGroup>
-                        ),
-                      )}
-                    </>
-                  )}
-                </CommandList>
-              </Command>
+                <div className="relative">
+                  <Search
+                    className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400"
+                    aria-hidden
+                  />
+                  <Input
+                    ref={searchInputRef}
+                    id="help-doc-search-input"
+                    type="search"
+                    placeholder={HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER}
+                    value={query}
+                    onChange={(event) => {
+                      setQuery(event.target.value);
+                      setHighlightedRowId("");
+                    }}
+                    onKeyDown={handleSearchInputKeyDown}
+                    aria-label="Search help"
+                    autoFocus
+                    className={cn(
+                      "h-9 border-neutral-200 bg-white pl-8 font-normal text-neutral-900 shadow-none placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-teal-500 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+                      OPERATOR_TYPOGRAPHY.body,
+                    )}
+                  />
+                </div>
+              </div>
 
               <div
+                ref={topicListRef}
+                className="min-h-0 flex-1 overflow-y-auto px-1 py-1"
+                role="navigation"
+                aria-label="Help topics"
+                onKeyDown={handleTopicListKeyDown}
+              >
+                {isSearching ? (
+                  <>
+                    {filteredTopics.length === 0 && hits.length === 0 ? (
+                      <div
+                        className={cn(
+                          "px-4 py-8 text-left text-neutral-600 dark:text-neutral-300",
+                          OPERATOR_TYPOGRAPHY.body,
+                        )}
+                        data-testid="help-search-empty-state"
+                      >
+                        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
+                          {HELP_SEARCH_PANEL_EMPTY_TITLE}
+                        </p>
+                        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{HELP_SEARCH_PANEL_EMPTY_HINT}</p>
+                      </div>
+                    ) : null}
+                    {filteredTopics.length > 0 ? (
+                      <section aria-labelledby="help-search-topics-heading">
+                        <HelpDrawerGroupHeading id="help-search-topics-heading">Topics</HelpDrawerGroupHeading>
+                        <ul className="m-0 space-y-0.5 p-0">
+                          {filteredTopics.map((topic) => {
+                            const rowId = `search:${topic.id}`;
+
+                            return (
+                              <HelpDrawerTopicRow
+                                key={rowId}
+                                topic={topic}
+                                isHighlighted={highlightedRowId === rowId}
+                                onActivate={openTopic}
+                                onHighlight={() => {
+                                  setHighlightedRowId(rowId);
+                                }}
+                              />
+                            );
+                          })}
+                        </ul>
+                      </section>
+                    ) : null}
+                    {hits.length > 0 ? (
+                      <section aria-labelledby="help-search-documentation-heading">
+                        <HelpDrawerGroupHeading id="help-search-documentation-heading">Documentation</HelpDrawerGroupHeading>
+                        <ul className="m-0 space-y-0.5 p-0">
+                          {hits.map((hit) => {
+                            const rowId = `doc:${helpRecordSelectionValue(hit)}`;
+
+                            return (
+                              <HelpDrawerDocHitRow
+                                key={rowId}
+                                hit={hit}
+                                isHighlighted={highlightedRowId === rowId}
+                                onActivate={openSearchHit}
+                                onHighlight={() => {
+                                  setHighlightedRowId(rowId);
+                                }}
+                              />
+                            );
+                          })}
+                        </ul>
+                      </section>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    {recommendedTopics.length > 0 ? (
+                      <section
+                        aria-labelledby="help-search-recommended-heading"
+                        data-testid="help-search-recommended-group"
+                      >
+                        <HelpDrawerGroupHeading id="help-search-recommended-heading">
+                          Recommended for this page
+                        </HelpDrawerGroupHeading>
+                        <ul className="m-0 space-y-0.5 p-0">
+                          {recommendedTopics.map((topic) => {
+                            const rowId = `recommended:${topic.id}`;
+
+                            return (
+                              <HelpDrawerTopicRow
+                                key={rowId}
+                                topic={topic}
+                                isHighlighted={highlightedRowId === rowId}
+                                onActivate={openTopic}
+                                onHighlight={() => {
+                                  setHighlightedRowId(rowId);
+                                }}
+                              />
+                            );
+                          })}
+                        </ul>
+                      </section>
+                    ) : null}
+                    {visibleGroupsWithoutRecommended.map((group) =>
+                      group.topics.length === 0 ? null : (
+                        <section
+                          key={group.id}
+                          aria-labelledby={`help-search-group-${group.id}-heading`}
+                          data-testid={`help-search-group-${group.id}`}
+                        >
+                          <h3
+                            id={`help-search-group-${group.id}-heading`}
+                            className={cn(
+                              "m-0 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400",
+                            )}
+                          >
+                            {group.heading}
+                          </h3>
+                          <ul className="m-0 space-y-0.5 p-0">
+                            {group.topics.map((topic) => {
+                              const rowId = `group:${group.id}:${topic.id}`;
+
+                              return (
+                                <HelpDrawerTopicRow
+                                  key={rowId}
+                                  topic={topic}
+                                  isHighlighted={highlightedRowId === rowId}
+                                  onActivate={openTopic}
+                                  onHighlight={() => {
+                                    setHighlightedRowId(rowId);
+                                  }}
+                                />
+                              );
+                            })}
+                          </ul>
+                        </section>
+                      ),
+                    )}
+                  </>
+                )}
+              </div>
+
+              <footer
                 className="shrink-0 space-y-2 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800"
                 data-testid="help-search-panel-footer"
               >
@@ -555,11 +629,23 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                       OPERATOR_LINK.optional,
                     )}
                     onClick={() => {
-                      onOpenChange(false);
-                      onOpenGuidesPanel?.("troubleshooting");
+                      openGuidesTab("troubleshooting");
                     }}
                   >
                     Contact support
+                  </button>
+                  {" · "}
+                  <button
+                    type="button"
+                    className={cn(
+                      "font-medium underline-offset-2 hover:underline",
+                      OPERATOR_LINK.optional,
+                    )}
+                    onClick={() => {
+                      openGuidesTab("shortcuts");
+                    }}
+                  >
+                    Keyboard shortcuts
                   </button>
                 </p>
                 <p
@@ -568,10 +654,10 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                 >
                   {HELP_SEARCH_PANEL_KEYBOARD_HINT}
                 </p>
-              </div>
+              </footer>
             </>
           )}
-        </DialogContent>
+        </HelpDrawerContent>
       </Dialog>
       <ProductConceptsGlossaryDialog
         open={conceptsDialogOpen}

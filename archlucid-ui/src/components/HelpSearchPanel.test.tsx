@@ -73,9 +73,37 @@ describe("HelpSearchPanel", () => {
   it("navigates when a route topic row is selected", () => {
     render(<HelpSearchPanel open onOpenChange={vi.fn()} />);
 
-    fireEvent.click(screen.getAllByText("Create your first review package")[0]!);
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Create your first review package\./i,
+      }),
+    );
 
     expect(push).toHaveBeenCalledWith("/reviews/new");
+  });
+
+  it("renders topic rows as actionable buttons with chevrons", () => {
+    render(<HelpSearchPanel open onOpenChange={() => {}} />);
+
+    const firstReviewButton = screen.getByRole("button", {
+      name: /First-review guide\./i,
+    });
+
+    expect(firstReviewButton).toBeInTheDocument();
+    expect(firstReviewButton.tagName).toBe("BUTTON");
+  });
+
+  it("opens guides shortcuts tab from footer action", () => {
+    const onOpenGuidesPanel = vi.fn();
+    const onOpenChange = vi.fn();
+    render(
+      <HelpSearchPanel open onOpenChange={onOpenChange} onOpenGuidesPanel={onOpenGuidesPanel} />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Keyboard shortcuts" }));
+
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(onOpenGuidesPanel).toHaveBeenCalledWith("shortcuts");
   });
 
   it("renders keyboard hint in the footer", () => {
