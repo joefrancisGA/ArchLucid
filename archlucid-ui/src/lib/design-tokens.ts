@@ -173,6 +173,15 @@ export const OPERATOR_LINK = {
   inline:
     "font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)]",
   step: "font-medium text-al-text-primary no-underline hover:text-[var(--al-accent-link)] hover:underline underline-offset-2",
+  /** Compact bordered chip for numbered journey steps — clearly interactive without primary-button weight. */
+  stepPill:
+    "inline-flex min-h-7 max-w-full items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-[13px] font-medium leading-5 text-al-text-primary shadow-sm transition-colors hover:border-[var(--al-accent-interactive)] hover:bg-al-surface-raised hover:text-[var(--al-accent-link)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-interactive)] focus-visible:ring-offset-2 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
+  /** Highlights the journey step that matches the current route. */
+  stepPillCurrent:
+    "border-[var(--al-accent-interactive)] bg-al-surface-raised text-al-text-primary ring-1 ring-[var(--al-accent-interactive)]/35",
+  /** Highlights the suggested next step when the operator is not already on a journey route. */
+  stepPillRecommended:
+    "border-neutral-400 bg-al-surface-raised dark:border-neutral-500",
   optional: `${OPERATOR_TYPE_SCALE.helper} font-medium text-al-text-secondary underline decoration-al-text-secondary/40 underline-offset-2 hover:text-al-text-primary hover:decoration-[var(--al-accent-interactive)]`,
 } as const;
 
