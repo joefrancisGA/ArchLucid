@@ -27,6 +27,7 @@ Promote a row to § 1.1 only after ripgrep on `docs/` (excluding `docs/archive/`
 | # | Use this (canonical) | Don't use (rejected) | Rationale |
 |---|----------------------|----------------------|-----------|
 | 1 | **review** (noun — the product session) | "run" when used as the product noun for a governed architecture review session (e.g. "create a run", "the run's findings", "run ID") | ArchLucid's primary product concept is an architecture *review*, not a pipeline *run*. Buyer-facing copy, docs, and UI labels must use **review**. Legitimate uses of "run" (CI run, test run, script run, dry run, **run** the pipeline as a verb, API paths **`/run/...`**, **`runId`**) are **not** rejected — only uses where "run" names the ArchLucid review session itself in **buyer** prose. |
+| 2 | **Persona nouns per surface** (see [`docs/go-to-market/UI_GLOSSARY_V1.md`](../go-to-market/UI_GLOSSARY_V1.md) § Persona terms) | **Operator** as a **public** persona noun; "operator shell", "operator path", "pilot operator", "tenant operator", "canonical guide", "canonical operator", "lane runbook" in customer-visible UI, help, nav, empty states, or GTM | **Operator** names an internal implementation shell and contributor doc audience — not the buyer-facing role. Map copy by surface: **architect-facing** → **Architect** + task language (**Review**, **Finalize**); **setup/config** → **Admin** / **platform administrator**; **governance workflow** → **Reviewer** / **Approver** / **Governance lead**; **reporting** → **Executive** / **Sponsor**; **internal-only diagnostics** (Admin/Diagnostics routes, runbooks, env flags) → **Operator** may remain. Does not override the **review** vs **run** rule in row 1 or artifact terms in UI_GLOSSARY_V1 (**Finalize**, **Snapshot**). |
 
 **2026-05-18 note:** Spine docs in `docs/` onboarding, `go-to-market/`, and `onboarding/` favor **review**; tightening **CI** rejection for remaining `run`-as-product-noun phrases is a separate change to **`scripts/ci/check_concept_vocabulary.py`** when the repo is ready.
 
@@ -42,6 +43,7 @@ Promote a row to § 1.1 only after ripgrep on `docs/` (excluding `docs/archive/`
 
 ## 3 Related
 
+- [`docs/go-to-market/UI_GLOSSARY_V1.md`](../go-to-market/UI_GLOSSARY_V1.md) — buyer-facing persona and artifact vocabulary
 - [`GLOSSARY.md`](GLOSSARY.md)
 - [`CONCEPTS_IN_5_MINUTES.md`](CONCEPTS_IN_5_MINUTES.md)
 - [`scripts/ci/check_concept_vocabulary.py`](../../scripts/ci/check_concept_vocabulary.py)

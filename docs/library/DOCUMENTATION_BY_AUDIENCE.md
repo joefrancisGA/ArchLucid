@@ -13,6 +13,8 @@ ArchLucid docs intentionally separate:
 
 **Rule of thumb:** hosted-SaaS pilots use the product UI and Trust Center paths; engineers live under `engineering/`, `runbooks/`, and `library/` references. If a change touches HTTP JSON or operator-visible behavior, refresh **customer-facing** summaries only when behavior is customer-visible; otherwise prefer **operator** or **contributor** libraries.
 
+**Persona copy vs doc audience:** The **Operator / tenant admin** row names a legitimate **internal** documentation reader (runbooks, diagnostics, tenancy ops). When writing **customer-visible** UI strings, help, or GTM, do **not** default to "operator" voice — use persona terms from [`docs/go-to-market/UI_GLOSSARY_V1.md`](../go-to-market/UI_GLOSSARY_V1.md) § Persona terms (**Architect**, **Executive**, **Admin**, **Reviewer**, **Approver**, **Governance lead**, **Sponsor**). Reserve **Operator** for internal-only surfaces and contributor docs unless you are explicitly documenting diagnostics or the `(operator)` implementation shell.
+
 ## Quick route by role (TB-013)
 
 Use this table when you need a **starting doc**, not a folder tour:
@@ -20,7 +22,7 @@ Use this table when you need a **starting doc**, not a folder tour:
 | Audience | Intent | Start here |
 | --- | --- | --- |
 | **Buyer / pilot / sponsor** | Time-to-value, trust, procurement | [`docs/START_HERE.md`](../START_HERE.md), [`docs/CORE_PILOT.md`](../CORE_PILOT.md), [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) |
-| **Operator / tenant admin** | Day-2 configuration, runbooks, shell | [`docs/library/OPERATOR_QUICKSTART.md`](OPERATOR_QUICKSTART.md), [`docs/library/API_CONTRACTS.md`](API_CONTRACTS.md), [`docs/OPERATIONS_ADMIN.md`](OPERATIONS_ADMIN.md)) |
+| **Operator / tenant admin** | Day-2 configuration, runbooks, **internal** shell/diagnostics docs — **not** customer-facing UI voice | [`docs/library/OPERATOR_QUICKSTART.md`](OPERATOR_QUICKSTART.md), [`docs/library/API_CONTRACTS.md`](API_CONTRACTS.md), [`docs/OPERATIONS_ADMIN.md`](OPERATIONS_ADMIN.md)) |
 | **Contributor / platform engineer** | Repo layout, invariants, CI, migrations | [`.cursor/rules/Architecture-Invariants.mdc`](ARCHITECTURE_INVARIANTS.md), [`docs/library/TECH_BACKLOG.md`](TECH_BACKLOG.md), [`docs/library/CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) |
 
 When in doubt on **new** markdown, add a one-line **`Audience:`** note next to the scope header (see `.cursor/rules/Doc-Scope-Header.mdc`); CI validates scope lines.
@@ -99,5 +101,6 @@ Default **depth-first** material belongs under **`docs/library/`** or a topic su
 
 ## Related
 
+- [`docs/go-to-market/UI_GLOSSARY_V1.md`](../go-to-market/UI_GLOSSARY_V1.md) — persona terms for customer-visible copy
 - [`docs/library/PILOT_GUIDE.md`](PILOT_GUIDE.md)
 - [`docs/contributor/README.md`](../engineering/CONTRIBUTOR_ON_ONE_PAGE.md)) (if present)
