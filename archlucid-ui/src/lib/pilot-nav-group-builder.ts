@@ -1,5 +1,5 @@
 import {
-  ClipboardList,
+  Compass,
   Home,
   LayoutDashboard,
   ListOrdered,
@@ -65,7 +65,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           title: "Getting started — checklist and milestones",
           // Catalog tier is essential; demoted to extended after first commit in nav-committed-architecture-review-promotion.ts (TB-524).
           tier: "essential",
-          icon: ClipboardList,
+          icon: Compass,
           defaultVisibleInCollapsedSidebar: true,
         },
       ],

@@ -28,6 +28,19 @@ describe("nav-config structure", () => {
     }
   });
 
+  it("does not duplicate icons within the same nav group", () => {
+    for (const group of NAV_GROUPS) {
+      const iconKeys = group.links.map((link) => {
+        const icon = link.icon as { displayName?: string; name?: string };
+
+        return icon.displayName ?? icon.name ?? link.href;
+      });
+      const dupes = iconKeys.filter((key, index) => iconKeys.indexOf(key) !== index);
+
+      expect(dupes, `${group.id} duplicate icons: ${[...new Set(dupes)].join(", ")}`).toEqual([]);
+    }
+  });
+
   it("uses Cloud connections nav label instead of Azure cloud connection (TB-467)", () => {
     const flat = flattenNavLinks();
     const deprecatedLabel = OPERATOR_NAV_LINK_LABELS.azureCloudConnection;
