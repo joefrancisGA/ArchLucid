@@ -147,8 +147,8 @@ describe("RunDetailArtifactsExportsSection", () => {
     );
 
     expect(screen.queryByTestId("decision-receipt-export")).not.toBeInTheDocument();
-    expect(screen.getByText("No deliverables yet")).toBeInTheDocument();
-    expect(screen.getByText(/deliverables will appear here once the review is finalized/i)).toBeInTheDocument();
+    expect(screen.getByTestId("run-deliverables-pending-finalize-empty-state")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Finalize this review" })).toHaveAttribute("href", "#finalize-review");
     expect(screen.getByRole("button", { name: "Reload" })).toBeInTheDocument();
     expect(screen.getByTestId("run-scoped-audit-export")).toHaveAttribute("data-run-id", "run-1");
   });

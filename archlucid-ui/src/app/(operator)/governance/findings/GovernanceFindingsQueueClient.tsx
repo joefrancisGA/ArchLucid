@@ -29,6 +29,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
@@ -129,9 +130,7 @@ export default function GovernanceFindingsQueueClient() {
         ) : null}
 
         {!loading && rows.length > 0 && displayedRows.length === 0 ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            No risks match the selected filter. Try All or choose a different operational filter.
-          </p>
+          <EnterpriseCompactEmptyState {...GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT} />
         ) : null}
 
         {!loading && displayedRows.length > 0 ? (

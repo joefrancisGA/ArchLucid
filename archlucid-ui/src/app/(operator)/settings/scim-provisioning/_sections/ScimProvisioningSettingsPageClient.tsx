@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SCIM_NO_TOKENS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 type ScimTokenSummary = {
   id: string;
@@ -262,7 +264,14 @@ export function ScimProvisioningSettingsPageClient() {
           ) : null}
           {state.status === "blocked" ? <OperatorApiProblem fallbackMessage={state.message} problem={null} /> : null}
           {state.status === "ready" && state.tokens.length === 0 ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No SCIM tokens issued yet.</p>
+            <EnterpriseCompactEmptyState
+              {...SCIM_NO_TOKENS_EMPTY_COMPACT}
+              footer={
+                <Button type="button" variant="primary" size="sm" onClick={() => void issueToken()} disabled={issuing}>
+                  {issuing ? "Issuing…" : "Issue new SCIM token"}
+                </Button>
+              }
+            />
           ) : null}
           {state.status === "ready" && state.tokens.length > 0 ? (
             <ul className="m-0 space-y-3">

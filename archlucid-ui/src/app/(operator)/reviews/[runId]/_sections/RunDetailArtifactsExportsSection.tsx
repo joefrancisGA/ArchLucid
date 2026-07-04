@@ -7,6 +7,7 @@ import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { BuyerDeliverablesArtifactTabs } from "@/components/BuyerDeliverablesArtifactTabs";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ConsultingDocxExportButton } from "@/components/ConsultingDocxExportButton";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ExportTerraformAdvisoryButton } from "@/components/ExportTerraformAdvisoryButton";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
@@ -32,6 +33,8 @@ import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import type { ArtifactDescriptor, ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
+import { RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -200,14 +203,17 @@ export function RunDetailArtifactsExportsSection(
                 </div>
               </OperatorEmptyState>
             ) : (
-              <OperatorEmptyState title="No deliverables yet">
-                <div className="flex flex-col items-center justify-center space-y-2 py-4 text-center">
-                  <p className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                    Deliverables will appear here once the review is finalized.
-                  </p>
-                  <OperatorSectionRetryButton label="Reload" />
-                </div>
-              </OperatorEmptyState>
+              <EnterpriseCompactEmptyState
+                {...RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT}
+                actions={[
+                  {
+                    label: "Finalize this review",
+                    href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR,
+                    variant: "primary",
+                  },
+                ]}
+                footer={<OperatorSectionRetryButton label="Reload" />}
+              />
             )
           ) : null}
 

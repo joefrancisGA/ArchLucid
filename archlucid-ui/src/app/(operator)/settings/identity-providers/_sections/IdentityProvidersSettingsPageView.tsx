@@ -4,7 +4,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";
@@ -69,6 +71,9 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
             <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-providers-note">
               {note}
             </p>
+          ) : null}
+          {rows !== null && rows.length === 0 && note === null ? (
+            <EnterpriseCompactEmptyState {...IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT} />
           ) : null}
           {rows !== null && rows.length > 0 ? (
             <div className="overflow-x-auto">

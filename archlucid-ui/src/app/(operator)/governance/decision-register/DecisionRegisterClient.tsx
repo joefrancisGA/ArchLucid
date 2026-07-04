@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { DecisionRegisterTimeline } from "@/components/DecisionRegisterTimeline";
-import { EmptyState } from "@/components/EmptyState";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +21,7 @@ import {
   BUYER_GOVERNANCE_DECISION_REGISTER_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DECISION_REGISTER_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 const BUYER_CONFIDENCE_OPTIONS = ["Evidence-backed", "Model-assisted", "Unknown"] as const;
 
@@ -182,18 +183,16 @@ export default function DecisionRegisterClient() {
       {loading ? <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading decision register…</p> : null}
 
       {loadError ? (
-        <EmptyState title="Decision register unavailable" description={loadError} />
+        <EnterpriseCompactEmptyState
+          testId="decision-register-load-error"
+          title="Decision register unavailable"
+          description={loadError}
+          actions={[{ label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" }]}
+        />
       ) : null}
 
       {!loading && !loadError && decisions.length === 0 ? (
-        <EmptyState
-          title="No signed decisions yet"
-          description="Finalize a review package to record architecture decisions here. Each entry links to the signed review record and supporting findings."
-          actions={[
-            { label: "Open review packages", href: "/reviews?projectId=default" },
-            { label: "Open governance workflow", href: "/governance" },
-          ]}
-        />
+        <EnterpriseCompactEmptyState {...DECISION_REGISTER_EMPTY_COMPACT} />
       ) : null}
 
       {!loading && !loadError && decisions.length > 0 && viewMode === "timeline" ? (

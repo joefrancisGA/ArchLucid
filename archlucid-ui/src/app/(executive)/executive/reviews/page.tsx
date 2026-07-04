@@ -2,9 +2,11 @@ import Link from "next/link";
 
 import { ExecutiveReviewsListClient } from "@/components/executive/ExecutiveReviewsListClient";
 import { ExecutivePageHeader } from "@/components/executive/ExecutivePageHeader";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { EXECUTIVE_TYPOGRAPHY } from "@/lib/design-tokens";
+import { EXECUTIVE_REVIEWS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 import { Button } from "@/components/ui/button";
@@ -80,24 +82,7 @@ export default async function ExecutiveReviewsPage() {
       ) : null}
 
       {loadError === null && runs.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className={EXECUTIVE_TYPOGRAPHY.cardTitle}>No finalized reviews yet</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.lead)}>
-              Finalized reviews appear here after an operator completes the review and locks the architecture package.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Button asChild variant="primary" size="sm">
-                <Link href="/see-it">See a completed sample review</Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/reviews/new">Start a review</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <EnterpriseCompactEmptyState {...EXECUTIVE_REVIEWS_EMPTY_COMPACT} />
       ) : null}
 
       {loadError === null && runs.length > 0 ? (
