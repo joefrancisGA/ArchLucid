@@ -71,7 +71,7 @@ export const RUNS_DASHBOARD_LABELS = {
   loadingReviews: "Loading review packages…",
   openFullReviewsList: "Open full reviews list",
   governanceWarningTitle: "Governance warnings",
-  governanceWarningHint: "Unresolved governance alerts or policy violations require operator follow-up.",
+  governanceWarningHint: "Unresolved governance alerts or policy violations require governance lead follow-up.",
   governanceWarningsOnly: "Has governance warnings",
   showArchived: "Show archived",
   restoreRequest: "Restore",

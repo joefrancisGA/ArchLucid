@@ -1,6 +1,39 @@
 import { describe, expect, it } from "vitest";
 
 import { effectiveNavDisclosureForPathname } from "./nav-disclosure-for-path";
+import {
+  NAV_DISCLOSURE,
+  OPERATOR_ADVANCED_MODE,
+  SIDEBAR_ADMINISTRATION,
+  SIDEBAR_SHOW_ALL_FEATURES,
+} from "./nav-disclosure-copy";
+
+function collectNavDisclosureCopyStrings(value: unknown): string[] {
+  if (typeof value === "string") {
+    return [value];
+  }
+
+  if (value === null || typeof value !== "object") {
+    return [];
+  }
+
+  return Object.values(value).flatMap((entry) => collectNavDisclosureCopyStrings(entry));
+}
+
+describe("nav disclosure copy", () => {
+  it("does not use operator persona in sidebar disclosure labels", () => {
+    const corpus = [
+      ...collectNavDisclosureCopyStrings(SIDEBAR_SHOW_ALL_FEATURES),
+      ...collectNavDisclosureCopyStrings(SIDEBAR_ADMINISTRATION),
+      ...collectNavDisclosureCopyStrings(OPERATOR_ADVANCED_MODE),
+      ...collectNavDisclosureCopyStrings(NAV_DISCLOSURE),
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    expect(corpus).not.toMatch(/\boperator\b/);
+  });
+});
 
 describe("effectiveNavDisclosureForPathname", () => {
   it.each([

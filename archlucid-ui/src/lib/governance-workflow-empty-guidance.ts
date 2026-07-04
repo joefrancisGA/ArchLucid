@@ -13,7 +13,7 @@ export const governanceWorkflowIdleGettingStartedOperator: EmptyStateGettingStar
 export const governanceWorkflowIdleGettingStartedReader: EmptyStateGettingStarted = {
   heading: "What this page shows",
   steps: [
-    "Operators pick a review and load approval requests, governance releases, and activations for that review.",
+    "Governance leads pick a review and load approval requests, governance releases, and activations for that review.",
     "Each step follows your organization's role policy for who may submit, approve, release, and activate.",
     "Use Findings or Reviews for context — this timeline stays inspection-first at your rank.",
   ],
@@ -31,8 +31,8 @@ export const governanceNoApprovalsGettingStartedOperator: EmptyStateGettingStart
 export const governanceNoApprovalsGettingStartedReader: EmptyStateGettingStarted = {
   heading: "Why this can be empty",
   steps: [
-    "No approval rows exist for this review yet — operators submit requests after finalize.",
-    "Try another review from the picker, or coordinate with an operator to submit.",
+    "No approval rows exist for this review yet — governance leads submit requests after finalize.",
+    "Try another review from the picker, or coordinate with a governance lead to submit.",
     "You can still inspect governance releases and activations below once the review has history.",
   ],
 };
@@ -49,7 +49,7 @@ export const governancePromotionsEmptyGettingStartedOperator: EmptyStateGettingS
 export const governancePromotionsEmptyGettingStartedReader: EmptyStateGettingStarted = {
   heading: "Timeline insight",
   steps: [
-    "Governance releases show after operators approve and release to the target environment — empty means none yet for this review.",
+    "Governance releases show after approvers release to the target environment — empty means none yet for this review.",
     "Compare with Approval requests above to see pending work.",
     "Activations below confirm what landed in each environment.",
   ],
@@ -68,7 +68,7 @@ export const governanceActivationsEmptyGettingStartedReader: EmptyStateGettingSt
   heading: "What activations mean",
   steps: [
     "Activations record which signed review record version is live for an environment.",
-    "Operators run Activate after a governance release — nothing shows until that completes.",
+    "A governance lead runs Activate after a governance release — nothing shows until that completes.",
     "Use Audit log if you need the portfolio-level paper trail.",
   ],
 };

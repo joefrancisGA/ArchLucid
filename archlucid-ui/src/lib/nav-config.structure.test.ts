@@ -230,4 +230,26 @@ describe("nav-config structure", () => {
       ).toBe(true);
     }
   });
+
+  it("does not use operator persona in customer-facing nav labels or subtitles", () => {
+    for (const group of NAV_GROUPS) {
+      if (group.id === "operator-system-admin") {
+        continue;
+      }
+
+      expect(group.label.toLowerCase()).not.toMatch(/\boperator\b/);
+
+      if (group.caption !== undefined) {
+        expect(group.caption.toLowerCase()).not.toMatch(/\boperator\b/);
+      }
+
+      for (const link of group.links) {
+        expect(link.label.toLowerCase(), `${group.id}:${link.href}:label`).not.toMatch(/\boperator\b/);
+
+        if (link.title !== undefined) {
+          expect(link.title.toLowerCase(), `${group.id}:${link.href}:title`).not.toMatch(/\boperator\b/);
+        }
+      }
+    }
+  });
 });

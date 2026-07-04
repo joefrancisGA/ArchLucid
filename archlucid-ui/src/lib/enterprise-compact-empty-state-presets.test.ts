@@ -27,4 +27,21 @@ describe("enterprise compact empty state presets (pass 5)", () => {
     expect(DECISION_REGISTER_EMPTY_COMPACT.actions?.[0]?.href).toBe("/reviews?projectId=default");
     expect(IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT.actions?.[0]?.href).toBe("/settings/identity/sso-wizard");
   });
+
+  it("keeps operator persona out of compact empty-state titles and descriptions", () => {
+    const presets = [
+      EXECUTIVE_REVIEWS_EMPTY_COMPACT,
+      DECISION_REGISTER_EMPTY_COMPACT,
+      GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT,
+      IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT,
+      RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT,
+      SCIM_NO_TOKENS_EMPTY_COMPACT,
+    ];
+
+    for (const preset of presets) {
+      const corpus = [preset.title, preset.description ?? ""].join(" ").toLowerCase();
+
+      expect(corpus, preset.testId).not.toMatch(/\boperator\b/);
+    }
+  });
 });

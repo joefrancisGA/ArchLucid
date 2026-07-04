@@ -65,6 +65,29 @@ export const REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS = [
   "new run wizard",
 ] as const;
 
+/** Lowercase phrase fragments that must not appear in nav, empty-state, or glossary persona copy. */
+export const REVIEW_TERMINOLOGY_BANNED_OPERATOR_PERSONA_PATTERNS = [
+  "operator follow-up",
+  "operator defaults",
+  "operator completes",
+  "surface to operators",
+  "operators pick",
+  "operators submit",
+  "operators approve",
+  "operators run",
+  "coordinate with an operator",
+  "operators want",
+] as const;
+
+export const REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS = [
+  "src/lib/empty-state-presets.ts",
+  "src/lib/enterprise-compact-empty-state-presets.ts",
+  "src/lib/governance-workflow-empty-guidance.ts",
+  "src/lib/glossary-definitions.ts",
+  "src/lib/layer-guidance.ts",
+  "src/lib/nav-disclosure-copy.ts",
+] as const;
+
 /** Lowercase phrase fragments that must not appear in buyer-facing UI copy (manifest terminology sweep). */
 export const REVIEW_TERMINOLOGY_BANNED_MANIFEST_PATTERNS = [
   "manifest diff",

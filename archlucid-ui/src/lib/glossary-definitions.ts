@@ -55,7 +55,7 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Policy pack",
     shortDefinition: "A versioned bundle of rules, advisories, and alert wiring assigned to scopes.",
     longDefinition:
-      "Policy packs merge at evaluation time to define what “good” means: compliance rules, cost caps, advisories, and how violations surface to operators.",
+      "Policy packs merge at evaluation time to define what “good” means: compliance rules, cost caps, advisories, and how violations surface to reviewers.",
   },
   comparison: {
     displayLabel: "Comparison",

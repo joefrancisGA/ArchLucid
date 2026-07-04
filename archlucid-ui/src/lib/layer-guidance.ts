@@ -160,7 +160,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "teams-notifications": {
     layerBadge: "Governance",
     headline: "Microsoft Teams channel wiring for integration-event fan-out.",
-    useWhen: "After Service Bus topics are live and operators want review / governance / alert cards in Teams.",
+    useWhen: "After Service Bus topics are live and your team wants review / governance / alert cards in Teams.",
     firstPilotNote:
       "After Pilot proof when Teams routing matters; store only a Key Vault secret id here.",
     enterpriseFootnote: "Read vs Execute matches API; Logic Apps resolves the secret at delivery time.",
@@ -177,7 +177,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "slack-notifications": {
     layerBadge: "Governance",
     headline: "Slack channel wiring for architecture alert delivery.",
-    useWhen: "When operators want alert notifications in Slack channels via incoming webhook URLs.",
+    useWhen: "When your team wants alert notifications in Slack channels via incoming webhook URLs.",
     firstPilotNote: "Optional until alert routing to Slack is part of your operating model.",
     enterpriseFootnote: "Read vs Execute matches API; webhook secrets are stored with each route.",
   },

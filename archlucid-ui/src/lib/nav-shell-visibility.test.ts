@@ -672,3 +672,27 @@ describe("buyer-polished shell nav narrowing", () => {
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
   });
 });
+
+describe("listNavGroupsVisibleInOperatorShell — customer-facing nav labels", () => {
+  it("does not expose operator persona in visible nav link labels", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      "all",
+      true,
+    );
+
+    for (const row of rows) {
+      if (row.group.id === "operator-system-admin") {
+        continue;
+      }
+
+      for (const link of row.visibleLinks) {
+        expect(link.label.toLowerCase(), `${row.group.id}:${link.href}`).not.toMatch(/\boperator\b/);
+      }
+    }
+  });
+});
