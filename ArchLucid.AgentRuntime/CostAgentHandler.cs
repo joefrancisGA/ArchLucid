@@ -19,7 +19,7 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-///     <see cref="AgentType.Cost" /> handler with Azure Retail structured grounding (RAG-V1-003).
+///     <see cref="AgentType.Cost" /> handler with multi-cloud structured retail grounding (RAG-V1-003 / TB-603).
 /// </summary>
 public sealed class CostAgentHandler(
     IAgentTierCompletionRouter tierCompletionRouter,
@@ -29,7 +29,7 @@ public sealed class CostAgentHandler(
     IAgentSystemPromptCatalog systemPromptCatalog,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
-    IAzureRetailPriceStructuredLookup retailPriceLookup,
+    CostRetailGroundingLookups retailGroundingLookups,
     IRetrievalGroundingTraceWriter retrievalGroundingTraceWriter,
     IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions,
     ILogger<CostAgentHandler> logger)
@@ -40,8 +40,8 @@ public sealed class CostAgentHandler(
         WriteIndented = true
     };
 
-    private readonly IAzureRetailPriceStructuredLookup _retailPriceLookup =
-        retailPriceLookup ?? throw new ArgumentNullException(nameof(retailPriceLookup));
+    private readonly CostRetailGroundingLookups _retailGroundingLookups =
+        retailGroundingLookups ?? throw new ArgumentNullException(nameof(retailGroundingLookups));
 
     private readonly IRetrievalGroundingTraceWriter _retrievalGroundingTraceWriter =
         retrievalGroundingTraceWriter ?? throw new ArgumentNullException(nameof(retrievalGroundingTraceWriter));
@@ -78,7 +78,7 @@ public sealed class CostAgentHandler(
             request.CloudProvider);
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
-        CostRetailGroundingResult retailGrounding = CostRetailGroundingBuilder.Build(request, evidence, _retailPriceLookup);
+        CostRetailGroundingResult retailGrounding = CostRetailGroundingBuilder.Build(request, evidence, _retailGroundingLookups);
         string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task, retailGrounding);
         await TryPersistRetailGroundingTraceAsync(runId, request, retailGrounding, cancellationToken);
         string lastCompletionJson = string.Empty;
@@ -173,7 +173,7 @@ public sealed class CostAgentHandler(
         AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
         AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
 
-        if (!grounding.SkippedNonAzure)
+        if (!grounding.SkippedRetailGrounding)
         {
             sb.AppendLine();
             sb.AppendLine(grounding.PromptBlock);
@@ -194,7 +194,7 @@ public sealed class CostAgentHandler(
         CostRetailGroundingResult grounding,
         CancellationToken cancellationToken)
     {
-        if (grounding.SkippedNonAzure)
+        if (grounding.SkippedRetailGrounding)
             return;
 
         if (!AgentRunIdParser.TryParse(runId, out Guid runGuid))

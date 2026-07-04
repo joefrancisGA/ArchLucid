@@ -10,26 +10,32 @@ namespace ArchLucid.Retrieval.Tests;
 [Trait("Category", "Unit")]
 public sealed class CostRetailGroundingBuilderTests
 {
+    private static CostRetailGroundingLookups CreateLookups(
+        IEnumerable<AzureRetailPriceRow>? azureRows = null,
+        IEnumerable<AwsRetailPriceRow>? awsRows = null,
+        IEnumerable<GcpRetailPriceRow>? gcpRows = null)
+    {
+        return new CostRetailGroundingLookups(
+            new InMemoryAzureRetailPriceStructuredLookup(azureRows),
+            new InMemoryAwsRetailPriceStructuredLookup(awsRows),
+            new InMemoryGcpRetailPriceStructuredLookup(gcpRows));
+    }
+
     [Fact]
-    public void Build_non_azure_provider_skips_retail_attribution()
+    public void Build_none_provider_skips_retail_attribution()
     {
         ArchitectureRequest request = new()
         {
-            Description = "0123456789 AWS landing zone cost review",
+            Description = "0123456789 evidence-only review",
             SystemName = "sys",
-            CloudProvider = CloudProvider.Azure,
+            CloudProvider = CloudProvider.None,
         };
 
-        AgentEvidencePackage evidence = new()
-        {
-            CloudProvider = "AWS",
-        };
+        AgentEvidencePackage evidence = new();
 
-        InMemoryAzureRetailPriceStructuredLookup lookup = new();
+        CostRetailGroundingResult result = CostRetailGroundingBuilder.Build(request, evidence, CreateLookups());
 
-        CostRetailGroundingResult result = CostRetailGroundingBuilder.Build(request, evidence, lookup);
-
-        result.SkippedNonAzure.Should().BeTrue();
+        result.SkippedRetailGrounding.Should().BeTrue();
         result.GroundingMissing.Should().BeFalse();
         result.CitedRows.Should().BeEmpty();
     }
@@ -49,11 +55,10 @@ public sealed class CostRetailGroundingBuilderTests
             CloudProvider = "Azure",
         };
 
-        InMemoryAzureRetailPriceStructuredLookup lookup = new();
+        CostRetailGroundingResult result = CostRetailGroundingBuilder.Build(request, evidence, CreateLookups());
 
-        CostRetailGroundingResult result = CostRetailGroundingBuilder.Build(request, evidence, lookup);
-
-        result.SkippedNonAzure.Should().BeFalse();
+        result.SkippedRetailGrounding.Should().BeFalse();
+        result.GroundedProvider.Should().Be(CloudProvider.Azure);
         result.GroundingMissing.Should().BeFalse();
         result.CitedRows.Should().NotBeEmpty();
         result.PromptBlock.Should().Contain("Standard_D2s_v5");
@@ -76,11 +81,63 @@ public sealed class CostRetailGroundingBuilderTests
             CloudProvider = "Azure",
         };
 
-        InMemoryAzureRetailPriceStructuredLookup lookup = new(seedRows: []);
-
-        CostRetailGroundingResult result = CostRetailGroundingBuilder.Build(request, evidence, lookup);
+        CostRetailGroundingResult result = CostRetailGroundingBuilder.Build(
+            request,
+            evidence,
+            CreateLookups(azureRows: []));
 
         result.GroundingMissing.Should().BeTrue();
         result.PromptBlock.Should().Contain("groundingMissing: true");
+    }
+
+    [Fact]
+    public void Build_aws_evidence_uses_price_list_grounding()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "0123456789 AWS landing zone with m5.large in us-east-1",
+            SystemName = "sys",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            CloudProvider = "AWS",
+        };
+
+        CostRetailGroundingResult result = CostRetailGroundingBuilder.Build(request, evidence, CreateLookups());
+
+        result.SkippedRetailGrounding.Should().BeFalse();
+        result.GroundedProvider.Should().Be(CloudProvider.Aws);
+        result.GroundingMissing.Should().BeFalse();
+        result.CitedRows.Should().Contain(row => row.CloudProvider == CloudProvider.Aws);
+        result.PromptBlock.Should().Contain("AWS Price List grounding");
+        result.PromptBlock.Should().Contain("m5.large");
+        result.PromptBlock.Should().Contain("groundingMissing: false");
+    }
+
+    [Fact]
+    public void Build_gcp_request_uses_billing_catalog_grounding()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "0123456789 GCP footprint with n1-standard-2 in us-central1",
+            SystemName = "sys",
+            CloudProvider = CloudProvider.Gcp,
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            CloudProvider = "GCP",
+        };
+
+        CostRetailGroundingResult result = CostRetailGroundingBuilder.Build(request, evidence, CreateLookups());
+
+        result.SkippedRetailGrounding.Should().BeFalse();
+        result.GroundedProvider.Should().Be(CloudProvider.Gcp);
+        result.GroundingMissing.Should().BeFalse();
+        result.CitedRows.Should().Contain(row => row.CloudProvider == CloudProvider.Gcp);
+        result.PromptBlock.Should().Contain("GCP Cloud Billing Catalog grounding");
+        result.PromptBlock.Should().Contain("n1-standard-2");
     }
 }
