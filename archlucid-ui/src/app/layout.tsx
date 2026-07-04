@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
+import { MARKETING_ROOT_OG_DESCRIPTION } from "@/lib/marketing-open-graph";
 import { PERSONA_SHELL_DEFAULT_DOCUMENT_TITLE } from "@/lib/persona-shell-vocabulary";
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
 import { resolveAuthorityThemeFromEnv } from "@/lib/ui-authority-theme";
