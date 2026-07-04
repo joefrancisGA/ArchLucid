@@ -1570,10 +1570,6 @@ jobs:
             }
           }
 
-          if (Get-Command Set-PSResourceRepository -ErrorAction SilentlyContinue) {
-            Set-PSResourceRepository -Name PSGallery -Trusted -ErrorAction SilentlyContinue
-          }
-
           Install-Module Pester -Force -Scope CurrentUser -MinimumVersion 5.0.0 -MaximumVersion 5.99.99 -Repository PSGallery
           Install-Module PSScriptAnalyzer -Force -Scope CurrentUser -MinimumVersion 1.21.0 -Repository PSGallery
 
