@@ -157,6 +157,10 @@ export const OPERATOR_KPI_CARD_TITLE = `${OPERATOR_TYPE_SCALE.tab} text-al-text-
 /** KPI / metric tile caption under the label. */
 export const OPERATOR_KPI_CARD_DESCRIPTION = OPERATOR_TYPE_SCALE.helper;
 
+/** KPI / metric tile primary value — scorecard and portfolio headline numbers. */
+export const OPERATOR_KPI_VALUE =
+  "text-3xl font-semibold tabular-nums tracking-tight text-al-text-primary";
+
 /** Page-level actions (primary/secondary CTAs). */
 export const OPERATOR_BUTTON_PAGE_CLASS = `h-9 px-4 ${OPERATOR_TYPE_SCALE.button}`;
 
@@ -277,6 +281,22 @@ export const MARKETING_TYPOGRAPHY = {
   body: OPERATOR_TYPOGRAPHY.body,
   meta: OPERATOR_TYPOGRAPHY.helper,
   eyebrow: `${OPERATOR_TYPOGRAPHY.helper} font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300`,
+  formLabel: `${OPERATOR_TYPE_SCALE.body} font-medium text-al-text-primary`,
+} as const;
+
+/** Executive buyer shell — reuses operator scale; eyebrow matches marketing entry surfaces. */
+export const EXECUTIVE_TYPOGRAPHY = {
+  eyebrow: MARKETING_TYPOGRAPHY.eyebrow,
+  pageTitle: OPERATOR_TYPOGRAPHY.pageTitle,
+  lead: `${OPERATOR_TYPOGRAPHY.body} text-al-text-secondary`,
+  sectionTitle: OPERATOR_TYPOGRAPHY.sectionTitle,
+  cardTitle: OPERATOR_TYPOGRAPHY.cardTitle,
+  body: OPERATOR_TYPOGRAPHY.body,
+  helper: OPERATOR_TYPOGRAPHY.helper,
+  formLabel: `${OPERATOR_TYPOGRAPHY.body} font-medium text-al-text-primary`,
+  kpiLabel: OPERATOR_KPI_CARD_TITLE,
+  kpiValue: OPERATOR_KPI_VALUE,
+  kpiCaption: OPERATOR_KPI_CARD_DESCRIPTION,
 } as const;
 
 export const MARKETING_SURFACES = {

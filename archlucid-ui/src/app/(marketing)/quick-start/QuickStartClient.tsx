@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
+import { MARKETING_CAPTION_TEXT_CLASS, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { resolveMarketingLiveDemoApiBase } from "@/lib/marketing-live-demo-api-base";
 
 type QuickStartFindingSummary = Readonly<{ title: string; severity: string }>;
@@ -308,16 +310,14 @@ export function QuickStartClient(): ReactElement {
 
     <div className="mx-auto max-w-xl space-y-8 px-4 py-12">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
-          Quick start
-        </h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={MARKETING_TYPOGRAPHY.heroTitle}>Quick start</h1>
+        <p className={cn("mt-2", MARKETING_TYPOGRAPHY.body, MARKETING_CAPTION_TEXT_CLASS)}>
           Simulator-only architecture pass — no sign-in. Opens the full operator run when finished.
         </p>
       </header>
 
       <div className="space-y-3">
-        <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200" htmlFor="qs-desc">
+        <label className={cn("block", MARKETING_TYPOGRAPHY.formLabel)} htmlFor="qs-desc">
           Architecture description
         </label>
         <textarea
@@ -330,13 +330,16 @@ export function QuickStartClient(): ReactElement {
 
           }}
           rows={5}
-          className="w-full rounded-md border border-neutral-300 bg-white p-3 text-sm text-neutral-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
+          className={cn(
+            "w-full rounded-md border border-neutral-300 bg-white p-3 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50",
+            MARKETING_TYPOGRAPHY.body,
+          )}
           placeholder="Three-tier web application on Azure with redundancy and private networking…"
         />
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Presets</p>
+        <p className={MARKETING_TYPOGRAPHY.formLabel}>Presets</p>
         <div className="flex flex-wrap gap-2">
           {PRESETS.map((id) => (
 

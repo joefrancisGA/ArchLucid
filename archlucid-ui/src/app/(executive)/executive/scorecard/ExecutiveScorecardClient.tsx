@@ -9,6 +9,7 @@ import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvid
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExecutiveScorecardEmptyState } from "@/components/executive/ExecutiveScorecardEmptyState";
+import { ExecutivePageHeader } from "@/components/executive/ExecutivePageHeader";
 import { getComplianceDriftTrend } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
@@ -32,6 +33,8 @@ import {
   BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP,
 } from "@/lib/buyer-polish-copy";
 import { executiveShellHandoffLinkLabel } from "@/lib/executive-shell-handoff";
+import { EXECUTIVE_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -178,18 +181,13 @@ export function ExecutiveScorecardClient() {
   if (!isAuthorityLoading && callerAuthorityRank < AUTHORITY_RANK.ReadAuthority) {
     return (
       <div className="space-y-6" data-testid="executive-scorecard">
-        <header className="space-y-2">
-          <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
-            Executive view
-          </p>
-          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Executive scorecard</h1>
-        </header>
+        <ExecutivePageHeader title="Executive scorecard" />
         <Card className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base text-neutral-900 dark:text-neutral-100">Access required</CardTitle>
+            <CardTitle className={EXECUTIVE_TYPOGRAPHY.cardTitle}>Access required</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+            <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.body)}>
               Sign in with an account that has read access to this workspace to view value metrics.
             </p>
             <div className="flex flex-wrap gap-2">
@@ -209,13 +207,8 @@ export function ExecutiveScorecardClient() {
   if (isAuthorityLoading) {
     return (
       <div className="space-y-6" data-testid="executive-scorecard">
-        <header className="space-y-2">
-          <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
-            Executive view
-          </p>
-          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Executive scorecard</h1>
-        </header>
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Checking access…</p>
+        <ExecutivePageHeader title="Executive scorecard" />
+        <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.lead)}>Checking access…</p>
       </div>
     );
   }
@@ -223,13 +216,8 @@ export function ExecutiveScorecardClient() {
   if (state.status === "loading") {
     return (
       <div className="space-y-6" data-testid="executive-scorecard">
-        <header className="space-y-2">
-          <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
-            Executive view
-          </p>
-          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Executive scorecard</h1>
-        </header>
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Loading scorecard…</p>
+        <ExecutivePageHeader title="Executive scorecard" />
+        <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.lead)}>Loading scorecard…</p>
       </div>
     );
   }
@@ -237,12 +225,7 @@ export function ExecutiveScorecardClient() {
   if (state.status === "error") {
     return (
       <div className="space-y-6" data-testid="executive-scorecard">
-        <header className="space-y-2">
-          <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
-            Executive view
-          </p>
-          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Executive scorecard</h1>
-        </header>
+        <ExecutivePageHeader title="Executive scorecard" />
         <OperatorApiProblem
           fallbackMessage={state.message}
           problem={state.problem}
@@ -273,20 +256,14 @@ export function ExecutiveScorecardClient() {
 
   return (
     <div className="space-y-6" data-testid="executive-scorecard">
-      <header className="space-y-2">
-        <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
-          Executive view
-        </p>
-        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Executive scorecard</h1>
-        <p className="m-0 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          Key value metrics for the current tenant, workspace, and project scope — aligned with the pilot value report and
-          governance drift endpoints.
-        </p>
-      </header>
+      <ExecutivePageHeader
+        title="Executive scorecard"
+        lead="Key value metrics for the current tenant, workspace, and project scope — aligned with the pilot value report and governance drift endpoints."
+      />
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-xs">
-          <label htmlFor="scorecard-time-range" className="mb-1 block text-sm font-medium text-neutral-800 dark:text-neutral-200">
+          <label htmlFor="scorecard-time-range" className={cn("mb-1 block", EXECUTIVE_TYPOGRAPHY.formLabel)}>
             Time range
           </label>
           <select
@@ -301,7 +278,7 @@ export function ExecutiveScorecardClient() {
             <option value="year">Last year</option>
             <option value="all">All time</option>
           </select>
-          <p id="scorecard-time-range-help" className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+          <p id="scorecard-time-range-help" className={cn("mt-1", EXECUTIVE_TYPOGRAPHY.helper)}>
             {buyerPolished ? BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP : "Window matches pilot-value-report bounds (toUtc exclusive where applicable)."}
           </p>
         </div>
@@ -319,15 +296,15 @@ export function ExecutiveScorecardClient() {
           <div className="grid gap-4 sm:grid-cols-2">
             <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                <CardTitle className={EXECUTIVE_TYPOGRAPHY.kpiLabel}>
                   Architecture reviews completed
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+                <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.kpiValue)}>
                   {finiteIntegerCountDisplay(reviewsCount)}
                 </p>
-                <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                <p className={cn("m-0 mt-1", EXECUTIVE_TYPOGRAPHY.kpiCaption)}>
                   {BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL}
                 </p>
               </CardContent>
@@ -335,25 +312,25 @@ export function ExecutiveScorecardClient() {
 
             <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Findings generated</CardTitle>
+                <CardTitle className={EXECUTIVE_TYPOGRAPHY.kpiLabel}>Findings generated</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+                <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.kpiValue)}>
                   {finiteIntegerCountDisplay(findingsTotal)}
                 </p>
-                <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">Across committed reviews in range</p>
+                <p className={cn("m-0 mt-1", EXECUTIVE_TYPOGRAPHY.kpiCaption)}>Across committed reviews in range</p>
               </CardContent>
             </Card>
 
             <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Estimated hours saved</CardTitle>
+                <CardTitle className={EXECUTIVE_TYPOGRAPHY.kpiLabel}>Estimated hours saved</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+                <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.kpiValue)}>
                   {formatHours(estimatedHours)}
                 </p>
-                <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                <p className={cn("m-0 mt-1", EXECUTIVE_TYPOGRAPHY.kpiCaption)}>
                   {buyerPolished
                     ? "Estimated hours saved (methodology in pilot guide)"
                     : (
@@ -371,13 +348,13 @@ export function ExecutiveScorecardClient() {
 
             <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Compliance drift activity</CardTitle>
+                <CardTitle className={EXECUTIVE_TYPOGRAPHY.kpiLabel}>Compliance drift activity</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+                <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.kpiValue)}>
                   {finiteIntegerCountDisplay(driftTotal)}
                 </p>
-                <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">{driftTrend}</p>
+                <p className={cn("m-0 mt-1", EXECUTIVE_TYPOGRAPHY.kpiCaption)}>{driftTrend}</p>
               </CardContent>
             </Card>
           </div>
@@ -387,7 +364,7 @@ export function ExecutiveScorecardClient() {
             data-testid="executive-scorecard-recommended-actions"
           >
             <CardHeader className="pb-2">
-              <CardTitle className="text-base text-neutral-900 dark:text-neutral-100">Recommended actions</CardTitle>
+              <CardTitle className={EXECUTIVE_TYPOGRAPHY.cardTitle}>Recommended actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 pt-0">
               {recommendedActions.length === 0 ? (

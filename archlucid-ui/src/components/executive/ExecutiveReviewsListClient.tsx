@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { EXECUTIVE_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -45,7 +45,7 @@ export function ExecutiveReviewsListClient({ runs }: ExecutiveReviewsListClientP
   return (
     <div className="space-y-4" data-testid="executive-reviews-list">
       <div className="max-w-md">
-        <label htmlFor="executive-reviews-filter" className={cn("mb-1 block font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+        <label htmlFor="executive-reviews-filter" className={cn("mb-1 block", EXECUTIVE_TYPOGRAPHY.formLabel)}>
           Filter reviews
         </label>
         <input
@@ -54,17 +54,20 @@ export function ExecutiveReviewsListClient({ runs }: ExecutiveReviewsListClientP
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search by review name or id"
-          className={cn("w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
+          className={cn(
+            "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100",
+            EXECUTIVE_TYPOGRAPHY.body,
+          )}
         />
       </div>
 
       {filteredRuns.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.body}>No matching reviews</CardTitle>
+            <CardTitle className={EXECUTIVE_TYPOGRAPHY.cardTitle}>No matching reviews</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.lead)}>
               Try a different search term or clear the filter to see all finalized reviews.
             </p>
           </CardContent>
@@ -75,10 +78,10 @@ export function ExecutiveReviewsListClient({ runs }: ExecutiveReviewsListClientP
             <li key={run.runId}>
               <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
                 <CardHeader className="space-y-1 pb-2">
-                  <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  <CardTitle className={EXECUTIVE_TYPOGRAPHY.cardTitle}>
                     {runHeadline(run)}
                   </CardTitle>
-                  <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.helper)}>
                     Created {new Date(run.createdUtc).toLocaleString()} · {run.findingCount ?? "—"} findings
                   </p>
                 </CardHeader>

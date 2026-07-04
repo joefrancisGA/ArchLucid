@@ -10,6 +10,7 @@ import { tryStaticDemoExplanationSummary } from "@/lib/operator-static-demo";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { ExecutiveReviewFirstViewport } from "@/components/executive/ExecutiveReviewFirstViewport";
+import { ExecutivePageHeader } from "@/components/executive/ExecutivePageHeader";
 import { RunDetailPackageSubnav } from "@/components/RunDetailPackageSubnav";
 import { ExecutiveReviewHandoffActions } from "@/components/executive/ExecutiveReviewHandoffActions";
 import { CtoDemoReadOnlySnapshotBanner } from "@/components/cto-demo/CtoDemoReadOnlySnapshotBanner";
@@ -33,6 +34,8 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { SeverityTag } from "@/components/ui/severity-tag";
+import { cn } from "@/lib/utils";
+import { EXECUTIVE_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type ExecutiveFindingRow = {
   findingId: string;
@@ -178,16 +181,16 @@ export default async function ExecutiveReviewFindingsPage({
         />
       ) : (
         <header className="space-y-2 rounded-xl border border-neutral-200 bg-gradient-to-br from-teal-50/60 via-white to-transparent px-4 py-4 shadow-sm dark:border-neutral-800 dark:from-teal-950/25 dark:via-neutral-950 dark:to-transparent sm:px-5">
-          <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
-            Executive summary
-          </p>
-          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{headline}</h1>
-          {summary !== null ? (
-            <p className="m-0 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">Risk posture:</span>{" "}
-              {summary.riskPosture}
-            </p>
-          ) : null}
+          <ExecutivePageHeader
+            eyebrow="Executive summary"
+            title={headline}
+            lead={
+              summary !== null
+                ? `Risk posture: ${summary.riskPosture}`
+                : null
+            }
+            className="space-y-2"
+          />
           <CtoDemoExecutiveTenantIsolationCallout />
         </header>
       )}
@@ -195,14 +198,14 @@ export default async function ExecutiveReviewFindingsPage({
       {failure !== null && summary === null ? (
         <Card className="border-rose-600/40 bg-al-surface-raised dark:border-rose-800/50">
           <CardHeader className="pb-2">
-            <CardDescription className="text-base font-medium text-neutral-900 dark:text-neutral-100">
+            <CardDescription className={EXECUTIVE_TYPOGRAPHY.cardTitle}>
               Could not load review summary
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">{failure.message}</p>
+            <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.body)}>{failure.message}</p>
             {failure.httpStatus !== null ? (
-              <p className="m-0 mt-2 text-xs text-neutral-500">HTTP {failure.httpStatus}</p>
+              <p className={cn("m-0 mt-2", EXECUTIVE_TYPOGRAPHY.helper)}>HTTP {failure.httpStatus}</p>
             ) : null}
           </CardContent>
         </Card>
@@ -215,7 +218,7 @@ export default async function ExecutiveReviewFindingsPage({
       {summary !== null ? (
         <div className="space-y-3">
           <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-start lg:justify-between">
-            <h2 className="m-0 text-sm font-semibold text-al-text-primary">Prioritized findings</h2>
+            <h2 className={cn("m-0", EXECUTIVE_TYPOGRAPHY.sectionTitle)}>Prioritized findings</h2>
             <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 px-3 py-2 shadow-sm dark:border-neutral-700 dark:bg-neutral-900/50">
               <ExecutiveReviewHandoffActions
                 runId={runId}
@@ -227,7 +230,7 @@ export default async function ExecutiveReviewFindingsPage({
           </div>
 
           {rows.length === 0 ? (
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.lead)}>
               No findings were identified in this review package.
             </p>
           ) : (

@@ -9,17 +9,17 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
     class="space-y-2"
   >
     <p
-      class="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300"
+      class="m-0 text-xs leading-[18px] font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300"
     >
       Executive view
     </p>
     <h1
-      class="m-0 text-xl font-semibold tracking-tight text-al-text-primary"
+      class="m-0 text-xl font-semibold leading-7 tracking-tight text-al-text-primary"
     >
       Executive scorecard
     </h1>
     <p
-      class="m-0 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400"
+      class="m-0 max-w-2xl text-[13px] font-normal leading-5 text-al-text-secondary"
     >
       Key value metrics for the current tenant, workspace, and project scope — aligned with the pilot value report and governance drift endpoints.
     </p>
@@ -31,7 +31,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
       class="max-w-xs"
     >
       <label
-        class="mb-1 block text-sm font-medium text-neutral-800 dark:text-neutral-200"
+        class="mb-1 block text-[13px] leading-5 font-medium text-al-text-primary"
         for="scorecard-time-range"
       >
         Time range
@@ -63,7 +63,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         </option>
       </select>
       <p
-        class="mt-1 text-xs text-neutral-500 dark:text-neutral-400"
+        class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         id="scorecard-time-range-help"
       >
         Window matches pilot-value-report bounds (toUtc exclusive where applicable).
@@ -94,7 +94,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         class="flex flex-col space-y-1.5 p-4 pb-2"
       >
         <div
-          class="tracking-tight text-sm font-medium text-neutral-600 dark:text-neutral-400"
+          class="tracking-tight text-xs font-semibold leading-4 text-al-text-secondary"
         >
           Architecture reviews completed
         </div>
@@ -103,12 +103,12 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         class="p-4 pt-0"
       >
         <p
-          class="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+          class="m-0 text-3xl font-semibold tabular-nums tracking-tight text-al-text-primary"
         >
           4
         </p>
         <p
-          class="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400"
+          class="m-0 mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           Finalized reviews
         </p>
@@ -121,7 +121,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         class="flex flex-col space-y-1.5 p-4 pb-2"
       >
         <div
-          class="tracking-tight text-sm font-medium text-neutral-600 dark:text-neutral-400"
+          class="tracking-tight text-xs font-semibold leading-4 text-al-text-secondary"
         >
           Findings generated
         </div>
@@ -130,12 +130,12 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         class="p-4 pt-0"
       >
         <p
-          class="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+          class="m-0 text-3xl font-semibold tabular-nums tracking-tight text-al-text-primary"
         >
           42
         </p>
         <p
-          class="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400"
+          class="m-0 mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           Across committed reviews in range
         </p>
@@ -148,7 +148,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         class="flex flex-col space-y-1.5 p-4 pb-2"
       >
         <div
-          class="tracking-tight text-sm font-medium text-neutral-600 dark:text-neutral-400"
+          class="tracking-tight text-xs font-semibold leading-4 text-al-text-secondary"
         >
           Estimated hours saved
         </div>
@@ -157,12 +157,12 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         class="p-4 pt-0"
       >
         <p
-          class="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+          class="m-0 text-3xl font-semibold tabular-nums tracking-tight text-al-text-primary"
         >
           21.0 h
         </p>
         <p
-          class="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400"
+          class="m-0 mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           Severity-weighted ROI model
         </p>
@@ -175,7 +175,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         class="flex flex-col space-y-1.5 p-4 pb-2"
       >
         <div
-          class="tracking-tight text-sm font-medium text-neutral-600 dark:text-neutral-400"
+          class="tracking-tight text-xs font-semibold leading-4 text-al-text-secondary"
         >
           Compliance drift activity
         </div>
@@ -184,12 +184,12 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         class="p-4 pt-0"
       >
         <p
-          class="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+          class="m-0 text-3xl font-semibold tabular-nums tracking-tight text-al-text-primary"
         >
           7
         </p>
         <p
-          class="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400"
+          class="m-0 mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           Trend: decreasing change activity
         </p>
@@ -204,7 +204,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
       class="flex flex-col space-y-1.5 p-4 pb-2"
     >
       <div
-        class="font-semibold tracking-tight text-base text-neutral-900 dark:text-neutral-100"
+        class="tracking-tight text-[15px] font-semibold leading-[22px] text-al-text-primary"
       >
         Recommended actions
       </div>

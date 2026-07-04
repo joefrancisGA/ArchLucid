@@ -4,6 +4,8 @@ import Link from "next/link";
 import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
 import { Button } from "@/components/ui/button";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
+import { MARKETING_CAPTION_TEXT_CLASS, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   MARKETING_SEE_IT_OG_DESCRIPTION,
   buildMarketingSocialMetadata,
@@ -34,11 +36,11 @@ export default async function SeeItMarketingPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
+      <h1 className={MARKETING_TYPOGRAPHY.heroTitle}>
         See a finalized review package in 30 seconds
       </h1>
       <p
-        className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        className={cn("mt-2", MARKETING_TYPOGRAPHY.body, MARKETING_CAPTION_TEXT_CLASS)}
         data-testid="see-it-outcome-led-lead"
       >
         {BUYER_OUTCOME_LED_VALUE_PROPOSITION}
@@ -46,7 +48,7 @@ export default async function SeeItMarketingPage() {
       <div className="mt-6">
         <MarketingProofChainStrip />
       </div>
-      <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+      <p className={cn("mt-3", MARKETING_TYPOGRAPHY.meta)}>
         Sample data.{" "}
         <Link className="text-teal-800 underline underline-offset-2 dark:text-teal-200" href="/WORKED_EXAMPLE_ROI.pdf">
           See worked example ROI (PDF)
@@ -55,10 +57,10 @@ export default async function SeeItMarketingPage() {
       </p>
 
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 p-4">
-        <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-50">
+        <p className={cn("m-0", MARKETING_TYPOGRAPHY.cardTitle)}>
           See a full sample review output — no sign-in
         </p>
-        <p className="mt-2 m-0 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mt-2 m-0", MARKETING_TYPOGRAPHY.body, MARKETING_CAPTION_TEXT_CLASS)}>
           Open the read-only demo walkthrough with manifest, audit trail, and artifacts — the same projection buyers use
           on the executive summary and review package pages.
         </p>

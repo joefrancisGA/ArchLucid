@@ -1,12 +1,15 @@
 import Link from "next/link";
 
 import { ExecutiveReviewsListClient } from "@/components/executive/ExecutiveReviewsListClient";
+import { ExecutivePageHeader } from "@/components/executive/ExecutivePageHeader";
 import { listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { EXECUTIVE_TYPOGRAPHY } from "@/lib/design-tokens";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 function isFinalizedReview(run: RunSummary): boolean {
   return run.hasGoldenManifest === true;
@@ -52,25 +55,18 @@ export default async function ExecutiveReviewsPage() {
 
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
-        <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
-          Executive view
-        </p>
-        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
-          Architecture risk reviews
-        </h1>
-        <p className="m-0 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          Open a finalized review to see prioritized findings, evidence-linked detail, and export the architecture package.
-        </p>
-      </header>
+      <ExecutivePageHeader
+        title="Architecture risk reviews"
+        lead="Open a finalized review to see prioritized findings, evidence-linked detail, and export the architecture package."
+      />
 
       {loadError !== null ? (
         <Card className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base text-neutral-900 dark:text-neutral-100">Could not load reviews</CardTitle>
+            <CardTitle className={EXECUTIVE_TYPOGRAPHY.cardTitle}>Could not load reviews</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">{loadError}</p>
+            <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.body)}>{loadError}</p>
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="default" size="sm">
                 <Link href="/auth/signin">Sign in</Link>
@@ -86,10 +82,10 @@ export default async function ExecutiveReviewsPage() {
       {loadError === null && runs.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">No finalized reviews yet</CardTitle>
+            <CardTitle className={EXECUTIVE_TYPOGRAPHY.cardTitle}>No finalized reviews yet</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.lead)}>
               Finalized reviews appear here after an operator completes the review and locks the architecture package.
             </p>
             <div className="flex flex-wrap gap-2">
