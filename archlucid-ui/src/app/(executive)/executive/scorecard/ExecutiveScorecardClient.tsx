@@ -34,6 +34,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { executiveShellHandoffLinkLabel } from "@/lib/executive-shell-handoff";
 import { EXECUTIVE_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -191,8 +192,13 @@ export function ExecutiveScorecardClient() {
               Sign in with an account that has read access to this workspace to view value metrics.
             </p>
             <div className="flex flex-wrap gap-2">
-              <Button asChild variant="default" size="sm">
-                <Link href="/auth/signin">Sign in</Link>
+              <Button asChild variant="primary" size="sm">
+                <Link
+                  href={buildAuthSignInHref({ reason: "unauthorized", returnPath: "/executive/scorecard" })}
+                  data-testid="executive-scorecard-sign-in"
+                >
+                  Sign in
+                </Link>
               </Button>
               <Button asChild variant="outline" size="sm">
                 <Link href="/reviews?projectId=default">Open review packages</Link>

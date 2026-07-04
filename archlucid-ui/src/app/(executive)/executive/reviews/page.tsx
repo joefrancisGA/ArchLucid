@@ -7,6 +7,7 @@ import { listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { EXECUTIVE_TYPOGRAPHY } from "@/lib/design-tokens";
 import { EXECUTIVE_REVIEWS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 import { Button } from "@/components/ui/button";
@@ -70,8 +71,13 @@ export default async function ExecutiveReviewsPage() {
           <CardContent className="space-y-3">
             <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.body)}>{loadError}</p>
             <div className="flex flex-wrap gap-2">
-              <Button asChild variant="default" size="sm">
-                <Link href="/auth/signin">Sign in</Link>
+              <Button asChild variant="primary" size="sm">
+                <Link
+                  href={buildAuthSignInHref({ reason: "unauthorized", returnPath: "/executive/reviews" })}
+                  data-testid="executive-reviews-sign-in"
+                >
+                  Sign in
+                </Link>
               </Button>
               <Button asChild variant="outline" size="sm">
                 <Link href="/reviews?projectId=default">Open review packages</Link>

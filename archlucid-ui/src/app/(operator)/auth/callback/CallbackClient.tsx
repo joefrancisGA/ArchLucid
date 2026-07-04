@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import {
@@ -176,25 +176,23 @@ export function CallbackClient() {
     };
   }, [code, oauthError, oauthErrorDescription, state]);
 
+  if (failed) {
+    return <AuthErrorPanel title="Sign-in could not finish" message={message} />;
+  }
+
   return (
     <div className="max-w-[560px]">
-      <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
-        {failed ? "Sign-in could not finish" : "Completing sign-in"}
-      </h2>
+      <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Completing sign-in</h2>
 
       <div
         role="status"
         aria-live="polite"
-        aria-busy={!failed ? "true" : "false"}
-        className={cn(
-          "mt-3",
-          OPERATOR_TYPOGRAPHY.body,
-          failed ? "text-rose-800 dark:text-rose-200" : "text-al-text-secondary",
-        )}
+        aria-busy="true"
+        className={cn("mt-3", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}
       >
         <p className="m-0">{message}</p>
 
-        {!failed && showSlowHint ? (
+        {showSlowHint ? (
           <p className="m-0 mt-3">
             Taking longer than expected?{" "}
             <Link className={OPERATOR_LINK.nav} href="/auth/signin">
@@ -204,17 +202,6 @@ export function CallbackClient() {
           </p>
         ) : null}
       </div>
-
-      {failed ? (
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <Button asChild variant="default" size="sm">
-            <Link href="/auth/signin">Try signing in again</Link>
-          </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/help">Help</Link>
-          </Button>
-        </div>
-      ) : null}
     </div>
   );
 }

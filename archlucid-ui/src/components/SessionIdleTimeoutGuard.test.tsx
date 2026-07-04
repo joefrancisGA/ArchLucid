@@ -36,7 +36,7 @@ describe("SessionIdleTimeoutGuard", () => {
 
     const [destination] = pushMock.mock.calls[0] as [string];
 
-    expect(destination.startsWith("/auth/session-expired?returnUrl=")).toBe(true);
+    expect(destination.startsWith("/auth/session-expired?reason=idle-timeout&returnUrl=")).toBe(true);
     expect(destination).not.toContain("/auth/signin");
   });
 
@@ -48,7 +48,7 @@ describe("SessionIdleTimeoutGuard", () => {
     const [destination] = pushMock.mock.calls[0] as [string];
     const encoded = encodeURIComponent("/reviews/123?tab=findings");
 
-    expect(destination).toBe(`/auth/session-expired?returnUrl=${encoded}`);
+    expect(destination).toBe(`/auth/session-expired?reason=idle-timeout&returnUrl=${encoded}`);
   });
 
   it("does not navigate before the idle threshold elapses", () => {

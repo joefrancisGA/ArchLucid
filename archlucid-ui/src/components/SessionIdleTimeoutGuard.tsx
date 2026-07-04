@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 
 import { useRouter } from "next/navigation";
 
+import { buildSessionExpiredHref } from "@/lib/navigation/auth-sign-in-href";
+
 const IDLE_MS = 30 * 60 * 1000;
 const SESSION_STORAGE_KEY = "archlucid.session.clearedAt";
 
@@ -21,11 +23,9 @@ export function SessionIdleTimeoutGuard() {
       timerRef.current = window.setTimeout(() => {
         sessionStorage.setItem(SESSION_STORAGE_KEY, new Date().toISOString());
 
-        const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+        const returnPath = window.location.pathname + window.location.search;
 
-        // Cleaner user-facing route than "/auth/signin?reason=idle-timeout&…"; reason defaults
-        // to idle-timeout there. `/auth/signin?reason=idle-timeout` keeps working for old links.
-        router.push(`/auth/session-expired?returnUrl=${returnUrl}`);
+        router.push(buildSessionExpiredHref(returnPath));
         router.refresh();
       }, IDLE_MS);
     };

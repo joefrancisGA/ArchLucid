@@ -7,6 +7,7 @@ import {
 import { buildAuthorizeUrl } from "@/lib/oidc/build-authorize-url";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { createPkcePair, randomOpaqueState } from "@/lib/oidc/pkce";
+import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { storePkceState, storePostSignInReturnUrl } from "@/lib/oidc/session";
 
 /**
@@ -27,7 +28,7 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
 
   storePkceState(state, verifier, nonce);
 
-  if (returnUrl) {
+  if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);
   }
 
