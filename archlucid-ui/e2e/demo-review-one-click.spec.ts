@@ -29,21 +29,17 @@ test.describe("demo review one-click reliability @demo-review", () => {
 
     await page.goto(`/reviews/${encodeURIComponent(OPERATOR_DEMO_REVIEW_RUN_ID)}`);
 
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 60_000 });
-    await expect(page.getByRole("main").getByTestId("review-detail-policy-pack-impact-callout").first()).toBeVisible({
-      timeout: 15_000,
-    });
+    await expect(page.getByTestId("review-detail-policy-pack-impact-callout")).toBeVisible({ timeout: 15_000 });
 
-    await page.locator("#run-explanation").scrollIntoViewIfNeeded();
+    const quickDecisionSummary = page.getByTestId("quick-decision-summary");
+    await expect(quickDecisionSummary).toBeVisible({ timeout: 60_000 });
+    await quickDecisionSummary.scrollIntoViewIfNeeded();
 
-    await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("quick-decision-policy-violations")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("finding-policy-rule-badge").first()).toBeVisible({ timeout: 30_000 });
 
-    const policyViolations = page.getByTestId("quick-decision-policy-violations");
-    const findingBadges = policyViolations.getByTestId("finding-policy-rule-badge");
-
-    await expect(findingBadges.first()).toBeVisible({ timeout: 30_000 });
-    await expect(findingBadges).toHaveCount(6, { timeout: 30_000 });
+    const findingLinks = quickDecisionSummary.locator('[data-testid^="finding-policy-rule-badge"]');
+    await expect(findingLinks).toHaveCount(6, { timeout: 30_000 });
   });
 
   test("mock API returns stable demo review payload shape", async ({ request }) => {

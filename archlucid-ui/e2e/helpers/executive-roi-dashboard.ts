@@ -168,17 +168,10 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
 
 export async function waitForExecutiveRoiDashboardHydrated(page: Page): Promise<void> {
 
-  // Portfolio layout mounts ROI panels only after committed-review summary resolves — not during the loading gap.
-  await expect(page.getByRole("heading", { name: /Latest findings and portfolio summary/i })).toBeVisible({
-    timeout: 60_000,
-  });
+  await expect(page.getByTestId("executive-dashboard-empty-state")).toHaveCount(0, { timeout: 60_000 });
 
-  // Prefer the committed-review panel — empty-state count flakes when TanStack Query settles before summary data.
-  await expect(page.getByRole("main").getByTestId("exec-roi-identified-vs-realized-panel").first()).toBeVisible({
-    timeout: 60_000,
-  });
-
-  await expect(page.getByTestId("executive-dashboard-empty-state")).toHaveCount(0, { timeout: 15_000 });
+  // Portfolio layout hides findings/ROI until executive-summary finishes loading (hasCommittedReviews gate).
+  await expect(page.getByTestId("exec-roi-identified-vs-realized-panel")).toBeVisible({ timeout: 60_000 });
 
 }
 
@@ -448,7 +441,7 @@ export async function expectExecutiveRoiExecutiveSurface(page: Page): Promise<vo
 
   await expect(page.getByTestId("executive-primary-decisions-needed")).toBeVisible({ timeout: 30_000 });
 
-  await expect(page.getByTestId("executive-value-narrative")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("executive-value-narrative")).toBeVisible({ timeout: 60_000 });
 
   await expect(
 

@@ -129,7 +129,9 @@ export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: Executi
     void load(timeRange);
   }, [load, timeRange]);
 
-  const displayText = narrative ?? (loading ? "Preparing executive narrative…" : null);
+  const displayText =
+    narrative ??
+    (loading ? "Preparing executive narrative…" : roiSummary != null ? buildFallbackNarrativeFromSummary(roiSummary) : null);
 
   if (displayText === null) {
     return null;

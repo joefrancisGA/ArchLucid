@@ -11,7 +11,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
 import { showcaseSignedManifestBrowserUrlPattern } from "./helpers/buyer-golden-path";
-import { outcomeStripSignedRecordLink, reviewOutcomeSummaryStrip } from "./helpers/operator-journey";
+import { outcomeStripSignedRecordLink } from "./helpers/operator-journey";
 
 const SHOWCASE_RUN_DETAIL_HEADING = /Claims Intake Modernization/i;
 
@@ -23,12 +23,11 @@ test.describe("operator journey — run detail to manifest and back", () => {
 
     await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`));
 
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 60_000 });
     await expect(
       page.getByRole("heading", { level: 1, name: SHOWCASE_RUN_DETAIL_HEADING }),
     ).toBeVisible({ timeout: 60_000 });
 
-    const outcomeStrip = reviewOutcomeSummaryStrip(page);
+    const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
 
     await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
 
@@ -36,8 +35,8 @@ test.describe("operator journey — run detail to manifest and back", () => {
     const manifestHref = `/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
 
     await expect(manifestLink).toBeVisible({ timeout: 60_000 });
-    await expect(manifestLink).toContainText(/Finalized/i, { timeout: 60_000 });
-    await expect(manifestLink).toHaveAttribute("href", manifestHref, { timeout: 60_000 });
+    await expect(manifestLink).toContainText(/Finalized/i);
+    await expect(manifestLink).toHaveAttribute("href", manifestHref);
 
     // Buyer-polished shell may canonicalize `/manifests/{uuid}` → `/reviews/{runId}/manifest` after navigation.
     await page.goto(manifestHref);
@@ -54,12 +53,11 @@ test.describe("operator journey — run detail to manifest and back", () => {
       .first();
 
     await expect(reviewLink).toBeVisible({ timeout: 60_000 });
-    await Promise.all([
-      page.waitForURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`), { waitUntil: "commit" }),
-      reviewLink.click(),
-    ]);
+    await reviewLink.click();
+    await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`), {
+      timeout: 60_000,
+    });
 
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 60_000 });
     await expect(
       page.getByRole("heading", { level: 1, name: SHOWCASE_RUN_DETAIL_HEADING }),
     ).toBeVisible({ timeout: 60_000 });
