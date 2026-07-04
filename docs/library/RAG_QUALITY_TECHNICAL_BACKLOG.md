@@ -394,7 +394,7 @@
 | ID | Title | Notes |
 |----|-------|-------|
 | **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | Pulled forward to V1. Requires stable schema (ADR 0036). |
-| **RAG-V2-002** | Agentic retrieval (HyDE, query rewrite, cross-encoder rerank) | Pulled forward to V1. Required to overcome single-hop retrieval limitations. |
+| **RAG-V2-002** | Single-pass query expansion (HyDE, query rewrite, semantic rerank) | Pulled forward to V1. One LLM completion per transform + managed semantic rerank — not iterative multi-hop retrieval (**TB-598 closed 2026-07-04**). |
 | **RAG-V2-003** | Online fine-tuning on accepted manifests | Pulled forward to V1. Requires explicit DPA + owner ADR. |
 
 ### Reranking — V1 decision (2026-05-26)

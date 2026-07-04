@@ -2,7 +2,7 @@ using ArchLucid.Core.Retrieval;
 
 namespace ArchLucid.Retrieval.Agentic;
 
-/// <summary>Deterministic agentic retrieval transforms for tests and fail-open paths.</summary>
+/// <summary>Deterministic single-pass query expansion transforms for tests and fail-open paths.</summary>
 public sealed class HeuristicAgenticRetrievalCompletionClient : IAgenticRetrievalCompletionClient
 {
     /// <inheritdoc />

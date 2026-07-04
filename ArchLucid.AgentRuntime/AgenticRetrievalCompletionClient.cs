@@ -10,7 +10,10 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
 
-/// <summary>LLM-backed query rewrite and HyDE generation for agentic retrieval.</summary>
+/// <summary>
+///     LLM-backed single-pass query rewrite and HyDE generation (RAG-V2-002).
+///     One completion per transform — not an iterative retrieve-critique-retry loop.
+/// </summary>
 public sealed class AgenticRetrievalCompletionClient(
     IAgentTierCompletionRouter tierCompletionRouter,
     IOptionsMonitor<AdvancedRetrievalOptions> optionsMonitor,
@@ -104,7 +107,7 @@ public sealed class AgenticRetrievalCompletionClient(
         catch (OperationCanceledException)
         {
             _logger.LogWarning(
-                "Agentic retrieval {Operation} exceeded {BudgetSeconds:N0}s; falling back to heuristics.",
+                "Single-pass query expansion {Operation} exceeded {BudgetSeconds:N0}s; falling back to heuristics.",
                 operationLabel,
                 budget.TotalSeconds);
         }
@@ -112,7 +115,7 @@ public sealed class AgenticRetrievalCompletionClient(
         {
             _logger.LogWarning(
                 ex,
-                "Agentic retrieval {Operation} failed; falling back to heuristics.",
+                "Single-pass query expansion {Operation} failed; falling back to heuristics.",
                 operationLabel);
         }
 

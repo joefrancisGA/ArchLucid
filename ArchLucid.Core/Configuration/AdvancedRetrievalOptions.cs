@@ -1,6 +1,6 @@
 namespace ArchLucid.Core.Configuration;
 
-/// <summary>Configuration for Graph-RAG and agentic retrieval (RAG-V2-001 / RAG-V2-002).</summary>
+/// <summary>Configuration for Graph-RAG (RAG-V2-001) and single-pass query expansion (RAG-V2-002).</summary>
 public sealed class AdvancedRetrievalOptions
 {
     public const string SectionPath = "Retrieval:Advanced";

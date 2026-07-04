@@ -1,6 +1,6 @@
 namespace ArchLucid.Core.Retrieval;
 
-/// <summary>LLM-backed transforms for agentic retrieval (query rewrite, HyDE).</summary>
+/// <summary>LLM-backed single-pass query expansion transforms (query rewrite, HyDE) for RAG-V2-002.</summary>
 public interface IAgenticRetrievalCompletionClient
 {
     Task<string> RewriteQueryAsync(string queryText, CancellationToken cancellationToken);

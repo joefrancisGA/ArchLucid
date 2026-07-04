@@ -11,7 +11,7 @@ The following advanced retrieval techniques are active in the codebase to improv
 | Pattern | Guardrail |
 | --- | --- |
 | Graph-RAG over the provenance graph | Code exists (e.g., `GraphRagNeighborExpander`) and is active. Do not claim it acts as an autonomous agent. |
-| Agentic retrieval (HyDE, query rewrite, multi-hop) | Code exists (e.g., `AgenticRetrievalQueryExpander`) and is active. Do not claim it acts as an autonomous agent. |
+| Single-pass query expansion (HyDE, query rewrite, semantic rerank) | Code exists (e.g., `AgenticRetrievalQueryExpander`) and is active. **One** LLM completion per transform — not iterative retrieve-critique-retry. Do not claim autonomous multi-hop agentic retrieval. |
 
 ## Allowed V1 Magic
 
