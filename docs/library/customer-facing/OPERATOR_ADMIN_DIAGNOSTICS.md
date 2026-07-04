@@ -1,12 +1,12 @@
-> **Scope:** Operator admin diagnostics — health surfaces and readiness signals. Not a substitute for engineering runbooks.
+> **Scope:** Admin diagnostics — health surfaces and readiness signals for platform health. Not a substitute for engineering deep dives.
 
 # Admin diagnostics
 
-Use these checks when an operator symptom points to platform health rather than a single review package.
+Use these checks when a workspace symptom points to platform health rather than a single review package.
 
 ## Start here
 
-1. Open **System status** (`/health`) in the operator shell — live/ready checks and version identity.
+1. Open **System status** (`/health`) in the workspace — live/ready checks and version identity.
 2. On Overview, expand **Workspace readiness** — per-area status and next actions.
 3. Open **Assistant readiness diagnostics** on Overview when LLM or assistant features fail.
 
@@ -23,4 +23,4 @@ Use these checks when an operator symptom points to platform health rather than 
 
 - **Observability** — metrics and export paths when your role includes them.
 - **Projection cache and API replicas** — multi-replica and Redis footguns (advanced).
-- **Engineering troubleshooting runbook** — CLI, logs, environment variables, and support bundles.
+- **Engineering troubleshooting** — CLI, logs, environment variables, and support bundles.

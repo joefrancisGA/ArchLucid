@@ -14,77 +14,77 @@ export type HelpDocSearchRecord = {
 export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Operator troubleshooting",
+    "docTitle": "Troubleshooting",
     "sectionSlug": "",
-    "sectionHeading": "Operator troubleshooting — overview",
+    "sectionHeading": "Troubleshooting — overview",
     "excerpt": "Start with the symptom that matches what you see. Each entry lists a first check inside ArchLucid, then where to go next."
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Operator troubleshooting",
+    "docTitle": "Troubleshooting",
     "sectionSlug": "most-common-issues",
     "sectionHeading": "Most common issues",
     "excerpt": "Most common issues"
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Operator troubleshooting",
+    "docTitle": "Troubleshooting",
     "sectionSlug": "overview-page-or-workspace-readiness-looks-empty",
     "sectionHeading": "Overview page or workspace readiness looks empty",
     "excerpt": "Overview page or workspace readiness looks empty"
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Operator troubleshooting",
+    "docTitle": "Troubleshooting",
     "sectionSlug": "sample-review-package-missing",
     "sectionHeading": "Sample review package missing",
     "excerpt": "Sample review package missing"
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Operator troubleshooting",
+    "docTitle": "Troubleshooting",
     "sectionSlug": "review-package-does-not-open",
     "sectionHeading": "Review package does not open",
     "excerpt": "Review package does not open"
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Operator troubleshooting",
+    "docTitle": "Troubleshooting",
     "sectionSlug": "findings-count-looks-wrong",
     "sectionHeading": "Findings count looks wrong",
     "excerpt": "Findings count looks wrong"
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Operator troubleshooting",
+    "docTitle": "Troubleshooting",
     "sectionSlug": "export-or-deliverable-download-unavailable",
     "sectionHeading": "Export or deliverable download unavailable",
     "excerpt": "Export or deliverable download unavailable"
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Operator troubleshooting",
+    "docTitle": "Troubleshooting",
     "sectionSlug": "ask-or-compare-unavailable",
     "sectionHeading": "Ask or compare unavailable",
     "excerpt": "Ask or compare unavailable"
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Operator troubleshooting",
+    "docTitle": "Troubleshooting",
     "sectionSlug": "evidence-upload-failed",
     "sectionHeading": "Evidence upload failed",
     "excerpt": "Evidence upload failed"
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Operator troubleshooting",
+    "docTitle": "Troubleshooting",
     "sectionSlug": "permissions-or-sign-in-issue",
     "sectionHeading": "Permissions or sign-in issue",
     "excerpt": "Permissions or sign-in issue"
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Operator troubleshooting",
+    "docTitle": "Troubleshooting",
     "sectionSlug": "decision-tree-deeper-triage",
     "sectionHeading": "Decision tree (deeper triage)",
     "excerpt": "The sections below walk API, SQL, auth, execute stalls, and commit conflicts step by step. Use them when the quick fixes above are not enough."
@@ -171,14 +171,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Admin diagnostics",
     "sectionSlug": "",
     "sectionHeading": "Admin diagnostics — overview",
-    "excerpt": "Use these checks when an operator symptom points to platform health rather than a single review package."
+    "excerpt": "Use these checks when a workspace symptom points to platform health rather than a single review package."
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
     "docTitle": "Admin diagnostics",
     "sectionSlug": "start-here",
     "sectionHeading": "Start here",
-    "excerpt": "1. Open System status (`/health`) in the operator shell — live/ready checks and version identity. 2. On Overview, expand Workspace readiness — per-area status and next actions. 3. Open Assistant readiness diagnostics on Overview when LLM or assistant features fail."
+    "excerpt": "1. Open System status (`/health`) in the workspace — live/ready checks and version identity. 2. On Overview, expand Workspace readiness — per-area status and next actions. 3. Open Assistant readiness diagnostics on Overview when LLM or assistant features fail."
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
@@ -192,7 +192,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Admin diagnostics",
     "sectionSlug": "related-help-topics",
     "sectionHeading": "Related Help topics",
-    "excerpt": "- Observability — metrics and export paths when your role includes them. - Projection cache and API replicas — multi-replica and Redis footguns (advanced). - Engineering troubleshooting runbook — CLI, logs, environment variables, and support bundles."
+    "excerpt": "- Observability — metrics and export paths when your role includes them. - Projection cache and API replicas — multi-replica and Redis footguns (advanced). - Engineering troubleshooting — CLI, logs, environment variables, and support bundles."
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",

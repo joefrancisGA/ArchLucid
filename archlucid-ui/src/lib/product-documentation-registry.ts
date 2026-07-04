@@ -54,11 +54,12 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "pilot-nav-profile",
-    title: "Pilot navigation profile",
+    title: "Workspace navigation profile",
     summary:
-      "How the sidebar hides Operate analysis and governance groups until your first review is committed — and how to unlock them on demand.",
+      "How the sidebar keeps the first-review path focused until your first review is committed — and how to unlock analysis and governance on demand.",
     audience: "operator",
     sourcePaths: ["docs/library/operator-shell.md"],
+    sectionAnchors: ["what-you-see", "main-workflow"],
   },
   {
     slug: "first-hour-operator-path",
@@ -298,10 +299,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     summary:
       "System status, workspace readiness, assistant diagnostics, and observability signals for platform health.",
     audience: "operator",
-    sourcePaths: [
-      "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
-      "docs/library/OBSERVABILITY.md",
-    ],
+    sourcePaths: ["docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md"],
   },
   {
     slug: "developer-troubleshooting",
@@ -351,9 +349,20 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   {
     slug: "operator-shell",
     title: "Architect workspace map",
-    summary: "UI routes, review workflows, and progressive disclosure for pilot vs advanced surfaces.",
+    summary: "UI routes, review workflows, and what can wait until later for first review vs advanced surfaces.",
     audience: "operator",
     sourcePaths: ["docs/library/operator-shell.md"],
+    sectionAnchors: [
+      "what-it-is",
+      "what-you-see",
+      "main-workflow",
+      "trial-banner",
+      "keyboard-and-accessibility",
+      "empty-loading-and-error-states",
+      "audit-log",
+      "artifact-review",
+      "evidence-graph-vs-compare-vs-replay",
+    ],
   },
   {
     slug: "alerts",

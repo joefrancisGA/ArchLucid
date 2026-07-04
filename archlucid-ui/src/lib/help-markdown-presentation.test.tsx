@@ -17,13 +17,14 @@ import {
   sanitizeBareMarkdownFileReferences,
 } from "@/lib/help-markdown-presentation";
 import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
+import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { HELP_TOPICS } from "@/lib/help-topics";
 
 describe("help-markdown-presentation", () => {
   it("humanizes repo filenames without extensions", () => {
-    expect(humanizeMarkdownFileReference("OPERATOR_ATLAS.md")).toBe("Operator Atlas");
+    expect(humanizeMarkdownFileReference("OPERATOR_ATLAS.md")).toBe("Workspace route map");
     expect(humanizeMarkdownFileReference("../runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBe(
-      "First Pilot Operator Path",
+      "Complete review workflow",
     );
   });
 
@@ -78,18 +79,18 @@ describe("help-markdown-presentation", () => {
     const sanitized = sanitizeBareMarkdownFileReferences(source);
 
     expect(sanitized).toBe(
-      "Long-form tables remain in **Operator Decision Guide**; see Pre Commit Governance Gate.",
+      "Long-form tables remain in **Deployment decision guide**; see Pre Commit Governance Gate.",
     );
     expect(sanitized.includes(".md")).toBe(false);
   });
 
   it("prepares operator-shell excerpts without raw md references", () => {
     const excerpt =
-      "**Canonical route map:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md). Onboarding: **[`CORE_PILOT.md`](../CORE_PILOT.md)**.";
+      "**Workspace route map:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md). Onboarding: **[`CORE_PILOT.md`](../CORE_PILOT.md)**.";
     const prepared = prepareHelpMarkdownForPresentation(excerpt, "docs/library/operator-shell.md");
 
     expect(prepared.includes(".md")).toBe(false);
-    expect(prepared).toContain("[Operator Atlas](/help/operator-shell)");
+    expect(prepared).toContain("[Workspace route map](/help/operator-shell)");
     expect(prepared).toMatch(/\[Core Pilot\]\(\/help\/core-pilot\)/);
   });
 
@@ -118,6 +119,32 @@ describe("help-markdown-presentation", () => {
 });
 
 describe("help topic product-language drift guards", () => {
+  const SCOPED_ARCHITECT_HELP_SLUGS = [
+    "operator-shell",
+    "pilot-nav-profile",
+    "troubleshooting",
+    "admin-diagnostics",
+    "pilot-guide",
+  ] as const;
+
+  it("loads scoped architect help topics without operator persona in prepared copy", () => {
+    for (const slug of SCOPED_ARCHITECT_HELP_SLUGS) {
+      const loaded = tryLoadProductDocumentation(slug);
+
+      expect(loaded, slug).not.toBeNull();
+
+      const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+      const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath);
+      const proseOnly = prepared
+        .replace(/\]\(\/help\/[^)]+\)/gi, "]")
+        .replace(/`[^`]*`/g, "")
+        .toLowerCase();
+
+      expect(proseOnly, slug).not.toMatch(/\boperator\b/);
+      expect(proseOnly, slug).not.toContain("runbook");
+    }
+  });
+
   it("keeps static help topic catalog free of banned manifest/run fragments", () => {
     for (const topic of HELP_TOPICS) {
       const corpus = [topic.title, topic.summary, ...topic.keywords].join(" ").toLowerCase();
@@ -125,6 +152,8 @@ describe("help topic product-language drift guards", () => {
       for (const pattern of HELP_TOPIC_BANNED_COPY_PATTERNS) {
         expect(corpus, `${topic.id} should not contain "${pattern}"`).not.toContain(pattern);
       }
+
+      expect(corpus, `${topic.id} should not contain "operator"`).not.toContain("operator");
     }
   });
 
@@ -157,7 +186,7 @@ describe("MarketingAccessibilityMarkdownFragment help presentation", () => {
   });
 
   it("does not render internal change set labels in help mode", () => {
-    const markdownBody = "# ArchLucid operator shell (Change Set 55R)\n\n## What it is\n\nBody copy.";
+    const markdownBody = "# Architect workspace map (Change Set 55R)\n\n## What it is\n\nBody copy.";
     const prepared = prepareHelpMarkdownForPresentation(markdownBody, "docs/library/operator-shell.md");
     expect(prepared).toBe("## What it is\n\nBody copy.");
 

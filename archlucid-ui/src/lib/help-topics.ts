@@ -51,10 +51,10 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
   {
     id: "pilot-nav-profile",
-    title: "Pilot navigation profile",
-    keywords: ["sidebar", "nav", "operate", "progressive disclosure", "unlock", "analysis"],
+    title: "Workspace navigation profile",
+    keywords: ["sidebar", "nav", "analysis", "governance", "unlock", "first review"],
     summary:
-      "Core Pilot nav stays focused until your first review is committed; Operate analysis and governance groups unlock on demand or automatically after finalize.",
+      "The first-review path stays focused until your first review is committed; analysis and governance groups unlock on demand or automatically after finalize.",
     docPath: "docs/library/operator-shell.md",
     routes: ["/", "/reviews", "/onboarding"],
   },
@@ -139,7 +139,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     id: "system-health",
     title: "System health dashboard",
     keywords: ["ready", "health", "circuit", "diagnostics", "metrics"],
-    summary: "In-app readiness checks, circuit breaker gates, and onboarding funnel counters — same signals as CLI doctor without leaving the shell.",
+    summary: "In-app readiness checks, circuit breaker gates, and onboarding funnel counters — same signals as CLI doctor without leaving the workspace.",
     docPath: "docs/library/OBSERVABILITY.md",
     routes: ["/health", "/admin/health"],
   },

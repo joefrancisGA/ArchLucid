@@ -57,6 +57,12 @@ describe("contextualHelpByKey", () => {
     }
   });
 
+  it("does not use operator persona in visible contextual help copy", () => {
+    for (const key of Object.keys(contextualHelpByKey)) {
+      expect(contextualHelpByKey[key].text.toLowerCase(), key).not.toContain("operator");
+    }
+  });
+
   it("does not link to contributor-reference engineering docs", () => {
     for (const key of Object.keys(contextualHelpByKey)) {
       const u = contextualHelpByKey[key].learnMoreUrl;

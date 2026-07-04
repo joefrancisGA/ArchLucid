@@ -1,6 +1,6 @@
-> **Scope:** Operator-facing troubleshooting — symptoms, first checks, and in-app next steps. For CLI, logs, and environment variables, open **Engineering troubleshooting runbook** in Help.
+> **Scope:** Architect-facing troubleshooting — symptoms, first checks, and in-app next steps. For CLI, logs, and environment variables, open **Engineering troubleshooting** in Help.
 
-# Operator troubleshooting
+# Troubleshooting
 
 Start with the symptom that matches what you see. Each entry lists a first check inside ArchLucid, then where to go next.
 
@@ -22,7 +22,7 @@ Start with the symptom that matches what you see. Each entry lists a first check
 | **What you see** | No sample review on Overview or the reviews list |
 | **Likely cause** | Demo seed not applied or wrong workspace scope |
 | **First check** | Confirm you are in the intended workspace; refresh Overview |
-| **Next step** | Follow **Getting started** in Help, then **Full operating path** |
+| **Next step** | Follow **Getting started** in Help, then the **first-review path** |
 
 ### Review package does not open
 
@@ -55,9 +55,9 @@ Start with the symptom that matches what you see. Each entry lists a first check
 
 | | |
 |---|---|
-| **What you see** | Ask, compare, or operate surfaces greyed out |
+| **What you see** | Ask, compare, or analysis surfaces greyed out |
 | **Likely cause** | Feature gated until first commit or trial limit |
-| **First check** | Finish the first review commit on the core pilot path |
+| **First check** | Finish the first review commit on the **first review path** |
 | **Next step** | **Repeat-review stickiness loop** in Help after first commit |
 
 ### Evidence upload failed
@@ -76,7 +76,7 @@ Start with the symptom that matches what you see. Each entry lists a first check
 | **What you see** | 401/403 style errors or missing actions |
 | **Likely cause** | Role, token, or workspace scope |
 | **First check** | Settings → identity; confirm role matches the action |
-| **Next step** | **Operator authentication and roles** (engineering topic) if IT manages Entra |
+| **Next step** | **Users and roles** in Help if IT manages Entra |
 
 ---
 

@@ -2,79 +2,60 @@
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
+> **Audience:** Internal operators and design partners using the thin Next.js UI in `archlucid-ui/` against the ArchLucid API.
+
 
 # ArchLucid operator shell
-
-**Audience:** Internal operators and design partners using the thin Next.js UI in `archlucid-ui/` against the ArchLucid API.
 
 **Canonical route × API × CLI map:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md).
 
 ---
 
-## What it is
+## What it is {#what-it-is}
 
-A read-focused **operator shell** for the three ArchLucid product layers:
+A read-focused **workspace** for the three ArchLucid product layers:
 
 | Layer | What you do here |
 |-------|-----------------|
-| **Core Pilot** | Create reviews, track execution, finalize reviews, review and download artifacts |
-| **Operate (analysis workloads)** | Compare reviews, replay authority chains, explore the evidence graph, run Q&A and advisory scans |
-| **Operate (governance and trust)** | Governance approvals, policy packs, audit log, alerts, compliance drift |
+| **First review path** | Create reviews, track execution, finalize reviews, review and download artifacts |
+| **Analysis workloads** | Compare reviews, replay authority chains, explore the evidence graph, run Q&A and advisory scans |
+| **Governance and trust** | Governance approvals, policy packs, audit log, alerts, compliance drift |
 
 It is not a replacement for Swagger or the CLI. See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for the full capability inventory.
 
-### Buyer-facing vocabulary
-
-Canonical buyer ↔ technical mapping (REST paths and type names unchanged): **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**. Summary:
-
-- **Review** ↔ run / `ArchitectureRun` / run-scoped APIs under `/v1/...`.
-- **Finalize (review)** ↔ commit and golden **architecture snapshot** persistence.
-- **Architecture snapshot** / **Snapshot** ↔ manifest / `GoldenManifest`.
-- **Evidence graph** ↔ internal knowledge-graph projections; route **`/graph`** is unchanged.
-
-Onboarding pointers: **[`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** (single V1 pilot path), **[`CORE_PILOT.md`](../CORE_PILOT.md)** (also mirrored at **[`library/CORE_PILOT.md`](CORE_PILOT.md)**), **[`PILOT_GUIDE.md`](PILOT_GUIDE.md)**. Keep wording aligned with **[`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md)** and **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**.
-
-### In-product layer hints (UI)
-
-The shell surfaces the three-layer model without duplicating [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md):
-
-- **Sidebar** — each nav group shows a one-line caption under the layer name (what that group is for).
-- **LayerHeader** — Compare, Replay, Evidence graph, Governance dashboard, Alerts, and Audit pages open with a short “what question this answers” strip and a first-pilot reminder where relevant.
-- **Home** — after every Core Pilot checklist box is checked, a compact strip suggests Operate (analysis workloads) next steps (still optional).
-- **Review detail** — after an architecture snapshot (golden manifest) exists, an optional strip links Compare / Replay / Evidence graph for this review.
-
-Long-form “when to expand” tables remain in **OPERATOR_DECISION_GUIDE.md**; the UI carries only minimal affordances.
-
-### Navigation authority hints (structural)
-
-The sidebar, mobile drawer, and **Ctrl+K** command palette can hide individual destinations when the signed-in principal is unlikely to satisfy the API for that workflow. Link metadata lives on **`NavLinkItem.requiredAuthority`** in `archlucid-ui/src/lib/nav-config.ts` and mirrors ASP.NET policy names **`ReadAuthority`**, **`ExecuteAuthority`**, and **`AdminAuthority`** (see repo root **`README.md`**, API authentication section). **`NAV_GROUPS[].id`** is the stable seam to **product packaging**: `runs-review` = Core Pilot, `qa-advisory` = Operate (analysis workloads), `alerts-governance` = Operate (governance and trust) (see **PRODUCT_PACKAGING.md** §3 *Code seams*).
-
-The shell resolves a monotonic caller rank from **`GET /api/auth/me`** (same-origin **`/api/proxy/api/auth/me`**, role claims) via **`archlucid-ui/src/lib/current-principal.ts`** (`loadCurrentPrincipal`); `OperatorNavAuthorityProvider` consumes the same helper. Sidebar, mobile drawer, and command palette compose **tier + authority** in **`archlucid-ui/src/lib/nav-shell-visibility.ts`** and **omit whole nav groups** when every link in that group is filtered out (no empty headings). **This is not authorization:** routes still enforce policies server-side. Omitted `requiredAuthority` keeps a link visible for every resolved rank (used for **Home**, **Onboarding**, and other Core Pilot essentials so the default path stays open).
-
-Short **Operate (governance and trust)** context lines (nav subtitle + `LayerHeader` footnotes + execute-page hints) live in **`archlucid-ui/src/lib/enterprise-controls-context-copy.ts`** and **`EnterpriseControlsContextHints.tsx`** so omission does not feel arbitrary for readers (see **OPERATOR_DECISION_GUIDE.md** §2).
-
-**Contributors:** treat **`archlucid-ui/README.md`** (*Role-aware shaping*) as the canonical pointer list. Do not add ad-hoc `/me` fetches or duplicate policy logic in the browser; extend **`nav-config.ts`** + **`nav-shell-visibility.ts`** when adding routes so sidebar, mobile drawer, and palette stay consistent.
-
-**Primary navigation:** **Operator | Executive** in the top bar switches producer vs consumer shells. Sidebar groups (Review work, Analysis, Governance, Administration) are the direct navigation model; progressive disclosure tiers and **Show all features** control link breadth — there is no separate workflow-mode toolbar.
-
-**Core Pilot checklist telemetry (aggregated):** when the checklist records completion it may **`POST /v1/diagnostics/core-pilot-rail-step`** with **`stepIndex` 0–3** (`AllowAnonymous`, rate limited). The API emits counter **`archlucid_core_pilot_rail_checklist_step_total`** (label **`step`**) — adoption signal only.
+**Related guides:** [First-review guide](FIRST_HOUR_OPERATOR_PATH.md), [Core Pilot walkthrough](CORE_PILOT.md), [Pilot guide](customer-facing/PILOT_GUIDE.md). Keep wording aligned with [Concept vocabulary](CONCEPT_VOCABULARY.md) and [UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md).
 
 ---
 
-## Main workflow
+## What you will see in ArchLucid {#what-you-see}
 
-### Core Pilot path (steps 1–4 — start here)
+The workspace surfaces the three-layer model without duplicating long deployment tables:
 
-These four steps cover the complete first-pilot journey. They map directly to the **Core Pilot checklist** on the Home page.
+- **Sidebar** — each nav group shows a one-line caption under the layer name (what that group is for).
+- **LayerHeader** — Compare, Replay, Evidence graph, Governance dashboard, Alerts, and Audit pages open with a short “what question this answers” strip and a first-review reminder where relevant.
+- **Home** — after every first-review checklist box is checked, a compact strip suggests analysis workloads next steps (still optional).
+- **Review detail** — after an architecture snapshot (golden manifest) exists, an optional strip links Compare / Replay / Evidence graph for this review.
 
-1. **Start** — Open the app root (`/`). First-time users: use the **Core Pilot checklist** on Home for step-by-step links (start a review → pipeline → finalize → review artifacts); **Hide checklist** collapses it (preference in browser `localStorage`). The sidebar **Core Pilot** group shows **Home**, **Onboarding**, **New request** (wizard), and **Reviews** by default (labels in the live UI follow **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**). The wizard lives at **`/reviews/new`** (legacy **`/runs/new`** may redirect; same **`POST /v1/architecture/request`** body shape as the API — see **[`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)**).
+Long-form “when to expand” tables remain in the deployment decision guide; the UI carries only minimal cues.
+
+**Primary navigation:** **Producer | Executive** in the top bar switches producer vs consumer shells. Sidebar groups (Review work, Analysis, Governance, Administration) are the direct navigation model; **what can wait until later** tiers and **Show all features** control link breadth — there is no separate workflow-mode toolbar.
+
+---
+
+## Main workflow {#main-workflow}
+
+### First review path (steps 1–4 — start here)
+
+These four steps cover the complete first-review journey. They map directly to the **first-review checklist** on the Home page.
+
+1. **Start** — Open the app root (`/`). First-time users: use the **first-review checklist** on Home for step-by-step links (start a review → pipeline → finalize → review artifacts); **Hide checklist** collapses it (preference in browser `localStorage`). The sidebar **Review work** group shows **Home**, **Onboarding**, **New request** (wizard), and **Reviews** by default (labels in the live UI follow **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**). The wizard lives at **`/reviews/new`** (legacy **`/runs/new`** may redirect; same **`POST /v1/architecture/request`** body shape as the API — see **[`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)**).
 2. **Reviews** — Open **Reviews** → pick a project (default `default`) → **Open review** on a row (empty list shows a create flow CTA).
 3. **Review detail** — **Pipeline timeline** lists review-scoped audit events (oldest first) from **`GET /v1/authority/runs/{runId}/pipeline-timeline`**. After you **finalize** the review, you see architecture snapshot summary, **Artifacts** (table with **Review** / **Download**).
-4. **Architecture snapshot / artifact** — From the architecture snapshot link or **Review**, you land on snapshot-scoped or artifact review pages: metadata, in-shell preview (when available), raw disclosure, sibling artifact list.
+4. **Architecture snapshot / artifact** — From the architecture snapshot link or **Review**, you land on snapshot-scoped or artifact review pages: metadata, in-workspace preview (when available), raw disclosure, sibling artifact list.
 
-### Operate (analysis workloads) (available once you have a finalized review with a persisted architecture snapshot)
+### Analysis workloads (available once you have a finalized review with a persisted architecture snapshot)
 
-Enable these by clicking **Show analysis & investigation tools** in the sidebar footer. These are **Operate (analysis workloads)** layer features.
+Enable these by clicking **Show analysis & investigation tools** in the sidebar footer.
 
 5. **Compare / replay** — **Compare reviews**: enter base (left) and target (right) review IDs; structured architecture-snapshot deltas first, then legacy flat diff; optional AI explanation. **Replay review**: pick mode and read validation flags/notes.
 6. **Evidence graph** — Enter a **review ID** (from the reviews list or review detail), choose a view (full provenance, decision subgraph, neighborhood, architecture), **Load graph**. Use this when you need a **visual** graph, not the tabular compare flow.
@@ -82,57 +63,57 @@ Enable these by clicking **Show analysis & investigation tools** in the sidebar 
 
 Breadcrumb links on key pages tie **Home · Reviews · Compare · Evidence graph** together.
 
-### Operate (governance and trust) (require extended or advanced links)
+### Governance and trust (require extended or advanced links)
 
-These are **Operate (governance and trust)** layer features. Most require an operator or admin role and may require explicit configuration per environment (see `docs/PRE_COMMIT_GOVERNANCE_GATE.md`, `docs/ALERTS.md`).
+Most require an architect or admin role and may require explicit configuration per environment (see `docs/PRE_COMMIT_GOVERNANCE_GATE.md`, `docs/ALERTS.md`).
 
 - **Governance dashboard** — cross-review pending approvals and policy changes. Enable **Show analysis & investigation tools** (extended links).
 - **Policy packs / Governance resolution** — versioned rule sets and effective policy view. Enable **Show analysis & investigation tools** (extended links).
 - **Audit log** — append-only search, filter, and CSV export. Enable **Show governance, audit & admin controls** (advanced links).
-- **Alerts** — one **Operate · governance** nav row opens the **Alerts** hub at `/alerts` (tabs: **Inbox**, **Rules**, **Routing**, **Composite**, **Simulation & Tuning**). The hub is **essential** tier; **Show governance, audit & admin controls** still controls other deep destinations in that group where applicable.
+- **Alerts** — one governance nav row opens the **Alerts** hub at `/alerts` (tabs: **Inbox**, **Rules**, **Routing**, **Composite**, **Simulation & Tuning**). The hub is **essential** tier; **Show governance, audit & admin controls** still controls other deep destinations in that group where applicable.
 - **Governance workflow** — full approval, promotion, and activation surface. Enable **Show governance, audit & admin controls** (advanced links).
 
 ---
 
-## Trial banner (self-service workspaces)
+## Trial banner (self-service workspaces) {#trial-banner}
 
-When `GET /v1/tenant/trial-status` reports **Active**, **Expired**, or **ReadOnly**, the operator shell shows **`TrialBanner`** (see `archlucid-ui/docs/TRIAL_SIGNUP_UI.md`): remaining calendar days, **Convert to paid** (`POST /v1/tenant/billing/checkout`), checklist link to **`/onboarding?source=registration`** (same Core Pilot checklist as Home), and a dismiss control that hides the strip for **24 hours** then re-evaluates on the next visit.
+When `GET /v1/tenant/trial-status` reports **Active**, **Expired**, or **ReadOnly**, the workspace shows **`TrialBanner`** (see `archlucid-ui/docs/TRIAL_SIGNUP_UI.md`): remaining calendar days, **Convert to paid** (`POST /v1/tenant/billing/checkout`), checklist link to **`/onboarding?source=registration`** (same first-review checklist as Home), and a dismiss control that hides the strip for **24 hours** then re-evaluates on the next visit.
 
 ---
 
-## Keyboard and accessibility (V1 polish)
+## Keyboard and accessibility (V1 polish) {#keyboard-and-accessibility}
 
 - **Skip link:** Press **Tab** once on any page to reach **Skip to main content**; **Enter** moves focus into the page body (`#main-content`) so you can bypass the header nav and auth strip.
 - **Visible focus:** Primary header nav links, first-run checklist actions, and auth **Sign in** / **Sign out** show a clear keyboard **focus ring** (do not rely on mouse-only hover).
 - **Landmarks:** The auth strip is exposed as a named **region** (“Authentication status”) for screen readers.
 - **Page titles:** Browser tabs use short route titles from Next.js metadata (for example **Reviews list**, **Compare two reviews**, **Evidence graph (provenance)**) in addition to the **· ArchLucid** template.
-- **Copy tweaks:** Home uses **Operator home** as the main heading; the first-run panel title reads **First-run workflow (V1 checklist)**; the reviews list heading includes the active **project** id inline.
+- **Copy tweaks:** Home uses **Overview** as the main heading; the first-run panel title reads **First-run workflow (V1 checklist)**; the reviews list heading includes the active **project** id inline.
 
 This is a lightweight pass (focus, labels, contrast on small caps) — not a full WCAG audit.
 
 ---
 
-## Empty, loading, and error states (operator copy)
+## Empty, loading, and error states {#empty-loading-and-error-states}
 
-Pages use shared callouts from `archlucid-ui/src/components/OperatorShellMessage.tsx`:
+Pages use shared status callouts in the workspace:
 
-- **`OperatorLoadingNotice`** — in-progress fetches (explicit text, no spinners required).
-- **`OperatorEmptyState`** — valid empty data (e.g. zero reviews in the list, zero alerts for a filter).
-- **`OperatorApiProblem`** — HTTP / transport failures with ProblemDetails when present.
-- **`OperatorMalformedCallout`** — HTTP succeeded but JSON failed **coerce\*** contract checks (distinct from empty).
-- **`OperatorTryNext`** — short **Try next:** line after failures or malformed responses: concrete checks (health, `GET /version`, correlation ID, re-copy review IDs, try another filter).
+- **Loading notice** — in-progress fetches (explicit text, no spinners required).
+- **Empty state** — valid empty data (e.g. zero reviews in the list, zero alerts for a filter).
+- **API problem** — HTTP / transport failures with ProblemDetails when present.
+- **Malformed response callout** — HTTP succeeded but JSON failed **coerce\*** contract checks (distinct from empty).
+- **Try next** — short **Try next:** line after failures or malformed responses: concrete checks (health, `GET /version`, correlation ID, re-copy review IDs, try another filter).
 
-Goal: operators see **what happened**, **how it differs from “nothing here”**, and **one sensible next action** without raw stack traces in the shell.
+Goal: you see **what happened**, **how it differs from “nothing here”**, and **one sensible next action** without raw stack traces in the workspace.
 
 ---
 
-## Audit log (`/audit`)
+## Audit log (`/audit`) {#audit-log}
 
 Filter durable `IAuditService` rows (event type, local **from/to** window, correlation id, actor, **run id**). **Clear filters** resets inputs and immediately re-queries with no filters. **Export CSV** calls `GET /v1/audit/export` (same-origin proxy) with the current **from/to** range and triggers a browser download; the button stays disabled until both bounds are set (tooltip explains why). A summary line above the list shows **Showing N events** or **Showing N+ events** when more pages remain (**Load more** uses the search keyset cursor).
 
 ---
 
-## Artifact review
+## Artifact review {#artifact-review}
 
 - **List:** `GET api/artifacts/manifests/{manifestId}` returns a **JSON array** (possibly empty) when the manifest exists in scope. Rows are ordered **by name, then artifact id** (deterministic for UI and ZIP).
 - **Descriptor:** `GET …/artifact/{id}/descriptor` — metadata only for the review header (type, format, hash, timestamps).
@@ -144,7 +125,7 @@ Filter durable `IAuditService` rows (event type, local **from/to** window, corre
 
 ---
 
-## Evidence graph vs compare vs replay
+## Evidence graph vs compare vs replay {#evidence-graph-vs-compare-vs-replay}
 
 | Area | Purpose |
 |------|--------|
@@ -154,7 +135,34 @@ Filter durable `IAuditService` rows (event type, local **from/to** window, corre
 
 ---
 
-## Running focused UI tests (55R smoke)
+## For contributors: buyer ↔ technical vocabulary
+
+Canonical buyer ↔ technical mapping (REST paths and type names unchanged): **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**. Summary:
+
+- **Review** ↔ run / `ArchitectureRun` / run-scoped APIs under `/v1/...`.
+- **Finalize (review)** ↔ commit and golden **architecture snapshot** persistence.
+- **Architecture snapshot** / **Snapshot** ↔ manifest / `GoldenManifest`.
+- **Evidence graph** ↔ internal knowledge-graph projections; route **`/graph`** is unchanged.
+
+Onboarding pointers: **[`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** (single V1 pilot path), **[`CORE_PILOT.md`](../CORE_PILOT.md)** (also mirrored at **[`library/CORE_PILOT.md`](CORE_PILOT.md)**), **[`PILOT_GUIDE.md`](PILOT_GUIDE.md)**. Keep wording aligned with **[`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md)** and **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**.
+
+---
+
+## For contributors: navigation authority hints {#contributors-navigation}
+
+The sidebar, mobile drawer, and **Ctrl+K** command palette can hide individual destinations when the signed-in principal is unlikely to satisfy the API for that workflow. Link metadata lives on **`NavLinkItem.requiredAuthority`** in `archlucid-ui/src/lib/nav-config.ts` and mirrors ASP.NET policy names **`ReadAuthority`**, **`ExecuteAuthority`**, and **`AdminAuthority`** (see repo root **`README.md`**, API authentication section). **`NAV_GROUPS[].id`** is the stable seam to **product packaging**: `runs-review` = Core Pilot, `qa-advisory` = Operate (analysis workloads), `alerts-governance` = Operate (governance and trust) (see **PRODUCT_PACKAGING.md** §3 *Code seams*).
+
+The shell resolves a monotonic caller rank from **`GET /api/auth/me`** (same-origin **`/api/proxy/api/auth/me`**, role claims) via **`archlucid-ui/src/lib/current-principal.ts`** (`loadCurrentPrincipal`); `OperatorNavAuthorityProvider` consumes the same helper. Sidebar, mobile drawer, and command palette compose **tier + authority** in **`archlucid-ui/src/lib/nav-shell-visibility.ts`** and **omit whole nav groups** when every link in that group is filtered out (no empty headings). **This is not authorization:** routes still enforce policies server-side. Omitted `requiredAuthority` keeps a link visible for every resolved rank (used for **Home**, **Onboarding**, and other Core Pilot essentials so the default path stays open).
+
+Short **Operate (governance and trust)** context lines (nav subtitle + `LayerHeader` footnotes + execute-page hints) live in **`archlucid-ui/src/lib/enterprise-controls-context-copy.ts`** and **`EnterpriseControlsContextHints.tsx`** so omission does not feel arbitrary for readers (see **OPERATOR_DECISION_GUIDE.md** §2).
+
+**Contributors:** treat **`archlucid-ui/README.md`** (*Role-aware shaping*) as the canonical pointer list. Do not add ad-hoc `/me` fetches or duplicate policy logic in the browser; extend **`nav-config.ts`** + **`nav-shell-visibility.ts`** when adding routes so sidebar, mobile drawer, and palette stay consistent.
+
+**Core Pilot checklist telemetry (aggregated):** when the checklist records completion it may **`POST /v1/diagnostics/core-pilot-rail-step`** with **`stepIndex` 0–3** (`AllowAnonymous`, rate limited). The API emits counter **`archlucid_core_pilot_rail_checklist_step_total`** (label **`step`**) — adoption signal only.
+
+---
+
+## For contributors: running focused UI tests (55R smoke)
 
 From `archlucid-ui/`:
 
@@ -177,10 +185,10 @@ Full detail: [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../../archlucid-
 
 ---
 
-## API / UI contract expectations (operator flow)
+## For contributors: API / UI contract expectations
 
 - **Versioning:** Browser calls go to **`/v1/...`** via the Next.js **`/api/proxy`** route; the server attaches scope and credentials. Do not expose API keys in the browser bundle.
-- **JSON shapes:** The UI uses **coerce\*** guards on responses. Malformed JSON → operator “response not usable” states (distinct from HTTP failure and empty data).
+- **JSON shapes:** The UI uses **coerce\*** guards on responses. Malformed JSON → “response not usable” states (distinct from HTTP failure and empty data).
 - **Empty vs missing:** **Reviews list** can be `[]`. **Artifact list** for a valid manifest can be `[]`. **404** on run/manifest/artifact routes should carry **RFC 9457 Problem Details** (`title` / `detail` / `type`) where the API provides them. Error JSON from the API includes **`correlationId`** (matches **`X-Correlation-ID`**) for log triage; proxy-generated errors do the same.
 - **Artifact bundle 404:** Prefer distinguishing **manifest not in scope** (`manifest-not-found`) from **no bundle / zero artifacts** (`resource-not-found`) when interpreting bundle download failures next to an empty artifact table.
 - **Ordering:** Treat artifact list and ZIP entry order as **stable** (name, then id) for screenshots and diffs.

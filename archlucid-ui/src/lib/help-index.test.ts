@@ -5,7 +5,7 @@ import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
 import { HELP_DOC_SEARCH_RECORDS } from "@/lib/help-index.generated";
 
 describe("searchHelpDocumentation", () => {
-  it("returns Core Pilot sections for create/run style queries", () => {
+  it("returns first-review path sections for create/run style queries", () => {
     const hits = searchHelpDocumentation("how to create a run", 30);
 
     expect(hits.length).toBeGreaterThan(0);
@@ -24,7 +24,7 @@ describe("searchHelpDocumentation", () => {
     expect(hits.some((h) => h.docPath.includes("CONFIGURATION_REFERENCE"))).toBe(true);
   });
 
-  it("returns operator troubleshooting paths for troubleshooting queries", () => {
+  it("returns architect troubleshooting paths for troubleshooting queries", () => {
     const hits = searchHelpDocumentation("troubleshooting", 30);
 
     expect(

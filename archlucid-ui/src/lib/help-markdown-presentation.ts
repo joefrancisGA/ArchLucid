@@ -52,12 +52,32 @@ function posixNormalize(path: string): string {
 }
 
 /**
- * Turns repo filenames like `OPERATOR_ATLAS.md` into operator-facing labels (no extension).
+ * Architect-facing link labels for legacy OPERATOR_* repo filenames (filenames unchanged on disk).
+ */
+const HELP_LINK_LABEL_OVERRIDES: Readonly<Record<string, string>> = {
+  operator_atlas: "Workspace route map",
+  operator_decision_guide: "Deployment decision guide",
+  first_pilot_operator_path: "Complete review workflow",
+  operator_quickstart: "Getting started",
+  operator_troubleshooting: "Troubleshooting",
+  operator_admin_diagnostics: "Admin diagnostics",
+  operator_shell_tutorial: "Workspace tutorial",
+  first_hour_operator_path: "First-review guide",
+};
+
+/**
+ * Turns repo filenames like `OPERATOR_ATLAS.md` into help link labels (no extension).
  */
 export function humanizeMarkdownFileReference(pathOrName: string): string {
   const withoutFragment = pathOrName.split("#")[0] ?? pathOrName;
   const baseName = withoutFragment.split("/").pop() ?? withoutFragment;
   const withoutExtension = baseName.replace(/\.md$/i, "");
+  const overrideKey = withoutExtension.replace(/-/g, "_").toLowerCase();
+  const override = HELP_LINK_LABEL_OVERRIDES[overrideKey];
+
+  if (override !== undefined) {
+    return override;
+  }
 
   return withoutExtension
     .replace(/_/g, " ")

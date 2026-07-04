@@ -5,11 +5,11 @@
 
 # Pilot guide (redirect)
 
-**Operator / pilot** material is merged into the command-first quickstart. **V1 boundary** (scope, gates) stays in **[V1_SCOPE.md](../V1_SCOPE.md)**.
+**Pilot and IT setup** material is merged into the command-first quickstart. **V1 boundary** (scope, gates) stays in **[V1_SCOPE.md](../V1_SCOPE.md)**.
 
-**Canonical hosted pilot path:** [`HOSTED_PILOT_SINGLE_PATH.md`](../HOSTED_PILOT_SINGLE_PATH.md) — one command sequence via `Invoke-FirstPilotStrictPath.ps1`.
+**Hosted first-review path:** [`HOSTED_PILOT_SINGLE_PATH.md`](../HOSTED_PILOT_SINGLE_PATH.md) — one command sequence via `Invoke-FirstPilotStrictPath.ps1`.
 
-**Canonical:** [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)
+**Getting started:** [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)
 
 **Minimum viable success lane (five steps):** [MINIMUM_VIABLE_PILOT_SUCCESS.md](../MINIMUM_VIABLE_PILOT_SUCCESS.md)
 
@@ -21,7 +21,7 @@
 
 **Prior pilot narrative:** [archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md](../../archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md)
 
-## Verification ladder
+## How to know you are ready
 
 1. **A — Run / deploy readiness** — environment checks your team already runs before declaring “ready.”  
 2. **B — Release smoke** — **[RELEASE_SMOKE.md](../RELEASE_SMOKE.md)** (API + CLI + artifact checks).  
@@ -33,7 +33,7 @@ Starter **`ArchitectureRequest`** JSON files aligned with **`POST /v1/architectu
 
 **Field map (no schema drift):** **[`ARCHITECTURE_REQUEST_WIRE_FORMAT.md`](../ARCHITECTURE_REQUEST_WIRE_FORMAT.md)** summarizes the binding type and points at **`GET /openapi/v1.json`**. **Buyer-safe evidence** for updating pilot trackers: **[`../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md`](../../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md)**. **Real-LLM session evidence** when live AOAI is in scope: **[`../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md)**.
 
-There is no `archlucid request create --from-file` subcommand today; submit the file as the JSON body to **`POST /v1/architecture/request`** (same contract as the operator wizard import). From the repository root, after **`export BASE=https://your-api-host`** (or `http://localhost:5128`):
+There is no `archlucid request create --from-file` subcommand today; submit the file as the JSON body to **`POST /v1/architecture/request`** (same contract as the new-review wizard import). From the repository root, after **`export BASE=https://your-api-host`** (or `http://localhost:5128`):
 
 ```bash
 curl -sS -X POST "$BASE/v1/architecture/request" \
@@ -72,19 +72,19 @@ curl -sS -X POST "https://localhost:5001/v1/register" ^
   -d "{\"organizationName\":\"Acme Pilot Eval\",\"adminEmail\":\"you@example.com\",\"baselineReviewCycleHours\":18,\"baselineReviewCycleSource\":\"team estimate, two most recent reviews\"}"
 ```
 
-The operator shell will gain a signup form for these fields in a follow-up UI PR; this API contract ships first.
+The workspace signup form for these fields ships in a follow-up UI PR; this API contract ships first.
 
 ## Post-commit sponsor banner (first commit clock)
 
-After the first golden manifest commit, the operator-shell **review detail** page (`/runs/[runId]` — legacy URL; may redirect to `/reviews/…`) shows the **“Email this review to your sponsor”** banner when the review has a manifest (exact banner text may still say *run* until label-only UI updates land). The banner may add a small **“Day N since first commit”** badge (UTC full days since this tenant’s first committed manifest, from **`GET /v1/tenant/trial-status`** field **`firstCommitUtc`**) so the sponsor pitch is anchored in the tenant’s own clock. Details: **[`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`](../SPONSOR_BANNER_FIRST_COMMIT_BADGE.md)**.
+After the first golden manifest commit, the **review detail** page (`/runs/[runId]` — legacy URL; may redirect to `/reviews/…`) shows the **“Email this review to your sponsor”** banner when the review has a manifest (exact banner text may still say *run* until label-only UI updates land). The banner may add a small **“Day N since first commit”** badge (UTC full days since this tenant’s first committed manifest, from **`GET /v1/tenant/trial-status`** field **`firstCommitUtc`**) so the sponsor pitch is anchored in the tenant’s own clock. Details: **[`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`](../SPONSOR_BANNER_FIRST_COMMIT_BADGE.md)**.
 
-Sponsors who do not have an operator install can preview a real commit page at **`/demo/preview`** on your marketing host (URL as deployed); the data is the **ArchLucid demo seed**, not your tenant. See **`docs/DEMO_PREVIEW.md`**.
+Sponsors who do not have a workspace install can preview a real commit page at **`/demo/preview`** on your marketing host (URL as deployed); the data is the **ArchLucid demo seed**, not your tenant. See **`docs/DEMO_PREVIEW.md`**.
 
 ## Evidence-only first pilot (no Azure extractor)
 
 When InfoSec has not approved the Azure extractor script, or you only have briefs, diagrams, and IaC:
 
-1. Create a review with **`cloudProvider: None`** (operator wizard: **No cloud / evidence-only** — the quick-review default).
+1. Create a review with **`cloudProvider: None`** (new-review wizard: **No cloud / evidence-only** — the quick-review default).
 2. Skip Phase B extractor upload in [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md); use demo evidence only for internal dry-runs.
 3. Complete execute → commit → sponsor export on uploaded documents alone.
 
@@ -97,4 +97,3 @@ ArchLucid surfaces **`GET /v1/compare`** Markdown in CI/CD for both GitHub Actio
 - **Navigator:** [GitHub job summary](../../integrations/GITHUB_ACTION_MANIFEST_DELTA.md) · [GitHub PR comment](../../integrations/GITHUB_ACTION_MANIFEST_DELTA_PR_COMMENT.md) · [Azure DevOps job summary](../../integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md) · [Azure DevOps PR comment](../../integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA_PR_COMMENT.md) · [Azure DevOps server-side (Worker)](../../integrations/AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md)
 
 The server-side path is optional and posts to a **single configured PR** from Worker settings; the pipeline templates are the usual choice for ADO-shop pilots who want YAML snippets.
-
