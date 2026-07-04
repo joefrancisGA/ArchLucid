@@ -6,6 +6,7 @@ using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Runs;
 using ArchLucid.Core.Evidence;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -685,10 +686,24 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private async Task PersistExecutePhaseRowsAsync(AgentEvidencePackage evidence, IReadOnlyList<AgentResult> results,
         IReadOnlyList<AgentEvaluation> evaluations, IArchLucidUnitOfWork uow, CancellationToken cancellationToken)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (uow.SupportsExternalTransaction)
         {
-            await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken, uow.Connection, uow.Transaction);
-            await resultRepository.CreateManyAsync(results, cancellationToken, uow.Connection, uow.Transaction);
+            if (await AgentExecuteIdempotentPersistReconciliation.ShouldInsertEvidencePackageAsync(
+                    agentEvidencePackageRepository, evidence, cancellationToken))
+            {
+                await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken, uow.Connection, uow.Transaction);
+            }
+
+            await AgentExecuteIdempotentPersistReconciliation.PersistAgentResultsAsync(
+                resultRepository,
+                scope,
+                results,
+                cancellationToken,
+                uow.Connection,
+                uow.Transaction);
+
             await agentEvaluationRepository.CreateManyAsync(
                 DecisionRecordMapper.ToRecords(evaluations),
                 cancellationToken,
@@ -697,8 +712,18 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
         else
         {
-            await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
-            await resultRepository.CreateManyAsync(results, cancellationToken);
+            if (await AgentExecuteIdempotentPersistReconciliation.ShouldInsertEvidencePackageAsync(
+                    agentEvidencePackageRepository, evidence, cancellationToken))
+            {
+                await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
+            }
+
+            await AgentExecuteIdempotentPersistReconciliation.PersistAgentResultsAsync(
+                resultRepository,
+                scope,
+                results,
+                cancellationToken);
+
             await agentEvaluationRepository.CreateManyAsync(
                 DecisionRecordMapper.ToRecords(evaluations),
                 cancellationToken);
@@ -771,31 +796,53 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         ArgumentNullException.ThrowIfNull(results);
         ArgumentNullException.ThrowIfNull(evaluations);
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (uow.SupportsExternalTransaction)
         {
-            await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken, uow.Connection, uow.Transaction);
+            if (await AgentExecuteIdempotentPersistReconciliation.ShouldInsertEvidencePackageAsync(
+                    agentEvidencePackageRepository, evidence, cancellationToken))
+            {
+                await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken, uow.Connection, uow.Transaction);
+            }
 
-            foreach (AgentResult result in results)
-                await resultRepository.CreateAsync(result, cancellationToken, uow.Connection, uow.Transaction);
-
-            if (evaluations.Count > 0)
-                await agentEvaluationRepository.CreateManyAsync(
-                DecisionRecordMapper.ToRecords(evaluations),
+            await AgentExecuteIdempotentPersistReconciliation.PersistAgentResultsAsync(
+                resultRepository,
+                scope,
+                results,
                 cancellationToken,
                 uow.Connection,
                 uow.Transaction);
 
+            if (evaluations.Count > 0)
+            {
+                await agentEvaluationRepository.CreateManyAsync(
+                    DecisionRecordMapper.ToRecords(evaluations),
+                    cancellationToken,
+                    uow.Connection,
+                    uow.Transaction);
+            }
+
             return;
         }
 
-        await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
+        if (await AgentExecuteIdempotentPersistReconciliation.ShouldInsertEvidencePackageAsync(
+                agentEvidencePackageRepository, evidence, cancellationToken))
+        {
+            await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
+        }
 
-        foreach (AgentResult result in results)
-            await resultRepository.CreateAsync(result, cancellationToken);
+        await AgentExecuteIdempotentPersistReconciliation.PersistAgentResultsAsync(
+            resultRepository,
+            scope,
+            results,
+            cancellationToken);
 
         if (evaluations.Count > 0)
+        {
             await agentEvaluationRepository.CreateManyAsync(
                 DecisionRecordMapper.ToRecords(evaluations),
                 cancellationToken);
+        }
     }
 }
