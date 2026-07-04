@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_CARD, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
@@ -22,15 +21,14 @@ export function OperatorHomeContinueSetupCard() {
       <Link
         href="/onboarding"
         className={cn(
-          "inline-flex shrink-0 items-center gap-1.5 rounded-md border border-neutral-300 px-3 py-1.5",
+          "inline-flex shrink-0 items-center rounded-md border border-neutral-300 px-3 py-1.5",
           OPERATOR_TYPE_SCALE.button,
           "font-medium text-al-text-primary hover:border-neutral-400 hover:bg-[var(--al-layer-hover)]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)]",
           "dark:border-neutral-700 dark:hover:border-neutral-600",
         )}
       >
-        Continue getting started
-        <ArrowRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
+        Open setup guide
       </Link>
     </section>
   );

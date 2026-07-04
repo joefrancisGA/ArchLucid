@@ -10,8 +10,10 @@ import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { OperatorHomeContinueSetupCard } from "./OperatorHomeContinueSetupCard";
 
 describe("OperatorHomeContinueSetupCard", () => {
-  it("uses buyer-safe setup copy and getting-started CTA", () => {
+  it("renders the Continue setup card with setup guide CTA", () => {
     render(<OperatorHomeContinueSetupCard />);
+
+    expect(screen.getByTestId("home-block-continue-setup")).toBeInTheDocument();
 
     const heading = screen.getByRole("heading", { level: 2, name: "Continue setup" });
 
@@ -22,6 +24,10 @@ describe("OperatorHomeContinueSetupCard", () => {
       screen.getByText("Finish workspace setup, reviewer access, and optional cloud connections."),
     ).toBeInTheDocument();
     expect(screen.queryByText(/evidence checklist/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Continue getting started/i })).toHaveAttribute("href", "/onboarding");
+
+    const setupGuideLink = screen.getByRole("link", { name: "Open setup guide" });
+
+    expect(setupGuideLink).toHaveAttribute("href", "/onboarding");
+    expect(screen.queryByText(/Continue getting started/i)).not.toBeInTheDocument();
   });
 });
