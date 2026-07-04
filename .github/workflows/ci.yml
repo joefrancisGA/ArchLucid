@@ -2017,18 +2017,9 @@ jobs:
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/greenfield-boot.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/greenfield-boot.pid"
-          for i in $(seq 1 180); do
-            if curl -fsS http://127.0.0.1:5128/health/ready; then
-              echo "API ready."
-              exit 0
-            fi
-            if [ "$i" -eq 180 ]; then
-              echo "::error::API did not reach /health/ready in time"
-              tail -n 200 "${RUNNER_TEMP}/greenfield-boot.log" || true
-              exit 1
-            fi
-            sleep 1
-          done
+
+      - name: Wait for API readiness
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/greenfield-boot.log"
 
       - name: Assert DbUp journal populated (SchemaVersions)
         run: |
@@ -2762,7 +2753,7 @@ jobs:
           python3 scripts/ci/assert_merged_line_coverage_min.py \
             "${OUT}/Cobertura.xml" 75 \
             --min-branch-pct 63 \
-            --min-package-line-pct 63 \
+            --min-package-line-pct 64 \
             --skip-package-line-gate ArchLucid.Mcp \
             --skip-package-line-gate ArchLucid.Backfill.Cli \
             --skip-package-line-gate ArchLucid.Api \
@@ -3564,22 +3555,18 @@ jobs:
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/live-api.pid"
-          for i in $(seq 1 180); do
-            if curl -fsS http://127.0.0.1:5128/health/ready; then
-              echo "API ready."
-              exit 0
-            fi
-            if [ "$i" -eq 180 ]; then
-              echo "::error::API did not reach /health/ready in time"
-              tail -n 200 "${RUNNER_TEMP}/live-api.log" || true
-              exit 1
-            fi
-            sleep 2
-          done
+
+      - name: Wait for API readiness
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api.log"
+
+      - name: Wait for demo preview (release-gate smokes)
+        run: bash scripts/ci/wait-for-demo-preview.sh
 
       - name: Install Playwright browsers & run live e2e (@release-gate — aligns with rc-release-gate ui-e2e-live-rc)
         working-directory: archlucid-ui
@@ -3714,22 +3701,15 @@ jobs:
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-extended.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/live-api-extended.pid"
-          for i in $(seq 1 180); do
-            if curl -fsS http://127.0.0.1:5128/health/ready; then
-              echo "API ready."
-              exit 0
-            fi
-            if [ "$i" -eq 180 ]; then
-              echo "::error::API did not reach /health/ready in time"
-              tail -n 200 "${RUNNER_TEMP}/live-api-extended.log" || true
-              exit 1
-            fi
-            sleep 2
-          done
+
+      - name: Wait for API readiness
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-extended.log"
 
       - name: Install Playwright browsers & run extended live e2e (excludes @release-gate; optional full live-a11y via workflow_dispatch)
         working-directory: archlucid-ui
@@ -3870,22 +3850,15 @@ jobs:
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-apikey.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/live-api-apikey.pid"
-          for i in $(seq 1 180); do
-            if curl -fsS http://127.0.0.1:5128/health/ready; then
-              echo "API ready (ApiKey mode)."
-              exit 0
-            fi
-            if [ "$i" -eq 180 ]; then
-              echo "::error::API (ApiKey) did not reach /health/ready in time"
-              tail -n 200 "${RUNNER_TEMP}/live-api-apikey.log" || true
-              exit 1
-            fi
-            sleep 2
-          done
+
+      - name: Wait for API readiness
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-apikey.log"
 
       - name: Install Playwright browsers & run live e2e (ApiKey subset)
         working-directory: archlucid-ui
@@ -4034,22 +4007,15 @@ jobs:
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-jwt.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/live-api-jwt.pid"
-          for i in $(seq 1 180); do
-            if curl -fsS http://127.0.0.1:5128/health/ready; then
-              echo "API ready (JwtBearer + local PEM)."
-              exit 0
-            fi
-            if [ "$i" -eq 180 ]; then
-              echo "::error::API (JwtBearer) did not reach /health/ready in time"
-              tail -n 200 "${RUNNER_TEMP}/live-api-jwt.log" || true
-              exit 1
-            fi
-            sleep 2
-          done
+
+      - name: Wait for API readiness
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-jwt.log"
 
       - name: Install Playwright browsers & run live e2e (JWT subset)
         working-directory: archlucid-ui
