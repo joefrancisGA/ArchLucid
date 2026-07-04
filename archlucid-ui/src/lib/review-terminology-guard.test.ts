@@ -7,6 +7,8 @@ import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabu
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
 import { PILOT_PATH_PREVIEW_STEPS } from "@/lib/buyer-polish-copy";
 import {
+  REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS,
+  REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_OPERATOR_PERSONA_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
   REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS,
@@ -14,7 +16,7 @@ import {
   REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS,
 } from "@/lib/review-terminology-surfaces";
-import { scanGlobalBuyerSurfaces } from "@/lib/review-terminology-scanner";
+import { scanBuyerFacingTerminology, scanGlobalBuyerSurfaces } from "@/lib/review-terminology-scanner";
 import { AUDIT_TRAIL_LABEL, SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { resolveFirstPilotOperatingRailStepsForDisplay } from "@/lib/first-pilot-operating-rail-copy";
 
@@ -89,6 +91,22 @@ describe("review terminology guard", () => {
       for (const pattern of REVIEW_TERMINOLOGY_BANNED_OPERATOR_PERSONA_PATTERNS) {
         expect(source, `${relativePath} should not contain "${pattern}"`).not.toContain(pattern);
       }
+    }
+  });
+
+  it("architect workspace copy files avoid legacy operator persona labels", () => {
+    const bannedOperatorPatternSet = new Set<string>(REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS);
+
+    for (const relativePath of REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS) {
+      const source = readFileSync(path.join(process.cwd(), relativePath), "utf8");
+      const violations = scanBuyerFacingTerminology(relativePath, source).filter((violation) =>
+        bannedOperatorPatternSet.has(violation.pattern),
+      );
+
+      expect(
+        violations,
+        violations.map((v) => `${v.relativePath}:${v.line} "${v.pattern}" — ${v.excerpt}`).join("\n"),
+      ).toEqual([]);
     }
   });
 

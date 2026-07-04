@@ -41,7 +41,7 @@ export function PlanningExportReadinessNote() {
         >
           Open JSON in browser
         </a>
-        . Same scope as the operator shell (<code className={OPERATOR_TYPOGRAPHY.helper}>GET /v1/learning/report</code>,{" "}
+        . Same scope as the architect workspace (<code className={OPERATOR_TYPOGRAPHY.helper}>GET /v1/learning/report</code>,{" "}
         <code className={OPERATOR_TYPOGRAPHY.helper}>…/report/file</code>). For evaluation feedback rollups, use{" "}
         <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
           {OPERATOR_NAV_LINK_LABELS.pilotFeedback}

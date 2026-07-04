@@ -1,4 +1,5 @@
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { PERSONA_SHELL_WORKSPACE_UI_MAP_LABEL } from "@/lib/persona-shell-vocabulary";
 
 export type DocumentationSearchItem = {
   title: string;
@@ -122,7 +123,7 @@ export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   },
   {
     category: "Operations",
-    title: "Operator shell (UI map)",
+    title: PERSONA_SHELL_WORKSPACE_UI_MAP_LABEL,
     description: "UI routes, API seams, and progressive disclosure.",
     relativeDocsPath: "docs/library/operator-shell.md",
   },

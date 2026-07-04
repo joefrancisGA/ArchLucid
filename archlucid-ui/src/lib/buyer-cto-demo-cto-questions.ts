@@ -124,7 +124,7 @@ export const CTO_DEMO_QUESTIONS: readonly CtoDemoQuestion[] = [
     id: "sla",
     question: "What uptime and support do you commit to?",
     answer:
-      "Pilot and production tiers publish target availability and support response windows in the customer agreement; health status is visible in the operator shell.",
+      "Pilot and production tiers publish target availability and support response windows in the customer agreement; health status is visible in the architect workspace.",
     proofHref: "/trust",
     proofLabel: "Service commitments",
     proofQueryParam: "focus=sla",

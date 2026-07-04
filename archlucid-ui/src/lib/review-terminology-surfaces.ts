@@ -65,6 +65,17 @@ export const REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS = [
   "new run wizard",
 ] as const;
 
+/** Lowercase phrase fragments banned on architect-workspace surfaces (Prompts 1–4 terminology sweep). */
+export const REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS = [
+  "operator path",
+  "operator shell",
+  "pilot operator",
+  "tenant operator",
+  "canonical guide",
+  "canonical operator",
+  "lane runbook",
+] as const;
+
 /** Lowercase phrase fragments that must not appear in nav, empty-state, or glossary persona copy. */
 export const REVIEW_TERMINOLOGY_BANNED_OPERATOR_PERSONA_PATTERNS = [
   "operator follow-up",
@@ -86,6 +97,36 @@ export const REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS = [
   "src/lib/glossary-definitions.ts",
   "src/lib/layer-guidance.ts",
   "src/lib/nav-disclosure-copy.ts",
+] as const;
+
+/**
+ * Architect-workspace modules rewritten in Prompts 1–4 (help, shell chrome, nav/empty/glossary, home rail).
+ * Scanned by {@link ./review-terminology-guard.test.ts} for {@link REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS}.
+ */
+export const REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS = [
+  "src/lib/contextual-help-content.ts",
+  "src/lib/help-markdown-presentation.ts",
+  "src/lib/help-topics.ts",
+  "src/lib/product-documentation-registry.ts",
+  "src/lib/persona-shell-vocabulary.ts",
+  "src/components/shell/OperatorShellTopBar.tsx",
+  "src/components/AuthPanel.tsx",
+  "src/app/layout.tsx",
+  "src/lib/empty-state-presets.ts",
+  "src/lib/enterprise-compact-empty-state-presets.ts",
+  "src/lib/governance-workflow-empty-guidance.ts",
+  "src/lib/glossary-definitions.ts",
+  "src/lib/layer-guidance.ts",
+  "src/lib/nav-disclosure-copy.ts",
+  "src/lib/i18n.ts",
+  "src/components/operator-home/PilotStartHereStrip.tsx",
+  "src/lib/first-pilot-operating-rail-copy.ts",
+  "src/components/advisory/AdvisoryHubClient.tsx",
+  "src/components/OperatorFirstHourJourneyStrip.tsx",
+  "src/lib/operator-first-hour-journey-nav.ts",
+  "src/lib/first-value-lane.ts",
+  "src/lib/core-pilot-first-review-copy.ts",
+  "src/lib/operator-co-architect-copy.ts",
 ] as const;
 
 /** Lowercase phrase fragments that must not appear in buyer-facing UI copy (manifest terminology sweep). */

@@ -3,6 +3,7 @@ import path from "node:path";
 
 import {
   REVIEW_TERMINOLOGY_BANNED_MANIFEST_PATTERNS,
+  REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
 } from "@/lib/review-terminology-surfaces";
 
@@ -118,11 +119,13 @@ const LINE_SAFELIST_PATTERNS = [
   /MANIFEST_DETAIL/i,
   /MANIFEST_ID/i,
   /manifestishEvent/i,
+  /console\.error/i,
 ] as const;
 
 const ALL_BANNED_PATTERNS = [
   ...REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
   ...REVIEW_TERMINOLOGY_BANNED_MANIFEST_PATTERNS,
+  ...REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS,
 ] as const;
 
 export type ReviewTerminologyViolation = {
