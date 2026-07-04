@@ -57,7 +57,7 @@ public sealed class BoundedBatchParallelismTests
                         peak = inFlight;
                 }
 
-                await Task.Delay(25).ConfigureAwait(false);
+                await Task.Delay(25);
 
                 lock (sync)
                     inFlight--;
