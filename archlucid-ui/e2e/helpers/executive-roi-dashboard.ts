@@ -20,7 +20,9 @@ export const EXECUTIVE_ROI_DASHBOARD_PATHS = {
 
   operator: "/dashboard",
 
-  executive: "/executive/dashboard",
+  // Retired standalone route (TB-608) — now redirects to `operator`; kept only to assert the redirect.
+
+  legacyExecutive: "/executive/dashboard",
 
 } as const;
 

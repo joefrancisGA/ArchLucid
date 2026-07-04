@@ -44,6 +44,20 @@ export function resolveSponsorExecutiveRedirectTarget(input: SponsorExecutiveRed
     return null;
   }
 
+  // Executive dashboard consolidation (TB-608) — /dashboard renders the same
+  // ExecutiveRoiDashboardPageView as the retired /executive/dashboard, under full
+  // operator-shell chrome; Sponsor-only principals may view it without being bounced.
+  if (pathname === "/dashboard") {
+    return null;
+  }
+
+  // The executive shell's own "Architect workspace" handoff link (ExecutiveShellFrame)
+  // points at "/" so Sponsor-only principals can see the same view architects do; without
+  // this exemption that link was a dead end, immediately bouncing them back out (TB-608).
+  if (pathname === "/") {
+    return null;
+  }
+
   if (pathname.startsWith("/auth/")) {
     return null;
   }

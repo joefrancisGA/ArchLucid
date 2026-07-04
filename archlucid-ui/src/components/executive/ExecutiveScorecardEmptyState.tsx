@@ -18,7 +18,7 @@ export function ExecutiveScorecardEmptyState(): React.JSX.Element {
           { label: v.scorecardEmptyStatePrimaryAction, href: "/reviews/new", variant: "primary" },
           {
             label: v.scorecardEmptyStateTertiaryAction,
-            href: "/executive/dashboard",
+            href: "/dashboard",
             variant: "outline",
           },
         ]}

@@ -160,6 +160,9 @@ const nextConfig: NextConfig = {
       { source: "/admin/support/:path*", destination: "/settings/support/:path*", permanent: true },
       // Administration users/roles nav consolidation (TB-522).
       { source: "/settings/roles", destination: "/settings/users?tab=roles", permanent: true },
+      // Executive dashboard consolidation (TB-608) — same ExecutiveRoiDashboardPageView content as
+      // the operator-shell /dashboard nav item; the standalone executive-chrome page is retired.
+      { source: "/executive/dashboard", destination: "/dashboard", permanent: true },
     ];
   },
   async rewrites() {

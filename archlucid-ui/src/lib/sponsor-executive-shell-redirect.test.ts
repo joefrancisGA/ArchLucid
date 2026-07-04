@@ -45,6 +45,22 @@ describe("resolveSponsorExecutiveRedirectTarget", () => {
     ).toBeNull();
   });
 
+  it("returns null for the consolidated dashboard route", () => {
+    expect(
+      resolveSponsorExecutiveRedirectTarget({
+        pathname: "/dashboard",
+      }),
+    ).toBeNull();
+  });
+
+  it("returns null for the operator home route (executive shell's architect-workspace handoff link)", () => {
+    expect(
+      resolveSponsorExecutiveRedirectTarget({
+        pathname: "/",
+      }),
+    ).toBeNull();
+  });
+
   it("redirects other operator paths to executive reviews index", () => {
     expect(
       resolveSponsorExecutiveRedirectTarget({

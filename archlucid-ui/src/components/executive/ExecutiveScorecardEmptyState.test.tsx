@@ -24,7 +24,7 @@ describe("ExecutiveScorecardEmptyState", () => {
     );
     expect(screen.getByRole("link", { name: vocabulary.scorecardEmptyStateTertiaryAction })).toHaveAttribute(
       "href",
-      "/executive/dashboard",
+      "/dashboard",
     );
     expect(screen.getByTestId("executive-scorecard-empty-preview")).toBeInTheDocument();
   });

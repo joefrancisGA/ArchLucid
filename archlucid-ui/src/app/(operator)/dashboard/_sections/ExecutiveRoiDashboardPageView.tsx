@@ -10,7 +10,6 @@ import { OperatorPilotOrientationBanner } from "@/components/OperatorPilotOrient
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   hasExecutiveCommittedReviews,
   isExecutiveDashboardEmpty,
@@ -23,15 +22,11 @@ import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBas
 import { ExecutiveDashboardNextActionSection } from "./ExecutiveDashboardNextActionSection";
 import { ExecutiveDashboardPrimaryMetricsSection } from "./ExecutiveDashboardPrimaryMetricsSection";
 import { ExecutiveDashboardSupportingMetricsSection } from "./ExecutiveDashboardSupportingMetricsSection";
-import { ExecutiveOrphanCandidatesCard } from "./ExecutiveOrphanCandidatesCard";
-import { ExecutiveRoiDashboardLiveKpiCards } from "./ExecutiveRoiDashboardLiveKpiCards";
 import { ExecutiveRoiEnvironmentSavingsSection } from "./ExecutiveRoiEnvironmentSavingsSection";
 import { ExecutiveRoiSummarySection } from "./ExecutiveRoiSummarySection";
 import { ExecutiveRoiTrendSection } from "./ExecutiveRoiTrendSection";
 import { SponsorExportsSection } from "./SponsorExportsSection";
-import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
 import { BusinessImpactSummaryWidget } from "./BusinessImpactSummaryWidget";
-import { QualityGateMetricsTile } from "@/components/QualityGateMetricsTile";
 
 export type ExecutiveRoiDashboardPageViewProps = {
   readonly surface?: "operator" | "executive";
@@ -48,66 +43,6 @@ type DashboardSectionsProps = {
   readonly driftError?: boolean;
 };
 
-function resolvePortfolioPageHeaderCopy(surface: "operator" | "executive"): {
-  readonly title: string;
-  readonly subtitle: string;
-} {
-  const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
-
-  if (buyerPolished || surface === "executive") {
-    return { title: v.portfolioPageTitle, subtitle: v.portfolioPageLead };
-  }
-
-  return { title: v.pageTitle, subtitle: v.pageLead };
-}
-
-function ExecutiveRoiDashboardLegacyOperatorSections({
-  defaultTrendRange,
-}: {
-  readonly defaultTrendRange: ExecutiveTimeRange;
-}): React.JSX.Element {
-  const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
-
-  return (
-    <OperatorPageContainer variant="dashboard" className="space-y-4">
-      <ExecutiveDashboardBaselineWarningBanner />
-      <OperatorWelcomeOnboarding />
-      <OperatorPilotOrientationBanner />
-      <OperatorPageHeader title={v.pageTitle} subtitle={v.pageLead} titleTestId="executive-summary-heading" />
-
-      <section aria-labelledby="exec-roi-heading">
-        <h2 id="exec-roi-heading" className="sr-only">
-          {v.roiMetricsSrOnly}
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <ExecutiveRoiDashboardLiveKpiCards />
-          <ExecutiveOrphanCandidatesCard />
-          <ExecutiveSqlBackupRegionVerificationCard />
-        </div>
-      </section>
-
-      <BusinessImpactSummaryWidget />
-
-      <QualityGateMetricsTile />
-
-      <section aria-label="Executive portfolio summary and sponsor exports" className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <ExecutiveRoiSummarySection />
-        </div>
-        <SponsorExportsSection />
-      </section>
-
-      <ExecutiveComplianceDriftTrendSection />
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ExecutiveRoiTrendSection defaultTimeRange={defaultTrendRange} showTimeRangeSelector />
-        <ExecutiveRoiEnvironmentSavingsSection />
-      </div>
-    </OperatorPageContainer>
-  );
-}
-
 function ExecutiveRoiDashboardPortfolioSections({
   defaultTrendRange,
   surface,
@@ -119,7 +54,6 @@ function ExecutiveRoiDashboardPortfolioSections({
   driftError,
 }: DashboardSectionsProps): React.JSX.Element {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
-  const headerCopy = resolvePortfolioPageHeaderCopy(surface);
   const dashboardEmpty = isExecutiveDashboardEmpty(summary, summaryLoading ?? false);
   const hasCommittedReviews = hasExecutiveCommittedReviews(summary);
   const showSampleBanner = isExecutiveSampleWorkspaceData(summary);
@@ -133,8 +67,8 @@ function ExecutiveRoiDashboardPortfolioSections({
       {!dashboardEmpty ? <OperatorPilotOrientationBanner /> : null}
 
       <OperatorPageHeader
-        title={headerCopy.title}
-        subtitle={headerCopy.subtitle}
+        title={v.portfolioPageTitle}
+        subtitle={v.portfolioPageLead}
         titleTestId="executive-summary-heading"
       />
 
@@ -230,17 +164,16 @@ function ExecutiveRoiDashboardPortfolioView({
   );
 }
 
+/**
+ * Portfolio layout is the single dashboard experience for both the operator-shell `/dashboard`
+ * nav item and any legacy `/executive` callers (TB-608 consolidation) — no separate legacy layout.
+ */
 export function ExecutiveRoiDashboardPageView({ surface = "operator" }: ExecutiveRoiDashboardPageViewProps) {
   const defaultTrendRange: ExecutiveTimeRange = "quarter";
-  const usePortfolioLayout = surface === "executive" || isBuyerPolishedOperatorShellEnv();
 
-  if (usePortfolioLayout) {
-    return (
-      <ExecutiveDashboardDataProvider>
-        <ExecutiveRoiDashboardPortfolioView defaultTrendRange={defaultTrendRange} surface={surface} />
-      </ExecutiveDashboardDataProvider>
-    );
-  }
-
-  return <ExecutiveRoiDashboardLegacyOperatorSections defaultTrendRange={defaultTrendRange} />;
+  return (
+    <ExecutiveDashboardDataProvider>
+      <ExecutiveRoiDashboardPortfolioView defaultTrendRange={defaultTrendRange} surface={surface} />
+    </ExecutiveDashboardDataProvider>
+  );
 }

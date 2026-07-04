@@ -93,7 +93,7 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path === "/dashboard" || path === "/executive/dashboard") {
+  if (path === "/dashboard") {
     return {
       label: BUYER_TERMINOLOGY.portfolioOverview,
       line: "ROI, remediation, and governance posture across committed review packages.",

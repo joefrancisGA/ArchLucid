@@ -53,3 +53,13 @@ describe("ExecutiveRoiDashboardPageView executive surface", () => {
     expect(screen.getByRole("heading", { name: "Executive dashboard" })).toBeInTheDocument();
   });
 });
+
+describe("ExecutiveRoiDashboardPageView operator surface (TB-608 consolidation)", () => {
+  it("renders the same portfolio empty state and heading as the executive surface", () => {
+    render(<ExecutiveRoiDashboardPageView />);
+
+    expect(screen.getByTestId("executive-dashboard-empty-state")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Executive dashboard" })).toBeInTheDocument();
+    expect(screen.getByTestId("sponsor-exports-section")).toHaveAttribute("data-surface", "operator");
+  });
+});
