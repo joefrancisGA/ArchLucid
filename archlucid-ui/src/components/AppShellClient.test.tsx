@@ -2,6 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppShellClient } from "@/components/AppShellClient";
+import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
@@ -137,5 +138,50 @@ describe("AppShellClient — LLM budget chrome", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
     });
+  });
+});
+
+describe("AppShellClient — shell chrome labels", () => {
+  useOperatorQueryTestLifecycle();
+
+  beforeEach(() => {
+    buyerPolishedMock.value = false;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify({ status: "Healthy", entries: [] }), { status: 200 })),
+    );
+    fetchBudgetStatusCached.mockResolvedValue({
+      monthlyBudgetMonitoringActive: false,
+      blocksAdditionalLlmExecution: false,
+      utcMonth: "2026-05",
+      hardCutoffUsdPerUtcMonth: 75,
+      effectiveHardCapUsd: 75,
+      purchasedCapBumpUsd: 0,
+      estimatedUsdPressure: 0,
+      assumedNextCallReservationUsd: 1,
+      hardCapUtilizationFraction: 0,
+      warnFraction: 0.75,
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("does not render an Architect | Executive shell switcher or Operator persona labels in the top bar", async () => {
+    renderWithOperatorQuery(
+      <AppShellClient>
+        <div>child</div>
+      </AppShellClient>,
+    );
+
+    const topbar = screen.getByTestId("app-shell-topbar");
+
+    expect(screen.queryByTestId("executive-operator-shell-switcher")).not.toBeInTheDocument();
+    expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
+      "aria-label",
+      PERSONA_SHELL_WORDMARK_ARIA_LABEL,
+    );
+    expect(topbar.textContent?.toLowerCase() ?? "").not.toContain("operator");
   });
 });

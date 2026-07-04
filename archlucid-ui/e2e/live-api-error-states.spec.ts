@@ -4,6 +4,9 @@
  */
 import { expect, test } from "@playwright/test";
 
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+
+import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import { liveApiBase } from "./helpers/live-api-client";
 
 test.describe("live-api-error-states", () => {
@@ -24,7 +27,12 @@ test.describe("live-api-error-states", () => {
 
     await page.goto(`/runs/${fakeRunId}`);
 
-    await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 30_000 });
+    // A genuinely-missing runId resolves to `{ kind: "not-found", reason: "missing" }` in
+    // load-run-detail-page-model.ts, which renders the branded `OperatorBrandedNotFound` empty
+    // state (no page heading — title is a `role="status"` `<strong>`, not a heading role) instead
+    // of the older RunDetailPageFetchErrorView "Review detail" h1, which is reserved for
+    // `fromGeneration` / workspace-mismatch and transient fetch-error cases.
+    await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 30_000 });
 
     await expect(page.getByText(/Unhandled Runtime Error/i)).toHaveCount(0);
 
@@ -32,7 +40,7 @@ test.describe("live-api-error-states", () => {
 
     await expect(problemOrNotFound.first()).toBeVisible({ timeout: 30_000 });
 
-    await expect(page.getByRole("link", { name: /back to runs/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: OPERATOR_NAV_LINK_LABELS.reviewPackage })).toBeVisible();
   });
 
   test("runs list page renders without error alerts (empty list is ok)", async ({ page }) => {
@@ -40,13 +48,18 @@ test.describe("live-api-error-states", () => {
 
     await page.goto("/runs?projectId=default");
 
-    await expect(page.getByRole("heading", { name: /runs/i }).first()).toBeVisible({ timeout: 30_000 });
+    // "/runs" permanently redirects to "/reviews" (next.config.ts) and the list page's heading was
+    // renamed to RUNS_LIST_PAGE_TITLES ("Review Packages") as part of the runs → reviews vocabulary
+    // consolidation — it no longer contains the literal substring "runs".
+    await expect(
+      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }).first(),
+    ).toBeVisible({ timeout: 30_000 });
 
     await expect(page.locator('[role="alert"]').filter({ hasText: /problem|error|failed/i })).toHaveCount(0, {
       timeout: 15_000,
     });
 
-    await expect(page.getByRole("link", { name: /ArchLucid|go to operator home/i }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /ArchLucid|go to overview/i }).first()).toBeVisible();
   });
 
   test("audit search with non-existent run id shows no-results, not a crash", async ({ page }) => {
@@ -58,7 +71,7 @@ test.describe("live-api-error-states", () => {
 
     await expect(page.getByRole("heading", { name: /audit log/i })).toBeVisible({ timeout: 30_000 });
 
-    await page.getByLabel(/run id/i).fill(fakeRunId);
+    await page.getByLabel(/review id/i).fill(fakeRunId);
     await page.getByRole("button", { name: /^Search$/i }).click();
 
     await expect(page.getByText(/No audit events match your filters/i)).toBeVisible({ timeout: 60_000 });
@@ -73,7 +86,15 @@ test.describe("live-api-error-states", () => {
 
     await page.goto("/governance/dashboard");
 
-    await expect(page.getByRole("heading", { name: /governance dashboard/i })).toBeVisible({ timeout: 60_000 });
+    // Heading copy was rebranded to "Executive Workspace Health" (full operator) / "Workspace
+    // overview" (buyer-polished) in ExecutiveWorkspaceHealthDashboard.tsx — "Governance dashboard"
+    // is no longer rendered anywhere on this route. NOTE: the heading only renders once the
+    // dashboard reaches its "ready" state; the loading/error states render `LayerHeader` guidance
+    // text only (no heading role), so this assertion still depends on Concern F's fix for the
+    // GET /v1/governance/compliance-drift-trend 503 (out of scope here).
+    await expect(
+      page.getByRole("heading", { name: /executive workspace health|workspace overview/i }),
+    ).toBeVisible({ timeout: 60_000 });
 
     await expect(page.getByText(/Unhandled Runtime Error/i)).toHaveCount(0);
   });

@@ -44,6 +44,7 @@ describe("ExecutiveShellFrame", () => {
     expect(screen.queryByTestId("executive-operator-shell-switcher")).not.toBeInTheDocument();
     expect(screen.getByTestId("executive-shell-architect-workspace-link")).toHaveAttribute("href", "/");
     expect(screen.getByRole("link", { name: PERSONA_SHELL_WORKSPACE_LABEL })).toBeInTheDocument();
+    expect(screen.getByTestId("executive-shell-topbar").textContent?.toLowerCase() ?? "").not.toContain("operator");
   });
 
   it("highlights the active route link", () => {

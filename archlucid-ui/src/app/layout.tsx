@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
-import { MARKETING_ROOT_OG_DESCRIPTION } from "@/lib/marketing-open-graph";
+import { PERSONA_SHELL_DEFAULT_DOCUMENT_TITLE } from "@/lib/persona-shell-vocabulary";
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
 import { resolveAuthorityThemeFromEnv } from "@/lib/ui-authority-theme";
 
@@ -15,7 +15,7 @@ export const viewport: Viewport = { themeColor: "#1E3A5F" };
 export const metadata: Metadata = {
   metadataBase: siteUrl,
   title: {
-    default: "ArchLucid operator shell",
+    default: PERSONA_SHELL_DEFAULT_DOCUMENT_TITLE,
     template: "%s · ArchLucid",
   },
   description: MARKETING_ROOT_OG_DESCRIPTION,

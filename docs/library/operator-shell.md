@@ -38,7 +38,7 @@ The workspace surfaces the three-layer model without duplicating long deployment
 
 Long-form “when to expand” tables remain in the deployment decision guide; the UI carries only minimal cues.
 
-**Primary navigation:** **Producer | Executive** in the top bar switches producer vs consumer shells. Sidebar groups (Review work, Analysis, Governance, Administration) are the direct navigation model; **what can wait until later** tiers and **Show all features** control link breadth — there is no separate workflow-mode toolbar.
+**Shell split:** The **architect workspace** and **executive** route groups render distinct shells — sidebar review workflows versus the minimal executive header for sponsor reading. There is **no** single top-bar toggle labeled **Architect | Executive**; cross-shell handoffs use contextual links (for example **Architect workspace** in the executive header, **Open Executive Summary** on review detail). Sidebar groups (Review work, Analysis, Governance, Administration) are the direct navigation model; **what can wait until later** tiers and **Show all features** control link breadth — there is no separate workflow-mode toolbar.
 
 ---
 

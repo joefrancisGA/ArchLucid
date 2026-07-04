@@ -21,6 +21,7 @@ import {
   OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
 } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
+import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
 import { cn } from "@/lib/utils";
 
 type OperatorShellTopBarProps = {
@@ -54,7 +55,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
           <MobileNavDrawer />
           <h1 className="m-0">
             <Button variant="ghost" className="h-auto p-0" asChild>
-              <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
+              <ArchLucidWordmarkLink href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
             </Button>
           </h1>
         </div>

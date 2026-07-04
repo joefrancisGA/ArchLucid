@@ -7,6 +7,7 @@ import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS } from "@/lib/design-tokens";
 import { GLOBAL_SEARCH_ARIA_LABEL } from "@/lib/keyboard-shortcut-display";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
 
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
 const fetchBudgetCached = vi.hoisted(() => vi.fn());
@@ -103,7 +104,7 @@ describe("OperatorShellTopBar", () => {
     expect(screen.getByTestId("app-shell-topbar-context")).toBeInTheDocument();
     expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
       "aria-label",
-      "ArchLucid — go to operator home",
+      PERSONA_SHELL_WORDMARK_ARIA_LABEL,
     );
     expect(screen.queryByTestId("app-shell-topbar-secondary")).not.toBeInTheDocument();
     expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-label", "Help (F1)");

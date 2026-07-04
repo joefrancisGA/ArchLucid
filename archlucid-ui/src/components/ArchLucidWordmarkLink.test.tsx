@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { ARCHLUCID_BRAND } from "@/components/brand/brand-colors";
+import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -22,12 +23,12 @@ vi.mock("next/link", () => ({
 describe("ArchLucidWordmarkLink", () => {
   it("renders compact ArchLucidLogo geometry for operator chrome by default", () => {
     const { container } = render(
-      <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />,
+      <ArchLucidWordmarkLink href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />,
     );
 
     const link = screen.getByTestId("archlucid-wordmark-link");
     expect(link).toHaveAttribute("href", "/");
-    expect(link).toHaveAttribute("aria-label", "ArchLucid — go to operator home");
+    expect(link).toHaveAttribute("aria-label", PERSONA_SHELL_WORDMARK_ARIA_LABEL);
     expect(link).toHaveClass("h-8");
 
     const svgs = container.querySelectorAll("svg");
