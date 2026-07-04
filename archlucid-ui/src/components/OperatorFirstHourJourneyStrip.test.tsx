@@ -41,6 +41,25 @@ describe("OperatorFirstHourJourneyStrip", () => {
     }
   });
 
+  it("emphasizes the Next guidance label while keeping the first-review guide as a text link", () => {
+    mockUsePathname.mockReturnValue("/");
+
+    render(<OperatorFirstHourJourneyStrip />);
+
+    expect(screen.getByTestId("operator-first-hour-next-guidance")).toBeInTheDocument();
+
+    const nextLabel = screen.getByTestId("operator-guidance-next-label");
+
+    expect(nextLabel.tagName).toBe("STRONG");
+    expect(nextLabel).toHaveClass("font-semibold");
+    expect(nextLabel).toHaveTextContent("Next:");
+
+    const guideLink = screen.getByRole("link", { name: "Read the first-review guide" });
+
+    expect(guideLink).toHaveAttribute("href", "/help/first-hour-operator-path");
+    expect(guideLink.className).toContain("underline");
+  });
+
   it("does not expose Lane runbook or operator-path copy and keeps the first-review guide as a text link", () => {
     mockUsePathname.mockReturnValue("/");
 

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { OperatorGuidanceNextLabel } from "@/components/OperatorGuidanceNextLabel";
 import {
   OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS,
   resolveOperatorFirstHourJourneyNav,
@@ -69,8 +70,11 @@ export function OperatorFirstHourJourneyStrip() {
           </li>
         ))}
       </ol>
-      <p className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-        Next: {steps[0].nextAction}{" "}
+      <p
+        className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+        data-testid="operator-first-hour-next-guidance"
+      >
+        <OperatorGuidanceNextLabel /> {steps[0].nextAction}{" "}
         <Link href="/help/first-hour-operator-path" className={OPERATOR_LINK.inline}>
           Read the first-review guide
         </Link>

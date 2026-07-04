@@ -185,6 +185,9 @@ export const OPERATOR_LINK = {
   optional: `${OPERATOR_TYPE_SCALE.helper} font-medium text-al-text-secondary underline decoration-al-text-secondary/40 underline-offset-2 hover:text-al-text-primary hover:decoration-[var(--al-accent-interactive)]`,
 } as const;
 
+/** Semibold scan marker on inline guidance lines — pair with normal-weight body copy after the colon. */
+export const OPERATOR_GUIDANCE_NEXT_LABEL_CLASS = "font-semibold text-al-text-primary";
+
 export const OPERATOR_TYPOGRAPHY = {
   pageTitle: OPERATOR_TYPE_SCALE.pageTitle,
   sectionTitle: OPERATOR_TYPE_SCALE.sectionTitle,
