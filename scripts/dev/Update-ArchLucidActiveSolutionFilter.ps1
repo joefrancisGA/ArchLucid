@@ -22,7 +22,8 @@ Set-Location $repoRoot
 
 function Get-NormalizedProjectPath {
     param([string] $RelativePath)
-    return ($RelativePath -replace "\\", "/")
+    # MSBuild matches slnf entries against .sln relative paths verbatim; ArchLucid.sln uses backslashes.
+    return ($RelativePath -replace '/', '\')
 }
 
 function Get-ProjectDirectoryName {
@@ -180,10 +181,10 @@ foreach ($rootDir in $projectRoots) {
 
 # Shared hub projects â€” almost every area touches these.
 $hubProjects = @(
-    "ArchLucid.Contracts/ArchLucid.Contracts.csproj",
-    "ArchLucid.Core/ArchLucid.Core.csproj",
-    "ArchLucid.Application/ArchLucid.Application.csproj",
-    "ArchLucid.TestSupport/ArchLucid.TestSupport.csproj"
+    "ArchLucid.Contracts\ArchLucid.Contracts.csproj",
+    "ArchLucid.Core\ArchLucid.Core.csproj",
+    "ArchLucid.Application\ArchLucid.Application.csproj",
+    "ArchLucid.TestSupport\ArchLucid.TestSupport.csproj"
 )
 
 foreach ($hub in $hubProjects) {
