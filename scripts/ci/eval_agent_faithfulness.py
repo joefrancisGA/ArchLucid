@@ -21,6 +21,18 @@ import os
 import sys
 from pathlib import Path
 
+_CI_DIR = Path(__file__).resolve().parent
+
+if str(_CI_DIR) not in sys.path:
+    sys.path.insert(0, str(_CI_DIR))
+
+from retrieval_ablation_profiles import (
+    ABLATION_PROFILES,
+    build_ablation_delta_rows,
+    filter_hits_for_profile,
+    load_hit_feature_attribution,
+)
+
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -152,6 +164,7 @@ def _write_report(
     mean_ratio: float,
     min_ratio: float,
     category_breakdown: list[dict[str, object]],
+    ablation_delta_rows: list[dict[str, object]] | None = None,
 ) -> None:
     positive_cases = [row for row in cases if row.get("cohortKind") == "positive-readiness"]
     negative_cases = [row for row in cases if row.get("cohortKind") == "negative-control"]
@@ -204,6 +217,9 @@ def _write_report(
             f"{', '.join(row['wrongCorpusIds']) or '-'} | "
             f"{', '.join(row['unsupportedRoiCostClaims']) or '-'} |"
         )
+
+    if ablation_delta_rows:
+        lines.extend(_ablation_report_lines(ablation_delta_rows))
 
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -292,6 +308,172 @@ def _enforce_faithfulness_floors(
     return failures
 
 
+def _evaluate_raw_cases(
+    raw_cases: list[dict[str, object]],
+    *,
+    attribution: dict[str, dict[str, list[str]]] | None = None,
+    profile: object | None = None,
+) -> tuple[list[dict[str, object]], int, int]:
+    """Evaluates golden cases; optionally filters retrieval hits for an ablation profile."""
+
+    evaluated: list[dict[str, object]] = []
+    hits_filtered = 0
+    cases_with_filtered_hits = 0
+
+    for entry in raw_cases:
+        if not isinstance(entry, dict):
+            print("::error::each case must be an object")
+            raise ValueError("each case must be an object")
+
+        case_id = str(entry.get("id") or "unknown")
+        category = str(entry.get("category") or "uncategorized")
+        hits = entry.get("retrievalHits")
+        output = str(entry.get("agentOutputText") or "")
+        expected_corpus_kind = entry.get("expectedCorpusKind")
+        raw_required_tokens = entry.get("requiredEvidenceTokens")
+        claim_issue_kind = str(entry.get("claimIssueKind") or "unsupported-claim")
+
+        if not isinstance(hits, list):
+            print(f"::error::case {case_id}: retrievalHits must be an array")
+            raise ValueError(f"case {case_id}: retrievalHits must be an array")
+
+        hit_dicts = [hit for hit in hits if isinstance(hit, dict)]
+        original_hit_count = len(hit_dicts)
+
+        if attribution is not None and profile is not None:
+            hit_dicts = filter_hits_for_profile(
+                hit_dicts,
+                case_id=case_id,
+                profile=profile,
+                attribution=attribution,
+            )
+
+        filtered_count = original_hit_count - len(hit_dicts)
+
+        if filtered_count > 0:
+            hits_filtered += filtered_count
+            cases_with_filtered_hits += 1
+
+        required_tokens: list[str] = []
+
+        if isinstance(raw_required_tokens, list):
+            required_tokens = [str(token) for token in raw_required_tokens if str(token).strip()]
+
+        retrieved, supported, ratio, unsupported, wrong_corpus, unsupported_claims = _evaluate_case(
+            hit_dicts,
+            output,
+            expected_corpus_kind=str(expected_corpus_kind) if expected_corpus_kind is not None else None,
+            required_evidence_tokens=required_tokens,
+            claim_issue_kind=claim_issue_kind,
+        )
+        evaluated.append(
+            {
+                "id": case_id,
+                "category": category,
+                "cohortKind": _cohort_kind(category),
+                "retrieved": retrieved,
+                "supported": supported,
+                "ratio": ratio,
+                "missingCitationIds": unsupported,
+                "wrongCorpusIds": wrong_corpus,
+                "unsupportedRoiCostClaims": unsupported_claims,
+            }
+        )
+
+    return evaluated, hits_filtered, cases_with_filtered_hits
+
+
+def _run_faithfulness_ablation(
+    raw_cases: list[dict[str, object]],
+    attribution_path: Path,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    """Runs TB-595 ablation passes and returns profile metrics plus delta rows."""
+
+    if not attribution_path.is_file():
+        print(f"::warning::Missing ablation attribution overlay {attribution_path}; skipping TB-595 ablation.")
+        return [], []
+
+    payload = _load_json(attribution_path)
+    attribution = load_hit_feature_attribution(payload)
+    profile_metrics: list[dict[str, object]] = []
+
+    for profile in ABLATION_PROFILES:
+        evaluated, hits_filtered, cases_with_filtered_hits = _evaluate_raw_cases(
+            raw_cases,
+            attribution=attribution,
+            profile=profile,
+        )
+        positive_cases = [row for row in evaluated if row.get("cohortKind") == "positive-readiness"]
+        negative_cases = [row for row in evaluated if row.get("cohortKind") == "negative-control"]
+        positive_mean = _mean_ratio(positive_cases)
+        negative_mean = _mean_ratio(negative_cases)
+        combined_mean = _mean_ratio(evaluated)
+
+        profile_metrics.append(
+            {
+                "profileKey": profile.key,
+                "profileLabel": profile.label,
+                "enableGraphRag": profile.enable_graph_rag,
+                "enableHyde": profile.enable_hyde,
+                "enableQueryRewrite": profile.enable_query_rewrite,
+                "positiveReadinessSupportRatio": positive_mean,
+                "negativeControlSupportRatio": negative_mean,
+                "combinedDiagnosticSupportRatio": combined_mean,
+                "hitsFiltered": hits_filtered,
+                "casesWithFilteredHits": cases_with_filtered_hits,
+            }
+        )
+
+        print(
+            f"ablation profile={profile.key} positive={positive_mean:.4f} "
+            f"combined={combined_mean:.4f} hits_filtered={hits_filtered}",
+        )
+
+    return profile_metrics, build_ablation_delta_rows(profile_metrics)
+
+
+def _write_ablation_summary(path: Path, *, profile_metrics: list[dict[str, object]], delta_rows: list[dict[str, object]]) -> None:
+    payload = {
+        "formatVersion": "1.0",
+        "program": "faithfulness-retrieval-ablation-tb595",
+        "configSection": "Retrieval:Advanced",
+        "profiles": profile_metrics,
+        "deltaVsAllOn": delta_rows,
+    }
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
+def _ablation_report_lines(delta_rows: list[dict[str, object]]) -> list[str]:
+    if not delta_rows:
+        return []
+
+    lines = [
+        "",
+        "## RAG-V2 ablation (TB-595)",
+        "",
+        "Offline golden-cohort passes that simulate `Retrieval:Advanced` feature flags toggled off by",
+        "filtering retrieval hits attributed to Graph-RAG neighbor expansion, HyDE, or query rewrite.",
+        "**Positive Δ vs all-on** is the change in positive readiness when the flag is disabled.",
+        "Negative Δ means the feature contributed cited hits on fixtures; positive Δ means attributed",
+        "hits were uncited or unhelpful for the agent output under test.",
+        "",
+        "| Profile | Positive readiness | Δ vs all-on | Combined diagnostic | Δ vs all-on | Hits filtered | Cases affected |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+
+    for row in delta_rows:
+        lines.append(
+            f"| {row['profileLabel']} | {float(row['positiveReadinessSupportRatio']):.4f} | "
+            f"{float(row['positiveDeltaVsAllOn']):+.4f} | {float(row['combinedDiagnosticSupportRatio']):.4f} | "
+            f"{float(row['combinedDeltaVsAllOn']):+.4f} | {int(row['hitsFiltered'])} | "
+            f"{int(row['casesWithFilteredHits'])} |"
+        )
+
+    return lines
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -317,12 +499,25 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Override JSON summary path (default: docs/quality/faithfulness-summary.json).",
     )
+    parser.add_argument(
+        "--ablation-summary",
+        type=Path,
+        default=None,
+        help="Override TB-595 ablation JSON path (default: docs/quality/faithfulness-ablation-summary.json).",
+    )
+    parser.add_argument(
+        "--skip-ablation",
+        action="store_true",
+        help="Skip TB-595 RAG-V2 ablation passes (blended report only).",
+    )
     args = parser.parse_args(argv)
 
     root = _repo_root()
     cases_path = args.cases or (root / "tests" / "eval-datasets" / "faithfulness-golden" / "cases.json")
     report_path = args.report or (root / "docs" / "quality" / "faithfulness-report.md")
     json_summary_path = args.json_summary or (root / "docs" / "quality" / "faithfulness-summary.json")
+    ablation_summary_path = args.ablation_summary or (root / "docs" / "quality" / "faithfulness-ablation-summary.json")
+    ablation_attribution_path = cases_path.parent / "ablation-attribution.v1.json"
 
     if not cases_path.is_file():
         print(f"::error::Missing {cases_path}")
@@ -341,57 +536,35 @@ def main(argv: list[str] | None = None) -> int:
         print("::error::cases must be a non-empty array")
         return 1
 
-    evaluated: list[dict[str, object]] = []
-    ratios: list[float] = []
+    case_dicts = [entry for entry in raw_cases if isinstance(entry, dict)]
 
-    for entry in raw_cases:
-        if not isinstance(entry, dict):
-            print("::error::each case must be an object")
-            return 1
+    try:
+        evaluated, _, _ = _evaluate_raw_cases(case_dicts)
+    except ValueError:
+        return 1
 
-        case_id = str(entry.get("id") or "unknown")
-        category = str(entry.get("category") or "uncategorized")
-        hits = entry.get("retrievalHits")
-        output = str(entry.get("agentOutputText") or "")
-        expected_corpus_kind = entry.get("expectedCorpusKind")
-        raw_required_tokens = entry.get("requiredEvidenceTokens")
-        claim_issue_kind = str(entry.get("claimIssueKind") or "unsupported-claim")
+    ratios = [float(row["ratio"]) for row in evaluated]
 
-        if not isinstance(hits, list):
-            print(f"::error::case {case_id}: retrievalHits must be an array")
-            return 1
-
-        required_tokens: list[str] = []
-        if isinstance(raw_required_tokens, list):
-            required_tokens = [str(token) for token in raw_required_tokens if str(token).strip()]
-
-        retrieved, supported, ratio, unsupported, wrong_corpus, unsupported_claims = _evaluate_case(
-            hits,
-            output,
-            expected_corpus_kind=str(expected_corpus_kind) if expected_corpus_kind is not None else None,
-            required_evidence_tokens=required_tokens,
-            claim_issue_kind=claim_issue_kind,
-        )
-        ratios.append(ratio)
-        evaluated.append(
-            {
-                "id": case_id,
-                "category": category,
-                "cohortKind": _cohort_kind(category),
-                "retrieved": retrieved,
-                "supported": supported,
-                "ratio": ratio,
-                "missingCitationIds": unsupported,
-                "wrongCorpusIds": wrong_corpus,
-                "unsupportedRoiCostClaims": unsupported_claims,
-            }
-        )
-
+    for row in evaluated:
         print(
-            f"faithfulness case={case_id} retrieved={retrieved} supported={supported} ratio={ratio:.4f} "
-            f"missing_citations={len(unsupported)} wrong_corpus={len(wrong_corpus)} "
-            f"unsupported_roi_cost={len(unsupported_claims)}"
+            f"faithfulness case={row['id']} retrieved={row['retrieved']} supported={row['supported']} "
+            f"ratio={float(row['ratio']):.4f} missing_citations={len(row['missingCitationIds'])} "
+            f"wrong_corpus={len(row['wrongCorpusIds'])} "
+            f"unsupported_roi_cost={len(row['unsupportedRoiCostClaims'])}"
         )
+
+    ablation_delta_rows: list[dict[str, object]] = []
+
+    if not args.skip_ablation:
+        profile_metrics, ablation_delta_rows = _run_faithfulness_ablation(case_dicts, ablation_attribution_path)
+
+        if profile_metrics:
+            _write_ablation_summary(
+                ablation_summary_path,
+                profile_metrics=profile_metrics,
+                delta_rows=ablation_delta_rows,
+            )
+            print(f"Wrote {ablation_summary_path}")
 
     mean_ratio = sum(ratios) / len(ratios)
     category_breakdown = _summarize_by_category(evaluated)
@@ -405,6 +578,7 @@ def main(argv: list[str] | None = None) -> int:
         mean_ratio=mean_ratio,
         min_ratio=min_ratio,
         category_breakdown=category_breakdown,
+        ablation_delta_rows=ablation_delta_rows,
     )
     _write_json_summary(
         json_summary_path,

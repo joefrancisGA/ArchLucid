@@ -72,3 +72,19 @@
 | ask-customer-network-cited | positive-readiness | demo-vs-customer | 1 | 1 | 1.0000 | - | - | - |
 | ask-multi-corpus-cited | positive-readiness | azure-saas-readiness | 2 | 2 | 1.0000 | - | azure-frontdoor-waf-standard | - |
 | ask-missing-citation-negative | negative-control | missing-citation | 1 | 0 | 0.0000 | adr-0031-cross-tenant | - | - |
+
+## RAG-V2 ablation (TB-595)
+
+Offline golden-cohort passes that simulate `Retrieval:Advanced` feature flags toggled off by
+filtering retrieval hits attributed to Graph-RAG neighbor expansion, HyDE, or query rewrite.
+**Positive Δ vs all-on** is the change in positive readiness when the flag is disabled.
+Negative Δ means the feature contributed cited hits on fixtures; positive Δ means attributed
+hits were uncited or unhelpful for the agent output under test.
+
+| Profile | Positive readiness | Δ vs all-on | Combined diagnostic | Δ vs all-on | Hits filtered | Cases affected |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| All on (blended baseline) | 0.9783 | +0.0000 | 0.6389 | +0.0000 | 0 | 0 |
+| EnableGraphRag=false | 0.9783 | +0.0000 | 0.6528 | +0.0139 | 8 | 8 |
+| EnableHyde=false | 1.0000 | +0.0217 | 0.6528 | +0.0139 | 6 | 6 |
+| EnableQueryRewrite=false | 0.9783 | +0.0000 | 0.6389 | +0.0000 | 6 | 6 |
+| All advanced off | 1.0000 | +0.0217 | 0.6667 | +0.0278 | 19 | 19 |

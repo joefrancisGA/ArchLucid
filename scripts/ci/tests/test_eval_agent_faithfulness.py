@@ -1,14 +1,23 @@
 import importlib.util
 import json
 import os
+import subprocess
+import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / "eval_agent_faithfulness.py"
+PROFILES_PATH = Path(__file__).resolve().parents[1] / "retrieval_ablation_profiles.py"
 SPEC = importlib.util.spec_from_file_location("eval_agent_faithfulness", SCRIPT_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(MODULE)
+
+PROFILES_SPEC = importlib.util.spec_from_file_location("retrieval_ablation_profiles", PROFILES_PATH)
+PROFILES_MODULE = importlib.util.module_from_spec(PROFILES_SPEC)
+assert PROFILES_SPEC.loader is not None
+PROFILES_SPEC.loader.exec_module(PROFILES_MODULE)
 
 
 class EvalAgentFaithfulnessTests(unittest.TestCase):
@@ -106,6 +115,72 @@ class EvalAgentFaithfulnessTests(unittest.TestCase):
         self.assertTrue(any("positive readiness" in failure for failure in failures))
         # Phase A split cohort floors: combined diagnostic is suppressed when both cohort kinds are present.
         self.assertFalse(any("combined diagnostic" in failure for failure in failures))
+
+    def test_ablation_report_includes_delta_table(self) -> None:
+        cases_path = Path(__file__).resolve().parents[3] / "tests" / "eval-datasets" / "faithfulness-golden" / "cases.json"
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp = Path(tmp_dir)
+            report_path = tmp / "faithfulness-report.md"
+
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT_PATH),
+                    "--cases",
+                    str(cases_path),
+                    "--report",
+                    str(report_path),
+                    "--json-summary",
+                    str(tmp / "faithfulness-summary.json"),
+                    "--ablation-summary",
+                    str(tmp / "faithfulness-ablation-summary.json"),
+                ],
+                cwd=Path(__file__).resolve().parents[3],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            report_text = report_path.read_text(encoding="utf-8")
+            self.assertIn("## RAG-V2 ablation (TB-595)", report_text)
+            self.assertIn("| Profile | Positive readiness | Δ vs all-on |", report_text)
+            self.assertIn("EnableGraphRag=false", report_text)
+            self.assertIn("EnableHyde=false", report_text)
+            self.assertIn("EnableQueryRewrite=false", report_text)
+            self.assertIn("All advanced off", report_text)
+
+            ablation_payload = json.loads((tmp / "faithfulness-ablation-summary.json").read_text(encoding="utf-8"))
+            self.assertEqual(ablation_payload.get("program"), "faithfulness-retrieval-ablation-tb595")
+            delta_rows = ablation_payload.get("deltaVsAllOn")
+            self.assertIsInstance(delta_rows, list)
+            self.assertGreaterEqual(len(delta_rows), 5)
+            first_row = delta_rows[0]
+            self.assertIn("profileKey", first_row)
+            self.assertIn("positiveDeltaVsAllOn", first_row)
+            self.assertIn("combinedDeltaVsAllOn", first_row)
+
+    def test_filter_hits_for_profile_drops_graph_rag_attribution(self) -> None:
+        profile = next(item for item in PROFILES_MODULE.ABLATION_PROFILES if item.key == "graph-rag-off")
+        hits = [
+            {"sourceId": "rule-kv-01", "title": "Key Vault"},
+            {"sourceId": "rule-mi-02", "title": "Managed Identity"},
+        ]
+        attribution = {
+            "faithfulness-policy-cited": {
+                "rule-mi-02": ["graphRag"],
+            },
+        }
+
+        filtered = PROFILES_MODULE.filter_hits_for_profile(
+            hits,
+            case_id="faithfulness-policy-cited",
+            profile=profile,
+            attribution=attribution,
+        )
+
+        self.assertEqual([hit["sourceId"] for hit in filtered], ["rule-kv-01"])
 
 
 if __name__ == "__main__":

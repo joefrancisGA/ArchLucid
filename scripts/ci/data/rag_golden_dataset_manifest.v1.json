@@ -24,6 +24,7 @@
     },
     "faithfulness-golden": {
       "path": "tests/eval-datasets/faithfulness-golden/cases.json",
+      "ablationAttributionPath": "tests/eval-datasets/faithfulness-golden/ablation-attribution.v1.json",
       "caseCount": 33,
       "corpusKinds": [
         "PolicyPack",
@@ -42,6 +43,7 @@
   "harnesses": [
     "scripts/ci/eval_retrieval_ir.py",
     "scripts/ci/eval_agent_faithfulness.py",
+    "scripts/ci/retrieval_ablation_profiles.py",
     "scripts/ci/run_rag_live_model_faithfulness_signal.py",
     "scripts/ci/run_rag_quality_program.py"
   ]
