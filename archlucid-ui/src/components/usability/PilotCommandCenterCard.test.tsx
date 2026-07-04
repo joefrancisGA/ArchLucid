@@ -9,6 +9,7 @@ import {
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_HEADING,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
+  PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK,
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
   PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
@@ -126,5 +127,29 @@ describe("PilotCommandCenterCard", () => {
     expect(connectCloud.className).toMatch(/border/);
     expect(inviteReviewer.className).toMatch(/border/);
     expect(screen.getByTestId("pilot-next-best-action").className).not.toMatch(/border-neutral-300/);
+  });
+
+  it("renders first-hour hero CTAs as balanced primary and outline buttons", async () => {
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent(
+        OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
+      );
+    });
+
+    const openSample = screen.getByRole("link", { name: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA });
+    const startOwnReview = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK });
+
+    expect(openSample).toHaveAttribute(
+      "href",
+      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
+    );
+    expect(startOwnReview).toHaveAttribute("href", "/reviews/new");
+    expect(openSample.className).toMatch(/bg-\[var\(--al-primary-action-bg\)\]/);
+    expect(openSample.className).not.toMatch(/underline/);
+    expect(startOwnReview.className).toMatch(/border-neutral-300/);
+    expect(startOwnReview.className).not.toMatch(/bg-\[var\(--al-primary-action-bg\)\]/);
+    expect(startOwnReview.className).not.toMatch(/underline/);
   });
 });

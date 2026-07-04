@@ -32,7 +32,12 @@ describe("PilotCommandCenterCard", () => {
     );
     expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
     expect(screen.getByTestId("pilot-command-center-start-own-review")).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK })).toBeInTheDocument();
+    const startOwnReview = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK });
+    expect(startOwnReview.className).toMatch(/border-neutral-300/);
+    expect(startOwnReview.className).not.toMatch(/underline/);
+    const openSample = screen.getByRole("link", { name: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA });
+    expect(openSample.className).toMatch(/bg-\[var\(--al-primary-action-bg\)\]/);
+    expect(openSample.className).not.toMatch(/border-neutral-300/);
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-help")).toBeNull();

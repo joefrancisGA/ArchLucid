@@ -22,7 +22,6 @@ import {
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
@@ -34,6 +33,7 @@ import {
   showcaseSampleReviewPackageHref,
 } from "@/lib/showcase-sample-review-registry";
 
+const heroCtaButtonClass = "h-8";
 const optionalSetupButtonClass = "h-7";
 
 const DEFAULT_NEXT_ACTION: PilotNextBestAction = {
@@ -81,20 +81,18 @@ export function PilotCommandCenterCard(): React.JSX.Element {
           className={cn("heroActions flex shrink-0 flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}
           data-testid="pilot-command-center-cta-row"
         >
-          <Button asChild variant="primary" size="sm" className="h-8">
+          <Button asChild variant="primary" size="sm" className={heroCtaButtonClass}>
             <Link href={nextAction.href} data-testid="pilot-next-best-action">
               {nextAction.label}
             </Link>
           </Button>
           {!hasCommittedArchitectureReview ? (
             nextAction.href === showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId) ? (
-              <Link
-                href="/reviews/new"
-                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPE_SCALE.helper)}
-                data-testid="pilot-command-center-start-own-review"
-              >
-                {PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK}
-              </Link>
+              <Button asChild variant="outline" size="sm" className={heroCtaButtonClass}>
+                <Link href="/reviews/new" data-testid="pilot-command-center-start-own-review">
+                  {PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK}
+                </Link>
+              </Button>
             ) : null
           ) : null}
         </div>
