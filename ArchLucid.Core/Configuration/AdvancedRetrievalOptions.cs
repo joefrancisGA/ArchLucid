@@ -26,12 +26,19 @@ public sealed class AdvancedRetrievalOptions
         set;
     } = true;
 
-    /// <summary>When true, expands knowledge-graph hits with 1-hop neighbors at query time.</summary>
+    /// <summary>When true, expands knowledge-graph hits with bounded multi-hop neighbor traversal at query time.</summary>
     public bool EnableGraphRag
     {
         get;
         set;
     } = true;
+
+    /// <summary>Maximum graph hops traversed from each seed hit (cycle-safe breadth-first expansion).</summary>
+    public int MaxGraphTraversalHops
+    {
+        get;
+        set;
+    } = 2;
 
     /// <summary>Maximum neighbor nodes appended per matched graph hit.</summary>
     public int MaxGraphNeighborNodes
@@ -53,6 +60,11 @@ public sealed class AdvancedRetrievalOptions
     public int GetEffectiveMaxGraphNeighborNodes()
     {
         return Math.Clamp(MaxGraphNeighborNodes, 1, 32);
+    }
+
+    public int GetEffectiveMaxGraphTraversalHops()
+    {
+        return Math.Clamp(MaxGraphTraversalHops, 1, 4);
     }
 
     public TimeSpan GetEffectiveExpansionTimeout()

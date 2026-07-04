@@ -50,6 +50,7 @@ public sealed class GraphRagNeighborExpander(
 
         long startTicks = Stopwatch.GetTimestamp();
         int maxNeighbors = options.GetEffectiveMaxGraphNeighborNodes();
+        int maxHops = options.GetEffectiveMaxGraphTraversalHops();
         List<RetrievalHit> expanded = hits.ToList();
         HashSet<string> existingChunkIds = expanded
             .Select(static hit => hit.ChunkId)
@@ -88,10 +89,15 @@ public sealed class GraphRagNeighborExpander(
             if (snapshot is null)
                 continue;
 
-            IReadOnlyList<GraphNode> neighbors = CollectOneHopNeighbors(snapshot, seed.SourceId, maxNeighbors);
+            IReadOnlyList<GraphRagNeighborHop> neighbors = GraphRagBoundedNeighborCollector.Collect(
+                snapshot,
+                seed.SourceId,
+                maxHops,
+                maxNeighbors);
 
-            foreach (GraphNode neighbor in neighbors)
+            foreach (GraphRagNeighborHop neighborHop in neighbors)
             {
+                GraphNode neighbor = neighborHop.Node;
                 string chunkId = KnowledgeGraphNodeEmbeddingTextComposer.BuildChunkId(graphSnapshotId, neighbor.NodeId);
 
                 if (!existingChunkIds.Add(chunkId))
@@ -106,7 +112,7 @@ public sealed class GraphRagNeighborExpander(
                     SourceId = neighbor.NodeId,
                     Title = neighbor.Label ?? neighbor.NodeId,
                     Text = KnowledgeGraphNodeEmbeddingTextComposer.Compose(neighbor),
-                    Score = seed.Score * NeighborScoreFactor,
+                    Score = seed.Score * Math.Pow(NeighborScoreFactor, neighborHop.HopDistance),
                 });
             }
         }
@@ -122,33 +128,5 @@ public sealed class GraphRagNeighborExpander(
         ArchLucidInstrumentation.RecordGraphRagExpansion(neighborsAdded, expansionLatencyMilliseconds);
 
         return ordered;
-    }
-
-    internal static IReadOnlyList<GraphNode> CollectOneHopNeighbors(
-        GraphSnapshot snapshot,
-        string seedNodeId,
-        int maxNeighbors)
-    {
-        ArgumentNullException.ThrowIfNull(snapshot);
-        ArgumentException.ThrowIfNullOrWhiteSpace(seedNodeId);
-
-        HashSet<string> neighborIds = [];
-
-        foreach (GraphEdge edge in snapshot.Edges)
-        {
-            if (string.Equals(edge.FromNodeId, seedNodeId, StringComparison.OrdinalIgnoreCase))
-                neighborIds.Add(edge.ToNodeId);
-
-            if (string.Equals(edge.ToNodeId, seedNodeId, StringComparison.OrdinalIgnoreCase))
-                neighborIds.Add(edge.FromNodeId);
-
-            if (neighborIds.Count >= maxNeighbors)
-                break;
-        }
-
-        return snapshot.Nodes
-            .Where(node => neighborIds.Contains(node.NodeId))
-            .Take(maxNeighbors)
-            .ToList();
     }
 }
