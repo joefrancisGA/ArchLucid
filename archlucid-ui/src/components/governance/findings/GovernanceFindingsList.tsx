@@ -98,7 +98,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
         onSelectionChange={onSelectionChange}
       />
 
-      <div className="space-y-3 md:hidden">
+      <div className="space-y-3 md:hidden" data-testid="governance-findings-queue-mobile">
         {displayedRows.map((row) => (
           <GovernanceFindingRow
             key={`${row.runId}:${row.findingId}`}

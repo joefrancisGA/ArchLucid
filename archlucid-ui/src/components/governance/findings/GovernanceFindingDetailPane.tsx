@@ -6,12 +6,11 @@ import { memo, type ReactElement } from "react";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
-import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
-import { Button } from "@/components/ui/button";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evidence-citations";
 import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA,
-  BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -22,10 +21,13 @@ import {
   type GovernanceFindingQueueRow,
 } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import {
-  governanceFindingInspectHref,
   governanceFindingManifestRecordHref,
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
+import {
+  governanceQueueStatusTagKind,
+} from "@/components/governance/findings/governance-findings-buyer-labels";
+import { GovernanceFindingsQueueOperationalActions } from "@/components/governance/findings/governance-findings-queue-operational-actions";
 
 export type GovernanceFindingDetailPaneProps = {
   readonly row: GovernanceFindingQueueRow;
@@ -117,16 +119,18 @@ function GovernanceFindingDetailPaneComponent({
       </div>
       <div>
         <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Severity</span>
-        <p className="m-0 mt-0.5 text-al-text-secondary">
+        <div className="mt-0.5">
           {buyerPolishedShell && row.recordKind === "decision" ? (
             <>
               <span aria-hidden="true">—</span>
               <span className="sr-only">Severity does not apply to recorded decision rows.</span>
             </>
+          ) : row.recordKind === "finding" ? (
+            <SeverityTag severity={row.severity} />
           ) : (
-            row.severity
+            <span className="text-al-text-secondary">{row.severity}</span>
           )}
-        </p>
+        </div>
       </div>
       {buyerPolishedShell && row.recordKind === "finding" ? (
         <div>
@@ -158,7 +162,9 @@ function GovernanceFindingDetailPaneComponent({
       ) : null}
       <div>
         <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Status</span>
-        <p className="m-0 mt-0.5 text-al-text-secondary">{row.status}</p>
+        <div className="mt-0.5">
+          <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+        </div>
         {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
           <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {row.humanReviewStatusLabel}
@@ -171,33 +177,13 @@ function GovernanceFindingDetailPaneComponent({
         ) : null}
       </div>
       <div className="flex flex-col gap-2 sm:col-span-2">
-        {row.recordKind === "finding" ? (
-          <>
-            <CopyGovernanceQueueWorkItemButton
-              runId={row.runId}
-              findingId={row.findingId}
-              findingTitle={row.title}
-              severityLabel={row.severity}
-              recommendedAction={row.recommended}
-              statusLabel={row.status}
-              compact
-            />
-            {!buyerPolishedShell ? <ItsmOutboundQuickActions findingId={row.findingId} compact /> : null}
-          </>
-        ) : null}
-        <Button asChild variant="outline" size="sm" className="h-9 border-teal-300 dark:border-teal-700">
-          <Link href={governanceFindingInspectHref(row.runId, row.findingId)}>
-            {buyerPolishedShell
-              ? row.recordKind === "decision"
-                ? "View decision"
-                : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA
-              : "Open finding"}
-          </Link>
-        </Button>
+        <GovernanceFindingsQueueOperationalActions row={row} testIdPrefix={`governance-mobile-${row.findingId}`} />
         {graphHref !== null ? (
-          <Button asChild variant="outline" size="sm" className="h-9 border-neutral-300 dark:border-neutral-600">
-            <Link href={graphHref}>{BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA}</Link>
-          </Button>
+          <p className="m-0">
+            <Link className={OPERATOR_LINK.inline} href={graphHref}>
+              {BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA}
+            </Link>
+          </p>
         ) : null}
       </div>
     </>

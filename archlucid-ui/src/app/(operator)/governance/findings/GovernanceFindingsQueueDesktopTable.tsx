@@ -25,13 +25,15 @@ import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
 } from "@/lib/buyer-polish-copy";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evidence-citations";
-import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
-import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
+import { GovernanceFindingsQueueOperationalActions } from "@/components/governance/findings/governance-findings-queue-operational-actions";
+import {
+  governanceFindingInspectHref,
+  governanceQueueGraphEvidenceHref,
+} from "@/components/governance/findings/governance-findings-navigation";
 import { groupGovernanceFindingQueueRows } from "@/lib/group-governance-finding-queue-rows";
 import { governanceQueueDispositionLabel } from "@/lib/architecture-risk-register-page";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
@@ -40,10 +42,6 @@ import {
   formatGovernanceQueueRecordKind,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
-
-function inspectHref(runId: string, findingId: string): string {
-  return `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect`;
-}
 
 function formatRiskRegisterUtcLabel(utc: string | null | undefined): string {
   const raw = (utc ?? "").trim();
@@ -63,26 +61,6 @@ function formatRiskRegisterUtcLabel(utc: string | null | undefined): string {
     month: "short",
     day: "numeric",
   });
-}
-
-function governanceQueueGraphEvidenceHref(row: GovernanceFindingQueueRow): string | null {
-  if (row.recordKind !== "finding") {
-    return null;
-  }
-
-  const focused = preferredGraphNodeIdForFindingDeepLink(row.runId, row.findingId);
-
-  if (focused !== null) {
-    return graphTrailHrefWithOptionalNode(row.runId, focused);
-  }
-
-  const level = row.traceConfidenceLevel;
-
-  if (level === "High" || level === "Medium" || level === "Low") {
-    return graphTrailHrefWithOptionalNode(row.runId, null);
-  }
-
-  return null;
 }
 
 function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buyerPolishedShell: boolean): ReactElement {
@@ -178,22 +156,6 @@ function GovernanceFindingsQueueTableHead(props: {
   );
 }
 
-function riskExceptionActionHref(row: GovernanceFindingQueueRow): string {
-  if ((row.waiverExpiresAtUtc?.trim() ?? "").length > 0) {
-    return "/governance/risk-exceptions";
-  }
-
-  return inspectHref(row.runId, row.findingId);
-}
-
-function riskExceptionActionLabel(row: GovernanceFindingQueueRow): string {
-  if ((row.waiverExpiresAtUtc?.trim() ?? "").length > 0) {
-    return "View exception";
-  }
-
-  return "Create exception";
-}
-
 function GovernanceFindingsQueueOperationalRowCells(props: {
   readonly row: GovernanceFindingQueueRow;
 }): ReactElement {
@@ -206,7 +168,7 @@ function GovernanceFindingsQueueOperationalRowCells(props: {
   return (
     <>
       <EnterpriseTableCell className="font-medium text-al-text-primary">
-        <Link className={OPERATOR_LINK.inline} href={inspectHref(row.runId, row.findingId)}>
+        <Link className={OPERATOR_LINK.inline} href={governanceFindingInspectHref(row.runId, row.findingId)}>
           {row.title}
         </Link>
         {row.recordKind === "finding" && row.policyRuleId ? (
@@ -283,40 +245,6 @@ function GovernanceFindingsQueueOperationalRowCells(props: {
   );
 }
 
-function GovernanceFindingsQueueOperationalActions(props: {
-  readonly row: GovernanceFindingQueueRow;
-}): ReactElement {
-  const { row } = props;
-
-  return (
-    <div className="flex flex-col gap-2">
-      <Button asChild variant="primary" size="sm" className="h-8">
-        <Link href={inspectHref(row.runId, row.findingId)}>View risk</Link>
-      </Button>
-      <Button asChild variant="outline" size="sm" className="h-8">
-        <Link href={`/reviews/${encodeURIComponent(row.runId)}`}>Open source review</Link>
-      </Button>
-      {row.recordKind === "finding" ? (
-        <>
-          <Button asChild variant="outline" size="sm" className="h-8">
-            <Link href={riskExceptionActionHref(row)}>{riskExceptionActionLabel(row)}</Link>
-          </Button>
-          <CopyGovernanceQueueWorkItemButton
-            runId={row.runId}
-            findingId={row.findingId}
-            findingTitle={row.title}
-            severityLabel={row.severity}
-            recommendedAction={row.recommended}
-            statusLabel={row.status}
-            compact
-          />
-          <ItsmOutboundQuickActions findingId={row.findingId} compact />
-        </>
-      ) : null}
-    </div>
-  );
-}
-
 function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBodyProps): ReactElement {
   const {
     rows,
@@ -372,7 +300,7 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
                 <EnterpriseTableCell className="font-medium text-al-text-primary">
                   <Link
                     className={OPERATOR_LINK.inline}
-                    href={inspectHref(row.runId, row.findingId)}
+                    href={governanceFindingInspectHref(row.runId, row.findingId)}
                   >
                     {row.title}
                   </Link>
@@ -438,7 +366,7 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
               {buyerPolishedShell ? (
                 <div className="flex flex-col gap-2">
                   <Button asChild variant="primary" size="sm" className="h-8">
-                    <Link href={inspectHref(row.runId, row.findingId)}>
+                    <Link href={governanceFindingInspectHref(row.runId, row.findingId)}>
                       {row.recordKind === "decision"
                         ? "View decision"
                         : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA}
@@ -492,7 +420,7 @@ export function GovernanceFindingsQueueDesktopTable(
         return;
       }
 
-      router.push(inspectHref(row.runId, row.findingId));
+      router.push(governanceFindingInspectHref(row.runId, row.findingId));
     },
   });
 

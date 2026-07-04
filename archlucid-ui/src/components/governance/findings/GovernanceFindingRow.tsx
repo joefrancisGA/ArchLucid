@@ -7,6 +7,7 @@ import { memo, type ReactElement } from "react";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evidence-citations";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ import {
 import {
   governanceBuyerRecordTypePrimary,
   governanceBuyerRecordTypeSecondary,
+  governanceQueueStatusTagKind,
 } from "@/components/governance/findings/governance-findings-buyer-labels";
 import {
   GovernanceFindingDetailPane,
@@ -92,7 +94,9 @@ function GovernanceFindingRowComponent({
           </div>
           <div>
             <div className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Status</div>
-            <p className="m-0 mt-0.5 text-al-text-secondary">{row.status}</p>
+            <div className="mt-0.5">
+              <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+            </div>
             {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
               <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{row.humanReviewStatusLabel}</p>
             ) : null}

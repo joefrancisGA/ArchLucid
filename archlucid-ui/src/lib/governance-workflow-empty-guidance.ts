@@ -4,7 +4,7 @@ import type { EmptyStateGettingStarted } from "@/components/EmptyState";
 export const governanceWorkflowIdleGettingStartedOperator: EmptyStateGettingStarted = {
   heading: "Governance workflow in three moves",
   steps: [
-    "Finalize a manifest on a review, then scroll to Submit for governance approval (source → target environments).",
+    "Finalize a review package on a review, then scroll to Submit for governance approval (source → target environments).",
     "Load that review under Approval requests — approve or reject rows as a reviewer.",
     "Release approved requests to the target environment, then Activate when you are ready to go live.",
   ],
@@ -22,7 +22,7 @@ export const governanceWorkflowIdleGettingStartedReader: EmptyStateGettingStarte
 export const governanceNoApprovalsGettingStartedOperator: EmptyStateGettingStarted = {
   heading: "Next steps for this review",
   steps: [
-    "If the manifest should move environments, submit an approval request using the card above.",
+    "If the signed review record should move environments, submit an approval request using the card above.",
     "Otherwise pick another review that already has an open request.",
     "Ask reviewers to load this review — approvals appear here once submitted.",
   ],
@@ -41,7 +41,7 @@ export const governancePromotionsEmptyGettingStartedOperator: EmptyStateGettingS
   heading: "How governance releases appear",
   steps: [
     "Approve a submitted request using Approve on its card.",
-    "Click Release to environment on an approved row — that records the manifest moving toward the target.",
+    "Click Release to environment on an approved row — that records the signed review record moving toward the target.",
     "Repeat for each environment hop your process requires.",
   ],
 };
@@ -58,7 +58,7 @@ export const governancePromotionsEmptyGettingStartedReader: EmptyStateGettingSta
 export const governanceActivationsEmptyGettingStartedOperator: EmptyStateGettingStarted = {
   heading: "Activate after governance release",
   steps: [
-    "Release to the target environment first — activation binds the manifest to that environment.",
+    "Release to the target environment first — activation binds the signed review record to that environment.",
     "Enter your audit-trail name, open Activate on a governance release card, and confirm.",
     "Refresh to see activation rows with timestamps for auditors.",
   ],
@@ -67,7 +67,7 @@ export const governanceActivationsEmptyGettingStartedOperator: EmptyStateGetting
 export const governanceActivationsEmptyGettingStartedReader: EmptyStateGettingStarted = {
   heading: "What activations mean",
   steps: [
-    "Activations record which manifest version is live for an environment.",
+    "Activations record which signed review record version is live for an environment.",
     "Operators run Activate after a governance release — nothing shows until that completes.",
     "Use Audit log if you need the portfolio-level paper trail.",
   ],

@@ -97,9 +97,9 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   icon: Shield,
   title: "Load a review to see workflow rows",
   description:
-    "Pick a run under Approval requests for this review, then Load — approvals, promotions, and activations appear for that review.",
+    "Pick a finalized review package under Approval requests, then Load — approvals, releases, and activations appear for that review.",
   actions: [
-    { label: "View reviews", href: "/reviews?projectId=default" },
+    { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
     { label: "Risk register", href: "/governance/findings", variant: "outline" },
     { label: "Policy packs", href: "/policy-packs", variant: "outline" },
   ],
