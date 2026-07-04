@@ -341,8 +341,11 @@ export const ENTERPRISE_STATUS_LABELS: Readonly<Record<EnterpriseStatusKind, str
   neutral: "—",
 };
 
-const STATUS_TAG_BASE =
-  `inline-flex max-w-full min-h-[20px] items-center rounded-sm border px-2 py-0.5 ${OPERATOR_TYPOGRAPHY.badge}`;
+/** Non-interactive metadata chip shell — status/severity labels must not read as buttons. */
+export const METADATA_STATUS_TAG_SHELL =
+  `inline-flex max-w-full items-center rounded-sm border px-1.5 py-px cursor-default select-none pointer-events-none ${OPERATOR_TYPOGRAPHY.micro} font-medium`;
+
+const STATUS_TAG_BASE = METADATA_STATUS_TAG_SHELL;
 
 export function enterpriseStatusTagClass(kind: EnterpriseStatusKind): string {
   switch (kind) {

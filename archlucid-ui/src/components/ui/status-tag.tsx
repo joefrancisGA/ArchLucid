@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { HTMLAttributes } from "react";
 
-import { Badge } from "@/components/ui/badge";
+import { MetadataStatusLabel } from "@/components/ui/metadata-status-label";
 import {
   ENTERPRISE_STATUS_LABELS,
   enterpriseStatusTagClass,
@@ -13,9 +13,9 @@ export type StatusTagProps = {
   /** Override canonical label when mapping legacy API strings. */
   label?: string;
   className?: string;
-} & Omit<HTMLAttributes<HTMLDivElement>, "children">;
+} & Omit<HTMLAttributes<HTMLSpanElement>, "children">;
 
-/** Canonical enterprise status chip (Carbon-inspired). */
+/** Canonical enterprise status metadata label (Carbon-inspired). */
 export function StatusTag({
   kind,
   label,
@@ -25,13 +25,12 @@ export function StatusTag({
   const display = (label ?? ENTERPRISE_STATUS_LABELS[kind]).trim();
 
   return (
-    <Badge
-      variant="outline"
+    <MetadataStatusLabel
       className={cn(enterpriseStatusTagClass(kind), className)}
-      aria-label={`Status: ${display}`}
+      statusAriaLabel={`Status: ${display}`}
       {...rest}
     >
       {display}
-    </Badge>
+    </MetadataStatusLabel>
   );
 }

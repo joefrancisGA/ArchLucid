@@ -2,23 +2,29 @@ import { cn } from "@/lib/utils";
 
 export type StatusPillDomain = "pipeline" | "governance" | "health" | "general";
 
-/** Shared shell: pill shape, compact type (add `uppercase` in {@link import("@/components/StatusPill")} by default). */
-export const STATUS_PILL_BASE = "rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide";
+import { METADATA_STATUS_TAG_SHELL } from "@/lib/design-tokens";
+
+/** Shared shell for {@link import("@/components/StatusPill")} — metadata label, not a control. */
+export const STATUS_PILL_BASE = METADATA_STATUS_TAG_SHELL;
 
 function pipelineSemanticClass(status: string): string {
   switch (status) {
     case "Finalized":
     case "Package finalized":
-      return "border border-emerald-950/30 bg-emerald-900 text-white shadow-sm ring-1 ring-emerald-950/35 hover:bg-emerald-900/95 dark:border-emerald-700/80 dark:bg-emerald-950 dark:text-emerald-50 dark:ring-emerald-400/25 dark:hover:bg-emerald-950/90";
+      return "border-emerald-800/50 bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)]";
+
     case "Ready to finalize":
     case "Ready to seal":
-      return "border-amber-600/40 bg-al-surface-raised text-al-text-primary shadow-sm dark:border-amber-700/50";
+      return "border-amber-700/50 bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]";
+
     case "In pipeline":
     case "In flight":
     case "In review":
-      return "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600";
+      return "border-blue-700/40 bg-al-surface-raised text-al-text-primary dark:border-blue-600/50";
+
     case "Starting":
-      return "border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-600";
+      return "border-neutral-300 bg-al-surface-raised text-al-text-secondary dark:border-neutral-600";
+
     default:
       return generalSemanticClass(status);
   }
@@ -28,22 +34,27 @@ function pipelineSemanticClass(status: string): string {
 export function governanceDomainBadgeClass(status: string): string {
   switch (status) {
     case "Approved with monitoring":
-      return "border border-teal-950/25 bg-teal-900 text-white shadow-sm ring-1 ring-teal-950/35 hover:bg-teal-900/95 dark:border-teal-600/70 dark:bg-teal-950 dark:text-teal-50 dark:ring-teal-300/30 dark:hover:bg-teal-950/90";
+      return "border-teal-800/40 bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)]";
+
     case "Submitted":
-      return "border-transparent bg-blue-600 text-white hover:bg-blue-600/90 dark:bg-blue-600 dark:hover:bg-blue-600/90";
+      return "border-blue-700/40 bg-al-surface-raised text-al-text-primary dark:border-blue-600/50";
+
     case "Approved":
-      return "border-transparent bg-emerald-800 text-white hover:bg-emerald-800/90 dark:bg-emerald-800 dark:hover:bg-emerald-800/90";
+      return "border-emerald-800/50 bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)]";
+
     case "Failed":
-      return "border-transparent bg-red-600 text-white hover:bg-red-600/90 dark:bg-red-600 dark:hover:bg-red-600/90";
     case "Rejected":
-      return "border-transparent bg-red-600 text-white hover:bg-red-600/90 dark:bg-red-600 dark:hover:bg-red-600/90";
+      return "border-rose-700/50 bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]";
+
     case "Promoted":
-      return "border-transparent bg-violet-600 text-white hover:bg-violet-600/90 dark:bg-violet-600 dark:hover:bg-violet-600/90";
+      return "border-violet-700/40 bg-violet-50/80 text-violet-950 dark:border-violet-600/40 dark:bg-violet-950/30 dark:text-violet-100";
+
     case "Activated":
-      return "border-transparent bg-teal-700 text-white hover:bg-teal-700/90 dark:bg-teal-700 dark:hover:bg-teal-700/90";
+      return "border-teal-700/40 bg-teal-50/80 text-teal-950 dark:border-teal-600/40 dark:bg-teal-950/30 dark:text-teal-100";
+
     case "Draft":
     default:
-      return "border-neutral-200 bg-neutral-100 text-neutral-900 dark:border-neutral-800 dark:bg-neutral-800 dark:text-neutral-100";
+      return "border-neutral-300 bg-al-surface-raised text-al-text-secondary dark:border-neutral-600";
   }
 }
 
@@ -74,16 +85,19 @@ function generalSemanticClass(status: string): string {
 }
 
 /**
- * Tailwind classes for {@link import("@/components/StatusPill")} (Badge outline + semantic fills).
+ * Tailwind classes for {@link import("@/components/StatusPill")} semantic fills.
  */
 export function statusPillDomainClass(status: string, domain: StatusPillDomain): string {
   switch (domain) {
     case "pipeline":
       return pipelineSemanticClass(status);
+
     case "governance":
       return governanceDomainBadgeClass(status);
+
     case "health":
       return healthSemanticClass(status);
+
     case "general":
     default:
       return generalSemanticClass(status);

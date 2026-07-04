@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { StatusTag } from "@/components/ui/status-tag";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
@@ -66,14 +65,13 @@ export function RunGovernanceWarningIndicator(props: { readonly buyerPolishedShe
   const title = props.buyerPolishedShell
     ? BUYER_GOVERNANCE_MONITORING_BADGE
     : RUNS_DASHBOARD_LABELS.governanceWarningTitle;
-  const badgeClass = props.buyerPolishedShell
-    ? "shrink-0 border-neutral-300 bg-neutral-50 text-[0.6rem] font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-300"
-    : "shrink-0 border-amber-600/40 bg-al-surface-raised text-[0.6rem] font-semibold text-al-text-primary dark:border-amber-700/50";
 
   return (
-    <Badge variant="outline" className={badgeClass} data-testid="run-governance-warning-indicator">
-      {title}
-    </Badge>
+    <StatusTag
+      kind={props.buyerPolishedShell ? "approved-with-monitoring" : "needs-attention"}
+      label={title}
+      data-testid="run-governance-warning-indicator"
+    />
   );
 }
 

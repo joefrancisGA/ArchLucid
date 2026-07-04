@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  METADATA_STATUS_TAG_SHELL,
   OPERATOR_CARD,
   OPERATOR_KPI_CARD_DESCRIPTION,
   OPERATOR_KPI_CARD_TITLE,
@@ -23,6 +24,13 @@ describe("design-tokens TB-115 surfaces", () => {
   it("operatorSemanticBadge uses status token variables", () => {
     expect(operatorSemanticBadge("ready")).toContain("--al-status-ready-bg");
     expect(operatorSemanticBadge("warn")).toContain("--al-status-warn-bg");
+  });
+
+  it("metadata status shell is non-interactive", () => {
+    expect(METADATA_STATUS_TAG_SHELL).toContain("cursor-default");
+    expect(METADATA_STATUS_TAG_SHELL).toContain("pointer-events-none");
+    expect(METADATA_STATUS_TAG_SHELL).not.toContain("hover:");
+    expect(METADATA_STATUS_TAG_SHELL).not.toContain("shadow");
   });
 
   it("operatorConfidenceSurface maps proof disposition tones", () => {

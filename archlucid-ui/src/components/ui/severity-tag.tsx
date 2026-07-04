@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { HTMLAttributes } from "react";
 
-import { Badge } from "@/components/ui/badge";
+import { MetadataStatusLabel } from "@/components/ui/metadata-status-label";
 import {
   normalizeFindingSeverity,
   SEVERITY_LABELS,
@@ -15,9 +15,9 @@ export type SeverityTagProps = {
   kind?: FindingSeverityKind;
   label?: string;
   className?: string;
-} & Omit<HTMLAttributes<HTMLDivElement>, "children">;
+} & Omit<HTMLAttributes<HTMLSpanElement>, "children">;
 
-/** Finding severity chip aligned with enterprise token palette. */
+/** Finding severity metadata label aligned with enterprise token palette. */
 export function SeverityTag({
   severity,
   kind,
@@ -29,13 +29,12 @@ export function SeverityTag({
   const display = (label ?? SEVERITY_LABELS[resolved]).trim();
 
   return (
-    <Badge
-      variant="outline"
+    <MetadataStatusLabel
       className={cn(severityTagClass(resolved), className)}
-      aria-label={`Severity: ${display}`}
+      statusAriaLabel={`Severity: ${display}`}
       {...rest}
     >
       {display}
-    </Badge>
+    </MetadataStatusLabel>
   );
 }

@@ -21,7 +21,10 @@ const governanceStatuses = [
 describe("StatusPill", () => {
   it.each(pipelineStatuses)("renders pipeline status %s", (status) => {
     render(<StatusPill status={status} domain="pipeline" />);
-    expect(screen.getByText(status)).toBeInTheDocument();
+    const badge = screen.getByText(status);
+    expect(badge).toBeInTheDocument();
+    expect(badge.tagName).toBe("SPAN");
+    expect(badge.className).toContain("cursor-default");
   });
 
   it.each(governanceStatuses)("renders governance status %s", (status) => {

@@ -6,7 +6,9 @@ import { StatusTag } from "@/components/StatusTag";
 describe("StatusTag", () => {
   it("renders canonical enterprise labels", () => {
     render(<StatusTag kind="ready" />);
-    expect(screen.getByText("Ready")).toBeInTheDocument();
+    const badge = screen.getByText("Ready");
+    expect(badge).toBeInTheDocument();
+    expect(badge.tagName).toBe("SPAN");
   });
 
   it("allows label override", () => {

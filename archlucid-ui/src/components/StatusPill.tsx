@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { HTMLAttributes } from "react";
 
-import { Badge } from "@/components/ui/badge";
+import { MetadataStatusLabel } from "@/components/ui/metadata-status-label";
 import { statusPillCombinedClass, type StatusPillDomain } from "@/lib/status-pill-domain-classes";
 
 export type StatusPillProps = {
@@ -12,10 +12,10 @@ export type StatusPillProps = {
   ariaLabel?: string;
   /** Default true — small caps scan line for dense lists. */
   uppercase?: boolean;
-} & Omit<HTMLAttributes<HTMLDivElement>, "children" | "aria-label">;
+} & Omit<HTMLAttributes<HTMLSpanElement>, "children" | "aria-label">;
 
 /**
- * Unified status chip: wraps {@link Badge} with a shared semantic palette (pipeline, governance, health, general).
+ * Unified status metadata label: shared semantic palette (pipeline, governance, health, general).
  * Does not alter stored API status strings — only presentation.
  */
 export function StatusPill({
@@ -29,14 +29,13 @@ export function StatusPill({
   const label = status.trim().length > 0 ? status : "—";
 
   return (
-    <Badge
-      variant="outline"
+    <MetadataStatusLabel
       className={cn(statusPillCombinedClass(label, domain), uppercase ? "uppercase" : null, className)}
-      aria-label={ariaLabel ?? `Status: ${label}`}
+      statusAriaLabel={ariaLabel ?? `Status: ${label}`}
       {...rest}
     >
       {label}
-    </Badge>
+    </MetadataStatusLabel>
   );
 }
 

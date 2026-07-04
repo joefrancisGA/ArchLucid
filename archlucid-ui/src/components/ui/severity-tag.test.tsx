@@ -6,14 +6,17 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 describe("SeverityTag", () => {
   it("normalizes API severity strings", () => {
     render(<SeverityTag severity="High" />);
-    expect(screen.getByText("High")).toBeInTheDocument();
+    const badge = screen.getByText("High");
+    expect(badge).toBeInTheDocument();
+    expect(badge.tagName).toBe("SPAN");
+    expect(badge.className).toContain("pointer-events-none");
   });
 
   it("renders contract FindingSeverity enum names without unknown fallback (TB-328)", () => {
     render(<SeverityTag severity="Warning" />);
-    expect(screen.getByText("Warning")).toBeInTheDocument();
+    expect(screen.getByText("Warning").tagName).toBe("SPAN");
 
     render(<SeverityTag severity="Error" />);
-    expect(screen.getByText("Error")).toBeInTheDocument();
+    expect(screen.getByText("Error").tagName).toBe("SPAN");
   });
 });

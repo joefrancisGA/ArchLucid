@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Shield } from "lucide-react";
 
-import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseStatusTagClass } from "@/lib/design-tokens";
 import type { FindingConfidenceLevel } from "@/types/explanation";
 
 export type FindingConfidenceBadgeProps = {
@@ -40,11 +40,7 @@ export function FindingConfidenceBadge({ level }: FindingConfidenceBadgeProps) {
       role="status"
       aria-label={cfg.label}
       data-archlucid-confidence={level}
-      className={cn(
-        "finding-confidence-badge inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-medium",
-        cfg.pillClass,
-        OPERATOR_TYPOGRAPHY.helper,
-      )}
+      className={cn("finding-confidence-badge inline-flex items-center gap-1", cfg.pillClass)}
     >
       <Shield className={`h-3.5 w-3.5 shrink-0 ${cfg.iconClass}`} aria-hidden />
       {cfg.label}
