@@ -28,7 +28,7 @@ export function OperatorFirstHourJourneyStrip() {
     <section
       role="region"
       id="operator-first-hour-path"
-      aria-label="First-hour operator path"
+      aria-label="First-hour path"
       className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-3 dark:border-neutral-800"
       data-testid="operator-first-hour-journey-strip"
     >
@@ -72,7 +72,7 @@ export function OperatorFirstHourJourneyStrip() {
       <p className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
         Next: {steps[0].nextAction}{" "}
         <Link href="/help/first-hour-operator-path" className={OPERATOR_LINK.inline}>
-          Read the canonical guide
+          Read the first-review guide
         </Link>
       </p>
     </section>

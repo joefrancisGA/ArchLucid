@@ -54,7 +54,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "operator-auth-roles": "admin",
   alerts: "admin",
   "specialty-walkthroughs": "admin",
-  "first-hour-operator-path": "internal",
+  "first-hour-operator-path": "product",
   "first-pilot-path": "internal",
   "core-pilot": "internal",
   "first-value-20-minutes": "internal",

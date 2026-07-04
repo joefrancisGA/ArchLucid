@@ -1,73 +1,52 @@
-> **Scope:** Customer-facing canonical first-hour operator golden path — reduces cognitive load while keeping enterprise surfaces available via progressive disclosure.
+# First-review guide
 
-# First-hour operator path
+ArchLucid is designed to help architects move from architecture evidence to a signed, reviewable record. For your first session, focus on completing one review package. You can add cloud connections, governance workflows, integrations, and reporting later.
 
-**Audience:** New tenant operators running their first architecture review  
-**Last reviewed:** 2026-06-15
+## Pilot first. Operate later.
 
-**Operational detail:** [`../runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)  
-**Seven-step minimum (full pilot):** [`CANONICAL_FIRST_RUN_PATH.md`](CANONICAL_FIRST_RUN_PATH.md)
+Your first goal is not to configure the whole platform. Your first goal is to prove that ArchLucid can take architecture evidence, produce useful findings, link those findings to evidence, record decisions, and generate a review package you can share.
 
----
+## Four-step first-review path
 
-## Principle: Pilot first, Operate later
-
-The first hour covers **one committed review package** only. Operate compare/replay/graph lanes, governance expansion, and integration catalog depth stay available but are **non-essential** until after first commit.
-
----
-
-## Four-step first-hour sequence
-
-| Step | Route / surface | Next action state | Success signal |
-| --- | --- | --- | --- |
-| **1** | `/reviews/new` — New architecture request | Submit request and capture `runId` | Review appears on Home / Runs |
-| **2** | `/reviews/{runId}` — Execute review | Run agents and inspect findings summary | Execute completes; findings visible |
-| **3** | `/reviews/{runId}` — Commit review package | Finalize golden manifest | `goldenManifestId` present |
-| **4** | `/manifests` or run artifacts panel | Review outputs before sponsor handoff | Artifacts downloadable; proof checklist green |
-
----
-
-## In-product affordances
-
-- **Operator Home** shows the **First-hour path** strip when not in buyer-polished demo mode.
-- **Sidebar quick actions** list the same four steps for non-buyer operator shells.
-- **Core Pilot checklist** remains the deeper seven-step reference — collapse it when the first-hour strip is sufficient.
-
----
-
-## Progressive disclosure rules
-
-| Surface | First hour | After first commit |
+| Step | What you do | Success signal |
 | --- | --- | --- |
-| Pilot: Home, New run, Runs | **Essential** | Essential |
-| Operate: Graph, Compare, Replay | Hidden by default | Reveal via **Show analysis & investigation tools** |
-| Governance / Audit / Alerts | Secondary links | Use when sponsor or compliance questions arise |
-| Admin / Settings | Available; not sequenced | Configure when environment questions block step 1 |
+| **1. Start a new architecture review** | Submit a brief, diagram, IaC file, design note, or evidence-only ZIP. | A review package is created and appears in your workspace. |
+| **2. Review findings** | Inspect the findings, assumptions, severity, rationale, and evidence links. | Important findings are visible and understandable. |
+| **3. Finalize the review package** | Record decisions, confirm evidence, and finalize the signed review record. | The review package has a signed review record and audit trail. |
+| **4. Review artifacts** | Download or inspect the outputs before sharing with sponsors, governance boards, security reviewers, procurement, or audit stakeholders. | The proof packet or review artifact is ready to share. |
 
----
+## What can wait until later
 
-## Documentation alignment
+Do not spend the first session configuring every advanced feature. After the first package is complete, you can connect cloud evidence, invite reviewers, configure policy packs, open governance workflows, and tune reporting.
 
-UI labels and help slugs reference this document as the canonical first-hour contract:
+- Cloud connections can wait unless they are needed for the first review.
+- Governance workflows can wait until a review package exists.
+- Reporting becomes more useful after one or more packages are finalized.
+- Integrations can be added after the core review path is proven.
 
-- In-app help slug: `first-hour-operator-path` (when registered)
-- Cross-ref from [`CORE_PILOT.md`](../CORE_PILOT.md) and [`OPERATOR_DECISION_GUIDE.md`](OPERATOR_DECISION_GUIDE.md)
+## What good looks like
 
----
+- The review package has clear findings.
+- Important findings trace to evidence.
+- Missing evidence is identified instead of guessed.
+- Decisions are recorded.
+- Risks or exceptions are created only when needed.
+- The signed review record is understandable.
+- The proof packet can be shared without embarrassment.
 
-## Verification
+## Recommended first session
 
-Walk the four steps in the operator shell with simulator mode. Confirm:
+- Start with one real architecture artifact or run the sample review.
+- Review the top findings.
+- Confirm or add supporting evidence.
+- Record at least one decision.
+- Finalize the package.
+- Open the generated artifacts.
 
-1. Sidebar quick actions match the table above.
-2. Advanced routes remain reachable but de-emphasized.
-3. No permission regressions on existing operator routes.
+## Related guides
 
----
-
-## Cross-refs
-
-- [`FIRST_HOUR_OPERATOR_PATH.md`](FIRST_HOUR_OPERATOR_PATH.md) (this file)
-- [`CANONICAL_FIRST_RUN_PATH.md`](CANONICAL_FIRST_RUN_PATH.md)
-- [`CORE_PILOT.md`](../CORE_PILOT.md)
-- [`archlucid-ui/docs/OPERATOR_SHELL_TUTORIAL.md`](../../archlucid-ui/docs/OPERATOR_SHELL_TUTORIAL.md)
+- [New review](/help/evidence-intake)
+- [Review packages](/help/review-packages)
+- [Evidence trail](/help/evidence-trail)
+- [Governance workflow](/help/governance-approval)
+- [Review artifacts and proof packet](/help/pilot-guide)

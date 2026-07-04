@@ -41,14 +41,15 @@ describe("OperatorFirstHourJourneyStrip", () => {
     }
   });
 
-  it("does not expose Lane runbook copy and keeps the canonical guide as a text link", () => {
+  it("does not expose Lane runbook or operator-path copy and keeps the first-review guide as a text link", () => {
     mockUsePathname.mockReturnValue("/");
 
     render(<OperatorFirstHourJourneyStrip />);
 
     expect(screen.queryByText(/lane runbook/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/operator path/i)).not.toBeInTheDocument();
 
-    const guideLink = screen.getByRole("link", { name: "Read the canonical guide" });
+    const guideLink = screen.getByRole("link", { name: "Read the first-review guide" });
 
     expect(guideLink).toHaveAttribute("href", "/help/first-hour-operator-path");
     expect(guideLink.className).toContain("underline");

@@ -1,5 +1,5 @@
 /**
- * Canonical four-step first-hour operator path — keep in sync with docs/library/FIRST_HOUR_OPERATOR_PATH.md
+ * Canonical four-step first-hour architect path — keep in sync with docs/library/FIRST_HOUR_OPERATOR_PATH.md
  * and in-page journey chrome (`OperatorFirstHourJourneyStrip`, route-adjacent next/prev).
  */
 export const OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS = [

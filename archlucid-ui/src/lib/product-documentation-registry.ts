@@ -62,10 +62,10 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "first-hour-operator-path",
-    title: "First-hour architect path",
+    title: "First-review guide",
     summary:
-      "Four-step golden path for new users — request, execute, commit, and review artifacts before opening advanced workspace tools.",
-    audience: "operator",
+      "Complete one review package before opening deeper governance, reporting, or integration workflows.",
+    audience: "buyer",
     sourcePaths: ["docs/library/FIRST_HOUR_OPERATOR_PATH.md"],
   },
   {
