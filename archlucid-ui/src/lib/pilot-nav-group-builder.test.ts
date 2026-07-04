@@ -72,10 +72,17 @@ describe("PilotNavGroupBuilder", () => {
     expect(group.links.map((link) => link.label)).toEqual([
       "Overview",
       "New review",
-      "Review packages",
+      "Reviews",
       "Executive dashboard",
       "Getting started",
     ]);
     expect(group.links.some((link) => link.href === "/graph")).toBe(false);
+  });
+
+  it("TB-606: uses Reviews as the reviews-list nav source label", () => {
+    const group = new PilotNavGroupBuilder().build();
+    const reviewsListLink = group.links.find((link) => link.href === "/reviews?projectId=default");
+
+    expect(reviewsListLink?.label).toBe("Reviews");
   });
 });

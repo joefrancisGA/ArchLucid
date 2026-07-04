@@ -1,4 +1,5 @@
 import { applyBuyerDemoVocabulary } from "@/lib/buyer-demo-vocabulary";
+import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 /** Buyer-polished shell left-nav label for `/reviews/new` — navigation destination, not the hero CTA. */
@@ -6,6 +7,17 @@ export const BUYER_NEW_REVIEW_NAV_LABEL = "New review";
 
 /** Operator quick-action label for `/reviews/new` — keep the outcome verb in default shell chrome. */
 export const OPERATOR_START_REVIEW_QUICK_ACTION_LABEL = "Start review";
+
+/** Matches `/reviews` list routes (with optional query), not `/reviews/new` or `/reviews/{id}`. */
+export function isReviewsListNavHref(href: string): boolean {
+  const path = href.split("?")[0] ?? href;
+
+  return path === "/reviews";
+}
+
+export function resolveReviewsListNavLinkLabel(isGovernanceModeEnabled: boolean): string {
+  return governanceModeVocabulary(isGovernanceModeEnabled).reviewPlural;
+}
 
 export function resolveNewReviewNavLinkLabel(buyerPolishedShell: boolean): string {
   if (buyerPolishedShell) {
@@ -40,12 +52,21 @@ function applyBuyerNavVocabulary(presentation: NavLinkPresentationSource): NavLi
 export function resolveNavLinkPresentation(
   link: NavLinkPresentationSource,
   buyerPolishedShell: boolean,
+  isGovernanceModeEnabled = false,
 ): NavLinkPresentationSource {
   if (link.href === "/reviews/new" && buyerPolishedShell) {
     return applyBuyerNavVocabulary({
       href: link.href,
       label: resolveNewReviewNavLinkLabel(true),
       title: resolveNewReviewNavLinkTitle(true),
+    });
+  }
+
+  if (isReviewsListNavHref(link.href)) {
+    return applyBuyerNavVocabulary({
+      href: link.href,
+      label: resolveReviewsListNavLinkLabel(isGovernanceModeEnabled),
+      title: link.title,
     });
   }
 

@@ -23,6 +23,7 @@ type SidebarNavClusterProps = {
   readonly pathname: string;
   readonly demoUi: boolean;
   readonly buyerPolishedShell: boolean;
+  readonly isGovernanceModeEnabled: boolean;
   readonly hasCommittedArchitectureReview: boolean;
   readonly effectiveOperateUnlockPhase: OperateNavUnlockPhase;
   readonly isCollapsible: boolean;
@@ -114,7 +115,12 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
           aria-label={group.label}
         >
           {linksForRender.map((link) => {
-            const presented = presentSidebarNavLinkForCluster(link, props.buyerPolishedShell, group.surface);
+            const presented = presentSidebarNavLinkForCluster(
+              link,
+              props.buyerPolishedShell,
+              group.surface,
+              props.isGovernanceModeEnabled,
+            );
 
             return (
               <SidebarNavLink

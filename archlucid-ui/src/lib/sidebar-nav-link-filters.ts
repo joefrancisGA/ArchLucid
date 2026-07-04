@@ -3,9 +3,13 @@ import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from
 import { filterNavLinksByOperateUnlockPhase, type OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 import { resolveNavLinkPresentation } from "@/lib/operator-nav-labels";
 
-/** Applies buyer-polished label overrides for a single nav link row. */
-export function presentSidebarNavLink(link: NavLinkItem, buyerPolishedShell: boolean): NavLinkItem {
-  const resolved = resolveNavLinkPresentation(link, buyerPolishedShell);
+/** Applies buyer-polished and governance-mode label overrides for a single nav link row. */
+export function presentSidebarNavLink(
+  link: NavLinkItem,
+  buyerPolishedShell: boolean,
+  isGovernanceModeEnabled = false,
+): NavLinkItem {
+  const resolved = resolveNavLinkPresentation(link, buyerPolishedShell, isGovernanceModeEnabled);
 
   return {
     ...link,
@@ -19,8 +23,9 @@ export function presentSidebarNavLinkForCluster(
   link: NavLinkItem,
   buyerPolishedShell: boolean,
   groupSurface: NavShellSurface,
+  isGovernanceModeEnabled = false,
 ): NavLinkItem {
-  const presented = presentSidebarNavLink(link, buyerPolishedShell);
+  const presented = presentSidebarNavLink(link, buyerPolishedShell, isGovernanceModeEnabled);
 
   if (groupSurface !== "system-admin") {
     return presented;

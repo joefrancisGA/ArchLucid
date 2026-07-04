@@ -10,6 +10,7 @@ import { OperateFeaturesUnlockPanel } from "@/components/usability/OperateFeatur
 import { OperateUnlockAutoHint } from "@/components/usability/OperateUnlockAutoHint";
 import { SidebarNavLayoutSettingsPanel } from "@/components/sidebar-nav/SidebarNavLayoutSettingsPanel";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
+import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { useOperatorShellNavRows } from "@/hooks/useOperatorShellNavRows";
 import { useSidebarNavGroupExpansion } from "@/hooks/useSidebarNavGroupExpansion";
 import { V1_SIDEBAR_CUSTOMIZATION_VISIBLE } from "@/lib/nav-disclosure-copy";
@@ -35,6 +36,7 @@ const FIRST_RUN_WORKFLOW_ROUTE_PREFIXES = ["/ask", "/compare"] as const;
 export function SidebarNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+  const { isGovernanceModeEnabled } = useGovernanceMode();
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
   const { expansion, toggleGroupExpanded, setGroupExpanded } = useSidebarNavGroupExpansion();
   const {
@@ -119,6 +121,7 @@ export function SidebarNav() {
               pathname={pathname}
               demoUi={demoUi}
               buyerPolishedShell={buyerPolishedShell}
+              isGovernanceModeEnabled={isGovernanceModeEnabled}
               hasCommittedArchitectureReview={effectiveHasCommittedArchitectureReview}
               effectiveOperateUnlockPhase={effectiveOperateUnlockPhase}
               isCollapsible={collapsible}

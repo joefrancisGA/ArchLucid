@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useOperatorShellNavRows } from "@/hooks/useOperatorShellNavRows";
+import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { useSidebarNavGroupExpansion } from "@/hooks/useSidebarNavGroupExpansion";
 import { findSidebarNavGroupIdsForActivePath } from "@/lib/sidebar-nav-active-group-expansion";
 import {
@@ -34,6 +35,7 @@ export function MobileNavDrawer() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { expansion, toggleGroupExpanded, setGroupExpanded } = useSidebarNavGroupExpansion();
+  const { isGovernanceModeEnabled } = useGovernanceMode();
   const {
     allRows,
     buyerPolishedShell,
@@ -99,6 +101,7 @@ export function MobileNavDrawer() {
                   pathname={pathname}
                   demoUi={demoUi}
                   buyerPolishedShell={buyerPolishedShell}
+                  isGovernanceModeEnabled={isGovernanceModeEnabled}
                   hasCommittedArchitectureReview={effectiveHasCommittedArchitectureReview}
                   effectiveOperateUnlockPhase={effectiveOperateUnlockPhase}
                   isCollapsible={collapsible}

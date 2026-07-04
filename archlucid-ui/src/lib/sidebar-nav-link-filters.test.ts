@@ -74,8 +74,25 @@ describe("presentSidebarNavLinkForCluster", () => {
       },
       false,
       "review-workflow",
+      false,
     );
 
     expect(presented.title).toContain("changed");
+  });
+
+  it("TB-606: rewrites reviews-list labels for governance mode in review-workflow clusters", () => {
+    const presented = presentSidebarNavLinkForCluster(
+      {
+        href: "/reviews?projectId=default",
+        label: "Reviews",
+        title: "Browse finalized review packages",
+        tier: "essential",
+      },
+      false,
+      "review-workflow",
+      true,
+    );
+
+    expect(presented.label).toBe("Runs");
   });
 });
