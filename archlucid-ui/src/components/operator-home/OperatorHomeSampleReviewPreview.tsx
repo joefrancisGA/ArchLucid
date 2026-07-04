@@ -61,33 +61,38 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
           {OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL}
         </p>
         <ul
-          className="m-0 list-none space-y-2 p-0"
+          className="m-0 list-none divide-y divide-neutral-200/70 p-0 dark:divide-neutral-800"
           data-testid="operator-home-sample-review-finding-list"
+          aria-label="Sample findings included in the review"
         >
-          {SHOWCASE_HOME_SAMPLE_FINDINGS.map((finding, index) => (
+          {SHOWCASE_HOME_SAMPLE_FINDINGS.map((finding) => (
             <li
               key={finding.id}
-              className="rounded-md border border-neutral-200/80 bg-neutral-50/80 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40"
+              className="py-2.5"
               data-testid={`operator-home-sample-review-finding-${finding.id}`}
             >
-              <div className={cn("flex flex-wrap items-center gap-2", OPERATOR_LAYOUT.inlineGap)}>
-                <span className={cn(OPERATOR_TYPE_SCALE.helper, "font-medium text-al-text-secondary")}>
-                  {index + 1}.
-                </span>
-                <span className={cn(OPERATOR_TYPE_SCALE.helper, "font-semibold text-al-text-primary")}>
+              <div className={cn("flex flex-wrap items-center gap-x-1.5 gap-y-1", OPERATOR_LAYOUT.inlineGap)}>
+                <span className={cn(OPERATOR_TYPE_SCALE.helper, "font-medium text-al-text-primary")}>
                   {finding.title}
                 </span>
-                <span className="text-neutral-300 dark:text-neutral-700">—</span>
+                <span className={cn(OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")} aria-hidden>
+                  —
+                </span>
                 <SeverityTag severity={finding.severity} />
               </div>
-              <p className={cn("m-0 mt-1 ml-5", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
                 {finding.summary}
               </p>
             </li>
           ))}
         </ul>
 
-        <div className={cn("flex flex-wrap items-center pt-3", OPERATOR_LAYOUT.inlineGap)}>
+        <div
+          className={cn(
+            "mt-4 flex flex-wrap items-center border-t border-neutral-200/70 pt-4 dark:border-neutral-800",
+            OPERATOR_LAYOUT.inlineGap,
+          )}
+        >
           <Button asChild variant="primary" size="sm" className="h-8">
             <Link href={runSampleReviewHref} data-testid="operator-home-sample-review-run">
               {OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}

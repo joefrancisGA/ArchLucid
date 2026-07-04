@@ -1,6 +1,5 @@
 "use client";
 
-import { PlayCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
@@ -138,7 +137,6 @@ export function RunDemoReviewButton({
         void onClick();
       }}
     >
-      <PlayCircle className="size-4" aria-hidden />
       {busy ? "Running demo review…" : label}
     </Button>
   );

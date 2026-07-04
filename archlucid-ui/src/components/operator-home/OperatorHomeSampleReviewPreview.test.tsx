@@ -42,6 +42,7 @@ describe("OperatorHomeSampleReviewPreview (TB-353)", () => {
       const row = screen.getByTestId(`operator-home-sample-review-finding-${finding.id}`);
       expect(row).toBeInTheDocument();
       expect(screen.getByText(finding.title)).toBeInTheDocument();
+      expect(screen.getByText(finding.summary)).toBeInTheDocument();
 
       // Preview rows are sample content, not actions: no button/link semantics or keyboard focus.
       expect(row.tagName).toBe("LI");
@@ -49,7 +50,11 @@ describe("OperatorHomeSampleReviewPreview (TB-353)", () => {
       expect(row).not.toHaveAttribute("role", "button");
       expect(row).not.toHaveAttribute("role", "link");
       expect(row).not.toHaveAttribute("tabindex");
+      expect(row.className).not.toMatch(/rounded-md|shadow|hover:|cursor-pointer/);
     }
+
+    const findingList = screen.getByTestId("operator-home-sample-review-finding-list");
+    expect(findingList).toHaveAttribute("aria-label", "Sample findings included in the review");
 
     expect(screen.getByTestId("operator-home-sample-review-run")).toHaveAttribute(
       "href",

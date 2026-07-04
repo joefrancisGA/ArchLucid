@@ -22,9 +22,19 @@ describe("OperatorHomeWorkspaceEmptyState (TB-352)", () => {
     expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("seed-sample-review-button")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Load sample workspace" })).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_REVIEWS_EMPTY_COMPACT.description!)).toBeInTheDocument();
     expect(screen.getByText(new RegExp(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL, "i"))).toBeInTheDocument();
     expect(screen.queryByText(/manifest/i)).toBeNull();
+
+    const runDemoButton = screen.getByRole("button", { name: /run demo review/i });
+    const loadSampleButton = screen.getByRole("button", { name: /load sample workspace/i });
+
+    expect(runDemoButton).toBeInTheDocument();
+    expect(loadSampleButton).toBeInTheDocument();
+    expect(runDemoButton.querySelector("svg")).toBeNull();
+    expect(loadSampleButton.querySelector("svg")).toBeNull();
+    expect(runDemoButton.className).toContain("al-primary-action-bg");
+    expect(loadSampleButton.className).toContain("border-neutral-300");
+    expect(loadSampleButton.className).not.toContain("al-primary-action-bg");
   });
 });

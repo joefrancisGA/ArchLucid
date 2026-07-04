@@ -44,7 +44,12 @@ describe("SeedSampleReviewButton", () => {
   it("renders the default seed label", () => {
     render(<SeedSampleReviewButton />);
 
-    expect(screen.getByRole("button", { name: /load sample workspace/i })).toBeInTheDocument();
+    const button = screen.getByRole("button", { name: /load sample workspace/i });
+
+    expect(button).toBeInTheDocument();
+    expect(button.querySelector("svg")).toBeNull();
+    expect(button.className).toContain("border-neutral-300");
+    expect(button.className).not.toContain("al-primary-action-bg");
   });
 
   it("posts to /api/seed-sample and pushes the redirectTo target on success", async () => {

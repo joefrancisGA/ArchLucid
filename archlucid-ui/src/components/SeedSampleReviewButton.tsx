@@ -1,10 +1,10 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import type { ButtonProps } from "@/components/ui/button";
 import { BUYER_SEED_SAMPLE_WORKSPACE_CTA } from "@/lib/buyer-polish-copy";
 import { showError } from "@/lib/toast";
 
@@ -27,6 +27,8 @@ export type SeedSampleReviewButtonProps = {
   readonly className?: string;
   /** Optional override for the visible label (defaults to "Load sample workspace"). */
   readonly label?: string;
+  /** Defaults to outline — this CTA is usually secondary to start-review or demo-review actions. */
+  readonly variant?: NonNullable<ButtonProps["variant"]>;
 };
 
 type SeedSampleResponse = {
@@ -74,6 +76,7 @@ async function readErrorDetail(response: Response): Promise<string> {
 export function SeedSampleReviewButton({
   className,
   label = BUYER_SEED_SAMPLE_WORKSPACE_CTA,
+  variant = "outline",
 }: SeedSampleReviewButtonProps) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -111,7 +114,7 @@ export function SeedSampleReviewButton({
   return (
     <Button
       type="button"
-      variant="primary"
+      variant={variant}
       disabled={busy}
       aria-busy={busy}
       data-testid="seed-sample-review-button"
@@ -120,7 +123,6 @@ export function SeedSampleReviewButton({
         void onClick();
       }}
     >
-      <Sparkles className="size-4" aria-hidden />
       {busy ? "Seeding sample…" : label}
     </Button>
   );
