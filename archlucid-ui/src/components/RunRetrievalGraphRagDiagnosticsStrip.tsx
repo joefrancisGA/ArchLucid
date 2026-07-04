@@ -22,6 +22,7 @@ export function RunRetrievalGraphRagDiagnosticsStrip(
   const hitRate = typeof summary.graphRagNeighborHitRate === "number" ? summary.graphRagNeighborHitRate : 0;
   const tokensIn = summary.totalRetrievalTokensIn ?? 0;
   const pilotFloor = (summary.graphRagPilotFloorDisposition ?? "PASS").toUpperCase();
+  const qualityPosture = summary.graphRagQualityPosture?.toLowerCase() ?? null;
 
   if (neighbors === 0 && seeds === 0 && tokensIn === 0)
     return null;
@@ -46,7 +47,20 @@ export function RunRetrievalGraphRagDiagnosticsStrip(
         <dd className="m-0 tabular-nums sm:justify-self-end">{tokensIn}</dd>
         <dt>Pilot floor</dt>
         <dd className="m-0 sm:justify-self-end">{pilotFloor}</dd>
+        {qualityPosture ? (
+          <>
+            <dt>Quality posture</dt>
+            <dd className="m-0 sm:justify-self-end" data-testid="graph-rag-quality-posture">
+              {qualityPosture}
+            </dd>
+          </>
+        ) : null}
       </dl>
+      {qualityPosture === "unproven" ? (
+        <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-300">
+          Graph-RAG neighbor expansion ran without Azure AI Search vector posture — treat retrieval quality as unproven.
+        </p>
+      ) : null}
       {pilotFloor === "WARN" ? (
         <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-300">
           High Graph-RAG neighbor share with low citation coverage — expand retrieval grounding rows before sponsor send.

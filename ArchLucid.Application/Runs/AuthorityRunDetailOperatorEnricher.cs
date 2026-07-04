@@ -14,6 +14,8 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Roi;
 
+using Microsoft.Extensions.Configuration;
+
 namespace ArchLucid.Application.Runs;
 
 /// <inheritdoc cref="IAuthorityRunDetailOperatorEnricher" />
@@ -25,7 +27,8 @@ public sealed class AuthorityRunDetailOperatorEnricher(
     IRetrievalGroundingTraceReader retrievalGroundingTraceReader,
     ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
     ITenantCostSettingsRepository tenantCostSettingsRepository,
-    IDecisionNodeRepository decisionNodeRepository) : IAuthorityRunDetailOperatorEnricher
+    IDecisionNodeRepository decisionNodeRepository,
+    IConfiguration configuration) : IAuthorityRunDetailOperatorEnricher
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -50,6 +53,9 @@ public sealed class AuthorityRunDetailOperatorEnricher(
 
     private readonly IDecisionNodeRepository _decisionNodeRepository =
         decisionNodeRepository ?? throw new ArgumentNullException(nameof(decisionNodeRepository));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     /// <inheritdoc />
     public async Task EnrichAsync(RunDetailDto detail, string? hostAgentExecutionMode, CancellationToken cancellationToken = default)
@@ -136,7 +142,13 @@ public sealed class AuthorityRunDetailOperatorEnricher(
                     cancellationToken)
                 .ConfigureAwait(false);
 
-        detail.RetrievalGroundingSummary = RunRetrievalGroundingSummaryBuilder.Build(traces, detail.Results);
+        detail.RetrievalGroundingSummary = RunRetrievalGroundingSummaryBuilder.Build(
+            traces,
+            detail.Results,
+            GraphRagQualityPosture.ResolveForGroundedRun(
+                _configuration,
+                traces.Sum(static trace => trace.GraphRagNeighborsAdded ?? 0),
+                traces.Sum(static trace => trace.GraphRagSeedHits ?? 0)));
     }
 
     private async Task AppendDecisionExplainabilityAsync(RunDetailDto detail, CancellationToken cancellationToken)

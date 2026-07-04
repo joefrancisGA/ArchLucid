@@ -203,6 +203,7 @@ export type RunRetrievalGroundingSummary = {
   readonly graphRagNeighborHitRate?: number;
   readonly totalRetrievalTokensIn?: number;
   readonly graphRagPilotFloorDisposition?: string;
+  readonly graphRagQualityPosture?: string | null;
   readonly disposition?: string;
   readonly operatorDetail?: string | null;
 };

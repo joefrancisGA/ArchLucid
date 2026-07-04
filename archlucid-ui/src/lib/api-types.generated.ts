@@ -38296,6 +38296,7 @@ export interface components {
             /** Format: double */
             graphRagNeighborHitRate?: number | string;
             graphRagPilotFloorDisposition?: string;
+            graphRagQualityPosture?: null | string;
             operatorDetail?: null | string;
             /** Format: int32 */
             totalGraphRagNeighborsAdded?: number;

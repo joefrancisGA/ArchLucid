@@ -79,4 +79,11 @@ public sealed class RunRetrievalGroundingSummaryDto
         get;
         set;
     } = "PASS";
+
+    /// <summary>proven or unproven — Azure AI Search posture when Graph-RAG expansion contributed chunks (TB-596).</summary>
+    public string? GraphRagQualityPosture
+    {
+        get;
+        set;
+    }
 }

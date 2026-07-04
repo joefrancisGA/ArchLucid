@@ -87,4 +87,23 @@ public sealed class RunRetrievalGroundingSummaryBuilderTests
         summary.GraphRagNeighborHitRate.Should().BeApproximately(0.75, 0.001);
         summary.TotalRetrievalTokensIn.Should().Be(1200);
     }
+
+    [Fact]
+    public void Build_WhenGraphRagQualityPostureProvided_PropagatesToDto()
+    {
+        List<RetrievalGroundingTraceRecord> traces =
+        [
+            new RetrievalGroundingTraceRecord
+            {
+                AgentName = "Topology",
+                RetrievedChunkIds = ["a"],
+                GraphRagNeighborsAdded = 1,
+            },
+        ];
+
+        RunRetrievalGroundingSummaryDto summary =
+            RunRetrievalGroundingSummaryBuilder.Build(traces, null, GraphRagQualityPosture.UnprovenValue);
+
+        summary.GraphRagQualityPosture.Should().Be(GraphRagQualityPosture.UnprovenValue);
+    }
 }

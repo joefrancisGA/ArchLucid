@@ -21194,6 +21194,12 @@
           "graphRagPilotFloorDisposition": {
             "type": "string"
           },
+          "graphRagQualityPosture": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "operatorDetail": {
             "type": [
               "null",

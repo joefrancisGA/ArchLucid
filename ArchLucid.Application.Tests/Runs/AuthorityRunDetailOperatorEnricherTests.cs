@@ -17,6 +17,8 @@ using ArchLucid.Persistence.Roi;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
+
 using Moq;
 
 using ArchLucid.Core.Scoping;
@@ -131,7 +133,8 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
             groundingReader.Object,
             savingsResolver.Object,
             tenantCostSettings.Object,
-            decisionNodes.Object);
+            decisionNodes.Object,
+            new ConfigurationBuilder().Build());
 
         await sut.EnrichAsync(detail, "Real", CancellationToken.None);
 
@@ -204,7 +207,8 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
             groundingReader.Object,
             savingsResolver.Object,
             tenantCostSettings.Object,
-            decisionNodes.Object);
+            decisionNodes.Object,
+            new ConfigurationBuilder().Build());
 
         await sut.EnrichAsync(detail, "Simulator", CancellationToken.None);
 

@@ -23,6 +23,28 @@ describe("RunRetrievalGraphRagDiagnosticsStrip", () => {
     expect(screen.getByText("800")).toBeInTheDocument();
   });
 
+  it("renders quality posture when graph-rag expansion used an unproven index", () => {
+    render(
+      <RunRetrievalGraphRagDiagnosticsStrip
+        summary={{
+          totalGraphRagNeighborsAdded: 2,
+          totalGraphRagSeedHits: 1,
+          graphRagNeighborHitRate: 0.5,
+          totalRetrievalTokensIn: 800,
+          graphRagPilotFloorDisposition: "PASS",
+          graphRagQualityPosture: "unproven",
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("graph-rag-quality-posture")).toHaveTextContent("unproven");
+    expect(
+      screen.getByText(
+        /Graph-RAG neighbor expansion ran without Azure AI Search vector posture/,
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("returns null when no graph-rag activity recorded", () => {
     const { container } = render(
       <RunRetrievalGraphRagDiagnosticsStrip

@@ -20,7 +20,8 @@ public static class RunRetrievalGroundingSummaryBuilder
 
     public static RunRetrievalGroundingSummaryDto Build(
         IReadOnlyList<RetrievalGroundingTraceRecord> traces,
-        IReadOnlyList<AgentResult>? agentResults)
+        IReadOnlyList<AgentResult>? agentResults,
+        string? graphRagQualityPosture = null)
     {
         ArgumentNullException.ThrowIfNull(traces);
 
@@ -70,6 +71,7 @@ public static class RunRetrievalGroundingSummaryBuilder
             GraphRagNeighborHitRate = graphRagNeighborHitRate,
             TotalRetrievalTokensIn = totalRetrievalTokensIn,
             GraphRagPilotFloorDisposition = graphRagPilotFloorDisposition,
+            GraphRagQualityPosture = graphRagQualityPosture,
             Disposition = disposition,
             OperatorDetail = BuildOperatorDetail(
                 disposition,
