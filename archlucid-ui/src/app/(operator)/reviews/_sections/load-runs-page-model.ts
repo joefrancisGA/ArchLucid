@@ -4,13 +4,16 @@ import { listRunsByProjectPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 import type { RunsPageModel, RunsPageSearchParams } from "./runs-page-model";
+
+/** Operator-facing project label on the reviews list header metadata row. */
+export function formatRunsPageProjectTitle(projectId: string): string {
+  return `Project: ${projectId}`;
+}
 
 /**
  * Fetches paged runs, applies static demo fallbacks when enabled, normalizes rows, and enforces last-page redirect.
@@ -92,10 +95,7 @@ export async function loadRunsPageModel(resolved: RunsPageSearchParams): Promise
 
   runs = dedupeRunSummariesByRunId(runs.map(normalizeRunSummaryForDemoPicker));
 
-  const projectTitle =
-    projectId === "default" && (isPublicDemoModeEnv() || isBuyerPolishedOperatorShellEnv())
-      ? "Claims Intake Workspace"
-      : `Project ${projectId}`;
+  const projectTitle = formatRunsPageProjectTitle(projectId);
 
   if (loadFailure === null && malformedMessage === null && totalCount > 0 && !usedStaticRunsFallback) {
     const pages = Math.max(1, Math.ceil(totalCount / pageSize));

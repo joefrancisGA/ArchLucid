@@ -9,9 +9,10 @@ import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progress
 
 import { SidebarNav } from "./SidebarNav";
 
-const { mockPathname, committedReviewMock } = vi.hoisted(() => ({
+const { mockPathname, committedReviewMock, governanceModeMock } = vi.hoisted(() => ({
   mockPathname: vi.fn((): string => "/"),
   committedReviewMock: { value: false },
+  governanceModeMock: { enabled: true },
 }));
 
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
@@ -22,9 +23,9 @@ vi.mock("@/hooks/use-governance-mode", async () => {
   return {
     useGovernanceMode: () => ({
       mounted: true,
-      isGovernanceModeEnabled: true,
+      isGovernanceModeEnabled: governanceModeMock.enabled,
       setGovernanceModeEnabled: vi.fn(),
-      vocabulary: governanceModeVocabulary(true),
+      vocabulary: governanceModeVocabulary(governanceModeMock.enabled),
     }),
     GovernanceModeProvider: ({ children }: { children: React.ReactNode }) => children,
   };
@@ -75,6 +76,7 @@ describe("SidebarNav (primary navigation)", () => {
   beforeEach(() => {
     buyerPolishedMock.value = false;
     committedReviewMock.value = false;
+    governanceModeMock.enabled = true;
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
     mockPathname.mockReturnValue("/");
     localStorage.clear();
@@ -120,7 +122,7 @@ describe("SidebarNav (primary navigation)", () => {
 
     const analysisNav = screen.getByRole("navigation", { name: "Insights" });
     expect(within(analysisNav).getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
-    expect(within(analysisNav).getByRole("link", { name: "Ask this review" })).toHaveAttribute("href", "/ask");
+    expect(within(analysisNav).getByRole("link", { name: "Ask review questions" })).toHaveAttribute("href", "/ask");
   });
 
   it("persists saved group expansion without overwriting on reload", async () => {
@@ -199,6 +201,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
   beforeEach(() => {
     buyerPolishedMock.value = true;
     committedReviewMock.value = false;
+    governanceModeMock.enabled = false;
     delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
     mockPathname.mockReturnValue("/");
     localStorage.clear();
@@ -213,6 +216,11 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     const nav = screen.getByRole("navigation", { name: "Review work" });
     expect(within(nav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(nav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
+    expect(within(nav).getByRole("link", { name: "Review packages" })).toHaveAttribute(
+      "href",
+      "/reviews?projectId=default",
+    );
+    expect(within(nav).queryByRole("link", { name: "Reviews" })).toBeNull();
     expect(within(nav).queryByRole("link", { name: "Evidence graph" })).toBeNull();
 
     expect(screen.getByTestId("operate-features-unlock-panel")).toBeInTheDocument();

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { showError } from "@/lib/toast";
 
 const RUN_DEMO_REVIEW_ROUTE = "/api/run-demo-review";
@@ -13,6 +13,8 @@ const FALLBACK_ERROR_MESSAGE = "Could not run the demo review. Please try again.
 export type RunDemoReviewButtonProps = {
   readonly className?: string;
   readonly label?: string;
+  readonly variant?: NonNullable<ButtonProps["variant"]>;
+  readonly size?: NonNullable<ButtonProps["size"]>;
 };
 
 type RunDemoReviewResponse = {
@@ -85,6 +87,8 @@ async function readErrorDetail(response: Response): Promise<string> {
 export function RunDemoReviewButton({
   className,
   label = "Run demo review",
+  variant = "primary",
+  size = "default",
 }: RunDemoReviewButtonProps) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -128,7 +132,8 @@ export function RunDemoReviewButton({
   return (
     <Button
       type="button"
-      variant="primary"
+      variant={variant}
+      size={size}
       disabled={busy}
       aria-busy={busy}
       data-testid="run-demo-review-button"

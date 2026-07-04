@@ -32,7 +32,7 @@ export const RUNS_LIST_PAGE_TITLES = {
 
 /** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). */
 export const RUNS_LIST_PAGE_SUBTITLE =
-  "Architecture review packages — in progress, finalized, and ready for export.";
+  "In-progress, finalized, and export-ready architecture review packages.";
 
 export const PIPELINE_STATUS_LABELS = {
   finalized: "Finalized",
@@ -119,7 +119,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator-shell ROI dashboard (`/dashboard`); the standalone executive-chrome duplicate was retired (TB-608). */
   portfolioOverview: "Executive dashboard",
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
-  reviewPackage: "Reviews",
+  reviewPackage: "Review packages",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   /** Left nav destination for `/reviews/new` — distinct from hero/quick-action "Start review". */
   capture: "New review",
@@ -146,7 +146,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   valueReport: "Value report",
   compareTwoReviews: "Compare two reviews",
   replayReview: "Validate review package",
-  askReview: "Ask this review",
+  askReview: "Ask review questions",
   searchEvidence: "Search review evidence",
   architectureAdvisory: "Advisory scans",
   recommendationTuning: "Recommendation tuning",

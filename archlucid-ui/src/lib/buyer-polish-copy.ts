@@ -7,7 +7,7 @@ export const BUYER_WORKSPACE_DISPLAY_NAME = "Claims Intake Workspace";
 export const BUYER_EXAMPLE_WORKSPACE_TOOLTIP =
   "Claims Intake workspace — demonstration data for architecture review walkthroughs.";
 
-export const BUYER_COMPARE_PAGE_TITLE = "Compare reviews";
+export const BUYER_COMPARE_PAGE_TITLE = "Compare two reviews";
 
 export const BUYER_COMPARE_STRUCTURED_HEADING = "Review comparison";
 
@@ -376,6 +376,18 @@ export const BUYER_RUNS_LIST_MALFORMED_BODY =
 export const BUYER_NEW_REVIEW_TOAST_CATEGORY = "New review";
 
 export const BUYER_START_ARCHITECTURE_REVIEW_CTA = "Start architecture review";
+
+export const RUNS_LIST_EMPTY_PRIMARY_PATH_TITLE = "Start a review package";
+
+export const RUNS_LIST_EMPTY_PRIMARY_PATH_DESCRIPTION =
+  "Create a review package from your own architecture brief, diagram, IaC, or evidence.";
+
+export const RUNS_LIST_EMPTY_SAMPLE_PATH_TITLE = "Explore a sample";
+
+export const RUNS_LIST_EMPTY_SAMPLE_PATH_DESCRIPTION =
+  "Open a completed sample package or run a demo review to see findings, evidence traceability, and exports.";
+
+export const RUNS_LIST_VIEW_SAMPLE_PACKAGE_CTA = "View sample package";
 
 export const BUYER_ONBOARDING_PAGE_TITLE = "Getting started";
 

@@ -29,6 +29,7 @@ export type SeedSampleReviewButtonProps = {
   readonly label?: string;
   /** Defaults to outline — this CTA is usually secondary to start-review or demo-review actions. */
   readonly variant?: NonNullable<ButtonProps["variant"]>;
+  readonly size?: NonNullable<ButtonProps["size"]>;
 };
 
 type SeedSampleResponse = {
@@ -77,6 +78,7 @@ export function SeedSampleReviewButton({
   className,
   label = BUYER_SEED_SAMPLE_WORKSPACE_CTA,
   variant = "outline",
+  size = "default",
 }: SeedSampleReviewButtonProps) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -115,6 +117,7 @@ export function SeedSampleReviewButton({
     <Button
       type="button"
       variant={variant}
+      size={size}
       disabled={busy}
       aria-busy={busy}
       data-testid="seed-sample-review-button"

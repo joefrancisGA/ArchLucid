@@ -200,7 +200,7 @@ function CommandPaletteCuratedTasks({
 
 function buyerPaletteNavGroupHeading(groupId: string, defaultLabel: string): string {
   if (groupId === "pilot") {
-    return "Reviews";
+    return "Review packages";
   }
 
   if (groupId === "operate-analysis") {

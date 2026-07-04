@@ -25,7 +25,7 @@ import {
   BUYER_RUNS_LIST_MALFORMED_HEADING,
 } from "@/lib/buyer-polish-copy";
 import { RUNS_LIST_PAGE_SUBTITLE, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
 import type { RunsPageModel } from "./runs-page-model";
 
@@ -52,7 +52,12 @@ export function RunsPageView(props: Props) {
         subtitle={RUNS_LIST_PAGE_SUBTITLE}
         metadata={
           <>
-            <span>{m.projectTitle}</span>
+            <span
+              className={cn(OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+              data-testid="runs-page-project-label"
+            >
+              {m.projectTitle}
+            </span>
             {isBuyerPolishedOperatorShellEnv() ? null : <RunsListProofHeadline />}
           </>
         }
@@ -79,11 +84,11 @@ export function RunsPageView(props: Props) {
           )}
         </p>
       ) : null}
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        {!isBuyerSafeDemoMarketingChromeEnv() ? (
+      {!isBuyerSafeDemoMarketingChromeEnv() && m.totalCount > 0 ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <div className="inline-flex items-center gap-1.5">
             <Button variant="primary" size="sm" asChild>
-              <Link href="/reviews/new" className="no-underline">
+              <Link href="/reviews/new" className="no-underline" data-testid="runs-page-start-review">
                 Start architecture review
               </Link>
             </Button>
@@ -91,15 +96,15 @@ export function RunsPageView(props: Props) {
               <ShortcutHint shortcut="Alt+N" className={OPERATOR_TYPOGRAPHY.helper} />
             )}
           </div>
-        ) : null}
-        {!isBuyerSafeDemoMarketingChromeEnv() && m.totalCount > 0 && !isBuyerPolishedOperatorShellEnv() ? (
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/compare" className="no-underline">
-              Compare two reviews
-            </Link>
-          </Button>
-        ) : null}
-      </div>
+          {!isBuyerPolishedOperatorShellEnv() ? (
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/compare" className="no-underline">
+                Compare two reviews
+              </Link>
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
 
       {m.usedStaticRunsFallback && !isBuyerPolishedOperatorShellEnv() ? (
         <div className="mt-4 max-w-3xl">

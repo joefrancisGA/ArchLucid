@@ -6,7 +6,7 @@ export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "runs-list-empty-state",
   title: "No review packages yet",
   description:
-    "Start an architecture review to generate a package with findings, evidence, and exports. Or run a one-click demo review to see policy-aware findings immediately, or load the sample workspace for executive ROI.",
+    "Start an architecture review to generate a package with findings, evidence, and exports. Or explore a completed sample package.",
   actions: [
     { label: "Start architecture review", href: "/reviews/new", variant: "primary" },
     { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },

@@ -84,7 +84,7 @@ describe("presentSidebarNavLinkForCluster", () => {
     const presented = presentSidebarNavLinkForCluster(
       {
         href: "/reviews?projectId=default",
-        label: "Reviews",
+        label: "Review packages",
         title: "Browse finalized review packages",
         tier: "essential",
       },

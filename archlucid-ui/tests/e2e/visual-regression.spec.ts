@@ -42,7 +42,7 @@ test.describe("visual regression — operator UI", () => {
       }),
     ).toBeVisible();
     await expect(page.getByTestId("app-shell-main").getByRole("navigation", { name: "Breadcrumb" })).toContainText(
-      "Reviews",
+      "Review packages",
     );
 
     await expect(page).toHaveScreenshot("run-detail.png", screenshotOptions);
@@ -56,7 +56,7 @@ test.describe("visual regression — operator UI", () => {
     await expect(page.locator("#compare-left-run-id")).toHaveValue(FIXTURE_LEFT_RUN_ID);
     await expect(page.locator("#compare-right-run-id")).toHaveValue(FIXTURE_RIGHT_RUN_ID);
 
-    await page.getByRole("button", { name: "Compare reviews", exact: true }).click();
+    await page.getByRole("button", { name: "Compare two reviews", exact: true }).click();
     await expect(page.locator("#compare-structured")).toBeVisible();
 
     await expandCompareTechnicalDetails(page);

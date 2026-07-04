@@ -41,7 +41,7 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     description: "Monitor pipeline progress and inspect review detail.",
     href: "/reviews?projectId=default",
     shortcut: "Alt+R",
-    linkAccessibleName: "Reviews",
+    linkAccessibleName: "Review packages",
   },
   {
     step: 3,

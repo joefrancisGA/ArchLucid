@@ -46,7 +46,7 @@ describe("operator-nav-labels", () => {
   });
 
   it("TB-606: aligns reviews-list sidebar labels with governance-mode vocabulary", () => {
-    expect(resolveReviewsListNavLinkLabel(false)).toBe("Reviews");
+    expect(resolveReviewsListNavLinkLabel(false)).toBe("Review packages");
     expect(resolveReviewsListNavLinkLabel(true)).toBe("Runs");
 
     const source = {
@@ -55,7 +55,7 @@ describe("operator-nav-labels", () => {
       title: "Browse finalized review packages",
     };
 
-    expect(resolveNavLinkPresentation(source, false, false).label).toBe("Reviews");
+    expect(resolveNavLinkPresentation(source, false, false).label).toBe("Review packages");
     expect(resolveNavLinkPresentation(source, false, true).label).toBe("Runs");
   });
 });
