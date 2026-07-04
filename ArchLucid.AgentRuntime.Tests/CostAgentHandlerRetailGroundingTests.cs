@@ -11,6 +11,12 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Category", "Unit")]
 public sealed class CostAgentHandlerRetailGroundingTests
 {
+    private static CostRetailGroundingLookups CreateLookups() =>
+        new(
+            new InMemoryAzureRetailPriceStructuredLookup(),
+            new InMemoryAwsRetailPriceStructuredLookup(),
+            new InMemoryGcpRetailPriceStructuredLookup());
+
     [Fact]
     public void BuildUserPrompt_azure_hit_includes_retail_row_in_prompt()
     {
@@ -33,8 +39,7 @@ public sealed class CostAgentHandlerRetailGroundingTests
             Objective = "Estimate monthly spend",
         };
 
-        InMemoryAzureRetailPriceStructuredLookup lookup = new();
-        CostRetailGroundingResult grounding = CostRetailGroundingBuilder.Build(request, evidence, lookup);
+        CostRetailGroundingResult grounding = CostRetailGroundingBuilder.Build(request, evidence, CreateLookups());
         string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, grounding);
 
         prompt.Should().Contain("Azure Retail row");
@@ -43,18 +48,18 @@ public sealed class CostAgentHandlerRetailGroundingTests
     }
 
     [Fact]
-    public void BuildUserPrompt_non_azure_omits_retail_block()
+    public void BuildUserPrompt_aws_includes_price_list_block()
     {
         ArchitectureRequest request = new()
         {
-            Description = "0123456789 multi-cloud review",
+            Description = "0123456789 AWS footprint m5.large in us-east-1",
             SystemName = "sys",
-            CloudProvider = CloudProvider.Azure,
+            CloudProvider = CloudProvider.Aws,
         };
 
         AgentEvidencePackage evidence = new()
         {
-            CloudProvider = "GCP",
+            CloudProvider = "AWS",
         };
 
         AgentTask task = new()
@@ -64,11 +69,37 @@ public sealed class CostAgentHandlerRetailGroundingTests
             Objective = "Estimate monthly spend",
         };
 
-        InMemoryAzureRetailPriceStructuredLookup lookup = new();
-        CostRetailGroundingResult grounding = CostRetailGroundingBuilder.Build(request, evidence, lookup);
+        CostRetailGroundingResult grounding = CostRetailGroundingBuilder.Build(request, evidence, CreateLookups());
+        string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, grounding);
+
+        prompt.Should().Contain("AWS Price List row");
+        prompt.Should().Contain("groundingMissing: false");
+    }
+
+    [Fact]
+    public void BuildUserPrompt_none_provider_omits_retail_block()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "0123456789 evidence-only review",
+            SystemName = "sys",
+            CloudProvider = CloudProvider.None,
+        };
+
+        AgentEvidencePackage evidence = new();
+
+        AgentTask task = new()
+        {
+            RunId = "run-1",
+            AgentType = AgentType.Cost,
+            Objective = "Estimate monthly spend",
+        };
+
+        CostRetailGroundingResult grounding = CostRetailGroundingBuilder.Build(request, evidence, CreateLookups());
         string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, grounding);
 
         prompt.Should().NotContain("Azure Retail row");
+        prompt.Should().NotContain("AWS Price List row");
         prompt.Should().NotContain("groundingMissing");
     }
 }

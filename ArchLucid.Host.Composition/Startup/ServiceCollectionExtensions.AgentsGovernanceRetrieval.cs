@@ -984,6 +984,13 @@ public static partial class ServiceCollectionExtensions
                 sp.GetRequiredService<IMemoryCache>(),
                 sp.GetRequiredService<IAzureRetailPriceTenantCostSettingsContext>(),
                 TimeProvider.System));
+        services.AddScoped<AwsPublicPricingStructuredLookup>();
+        services.AddScoped<IAwsRetailPriceStructuredLookup>(static sp =>
+            sp.GetRequiredService<AwsPublicPricingStructuredLookup>());
+        services.AddScoped<GcpCloudBillingCatalogStructuredLookup>();
+        services.AddScoped<IGcpRetailPriceStructuredLookup>(static sp =>
+            sp.GetRequiredService<GcpCloudBillingCatalogStructuredLookup>());
+        services.AddScoped<CostRetailGroundingLookups>();
 
         string? embedDeployment = configuration["AzureOpenAI:EmbeddingDeploymentName"];
         string? endpoint = configuration["AzureOpenAI:Endpoint"];
