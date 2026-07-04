@@ -23,13 +23,16 @@ describe("operator Home help affordances", () => {
     render(<PilotStartHereStrip />);
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Open the canonical operator checklist" })).toHaveTextContent(
-        "Open the canonical operator checklist",
+      expect(screen.getByRole("link", { name: "Open the first-review guide" })).toHaveTextContent(
+        "Open the first-review guide",
       );
     });
 
-    expect(screen.getByRole("link", { name: "Open the 20-minute time-boxed runbook" })).toHaveTextContent(
-      "Open the 20-minute time-boxed runbook",
+    expect(screen.getByRole("link", { name: "Open the 20-minute setup guide" })).toHaveTextContent(
+      "Open the 20-minute setup guide",
     );
+
+    expect(screen.queryByText(/operator/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/runbook/i)).not.toBeInTheDocument();
   });
 });

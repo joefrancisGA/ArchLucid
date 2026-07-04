@@ -35,8 +35,8 @@ export function PilotStartHereStrip(): React.JSX.Element {
       sectionClassName="border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900/50"
     >
       <OperatorHomeGuidanceLinks className="mb-3">
-        <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="Open the canonical operator checklist" />
-        <OperatorHomeGuidanceLink helpSlug="first-value-20-minutes" label="Open the 20-minute time-boxed runbook" />
+        <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="Open the first-review guide" />
+        <OperatorHomeGuidanceLink helpSlug="first-value-20-minutes" label="Open the 20-minute setup guide" />
       </OperatorHomeGuidanceLinks>
 
       <ol className="m-0 flex list-none flex-wrap gap-3 p-0">

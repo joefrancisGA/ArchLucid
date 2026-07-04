@@ -53,6 +53,7 @@ describe("FirstPilotOperatingRail", () => {
     });
 
     expect(screen.getByRole("heading", { name: "Full operating path" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Architecture review walkthrough" })).toBeInTheDocument();
     expect(screen.getByText(/V1\.1 connectors/i)).toBeInTheDocument();
     expect(screen.getByText(/Execute the review pipeline/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Add evidence" })).toBeInTheDocument();
