@@ -29,7 +29,10 @@ test.describe("demo review one-click reliability @demo-review", () => {
 
     await page.goto(`/reviews/${encodeURIComponent(OPERATOR_DEMO_REVIEW_RUN_ID)}`);
 
-    await expect(page.getByTestId("review-detail-policy-pack-impact-callout")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 60_000 });
+    await expect(page.getByRole("main").getByTestId("review-detail-policy-pack-impact-callout").first()).toBeVisible({
+      timeout: 15_000,
+    });
     await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId("finding-policy-rule-badge").first()).toBeVisible({ timeout: 15_000 });
 
