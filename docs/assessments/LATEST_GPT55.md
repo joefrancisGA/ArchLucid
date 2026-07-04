@@ -210,7 +210,7 @@ _No Tier 2 engineering items remain open after **TB-602 closed 2026-07-04**; nex
 
 ## 18. Prompt Batching Guidance
 
-**First batch (safe-for-Sonnet):** (**TB-602 integration-catalog copy closed 2026-07-04**; **TB-601 live-validation script parity closed 2026-07-04**; **TB-595 ablation harness closed 2026-07-04**; **TB-598 relabel closed 2026-07-04**; **TB-603 AWS/GCP Cost-agent retail grounding closed 2026-07-04**; **TB-607 help layout + InlineHelp + HelpSearchPanel closed 2026-07-04**; **TB-606 reviews-list sidebar label closed 2026-07-04**). **Second batch (safe-for-Sonnet, needs care):** TB-600 OAuth upgrade (larger effort).
+**First batch (safe-for-Sonnet):** (**TB-602 integration-catalog copy closed 2026-07-04**; **TB-601 live-validation script parity closed 2026-07-04**; **TB-595 ablation harness closed 2026-07-04**; **TB-598 relabel closed 2026-07-04**; **TB-603 AWS/GCP Cost-agent retail grounding closed 2026-07-04**; **TB-607 help layout + InlineHelp + HelpSearchPanel closed 2026-07-04**; **TB-606 reviews-list sidebar label closed 2026-07-04**; **TB-605 value-report outcomes tab gating closed 2026-07-04**). **Second batch (safe-for-Sonnet, needs care):** TB-600 OAuth upgrade (larger effort).
 
 ## 19. Model Usage Guidance
 
