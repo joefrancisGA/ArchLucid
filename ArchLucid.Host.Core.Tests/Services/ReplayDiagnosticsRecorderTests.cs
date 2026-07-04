@@ -1,3 +1,4 @@
+using ArchLucid.Core;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Services;
 
