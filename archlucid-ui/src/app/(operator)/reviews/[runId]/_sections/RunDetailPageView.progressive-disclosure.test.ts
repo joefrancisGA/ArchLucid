@@ -24,10 +24,15 @@ describe("RunDetailPageView progressive disclosure", () => {
 
   it("places proof status before evidence density strip on committed packages", () => {
     const proofIndex = source.indexOf("<RunDetailFirstScreenProofStatusClient");
-    const evidenceStripIndex = source.indexOf("<ReviewPackageEvidenceDensityStrip");
+    const summaryHeaderSource = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "ReviewPackageSummaryHeader.tsx"),
+      "utf8",
+    );
+    const evidenceStripIndex = summaryHeaderSource.indexOf("<ReviewPackageEvidenceDensityStrip");
 
     expect(proofIndex).toBeGreaterThan(-1);
-    expect(evidenceStripIndex).toBeGreaterThan(proofIndex);
+    expect(evidenceStripIndex).toBeGreaterThan(-1);
+    expect(source.indexOf("<ReviewPackageSummaryHeader")).toBeLessThan(proofIndex);
   });
 
   it("hides operator forensics and metadata in sponsor mode", () => {
