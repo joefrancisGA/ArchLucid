@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { ExecutiveWorkspaceHealthDashboard } from "@/components/ExecutiveWorkspaceHealthDashboard";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 
 /**
@@ -9,7 +9,7 @@ import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 export default function GovernanceDashboardPage() {
   if (
     (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) &&
-    !isBuyerPolishedOperatorShellEnv()
+    isOperatorExperienceFullShellEnv()
   ) {
     redirect("/governance");
   }

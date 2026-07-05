@@ -34,7 +34,8 @@ export function isBuyerSafeDemoMarketingChromeEnv(): boolean {
 
 /**
  * Operator shell chrome tuned for buyer walkthroughs: softer Jump control, friendly scope labels, fewer shortcut chips.
- * **Default:** buyer-polished when this is not a full-operator build. Demos always use this path.
+ * **Default:** buyer-polished for all authenticated production deploys (TB-643). Full-operator opt-in keeps buyer
+ * vocabulary; engineering chrome is gated separately via {@link isOperatorExperienceFullShellEnv}.
  */
 export function isBuyerPolishedOperatorShellEnv(): boolean {
   if (isNextPublicDemoMode()) {
@@ -47,10 +48,6 @@ export function isBuyerPolishedOperatorShellEnv(): boolean {
 
   if (typeof window !== "undefined" && readFrictionlessTrialSessionEnabled()) {
     return true;
-  }
-
-  if (isOperatorExperienceFullShellEnv()) {
-    return false;
   }
 
   return true;
@@ -101,7 +98,7 @@ export function isCompareRouteBlockedUnderDemoStrictShell(): boolean {
     return false;
   }
 
-  if (isDemoStrictNavigationRedirectsActive() || isBuyerPolishedOperatorShellEnv()) {
+  if (isDemoStrictNavigationRedirectsActive()) {
     return true;
   }
 

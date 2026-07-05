@@ -8,7 +8,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
-const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
+const fullShellMock = vi.hoisted(() => ({ value: true }));
 const fetchBudgetStatus = vi.hoisted(() => vi.fn());
 const fetchBudgetStatusCached = vi.hoisted(() => vi.fn());
 
@@ -22,7 +22,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
   return {
     ...actual,
-    isBuyerPolishedOperatorShellEnv: () => buyerPolishedMock.value,
+    isOperatorExperienceFullShellEnv: () => fullShellMock.value,
     isNextPublicDemoMode: () => false,
   };
 });
@@ -86,7 +86,7 @@ describe("AppShellClient — LLM budget chrome", () => {
   });
 
   beforeEach(() => {
-    buyerPolishedMock.value = false;
+    fullShellMock.value = true;
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
     vi.stubGlobal(
@@ -150,8 +150,8 @@ describe("AppShellClient — LLM budget chrome", () => {
     expect(fetchBudgetStatusCached).not.toHaveBeenCalled();
   });
 
-  it("hides budget pill in buyer-polished shell mode", async () => {
-    buyerPolishedMock.value = true;
+  it("hides budget pill in buyer-default shell mode", async () => {
+    fullShellMock.value = false;
 
     renderWithOperatorQuery(
       <AppShellClient>
@@ -169,7 +169,7 @@ describe("AppShellClient — shell chrome labels", () => {
   useOperatorQueryTestLifecycle();
 
   beforeEach(() => {
-    buyerPolishedMock.value = false;
+    fullShellMock.value = true;
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => new Response(JSON.stringify({ status: "Healthy", entries: [] }), { status: 200 })),

@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -39,7 +39,7 @@ export function FindingInspectFindingBody({
   surface = "operator",
 }: FindingInspectFindingBodyProps): ReactElement {
   const demoFillGaps =
-    (isNextPublicDemoMode() || isDemoRunIdEligibleForStaticFallback(runId)) && !isBuyerPolishedOperatorShellEnv();
+    (isNextPublicDemoMode() || isDemoRunIdEligibleForStaticFallback(runId)) && isOperatorExperienceFullShellEnv();
   const reviewContextHref =
     surface === "executive"
       ? `/executive/reviews/${encodeURIComponent(runId)}`
@@ -129,7 +129,7 @@ export function FindingInspectFindingBody({
     );
 
   const feedbackBlock =
-    variant === "detail" && !isBuyerPolishedOperatorShellEnv() ? (
+    variant === "detail" && isOperatorExperienceFullShellEnv() ? (
       <ProductLearningFeedbackControls
         runId={runId}
         manifestVersion={payload.manifestVersion}

@@ -27,7 +27,7 @@ import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { createArchitectureRun, listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isAcceleratorPackId, resolveAcceleratorWizardPreset } from "@/lib/accelerator-wizard-presets";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
@@ -831,7 +831,7 @@ export function NewRunWizardClient() {
             )
           ) : null}
 
-          {wizardModeReady && !isBuyerPolishedOperatorShellEnv() && llmBudgetStatus !== null ? (
+          {wizardModeReady && isOperatorExperienceFullShellEnv() && llmBudgetStatus !== null ? (
             <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} />
           ) : null}
 

@@ -1,6 +1,6 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_HOME_AHA_MOMENT } from "@/lib/showcase-home-aha-moment";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
@@ -153,7 +153,7 @@ function isShowcaseSpineStaticPayloadHostEligible(): boolean {
     return true;
   }
 
-  if (isBuyerPolishedOperatorShellEnv()) {
+  if (!isOperatorExperienceFullShellEnv()) {
     return true;
   }
 
@@ -1007,7 +1007,7 @@ export type PolicyPacksStaticFallbackOptions = {
 function isPolicyPacksStaticFallbackActive(options?: PolicyPacksStaticFallbackOptions): boolean {
   // Buyer-polished shell uses the same env flags as static demo today; keep explicit so empty API responses still
   // merge curated Healthcare Claims sample layers if flags or option wiring ever diverge.
-  if (isBuyerPolishedOperatorShellEnv()) {
+  if (!isOperatorExperienceFullShellEnv()) {
     return true;
   }
 
@@ -1246,7 +1246,7 @@ export function tryStaticDemoGovernancePromotions(runId: string): GovernanceProm
 
 /** Curated approval lineage for the Claims Intake showcase when the lineage API is unavailable. */
 export function tryStaticDemoGovernanceApprovalLineage(approvalRequestId: string): GovernanceLineageResult | null {
-  if (!isBuyerPolishedOperatorShellEnv() && !isStaticDemoPayloadFallbackEnabled()) {
+  if (isOperatorExperienceFullShellEnv() && !isStaticDemoPayloadFallbackEnabled()) {
     return null;
   }
 

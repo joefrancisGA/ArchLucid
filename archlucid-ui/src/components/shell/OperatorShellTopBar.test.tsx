@@ -9,7 +9,7 @@ import { GLOBAL_SEARCH_ARIA_LABEL } from "@/lib/keyboard-shortcut-display";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
 
-const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
+const fullShellMock = vi.hoisted(() => ({ value: true }));
 const fetchBudgetCached = vi.hoisted(() => vi.fn());
 
 const navAuthMock = vi.hoisted(() => ({
@@ -22,7 +22,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
   return {
     ...actual,
-    isBuyerPolishedOperatorShellEnv: () => buyerPolishedMock.value,
+    isOperatorExperienceFullShellEnv: () => fullShellMock.value,
     isNextPublicDemoMode: () => false,
   };
 });
@@ -67,7 +67,7 @@ vi.mock("@/components/CommandPaletteLazy", () => ({
 
 describe("OperatorShellTopBar", () => {
   beforeEach(() => {
-    buyerPolishedMock.value = false;
+    fullShellMock.value = true;
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
     fetchBudgetCached.mockResolvedValue({
@@ -158,8 +158,8 @@ describe("OperatorShellTopBar", () => {
     expect(helpTriggers[0]).toHaveAttribute("data-help-tooltip-icon", "help");
   });
 
-  it("omits dev-only chrome in buyer-polished shell mode but keeps help", () => {
-    buyerPolishedMock.value = true;
+  it("omits dev-only chrome in buyer-default shell mode but keeps help", () => {
+    fullShellMock.value = false;
 
     render(
       <TooltipProvider>
