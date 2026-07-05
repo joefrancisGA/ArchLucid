@@ -1,6 +1,8 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Integrations.Itsm.OAuth;
+using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Secrets;
