@@ -36,24 +36,25 @@ public sealed class InMemoryTenantItsmConnectorConnectionRepository : ITenantIts
     public Task<TenantItsmConnectorConnectionRecord?> UpsertAsync(
         Guid tenantId,
         TenantItsmConnectorProvider provider,
-        string instanceBaseUrl,
-        string authUserName,
-        string credentialKeyVaultSecretName,
-        string? inboundWebhookKeyVaultSecretName,
-        bool isEnabled,
-        string? label,
+        TenantItsmConnectorConnectionUpsertCommand command,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(command);
+
         TenantItsmConnectorConnectionRecord row = new()
         {
             TenantId = tenantId,
             Provider = provider,
-            InstanceBaseUrl = instanceBaseUrl,
-            AuthUserName = authUserName,
-            CredentialKeyVaultSecretName = credentialKeyVaultSecretName,
-            InboundWebhookKeyVaultSecretName = inboundWebhookKeyVaultSecretName,
-            IsEnabled = isEnabled,
-            Label = label,
+            InstanceBaseUrl = command.InstanceBaseUrl,
+            AuthMode = command.AuthMode,
+            AuthUserName = command.AuthUserName,
+            CredentialKeyVaultSecretName = command.CredentialKeyVaultSecretName,
+            OAuthClientIdKeyVaultSecretName = command.OAuthClientIdKeyVaultSecretName,
+            OAuthClientSecretKeyVaultSecretName = command.OAuthClientSecretKeyVaultSecretName,
+            OAuthRefreshTokenKeyVaultSecretName = command.OAuthRefreshTokenKeyVaultSecretName,
+            InboundWebhookKeyVaultSecretName = command.InboundWebhookKeyVaultSecretName,
+            IsEnabled = command.IsEnabled,
+            Label = command.Label,
             UpdatedUtc = TimeProvider.System.GetUtcNow()
         };
 

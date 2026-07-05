@@ -1,6 +1,6 @@
 using ArchLucid.Application.Integrations.Itsm;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integrations.Itsm;
+using ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
 using ArchLucid.Core.Secrets;
 using ArchLucid.Persistence.Integrations;
 
@@ -24,12 +24,12 @@ public sealed class ItsmTenantConnectorCredentialResolverTests
         await repository.UpsertAsync(
             TenantId,
             TenantItsmConnectorProvider.Jira,
-            "https://tenant.atlassian.net",
-            "tenant-bot@example.com",
-            "kv-jira-token",
-            inboundWebhookKeyVaultSecretName: null,
-            isEnabled: true,
-            label: null,
+            new TenantItsmConnectorConnectionUpsertCommand
+            {
+                InstanceBaseUrl = "https://tenant.atlassian.net",
+                AuthUserName = "tenant-bot@example.com",
+                CredentialKeyVaultSecretName = "kv-jira-token"
+            },
             CancellationToken.None);
 
         DictionarySecretProvider secrets = new();
@@ -58,6 +58,42 @@ public sealed class ItsmTenantConnectorCredentialResolverTests
         resolved.AuthUserName.Should().Be("tenant-bot@example.com");
         resolved.SecretValue.Should().Be("tenant-token");
         resolved.FromTenantConnection.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task TryResolveOutboundAsync_resolves_oauth_client_credentials_from_tenant_row()
+    {
+        InMemoryTenantItsmConnectorConnectionRepository repository = new();
+        await repository.UpsertAsync(
+            TenantId,
+            TenantItsmConnectorProvider.ServiceNow,
+            new TenantItsmConnectorConnectionUpsertCommand
+            {
+                InstanceBaseUrl = "https://tenant.service-now.com",
+                AuthMode = ItsmConnectorAuthMode.OAuth2ClientCredentials,
+                OAuthClientIdKeyVaultSecretName = "kv-sn-client-id",
+                OAuthClientSecretKeyVaultSecretName = "kv-sn-client-secret"
+            },
+            CancellationToken.None);
+
+        DictionarySecretProvider secrets = new();
+        secrets.Set("kv-sn-client-id", "snow-client-id");
+        secrets.Set("kv-sn-client-secret", "snow-client-secret");
+
+        ItsmTenantConnectorCredentialResolver sut = CreateSut(
+            repository,
+            secrets,
+            new IntegrationsItsmOutboundOptions { RequireTenantScopedCredentials = true });
+
+        ResolvedItsmOutboundCredentials? resolved = await sut.TryResolveOutboundAsync(
+            TenantId,
+            TenantItsmConnectorProvider.ServiceNow,
+            CancellationToken.None);
+
+        resolved.Should().NotBeNull();
+        resolved!.AuthMode.Should().Be(ItsmConnectorAuthMode.OAuth2ClientCredentials);
+        resolved.OAuthClientId.Should().Be("snow-client-id");
+        resolved.OAuthClientSecret.Should().Be("snow-client-secret");
     }
 
     [Fact]

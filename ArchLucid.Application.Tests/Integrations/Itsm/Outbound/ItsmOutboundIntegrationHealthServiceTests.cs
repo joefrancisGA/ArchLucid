@@ -46,6 +46,7 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
             monitor.Object,
             tenantRepo.Object,
             CredentialResolver(new IntegrationsItsmOutboundOptions()),
+            HttpAuthenticator(),
             NullLogger<ItsmOutboundIntegrationHealthService>.Instance);
 
         ScopeContext scope = new()
@@ -113,6 +114,7 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
             monitor.Object,
             tenantRepo.Object,
             CredentialResolver(options),
+            HttpAuthenticator(),
             NullLogger<ItsmOutboundIntegrationHealthService>.Instance);
 
         ScopeContext scope = new()
@@ -170,6 +172,7 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
             monitor.Object,
             tenantRepo.Object,
             CredentialResolver(options),
+            HttpAuthenticator(),
             NullLogger<ItsmOutboundIntegrationHealthService>.Instance);
 
         ScopeContext scope = new()

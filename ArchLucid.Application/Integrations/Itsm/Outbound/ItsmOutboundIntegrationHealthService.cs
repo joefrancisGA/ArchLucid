@@ -22,6 +22,7 @@ public sealed class ItsmOutboundIntegrationHealthService(
     IOptionsMonitor<IntegrationsItsmOutboundOptions> outboundOptions,
     ITenantItsmOutboundSettingsRepository tenantItsmOutboundSettings,
     IItsmTenantConnectorCredentialResolver credentialResolver,
+    IItsmOutboundHttpAuthenticator httpAuthenticator,
     ILogger<ItsmOutboundIntegrationHealthService> logger) : IItsmOutboundIntegrationHealthService
 {
     private const string HealthyStatus = "healthy";
@@ -39,6 +40,9 @@ public sealed class ItsmOutboundIntegrationHealthService(
 
     private readonly IItsmTenantConnectorCredentialResolver _credentialResolver =
         credentialResolver ?? throw new ArgumentNullException(nameof(credentialResolver));
+
+    private readonly IItsmOutboundHttpAuthenticator _httpAuthenticator =
+        httpAuthenticator ?? throw new ArgumentNullException(nameof(httpAuthenticator));
 
     private readonly ILogger<ItsmOutboundIntegrationHealthService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -70,10 +74,10 @@ public sealed class ItsmOutboundIntegrationHealthService(
             ItsmOutboundLocalConfigurationEvaluator.EvaluateServiceNowFromResolvedCredentials(snowCredentials, outbound);
 
         ItsmOutboundIntegrationProviderProbe jiraProbe =
-            await BuildJiraProbeAsync(http, jiraCredentials, jiraLocal, cancellationToken).ConfigureAwait(false);
+            await BuildJiraProbeAsync(http, scope.TenantId, jiraCredentials, jiraLocal, cancellationToken).ConfigureAwait(false);
 
         ItsmOutboundIntegrationProviderProbe snowProbe =
-            await BuildServiceNowProbeAsync(http, snowCredentials, snowLocal, cancellationToken).ConfigureAwait(false);
+            await BuildServiceNowProbeAsync(http, scope.TenantId, snowCredentials, snowLocal, cancellationToken).ConfigureAwait(false);
 
         bool anyConfigured = jiraProbe.LocallyConfigured || snowProbe.LocallyConfigured;
 
@@ -95,6 +99,7 @@ public sealed class ItsmOutboundIntegrationHealthService(
 
     private async Task<ItsmOutboundIntegrationProviderProbe> BuildJiraProbeAsync(
         HttpClient http,
+        Guid tenantId,
         ResolvedItsmOutboundCredentials? credentials,
         ItsmOutboundLocalReadiness local,
         CancellationToken ct)
@@ -107,7 +112,14 @@ public sealed class ItsmOutboundIntegrationHealthService(
 
         Uri myselfUri = BuildJiraMyselfUri(credentials.InstanceBaseUrl);
         (bool ok, string detail) =
-            await ProbeGetWithBasicAuthAsync(http, myselfUri, credentials.AuthUserName, credentials.SecretValue, "Jira", ct)
+            await ProbeGetWithAuthorizationAsync(
+                    http,
+                    myselfUri,
+                    tenantId,
+                    TenantItsmConnectorProvider.Jira,
+                    credentials,
+                    "Jira",
+                    ct)
                 .ConfigureAwait(false);
 
         if (!ok && _logger.IsEnabled(LogLevel.Warning))
@@ -120,6 +132,7 @@ public sealed class ItsmOutboundIntegrationHealthService(
 
     private async Task<ItsmOutboundIntegrationProviderProbe> BuildServiceNowProbeAsync(
         HttpClient http,
+        Guid tenantId,
         ResolvedItsmOutboundCredentials? credentials,
         ItsmOutboundLocalReadiness local,
         CancellationToken ct)
@@ -132,11 +145,12 @@ public sealed class ItsmOutboundIntegrationHealthService(
 
         Uri incidentProbeUri = BuildServiceNowIncidentProbeUri(credentials.InstanceBaseUrl);
 
-        (bool ok, string detail) = await ProbeGetWithBasicAuthAsync(
+        (bool ok, string detail) = await ProbeGetWithAuthorizationAsync(
                 http,
                 incidentProbeUri,
-                credentials.AuthUserName,
-                credentials.SecretValue,
+                tenantId,
+                TenantItsmConnectorProvider.ServiceNow,
+                credentials,
                 "ServiceNow",
                 ct)
             .ConfigureAwait(false);
@@ -151,15 +165,30 @@ public sealed class ItsmOutboundIntegrationHealthService(
         return new ItsmOutboundIntegrationProviderProbe(true, ok, summary);
     }
 
-    private static async Task<(bool Ok, string Detail)> ProbeGetWithBasicAuthAsync(HttpClient http, Uri requestUri,
-        string username, string password, string vendorLabel, CancellationToken ct)
+    private async Task<(bool Ok, string Detail)> ProbeGetWithAuthorizationAsync(
+        HttpClient http,
+        Uri requestUri,
+        Guid tenantId,
+        TenantItsmConnectorProvider provider,
+        ResolvedItsmOutboundCredentials credentials,
+        string vendorLabel,
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(http);
         ArgumentNullException.ThrowIfNull(requestUri);
+        ArgumentNullException.ThrowIfNull(credentials);
+
+        AuthenticationHeaderValue? authorization = await _httpAuthenticator.TryCreateAuthorizationHeaderAsync(
+            tenantId,
+            provider,
+            credentials,
+            ct).ConfigureAwait(false);
+
+        if (authorization is null)
+            return (false, $"{vendorLabel} credentials could not be authorized for the health probe.");
 
         using HttpRequestMessage request = new(HttpMethod.Get, requestUri);
-        string token = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
-        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", token);
+        ItsmOutboundHttpAuthorizationHeaders.Apply(request, authorization);
 
         try
         {

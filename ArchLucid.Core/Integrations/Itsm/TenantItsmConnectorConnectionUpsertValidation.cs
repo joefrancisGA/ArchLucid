@@ -1,3 +1,5 @@
+using ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
+
 namespace ArchLucid.Core.Integrations.Itsm;
 
 /// <summary>Upsert validation for <c>dbo.TenantItsmConnectorConnections</c> — keeps raw secrets out of SQL.</summary>
@@ -20,6 +22,20 @@ public static class TenantItsmConnectorConnectionUpsertValidation
         "AuthUserName is required (Jira service account email or ServiceNow integration username).";
 
     public const string ProviderRequiredMessage = "Provider must be Jira or ServiceNow.";
+
+    public const string AuthModeInvalidMessage =
+        "AuthMode must be BasicApiToken, OAuth2ClientCredentials, or OAuth2RefreshToken.";
+
+    public const string OAuthClientIdKeyVaultSecretNameRequiredMessage = "OAuthClientIdKeyVaultSecretName is required for OAuth auth modes.";
+
+    public const string OAuthClientSecretKeyVaultSecretNameRequiredMessage =
+        "OAuthClientSecretKeyVaultSecretName is required for OAuth auth modes.";
+
+    public const string OAuthRefreshTokenKeyVaultSecretNameRequiredMessage =
+        "OAuthRefreshTokenKeyVaultSecretName is required when AuthMode is OAuth2RefreshToken.";
+
+    public const string RawOAuthSecretRejectedMessage =
+        "OAuth Key Vault secret name fields must be secret name references — raw OAuth secrets are not stored in ArchLucid SQL.";
 
     public static bool TryParseProvider(string? raw, out TenantItsmConnectorProvider provider, out string? errorMessage)
     {
@@ -59,6 +75,159 @@ public static class TenantItsmConnectorConnectionUpsertValidation
             TenantItsmConnectorProvider.ServiceNow => "ServiceNow",
             _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null)
         };
+
+    public static bool TryParseAuthMode(string? raw, out ItsmConnectorAuthMode authMode, out string? errorMessage)
+    {
+        authMode = ItsmConnectorAuthMode.BasicApiToken;
+        errorMessage = null;
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return true;
+
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("BasicApiToken", StringComparison.OrdinalIgnoreCase))
+        {
+            authMode = ItsmConnectorAuthMode.BasicApiToken;
+
+            return true;
+        }
+
+        if (trimmed.Equals("OAuth2ClientCredentials", StringComparison.OrdinalIgnoreCase))
+        {
+            authMode = ItsmConnectorAuthMode.OAuth2ClientCredentials;
+
+            return true;
+        }
+
+        if (trimmed.Equals("OAuth2RefreshToken", StringComparison.OrdinalIgnoreCase))
+        {
+            authMode = ItsmConnectorAuthMode.OAuth2RefreshToken;
+
+            return true;
+        }
+
+        errorMessage = AuthModeInvalidMessage;
+
+        return false;
+    }
+
+    public static string ToAuthModeLabel(ItsmConnectorAuthMode authMode) =>
+        authMode switch
+        {
+            ItsmConnectorAuthMode.BasicApiToken => "BasicApiToken",
+            ItsmConnectorAuthMode.OAuth2ClientCredentials => "OAuth2ClientCredentials",
+            ItsmConnectorAuthMode.OAuth2RefreshToken => "OAuth2RefreshToken",
+            _ => throw new ArgumentOutOfRangeException(nameof(authMode), authMode, null)
+        };
+
+    public static bool TryParseAuthModeLabel(string? raw, out ItsmConnectorAuthMode authMode)
+    {
+        if (!TryParseAuthMode(raw, out authMode, out _))
+        {
+            authMode = ItsmConnectorAuthMode.BasicApiToken;
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public static bool TryBuildUpsertCommand(
+        string? instanceBaseUrl,
+        string? authModeRaw,
+        string? authUserName,
+        string? credentialKeyVaultSecretName,
+        string? oauthClientIdKeyVaultSecretName,
+        string? oauthClientSecretKeyVaultSecretName,
+        string? oauthRefreshTokenKeyVaultSecretName,
+        string? inboundWebhookKeyVaultSecretName,
+        bool isEnabled,
+        string? label,
+        out TenantItsmConnectorConnectionUpsertCommand? command,
+        out string? errorMessage)
+    {
+        command = null;
+        errorMessage = null;
+
+        if (!TryValidateInstanceBaseUrl(instanceBaseUrl, out string? trimmedInstanceBaseUrl, out errorMessage))
+            return false;
+
+        if (!TryParseAuthMode(authModeRaw, out ItsmConnectorAuthMode authMode, out errorMessage))
+            return false;
+
+        string authUserNameTrimmed = "";
+        string credentialSecretTrimmed = "";
+        string? oauthClientIdTrimmed = null;
+        string? oauthClientSecretTrimmed = null;
+        string? oauthRefreshTrimmed = null;
+
+        if (authMode is ItsmConnectorAuthMode.BasicApiToken)
+        {
+            if (!TryValidateAuthUserName(authUserName, out string? trimmedAuthUserName, out errorMessage))
+                return false;
+
+            if (!TryValidateCredentialKeyVaultSecretName(credentialKeyVaultSecretName, out string? trimmedCredential, out errorMessage))
+                return false;
+
+            authUserNameTrimmed = trimmedAuthUserName!;
+            credentialSecretTrimmed = trimmedCredential!;
+        }
+        else
+        {
+            if (!TryValidateRequiredOAuthKeyVaultSecretName(
+                    oauthClientIdKeyVaultSecretName,
+                    OAuthClientIdKeyVaultSecretNameRequiredMessage,
+                    out oauthClientIdTrimmed,
+                    out errorMessage))
+            {
+                return false;
+            }
+
+            if (!TryValidateRequiredOAuthKeyVaultSecretName(
+                    oauthClientSecretKeyVaultSecretName,
+                    OAuthClientSecretKeyVaultSecretNameRequiredMessage,
+                    out oauthClientSecretTrimmed,
+                    out errorMessage))
+            {
+                return false;
+            }
+
+            if (authMode is ItsmConnectorAuthMode.OAuth2RefreshToken
+                && !TryValidateRequiredOAuthKeyVaultSecretName(
+                    oauthRefreshTokenKeyVaultSecretName,
+                    OAuthRefreshTokenKeyVaultSecretNameRequiredMessage,
+                    out oauthRefreshTrimmed,
+                    out errorMessage))
+            {
+                return false;
+            }
+        }
+
+        if (!TryValidateInboundWebhookKeyVaultSecretName(
+                inboundWebhookKeyVaultSecretName,
+                out string? inboundSecretName,
+                out errorMessage))
+        {
+            return false;
+        }
+
+        command = new TenantItsmConnectorConnectionUpsertCommand
+        {
+            InstanceBaseUrl = trimmedInstanceBaseUrl!,
+            AuthMode = authMode,
+            AuthUserName = authUserNameTrimmed,
+            CredentialKeyVaultSecretName = credentialSecretTrimmed,
+            OAuthClientIdKeyVaultSecretName = oauthClientIdTrimmed,
+            OAuthClientSecretKeyVaultSecretName = oauthClientSecretTrimmed,
+            OAuthRefreshTokenKeyVaultSecretName = oauthRefreshTrimmed,
+            InboundWebhookKeyVaultSecretName = inboundSecretName,
+            IsEnabled = isEnabled,
+            Label = string.IsNullOrWhiteSpace(label) ? null : label.Trim()
+        };
+
+        return true;
+    }
 
     public static bool TryValidateInstanceBaseUrl(string? instanceBaseUrl, out string? trimmed, out string? errorMessage)
     {
@@ -151,6 +320,34 @@ public static class TenantItsmConnectorConnectionUpsertValidation
         }
 
         trimmed = authUserName.Trim();
+
+        return true;
+    }
+
+    private static bool TryValidateRequiredOAuthKeyVaultSecretName(
+        string? keyVaultSecretName,
+        string requiredMessage,
+        out string? trimmed,
+        out string? errorMessage)
+    {
+        trimmed = null;
+        errorMessage = null;
+
+        if (string.IsNullOrWhiteSpace(keyVaultSecretName))
+        {
+            errorMessage = requiredMessage;
+
+            return false;
+        }
+
+        trimmed = keyVaultSecretName.Trim();
+
+        if (trimmed.Contains("://", StringComparison.Ordinal))
+        {
+            errorMessage = RawOAuthSecretRejectedMessage;
+
+            return false;
+        }
 
         return true;
     }

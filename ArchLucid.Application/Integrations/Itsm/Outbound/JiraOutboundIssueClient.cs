@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
@@ -16,21 +15,16 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
     private readonly ILogger<JiraOutboundIssueClient> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public async Task<JiraOutboundIssueHttpResult> CreateIssueAsync(Uri issuePostUri, string serviceAccountEmail, string apiToken, string projectKey,
+    public async Task<JiraOutboundIssueHttpResult> CreateIssueAsync(Uri issuePostUri, AuthenticationHeaderValue authorization, string projectKey,
         string summary, JsonElement descriptionAdf, string issueTypeName, string priorityName, CancellationToken ct,
         string? assigneeAccountId = null, string? dueDateYyyyMmDd = null)
     {
-        ArgumentNullException.ThrowIfNull(serviceAccountEmail);
-        ArgumentNullException.ThrowIfNull(apiToken);
+        ArgumentNullException.ThrowIfNull(authorization);
         ArgumentNullException.ThrowIfNull(projectKey);
         ArgumentNullException.ThrowIfNull(summary);
         ArgumentNullException.ThrowIfNull(issueTypeName);
         ArgumentNullException.ThrowIfNull(priorityName);
         ArgumentNullException.ThrowIfNull(issuePostUri);
-        if (string.IsNullOrWhiteSpace(serviceAccountEmail))
-            throw new ArgumentException("serviceAccountEmail is required.", nameof(serviceAccountEmail));
-        if (string.IsNullOrWhiteSpace(apiToken))
-            throw new ArgumentException("apiToken is required.", nameof(apiToken));
 
         Dictionary<string, object?> fields = new()
         {
@@ -49,8 +43,7 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
 
         object body = new { fields };
         using HttpRequestMessage request = new(HttpMethod.Post, issuePostUri);
-        string basic = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{serviceAccountEmail}:{apiToken}"));
-        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", basic);
+        ItsmOutboundHttpAuthorizationHeaders.Apply(request, authorization);
         request.Content = JsonContent.Create(body, options: ContractJson.CamelCaseIgnoreNullCompact);
         HttpResponseMessage response;
         try

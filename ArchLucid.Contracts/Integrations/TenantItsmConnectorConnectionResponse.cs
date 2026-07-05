@@ -46,6 +46,30 @@ public sealed class TenantItsmConnectorConnectionResponse
         init;
     }
 
+    public string? AuthMode
+    {
+        get;
+        init;
+    }
+
+    public string? OAuthClientIdKeyVaultSecretName
+    {
+        get;
+        init;
+    }
+
+    public string? OAuthClientSecretKeyVaultSecretName
+    {
+        get;
+        init;
+    }
+
+    public string? OAuthRefreshTokenKeyVaultSecretName
+    {
+        get;
+        init;
+    }
+
     public string? InboundWebhookKeyVaultSecretName
     {
         get;

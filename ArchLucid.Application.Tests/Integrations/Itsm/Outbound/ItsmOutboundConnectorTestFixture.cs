@@ -1,7 +1,6 @@
 using System.Text.Json;
 
-using ArchLucid.Application.Integrations.Itsm;
-using ArchLucid.Application.Integrations.Itsm.Outbound;
+using ArchLucid.Application.Integrations.Itsm.OAuth;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Secrets;
@@ -98,6 +97,11 @@ internal static class ItsmOutboundConnectorTestFixture
             inboundMonitor.Object);
     }
 
+    public static IItsmOutboundHttpAuthenticator HttpAuthenticator() =>
+        new ItsmOutboundHttpAuthenticator(
+            Mock.Of<IItsmConnectorOAuthTokenExchanger>(),
+            new ItsmConnectorOAuthAccessTokenCache());
+
     public static IExternalTicketConnectorRegistry ConnectorRegistry(
         IItsmFindingCorrelationRepository correlations,
         ITenantItsmOutboundSettingsRepository tenantItsmOutboundSettings,
@@ -116,14 +120,16 @@ internal static class ItsmOutboundConnectorTestFixture
                 outboundOptions,
                 publicSiteOptions,
                 tenantItsmOutboundSettings,
-                jiraClient),
+                jiraClient,
+                HttpAuthenticator()),
             new ServiceNowExternalTicketConnector(
                 correlations,
                 credentialResolver,
                 publicSiteOptions,
                 runRepository,
                 architectureRequests,
-                serviceNowClient)
+                serviceNowClient,
+                HttpAuthenticator())
         ]);
 
     public static ItsmOutboundIssueCreationService IssueCreationService(

@@ -112,8 +112,61 @@ public sealed class ItsmTenantConnectorCredentialResolver(
         TenantItsmConnectorConnectionRecord row,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(row.InstanceBaseUrl)
-            || string.IsNullOrWhiteSpace(row.AuthUserName)
+        if (string.IsNullOrWhiteSpace(row.InstanceBaseUrl))
+            return null;
+
+        string instanceBaseUrl = row.InstanceBaseUrl.Trim().TrimEnd('/');
+
+        if (row.AuthMode is ItsmConnectorAuthMode.BasicApiToken)
+            return await TryResolveBasicFromTenantRowAsync(row, instanceBaseUrl, cancellationToken).ConfigureAwait(false);
+
+        if (string.IsNullOrWhiteSpace(row.OAuthClientIdKeyVaultSecretName)
+            || string.IsNullOrWhiteSpace(row.OAuthClientSecretKeyVaultSecretName))
+        {
+            return null;
+        }
+
+        string? clientId = await _secretProvider
+            .GetSecretAsync(row.OAuthClientIdKeyVaultSecretName.Trim(), cancellationToken)
+            .ConfigureAwait(false);
+
+        string? clientSecret = await _secretProvider
+            .GetSecretAsync(row.OAuthClientSecretKeyVaultSecretName.Trim(), cancellationToken)
+            .ConfigureAwait(false);
+
+        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
+            return null;
+
+        string? refreshToken = null;
+
+        if (row.AuthMode is ItsmConnectorAuthMode.OAuth2RefreshToken)
+        {
+            if (string.IsNullOrWhiteSpace(row.OAuthRefreshTokenKeyVaultSecretName))
+                return null;
+
+            refreshToken = await _secretProvider
+                .GetSecretAsync(row.OAuthRefreshTokenKeyVaultSecretName.Trim(), cancellationToken)
+                .ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                return null;
+        }
+
+        return ResolvedItsmOutboundCredentials.ForOAuth(
+            instanceBaseUrl,
+            row.AuthMode,
+            clientId.Trim(),
+            clientSecret.Trim(),
+            refreshToken?.Trim(),
+            fromTenantConnection: true);
+    }
+
+    private async Task<ResolvedItsmOutboundCredentials?> TryResolveBasicFromTenantRowAsync(
+        TenantItsmConnectorConnectionRecord row,
+        string instanceBaseUrl,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(row.AuthUserName)
             || string.IsNullOrWhiteSpace(row.CredentialKeyVaultSecretName))
         {
             return null;
@@ -126,11 +179,11 @@ public sealed class ItsmTenantConnectorCredentialResolver(
         if (string.IsNullOrWhiteSpace(secret))
             return null;
 
-        return new ResolvedItsmOutboundCredentials(
-            row.InstanceBaseUrl.Trim().TrimEnd('/'),
+        return ResolvedItsmOutboundCredentials.ForBasic(
+            instanceBaseUrl,
             row.AuthUserName.Trim(),
             secret.Trim(),
-            FromTenantConnection: true);
+            fromTenantConnection: true);
     }
 
     private static ResolvedItsmOutboundCredentials? TryResolveFromDeployment(
@@ -154,11 +207,11 @@ public sealed class ItsmTenantConnectorCredentialResolver(
             return null;
         }
 
-        return new ResolvedItsmOutboundCredentials(
+        return ResolvedItsmOutboundCredentials.ForBasic(
             jira.CloudBaseUrl.Trim().TrimEnd('/'),
             jira.ServiceAccountEmail.Trim(),
             jira.ApiToken.Trim(),
-            FromTenantConnection: false);
+            fromTenantConnection: false);
     }
 
     private static ResolvedItsmOutboundCredentials? TryServiceNowDeployment(ServiceNowItsmOutboundOptions serviceNow)
@@ -170,11 +223,11 @@ public sealed class ItsmTenantConnectorCredentialResolver(
             return null;
         }
 
-        return new ResolvedItsmOutboundCredentials(
+        return ResolvedItsmOutboundCredentials.ForBasic(
             serviceNow.InstanceBaseUrl.Trim().TrimEnd('/'),
             serviceNow.Username.Trim(),
             serviceNow.Password.Trim(),
-            FromTenantConnection: false);
+            fromTenantConnection: false);
     }
 
     private static string? NullIfEmpty(string? value) =>

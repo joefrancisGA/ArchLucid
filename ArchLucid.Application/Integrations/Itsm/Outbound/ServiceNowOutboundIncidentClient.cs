@@ -18,12 +18,11 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
     private readonly ILogger<ServiceNowOutboundIncidentClient> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public async Task<ServiceNowCmdbCiResolveResult> TryResolveCmdbCiApplSysIdAsync(Uri instanceRoot, string username, string password, string systemName,
+    public async Task<ServiceNowCmdbCiResolveResult> TryResolveCmdbCiApplSysIdAsync(Uri instanceRoot, AuthenticationHeaderValue authorization, string systemName,
         bool autoCreateWhenMissing, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(instanceRoot);
-        ArgumentNullException.ThrowIfNull(username);
-        ArgumentNullException.ThrowIfNull(password);
+        ArgumentNullException.ThrowIfNull(authorization);
         ArgumentNullException.ThrowIfNull(systemName);
         if (string.IsNullOrWhiteSpace(systemName))
             return new ServiceNowCmdbCiResolveResult(false, null, null, null);
@@ -31,7 +30,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         string nameQuery = systemName.Trim();
         Uri uri = ServiceNowCmdbCiApplTableApi.BuildLookupBySystemNameUri(instanceRoot, nameQuery);
         using HttpRequestMessage request = new(HttpMethod.Get, uri);
-        ApplyBasicAuth(request, username, password);
+        ItsmOutboundHttpAuthorizationHeaders.Apply(request, authorization);
         HttpResponseMessage response;
         try
         {
@@ -64,16 +63,15 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         if (!autoCreateWhenMissing)
             return new ServiceNowCmdbCiResolveResult(false, null, null, null);
 
-        return await TryCreateCmdbCiApplAsync(instanceRoot, username, password, nameQuery, ct).ConfigureAwait(false);
+        return await TryCreateCmdbCiApplAsync(instanceRoot, authorization, nameQuery, ct).ConfigureAwait(false);
     }
 
-    public async Task<ServiceNowIncidentHttpResult> CreateIncidentAsync(Uri incidentTableUri, string username, string password, string shortDescription,
+    public async Task<ServiceNowIncidentHttpResult> CreateIncidentAsync(Uri incidentTableUri, AuthenticationHeaderValue authorization, string shortDescription,
         string description, string urgency, string impact, string? cmdbCiSysId, CancellationToken ct,
         string? assignedToUserId = null, string? dueDate = null)
     {
         ArgumentNullException.ThrowIfNull(incidentTableUri);
-        ArgumentNullException.ThrowIfNull(username);
-        ArgumentNullException.ThrowIfNull(password);
+        ArgumentNullException.ThrowIfNull(authorization);
         ArgumentNullException.ThrowIfNull(shortDescription);
         ArgumentNullException.ThrowIfNull(description);
         ArgumentNullException.ThrowIfNull(urgency);
@@ -89,7 +87,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
             DueDate = string.IsNullOrWhiteSpace(dueDate) ? null : dueDate.Trim()
         };
         using HttpRequestMessage request = new(HttpMethod.Post, incidentTableUri);
-        ApplyBasicAuth(request, username, password);
+        ItsmOutboundHttpAuthorizationHeaders.Apply(request, authorization);
         string incidentJson = JsonSerializer.Serialize(body, ContractJson.CamelCaseIgnoreNullCompact);
         request.Content = new StringContent(incidentJson, Encoding.UTF8, "application/json");
         HttpResponseMessage response;
@@ -135,7 +133,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         return new ServiceNowIncidentHttpResult(false, null, null, response.StatusCode, TruncateForUser(raw));
     }
 
-    private async Task<ServiceNowCmdbCiResolveResult> TryCreateCmdbCiApplAsync(Uri instanceRoot, string username, string password, string name,
+    private async Task<ServiceNowCmdbCiResolveResult> TryCreateCmdbCiApplAsync(Uri instanceRoot, AuthenticationHeaderValue authorization, string name,
         CancellationToken ct)
     {
         Uri uri = ServiceNowCmdbCiApplTableApi.BuildCreateUri(instanceRoot);
@@ -144,7 +142,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
             name
         };
         using HttpRequestMessage request = new(HttpMethod.Post, uri);
-        ApplyBasicAuth(request, username, password);
+        ItsmOutboundHttpAuthorizationHeaders.Apply(request, authorization);
         string cmJson = JsonSerializer.Serialize(body, ContractJson.CamelCaseIgnoreNullCompact);
         request.Content = new StringContent(cmJson, Encoding.UTF8, "application/json");
         HttpResponseMessage response;
@@ -182,12 +180,6 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         {
             return new ServiceNowCmdbCiResolveResult(false, null, null, null);
         }
-    }
-
-    private static void ApplyBasicAuth(HttpRequestMessage request, string username, string password)
-    {
-        string token = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
-        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", token);
     }
 
     private static string? TryReadFirstResultSysId(string raw)

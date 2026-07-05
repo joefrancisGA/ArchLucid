@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 using ArchLucid.Application.Integrations.Itsm;
@@ -19,7 +20,8 @@ public sealed class JiraExternalTicketConnector(
     IOptionsMonitor<IntegrationsItsmOutboundOptions> outboundOptions,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ITenantItsmOutboundSettingsRepository tenantItsmOutboundSettings,
-    JiraOutboundIssueClient jiraClient) : IExternalTicketConnector
+    JiraOutboundIssueClient jiraClient,
+    IItsmOutboundHttpAuthenticator httpAuthenticator) : IExternalTicketConnector
 {
     private const string ProjectKeyMissingMessage = "Jira connector not configured: project key required.";
 
@@ -39,6 +41,9 @@ public sealed class JiraExternalTicketConnector(
         tenantItsmOutboundSettings ?? throw new ArgumentNullException(nameof(tenantItsmOutboundSettings));
 
     private readonly JiraOutboundIssueClient _jiraClient = jiraClient ?? throw new ArgumentNullException(nameof(jiraClient));
+
+    private readonly IItsmOutboundHttpAuthenticator _httpAuthenticator =
+        httpAuthenticator ?? throw new ArgumentNullException(nameof(httpAuthenticator));
 
     public ItsmOutboundIssueProvider ProviderId => ItsmOutboundIssueProvider.Jira;
 
@@ -130,10 +135,31 @@ public sealed class JiraExternalTicketConnector(
         JsonElement adf = JiraAdfDescriptionBuilder.BuildDescriptionField(descriptionForVendor);
         string baseUrl = credentials.InstanceBaseUrl.Trim().TrimEnd('/');
         Uri issueUri = new($"{baseUrl}/rest/api/3/issue");
+        AuthenticationHeaderValue? authorization = await _httpAuthenticator.TryCreateAuthorizationHeaderAsync(
+            scope.TenantId,
+            TenantItsmConnectorProvider.Jira,
+            credentials,
+            cancellationToken).ConfigureAwait(false);
+
+        if (authorization is null)
+        {
+            AuditEvent ev = ExternalTicketConnectorSupport.SkippedAudit(
+                CreateSkippedAuditEventType,
+                scope,
+                inspect,
+                "jira_connector_authorization_unavailable");
+
+            return new ItsmOutboundIssueCreationResult
+            {
+                Kind = ItsmOutboundCreateTerminalKind.Skipped,
+                UserMessage = "Jira outbound connector credentials could not be authorized (check API token or OAuth settings).",
+                AuditEvents = [ev]
+            };
+        }
+
         JiraOutboundIssueHttpResult http = await _jiraClient.CreateIssueAsync(
             issueUri,
-            credentials.AuthUserName,
-            credentials.SecretValue,
+            authorization,
             projectKey.Trim(),
             context.Summary,
             adf,

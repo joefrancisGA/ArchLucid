@@ -102,26 +102,21 @@ public sealed class TenantItsmConnectorConnectionsController(
         if (!TenantItsmConnectorConnectionUpsertValidation.TryParseProvider(provider, out TenantItsmConnectorProvider parsed, out string? parseError))
             return this.BadRequestProblem(parseError!, ProblemTypes.ValidationFailed);
 
-        if (!TenantItsmConnectorConnectionUpsertValidation.TryValidateInstanceBaseUrl(body.InstanceBaseUrl, out string? instanceBaseUrl, out string? urlError))
-            return this.BadRequestProblem(urlError!, ProblemTypes.ValidationFailed);
-
-        if (!TenantItsmConnectorConnectionUpsertValidation.TryValidateAuthUserName(body.AuthUserName, out string? authUserName, out string? userError))
-            return this.BadRequestProblem(userError!, ProblemTypes.ValidationFailed);
-
-        if (!TenantItsmConnectorConnectionUpsertValidation.TryValidateCredentialKeyVaultSecretName(
+        if (!TenantItsmConnectorConnectionUpsertValidation.TryBuildUpsertCommand(
+                body.InstanceBaseUrl,
+                body.AuthMode,
+                body.AuthUserName,
                 body.CredentialKeyVaultSecretName,
-                out string? credentialSecretName,
-                out string? credentialError))
-        {
-            return this.BadRequestProblem(credentialError!, ProblemTypes.ValidationFailed);
-        }
-
-        if (!TenantItsmConnectorConnectionUpsertValidation.TryValidateInboundWebhookKeyVaultSecretName(
+                body.OAuthClientIdKeyVaultSecretName,
+                body.OAuthClientSecretKeyVaultSecretName,
+                body.OAuthRefreshTokenKeyVaultSecretName,
                 body.InboundWebhookKeyVaultSecretName,
-                out string? inboundSecretName,
-                out string? inboundError))
+                body.IsEnabled,
+                body.Label,
+                out TenantItsmConnectorConnectionUpsertCommand? command,
+                out string? validationError))
         {
-            return this.BadRequestProblem(inboundError!, ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem(validationError!, ProblemTypes.ValidationFailed);
         }
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -129,12 +124,7 @@ public sealed class TenantItsmConnectorConnectionsController(
         TenantItsmConnectorConnectionRecord? saved = await _connectionRepository.UpsertAsync(
             scope.TenantId,
             parsed,
-            instanceBaseUrl!,
-            authUserName!,
-            credentialSecretName!,
-            inboundSecretName,
-            body.IsEnabled,
-            string.IsNullOrWhiteSpace(body.Label) ? null : body.Label.Trim(),
+            command!,
             cancellationToken).ConfigureAwait(false);
 
         if (saved is null)
@@ -156,8 +146,10 @@ public sealed class TenantItsmConnectorConnectionsController(
                 DataJson = JsonSerializer.Serialize(new
                 {
                     provider = TenantItsmConnectorConnectionUpsertValidation.ToProviderLabel(parsed),
-                    credentialKeyVaultSecretNameLength = credentialSecretName!.Length,
-                    hasInboundWebhookSecretName = inboundSecretName is not null,
+                    authMode = TenantItsmConnectorConnectionUpsertValidation.ToAuthModeLabel(command!.AuthMode),
+                    credentialKeyVaultSecretNameLength = command.CredentialKeyVaultSecretName.Length,
+                    hasOAuthClientIdSecretName = command.OAuthClientIdKeyVaultSecretName is not null,
+                    hasInboundWebhookSecretName = command.InboundWebhookKeyVaultSecretName is not null,
                     isEnabled = body.IsEnabled
                 })
             },

@@ -27,8 +27,12 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
                                TenantId,
                                Provider,
                                InstanceBaseUrl,
+                               AuthMode,
                                AuthUserName,
                                CredentialKeyVaultSecretName,
+                               OAuthClientIdKeyVaultSecretName,
+                               OAuthClientSecretKeyVaultSecretName,
+                               OAuthRefreshTokenKeyVaultSecretName,
                                InboundWebhookKeyVaultSecretName,
                                IsEnabled,
                                Label,
@@ -56,8 +60,12 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
                                TenantId,
                                Provider,
                                InstanceBaseUrl,
+                               AuthMode,
                                AuthUserName,
                                CredentialKeyVaultSecretName,
+                               OAuthClientIdKeyVaultSecretName,
+                               OAuthClientSecretKeyVaultSecretName,
+                               OAuthRefreshTokenKeyVaultSecretName,
                                InboundWebhookKeyVaultSecretName,
                                IsEnabled,
                                Label,
@@ -81,14 +89,11 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
     public async Task<TenantItsmConnectorConnectionRecord?> UpsertAsync(
         Guid tenantId,
         TenantItsmConnectorProvider provider,
-        string instanceBaseUrl,
-        string authUserName,
-        string credentialKeyVaultSecretName,
-        string? inboundWebhookKeyVaultSecretName,
-        bool isEnabled,
-        string? label,
+        TenantItsmConnectorConnectionUpsertCommand command,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(command);
+
         const string tenantExistsSql = """
                                        SELECT COUNT(1)
                                        FROM dbo.Tenants
@@ -113,8 +118,12 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
                                         @TenantId AS TenantId,
                                         @Provider AS Provider,
                                         @InstanceBaseUrl AS InstanceBaseUrl,
+                                        @AuthMode AS AuthMode,
                                         @AuthUserName AS AuthUserName,
                                         @CredentialKeyVaultSecretName AS CredentialKeyVaultSecretName,
+                                        @OAuthClientIdKeyVaultSecretName AS OAuthClientIdKeyVaultSecretName,
+                                        @OAuthClientSecretKeyVaultSecretName AS OAuthClientSecretKeyVaultSecretName,
+                                        @OAuthRefreshTokenKeyVaultSecretName AS OAuthRefreshTokenKeyVaultSecretName,
                                         @InboundWebhookKeyVaultSecretName AS InboundWebhookKeyVaultSecretName,
                                         @IsEnabled AS IsEnabled,
                                         @Label AS Label
@@ -122,8 +131,12 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
                                 ON t.TenantId = s.TenantId AND t.Provider = s.Provider
                                 WHEN MATCHED THEN UPDATE SET
                                     InstanceBaseUrl = s.InstanceBaseUrl,
+                                    AuthMode = s.AuthMode,
                                     AuthUserName = s.AuthUserName,
                                     CredentialKeyVaultSecretName = s.CredentialKeyVaultSecretName,
+                                    OAuthClientIdKeyVaultSecretName = s.OAuthClientIdKeyVaultSecretName,
+                                    OAuthClientSecretKeyVaultSecretName = s.OAuthClientSecretKeyVaultSecretName,
+                                    OAuthRefreshTokenKeyVaultSecretName = s.OAuthRefreshTokenKeyVaultSecretName,
                                     InboundWebhookKeyVaultSecretName = s.InboundWebhookKeyVaultSecretName,
                                     IsEnabled = s.IsEnabled,
                                     Label = s.Label,
@@ -132,8 +145,12 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
                                     TenantId,
                                     Provider,
                                     InstanceBaseUrl,
+                                    AuthMode,
                                     AuthUserName,
                                     CredentialKeyVaultSecretName,
+                                    OAuthClientIdKeyVaultSecretName,
+                                    OAuthClientSecretKeyVaultSecretName,
+                                    OAuthRefreshTokenKeyVaultSecretName,
                                     InboundWebhookKeyVaultSecretName,
                                     IsEnabled,
                                     Label,
@@ -142,8 +159,12 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
                                     s.TenantId,
                                     s.Provider,
                                     s.InstanceBaseUrl,
+                                    s.AuthMode,
                                     s.AuthUserName,
                                     s.CredentialKeyVaultSecretName,
+                                    s.OAuthClientIdKeyVaultSecretName,
+                                    s.OAuthClientSecretKeyVaultSecretName,
+                                    s.OAuthRefreshTokenKeyVaultSecretName,
                                     s.InboundWebhookKeyVaultSecretName,
                                     s.IsEnabled,
                                     s.Label,
@@ -157,12 +178,16 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
                 {
                     TenantId = tenantId,
                     Provider = TenantItsmConnectorConnectionUpsertValidation.ToProviderLabel(provider),
-                    InstanceBaseUrl = instanceBaseUrl,
-                    AuthUserName = authUserName,
-                    CredentialKeyVaultSecretName = credentialKeyVaultSecretName,
-                    InboundWebhookKeyVaultSecretName = inboundWebhookKeyVaultSecretName,
-                    IsEnabled = isEnabled,
-                    Label = label
+                    command.InstanceBaseUrl,
+                    AuthMode = TenantItsmConnectorConnectionUpsertValidation.ToAuthModeLabel(command.AuthMode),
+                    command.AuthUserName,
+                    command.CredentialKeyVaultSecretName,
+                    command.OAuthClientIdKeyVaultSecretName,
+                    command.OAuthClientSecretKeyVaultSecretName,
+                    command.OAuthRefreshTokenKeyVaultSecretName,
+                    command.InboundWebhookKeyVaultSecretName,
+                    command.IsEnabled,
+                    command.Label
                 },
                 cancellationToken: cancellationToken));
 
@@ -196,13 +221,20 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
         if (!TenantItsmConnectorConnectionUpsertValidation.TryParseProvider(row.Provider, out TenantItsmConnectorProvider provider, out _))
             throw new InvalidOperationException($"Unknown ITSM provider label '{row.Provider}' in SQL row.");
 
+        if (!TenantItsmConnectorConnectionUpsertValidation.TryParseAuthModeLabel(row.AuthMode, out ItsmConnectorAuthMode authMode))
+            throw new InvalidOperationException($"Unknown ITSM auth mode label '{row.AuthMode}' in SQL row.");
+
         return new TenantItsmConnectorConnectionRecord
         {
             TenantId = row.TenantId,
             Provider = provider,
             InstanceBaseUrl = row.InstanceBaseUrl,
+            AuthMode = authMode,
             AuthUserName = row.AuthUserName,
             CredentialKeyVaultSecretName = row.CredentialKeyVaultSecretName,
+            OAuthClientIdKeyVaultSecretName = row.OAuthClientIdKeyVaultSecretName,
+            OAuthClientSecretKeyVaultSecretName = row.OAuthClientSecretKeyVaultSecretName,
+            OAuthRefreshTokenKeyVaultSecretName = row.OAuthRefreshTokenKeyVaultSecretName,
             InboundWebhookKeyVaultSecretName = row.InboundWebhookKeyVaultSecretName,
             IsEnabled = row.IsEnabled,
             Label = row.Label,
@@ -230,6 +262,12 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
             init;
         } = "";
 
+        public string AuthMode
+        {
+            get;
+            init;
+        } = TenantItsmConnectorConnectionUpsertValidation.ToAuthModeLabel(ItsmConnectorAuthMode.BasicApiToken);
+
         public string AuthUserName
         {
             get;
@@ -241,6 +279,24 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
             get;
             init;
         } = "";
+
+        public string? OAuthClientIdKeyVaultSecretName
+        {
+            get;
+            init;
+        }
+
+        public string? OAuthClientSecretKeyVaultSecretName
+        {
+            get;
+            init;
+        }
+
+        public string? OAuthRefreshTokenKeyVaultSecretName
+        {
+            get;
+            init;
+        }
 
         public string? InboundWebhookKeyVaultSecretName
         {

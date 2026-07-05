@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Integrations;
 using ArchLucid.Api.Models.Integrations;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Integrations.Itsm;
+using ArchLucid.Application.Integrations.Itsm.OAuth;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Audit;
@@ -264,14 +265,16 @@ public sealed class ItsmCorrelationControllerTests
                 outboundOptions.Object,
                 publicSiteOptions.Object,
                 Mock.Of<ITenantItsmOutboundSettingsRepository>(),
-                new JiraOutboundIssueClient(new HttpClient(noop), NullLogger<JiraOutboundIssueClient>.Instance)),
+                new JiraOutboundIssueClient(new HttpClient(noop), NullLogger<JiraOutboundIssueClient>.Instance),
+                new ItsmOutboundHttpAuthenticator(Mock.Of<IItsmConnectorOAuthTokenExchanger>(), new ItsmConnectorOAuthAccessTokenCache())),
             new ServiceNowExternalTicketConnector(
                 correlations,
                 credentialResolver,
                 publicSiteOptions.Object,
                 Mock.Of<IRunRepository>(),
                 Mock.Of<IArchitectureRequestRepository>(),
-                new ServiceNowOutboundIncidentClient(new HttpClient(noop), NullLogger<ServiceNowOutboundIncidentClient>.Instance))
+                new ServiceNowOutboundIncidentClient(new HttpClient(noop), NullLogger<ServiceNowOutboundIncidentClient>.Instance),
+                new ItsmOutboundHttpAuthenticator(Mock.Of<IItsmConnectorOAuthTokenExchanger>(), new ItsmConnectorOAuthAccessTokenCache()))
         ]);
 
         ItsmFindingCorrelationQueryService queryService = new(

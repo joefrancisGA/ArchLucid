@@ -5196,8 +5196,13 @@ BEGIN
         TenantId                          UNIQUEIDENTIFIER NOT NULL,
         Provider                          NVARCHAR(32)     NOT NULL,
         InstanceBaseUrl                   NVARCHAR(500)    NOT NULL,
+        AuthMode                          NVARCHAR(32)     NOT NULL
+            CONSTRAINT DF_TenantItsmConnectorConnections_AuthMode2 DEFAULT (N'BasicApiToken'),
         AuthUserName                      NVARCHAR(320)    NULL,
         CredentialKeyVaultSecretName      NVARCHAR(500)    NOT NULL,
+        OAuthClientIdKeyVaultSecretName     NVARCHAR(500)    NULL,
+        OAuthClientSecretKeyVaultSecretName NVARCHAR(500)    NULL,
+        OAuthRefreshTokenKeyVaultSecretName NVARCHAR(500)    NULL,
         InboundWebhookKeyVaultSecretName  NVARCHAR(500)    NULL,
         IsEnabled                         BIT              NOT NULL
             CONSTRAINT DF_TenantItsmConnectorConnections_IsEnabled2 DEFAULT (1),
@@ -5211,8 +5216,26 @@ BEGIN
             CHECK (CredentialKeyVaultSecretName NOT LIKE N'%://%'),
         CONSTRAINT CK_TenantItsmConnectorConnections_InboundNoUrl2
             CHECK (InboundWebhookKeyVaultSecretName IS NULL OR InboundWebhookKeyVaultSecretName NOT LIKE N'%://%'),
+        CONSTRAINT CK_TenantItsmConnectorConnections_AuthMode2
+            CHECK (AuthMode IN (N'BasicApiToken', N'OAuth2ClientCredentials', N'OAuth2RefreshToken')),
         CONSTRAINT FK_TenantItsmConnectorConnections_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
     );
+END;
+GO
+
+/* 268: OAuth auth-mode columns on per-tenant ITSM connector rows (see Migrations/268_TenantItsmConnectorConnections_OAuthAuthMode.sql). */
+IF COL_LENGTH(N'dbo.TenantItsmConnectorConnections', N'AuthMode') IS NULL
+BEGIN
+    ALTER TABLE dbo.TenantItsmConnectorConnections
+        ADD AuthMode NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_TenantItsmConnectorConnections_AuthMode DEFAULT (N'BasicApiToken'),
+        OAuthClientIdKeyVaultSecretName NVARCHAR(500) NULL,
+        OAuthClientSecretKeyVaultSecretName NVARCHAR(500) NULL,
+        OAuthRefreshTokenKeyVaultSecretName NVARCHAR(500) NULL;
+
+    ALTER TABLE dbo.TenantItsmConnectorConnections
+        ADD CONSTRAINT CK_TenantItsmConnectorConnections_AuthMode
+            CHECK (AuthMode IN (N'BasicApiToken', N'OAuth2ClientCredentials', N'OAuth2RefreshToken'));
 END;
 GO
 

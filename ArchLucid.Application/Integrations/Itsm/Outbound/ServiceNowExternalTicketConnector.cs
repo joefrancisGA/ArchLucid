@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 using ArchLucid.Application.Integrations.Itsm;
@@ -22,7 +23,8 @@ public sealed class ServiceNowExternalTicketConnector(
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     IRunRepository runRepository,
     IArchitectureRequestRepository architectureRequests,
-    ServiceNowOutboundIncidentClient serviceNowClient) : IExternalTicketConnector
+    ServiceNowOutboundIncidentClient serviceNowClient,
+    IItsmOutboundHttpAuthenticator httpAuthenticator) : IExternalTicketConnector
 {
     private readonly IItsmFindingCorrelationRepository _correlations =
         correlations ?? throw new ArgumentNullException(nameof(correlations));
@@ -40,6 +42,9 @@ public sealed class ServiceNowExternalTicketConnector(
 
     private readonly ServiceNowOutboundIncidentClient _serviceNowClient =
         serviceNowClient ?? throw new ArgumentNullException(nameof(serviceNowClient));
+
+    private readonly IItsmOutboundHttpAuthenticator _httpAuthenticator =
+        httpAuthenticator ?? throw new ArgumentNullException(nameof(httpAuthenticator));
 
     public ItsmOutboundIssueProvider ProviderId => ItsmOutboundIssueProvider.ServiceNow;
 
@@ -94,11 +99,32 @@ public sealed class ServiceNowExternalTicketConnector(
 
         string instanceRoot = credentials.InstanceBaseUrl.Trim().TrimEnd('/');
         Uri instanceUri = new(instanceRoot);
+        AuthenticationHeaderValue? authorization = await _httpAuthenticator.TryCreateAuthorizationHeaderAsync(
+            scope.TenantId,
+            TenantItsmConnectorProvider.ServiceNow,
+            credentials,
+            cancellationToken).ConfigureAwait(false);
+
+        if (authorization is null)
+        {
+            AuditEvent ev = ExternalTicketConnectorSupport.SkippedAudit(
+                CreateSkippedAuditEventType,
+                scope,
+                inspect,
+                "servicenow_connector_authorization_unavailable");
+
+            return new ItsmOutboundIssueCreationResult
+            {
+                Kind = ItsmOutboundCreateTerminalKind.Skipped,
+                UserMessage = "ServiceNow outbound connector credentials could not be authorized (check password or OAuth settings).",
+                AuditEvents = [ev]
+            };
+        }
+
         (string urgency, string impact) = ServiceNowUrgencyImpactResolver.Resolve(context.Severity);
         ServiceNowCmdbCiResolveResult cmdb = await _serviceNowClient.TryResolveCmdbCiApplSysIdAsync(
             instanceUri,
-            credentials.AuthUserName,
-            credentials.SecretValue,
+            authorization,
             systemName ?? string.Empty,
             context.TenantSettings?.ServiceNowAutoCreateCmdbCi ?? false,
             cancellationToken).ConfigureAwait(false);
@@ -139,8 +165,7 @@ public sealed class ServiceNowExternalTicketConnector(
         ServiceNowIncidentHttpResult http = await _serviceNowClient
             .CreateIncidentAsync(
                 incidentUri,
-                credentials.AuthUserName,
-                credentials.SecretValue,
+                authorization,
                 context.Summary,
                 descriptionForVendor,
                 urgency,

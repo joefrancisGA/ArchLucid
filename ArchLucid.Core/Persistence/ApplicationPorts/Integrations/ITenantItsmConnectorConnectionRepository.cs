@@ -2,7 +2,7 @@ using ArchLucid.Core.Integrations.Itsm;
 
 namespace ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
 
-/// <summary>Per-tenant ITSM connector persistence port (TB-392).</summary>
+/// <summary>Per-tenant ITSM connector persistence port (TB-392 / TB-600).</summary>
 public interface ITenantItsmConnectorConnectionRepository
 {
     Task<IReadOnlyList<TenantItsmConnectorConnectionRecord>> ListAsync(Guid tenantId, CancellationToken cancellationToken);
@@ -15,12 +15,7 @@ public interface ITenantItsmConnectorConnectionRepository
     Task<TenantItsmConnectorConnectionRecord?> UpsertAsync(
         Guid tenantId,
         TenantItsmConnectorProvider provider,
-        string instanceBaseUrl,
-        string authUserName,
-        string credentialKeyVaultSecretName,
-        string? inboundWebhookKeyVaultSecretName,
-        bool isEnabled,
-        string? label,
+        TenantItsmConnectorConnectionUpsertCommand command,
         CancellationToken cancellationToken);
 
     Task<bool> DeleteAsync(Guid tenantId, TenantItsmConnectorProvider provider, CancellationToken cancellationToken);

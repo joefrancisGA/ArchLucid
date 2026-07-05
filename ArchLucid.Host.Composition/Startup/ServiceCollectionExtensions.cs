@@ -2,6 +2,7 @@ using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.Itsm;
+using ArchLucid.Application.Integrations.Itsm.OAuth;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Evidence;
@@ -188,6 +189,12 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IItsmOutboundIntegrationHealthService, ItsmOutboundIntegrationHealthService>();
         services.AddScoped<ITenantItsmOutboundSettingsService, TenantItsmOutboundSettingsService>();
         services.AddScoped<IItsmTenantConnectorCredentialResolver, ItsmTenantConnectorCredentialResolver>();
+        services.AddSingleton<ItsmConnectorOAuthAccessTokenCache>();
+        services
+            .AddHttpClient<IItsmConnectorOAuthTokenExchanger, ItsmConnectorOAuthTokenExchanger>(
+                static client => client.Timeout = TimeSpan.FromSeconds(30))
+            .AddOutboundExternalHttpResilience();
+        services.AddScoped<IItsmOutboundHttpAuthenticator, ItsmOutboundHttpAuthenticator>();
         services.AddScoped<IItsmOutboundIssueCreationService, ItsmOutboundIssueCreationService>();
         services.AddScoped<ItsmOutboundIssueCreationService>();
         services.AddScoped<ItsmExternalTicketUrlBuilder>();

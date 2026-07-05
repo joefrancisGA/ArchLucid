@@ -2,26 +2,14 @@ using ArchLucid.Core.Integrations.Itsm;
 
 namespace ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
 
-/// <summary>Durable row for <c>dbo.TenantItsmConnectorConnections</c>.</summary>
-public sealed class TenantItsmConnectorConnectionRecord
+/// <summary>Validated upsert payload for <c>dbo.TenantItsmConnectorConnections</c> (TB-392 / TB-600).</summary>
+public sealed class TenantItsmConnectorConnectionUpsertCommand
 {
-    public Guid TenantId
+    public required string InstanceBaseUrl
     {
         get;
         init;
     }
-
-    public TenantItsmConnectorProvider Provider
-    {
-        get;
-        init;
-    }
-
-    public string InstanceBaseUrl
-    {
-        get;
-        init;
-    } = "";
 
     public ItsmConnectorAuthMode AuthMode
     {
@@ -69,15 +57,9 @@ public sealed class TenantItsmConnectorConnectionRecord
     {
         get;
         init;
-    }
+    } = true;
 
     public string? Label
-    {
-        get;
-        init;
-    }
-
-    public DateTimeOffset UpdatedUtc
     {
         get;
         init;
