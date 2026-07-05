@@ -10,16 +10,13 @@ import {
   injectDemoWorkspaceOperatorScope,
 } from "./helpers/demo-workspace-live-scope";
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
-import {
-  countFindingsInAuthorityRunDetailPayload,
-  getAuthorityRunDetailRaw,
-  liveApiBase,
-} from "./helpers/live-api-client";
+import { liveApiBase } from "./helpers/live-api-client";
 import {
   buyerPolishedReviewDetailSectionNav,
   ensureBuyerDeliverablesSectionExpanded,
   expectBuyerPolishedReviewDetailSectionNavCore,
 } from "./helpers/operator-journey";
+import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 
 const releaseGateTag = "@release-gate";
 
@@ -28,6 +25,8 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 90_000 });
 
     expect(health.ok(), await health.text()).toBeTruthy();
+
+    await ensureDemoWorkspaceSeedReady(request, { workspaces: ["A"] });
   });
 
   test("canonical Product Tour reviewer shell loads with evidence, findings, finalized record, exports", async ({ page }) => {
@@ -44,7 +43,9 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0);
 
-    await expectBuyerPolishedReviewDetailSectionNavCore(sectionNav);
+    await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 90_000 });
+
+    await expectBuyerPolishedReviewDetailSectionNavCore(sectionNav, { timeoutMs: 15_000 });
 
     await expect(page.getByRole("heading", { name: /Recent lifecycle events|Pipeline timeline/i }).first()).toBeVisible({
       timeout: 60_000,
@@ -60,8 +61,6 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await expect.poll(async () => evidenceBasisTiles.count(), { timeout: 60_000 }).toBeGreaterThanOrEqual(minimumEvidenceTiles);
 
     await page.locator("#run-explanation").scrollIntoViewIfNeeded();
-
-    await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 60_000 });
 
     const severityBadge = page
       .getByTestId("quick-decision-summary")

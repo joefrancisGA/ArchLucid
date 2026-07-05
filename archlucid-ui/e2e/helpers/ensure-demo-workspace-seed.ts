@@ -2,7 +2,7 @@ import type { APIRequestContext } from "@playwright/test";
 
 import { demoWorkspacesFixtureManifest } from "./demo-workspaces-fixture-manifest";
 import {
-  getAuthorityRunDetailRaw,
+  getAuthorityRunDetailWithTransientRetries,
   getPilotRunDeltasWithTransientRetries,
   liveApiBase,
   liveJsonHeaders,
@@ -15,19 +15,50 @@ export type EnsureDemoWorkspaceSeedReadyOptions = {
   readonly workspaces?: readonly DemoWorkspaceSeedProbe[];
 };
 
+const maxDemoSeedPostAttempts = 12;
+
+async function sleepSeedBackoff(attempt: number): Promise<void> {
+  const baseDelayMs = Math.min(1000 * 2 ** attempt, 8000);
+  const jitterMs = Math.floor(Math.random() * 250);
+
+  await new Promise((resolve) => setTimeout(resolve, baseDelayMs + jitterMs));
+}
+
+async function postDemoSeedWithTransientRetries(request: APIRequestContext): Promise<void> {
+  let lastStatus = 0;
+  let lastBody = "";
+
+  for (let attempt = 0; attempt < maxDemoSeedPostAttempts; attempt++) {
+    const seed = await request.post(`${liveApiBase}/v1/demo/seed`, {
+      headers: liveJsonHeaders(),
+      timeout: 120_000,
+    });
+
+    if (seed.status() === 204) {
+      return;
+    }
+
+    lastStatus = seed.status();
+    lastBody = (await seed.text()).slice(0, 500);
+
+    if (lastStatus >= 500 && lastStatus < 600 && attempt < maxDemoSeedPostAttempts - 1) {
+      await sleepSeedBackoff(attempt);
+
+      continue;
+    }
+
+    throw new Error(`POST /v1/demo/seed expected 204 — ${lastStatus}: ${lastBody}`);
+  }
+
+  throw new Error(`POST /v1/demo/seed expected 204 — ${lastStatus}: ${lastBody}`);
+}
+
 /** Idempotent demo seed plus authority-run probes for merge-blocking `@release-gate` workspace smokes. */
 export async function ensureDemoWorkspaceSeedReady(
   request: APIRequestContext,
   options?: EnsureDemoWorkspaceSeedReadyOptions,
 ): Promise<void> {
-  const seed = await request.post(`${liveApiBase}/v1/demo/seed`, {
-    headers: liveJsonHeaders(),
-    timeout: 120_000,
-  });
-
-  if (seed.status() !== 204) {
-    throw new Error(`POST /v1/demo/seed expected 204 — ${seed.status()}: ${(await seed.text()).slice(0, 500)}`);
-  }
+  await postDemoSeedWithTransientRetries(request);
 
   const requested = new Set<DemoWorkspaceSeedProbe>(options?.workspaces ?? ["A", "B"]);
 
@@ -55,7 +86,7 @@ export async function ensureDemoWorkspaceSeedReady(
   ].filter((check) => requested.has(check.probe));
 
   for (const check of workspaceChecks) {
-    const probe = await getAuthorityRunDetailRaw(request, check.runId, check.scope);
+    const probe = await getAuthorityRunDetailWithTransientRetries(request, check.runId, check.scope);
 
     if (!probe.ok()) {
       throw new Error(

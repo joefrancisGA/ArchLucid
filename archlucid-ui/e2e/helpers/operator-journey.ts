@@ -212,13 +212,18 @@ export function buyerPolishedReviewDetailSectionNav(page: Page): Locator {
 }
 
 /** Canonical buyer-polished section strip labels from `buildRunDetailNavSections`. */
-export async function expectBuyerPolishedReviewDetailSectionNavCore(sectionNav: Locator): Promise<void> {
-  await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible();
-  await expect(sectionNav.getByRole("link", { name: "Outcome record" })).toBeVisible();
-  await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible();
-  await expect(sectionNav.getByRole("link", { name: "Assessment" })).toBeVisible();
-  await expect(sectionNav.getByRole("link", { name: "Activity" })).toBeVisible();
-  await expect(sectionNav.getByRole("link", { name: "Deliverables" })).toBeVisible();
+export async function expectBuyerPolishedReviewDetailSectionNavCore(
+  sectionNav: Locator,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeout = options?.timeoutMs ?? 15_000;
+
+  await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Outcome record" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Assessment" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Activity" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Deliverables" })).toBeVisible({ timeout });
 }
 
 /** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */

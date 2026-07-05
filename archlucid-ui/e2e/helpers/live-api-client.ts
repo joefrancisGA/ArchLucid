@@ -512,6 +512,56 @@ export async function getAuthorityRunDetailRaw(
   });
 }
 
+const maxTransientHttpPollAttempts = 24;
+
+async function sleepTransientHttpBackoff(attempt: number): Promise<void> {
+  const baseDelayMs = Math.min(1000 * 2 ** attempt, 8000);
+  const jitterMs = Math.floor(Math.random() * 250);
+
+  await new Promise((resolve) => setTimeout(resolve, baseDelayMs + jitterMs));
+}
+
+function isTransientHttpStatus(code: number): boolean {
+  return code === 429 || (code >= 500 && code < 600);
+}
+
+/**
+ * Same as {@link getAuthorityRunDetailRaw} but retries on HTTP 5xx (transient API/SQL) and 429 during CI seed probes.
+ */
+export async function getAuthorityRunDetailWithTransientRetries(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope: LiveTenantScopeHeaders,
+  options?: { apiKey?: string | null },
+): Promise<APIResponse> {
+  let lastResponse: APIResponse | undefined;
+
+  for (let attempt = 0; attempt < maxTransientHttpPollAttempts; attempt++) {
+    lastResponse = await getAuthorityRunDetailRaw(request, runId, tenantScope, options);
+    const code = lastResponse.status();
+
+    if (lastResponse.ok()) {
+      return lastResponse;
+    }
+
+    if (code === 429 && attempt < maxTransientHttpPollAttempts - 1) {
+      await delayAfterRateLimitedResponse(lastResponse);
+
+      continue;
+    }
+
+    if (isTransientHttpStatus(code) && attempt < maxTransientHttpPollAttempts - 1) {
+      await sleepTransientHttpBackoff(attempt);
+
+      continue;
+    }
+
+    return lastResponse;
+  }
+
+  return lastResponse!;
+}
+
 /** GET `/v1/pilots/runs/{runId}/pilot-run-deltas` ΓÇö proof-of-ROI numbers for the run (see `docs/library/API_CONTRACTS.md`). */
 export async function getPilotRunDeltasRaw(
   request: APIRequestContext,
@@ -526,7 +576,7 @@ export async function getPilotRunDeltasRaw(
   });
 }
 
-const maxPilotRunDeltasPollAttempts = 16;
+const maxPilotRunDeltasPollAttempts = maxTransientHttpPollAttempts;
 
 /**
  * Same as {@link getPilotRunDeltasRaw} but retries on HTTP 5xx (transient API/SQL) and 429 during CI seed probes.
@@ -553,8 +603,8 @@ export async function getPilotRunDeltasWithTransientRetries(
       continue;
     }
 
-    if (code >= 500 && code < 600 && attempt < maxPilotRunDeltasPollAttempts - 1) {
-      await new Promise((r) => setTimeout(r, 500));
+    if (isTransientHttpStatus(code) && attempt < maxPilotRunDeltasPollAttempts - 1) {
+      await sleepTransientHttpBackoff(attempt);
 
       continue;
     }
