@@ -29,10 +29,13 @@ describe("RunDetailPageView progressive disclosure", () => {
       "utf8",
     );
     const evidenceStripIndex = summaryHeaderSource.indexOf("<ReviewPackageEvidenceDensityStrip");
+    const findingsIndex = source.indexOf("<RunDetailExplanationDeferred");
 
     expect(proofIndex).toBeGreaterThan(-1);
     expect(evidenceStripIndex).toBeGreaterThan(-1);
+    expect(findingsIndex).toBeGreaterThan(-1);
     expect(source.indexOf("<ReviewPackageSummaryHeader")).toBeLessThan(proofIndex);
+    expect(proofIndex).toBeLessThan(findingsIndex);
   });
 
   it("hides operator forensics and metadata in sponsor mode", () => {

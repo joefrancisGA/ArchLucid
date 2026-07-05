@@ -1,6 +1,6 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v3)
 
-**Pass date:** 2026-07-05. **Rescore (2026-07-05):** **TB-618** closed — `resolveReviewPackagePrimaryAction` + `ReviewPackagePrimaryAction` render one green primary next-action CTA per Review Package state in `ReviewPackageSummaryHeader`; competing finalize/governance/executive-summary controls demoted to outline; Adoption Friction **77→78**, Executive / Operator Comprehension **80→81**, **(A) headline 73.24%→73.37%**. Prior same-day rescore: **TB-617** (`ReviewPackageSummaryHeader` consolidation; **75→77** / **79→80**; **73.06%→73.24%**). Prior same-day clean-slate re-pass (73.06%) archived at [`docs/archive/assessments/LATEST_GPT55-2026-07-05-pre-fresh-pass.md`](../archive/assessments/LATEST_GPT55-2026-07-05-pre-fresh-pass.md). **Prompt:** [`ASSESSMENT_PROMPT_V3.MD`](ASSESSMENT_PROMPT_V3.MD). **Reasoning engine:** Claude (Sonnet), simulator-aware; no live Azure OpenAI call made during this pass. **Source materials inspected:** `V1_SCOPE.md`, `V1_DEFERRED.md` (both re-checked against working tree; `V1_DEFERRED.md` picked up the Next.js-16 V1-promotion note and the TB-399 residual-gap closure since the last pass), `TRUST_CENTER.md`/SOC posture carried from prior-pass verification (unchanged this cycle), `TECH_BACKLOG.md` (full summary table through **TB-640**; **TB-617** closed this rescore — next open P1 engineering row **TB-618**), `GTM_BACKLOG.md` (M-series / G-REAL-series status rows, including new **M-93**), `REPO_DIGEST.md`. Computed **fresh** per the mandatory no-carry-forward rule for the base pass; this rescore applies a bounded delta for **TB-617** only.
+**Pass date:** 2026-07-05. **Rescore (2026-07-05):** **TB-620** closed — Review Package detail sections reordered per architect workflow (findings/evidence promoted above export actions and below-fold pipeline; draft capture-evidence earlier); Executive / Operator Comprehension **81→82**, Adoption Friction **78→79**, **(A) headline 73.37%→73.50%**. Prior same-day rescore: **TB-618** — single primary next-action CTA per Review Package state; Adoption Friction **77→78**, Executive / Operator Comprehension **80→81**, **(A) headline 73.24%→73.37%**. Prior same-day rescore: **TB-617** (`ReviewPackageSummaryHeader` consolidation; **75→77** / **79→80**; **73.06%→73.24%**). Prior same-day clean-slate re-pass (73.06%) archived at [`docs/archive/assessments/LATEST_GPT55-2026-07-05-pre-fresh-pass.md`](../archive/assessments/LATEST_GPT55-2026-07-05-pre-fresh-pass.md). **Prompt:** [`ASSESSMENT_PROMPT_V3.MD`](ASSESSMENT_PROMPT_V3.MD). **Reasoning engine:** Claude (Sonnet), simulator-aware; no live Azure OpenAI call made during this pass. **Source materials inspected:** `V1_SCOPE.md`, `V1_DEFERRED.md` (both re-checked against working tree; `V1_DEFERRED.md` picked up the Next.js-16 V1-promotion note and the TB-399 residual-gap closure since the last pass), `TRUST_CENTER.md`/SOC posture carried from prior-pass verification (unchanged this cycle), `TECH_BACKLOG.md` (full summary table through **TB-640**; **TB-620** closed this rescore — next open engineering row **TB-621**), `GTM_BACKLOG.md` (M-series / G-REAL-series status rows, including new **M-93**), `REPO_DIGEST.md`. Computed **fresh** per the mandatory no-carry-forward rule for the base pass; this rescore applies a bounded delta for **TB-620** only.
 
 ---
 
@@ -40,7 +40,7 @@ Sourced from open `GTM_BACKLOG.md` rows (M-series / G-REAL-series), ranked by cr
 
 ## 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 73.37%`. Readiness excludes deferred (V1.1/V2) items per the governing scope docs. Base pass computed fresh from the Weighted Quality Model in §2; **TB-618** rescore bumps Adoption Friction and Executive / Operator Comprehension on Review Package detail primary next-action CTA ranking.
+`ArchLucid Assessment – (A) Headline Readiness: 73.50%`. Readiness excludes deferred (V1.1/V2) items per the governing scope docs. Base pass computed fresh from the Weighted Quality Model in §2; **TB-620** rescore bumps Executive / Operator Comprehension and Adoption Friction on Review Package detail architect workflow section ordering.
 
 ## 2. Scorecard
 
@@ -53,10 +53,10 @@ Sourced from open `GTM_BACKLOG.md` rows (M-series / G-REAL-series), ranked by cr
 | 5 | AI / Agent Readiness | 66 | 10 | 6.60 | 340 |
 | 6 | Time-to-Value | 68 | 10 | 6.80 | 320 |
 | 7 | Proof-of-ROI Readiness | 67 | 9 | 6.03 | 297 |
-| 8 | Executive / Operator Comprehension | 81 | 8 | 6.48 | 152 |
+| 8 | Executive / Operator Comprehension | 82 | 8 | 6.56 | 144 |
 | 9 | Runtime & First-Review Reliability | 81 | 7 | 5.67 | 133 |
-| 10 | Adoption Friction | 78 | 5 | 3.90 | 110 |
-| | **(A) Headline readiness** | | **100** | **73.37** | |
+| 10 | Adoption Friction | 79 | 5 | 3.95 | 105 |
+| | **(A) Headline readiness** | | **100** | **73.50** | |
 
 ## 3. Diagnostic Scores (non-headline)
 

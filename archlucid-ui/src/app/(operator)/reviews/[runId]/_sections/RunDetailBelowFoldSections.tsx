@@ -69,6 +69,23 @@ export async function RunDetailBelowFoldSections(
 
   return (
     <>
+      {!m.buyerPolishedArtifactTable && m.manifestId ? (
+        <Suspense fallback={<RunDetailExplanationSkeleton />}>
+          <RunDetailExplanationDeferred
+            runId={m.routeRunId}
+            buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+            resolvedDetail={m.resolvedDetail}
+            explanationSummary={m.explanationSummary}
+            explanationFailure={m.explanationFailure}
+            findingCountDisplay={m.findingCountDisplay}
+            warningCountDisplay={m.warningCountDisplay}
+            goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+            manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+            manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
+          />
+        </Suspense>
+      ) : null}
+
       <RunDetailPipelineTimelineSection
         runId={m.routeRunId}
         buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
@@ -175,23 +192,6 @@ export async function RunDetailBelowFoldSections(
           }
           requestId={m.resolvedDetail.run.architectureRequestId ?? (m.resolvedDetail.run as { requestId?: string }).requestId}
         />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable && m.manifestId ? (
-        <Suspense fallback={<RunDetailExplanationSkeleton />}>
-          <RunDetailExplanationDeferred
-            runId={m.routeRunId}
-            buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-            resolvedDetail={m.resolvedDetail}
-            explanationSummary={m.explanationSummary}
-            explanationFailure={m.explanationFailure}
-            findingCountDisplay={m.findingCountDisplay}
-            warningCountDisplay={m.warningCountDisplay}
-            goldenManifestJsonForExport={m.goldenManifestJsonForExport}
-            manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
-            manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
-          />
-        </Suspense>
       ) : null}
 
       {!m.buyerPolishedArtifactTable && m.manifestId ? (

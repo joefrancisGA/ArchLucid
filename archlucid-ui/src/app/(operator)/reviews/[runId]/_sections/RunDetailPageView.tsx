@@ -320,6 +320,34 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
 
+      {!m.manifestId ? (
+        <RunDetailCaptureEvidenceSection
+          runId={m.resolvedDetail.run.runId}
+          buyerPolished={m.buyerPolishedArtifactTable ?? false}
+        />
+      ) : null}
+
+      {!m.manifestId && m.showProgressTracker ? (
+        <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+      ) : null}
+
+      {m.buyerPolishedArtifactTable && m.manifestId ? (
+        <Suspense fallback={<RunDetailExplanationSkeleton />}>
+          <RunDetailExplanationDeferred
+            runId={m.routeRunId}
+            buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+            resolvedDetail={m.resolvedDetail}
+            explanationSummary={m.explanationSummary}
+            explanationFailure={m.explanationFailure}
+            findingCountDisplay={m.findingCountDisplay}
+            warningCountDisplay={m.warningCountDisplay}
+            goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+            manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+            manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
+          />
+        </Suspense>
+      ) : null}
+
       {m.buyerPolishedArtifactTable && m.manifestId ? (
         <Suspense fallback={<RunDetailDecisionDeltaSkeleton />}>
           <RunDetailDecisionDeltaDeferred
@@ -329,6 +357,27 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
             isCommitted
           />
         </Suspense>
+      ) : null}
+
+      {governanceAlertsEl}
+      <RunDetailExecutiveBottomLine explanationSummary={m.explanationSummary} />
+
+      {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
+        <RunTrustEvidenceCardSection
+          card={m.resolvedDetail.trustEvidenceCard}
+          evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
+        />
+      ) : null}
+
+      {m.manifestId && m.manifestSummaryForUi ? (
+        <RunDetailManifestSummarySection
+          manifestSummary={m.manifestSummaryForUi}
+          buyerPolishedShell={m.buyerPolishedArtifactTable}
+          runExecution={{
+            realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator,
+            pilotAoaiDeploymentSnapshot: m.resolvedDetail.run.pilotAoaiDeploymentSnapshot ?? null,
+          }}
+        />
       ) : null}
 
       {m.manifestId ? (
@@ -370,8 +419,6 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         </Suspense>
       ) : null}
 
-      {governanceAlertsEl}
-      <RunDetailExecutiveBottomLine explanationSummary={m.explanationSummary} />
       <RunDetailHolisticCriticPanel
         runId={m.resolvedDetail.run.runId}
         hasGoldenManifest={Boolean(m.manifestId)}
@@ -415,7 +462,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         </RunDetailOperatorTechnicalDisclosure>
       ) : null}
 
-      {m.showProgressTracker ? (
+      {m.showProgressTracker && m.manifestId ? (
         <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
       ) : null}
 
@@ -428,48 +475,6 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       ) : null}
 
       <RunDetailBuyerPilotConversionSection buyerPolishedArtifactTable={m.buyerPolishedArtifactTable} />
-
-      {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
-        <RunTrustEvidenceCardSection
-          card={m.resolvedDetail.trustEvidenceCard}
-          evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
-        />
-      ) : null}
-
-      {!m.manifestId ? (
-        <RunDetailCaptureEvidenceSection
-          runId={m.resolvedDetail.run.runId}
-          buyerPolished={m.buyerPolishedArtifactTable ?? false}
-        />
-      ) : null}
-
-      {m.manifestId && m.manifestSummaryForUi ? (
-        <RunDetailManifestSummarySection
-          manifestSummary={m.manifestSummaryForUi}
-          buyerPolishedShell={m.buyerPolishedArtifactTable}
-          runExecution={{
-            realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator,
-            pilotAoaiDeploymentSnapshot: m.resolvedDetail.run.pilotAoaiDeploymentSnapshot ?? null,
-          }}
-        />
-      ) : null}
-
-      {m.buyerPolishedArtifactTable && m.manifestId ? (
-        <Suspense fallback={<RunDetailExplanationSkeleton />}>
-          <RunDetailExplanationDeferred
-            runId={m.routeRunId}
-            buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-            resolvedDetail={m.resolvedDetail}
-            explanationSummary={m.explanationSummary}
-            explanationFailure={m.explanationFailure}
-            findingCountDisplay={m.findingCountDisplay}
-            warningCountDisplay={m.warningCountDisplay}
-            goldenManifestJsonForExport={m.goldenManifestJsonForExport}
-            manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
-            manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
-          />
-        </Suspense>
-      ) : null}
 
       <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
         <RunDetailBelowFoldSections model={m} context={deferredContext} />
