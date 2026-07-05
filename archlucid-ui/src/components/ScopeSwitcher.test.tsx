@@ -42,11 +42,13 @@ vi.mock("@/lib/operator-scope-storage", async (importOriginal) => {
   };
 });
 
+import * as operatorScopeStorage from "@/lib/operator-scope-storage";
+
 import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
   BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
-  BUYER_SCOPE_SWITCHER_GOT_IT,
+  BUYER_SCOPE_SWITCHER_CLOSE,
   BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
 } from "@/lib/buyer-polish-copy";
 import { formatScopeSwitcherSampleFullTitle, formatScopeSwitcherTriggerAccessibleLabel } from "@/lib/scope-switcher-display";
@@ -64,6 +66,11 @@ describe("ScopeSwitcher — operator shell", () => {
   beforeEach(() => {
     demoUiEnvMock.buyerPolishedShell = false;
     demoUiEnvMock.demoMode = false;
+    vi.mocked(operatorScopeStorage.getEffectiveBrowserProxyScopeHeaders).mockReturnValue({
+      "x-tenant-id": DEV_TENANT,
+      "x-workspace-id": DEV_WORKSPACE,
+      "x-project-id": DEV_PROJECT,
+    });
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => new Response(JSON.stringify({ workspaces: [] }), { status: 200 })),
@@ -116,9 +123,39 @@ describe("ScopeSwitcher — operator shell", () => {
       "href",
       "/help/scope",
     );
+    const closeButton = screen.getByRole("button", { name: BUYER_SCOPE_SWITCHER_CLOSE });
+    expect(closeButton.tagName).toBe("BUTTON");
+    expect(closeButton).toHaveAttribute("type", "button");
   });
 
-  it("closes the panel on Got it, Escape, and outside click", async () => {
+  it("renders Close on the workspace list error panel for a connected scope session", async () => {
+    vi.mocked(operatorScopeStorage.getEffectiveBrowserProxyScopeHeaders).mockReturnValue({
+      "x-tenant-id": DEV_TENANT,
+      "x-workspace-id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "x-project-id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("", { status: 500 })),
+    );
+
+    render(<ScopeSwitcher />);
+    fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-scope-list-note")).toBeInTheDocument();
+    });
+
+    const closeButton = screen.getByRole("button", { name: BUYER_SCOPE_SWITCHER_CLOSE });
+    expect(closeButton).toHaveAttribute("type", "button");
+    fireEvent.click(closeButton);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("operator-scope-switcher-panel")).not.toBeInTheDocument();
+    });
+  });
+
+  it("closes the panel on Close, Escape, and outside click", async () => {
     render(<ScopeSwitcher />);
     fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
 
@@ -126,7 +163,10 @@ describe("ScopeSwitcher — operator shell", () => {
       expect(screen.getByTestId("operator-scope-switcher-panel")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: BUYER_SCOPE_SWITCHER_GOT_IT }));
+    const closeButton = screen.getByRole("button", { name: BUYER_SCOPE_SWITCHER_CLOSE });
+    expect(closeButton).toHaveAttribute("type", "button");
+    expect(screen.queryByRole("button", { name: /got it/i })).toBeNull();
+    fireEvent.click(closeButton);
 
     await waitFor(() => {
       expect(screen.queryByTestId("operator-scope-switcher-panel")).not.toBeInTheDocument();

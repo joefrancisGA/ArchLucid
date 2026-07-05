@@ -578,7 +578,8 @@ export const BUYER_SCOPE_SAMPLE_WORKSPACE_DETAILS = "Workspace details";
 export const BUYER_SCOPE_SAMPLE_WORKSPACE_TECHNICAL_DETAILS =
   "Scope headers (tenant, workspace, project) route API requests. The workspace directory API is not available in this local demo, so the sample workspace stays active.";
 
-export const BUYER_SCOPE_SWITCHER_GOT_IT = "Got it";
+/** Closes the workspace scope popover (`role="dialog"`); not a workflow advance or permanent hide. */
+export const BUYER_SCOPE_SWITCHER_CLOSE = "Close";
 
 export const BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES = "Workspace guide";
 

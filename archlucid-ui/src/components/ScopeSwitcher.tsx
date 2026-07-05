@@ -29,7 +29,7 @@ import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
   BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE,
   BUYER_SCOPE_SWITCHER_CONNECTED_INTRO,
-  BUYER_SCOPE_SWITCHER_GOT_IT,
+  BUYER_SCOPE_SWITCHER_CLOSE,
   BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
   BUYER_SCOPE_SWITCHER_LOAD_ERROR,
   BUYER_WORKSPACE_DISPLAY_NAME,
@@ -438,7 +438,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
               {BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT}
             </p>
             <Button type="button" size="sm" onClick={closePanel}>
-              {BUYER_SCOPE_SWITCHER_GOT_IT}
+              {BUYER_SCOPE_SWITCHER_CLOSE}
             </Button>
           </>
         ) : null}
@@ -465,7 +465,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <Button type="button" size="sm" onClick={closePanel}>
-                {BUYER_SCOPE_SWITCHER_GOT_IT}
+                {BUYER_SCOPE_SWITCHER_CLOSE}
               </Button>
               <Link
                 href={SCOPE_SWITCHER_HELP_HREF}
@@ -492,7 +492,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
               </p>
             </details>
             <Button type="button" size="sm" variant="secondary" onClick={closePanel}>
-              {BUYER_SCOPE_SWITCHER_GOT_IT}
+              {BUYER_SCOPE_SWITCHER_CLOSE}
             </Button>
           </>
         ) : null}
