@@ -121,8 +121,6 @@ export const REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS = [
   "src/lib/i18n.ts",
   "src/lib/first-pilot-operating-rail-copy.ts",
   "src/components/advisory/AdvisoryHubClient.tsx",
-  "src/components/OperatorFirstHourJourneyStrip.tsx",
-  "src/lib/operator-first-hour-journey-nav.ts",
   "src/lib/core-pilot-first-review-copy.ts",
   "src/lib/operator-co-architect-copy.ts",
 ] as const;

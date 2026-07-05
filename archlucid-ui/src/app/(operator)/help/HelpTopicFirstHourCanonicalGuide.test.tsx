@@ -11,8 +11,6 @@ import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presenta
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
-import { OperatorFirstHourJourneyStrip } from "@/components/OperatorFirstHourJourneyStrip";
-
 const GUIDE_SLUG = "first-hour-operator-path";
 const GUIDE_SOURCE = "docs/library/FIRST_HOUR_OPERATOR_PATH.md";
 
@@ -150,16 +148,5 @@ describe("First-review guide", () => {
 
     expect(table).toBeInTheDocument();
     expect(table.querySelector("thead th")?.className).toContain("font-semibold");
-  });
-});
-
-describe("OperatorFirstHourJourneyStrip first-review guide link", () => {
-  it("routes Read the first-review guide to the help topic", () => {
-    render(<OperatorFirstHourJourneyStrip />);
-
-    expect(screen.getByRole("link", { name: "Read the first-review guide" })).toHaveAttribute(
-      "href",
-      "/help/first-hour-operator-path",
-    );
   });
 });

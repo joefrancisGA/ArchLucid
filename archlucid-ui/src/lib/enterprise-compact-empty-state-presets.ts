@@ -1,5 +1,5 @@
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
-import { BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL, OPERATOR_HOME_WORKSPACE_EMPTY_TITLE } from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_WORKSPACE_EMPTY_BODY, OPERATOR_HOME_WORKSPACE_EMPTY_TITLE } from "@/lib/buyer-polish-copy";
 
 /** Reviews list when the project has zero review packages. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -17,8 +17,7 @@ export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
 export const OPERATOR_HOME_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "operator-home-workspace-empty-state",
   title: OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
-  description:
-    `Your workspace has no committed reviews yet. Run a one-click demo review to see policy-aware findings, load the ${BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL} workspace for portfolio ROI, or start a review from the actions above.`,
+  description: OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
 };
 
 /** Semantic search returned no hits. */

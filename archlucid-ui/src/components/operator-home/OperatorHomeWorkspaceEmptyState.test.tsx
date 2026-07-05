@@ -10,7 +10,7 @@ vi.mock("next/navigation", () => ({
 
 import { OperatorHomeWorkspaceEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceEmptyState";
 import {
-  BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
+  OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_REVIEWS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
@@ -23,7 +23,7 @@ describe("OperatorHomeWorkspaceEmptyState (TB-352)", () => {
     expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("seed-sample-review-button")).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_REVIEWS_EMPTY_COMPACT.description!)).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL, "i"))).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
     expect(screen.queryByText(/manifest/i)).toBeNull();
 
     const runDemoButton = screen.getByRole("button", { name: /run demo review/i });

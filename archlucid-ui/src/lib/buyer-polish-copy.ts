@@ -61,8 +61,7 @@ export const SAMPLE_REVIEW_PACKAGE_AHA_LEAD =
 
 export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No committed reviews yet";
 
-export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
-  "Start your first review or open the example review package.";
+export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY = "Your review packages will appear here.";
 
 export const PILOT_COMMAND_CENTER_HEADING = "Start your first review";
 

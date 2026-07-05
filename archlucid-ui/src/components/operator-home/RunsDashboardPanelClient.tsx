@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import { OPERATOR_HOME_RUNS_DASHBOARD_PAGE_SIZE } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
-import { OperatorFirstHourJourneyStrip } from "@/components/OperatorFirstHourJourneyStrip";
 import { RunsDashboardAttentionTab } from "@/components/operator-home/RunsDashboardAttentionTab";
 import { RunsDashboardFilters } from "@/components/operator-home/RunsDashboardFilters";
 import { RunsDashboardOutcomesTab } from "@/components/operator-home/RunsDashboardOutcomesTab";
@@ -234,11 +233,6 @@ export function RunsDashboardPanelClient({
         <h3 id="runs-dashboard-heading" className={cn(OPERATOR_LAYOUT.sectionHeadingMargin, OPERATOR_HOME_SECTION_HEADING)}>
           {buyerPolishedShell ? BUYER_RUNS_DASHBOARD_SECTION_HEADING : RUNS_DASHBOARD_LABELS.sectionHeading}
         </h3>
-      ) : null}
-      {!buyerPolishedShell ? (
-        <div className={OPERATOR_LAYOUT.sectionStack}>
-          <OperatorFirstHourJourneyStrip />
-        </div>
       ) : null}
       <Card
         className="border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"

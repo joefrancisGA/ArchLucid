@@ -32,6 +32,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { listRunsByProjectPaged } from "@/lib/api";
+import { OPERATOR_HOME_WORKSPACE_EMPTY_BODY } from "@/lib/buyer-polish-copy";
 import * as operatorStaticDemo from "@/lib/operator-static-demo";
 
 import { RunsDashboardPanel } from "./RunsDashboardPanel";
@@ -177,7 +178,7 @@ describe("RunsDashboardPanel", () => {
         expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
       expect(screen.getByText("No committed reviews yet")).toBeInTheDocument();
-      expect(screen.getByText(/Your workspace has no committed reviews yet/i)).toBeInTheDocument();
+      expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
     } finally {
       fallbackSpy.mockRestore();
     }
@@ -384,7 +385,7 @@ describe("RunsDashboardPanel", () => {
         expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
       expect(screen.getByText("No committed reviews yet")).toBeInTheDocument();
-      expect(screen.getByText(/Your workspace has no committed reviews yet/i)).toBeInTheDocument();
+      expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: "View review package" })).toBeNull();
       expect(screen.queryByTestId("example-request-panel")).toBeNull();
     } finally {
