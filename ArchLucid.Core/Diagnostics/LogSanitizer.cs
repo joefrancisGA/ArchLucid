@@ -36,4 +36,21 @@ public static class LogSanitizer
             }
         });
     }
+
+    /// <summary>
+    ///     Returns the email domain (never the mailbox local part) for structured application logs (TB-610).
+    /// </summary>
+    public static string EmailDomainForLogs(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return "(empty)";
+
+        string trimmed = Sanitize(email.Trim());
+        int at = trimmed.LastIndexOf('@');
+
+        if (at <= 0 || at >= trimmed.Length - 1)
+            return "(invalid-email)";
+
+        return trimmed[(at + 1)..];
+    }
 }

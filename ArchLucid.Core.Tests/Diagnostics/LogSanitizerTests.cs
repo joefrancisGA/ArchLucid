@@ -67,4 +67,27 @@ public sealed class LogSanitizerTests
         result.Should().Be(input);
         ReferenceEquals(result, input).Should().BeTrue();
     }
+
+    [Fact]
+    public void EmailDomainForLogs_returns_domain_without_local_part()
+    {
+        LogSanitizer.EmailDomainForLogs("blocked.user@example.com").Should().Be("example.com");
+    }
+
+    [Fact]
+    public void EmailDomainForLogs_strips_control_chars_from_domain()
+    {
+        LogSanitizer.EmailDomainForLogs("user@ex\nample.com").Should().Be("ex_ample.com");
+    }
+
+    [Theory]
+    [InlineData(null, "(empty)")]
+    [InlineData("", "(empty)")]
+    [InlineData("   ", "(empty)")]
+    [InlineData("not-an-email", "(invalid-email)")]
+    [InlineData("@nodomain.com", "(invalid-email)")]
+    public void EmailDomainForLogs_handles_edge_inputs(string? email, string expected)
+    {
+        LogSanitizer.EmailDomainForLogs(email).Should().Be(expected);
+    }
 }

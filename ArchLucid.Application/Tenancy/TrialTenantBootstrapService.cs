@@ -34,8 +34,10 @@ public sealed class TrialTenantBootstrapService(
     {
         ArgumentNullException.ThrowIfNull(auditActorEmail);
         ArgumentNullException.ThrowIfNull(result);
+
         if (string.IsNullOrWhiteSpace(auditActorEmail))
             throw new ArgumentException("Audit actor email is required.", nameof(auditActorEmail));
+
         if (result.WasAlreadyProvisioned)
             return;
 
@@ -60,9 +62,9 @@ public sealed class TrialTenantBootstrapService(
             {
                 if (_logger.IsEnabled(LogLevel.Information))
                     _logger.LogInformation(
-                        "Skipping trial bootstrap for tenant {TenantId}: email verification policy blocked provisioning for {Email}.",
+                        "Skipping trial bootstrap for tenant {TenantId}: email verification policy blocked provisioning for domain {EmailDomain}.",
                         result.TenantId,
-                        LogSanitizer.Sanitize(auditActorEmail)); // codeql[cs/exposure-of-sensitive-information] email sanitized for log sink; TenantId is Guid.
+                        LogSanitizer.EmailDomainForLogs(auditActorEmail));
                 ArchLucidInstrumentation.RecordTrialSignupFailure("email_verification", "policy_blocked");
                 await _auditService.LogAsync(
                     new AuditEvent
@@ -133,6 +135,11 @@ public sealed class TrialTenantBootstrapService(
                     companyProfile?.IndustryVertical,
                     companyProfile?.IndustryVerticalOther,
                     cancellationToken);
+
+                // The registering admin occupies the first trial seat immediately — otherwise TrialSeatsUsed
+                // stays 0 until their first authenticated request reaches TrialSeatReservationMiddleware.
+                await _tenantRepository.TryClaimTrialSeatAsync(result.TenantId, auditActorEmail.Trim(), cancellationToken);
+
                 string actor = auditActorEmail.Trim();
                 await _auditService.LogAsync(
                     new AuditEvent
