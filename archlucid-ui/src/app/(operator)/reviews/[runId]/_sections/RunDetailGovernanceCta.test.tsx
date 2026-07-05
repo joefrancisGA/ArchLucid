@@ -13,4 +13,10 @@ describe("RunDetailGovernanceCta", () => {
       "/governance?runId=run-123",
     );
   });
+
+  it("demotes the button to outline when the summary header owns the primary CTA", () => {
+    render(<RunDetailGovernanceCta runId="run-123" demoted />);
+
+    expect(screen.getByRole("link", { name: "Submit for governance approval →" })).toHaveClass("border");
+  });
 });

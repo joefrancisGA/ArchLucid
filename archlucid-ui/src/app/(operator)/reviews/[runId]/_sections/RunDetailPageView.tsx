@@ -40,6 +40,7 @@ import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndi
 import { RunDetailPackageSubnav } from "@/components/RunDetailPackageSubnav";
 import { ReviewPackageSummaryHeader } from "./ReviewPackageSummaryHeader";
 import { resolveReviewPackageSummaryMode } from "./resolve-review-package-summary-mode";
+import { resolveReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
 import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
@@ -172,8 +173,22 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
     operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
     manifestStatus: m.manifestSummary?.status ?? null,
   }) ? (
-    <RunDetailGovernanceCta runId={m.resolvedDetail.run.runId} />
+    <RunDetailGovernanceCta runId={m.resolvedDetail.run.runId} demoted />
   ) : null;
+
+  const reviewPackagePrimaryAction = resolveReviewPackagePrimaryAction({
+    runId: m.resolvedDetail.run.runId,
+    manifestId: m.manifestId,
+    hasCommitBlockingFailures: findingCoverageSummary?.hasCommitBlockingFailures === true,
+    blockingFindingCount,
+    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
+    operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
+    manifestStatus: m.manifestSummary?.status ?? null,
+    runCompleted: m.resolvedDetail.run.completedUtc != null,
+  });
+
+  const showGovernanceCtaCard =
+    governanceCtaEl !== null && reviewPackagePrimaryAction.kind !== "open-governance-decision";
 
   return (
     <div
@@ -247,6 +262,11 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           proofPacketExportReady: Boolean(m.manifestId) && !m.usedStaticDemoRun,
           hasGoldenManifest: Boolean(m.manifestId),
         }}
+        primaryAction={reviewPackagePrimaryAction}
+        primaryActionRunId={m.resolvedDetail.run.runId}
+        primaryActionHasGoldenManifest={Boolean(m.manifestId)}
+        primaryActionCommitBlockedReason={commitBlockedReason}
+        demoteHeaderFinalizeButton
       />
 
       {buyerFinalizedPackage ? sectionNavEl : null}
@@ -356,7 +376,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         runId={m.resolvedDetail.run.runId}
         hasGoldenManifest={Boolean(m.manifestId)}
       />
-      {buyerFinalizedPackage ? null : governanceCtaEl}
+      {buyerFinalizedPackage ? null : showGovernanceCtaCard ? governanceCtaEl : null}
 
       {!m.buyerPolishedArtifactTable ? (
         <RunDetailLastFailureCard
@@ -366,7 +386,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       ) : null}
 
       {buyerFinalizedPackage ? null : (
-        <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} />
+        <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} demoted />
       )}
 
       {!m.buyerPolishedArtifactTable ? (

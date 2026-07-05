@@ -129,6 +129,8 @@ export type RunDetailPageHeaderProps = {
   hasGovernanceWarnings?: boolean;
   /** True when this page rendered curated sample data instead of a backend-persisted review (no exportable run). */
   usedStaticDemoRun?: boolean;
+  /** Demote finalize to outline when the summary header owns the single primary CTA (TB-618). */
+  demoteFinalizeButton?: boolean;
 };
 
 /**
@@ -146,6 +148,7 @@ export function RunDetailPageHeader({
   commitBlockedReason,
   hasGovernanceWarnings,
   usedStaticDemoRun = false,
+  demoteFinalizeButton = false,
 }: RunDetailPageHeaderProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
@@ -299,7 +302,12 @@ export function RunDetailPageHeader({
                   {reviewWarningsLabel}
                 </Badge>
               ) : null}
-              <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
+              <CommitRunButton
+                runId={runId}
+                disabled={hasGoldenManifest}
+                commitBlockedReason={commitBlockedReason}
+                buttonVariant={demoteFinalizeButton ? "outline" : "primary"}
+              />
               {hasGoldenManifest ? (
                 <BuyerExecutiveBriefExports runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
               ) : null}
@@ -324,7 +332,12 @@ export function RunDetailPageHeader({
                 {reviewWarningsLabel}
               </Badge>
             ) : null}
-            <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
+            <CommitRunButton
+              runId={runId}
+              disabled={hasGoldenManifest}
+              commitBlockedReason={commitBlockedReason}
+              buttonVariant={demoteFinalizeButton ? "outline" : "primary"}
+            />
             {hasGoldenManifest ? (
               <RunPackageExportButtons runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
             ) : null}

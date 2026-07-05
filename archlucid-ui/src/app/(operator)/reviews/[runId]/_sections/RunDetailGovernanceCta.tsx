@@ -11,11 +11,13 @@ import { cn } from "@/lib/utils";
 
 type RunDetailGovernanceCtaProps = {
   readonly runId: string;
+  /** Secondary placement when the summary header owns the primary governance CTA (TB-618). */
+  readonly demoted?: boolean;
 };
 
 /** Forward-path CTA from review detail to governance workflow when approval is still pending (TB-521). */
 export function RunDetailGovernanceCta(props: RunDetailGovernanceCtaProps): React.JSX.Element {
-  const { runId } = props;
+  const { runId, demoted = false } = props;
 
   return (
     <Card
@@ -31,7 +33,7 @@ export function RunDetailGovernanceCta(props: RunDetailGovernanceCtaProps): Reac
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
-        <Button type="button" variant="primary" asChild>
+        <Button type="button" variant={demoted ? "outline" : "primary"} asChild>
           <Link href={runDetailGovernanceWorkflowHref(runId)}>{RUN_DETAIL_GOVERNANCE_CTA_LABEL}</Link>
         </Button>
       </CardContent>

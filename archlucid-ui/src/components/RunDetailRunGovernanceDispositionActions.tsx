@@ -76,7 +76,7 @@ export function RunDetailRunGovernanceDispositionActions(
         <Button
           type="button"
           size="sm"
-          variant="default"
+          variant="outline"
           disabled={hasCommitBlockingFailures || busy}
           title={
             hasCommitBlockingFailures

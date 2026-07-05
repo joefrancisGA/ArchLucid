@@ -11,6 +11,8 @@ import {
   type ResolveReviewPackageAttentionLineInput,
 } from "./resolve-review-package-attention-line";
 import type { ReviewPackageSummaryMode } from "./resolve-review-package-summary-mode";
+import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
+import type { ReviewPackagePrimaryAction as ReviewPackagePrimaryActionModel } from "./resolve-review-package-primary-action";
 
 export type ReviewPackagePlainSummarySlice = {
   readonly blockingFindingCount: number;
@@ -34,6 +36,11 @@ export type ReviewPackageSummaryHeaderProps = {
   readonly outcomeCards: React.ReactNode;
   readonly attentionLineInput: ResolveReviewPackageAttentionLineInput;
   readonly showCtoDemoAuditButton: boolean;
+  readonly primaryAction: ReviewPackagePrimaryActionModel;
+  readonly primaryActionRunId: string;
+  readonly primaryActionHasGoldenManifest: boolean;
+  readonly primaryActionCommitBlockedReason: string | null | undefined;
+  readonly demoteHeaderFinalizeButton: boolean;
 };
 
 /**
@@ -50,7 +57,17 @@ export function ReviewPackageSummaryHeader(props: ReviewPackageSummaryHeaderProp
       data-review-package-summary-mode={props.mode}
       aria-label={props.mode === "finalized" ? "Review package summary" : "Review in progress"}
     >
-      <RunDetailPageHeader {...props.pageHeader} />
+      <RunDetailPageHeader
+        {...props.pageHeader}
+        demoteFinalizeButton={props.demoteHeaderFinalizeButton}
+      />
+
+      <ReviewPackagePrimaryAction
+        action={props.primaryAction}
+        runId={props.primaryActionRunId}
+        hasGoldenManifest={props.primaryActionHasGoldenManifest}
+        commitBlockedReason={props.primaryActionCommitBlockedReason}
+      />
 
       {attentionLine !== null ? (
         <p

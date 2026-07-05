@@ -8,11 +8,13 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type RunDetailExecutiveSummaryCtaCardProps = {
   readonly runId: string;
+  /** Secondary placement when the summary header owns the page primary CTA (TB-618). */
+  readonly demoted?: boolean;
 };
 
 /** Buyer-polished CTA that jumps to the executive summary route before manifest drill-down. */
 export function RunDetailExecutiveSummaryCtaCard(props: RunDetailExecutiveSummaryCtaCardProps) {
-  const { runId } = props;
+  const { runId, demoted = false } = props;
 
   return (
     <Card className="rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950/30">
@@ -26,7 +28,7 @@ export function RunDetailExecutiveSummaryCtaCard(props: RunDetailExecutiveSummar
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3 pt-0">
-        <Button type="button" variant="primary" asChild>
+        <Button type="button" variant={demoted ? "outline" : "primary"} asChild>
           <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>Open executive summary</Link>
         </Button>
         <p className="m-0">

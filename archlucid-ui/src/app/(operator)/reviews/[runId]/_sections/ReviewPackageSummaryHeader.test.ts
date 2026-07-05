@@ -28,5 +28,7 @@ describe("ReviewPackageSummaryHeader integration", () => {
     expect(summaryHeaderSource).toContain("<ReviewPackagePlainSummary");
     expect(summaryHeaderSource).toContain("<ReviewPackageEvidenceDensityStrip");
     expect(summaryHeaderSource).toContain("review-package-attention-line");
+    expect(summaryHeaderSource).toContain("<ReviewPackagePrimaryAction");
+    expect(summaryHeaderSource).toContain("demoteHeaderFinalizeButton");
   });
 });

@@ -37,12 +37,19 @@ export type CommitRunButtonProps = {
   disabled: boolean;
   /** Existing server-side finding coverage says finalize will be blocked. */
   commitBlockedReason?: string | null;
+  /** Demote to outline when another surface owns the page's single primary CTA (TB-618). */
+  buttonVariant?: "primary" | "outline";
 };
 
 /**
  * Finalizes the architecture review via POST /v1/architecture/run/{runId}/commit (ExecuteAuthority).
  */
-export function CommitRunButton({ runId, disabled, commitBlockedReason = null }: CommitRunButtonProps) {
+export function CommitRunButton({
+  runId,
+  disabled,
+  commitBlockedReason = null,
+  buttonVariant = "primary",
+}: CommitRunButtonProps) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
@@ -128,7 +135,7 @@ export function CommitRunButton({ runId, disabled, commitBlockedReason = null }:
       <div>
         <Button
           type="button"
-          variant="primary"
+          variant={buttonVariant}
           title={FINALIZE_REPLAY_COMPARE_TOOLTIP}
           onClick={() => {
             setError(null);
