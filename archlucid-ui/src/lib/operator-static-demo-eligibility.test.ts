@@ -77,12 +77,43 @@ describe("operator-static-demo — showcase eligibility without demo env vars", 
     }
   });
 
-  it("tryStaticDemoRunDetail returns null for showcase run id without demo env", () => {
+  it("tryStaticDemoRunDetail returns payload for showcase run id in buyer-polished shell without demo env", () => {
     const originalDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
     const originalStatic = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+    const originalOperatorExperience = process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
 
     delete process.env.NEXT_PUBLIC_DEMO_MODE;
     delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+    delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
+
+    const detail = tryStaticDemoRunDetail(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+    expect(detail).not.toBeNull();
+    expect(detail?.run.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+    if (originalDemo !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_MODE = originalDemo;
+    }
+
+    if (originalStatic !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = originalStatic;
+    }
+
+    if (originalOperatorExperience !== undefined) {
+      process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = originalOperatorExperience;
+    }
+  });
+
+  it("tryStaticDemoRunDetail returns null for showcase run id in full operator shell outside development", () => {
+    const originalDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
+    const originalStatic = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+    const originalOperatorExperience = process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
+    const originalNodeEnv = process.env.NODE_ENV;
+
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+    process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
+    process.env.NODE_ENV = "test";
 
     expect(tryStaticDemoRunDetail(SHOWCASE_STATIC_DEMO_RUN_ID)).toBeNull();
 
@@ -92,6 +123,51 @@ describe("operator-static-demo — showcase eligibility without demo env vars", 
 
     if (originalStatic !== undefined) {
       process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = originalStatic;
+    }
+
+    if (originalOperatorExperience !== undefined) {
+      process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = originalOperatorExperience;
+    } else {
+      delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
+    }
+
+    if (originalNodeEnv !== undefined) {
+      process.env.NODE_ENV = originalNodeEnv;
+    }
+  });
+
+  it("tryStaticDemoRunDetail returns payload for showcase run id in full operator shell during local development", () => {
+    const originalDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
+    const originalStatic = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+    const originalOperatorExperience = process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
+    const originalNodeEnv = process.env.NODE_ENV;
+
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+    process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
+    process.env.NODE_ENV = "development";
+
+    const detail = tryStaticDemoRunDetail(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+    expect(detail).not.toBeNull();
+    expect(detail?.run.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+    if (originalDemo !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_MODE = originalDemo;
+    }
+
+    if (originalStatic !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = originalStatic;
+    }
+
+    if (originalOperatorExperience !== undefined) {
+      process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = originalOperatorExperience;
+    } else {
+      delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
+    }
+
+    if (originalNodeEnv !== undefined) {
+      process.env.NODE_ENV = originalNodeEnv;
     }
   });
 

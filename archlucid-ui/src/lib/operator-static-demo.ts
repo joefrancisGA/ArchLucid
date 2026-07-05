@@ -148,6 +148,22 @@ export function isDemoRunIdEligibleForStaticFallback(runId: string): boolean {
   return DEMO_RUN_IDS_FOR_STATIC_FALLBACK.has(runId.trim());
 }
 
+function isShowcaseSpineStaticPayloadHostEligible(): boolean {
+  if (isStaticDemoPayloadFallbackEnabled()) {
+    return true;
+  }
+
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return true;
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    return true;
+  }
+
+  return false;
+}
+
 /**
  * Showcase spine static payloads (Claims Intake demo) — active in packaged demo builds and buyer-polished first-run shell.
  */
@@ -158,7 +174,16 @@ export function isShowcaseSpineStaticPayloadActiveForRun(runId: string): boolean
     return false;
   }
 
-  return isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv();
+  return isShowcaseSpineStaticPayloadHostEligible();
+}
+
+/** Same trust model as {@link isShowcaseSpineStaticPayloadActiveForRun} for the known showcase manifest UUID. */
+export function isShowcaseSpineStaticPayloadActiveForManifest(manifestId: string): boolean {
+  if (manifestId.trim() !== SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
+    return false;
+  }
+
+  return isShowcaseSpineStaticPayloadActiveForRun(SHOWCASE_STATIC_DEMO_RUN_ID);
 }
 
 /** True when demo env is on and the run id is a known showcase token (TB-274 / BE-059). */
@@ -462,7 +487,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
  * Manifest-shaped JSON for client-side Markdown export when static demo run detail uses a `goldenManifest` placeholder.
  */
 export function tryStaticDemoGoldenManifestJsonForExport(runId: string): Record<string, unknown> | null {
-  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
+  if (!isShowcaseSpineStaticPayloadActiveForRun(runId)) {
     return null;
   }
 
@@ -573,7 +598,7 @@ export function buildStaticDemoArtifactsFromShowcase(urlRunId: string): Artifact
 }
 
 export function tryStaticDemoRunDetail(runId: string): RunDetail | null {
-  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
+  if (!isShowcaseSpineStaticPayloadActiveForRun(runId)) {
     return null;
   }
 
@@ -667,7 +692,7 @@ export function tryStaticDemoFindingInspect(runId: string, findingId: string): F
 }
 
 export function tryStaticDemoManifestSummary(manifestId: string): ManifestSummary | null {
-  if (!isStaticDemoPayloadFallbackActiveForManifest(manifestId)) {
+  if (!isShowcaseSpineStaticPayloadActiveForManifest(manifestId)) {
     return null;
   }
 
@@ -679,7 +704,7 @@ export function tryStaticDemoManifestSummary(manifestId: string): ManifestSummar
 }
 
 export function tryStaticDemoPipelineTimeline(runId: string): PipelineTimelineItem[] | null {
-  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
+  if (!isShowcaseSpineStaticPayloadActiveForRun(runId)) {
     return null;
   }
 
@@ -693,7 +718,7 @@ export function tryStaticDemoPipelineTimeline(runId: string): PipelineTimelineIt
 }
 
 export function tryStaticDemoArtifacts(runIdForPayload: string, manifestId: string): ArtifactDescriptor[] | null {
-  if (!isStaticDemoPayloadFallbackActiveForRun(runIdForPayload)) {
+  if (!isShowcaseSpineStaticPayloadActiveForRun(runIdForPayload)) {
     return null;
   }
 
@@ -708,7 +733,7 @@ export function tryStaticDemoArtifacts(runIdForPayload: string, manifestId: stri
 
 /** Static fallback for aggregate explanation when the explain API is unavailable (demo static operator mode). */
 export function tryStaticDemoExplanationSummary(runId: string): RunExplanationSummary | null {
-  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
+  if (!isShowcaseSpineStaticPayloadActiveForRun(runId)) {
     return null;
   }
 
@@ -955,7 +980,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 }
 
 export function tryStaticDemoProvenanceGraph(runId: string): ArchitectureRunProvenanceGraph | null {
-  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
+  if (!isShowcaseSpineStaticPayloadActiveForRun(runId)) {
     return null;
   }
 
