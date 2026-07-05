@@ -24,7 +24,7 @@ import {
   postGovernanceApproveRaw,
   searchAudit,
 } from "./helpers/live-api-client";
-import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import { auditPageMainHeading, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
 const liveE2eForensics: { runId?: string; approvalRequestId?: string; auditCorrelationId?: string } = {};
 
@@ -267,7 +267,7 @@ test.describe("live-api-journey", () => {
 
     await page.goto("/governance/audit");
 
-    await expect(page.getByRole("heading", { name: /audit trail/i })).toBeVisible({ timeout: 30_000 });
+    await expect(auditPageMainHeading(page)).toBeVisible({ timeout: 30_000 });
 
     await page.getByLabel(/run id/i).fill(runId);
     await page.getByRole("button", { name: /^Search$/i }).click();
