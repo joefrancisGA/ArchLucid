@@ -83,4 +83,14 @@ describe("FirstWeekRouteGuidance", () => {
     expect(screen.getByText(/evidence-only/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start new review" })).toHaveAttribute("href", "/reviews/new");
   });
+
+  it("renders home guidance at full section width like peer setup cards", () => {
+    render(<FirstWeekRouteGuidance variant="home" />);
+
+    const section = screen.getByTestId("first-week-route-guidance-home");
+
+    expect(section.className).not.toContain("max-w-prose");
+    expect(section.className).toContain("rounded-lg");
+    expect(section.className).toContain("border");
+  });
 });

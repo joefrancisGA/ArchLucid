@@ -85,7 +85,6 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
         sectionTestId="first-week-route-guidance-home"
         storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.firstWeekGuidance}
         defaultExpanded={false}
-        sectionClassName="max-w-prose"
       >
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{config.useWhen}</p>
         <GuidanceBody
