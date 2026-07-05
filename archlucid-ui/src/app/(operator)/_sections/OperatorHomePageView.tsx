@@ -10,7 +10,7 @@ import {
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
 import { OperatorHomeExecutiveRoiStrip } from "@/components/operator-home/OperatorHomeExecutiveRoiStrip";
 import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
-import { OperatorHomeContinueSetupCard } from "@/components/operator-home/OperatorHomeContinueSetupCard";
+import { OperatorHomeContinueSetupSlot } from "@/components/operator-home/OperatorHomeContinueSetupSlot";
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
@@ -41,6 +41,8 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 
       <OperatorHomeSampleReviewPreview />
 
+      <OperatorHomeContinueSetupSlot placement="prominent" />
+
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
         <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
@@ -49,8 +51,6 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
       <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={props.model.runsDashboard} />
 
       <OperatorHomeAdvancedGuidancePanel buyerPolishedShell checklistVariant="compact" />
-
-      <OperatorHomeContinueSetupCard />
     </>
   );
 }
@@ -65,6 +65,8 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
       <OperatorHomeFirstValueCallout />
 
       <OperatorHomeSampleReviewPreview />
+
+      <OperatorHomeContinueSetupSlot placement="prominent" />
 
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
@@ -81,8 +83,6 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
         fullOperatorShell={fullOperatorShell}
         checklistVariant={fullOperatorShell ? "full" : "compact"}
       />
-
-      <OperatorHomeContinueSetupCard />
     </>
   );
 }

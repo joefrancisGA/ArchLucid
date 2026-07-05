@@ -10,6 +10,17 @@ const source = readFileSync(
 );
 
 describe("OperatorHomePageView progressive disclosure", () => {
+  it("places Continue setup after sample review and before workspace activity", () => {
+    const sampleIndex = source.indexOf("<OperatorHomeSampleReviewPreview />");
+    const continueSetupIndex = source.indexOf('<OperatorHomeContinueSetupSlot placement="prominent" />');
+    const reviewsIndex = source.indexOf('aria-labelledby="operator-home-reviews-heading"');
+
+    expect(sampleIndex).toBeGreaterThan(-1);
+    expect(continueSetupIndex).toBeGreaterThan(sampleIndex);
+    expect(reviewsIndex).toBeGreaterThan(continueSetupIndex);
+    expect(source).not.toContain("<OperatorHomeContinueSetupCard");
+  });
+
   it("keeps workspace metrics behind default-closed disclosure below recent reviews", () => {
     expect(source).toContain("OperatorHomeWorkspaceContextDisclosure");
     expect(source).not.toContain("<OperatorHomeDeltaPanel />");
@@ -21,6 +32,7 @@ describe("OperatorHomePageView progressive disclosure", () => {
     );
 
     expect(disclosureSource).toContain('data-testid="operator-home-workspace-context"');
-    expect(disclosureSource).toContain('defaultOpen={false}');
+    expect(disclosureSource).toContain("readOperatorHomeDisclosureExpanded");
+    expect(disclosureSource).toContain("false");
   });
 });

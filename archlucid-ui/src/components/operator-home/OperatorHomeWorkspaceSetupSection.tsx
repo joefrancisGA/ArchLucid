@@ -1,6 +1,6 @@
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import { OperatorHomeAdvancedGuidancePanel } from "@/components/operator-home/OperatorHomeAdvancedGuidancePanel";
-import { OperatorHomeContinueSetupCard } from "@/components/operator-home/OperatorHomeContinueSetupCard";
+import { OperatorHomeContinueSetupSlot } from "@/components/operator-home/OperatorHomeContinueSetupSlot";
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
 import { OPERATOR_HOME_WORKSPACE_SETUP_SECTION_TITLE } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_PRIMARY_SECTION_HEADING, OPERATOR_LAYOUT } from "@/lib/design-tokens";
@@ -33,7 +33,7 @@ export function OperatorHomeWorkspaceSetupSection(
           fullOperatorShell={props.fullOperatorShell}
           checklistVariant={props.checklistVariant}
         />
-        <OperatorHomeContinueSetupCard />
+        <OperatorHomeContinueSetupSlot placement="prominent" />
       </div>
     </section>
   );

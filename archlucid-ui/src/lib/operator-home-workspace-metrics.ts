@@ -71,3 +71,7 @@ export function deriveOperatorHomeWorkspaceMetrics(
 export function formatSetupReadinessLabel(readyCount: number, totalCount: number): string {
   return `${readyCount} of ${totalCount} ready`;
 }
+
+export function formatSetupReadinessCompleteLabel(readyCount: number, totalCount: number): string {
+  return `${readyCount} of ${totalCount} complete`;
+}

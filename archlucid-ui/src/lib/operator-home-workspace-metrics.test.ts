@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   deriveOperatorHomeWorkspaceMetrics,
+  formatSetupReadinessCompleteLabel,
   formatSetupReadinessLabel,
 } from "@/lib/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
@@ -62,5 +63,11 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
 describe("formatSetupReadinessLabel", () => {
   it("formats ready counts", () => {
     expect(formatSetupReadinessLabel(2, 4)).toBe("2 of 4 ready");
+  });
+});
+
+describe("formatSetupReadinessCompleteLabel", () => {
+  it("formats complete counts for Continue setup status copy", () => {
+    expect(formatSetupReadinessCompleteLabel(2, 4)).toBe("2 of 4 complete");
   });
 });
