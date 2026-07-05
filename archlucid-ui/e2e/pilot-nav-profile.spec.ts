@@ -79,6 +79,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await dismissBlockingHomeModals(page);
     await expect(page).toHaveURL((url) => new URL(url).pathname === "/reviews");
     await expect(page.getByTestId("sidebar-nav")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("llm-budget-status-pill")).toHaveCount(0);
 
     const reviewNav = page.getByRole("navigation", { name: "Architecture" });
 

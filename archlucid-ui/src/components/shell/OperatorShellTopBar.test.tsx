@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
@@ -11,6 +11,11 @@ import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabular
 
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
 const fetchBudgetCached = vi.hoisted(() => vi.fn());
+
+const navAuthMock = vi.hoisted(() => ({
+  callerAuthorityRank: 3,
+  isAuthorityLoading: false,
+}));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -37,10 +42,11 @@ vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
   return {
     ...actual,
     useOperatorNavAuthority: () => ({
-      callerAuthorityRank: AUTHORITY_RANK.AdminAuthority,
-      isAuthorityLoading: false,
+      callerAuthorityRank: navAuthMock.callerAuthorityRank,
+      isAuthorityLoading: navAuthMock.isAuthorityLoading,
       currentPrincipal: operatorNavOutsideProviderPrincipal,
     }),
+    useNavCallerAuthorityRank: () => navAuthMock.callerAuthorityRank,
   };
 });
 
@@ -62,6 +68,8 @@ vi.mock("@/components/CommandPaletteLazy", () => ({
 describe("OperatorShellTopBar", () => {
   beforeEach(() => {
     buyerPolishedMock.value = false;
+    navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+    navAuthMock.isAuthorityLoading = false;
     fetchBudgetCached.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: false,
@@ -164,5 +172,21 @@ describe("OperatorShellTopBar", () => {
     expect(screen.queryByTestId("operator-shell-resources-trigger")).not.toBeInTheDocument();
     expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
     expect(screen.queryByTestId("shell-setup-health-chip")).not.toBeInTheDocument();
+  });
+
+  it("omits the AI budget pill for callers below AdminAuthority", async () => {
+    navAuthMock.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
+
+    render(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
+    });
+
+    expect(fetchBudgetCached).not.toHaveBeenCalled();
   });
 });

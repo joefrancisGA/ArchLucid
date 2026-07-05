@@ -8,6 +8,7 @@ import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { CommandPalette } from "@/components/CommandPaletteLazy";
 import { GlobalSearchBar } from "@/components/GlobalSearchBar";
 import { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useCommandPaletteChunkPreload } from "@/hooks/use-command-palette-chunk-preload";
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
@@ -21,6 +22,7 @@ import {
   OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
 } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +36,9 @@ type OperatorShellTopBarProps = {
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const showDevOperatorChrome = !buyerPolished;
+  const callerAuthorityRank = useNavCallerAuthorityRank();
+  const showLlmBudgetPill =
+    showDevOperatorChrome && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const showAuthorityThemeToggle = isUiAuthorityThemeEvalEnabledEnv();
 
   useSearchShortcut();
@@ -100,7 +105,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                 </Button>
               </ToolbarHelpTooltip>
               {showAuthorityThemeToggle ? <AuthorityThemeToggle /> : null}
-              {showDevOperatorChrome ? <LlmBudgetStatusPill /> : null}
+              {showLlmBudgetPill ? <LlmBudgetStatusPill /> : null}
             </div>
           </div>
         </div>

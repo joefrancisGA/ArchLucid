@@ -32,7 +32,7 @@ export default defineConfig({
     {
       name: "chromium-operator-shell",
       testDir: "e2e",
-      testMatch: ["pilot-nav-profile.spec.ts"],
+      testMatch: ["pilot-nav-profile.spec.ts", "ux-audit-screenshots.spec.ts"],
       timeout: 120_000,
       use: { ...devices["Desktop Chrome"] },
     },
@@ -50,6 +50,7 @@ export default defineConfig({
       NEXT_PUBLIC_DEMO_MODE: "false",
       NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false",
       NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1",
+      MOCK_AUTH_ME_ROLE: "Operator",
     },
   },
 });

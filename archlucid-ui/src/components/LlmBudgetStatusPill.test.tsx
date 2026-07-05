@@ -7,11 +7,9 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 const fetchCached = vi.hoisted(() => vi.fn());
 
 const navAuthMock = vi.hoisted(() => ({
-  callerAuthorityRank: 2,
+  callerAuthorityRank: 3,
   isAuthorityLoading: false,
 }));
-
-const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
 
 vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/llm-monthly-budget-status")>();
@@ -24,16 +22,8 @@ vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => navAuthMock,
+  useNavCallerAuthorityRank: () => navAuthMock.callerAuthorityRank,
 }));
-
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
-
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () => buyerPolishedMock.value,
-  };
-});
 
 vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
@@ -41,7 +31,6 @@ vi.mock("@/lib/auth-config", () => ({
 
 describe("LlmBudgetStatusPill", () => {
   beforeEach(() => {
-    buyerPolishedMock.value = false;
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
     fetchCached.mockResolvedValue({
@@ -64,7 +53,7 @@ describe("LlmBudgetStatusPill", () => {
     const pill = await screen.findByTestId("llm-budget-status-pill");
 
     expect(pill).toHaveTextContent("AI budget: 24%");
-    expect(pill.className).toMatch(/amber/);
+    expect(pill.className).toMatch(/al-status-warn/);
     expect(pill.className).toMatch(/text-\[11px\]/);
   });
 
@@ -104,18 +93,6 @@ describe("LlmBudgetStatusPill", () => {
     });
 
     expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
-  });
-
-  it("renders nothing in buyer-polished shell mode", async () => {
-    buyerPolishedMock.value = true;
-
-    render(<LlmBudgetStatusPill />);
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
-    });
-
-    expect(fetchCached).not.toHaveBeenCalled();
   });
 
   it("renders nothing below AdminAuthority", async () => {

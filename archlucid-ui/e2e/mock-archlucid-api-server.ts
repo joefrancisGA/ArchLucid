@@ -227,9 +227,10 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       }
 
       if (req.method === "GET" && u.pathname === "/api/auth/me") {
+        const mockMeRole = process.env.MOCK_AUTH_ME_ROLE?.trim() || "Admin";
         sendJson(res, 200, {
           name: "E2E mock operator",
-          claims: [{ type: "roles", value: "Admin" }],
+          claims: [{ type: "roles", value: mockMeRole }],
           /** Unlocks operate-analysis / operate-governance nav after collapsed-pilot expand in mock E2E. */
           hasCommittedArchitectureReview: true,
         });

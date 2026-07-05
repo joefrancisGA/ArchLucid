@@ -12,6 +12,11 @@ const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
 const fetchBudgetStatus = vi.hoisted(() => vi.fn());
 const fetchBudgetStatusCached = vi.hoisted(() => vi.fn());
 
+const navAuthMock = vi.hoisted(() => ({
+  callerAuthorityRank: 3,
+  isAuthorityLoading: false,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -47,10 +52,11 @@ vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
   return {
     ...actual,
     useOperatorNavAuthority: () => ({
-      callerAuthorityRank: AUTHORITY_RANK.AdminAuthority,
-      isAuthorityLoading: false,
+      callerAuthorityRank: navAuthMock.callerAuthorityRank,
+      isAuthorityLoading: navAuthMock.isAuthorityLoading,
       currentPrincipal: operatorNavOutsideProviderPrincipal,
     }),
+    useNavCallerAuthorityRank: () => navAuthMock.callerAuthorityRank,
   };
 });
 
@@ -81,6 +87,8 @@ describe("AppShellClient — LLM budget chrome", () => {
 
   beforeEach(() => {
     buyerPolishedMock.value = false;
+    navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+    navAuthMock.isAuthorityLoading = false;
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo | URL) => {
@@ -110,7 +118,7 @@ describe("AppShellClient — LLM budget chrome", () => {
     fetchBudgetStatusCached.mockResolvedValue(budgetStatus);
   });
 
-  it("shows budget pill and approaching banner in operator shell mode", async () => {
+  it("shows budget pill and approaching banner for AdminAuthority in operator shell mode", async () => {
     renderWithOperatorQuery(
       <AppShellClient>
         <div>child</div>
@@ -124,6 +132,22 @@ describe("AppShellClient — LLM budget chrome", () => {
       },
       { timeout: 5000 },
     );
+  });
+
+  it("hides budget pill for callers below AdminAuthority", async () => {
+    navAuthMock.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
+
+    renderWithOperatorQuery(
+      <AppShellClient>
+        <div>child</div>
+      </AppShellClient>,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
+    });
+
+    expect(fetchBudgetStatusCached).not.toHaveBeenCalled();
   });
 
   it("hides budget pill in buyer-polished shell mode", async () => {

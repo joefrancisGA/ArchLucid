@@ -5,11 +5,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { LlmBudgetUtilizationMeter } from "@/components/LlmBudgetUtilizationMeter";
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { AUTH_MODE } from "@/lib/auth-config";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   fetchLlmMonthlyDollarBudgetStatusCached,
   llmBudgetRemainingPercent,
@@ -72,17 +71,12 @@ function isOperatorShellAuthenticated(): boolean {
 
 /** Compact UTC-month LLM budget indicator for the operator shell top bar. */
 export function LlmBudgetStatusPill() {
-  const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
+  const callerAuthorityRank = useNavCallerAuthorityRank();
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<LlmMonthlyDollarBudgetStatus | null>(null);
 
   useEffect(() => {
-    if (
-      isBuyerPolishedOperatorShellEnv() ||
-      isAuthorityLoading ||
-      !isOperatorShellAuthenticated() ||
-      callerAuthorityRank < AUTHORITY_RANK.AdminAuthority
-    ) {
+    if (!isOperatorShellAuthenticated() || callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
       return;
     }
 
@@ -105,14 +99,9 @@ export function LlmBudgetStatusPill() {
     return () => {
       cancelled = true;
     };
-  }, [callerAuthorityRank, isAuthorityLoading]);
+  }, [callerAuthorityRank]);
 
-  if (
-    isBuyerPolishedOperatorShellEnv() ||
-    isAuthorityLoading ||
-    !isOperatorShellAuthenticated() ||
-    callerAuthorityRank < AUTHORITY_RANK.AdminAuthority
-  ) {
+  if (!isOperatorShellAuthenticated() || callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
     return null;
   }
 
