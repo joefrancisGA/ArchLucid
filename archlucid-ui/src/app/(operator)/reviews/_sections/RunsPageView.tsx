@@ -17,7 +17,7 @@ import { RunsListProofHeadline } from "@/components/RunsListProofHeadline";
 import { RunsPageBuyerHelpTip } from "@/components/RunsPageBuyerHelpTip";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { Button } from "@/components/ui/button";
-import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
+import { isBuyerSafeDemoMarketingChromeEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_LIST_GLOSSARY_LEAD,
@@ -45,9 +45,9 @@ export function RunsPageView(props: Props) {
       <OperatorWelcomeOnboarding serverEligible={m.welcomeOnboardingEligible} />
       <OperatorPageHeader
         title={
-          isBuyerPolishedOperatorShellEnv()
-            ? RUNS_LIST_PAGE_TITLES.buyerPolished
-            : RUNS_LIST_PAGE_TITLES.fullOperator
+          isOperatorExperienceFullShellEnv()
+            ? RUNS_LIST_PAGE_TITLES.fullOperator
+            : RUNS_LIST_PAGE_TITLES.buyerPolished
         }
         subtitle={RUNS_LIST_PAGE_SUBTITLE}
         metadata={
@@ -58,18 +58,18 @@ export function RunsPageView(props: Props) {
             >
               {m.projectTitle}
             </span>
-            {isBuyerPolishedOperatorShellEnv() ? null : <RunsListProofHeadline />}
+            {isOperatorExperienceFullShellEnv() ? <RunsListProofHeadline /> : null}
           </>
         }
         helpKey="runs-list-overview"
         docsPageKey="/runs"
       />
-      {!isBuyerPolishedOperatorShellEnv() ? (
+      {isOperatorExperienceFullShellEnv() ? (
         <div className="mt-3 max-w-3xl">
           <FirstWeekRouteGuidance variant="reviews-list" />
         </div>
       ) : null}
-      {isBuyerPolishedOperatorShellEnv() && m.totalCount > 0 ? (
+      {!isOperatorExperienceFullShellEnv() && m.totalCount > 0 ? (
         <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
           {m.totalCount === 1 && m.runs[0]?.hasGoldenManifest === true ? (
             <span className="inline-flex flex-wrap items-center gap-x-1">
@@ -92,11 +92,11 @@ export function RunsPageView(props: Props) {
                 Start architecture review
               </Link>
             </Button>
-            {isBuyerPolishedOperatorShellEnv() ? null : (
+            {isOperatorExperienceFullShellEnv() ? (
               <ShortcutHint shortcut="Alt+N" className={OPERATOR_TYPOGRAPHY.helper} />
-            )}
+            ) : null}
           </div>
-          {!isBuyerPolishedOperatorShellEnv() ? (
+          {isOperatorExperienceFullShellEnv() ? (
             <Button variant="outline" size="sm" asChild>
               <Link href="/compare" className="no-underline">
                 Compare two reviews
@@ -106,7 +106,7 @@ export function RunsPageView(props: Props) {
         </div>
       ) : null}
 
-      {m.usedStaticRunsFallback && !isBuyerPolishedOperatorShellEnv() ? (
+      {m.usedStaticRunsFallback && isOperatorExperienceFullShellEnv() ? (
         <div className="mt-4 max-w-3xl">
           <OperatorDemoStaticBanner />
         </div>

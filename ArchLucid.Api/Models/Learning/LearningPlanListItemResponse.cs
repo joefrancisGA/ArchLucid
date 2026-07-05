@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Api.Models.Learning;
 
 /// <summary>Improvement plan summary for list views; includes theme-level evidence volume when the theme is resolved.</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class LearningPlanListItemResponse
 {
     public Guid PlanId

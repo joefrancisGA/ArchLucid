@@ -302,6 +302,6 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
       expect(screen.getByTestId("wizard-evidence-upload-failure")).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("heading", { name: "Track pipeline" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Track review progress" })).toBeInTheDocument();
   });
 });

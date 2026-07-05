@@ -1,5 +1,6 @@
 /*
-  RC2 hotfix — Governance workflow tables (production patch)
+  -- Historical RC2 hotfix — Governance workflow tables (production patch)
+  -- Superseded by main-line DbUp migrations; retained for audit trail only.
 
   PURPOSE
     Repairs the failure observed on the RC2 deploy:

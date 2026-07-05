@@ -67,9 +67,9 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
                 asChild
                 variant="ghost"
                 size="sm"
-                className={executiveNavLinkClassName(pathname === "/dashboard")}
+                className={executiveNavLinkClassName(pathname === "/executive/dashboard")}
               >
-                <Link href="/dashboard" data-testid="executive-shell-nav-dashboard">
+                <Link href="/executive/dashboard" data-testid="executive-shell-nav-dashboard">
                   Dashboard
                 </Link>
               </Button>

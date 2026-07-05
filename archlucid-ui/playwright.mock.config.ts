@@ -1,4 +1,4 @@
-import { defineConfig, devices } from "@playwright/test";
+﻿import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Mock-backed operator UI Playwright suite (loopback mock API on 18765).
@@ -50,11 +50,12 @@ export default defineConfig({
         "**/live-api-*.spec.ts",
         "**/demo-workspace-*.smoke.spec.ts",
         "**/pilot-nav-profile.spec.ts",
+        "**/.next/**",
         "tests/e2e/**",
       ],
       use: { ...devices["Desktop Chrome"] },
     },
-    /** axe-core + WCAG 2.1 A/AA tagging — `npm run test:e2e:accessibility` (CI job `ui-playwright-accessibility`). */
+    /** axe-core + WCAG 2.1 A/AA tagging â€” `npm run test:e2e:accessibility` (CI job `ui-playwright-accessibility`). */
     {
       name: "chromium-accessibility",
       testDir: "tests",
@@ -64,7 +65,7 @@ export default defineConfig({
     },
     /**
      * Full-page screenshot goldens (`tests/e2e/visual-regression.spec.ts`). Snapshots are OS-specific
-     * (`*-chromium-visual-win32.png` vs `*-linux.png`). Not run in merge-blocking CI — run locally or in Docker
+     * (`*-chromium-visual-win32.png` vs `*-linux.png`). Not run in merge-blocking CI â€” run locally or in Docker
      * (`scripts/update-visual-snapshots-docker.ps1`) when updating baselines.
      */
     {
@@ -93,7 +94,7 @@ export default defineConfig({
       NEXT_PUBLIC_DEMO_STATIC_OPERATOR: process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR ?? "true",
       /** CTO demo nav spine (#8): expand Graph / Governance / Audit without progressive disclosure. */
       NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED: process.env.NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED ?? "true",
-      /** Let `capture-all-screenshots` deep-link `/product-learning`, `/recommendation-learning`, … without DemoStrictNavigationGate home redirects. */
+      /** Let `capture-all-screenshots` deep-link `/product-learning`, `/recommendation-learning`, â€¦ without DemoStrictNavigationGate home redirects. */
       NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: process.env.NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES ?? "1",
     },
   },

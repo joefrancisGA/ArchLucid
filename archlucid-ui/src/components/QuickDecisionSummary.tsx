@@ -195,6 +195,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         ) : null}
         <div className="flex flex-wrap items-start gap-2">
           <SeverityTag
+            severity={badgeLabel}
             kind={severityKindFromNumericValue(f.severityValue)}
             label={badgeLabel}
             className="shrink-0 tabular-nums"

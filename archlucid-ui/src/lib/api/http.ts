@@ -7,7 +7,6 @@ import { getServerApiBaseUrl } from "@/lib/config";
 import { getServerUpstreamAuthHeaders } from "@/lib/legacy-arch-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { getScopeHeaders } from "@/lib/scope";
 import { SERVER_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
@@ -19,10 +18,6 @@ import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
 export const PROBLEM_DETAILS_AUDIENCE_HEADER = "x-archlucid-audience";
 
 function audienceHeadersForCurrentShell(): Record<string, string> {
-  if (!isBuyerPolishedOperatorShellEnv()) {
-    return {};
-  }
-
   return { [PROBLEM_DETAILS_AUDIENCE_HEADER]: "buyer" };
 }
 

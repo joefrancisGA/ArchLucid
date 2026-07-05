@@ -31,7 +31,13 @@ test.describe("live-api-whitelabel-export", () => {
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 60_000 });
     await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
 
-    await page.locator("#artifacts-exports").scrollIntoViewIfNeeded();
+    const artifactsExports = page.locator("#artifacts-exports");
+
+    // `#artifacts-exports` only renders once the run detail load resolves a golden manifest for
+    // this seeded run — assert visibility explicitly (with a generous timeout) before scrolling,
+    // rather than letting `scrollIntoViewIfNeeded` alone absorb the wait under shared-API load.
+    await expect(artifactsExports).toBeVisible({ timeout: 90_000 });
+    await artifactsExports.scrollIntoViewIfNeeded();
 
     const openModal = page.getByTestId("open-whitelabel-consulting-export");
 

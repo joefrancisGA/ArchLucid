@@ -11,6 +11,13 @@ describe("resolveSetupHealthPresentation", () => {
     expect(result.label).toBe("Setup healthy");
   });
 
+  it("marks unhealthy readiness as blocked, not healthy (regression: 'unhealthy' contains 'healthy')", () => {
+    const result = resolveSetupHealthPresentation({ status: "Unhealthy", entries: [] });
+
+    expect(result.isHealthy).toBe(false);
+    expect(result.label).toBe("Setup blocked");
+  });
+
   it("marks degraded readiness as attention", () => {
     const result = resolveSetupHealthPresentation({ status: "Degraded", entries: [] });
 

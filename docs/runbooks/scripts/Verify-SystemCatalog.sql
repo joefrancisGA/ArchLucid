@@ -1,5 +1,5 @@
 -- ============================================================
--- ArchLucid RC2 — System Catalog verification script
+-- ArchLucid RC6 — System Catalog verification script
 -- Database : ArchLucid  (on archlucid-dev.database.windows.net)
 -- Purpose  : Read-only sanity checks for the SystemWithPerTenantCatalogs topology.
 -- Safe     : SELECT only. No DDL, DML, or schema changes.

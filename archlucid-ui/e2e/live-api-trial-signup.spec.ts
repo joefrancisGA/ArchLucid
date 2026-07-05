@@ -23,6 +23,8 @@ import {
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
+import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import { runIdFromReviewsHref } from "./helpers/run-id-from-href";
 
 const modes = (process.env.LIVE_TRIAL_E2E_MODES ?? "register-baseline")
   .split(",")
@@ -184,9 +186,21 @@ test.describe("live-api-trial-signup", () => {
 
     expect(selfReg.some((e) => e.eventType === "TenantSelfRegistered")).toBe(true);
 
+    // "TrialProvisioned" confirms the tenant bootstrap, but the sample run's golden manifest is
+    // generated asynchronously afterward — wait for it directly so the manifest-link assertion
+    // below doesn't race the seed pipeline (`#artifacts-exports`-style sections gate on it).
+    const sampleRunId = runIdFromReviewsHref(sampleHref);
+    const sampleRunScope = {
+      tenantId: parsed.tenantId,
+      workspaceId: parsed.defaultWorkspaceId,
+      projectId: parsed.defaultProjectId,
+    };
+
+    await waitForRunDetailCommitted(request, sampleRunId, 120_000, sampleRunScope);
+
     await sampleLink.click();
 
-    await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 120_000 });
+    await expectLiveRunDetailPageReady(page, 120_000);
 
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
 

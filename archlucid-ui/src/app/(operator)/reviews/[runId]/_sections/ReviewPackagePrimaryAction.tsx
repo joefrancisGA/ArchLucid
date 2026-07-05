@@ -32,8 +32,7 @@ export function ReviewPackagePrimaryAction(props: ReviewPackagePrimaryActionProp
   }
 
   if (action.href === null) {
-    const unreachable: never = action.kind;
-    throw new Error(`Primary action ${unreachable} requires an href or finalize handler.`);
+    throw new Error(`Primary action ${action.kind} requires an href or finalize handler.`);
   }
 
   return (

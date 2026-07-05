@@ -1,5 +1,5 @@
 -- ============================================================
--- ArchLucid RC2 — Tenant Catalog verification script
+-- ArchLucid RC6 — Tenant Catalog verification script
 -- Database : ArchLucidTenantDev  (on archlucid-dev.database.windows.net)
 -- Purpose  : Read-only schema sanity checks for a per-tenant catalog database.
 -- Safe     : SELECT / sys.* queries only. No DDL, DML, or schema changes.

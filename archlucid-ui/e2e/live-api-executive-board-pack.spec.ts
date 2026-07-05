@@ -4,7 +4,8 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { liveApiBase, liveAcceptHeaders } from "./helpers/live-api-client";
+import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
+import { getLiveApiPathWithTransientRetries, liveApiBase } from "./helpers/live-api-client";
 
 test.describe("live-api-executive-board-pack", () => {
   test.beforeAll(async ({ request }) => {
@@ -15,13 +16,12 @@ test.describe("live-api-executive-board-pack", () => {
         `Live API not ready at ${liveApiBase}/health/ready (status ${health.status()}). Start ArchLucid.Api with Sql + DevelopmentBypass.`,
       );
     }
+
+    await ensureDemoWorkspaceSeedReady(request);
   });
 
   test("executive summary exposes orphan + freshness fields; board-pack markdown downloads", async ({ request }) => {
-    const summaryRes = await request.get(`${liveApiBase}/v1/roi/executive-summary`, {
-      headers: liveAcceptHeaders(),
-      timeout: 60_000,
-    });
+    const summaryRes = await getLiveApiPathWithTransientRetries(request, "/v1/roi/executive-summary");
 
     expect(summaryRes.ok(), `executive-summary expected 2xx, got ${summaryRes.status()}`).toBe(true);
 
@@ -30,10 +30,7 @@ test.describe("live-api-executive-board-pack", () => {
     expect(summary).toHaveProperty("orphanCandidates");
     expect(summary).toHaveProperty("costEvidenceFreshnessStatus");
 
-    const boardPackRes = await request.get(`${liveApiBase}/v1/roi/executive-summary/board-pack`, {
-      headers: liveAcceptHeaders(),
-      timeout: 60_000,
-    });
+    const boardPackRes = await getLiveApiPathWithTransientRetries(request, "/v1/roi/executive-summary/board-pack");
 
     expect(boardPackRes.ok(), `board-pack expected 2xx, got ${boardPackRes.status()}`).toBe(true);
 
@@ -51,10 +48,7 @@ test.describe("live-api-executive-board-pack", () => {
   });
 
   test("portfolio-summary analytics deduplicates findings across mocked runs", async ({ request }) => {
-    const portfolioRes = await request.get(`${liveApiBase}/v1/analytics/roi/portfolio-summary`, {
-      headers: liveAcceptHeaders(),
-      timeout: 60_000,
-    });
+    const portfolioRes = await getLiveApiPathWithTransientRetries(request, "/v1/analytics/roi/portfolio-summary");
 
     expect(portfolioRes.ok(), `portfolio-summary expected 2xx, got ${portfolioRes.status()}`).toBe(true);
 

@@ -54,8 +54,8 @@ describe("RunStatusBadge", () => {
     const pill = container.querySelector('[aria-label="Architecture review pipeline status: Finalized"]');
 
     expect(pill).not.toBeNull();
-    expect(pill?.className).toMatch(/rounded-full/);
-    expect(pill?.className).toMatch(/emerald-9/);
+    expect(pill?.className).toMatch(/rounded-sm/);
+    expect(pill?.className).toMatch(/--al-status-ready-bg/);
   });
 
   it("uses buyer-facing pipeline labels when buyer-polished shell is active", () => {
@@ -66,12 +66,12 @@ describe("RunStatusBadge", () => {
     expect(screen.getByLabelText(/Architecture review pipeline status: Package finalized/i)).toBeInTheDocument();
   });
 
-  it("keeps emerald styling for buyer Package finalized label", () => {
+  it("keeps ready styling for buyer Package finalized label", () => {
     runStatusBuyerPolishedForced.on = true;
 
     const { container } = render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
     const pill = container.querySelector('[aria-label="Architecture review pipeline status: Package finalized"]');
 
-    expect(pill?.className).toMatch(/emerald-9/);
+    expect(pill?.className).toMatch(/--al-status-ready-bg/);
   });
 });

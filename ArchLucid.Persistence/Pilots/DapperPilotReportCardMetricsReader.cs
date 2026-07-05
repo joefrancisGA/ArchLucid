@@ -122,7 +122,7 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
             ) AS commitLag
                      OUTER APPLY (
                 SELECT MAX(gmx.CreatedUtc) AS ManifestCommittedUtc
-                FROM dbo.GoldenManifests AS gm WITH (NOLOCK)x WITH (NOLOCK)
+                FROM dbo.GoldenManifests AS gmx WITH (NOLOCK)
                 WHERE gmx.RunId = r.RunId
                   AND gmx.TenantId = r.TenantId
                   AND gmx.WorkspaceId = r.WorkspaceId
@@ -232,7 +232,7 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
 
                        AND EXISTS (
                      SELECT 1
-                     FROM dbo.GoldenManifests AS gm WITH (NOLOCK)Probe WITH (NOLOCK)
+                     FROM dbo.GoldenManifests AS gmProbe WITH (NOLOCK)
                      WHERE gmProbe.ManifestId = abInner.ManifestId
                        AND gmProbe.RunId = abInner.RunId
                        AND gmProbe.TenantId = abInner.TenantId

@@ -20,4 +20,15 @@ public sealed class DapperValueReportMetricsReaderReviewCycleTests
         source.Should().Contain("DATEDIFF(SECOND, r.CreatedUtc, m.CreatedUtc)");
         source.Should().Contain("BaselineReviewCycleHours");
     }
+
+    [SkippableFact]
+    public void DapperValueReportMetricsReader_governance_sql_uses_single_nolock_hint()
+    {
+        string root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
+        string path = Path.Combine(root, "ArchLucid.Persistence", "Value", "DapperValueReportMetricsReader.cs");
+        string source = File.ReadAllText(path);
+
+        source.Should().NotContain("WITH (NOLOCK) WITH (NOLOCK)");
+        source.Should().Contain("FROM dbo.AuditEvents WITH (NOLOCK)");
+    }
 }

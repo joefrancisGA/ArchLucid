@@ -35,5 +35,6 @@ describe("OperatorHomePageView progressive disclosure", () => {
     expect(disclosureSource).toContain("useNavCommittedArchitectureReview");
     expect(disclosureSource).toContain("readOperatorHomeDisclosureExpanded");
     expect(disclosureSource).toContain("false");
+    expect(disclosureSource).toContain('data-testid="operator-home-workspace-metrics-details-toggle"');
   });
 });

@@ -111,9 +111,11 @@ Implementation steps **reuse the candidate from Step 0** — do not pick a diffe
 If Step 0 selected a **P0** candidate from `TECH_BACKLOG.md`:
 
 1. Implement it completely with tests/verification appropriate to scope.
-2. Mark **Done** in `TECH_BACKLOG.md` (title column + `Updated:` line at top with closure summary).
-3. Commit and push to **`master`** (or user-named branch).
-4. Go to **Step 5**.
+2. Run the **Quality gate** (below).
+3. Mark **Done** in `TECH_BACKLOG.md` (title column + `Updated:` line at top with closure summary).
+4. Commit and push to **`master`** (or user-named branch).
+5. Run the **CI gate** (below).
+6. Go to **Step 5**.
 
 Otherwise → **Step 2**.
 
@@ -121,8 +123,9 @@ Otherwise → **Step 2**.
 
 If Step 0 selected a **P1** candidate from `TECH_BACKLOG.md`:
 
-1. Implement, mark Done in `TECH_BACKLOG.md`, commit, push to **`master`**.
-2. Go to **Step 5**.
+1. Implement, run the **Quality gate** (below), mark Done in `TECH_BACKLOG.md`, commit, push to **`master`**.
+2. Run the **CI gate** (below).
+3. Go to **Step 5**.
 
 Otherwise → **Step 3**.
 
@@ -131,9 +134,11 @@ Otherwise → **Step 3**.
 If Step 0 selected a **Tier 1/2 or Promoted-to-V1** assessment candidate:
 
 1. Implement it.
-2. Mark Done in `TECH_BACKLOG.md` when a TB-ID exists; update `LATEST_GPT55.md` §17 to acknowledge closure (move to shipped pointer — do not leave as open Tier entry).
-3. Commit, push to **`master`**.
-4. Go to **Step 5**.
+2. Run the **Quality gate** (below).
+3. Mark Done in `TECH_BACKLOG.md` when a TB-ID exists; update `LATEST_GPT55.md` §17 to acknowledge closure (move to shipped pointer — do not leave as open Tier entry).
+4. Commit, push to **`master`**.
+5. Run the **CI gate** (below).
+6. Go to **Step 5**.
 
 Otherwise → **Step 4**.
 
@@ -142,8 +147,10 @@ Otherwise → **Step 4**.
 If Step 0 selected a **P2/P3 or unlabeled** backlog candidate:
 
 1. Implement the first open row.
-2. Mark Done in `TECH_BACKLOG.md`, commit, push to **`master`**.
-3. Go to **Step 5**.
+2. Run the **Quality gate** (below).
+3. Mark Done in `TECH_BACKLOG.md`, commit, push to **`master`**.
+4. Run the **CI gate** (below).
+5. Go to **Step 5**.
 
 Otherwise → **Step 6**.
 
@@ -177,10 +184,25 @@ If **no** implementation occurred in steps 1–4:
 
 ---
 
-## Verification (after any implementation)
+## Quality gate (after coding, before commit)
 
-- Run scoped compile/tests appropriate to the change (`.\scripts\ci\agent-compile-check.ps1` with the right `-ProjectPath` / `-Ui`, or targeted `dotnet test` / `npm run test` for touched areas).
-- Fix failures before commit.
+Run in this order once the candidate is implemented. Fix issues from each step before moving to the next — don't stack unresolved findings.
+
+1. **`/check-compiler-errors`** — run scoped compile/type-check (`.\scripts\ci\agent-compile-check.ps1` with the right `-ProjectPath` / `-Ui`, or targeted `dotnet test` / `npm run test` for touched areas). Fix failures before continuing.
+2. **`/deslop`** — check the diff against `master` and remove AI-generated slop (unnecessary comments, abnormal defensive try/catch, `any` casts, unneeded nesting) before it goes to review.
+3. **`/review-bugbot`** — launch the Bugbot subagent (`Diff: uncommitted changes`, since this is pre-commit) against the diff. Fix Critical/High findings; note but don't block on style-only comments.
+4. **`/review-security`** — launch the Security Review subagent (`Diff: uncommitted changes`) against the same diff. Fix Critical/High findings before proceeding.
+5. If step 2, 3, or 4 changed code, re-run **`/check-compiler-errors`** once more to confirm the fixes still compile/pass.
+
+---
+
+## CI gate (after push)
+
+Run **`/fix-ci`** right after the push in Steps 1–4, before moving on to Step 5/6:
+
+1. If the push opened or updated a PR, follow `/fix-ci`: inspect `gh pr checks`, fix the first actionable failure, push, repeat until green.
+2. If this pushed directly to `master` with no open PR, check the run for that commit instead (`gh run list --branch master --limit 1`, then `gh run view --log-failed` on it) and apply the same fix-one-failure-at-a-time loop.
+3. Do not proceed to Step 5/6 with known-red CI for this change.
 
 ---
 
@@ -199,7 +221,9 @@ Always end with:
 - The **## Proposed next improvement** preview block (repeat or reference what was shown at Step 0)
 - Which implementation step (1–6) ran, or **stopped at preview** if blocked
 - TB-ID / assessment title (if any)
+- **Quality gate:** findings from compiler check, deslop, Bugbot, and security review, and what was fixed
 - Commit SHA(s) and branch pushed (if implementation occurred)
+- **CI gate:** final CI status for the push (green, or fixes applied via `/fix-ci`)
 - Rescore summary (step 5) **or** new assessment headline (step 6) **or** explicit blocker reason when stopped after preview
 
 If the user did **not** name a branch in this message, remind them in ALL CAPS:

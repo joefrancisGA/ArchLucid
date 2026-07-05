@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 
 import { DismissControl } from "@/components/usability/DismissControl";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   llmBudgetUtilizationPercent,
   resolveLlmBudgetUtilizationTone,
@@ -27,7 +27,7 @@ export function LlmBudgetApproachingLimitBanner() {
     !dismissed &&
     !isNextPublicDemoMode() &&
     !isStaticDemoPayloadFallbackEnabled() &&
-    !isBuyerPolishedOperatorShellEnv();
+    isOperatorExperienceFullShellEnv();
 
   const { data: status } = useLlmMonthlyBudgetStatusQuery({
     enabled: queryEnabled,

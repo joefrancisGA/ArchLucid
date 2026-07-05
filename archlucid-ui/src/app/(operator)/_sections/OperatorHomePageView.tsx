@@ -60,7 +60,9 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
 
   return (
     <>
-      <PilotCommandCenterCard />
+      <section aria-label="Pilot command center" data-testid="operator-home-pilot-command-center-host">
+        <PilotCommandCenterCard />
+      </section>
       <OperatorHomeExecutiveRoiStrip />
       <OperatorHomeFirstValueCallout />
 

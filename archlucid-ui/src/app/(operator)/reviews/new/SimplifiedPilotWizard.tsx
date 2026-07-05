@@ -19,7 +19,7 @@ import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import type { LlmMonthlyDollarBudgetStatus } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { SIMPLIFIED_PILOT_WIZARD_STEP_FIELD_GROUPS } from "@/lib/simplified-pilot-wizard-step-fields";
@@ -188,7 +188,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
 
   return (
     <div className="space-y-4 pb-36" data-testid="simplified-pilot-wizard">
-      {!isBuyerPolishedOperatorShellEnv() && llmBudgetStatus !== null ? (
+      {isOperatorExperienceFullShellEnv() && llmBudgetStatus !== null ? (
         <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} />
       ) : null}
       <div className="space-y-1" data-testid="simplified-pilot-progress">

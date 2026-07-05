@@ -15,7 +15,7 @@ import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
 import {
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
@@ -34,8 +34,7 @@ type OperatorShellTopBarProps = {
  * Operator shell header: brand rail (sidebar width), content-aligned search, session controls.
  */
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
-  const showDevOperatorChrome = !buyerPolished;
+  const showDevOperatorChrome = isOperatorExperienceFullShellEnv();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const showLlmBudgetPill =
     showDevOperatorChrome && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;

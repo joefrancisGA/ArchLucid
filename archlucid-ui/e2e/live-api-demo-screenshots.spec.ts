@@ -20,6 +20,7 @@ import {
   type DemoScreenshotsReport,
   type RouteCaptureResult,
 } from "./helpers/demo-screenshots-harness";
+import { ensureTrustedBaselineDemoReady } from "./helpers/ensure-trusted-baseline-demo-ready";
 import { liveApiBase } from "./helpers/live-api-client";
 
 test.use({
@@ -27,6 +28,10 @@ test.use({
 });
 
 test.describe("live-api-demo-screenshots", () => {
+  test.beforeAll(async ({ request }) => {
+    await ensureTrustedBaselineDemoReady(request);
+  });
+
   test("preflight, capture demo routes, write reports", async ({ page, request }, testInfo) => {
     test.setTimeout(900_000);
 

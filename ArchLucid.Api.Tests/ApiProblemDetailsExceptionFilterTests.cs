@@ -270,6 +270,26 @@ public sealed class ApiProblemDetailsExceptionFilterTests
     }
 
     [SkippableFact]
+    public void TryMapDatabaseException_SqlProgrammingFault_Returns500InternalServerError()
+    {
+        DefaultHttpContext http = CreateHttpContextForMapper("/v1/pilots/runs/x/pilot-run-deltas", "sql-syntax-cid");
+
+        bool mapped = ApplicationProblemMapper.TryMapDatabaseException(
+            SqlExceptionTestFactory.Create(319),
+            "/v1/pilots/runs/x/pilot-run-deltas",
+            http,
+            out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result.Should().NotBeNull();
+        result!.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+        Microsoft.AspNetCore.Mvc.ProblemDetails p =
+            result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.InternalError);
+        p.Title.Should().Be("Database Query Failed");
+    }
+
+    [SkippableFact]
     public void TryMapDatabaseException_NonDatabaseException_ReturnsFalse()
     {
         DefaultHttpContext http = CreateHttpContextForMapper("/v1/runs", "db-skip-cid");

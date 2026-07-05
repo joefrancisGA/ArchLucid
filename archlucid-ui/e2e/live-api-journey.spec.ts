@@ -24,6 +24,7 @@ import {
   postGovernanceApproveRaw,
   searchAudit,
 } from "./helpers/live-api-client";
+import { auditPageMainHeading, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
 const liveE2eForensics: { runId?: string; approvalRequestId?: string; auditCorrelationId?: string } = {};
 
@@ -97,7 +98,7 @@ test.describe("live-api-journey", () => {
 
     await page.goto(`/runs/${runId}`);
 
-    await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 60_000 });
+    await expectLiveRunDetailPageReady(page, 60_000);
 
     // RSC: wait for loading shell to detach (JWT / slow SQL); error states keep h2 without the Run metadata section.
     await expect(page.getByText(/Loading review detail/)).toHaveCount(0, { timeout: 60_000 });
@@ -266,7 +267,7 @@ test.describe("live-api-journey", () => {
 
     await page.goto("/governance/audit");
 
-    await expect(page.getByRole("heading", { name: /audit log/i })).toBeVisible({ timeout: 30_000 });
+    await expect(auditPageMainHeading(page)).toBeVisible({ timeout: 30_000 });
 
     await page.getByLabel(/run id/i).fill(runId);
     await page.getByRole("button", { name: /^Search$/i }).click();

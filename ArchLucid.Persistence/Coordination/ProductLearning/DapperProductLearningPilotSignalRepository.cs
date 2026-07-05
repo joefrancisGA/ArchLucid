@@ -199,7 +199,7 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
         int cap = maxAggregates < 1 ? 1 : Math.Min(maxAggregates, 500);
 
         const string sql = """
-                           WITH Scoped AS (
+                           ;WITH Scoped AS (
                                SELECT *
                                FROM dbo.ProductLearningPilotSignals
                                WHERE TenantId = @TenantId
@@ -290,7 +290,7 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
         int cap = maxTrends < 1 ? 1 : Math.Min(maxTrends, 500);
 
         const string sql = """
-                           WITH Scoped AS (
+                           ;WITH Scoped AS (
                                SELECT *
                                FROM dbo.ProductLearningPilotSignals
                                WHERE TenantId = @TenantId

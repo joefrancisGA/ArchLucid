@@ -21,7 +21,10 @@ import {
   liveApiBase,
   postConsultingAnalysisDocxRaw,
 } from "./helpers/live-api-client";
-import { ensureBuyerDeliverablesSectionExpanded } from "./helpers/operator-journey";
+import {
+  buyerPolishedReviewDetailSectionNav,
+  ensureBuyerDeliverablesSectionExpanded,
+} from "./helpers/operator-journey";
 
 const releaseGateTag = "@release-gate";
 
@@ -38,7 +41,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     expect(health.ok(), await health.text()).toBeTruthy();
 
-    await ensureDemoWorkspaceSeedReady(request);
+    await ensureDemoWorkspaceSeedReady(request, { workspaces: ["B"] });
   });
 
   test("regulated storyline surfaces Pack A/B findings, severities, consulting DOCX, whitelabel export JSON", async ({
@@ -63,7 +66,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_B_LIVE_IDS);
     await page.goto(`/reviews/${DEMO_WORKSPACE_B_REGULATED_RUN_ID}`, { waitUntil: "domcontentloaded" });
 
-    const sectionNav = page.getByRole("navigation", { name: "Review detail sections" });
+    const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
     await expect(sectionNav).toBeVisible({ timeout: 90_000 });
 
@@ -71,7 +74,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0);
 
-    await expect(sectionNav.getByRole("link", { name: "Outcome" })).toBeVisible();
+    await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible();
 
     /** Pack A narrative (Responsible AI governance engine + rule identifiers from seed fixtures). */
     await expect(page.locator("main").getByText(/Promoted scoring ensemble lacks immutable lineage hash/i)).toBeVisible({

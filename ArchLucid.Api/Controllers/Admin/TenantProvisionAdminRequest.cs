@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>JSON body for <c>POST /v1/admin/tenants</c>.</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class TenantProvisionAdminRequest
 {
     public string Name
