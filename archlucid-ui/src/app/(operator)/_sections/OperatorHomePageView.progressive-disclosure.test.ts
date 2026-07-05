@@ -21,6 +21,7 @@ describe("OperatorHomePageView progressive disclosure", () => {
     );
 
     expect(disclosureSource).toContain('data-testid="operator-home-workspace-context"');
-    expect(disclosureSource).toContain('defaultOpen={false}');
+    expect(disclosureSource).toContain("useState(false)");
+    expect(disclosureSource).toContain('data-testid="operator-home-workspace-metrics-details-toggle"');
   });
 });

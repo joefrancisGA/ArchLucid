@@ -38718,6 +38718,7 @@ export interface components {
             integrationEventBus?: components["schemas"]["IntegrationEventBusStatusResponse"];
         };
         TenantItsmConnectorConnectionResponse: {
+            authMode?: null | string;
             authUserName?: null | string;
             credentialKeyVaultSecretName?: null | string;
             inboundWebhookKeyVaultSecretName?: null | string;
@@ -38725,6 +38726,9 @@ export interface components {
             isConfigured?: boolean;
             isEnabled?: boolean;
             label?: null | string;
+            oAuthClientIdKeyVaultSecretName?: null | string;
+            oAuthClientSecretKeyVaultSecretName?: null | string;
+            oAuthRefreshTokenKeyVaultSecretName?: null | string;
             provider: string;
             /** Format: uuid */
             tenantId?: string;
@@ -38732,12 +38736,16 @@ export interface components {
             updatedUtc?: string;
         };
         TenantItsmConnectorConnectionUpsertRequest: {
-            authUserName: string;
-            credentialKeyVaultSecretName: string;
+            authMode?: null | string;
+            authUserName?: null | string;
+            credentialKeyVaultSecretName?: null | string;
             inboundWebhookKeyVaultSecretName?: null | string;
             instanceBaseUrl: string;
             isEnabled?: boolean;
             label?: null | string;
+            oAuthClientIdKeyVaultSecretName?: null | string;
+            oAuthClientSecretKeyVaultSecretName?: null | string;
+            oAuthRefreshTokenKeyVaultSecretName?: null | string;
         };
         TenantItsmConnectorConnectionsListResponse: {
             connections: components["schemas"]["TenantItsmConnectorConnectionResponse"][];

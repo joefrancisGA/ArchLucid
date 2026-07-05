@@ -114,7 +114,7 @@ export default async function ManifestArtifactReviewPage({
     if (!coercedArtifacts.ok) {
       artifactsLoadWarning = coercedArtifacts.message;
     } else {
-      siblingArtifacts = coercedArtifacts.value;
+      siblingArtifacts = coercedArtifacts.items;
     }
   } catch (error) {
     const demoArtifacts =
