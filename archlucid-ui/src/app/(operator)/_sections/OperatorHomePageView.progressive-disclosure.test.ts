@@ -32,6 +32,7 @@ describe("OperatorHomePageView progressive disclosure", () => {
     );
 
     expect(disclosureSource).toContain('data-testid="operator-home-workspace-context"');
+    expect(disclosureSource).toContain("useNavCommittedArchitectureReview");
     expect(disclosureSource).toContain("readOperatorHomeDisclosureExpanded");
     expect(disclosureSource).toContain("false");
   });

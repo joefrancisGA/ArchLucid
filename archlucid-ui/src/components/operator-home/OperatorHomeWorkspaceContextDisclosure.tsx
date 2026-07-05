@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 import { useCallback, useId, useLayoutEffect, useState } from "react";
 
+import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,8 @@ const WORKSPACE_METRICS_SECTION_TITLE = "Workspace metrics and status";
 /** Operator home workspace metrics: compact summary always visible; delta/status panels behind details. */
 export function OperatorHomeWorkspaceContextDisclosure(
   props: OperatorHomeWorkspaceContextDisclosureProps,
-): ReactElement {
+): ReactElement | null {
+  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const detailsPanelId = useId();
   const setupReadiness = useFinishSetupReadinessContext();
   const [hydrated, setHydrated] = useState(false);
@@ -46,6 +48,10 @@ export function OperatorHomeWorkspaceContextDisclosure(
     setDetailsExpanded(nextExpanded);
     writeOperatorHomeDisclosureExpanded(OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.readinessDetails, nextExpanded);
   }, []);
+
+  if (!hasCommittedArchitectureReview) {
+    return null;
+  }
 
   const showDetailsExpanded = hydrated ? detailsExpanded : false;
   const detailsToggleLabel = showDetailsExpanded ? "Hide metrics details" : "View details";

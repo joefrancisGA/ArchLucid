@@ -19,10 +19,16 @@ vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
   }),
 }));
 
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: vi.fn(() => true),
+}));
+
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import { OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY } from "@/lib/operator-home-workspace-metrics";
 
 import { OperatorHomeWorkspaceContextDisclosure } from "./OperatorHomeWorkspaceContextDisclosure";
+
+import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 
 const emptyRunsDashboard: OperatorHomeRunsDashboardModel = {
   projectId: "default",
@@ -61,7 +67,17 @@ const loadedRunsDashboard: OperatorHomeRunsDashboardModel = {
 };
 
 describe("OperatorHomeWorkspaceContextDisclosure", () => {
+  it("does not render before the first committed architecture review", () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
+
+    render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus runsDashboard={emptyRunsDashboard} />);
+
+    expect(screen.queryByTestId("operator-home-workspace-context")).not.toBeInTheDocument();
+  });
+
   it("renders compact workspace metrics summary by default with details collapsed", () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
+
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus runsDashboard={emptyRunsDashboard} />);
 
     expect(screen.getByRole("heading", { level: 2, name: "Workspace metrics and status" })).toBeInTheDocument();
@@ -82,6 +98,8 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
   });
 
   it("expands details to reveal delta and workspace status panels", async () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
+
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus runsDashboard={emptyRunsDashboard} />);
 
     fireEvent.click(screen.getByRole("button", { name: "View details" }));
@@ -95,6 +113,8 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
   });
 
   it("renders loaded workspace metrics when review packages exist", () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
+
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={loadedRunsDashboard} />);
 
     const summary = screen.getByTestId("operator-home-workspace-metrics-summary");

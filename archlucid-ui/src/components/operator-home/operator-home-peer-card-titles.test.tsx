@@ -7,6 +7,7 @@ import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
 import { OperatorHomeSampleReviewPreview } from "@/components/operator-home/OperatorHomeSampleReviewPreview";
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
+import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
@@ -100,6 +101,7 @@ describe("operator home peer card titles", () => {
 
   it("uses the same peer-card title scale for Continue setup, Workspace metrics, and How ArchLucid works", () => {
     render(<OperatorHomeContinueSetupCard />);
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={emptyRunsDashboard} />);
     render(
       <OperatorHomeDisclosureSection

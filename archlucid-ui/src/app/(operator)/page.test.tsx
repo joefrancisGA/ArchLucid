@@ -182,7 +182,7 @@ describe("HomePage — buyer-polished shell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     });
-    expect(screen.getByTestId("operator-home-workspace-context")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-workspace-context")).not.toBeInTheDocument();
     expect(screen.queryByText("ROI estimate pending")).toBeNull();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
     expect(screen.queryByText("Operational metrics")).toBeNull();
@@ -222,7 +222,7 @@ describe("HomePage (55R smoke — landing)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     });
-    expect(screen.getByTestId("operator-home-workspace-context")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-workspace-context")).not.toBeInTheDocument();
     expect(screen.queryByText("ROI estimate pending")).toBeNull();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
   });
