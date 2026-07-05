@@ -374,6 +374,27 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      # RAG retrieval (Azure AI Search) is ephemeral by design (owner 2026-07-05): dev auto-heals it
+      # here on every deploy; a nightly job may stash + tear it back down (see rag-nightly-stash.yml).
+      # No-op when the search service + index + Container App wiring already exist.
+      - name: Ensure RAG retrieval infra is awake (dev only, auto-heal)
+        if: github.event.inputs.target == 'dev'
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+        shell: pwsh
+        run: |
+          if (-not $env:AZURE_RESOURCE_GROUP -or -not $env:CONTAINER_APP_API_NAME) {
+            Write-Host "Skipping RAG auto-heal (AZURE_RESOURCE_GROUP or CONTAINER_APP_API_NAME not set)."
+            exit 0
+          }
+          $workerApp = if ($env:CONTAINER_APP_WORKER_NAME) { $env:CONTAINER_APP_WORKER_NAME } else { 'archlucid-worker' }
+          ./scripts/deploy/Ensure-RC6AzureSearchRetrieval.ps1 `
+            -ResourceGroup $env:AZURE_RESOURCE_GROUP `
+            -ApiAppName $env:CONTAINER_APP_API_NAME `
+            -WorkerAppName $workerApp
+
       - name: Record API revision before Container Apps update
         id: api_rev_before
         env:

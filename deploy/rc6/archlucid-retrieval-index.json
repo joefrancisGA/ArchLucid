@@ -1,0 +1,52 @@
+{
+  "name": "archlucid-retrieval-dev",
+  "fields": [
+    { "name": "chunkId", "type": "Edm.String", "key": true, "filterable": true, "sortable": true, "retrievable": true },
+    { "name": "documentId", "type": "Edm.String", "filterable": true, "retrievable": true },
+    { "name": "tenantId", "type": "Edm.String", "filterable": true, "retrievable": true },
+    { "name": "workspaceId", "type": "Edm.String", "filterable": true, "retrievable": true },
+    { "name": "projectId", "type": "Edm.String", "filterable": true, "retrievable": true },
+    { "name": "corpusKind", "type": "Edm.String", "filterable": true, "retrievable": true },
+    { "name": "sourceType", "type": "Edm.String", "filterable": true, "retrievable": true },
+    { "name": "sourceId", "type": "Edm.String", "filterable": true, "retrievable": true },
+    { "name": "title", "type": "Edm.String", "searchable": true, "retrievable": true },
+    { "name": "text", "type": "Edm.String", "searchable": true, "retrievable": true },
+    { "name": "runId", "type": "Edm.String", "filterable": true, "retrievable": true },
+    { "name": "manifestId", "type": "Edm.String", "filterable": true, "retrievable": true },
+    { "name": "decisionId", "type": "Edm.String", "filterable": true, "retrievable": true },
+    { "name": "findingId", "type": "Edm.String", "filterable": true, "retrievable": true },
+    { "name": "policyPackRulePackId", "type": "Edm.String", "filterable": true, "retrievable": true },
+    {
+      "name": "embedding",
+      "type": "Collection(Edm.Single)",
+      "searchable": true,
+      "retrievable": true,
+      "dimensions": 1536,
+      "vectorSearchProfile": "archlucid-vector-profile"
+    }
+  ],
+  "vectorSearch": {
+    "algorithms": [
+      {
+        "name": "archlucid-hnsw",
+        "kind": "hnsw",
+        "hnswParameters": { "m": 4, "efConstruction": 400, "efSearch": 500, "metric": "cosine" }
+      }
+    ],
+    "profiles": [
+      { "name": "archlucid-vector-profile", "algorithm": "archlucid-hnsw" }
+    ]
+  },
+  "semantic": {
+    "configurations": [
+      {
+        "name": "default",
+        "prioritizedFields": {
+          "titleField": { "fieldName": "title" },
+          "prioritizedContentFields": [ { "fieldName": "text" } ],
+          "prioritizedKeywordsFields": []
+        }
+      }
+    ]
+  }
+}
