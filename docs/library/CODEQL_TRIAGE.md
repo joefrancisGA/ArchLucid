@@ -28,7 +28,7 @@ Built-in **`cs/log-forging`** does not know your custom sanitizer unless you mod
 - **Pack:** `.github/codeql/archlucid-csharp-log-sanitizer-models/` (`qlpack.yml` + `models/*.yml`)
 - **Workflow wiring:** `.github/codeql/codeql-config.yml` lists that pack under **`packs.csharp`**; **`.github/workflows/codeql.yml`** passes **`config-file`** only on the **csharp** job’s **`init`** step (the JavaScript job is unchanged).
 
-After this is merged, **`LogSanitizer.Sanitize(...)`** call sites should stop alerting as unsanitized user input. If an alert remains, check the sink is actually the sanitizer’s **return value** (not a raw parameter) and that the method signature still matches **`(System.String)`** in the model file.
+After this is merged, **`LogSanitizer.Sanitize(...)`** call sites should stop alerting as unsanitized user input. **`models/integration-event-logging-barrier.model.yml`** extends the same pack for **`cs/exposure-of-sensitive-information`** on **`IntegrationEventTypes`** URNs and **`SanitizedLogger*`** operational-key helpers (TB-611). If an alert remains, check the sink is actually the sanitizer’s **return value** (not a raw parameter) and that the method signature still matches **`(System.String)`** in the model file.
 
 **Copilot Autofix** for CodeQL cannot infer custom sanitizers; use this model pack (or dismiss manually with rationale).
 
@@ -78,12 +78,12 @@ If CodeQL still flags a line after **`LogSanitizer.Sanitize`**, verify the exten
 
 **`cs/exposure-of-sensitive-information`** may treat well-known **coordinator lease strings** (for example **`HostElectionLeaseNames.TrialLifecycleEmailPolling`**) or **`IntegrationEventTypes`** canonical URNs (for example **`TrialLifecycleEmailV1`**) as private when they flow into **`ILogger`**, even though they are **stable operational keys** (not passwords, tokens, or PII).
 
-**Mitigation:** route lease/instance logs through **`SanitizedLoggerHostLeaderElectionExtensions`** and integration-event publish logs through **`SanitizedLoggerWarningExtensions`** (sanitization + **`// codeql`** on the **`ILogger`** sink in Core). The built-in query may still anchor SARIF at the **caller** line passing the value; place **`// codeql[cs/exposure-of-sensitive-information]`** as a **trailing comment on the flagged line** (or dismiss in code scanning with: *operational identifiers, sanitized; not credentials*).
+**Mitigation:** route lease/instance logs through **`SanitizedLoggerHostLeaderElectionExtensions`** and integration-event publish logs through **`SanitizedLoggerWarningExtensions`** (sanitization inside Core). The model pack registers both helper families plus **`IntegrationEventTypes`** const literals as **`file-content-store`** neutral/summary models in **`models/integration-event-logging-barrier.model.yml`** (TB-611), so caller lines should not need trailing **`// codeql[cs/exposure-of-sensitive-information]`** when the pack is loaded. Keep sink-line suppressions inside Core only when **`params object?[]`** boxing breaks barrier propagation (same pattern as **`cs/log-forging`**).
 
 | Location | Notes |
 | -------- | ----- |
-| **`ArchLucid.Host.Core/Hosted/HostLeaderElectionCoordinator.cs`** | Use **`SanitizedLoggerHostLeaderElectionExtensions`** at call sites. Core holds sink suppressions; if CodeQL highlights the **`leaseName`** argument line here, add **`// codeql[cs/exposure-of-sensitive-information]`** trailing on the extension call (**`TrialLifecycleEmailPolling`** and peers are operational keys only). |
-| **`ArchLucid.Host.Core/Integration/AzureServiceBusIntegrationEventPublisher.cs`** | **`eventType`** flows from **`IntegrationEventTypes`** canonical URNs (e.g. **`TrialLifecycleEmailV1`** = `com.archlucid.notifications.trial-lifecycle-email.v1`). Sanitized inside **`LogWarningIntegrationEventServiceBusPublishFailed`**; trailing **`// codeql[cs/exposure-of-sensitive-information]`** on the call site. Dismiss with: *canonical integration event URN taxonomy, sanitized; not credentials or PII*. |
+| **`ArchLucid.Host.Core/Hosted/HostLeaderElectionCoordinator.cs`** | Use **`SanitizedLoggerHostLeaderElectionExtensions`** at call sites. Model pack covers operational lease keys; dismiss only if CodeQL still anchors at the caller after verifying **`config-file`** loads the pack. |
+| **`ArchLucid.Host.Core/Integration/AzureServiceBusIntegrationEventPublisher.cs`** | **`eventType`** flows from **`IntegrationEventTypes`** canonical URNs (e.g. **`TrialLifecycleEmailV1`** = `com.archlucid.notifications.trial-lifecycle-email.v1`). Sanitized inside **`LogWarningIntegrationEventServiceBusPublishFailed`**; model pack should clear caller-line alerts. Dismiss with: *canonical integration event URN taxonomy, sanitized; not credentials or PII*. |
 
 
 ---

@@ -1,0 +1,35 @@
+extensions:
+  # TB-611: IntegrationEventTypes canonical URNs and host-leader lease keys are operational
+  # identifiers (not credentials). These summaries register SanitizedLogger* helpers as
+  # file-content-store sanitizers so cs/exposure-of-sensitive-information does not anchor
+  # at caller lines before LogSanitizer.Sanitize runs inside Core.
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: summaryModel
+    data:
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerWarningExtensions", false, "LogWarningIntegrationEventServiceBusPublishFailed", "(Microsoft.Extensions.Logging.ILogger,System.Exception,System.String)", "", "Argument[2]", "ReturnValue", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerWarningExtensions", false, "LogWarningIntegrationEventSerializationFailed", "(Microsoft.Extensions.Logging.ILogger,System.Exception,System.String)", "", "Argument[2]", "ReturnValue", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerWarningExtensions", false, "LogWarningIntegrationEventOutboxEnqueueFailed", "(Microsoft.Extensions.Logging.ILogger,System.Exception,System.String)", "", "Argument[2]", "ReturnValue", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerWarningExtensions", false, "LogWarningIntegrationEventBestEffortPublishFailed", "(Microsoft.Extensions.Logging.ILogger,System.Exception,System.String)", "", "Argument[2]", "ReturnValue", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerHostLeaderElectionExtensions", false, "LogDebugHostLeaderLeaseNotHeldFollowerWait", "(Microsoft.Extensions.Logging.ILogger,System.String,System.Int32)", "", "Argument[1]", "ReturnValue", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerHostLeaderElectionExtensions", false, "LogInformationHostLeaderLeaseAcquired", "(Microsoft.Extensions.Logging.ILogger,System.String,System.String)", "", "Argument[1,2]", "ReturnValue", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerHostLeaderElectionExtensions", false, "LogInformationHostLeaderWorkStoppedLeaseLossOrHandoff", "(Microsoft.Extensions.Logging.ILogger,System.String)", "", "Argument[1]", "ReturnValue", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerHostLeaderElectionExtensions", false, "LogWarningHostLeaderLeaseRenewalFailedStopping", "(Microsoft.Extensions.Logging.ILogger,System.String,System.String)", "", "Argument[1,2]", "ReturnValue", "file-content-store", "manual"]
+  # Canonical com.archlucid.* integration event type literals are not private data.
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: neutralModel
+    data:
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "AuthorityRunCompletedV1", "", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "DataConsistencyCheckCompletedV1", "", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "ManifestFinalizedV1", "", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "GovernanceApprovalSubmittedV1", "", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "GovernancePromotionActivatedV1", "", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "AlertFiredV1", "", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "AlertResolvedV1", "", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "AdvisoryScanCompletedV1", "", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "ComplianceDriftEscalatedV1", "", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "SeatReservationReleasedV1", "", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "TrialLifecycleEmailV1", "", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "BillingMarketplaceWebhookReceivedV1", "", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Integration", "IntegrationEventTypes", "WildcardEventType", "", "file-content-store", "manual"]

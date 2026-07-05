@@ -117,7 +117,7 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarningIntegrationEventServiceBusPublishFailed(ex, eventType); // codeql[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy.
+                _logger.LogWarningIntegrationEventServiceBusPublishFailed(ex, eventType);
 
             throw;
         }
