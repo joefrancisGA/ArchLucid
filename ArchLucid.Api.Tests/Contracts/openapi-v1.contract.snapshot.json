@@ -22576,6 +22576,12 @@
       },
       "TenantItsmConnectorConnectionResponse": {
         "properties": {
+          "authMode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "authUserName": {
             "type": [
               "null",
@@ -22612,6 +22618,24 @@
               "string"
             ]
           },
+          "oAuthClientIdKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "oAuthClientSecretKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "oAuthRefreshTokenKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "provider": {
             "type": "string"
           },
@@ -22631,11 +22655,23 @@
       },
       "TenantItsmConnectorConnectionUpsertRequest": {
         "properties": {
+          "authMode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "authUserName": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "credentialKeyVaultSecretName": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "inboundWebhookKeyVaultSecretName": {
             "type": [
@@ -22654,11 +22690,27 @@
               "null",
               "string"
             ]
+          },
+          "oAuthClientIdKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "oAuthClientSecretKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "oAuthRefreshTokenKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [
-          "authUserName",
-          "credentialKeyVaultSecretName",
           "instanceBaseUrl"
         ],
         "type": "object"

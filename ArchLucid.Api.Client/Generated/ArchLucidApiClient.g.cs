@@ -83364,6 +83364,9 @@ namespace ArchLucid.Api.Client.Generated
     public partial class TenantItsmConnectorConnectionResponse
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("authMode")]
+        public string? AuthMode { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("authUserName")]
         public string? AuthUserName { get; set; } = default!;
 
@@ -83384,6 +83387,15 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
         public string? Label { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("oAuthClientIdKeyVaultSecretName")]
+        public string? OAuthClientIdKeyVaultSecretName { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("oAuthClientSecretKeyVaultSecretName")]
+        public string? OAuthClientSecretKeyVaultSecretName { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("oAuthRefreshTokenKeyVaultSecretName")]
+        public string? OAuthRefreshTokenKeyVaultSecretName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("provider")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
@@ -83410,13 +83422,14 @@ namespace ArchLucid.Api.Client.Generated
     public partial class TenantItsmConnectorConnectionUpsertRequest
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("authMode")]
+        public string? AuthMode { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("authUserName")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string AuthUserName { get; set; } = default!;
+        public string? AuthUserName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("credentialKeyVaultSecretName")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string CredentialKeyVaultSecretName { get; set; } = default!;
+        public string? CredentialKeyVaultSecretName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("inboundWebhookKeyVaultSecretName")]
         public string? InboundWebhookKeyVaultSecretName { get; set; } = default!;
@@ -83430,6 +83443,15 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
         public string? Label { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("oAuthClientIdKeyVaultSecretName")]
+        public string? OAuthClientIdKeyVaultSecretName { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("oAuthClientSecretKeyVaultSecretName")]
+        public string? OAuthClientSecretKeyVaultSecretName { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("oAuthRefreshTokenKeyVaultSecretName")]
+        public string? OAuthRefreshTokenKeyVaultSecretName { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
