@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>Per-item outcome for governance batch review.</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class GovernanceBatchReviewItemResult
 {
     public string ApprovalRequestId
@@ -30,6 +33,7 @@ public sealed class GovernanceBatchReviewItemResult
 }
 
 /// <summary>Response for <c>POST /v1/governance/approval-requests/batch-review</c>.</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class GovernanceBatchReviewResponse
 {
     public IReadOnlyList<GovernanceBatchReviewItemResult> Results

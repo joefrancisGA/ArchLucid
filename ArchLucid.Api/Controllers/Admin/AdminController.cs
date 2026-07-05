@@ -424,4 +424,5 @@ public sealed class AdminController(
 }
 
 /// <summary>JSON body for <c>GET .../features/async-authority-pipeline</c>.</summary>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed record AsyncAuthorityPipelineFeatureState(bool Enabled);

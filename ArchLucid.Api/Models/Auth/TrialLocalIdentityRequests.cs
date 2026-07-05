@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Api.Models.Auth;
 
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class TrialLocalRegisterRequest
 {
     public string? Email
@@ -15,6 +18,7 @@ public sealed class TrialLocalRegisterRequest
     }
 }
 
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class TrialLocalVerifyEmailRequest
 {
     public string? Email
@@ -30,6 +34,7 @@ public sealed class TrialLocalVerifyEmailRequest
     }
 }
 
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class TrialLocalTokenRequest
 {
     public string? Email
@@ -66,6 +71,7 @@ public sealed class TrialLocalTokenRequest
     }
 }
 
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class TrialLocalRegisterResponse
 {
     public Guid UserId
@@ -75,6 +81,7 @@ public sealed class TrialLocalRegisterResponse
     }
 }
 
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class TrialLocalTokenResponse
 {
     public string AccessToken

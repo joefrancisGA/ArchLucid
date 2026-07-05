@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Api.Models.Evolution;
 
 /// <summary>One persisted shadow evaluation row.</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class EvolutionSimulationRunResponse
 {
     public Guid SimulationRunId

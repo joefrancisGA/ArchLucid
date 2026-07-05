@@ -132,6 +132,24 @@ Pure data-transfer objects used by Dapper for SQL result mapping. They contain o
 | `ContextSnapshotStorageRow.cs` | `ContextSnapshotStorageRow` | Persistence |
 | `ArtifactBundleStorageRow.cs` | `ArtifactBundleStorageRow` | Persistence |
 
+## Category 2b: ArchLucid.Api HTTP request/response DTOs
+
+Pure API contract types with auto-properties only (no methods or validation logic). Controllers and services with branching logic are **not** excluded here even when Cobertura reports 0% — many are exercised by `Category=Integration` tests on shards that run without Coverlet (see **ArchLucid.Api measurement vs testing** below).
+
+Representative excluded types (2026-07-05 RC6 pass): `AdminArchiveRunsBatchRequest`, `TenantRegistrationRequest`, `TrialLocalRegisterRequest`, `LearningPlanDetailResponse`, `AlertsAcknowledgeBatchRequest`, `GovernanceApprovalBatchReviewRequest`, `E2eHarnessTrialExpiresPostRequest`, `DataConsistencyOrphanCounts`, `EvolutionSimulationRunResponse`, and sibling request/response DTOs under `ArchLucid.Api/Controllers/**`, `ArchLucid.Api/Models/**`, and `ArchLucid.Api/Services/Admin/*Counts*.cs`.
+
+## ArchLucid.Api measurement vs testing
+
+Merged Cobertura **understates** `ArchLucid.Api` HTTP coverage:
+
+| `ArchLucid.Api.Tests` filter | Run settings | Coverlet |
+| --- | --- | --- |
+| `Category!=Slow&Category!=Integration` | `coverage.runsettings` | **On** |
+| `Category=Slow` (SQL subset) | `coverage.runsettings` | **On** |
+| `Category=Integration` (six parallel shards) | `test.runsettings` | **Off** — collector finalization unstable under chunked SQL load |
+
+**Owner decision (2026-07-05):** keep Coverlet disabled on Integration shards. CI continues `--skip-package-line-gate ArchLucid.Api` until merged per-package % reflects real risk (DTO exclusions + optional future Coverlet stability work). Integration tests remain the authoritative behavior coverage for controllers; 0% on those types is a **measurement gap**, not a testing gap.
+
 ## Category 7: Process-External / Filesystem Tools
 
 | Class | Assembly | Justification |
