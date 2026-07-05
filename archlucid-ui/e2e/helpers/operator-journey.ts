@@ -4,6 +4,7 @@ import { expectAnyLocatorVisible } from "./locator-readiness";
 
 import {
   ASK_PAGE_PRIMARY_HEADING_PATTERN,
+  AUDIT_PAGE_PRIMARY_HEADING_PATTERN,
   FIXTURE_LEFT_RUN_ID,
   FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
   FIXTURE_RIGHT_RUN_ID,
@@ -55,6 +56,11 @@ export function askPageMainHeading(page: Page): Locator {
 /** Primary `/governance` H2 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
 export function governancePageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN });
+}
+
+/** Primary `/governance/audit` H2 from {@link OperatorPageHeader} (excludes H3 "Filter audit trail"). */
+export function auditPageMainHeading(page: Page): Locator {
+  return page.getByRole("heading", { level: 2, name: AUDIT_PAGE_PRIMARY_HEADING_PATTERN });
 }
 
 /**

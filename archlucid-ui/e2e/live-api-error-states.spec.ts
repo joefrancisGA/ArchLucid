@@ -6,6 +6,7 @@ import { expect, test } from "@playwright/test";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import { liveApiBase } from "./helpers/live-api-client";
+import { auditPageMainHeading } from "./helpers/operator-journey";
 
 test.describe("live-api-error-states", () => {
   test.beforeAll(async ({ request }) => {
@@ -67,7 +68,7 @@ test.describe("live-api-error-states", () => {
 
     await page.goto("/governance/audit");
 
-    await expect(page.getByRole("heading", { name: /audit trail/i })).toBeVisible({ timeout: 30_000 });
+    await expect(auditPageMainHeading(page)).toBeVisible({ timeout: 30_000 });
 
     await page.getByLabel(/review id/i).fill(fakeRunId);
     await page.getByRole("button", { name: /^Search$/i }).click();

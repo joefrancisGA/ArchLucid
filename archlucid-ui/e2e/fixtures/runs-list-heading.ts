@@ -26,3 +26,6 @@ export const GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(
   `^${escapeRegExpLiteral(OPERATOR_NAV_LINK_LABELS.governanceWorkflow)}$`,
   "i",
 );
+
+/** `/governance/audit` page H2 — buyer-polished titles append the review label; search chrome uses H3 "Filter audit trail". */
+export const AUDIT_PAGE_PRIMARY_HEADING_PATTERN = /^Audit trail( for .+)?$/i;
