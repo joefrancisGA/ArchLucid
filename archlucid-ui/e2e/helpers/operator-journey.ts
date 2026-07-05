@@ -206,6 +206,21 @@ export async function gotoManifestEmptyArtifactsOperatorCase(page: Page): Promis
 
 // --- Assertions (only where duplicated across specs) ---
 
+/** Buyer-polished run detail sticky section nav (`RunDetailSectionNav`). */
+export function buyerPolishedReviewDetailSectionNav(page: Page): Locator {
+  return page.getByRole("navigation", { name: "Review detail sections" });
+}
+
+/** Canonical buyer-polished section strip labels from `buildRunDetailNavSections`. */
+export async function expectBuyerPolishedReviewDetailSectionNavCore(sectionNav: Locator): Promise<void> {
+  await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible();
+  await expect(sectionNav.getByRole("link", { name: "Outcome record" })).toBeVisible();
+  await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible();
+  await expect(sectionNav.getByRole("link", { name: "Assessment" })).toBeVisible();
+  await expect(sectionNav.getByRole("link", { name: "Activity" })).toBeVisible();
+  await expect(sectionNav.getByRole("link", { name: "Deliverables" })).toBeVisible();
+}
+
 /** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */
 export function reviewOutcomeSummaryStrip(page: Page): Locator {
   return page.getByRole("main").locator('section[aria-label="Review outcome summary"]').first();

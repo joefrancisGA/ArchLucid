@@ -15,7 +15,11 @@ import {
   getAuthorityRunDetailRaw,
   liveApiBase,
 } from "./helpers/live-api-client";
-import { ensureBuyerDeliverablesSectionExpanded } from "./helpers/operator-journey";
+import {
+  buyerPolishedReviewDetailSectionNav,
+  ensureBuyerDeliverablesSectionExpanded,
+  expectBuyerPolishedReviewDetailSectionNavCore,
+} from "./helpers/operator-journey";
 
 const releaseGateTag = "@release-gate";
 
@@ -32,7 +36,7 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
     await page.goto(`/reviews/${DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID}`, { waitUntil: "domcontentloaded" });
 
-    const sectionNav = page.getByRole("navigation", { name: "Review detail sections" });
+    const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
     await expect(sectionNav).toBeVisible({ timeout: 90_000 });
 
@@ -40,11 +44,7 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0);
 
-    await expect(sectionNav.getByRole("link", { name: "Outcome" })).toBeVisible();
-    await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible();
-    await expect(sectionNav.getByRole("link", { name: "Assessment" })).toBeVisible();
-    await expect(sectionNav.getByRole("link", { name: "Activity" })).toBeVisible();
-    await expect(sectionNav.getByRole("link", { name: "Deliverables" })).toBeVisible();
+    await expectBuyerPolishedReviewDetailSectionNavCore(sectionNav);
 
     await expect(page.getByRole("heading", { name: /Recent lifecycle events|Pipeline timeline/i }).first()).toBeVisible({
       timeout: 60_000,
