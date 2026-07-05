@@ -1,5 +1,5 @@
 ---
-description: Ship one P0/P1 backlog or assessment item, rescore, or run a fresh assessment
+description: Preview then ship one P0/P1 backlog or assessment item, rescore, or run a fresh assessment
 ---
 
 # Ship next improvement (single pass)
@@ -47,46 +47,88 @@ Optional cross-check: `docs/library/TECH_BACKLOG_OPEN.md` (may be stale — pref
 
 **Source of truth:** `docs/assessments/LATEST_GPT55.md` §17 **Top Improvement Opportunities**.
 
+Also check §17 **Promoted to V1 (owner decision, standing)** for owner-authorized items that may not yet have a TB row or may override Tier 3 holds.
+
 Pick the **next** item that:
 
-1. Is in **Tier 1 — Must Fix** or **Tier 2 — High Leverage** (not Tier 3 Hold),
+1. Is in **Tier 1 — Must Fix** or **Tier 2 — High Leverage** (not Tier 3 Hold), **or** appears in **Promoted to V1** as active engineering (not already closed),
 2. Is **engineering / Cursor-actionable** (has or implies code, tests, CI, or in-app/docs guard),
 3. Is **not** already shipped (verify against repo + `TECH_BACKLOG.md`),
 4. Passes the guardrails above.
 
-If §17 says no Tier 2 items remain, fall through to step 4 (general backlog) — do **not** force an assessment-only item.
+If §17 says no Tier 1/2 engineering items remain and no open Promoted-to-V1 row is unshipped, fall through to step 4 (general backlog) — do **not** force an assessment-only item.
 
 Map assessment IDs to backlog when present (e.g. **TB-600**). Prefer implementing via the `TECH_BACKLOG.md` row when both exist.
 
 ---
 
+## Step 0 — Preview proposed action (required first)
+
+**Before** editing any file, running verification, committing, or pushing, walk the same identification order as `.cursor/commands/show-next-improvement.md` (steps 1–4 preview logic) and **display the preview in chat**.
+
+1. Walk steps 1–4 in order; **stop at the first step that yields a candidate** (same selection rules as `/show-next-improvement`).
+2. Read the `## TB-###` detail section when present.
+3. Run blocker checks (read-only):
+   - **`git status --short`** on likely target paths — if dirty per `Agent-Working-Tree-Safety.mdc`, mark **blocked** and name paths.
+   - **Dependencies** — open `depends on TB-###` rows block until the dependency is closed.
+   - **Validation-first** — live pilot / owner execution / GTM-only items are **not Cursor-shippable**; skip to the next candidate in the same band, or fall through to the next step if none remain.
+4. **Print the preview block** (format below) under the heading **## Proposed next improvement** — this is what `/show-next-improvement` would show for the same repo state.
+5. Optionally list **2–3 runners-up** in one line each.
+6. **Proceed or stop:**
+   - **Blocked** (dirty target paths, open dependency, or not Cursor-shippable with no alternate candidate) → **stop after the preview**; do not implement. Tell the user how to unblock (commit/stash, close dependency, or `ARCHLUCID_AGENT_ALLOW_DIRTY=1` only when they explicitly override).
+   - **Ready** → continue to the matching implementation step below (Step 1–4) for **that same candidate** — do not re-scan and pick a different item.
+
+If steps 1–4 preview finds **no** engineering candidate, print the preview block with **Step: 5 (nothing found)** and add:
+
+**Next ship action:** this run will continue to **Step 6 — Fresh assessment**.
+
+Then go to **Step 6** (do not implement).
+
+### Preview block format (required output)
+
+```markdown
+## Proposed next improvement
+
+**Step:** 1 | 2 | 3 | 4 | 5 (nothing found) | 6 (fresh assessment)
+**Candidate:** TB-### — <title> (or assessment §17 title if no TB yet)
+**Priority:** P0 | P1 | P2 | P3 | Tier 1 | Tier 2 | Promoted V1
+**Why this one:** <one sentence — first open row in band per backlog/assessment order>
+**Blockers:** None | <list>
+**Likely touch surfaces:** <paths or subsystems, if inferable from TB detail>
+**Next:** Implement this item in this run (targets `master` by default).
+```
+
+For **Step 5 / Step 6** preview only, set **Next:** to `Run fresh assessment (Step 6).`
+
+---
+
 ## Workflow (strict order)
+
+Implementation steps **reuse the candidate from Step 0** — do not pick a different item mid-run.
 
 ### Step 1 — P0 technical backlog
 
-If **any open P0** row exists in `TECH_BACKLOG.md`:
+If Step 0 selected a **P0** candidate from `TECH_BACKLOG.md`:
 
-1. Select the **first** open P0 row (file order).
-2. Implement it completely with tests/verification appropriate to scope.
-3. Mark **Done** in `TECH_BACKLOG.md` (title column + `Updated:` line at top with closure summary).
-4. Commit and push to **`master`** (or user-named branch).
-5. Go to **Step 5**.
+1. Implement it completely with tests/verification appropriate to scope.
+2. Mark **Done** in `TECH_BACKLOG.md` (title column + `Updated:` line at top with closure summary).
+3. Commit and push to **`master`** (or user-named branch).
+4. Go to **Step 5**.
 
 Otherwise → **Step 2**.
 
 ### Step 2 — P1 technical backlog
 
-If **any open P1** row exists in `TECH_BACKLOG.md`:
+If Step 0 selected a **P1** candidate from `TECH_BACKLOG.md`:
 
-1. Select the **first** open P1 row.
-2. Implement, mark Done in `TECH_BACKLOG.md`, commit, push to **`master`**.
-3. Go to **Step 5**.
+1. Implement, mark Done in `TECH_BACKLOG.md`, commit, push to **`master`**.
+2. Go to **Step 5**.
 
 Otherwise → **Step 3**.
 
 ### Step 3 — Next Cursor-actionable assessment item
 
-If §17 of `LATEST_GPT55.md` has an implementable Tier 1/2 engineering item:
+If Step 0 selected a **Tier 1/2 or Promoted-to-V1** assessment candidate:
 
 1. Implement it.
 2. Mark Done in `TECH_BACKLOG.md` when a TB-ID exists; update `LATEST_GPT55.md` §17 to acknowledge closure (move to shipped pointer — do not leave as open Tier entry).
@@ -97,7 +139,7 @@ Otherwise → **Step 4**.
 
 ### Step 4 — Next open backlog item (any priority)
 
-If **any** open backlog row remains (P2, P3, or unlabeled), in **file priority order**:
+If Step 0 selected a **P2/P3 or unlabeled** backlog candidate:
 
 1. Implement the first open row.
 2. Mark Done in `TECH_BACKLOG.md`, commit, push to **`master`**.
@@ -154,10 +196,11 @@ Use one concise sentence focused on **why**, referencing the TB-ID when applicab
 
 Always end with:
 
-- Which step (1–6) ran
+- The **## Proposed next improvement** preview block (repeat or reference what was shown at Step 0)
+- Which implementation step (1–6) ran, or **stopped at preview** if blocked
 - TB-ID / assessment title (if any)
-- Commit SHA(s) and branch pushed
-- Rescore summary (step 5) **or** new assessment headline (step 6) **or** explicit “no open P0/P1/backlog/assessment work found” before step 6
+- Commit SHA(s) and branch pushed (if implementation occurred)
+- Rescore summary (step 5) **or** new assessment headline (step 6) **or** explicit blocker reason when stopped after preview
 
 If the user did **not** name a branch in this message, remind them in ALL CAPS:
 

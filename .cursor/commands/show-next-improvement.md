@@ -6,7 +6,7 @@ description: Preview which backlog or assessment item ship-next-improvement woul
 
 Run this workflow **once per invocation**. Identify **at most one** candidate that `/ship-next-improvement` would implement in steps 1–4, then **stop**. Do **not** implement, edit tracked files, commit, push, rescore, or run a fresh assessment.
 
-This command mirrors the prioritization order in `.cursor/commands/ship-next-improvement.md` but is **inspection-only**.
+This command mirrors the prioritization order in `.cursor/commands/ship-next-improvement.md` but is **inspection-only**. `/ship-next-improvement` prints the same preview block (as **## Proposed next improvement**) at **Step 0** before it implements.
 
 ---
 
