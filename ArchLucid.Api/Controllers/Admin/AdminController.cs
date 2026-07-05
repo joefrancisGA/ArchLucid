@@ -422,6 +422,3 @@ public sealed class AdminController(
         return Ok(body);
     }
 }
-
-/// <summary>JSON body for <c>GET .../features/async-authority-pipeline</c>.</summary>
-public sealed record AsyncAuthorityPipelineFeatureState(bool Enabled);
