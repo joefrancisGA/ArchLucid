@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { PERSONA_SHELL_WORKSPACE_LABEL } from "@/lib/persona-shell-vocabulary";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/dashboard",
+  usePathname: () => "/executive/dashboard",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -30,7 +30,7 @@ describe("ExecutiveShellFrame", () => {
       </ExecutiveShellFrame>,
     );
 
-    expect(screen.getByTestId("executive-shell-nav-dashboard")).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByTestId("executive-shell-nav-dashboard")).toHaveAttribute("href", "/executive/dashboard");
     expect(screen.getByTestId("executive-shell-nav-scorecard")).toHaveAttribute("href", "/executive/scorecard");
   });
 

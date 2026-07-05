@@ -45,7 +45,7 @@ export function resolveSponsorExecutiveRedirectTarget(input: SponsorExecutiveRed
   }
 
   // Executive dashboard consolidation (TB-608) — /dashboard renders the same
-  // ExecutiveRoiDashboardPageView as the retired /executive/dashboard, under full
+  // ExecutiveRoiDashboardPageView that /executive/dashboard renders (TB-267), under full
   // operator-shell chrome; Sponsor-only principals may view it without being bounced.
   if (pathname === "/dashboard") {
     return null;
