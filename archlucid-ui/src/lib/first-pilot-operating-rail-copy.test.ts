@@ -27,10 +27,13 @@ describe("resolveFirstPilotOperatingRailShellCopy", () => {
 });
 
 describe("resolveFirstPilotOperatingRailStepsForDisplay", () => {
-  it("returns operator step labels unchanged", () => {
+  it("returns operator step labels with aligned create-review terminology", () => {
     const steps = resolveFirstPilotOperatingRailStepsForDisplay(false);
+    const createReview = steps.find((step) => step.id === "create-review");
     const execute = steps.find((step) => step.id === "execute-review");
 
+    expect(createReview?.title).toBe("Create review package");
+    expect(createReview?.primaryLabel).toBe("Start architecture review");
     expect(execute?.title).toBe("Execute the review pipeline");
     expect(execute?.primaryLabel).toBe("Open reviews");
   });
@@ -41,6 +44,7 @@ describe("resolveFirstPilotOperatingRailStepsForDisplay", () => {
     expect(steps.find((step) => step.id === "verify-setup")?.primaryLabel).toBe("Confirm readiness");
     expect(steps.find((step) => step.id === "ingest-evidence")?.primaryLabel).toBe("Upload evidence");
     expect(steps.find((step) => step.id === "create-review")?.title).toBe("Create review package");
+    expect(steps.find((step) => step.id === "create-review")?.primaryLabel).toBe("Start architecture review");
     expect(steps.find((step) => step.id === "execute-review")?.title).toBe("Complete the guided assessment");
     expect(steps.find((step) => step.id === "execute-review")?.shortBody).not.toContain("pipeline");
     expect(steps.find((step) => step.id === "ingest-evidence")?.primaryLabel).not.toBe("Extract and upload");

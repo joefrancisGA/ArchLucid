@@ -3,6 +3,7 @@ import {
   type FirstPilotOperatingRailStepDefinition,
   type FirstPilotOperatingRailStepId,
 } from "@/lib/first-pilot-operating-rail-steps";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
 
 export type FirstPilotOperatingRailShellCopy = {
   readonly heading: string;
@@ -62,9 +63,9 @@ const BUYER_STEP_TEXT_OVERRIDES: Record<FirstPilotOperatingRailStepId, FirstPilo
     primaryLabel: "Upload evidence",
   },
   "create-review": {
-    title: "Create review package",
+    title: CREATE_REVIEW_PACKAGE_HEADING,
     shortBody: "Describe system scope, identity, and constraints in the guided new-review flow.",
-    primaryLabel: "Create review package",
+    primaryLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   },
   "execute-review": {
     title: "Complete the guided assessment",

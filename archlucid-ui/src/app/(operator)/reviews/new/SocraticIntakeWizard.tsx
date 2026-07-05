@@ -37,6 +37,7 @@ import { showError, showSuccess } from "@/lib/toast";
 import {
   normalizeActorSetForAdmission,
 } from "@/lib/draft-intake-actor-suggestions";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
@@ -69,8 +70,8 @@ const INTAKE_STEPS = [
     description: "Answer a few clarifying questions so ArchLucid can produce a precise review package.",
   },
   {
-    progressLabel: "Start review",
-    cardTitle: "Start review",
+    progressLabel: CREATE_REVIEW_PACKAGE_HEADING,
+    cardTitle: CREATE_REVIEW_PACKAGE_HEADING,
     description: "Submit the admitted draft to the authority pipeline.",
   },
 ] as const;
@@ -608,7 +609,7 @@ export function SocraticIntakeWizard() {
                 }}
                 data-testid="socratic-submit"
               >
-                {busy ? "Starting review…" : "Start architecture review"}
+                {busy ? "Starting review…" : BUYER_START_ARCHITECTURE_REVIEW_CTA}
               </Button>
             </div>
           </CardContent>

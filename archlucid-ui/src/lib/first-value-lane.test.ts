@@ -30,6 +30,13 @@ describe("first-value-lane", () => {
     expect(FIRST_VALUE_LANE_PHASES).toHaveLength(4);
   });
 
+  it("uses create-review package heading and start-architecture-review CTA labels", () => {
+    const phase = FIRST_VALUE_LANE_PHASES.find((candidate) => candidate.id === "create-review");
+
+    expect(phase?.title).toBe("Create review package");
+    expect(phase?.primaryLabel).toBe("Start architecture review");
+  });
+
   it("marks create-review in progress for a net-new tenant", () => {
     const phases = resolveFirstValueLanePhases(signals({}));
 

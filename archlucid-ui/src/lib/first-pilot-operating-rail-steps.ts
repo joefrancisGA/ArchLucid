@@ -1,3 +1,4 @@
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
 
 export const FIRST_PILOT_OPERATING_RAIL_STEP_COUNT = 6;
@@ -39,10 +40,10 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
   },
   {
     id: "create-review",
-    title: "Create an architecture review",
+    title: CREATE_REVIEW_PACKAGE_HEADING,
     shortBody: "Capture system identity and constraints in the new-review wizard.",
     primaryHref: "/reviews/new",
-    primaryLabel: "New review",
+    primaryLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
     troubleshootHelpSlug: "pilot-guide",
   },
   {

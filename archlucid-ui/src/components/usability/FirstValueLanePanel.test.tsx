@@ -40,12 +40,12 @@ describe("FirstValueLanePanel", () => {
     }
   });
 
-  it("renders the Start review action for the active create-review step", async () => {
+  it("renders the Start architecture review action for the active create-review step", async () => {
     render(<FirstValueLanePanel />);
 
     await screen.findByTestId("first-value-lane-panel");
 
-    const startReview = screen.getByRole("link", { name: "Start review" });
+    const startReview = screen.getByRole("link", { name: "Start architecture review" });
 
     expect(startReview).toBeInTheDocument();
     expect(startReview).toHaveAttribute("href", "/reviews/new");

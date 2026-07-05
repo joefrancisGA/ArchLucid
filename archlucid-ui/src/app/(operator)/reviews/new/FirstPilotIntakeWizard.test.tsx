@@ -37,7 +37,7 @@ vi.mock("./QuickReviewWizardDeferredPanels", () => ({
 }));
 
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { BUYER_NEW_REVIEW_TOAST_CATEGORY, BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_NEW_REVIEW_TOAST_CATEGORY, BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
 import { showError } from "@/lib/toast";
 import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 
@@ -56,7 +56,7 @@ describe("FirstPilotIntakeWizard", () => {
 
     render(<FirstPilotIntakeWizard />);
 
-    expect(screen.getByText("Create review package")).toBeInTheDocument();
+    expect(screen.getByText(CREATE_REVIEW_PACKAGE_HEADING)).toBeInTheDocument();
     expect(screen.getByTestId("focused-pilot-policy-pack-applied-callout")).toBeTruthy();
     expect(screen.getByTestId("first-run-intake-step-guide")).toBeTruthy();
 

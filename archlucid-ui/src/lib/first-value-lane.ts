@@ -1,5 +1,7 @@
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
+
 /** Canonical first-value lane phase identifiers — keep aligned with docs/runbooks/FIRST_VALUE_LANE.md. */
 export type FirstValueLanePhaseId =
   | "create-review"
@@ -24,10 +26,10 @@ export const FIRST_VALUE_LANE_HEADING = "First-value lane";
 export const FIRST_VALUE_LANE_PHASES: readonly FirstValueLanePhase[] = [
   {
     id: "create-review",
-    title: "Create review",
+    title: CREATE_REVIEW_PACKAGE_HEADING,
     summary: "Start an architecture review request with evidence and constraints.",
     primaryHref: "/reviews/new",
-    primaryLabel: "Start review",
+    primaryLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   },
   {
     id: "execute-review",

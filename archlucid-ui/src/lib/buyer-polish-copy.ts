@@ -375,6 +375,9 @@ export const BUYER_RUNS_LIST_MALFORMED_BODY =
 
 export const BUYER_NEW_REVIEW_TOAST_CATEGORY = "New review";
 
+/** Form section heading when the user is defining the governed review package artifact. */
+export const CREATE_REVIEW_PACKAGE_HEADING = "Create review package";
+
 export const BUYER_START_ARCHITECTURE_REVIEW_CTA = "Start architecture review";
 
 export const RUNS_LIST_EMPTY_PRIMARY_PATH_TITLE = "Start a review package";

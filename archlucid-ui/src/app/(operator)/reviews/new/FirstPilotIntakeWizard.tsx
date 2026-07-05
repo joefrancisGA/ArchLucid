@@ -27,7 +27,7 @@ import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget
 import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
-import { BUYER_NEW_REVIEW_TOAST_CATEGORY, BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_NEW_REVIEW_TOAST_CATEGORY, BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -227,7 +227,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Create review package</CardTitle>
+          <CardTitle>{CREATE_REVIEW_PACKAGE_HEADING}</CardTitle>
           <CardDescription>
             Start with a title and one architecture diagram. A brief description is optional when a file is attached.
           </CardDescription>
