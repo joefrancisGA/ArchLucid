@@ -22,10 +22,13 @@ export function FindingEvidenceLinkChip(props: FindingEvidenceLinkChipProps): Re
       : "Evidence trail";
 
   return (
+    // Deliberately link-styled (underline, no border/background) rather than badge-shaped — this is an
+    // interactive navigation affordance, not a status/metadata chip (`StatusTag`), and must not be mistaken
+    // for noninteractive content (TB-619).
     <Link
       href={props.href}
       className={cn(
-        "inline-flex items-center rounded border border-neutral-300 bg-white px-1.5 py-0.5 font-medium text-al-accent-interactive underline-offset-2 hover:underline dark:border-neutral-600 dark:bg-neutral-900",
+        "inline-flex items-center font-medium text-al-accent-interactive underline decoration-al-accent-interactive/50 underline-offset-2 hover:decoration-al-accent-interactive",
         OPERATOR_TYPOGRAPHY.badge,
         props.className,
       )}

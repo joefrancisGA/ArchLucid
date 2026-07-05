@@ -46,11 +46,14 @@ import {
 } from "@/lib/finding-source-evidence-links";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
+  findingHasNoSourceEvidence,
   firstRecommendationSentence,
+  humanReviewStatusDisplay,
   partitionQuickDecisionFindings,
   severityBadgeLabel,
   sortQuickDecisionFindings,
 } from "@/lib/quick-decision-summary-derive";
+import { StatusTag } from "@/components/ui/status-tag";
 import { findingEnforcementTierLabel } from "@/lib/finding-enforcement-tier";
 import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/finding-policy-evidence-citations";
 import {
@@ -192,6 +195,8 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             : [],
       ) ?? graphHref;
     const citationModel = buildFindingPolicyEvidenceCitationsFromQuickDecision(props.runId, f);
+    const reviewStatus = humanReviewStatusDisplay(f.humanReviewStatus);
+    const owner = f.assignedToUserId?.trim() ?? "";
 
     return (
       <li
@@ -224,6 +229,20 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           ) : null}
           <AiOutputGovernanceLabel findingId={f.findingId} />
           <FindingTrustChip finding={f} />
+          {findingHasNoSourceEvidence(f) ? (
+            <StatusTag
+              kind="needs-attention"
+              label="Evidence gap"
+              data-testid={`finding-evidence-gap-${f.findingId}`}
+            />
+          ) : null}
+          {reviewStatus !== null ? (
+            <StatusTag
+              kind={reviewStatus.statusKind}
+              label={reviewStatus.label}
+              data-testid={`finding-review-status-${f.findingId}`}
+            />
+          ) : null}
           {f.isMuted ? (
             <span className={`${badgeBase} border-neutral-300 bg-neutral-100 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200`}>
               Muted
@@ -313,7 +332,19 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           </p>
         ) : null}
         {snippet.length > 0 ? (
-          <p className={cn("m-0 mt-1 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{snippet}</p>
+          <p className={cn("m-0 mt-1 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            <span className="font-semibold text-neutral-700 dark:text-neutral-300">Recommended action: </span>
+            <span>{snippet}</span>
+          </p>
+        ) : null}
+        {owner.length > 0 ? (
+          <p
+            className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid={`finding-owner-${f.findingId}`}
+          >
+            <span className="font-semibold text-neutral-700 dark:text-neutral-300">Owner: </span>
+            {owner}
+          </p>
         ) : null}
         <FindingPolicyEvidenceCitationLinks model={citationModel} compact className="mt-2" />
         {f.evidenceRefSnippets !== undefined && f.evidenceRefSnippets.length > 0 ? (

@@ -2,14 +2,32 @@ import type { RunDetail } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { describe, expect, it } from "vitest";
 
+import type { QuickDecisionFinding } from "./quick-decision-summary-derive";
 import {
   buildFindingWireSnapshotsForRunDetail,
   extractQuickDecisionFindingsFromRunDetail,
+  findingHasNoSourceEvidence,
   firstRecommendationSentence,
+  humanReviewStatusDisplay,
   isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
   sortQuickDecisionFindings,
 } from "./quick-decision-summary-derive";
+
+function baseFinding(overrides: Partial<QuickDecisionFinding> = {}): QuickDecisionFinding {
+  return {
+    findingId: "f1",
+    title: "Title",
+    recommendation: "Do the thing.",
+    severityValue: 1,
+    findingOrder: 0,
+    aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+    isMuted: false,
+    muteReason: null,
+    enforcementTier: "PolicyViolation",
+    ...overrides,
+  };
+}
 
 describe("quick-decision-summary-derive", () => {
   it("firstRecommendationSentence returns first sentence when punctuation present", () => {
@@ -98,6 +116,37 @@ describe("quick-decision-summary-derive", () => {
     expect(extracted[0]?.evaluationConfidenceScore).toBe(33);
     expect(extracted[0]?.evidenceRefCount).toBe(2);
     expect(extracted[0]?.evidenceRefSnippets).toEqual(["r1", "r2"]);
+  });
+
+  it("extractQuickDecisionFindingsFromRunDetail maps owner and human-review-status fields", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      results: [
+        {
+          findings: [
+            {
+              findingId: "owned-1",
+              message: "Needs an owner",
+              severity: 1,
+              assignedToUserId: " reviewer@example.com ",
+              humanReviewStatus: 2,
+            },
+            {
+              findingId: "unowned-1",
+              message: "No owner set",
+              severity: 1,
+            },
+          ],
+        },
+      ],
+    } as unknown as RunDetail;
+
+    const extracted = extractQuickDecisionFindingsFromRunDetail(detail);
+
+    expect(extracted[0]?.assignedToUserId).toBe("reviewer@example.com");
+    expect(extracted[0]?.humanReviewStatus).toBe(2);
+    expect(extracted[1]?.assignedToUserId).toBeNull();
+    expect(extracted[1]?.humanReviewStatus).toBeNull();
   });
 
   it("extractQuickDecisionFindingsFromRunDetail maps insight-density fields", () => {
@@ -323,5 +372,39 @@ describe("quick-decision-summary-derive", () => {
 
     expect(isQuickDecisionDerivedFromExplanationTraces(emptyResults, summary)).toBe(true);
     expect(isQuickDecisionDerivedFromExplanationTraces(emptyResults, null)).toBe(false);
+  });
+
+  describe("humanReviewStatusDisplay", () => {
+    it("maps each known FindingHumanReviewStatus value to a label and status-tag kind", () => {
+      expect(humanReviewStatusDisplay(1)).toEqual({ label: "Pending review", statusKind: "needs-attention" });
+      expect(humanReviewStatusDisplay(2)).toEqual({ label: "Approved", statusKind: "approved" });
+      expect(humanReviewStatusDisplay(3)).toEqual({ label: "Rejected", statusKind: "blocked" });
+      expect(humanReviewStatusDisplay(4)).toEqual({ label: "Overridden", statusKind: "in-progress" });
+    });
+
+    it("returns null for NotRequired (0), null, undefined, and unrecognized values", () => {
+      expect(humanReviewStatusDisplay(0)).toBeNull();
+      expect(humanReviewStatusDisplay(null)).toBeNull();
+      expect(humanReviewStatusDisplay(undefined)).toBeNull();
+      expect(humanReviewStatusDisplay(99)).toBeNull();
+    });
+  });
+
+  describe("findingHasNoSourceEvidence", () => {
+    it("is true when a finding has no evidence refs, snippets, or policy-rule citation", () => {
+      expect(findingHasNoSourceEvidence(baseFinding())).toBe(true);
+    });
+
+    it("is false when evidenceRefCount is positive", () => {
+      expect(findingHasNoSourceEvidence(baseFinding({ evidenceRefCount: 1 }))).toBe(false);
+    });
+
+    it("is false when evidenceRefSnippets is non-empty", () => {
+      expect(findingHasNoSourceEvidence(baseFinding({ evidenceRefSnippets: ["snippet"] }))).toBe(false);
+    });
+
+    it("is false when a policyRuleId citation is present", () => {
+      expect(findingHasNoSourceEvidence(baseFinding({ policyRuleId: "rule-1" }))).toBe(false);
+    });
   });
 });

@@ -238,4 +238,89 @@ describe("QuickDecisionSummary", () => {
     expect(screen.getByRole("link", { name: /Low confidence finding/i })).toBeInTheDocument();
     expect(screen.getByTestId("quick-decision-low-confidence-f-low")).toBeInTheDocument();
   });
+
+  it("shows an Evidence gap tag for findings with no evidence refs, snippets, or policy-rule citation", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-no-evidence",
+        title: "Unproven finding",
+        recommendation: "Verify manually.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+      },
+    ];
+
+    render(<QuickDecisionSummary runId="run-gap" findings={findings} />);
+
+    expect(screen.getByTestId("finding-evidence-gap-f-no-evidence")).toHaveTextContent("Evidence gap");
+  });
+
+  it("omits the Evidence gap tag once a finding has linked evidence", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-proven",
+        title: "Proven finding",
+        recommendation: "Fix it.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        evidenceRefCount: 2,
+      },
+    ];
+
+    render(<QuickDecisionSummary runId="run-proven" findings={findings} />);
+
+    expect(screen.queryByTestId("finding-evidence-gap-f-proven")).not.toBeInTheDocument();
+  });
+
+  it("renders owner and review-status when present on the finding", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-owned",
+        title: "Owned finding",
+        recommendation: "Track to close.",
+        severityValue: 1,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        assignedToUserId: "reviewer@example.com",
+        humanReviewStatus: 1,
+      },
+    ];
+
+    render(<QuickDecisionSummary runId="run-owned" findings={findings} />);
+
+    expect(screen.getByTestId("finding-owner-f-owned")).toHaveTextContent("Owner: reviewer@example.com");
+    expect(screen.getByTestId("finding-review-status-f-owned")).toHaveTextContent("Pending review");
+  });
+
+  it("omits owner and review-status rows when the finding has neither", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-unowned",
+        title: "Unowned finding",
+        recommendation: "No owner yet.",
+        severityValue: 1,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+      },
+    ];
+
+    render(<QuickDecisionSummary runId="run-unowned" findings={findings} />);
+
+    expect(screen.queryByTestId("finding-owner-f-unowned")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("finding-review-status-f-unowned")).not.toBeInTheDocument();
+  });
 });

@@ -4,6 +4,7 @@ import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 import { normalizeFindingEnforcementTier, type FindingEnforcementTierKind } from "@/lib/finding-enforcement-tier";
 import { collectEvidenceRefSnippets } from "@/lib/finding-evidence-ref-snippet";
 import { coercePolicyRuleIdFromFindingWire } from "@/lib/finding-policy-evidence-citations";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
 /**
  * Persisted architecture finding wire snapshot for "AI reasoning" deep-dive UI.
@@ -49,6 +50,10 @@ export type QuickDecisionFinding = {
   whyThisIsNotGeneric?: string | null;
   /** Optional policy-pack rule identifier when the finding maps to a curated pack rule. */
   policyRuleId?: string | null;
+  /** Operator-assigned remediation owner (TB-395 `Finding.AssignedToUserId`); raw user id/email, no display-name lookup. */
+  assignedToUserId?: string | null;
+  /** Raw `FindingHumanReviewStatus` enum value (0=NotRequired..4=Overridden) when present on the wire. */
+  humanReviewStatus?: number | null;
 };
 
 function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel | null {
@@ -84,6 +89,34 @@ export function severityBadgeLabel(severityValue: number): string {
     case 0:
     default:
       return "Info";
+  }
+}
+
+/** Display metadata for a raw `FindingHumanReviewStatus` wire value; `null` when there is nothing worth surfacing. */
+export type FindingHumanReviewStatusDisplay = {
+  readonly label: string;
+  readonly statusKind: EnterpriseStatusKind;
+};
+
+/**
+ * Maps the raw `FindingHumanReviewStatus` enum (0=NotRequired, 1=Pending, 2=Approved, 3=Rejected, 4=Overridden)
+ * to a display label + status-tag kind. `NotRequired` and unrecognized values return `null` so the default
+ * (most common) case renders no badge instead of a noisy "Not required" tag on every finding.
+ */
+export function humanReviewStatusDisplay(
+  value: number | null | undefined,
+): FindingHumanReviewStatusDisplay | null {
+  switch (value) {
+    case 1:
+      return { label: "Pending review", statusKind: "needs-attention" };
+    case 2:
+      return { label: "Approved", statusKind: "approved" };
+    case 3:
+      return { label: "Rejected", statusKind: "blocked" };
+    case 4:
+      return { label: "Overridden", statusKind: "in-progress" };
+    default:
+      return null;
   }
 }
 
@@ -332,6 +365,18 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
 
       const policyRuleId = coercePolicyRuleIdFromFindingWire(fr);
 
+      const assignedToUserIdRaw = fr.assignedToUserId;
+      const assignedToUserId =
+        typeof assignedToUserIdRaw === "string" && assignedToUserIdRaw.trim().length > 0
+          ? assignedToUserIdRaw.trim()
+          : null;
+
+      const humanReviewStatusRaw = fr.humanReviewStatus;
+      const humanReviewStatus =
+        typeof humanReviewStatusRaw === "number" && Number.isFinite(humanReviewStatusRaw)
+          ? Math.trunc(humanReviewStatusRaw)
+          : null;
+
       out.push({
         findingId,
         title,
@@ -351,6 +396,8 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         insightDensityScore,
         whyThisIsNotGeneric,
         policyRuleId,
+        assignedToUserId,
+        humanReviewStatus,
       });
     }
   }
@@ -518,6 +565,19 @@ export function extractIacStubForFinding(detail: RunDetail, findingId: string): 
   }
 
   return match.iacStub ?? null;
+}
+
+/**
+ * True when a finding carries no linkable proof at all (no evidence refs, no evidence snippets, no policy-rule
+ * citation) — the reviewer would have to trust the AI narrative on faith. Used to surface an explicit
+ * "Evidence gap" signal instead of silently omitting evidence affordances (TB-619).
+ */
+export function findingHasNoSourceEvidence(finding: QuickDecisionFinding): boolean {
+  const hasRefCount = typeof finding.evidenceRefCount === "number" && finding.evidenceRefCount > 0;
+  const hasSnippets = (finding.evidenceRefSnippets?.length ?? 0) > 0;
+  const hasPolicyRule = typeof finding.policyRuleId === "string" && finding.policyRuleId.trim().length > 0;
+
+  return !hasRefCount && !hasSnippets && !hasPolicyRule;
 }
 
 /** Highest severity first, then original finding order. Policy violations precede advisory notes. */

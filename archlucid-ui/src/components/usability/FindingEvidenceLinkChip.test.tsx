@@ -15,4 +15,15 @@ describe("FindingEvidenceLinkChip", () => {
 
     expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("Evidence trail");
   });
+
+  it("renders as a link-styled affordance, not a bordered badge/chip (TB-619)", () => {
+    render(<FindingEvidenceLinkChip href="/reviews/run-1/graph" evidenceRefCount={1} />);
+
+    const link = screen.getByTestId("finding-evidence-link-chip");
+
+    expect(link.tagName).toBe("A");
+    expect(link.className).toContain("underline");
+    expect(link.className).not.toContain("border");
+    expect(link.className).not.toContain("bg-white");
+  });
 });
