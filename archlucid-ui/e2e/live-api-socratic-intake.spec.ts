@@ -15,6 +15,7 @@ import {
   submitDraftRequestLive,
 } from "./helpers/live-api-client";
 import { L0_ACTOR_ADDITIONAL_KINDS_QUESTION_KEY } from "./helpers/draft-intake-question-keys";
+import { runIdFromReviewsHref } from "./helpers/run-id-from-href";
 
 const INTENT =
   "Design a multi-tenant Azure API platform with private SQL, Redis cache, and Entra ID authentication.";
@@ -32,6 +33,12 @@ test.describe("live-api-socratic-intake", () => {
   });
 
   test("guided intake UI admits draft, resolves required clarifications, and spawns review", async ({ page, request }) => {
+    // This walks through several sequential live API round trips (admit, questions, skip x N,
+    // submit) — the 30s Playwright default has repeatedly been too tight under the extended
+    // matrix's shared-API load, causing the wizard's own `toBeVisible({ timeout: 60_000 })` waits
+    // to be cut short by the enclosing test timeout before they could complete.
+    test.setTimeout(150_000);
+
     await page.goto("/reviews/new");
 
     // The path switcher is collapsed behind a "More options" affordance for first-run tenants
@@ -70,8 +77,7 @@ test.describe("live-api-socratic-intake", () => {
     await page.getByTestId("socratic-submit").click();
 
     await page.waitForURL(/\/reviews\/[a-zA-Z0-9-]+/, { timeout: 120_000 });
-    const spawnedUrl = page.url();
-    const runId = spawnedUrl.split("/reviews/")[1]?.split(/[?#]/)[0] ?? "";
+    const runId = runIdFromReviewsHref(page.url());
 
     expect(runId.length).toBeGreaterThan(0);
     test.info().annotations.push({ type: "e2e-spawned-run-id", description: runId });
@@ -81,6 +87,8 @@ test.describe("live-api-socratic-intake", () => {
   });
 
   test("draft API lane create → admit → skip MUST → submit returns run id", async ({ request }) => {
+    test.setTimeout(90_000);
+
     const created = await createDraftRequestLive(request, INTENT);
     const draftId = created.draftId;
     test.info().annotations.push({ type: "e2e-draft-id", description: draftId });

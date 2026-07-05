@@ -227,13 +227,14 @@ test.describe("live-api-trial-end-to-end", () => {
 
     const sampleHref = (await page.getByTestId("onboarding-open-sample-run").getAttribute("href")) ?? "";
 
-    expect(sampleHref).toMatch(/^\/runs\//);
+    // Canonical route is `/reviews/*` (`next.config.ts` permanently redirects legacy `/runs/*`).
+    expect(sampleHref).toMatch(/^\/reviews\//);
 
     await page.getByTestId("onboarding-open-sample-run").click();
 
     await expectLiveRunDetailPageReady(page, 120_000);
 
-    const manifestLink = page.locator("main").locator('a[href^="/manifests/"]').first();
+    const manifestLink = page.locator("main").locator('a[href^="/signed-records/"]').first();
 
     await expect(manifestLink, "Sample run should link a manifest once summaries hydrate.").toBeVisible({
       timeout: 120_000,
@@ -287,7 +288,7 @@ test.describe("live-api-trial-end-to-end", () => {
     await executeRun(request, wizardRunId, scope);
     await waitForReadyForCommit(request, wizardRunId, 120_000, scope);
 
-    await page.goto(`/runs/${wizardRunId}`);
+    await page.goto(`/reviews/${wizardRunId}`);
 
     await expectLiveRunDetailPageReady(page, 120_000);
 

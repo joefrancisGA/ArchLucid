@@ -23,6 +23,7 @@ import {
 } from "./helpers/demo-workspace-live-scope";
 import {
   assignPolicyPack,
+  commitRun,
   compareAuthorityRuns,
   countFindingsInAuthorityRunDetailPayload,
   createPolicyPack,
@@ -34,6 +35,7 @@ import {
   liveE2eArchitectureDescription,
   minimalPolicyPackContentJson,
   resolveLiveJwtMode,
+  waitForReadyForCommit,
 } from "./helpers/live-api-client";
 import { comparisonRequestOutcomePanel, comparePageMainHeading, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
@@ -191,11 +193,20 @@ test.describe("live-api-smoke", () => {
 
     await waitForSealedFindings(request, runId, scope, 180_000);
 
+    // `#run-explanation` / `#artifacts-exports` only render once the run has a golden manifest
+    // (`buildRunDetailNavSections` gates both on `manifestId`), which is produced by an explicit
+    // commit; sealed findings alone are not sufficient. Commit before asserting on those sections.
+    await waitForReadyForCommit(request, runId, 120_000, scope);
+    await commitRun(request, runId, scope);
+
     await page.goto(`/reviews/${encodeURIComponent(runId)}`, { waitUntil: "domcontentloaded" });
 
     await expectLiveRunDetailPageReady(page, 120_000);
 
-    await page.locator("#run-explanation").scrollIntoViewIfNeeded();
+    const runExplanation = page.locator("#run-explanation");
+
+    await expect(runExplanation).toBeVisible({ timeout: 90_000 });
+    await runExplanation.scrollIntoViewIfNeeded();
 
     await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 90_000 });
   });
