@@ -100,6 +100,10 @@ export const PILOT_COMMAND_CENTER_OUTCOMES = [
 
 export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional setup:";
 
+/** Continue-setup card body — paired with {@link PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL} on Overview. */
+export const OPERATOR_HOME_CONTINUE_SETUP_BODY =
+  "Finish workspace setup, reviewer access, and optional cloud connections.";
+
 export const PILOT_COMMAND_CENTER_STEPS_HEADING = "3 steps";
 
 export const PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect cloud";

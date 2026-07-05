@@ -1,3 +1,4 @@
+import { InlineGuidance } from "@/components/InlineGuidance";
 import {
   RECURRENCE_SCHEDULES_HELPER_BODY,
   RECURRENCE_SCHEDULES_HELPER_NEXT_STEP,
@@ -21,8 +22,9 @@ export function RecurrenceSchedulesWorkflowHelperCard() {
         {RECURRENCE_SCHEDULES_HELPER_BODY}
       </p>
       <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        <span className="font-medium text-neutral-800 dark:text-neutral-200">Next step: </span>
-        {RECURRENCE_SCHEDULES_HELPER_NEXT_STEP}
+        <InlineGuidance label="Next step:" labelTestId="inline-guidance-next-step">
+          {RECURRENCE_SCHEDULES_HELPER_NEXT_STEP}
+        </InlineGuidance>
       </p>
     </aside>
   );

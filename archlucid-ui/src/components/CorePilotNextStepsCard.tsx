@@ -5,6 +5,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { InlineGuidance } from "@/components/InlineGuidance";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
@@ -177,7 +179,7 @@ function FirstReviewCheckpointStrip(props: {
         ))}
       </ol>
       <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-checkpoint-next-action">
-        {checkpointNextAction(activeCheckpoint.id, props.latestRunId)}
+        <InlineGuidanceText text={checkpointNextAction(activeCheckpoint.id, props.latestRunId)} />
       </p>
     </section>
   );
@@ -218,9 +220,10 @@ function SkipForNowNote() {
       className={cn("m-0 mt-3 leading-relaxed text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="pilot-skip-for-now"
     >
-      <span className="font-medium text-neutral-600 dark:text-neutral-300">Skip for now:</span>{" "}
-      Alerts, Planning, Digests, Advisory, Compare, Replay, Governance, and Ask — not needed for your first architecture
-      review.
+      <InlineGuidance label="Skip for now:" labelTestId="inline-guidance-skip-for-now">
+        Alerts, Planning, Digests, Advisory, Compare, Replay, Governance, and Ask — not needed for your first architecture
+        review.
+      </InlineGuidance>
     </p>
   );
 }

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import {
@@ -333,7 +334,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
                 <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                   {KEY_CONCEPTS.map((row) => (
                     <li key={row.label}>
-                      <span className="font-semibold text-neutral-800 dark:text-neutral-200">{row.label}:</span> {row.text}
+                      <InlineGuidanceLabel label={`${row.label}:`} /> {row.text}
                     </li>
                   ))}
                 </ul>

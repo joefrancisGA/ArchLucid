@@ -11,6 +11,14 @@ describe("emphasizeInlineGuidanceLabels", () => {
     );
   });
 
+  it("bolds optional setup labels inside list items", () => {
+    const input = "- Optional setup: connect cloud and invite a reviewer.";
+
+    expect(emphasizeInlineGuidanceLabels(input)).toBe(
+      "- **Optional setup:** connect cloud and invite a reviewer.",
+    );
+  });
+
   it("bolds guidance labels inside list items", () => {
     const input = "- Optional: configure routing after your first rule.";
 

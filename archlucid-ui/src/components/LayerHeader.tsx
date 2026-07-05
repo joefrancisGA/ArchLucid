@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
 import {
@@ -68,9 +69,7 @@ export function LayerHeader({
           title={ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
         >
           <>
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">
-              Review package and evidence trail:
-            </span>{" "}
+            <InlineGuidanceLabel label="Review package and evidence trail:" />{" "}
             {ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
           </>
         </p>

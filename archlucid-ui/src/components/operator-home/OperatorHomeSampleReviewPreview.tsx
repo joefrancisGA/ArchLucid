@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -51,11 +52,11 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
       </CardHeader>
 
       <CardContent className={OPERATOR_CARD.content}>
-        <p
-          className={cn("m-0 mb-2", OPERATOR_TYPE_SCALE.helper, "font-medium text-al-text-secondary")}
-          data-testid="operator-home-sample-review-includes-label"
-        >
-          {OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL}
+        <p className={cn("m-0 mb-2", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+          <InlineGuidanceLabel
+            label={OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL}
+            testId="operator-home-sample-review-includes-label"
+          />
         </p>
         <ul
           className="m-0 list-none divide-y divide-neutral-200/70 p-0 dark:divide-neutral-800"

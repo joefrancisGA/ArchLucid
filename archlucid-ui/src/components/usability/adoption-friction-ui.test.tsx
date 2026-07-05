@@ -12,6 +12,7 @@ import {
   PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK,
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
 } from "@/lib/buyer-polish-copy";
+import { INLINE_GUIDANCE_LABEL_CLASS } from "@/lib/design-tokens";
 import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
@@ -51,7 +52,9 @@ describe("PilotCommandCenterCard", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-command-center-optional-setup")).toBeInTheDocument();
-    expect(screen.getByText(PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL)).toBeInTheDocument();
+    const optionalSetupLabel = screen.getByTestId("inline-guidance-optional-setup");
+    expect(optionalSetupLabel).toHaveTextContent(PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL);
+    expect(optionalSetupLabel).toHaveClass(INLINE_GUIDANCE_LABEL_CLASS.split(" ")[0]);
     expect(screen.getByTestId("pilot-command-center-connect-azure")).toHaveAttribute("href", "/integrations/cloud-connections");
     expect(screen.getByTestId("pilot-command-center-invite-reviewer")).toHaveAttribute("href", INVITE_REVIEWER_PATH);
     expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toBeInTheDocument();

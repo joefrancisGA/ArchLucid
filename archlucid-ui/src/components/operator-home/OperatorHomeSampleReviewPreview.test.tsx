@@ -8,7 +8,7 @@ import {
   OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL,
   OPERATOR_HOME_SAMPLE_FINDINGS_LEAD,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
+import { OPERATOR_HOME_CARD_SECTION_HEADING, INLINE_GUIDANCE_LABEL_CLASS } from "@/lib/design-tokens";
 import { SHOWCASE_HOME_SAMPLE_FINDINGS } from "@/lib/showcase-home-sample-findings";
 import {
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
@@ -38,9 +38,9 @@ describe("OperatorHomeSampleReviewPreview (TB-353)", () => {
       }
     }
     expect(screen.getByText(OPERATOR_HOME_SAMPLE_FINDINGS_LEAD)).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-sample-review-includes-label")).toHaveTextContent(
-      OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL,
-    );
+    const includesLabel = screen.getByTestId("operator-home-sample-review-includes-label");
+    expect(includesLabel).toHaveTextContent(OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL);
+    expect(includesLabel).toHaveClass(INLINE_GUIDANCE_LABEL_CLASS.split(" ")[0]);
     expect(screen.queryByText(/architecture request/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("operator-home-sample-review-finding-list")).toBeInTheDocument();
 

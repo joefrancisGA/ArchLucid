@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { pageContextualHintForPathname, pageHintDismissStorageKey } from "@/lib/page-contextual-hints";
 
@@ -57,7 +58,8 @@ export function ContextualPageHintStrip(): React.JSX.Element | null {
       role="note"
     >
       <p className="m-0 max-w-prose">
-        <span className="font-medium">What you can do here:</span> {hint.message}
+        <InlineGuidanceLabel label="What you can do here:" testId="inline-guidance-what-you-can-do-here" />{" "}
+        {hint.message}
         {hint.learnMoreHref !== undefined ? (
           <>
             {" "}

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { InlineGuidance } from "@/components/InlineGuidance";
 import type { RunDetailFirstScreenProofSummary } from "@/lib/run-detail-first-screen-proof-status";
 import { runDetailFirstScreenProofDispositionClass } from "@/lib/run-detail-first-screen-proof-status";
 import { PROOF_CONFIDENCE_FIELD_LABEL } from "@/lib/proof-confidence-taxonomy";
@@ -59,7 +60,9 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
       </dl>
 
       <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>
-        <span className="font-semibold">Next action:</span> {summary.nextAction}
+        <InlineGuidance label="Next action:" labelTestId="inline-guidance-next-action">
+          {summary.nextAction}
+        </InlineGuidance>
       </p>
 
       {summary.detail ? (

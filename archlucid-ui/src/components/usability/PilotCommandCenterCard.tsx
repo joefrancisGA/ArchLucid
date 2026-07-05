@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { Button } from "@/components/ui/button";
 import { PilotPathPreviewStepper } from "@/components/usability/PilotPathPreviewStepper";
@@ -106,7 +107,10 @@ export function PilotCommandCenterCard(): React.JSX.Element {
       {!hasCommittedArchitectureReview ? (
         <div className="heroOptionalSetup mt-2 space-y-2" data-testid="pilot-command-center-optional-setup">
           <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-            {PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL}
+            <InlineGuidanceLabel
+              label={PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL}
+              testId="inline-guidance-optional-setup"
+            />
           </p>
           <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
             <Button asChild variant="outline" size="sm" className={optionalSetupButtonClass}>
