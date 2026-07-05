@@ -7,17 +7,15 @@
 
 **Audience:** Deployers wiring `archlucid-ui` for pilots or production.
 
-## Buyer-default shell (omitted `NEXT_PUBLIC_OPERATOR_EXPERIENCE`)
+## Buyer-default shell (default for all authenticated builds — TB-643)
 
-When **`NEXT_PUBLIC_OPERATOR_EXPERIENCE`** is **unset** or not equal to `operator`, the UI uses the **buyer-oriented** operator shell: friendlier labels, fewer shortcut chips, and deliverables-first copy on review detail. This is the **default for new tenants** to reduce cognitive load.
+**`isBuyerPolishedOperatorShellEnv()`** is **true** for production operator deploys, demos, and frictionless trial — independent of **`NEXT_PUBLIC_OPERATOR_EXPERIENCE`**. Buyer-friendly labels, hidden dev chrome, and audience-tier API problem details are the default customer experience.
 
-**Does not change:** API authorization, RBAC, or progressive disclosure toggles in the sidebar footer (`Show analysis & investigation tools`, `Show governance, audit & admin controls`). Those still gate Operate-layer links per [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md).
+**Does not change:** API authorization, RBAC, or progressive disclosure toggles in the sidebar footer (`Show analysis & investigation tools`, `Show governance, audit & admin controls`). Those still gate Operate-layer links per [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md). Dense **System Administration** nav remains behind **`NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV`** / internal-operator flags.
 
 ## Full operator shell (`NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`)
 
-Set to **`operator`** (case-insensitive) for **internal** or **power-user** deployments that want dense nav metadata, shortcut hints, and technical identifiers surfaced consistently.
-
-Local `next dev` sets this in **`archlucid-ui/.env.development`** so engineers keep the historical operator layout.
+Set to **`operator`** (case-insensitive) for **internal** engineer builds that opt into dense dev chrome, technical identifiers, engineering budget banners, and shortcut hints — **without** disabling buyer-polished vocabulary.
 
 ## Demo / static showcase builds
 

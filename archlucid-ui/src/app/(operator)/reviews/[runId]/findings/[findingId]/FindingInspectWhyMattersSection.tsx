@@ -6,7 +6,7 @@ import type { ReactElement } from "react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { BUYER_SHOWCASE_POLICY_PACK_LABEL } from "@/lib/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
 import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -78,7 +78,7 @@ export function FindingInspectWhyMattersSection({
           </div>
         ) : null}
       </dl>
-      {payload.decisionRuleId && (variant === "inspect" || !isBuyerPolishedOperatorShellEnv()) ? (
+      {payload.decisionRuleId && (variant === "inspect" || isOperatorExperienceFullShellEnv()) ? (
         <div className="mt-3">
           <CollapsibleSection title="Technical rule identifier" defaultOpen={variant === "inspect"}>
             <div className="flex flex-wrap items-center gap-2">

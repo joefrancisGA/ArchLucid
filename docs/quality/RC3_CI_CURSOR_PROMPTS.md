@@ -1,3 +1,5 @@
+> **Archived (2026-07-05):** Historical **RC3** prompts only. Active release-candidate work uses branch **`RC6`** and [`docs/runbooks/RC6_CONTAINER_APPS_DEPLOYMENT.md`](../runbooks/RC6_CONTAINER_APPS_DEPLOYMENT.md).
+>
 > **Scope:** Cursor agent copy-paste prompts for **RC3** CI / release-gate remediation after run [28443661305](https://github.com/joefrancisGA/ArchLucid/actions/runs/28443661305). Not a substitute for [`docs/library/TEST_EXECUTION_MODEL.md`](../library/TEST_EXECUTION_MODEL.md) or workflow YAML as source of truth.
 
 # RC3 CI — Cursor prompts (2026-06-30)
@@ -10,7 +12,7 @@
 
 | Job | Result | Root cause | Blocking? |
 |-----|--------|------------|-----------|
-| **CI: guards pre-corset (text)** | failure | Control-flow spacing in `ArchitectureAnalysisService.cs` | Warn-only on RC3 (`continue-on-error` unless `RC2`) |
+| **CI: guards pre-corset (text)** | failure | Control-flow spacing in `ArchitectureAnalysisService.cs` | Warn-only on RC3 (`continue-on-error` unless `RC6`) |
 | **Operator UI: Playwright mock functional** | failure | `executive-roi-dashboard.spec.ts` — empty executive dashboard + missing ROI panels | **Yes** |
 | **Operator UI: e2e live API + SQL** | **cancelled** | Playwright step ~112 min; job `timeout-minutes: 120` (API **did** reach `/health/ready`) | Warn-only |
 | **Operator UI: live e2e (ApiKey / JWT subset)** | failure | Playwright test timeouts (180s / 240s), not API boot | Warn-only |

@@ -102,6 +102,20 @@ export const SERVICE_BUS_HEALTH_LABELS = {
   systemHealthLink: "System health",
 } as const;
 
+/** Cold-start boot gate (dev/staging only) — see {@link isColdStartGateEnv}. */
+export const COLD_START_GATE_LABELS = {
+  title: "ArchLucid is waking up",
+  body: "This environment scales down to save cost when nobody is using it. It's coming back online now — this usually takes under a minute.",
+  statusLabel: "Status",
+  waitingStatus: "Starting up…",
+  readyStatus: "Ready",
+  entriesProgress: (readyCount: number, totalCount: number) => `${readyCount} of ${totalCount} systems ready`,
+  slowHint: "Still going — a paused database can occasionally take a bit longer to resume.",
+  readyTitle: "You're all set",
+  readyBody: "Everything is up and running.",
+  continueButton: "Continue to ArchLucid",
+} as const;
+
 /** Sidebar group headings — single source for `*-nav-group-builder.ts` files. */
 export const OPERATOR_NAV_GROUP_LABELS = {
   reviewWork: "Architecture",

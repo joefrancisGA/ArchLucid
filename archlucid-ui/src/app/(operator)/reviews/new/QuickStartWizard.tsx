@@ -18,7 +18,7 @@ import { architectureReviewTemplates, suggestedSystemNameFromTemplateId } from "
 import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
@@ -205,7 +205,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
 
   return (
     <div className="space-y-4 pb-36">
-      {!isBuyerPolishedOperatorShellEnv() && llmBudgetStatus !== null ? (
+      {isOperatorExperienceFullShellEnv() && llmBudgetStatus !== null ? (
         <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} />
       ) : null}
       <div className="space-y-1" data-testid="quick-start-progress">

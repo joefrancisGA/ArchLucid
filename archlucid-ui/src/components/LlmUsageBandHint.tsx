@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   fetchLlmMonthlyDollarBudgetStatusCached,
   formatBuyerLlmUsageApproachingCopy,
@@ -27,7 +27,7 @@ export function LlmUsageBandHint() {
 
   useEffect(() => {
     if (
-      !isBuyerPolishedOperatorShellEnv() ||
+      isOperatorExperienceFullShellEnv() ||
       isNextPublicDemoMode() ||
       isStaticDemoPayloadFallbackEnabled()
     ) {
@@ -62,7 +62,7 @@ export function LlmUsageBandHint() {
   }, []);
 
   if (
-    !isBuyerPolishedOperatorShellEnv() ||
+    isOperatorExperienceFullShellEnv() ||
     isNextPublicDemoMode() ||
     isStaticDemoPayloadFallbackEnabled() ||
     status === null ||

@@ -20,11 +20,13 @@ export function resolveSetupHealthPresentation(body: HealthReadyResponse | null)
 
   const status = (body.status ?? "").toLowerCase();
 
-  if (status.includes("healthy") || status.includes("ok")) {
+  // Check negative statuses before the "healthy" substring match below — "unhealthy" contains
+  // "healthy" as a substring, so it would otherwise be misread as a healthy status.
+  if (status.includes("unhealthy")) {
     return {
-      tone: "ready",
-      label: "Setup healthy",
-      isHealthy: true,
+      tone: "attention",
+      label: "Setup blocked",
+      isHealthy: false,
     };
   }
 
@@ -33,6 +35,14 @@ export function resolveSetupHealthPresentation(body: HealthReadyResponse | null)
       tone: "attention",
       label: "Setup needs attention",
       isHealthy: false,
+    };
+  }
+
+  if (status.includes("healthy") || status.includes("ok")) {
+    return {
+      tone: "ready",
+      label: "Setup healthy",
+      isHealthy: true,
     };
   }
 

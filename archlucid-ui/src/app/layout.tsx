@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
+import { ColdStartGate } from "@/components/system/ColdStartGate";
 import { MARKETING_ROOT_OG_DESCRIPTION } from "@/lib/marketing-open-graph";
 import { PERSONA_SHELL_DEFAULT_DOCUMENT_TITLE } from "@/lib/persona-shell-vocabulary";
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
@@ -61,7 +62,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="min-h-screen font-sans">
-        {children}
+        <ColdStartGate>{children}</ColdStartGate>
       </body>
     </html>
   );

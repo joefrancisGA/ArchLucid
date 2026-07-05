@@ -6,7 +6,7 @@ import { useMemo } from "react";
 
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { findHealthReadyEntryByName } from "@/lib/health-dashboard-types";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -41,7 +41,7 @@ type SystemHealthStatusStripProps = {
 /** Readiness as inline metadata (no card chrome) — only shown when a real status is available. */
 export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripProps) {
   const queryEnabled =
-    !isNextPublicDemoMode() && !isStaticDemoPayloadFallbackEnabled() && !isBuyerPolishedOperatorShellEnv();
+    !isNextPublicDemoMode() && !isStaticDemoPayloadFallbackEnabled() && isOperatorExperienceFullShellEnv();
 
   const { data: ready, isPending } = useHealthReadySummaryQuery({ enabled: queryEnabled });
 

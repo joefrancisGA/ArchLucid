@@ -402,7 +402,7 @@ jobs:
           echo "revision=$REV" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
-      # Fail fast before the deploy if the API Container App is missing required env vars for the RC2
+      # Fail fast before the deploy if the API Container App is missing required env vars for the RC6
       # production-like configuration. Catches config drift before wasting time on a bad deployment.
       - name: Configuration completeness check (pre-deploy)
         env:
@@ -464,6 +464,21 @@ jobs:
             || fail "ArchLucid__ContentSafety__Endpoint is not set"
           is_set "ArchLucid__ContentSafety__ApiKey" \
             || fail "ArchLucid__ContentSafety__ApiKey is not set"
+
+          # Retrieval (Azure AI Search) is ephemeral by design (owner 2026-07-05): the search
+          # service is recreated on demand and torn down by a nightly job to avoid idle cost.
+          # Only warn (never block CD) when it is absent; ArchLucid falls back to InMemory vector
+          # index when Retrieval__VectorIndex is unset.
+          if is_set "Retrieval__AzureSearch__Endpoint"; then
+            is_exact "Retrieval__VectorIndex" "AzureSearch" \
+              || echo "::warning::Retrieval__AzureSearch__Endpoint is set but Retrieval__VectorIndex is not 'AzureSearch'"
+            is_set "Retrieval__AzureSearch__IndexName" \
+              || echo "::warning::Retrieval__AzureSearch__Endpoint is set but Retrieval__AzureSearch__IndexName is not"
+            is_set "Retrieval__AzureSearch__ApiKey" \
+              || echo "::warning::Retrieval__AzureSearch__Endpoint is set but Retrieval__AzureSearch__ApiKey is not"
+          else
+            echo "::notice::Retrieval__AzureSearch__Endpoint not set — RAG vector index is InMemory (search service is ephemeral, recreated on demand)."
+          fi
 
           if [ "$FAILED" -ne 0 ]; then
             echo "::error::Pre-deploy configuration completeness check FAILED. Fix the API Container App env vars before retrying CD."

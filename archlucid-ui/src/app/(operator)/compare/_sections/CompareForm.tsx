@@ -17,7 +17,7 @@ import {
   readCompareRunIdsFromSearchParams,
 } from "@/lib/compare-url-query-params";
 import { BUYER_COMPARE_PAGE_TITLE } from "@/lib/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import {
   isStaticDemoPayloadFallbackEnabled,
@@ -218,7 +218,7 @@ export function CompareForm() {
   }, [searchParams, leftRunId, rightRunId]);
 
   useEffect(() => {
-    if ((!isBuyerPolishedOperatorShellEnv() && !isCtoDemoPackEnv()) || !isStaticDemoPayloadFallbackEnabled()) {
+    if ((!isOperatorExperienceFullShellEnv() && !isCtoDemoPackEnv()) || !isStaticDemoPayloadFallbackEnabled()) {
       return;
     }
 
