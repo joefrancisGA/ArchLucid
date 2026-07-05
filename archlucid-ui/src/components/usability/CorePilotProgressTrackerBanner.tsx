@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
@@ -88,7 +89,8 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
           </p>
           {nextStep !== null ? (
             <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-              Next: <span className="font-medium">{nextStep.title}</span>
+              <InlineGuidanceLabel label="Next:" testId="inline-guidance-next" />{" "}
+              <span className="font-medium">{nextStep.title}</span>
             </p>
           ) : null}
         </div>

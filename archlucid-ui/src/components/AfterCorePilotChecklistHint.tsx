@@ -6,7 +6,7 @@ import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { DismissControl } from "@/components/usability/DismissControl";
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
@@ -142,7 +142,7 @@ export function AfterCorePilotChecklistHint() {
                         className={cn("m-0 mt-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                         data-testid={`after-core-pilot-sidebar-note-${index}`}
                       >
-                        <span className="font-medium text-neutral-600 dark:text-neutral-500">Sidebar: </span>
+                        <InlineGuidanceLabel label="Sidebar:" className="font-medium text-neutral-600 dark:text-neutral-500" />{" "}
                         {s.sidebarNote}
                       </p>
                     </li>

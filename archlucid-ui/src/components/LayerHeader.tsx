@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import {
   mergeLayerGuidanceForBuyerDemoShell,
   type LayerGuidancePageKey,
@@ -87,7 +87,9 @@ export function LayerHeader({
         {block.useWhen}
       </p>
       {!compact && block.firstPilotNote ? (
-        <p className={cn("m-0 mt-1.5 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{block.firstPilotNote}</p>
+        <p className={cn("m-0 mt-1.5 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+          <InlineGuidanceText text={block.firstPilotNote} />
+        </p>
       ) : null}
       {block.enterpriseFootnote ? (
         <p className={cn("m-0 mt-1.5 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>

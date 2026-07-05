@@ -1,7 +1,6 @@
-
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-export type GettingStartedStepsProps = {
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";export type GettingStartedStepsProps = {
   heading: string;
   steps: readonly string[];
   className?: string;
@@ -21,7 +20,9 @@ export function GettingStartedSteps({ heading, steps, className }: GettingStarte
       <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{heading}</p>
       <ol className={cn("mb-0 mt-2 list-decimal space-y-1.5 pl-5 leading-snug text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         {steps.map((step, index) => (
-          <li key={index}>{step}</li>
+          <li key={index}>
+            <InlineGuidanceText text={step} />
+          </li>
         ))}
       </ol>
     </div>

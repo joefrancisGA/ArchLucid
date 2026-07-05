@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { InlineGuidance } from "@/components/InlineGuidance";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { useWorkspaceBaselineArtifactsPresence } from "@/hooks/use-workspace-baseline-artifacts";
@@ -58,7 +59,11 @@ export function ExecutiveDashboardBaselineWarningBanner({
         className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-3 text-al-text-primary dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}
         data-testid="executive-baseline-upload-setup-card"
       >
-        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>Optional: upload workspace baseline inventory</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+          <InlineGuidance label="Optional" labelTestId="inline-guidance-optional">
+            upload workspace baseline inventory
+          </InlineGuidance>
+        </p>
         <p className={cn("mb-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Ground ROI estimates by uploading an Azure extractor inventory ZIP for this workspace.
         </p>

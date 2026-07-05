@@ -27,7 +27,8 @@ describe("FirstWeekRouteGuidance", () => {
     render(<FirstWeekRouteGuidance variant="new-review" />);
 
     expect(screen.getByTestId("first-week-route-guidance-new-review")).toBeInTheDocument();
-    expect(screen.getByText(/Use this when:/)).toBeInTheDocument();
+    expect(screen.getByTestId("inline-guidance-use-this-when")).toHaveTextContent("Use this when:");
+    expect(screen.getByTestId("inline-guidance-use-this-when").tagName).toBe("STRONG");
     expect(screen.getByText(FIRST_WEEK_ROUTE_GUIDANCE["new-review"].bridgeCopy)).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Continue in wizard below" })).not.toBeInTheDocument();
   });

@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { InlineGuidance } from "@/components/InlineGuidance";
 import Link from "next/link";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -317,7 +318,9 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           What&apos;s next
         </h2>
         <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-          Optional: compare reviews, replay review process steps, or explore the architecture graph.
+          <InlineGuidance label="Optional">
+            compare reviews, replay review process steps, or explore the architecture graph.
+          </InlineGuidance>
         </p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           <Link

@@ -1,4 +1,5 @@
 import { tryResolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { parseLeadingInlineGuidanceLabel } from "@/lib/inline-guidance-labels";
 import { applyHelpTopicProductLanguage } from "@/lib/help-product-language";
 
 const MARKDOWN_FILE_PATTERN = /\.md(?:#[^\s)]*)?$/i;
@@ -314,6 +315,46 @@ export function stripInternalBuyerHelpInlineReferences(markdown: string): string
     .replace(/`Tenant\.DataRegion`/gi, "tenant data region");
 }
 
+/** Emphasizes known inline guidance labels in help markdown when not already bold. */
+export function emphasizeInlineGuidanceLabels(markdown: string): string {
+  let inFence = false;
+
+  return markdown
+    .split("\n")
+    .map((line) => {
+      const trimmedFence = line.trimStart();
+
+      if (trimmedFence.startsWith("```")) {
+        inFence = !inFence;
+        return line;
+      }
+
+      if (inFence) {
+        return line;
+      }
+
+      const prefixMatch = /^(\s*(?:[-*]|\d+\.)\s+|>\s*)/.exec(line);
+      const prefix = prefixMatch?.[1] ?? "";
+      const rest = prefixMatch !== undefined && prefixMatch !== null ? line.slice(prefix.length) : line;
+      const restTrimmed = rest.trimStart();
+
+      if (restTrimmed.startsWith("**")) {
+        return line;
+      }
+
+      const parsed = parseLeadingInlineGuidanceLabel(restTrimmed);
+
+      if (parsed === null) {
+        return line;
+      }
+
+      const restLeadingWhitespace = rest.slice(0, rest.length - restTrimmed.length);
+
+      return `${prefix}${restLeadingWhitespace}**${parsed.label}** ${parsed.body}`;
+    })
+    .join("\n");
+}
+
 /**
  * Prepares repo markdown for in-app help rendering — no raw `.md` paths in operator UI.
  */
@@ -327,5 +368,5 @@ export function prepareHelpMarkdownForPresentation(markdown: string, sourceDocPa
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(withoutInlineReferences, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
 
-  return applyHelpTopicProductLanguage(sanitized);
+  return applyHelpTopicProductLanguage(emphasizeInlineGuidanceLabels(sanitized));
 }

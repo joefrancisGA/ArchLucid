@@ -10,6 +10,7 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import type { FirstPilotReadinessGroup, FirstPilotReadinessRow } from "@/lib/first-pilot-readiness-cockpit";
@@ -59,7 +60,9 @@ export function FirstPilotReadinessGroupTable(props: FirstPilotReadinessGroupTab
                   label={mapReadinessStatusToStatusTagLabel(row.status)}
                 />
               </EnterpriseTableCell>
-              <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>{row.summary}</EnterpriseTableCell>
+              <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+                <InlineGuidanceText text={row.summary} />
+              </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <Button variant="link" size="sm" className={cn("h-7 px-0", OPERATOR_TYPOGRAPHY.helper)} asChild>
                   <Link href={row.href}>{row.cta}</Link>

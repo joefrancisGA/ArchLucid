@@ -1,3 +1,4 @@
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 /** Legend for evidence graph node types and default layout hints. */
@@ -23,7 +24,9 @@ export function GraphViewerLegend() {
           {row.label}
         </span>
       ))}
-      <span className="text-neutral-500">Tip: start in review-trail mode; use filters to reduce noise.</span>
+      <span className="text-neutral-500">
+        <InlineGuidanceLabel label="Tip:" className="text-neutral-600 dark:text-neutral-400" /> start in review-trail mode; use filters to reduce noise.
+      </span>
     </div>
   );
 }

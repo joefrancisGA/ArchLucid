@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { InlineGuidance } from "@/components/InlineGuidance";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -206,7 +207,11 @@ export function OnboardingStartClient() {
           ) : null}
 
           <div className={cn("rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-4 p-4", OPERATOR_TYPOGRAPHY.body)}>
-            <p className="m-0 font-medium">Optional: deploy a live sample in Azure</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+              <InlineGuidance label="Optional" labelTestId="inline-guidance-optional">
+                deploy a live sample in Azure
+              </InlineGuidance>
+            </p>
             <p className="m-0 mt-2 leading-relaxed text-teal-900/90 dark:text-teal-100/90">
               Deploy an isolated App Service + storage footprint in your subscription, then run the Azure extractor or hosted
               extractor against it. The template uses Reader-safe resources only — create a dedicated resource group first.

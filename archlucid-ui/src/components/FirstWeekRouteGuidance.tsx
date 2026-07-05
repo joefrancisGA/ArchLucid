@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
+import { InlineGuidance } from "@/components/InlineGuidance";
 import { Button } from "@/components/ui/button";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -104,7 +105,9 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
       className={cn("rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-prose px-3 py-2.5 leading-snug", OPERATOR_TYPOGRAPHY.body)}
     >
       <p className="m-0">
-        <span className="font-semibold text-teal-900 dark:text-teal-200">Use this when:</span> {config.useWhen}
+        <InlineGuidance label="Use this when:" labelTestId="inline-guidance-use-this-when">
+          {config.useWhen}
+        </InlineGuidance>
       </p>
       <GuidanceBody
         useWhen={config.useWhen}

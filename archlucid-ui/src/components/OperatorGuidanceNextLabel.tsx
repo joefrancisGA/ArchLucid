@@ -1,10 +1,6 @@
-import { OPERATOR_GUIDANCE_NEXT_LABEL_CLASS } from "@/lib/design-tokens";
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 
-/** Semibold scan marker for inline guidance prefixes (e.g. First-hour path "Next:"). */
+/** Semibold "Next:" marker for the First-hour path guidance line. */
 export function OperatorGuidanceNextLabel() {
-  return (
-    <strong className={OPERATOR_GUIDANCE_NEXT_LABEL_CLASS} data-testid="operator-guidance-next-label">
-      Next:
-    </strong>
-  );
+  return <InlineGuidanceLabel label="Next:" testId="operator-guidance-next-label" />;
 }

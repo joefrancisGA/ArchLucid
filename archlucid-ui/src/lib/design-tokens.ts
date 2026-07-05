@@ -186,7 +186,10 @@ export const OPERATOR_LINK = {
 } as const;
 
 /** Semibold scan marker on inline guidance lines — pair with normal-weight body copy after the colon. */
-export const OPERATOR_GUIDANCE_NEXT_LABEL_CLASS = "font-semibold text-al-text-primary";
+export const INLINE_GUIDANCE_LABEL_CLASS = "font-semibold text-al-text-primary";
+
+/** @deprecated Use {@link INLINE_GUIDANCE_LABEL_CLASS}. */
+export const OPERATOR_GUIDANCE_NEXT_LABEL_CLASS = INLINE_GUIDANCE_LABEL_CLASS;
 
 export const OPERATOR_TYPOGRAPHY = {
   pageTitle: OPERATOR_TYPE_SCALE.pageTitle,

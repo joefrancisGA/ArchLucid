@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { DismissControl } from "@/components/usability/DismissControl";
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
 function explainViewDismissKey(pathname: string): string {
@@ -59,7 +59,7 @@ export function ExplainThisViewBanner() {
       </div>
       <p className="m-0 mt-1 text-neutral-700 dark:text-neutral-300">{explanation.summary}</p>
       <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">
-        <span className="font-medium text-neutral-800 dark:text-neutral-200">What to do next:</span>{" "}
+        <InlineGuidanceLabel label="What to do next:" testId="inline-guidance-what-to-do-next" />{" "}
         {explanation.nextAction}
       </p>
     </aside>
