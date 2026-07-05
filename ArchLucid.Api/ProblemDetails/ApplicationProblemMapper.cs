@@ -333,11 +333,14 @@ public static class ApplicationProblemMapper
     /// <summary>
     ///     Maps SQL Server timeouts (<see cref="SqlException" /> with <c>Number == -2</c>),
     ///     deadlock victims (<c>1205</c>) to <see cref="StatusCodes.Status409Conflict" />,
+    ///     syntax/programming faults to <see cref="StatusCodes.Status500InternalServerError" />,
     ///     <see cref="TimeoutException" /> to 503, and other <see cref="DbException" /> to 503 Service Unavailable.
     /// </summary>
     /// <remarks>
     ///     <see cref="SqlException.Number" /> <c>-2</c> is the canonical SQL Server timeout error code.
     ///     Deadlock (<c>1205</c>) from parallel writers is treated like other commit races so clients receive 409, not 503.
+    ///     Syntax and programming faults (for example <c>319</c> missing <c>;</c> before a CTE) map to HTTP 500 so
+    ///     deterministic query bugs are not masked as retryable outages.
     ///     Remaining database-origin exceptions are surfaced as retryable 503 so clients and load balancers
     ///     can distinguish transient failures from permanent 500 errors.
     /// </remarks>
@@ -369,6 +372,18 @@ public static class ApplicationProblemMapper
                 "Concurrency conflict",
                 "The database transaction deadlocked with a concurrent request. Retry the commit.",
                 ProblemTypes.Conflict,
+                instance,
+                httpContext);
+            return true;
+        }
+
+        if (TryFindSqlProgrammingFault(ex) is not null)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status500InternalServerError,
+                "Database Query Failed",
+                "The database rejected the query due to a programming error.",
+                ProblemTypes.InternalError,
                 instance,
                 httpContext);
             return true;
@@ -443,6 +458,26 @@ public static class ApplicationProblemMapper
 
         return null;
     }
+
+    /// <summary>
+    ///     SQL Server syntax and programming faults that must not be surfaced as retryable 503 outages.
+    /// </summary>
+    private static SqlException? TryFindSqlProgrammingFault(Exception ex)
+    {
+        for (Exception? e = ex; e is not null; e = e.InnerException)
+        {
+            if (e is not SqlException sql)
+                continue;
+
+            if (IsSqlProgrammingFaultNumber(sql.Number))
+                return sql;
+        }
+
+        return null;
+    }
+
+    private static bool IsSqlProgrammingFaultNumber(int number) =>
+        number is 102 or 156 or 207 or 208 or 2812 or 319 or 4104;
 
     public static ObjectResult CreateProblemResult(
         int statusCode,
