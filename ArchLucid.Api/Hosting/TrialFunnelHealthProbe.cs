@@ -169,8 +169,13 @@ public sealed class TrialFunnelHealthProbe(
             {
                 break;
             }
-            catch (Exception ex) when (ex is not TaskCanceledException)
+            catch (Exception ex)
             {
+                // Includes TaskCanceledException from the probe HttpClient's own request timeout (distinct from
+                // stoppingToken cancellation, handled above). A slow/hanging preview endpoint must count as a probe
+                // failure, not an unhandled BackgroundService exception — the default
+                // HostOptions.BackgroundServiceExceptionBehavior is StopHost, which would otherwise take down the
+                // entire API on a single slow demo-preview response.
                 ArchLucidInstrumentation.RecordTrialFunnelHealthProbe("failure");
                 consecutiveFailures++;
 
