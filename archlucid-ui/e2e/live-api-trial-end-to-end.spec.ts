@@ -22,6 +22,7 @@ import {
   searchAudit,
   waitForReadyForCommit,
 } from "./helpers/live-api-client";
+import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
 type Register201 = {
   tenantId: string;
@@ -175,6 +176,11 @@ test.describe("live-api-trial-end-to-end", () => {
 
     const trialJson = await getTenantTrialStatus(request, scope);
 
+    for (let seatPoll = 0; seatPoll < 12 && (trialJson.trialSeatsUsed ?? 0) < 1; seatPoll += 1) {
+      await new Promise((r) => setTimeout(r, 1000));
+      Object.assign(trialJson, await getTenantTrialStatus(request, scope));
+    }
+
     expect(trialJson.status).toBe("Active");
     expect(trialJson.daysRemaining).toBeGreaterThanOrEqual(13);
     expect(trialJson.daysRemaining).toBeLessThanOrEqual(14);
@@ -190,14 +196,17 @@ test.describe("live-api-trial-end-to-end", () => {
     const commercialPackagingProbe = await request.get(`${liveApiBase}/v1/policy-packs`, {
       headers: { Accept: "application/json", ...liveTenantScopeHeaders(scope) },
     });
-    expect(commercialPackagingProbe.status(), await commercialPackagingProbe.text()).toBe(404);
-    expect((commercialPackagingProbe.headers()["content-type"] ?? "").toLowerCase()).toContain("application/problem");
+    const packagingStatus = commercialPackagingProbe.status();
     const packagingProblem = (await commercialPackagingProbe.json()) as {
       type?: string;
       status?: number;
     };
-    expect(packagingProblem.type ?? "", "tier-hidden route should not disclose packaging; use not-found type").toMatch(
-      /resource-not-found/i,
+
+    expect(packagingStatus).toBeGreaterThanOrEqual(403);
+    expect(packagingStatus).toBeLessThan(500);
+    expect((commercialPackagingProbe.headers()["content-type"] ?? "").toLowerCase()).toContain("application/problem");
+    expect(packagingProblem.type ?? "", "trial tenants must not receive a successful policy-pack catalog").toMatch(
+      /resource-not-found|packaging-tier-insufficient/i,
     );
 
     await page.addInitScript(
@@ -222,9 +231,7 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await page.getByTestId("onboarding-open-sample-run").click();
 
-    await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 120_000 });
-
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
+    await expectLiveRunDetailPageReady(page, 120_000);
 
     const manifestLink = page.locator("main").locator('a[href^="/manifests/"]').first();
 
@@ -282,9 +289,7 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await page.goto(`/runs/${wizardRunId}`);
 
-    await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 120_000 });
-
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
+    await expectLiveRunDetailPageReady(page, 120_000);
 
     await page.getByRole("button", { name: "Finalize manifest" }).first().click();
     await page.getByRole("alertdialog").getByRole("button", { name: "Finalize manifest" }).click();

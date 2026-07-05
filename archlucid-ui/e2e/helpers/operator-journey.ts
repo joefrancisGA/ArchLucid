@@ -333,3 +333,10 @@ export async function expandCompareStructuredDecisionChanges(page: Page): Promis
 export function structuredCompareSponsorRecommendationParagraph(page: Page): Locator {
   return page.locator("#compare-structured").getByTestId("compare-sponsor-recommendation");
 }
+
+/** Run detail page: loading finished and primary review headline (`RunDetailPageHeader` H1) is visible. */
+export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_000): Promise<void> {
+  await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: timeoutMs });
+  await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
+  await expect(page.locator("main h1").first()).toBeVisible({ timeout: timeoutMs });
+}

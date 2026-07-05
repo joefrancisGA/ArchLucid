@@ -51,6 +51,9 @@ test.describe("live-api-socratic-intake", () => {
 
     await page.getByTestId("socratic-intent").fill(INTENT);
     await page.getByTestId("socratic-outcome").fill(OUTCOME);
+    await page.getByTestId("draft-intake-actor-add").click();
+    await page.getByTestId("draft-intake-actor-label-0").fill("Primary operator");
+    await expect(page.getByTestId("socratic-admit")).toBeEnabled({ timeout: 15_000 });
     await page.getByTestId("socratic-admit").click();
 
     await expect(page.getByTestId("socratic-questions-done")).toBeVisible({ timeout: 60_000 });
@@ -107,6 +110,10 @@ test.describe("live-api-socratic-intake", () => {
 
     for (const question of pending) {
       await skipDraftQuestionLive(request, draftId, question.questionKey);
+    }
+
+    if (!pending.some((question) => question.questionKey === "l0.actor.additional-kinds")) {
+      await skipDraftQuestionLive(request, draftId, "l0.actor.additional-kinds");
     }
 
     const submit = await submitDraftRequestLive(request, draftId);

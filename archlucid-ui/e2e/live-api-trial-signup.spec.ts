@@ -23,6 +23,7 @@ import {
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
+import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
 const modes = (process.env.LIVE_TRIAL_E2E_MODES ?? "register-baseline")
   .split(",")
@@ -186,9 +187,7 @@ test.describe("live-api-trial-signup", () => {
 
     await sampleLink.click();
 
-    await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 120_000 });
-
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
+    await expectLiveRunDetailPageReady(page, 120_000);
 
     const manifestLink = page.locator("main").locator('a[href^="/manifests/"]').first();
 

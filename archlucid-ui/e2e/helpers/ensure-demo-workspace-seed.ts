@@ -51,6 +51,42 @@ export async function ensureDemoWorkspaceSeedReady(request: APIRequestContext): 
 
     const deltas = await getPilotRunDeltasRaw(request, check.runId, check.scope);
 
+    if (deltas.ok()) {
+      continue;
+    }
+
+    if (deltas.status() === 503) {
+      let lastStatus = deltas.status();
+      let lastBody = (await deltas.text()).slice(0, 500);
+
+      for (let attempt = 0; attempt < 8; attempt++) {
+        await new Promise((r) => setTimeout(r, Math.min(250 * 2 ** attempt, 4000)));
+
+        const retry = await getPilotRunDeltasRaw(request, check.runId, check.scope);
+
+        if (retry.ok()) {
+          lastStatus = retry.status();
+          lastBody = "";
+          break;
+        }
+
+        lastStatus = retry.status();
+        lastBody = (await retry.text()).slice(0, 500);
+
+        if (lastStatus !== 503) {
+          break;
+        }
+      }
+
+      if (lastStatus === 200 || lastStatus === 204) {
+        continue;
+      }
+
+      throw new Error(
+        `${check.label}: GET /v1/pilots/runs/{runId}/pilot-run-deltas expected 200 — ${lastStatus}: ${lastBody}`,
+      );
+    }
+
     if (!deltas.ok()) {
       throw new Error(
         `${check.label}: GET /v1/pilots/runs/{runId}/pilot-run-deltas expected 200 — ${deltas.status()}: ${(await deltas.text()).slice(0, 500)}`,

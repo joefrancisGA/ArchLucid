@@ -4,8 +4,6 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import { liveApiBase } from "./helpers/live-api-client";
 
@@ -40,7 +38,7 @@ test.describe("live-api-error-states", () => {
 
     await expect(problemOrNotFound.first()).toBeVisible({ timeout: 30_000 });
 
-    await expect(page.getByRole("link", { name: OPERATOR_NAV_LINK_LABELS.reviewPackage })).toBeVisible();
+    await expect(page.getByTestId("not-found-review-packages")).toBeVisible();
   });
 
   test("runs list page renders without error alerts (empty list is ok)", async ({ page }) => {
@@ -69,7 +67,7 @@ test.describe("live-api-error-states", () => {
 
     await page.goto("/governance/audit");
 
-    await expect(page.getByRole("heading", { name: /audit log/i })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("heading", { name: /audit trail/i })).toBeVisible({ timeout: 30_000 });
 
     await page.getByLabel(/review id/i).fill(fakeRunId);
     await page.getByRole("button", { name: /^Search$/i }).click();

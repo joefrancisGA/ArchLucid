@@ -35,7 +35,7 @@ import {
   minimalPolicyPackContentJson,
   resolveLiveJwtMode,
 } from "./helpers/live-api-client";
-import { comparisonRequestOutcomePanel, comparePageMainHeading } from "./helpers/operator-journey";
+import { comparisonRequestOutcomePanel, comparePageMainHeading, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
 function makeLiveSmokeArchLucidZipForInput(): { name: string; mimeType: string; buffer: Buffer } {
   const manifest = {
@@ -193,9 +193,7 @@ test.describe("live-api-smoke", () => {
 
     await page.goto(`/reviews/${encodeURIComponent(runId)}`, { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 120_000 });
-
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
+    await expectLiveRunDetailPageReady(page, 120_000);
 
     await page.locator("#run-explanation").scrollIntoViewIfNeeded();
 
