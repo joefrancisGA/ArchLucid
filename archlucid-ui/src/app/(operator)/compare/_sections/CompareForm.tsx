@@ -17,7 +17,7 @@ import {
   readCompareRunIdsFromSearchParams,
 } from "@/lib/compare-url-query-params";
 import { BUYER_COMPARE_PAGE_TITLE } from "@/lib/buyer-polish-copy";
-import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import {
   isStaticDemoPayloadFallbackEnabled,
