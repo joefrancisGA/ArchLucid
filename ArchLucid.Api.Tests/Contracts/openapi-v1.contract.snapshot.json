@@ -12972,6 +12972,95 @@
         },
         "type": "object"
       },
+      "ItsmAtlassianOAuthConsentCompleteRequest": {
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "state"
+        ],
+        "type": "object"
+      },
+      "ItsmAtlassianOAuthConsentCompleteResponse": {
+        "properties": {
+          "connection": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TenantItsmConnectorConnectionResponse"
+              }
+            ]
+          },
+          "refreshTokenStored": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "ItsmAtlassianOAuthConsentStartRequest": {
+        "properties": {
+          "inboundWebhookKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instanceBaseUrl": {
+            "type": "string"
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "oAuthClientIdKeyVaultSecretName": {
+            "type": "string"
+          },
+          "oAuthClientSecretKeyVaultSecretName": {
+            "type": "string"
+          },
+          "oAuthRefreshTokenKeyVaultSecretName": {
+            "type": "string"
+          },
+          "redirectUri": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "instanceBaseUrl",
+          "oAuthClientIdKeyVaultSecretName",
+          "oAuthClientSecretKeyVaultSecretName",
+          "oAuthRefreshTokenKeyVaultSecretName"
+        ],
+        "type": "object"
+      },
+      "ItsmAtlassianOAuthConsentStartResponse": {
+        "properties": {
+          "authorizeUrl": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "authorizeUrl",
+          "state"
+        ],
+        "type": "object"
+      },
       "ItsmFindingCorrelationListItem": {
         "properties": {
           "createdUtc": {
@@ -56449,6 +56538,186 @@
               }
             },
             "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantItsmConnectorConnections"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/integrations/itsm/connections/jira/oauth/consent/complete": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItsmAtlassianOAuthConsentCompleteRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItsmAtlassianOAuthConsentCompleteRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItsmAtlassianOAuthConsentCompleteRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmAtlassianOAuthConsentCompleteResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmAtlassianOAuthConsentCompleteResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmAtlassianOAuthConsentCompleteResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "TenantItsmConnectorConnections"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/integrations/itsm/connections/jira/oauth/consent/start": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItsmAtlassianOAuthConsentStartRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItsmAtlassianOAuthConsentStartRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItsmAtlassianOAuthConsentStartRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmAtlassianOAuthConsentStartResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmAtlassianOAuthConsentStartResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmAtlassianOAuthConsentStartResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
           }
         },
         "tags": [
