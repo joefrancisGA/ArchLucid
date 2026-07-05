@@ -339,6 +339,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
             <Link
               href={`/signed-records/${encodeURIComponent(trimmedManifestId)}`}
               className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
+              data-testid="run-detail-finalized-package-link"
             >
               {packageBody}
             </Link>

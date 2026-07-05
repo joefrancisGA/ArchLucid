@@ -150,7 +150,7 @@ test.describe("live-api-trial-signup", () => {
     await expect(sampleLink).toBeVisible({ timeout: 120_000 });
 
     const sampleHref = (await sampleLink.getAttribute("href")) ?? "";
-    expect(sampleHref).toMatch(/^\/runs\//);
+    expect(sampleHref).toMatch(/^\/reviews\//);
 
     const deadline = Date.now() + 120_000;
     let sawTrialProvisioned = false;

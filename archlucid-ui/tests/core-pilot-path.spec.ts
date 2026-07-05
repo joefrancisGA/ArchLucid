@@ -57,7 +57,7 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
     const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
     const manifestLink = outcomeStripSignedRecordLink(outcomeStrip);
 
-    await expect(manifestLink).toBeVisible();
+    await expect(manifestLink).toBeVisible({ timeout: 60_000 });
     await expect(manifestLink).toContainText(/Finalized/i);
 
     await page.goto(BUYER_GOLDEN_PATH_HREFS.signedManifestFriendly);

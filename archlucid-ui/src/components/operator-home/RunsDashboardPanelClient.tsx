@@ -37,7 +37,6 @@ import {
   OPERATOR_HOME_SECTION_HEADING,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
-  OPERATOR_TYPOGRAPHY,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";

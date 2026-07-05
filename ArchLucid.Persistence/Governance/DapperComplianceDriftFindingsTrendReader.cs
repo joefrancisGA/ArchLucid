@@ -30,13 +30,25 @@ public sealed class DapperComplianceDriftFindingsTrendReader(IReadOnlyDbConnecti
         if (bucketSize <= TimeSpan.Zero)
             throw new ArgumentOutOfRangeException(nameof(bucketSize));
 
-        long bucketTicks = bucketSize.Ticks;
+        // DATEADD's offset argument is a 32-bit int (SQL Server hard limit for every datepart, including
+        // NANOSECOND). A NANOSECOND-scale offset over a realistic trend window (days/weeks) overflows that
+        // int and SQL Server throws "Arithmetic overflow error converting expression to data type int" —
+        // surfaced to callers as a 503 via ApplicationProblemMapper.TryMapDatabaseException. SECOND-scale
+        // offsets stay within int32 for date ranges up to ~68 years, and bucketMinutes (the only current
+        // caller, GovernanceController) is always a whole number of minutes, so second precision loses
+        // nothing. (Floor-division identity floor(floor(a/b)/c) == floor(a/(b*c)) keeps this bucketing
+        // identical to the tick-based math InMemoryComplianceDriftFindingsTrendReader uses.)
+
+        if (bucketSize.Ticks % TimeSpan.TicksPerSecond != 0)
+            throw new ArgumentException("Bucket size must be a whole number of seconds.", nameof(bucketSize));
+
+        long bucketSeconds = bucketSize.Ticks / TimeSpan.TicksPerSecond;
 
         const string sql = """
                            SELECT
                                DATEADD(
-                                   NANOSECOND,
-                                   (DATEDIFF_BIG(NANOSECOND, @FromUtc, OccurredUtc) / @BucketTicks) * @BucketTicks,
+                                   SECOND,
+                                   (DATEDIFF_BIG(SECOND, @FromUtc, OccurredUtc) / @BucketSeconds) * @BucketSeconds,
                                    @FromUtc) AS BucketUtc,
                                SUM(CASE WHEN EventType IN @OpenedTypes THEN 1 ELSE 0 END) AS OpenFindingsCount,
                                SUM(CASE WHEN EventType IN @ResolvedTypes THEN 1 ELSE 0 END) AS ResolvedFindingsCount
@@ -46,8 +58,8 @@ public sealed class DapperComplianceDriftFindingsTrendReader(IReadOnlyDbConnecti
                              AND OccurredUtc < @ToUtc
                              AND EventType IN @AllTypes
                            GROUP BY DATEADD(
-                               NANOSECOND,
-                               (DATEDIFF_BIG(NANOSECOND, @FromUtc, OccurredUtc) / @BucketTicks) * @BucketTicks,
+                               SECOND,
+                               (DATEDIFF_BIG(SECOND, @FromUtc, OccurredUtc) / @BucketSeconds) * @BucketSeconds,
                                @FromUtc);
                            """;
 
@@ -65,7 +77,7 @@ public sealed class DapperComplianceDriftFindingsTrendReader(IReadOnlyDbConnecti
                     TenantId = tenantId,
                     FromUtc = fromUtc,
                     ToUtc = toUtc,
-                    BucketTicks = bucketTicks,
+                    BucketSeconds = bucketSeconds,
                     OpenedTypes = ComplianceDriftFindingsTrendAuditTypes.Opened,
                     ResolvedTypes = ComplianceDriftFindingsTrendAuditTypes.Resolved,
                     AllTypes = allTypes,

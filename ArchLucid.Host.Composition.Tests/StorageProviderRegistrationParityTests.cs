@@ -45,6 +45,8 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(IDbConnectionFactory),
         typeof(IOptionsChangeTokenSource<SqlServerOptions>),
         typeof(IConfigureOptions<SqlServerOptions>),
+        typeof(IOptionsChangeTokenSource<SqlConnectionPoolOptions>),
+        typeof(IConfigureOptions<SqlConnectionPoolOptions>),
         typeof(IOptionsChangeTokenSource<WarmTenantCatalogOptions>),
         typeof(IConfigureOptions<WarmTenantCatalogOptions>),
         typeof(ITenantOnboardingStateRepository),
@@ -56,6 +58,7 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(IWarmTenantCatalogReplenishService),
         typeof(IAuditSqlRetryPolicyProvider),
         typeof(SqlGraphSnapshotRepository),
+        typeof(SqlFindingsSnapshotRepository),
     ];
 
     private static readonly HashSet<Type> InMemoryOnlyServiceTypes =

@@ -292,7 +292,7 @@ public sealed class IntegrationEventOutboxProcessorTests
                         peak = inFlight;
                 }
 
-                await Task.Delay(50).ConfigureAwait(false);
+                await Task.Delay(50);
 
                 lock (sync)
                     inFlight--;

@@ -3,7 +3,7 @@
 CI guard: merged Cobertura (ReportGenerator output) must meet:
   - minimum merged line coverage (default 70%; GitHub Actions `dotnet-coverage-merge` uses positional **67** interim toward **75** / V1.1 **95**),
   - minimum merged branch coverage (default 50%; full-regression job currently uses **54** interim toward **63**),
-  - minimum line coverage per product ArchLucid.* package with coverable lines (default 60%; full-regression uses 63, optional skips).
+  - minimum line coverage per product ArchLucid.* package with coverable lines (default 60%; full-regression uses 64, optional skips).
 
 Coverlet runs per test assembly; enforcing <Threshold> in coverage.runsettings would not
 represent solution-wide coverage. The full-regression job merges Cobertura files first.
@@ -21,6 +21,7 @@ Edge cases are documented here so behavior stays stable across Coverlet/ReportGe
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -29,10 +30,87 @@ if str(_CI_DIR) not in sys.path:
     sys.path.insert(0, str(_CI_DIR))
 
 from coverage_cobertura import (
+    CoberturaPackageMetrics,
     is_product_archlucid_package,
     parse_cobertura,
     product_packages_for_gate,
 )
+
+
+def _append_github_step_summary(block: str) -> None:
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not summary_path:
+        return
+
+    with open(summary_path, "a", encoding="utf-8") as handle:
+        handle.write(block)
+        if not block.endswith("\n"):
+            handle.write("\n")
+
+
+def _gated_package_coverage_report_lines(
+    summary,
+    min_package_line_pct: float,
+    skip_package_line_gate: frozenset[str],
+) -> list[str]:
+    """
+    Markdown table of product packages with coverable lines, sorted by line % ascending.
+    """
+    gated = product_packages_for_gate(summary)
+    if not gated:
+        return []
+
+    def sort_key(package: CoberturaPackageMetrics) -> tuple[float, str]:
+        if package.line_rate is None:
+            # Missing rate is invalid; list after measured packages but before tie-break by name.
+            return (float("inf"), package.name)
+
+        return (package.line_rate * 100.0, package.name)
+
+    sorted_packages = sorted(gated, key=sort_key)
+    skip_note = ""
+    if skip_package_line_gate:
+        skip_note = f" Skipped from floor: {', '.join(sorted(skip_package_line_gate))}."
+
+    lines: list[str] = [
+        "### Per-package line coverage (product ArchLucid.*, lowest first)",
+        "",
+        f"Per-package line floor: **{min_package_line_pct:.2f}%**.{skip_note}",
+        "",
+        "| Package | Line % | Branch % | Gate |",
+        "| --- | --- | --- | --- |",
+    ]
+
+    for package in sorted_packages:
+        if package.name in skip_package_line_gate:
+            gate = "skipped"
+        elif package.line_rate is None:
+            gate = "FAIL (missing rate)"
+        elif package.line_rate * 100.0 + 1e-9 < min_package_line_pct:
+            gate = "FAIL"
+        else:
+            gate = "OK"
+
+        line_pct = "—" if package.line_rate is None else f"{package.line_rate * 100.0:.2f}"
+        branch_pct = "—" if package.branch_rate is None else f"{package.branch_rate * 100.0:.2f}"
+        lines.append(f"| `{package.name}` | {line_pct} | {branch_pct} | {gate} |")
+
+    lines.append("")
+    return lines
+
+
+def _emit_gated_package_coverage_report(
+    summary,
+    min_package_line_pct: float,
+    skip_package_line_gate: frozenset[str],
+) -> None:
+    report_lines = _gated_package_coverage_report_lines(summary, min_package_line_pct, skip_package_line_gate)
+    if not report_lines:
+        return
+
+    block = "\n".join(report_lines)
+    print(block)
+    _append_github_step_summary(block)
 
 
 def _failures_for_packages(
@@ -179,6 +257,8 @@ def _main(argv: list[str]) -> int:
             file=sys.stderr,
         )
         return 2
+
+    _emit_gated_package_coverage_report(summary, args.min_package_line_pct, skip_package_line_gate)
 
     exit_code = 0
 

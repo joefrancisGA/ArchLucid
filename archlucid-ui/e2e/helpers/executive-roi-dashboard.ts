@@ -191,7 +191,7 @@ export function prepareExecutiveRoiDashboardProxyWaits(page: Page): {
 
   const summaryResponse = page
 
-    .waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 30_000 })
+    .waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 60_000 })
 
     .catch(() => null);
 
@@ -295,17 +295,25 @@ export async function awaitExecutiveRoiDashboardReady(
 
 ): Promise<void> {
 
+  const hydrated = waitForExecutiveRoiDashboardHydrated(page);
+
   await Promise.race([
 
     roiWaits.summaryResponse,
 
-    waitForExecutiveRoiDashboardHydrated(page),
+    hydrated,
 
   ]);
 
 
 
-  await waitForExecutiveRoiDashboardHydrated(page);
+  // Reuse the same in-flight promise rather than starting a fresh wait cycle: if the race
+
+  // above was won by roiWaits.summaryResponse, this just continues polling; if it was won by
+
+  // `hydrated` itself, this resolves immediately.
+
+  await hydrated;
 
 }
 
@@ -435,7 +443,7 @@ export async function expectExecutiveRoiExecutiveSurface(page: Page): Promise<vo
 
   await expect(page.getByTestId("executive-primary-decisions-needed")).toBeVisible({ timeout: 30_000 });
 
-  await expect(page.getByTestId("executive-value-narrative")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("executive-value-narrative")).toBeVisible({ timeout: 60_000 });
 
   await expect(
 

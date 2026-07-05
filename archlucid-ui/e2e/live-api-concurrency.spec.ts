@@ -10,6 +10,7 @@ import {
   createRun,
   executeRun,
   liveApiBase,
+  liveE2eArchitectureDescription,
   postGovernanceApproveRaw,
   searchAudit,
   waitForReadyForCommit,
@@ -32,7 +33,7 @@ test.describe("live-api-concurrency", () => {
 
     const createBody = {
       requestId: `E2E-CONC-COMMIT-${Date.now()}`,
-      description: "Live E2E: parallel commit race.",
+      description: liveE2eArchitectureDescription("Live E2E: parallel commit race."),
       systemName: "ConcurrencyCommitTest",
       environment: "prod",
       cloudProvider: 1,
@@ -72,7 +73,7 @@ test.describe("live-api-concurrency", () => {
 
     const createBody = {
       requestId: `E2E-CONC-GOV-${Date.now()}`,
-      description: "Live E2E: parallel governance approve.",
+      description: liveE2eArchitectureDescription("Live E2E: parallel governance approve."),
       systemName: "ConcurrencyGovTest",
       environment: "prod",
       cloudProvider: 1,

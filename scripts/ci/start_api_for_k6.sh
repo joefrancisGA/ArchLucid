@@ -45,50 +45,34 @@ export AuthorityPipeline__PipelineTimeout=00:05:00
 nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${LOG_FILE}" 2>&1 &
 echo $! > "${PID_FILE}"
 
-READY_WAIT_ATTEMPTS="${ARCHLUCID_K6_READY_WAIT_ATTEMPTS:-180}"
-READY_WAIT_SLEEP_SECONDS="${ARCHLUCID_K6_READY_WAIT_SLEEP_SECONDS:-2}"
+export ARCHLUCID_API_READY_WAIT_ATTEMPTS="${ARCHLUCID_K6_READY_WAIT_ATTEMPTS:-180}"
+export ARCHLUCID_API_READY_WAIT_SLEEP_SECONDS="${ARCHLUCID_K6_READY_WAIT_SLEEP_SECONDS:-2}"
+bash scripts/ci/wait-for-api-ready.sh "${LOG_FILE}"
 
-echo "Waiting for ${API_URL}/health/ready (up to $((READY_WAIT_ATTEMPTS * READY_WAIT_SLEEP_SECONDS))s)..."
-for i in $(seq 1 "${READY_WAIT_ATTEMPTS}"); do
-  if curl -fsS "${API_URL}/health/ready"; then
-    echo ""
-    audit_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/audit/search?take=1" -H "Accept: application/json")"
-    if [ "${audit_code}" != "200" ]; then
-      echo "::error::GET /v1/audit/search (smoke) returned HTTP ${audit_code} — check API log for SQL/auth/RLS errors"
-      tail -n 200 "${LOG_FILE}" || true
-      exit 1
-    fi
+audit_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/audit/search?take=1" -H "Accept: application/json")"
+if [ "${audit_code}" != "200" ]; then
+  echo "::error::GET /v1/audit/search (smoke) returned HTTP ${audit_code} — check API log for SQL/auth/RLS errors"
+  tail -n 200 "${LOG_FILE}" || true
+  exit 1
+fi
 
-    list_runs_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/architecture/runs?limit=1" -H "Accept: application/json")"
-    if [ "${list_runs_code}" != "200" ]; then
-      echo "::error::GET /v1/architecture/runs (smoke) returned HTTP ${list_runs_code} — check API log for SQL/auth/RLS errors"
-      tail -n 200 "${LOG_FILE}" || true
-      exit 1
-    fi
+list_runs_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/architecture/runs?limit=1" -H "Accept: application/json")"
+if [ "${list_runs_code}" != "200" ]; then
+  echo "::error::GET /v1/architecture/runs (smoke) returned HTTP ${list_runs_code} — check API log for SQL/auth/RLS errors"
+  tail -n 200 "${LOG_FILE}" || true
+  exit 1
+fi
 
-    create_run_body='{"requestId":"k6-startup-smoke-1","description":"k6 CI smoke architecture write-path test","systemName":"K6CiSmokeSystem","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
-    create_run_code="$(curl -sS --max-time 360 -o "${LOG_FILE}.create-run-smoke.json" -w "%{http_code}" \
-      -X POST "${API_URL}/v1/architecture/request" \
-      -H "Accept: application/json" \
-      -H "Content-Type: application/json" \
-      -d "${create_run_body}")"
-    if [ "${create_run_code}" != "200" ] && [ "${create_run_code}" != "201" ]; then
-      echo "::error::POST /v1/architecture/request (smoke) returned HTTP ${create_run_code} — check API log for auth/trial/validation errors"
-      head -c 500 "${LOG_FILE}.create-run-smoke.json" 2>/dev/null || true
-      echo ""
-      tail -n 200 "${LOG_FILE}" || true
-      exit 1
-    fi
-
-    echo "API ready."
-    exit 0
-  fi
-
-  if [ "$i" -eq "${READY_WAIT_ATTEMPTS}" ]; then
-    echo "::error::API did not reach /health/ready in time"
-    tail -n 200 "${LOG_FILE}" || true
-    exit 1
-  fi
-
-  sleep "${READY_WAIT_SLEEP_SECONDS}"
-done
+create_run_body='{"requestId":"k6-startup-smoke-1","description":"k6 CI smoke architecture write-path test","systemName":"K6CiSmokeSystem","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
+create_run_code="$(curl -sS --max-time 360 -o "${LOG_FILE}.create-run-smoke.json" -w "%{http_code}" \
+  -X POST "${API_URL}/v1/architecture/request" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d "${create_run_body}")"
+if [ "${create_run_code}" != "200" ] && [ "${create_run_code}" != "201" ]; then
+  echo "::error::POST /v1/architecture/request (smoke) returned HTTP ${create_run_code} — check API log for auth/trial/validation errors"
+  head -c 500 "${LOG_FILE}.create-run-smoke.json" 2>/dev/null || true
+  echo ""
+  tail -n 200 "${LOG_FILE}" || true
+  exit 1
+fi

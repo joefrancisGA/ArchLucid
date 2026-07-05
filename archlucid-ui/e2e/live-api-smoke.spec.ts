@@ -31,6 +31,7 @@ import {
   getAuthorityRunDetailRaw,
   getEffectivePolicyPacks,
   liveApiBase,
+  liveE2eArchitectureDescription,
   minimalPolicyPackContentJson,
   resolveLiveJwtMode,
 } from "./helpers/live-api-client";
@@ -59,8 +60,9 @@ function makeLiveSmokeArchLucidZipForInput(): { name: string; mimeType: string; 
 function buildLiveSmokeScopedRunCreateBody(suffix: string): Record<string, unknown> {
   return {
     requestId: `E2E-LIVE-SMOKE-SCOPE-${suffix}-${Date.now()}`,
-    description:
+    description: liveE2eArchitectureDescription(
       "Live smoke scoped run for authority compare alongside seeded demo workspace A product tour baseline.",
+    ),
     systemName: `LiveSmokeCmp${suffix}`,
     environment: "prod",
     cloudProvider: 1,
@@ -141,9 +143,10 @@ test.describe("live-api-smoke", () => {
 
     await page.goto("/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByTestId("new-run-wizard-progress")).toBeVisible({ timeout: 60_000 });
-
-    await page.getByTestId("wizard-start-blank").click();
+    // `?baseline=1` now enters the 4-step SimplifiedPilotWizard directly (ZIP upload is step 1 ΓÇö
+    // there is no separate "start blank" preset step, and the full-wizard shell's progress testid
+    // never renders for this entry point; see NewRunWizardClient.baseline-first.test.tsx).
+    await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });
 
     await expect(page.getByTestId("wizard-baseline-zip-field")).toBeVisible();
 
@@ -159,9 +162,12 @@ test.describe("live-api-smoke", () => {
 
     await expect(page.getByRole("textbox", { name: "System name" })).toBeVisible({ timeout: 30_000 });
 
-    for (let i = 0; i < 4; i += 1) {
-      await forward.click();
-    }
+    await forward.click();
+
+    await expect(page.getByTestId("wizard-baseline-metrics-step")).toBeVisible({ timeout: 30_000 });
+    await page.getByTestId("wizard-baseline-review-cycle-hours").fill("40");
+
+    await forward.click();
 
     await expect(page.getByRole("button", { name: "Start Architecture Review" })).toBeVisible({ timeout: 60_000 });
 

@@ -126,8 +126,6 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
   });
 
-
-
   test("systemic issue rollup matches deduplicated export rows @executive-roi-dashboard", async ({ page }) => {
 
     const roiWaits = prepareExecutiveRoiDashboardProxyWaits(page);
@@ -165,5 +163,3 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
   });
 
 });
-
-

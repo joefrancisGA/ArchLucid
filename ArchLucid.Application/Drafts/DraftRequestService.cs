@@ -646,7 +646,15 @@ public sealed class DraftRequestService(
     {
         foreach (string mustKey in document.RequiredMustQuestionKeys)
         {
-            if (!document.QuestionAnswers.TryGetValue(mustKey, out string? answer) || string.IsNullOrWhiteSpace(answer))
+            bool hasAnswer = document.QuestionAnswers.TryGetValue(mustKey, out string? answer)
+                && !string.IsNullOrWhiteSpace(answer);
+
+            // Explicitly skipped MUST questions satisfy submit (ADR 0050 / R4): the trail entry
+            // downweights verdict confidence instead of blocking the user from proceeding.
+            bool hasSkip = document.TransparencyTrail.Skipped.Exists(entry =>
+                string.Equals(entry.QuestionKey, mustKey, StringComparison.OrdinalIgnoreCase));
+
+            if (!hasAnswer && !hasSkip)
             {
                 throw new InvalidOperationException(
                     $"MUST question '{mustKey}' must be answered before submit.");

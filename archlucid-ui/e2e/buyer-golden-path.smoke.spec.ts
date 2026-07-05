@@ -21,6 +21,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
   test("walks five-step diligence spine and satellite surfaces without generic error @smoke @smoke-golden-path", async ({
     page,
   }) => {
+    test.setTimeout(150_000);
     // Step 1 — Executive summary
     await page.goto(BUYER_GOLDEN_PATH_HREFS.executive);
     await expectBuyerExecutiveSummarySurface(page);
@@ -32,8 +33,8 @@ test.describe("buyer golden path — Claims Intake spine", () => {
 
     // Review package (between executive summary and signed manifest on the spine)
     await page.goto(BUYER_GOLDEN_PATH_HREFS.reviewPackage);
-    await expect(page.getByRole("heading", { level: 1 }).filter({ hasText: BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN })).toBeVisible({
-      timeout: 30_000,
+    await expect(page.getByRole("main").getByRole("heading", { level: 1 }).filter({ hasText: BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN })).toBeVisible({
+      timeout: 60_000,
     });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);

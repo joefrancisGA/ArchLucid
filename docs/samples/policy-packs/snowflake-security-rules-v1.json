@@ -735,6 +735,8 @@
       "priority": "P1",
       "remediationGuidance": "Document encryption and key custody; implement CMK/Tri-Secret Secure where required.",
       "evidenceHints": [
+        "snowflake.showParameters",
+        "snowflake.accountUsage.databaseStorageUsageHistory",
         "governance.PolicyConstraints",
         "governance.ComplianceTags",
         "metadata.ChangeDescription"
@@ -773,6 +775,7 @@
       "priority": "P1",
       "remediationGuidance": "Assess CMK/Tri-Secret Secure need per workload; document decision and exceptions.",
       "evidenceHints": [
+        "snowflake.showParameters",
         "governance.ComplianceTags",
         "governance.PolicyConstraints",
         "metadata.ChangeDescription"
@@ -1002,6 +1005,7 @@
       "priority": "P1",
       "remediationGuidance": "Maintain exception register with owner, rationale, expiry, and renewal workflow.",
       "evidenceHints": [
+        "snowflake.accountUsage.grantsToRoles",
         "governance.PolicyConstraints",
         "metadata.ChangeDescription",
         "governance.RequiredControls"

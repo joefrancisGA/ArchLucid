@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import io
+import sys
+from contextlib import redirect_stdout
 from pathlib import Path
 
 import assert_merged_line_coverage_min as merged
@@ -140,3 +143,27 @@ def test_main_skip_package_line_gate_allows_named_low_package(tmp_path: Path) ->
         )
         == 0
     )
+
+
+def test_gated_package_coverage_report_sorted_lowest_first(tmp_path: Path) -> None:
+    p = _write_cobertura(
+        tmp_path / "sorted-pkg.xml",
+        line_rate="0.90",
+        branch_rate="0.70",
+        packages=[
+            ("ArchLucid.Host.Core", "0.85", "0.70", 2),
+            ("ArchLucid.Core", "0.90", "0.80", 2),
+            ("ArchLucid.Persistence", "0.64", "0.55", 3),
+        ],
+    )
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        assert merged._main([str(p), "--min-package-line-pct", "63"]) == 0
+
+    output = buffer.getvalue()
+    persistence_idx = output.index("ArchLucid.Persistence")
+    host_idx = output.index("ArchLucid.Host.Core")
+    core_idx = output.index("ArchLucid.Core")
+    assert persistence_idx < host_idx < core_idx
+    assert "### Per-package line coverage" in output
+    assert "| Package | Line % | Branch % | Gate |" in output

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
@@ -86,6 +87,21 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private const int CommitRunTransientMaxAttempts = 12;
     private const int CommitRunTransientBackoffMillisecondsPerAttempt = 150;
     private const int CommitRunManifestReconcilePollAttempts = 8;
+
+    /// <summary>
+    ///     Hard wall-clock ceiling on cumulative time spent retrying either transient SQL errors or unresolved
+    ///     unique-key races inside a single <see cref="CommitRunAsync(string,CommitRunRequest?,CancellationToken)"/>
+    ///     call. Each of the <see cref="CommitRunTransientMaxAttempts"/> attempts re-runs the full commit pipeline
+    ///     (evidence/graph/findings reload, decision engine, governance gate, SQL finalize transaction), so bounding
+    ///     by attempt count alone is not enough: <see cref="SqlTransientDetector"/> treats a plain SQL command
+    ///     timeout (error -2) as retriable, and a contended/wedged resource lets each attempt burn up to the
+    ///     ADO.NET default 30s command timeout; a concurrent-commit race can likewise cost several seconds of full
+    ///     pipeline work per attempt. Either failure mode can compound into minutes of silent server-side hang
+    ///     before the caller ever sees a response. Bounding the retry budget guarantees commit always returns —
+    ///     success, or a fast 409 that the existing client-side retry loop (`commitRun` in `live-api-client.ts`)
+    ///     already handles — well inside the smallest live E2E test timeout.
+    /// </summary>
+    private static readonly TimeSpan CommitRunTransientRetryBudget = TimeSpan.FromSeconds(20);
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
@@ -176,6 +192,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         string actor = _actorContext.GetActor();
+        Stopwatch commitRetryStopwatch = Stopwatch.StartNew();
         for (int attempt = 1; attempt <= CommitRunTransientMaxAttempts; attempt++)
             try
             {
@@ -213,14 +230,25 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                         "CommitRunAsync (authority) unique-key violation without reconcilable manifest (attempt {Attempt}/{Max}) for RunId={RunId}.", attempt,
                         CommitRunTransientMaxAttempts, LogSanitizer.Sanitize(runId));
 
-                if (attempt >= CommitRunTransientMaxAttempts)
+                if (IsCommitRetryBudgetExhausted(attempt, commitRetryStopwatch))
                     throw new ConflictException(
                         $"Commit for run '{runId}' raced with another commit. The manifest could not be loaded yet; retry the request.");
 
                 await Task.Delay(TimeSpan.FromMilliseconds(CommitRunTransientBackoffMillisecondsPerAttempt * attempt), cancellationToken);
             }
-            catch (Exception ex) when (SqlTransientDetector.IsTransient(ex) && attempt < CommitRunTransientMaxAttempts)
+            catch (Exception ex) when (SqlTransientDetector.IsTransient(ex))
             {
+                if (IsCommitRetryBudgetExhausted(attempt, commitRetryStopwatch))
+                {
+                    if (_logger.IsEnabled(LogLevel.Warning))
+                        _logger.LogWarning(ex,
+                            "CommitRunAsync (authority) transient database error exhausted retry budget (attempt {Attempt}/{Max}, elapsed {ElapsedMs}ms) for RunId={RunId}; returning conflict for client retry.",
+                            attempt, CommitRunTransientMaxAttempts, commitRetryStopwatch.ElapsedMilliseconds, LogSanitizer.Sanitize(runId));
+
+                    throw new ConflictException(
+                        $"Commit for run '{runId}' hit a transient database condition that did not clear in time. Retry the request.");
+                }
+
                 if (_logger.IsEnabled(LogLevel.Warning))
                     _logger.LogWarning(ex, "CommitRunAsync (authority) transient database error (attempt {Attempt}/{Max}) for RunId={RunId}; retrying.",
                         attempt, CommitRunTransientMaxAttempts, LogSanitizer.Sanitize(runId));
@@ -230,10 +258,19 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         throw new InvalidOperationException("CommitRunAsync (authority) exhausted transient retries without returning.");
     }
 
+    /// <summary>
+    ///     True once either the attempt count or the shared <see cref="CommitRunTransientRetryBudget"/> wall-clock
+    ///     ceiling is exhausted, for either the unique-key-violation or transient-SQL retry paths in
+    ///     <see cref="CommitRunAsync(string,CommitRunRequest?,CancellationToken)"/>.
+    /// </summary>
+    private static bool IsCommitRetryBudgetExhausted(int attempt, Stopwatch commitRetryStopwatch) =>
+        attempt >= CommitRunTransientMaxAttempts || commitRetryStopwatch.Elapsed >= CommitRunTransientRetryBudget;
+
     private async Task<CommitRunResult?> TryReconcileAfterConcurrentCommitAsync(string runId, CancellationToken cancellationToken)
     {
         ArchitectureRun? runAgain =
             await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(_runRepository, _scopeContextProvider, _taskRepository, runId, cancellationToken);
+
         if (runAgain is null)
             return null;
         return await TryReturnAuthorityCommittedIdempotentAsync(runAgain, runId, cancellationToken);
@@ -247,25 +284,31 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     {
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation("Committing architecture run (authority): RunId={RunId}", LogSanitizer.Sanitize(runId));
+
         if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
             throw new RunNotFoundException(runId);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? runRecord = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
         if (runRecord is null)
             throw new RunNotFoundException(runId);
         ArchitectureRun? run =
             await ArchitectureRunAuthorityReader.TryGetArchitectureRunFromRecordAsync(_scopeContextProvider, _taskRepository, runId, runRecord,
                 cancellationToken);
+
         if (run is null)
             throw new RunNotFoundException(runId);
         CommitRunResult? idempotent = await TryReturnAuthorityCommittedIdempotentAsync(run, runId, cancellationToken);
+
         if (idempotent is not null)
             return idempotent;
+
         if (run.Status is ArchitectureRunStatus.Committed)
         {
             if (run.GoldenManifestId is not null)
                 throw new InvalidOperationException(
                     $"Run '{runId}' is already Committed but the architecture run idempotent re-load failed. Check data integrity for GoldenManifest and DecisionTrace.");
+
             if (!string.IsNullOrEmpty(run.CurrentManifestVersion))
                 throw new InvalidOperationException("This run was committed on the legacy coordinator path. " +
                                                     "Re-commit idempotency and reads require a consistent architecture run record (GoldenManifestId / DecisionTraceId populated).");
@@ -353,6 +396,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 cancellationToken);
             AlignAuthorityVersionToContract(manifestModel, contract);
             IReadOnlyList<string> traceabilityGaps = AuthorityCommitTraceabilityRules.GetLinkageGaps(contract, [trace]);
+
             if (traceabilityGaps.Count > 0)
                 throw new InvalidOperationException("Committed manifest traceability (authority) invariant failed: " + string.Join("; ", traceabilityGaps));
             string contractWireJson = JsonSerializer.Serialize(contract, ContractJson.Default);
@@ -398,6 +442,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             if (finalization.WasIdempotentReturn)
             {
                 CommitRunResult? idempotentReplay = await TryReturnAuthorityCommittedIdempotentAsync(run, runId, cancellationToken);
+
                 if (idempotentReplay is not null)
                     return idempotentReplay ??
                            throw new ConflictException($"Run '{runId}' was finalized idempotently but the committed manifest could not be reloaded.");
@@ -448,6 +493,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         if (!string.IsNullOrWhiteSpace(run.RequestId))
         {
             int remainingActiveRuns = await _runRepository.CountActiveRunsForArchitectureRequestAsync(commitScope, run.RequestId, cancellationToken);
+
             if (remainingActiveRuns == 0)
             {
                 AuditEvent requestReleased = commitScope.CreateAuditEvent(
@@ -538,16 +584,20 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     {
         if (run.Status is not ArchitectureRunStatus.Committed)
             return null;
+
         if (run.GoldenManifestId is not { } goldenId)
             return null;
+
         if (run.DecisionTraceId is not { } traceId)
             throw new ConflictException($"Run '{runId}' is already committed (architecture run) but DecisionTraceId is missing on the run record.");
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         ManifestDocument? manifestModel = await _goldenManifestRepository.GetByIdAsync(scope, goldenId, cancellationToken);
+
         if (manifestModel is null)
             throw new ConflictException(
                 $"Run '{runId}' is already committed but the golden manifest '{goldenId:D}' could not be loaded for idempotent replay.");
         DecisionTraceDto? traceDto = await _decisionTraceRepository.GetByIdAsync(scope, traceId, cancellationToken);
+
         if (traceDto is null)
             throw new ConflictException($"Run '{runId}' is already committed but the decision trace '{traceId:D}' could not be loaded for idempotent replay.");
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
@@ -555,6 +605,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         Cm.GoldenManifest contract = await _projectionBuilder.BuildAsync(manifestModel, new AuthorityCommitProjectionInput { SystemName = request.SystemName },
             cancellationToken);
         IReadOnlyList<string> storedGaps = AuthorityCommitTraceabilityRules.GetLinkageGaps(contract, [DecisionTraceRecordMapper.ToDomain(traceDto)]);
+
         if (storedGaps.Count > 0)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
@@ -587,19 +638,23 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     {
         IReadOnlyList<DecisionNode> existing = DecisionRecordMapper.ToDomain(
             await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken));
+
         if (existing.Count > 0)
             return;
         ScopeContext commitNodesScope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(commitNodesScope, runId, cancellationToken);
+
         if (tasks.Count == 0)
             return;
         AgentEvidencePackage evidence = preloadedEvidence ?? await GetEvidencePackageForCommitOrThrowAsync(runId, cancellationToken);
         IReadOnlyList<AgentResult> results = preloadedAgentResults
             ?? await _agentResultRepository.GetByRunIdAsync(commitNodesScope, runId, cancellationToken);
+
         if (results.Count == 0)
             return;
         IReadOnlyList<AgentEvaluation> evaluations = await _agentEvaluationService.EvaluateAsync(runId, request, evidence, tasks, results, cancellationToken);
         IReadOnlyList<DecisionNode> decisionNodes = await _decisionEngineV2.ResolveAsync(runId, request, tasks, results, evaluations, cancellationToken);
+
         if (decisionNodes.Count == 0)
             return;
         await _decisionNodeRepository.CreateManyAsync(
@@ -656,8 +711,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     {
         if (manifestModel is null)
             throw new ArgumentNullException(nameof(manifestModel));
+
         if (contract is null)
             throw new ArgumentNullException(nameof(contract));
+
         if (string.IsNullOrWhiteSpace(contract.Metadata.ManifestVersion))
             return;
         manifestModel.Metadata.Version = contract.Metadata.ManifestVersion;
@@ -672,6 +729,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         CancellationToken cancellationToken)
     {
         PreCommitGateResult gateResult = await _preCommitGovernanceGate.EvaluateAsync(runId, goldenManifestWireJson, preloadedData, cancellationToken);
+
         if (gateResult.WarnOnly)
         {
             await EmitPreCommitWarnedAuditAsync(gateResult, runId, actor, cancellationToken);
@@ -684,6 +742,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         if (!string.IsNullOrEmpty(governanceBypassJustification))
         {
             await EmitGovernanceBypassInvokedAuditAsync(gateResult, runId, actor, governanceBypassJustification, cancellationToken);
+
             if (_logger.IsEnabled(LogLevel.Warning))
             {
                 _logger.LogWarning(
@@ -729,12 +788,14 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             return gateResult;
 
         string manifestExcerpt = TruncateForGovernanceExplanation(goldenManifestWireJson);
+
         if (manifestExcerpt.Length == 0)
             return gateResult;
 
         try
         {
             string? explanation = await _preCommitGovernanceBlockExplainer.ExplainAsync(gateResult, manifestExcerpt, cancellationToken);
+
             if (string.IsNullOrWhiteSpace(explanation))
                 return gateResult;
 
@@ -778,10 +839,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             return null;
 
         string trimmed = raw.Trim();
+
         if (trimmed.Length == 0)
             return null;
 
         const int maxLen = 4000;
+
         if (trimmed.Length <= maxLen)
             return trimmed;
 
@@ -835,6 +898,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         preCommitWarned.RunId = runGuid;
 
         await _auditService.LogAsync(preCommitWarned, cancellationToken);
+
         if (_logger.IsEnabled(LogLevel.Warning))
             _logger.LogWarning("Pre-commit governance gate warned (not blocked) — authority path: RunId={RunId}, Reason={Reason}", LogSanitizer.Sanitize(runId),
                 LogSanitizer.Sanitize(gateResult.Reason ?? string.Empty));

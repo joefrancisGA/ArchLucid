@@ -45,6 +45,22 @@ class TestTraceabilityBatchTb039(unittest.TestCase):
         self.assertIn("ExecuteAsync_when_persisted_successful_result_exists_skips_handler_for_that_task", text)
         self.assertIn("ExecuteAsync_when_persisted_degraded_result_exists_reinvokes_handler", text)
 
+    def test_tb_039_simulator_idempotent_executor_exists(self) -> None:
+        path = REPO_ROOT / "ArchLucid.AgentRuntime" / "IdempotentAgentExecutor.cs"
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("AgentExecuteIdempotentResultPolicy.ShouldSkipRetry", text)
+
+    def test_tb_039_execute_persist_reconciliation_exists(self) -> None:
+        path = (
+            REPO_ROOT
+            / "ArchLucid.Application"
+            / "Runs"
+            / "AgentExecuteIdempotentPersistReconciliation.cs"
+        )
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("ReplaceForRunTaskAsync", text)
+        self.assertIn("ShouldInsertEvidencePackageAsync", text)
+
 
 if __name__ == "__main__":
     unittest.main()

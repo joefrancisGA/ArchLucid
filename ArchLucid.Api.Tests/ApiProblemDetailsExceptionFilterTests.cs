@@ -12,6 +12,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
+using Moq;
 
 namespace ArchLucid.Api.Tests;
 
@@ -164,6 +168,32 @@ public sealed class ApiProblemDetailsExceptionFilterTests
     }
 
     [SkippableFact]
+    public void TryMapDatabaseException_GenericDbException_LogsErrorBefore503Response()
+    {
+        TestDbException ex = new("connection refused");
+        ExceptionContext context = CreateExceptionContext(ex, "/v1/roi/board-pack");
+        Mock<ILogger<ApiProblemDetailsExceptionFilter>> logger = new();
+        logger.Setup(l => l.IsEnabled(LogLevel.Error)).Returns(true);
+        Exception? loggedException = null;
+
+        logger.Setup(l => l.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation =>
+            {
+                loggedException = invocation.Arguments[3] as Exception;
+            }));
+
+        RunFilter(context, logger.Object);
+
+        context.ExceptionHandled.Should().BeTrue();
+        loggedException.Should().BeSameAs(ex);
+    }
+
+    [SkippableFact]
     public void TryMapDatabaseException_GenericDbException_Returns503DatabaseUnavailable()
     {
         DefaultHttpContext http = CreateHttpContextForMapper("/v1/runs", "db-unavail-cid");
@@ -268,9 +298,11 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         return new DefaultHttpContext { TraceIdentifier = traceIdentifier, Request = { Path = path } };
     }
 
-    private static void RunFilter(ExceptionContext context)
+    private static void RunFilter(
+        ExceptionContext context,
+        ILogger<ApiProblemDetailsExceptionFilter>? logger = null)
     {
-        ApiProblemDetailsExceptionFilter filter = new();
+        ApiProblemDetailsExceptionFilter filter = new(logger ?? NullLogger<ApiProblemDetailsExceptionFilter>.Instance);
         filter.OnException(context);
     }
 

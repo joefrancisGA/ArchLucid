@@ -39,7 +39,6 @@ import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   pathMatchesGovernanceAlerts,
   pathMatchesGovernanceAudit,

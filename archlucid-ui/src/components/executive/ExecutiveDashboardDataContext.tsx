@@ -26,7 +26,6 @@ export function ExecutiveDashboardDataProvider({ children }: { children: ReactNo
   const summary = summaryQuery.data ?? null;
   const summaryLoading =
     summaryQuery.isPending ||
-    summaryQuery.isFetching ||
     (summary === null && !summaryQuery.isFetched);
   const summaryError =
     summaryQuery.isError
@@ -35,7 +34,7 @@ export function ExecutiveDashboardDataProvider({ children }: { children: ReactNo
         : "Failed to load executive KPIs."
       : null;
 
-  const driftPoints = driftQuery.data ?? [];
+  const driftPoints = useMemo(() => driftQuery.data ?? [], [driftQuery.data]);
   const driftLoading =
     driftQuery.isPending ||
     driftQuery.isFetching ||

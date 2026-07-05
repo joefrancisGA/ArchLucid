@@ -4,13 +4,13 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { liveApiBase } from "./helpers/live-api-client";
+import { resolveLiveApiBase } from "./helpers/live-api-client";
 
 test.describe("live API rate limit smoke", () => {
   test.skip(!process.env.LIVE_API_URL, "LIVE_API_URL is required for live API smoke tests");
 
   test("429 responses expose application/problem+json with rate-limit-exceeded type", async ({ request }) => {
-    const base = liveApiBase();
+    const base = resolveLiveApiBase();
     let saw429 = false;
 
     for (let i = 0; i < 120; i++) {

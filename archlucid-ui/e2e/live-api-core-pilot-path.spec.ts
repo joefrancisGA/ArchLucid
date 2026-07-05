@@ -4,6 +4,8 @@
  */
 import { expect, test } from "@playwright/test";
 
+import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
+
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN, SHOWCASE_DEMO_RUN_ID } from "./fixtures";
 import { liveApiBase } from "./helpers/live-api-client";
 
@@ -22,7 +24,12 @@ test.describe("live-api-core-pilot-path", () => {
     await page.goto("/");
 
     await expect(page.getByRole("heading", { name: "ArchLucid", level: 1 })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Architecture reviews" })).toBeVisible();
+    // TB-347 consolidated the home reviews-zone heading to OPERATOR_HOME_RECENT_REVIEWS_HEADING
+    // ("Workspace activity") across both operator shells; the old "Architecture reviews" h3 is
+    // now rendered with `hideHeading` and never shown (see OperatorHomePageView.tsx).
+    await expect(
+      page.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING, level: 2 }),
+    ).toBeVisible();
 
     await page.goto("/reviews/new");
     await expect(page.getByRole("heading", { name: /new architecture review/i, level: 2 })).toBeVisible();

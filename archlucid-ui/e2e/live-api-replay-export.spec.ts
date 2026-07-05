@@ -12,6 +12,7 @@ import {
   executeRun,
   getRunExportZip,
   liveApiBase,
+  liveE2eArchitectureDescription,
   postReplayRunRaw,
   searchAudit,
   waitForReadyForCommit,
@@ -34,7 +35,7 @@ test.describe("live-api-replay-export", () => {
 
     const createBody = {
       requestId: `E2E-LIVE-REPLAY-${Date.now()}`,
-      description: "Live E2E: replay and re-export after commit.",
+      description: liveE2eArchitectureDescription("Live E2E: replay and re-export after commit."),
       systemName: "ReplayExportTest",
       environment: "prod",
       cloudProvider: 1,

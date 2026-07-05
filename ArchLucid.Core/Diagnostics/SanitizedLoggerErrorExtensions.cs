@@ -34,4 +34,37 @@ public static class SanitizedLoggerErrorExtensions
             safeMethod,
             safePath); // codeql[cs/log-forging]: method and path sanitized immediately above.
     }
+
+    /// <summary>
+    ///     Logs a mapped <c>application/problem+json</c> response (5xx) with the original exception so operators
+    ///     can see database/SQL details that are intentionally omitted from the client-facing Problem Details body.
+    /// </summary>
+    public static void LogErrorMappedProblemDetailsException(
+        this ILogger logger,
+        Exception ex,
+        string? requestMethod,
+        string? requestPath,
+        int statusCode,
+        string? problemType,
+        int? sqlErrorNumber,
+        string? correlationId)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(ex);
+
+        string safeMethod = LogSanitizer.Sanitize(requestMethod);
+        string safePath = LogSanitizer.Sanitize(requestPath);
+        string safeProblemType = LogSanitizer.Sanitize(problemType);
+        string safeCorrelationId = LogSanitizer.Sanitize(correlationId);
+
+        logger.LogError(
+            ex,
+            "Mapped exception to HTTP {StatusCode} ({ProblemType}) for {Method} {Path}. SqlErrorNumber={SqlErrorNumber}. CorrelationId={CorrelationId}",
+            statusCode,
+            safeProblemType,
+            safeMethod,
+            safePath,
+            sqlErrorNumber,
+            safeCorrelationId); // codeql[cs/log-forging]: method, path, problem type, and correlation id sanitized immediately above.
+    }
 }

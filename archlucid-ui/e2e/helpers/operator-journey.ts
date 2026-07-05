@@ -206,9 +206,28 @@ export async function gotoManifestEmptyArtifactsOperatorCase(page: Page): Promis
 
 // --- Assertions (only where duplicated across specs) ---
 
+/** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */
+export function reviewOutcomeSummaryStrip(page: Page): Locator {
+  return page.getByRole("main").locator('section[aria-label="Review outcome summary"]').first();
+}
+
+/** Finalized package deep link on run detail (prefer over nested outcome-strip traversal). */
+export function runDetailFinalizedPackageLink(page: Page): Locator {
+  return page.getByRole("main").getByTestId("run-detail-finalized-package-link").first();
+}
+
+/** Featured package proof summary on buyer-polished home — visible instance only. */
+export function runsDashboardBuyerProofSummary(page: Page): Locator {
+  return page.getByRole("main").getByTestId("runs-dashboard-buyer-proof-summary").first();
+}
+
 /** Outcome strip deep link to signed record / legacy manifest detail (TB-399 canonical URLs). */
 export function outcomeStripSignedRecordLink(outcomeStrip: Locator): Locator {
-  return outcomeStrip.locator('a[href^="/signed-records/"], a[href^="/manifests/"]').first();
+  return outcomeStrip
+    .locator(
+      '[data-testid="run-detail-finalized-package-link"], a[href^="/signed-records/"], a[href^="/manifests/"], a[href$="/signed-record"]',
+    )
+    .first();
 }
 
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */

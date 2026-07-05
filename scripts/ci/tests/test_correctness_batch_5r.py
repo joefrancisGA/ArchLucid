@@ -18,7 +18,7 @@ class TestCorrectnessBatch5R(unittest.TestCase):
             / "AgentExecutionTraceRunLlmCostAggregator.cs"
         )
         text = path.read_text(encoding="utf-8")
-        self.assertIn("trace.ReasoningTokenCount ?? 0", text)
+        self.assertIn("reasoningTokenCount ?? 0", text)
         self.assertNotIn("EstimateUsd(inTok, outTok, 0,", text)
 
     def test_tb_196_reasoning_token_cost_tests_exist(self) -> None:
