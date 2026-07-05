@@ -91,7 +91,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
   if (compact) {
     return (
       <OperatorHomeDisclosureSection
-        title="First review checklist"
+        title="Review walkthrough"
         titleId="core-pilot-checklist-heading"
         sectionTestId="core-pilot-checklist"
         storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist}
@@ -110,7 +110,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
   return (
     <OperatorHomeDisclosureSection
-      title="First review checklist"
+      title="Review walkthrough"
       titleId="core-pilot-checklist-heading"
       sectionTestId="core-pilot-checklist"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist}

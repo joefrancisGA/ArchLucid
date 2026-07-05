@@ -119,10 +119,10 @@ export const PILOT_PATH_PREVIEW_STEPS = [
 /** Section B on operator home — optional setup, walkthroughs, and workspace context. */
 export const OPERATOR_HOME_WORKSPACE_SETUP_SECTION_TITLE = "Workspace setup";
 
-export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Setup and walkthroughs";
+export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "How ArchLucid works";
 
 export const OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY =
-  "Checklists, operating path, walkthroughs, and optional setup.";
+  "Review walkthrough and help links.";
 
 export const OPERATOR_HOME_WORKSPACE_STATUS_TITLE = "Workspace status";
 

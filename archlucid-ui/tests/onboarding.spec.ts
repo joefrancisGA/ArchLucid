@@ -47,7 +47,7 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
       `/reviews/${SHOWCASE_DEMO_RUN_ID}`,
     );
 
-    await expect(page.getByTestId("unified-first-pilot-progress-panel")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("core-pilot-checklist")).toBeVisible({ timeout: 30_000 });
 
     await page.goto("/settings/identity-providers");
 

@@ -98,7 +98,7 @@ describe("operator home peer card titles", () => {
     expectPeerCardTitleClasses(sampleReviewTitle.className);
   });
 
-  it("uses the same peer-card title scale for Continue setup, Workspace metrics, and Setup and walkthroughs", () => {
+  it("uses the same peer-card title scale for Continue setup, Workspace metrics, and How ArchLucid works", () => {
     render(<OperatorHomeContinueSetupCard />);
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={emptyRunsDashboard} />);
     render(

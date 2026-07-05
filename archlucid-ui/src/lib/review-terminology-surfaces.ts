@@ -119,12 +119,10 @@ export const REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS = [
   "src/lib/layer-guidance.ts",
   "src/lib/nav-disclosure-copy.ts",
   "src/lib/i18n.ts",
-  "src/components/operator-home/PilotStartHereStrip.tsx",
   "src/lib/first-pilot-operating-rail-copy.ts",
   "src/components/advisory/AdvisoryHubClient.tsx",
   "src/components/OperatorFirstHourJourneyStrip.tsx",
   "src/lib/operator-first-hour-journey-nav.ts",
-  "src/lib/first-value-lane.ts",
   "src/lib/core-pilot-first-review-copy.ts",
   "src/lib/operator-co-architect-copy.ts",
 ] as const;
@@ -169,7 +167,6 @@ export const REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS = [
 
 /** Core Pilot first-hour surfaces — `/reviews/new`, review detail handoff, sponsor export, home strip. */
 export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
-  "src/lib/first-value-lane.ts",
   "src/lib/core-pilot-first-review-copy.ts",
   "src/lib/operator-co-architect-copy.ts",
   "src/lib/contextual-help-content.ts",

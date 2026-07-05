@@ -1,13 +1,10 @@
 "use client";
 
-import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
+import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { OperatorCorePilotDiagnosticsChecklist } from "@/components/OperatorCorePilotDiagnosticsChecklist";
 import { BuyerCtoDemoReadinessPanel } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
-import { PilotStartHereStrip } from "@/components/operator-home/PilotStartHereStrip";
 import { StartCtoDemoCard } from "@/components/operator-home/StartCtoDemoCard";
-import { CorePilotProgressTrackerBanner } from "@/components/usability/CorePilotProgressTrackerBanner";
-import { UnifiedFirstPilotProgressPanel } from "@/components/usability/UnifiedFirstPilotProgressPanel";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY,
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
@@ -20,7 +17,7 @@ type OperatorHomeAdvancedGuidanceSectionProps = {
   readonly checklistVariant?: "full" | "compact";
 };
 
-/** Collapsed-by-default onboarding rail — checklists, operating path, walkthroughs, optional demo setup. */
+/** Collapsed-by-default help rail — review walkthrough and optional demo setup. */
 export function OperatorHomeAdvancedGuidanceSection(
   props: OperatorHomeAdvancedGuidanceSectionProps,
 ): React.JSX.Element {
@@ -38,9 +35,7 @@ export function OperatorHomeAdvancedGuidanceSection(
       collapsedSummary={OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY}
     >
       <div className="space-y-3">
-        <UnifiedFirstPilotProgressPanel checklistVariant={checklistVariant} embedded />
-        <PilotStartHereStrip />
-        <FirstWeekRouteGuidance variant="home" />
+        <CorePilotChecklist variant={checklistVariant} />
         {props.buyerPolishedShell ? (
           <>
             <StartCtoDemoCard />
@@ -48,7 +43,6 @@ export function OperatorHomeAdvancedGuidanceSection(
           </>
         ) : null}
         {props.fullOperatorShell === true ? <OperatorCorePilotDiagnosticsChecklist /> : null}
-        <CorePilotProgressTrackerBanner compact />
       </div>
     </OperatorHomeDisclosureSection>
   );

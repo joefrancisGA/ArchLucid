@@ -34,8 +34,8 @@ vi.mock("@/components/InAppHelpLink", () => ({
   InAppHelpLink: ({ label }: { label: string }) => <span>{label}</span>,
 }));
 
-vi.mock("@/components/usability/UnifiedFirstPilotProgressPanel", () => ({
-  UnifiedFirstPilotProgressPanel: () => <div data-testid="unified-first-pilot-progress-panel-stub" />,
+vi.mock("@/components/CorePilotChecklist", () => ({
+  CorePilotChecklist: () => <div data-testid="core-pilot-checklist-stub" />,
 }));
 
 vi.mock("./OnboardingOptionalSetupSection", () => ({
@@ -58,7 +58,7 @@ describe("OnboardingPageView", () => {
     expect(screen.getByRole("heading", { name: "Progress" })).toBeInTheDocument();
     expect(screen.getByText(BUYER_ONBOARDING_WALKTHROUGH_HELP_LINK)).toBeInTheDocument();
     expect(screen.queryByText(/pilot|operator path/i)).not.toBeInTheDocument();
-    expect(screen.getByTestId("unified-first-pilot-progress-panel-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("core-pilot-checklist-stub")).toBeInTheDocument();
     expect(screen.getByTestId("onboarding-optional-setup-section-stub")).toBeInTheDocument();
     expect(screen.queryByTestId("getting-started-trial-section-stub")).not.toBeInTheDocument();
   });

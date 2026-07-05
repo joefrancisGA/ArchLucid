@@ -5,7 +5,7 @@ import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
-import { UnifiedFirstPilotProgressPanel } from "@/components/usability/UnifiedFirstPilotProgressPanel";
+import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { BUYER_ONBOARDING_PAGE_LEAD, BUYER_ONBOARDING_PAGE_TITLE, BUYER_ONBOARDING_WALKTHROUGH_HELP_LINK } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -54,7 +54,7 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
         <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
           Follow this guided path to create and commit your first review package.
         </p>
-        <UnifiedFirstPilotProgressPanel checklistVariant="full" embedded checklistOnly />
+        <CorePilotChecklist variant="full" />
         <div className="flex flex-wrap items-center gap-2">
           <InAppHelpLink helpSlug="first-pilot-path" label={BUYER_ONBOARDING_WALKTHROUGH_HELP_LINK} />
           <InAppHelpLink helpSlug="specialty-walkthroughs" label="Choose a review template" variant="text" />
