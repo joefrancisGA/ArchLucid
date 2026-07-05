@@ -22486,6 +22486,114 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/integrations/itsm/connections/jira/oauth/consent/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["ItsmAtlassianOAuthConsentCompleteRequest"];
+                    "application/json": null | components["schemas"]["ItsmAtlassianOAuthConsentCompleteRequest"];
+                    "text/json": null | components["schemas"]["ItsmAtlassianOAuthConsentCompleteRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ItsmAtlassianOAuthConsentCompleteResponse"];
+                        "text/json": components["schemas"]["ItsmAtlassianOAuthConsentCompleteResponse"];
+                        "text/plain": components["schemas"]["ItsmAtlassianOAuthConsentCompleteResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/integrations/itsm/connections/jira/oauth/consent/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["ItsmAtlassianOAuthConsentStartRequest"];
+                    "application/json": null | components["schemas"]["ItsmAtlassianOAuthConsentStartRequest"];
+                    "text/json": null | components["schemas"]["ItsmAtlassianOAuthConsentStartRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ItsmAtlassianOAuthConsentStartResponse"];
+                        "text/json": components["schemas"]["ItsmAtlassianOAuthConsentStartResponse"];
+                        "text/plain": components["schemas"]["ItsmAtlassianOAuthConsentStartResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/integrations/itsm/connections/{provider}": {
         parameters: {
             query?: never;
@@ -35853,6 +35961,27 @@ export interface components {
             /** Format: date */
             rollupDate?: string;
             rows?: components["schemas"]["InternalCrossTenantRollupDailyItemResponse"][];
+        };
+        ItsmAtlassianOAuthConsentCompleteRequest: {
+            code: string;
+            state: string;
+        };
+        ItsmAtlassianOAuthConsentCompleteResponse: {
+            connection?: null | components["schemas"]["TenantItsmConnectorConnectionResponse"];
+            refreshTokenStored?: boolean;
+        };
+        ItsmAtlassianOAuthConsentStartRequest: {
+            inboundWebhookKeyVaultSecretName?: null | string;
+            instanceBaseUrl: string;
+            label?: null | string;
+            oAuthClientIdKeyVaultSecretName: string;
+            oAuthClientSecretKeyVaultSecretName: string;
+            oAuthRefreshTokenKeyVaultSecretName: string;
+            redirectUri?: null | string;
+        };
+        ItsmAtlassianOAuthConsentStartResponse: {
+            authorizeUrl: string;
+            state: string;
         };
         ItsmFindingCorrelationListItem: {
             /** Format: date-time */
