@@ -525,6 +525,48 @@ function isTransientHttpStatus(code: number): boolean {
   return code === 429 || (code >= 500 && code < 600);
 }
 
+/** GET a live API path with transient 5xx/429 retries (CI SQL warmup). */
+export async function getLiveApiPathWithTransientRetries(
+  request: APIRequestContext,
+  apiPath: string,
+  options?: {
+    readonly headers?: Record<string, string>;
+    readonly timeout?: number;
+  },
+): Promise<APIResponse> {
+  const path = apiPath.startsWith("/") ? apiPath : `/${apiPath}`;
+  const headers = options?.headers ?? liveAcceptHeaders();
+  let lastResponse: APIResponse | undefined;
+
+  for (let attempt = 0; attempt < maxTransientHttpPollAttempts; attempt++) {
+    lastResponse = await request.get(`${resolveLiveApiBase()}${path}`, {
+      headers,
+      timeout: options?.timeout ?? 60_000,
+    });
+    const code = lastResponse.status();
+
+    if (lastResponse.ok()) {
+      return lastResponse;
+    }
+
+    if (code === 429 && attempt < maxTransientHttpPollAttempts - 1) {
+      await delayAfterRateLimitedResponse(lastResponse);
+
+      continue;
+    }
+
+    if (isTransientHttpStatus(code) && attempt < maxTransientHttpPollAttempts - 1) {
+      await sleepTransientHttpBackoff(attempt);
+
+      continue;
+    }
+
+    return lastResponse;
+  }
+
+  return lastResponse!;
+}
+
 /**
  * Same as {@link getAuthorityRunDetailRaw} but retries on HTTP 5xx (transient API/SQL) and 429 during CI seed probes.
  */

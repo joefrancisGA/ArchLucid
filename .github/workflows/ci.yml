@@ -3721,6 +3721,9 @@ jobs:
           Cors__AllowedOrigins__1: "http://localhost:3000"
           DataConsistency__InitialDelaySeconds: "0"
           HostLeaderElection__Enabled: "false"
+          Demo__Enabled: "true"
+          Demo__SeedOnStartup: "true"
+          Demo__AnonymousViewer__Enabled: "true"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-extended.log" 2>&1 &
@@ -3728,6 +3731,18 @@ jobs:
 
       - name: Wait for API readiness
         run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-extended.log"
+
+      - name: Wait for demo preview (extended live smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-extended.log
+          ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS: "90"
+        run: bash scripts/ci/wait-for-demo-preview.sh
+
+      - name: Wait for DB-backed pilot-run-deltas (extended live smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-extended.log
+          ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS: "60"
+        run: bash scripts/ci/wait-for-db-backed-pilot-endpoint.sh
 
       - name: Install Playwright browsers & run extended live e2e shard (excludes @release-gate; optional full live-a11y via workflow_dispatch)
         working-directory: archlucid-ui
