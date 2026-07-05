@@ -5,27 +5,23 @@
 */
 IF COL_LENGTH(N'dbo.TenantItsmConnectorConnections', N'AuthMode') IS NULL
 BEGIN
+    -- Columns and their CHECK constraints must be added in one ALTER TABLE statement: SQL Server binds
+    -- constraint expressions against the table's column list *before* running the batch, so a CHECK added
+    -- in a later statement within the same GO batch fails with "Invalid column name" on the sibling column
+    -- added just above it.
     ALTER TABLE dbo.TenantItsmConnectorConnections
         ADD AuthMode NVARCHAR(32) NOT NULL
-            CONSTRAINT DF_TenantItsmConnectorConnections_AuthMode DEFAULT (N'BasicApiToken'),
-        OAuthClientIdKeyVaultSecretName NVARCHAR(500) NULL,
-        OAuthClientSecretKeyVaultSecretName NVARCHAR(500) NULL,
-        OAuthRefreshTokenKeyVaultSecretName NVARCHAR(500) NULL;
-
-    ALTER TABLE dbo.TenantItsmConnectorConnections
-        ADD CONSTRAINT CK_TenantItsmConnectorConnections_AuthMode
-            CHECK (AuthMode IN (N'BasicApiToken', N'OAuth2ClientCredentials', N'OAuth2RefreshToken'));
-
-    ALTER TABLE dbo.TenantItsmConnectorConnections
-        ADD CONSTRAINT CK_TenantItsmConnectorConnections_OAuthClientIdNoUrl
-            CHECK (OAuthClientIdKeyVaultSecretName IS NULL OR OAuthClientIdKeyVaultSecretName NOT LIKE N'%://%');
-
-    ALTER TABLE dbo.TenantItsmConnectorConnections
-        ADD CONSTRAINT CK_TenantItsmConnectorConnections_OAuthClientSecretNoUrl
-            CHECK (OAuthClientSecretKeyVaultSecretName IS NULL OR OAuthClientSecretKeyVaultSecretName NOT LIKE N'%://%');
-
-    ALTER TABLE dbo.TenantItsmConnectorConnections
-        ADD CONSTRAINT CK_TenantItsmConnectorConnections_OAuthRefreshNoUrl
-            CHECK (OAuthRefreshTokenKeyVaultSecretName IS NULL OR OAuthRefreshTokenKeyVaultSecretName NOT LIKE N'%://%');
+                CONSTRAINT DF_TenantItsmConnectorConnections_AuthMode DEFAULT (N'BasicApiToken'),
+            OAuthClientIdKeyVaultSecretName NVARCHAR(500) NULL,
+            OAuthClientSecretKeyVaultSecretName NVARCHAR(500) NULL,
+            OAuthRefreshTokenKeyVaultSecretName NVARCHAR(500) NULL,
+            CONSTRAINT CK_TenantItsmConnectorConnections_AuthMode
+                CHECK (AuthMode IN (N'BasicApiToken', N'OAuth2ClientCredentials', N'OAuth2RefreshToken')),
+            CONSTRAINT CK_TenantItsmConnectorConnections_OAuthClientIdNoUrl
+                CHECK (OAuthClientIdKeyVaultSecretName IS NULL OR OAuthClientIdKeyVaultSecretName NOT LIKE N'%://%'),
+            CONSTRAINT CK_TenantItsmConnectorConnections_OAuthClientSecretNoUrl
+                CHECK (OAuthClientSecretKeyVaultSecretName IS NULL OR OAuthClientSecretKeyVaultSecretName NOT LIKE N'%://%'),
+            CONSTRAINT CK_TenantItsmConnectorConnections_OAuthRefreshNoUrl
+                CHECK (OAuthRefreshTokenKeyVaultSecretName IS NULL OR OAuthRefreshTokenKeyVaultSecretName NOT LIKE N'%://%');
 END;
 GO
