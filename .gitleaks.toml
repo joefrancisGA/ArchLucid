@@ -57,6 +57,8 @@ paths = [
 description = "Universal L0 intake QuestionKey identifiers (domain keys, not API secrets); generic-api-key false positive on QuestionKey = assignments"
 paths = [
   '''(?:^|/)ArchLucid\.Application/Drafts/QuestionSelection/UniversalIntakeQuestions\.cs$''',
+  '''(?:^|/)archlucid-ui/e2e/helpers/draft-intake-question-keys\.ts$''',
+  '''(?:^|/)archlucid-ui/e2e/live-api-socratic-intake\.spec\.ts$''',
 ]
 
 [[allowlists]]

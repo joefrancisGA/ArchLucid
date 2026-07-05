@@ -201,7 +201,7 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
     });
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Track pipeline" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Track review progress" })).toBeInTheDocument();
     });
   });
 });

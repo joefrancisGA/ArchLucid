@@ -190,7 +190,13 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
   const showGovernanceCtaCard =
     governanceCtaEl !== null && reviewPackagePrimaryAction.kind !== "open-governance-decision";
 
-  return (
+  const buyerGoldenPageReady =
+    m.buyerPolishedArtifactTable === true &&
+    isShowcaseStaticDemoRunId(m.resolvedDetail.run.runId) &&
+    m.headline.trim().length > 0 &&
+    Boolean(m.manifestId);
+
+  const runDetailBody = (
     <div
       className={`w-full space-y-4 px-1 py-2 sm:px-0 ${m.buyerPolishedArtifactTable ? "max-w-[1440px]" : "max-w-[1200px]"}`}
     >
@@ -479,6 +485,18 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
         <RunDetailBelowFoldSections model={m} context={deferredContext} />
       </Suspense>
+    </div>
+  );
+
+  return (
+    <div data-testid="review-detail-root">
+      {buyerGoldenPageReady ? (
+        <div data-testid="buyer-golden-page-ready" className="contents">
+          {runDetailBody}
+        </div>
+      ) : (
+        runDetailBody
+      )}
     </div>
   );
 }

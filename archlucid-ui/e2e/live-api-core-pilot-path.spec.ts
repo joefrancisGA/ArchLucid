@@ -7,6 +7,7 @@ import { expect, test } from "@playwright/test";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN, SHOWCASE_DEMO_RUN_ID } from "./fixtures";
+import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import { liveApiBase } from "./helpers/live-api-client";
 
 test.describe("live-api-core-pilot-path", () => {
@@ -18,6 +19,8 @@ test.describe("live-api-core-pilot-path", () => {
         `Live API not ready at ${liveApiBase}/health/ready (status ${health.status()}). Start ArchLucid.Api with Sql + DevelopmentBypass.`,
       );
     }
+
+    await ensureDemoWorkspaceSeedReady(request);
   });
 
   test("operator home, new request, reviews list, showcase review deliverables", async ({ page }) => {

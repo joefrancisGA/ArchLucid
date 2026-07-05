@@ -58,8 +58,10 @@ function ExecutiveRoiDashboardPortfolioSections({
   const hasCommittedReviews = hasExecutiveCommittedReviews(summary);
   const showSampleBanner = isExecutiveSampleWorkspaceData(summary);
   const hasDriftData = (driftPoints?.length ?? 0) > 0;
+  const dashboardReady = hasCommittedReviews && summaryLoading !== true;
 
   return (
+    <div data-testid={dashboardReady ? "executive-roi-dashboard-ready" : undefined}>
     <OperatorPageContainer variant="dashboard" className="space-y-6">
       {showSampleBanner ? <ExecutiveDashboardSampleWorkspaceBanner /> : null}
 
@@ -131,6 +133,7 @@ function ExecutiveRoiDashboardPortfolioSections({
 
       <ExecutiveDashboardBaselineWarningBanner variant="setup" />
     </OperatorPageContainer>
+    </div>
   );
 }
 

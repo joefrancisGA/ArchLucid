@@ -95,7 +95,7 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
 
         const string governanceSql = """
                                      SELECT COUNT_BIG(*)
-                                     FROM dbo.AuditEvents WITH (NOLOCK) WITH (NOLOCK)
+                                     FROM dbo.AuditEvents WITH (NOLOCK)
                                      WHERE TenantId = @TenantId
                                        AND WorkspaceId = @WorkspaceId
                                        AND ProjectId = @ProjectId

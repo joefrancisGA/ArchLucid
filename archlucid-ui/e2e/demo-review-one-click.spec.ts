@@ -29,7 +29,8 @@ test.describe("demo review one-click reliability @demo-review", () => {
 
     await page.goto(`/reviews/${encodeURIComponent(OPERATOR_DEMO_REVIEW_RUN_ID)}`);
 
-    await expect(page.getByTestId("review-detail-policy-pack-impact-callout")).toBeVisible({ timeout: 15_000 });
+    const reviewDetail = page.getByTestId("review-detail-root");
+    await expect(reviewDetail.getByTestId("review-detail-policy-pack-impact-callout")).toBeVisible({ timeout: 15_000 });
 
     const quickDecisionSummary = page.getByTestId("quick-decision-summary");
     await expect(quickDecisionSummary).toBeVisible({ timeout: 60_000 });

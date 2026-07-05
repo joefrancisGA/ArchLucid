@@ -5,6 +5,7 @@ using Dapper;
 namespace ArchLucid.Persistence.Tests.Data.Repositories;
 
 [Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class ComparisonRecordSearchPredicateBuilderTests
 {
     [Fact]

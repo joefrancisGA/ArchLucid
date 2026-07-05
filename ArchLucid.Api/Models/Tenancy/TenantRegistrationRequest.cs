@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ArchLucid.Api.Models.Tenancy;
 
 /// <summary>Public self-service tenant registration (Free tier).</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class TenantRegistrationRequest
 {
     [Required]

@@ -1,3 +1,5 @@
+> **Scope:** Customer-facing first-review guide — four-step path from evidence intake through signed review record and shareable artifacts; defers Operate surfaces until one package is complete.
+
 # First-review guide
 
 ArchLucid is designed to help architects move from architecture evidence to a signed, reviewable record. For your first session, focus on completing one review package. You can add cloud connections, governance workflows, integrations, and reporting later.

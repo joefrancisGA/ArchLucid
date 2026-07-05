@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Api.Models.Learning;
 
 /// <summary>Full improvement plan for detail views, including action steps and link-based evidence counts.</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class LearningPlanDetailResponse
 {
     public Guid PlanId

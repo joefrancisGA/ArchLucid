@@ -126,6 +126,37 @@ public sealed class AlertSuppressionPolicyTests
         decision.DeduplicationKey.Should().Be($"composite:{rule.CompositeRuleId}:run:{runId}");
     }
 
+    [Fact]
+    public async Task DecideAsync_WhenPastSuppressionWindowButExistingOpen_SuppressesWithoutReopen()
+    {
+        Mock<IAlertRecordRepository> repo = new();
+        repo
+            .Setup(
+                x => x.GetOpenByDeduplicationKeyAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new AlertRecord
+                {
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime().AddHours(-2),
+                });
+
+        AlertSuppressionPolicy sut = new(repo.Object);
+        CompositeAlertRule rule = CreateRule(CompositeDedupeScope.RuleOnly);
+        rule.CooldownMinutes = 1;
+        rule.SuppressionWindowMinutes = 30;
+        AlertEvaluationContext context = CreateContext();
+        AlertMetricSnapshot snapshot = new();
+
+        AlertSuppressionDecision decision = await sut.DecideAsync(rule, context, snapshot, CancellationToken.None);
+
+        decision.ShouldCreateAlert.Should().BeFalse();
+        decision.Reason.Should().Contain("prior open or acknowledged alert still exists");
+    }
+
     private static CompositeAlertRule CreateRule(string dedupeScope) =>
         new()
         {

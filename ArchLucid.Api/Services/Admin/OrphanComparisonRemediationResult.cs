@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Api.Services.Admin;
 
 /// <summary>
 ///     Result of <see cref="IAdminDiagnosticsService.RemediateOrphanComparisonRecordsAsync" />.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed record OrphanComparisonRemediationResult(
     bool DryRun,
     int RowCount,

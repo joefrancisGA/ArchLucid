@@ -261,8 +261,52 @@ export async function postArchitectureRequestRaw(
 /** Mutating architecture POSTs share one API with many live specs — retry fixed-window 429 and brief 5xx. */
 const maxArchitectureMutationAttempts = 8;
 
+/** Per-attempt HTTP timeout — prevents a wedged commit from burning the whole Playwright test timeout. */
+const commitAttemptHttpTimeoutMs = 90_000;
+
+/** Client-side wall-clock budget (mirrors greenfield SQL harness `GreenfieldSqlCommitRetryWallClockBudget`). */
+const commitRetryWallClockBudgetMs = 8 * 60_000;
+
 /** Authority commit can return transient 409 (#conflict) immediately after ReadyForCommit poll — retry before failing journeys. */
-const maxCommitTransient409Attempts = 12;
+const maxCommitTransient409Attempts = 25;
+
+function isManifestNotLoadedYetConflict(status: number, body: string): boolean {
+  return status === 409 && body.includes("manifest could not be loaded yet");
+}
+
+function isTransientCommitConflict(status: number, body: string): boolean {
+  if (status === 503) {
+    return true;
+  }
+
+  if (status !== 409) {
+    return false;
+  }
+
+  return (
+    body.includes("manifest could not be loaded yet") ||
+    body.includes("transient database condition")
+  );
+}
+
+async function tryFetchCommittedRunCommitShape(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<CommitRunResponseJson | null> {
+  try {
+    const detail = await getRunDetailsWithTransientRetries(request, runId, tenantScope);
+    const manifestVersion = detail.run?.currentManifestVersion?.trim() ?? "";
+
+    if (isArchitectureRunStatusCommitted(detail.run?.status) && manifestVersion.length > 0) {
+      return { manifest: { metadata: { manifestVersion } } };
+    }
+  } catch {
+    // Best-effort idempotent reconcile when POST /commit raced or returned transient 409.
+  }
+
+  return null;
+}
 
 /** POST `/v1/architecture/request` — create a new architecture run. */
 export async function createRun(
@@ -337,32 +381,67 @@ export async function commitRun(
   runId: string,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<CommitRunResponseJson> {
+  const retryStartedMs = Date.now();
+  let delayMs = 250;
+  let consecutiveManifestNotLoaded409 = 0;
+
   for (let attempt = 0; attempt < maxCommitTransient409Attempts; attempt++) {
+    if (Date.now() - retryStartedMs >= commitRetryWallClockBudgetMs) {
+      throw new Error(
+        `commitRun: wall-clock retry budget exhausted after ${commitRetryWallClockBudgetMs}ms for run ${runId}`,
+      );
+    }
+
+    const alreadyCommitted = await tryFetchCommittedRunCommitShape(request, runId, tenantScope);
+
+    if (alreadyCommitted !== null) {
+      return alreadyCommitted;
+    }
+
     const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/commit`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
+      timeout: commitAttemptHttpTimeoutMs,
     });
 
-    if (res.status() === 429 && attempt < maxCommitTransient409Attempts - 1) {
+    if (res.ok()) {
+      await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
+
+      return res.json() as Promise<CommitRunResponseJson>;
+    }
+
+    const body = await res.text();
+    const status = res.status();
+
+    if (status === 429 && attempt < maxCommitTransient409Attempts - 1) {
       await delayAfterRateLimitedResponse(res);
 
       continue;
     }
 
-    if (res.status() === 409 && attempt < maxCommitTransient409Attempts - 1) {
-      await new Promise((r) => setTimeout(r, 2000));
+    if (isTransientCommitConflict(status, body) && attempt < maxCommitTransient409Attempts - 1) {
+      if (isManifestNotLoadedYetConflict(status, body)) {
+        consecutiveManifestNotLoaded409 += 1;
+
+        if (consecutiveManifestNotLoaded409 >= 3) {
+          await waitForReadyForCommit(request, runId, 30_000, tenantScope);
+        }
+      } else {
+        consecutiveManifestNotLoaded409 = 0;
+      }
+
+      await new Promise((r) => setTimeout(r, delayMs));
+      delayMs = Math.min(delayMs * 2, 8000);
 
       continue;
     }
 
-    if (res.status() >= 500 && res.status() < 600 && attempt < maxCommitTransient409Attempts - 1) {
+    if (status >= 500 && status < 600 && attempt < maxCommitTransient409Attempts - 1) {
       await new Promise((r) => setTimeout(r, 500));
 
       continue;
     }
 
-    await throwIfNotOk(res, "POST /v1/architecture/run/.../commit");
-
-    return res.json() as Promise<CommitRunResponseJson>;
+    throw new Error(`POST /v1/architecture/run/.../commit failed ${status}: ${body.slice(0, 500)}`);
   }
 
   throw new Error("commitRun: retry loop exhausted");
@@ -380,6 +459,7 @@ export async function commitRunRaw(
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
     const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/commit`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
+      timeout: commitAttemptHttpTimeoutMs,
     });
 
     if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
@@ -432,6 +512,98 @@ export async function getAuthorityRunDetailRaw(
   });
 }
 
+const maxTransientHttpPollAttempts = 24;
+
+async function sleepTransientHttpBackoff(attempt: number): Promise<void> {
+  const baseDelayMs = Math.min(1000 * 2 ** attempt, 8000);
+  const jitterMs = Math.floor(Math.random() * 250);
+
+  await new Promise((resolve) => setTimeout(resolve, baseDelayMs + jitterMs));
+}
+
+function isTransientHttpStatus(code: number): boolean {
+  return code === 429 || (code >= 500 && code < 600);
+}
+
+/** GET a live API path with transient 5xx/429 retries (CI SQL warmup). */
+export async function getLiveApiPathWithTransientRetries(
+  request: APIRequestContext,
+  apiPath: string,
+  options?: {
+    readonly headers?: Record<string, string>;
+    readonly timeout?: number;
+  },
+): Promise<APIResponse> {
+  const path = apiPath.startsWith("/") ? apiPath : `/${apiPath}`;
+  const headers = options?.headers ?? liveAcceptHeaders();
+  let lastResponse: APIResponse | undefined;
+
+  for (let attempt = 0; attempt < maxTransientHttpPollAttempts; attempt++) {
+    lastResponse = await request.get(`${resolveLiveApiBase()}${path}`, {
+      headers,
+      timeout: options?.timeout ?? 60_000,
+    });
+    const code = lastResponse.status();
+
+    if (lastResponse.ok()) {
+      return lastResponse;
+    }
+
+    if (code === 429 && attempt < maxTransientHttpPollAttempts - 1) {
+      await delayAfterRateLimitedResponse(lastResponse);
+
+      continue;
+    }
+
+    if (isTransientHttpStatus(code) && attempt < maxTransientHttpPollAttempts - 1) {
+      await sleepTransientHttpBackoff(attempt);
+
+      continue;
+    }
+
+    return lastResponse;
+  }
+
+  return lastResponse!;
+}
+
+/**
+ * Same as {@link getAuthorityRunDetailRaw} but retries on HTTP 5xx (transient API/SQL) and 429 during CI seed probes.
+ */
+export async function getAuthorityRunDetailWithTransientRetries(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope: LiveTenantScopeHeaders,
+  options?: { apiKey?: string | null },
+): Promise<APIResponse> {
+  let lastResponse: APIResponse | undefined;
+
+  for (let attempt = 0; attempt < maxTransientHttpPollAttempts; attempt++) {
+    lastResponse = await getAuthorityRunDetailRaw(request, runId, tenantScope, options);
+    const code = lastResponse.status();
+
+    if (lastResponse.ok()) {
+      return lastResponse;
+    }
+
+    if (code === 429 && attempt < maxTransientHttpPollAttempts - 1) {
+      await delayAfterRateLimitedResponse(lastResponse);
+
+      continue;
+    }
+
+    if (isTransientHttpStatus(code) && attempt < maxTransientHttpPollAttempts - 1) {
+      await sleepTransientHttpBackoff(attempt);
+
+      continue;
+    }
+
+    return lastResponse;
+  }
+
+  return lastResponse!;
+}
+
 /** GET `/v1/pilots/runs/{runId}/pilot-run-deltas` — proof-of-ROI numbers for the run (see `docs/library/API_CONTRACTS.md`). */
 export async function getPilotRunDeltasRaw(
   request: APIRequestContext,
@@ -444,6 +616,45 @@ export async function getPilotRunDeltasRaw(
   return request.get(`${resolveLiveApiBase()}/v1/pilots/runs/${encoded}/pilot-run-deltas`, {
     headers: mergeTenantScope(liveAcceptHeaders(options?.apiKey), tenantScope),
   });
+}
+
+const maxPilotRunDeltasPollAttempts = maxTransientHttpPollAttempts;
+
+/**
+ * Same as {@link getPilotRunDeltasRaw} but retries on HTTP 5xx (transient API/SQL) and 429 during CI seed probes.
+ */
+export async function getPilotRunDeltasWithTransientRetries(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope: LiveTenantScopeHeaders,
+  options?: { apiKey?: string | null },
+): Promise<APIResponse> {
+  let lastResponse: APIResponse | undefined;
+
+  for (let attempt = 0; attempt < maxPilotRunDeltasPollAttempts; attempt++) {
+    lastResponse = await getPilotRunDeltasRaw(request, runId, tenantScope, options);
+    const code = lastResponse.status();
+
+    if (lastResponse.ok()) {
+      return lastResponse;
+    }
+
+    if (code === 429 && attempt < maxPilotRunDeltasPollAttempts - 1) {
+      await delayAfterRateLimitedResponse(lastResponse);
+
+      continue;
+    }
+
+    if (isTransientHttpStatus(code) && attempt < maxPilotRunDeltasPollAttempts - 1) {
+      await sleepTransientHttpBackoff(attempt);
+
+      continue;
+    }
+
+    return lastResponse;
+  }
+
+  return lastResponse!;
 }
 
 /** Counts sealed findings on `findingsSnapshot.findings` from {@link getAuthorityRunDetailRaw} JSON (camelCase wire shape). */
@@ -530,8 +741,12 @@ export async function waitForReadyForCommit(
     const detail = await getRunDetailsWithTransientRetries(request, runId, tenantScope);
     const status = detail.run?.status;
 
+    const resultsCount = Array.isArray(detail.results) ? detail.results.length : 0;
+
     if (status === 4 || status === "ReadyForCommit") {
-      return;
+      if (resultsCount > 0) {
+        return;
+      }
     }
 
     if (status === 5 || status === "Committed") {
@@ -659,9 +874,11 @@ export async function postGovernanceApproveRaw(
 export type RunDetailsJson = {
   run?: {
     goldenManifestId?: string | null;
+    currentManifestVersion?: string | null;
     /** Numeric enum from API JSON, or string name when serialized as string. */
     status?: number | string;
   };
+  results?: unknown[];
 };
 
 /** POST `/v1/governance/approval-requests` — submit promotion approval request. */

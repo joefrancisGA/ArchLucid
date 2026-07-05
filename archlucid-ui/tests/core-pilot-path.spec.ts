@@ -29,7 +29,9 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
 
     await expect(page.getByRole("heading", { name: "ArchLucid", level: 1 })).toBeVisible();
     await expect(page.getByTestId("operator-home-hero-section")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId("pilot-command-center-card")).toBeVisible();
+    await expect(
+      page.getByTestId("operator-home-hero-section").getByTestId("pilot-command-center-card"),
+    ).toBeVisible();
     await expect(page.getByTestId("pilot-next-best-action")).toBeVisible();
     await expect(page.getByTestId("operator-home-advanced-guidance")).toBeVisible({ timeout: 60_000 });
 

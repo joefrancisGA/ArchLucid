@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Api.Models.Learning;
 
 /// <summary>Cross-cutting 59R learning/planning KPIs for dashboard shells.</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class LearningSummaryResponse
 {
     public DateTime GeneratedUtc

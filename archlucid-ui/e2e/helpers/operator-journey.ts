@@ -4,6 +4,7 @@ import { expectAnyLocatorVisible } from "./locator-readiness";
 
 import {
   ASK_PAGE_PRIMARY_HEADING_PATTERN,
+  AUDIT_PAGE_PRIMARY_HEADING_PATTERN,
   FIXTURE_LEFT_RUN_ID,
   FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
   FIXTURE_RIGHT_RUN_ID,
@@ -55,6 +56,11 @@ export function askPageMainHeading(page: Page): Locator {
 /** Primary `/governance` H2 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
 export function governancePageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN });
+}
+
+/** Primary `/governance/audit` H2 from {@link OperatorPageHeader} (excludes H3 "Filter audit trail"). */
+export function auditPageMainHeading(page: Page): Locator {
+  return page.getByRole("heading", { level: 2, name: AUDIT_PAGE_PRIMARY_HEADING_PATTERN });
 }
 
 /**
@@ -206,6 +212,26 @@ export async function gotoManifestEmptyArtifactsOperatorCase(page: Page): Promis
 
 // --- Assertions (only where duplicated across specs) ---
 
+/** Buyer-polished run detail sticky section nav (`RunDetailSectionNav`). */
+export function buyerPolishedReviewDetailSectionNav(page: Page): Locator {
+  return page.getByRole("navigation", { name: "Review detail sections" });
+}
+
+/** Canonical buyer-polished section strip labels from `buildRunDetailNavSections`. */
+export async function expectBuyerPolishedReviewDetailSectionNavCore(
+  sectionNav: Locator,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeout = options?.timeoutMs ?? 15_000;
+
+  await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Outcome record" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Assessment" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Activity" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Deliverables" })).toBeVisible({ timeout });
+}
+
 /** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */
 export function reviewOutcomeSummaryStrip(page: Page): Locator {
   return page.getByRole("main").locator('section[aria-label="Review outcome summary"]').first();
@@ -332,4 +358,11 @@ export async function expandCompareStructuredDecisionChanges(page: Page): Promis
  */
 export function structuredCompareSponsorRecommendationParagraph(page: Page): Locator {
   return page.locator("#compare-structured").getByTestId("compare-sponsor-recommendation");
+}
+
+/** Run detail page: loading finished and primary review headline (`RunDetailPageHeader` H1) is visible. */
+export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_000): Promise<void> {
+  await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: timeoutMs });
+  await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
+  await expect(page.locator("main h1").first()).toBeVisible({ timeout: timeoutMs });
 }
