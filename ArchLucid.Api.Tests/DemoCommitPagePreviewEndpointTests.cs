@@ -126,6 +126,87 @@ public sealed class DemoCommitPagePreviewEndpointTests(ArchLucidApiFactory facto
         response.Headers.ETag!.Tag.Should().Be(expectedQuoted);
     }
 
+    [SkippableFact]
+    public async Task GetDemoPreview_retries_after_initial_unavailable_without_negative_cache()
+    {
+        FlakyPreviewClient stub = new();
+
+        WebApplicationFactory<Program> enabled = factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
+                new Dictionary<string, string?> { ["Demo:Enabled"] = "true" }));
+
+            builder.ConfigureTestServices(services =>
+            {
+                services.RemoveAll<IDemoCommitPagePreviewClient>();
+                services.AddSingleton<IDemoCommitPagePreviewClient>(stub);
+            });
+        });
+
+        HttpClient client = enabled.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        HttpResponseMessage first = await client.GetAsync("/v1/demo/preview");
+        first.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        HttpResponseMessage second = await client.GetAsync("/v1/demo/preview");
+        second.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    private sealed class FlakyPreviewClient : IDemoCommitPagePreviewClient
+    {
+        private int _calls;
+
+        public Task<DemoCommitPagePreviewResponse?> GetLatestCommittedDemoCommitPageAsync(
+            CancellationToken cancellationToken = default)
+        {
+            _calls++;
+
+            if (_calls == 1)
+                return Task.FromResult<DemoCommitPagePreviewResponse?>(null);
+
+            return Task.FromResult<DemoCommitPagePreviewResponse?>(new DemoCommitPagePreviewResponse
+            {
+                GeneratedUtc = DateTimeOffset.UtcNow,
+                IsDemoData = true,
+                DemoStatusMessage = "ok",
+                Run = new DemoPreviewRun
+                {
+                    RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("N"),
+                    ProjectId = "default",
+                    Description = "stub",
+                    CreatedUtc = DateTime.UtcNow
+                },
+                AuthorityChain = new DemoPreviewAuthorityChain(),
+                Manifest = new DemoPreviewManifestSummary
+                {
+                    ManifestId = Guid.NewGuid().ToString("N"),
+                    RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("N"),
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "mh",
+                    RuleSetId = "r",
+                    RuleSetVersion = "v",
+                    DecisionCount = 1,
+                    WarningCount = 0,
+                    UnresolvedIssueCount = 0,
+                    Status = "ok",
+                    HasWarnings = false,
+                    HasUnresolvedIssues = false,
+                    OperatorSummary = "stub"
+                },
+                Artifacts = [],
+                PipelineTimeline = [],
+                RunExplanation = new RunExplanationSummary
+                {
+                    Explanation = new ExplanationResult { Summary = "stub" },
+                    ThemeSummaries = ["t1"],
+                    OverallAssessment = "a",
+                    RiskPosture = "Low"
+                }
+            });
+        }
+    }
+
     private sealed class StubPreviewClient : IDemoCommitPagePreviewClient
     {
         private static readonly DateTimeOffset FixedGeneratedUtc = DateTimeOffset.Parse("2026-04-01T12:00:00Z");

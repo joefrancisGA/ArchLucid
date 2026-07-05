@@ -1555,7 +1555,6 @@ jobs:
         shell: pwsh
         run: |
           [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          Get-PSResourceRepository -ErrorAction SilentlyContinue | Out-Null
           $gallery = Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue
           if ($gallery) {
             Set-PSRepository PSGallery -InstallationPolicy Trusted
@@ -3558,6 +3557,9 @@ jobs:
           Cors__AllowedOrigins__1: "http://localhost:3000"
           DataConsistency__InitialDelaySeconds: "0"
           HostLeaderElection__Enabled: "false"
+          Demo__Enabled: "true"
+          Demo__SeedOnStartup: "true"
+          Demo__AnonymousViewer__Enabled: "true"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api.log" 2>&1 &
@@ -3567,6 +3569,9 @@ jobs:
         run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api.log"
 
       - name: Wait for demo preview (release-gate smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api.log
+          ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS: "90"
         run: bash scripts/ci/wait-for-demo-preview.sh
 
       - name: Install Playwright browsers & run live e2e (@release-gate — aligns with rc-release-gate ui-e2e-live-rc)

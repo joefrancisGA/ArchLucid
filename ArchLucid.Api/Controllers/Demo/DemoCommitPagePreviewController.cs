@@ -100,9 +100,15 @@ public sealed class DemoCommitPagePreviewController(
             ttlSeconds);
 
         if (payload is null)
+        {
+            // Do not retain a negative cache entry: CI and first-boot hosts poll this route while demo seed is still
+            // materializing; caching null would block recovery until the preview TTL expires.
+            await _hotPathReadCache.RemoveAsync(PreviewBundleCacheKey, cancellationToken);
+
             return this.NotFoundProblem(
                 "No committed demo-seed run is available on this host. Run `archlucid try` or POST /v1/demo/seed and retry.",
                 ProblemTypes.RunNotFound);
+        }
 
         if (materialized)
             ArchLucidInstrumentation.DemoPreviewCacheMisses.Add(1);
