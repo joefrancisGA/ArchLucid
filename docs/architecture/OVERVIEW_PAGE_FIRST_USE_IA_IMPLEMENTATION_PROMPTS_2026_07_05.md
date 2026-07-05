@@ -1,15 +1,21 @@
 > **Scope:** Copy-paste Composer/agent prompts implementing the decision memo below. Each prompt is self-contained (restates relevant context) so it can be run in a fresh Composer session with no prior chat history. Run in order 1→7, reviewing the diff after each before starting the next.
 >
 > **Assessment date:** 2026-07-05
-> **Source decision memo:** [`OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md`](OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md) — read this first; it contains the full diagnosis, rationale, and acceptance criteria that these prompts implement. Nothing in this repo has been changed yet — these prompts are not-yet-executed instructions.
+> **Source decision memo:** [`OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md`](OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md) — read this first; it contains the full diagnosis, rationale, and acceptance criteria that these prompts implement.
+>
+> **Workflow update (owner decision, 2026-07-05):** Prompt 1 was run on a short-lived feature branch (`ui/overview-ia-cleanup-1-dead-code`) and has since been **committed directly to `master`** (commits `45cb6cecb6`, `43e6100d67`); the branch was deleted. The owner is comfortable running the remaining prompts **directly against `master`** (rollback via `git revert` if needed) rather than per-wave feature branches. Prompts 2–7 below are written for that direct-to-master workflow. Local commits only — do not push to `origin/master` unless explicitly requested.
 
 # Overview page first-use IA cleanup — implementation prompts
 
-Each prompt below creates its own branch off `master`. Per repo convention, review and test after each prompt before proceeding to the next; do not merge/push without explicit approval.
+**Status:** Prompt 1 ✅ done (committed to `master`). Prompts 2–7 not yet run.
+
+Prompts 2–7 work directly on `master` — no feature branch. Review the diff and run tests after each prompt before starting the next; commit locally after each prompt's tests pass, but do not push to `origin` without explicit approval.
 
 ---
 
-## Prompt 1 — Branch setup + dead-code removal (zero risk)
+## Prompt 1 — Dead-code removal (zero risk) — ✅ COMPLETED 2026-07-05
+
+> Already run and committed to `master` (`45cb6cecb6`). Kept below verbatim for historical record; skip re-running unless you're reverting and redoing it.
 
 ```
 Read docs/architecture/OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md in full for context before starting.
@@ -40,7 +46,7 @@ Stop and report: files deleted, constants removed, test result.
 ```
 Read docs/architecture/OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md in full for context before starting.
 
-Branch off master (or continue on ui/overview-ia-cleanup-1-dead-code if still open) as `ui/overview-ia-cleanup-2-drawer`.
+Work directly on the current branch (master) — no feature branch needed. Confirm `git status` is clean of unrelated changes before starting; if there are pre-existing unrelated unstaged changes in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
 The collapsed "Setup and walkthroughs" section on the Overview page (rendered by archlucid-ui/src/components/operator-home/OperatorHomeAdvancedGuidanceSection.tsx) currently renders six overlapping first-use constructs. Per the audit's §1 and §5, reduce it to ONE checklist plus help links:
 
@@ -70,7 +76,9 @@ Do not change anything on the /onboarding page's own guidance content except as 
 
 Run the affected Vitest suites and fix failures.
 
-Stop and report: which files were deleted vs. kept, the UnifiedFirstPilotProgressPanel decision and why, and test results.
+Once tests pass, stage only the files this prompt touched (deleted components + their tests, OperatorHomeAdvancedGuidanceSection.tsx, buyer-polish-copy.ts, CorePilotChecklist.tsx, and the updated test files) and commit directly to master with a descriptive message (e.g. "Consolidate Overview 'Setup and walkthroughs' drawer to one checklist"). Do not stage any other unrelated modified/untracked files already present in the working tree. Do not push to origin.
+
+Stop and report: which files were deleted vs. kept, the UnifiedFirstPilotProgressPanel decision and why, test results, and the commit hash.
 ```
 
 ---
@@ -80,7 +88,7 @@ Stop and report: which files were deleted vs. kept, the UnifiedFirstPilotProgres
 ```
 Read docs/architecture/OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md for context, specifically item #4 in the diagnosis table.
 
-Branch off master as `ui/overview-ia-cleanup-3-first-hour-strip`.
+Work directly on the current branch (master) — no feature branch needed. Confirm `git status` is clean of unrelated changes before starting; if there are pre-existing unrelated unstaged changes in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
 archlucid-ui/src/components/operator-home/RunsDashboardPanelClient.tsx renders <OperatorFirstHourJourneyStrip /> above the runs dashboard card when !buyerPolishedShell (around the `!buyerPolishedShell ? (...) : null` block). This strip duplicates the hero's 3-step preview with a different 4-step sequence and internal "Pilot first, Operate later" language.
 
@@ -95,7 +103,9 @@ Update any tests that assert on the removed strip's test ids (data-testid="opera
 
 Run the affected Vitest suites and fix failures.
 
-Stop and report: files deleted, empty-state copy change made, test results.
+Once tests pass, stage only the files this prompt touched and commit directly to master with a descriptive message (e.g. "Remove duplicate first-hour path strip from Overview workspace activity"). Do not stage any other unrelated modified/untracked files already present in the working tree. Do not push to origin.
+
+Stop and report: files deleted, empty-state copy change made, test results, and the commit hash.
 ```
 
 ---
@@ -105,7 +115,7 @@ Stop and report: files deleted, empty-state copy change made, test results.
 ```
 Read docs/architecture/OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md for context, specifically §3 and §7 item 3 ("Setup readiness").
 
-Branch off master as `ui/overview-ia-cleanup-4-setup-consolidation`.
+Work directly on the current branch (master) — no feature branch needed. Confirm `git status` is clean of unrelated changes before starting; if there are pre-existing unrelated unstaged changes in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
 Currently setup appears in multiple places on Overview: (a) PilotCommandCenterCard's inline "Optional setup: Connect cloud / Invite reviewer" row, (b) OperatorHomeContinueSetupCard ("Continue setup"), (c) live health/config checks in InProductEvidenceChecklist. Consolidate into ONE section.
 
@@ -123,7 +133,9 @@ Currently setup appears in multiple places on Overview: (a) PilotCommandCenterCa
 
 Run the affected Vitest suites and fix failures.
 
-Stop and report: final button layout on both cards, which copy constants were reused vs. removed, test results.
+Once tests pass, stage only the files this prompt touched and commit directly to master with a descriptive message (e.g. "Consolidate Overview setup entry points into Setup readiness card"). Do not stage any other unrelated modified/untracked files already present in the working tree. Do not push to origin.
+
+Stop and report: final button layout on both cards, which copy constants were reused vs. removed, test results, and the commit hash.
 ```
 
 ---
@@ -133,7 +145,7 @@ Stop and report: final button layout on both cards, which copy constants were re
 ```
 Read docs/architecture/OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md for context, specifically §3 and §7 item 4 ("Workspace metrics").
 
-Branch off master as `ui/overview-ia-cleanup-5-metrics-gate`.
+Work directly on the current branch (master) — no feature branch needed. Confirm `git status` is clean of unrelated changes before starting; if there are pre-existing unrelated unstaged changes in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
 archlucid-ui/src/components/operator-home/OperatorHomeWorkspaceContextDisclosure.tsx ("Workspace metrics and status") currently always renders, showing a grid of zeros before the tenant has any committed review. Gate it the same way archlucid-ui/src/components/operator-home/OperatorHomeExecutiveRoiStrip.tsx already gates itself: using the useNavCommittedArchitectureReview() hook from @/components/OperatorNavAuthorityProvider.
 
@@ -146,7 +158,9 @@ Do not change the section's rendered content when it IS visible (post-commit) �
 
 Run the affected Vitest suites and fix failures.
 
-Stop and report: test results and confirmation the gate matches the ROI strip pattern.
+Once tests pass, stage only the files this prompt touched and commit directly to master with a descriptive message (e.g. "Gate Overview workspace metrics behind first committed review"). Do not stage any other unrelated modified/untracked files already present in the working tree. Do not push to origin.
+
+Stop and report: test results, confirmation the gate matches the ROI strip pattern, and the commit hash.
 ```
 
 ---
@@ -156,7 +170,7 @@ Stop and report: test results and confirmation the gate matches the ROI strip pa
 ```
 Read docs/architecture/OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md for context, specifically §4 (naming cleanup) and acceptance criterion #3.
 
-Branch off master as `ui/overview-ia-cleanup-6-terminology-guard`.
+Work directly on the current branch (master) — no feature branch needed. Confirm `git status` is clean of unrelated changes before starting; if there are pre-existing unrelated unstaged changes in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
 This is the final pass after Prompts 1-5 have removed the components carrying banned vocabulary. Now enforce it stays gone.
 
@@ -179,7 +193,9 @@ This is the final pass after Prompts 1-5 have removed the components carrying ba
 
 4. Run npm run lint if available and the full archlucid-ui Vitest suite for the operator-home directory plus the new guard test.
 
-Stop and report: final list of any remaining flagged terms and why they were kept (if any), and full test results.
+Once tests pass, stage only the files this prompt touched and commit directly to master with a descriptive message (e.g. "Add Overview terminology guard and final naming sweep"). Do not stage any other unrelated modified/untracked files already present in the working tree. Do not push to origin.
+
+Stop and report: final list of any remaining flagged terms and why they were kept (if any), full test results, and the commit hash.
 ```
 
 ---
@@ -189,7 +205,7 @@ Stop and report: final list of any remaining flagged terms and why they were kep
 ```
 Read docs/architecture/OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md §9 (acceptance criteria) before starting.
 
-This should run after Prompts 1-6 are merged (or squashed onto one integration branch off master, e.g. `ui/overview-ia-cleanup-final`).
+This should run after Prompts 1-6 have each been committed directly to master (no feature branches — see the workflow note at the top of this doc).
 
 1. Run the full archlucid-ui Vitest suite (not just scoped directories this time) and fix any remaining failures caused by the Overview cleanup.
 2. Run the Playwright e2e specs that touch Overview or the removed components if they can run in this environment (check archlucid-ui/e2e/live-api-why-archlucid.spec.ts and live-api-email-run-to-sponsor.spec.ts for references to removed test ids — update selectors as needed; skip if these require live API and cannot run locally, but still fix any hardcoded selectors referencing deleted components).
@@ -207,7 +223,7 @@ This should run after Prompts 1-6 are merged (or squashed onto one integration b
 
 Do not touch anything outside archlucid-ui/. Do not modify backend/.NET code, database DDL, or Terraform.
 
-Stop and report the full verification summary.
+Stop and report the full verification summary. Do not push to origin.
 ```
 
 ---
@@ -216,5 +232,6 @@ Stop and report the full verification summary.
 
 - Each prompt assumes it starts fresh in Composer with no memory of prior conversation — that's why each restates the relevant memo section instead of referencing "our discussion."
 - Run in dependency order: dead code → drawer contents → injected strip → setup merge → metrics gate → terminology enforcement → final verification.
-- Per this repo's branch-naming convention, no commits should be made without the user naming the target branch in the same request; each prompt instructs the agent to create its own working branch off `master` but does not push or open a PR — that remains a separate, explicit step.
-- If a single combined implementation session is preferred instead of seven separate branches, collapse Prompts 1–6 into one session on a single branch (e.g. `ui/overview-ia-cleanup`) and run Prompt 7 at the end unchanged.
+- **Workflow (owner decision, 2026-07-05):** Prompts 2–7 commit directly to `master` after each prompt's tests pass — no per-wave feature branches. Commits are local only; pushing to `origin/master` remains a separate, explicit step the owner must request.
+- Each prompt is instructed to leave any pre-existing unrelated dirty working-tree changes untouched and unstaged — stage and commit only the files that prompt was scoped to change.
+- If `master` has moved (other commits landed) between running prompts, re-read the affected files before editing — some of the target components/copy may already have changed shape since the audit was written.
