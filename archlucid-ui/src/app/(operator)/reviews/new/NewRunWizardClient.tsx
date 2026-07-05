@@ -90,7 +90,7 @@ const WIZARD_STEP_DEFINITIONS_FULL = [
   { label: "Evidence (optional)", description: "Brief, docs, IaC, cloud export, or demo" },
   { label: "Identity & goals", description: "System, environment & requirements" },
   { label: "Constraints", description: "Limits & capabilities" },
-  { label: "Optional enrichment", description: "Azure inventory or supporting files — not required" },
+  { label: "Optional enrichment", description: "Cloud inventory or supporting files — optional" },
   { label: "Advanced", description: "Optional context" },
   { label: "Baseline metrics (optional)", description: "ROI reporting inputs" },
   { label: "Review", description: "Confirm & create" },
@@ -99,7 +99,7 @@ const WIZARD_STEP_DEFINITIONS_FULL = [
 
 const WIZARD_STEP_DEFINITIONS_BASELINE = [
   WIZARD_STEP_DEFINITIONS_FULL[0],
-  { label: "Add evidence", description: "Upload a file or use sample review evidence" },
+  { label: "Add evidence", description: "Optional cloud inventory or sample review evidence" },
   WIZARD_STEP_DEFINITIONS_FULL[2],
   WIZARD_STEP_DEFINITIONS_FULL[3],
   WIZARD_STEP_DEFINITIONS_FULL[4],
@@ -812,7 +812,7 @@ export function NewRunWizardClient() {
               >
                 <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                   <span className="font-medium text-neutral-900 dark:text-neutral-100">Quick start (3 steps)</span>
-                  {" — recommended for your first review package. Constraints, Azure context, and advanced fields use safe defaults."}
+                  {" — recommended for your first review package. Constraints, optional evidence, and advanced fields use safe defaults."}
                 </p>
                 <button
                   type="button"

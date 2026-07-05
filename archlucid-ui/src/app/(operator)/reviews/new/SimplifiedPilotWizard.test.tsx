@@ -5,6 +5,7 @@ import { strToU8, zipSync } from "fflate";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
+import { uploadBaselineWizardZip } from "@/testing/wizard-baseline-zip-test-helpers";
 
 const createRun = vi.fn();
 const saveTenantReviewCycleBaselineMock = vi.fn();
@@ -102,29 +103,7 @@ describe("SimplifiedPilotWizard", () => {
     render(<Harness />);
 
     expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 1 of 4/i);
-    expect(screen.getByTestId("wizard-baseline-zip-field")).toBeInTheDocument();
-
-    const zipInput = within(screen.getByTestId("wizard-baseline-zip-field")).getByTestId("wizard-baseline-zip-field-input");
-    const zipFile = makeArchLucidPackageZip();
-
-    await act(async () => {
-      fireEvent.change(zipInput, { target: { files: [zipFile] } });
-    });
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("wizard-azure-zip-error")).not.toBeInTheDocument();
-    });
-
-    expect(screen.getByTestId("wizard-azure-zip-ready")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 2 of 4/i);
-    });
-
-    const systemName = screen.getByLabelText("System name") as HTMLInputElement;
-    expect(systemName.value).toBe("MyRg");
+    expect(screen.getByLabelText("System name")).toBeInTheDocument();
 
     const description = screen.getByLabelText("Description") as HTMLTextAreaElement;
 
@@ -132,10 +111,18 @@ describe("SimplifiedPilotWizard", () => {
       fireEvent.change(description, {
         target: {
           value:
-            "Ten char min: assess the Azure inventory captured in the extractor ZIP for this pilot architecture review.",
+            "Ten char min: assess this architecture for security, cost, and governance before production rollout.",
         },
       });
     }
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 2 of 4/i);
+    });
+
+    await uploadBaselineWizardZip(makeArchLucidPackageZip());
 
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
@@ -165,16 +152,13 @@ describe("SimplifiedPilotWizard", () => {
     await waitFor(() => {
       expect(createRun).toHaveBeenCalled();
     });
+
+    const createPayload = createRun.mock.calls[0]?.[0] as { systemName?: string } | undefined;
+    expect(createPayload?.systemName).toBe("MyRg");
   });
 
-  it("exposes advanced configuration behind an accordion on step 2", async () => {
+  it("exposes advanced configuration behind an accordion on step 1", () => {
     render(<Harness />);
-
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 2 of 4/i);
-    });
 
     expect(screen.getByRole("button", { name: "Advanced configuration" })).toBeInTheDocument();
   });

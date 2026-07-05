@@ -31,8 +31,8 @@ import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFaile
 import { useWizardBaselineMetricsActions } from "@/lib/use-wizard-baseline-metrics-actions";
 
 const PILOT_STEPS = [
-  { label: "Upload extractor ZIP", description: "Packager output (read-only inventory)" },
-  { label: "System & cloud", description: "Name your system and optional advanced configuration" },
+  { label: "Start your review", description: "Name the system and describe what you need reviewed" },
+  { label: "Optional evidence", description: "Cloud inventory ZIP or supporting files — not required" },
   { label: "Baseline metrics", description: "Capture review-cycle time for sponsor ROI reporting" },
   { label: "Review & submit", description: "Confirm and create the architecture review" },
 ] as const;
@@ -199,9 +199,6 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
       </div>
 
       {pilotStep === 0 ? (
-        <WizardStepBaselineZip onPendingZipFileChange={onPendingZipFileChange} />
-      ) : null}
-      {pilotStep === 1 ? (
         <div className="space-y-8">
           <PilotModePolicyPackToggle
             enabled={focusedPilotModeEnabled}
@@ -214,6 +211,9 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
             <WizardStepAdvanced />
           </AdvancedOptionsAccordion>
         </div>
+      ) : null}
+      {pilotStep === 1 ? (
+        <WizardStepBaselineZip onPendingZipFileChange={onPendingZipFileChange} />
       ) : null}
       {pilotStep === 2 ? (
         <WizardStepBaselineMetrics
