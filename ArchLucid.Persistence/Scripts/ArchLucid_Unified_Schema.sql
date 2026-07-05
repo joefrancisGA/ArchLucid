@@ -4839,25 +4839,39 @@ BEGIN
             CHECK (InboundWebhookKeyVaultSecretName IS NULL OR InboundWebhookKeyVaultSecretName NOT LIKE N'%://%'),
         CONSTRAINT CK_TenantItsmConnectorConnections_AuthMode2
             CHECK (AuthMode IN (N'BasicApiToken', N'OAuth2ClientCredentials', N'OAuth2RefreshToken')),
+        CONSTRAINT CK_TenantItsmConnectorConnections_OAuthClientIdNoUrl2
+            CHECK (OAuthClientIdKeyVaultSecretName IS NULL OR OAuthClientIdKeyVaultSecretName NOT LIKE N'%://%'),
+        CONSTRAINT CK_TenantItsmConnectorConnections_OAuthClientSecretNoUrl2
+            CHECK (OAuthClientSecretKeyVaultSecretName IS NULL OR OAuthClientSecretKeyVaultSecretName NOT LIKE N'%://%'),
+        CONSTRAINT CK_TenantItsmConnectorConnections_OAuthRefreshNoUrl2
+            CHECK (OAuthRefreshTokenKeyVaultSecretName IS NULL OR OAuthRefreshTokenKeyVaultSecretName NOT LIKE N'%://%'),
         CONSTRAINT FK_TenantItsmConnectorConnections_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
     );
 END;
 
 GO
 
-/* 268: OAuth auth-mode columns on per-tenant ITSM connector rows (see Migrations/268_TenantItsmConnectorConnections_OAuthAuthMode.sql). */
+/* 268: OAuth auth-mode columns on per-tenant ITSM connector rows (see Migrations/268_TenantItsmConnectorConnections_OAuthAuthMode.sql; greenfield parity SQL_SCRIPTS.md §5). */
 IF COL_LENGTH(N'dbo.TenantItsmConnectorConnections', N'AuthMode') IS NULL
 BEGIN
+    -- Columns and their CHECK constraints must be added in one ALTER TABLE statement: SQL Server binds
+    -- constraint expressions against the table's column list *before* running the batch, so a CHECK added
+    -- in a later statement within the same GO batch fails with "Invalid column name" on the sibling column
+    -- added just above it.
     ALTER TABLE dbo.TenantItsmConnectorConnections
         ADD AuthMode NVARCHAR(32) NOT NULL
-            CONSTRAINT DF_TenantItsmConnectorConnections_AuthMode DEFAULT (N'BasicApiToken'),
-        OAuthClientIdKeyVaultSecretName NVARCHAR(500) NULL,
-        OAuthClientSecretKeyVaultSecretName NVARCHAR(500) NULL,
-        OAuthRefreshTokenKeyVaultSecretName NVARCHAR(500) NULL;
-
-    ALTER TABLE dbo.TenantItsmConnectorConnections
-        ADD CONSTRAINT CK_TenantItsmConnectorConnections_AuthMode
-            CHECK (AuthMode IN (N'BasicApiToken', N'OAuth2ClientCredentials', N'OAuth2RefreshToken'));
+                CONSTRAINT DF_TenantItsmConnectorConnections_AuthMode DEFAULT (N'BasicApiToken'),
+            OAuthClientIdKeyVaultSecretName NVARCHAR(500) NULL,
+            OAuthClientSecretKeyVaultSecretName NVARCHAR(500) NULL,
+            OAuthRefreshTokenKeyVaultSecretName NVARCHAR(500) NULL,
+            CONSTRAINT CK_TenantItsmConnectorConnections_AuthMode
+                CHECK (AuthMode IN (N'BasicApiToken', N'OAuth2ClientCredentials', N'OAuth2RefreshToken')),
+            CONSTRAINT CK_TenantItsmConnectorConnections_OAuthClientIdNoUrl
+                CHECK (OAuthClientIdKeyVaultSecretName IS NULL OR OAuthClientIdKeyVaultSecretName NOT LIKE N'%://%'),
+            CONSTRAINT CK_TenantItsmConnectorConnections_OAuthClientSecretNoUrl
+                CHECK (OAuthClientSecretKeyVaultSecretName IS NULL OR OAuthClientSecretKeyVaultSecretName NOT LIKE N'%://%'),
+            CONSTRAINT CK_TenantItsmConnectorConnections_OAuthRefreshNoUrl
+                CHECK (OAuthRefreshTokenKeyVaultSecretName IS NULL OR OAuthRefreshTokenKeyVaultSecretName NOT LIKE N'%://%');
 END;
 
 GO

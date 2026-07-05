@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>Body for <c>POST /v1/governance/approval-requests/batch-review</c>.</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class GovernanceApprovalBatchReviewRequest
 {
     /// <summary>Approval request identifiers to process (max 50).</summary>

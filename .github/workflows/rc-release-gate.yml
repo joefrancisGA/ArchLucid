@@ -395,22 +395,30 @@ jobs:
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
+          Demo__Enabled: "true"
+          Demo__SeedOnStartup: "true"
+          Demo__AnonymousViewer__Enabled: "true"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-rc.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/live-api-rc.pid"
-          for i in $(seq 1 90); do
-            if curl -fsS http://127.0.0.1:5128/health/ready; then
-              echo "API ready."
-              exit 0
-            fi
-            if [ "$i" -eq 90 ]; then
-              echo "::error::API did not reach /health/ready in time"
-              tail -n 200 "${RUNNER_TEMP}/live-api-rc.log" || true
-              exit 1
-            fi
-            sleep 2
-          done
+
+      - name: Wait for API readiness
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-rc.log"
+
+      - name: Wait for demo preview (release-gate smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-rc.log
+          ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS: "90"
+        run: bash scripts/ci/wait-for-demo-preview.sh
+
+      - name: Wait for DB-backed pilot-run-deltas (release-gate smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-rc.log
+          ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS: "60"
+        run: bash scripts/ci/wait-for-db-backed-pilot-endpoint.sh
 
       - name: Run blocking live UI/API/SQL release-gate Playwright subset
         working-directory: archlucid-ui

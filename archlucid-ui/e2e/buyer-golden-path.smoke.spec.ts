@@ -10,6 +10,7 @@ import {
   BUYER_SHOWCASE_AUDIT_TRAIL_HEADING,
   BUYER_SHOWCASE_EXECUTIVE_HEADLINE,
   BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN,
+  expectBuyerGoldenPageReady,
   expectBuyerGoldenJourneyStepper,
   expectBuyerExecutiveSummarySurface,
   expectNoGenericErrorBoundary,
@@ -33,7 +34,10 @@ test.describe("buyer golden path — Claims Intake spine", () => {
 
     // Review package (between executive summary and signed manifest on the spine)
     await page.goto(BUYER_GOLDEN_PATH_HREFS.reviewPackage);
-    await expect(page.getByRole("main").getByRole("heading", { level: 1 }).filter({ hasText: BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN })).toBeVisible({
+    await expectBuyerGoldenPageReady(page);
+    await expect(
+      page.getByRole("main").getByRole("heading", { level: 1 }).filter({ hasText: BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN }),
+    ).toBeVisible({
       timeout: 60_000,
     });
     await expectBuyerGoldenJourneyStepper(page);

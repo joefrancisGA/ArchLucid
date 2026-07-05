@@ -16,6 +16,7 @@ import {
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
+import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
 const liveConflictForensics: { runId?: string } = {};
 
@@ -112,7 +113,7 @@ test.describe("live-api-conflict-journey", () => {
 
     await page.goto(`/runs/${runId}`);
 
-    await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 60_000 });
+    await expectLiveRunDetailPageReady(page, 60_000);
 
     const detail = await getRunDetailsWithTransientRetries(request, runId);
     const st = detail.run?.status;

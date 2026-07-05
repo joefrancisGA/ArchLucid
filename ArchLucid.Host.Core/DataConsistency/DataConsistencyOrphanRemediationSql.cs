@@ -19,7 +19,7 @@ public static class DataConsistencyOrphanRemediationSql
 
     /// <summary>No-op delete (matches the empty select predicate).</summary>
     public const string DeleteOrphanComparisonRecordsWithOutput = """
-                                                                  WITH cte AS (
+                                                                  ;WITH cte AS (
                                                                       SELECT TOP (@MaxRows) c.ComparisonRecordId
                                                                       FROM dbo.ComparisonRecords c
                                                                       WHERE 1 = 0
@@ -65,7 +65,7 @@ public static class DataConsistencyOrphanRemediationSql
     /// Soft deletes orphan <c>dbo.GraphSnapshots</c> and <c>dbo.GraphSnapshotEdges</c>.
     /// </summary>
     public const string SoftDeleteOrphanGraphSnapshotsWithOutput = """
-                                                                   WITH cte AS (
+                                                                   ;WITH cte AS (
                                                                        SELECT TOP (@MaxRows) g.GraphSnapshotId
                                                                        FROM dbo.GraphSnapshots g
                                                                        WHERE g.IsDeleted = 0

@@ -226,7 +226,7 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
 
     await waitFor(
       () => {
-        expect(screen.getByRole("heading", { name: "Track pipeline" })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Track review progress" })).toBeInTheDocument();
       },
       { timeout: 15_000 },
     );

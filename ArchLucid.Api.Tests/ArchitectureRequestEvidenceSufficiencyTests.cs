@@ -66,4 +66,46 @@ public sealed class ArchitectureRequestEvidenceSufficiencyTests
 
         ArchitectureRequestEvidenceSufficiency.HasSufficientEvidenceForNoneProvider(request).Should().BeTrue();
     }
+
+    [Fact]
+    public void HasSufficientEvidenceForNoneProvider_when_None_and_infrastructure_declaration_true()
+    {
+        ArchitectureRequest request = new()
+        {
+            CloudProvider = CloudProvider.None,
+            Description = "Brief",
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationRequest { Name = "vpc", Content = "{}" },
+            ],
+        };
+
+        ArchitectureRequestEvidenceSufficiency.HasSufficientEvidenceForNoneProvider(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasSufficientEvidenceForNoneProvider_when_None_and_inline_requirement_true()
+    {
+        ArchitectureRequest request = new()
+        {
+            CloudProvider = CloudProvider.None,
+            Description = "Brief",
+            InlineRequirements = ["Must encrypt data at rest"],
+        };
+
+        ArchitectureRequestEvidenceSufficiency.HasSufficientEvidenceForNoneProvider(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasSufficientEvidenceForNoneProvider_when_None_and_topology_hint_true()
+    {
+        ArchitectureRequest request = new()
+        {
+            CloudProvider = CloudProvider.None,
+            Description = "Brief",
+            TopologyHints = ["hub-spoke"],
+        };
+
+        ArchitectureRequestEvidenceSufficiency.HasSufficientEvidenceForNoneProvider(request).Should().BeTrue();
+    }
 }

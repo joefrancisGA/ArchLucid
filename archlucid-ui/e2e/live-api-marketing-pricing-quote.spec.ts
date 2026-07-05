@@ -36,7 +36,7 @@ test.describe("live-api-marketing-pricing-quote", () => {
   test("pricing page submit shows confirmation", async ({ page }) => {
     test.setTimeout(180_000);
 
-    await page.goto("/pricing", { waitUntil: "load" });
+    await page.goto("/pricing#pricing-quote-request", { waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
 
     await page.getByLabel(/Work email/i).fill(`e2e-quote-ui-${Date.now()}@example.com`);

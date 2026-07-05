@@ -2749,11 +2749,11 @@ jobs:
           head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
           ART_DIR="${{ runner.temp }}/coverage-metrics-artifact"
           mkdir -p "${ART_DIR}"
-          # Merged line minimum is 75 until V1.1 ratchet restores 95 (see assert_merged_line_coverage_min.py).
+          # Merged line minimum is 76 until V1.1 ratchet restores 95 (see assert_merged_line_coverage_min.py).
           python3 scripts/ci/assert_merged_line_coverage_min.py \
-            "${OUT}/Cobertura.xml" 75 \
+            "${OUT}/Cobertura.xml" 76 \
             --min-branch-pct 63 \
-            --min-package-line-pct 64 \
+            --min-package-line-pct 71 \
             --skip-package-line-gate ArchLucid.Mcp \
             --skip-package-line-gate ArchLucid.Backfill.Cli \
             --skip-package-line-gate ArchLucid.Api \
@@ -3468,7 +3468,9 @@ jobs:
           if-no-files-found: warn
 
   # Live API + Sql + Next.js (no mock). `ui-e2e-live`: @release-gate subset (demo-workspace smokes; aligns with rc-release-gate).
-  # `ui-e2e-live-extended`: warn-only remainder of live-api-* + marketing specs (full @live-a11y-full-matrix via workflow_dispatch input).
+  # `ui-e2e-live-extended`: warn-only remainder of live-api-* + marketing specs, sharded 4-way (each shard: isolated
+  # API + SQL catalog, `workers: 1` within the shard) to keep wall-clock well under the 180min ceiling that used to
+  # cause this job to time out mid-suite. Full @live-a11y-full-matrix via workflow_dispatch input.
   # docs/go-to-market/DEMO_WORKSPACES.md
   ui-e2e-live:
     name: "Operator UI: e2e live API + SQL (@release-gate subset)"
@@ -3574,6 +3576,12 @@ jobs:
           ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS: "90"
         run: bash scripts/ci/wait-for-demo-preview.sh
 
+      - name: Wait for DB-backed pilot-run-deltas (release-gate smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api.log
+          ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS: "60"
+        run: bash scripts/ci/wait-for-db-backed-pilot-endpoint.sh
+
       - name: Install Playwright browsers & run live e2e (@release-gate — aligns with rc-release-gate ui-e2e-live-rc)
         working-directory: archlucid-ui
         env:
@@ -3626,7 +3634,7 @@ jobs:
           if-no-files-found: warn
 
   ui-e2e-live-extended:
-    name: "Operator UI: e2e live API + SQL (extended matrix; warn-only)"
+    name: "Operator UI: e2e live API + SQL (extended matrix; warn-only) [shard ${{ matrix.shard }}/${{ strategy.job-total }}]"
     continue-on-error: true
     needs:
       - dotnet-full-regression-core-complete
@@ -3634,7 +3642,11 @@ jobs:
       - dotnet-full-regression-slow-domain
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -3690,13 +3702,13 @@ jobs:
           docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
             mcr.microsoft.com/mssql/server:2022-latest \
             -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
-            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2eExtended') CREATE DATABASE ArchLucidLiveE2eExtended;"
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2eExtended${{ matrix.shard }}') CREATE DATABASE ArchLucidLiveE2eExtended${{ matrix.shard }};"
 
       - name: Start ArchLucid.Api (background)
         env:
           ASPNETCORE_ENVIRONMENT: Development
           ASPNETCORE_URLS: http://127.0.0.1:5128
-          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eExtended"
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eExtended${{ matrix.shard }}"
           ArchLucid__StorageProvider: Sql
           ArchLucidAuth__Mode: DevelopmentBypass
           Authentication__ApiKey__DevelopmentBypassAll: "true"
@@ -3709,6 +3721,9 @@ jobs:
           Cors__AllowedOrigins__1: "http://localhost:3000"
           DataConsistency__InitialDelaySeconds: "0"
           HostLeaderElection__Enabled: "false"
+          Demo__Enabled: "true"
+          Demo__SeedOnStartup: "true"
+          Demo__AnonymousViewer__Enabled: "true"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-extended.log" 2>&1 &
@@ -3717,7 +3732,25 @@ jobs:
       - name: Wait for API readiness
         run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-extended.log"
 
-      - name: Install Playwright browsers & run extended live e2e (excludes @release-gate; optional full live-a11y via workflow_dispatch)
+      - name: Wait for demo preview (extended live smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-extended.log
+          ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS: "90"
+        run: bash scripts/ci/wait-for-demo-preview.sh
+
+      - name: Wait for DB-backed pilot-run-deltas (extended live smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-extended.log
+          ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS: "60"
+        run: bash scripts/ci/wait-for-db-backed-pilot-endpoint.sh
+
+      - name: Wait for demo screenshot preflight endpoints (extended live smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-extended.log
+          ARCHLUCID_DEMO_SCREENSHOT_PREFLIGHT_WAIT_ATTEMPTS: "60"
+        run: bash scripts/ci/wait-for-demo-screenshot-preflight.sh
+
+      - name: Install Playwright browsers & run extended live e2e shard (excludes @release-gate; optional full live-a11y via workflow_dispatch)
         working-directory: archlucid-ui
         env:
           CI: true
@@ -3732,19 +3765,19 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           curl -fsS http://127.0.0.1:5128/health/ready
-          echo "Playwright extended live e2e start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "Playwright extended live e2e shard ${{ matrix.shard }}/${{ strategy.job-total }} start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           if [ "${ARCHLUCID_CI_FULL_LIVE_A11Y}" = "true" ]; then
-            npx playwright test --grep-invert "@release-gate"
+            npx playwright test --grep-invert "@release-gate" --shard=${{ matrix.shard }}/${{ strategy.job-total }}
           else
-            npx playwright test --grep-invert "@release-gate|@live-a11y-full-matrix"
+            npx playwright test --grep-invert "@release-gate|@live-a11y-full-matrix" --shard=${{ matrix.shard }}/${{ strategy.job-total }}
           fi
-          echo "Playwright extended live e2e end: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "Playwright extended live e2e shard ${{ matrix.shard }}/${{ strategy.job-total }} end: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
       - name: Upload Playwright test-results (traces)
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: ui-e2e-live-extended-test-results
+          name: ui-e2e-live-extended-test-results-${{ matrix.shard }}
           path: archlucid-ui/test-results
           if-no-files-found: warn
 
@@ -3752,7 +3785,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: ui-e2e-live-extended-blob-report
+          name: ui-e2e-live-extended-blob-report-${{ matrix.shard }}
           path: archlucid-ui/blob-report
           if-no-files-found: warn
 
@@ -3760,7 +3793,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: ui-e2e-live-extended-api-log
+          name: ui-e2e-live-extended-api-log-${{ matrix.shard }}
           path: ${{ runner.temp }}/live-api-extended.log
           if-no-files-found: warn
 
@@ -3768,7 +3801,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: ui-e2e-live-extended-playwright-report
+          name: ui-e2e-live-extended-playwright-report-${{ matrix.shard }}
           path: archlucid-ui/playwright-report
           if-no-files-found: warn
 

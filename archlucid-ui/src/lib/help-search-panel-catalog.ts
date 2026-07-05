@@ -1,4 +1,5 @@
 import type { HelpTabId } from "@/components/HelpPanel";
+import { REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS } from "@/lib/review-terminology-surfaces";
 
 export const HELP_SEARCH_PANEL_SUBTITLE =
   "Search guides, troubleshooting, and keyboard shortcuts." as const;
@@ -40,7 +41,7 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     id: "first-review-guide",
     title: "First-review guide",
     description: "Complete one review package before configuring advanced workflows.",
-    keywords: ["first review", "first hour", "canonical guide", "getting started", "pilot"],
+    keywords: ["first review", "first hour", "starter guide", "getting started", "pilot"],
     action: { kind: "route", href: "/help/first-hour-operator-path", helpSlug: "first-hour-operator-path" },
   },
   {
@@ -340,15 +341,17 @@ export function filterHelpSearchPanelTopics(
   return topics.filter((topic) => topicMatchesQuery(topic, normalizedQuery));
 }
 
+const HELP_SEARCH_PANEL_EXTRA_BANNED_PUBLIC_COPY = [
+  "engineering runbook",
+  "permission regression",
+] as const;
+
 /** Returns true when copy contains banned default user-facing help phrases. */
 export function helpSearchPanelTopicHasBannedPublicCopy(topic: HelpSearchPanelTopic): boolean {
   const corpus = `${topic.title} ${topic.description}`.toLowerCase();
 
   return (
-    corpus.includes("operator shell") ||
-    corpus.includes("engineering runbook") ||
-    corpus.includes("permission regression") ||
-    corpus.includes("tenant operator") ||
-    corpus.includes("operator path")
+    REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS.some((pattern) => corpus.includes(pattern))
+    || HELP_SEARCH_PANEL_EXTRA_BANNED_PUBLIC_COPY.some((pattern) => corpus.includes(pattern))
   );
 }

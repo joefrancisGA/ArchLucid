@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Api.Models.Learning;
 
 /// <summary>59R improvement theme row for operator UI (maps from persisted theme record).</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
 public sealed class LearningThemeResponse
 {
     public Guid ThemeId
