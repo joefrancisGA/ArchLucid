@@ -4,7 +4,7 @@ import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 import { normalizeFindingEnforcementTier, type FindingEnforcementTierKind } from "@/lib/finding-enforcement-tier";
 import { collectEvidenceRefSnippets } from "@/lib/finding-evidence-ref-snippet";
 import { coercePolicyRuleIdFromFindingWire } from "@/lib/finding-policy-evidence-citations";
-import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import type { EnterpriseStatusKind, FindingSeverityKind } from "@/lib/design-tokens";
 
 /**
  * Persisted architecture finding wire snapshot for "AI reasoning" deep-dive UI.
@@ -89,6 +89,24 @@ export function severityBadgeLabel(severityValue: number): string {
     case 0:
     default:
       return "Info";
+  }
+}
+
+/** Maps numeric quick-decision severity to SeverityTag kind. */
+export function severityKindFromNumericValue(severityValue: number): FindingSeverityKind {
+  switch (severityValue) {
+    case 3:
+      return "critical";
+
+    case 2:
+      return "high";
+
+    case 1:
+      return "medium";
+
+    case 0:
+    default:
+      return "info";
   }
 }
 

@@ -7,7 +7,7 @@ import { CommitRunButton } from "@/components/CommitRunButton";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
-import { Badge } from "@/components/ui/badge";
+import { StatusTag } from "@/components/ui/status-tag";
 import { StatusPill } from "@/components/StatusPill";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/core-pilot-path-vocabulary";
@@ -178,7 +178,7 @@ export function RunDetailPageHeader({
                 <h1 className={cn("m-0 flex min-w-0 flex-1 items-center text-neutral-900 dark:text-neutral-100", MARKETING_TYPOGRAPHY.heroTitle)}>
                   {headline}
                   {runSummary.idempotencyReplayed && buyerPolishedShell !== true ? (
-                    <Badge variant="secondary" className="ml-2 font-normal">Replayed</Badge>
+                    <StatusTag kind="in-progress" label="Replayed" className="ml-2" />
                   ) : null}
                 </h1>
                 {buyerPolishedShell === true && finalizedBuyerChrome === true ? (
@@ -226,17 +226,15 @@ export function RunDetailPageHeader({
                 <RunStatusBadge run={runSummary} />
               ) : null}
               {runSummary.runDegradedExecution === true ? (
-                <Badge
-                  variant="outline"
-                  className="font-normal text-amber-900 dark:text-amber-200"
+                <StatusTag
+                  kind="needs-attention"
+                  label="Degraded execution"
                   title={
                     runSummary.degradedExecutionAgents?.length
                       ? `Resource-level LLM fallback on: ${runSummary.degradedExecutionAgents.join(", ")}`
                       : "This architecture review used simulator substitution and/or a degraded LLM execution path."
                   }
-                >
-                  Degraded execution
-                </Badge>
+                />
               ) : null}
               {buyerPolishedShell !== true ? (
                 <StructuralExecutionModeBadge structuralExecutionMode={runSummary.structuralExecutionMode} />
@@ -294,13 +292,11 @@ export function RunDetailPageHeader({
                 <ContextualHelp helpKey="commit-manifest" />
               </div>
               {hasGovernanceWarnings === true ? (
-                <Badge
-                  variant="outline"
-                  className="w-fit font-normal text-amber-900 dark:text-amber-200"
+                <StatusTag
+                  kind="needs-attention"
+                  label={reviewWarningsLabel}
                   data-testid="run-detail-commit-governance-warning-badge"
-                >
-                  {reviewWarningsLabel}
-                </Badge>
+                />
               ) : null}
               <CommitRunButton
                 runId={runId}
@@ -324,13 +320,11 @@ export function RunDetailPageHeader({
               <ContextualHelp helpKey="commit-manifest" />
             </div>
             {hasGovernanceWarnings === true ? (
-              <Badge
-                variant="outline"
-                className="w-fit font-normal text-amber-900 dark:text-amber-200"
+              <StatusTag
+                kind="needs-attention"
+                label={reviewWarningsLabel}
                 data-testid="run-detail-commit-governance-warning-badge"
-              >
-                {reviewWarningsLabel}
-              </Badge>
+              />
             ) : null}
             <CommitRunButton
               runId={runId}

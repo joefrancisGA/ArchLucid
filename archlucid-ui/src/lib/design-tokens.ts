@@ -376,38 +376,45 @@ export const ENTERPRISE_STATUS_LABELS: Readonly<Record<EnterpriseStatusKind, str
   neutral: "—",
 };
 
-/** Non-interactive metadata chip shell — status/severity labels must not read as buttons. */
+/** Non-interactive metadata label shell — flat soft labels, not buttons or filter chips. */
 export const METADATA_STATUS_TAG_SHELL =
-  `inline-flex max-w-full items-center rounded-sm border px-1.5 py-px cursor-default select-none pointer-events-none ${OPERATOR_TYPOGRAPHY.micro} font-medium`;
+  `inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none ${OPERATOR_TYPOGRAPHY.micro} font-medium leading-tight`;
+
+/**
+ * Design-system distinction:
+ * - {@link StatusTag} / {@link SeverityTag} / {@link StatusPill} → noninteractive metadata (`status`, `severity`, `metadata`)
+ * - {@link INTERACTIVE_FILTER_CHIP_SHELL} / `Badge` action variants → interactive filter/action chips only
+ */
+export const INTERACTIVE_FILTER_CHIP_SHELL = DESIGN_TOKENS.interactive.chip;
 
 const STATUS_TAG_BASE = METADATA_STATUS_TAG_SHELL;
 
 export function enterpriseStatusTagClass(kind: EnterpriseStatusKind): string {
   switch (kind) {
     case "ready":
-      return `${STATUS_TAG_BASE} border-emerald-800/50 bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)]`;
+      return `${STATUS_TAG_BASE} bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)]`;
 
     case "needs-attention":
-      return `${STATUS_TAG_BASE} border-amber-700/50 bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]`;
+      return `${STATUS_TAG_BASE} bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]`;
 
     case "blocked":
-      return `${STATUS_TAG_BASE} border-rose-700/50 bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]`;
+      return `${STATUS_TAG_BASE} bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]`;
 
     case "approved":
-      return `${STATUS_TAG_BASE} border-emerald-800/50 bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)]`;
+      return `${STATUS_TAG_BASE} bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)]`;
 
     case "approved-with-monitoring":
-      return `${STATUS_TAG_BASE} border-teal-800/40 bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)]`;
+      return `${STATUS_TAG_BASE} bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)]`;
 
     case "in-progress":
-      return `${STATUS_TAG_BASE} border-blue-700/40 bg-al-surface-raised text-al-text-primary dark:border-blue-600/50`;
+      return `${STATUS_TAG_BASE} bg-blue-500/10 text-blue-900 dark:bg-blue-500/15 dark:text-blue-200`;
 
     case "draft":
-      return `${STATUS_TAG_BASE} border-neutral-400 bg-al-surface-raised text-al-text-secondary dark:border-neutral-600`;
+      return `${STATUS_TAG_BASE} bg-neutral-500/10 text-al-text-secondary dark:bg-neutral-500/15`;
 
     case "neutral":
     default:
-      return `${STATUS_TAG_BASE} border-neutral-300 bg-al-surface-raised text-al-text-secondary dark:border-neutral-600`;
+      return `${STATUS_TAG_BASE} bg-neutral-500/8 text-al-text-secondary dark:bg-neutral-500/12`;
   }
 }
 
@@ -547,7 +554,7 @@ export function operatorSemanticBadge(tone: OperatorSemanticTone): string {
       return enterpriseStatusTagClass("in-progress");
 
     case "current":
-      return `${STATUS_TAG_BASE} border-l-2 border-l-[var(--al-accent-interactive)] bg-al-surface-raised text-al-text-primary dark:border-neutral-700`;
+      return `${STATUS_TAG_BASE} border-l-2 border-l-[var(--al-accent-interactive)] bg-al-surface-raised text-al-text-primary`;
 
     case "upcoming":
     case "neutral":
@@ -580,24 +587,24 @@ export function operatorConfidenceSurface(level: OperatorConfidenceLevel): strin
 export function severityTagClass(kind: FindingSeverityKind): string {
   switch (kind) {
     case "critical":
-      return `${STATUS_TAG_BASE} border-rose-800/60 bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]`;
+      return `${STATUS_TAG_BASE} bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]`;
 
     case "error":
     case "high":
-      return `${STATUS_TAG_BASE} border-amber-800/50 bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]`;
+      return `${STATUS_TAG_BASE} bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]`;
 
     case "warning":
     case "medium":
-      return `${STATUS_TAG_BASE} border-amber-500/40 bg-amber-50/60 text-amber-900 dark:border-amber-600/40 dark:bg-amber-950/30 dark:text-amber-200`;
+      return `${STATUS_TAG_BASE} bg-amber-500/12 text-amber-950 dark:bg-amber-500/18 dark:text-amber-200`;
 
     case "low":
-      return `${STATUS_TAG_BASE} border-neutral-400 bg-al-surface-raised text-al-text-secondary`;
+      return `${STATUS_TAG_BASE} bg-neutral-500/10 text-al-text-secondary dark:bg-neutral-500/15`;
 
     case "info":
-      return `${STATUS_TAG_BASE} border-blue-700/40 bg-al-surface-raised text-al-text-primary`;
+      return `${STATUS_TAG_BASE} bg-slate-500/10 text-slate-700 dark:bg-slate-500/15 dark:text-slate-300`;
 
     case "unknown":
-      return `${STATUS_TAG_BASE} border-dashed border-neutral-400 bg-al-surface-raised text-al-text-secondary dark:border-neutral-600`;
+      return `${STATUS_TAG_BASE} bg-neutral-500/8 text-al-text-secondary dark:bg-neutral-500/12`;
 
     default: {
       const exhaustive: never = kind;

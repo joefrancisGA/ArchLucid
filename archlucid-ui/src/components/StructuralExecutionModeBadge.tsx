@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   formatStructuralExecutionModeLabel,
   structuralExecutionModeBadgeTitle,
@@ -12,7 +12,7 @@ export type StructuralExecutionModeBadgeProps = {
   readonly className?: string;
 };
 
-/** INV-002 operator badge — persisted structural execution mode from the run record. */
+/** INV-002 operator metadata label — persisted structural execution mode from the run record. */
 export function StructuralExecutionModeBadge(props: StructuralExecutionModeBadgeProps) {
   const mode = props.structuralExecutionMode;
 
@@ -23,19 +23,17 @@ export function StructuralExecutionModeBadge(props: StructuralExecutionModeBadge
   const label = formatStructuralExecutionModeLabel(mode);
   const title = structuralExecutionModeBadgeTitle(mode);
 
-  const variant =
+  const kind =
     mode === StructuralExecutionModeWire.Fallback || mode === StructuralExecutionModeWire.Mixed
-      ? "outline"
-      : "secondary";
-
-  const toneClass =
-    mode === StructuralExecutionModeWire.Fallback || mode === StructuralExecutionModeWire.Mixed
-      ? "font-normal text-amber-900 dark:text-amber-200"
-      : "font-normal";
+      ? "needs-attention"
+      : "neutral";
 
   return (
-    <Badge variant={variant} className={[toneClass, props.className].filter(Boolean).join(" ")} title={title}>
-      {label} execution
-    </Badge>
+    <StatusTag
+      kind={kind}
+      label={`${label} execution`}
+      className={props.className}
+      title={title}
+    />
   );
 }

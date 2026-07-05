@@ -51,9 +51,11 @@ import {
   humanReviewStatusDisplay,
   partitionQuickDecisionFindings,
   severityBadgeLabel,
+  severityKindFromNumericValue,
   sortQuickDecisionFindings,
 } from "@/lib/quick-decision-summary-derive";
 import { StatusTag } from "@/components/ui/status-tag";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import { findingEnforcementTierLabel } from "@/lib/finding-enforcement-tier";
 import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/finding-policy-evidence-citations";
 import {
@@ -65,27 +67,6 @@ import {
   partitionQuickDecisionFindingsByConfidence,
 } from "@/lib/finding-confidence-filter";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
-const badgeBase = cn(
-  "inline-flex shrink-0 rounded-md border px-2 py-0.5 font-semibold tabular-nums",
-  OPERATOR_TYPOGRAPHY.badge,
-);
-
-function severityBadgeClass(severityValue: number): string {
-  if (severityValue >= 3) {
-    return `${badgeBase} border-rose-300 bg-rose-100 text-rose-950 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-100`;
-  }
-
-  if (severityValue === 2) {
-    return `${badgeBase} border-orange-300 bg-orange-100 text-orange-950 dark:border-orange-800 dark:bg-orange-950/50 dark:text-orange-50`;
-  }
-
-  if (severityValue === 1) {
-    return `${badgeBase} border-amber-300 bg-amber-100 text-amber-950 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-50`;
-  }
-
-  return `${badgeBase} border-neutral-200 bg-neutral-100 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200`;
-}
 
 export type QuickDecisionSummaryProps = {
   readonly runId: string;
@@ -213,16 +194,13 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           />
         ) : null}
         <div className="flex flex-wrap items-start gap-2">
-          <span className={severityBadgeClass(f.severityValue)}>
-            <span className="sr-only">Severity </span>
-            {badgeLabel}
-          </span>
+          <SeverityTag
+            kind={severityKindFromNumericValue(f.severityValue)}
+            label={badgeLabel}
+            className="shrink-0 tabular-nums"
+          />
           {showTierBadge ? (
-            <span
-              className={`${badgeBase} border-neutral-300 bg-neutral-50 text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200`}
-            >
-              {findingEnforcementTierLabel(f.enforcementTier)}
-            </span>
+            <StatusTag kind="neutral" label={findingEnforcementTierLabel(f.enforcementTier)} className="shrink-0" />
           ) : null}
           {f.confidenceLevel === "High" || f.confidenceLevel === "Medium" || f.confidenceLevel === "Low" ? (
             <FindingConfidenceBadge level={f.confidenceLevel} />
@@ -244,9 +222,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             />
           ) : null}
           {f.isMuted ? (
-            <span className={`${badgeBase} border-neutral-300 bg-neutral-100 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200`}>
-              Muted
-            </span>
+            <StatusTag kind="neutral" label="Muted" className="shrink-0" />
           ) : null}
           <Link
             href={href}
@@ -289,9 +265,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             Ask
           </Button>
           {f.iacStub !== null && f.iacStub !== undefined && f.iacStub.length > 0 ? (
-            <span className={`${badgeBase} border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-700`}>
-              Bicep stub
-            </span>
+            <StatusTag kind="neutral" label="Bicep stub" className="shrink-0" />
           ) : null}
           {canMutate && !f.isMuted ? (
             <Button

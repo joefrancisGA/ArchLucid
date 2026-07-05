@@ -6,6 +6,7 @@ import Link from "next/link";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import {
   buildProductLearningReportFileUrl,
   buildProductLearningReportJsonUrl,
@@ -22,7 +23,6 @@ import {
   productLearningNumericCellClass,
   productLearningTableClass,
   productLearningThTdClass,
-  severityBadgeClass,
   sinceIsoForRange,
 } from "./product-learning-page-helpers";
 import { PlanningBridgePanel } from "./PlanningBridgePanel";
@@ -247,7 +247,7 @@ export function ProductLearningPageView(props: Props) {
                   <li key={o.opportunityId} className="mb-3.5">
                     <div className="flex flex-wrap items-baseline gap-2">
                       <strong>{o.title}</strong>
-                      <span className={severityBadgeClass(o.severity)}>{o.severity}</span>
+                      <SeverityTag severity={o.severity} />
                       <span className={OPERATOR_TYPOGRAPHY.helper}>
                         {o.affectedArtifactTypeOrWorkflowArea} · {o.evidenceSignalCount} feedback item(s) ·{" "}
                         {o.distinctRunCount} review(s)
@@ -297,7 +297,7 @@ export function ProductLearningPageView(props: Props) {
                         <td className={productLearningNumericCellClass}>{item.priorityRank}</td>
                         <td className={productLearningThTdClass}>{item.title}</td>
                         <td className={productLearningThTdClass}>
-                          <span className={severityBadgeClass(item.severity)}>{item.severity}</span>
+                          <SeverityTag severity={item.severity} />
                         </td>
                         <td className={productLearningThTdClass}>{item.affectedArtifactTypeOrWorkflowArea}</td>
                         <td className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body, "max-w-[280px]")}>{item.detailSummary}</td>

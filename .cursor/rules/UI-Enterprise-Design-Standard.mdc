@@ -34,6 +34,8 @@ Specific rules:
 - Use Tailwind/shadcn defaults as the visual north star.
 - Add decorative `bg-teal-50`, `bg-amber-50`, or `border-teal-200` on neutral operator cards.
 - Render status as ad-hoc colored `span` elements — use `StatusTag` or `SeverityTag`.
+- Use `Badge` default/secondary/outline variants for read-only status — those are action-oriented; metadata labels use `StatusTag`, `SeverityTag`, or `StatusPill` (flat soft labels via `METADATA_STATUS_TAG_SHELL`).
+- Use `FilterChip` (`src/components/ui/filter-chip.tsx`) for interactive filter/action chips — never reuse metadata label styling for clickable chips.
 - Tint entire neutral cards with semantic fills — color belongs on the status chip or a single left border accent for the current step.
 - Link customer-facing help to GitHub `blob/` URLs (see `PRODUCT_DOCUMENTATION_PRESENTATION.md`).
 

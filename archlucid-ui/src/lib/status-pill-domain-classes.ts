@@ -11,19 +11,19 @@ function pipelineSemanticClass(status: string): string {
   switch (status) {
     case "Finalized":
     case "Package finalized":
-      return "border-emerald-800/50 bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)]";
+      return "bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)]";
 
     case "Ready to finalize":
     case "Ready to seal":
-      return "border-amber-700/50 bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]";
+      return "bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]";
 
     case "In pipeline":
     case "In flight":
     case "In review":
-      return "border-blue-700/40 bg-al-surface-raised text-al-text-primary dark:border-blue-600/50";
+      return "bg-blue-500/10 text-blue-900 dark:bg-blue-500/15 dark:text-blue-200";
 
     case "Starting":
-      return "border-neutral-300 bg-al-surface-raised text-al-text-secondary dark:border-neutral-600";
+      return "bg-neutral-500/10 text-al-text-secondary dark:bg-neutral-500/15";
 
     default:
       return generalSemanticClass(status);
@@ -34,27 +34,27 @@ function pipelineSemanticClass(status: string): string {
 export function governanceDomainBadgeClass(status: string): string {
   switch (status) {
     case "Approved with monitoring":
-      return "border-teal-800/40 bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)]";
+      return "bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)]";
 
     case "Submitted":
-      return "border-blue-700/40 bg-al-surface-raised text-al-text-primary dark:border-blue-600/50";
+      return "bg-blue-500/10 text-blue-900 dark:bg-blue-500/15 dark:text-blue-200";
 
     case "Approved":
-      return "border-emerald-800/50 bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)]";
+      return "bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)]";
 
     case "Failed":
     case "Rejected":
-      return "border-rose-700/50 bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]";
+      return "bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]";
 
     case "Promoted":
-      return "border-violet-700/40 bg-violet-50/80 text-violet-950 dark:border-violet-600/40 dark:bg-violet-950/30 dark:text-violet-100";
+      return "bg-violet-500/12 text-violet-950 dark:bg-violet-500/18 dark:text-violet-100";
 
     case "Activated":
-      return "border-teal-700/40 bg-teal-50/80 text-teal-950 dark:border-teal-600/40 dark:bg-teal-950/30 dark:text-teal-100";
+      return "bg-teal-500/12 text-teal-950 dark:bg-teal-500/18 dark:text-teal-100";
 
     case "Draft":
     default:
-      return "border-neutral-300 bg-al-surface-raised text-al-text-secondary dark:border-neutral-600";
+      return "bg-neutral-500/10 text-al-text-secondary dark:bg-neutral-500/15";
   }
 }
 
@@ -62,15 +62,15 @@ function healthSemanticClass(status: string): string {
   const s = status.trim().toLowerCase();
 
   if (s === "healthy" || s === "closed") {
-    return "border-emerald-700/40 bg-al-surface-raised text-al-text-primary dark:border-emerald-800/50";
+    return "bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)]";
   }
 
   if (s === "degraded" || s === "halfopen") {
-    return "border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50";
+    return "bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]";
   }
 
   if (s === "unhealthy" || s === "open") {
-    return "border-rose-600/40 bg-al-surface-raised text-al-text-primary dark:border-rose-800/50";
+    return "bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]";
   }
 
   return generalSemanticClass(status);
@@ -78,10 +78,10 @@ function healthSemanticClass(status: string): string {
 
 function generalSemanticClass(status: string): string {
   if (status.trim().length === 0) {
-    return "border-neutral-300 bg-neutral-50 text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-200";
+    return "bg-neutral-500/8 text-al-text-secondary dark:bg-neutral-500/12";
   }
 
-  return "border-neutral-300 bg-neutral-50 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-200";
+  return "bg-neutral-500/10 text-al-text-primary dark:bg-neutral-500/15";
 }
 
 /**

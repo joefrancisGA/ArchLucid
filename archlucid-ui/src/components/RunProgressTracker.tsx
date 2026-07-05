@@ -3,10 +3,10 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { getRunStageTimeline } from "@/lib/api/architecture-runs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -197,19 +197,19 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
       <ul className="m-0 flex flex-col gap-3 p-0 list-none">
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Source context captured</span>
-          <Badge variant={ctx ? "default" : "secondary"}>{ctx ? "Complete" : "Pending"}</Badge>
+          <StatusTag kind={ctx ? "ready" : "draft"} label={ctx ? "Complete" : "Pending"} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Evidence graph ready</span>
-          <Badge variant={graph ? "default" : "secondary"}>{graph ? "Complete" : "Pending"}</Badge>
+          <StatusTag kind={graph ? "ready" : "draft"} label={graph ? "Complete" : "Pending"} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Findings complete</span>
-          <Badge variant={findings ? "default" : "secondary"}>{findings ? "Complete" : "Pending"}</Badge>
+          <StatusTag kind={findings ? "ready" : "draft"} label={findings ? "Complete" : "Pending"} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Signed review record ready</span>
-          <Badge variant={manifest ? "default" : "secondary"}>{manifest ? "Complete" : "Pending"}</Badge>
+          <StatusTag kind={manifest ? "ready" : "draft"} label={manifest ? "Complete" : "Pending"} />
         </li>
       </ul>
 
