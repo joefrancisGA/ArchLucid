@@ -13,6 +13,8 @@ export type ReviewDetailPolicyPackImpactCalloutProps = {
   readonly runId: string;
   readonly mappedFindingCount?: number | null;
   readonly totalFindingCount?: number | null;
+  /** Secondary instances on the same route must not reuse the canonical Playwright test id. */
+  readonly variant?: "canonical" | "secondary";
 };
 
 /**
@@ -45,9 +47,14 @@ export function ReviewDetailPolicyPackImpactCallout(
       ? Math.max(0, Math.trunc(props.totalFindingCount))
       : null;
 
+  const calloutTestId =
+    props.variant === "secondary"
+      ? "review-detail-policy-pack-impact-callout-secondary"
+      : "review-detail-policy-pack-impact-callout";
+
   return (
     <aside
-      data-testid="review-detail-policy-pack-impact-callout"
+      data-testid={calloutTestId}
       className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/50"
       aria-label="Policy pack evaluation context"
     >

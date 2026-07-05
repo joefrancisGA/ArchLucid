@@ -13,7 +13,13 @@ test.describe("operator shell smoke", () => {
     await page.goto("/");
 
     await expect(page.getByRole("heading", { name: "ArchLucid", level: 1 })).toBeVisible();
-    await expect(page.getByTestId("pilot-command-center-card")).toBeVisible();
+    const appMain = page.getByTestId("app-shell-main");
+    await expect(
+      appMain
+        .getByTestId("operator-home-hero-section")
+        .getByTestId("pilot-command-center-card")
+        .or(appMain.getByTestId("operator-home-pilot-command-center-host").getByTestId("pilot-command-center-card")),
+    ).toBeVisible();
     await expect(page.getByRole("heading", { name: "Workspace activity", level: 2 })).toBeVisible();
   });
 

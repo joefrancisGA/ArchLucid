@@ -42,10 +42,16 @@ const DEFAULT_NEXT_ACTION: PilotNextBestAction = {
   bridgeCopy: PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
 };
 
+type PilotCommandCenterCardProps = {
+  /** Secondary/mirrored instances use a distinct test id so Playwright strict locators stay unambiguous. */
+  readonly embedded?: boolean;
+};
+
 /**
  * Single next-action command center for operator Overview — compact hero with one state-aware primary CTA.
  */
-export function PilotCommandCenterCard(): React.JSX.Element {
+export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}): React.JSX.Element {
+  const cardTestId = props.embedded === true ? "pilot-command-center-card-embedded" : "pilot-command-center-card";
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const heroHeading = resolveOperatorHomeHeroHeading(hasCommittedArchitectureReview);
   const commitQuery = useCorePilotCommitContextQuery();
@@ -62,7 +68,7 @@ export function PilotCommandCenterCard(): React.JSX.Element {
     <section
       aria-labelledby="pilot-command-center-heading"
       className={cn(OPERATOR_SURFACE_CARD_CLASS, OPERATOR_CARD.body, "heroCard")}
-      data-testid="pilot-command-center-card"
+      data-testid={cardTestId}
     >
       <div className="heroHeader flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="min-w-0 flex-1 space-y-1">
