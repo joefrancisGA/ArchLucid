@@ -5,6 +5,7 @@ import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import {
   BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR,
   FIRST_WEEK_ROUTE_GUIDANCE,
+  FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY,
 } from "@/lib/first-week-route-guidance";
 
 const buyerPolishedMock = vi.hoisted(() => ({ on: false }));
@@ -21,6 +22,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 describe("FirstWeekRouteGuidance", () => {
   afterEach(() => {
     buyerPolishedMock.on = false;
+    localStorage.clear();
   });
 
   it("renders new-review guidance without redundant wizard CTA", () => {
@@ -76,12 +78,23 @@ describe("FirstWeekRouteGuidance", () => {
     render(<FirstWeekRouteGuidance variant="home" />);
 
     expect(screen.getByText("Recommended first session path")).toBeInTheDocument();
+    expect(screen.getByText(FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY)).toBeInTheDocument();
     expect(screen.queryByText(/Use this when:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/evidence-only/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Expand Recommended first session path/i }));
 
     expect(screen.getByText(/evidence-only/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start new review" })).toHaveAttribute("href", "/reviews/new");
+  });
+
+  it("keeps home collapsed summary free of internal terminology", () => {
+    render(<FirstWeekRouteGuidance variant="home" />);
+
+    const collapsedSummary = screen.getByText(FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY);
+
+    expect(collapsedSummary).toBeVisible();
+    expect(collapsedSummary.textContent?.toLowerCase()).not.toMatch(/\boperator\b|\brunbook\b|\blane\b|\bshell\b/);
   });
 
   it("renders home guidance at full section width like peer setup cards", () => {

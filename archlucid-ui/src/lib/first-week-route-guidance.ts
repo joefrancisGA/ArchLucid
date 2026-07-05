@@ -1,5 +1,8 @@
 export const FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY = "Recommended first session path";
 
+export const FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY =
+  "Suggested sequence for getting from first artifact to a finalized review package.";
+
 export type FirstWeekRouteGuidanceVariant =
   | "home"
   | "onboarding"

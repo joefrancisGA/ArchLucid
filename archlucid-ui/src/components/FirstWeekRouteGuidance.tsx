@@ -9,6 +9,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import {
   resolveFirstWeekRouteGuidanceForShell,
+  FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY,
   FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY,
   type FirstWeekRouteGuidanceVariant,
 } from "@/lib/first-week-route-guidance";
@@ -85,6 +86,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
         sectionTestId="first-week-route-guidance-home"
         storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.firstWeekGuidance}
         defaultExpanded={false}
+        collapsedSummary={FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY}
       >
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{config.useWhen}</p>
         <GuidanceBody
