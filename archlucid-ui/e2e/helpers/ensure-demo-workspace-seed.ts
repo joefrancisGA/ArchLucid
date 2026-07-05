@@ -24,7 +24,7 @@ async function sleepSeedBackoff(attempt: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, baseDelayMs + jitterMs));
 }
 
-async function postDemoSeedWithTransientRetries(request: APIRequestContext): Promise<void> {
+export async function postDemoSeedWithTransientRetries(request: APIRequestContext): Promise<void> {
   let lastStatus = 0;
   let lastBody = "";
 
