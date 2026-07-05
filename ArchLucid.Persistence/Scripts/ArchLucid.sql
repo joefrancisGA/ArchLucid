@@ -5229,7 +5229,7 @@ BEGIN
 END;
 GO
 
-/* 268: OAuth auth-mode columns on per-tenant ITSM connector rows (see Migrations/268_TenantItsmConnectorConnections_OAuthAuthMode.sql). */
+/* 268: OAuth auth-mode columns on per-tenant ITSM connector rows (see Migrations/268_TenantItsmConnectorConnections_OAuthAuthMode.sql; greenfield parity SQL_SCRIPTS.md §5). */
 IF COL_LENGTH(N'dbo.TenantItsmConnectorConnections', N'AuthMode') IS NULL
 BEGIN
     -- Columns and their CHECK constraints must be added in one ALTER TABLE statement: SQL Server binds

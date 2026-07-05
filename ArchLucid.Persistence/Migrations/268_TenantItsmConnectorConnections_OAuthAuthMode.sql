@@ -2,6 +2,7 @@
   268: OAuth auth-mode columns on per-tenant ITSM connector rows (TB-600 foundation).
 
   Existing BasicApiToken rows keep working — AuthMode defaults to BasicApiToken.
+  Greenfield parity: keep Scripts/ArchLucid.sql sections 266 and 268 aligned (SQL_SCRIPTS.md §5).
 */
 IF COL_LENGTH(N'dbo.TenantItsmConnectorConnections', N'AuthMode') IS NULL
 BEGIN
