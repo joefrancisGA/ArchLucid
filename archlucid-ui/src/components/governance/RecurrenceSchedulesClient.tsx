@@ -23,12 +23,14 @@ import {
 } from "@/components/ui/enterprise-table";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   listArchitectureReviewRecurrenceSchedules,
   updateArchitectureReviewRecurrenceSchedule,
   type ArchitectureReviewRecurrenceSchedule,
 } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { formatRecurrenceScheduleUtcLabel } from "@/lib/recurrence-schedule-utc-format";
 import {
   RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION,
@@ -140,6 +142,7 @@ type RecurrenceScheduleRowEditorState = {
 
 /** TB-222 — governance workspace for architecture review recurrence schedules. */
 export default function RecurrenceSchedulesClient() {
+  const canMutate = useOperateCapability();
   const [schedules, setSchedules] = useState<ArchitectureReviewRecurrenceSchedule[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -173,6 +176,10 @@ export default function RecurrenceSchedulesClient() {
   }, [reload]);
 
   async function toggleEnabled(schedule: ArchitectureReviewRecurrenceSchedule): Promise<void> {
+    if (!canMutate) {
+      return;
+    }
+
     setBusyId(schedule.scheduleId);
     setLoadError(null);
 
@@ -204,7 +211,7 @@ export default function RecurrenceSchedulesClient() {
   }
 
   async function saveEdit(scheduleId: string): Promise<void> {
-    if (editorState === null) {
+    if (!canMutate || editorState === null) {
       return;
     }
 
@@ -253,6 +260,8 @@ export default function RecurrenceSchedulesClient() {
                 type="button"
                 size="sm"
                 data-testid="recurrence-schedules-create-action"
+                disabled={!canMutate}
+                title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
                 onClick={() => setShowCreatePanel((open) => !open)}
               >
                 Create recurrence schedule
@@ -305,6 +314,8 @@ export default function RecurrenceSchedulesClient() {
                     type="button"
                     size="sm"
                     data-testid="recurrence-schedules-empty-create"
+                    disabled={!canMutate}
+                    title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
                     onClick={() => setShowCreatePanel(true)}
                   >
                     Create recurrence schedule
@@ -399,7 +410,12 @@ export default function RecurrenceSchedulesClient() {
                               }
                             />
                             <div className="flex flex-wrap gap-2">
-                              <Button type="submit" size="sm" disabled={busyId === schedule.scheduleId}>
+                              <Button
+                                type="submit"
+                                size="sm"
+                                disabled={busyId === schedule.scheduleId || !canMutate}
+                                title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                              >
                                 Save
                               </Button>
                               <Button type="button" size="sm" variant="outline" onClick={cancelEdit}>
@@ -417,6 +433,8 @@ export default function RecurrenceSchedulesClient() {
                                 type="button"
                                 size="sm"
                                 variant="outline"
+                                disabled={!canMutate}
+                                title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
                                 onClick={() => beginEdit(schedule)}
                               >
                                 Edit
@@ -425,7 +443,8 @@ export default function RecurrenceSchedulesClient() {
                                 type="button"
                                 size="sm"
                                 variant="outline"
-                                disabled={busyId === schedule.scheduleId}
+                                disabled={busyId === schedule.scheduleId || !canMutate}
+                                title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
                                 onClick={() => void toggleEnabled(schedule)}
                                 data-testid={`recurrence-toggle-${schedule.scheduleId}`}
                               >

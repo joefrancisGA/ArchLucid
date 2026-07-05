@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
@@ -17,6 +18,7 @@ import {
   type AlertHubTabId,
 } from "@/lib/alerts-hub-tab";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { AlertsInboxPageModel } from "./_sections/alerts-inbox-page-model";
@@ -103,6 +105,7 @@ export function AlertsHubClient({ initialInboxModel = null }: AlertsHubClientPro
 
   return (
     <div className="px-0">
+      <OperatorPageHeader title={OPERATOR_NAV_LINK_LABELS.alerts} />
       {hubOrientVisible && !buyerPolishedShell ? (
         <div
           className={cn(

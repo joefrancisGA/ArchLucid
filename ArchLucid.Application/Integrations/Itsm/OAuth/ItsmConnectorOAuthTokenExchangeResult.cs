@@ -15,6 +15,7 @@ public sealed class ItsmConnectorOAuthTokenExchangeResult
         init;
     }
 
+    /// <summary>Present for authorization-code and refresh-token exchanges when the vendor returns one.</summary>
     public string? RefreshToken
     {
         get;

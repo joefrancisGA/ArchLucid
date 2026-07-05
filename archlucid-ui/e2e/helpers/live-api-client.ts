@@ -432,7 +432,7 @@ export async function getAuthorityRunDetailRaw(
   });
 }
 
-/** GET `/v1/pilots/runs/{runId}/pilot-run-deltas` ΓÇö proof-of-ROI numbers for the run (see `docs/library/API_CONTRACTS.md`). */
+/** GET `/v1/pilots/runs/{runId}/pilot-run-deltas` — proof-of-ROI numbers for the run (see `docs/library/API_CONTRACTS.md`). */
 export async function getPilotRunDeltasRaw(
   request: APIRequestContext,
   runId: string,

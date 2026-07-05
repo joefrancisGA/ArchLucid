@@ -96,7 +96,7 @@ describe("LayerContextStrip", () => {
     const { queryByTestId, unmount } = render(
       <LayerContextStrip
         layerId="operate-analysis"
-        buyerRouteOrientation={{ label: "Ask this review", line: "Ask questions about a finalized review package." }}
+        buyerRouteOrientation={{ label: "Ask review questions", line: "Ask questions about a finalized review package." }}
         hideOperateBackLink
       />,
     );

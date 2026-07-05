@@ -25,7 +25,7 @@ export function AlertsInboxPageIntro({ canMutateAlertInbox, buyerPolishedShell, 
     <>
       <LayerHeader pageKey="alerts" />
       <div className="mb-0 flex flex-wrap items-center gap-2">
-        <h2 className={cn("m-0 tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Alerts</h2>
+        <h2 className={cn("m-0 tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Inbox</h2>
       </div>
       <p className={cn("max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {canMutateAlertInbox ? alertsPageLeadOperator : alertsPageLeadReader}

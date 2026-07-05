@@ -44,7 +44,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.searchEvidence,
           title: "Find evidence, findings, and decisions",
           icon: Search,
-          tier: "advanced",
+          tier: "essential",
           requiredAuthority: "ReadAuthority",
         },
         {
@@ -62,7 +62,10 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
           title: "Impact preview — preview expected impact of proposed architecture changes on governance posture",
           icon: RefreshCw,
           tier: "advanced",
-          requiredAuthority: "ExecuteAuthority",
+          // Browsing existing proposed changes and their previews only needs ReadAuthority — matches the
+          // EvolutionController list/detail/results/export endpoints. Only "Simulate change impact" itself is
+          // Execute-gated (see useOperateCapability() in EvolutionReviewPageView and the /simulate endpoint policy).
+          requiredAuthority: "ReadAuthority",
         },
         {
           href: "/advisory",

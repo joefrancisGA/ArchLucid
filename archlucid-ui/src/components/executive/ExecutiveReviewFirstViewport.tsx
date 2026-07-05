@@ -239,7 +239,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
                 className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
                 href={`/ask?runId=${enc}`}
               >
-                Ask this review
+                Ask review questions
               </Link>
             </li>
             {!buyerPolishedShell ? (

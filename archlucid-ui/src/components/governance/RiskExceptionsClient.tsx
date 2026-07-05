@@ -18,6 +18,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   defaultRiskExceptionExpiresAtUtc,
   listRiskExceptions,
@@ -26,6 +27,7 @@ import {
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
 import {
   formatRiskExceptionExpiresAtUtc,
@@ -67,6 +69,7 @@ function toDatetimeLocalInputValue(isoUtc: string): string {
 
 /** TB-226 — cross-finding risk exception (waiver) register with renew/revoke. */
 export default function RiskExceptionsClient() {
+  const canMutate = useOperateCapability();
   const [records, setRecords] = useState<RiskExceptionRecord[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -105,6 +108,10 @@ export default function RiskExceptionsClient() {
   );
 
   async function submitRenew(record: RiskExceptionRecord): Promise<void> {
+    if (!canMutate) {
+      return;
+    }
+
     setBusyId(record.riskExceptionId);
     setLoadError(null);
 
@@ -126,6 +133,10 @@ export default function RiskExceptionsClient() {
   }
 
   async function submitRevoke(record: RiskExceptionRecord): Promise<void> {
+    if (!canMutate) {
+      return;
+    }
+
     if (!window.confirm(`Revoke risk exception for finding ${record.findingId}?`)) {
       return;
     }
@@ -242,7 +253,12 @@ export default function RiskExceptionsClient() {
                           />
                         </label>
                         <div className="flex flex-wrap gap-2">
-                          <Button type="submit" size="sm" disabled={busyId === record.riskExceptionId}>
+                          <Button
+                            type="submit"
+                            size="sm"
+                            disabled={busyId === record.riskExceptionId || !canMutate}
+                            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                          >
                             Save renewal
                           </Button>
                           <Button
@@ -261,7 +277,8 @@ export default function RiskExceptionsClient() {
                           type="button"
                           size="sm"
                           variant="outline"
-                          disabled={busyId === record.riskExceptionId}
+                          disabled={busyId === record.riskExceptionId || !canMutate}
+                          title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
                           onClick={() => {
                             setRenewingId(record.riskExceptionId);
                             setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
@@ -274,7 +291,8 @@ export default function RiskExceptionsClient() {
                           type="button"
                           size="sm"
                           variant="outline"
-                          disabled={busyId === record.riskExceptionId}
+                          disabled={busyId === record.riskExceptionId || !canMutate}
+                          title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
                           onClick={() => void submitRevoke(record)}
                         >
                           Revoke

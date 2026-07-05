@@ -12,7 +12,7 @@ export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: "/integrations", label: "Integrations", description: "Connect Jira, ServiceNow, Slack, and CI/CD pipelines. Native one-click ITSM create is gated by Integrations:Itsm:NativeEnabled." },
   { prefix: "/evolution-review", label: "Change simulation", description: "Preview the expected impact of proposed architecture changes before implementation." },
   { prefix: "/digests", label: "Digests", description: "Scheduled governance digests and notification subscriptions." },
-  { prefix: "/advisory", label: "Advisory", description: "Architecture advisory scheduling and expert review workflows." },
+  { prefix: "/advisory", label: "Advisory scans", description: "Scheduled advisory scans and improvement recommendations." },
   { prefix: "/product-learning", label: "Pilot feedback", description: "Feedback on review outputs and recurring improvement opportunities." },
   { prefix: "/recommendation-learning", label: "Recommendation tuning", description: "Calibrate recommendation thresholds for your organization." },
   { prefix: "/demo/explain", label: "Demo explain", description: "Internal demo explanation surfaces for engineering audiences." },

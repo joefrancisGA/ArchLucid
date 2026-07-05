@@ -47,7 +47,7 @@ export const NAV_DISCLOSURE = {
     hide: "Hide analysis & investigation tools",
     /** `title` on the settings checkbox for extended-tier links. */
     title:
-      "Compare reviews, replay authority chains, advisory scans, and similar investigation tools.",
+      "Compare two reviews, replay authority chains, advisory scans, and similar investigation tools.",
   },
   /**
    * Maps to **`showAdvanced`** (localStorage `archlucid_nav_show_advanced`) together with Sidebar layout →

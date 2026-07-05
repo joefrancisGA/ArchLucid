@@ -210,6 +210,10 @@ function rankForRoleValue(value: string): number {
     || lower === ROLE_ARCHITECT.toLowerCase()
     || lower === ROLE_REVIEWER.toLowerCase()
     || lower === ROLE_PROJECT_ADMIN.toLowerCase()
+    // Elevated so Sponsor accounts can run Impact preview simulations (owner decision, 2026-07); also grants every
+    // other ExecuteAuthority-gated nav item and endpoint platform-wide — mirrors JwtExecuteRoles in
+    // TenantOrProjectCapabilityAuthorizationHandler.cs.
+    || lower === ROLE_SPONSOR.toLowerCase()
   ) {
     return AUTHORITY_RANK.ExecuteAuthority;
   }
@@ -217,7 +221,6 @@ function rankForRoleValue(value: string): number {
   if (
     lower === ROLE_READER.toLowerCase()
     || lower === ROLE_AUDITOR.toLowerCase()
-    || lower === ROLE_SPONSOR.toLowerCase()
   ) {
     return AUTHORITY_RANK.ReadAuthority;
   }

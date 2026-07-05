@@ -374,7 +374,7 @@ export function AskPageContent() {
   return (
     <div className="max-w-5xl">
       <OperatorPageHeader
-        title={buyerPolishedShell ? BUYER_ASK_PAGE_TITLE : "Ask this review"}
+        title={buyerPolishedShell ? BUYER_ASK_PAGE_TITLE : "Ask review questions"}
         helpKey="ask-archlucid"
         subtitle={buyerPolishedShell ? undefined : ASK_PAGE_SUBTITLE}
       />

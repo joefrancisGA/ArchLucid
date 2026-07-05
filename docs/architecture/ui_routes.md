@@ -203,8 +203,8 @@ Columns:
 | `/compare` | Compare two finalized reviews | T1 compare URL; T2 Contoso pair |
 | `/ask` | Ask questions about a review | T1: `/ask`; T2: `/ask?runId=<seeded-run>` |
 | `/search` | Search review evidence | T1/T3: `/search` + run `claims-intake-modernization` |
-| `/advisory` | Architecture advisory | T3 mock or T2 API; blocked in strict T1 nav |
-| `/advisory-scheduling` | Advisory schedules | T3 mock |
+| `/advisory` | Advisory scans (Scans tab) | T3 mock or T2 API; blocked in strict T1 nav |
+| `/advisory-scheduling` | Advisory scans (Schedules tab; legacy redirect) | T3 mock |
 
 Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightRunId` (technical) — see `compare-url-query-params.ts`.
 

@@ -16,10 +16,12 @@ import {
   type FindingDispositionKind,
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { upsertFindingRemediationAssignment } from "@/lib/api/finding-remediation-assignment-api";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
 const DISPOSITION_OPTIONS: FindingDispositionKind[] = [
   "Accepted",
@@ -43,6 +45,7 @@ export function FindingInspectGovernanceStickinessPanel({
   initialAssignedToUserId = null,
   initialRemediationDueUtc = null,
 }: FindingInspectGovernanceStickinessPanelProps) {
+  const canMutate = useOperateCapability();
   const [history, setHistory] = useState<FindingDispositionEvent[]>([]);
   const [activeWaiver, setActiveWaiver] = useState<RiskExceptionRecord | null>(null);
   const [assignedToUserId, setAssignedToUserId] = useState(initialAssignedToUserId ?? "");
@@ -101,6 +104,10 @@ export function FindingInspectGovernanceStickinessPanel({
   }, [findingId, initialAssignedToUserId, initialRemediationDueUtc]);
 
   async function submitRemediationAssignment(): Promise<void> {
+    if (!canMutate) {
+      return;
+    }
+
     setBusy(true);
     setErrorMessage(null);
     setStatusMessage(null);
@@ -122,6 +129,10 @@ export function FindingInspectGovernanceStickinessPanel({
   }
 
   async function submitDisposition(): Promise<void> {
+    if (!canMutate) {
+      return;
+    }
+
     setBusy(true);
     setErrorMessage(null);
     setStatusMessage(null);
@@ -148,6 +159,10 @@ export function FindingInspectGovernanceStickinessPanel({
   }
 
   async function submitExplicitRemediation(): Promise<void> {
+    if (!canMutate) {
+      return;
+    }
+
     setBusy(true);
     setErrorMessage(null);
     setStatusMessage(null);
@@ -169,6 +184,10 @@ export function FindingInspectGovernanceStickinessPanel({
   }
 
   async function submitWaiver(): Promise<void> {
+    if (!canMutate) {
+      return;
+    }
+
     setBusy(true);
     setErrorMessage(null);
     setStatusMessage(null);
@@ -194,7 +213,7 @@ export function FindingInspectGovernanceStickinessPanel({
 
 
   async function revokeWaiver(): Promise<void> {
-    if (activeWaiver === null) return;
+    if (activeWaiver === null || !canMutate) return;
 
     setBusy(true);
     setErrorMessage(null);
@@ -248,7 +267,8 @@ export function FindingInspectGovernanceStickinessPanel({
             type="button"
             size="sm"
             variant="outline"
-            disabled={busy}
+            disabled={busy || !canMutate}
+            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
             onClick={() => void submitRemediationAssignment()}
             data-testid="finding-remediation-save"
           >
@@ -264,7 +284,8 @@ export function FindingInspectGovernanceStickinessPanel({
               size="sm" 
               variant="default" 
               className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-700"
-              disabled={busy} 
+              disabled={busy || !canMutate}
+              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
               onClick={() => void submitExplicitRemediation()}
             >
               Mark as Remediated
@@ -313,7 +334,13 @@ export function FindingInspectGovernanceStickinessPanel({
               />
             </label>
           ) : null}
-          <Button type="button" size="sm" disabled={busy} onClick={() => void submitDisposition()}>
+          <Button
+            type="button"
+            size="sm"
+            disabled={busy || !canMutate}
+            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+            onClick={() => void submitDisposition()}
+          >
             Save disposition
           </Button>
         </section>
@@ -360,13 +387,27 @@ export function FindingInspectGovernanceStickinessPanel({
                   onChange={(event) => setWaiverExpiresAtUtc(new Date(event.target.value).toISOString())}
                 />
               </label>
-              <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => void submitWaiver()}>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={busy || !canMutate}
+                title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                onClick={() => void submitWaiver()}
+              >
                 Create waiver (default 90 days, max 365)
               </Button>
             </>
           )}
           {activeWaiver ? (
-            <Button type="button" size="sm" variant="destructive" disabled={busy} onClick={() => void revokeWaiver()}>
+            <Button
+              type="button"
+              size="sm"
+              variant="destructive"
+              disabled={busy || !canMutate}
+              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+              onClick={() => void revokeWaiver()}
+            >
               Revoke waiver
             </Button>
           ) : null}

@@ -129,7 +129,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
       </div>
 
       <Button type="button" variant="primary" className="w-fit" onClick={() => void onAsk()} disabled={askDisabled}>
-        {loading ? "Thinking…" : "Ask this review"}
+        {loading ? "Thinking…" : "Ask"}
       </Button>
       {runMissing ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-select-review-helper">

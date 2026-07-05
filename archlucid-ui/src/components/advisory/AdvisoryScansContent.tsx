@@ -96,7 +96,7 @@ export function AdvisoryScansContent() {
     <div className="w-full max-w-[1200px] px-4 py-6">
       <DocumentLayout>
         <div className="m-0 mb-1 flex flex-wrap items-center gap-2">
-          <h2 className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>Architecture advisory</h2>
+          <h2 className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>Scans</h2>
         </div>
         <p className="doc-meta m-0">
           Generate prioritized recommendations from a finalized review package: changes, risks, tradeoffs, and follow-up

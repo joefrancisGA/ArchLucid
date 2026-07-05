@@ -5,17 +5,21 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { ADVISORY_HUB_TAB_IDS, advisoryHubTabFromSearchParam, type AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { AdvisoryScansContent } from "./AdvisoryScansContent";
 import { AdvisorySchedulesContent } from "./AdvisorySchedulesContent";
 
 const TAB_PARAM = "tab";
 
+// TB-529 renamed the nav item to "Advisory scans" (2026-06-30) but left the tab labels and per-tab content
+// headings on their older, more fragmented wording — unified here (nav / hub heading / tabs / content all agree).
 const TAB_LABEL: Record<AdvisoryHubTabId, string> = {
-  scans: "Recommendation scans",
-  schedules: "Scheduled scans",
+  scans: "Scans",
+  schedules: "Schedules",
 };
 
 const SCHEDULES_TAB_READER_TITLE =
@@ -26,7 +30,7 @@ export type AdvisoryHubClientProps = {
 };
 
 /**
- * Single `/advisory` surface: improvement scans and advisory scan schedules. Tab state in `?tab=` for deep links.
+ * Single `/advisory` ("Advisory scans") surface: **Scans** and **Schedules** tabs. Tab state in `?tab=` for deep links.
  * `initialTab` comes from the server so this tree does not depend on `useSearchParams` (avoids long Suspense fallbacks).
  */
 export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps) {
@@ -69,6 +73,8 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps) {
 
   return (
     <div className="px-0" data-testid="advisory-hub">
+      <OperatorPageHeader title={OPERATOR_NAV_LINK_LABELS.architectureAdvisory} />
+
       <nav
         className="mb-6 border-b border-neutral-200 dark:border-neutral-800"
         aria-label="Advisory hub sections"

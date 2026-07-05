@@ -97,7 +97,7 @@ See [`REPEAT_REVIEW_LOOP.md`](../library/REPEAT_REVIEW_LOOP.md) § Stickiness si
 
 | Action | UI | API |
 | --- | --- | --- |
-| Compare reviews | Operate → compare | Compare endpoints — [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) |
+| Compare two reviews | Operate → compare | Compare endpoints — [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) |
 | Replay run | Review detail | Authority replay routes |
 | Executive ROI rollup | Exports | ROI basis labels required |
 | Governance dry-run | Governance UI | `POST /v1/governance/policy-packs/dry-run` |

@@ -84,7 +84,7 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 #### 2.5 Compare
 
 - **Two-review** comparison: structured golden-manifest deltas + legacy diff + optional AI explanation ([COMPARISON_REPLAY.md](COMPARISON_REPLAY.md)).
-- Operator UI: **Compare reviews** workflow ([operator-shell.md](operator-shell.md)).
+- Operator UI: **Compare two reviews** workflow ([operator-shell.md](operator-shell.md)).
 
 #### 2.6 Replay
 

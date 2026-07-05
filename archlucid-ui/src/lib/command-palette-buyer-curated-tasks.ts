@@ -64,7 +64,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
     searchValue: "audit trail compliance chronology events",
   },
   {
-    label: "Ask this review",
+    label: "Ask review questions",
     href: `/ask?runId=${showcaseRunEnc}`,
     searchValue: "ask question evidence qna",
   },

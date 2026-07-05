@@ -74,6 +74,52 @@ public sealed class TenantOrProjectCapabilityAuthorizationHandlerTests
     }
 
     [Fact]
+    public async Task HandleRequirementAsync_sponsor_jwt_succeeds_read_without_project_lookup()
+    {
+        TenantOrProjectCapabilityAuthorizationHandler handler = CreateHandler(
+            out Mock<IScimUserRepository> scimMock,
+            out Mock<IProjectRoleAssignmentRepository> projectMock);
+
+        ClaimsPrincipal user = AuthenticatedUser(new Claim(ClaimTypes.Role, ArchLucidRoles.Sponsor));
+
+        AuthorizationHandlerContext context = await InvokeAsync(
+            handler,
+            user,
+            new TenantOrProjectCapabilityRequirement(TenantOrProjectCapabilityMode.Read));
+
+        context.HasSucceeded.Should().BeTrue();
+        scimMock.Verify(
+            r => r.GetByExternalIdAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        projectMock.Verify(
+            r => r.GetHighestRoleAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleRequirementAsync_sponsor_jwt_succeeds_execute_without_project_lookup()
+    {
+        TenantOrProjectCapabilityAuthorizationHandler handler = CreateHandler(
+            out Mock<IScimUserRepository> scimMock,
+            out Mock<IProjectRoleAssignmentRepository> projectMock);
+
+        ClaimsPrincipal user = AuthenticatedUser(new Claim(ClaimTypes.Role, ArchLucidRoles.Sponsor));
+
+        AuthorizationHandlerContext context = await InvokeAsync(
+            handler,
+            user,
+            new TenantOrProjectCapabilityRequirement(TenantOrProjectCapabilityMode.Execute));
+
+        context.HasSucceeded.Should().BeTrue();
+        scimMock.Verify(
+            r => r.GetByExternalIdAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        projectMock.Verify(
+            r => r.GetHighestRoleAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task HandleRequirementAsync_project_operator_succeeds_execute_when_jwt_lacks_execute_roles()
     {
         Mock<IScimUserRepository> scimMock = new();

@@ -151,7 +151,7 @@ export function buyerPolishedRouteOrientation(
 
   if (path.startsWith("/ask")) {
     return {
-      label: "Ask this review",
+      label: "Ask review questions",
       line: "Ask questions about a finalized review package. Answers use the signed review record and cite evidence when available.",
     };
   }
@@ -181,7 +181,7 @@ export function buyerPolishedRouteOrientation(
 
   if (path.startsWith("/compare")) {
     return {
-      label: "Compare reviews",
+      label: "Compare two reviews",
       line: "See what changed between finalized review packages.",
     };
   }

@@ -478,10 +478,10 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Pilot scorecard** | `/scorecard` | [ ] |
 | **Compare two reviews** | `/compare` | [ ] |
 | **Replay a review** | `/replay` | [ ] |
-| **Ask this review** | `/ask` | [ ] |
+| **Ask review questions** | `/ask` | [ ] |
 | **Search review evidence** | `/search` | [ ] |
-| **Architecture advisory — scans** | `/advisory` | [ ] |
-| **Architecture advisory — schedules** | `/advisory?tab=schedules` | [ ] |
+| **Advisory scans — Scans** | `/advisory` | [ ] |
+| **Advisory scans — Schedules** | `/advisory?tab=schedules` | [ ] |
 | **Recommendation tuning** | `/recommendation-learning` | [ ] |
 | **Pilot feedback** | `/product-learning` | [ ] |
 | **Planning** | `/planning` | [ ] |
@@ -691,10 +691,10 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 |------|-------|------------------------|
 | Compare two reviews | `/compare` | **Analysis → Compare two reviews** (Alt+C). Hidden in strict buyer demo unless `NEXT_PUBLIC_DEMO_ALLOW_COMPARE_ROUTE=true`. |
 | Replay a review | `/replay` | **Analysis → Replay a review** (Alt+P; Execute authority). |
-| Ask this review | `/ask` | **Analysis → Ask this review** (Alt+A), or review detail → **Ask about this review**. |
+| Ask review questions | `/ask` | **Analysis → Ask review questions** (Alt+A), or review detail → **Ask about this review**. |
 | Search review evidence | `/search` | **Analysis → Search review evidence**. |
-| Architecture advisory (scans) | `/advisory` | **Analysis → Architecture advisory**. |
-| Architecture advisory (schedules) | `/advisory?tab=schedules` | **Advisory** page → **Schedules** tab (legacy `/advisory-scheduling` redirects here). |
+| Advisory scans (Scans tab) | `/advisory` | **Analysis → Advisory scans**. |
+| Advisory scans (Schedules tab) | `/advisory?tab=schedules` | **Advisory scans** page → **Schedules** tab (legacy `/advisory-scheduling` redirects here). |
 | Recommendation tuning | `/recommendation-learning` | **Analysis → Recommendation tuning**. |
 | Pilot feedback | `/product-learning` | **Analysis → Pilot feedback**. |
 | Planning | `/planning` | **Analysis → Planning** (Execute authority). |

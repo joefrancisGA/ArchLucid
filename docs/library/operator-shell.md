@@ -18,7 +18,7 @@ A read-focused **workspace** for the three ArchLucid product layers:
 | Layer | What you do here |
 |-------|-----------------|
 | **First review path** | Create reviews, track execution, finalize reviews, review and download artifacts |
-| **Analysis workloads** | Compare reviews, replay authority chains, explore the evidence graph, run Q&A and advisory scans |
+| **Analysis workloads** | Compare two reviews, replay authority chains, explore the evidence graph, run Q&A and advisory scans |
 | **Governance and trust** | Governance approvals, policy packs, audit log, alerts, compliance drift |
 
 It is not a replacement for Swagger or the CLI. See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for the full capability inventory.
@@ -57,7 +57,7 @@ These four steps cover the complete first-review journey. They map directly to t
 
 Enable these by clicking **Show analysis & investigation tools** in the sidebar footer.
 
-5. **Compare / replay** — **Compare reviews**: enter base (left) and target (right) review IDs; structured architecture-snapshot deltas first, then legacy flat diff; optional AI explanation. **Replay review**: pick mode and read validation flags/notes.
+5. **Compare / replay** — **Compare two reviews**: enter base (left) and target (right) review IDs; structured architecture-snapshot deltas first, then legacy flat diff; optional AI explanation. **Replay review**: pick mode and read validation flags/notes.
 6. **Evidence graph** — Enter a **review ID** (from the reviews list or review detail), choose a view (full provenance, decision subgraph, neighborhood, architecture), **Load graph**. Use this when you need a **visual** graph, not the tabular compare flow.
 7. **Ask / Advisory / Pilot feedback** — natural-language queries against architecture context; the **Advisory** hub at `/advisory` combines **Scans** (default) and **Schedules** (`?tab=schedules`); the **Digests** hub at `/digests` combines **Browse** (default), **Subscriptions** (`?tab=subscriptions`, Execute-class writes), and **Schedule** (weekly executive digest, `?tab=schedule`); pilot feedback rollups.
 
@@ -130,7 +130,7 @@ Filter durable `IAuditService` rows (event type, local **from/to** window, corre
 | Area | Purpose |
 |------|--------|
 | **Evidence graph** | Visual exploration of provenance or architecture **for one review** (nodes/edges, filters, node detail). |
-| **Compare reviews** | **Two reviews** side by side: structured golden-manifest deltas + legacy diff (+ optional AI narrative). |
+| **Compare two reviews** | **Two reviews** side by side: structured golden-manifest deltas + legacy diff (+ optional AI narrative). |
 | **Replay review** | Re-execute the stored **authority chain** for **one review** and surface validation results (not a visual diff). |
 
 ---

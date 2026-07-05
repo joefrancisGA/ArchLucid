@@ -28,28 +28,28 @@ import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } f
 describe("authority seam regression", () => {
   const enterpriseLinks = NAV_GROUPS.find((g) => g.id === "operate-governance")?.links;
 
-  it("defines Operate governance links so Reader authority filter still exposes inbox but drops Execute-only workflow", () => {
+  it("defines Operate governance links so Reader authority filter exposes both the alerts inbox and the approval queue (browsing only — mutations stay Execute-gated in the page itself)", () => {
     expect(enterpriseLinks).toBeDefined();
 
     const readerVisible = filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.ReadAuthority);
     const hrefsRead = new Set(readerVisible.map((l) => l.href));
 
+    // Approval queue (/governance) browsing (dashboard/list/lineage/rationale) only needs ReadAuthority, matching
+    // GovernanceController's class-level [Authorize(ReadAuthority)] default; approve/reject/promote/activate stay
+    // Execute-gated via canMutateWorkflow inside GovernanceWorkflowPageContent, not the nav link itself.
     expect(hrefsRead.has("/governance/alerts")).toBe(true);
-    expect(hrefsRead.has("/governance")).toBe(false);
-
-    const executeVisible = filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.ExecuteAuthority);
-    const hrefsExec = new Set(executeVisible.map((l) => l.href));
-
-    expect(hrefsExec.has("/governance")).toBe(true);
+    expect(hrefsRead.has("/governance")).toBe(true);
   });
 
   /**
    * Drift guard: every `ExecuteAuthority` row in `nav-config` must stay invisible to Read callers and visible at Execute+.
    * Uses hrefs from config (not copy) so new links inherit the same contract automatically.
-   * **`operate-analysis`** is Read-only after taxonomy realignment; Execute-class rhythm links live under **`operate-reports`**, **`operate-integrations`**, and **`operator-system-admin`**.
+   * **`operate-analysis`** and **`operate-governance`** are Read-only nav-gate groups after authority-seam review (deeper
+   * mutations stay Execute-gated inside the pages themselves); Execute-class rhythm links live under
+   * **`operate-reports`**, **`operate-integrations`**, and **`operator-system-admin`**.
    */
   it("hides every ExecuteAuthority-marked Operate nav link from Read callers", () => {
-    const groupIds = ["operate-reports", "operate-integrations", "operate-governance", "operator-system-admin"] as const;
+    const groupIds = ["operate-reports", "operate-integrations", "operator-system-admin"] as const;
 
     for (const groupId of groupIds) {
       const links = NAV_GROUPS.find((g) => g.id === groupId)?.links;
@@ -246,17 +246,19 @@ describe("authority seam regression", () => {
   });
 
   /**
-   * Advanced Analysis keeps **Ask** on `essential` tier (`nav-tier.ts`) so the group is never empty, while deeper links
-   * stay behind extended/advanced. Regression: moving Ask off essential or mis-tiering would change first-pilot noise.
+   * Advanced Analysis keeps **Evidence graph**, **Ask**, and **Search** on `essential` tier (`nav-tier.ts`) so the
+   * group is never empty and core day-to-day tools (including full-text search — not an advanced/power-user-only
+   * feature) stay visible before "Show more", while deeper links (Compare, Impact preview, Advisory) stay behind
+   * extended/advanced. Regression: moving these off essential or mis-tiering would change first-pilot noise.
    */
-  it("keeps Operate analysis to Ask-only in the default Reader shell (tier gates before authority)", () => {
+  it("keeps Operate analysis to Evidence graph, Ask, and Search in the default Reader shell (tier gates before authority)", () => {
     const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
 
     expect(analysis, "Operate analysis group should remain configured").toBeDefined();
 
     const tierVisible = filterNavLinksByTier(analysis!.links, false, false);
 
-    expect(tierVisible.map((l) => l.href)).toEqual(["/graph", "/ask"]);
+    expect(tierVisible.map((l) => l.href)).toEqual(["/graph", "/ask", "/search"]);
   });
 
   /**

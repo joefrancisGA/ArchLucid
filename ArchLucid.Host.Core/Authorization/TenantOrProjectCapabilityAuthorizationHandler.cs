@@ -123,7 +123,11 @@ public sealed class TenantOrProjectCapabilityAuthorizationHandler(
         ArchLucidRoles.Reviewer,
         ArchLucidRoles.WorkspaceAdmin,
         ArchLucidRoles.Admin,
-        ArchLucidRoles.Auditor
+        ArchLucidRoles.Auditor,
+        // Sponsor was documented as a "read-oriented sponsor persona" in ArchLucidRoles.cs but was missing from this
+        // list — a pure JWT Sponsor principal (no SCIM-linked project-role fallback) failed every ReadAuthority
+        // endpoint. Fixed as part of the Impact preview nav-authority review.
+        ArchLucidRoles.Sponsor
     ];
 
     private static readonly string[] JwtExecuteRoles =
@@ -132,7 +136,11 @@ public sealed class TenantOrProjectCapabilityAuthorizationHandler(
         ArchLucidRoles.Architect,
         ArchLucidRoles.Reviewer,
         ArchLucidRoles.WorkspaceAdmin,
-        ArchLucidRoles.Admin
+        ArchLucidRoles.Admin,
+        // Elevated so Sponsor accounts can run Impact preview simulations (owner decision); Sponsor also gains
+        // every other ExecuteAuthority-gated capability platform-wide as a result (governance approve/reject, run
+        // commit/finalize/submit, draft request creation, alert/ITSM mutations, etc.) — see ArchLucidRoles.Sponsor.
+        ArchLucidRoles.Sponsor
     ];
 
     private static readonly string[] JwtAdminRoles =

@@ -28,7 +28,7 @@ describe("LayerHeader", () => {
   it("renders compare guidance (analysis slice)", () => {
     render(<LayerHeader pageKey="compare" />);
 
-    expect(screen.getByText("Compare reviews")).toBeInTheDocument();
+    expect(screen.getByText("Compare two reviews")).toBeInTheDocument();
     expect(screen.getByText(/what changed between two finalized review packages/i)).toBeInTheDocument();
   });
 

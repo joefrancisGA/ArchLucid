@@ -105,7 +105,7 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/compare");
-    // Buyer-polished and full operator shells both use "Compare reviews".
+    // Buyer-polished and full operator shells both use "Compare two reviews".
     await expect(comparePageMainHeading(page)).toBeVisible();
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 

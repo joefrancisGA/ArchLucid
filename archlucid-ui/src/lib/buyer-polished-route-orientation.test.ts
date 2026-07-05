@@ -50,7 +50,7 @@ describe("buyerPolishedRouteOrientation", () => {
   it("orients the ask route with evidence-grounding copy", () => {
     const o = buyerPolishedRouteOrientation("/ask");
 
-    expect(o?.label).toBe("Ask this review");
+    expect(o?.label).toBe("Ask review questions");
     expect(o?.line).toContain("signed review record");
     expect(o?.line).toContain("cite evidence");
   });

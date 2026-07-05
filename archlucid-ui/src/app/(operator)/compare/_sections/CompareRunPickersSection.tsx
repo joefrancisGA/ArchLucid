@@ -136,7 +136,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             onClick={() => void onCompare()}
             disabled={compareActionsDisabled}
           >
-            {loading ? "Comparing…" : "Compare reviews"}
+            {loading ? "Comparing…" : "Compare two reviews"}
           </button>
           {showSummarizeForSponsor ? (
             <button

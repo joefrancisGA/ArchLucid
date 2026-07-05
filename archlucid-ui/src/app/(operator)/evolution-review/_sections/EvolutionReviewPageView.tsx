@@ -11,6 +11,7 @@ import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/Operator
 import { buildEvolutionSimulationReportFileUrl } from "@/lib/evolution-simulation-report-urls";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
 
@@ -23,6 +24,7 @@ type Props = {
  */
 export function EvolutionReviewPageView(props: Props) {
   const m = props.model;
+  const canSimulate = useOperateCapability();
 
   if (m.isDemo) {
     return (
@@ -52,14 +54,16 @@ export function EvolutionReviewPageView(props: Props) {
         <button type="button" className={OPERATOR_TYPOGRAPHY.button} onClick={() => void m.loadList()} disabled={m.listLoading}>
           Refresh list
         </button>
-        <button
-          type="button"
-          className={OPERATOR_TYPOGRAPHY.button}
-          onClick={() => void m.onSimulate()}
-          disabled={m.simulateBusy || m.selectedId === null || m.detailLoading}
-        >
-          {m.simulateBusy ? "Simulating change impact…" : "Simulate change impact"}
-        </button>
+        {canSimulate ? (
+          <button
+            type="button"
+            className={OPERATOR_TYPOGRAPHY.button}
+            onClick={() => void m.onSimulate()}
+            disabled={m.simulateBusy || m.selectedId === null || m.detailLoading}
+          >
+            {m.simulateBusy ? "Simulating change impact…" : "Simulate change impact"}
+          </button>
+        ) : null}
       </div>
 
       {m.listLoading && m.candidates.length === 0 ? (

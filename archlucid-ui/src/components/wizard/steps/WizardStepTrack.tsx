@@ -103,7 +103,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
               className={OPERATOR_LINK.nav}
               href={comparePageHrefAdaptive(runId)}
             >
-              Compare reviews
+              Compare two reviews
             </Link>
             <Link className={OPERATOR_LINK.nav} href={`/reviews/${runId}/provenance`}>
               View provenance

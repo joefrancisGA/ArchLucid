@@ -5,8 +5,10 @@ import { useState } from "react";
 import { normalizeRunIdForRecurrenceApi } from "@/components/RunDetailRecurrenceScheduleCard";
 import { RecurrenceScheduleFormFields } from "@/components/governance/RecurrenceScheduleFormFields";
 import { Button } from "@/components/ui/button";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { createArchitectureReviewRecurrenceSchedule } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_CRON = "0 8 * * 1";
@@ -20,6 +22,7 @@ export type RecurrenceScheduleCreatePanelProps = {
 /** Inline create panel wired to the governance recurrence schedule API. */
 export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePanelProps) {
   const { onCreated, onCancel } = props;
+  const canMutate = useOperateCapability();
   const [sourceRunId, setSourceRunId] = useState("");
   const [name, setName] = useState(DEFAULT_NAME);
   const [cronExpression, setCronExpression] = useState(DEFAULT_CRON);
@@ -28,6 +31,10 @@ export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePan
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   async function submitCreate(): Promise<void> {
+    if (!canMutate) {
+      return;
+    }
+
     const normalizedRunId = normalizeRunIdForRecurrenceApi(sourceRunId);
 
     if (normalizedRunId === null) {
@@ -103,7 +110,13 @@ export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePan
         ) : null}
 
         <div className="flex flex-wrap gap-2">
-          <Button type="submit" size="sm" disabled={busy} data-testid="recurrence-schedule-create-submit">
+          <Button
+            type="submit"
+            size="sm"
+            disabled={busy || !canMutate}
+            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+            data-testid="recurrence-schedule-create-submit"
+          >
             {busy ? "Creating…" : "Create recurrence schedule"}
           </Button>
           {onCancel !== undefined ? (

@@ -83,9 +83,9 @@ export function WeeklyDigestHealthBanner(): ReactElement {
         <div className="flex flex-wrap gap-2">
           <Link
             className={cn("rounded-md border border-neutral-300 px-3 py-1.5 font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
-            href="/advisory"
+            href="/advisory?tab=schedules"
           >
-            Advisory schedules
+            Advisory scans — Schedules
           </Link>
           <Link
             className={cn("rounded-md border border-neutral-300 px-3 py-1.5 font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}

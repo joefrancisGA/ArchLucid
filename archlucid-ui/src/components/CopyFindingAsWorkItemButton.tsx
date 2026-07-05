@@ -127,7 +127,7 @@ function WorkItemCopyControls({
         variant="default"
         size="sm"
         /* text-neutral-50 restores the "default" button variant's light label color against its own
-           always-dark bg-neutral-900 ΓÇö OPERATOR_TYPOGRAPHY.helper's text-al-text-secondary in buttonClass
+           always-dark bg-neutral-900 — OPERATOR_TYPOGRAPHY.helper's text-al-text-secondary in buttonClass
            otherwise wins the text-color merge and mutes the label below 4.5:1 in dark mode. */
         className={cn(buttonClass, "text-neutral-50")}
         aria-label={QUICK_COPY_JIRA_ARIA}

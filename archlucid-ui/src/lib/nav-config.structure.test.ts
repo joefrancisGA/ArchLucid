@@ -114,12 +114,13 @@ describe("nav-config structure", () => {
 
     expect(enterprise).toBeDefined();
 
-    const executeLinks = enterprise!.links.filter((link) => link.requiredAuthority === "ExecuteAuthority");
-
-    expect(executeLinks.length).toBeGreaterThan(0);
-
-    for (const link of executeLinks) {
-      expect(link.tier, link.href).not.toBe("essential");
+    // Approval queue (/governance) moved to ReadAuthority (browsing only; approve/reject/promote/activate stay
+    // Execute-gated in the page itself) — Governance currently has no ExecuteAuthority nav links, so this loop is a
+    // no-op regression guard for future additions.
+    for (const link of enterprise!.links) {
+      if (link.requiredAuthority === "ExecuteAuthority") {
+        expect(link.tier, link.href).not.toBe("essential");
+      }
     }
   });
 
@@ -140,12 +141,12 @@ describe("nav-config structure", () => {
 
     expect(advanced).toBeDefined();
 
-    const executeLinks = advanced!.links.filter((link) => link.requiredAuthority === "ExecuteAuthority");
-
-    expect(executeLinks.length).toBeGreaterThan(0);
-
-    for (const link of executeLinks) {
-      expect(link.tier, link.href).not.toBe("essential");
+    // Impact preview moved to ReadAuthority (browsing only; Simulate itself stays Execute-gated in the UI/API) —
+    // Insights currently has no ExecuteAuthority links, so this loop is a no-op regression guard for future additions.
+    for (const link of advanced!.links) {
+      if (link.requiredAuthority === "ExecuteAuthority") {
+        expect(link.tier, link.href).not.toBe("essential");
+      }
     }
   });
 

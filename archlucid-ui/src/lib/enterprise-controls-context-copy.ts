@@ -613,10 +613,13 @@ export const digestSubscriptionsEmptyListOperatorLine = "None yet.";
 export const digestSubscriptionsEmptyListReaderLine =
   "None yet. Inspect when rows exist; create and toggle need operator on the API.";
 
-/** Advisory schedules — schedules list **`h3`** (`components/advisory/AdvisorySchedulesContent.tsx`). */
-export const advisorySchedulesListHeadingOperator = "Schedules";
+/**
+ * Advisory schedules — schedules list **`h3`** (`components/advisory/AdvisorySchedulesContent.tsx`).
+ * Named "Existing schedules" (not just "Schedules") so it doesn't repeat the tab's own page-level `h2`.
+ */
+export const advisorySchedulesListHeadingOperator = "Existing schedules";
 
-export const advisorySchedulesListHeadingReader = "Schedules (inspect)";
+export const advisorySchedulesListHeadingReader = "Existing schedules (inspect)";
 
 /** Advisory schedules — create block **`h3`**. */
 export const advisorySchedulesCreateSectionHeadingOperator = "Create schedule";

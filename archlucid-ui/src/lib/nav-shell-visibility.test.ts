@@ -54,7 +54,7 @@ describe("filterNavLinksForOperatorShell", () => {
     expect(visible.some((l) => l.href === "/governance")).toBe(false);
   });
 
-  it("exposes Alerts and Audit for Reader when advanced disclosure is on even if extended is off", () => {
+  it("exposes Alerts, Audit, and the approval queue for Reader when advanced disclosure is on even if extended is off", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -66,9 +66,11 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
+    // Approval-queue (/governance) browsing moved to ReadAuthority — it's visible here alongside Alerts/Audit once
+    // the "advanced" tier is on; approve/reject/promote/activate stay Execute-gated inside the page itself.
     expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/audit")).toBe(true);
-    expect(visible.some((l) => l.href === "/governance")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(false);
   });
 
@@ -87,7 +89,13 @@ describe("filterNavLinksForOperatorShell", () => {
     expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
   });
 
-  it("hides Execute-tier governance workflow for Reader even when advanced tier is on", () => {
+  /**
+   * Approval queue (/governance) browsing moved from ExecuteAuthority to ReadAuthority (matches
+   * `GovernanceController`'s class-level `[Authorize(ReadAuthority)]` default for dashboard/list/lineage/rationale
+   * reads); approve/reject/promote/activate remain Execute-gated via `canMutateWorkflow` inside
+   * `GovernanceWorkflowPageContent`, not this nav link.
+   */
+  it("shows the approval queue for Reader once both extended and advanced tiers are on", () => {
     const visible = filterNavLinksForOperatorShell(
       enterprise!.links,
       true,
@@ -97,7 +105,7 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/governance")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
   });
 

@@ -423,7 +423,7 @@ export function CompareForm() {
   return (
     <div>
       <OperatorPageHeader
-        title={buyerPolished ? BUYER_COMPARE_PAGE_TITLE : "Compare reviews"}
+        title={buyerPolished ? BUYER_COMPARE_PAGE_TITLE : "Compare two reviews"}
         subtitle={COMPARE_PAGE_SUBTITLE}
         helpKey="compare-runs"
         docsPageKey="/compare"

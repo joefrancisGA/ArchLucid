@@ -69,7 +69,7 @@ export type LayerGuidanceBlock = {
 
 export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBlock> = {
   compare: {
-    layerBadge: "Compare reviews",
+    layerBadge: "Compare two reviews",
     headline: "See what changed between two finalized review packages.",
     useWhen: "Choose a baseline and an updated review after both packages are finalized.",
     firstPilotNote:
@@ -318,7 +318,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     firstPilotNote: null,
   },
   compare: {
-    layerBadge: "Compare reviews",
+    layerBadge: "Compare two reviews",
     headline: "See what changed between two finalized review packages.",
     useWhen: "Choose a baseline and an updated review after both packages are finalized.",
     firstPilotNote: null,

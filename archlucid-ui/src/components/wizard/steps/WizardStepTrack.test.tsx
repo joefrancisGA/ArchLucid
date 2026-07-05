@@ -194,7 +194,7 @@ describe("WizardStepTrack", () => {
     }
   });
 
-  it("encodes run id on Compare reviews when the golden manifest is ready", () => {
+  it("encodes run id on Compare two reviews when the golden manifest is ready", () => {
     renderWithTooltips(
       <WizardStepTrack
         runId="run-encode-9"
@@ -206,7 +206,7 @@ describe("WizardStepTrack", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Compare reviews" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute(
       "href",
       "/compare?leftRunId=run-encode-9",
     );

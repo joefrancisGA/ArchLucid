@@ -22,7 +22,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
   {
     prefix: "/compare",
     explanation: {
-      title: "Compare reviews",
+      title: "Compare two reviews",
       summary: "Side-by-side diff of two architecture reviews — findings, decision records, and cost deltas.",
       nextAction: "Pick a baseline and updated review, then read the structured comparison summary.",
     },

@@ -143,7 +143,7 @@ test.describe("live-api-smoke", () => {
 
     await page.goto("/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
 
-    // `?baseline=1` now enters the 4-step SimplifiedPilotWizard directly (ZIP upload is step 1 ΓÇö
+    // `?baseline=1` now enters the 4-step SimplifiedPilotWizard directly (ZIP upload is step 1 —
     // there is no separate "start blank" preset step, and the full-wizard shell's progress testid
     // never renders for this entry point; see NewRunWizardClient.baseline-first.test.tsx).
     await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });

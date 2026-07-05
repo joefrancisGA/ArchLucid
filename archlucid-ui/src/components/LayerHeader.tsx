@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
+import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
 import {
   mergeLayerGuidanceForBuyerDemoShell,
   type LayerGuidancePageKey,

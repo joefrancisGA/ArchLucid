@@ -60,8 +60,12 @@ describe("authority Execute floor regression", () => {
     expect(executeCount).toBeLessThanOrEqual(adminCount);
   });
 
-  /** Doc-seam guard: workflow stays Execute-gated in config so Reader nav does not advertise it (`docs/NAV_CONFIG_CONTRACT.md`). */
-  it("hides governance workflow href from Reader-filtered Enterprise links while inbox remains", () => {
+  /**
+   * Doc-seam guard: approval-queue browsing (dashboard/list/lineage/rationale) is ReadAuthority in config, matching
+   * `GovernanceController`'s class-level `[Authorize(ReadAuthority)]` default; approve/reject/promote/activate stay
+   * Execute-gated inside `GovernanceWorkflowPageContent` (`canMutateWorkflow`), not the nav link (`docs/NAV_CONFIG_CONTRACT.md`).
+   */
+  it("keeps governance workflow href in Reader-filtered Enterprise links alongside the alerts inbox", () => {
     const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
 
     expect(enterprise).toBeDefined();
@@ -69,6 +73,6 @@ describe("authority Execute floor regression", () => {
     const readHrefs = filterNavLinksByAuthority(enterprise!.links, AUTHORITY_RANK.ReadAuthority).map((l) => l.href);
 
     expect(readHrefs).toContain("/governance/alerts");
-    expect(readHrefs.some((h) => h === "/governance")).toBe(false);
+    expect(readHrefs).toContain("/governance");
   });
 });

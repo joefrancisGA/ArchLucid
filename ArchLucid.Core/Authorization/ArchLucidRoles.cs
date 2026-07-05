@@ -35,7 +35,10 @@ public static class ArchLucidRoles
     public const string Admin = "Admin";
 
     /// <summary>
-    ///     Executive sponsor persona (read-oriented sponsor surfaces). Typical Entra app-role string <c>Sponsor</c>.
+    ///     Executive sponsor persona. Typical Entra app-role string <c>Sponsor</c>. Holds <c>ExecuteAuthority</c>
+    ///     (elevated owner decision, 2026-07) so sponsors can run Impact preview simulations; this also grants every
+    ///     other ExecuteAuthority-gated capability platform-wide — see the JWT role lists in
+    ///     <c>TenantOrProjectCapabilityAuthorizationHandler</c> (ArchLucid.Host.Core).
     /// </summary>
     public const string Sponsor = "Sponsor";
 

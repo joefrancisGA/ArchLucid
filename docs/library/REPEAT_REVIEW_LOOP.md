@@ -36,7 +36,7 @@
 
 | Action | UI | API / CLI |
 | --- | --- | --- |
-| Compare reviews | Operate analysis compare | Compare endpoints per [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) |
+| Compare two reviews | Operate analysis compare | Compare endpoints per [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) |
 | Replay run | Review detail replay | Authority replay routes |
 | Executive ROI summary | Exports / sponsor views | Export endpoints with ROI basis labels |
 | Governance dry-run | Governance UI | `POST /v1/governance/policy-packs/dry-run` |

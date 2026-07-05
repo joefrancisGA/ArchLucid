@@ -32,10 +32,10 @@ export async function gotoComparePageWithFixturePair(
 
 /**
  * Primary `/compare` H2 from {@link OperatorPageHeader}. Buyer-polished and full-operator shells both use
- * **Compare reviews**.
+ * **Compare two reviews**.
  */
 export function comparePageMainHeading(page: Page): Locator {
-  return page.getByRole("heading", { level: 2, name: /^Compare reviews$/i });
+  return page.getByRole("heading", { level: 2, name: /^Compare two reviews$/i });
 }
 
 /**

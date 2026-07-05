@@ -184,7 +184,7 @@ import SearchPage from "./search/page";
 describe("operator client pages — render gate", () => {
   it("Alerts inbox content renders primary heading", () => {
     render(<AlertsInboxContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Alerts" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Inbox" })).toBeInTheDocument();
   });
 
   it("Alert rules content renders primary heading", () => {
@@ -214,12 +214,12 @@ describe("operator client pages — render gate", () => {
 
   it("Advisory hub Scans tab content renders primary heading", () => {
     render(<AdvisoryScansContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Architecture advisory" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Scans" })).toBeInTheDocument();
   });
 
   it("Advisory hub Schedules tab content renders primary heading", () => {
     render(<AdvisorySchedulesContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Advisory schedules" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Schedules" })).toBeInTheDocument();
   });
 
   it("RecommendationLearningPage renders primary heading", async () => {
@@ -289,7 +289,7 @@ describe("operator client pages — render gate", () => {
 
   it("AskPage renders primary heading without heading-level contextual help", () => {
     render(<AskPage />);
-    expect(screen.getByRole("heading", { level: 2, name: "Ask this review" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Ask review questions" })).toBeInTheDocument();
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
   });
 

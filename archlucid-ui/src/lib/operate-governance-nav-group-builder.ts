@@ -31,7 +31,11 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           title: "Approve, defer, waive, or promote findings",
           icon: GitBranch,
           tier: "advanced",
-          requiredAuthority: "ExecuteAuthority",
+          // Browsing the approval queue (dashboard, list, lineage, rationale) only needs ReadAuthority — matches
+          // GovernanceController's class-level [Authorize(ReadAuthority)] default. Only approve/reject/batch-review/
+          // promote/activate are Execute-gated (see canMutateWorkflow in GovernanceWorkflowPageContent, which already
+          // ships dedicated reader-mode copy and disables every mutating action for non-Execute callers).
+          requiredAuthority: "ReadAuthority",
         },
         {
           href: "/governance/findings",
