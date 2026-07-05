@@ -4,8 +4,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import {
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
@@ -38,11 +39,12 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
     <Card
       className={cn(OPERATOR_SURFACE_CARD_CLASS, "border border-neutral-200 shadow-sm dark:border-neutral-800")}
       data-testid="operator-home-sample-review-preview"
+      aria-labelledby="operator-home-sample-review-heading"
     >
       <CardHeader className={OPERATOR_CARD.header}>
-        <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
+        <OperatorHomeCardSectionTitle id="operator-home-sample-review-heading">
           {OPERATOR_HOME_SAMPLE_FINDINGS_HEADING}
-        </CardTitle>
+        </OperatorHomeCardSectionTitle>
         <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
           {OPERATOR_HOME_SAMPLE_FINDINGS_LEAD}
         </p>

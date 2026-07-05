@@ -4,9 +4,11 @@ import { describe, expect, it, vi } from "vitest";
 import { OperatorHomeSampleReviewPreview } from "@/components/operator-home/OperatorHomeSampleReviewPreview";
 import {
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
+  OPERATOR_HOME_SAMPLE_FINDINGS_HEADING,
   OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL,
   OPERATOR_HOME_SAMPLE_FINDINGS_LEAD,
 } from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { SHOWCASE_HOME_SAMPLE_FINDINGS } from "@/lib/showcase-home-sample-findings";
 import {
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
@@ -26,6 +28,15 @@ describe("OperatorHomeSampleReviewPreview (TB-353)", () => {
     render(<OperatorHomeSampleReviewPreview />);
 
     expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
+    const title = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_SAMPLE_FINDINGS_HEADING });
+    expect(title).toHaveAttribute("id", "operator-home-sample-review-heading");
+    expect(title.className).toContain("text-[15px]");
+    expect(title.className).not.toContain("text-lg");
+    for (const token of OPERATOR_HOME_CARD_SECTION_HEADING.split(/\s+/)) {
+      if (token.length > 0) {
+        expect(title.className).toContain(token);
+      }
+    }
     expect(screen.getByText(OPERATOR_HOME_SAMPLE_FINDINGS_LEAD)).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-sample-review-includes-label")).toHaveTextContent(
       OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL,

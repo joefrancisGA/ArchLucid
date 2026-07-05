@@ -13,6 +13,7 @@ import {
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
   PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
 import {
@@ -66,6 +67,15 @@ describe("PilotCommandCenterCard", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: PILOT_COMMAND_CENTER_HEADING }),
     ).toBeInTheDocument();
+
+    const title = screen.getByRole("heading", { level: 2, name: PILOT_COMMAND_CENTER_HEADING });
+    expect(title.className).toContain("text-[15px]");
+    expect(title.className).not.toContain("text-lg");
+    for (const token of OPERATOR_HOME_CARD_SECTION_HEADING.split(/\s+/)) {
+      if (token.length > 0) {
+        expect(title.className).toContain(token);
+      }
+    }
   });
 
   it("shows workspace overview hero copy after committed workspace activity", () => {

@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { Button } from "@/components/ui/button";
 import { PilotPathPreviewStepper } from "@/components/usability/PilotPathPreviewStepper";
 import {
@@ -66,9 +67,9 @@ export function PilotCommandCenterCard(): React.JSX.Element {
     >
       <div className="heroHeader flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="min-w-0 flex-1 space-y-1">
-          <h2 id="pilot-command-center-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}>
+          <OperatorHomeCardSectionTitle id="pilot-command-center-heading">
             {heroHeading}
-          </h2>
+          </OperatorHomeCardSectionTitle>
           <p
             className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
             data-testid="pilot-command-center-lead"

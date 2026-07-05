@@ -7,7 +7,7 @@ type OperatorHomeCardSectionTitleProps = {
   readonly className?: string;
 };
 
-/** Shared h2 for operator-home peer cards (Continue setup, Setup and walkthroughs, sample review). */
+/** Shared h2 for operator-home peer cards (command center, sample review, Continue setup, Setup and walkthroughs). */
 export function OperatorHomeCardSectionTitle(
   props: OperatorHomeCardSectionTitleProps,
 ): React.JSX.Element {
