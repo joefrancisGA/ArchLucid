@@ -177,7 +177,7 @@ internal static class RealAgentExecutorSingleHandlerExecution
             if (dependencies.Logger.IsEnabled(LogLevel.Debug))
             {
                 dependencies.Logger.LogDebugAgentTaskFinished(
-                    runId, // codeql[cs/log-forging] sanitized inside LogDebugAgentTaskFinished.
+                    runId,
                     task.TaskId,
                     dispatchKey,
                     stopwatch.ElapsedMilliseconds);

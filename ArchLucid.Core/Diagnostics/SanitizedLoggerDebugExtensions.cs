@@ -6,73 +6,63 @@ namespace ArchLucid.Core.Diagnostics;
 ///     Structured <see cref="ILogger" /> helpers for Debug-level messages with user-derived string placeholders (CWE-117).
 /// </summary>
 /// <remarks>
-///     CodeQL <c>cs/log-forging</c> may not propagate <see cref="LogSanitizer.Sanitize" /> through
-///     <see cref="LoggerExtensions.LogDebug(ILogger, string?, params object?[])" /> <c>params</c> boxing at call sites
-///     (see <c>docs/CODEQL_TRIAGE.md</c>).
+///     Each public wrapper sanitizes user-derived <see cref="string" /> arguments through
+///     <see cref="LogSanitizer.Sanitize(string?)" /> and forwards them to a private
+///     <see cref="LoggerMessageAttribute" />-generated emitter declared in
+///     <c>SanitizedLoggerDebugExtensions.LoggerMessage.cs</c>. This preserves the CodeQL
+///     <c>cs/log-forging</c> barrier through to the <see cref="ILogger.Log{TState}" /> sink without
+///     <c>params object?[]</c> boxing (see <c>docs/library/CODEQL_TRIAGE.md</c>).
 /// </remarks>
-public static class SanitizedLoggerDebugExtensions
+public static partial class SanitizedLoggerDebugExtensions
 {
-    extension(ILogger logger)
+    /// <summary>Logs per-task agent handler completion with three user-derived strings sanitized.</summary>
+    public static void LogDebugAgentTaskFinished(
+        this ILogger logger,
+        string userRunId,
+        string userTaskId,
+        string userAgentTypeKey,
+        long durationMs)
     {
-        /// <summary>Logs per-task agent handler completion with three user-derived strings sanitized.</summary>
-        public void LogDebugAgentTaskFinished(string userRunId,
-            string userTaskId,
-            string userAgentTypeKey,
-            long durationMs)
-        {
-            ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(logger);
 
-            string safeRunId = LogSanitizer.Sanitize(userRunId);
-            string safeTaskId = LogSanitizer.Sanitize(userTaskId);
-            string safeAgentTypeKey = LogSanitizer.Sanitize(userAgentTypeKey);
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+        string safeTaskId = LogSanitizer.Sanitize(userTaskId);
+        string safeAgentTypeKey = LogSanitizer.Sanitize(userAgentTypeKey);
 
-            // codeql[cs/log-forging]: string placeholders sanitized immediately above; durationMs is a value type.
-            logger.LogDebug(
-                "Agent task finished: RunId={RunId}, TaskId={TaskId}, AgentTypeKey={AgentTypeKey}, DurationMs={DurationMs}",
-                safeRunId,
-                safeTaskId,
-                safeAgentTypeKey,
-                durationMs);
-        }
+        EmitAgentTaskFinished(logger, safeRunId, safeTaskId, safeAgentTypeKey, durationMs);
+    }
 
-        /// <summary>Logs a curated evidence proposal skip with two user-derived strings sanitized.</summary>
-        public void LogDebugCuratedEvidenceProposalSkipped(Exception exception,
-            string userRunId,
-            string userAgentType)
-        {
-            ArgumentNullException.ThrowIfNull(logger);
+    /// <summary>Logs a curated evidence proposal skip with two user-derived strings sanitized.</summary>
+    public static void LogDebugCuratedEvidenceProposalSkipped(
+        this ILogger logger,
+        Exception exception,
+        string userRunId,
+        string userAgentType)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(exception);
 
-            string safeRunId = LogSanitizer.Sanitize(userRunId);
-            string safeAgentType = LogSanitizer.Sanitize(userAgentType);
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+        string safeAgentType = LogSanitizer.Sanitize(userAgentType);
 
-            // codeql[cs/log-forging]: string placeholders sanitized immediately above (params boxing breaks barrier at call sites).
-            logger.LogDebug(
-                exception,
-                "Curated evidence proposal skipped for RunId={RunId}, AgentType={AgentType}.",
-                safeRunId,
-                safeAgentType);
-        }
+        EmitCuratedEvidenceProposalSkipped(logger, exception, safeRunId, safeAgentType);
+    }
 
-        /// <summary>Logs a reference-case evaluation failure with four user-derived strings sanitized.</summary>
-        public void LogDebugReferenceCaseEvaluationFailed(string userCaseId,
-            string userRunId,
-            string userTraceId,
-            string userFailureReason)
-        {
-            ArgumentNullException.ThrowIfNull(logger);
+    /// <summary>Logs a reference-case evaluation failure with four user-derived strings sanitized.</summary>
+    public static void LogDebugReferenceCaseEvaluationFailed(
+        this ILogger logger,
+        string userCaseId,
+        string userRunId,
+        string userTraceId,
+        string userFailureReason)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
 
-            string safeCaseId = LogSanitizer.Sanitize(userCaseId);
-            string safeRunId = LogSanitizer.Sanitize(userRunId);
-            string safeTraceId = LogSanitizer.Sanitize(userTraceId);
-            string safeReason = LogSanitizer.Sanitize(userFailureReason);
+        string safeCaseId = LogSanitizer.Sanitize(userCaseId);
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+        string safeTraceId = LogSanitizer.Sanitize(userTraceId);
+        string safeReason = LogSanitizer.Sanitize(userFailureReason);
 
-            // codeql[cs/log-forging]: string placeholders sanitized immediately above (params boxing breaks barrier at call sites).
-            logger.LogDebug(
-                "Reference case {CaseId} failed for run {RunId} trace {TraceId}: {Reason}",
-                safeCaseId,
-                safeRunId,
-                safeTraceId,
-                safeReason);
-        }
+        EmitReferenceCaseEvaluationFailed(logger, safeCaseId, safeRunId, safeTraceId, safeReason);
     }
 }

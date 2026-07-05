@@ -92,6 +92,42 @@ public sealed class SanitizedLoggerDebugExtensionsTests
     }
 
     [Fact]
+    public void LogDebugReferenceCaseEvaluationFailed_strips_control_chars_in_user_strings()
+    {
+        Mock<ILogger> mock = new();
+        mock.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+
+        string? rendered = null;
+
+        mock.Setup(m => m.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation =>
+            {
+                Delegate formatter = (Delegate)invocation.Arguments[4];
+                object state = invocation.Arguments[2];
+                object ex = invocation.Arguments[3];
+                rendered = formatter.DynamicInvoke(state, ex) as string;
+            }));
+
+        mock.Object.LogDebugReferenceCaseEvaluationFailed("case\n1", "run\t2", "trace\r3", "reason\b4");
+
+        rendered.Should().NotBeNull();
+        string text = rendered!;
+
+        text.Should().Contain("case_1");
+        text.Should().Contain("run_2");
+        text.Should().Contain("trace_3");
+        text.Should().Contain("reason_4");
+        text.Should().NotContain("\n");
+        text.Should().NotContain("\t");
+        text.Should().NotContain("\r");
+    }
+
+    [Fact]
     public void LogDebugAgentTaskFinished_throws_when_logger_null()
     {
         ILogger logger = null!;
