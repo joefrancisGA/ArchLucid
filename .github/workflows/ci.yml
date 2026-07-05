@@ -2749,9 +2749,9 @@ jobs:
           head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
           ART_DIR="${{ runner.temp }}/coverage-metrics-artifact"
           mkdir -p "${ART_DIR}"
-          # Merged line minimum is 75 until V1.1 ratchet restores 95 (see assert_merged_line_coverage_min.py).
+          # Merged line minimum is 76 until V1.1 ratchet restores 95 (see assert_merged_line_coverage_min.py).
           python3 scripts/ci/assert_merged_line_coverage_min.py \
-            "${OUT}/Cobertura.xml" 75 \
+            "${OUT}/Cobertura.xml" 76 \
             --min-branch-pct 63 \
             --min-package-line-pct 71 \
             --skip-package-line-gate ArchLucid.Mcp \
