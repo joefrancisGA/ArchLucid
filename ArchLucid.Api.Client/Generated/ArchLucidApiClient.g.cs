@@ -81871,6 +81871,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("graphRagPilotFloorDisposition")]
         public string? GraphRagPilotFloorDisposition { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("graphRagQualityPosture")]
+        public string? GraphRagQualityPosture { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("operatorDetail")]
         public string? OperatorDetail { get; set; } = default!;
 
