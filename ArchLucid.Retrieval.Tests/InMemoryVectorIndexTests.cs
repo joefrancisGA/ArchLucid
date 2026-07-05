@@ -1,8 +1,11 @@
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
 
 using FluentAssertions;
+
+using Moq;
 
 namespace ArchLucid.Retrieval.Tests;
 
@@ -15,6 +18,50 @@ public sealed class InMemoryVectorIndexTests
     private static readonly Guid TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     private static readonly Guid WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
     private static readonly Guid ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+    [Fact]
+    public async Task UpsertChunksAsync_WhenScopeProviderSetAndTenantMismatch_Throws()
+    {
+        Guid wrongTenant = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(provider => provider.GetCurrentScope())
+            .Returns(
+                new ScopeContext
+                {
+                    TenantId = TenantId,
+                    WorkspaceId = WorkspaceId,
+                    ProjectId = ProjectId,
+                });
+
+        InMemoryVectorIndex sut = new(scope.Object);
+        RetrievalChunk chunk = MakeChunk("cross-tenant", wrongTenant, WorkspaceId, ProjectId, [1f, 0f]);
+
+        Func<Task> act = async () => await sut.UpsertChunksAsync([chunk], CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*TenantId*");
+    }
+
+    [Fact]
+    public async Task UpsertChunksAsync_WhenScopeProviderSetAndPlatformCorpusChunk_AllowsUpsert()
+    {
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(provider => provider.GetCurrentScope())
+            .Returns(
+                new ScopeContext
+                {
+                    TenantId = TenantId,
+                    WorkspaceId = WorkspaceId,
+                    ProjectId = ProjectId,
+                });
+
+        InMemoryVectorIndex sut = new(scope.Object);
+        RetrievalChunk chunk = MakePlatformPolicyPackChunk("platform", "pack-a", [1f, 0f]);
+
+        Func<Task> act = async () => await sut.UpsertChunksAsync([chunk], CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
 
     [Fact]
     public async Task SearchAsync_WrongTenant_ReturnsEmpty()

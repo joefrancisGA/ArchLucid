@@ -1,5 +1,6 @@
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Core.Scoping;
 
 using ArchLucid.Retrieval.Models;
 
@@ -12,6 +13,7 @@ namespace ArchLucid.Retrieval.Indexing;
 /// <remarks>
 ///     Replaces existing rows by <see cref="RetrievalChunk.ChunkId" /> on upsert. Filters require exact
 ///     tenant/workspace/project match; optional run/manifest must match when provided.
+///     When constructed with <see cref="IScopeContextProvider" />, upserts fail closed on tenant scope mismatch (TB-604).
 /// </remarks>
 public sealed class InMemoryVectorIndex : IVectorIndex, IVectorIndexEmbeddingMetadataProvider
 {
@@ -19,9 +21,19 @@ public sealed class InMemoryVectorIndex : IVectorIndex, IVectorIndexEmbeddingMet
 
     private readonly List<RetrievalChunk> _chunks = [];
     private readonly Lock _sync = new();
+    private readonly IScopeContextProvider? _scopeContextProvider;
 
     private string? _indexEmbeddingModelId;
     private int _indexEmbeddingDimension;
+
+    /// <summary>
+    ///     Creates an in-memory index. Pass <paramref name="scopeContextProvider" /> in production DI so upserts
+    ///     cannot cross tenant boundaries; unit tests may omit it.
+    /// </summary>
+    public InMemoryVectorIndex(IScopeContextProvider? scopeContextProvider = null)
+    {
+        _scopeContextProvider = scopeContextProvider;
+    }
 
     /// <inheritdoc />
     public Task RemoveChunksForDocumentAsync(
@@ -50,6 +62,13 @@ public sealed class InMemoryVectorIndex : IVectorIndex, IVectorIndexEmbeddingMet
     public Task UpsertChunksAsync(IReadOnlyList<RetrievalChunk> chunks, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(chunks);
+        _ = ct;
+
+        if (_scopeContextProvider is not null)
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            RetrievalIndexingScopeValidator.ValidateChunks(chunks, scope);
+        }
 
         lock (_sync)
         {

@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Core.Scoping;
 
 using ArchLucid.Retrieval.Models;
 
@@ -12,11 +13,18 @@ namespace ArchLucid.Retrieval.Indexing;
 /// </summary>
 [ExcludeFromCodeCoverage(Justification =
     "Passthrough adapter; all logic lives in IAzureSearchClient which is tested via its interface.")]
-public sealed class AzureAiSearchVectorIndex(IAzureSearchClient client) : IVectorIndex
+public sealed class AzureAiSearchVectorIndex(IAzureSearchClient client, IScopeContextProvider scopeContextProvider)
+    : IVectorIndex
 {
     /// <inheritdoc />
     public Task UpsertChunksAsync(IReadOnlyList<RetrievalChunk> chunks, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(chunks);
+        _ = ct;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RetrievalIndexingScopeValidator.ValidateChunks(chunks, scope);
+
         return client.UpsertChunksAsync(chunks, ct);
     }
 

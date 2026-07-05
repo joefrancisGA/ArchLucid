@@ -16,13 +16,50 @@ public static class RetrievalIndexingScopeValidator
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        if (document.TenantId != CorpusKindSentinels.PlatformSentinelTenantId)
-            return false;
+        return IsPlatformCorpus(document.TenantId, document.CorpusKind);
+    }
 
-        return document.CorpusKind is CorpusKind.PolicyPack
-            or CorpusKind.PlatformDoc
-            or CorpusKind.ReferenceArchitecture
-            or CorpusKind.AzureRetailPrice;
+    /// <summary>
+    ///     Platform corpora indexed as chunks use the same sentinel tenant id as documents.
+    /// </summary>
+    public static bool IsPlatformCorpusChunk(RetrievalChunk chunk)
+    {
+        ArgumentNullException.ThrowIfNull(chunk);
+
+        return IsPlatformCorpus(chunk.TenantId, chunk.CorpusKind);
+    }
+
+    /// <summary>
+    ///     Validates each chunk against <paramref name="ambientScope" /> before vector-index upsert (TB-604).
+    /// </summary>
+    public static void ValidateChunks(IReadOnlyList<RetrievalChunk> chunks, ScopeContext ambientScope)
+    {
+        ArgumentNullException.ThrowIfNull(chunks);
+        ArgumentNullException.ThrowIfNull(ambientScope);
+
+        foreach (RetrievalChunk chunk in chunks)
+        {
+            ValidateChunk(chunk, ambientScope);
+        }
+    }
+
+    /// <summary>
+    ///     Throws <see cref="InvalidOperationException" /> when chunk scope metadata disagrees with ambient scope.
+    /// </summary>
+    public static void ValidateChunk(RetrievalChunk chunk, ScopeContext ambientScope)
+    {
+        ArgumentNullException.ThrowIfNull(chunk);
+        ArgumentNullException.ThrowIfNull(ambientScope);
+
+        if (IsPlatformCorpusChunk(chunk))
+            return;
+
+        ValidateTenantScopedIds(
+            chunk.TenantId,
+            chunk.WorkspaceId,
+            chunk.ProjectId,
+            ambientScope,
+            "Retrieval chunk");
     }
 
     /// <summary>
@@ -50,26 +87,52 @@ public static class RetrievalIndexingScopeValidator
         if (IsPlatformCorpusDocument(document))
             return;
 
+        ValidateTenantScopedIds(
+            document.TenantId,
+            document.WorkspaceId,
+            document.ProjectId,
+            ambientScope,
+            "Retrieval document");
+    }
+
+    private static bool IsPlatformCorpus(Guid tenantId, CorpusKind corpusKind)
+    {
+        if (tenantId != CorpusKindSentinels.PlatformSentinelTenantId)
+            return false;
+
+        return corpusKind is CorpusKind.PolicyPack
+            or CorpusKind.PlatformDoc
+            or CorpusKind.ReferenceArchitecture
+            or CorpusKind.AzureRetailPrice;
+    }
+
+    private static void ValidateTenantScopedIds(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        ScopeContext ambientScope,
+        string entityLabel)
+    {
         if (ambientScope.TenantId == Guid.Empty)
             return;
 
-        if (document.TenantId != ambientScope.TenantId)
+        if (tenantId != ambientScope.TenantId)
         {
             throw new InvalidOperationException(
-                "Retrieval document TenantId does not match the current scope tenant. "
+                $"{entityLabel} TenantId does not match the current scope tenant. "
                 + "Index writes cannot cross tenant boundaries.");
         }
 
-        if (document.WorkspaceId != ambientScope.WorkspaceId)
+        if (workspaceId != ambientScope.WorkspaceId)
         {
             throw new InvalidOperationException(
-                "Retrieval document WorkspaceId does not match the current scope workspace.");
+                $"{entityLabel} WorkspaceId does not match the current scope workspace.");
         }
 
-        if (document.ProjectId != ambientScope.ProjectId)
+        if (projectId != ambientScope.ProjectId)
         {
             throw new InvalidOperationException(
-                "Retrieval document ProjectId does not match the current scope project.");
+                $"{entityLabel} ProjectId does not match the current scope project.");
         }
     }
 }
