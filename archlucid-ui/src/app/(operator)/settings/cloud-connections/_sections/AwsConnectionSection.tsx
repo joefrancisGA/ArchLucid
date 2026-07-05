@@ -17,6 +17,8 @@ import {
 } from "@/lib/api/aws-cloud-connections-api";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 
 function formatTimestamp(value: string | null): string {
   if (!value) {
@@ -47,6 +49,7 @@ function statusTagKind(status: string): EnterpriseStatusKind {
 }
 
 export function AwsConnectionSection() {
+  const canMutate = useOperateCapability();
   const [connections, setConnections] = useState<AwsTier2ConnectionResponse[]>([]);
   const [accountId, setAccountId] = useState("");
   const [region, setRegion] = useState("us-east-1");
@@ -85,6 +88,10 @@ export function AwsConnectionSection() {
   }, [refreshConnections]);
 
   const handleConnect = useCallback(async () => {
+    if (!canMutate) {
+      return;
+    }
+
     setFormError(null);
     setActionMessage(null);
 
@@ -128,10 +135,14 @@ export function AwsConnectionSection() {
     } finally {
       setIsSaving(false);
     }
-  }, [accountId, region, roleArn, refreshConnections]);
+  }, [accountId, canMutate, region, roleArn, refreshConnections]);
 
   const handleRePoll = useCallback(
     async (connection: AwsTier2ConnectionResponse) => {
+      if (!canMutate) {
+        return;
+      }
+
       setActionMessage(null);
       setFormError(null);
       setPollingConnectionId(connection.connectionId);
@@ -149,11 +160,15 @@ export function AwsConnectionSection() {
         setPollingConnectionId(null);
       }
     },
-    [refreshConnections],
+    [canMutate, refreshConnections],
   );
 
   const handleDisconnect = useCallback(
     async (connectionId: string) => {
+      if (!canMutate) {
+        return;
+      }
+
       setActionMessage(null);
       setFormError(null);
 
@@ -166,7 +181,7 @@ export function AwsConnectionSection() {
         setFormError("Could not disconnect the AWS connection.");
       }
     },
-    [refreshConnections],
+    [canMutate, refreshConnections],
   );
 
   return (
@@ -218,7 +233,8 @@ export function AwsConnectionSection() {
         <Button
           type="button"
           data-testid="aws-connect-submit"
-          disabled={isSaving}
+          disabled={isSaving || !canMutate}
+          title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
           onClick={() => void handleConnect()}
         >
           {isSaving ? "Saving…" : "Save AWS connection"}
@@ -261,7 +277,8 @@ export function AwsConnectionSection() {
                     type="button"
                     variant="secondary"
                     data-testid={`aws-repoll-${connection.connectionId}`}
-                    disabled={pollingConnectionId === connection.connectionId}
+                    disabled={pollingConnectionId === connection.connectionId || !canMutate}
+                    title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
                     onClick={() => void handleRePoll(connection)}
                   >
                     {pollingConnectionId === connection.connectionId ? "Polling…" : "Re-poll now"}
@@ -270,6 +287,8 @@ export function AwsConnectionSection() {
                     type="button"
                     variant="outline"
                     data-testid={`aws-disconnect-${connection.connectionId}`}
+                    disabled={!canMutate}
+                    title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
                     onClick={() => void handleDisconnect(connection.connectionId)}
                   >
                     Disconnect

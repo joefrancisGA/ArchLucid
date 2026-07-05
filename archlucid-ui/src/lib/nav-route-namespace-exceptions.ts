@@ -13,24 +13,6 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
   },
   {
     navGroupId: "operator-system-admin",
-    href: "/recommendation-learning",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "Employee-only recommendation tuning surface; top-level route until Internal Ops aliases (TB-408).",
-  },
-  {
-    navGroupId: "operator-system-admin",
-    href: "/product-learning",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "Employee-only pilot feedback analytics; top-level route until Internal Ops aliases (TB-408).",
-  },
-  {
-    navGroupId: "operator-system-admin",
-    href: "/planning",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "Improvement planning hub remains top-level while Operate analysis owns buyer-facing compare/advisory paths.",
-  },
-  {
-    navGroupId: "operator-system-admin",
     href: "/replay",
     canonicalPrefixes: ["/admin"],
     exceptionReason: "Validate review package tool duplicated under Internal Ops for employee diagnostics (also in Operate analysis history).",
@@ -42,45 +24,9 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
     exceptionReason: "Public-style API health page linked from Internal Ops for support bundle context.",
   },
   {
-    navGroupId: "operator-system-admin",
+    navGroupId: "operate-reports",
     href: "/digests",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "Digest subscriptions hub uses top-level route shared with Operate reporting workflows.",
-  },
-  {
-    navGroupId: "operator-system-admin",
-    href: "/value-report/pilot",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "Internal pilot value report variant; shares /value-report tree with Reports nav.",
-  },
-  {
-    navGroupId: "operator-system-admin",
-    href: "/value-report/roi",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "Internal ROI report variant; shares /value-report tree with Reports nav.",
-  },
-  {
-    navGroupId: "operator-system-admin",
-    href: "/settings/identity-providers",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "Identity catalog read surface uses settings App Router segment for SSO configuration parity.",
-  },
-  {
-    navGroupId: "operator-system-admin",
-    href: "/settings/identity/sso-wizard",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "SSO wizard lives under settings identity tree; gated to Internal Ops nav for platform operators.",
-  },
-  {
-    navGroupId: "operator-system-admin",
-    href: "/settings/api-keys",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "API key rotation UI uses settings segment; employee-only until tenant admin promotion decision.",
-  },
-  {
-    navGroupId: "operator-system-admin",
-    href: "/settings/scim-provisioning",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "SCIM provisioning UI uses settings segment; employee-only until tenant admin promotion decision.",
+    canonicalPrefixes: ["/scorecard", "/value-report"],
+    exceptionReason: "Digest subscriptions hub uses a top-level route; promoted from Internal Ops to Reports (governance-digest theme, nav placement audit 2026-07-05).",
   },
 ];

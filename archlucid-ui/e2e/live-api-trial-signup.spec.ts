@@ -190,7 +190,7 @@ test.describe("live-api-trial-signup", () => {
 
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
 
-    const manifestLink = page.locator("main").locator('a[href^="/manifests/"]').first();
+    const manifestLink = page.locator("main").locator('a[href^="/signed-records/"]').first();
 
     await expect(
       manifestLink,

@@ -1,6 +1,6 @@
 import type { LlmCostReportingDashboard } from "@/lib/llm-cost-reporting";
 
-export type CostReportingSettingsPageSurface = "demo" | "authority_loading" | "forbidden" | "admin";
+export type CostReportingSettingsPageSurface = "demo" | "authority_loading" | "forbidden" | "granted";
 
 export type CostReportingSettingsPageViewModel = {
   readonly surface: CostReportingSettingsPageSurface;

@@ -92,7 +92,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
       </fieldset>
       {!canMutate ? (
         <p className={OPERATOR_TYPOGRAPHY.helper}>
-          Operator or Administrator role required to generate sponsor reports.
+          Elevated workspace permissions required to generate sponsor reports.
         </p>
       ) : null}
       {canMutate && !hasReportData && !previewBusy ? (

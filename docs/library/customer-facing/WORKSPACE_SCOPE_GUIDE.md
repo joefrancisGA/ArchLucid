@@ -1,6 +1,6 @@
-> **Scope:** Customer-facing — how tenant, workspace, and project scope work in the operator UI, including the header scope switcher and sample workspace behavior.
+> **Scope:** Customer-facing — how tenant, workspace, and project scope work in the product UI, including the header scope switcher and sample workspace behavior.
 
-# Workspace guide
+# Workspace and scope guide
 
 ArchLucid isolates data by **tenant**, **workspace**, and **project**. The header scope switcher shows your current workspace and lets you change workspace and project when your tenant is connected.
 
@@ -8,7 +8,7 @@ ArchLucid isolates data by **tenant**, **workspace**, and **project**. The heade
 
 | Level | What it means |
 |-------|----------------|
-| **Tenant** | Your organization boundary. Tenant comes from sign-in and identity — you do not switch tenants from the scope switcher. |
+| **Tenant** | Your organization boundary. Tenant comes from sign-in and identity; you do not switch tenants from the scope switcher. |
 | **Workspace** | A team, program, or environment under the tenant. Reviews, findings, and exports belong to one workspace at a time. |
 | **Project** | A routing scope within the workspace. Most pilot flows use a single primary project. |
 
@@ -22,11 +22,11 @@ When you switch workspace or project, lists and review packages refresh to match
 
 If switching is disabled, you are in a local demo or sandbox with a fixed sample workspace. Your real workspace is unchanged.
 
-## Sample workspace (demo)
+## Sample workspace
 
-In buyer-polished demo mode, the header may show **Claims Intake Demo** with a **Sample** badge. That workspace uses demonstration data only. Workspace switching is disabled so evaluators can explore without affecting a real tenant.
+In demo mode, the header may show **Claims Intake Demo** with a **Sample** badge. This workspace contains demonstration data only — it is not your real tenant data. Workspace switching is disabled in demo mode so evaluators can explore without affecting a real tenant.
 
-To work in your tenant scope, sign in to a connected environment or ask your tenant admin for the correct workspace assignment.
+To work in your tenant scope, sign in to a connected environment. If you don't have access, ask your tenant admin for the correct workspace assignment.
 
 ## When content looks wrong
 
@@ -36,16 +36,16 @@ To work in your tenant scope, sign in to a connected environment or ask your ten
 | Review package not found | The link may belong to a different workspace or project |
 | Sample badge unexpected | Confirm whether you are in a demo or sandbox environment |
 
-For step-by-step recovery, open **Troubleshooting** in Help.
+For step-by-step recovery, open [Troubleshooting](/help/troubleshooting).
 
-## Tenant administration
+## Who manages scope
 
-Tenant name, access, and cost visibility are managed under **Settings → Tenant**. Workspace and project assignment is controlled by your tenant admin or identity provider integration.
+Tenant name, access, and visibility are managed in **Settings → Tenant**. Workspace and project assignment may be controlled by your tenant admin or identity provider integration.
 
 ## Related help
 
 | Topic | When to use it |
 |-------|----------------|
-| **Getting started** | First review and core concepts |
-| **Glossary** | Canonical definitions for tenant, workspace, and review package |
-| **Troubleshooting** | Symptom-first fixes when scope or API errors appear |
+| [Getting started](/help/getting-started) | First review and core concepts |
+| [Glossary](/help/glossary) | Canonical definitions for tenant, workspace, and review package |
+| [Troubleshooting](/help/troubleshooting) | Symptom-first fixes when scope or API errors appear |

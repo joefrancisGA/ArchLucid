@@ -57,8 +57,8 @@ Operational cleanup is **scheduled and gated**, not “unfinished V1 product.”
 | **Playwright** operator smoke may use **mocked** `/api/proxy`; it does not replace **SQL-backed** API + UI validation for a given release | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [V1_SCOPE.md](V1_SCOPE.md) §3 |
 | **Audit search** keyset cursor uses **`OccurredUtc` with optional `EventId` tie-break** (`GET /v1/audit/search?beforeUtc=…&beforeEventId=…`); clients must pass both when continuing past same-second events | [AuditController.cs](../../ArchLucid.Api/Controllers/Admin/AuditController.cs), operator audit UI “Load more” |
 | **CI — merged line ≥ 95% + coverage ratchet** | **Interim (2026-07):** **`.github/workflows/ci.yml`** (`dotnet-coverage-merge`) enforces merge-blocking **merged line ≥ 67%** (branch **54%**, per-product-package line **63%**; **`ArchLucid.Api`** package gate skipped until Integration HTTP tests collect Coverlet). **`assert_coverage_floor_ratchet.py`** + **`.coverage-floor`** (**69.00** anchor) are **enabled**. **V1.1 target:** ratchet **67 → 75 → 95%** merged line. Keep **`docs/engineering/BUILD.md`**, **`docs/library/coverage-exclusions.md`**, and **`docs/library/COVERAGE_GAP_ANALYSIS.md`** aligned with **`ci.yml`**. |
-| **Next.js major upgrade (`15.5.x` → `16.x`)** — isolated dependency/CI PR for `archlucid-ui` (`next`, `eslint-config-next`, codemods, full lint/Vitest/Playwright/standalone build) | [UI_ARCHITECTURE_V1_1.md](UI_ARCHITECTURE_V1_1.md) **§8**; V1 stays on **`next@^15.5.18`** + React 19 |
-| **Buyer-facing route aliases — remove "manifest" from browser URLs** — permanent redirects from `/manifests/*` and `/reviews/{id}/manifest` to product-language paths; API/persistence unchanged | **V1.1 backlog (TB-399).** V1 shipped on-page copy cleanup only (**TB-355** guard). URLs remain visible in the address bar until this item lands. See [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) **§9**. |
+| **Next.js major upgrade (`15.5.x` → `16.x`)** — isolated dependency/CI PR for `archlucid-ui` (`next`, `eslint-config-next`, codemods, full lint/Vitest/Playwright/standalone build) | **Done (2026-07-05, TB-641).** Landed **`next@^16.2.10`** + **`eslint-config-next@^16.2.10`**; Turbopack-default production build; ESLint flat config; Windows webpack-build-worker workaround removed. See [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) **§8** and `TECH_BACKLOG.md` **TB-641**. |
+| **Buyer-facing route aliases — remove "manifest" from browser URLs** — permanent redirects from `/manifests/*` and `/reviews/{id}/manifest` to product-language paths; API/persistence unchanged | **Done.** `TECH_BACKLOG.md` TB-399 was already marked Done 2026-06-27 (this row was stale); a 2026-07-05 backlog review found and closed a residual gap — one hardcoded internal `/manifests/{id}` link builder and two stale live-API E2E selectors. See [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) **§9** and `TECH_BACKLOG.md` TB-399. |
 
 ---
 
@@ -68,7 +68,7 @@ Docs describe **templates and gaps** that depend on **customer subscription and 
 
 | Item | Doc source |
 |------|------------|
-| **ACR** / production image store, extending CI to **push** images | [CONTAINERIZATION.md](CONTAINERIZATION.md) |
+| **ACR** / production image store, extending CI to **push** images | **Done — engineering side.** `.github/workflows/cd.yml` already builds/pushes both API and UI images to ACR and deploys to Container Apps (digest verification, canary support), fully gated on `ACR_LOGIN_SERVER`/`ACR_NAME`/`AZURE_RESOURCE_GROUP` GitHub secrets (owner-verified 2026-07-05: already configured). Remaining posture is purely operational (secrets/subscription), not missing code. [CONTAINERIZATION.md](CONTAINERIZATION.md) |
 | Subscription placement, naming, which Terraform roots to enable | Same doc — **organizational** follow-ups |
 
 ---
@@ -143,7 +143,7 @@ These commercial milestones are **explicitly release-window-pinned to V1.1** so 
 |---------------------|------------|---------------------------|
 | **SOC 2 Type I / II report (CPA-issued SOC examination)** — attestation tied to an independent CPA firm opinion; distinct from owner self-assessment. | **Out of V1** and **out of V1.1 as a headline scoring gate.** V1 posture is internally maintained **self-attested** SOC mapping + roadmap honesty + procurement templates (**do not imply** SOC 2 Type II is issued). **`(A)` assessments must not** treat absent CPA SOC 2 as a V1/V1.1 defect. Use **`(B)` procurement-realism`** (zero weight on **`(A)`**) when discussing enterprise RFP friction. | **V1.1 backlog (TB-135).** Organizational program kickoff when owner directs — not an assessment improvement batch. Track narrative timing in [`SOC2_ROADMAP.md`](../go-to-market/SOC2_ROADMAP.md) and [`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md); pinning dates requires [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md). |
 | **Third-party pen-test execution + redacted summary publication** — funded vendor engagement, SoW, assessor draft + final report, optional customer-shareable redacted summary and Trust Center metadata row. | **Out of V1** for **external** / third-party scope. V1 relies on **owner-conducted** testing + in-repo templates; see [`V1_SCOPE.md`](V1_SCOPE.md) §3. **Quality assessments:** do **not** penalize V1 readiness for lacking a third-party pen test. | **V1.1 backlog (TB-136).** Minimum commitment when picked up: select vendor, execute engagement, populate redacted summary working copy when applicable; update Trust Center when published. Calendar date is **not** pinned here. |
-| **PGP key drop for `security@archlucid.net` (coordinated-disclosure key)** — owner generates the keypair (or designates a custodian), drops the public key block at `archlucid-ui/public/.well-known/pgp-key.txt`, references it from [`SECURITY.md`](SECURITY.md), and updates the marketing `/security` page in the **same single PR** (per owner Q14, 2026-04-23, sixth pass). | **Out of V1.** No PGP key drop required for V1 GA. The recipe at [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](../security/PGP_KEY_GENERATION_RECIPE.md) stays in place; the CI guard that turns green when the key file appears stays in place. V1 quality assessments **do not** charge points against Trustworthiness for the absence of the PGP key. | **V1.1.** Minimum V1.1 commitment: public key block committed at `archlucid-ui/public/.well-known/pgp-key.txt`, `SECURITY.md` key-fingerprint reference updated, marketing `/security` page reference updated — all in the **same PR**. UID is gated on `archlucid.net` domain acquisition; default proposal is `ArchLucid Security <security@archlucid.net>`, but if the domain is never acquired the owner provides the alternate UID at V1.1 planning. Calendar date is **not** pinned by this decision. |
+| **PGP key drop for `security@archlucid.net` (coordinated-disclosure key)** — owner generates the keypair (or designates a custodian), drops the public key block at `archlucid-ui/public/.well-known/pgp-key.txt`, references it from [`SECURITY.md`](SECURITY.md), and updates the marketing `/security` page in the **same single PR** (per owner Q14, 2026-04-23, sixth pass). | **Done (verified 2026-07-05; this row was stale).** `archlucid-ui/public/.well-known/pgp-key.txt` is committed (well-formed armored public key block); `SECURITY.md` §"PGP / encrypted email" documents the key ID (`A97CAFF5332CB516`) and full fingerprint (`982C C022 D91D 3C09 FE9B F4E0 A97C AFF5 332C B516`); custodian record in [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](../security/PGP_KEY_GENERATION_RECIPE.md) shows first publish 2026-05-18, UID `ArchLucid Security <security@archlucid.net>` (domain confirmed acquired). No further action needed. | **Closed — was V1.1, superseded by shipped V1 posture above.** |
 
 **Rules:**
 
@@ -301,13 +301,11 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 **V1 GA stance (2026-05-30):** Bulk upload supports up to **200** multipart files per request (configurable via `ArchLucid:EvidenceBulkUploadMaxFiles`). **ZIP archive expansion** is supported server-side (one ZIP counts as one file; up to 1,000 expanded entries per archive). The operator UI advertises ZIP support.
 
-**V1.1 candidate (owner-visible gap only):**
-
-- **Browser folder recursion** — native `webkitdirectory` / drag-drop folder preservation (today: upload files or ZIP manually)
+**Rejected (owner, 2026-07-05):** Native browser folder recursion (`webkitdirectory` / drag-drop folder preservation) was considered as a V1.1 candidate and **rejected outright** — manual file selection and ZIP upload already cover this need. Not tracked anywhere as future work.
 
 **Rules:**
 
-- Do not log absent browser folder recursion as a V1 GA defect.
+- Do not log absent browser folder recursion as a V1 GA defect, and do not re-propose it as a future item — it was evaluated and rejected, not merely deferred.
 - Do not log the former 30-file cap or absent ZIP expansion as a V1 GA defect (both shipped in V1).
 
 ---
@@ -380,27 +378,11 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ---
 
-## 6p. Azure extractor — ArchLucid-hosted automated Tier-2 continuous polling (**V1.x / post-V1 GA**) (architecture decision 2026-05-23)
+## 6p. Azure extractor — ArchLucid-hosted automated Tier-2 continuous polling — **closed 2026-07-05 (core shipped; residual moved to V1 backlog)**
 
-**V1 GA posture:** Tier 1 (customer-run PowerShell ZIP upload) is the V1 GA contract per [V1_SCOPE.md](V1_SCOPE.md) **§2.16**. **On-demand** Tier 2 hosted collection (`POST /v1/admin/azure-extractor/hosted/run`) and **leader-elected auto-pull** (`AzureExtractorAutoPullHostedService` → ingest pipeline) **ship in V1 GA** when operators enable `HostedAzureExtractor:Enabled` and `AzureExtractor:AutoPull:Enabled` (default `false`).
+**Resolution:** The core capability this section tracked (`AzureExtractorAutoPullHostedService` leader-elected continuous pull, WIF-based credential exchange, on-demand hosted collection) is **shipped in V1 GA** — see [V1_SCOPE.md](V1_SCOPE.md) **§2.16**, which now also carries the two remaining residual items (hosted Cost Management merge, auto-pull cadence runbooks) as **V1 backlog** rather than a "V1.x/post-GA" deferral. This section is retained only as a pointer; do not re-open it as a separate deferred item.
 
-**Deferred (V1.x):** ArchLucid-hosted Cost Management merge on the GET-only ARM path; operational runbooks for fleet-scale auto-pull cadence tuning.
-
-| Item | V1 GA posture | When promoted |
-|------|---------------|---------------|
-| **`AzureExtractorAutoPullHostedService` continuous pull** | **Shipped** — WIF collection + ingest via `HostedAzureExtractorRunService`; leader-elected loop; per-subscription lock. Default **off** (`AzureExtractor:AutoPull:Enabled=false`). | **V1.x** for hosted cost merge + ops hardening. |
-
-**Architecture pattern (resolved):**
-
-- **Customer-owned automation (Tier 2 continuous, today):** Customer schedules `Get-ArchLucidAzurePackage.ps1` and uploads via CI — see [`AZURE_EXTRACTOR_TIER2_CONTINUOUS.md`](../runbooks/AZURE_EXTRACTOR_TIER2_CONTINUOUS.md).
-- **ArchLucid-hosted automated polling (approved):** Customer-provisioned **read-only service principal** with **`Reader`** + **`Cost Management Reader`**. Customer trusts ArchLucid's **user-assigned managed identity** via **federated workload identity** (preferred over long-lived secrets). ArchLucid stores only `{ customerTenantId, customerAppId, subscriptionId, includeCost }` — **never** customer client secrets. The leader-elected worker exchanges the ArchLucid MI token for a customer SP token via **`ClientAssertionCredential`** / `api://AzureADTokenExchange` (`WorkloadIdentityHostedAzureExtractorCredentialFactory`). Collection flows through **`HostedAzureExtractorClient`** into the existing upload/audit pipeline.
-
-Canonical detail: [AZURE_EXTRACTOR.md](AZURE_EXTRACTOR.md) (Automated continuous pull).
-
-**Rules:**
-
-- **`(A)` V1 assessments** must **not** penalize absence of ArchLucid-hosted automated polling; Tier 1 + optional on-demand Tier 2 satisfy V1 GA per **§2.16**.
-- Do **not** adopt a multi-tenant Entra application model that stores or rotates customer client secrets — **cross-tenant WIF** is the approved design.
+**Architecture pattern (resolved, for reference):** Customer-provisioned read-only service principal (`Reader` + `Cost Management Reader`); ArchLucid's managed identity exchanges tokens via federated workload identity (`ClientAssertionCredential` / `api://AzureADTokenExchange`, `WorkloadIdentityHostedAzureExtractorCredentialFactory`) — never long-lived customer secrets. Canonical detail: [AZURE_EXTRACTOR.md](AZURE_EXTRACTOR.md).
 
 ---
 
@@ -416,7 +398,7 @@ Canonical detail: [AZURE_EXTRACTOR.md](AZURE_EXTRACTOR.md) (Automated continuous
 |----|-------|----------|----------------|
 | **RAG-V1.1-001** | Reference-architecture exemplar retrieval | Exemplar indexer + Topology agent style-prior injection (fail-open) | Owner-curated exemplar library; fingerprint-based matching |
 | **RAG-V1.1-002** | MCP read-only retrieval tools (3 tools) | HTTP bridge at `/v1/mcp/retrieval/*` (non-GA) | Streamable HTTP MCP membrane; **not** the seven governance tools in MCP §5.1 (**CPB-D02**) |
-| **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | `GraphRagNeighborExpander` ships bounded multi-hop neighbor expansion (cycle-safe BFS, hop budget default 2, `MaxGraphTraversalHops` config), DI-wired by default (**not** "None" remainder); **TB-597 closed 2026-07-03** | **Community summarization** and ablation-isolated quality proof remain out of scope. The feature's own production-config lint (`GraphRagProductionLikeConfigurationLint.cs`) states verbatim quality is **"unproven without a production vector index."** No ablation eval isolates its quality contribution. See **TB-595**, **TB-596**. |
+| **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | `GraphRagNeighborExpander` ships bounded multi-hop neighbor expansion (cycle-safe BFS, hop budget default 2, `MaxGraphTraversalHops` config), DI-wired by default (**not** "None" remainder); **TB-597 closed 2026-07-03** | **Community summarization** and ablation-isolated quality proof remain out of scope. The feature's own production-config lint (`GraphRagProductionLikeConfigurationLint.cs`) states verbatim quality is **"unproven without a production vector index."** No ablation eval isolates its quality contribution. See **TB-595**, **TB-596**. **Community summarization scope decision (2026-07-05):** [ADR 0057](../architecture/adrs/0057-graph-rag-community-summarization-scope-decision.md) records three options (implement now / defer / ablation-spike-first) and recommends **keeping this deferred**, unchanged, pending G-REAL-06 pilot signal specifically about graph depth beyond bounded multi-hop. |
 | **RAG-V2-002** | Single-pass query expansion (HyDE, query rewrite, semantic rerank) | `AgenticRetrievalCompletionClient` ships real LLM-backed rewrite + HyDE with fail-open heuristic fallback; reranking via real Azure AI Search semantic ranker (**not** "None" remainder). Buyer-facing term: **single-pass query expansion + managed semantic reranking** — **TB-598 closed 2026-07-04** (owner chose relabel; iterative retrieve-critique-retry loop deferred pending G-REAL-06 pilot signal) | **Single-shot** query rewrite + single-shot HyDE, not iterative/multi-hop retrieval. Per-flag quality contribution isolated on golden fixtures via **TB-595**. Internal `Agentic*` type names retained for API stability. |
 | **RAG-V2-003** | Online fine-tuning on accepted manifests | **Foundation shipped (2026-07-03, TB-594)** — ADR 0056, DPA addendum, consent-gated export, orchestration seam, registry, eval gate; **off by default** until tenant opt-in + promotion. Remainder: wire promoted deployment into live agent completion routing. | **Partial remainder** — engineering foundation complete; runtime routing + live Azure job hardening remain. See **TB-594**. |
 

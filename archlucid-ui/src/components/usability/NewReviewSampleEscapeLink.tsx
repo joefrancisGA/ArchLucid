@@ -24,6 +24,7 @@ export function NewReviewSampleEscapeLink(props: { readonly className?: string }
       >
         {NEW_REVIEW_SAMPLE_ESCAPE_CTA}
       </Link>
+      .
     </p>
   );
 }

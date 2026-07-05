@@ -31,20 +31,55 @@ function runPackageExportHref(runId: string, format: "docx" | "pdf" | "html"): s
   return `/api/proxy/v1/runs/${encodeURIComponent(runId)}/export/${format}`;
 }
 
-function BuyerExecutiveBriefExports({ runId }: { runId: string }) {
+/** Shown instead of a live download link when the page is rendering curated sample data (no backend-persisted review). */
+const SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT =
+  "Downloads aren't available for this sample review package. Start a review with your own input to export a package.";
+
+function BuyerExecutiveBriefExports({ runId, usedStaticDemoRun }: { runId: string; usedStaticDemoRun: boolean }) {
   return (
     <details className="text-right">
       <summary className={cn("cursor-pointer list-none marker:content-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK.nav)}>
         Download executive brief
       </summary>
       <div className="mt-2">
-        <RunPackageExportButtons runId={runId} />
+        <RunPackageExportButtons runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
       </div>
     </details>
   );
 }
 
-function RunPackageExportButtons({ runId }: { runId: string }) {
+function DisabledExportButton({ label }: { label: string }) {
+  return (
+    <Button variant="outline" size="sm" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>
+      <Download className="mr-2 h-4 w-4" />
+      {label}
+    </Button>
+  );
+}
+
+function RunPackageExportButtons({
+  runId,
+  usedStaticDemoRun,
+}: {
+  runId: string;
+  usedStaticDemoRun: boolean;
+}) {
+  if (usedStaticDemoRun) {
+    return (
+      <div className="mt-1 flex flex-col gap-2">
+        <div className="flex flex-wrap gap-2">
+          <DisabledExportButton label={RUN_PACKAGE_EXPORT_LABELS.docx} />
+          <DisabledExportButton label={RUN_PACKAGE_EXPORT_LABELS.pdf} />
+          <DisabledExportButton label={RUN_PACKAGE_EXPORT_LABELS.html} />
+          <DisabledExportButton label="Download Executive Summary" />
+        </div>
+        <p className={cn("m-0 max-w-xs text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-1 flex flex-wrap gap-2">
       <Button variant="outline" size="sm" asChild>
@@ -92,6 +127,8 @@ export type RunDetailPageHeaderProps = {
   commitBlockedReason?: string | null;
   /** Open governance alerts linked to this review (TB-107). */
   hasGovernanceWarnings?: boolean;
+  /** True when this page rendered curated sample data instead of a backend-persisted review (no exportable run). */
+  usedStaticDemoRun?: boolean;
 };
 
 /**
@@ -108,6 +145,7 @@ export function RunDetailPageHeader({
   buyerHeaderStatusCaption,
   commitBlockedReason,
   hasGovernanceWarnings,
+  usedStaticDemoRun = false,
 }: RunDetailPageHeaderProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
@@ -242,7 +280,9 @@ export function RunDetailPageHeader({
               ) : (
                 <p className={cn("m-0 font-semibold text-neutral-950 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>Finalized package</p>
               )}
-              {hasGoldenManifest ? <BuyerExecutiveBriefExports runId={runId} /> : null}
+              {hasGoldenManifest ? (
+                <BuyerExecutiveBriefExports runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
+              ) : null}
             </div>
           ) : (
             <div id="finalize-review" className="flex shrink-0 scroll-mt-24 flex-col gap-1.5">
@@ -260,7 +300,9 @@ export function RunDetailPageHeader({
                 </Badge>
               ) : null}
               <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
-              {hasGoldenManifest ? <BuyerExecutiveBriefExports runId={runId} /> : null}
+              {hasGoldenManifest ? (
+                <BuyerExecutiveBriefExports runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
+              ) : null}
               <div className={cn("m-0 flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 <span className="whitespace-nowrap">{approvalStatusLabel}</span>
                 <ContextualHelp helpKey="governance-gate" placement="left" />
@@ -283,7 +325,9 @@ export function RunDetailPageHeader({
               </Badge>
             ) : null}
             <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
-            {hasGoldenManifest ? <RunPackageExportButtons runId={runId} /> : null}
+            {hasGoldenManifest ? (
+              <RunPackageExportButtons runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
+            ) : null}
             <div className={cn("m-0 flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               <span className="whitespace-nowrap">{approvalCheckLabel}</span>
               <ContextualHelp helpKey="governance-gate" placement="left" />

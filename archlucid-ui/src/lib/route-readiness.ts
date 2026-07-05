@@ -40,7 +40,6 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/integrations/operations": "advanced-only",
   "/settings/ai-usage": "admin-only",
   "/settings/cost-reporting": "admin-only",
-  "/admin/ai-cost-diagnostics": "admin-only",
   "/governance/first-30-days": "advanced-only",
   "/governance": "advanced-only",
   "/governance/dashboard": "advanced-only",
@@ -55,8 +54,8 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/alerts": "advanced-only",
   "/demo/explain": "hidden",
 
-  "/product-learning": "hidden",
-  "/recommendation-learning": "hidden",
+  "/product-learning": "advanced-only",
+  "/recommendation-learning": "advanced-only",
   "/digest-subscriptions": "advanced-only",
   "/admin/health": "admin-only",
   "/admin/configuration": "admin-only",

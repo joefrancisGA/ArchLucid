@@ -16,13 +16,11 @@ export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [
     href: "/value-report/pilot",
     label: "Pilot outcomes",
     match: (path: string) => path.startsWith("/value-report/pilot"),
-    internalOnly: true,
   },
   {
     href: "/value-report/roi",
     label: "ROI summary",
     match: (path: string) => path.startsWith("/value-report/roi"),
-    internalOnly: true,
   },
   {
     href: "/scorecard",
@@ -31,7 +29,11 @@ export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [
   },
 ] as const;
 
-/** Mirrors sidebar `operator-system-admin` gating for internal ROI/pilot value-report variants (TB-605). */
+/**
+ * Pilot outcomes and ROI summary moved from Internal Operations to the Reports sidebar group (nav placement
+ * audit, 2026-07-05) — both hit `RequiresCommercialTenantTier` + ReadAuthority endpoints, same as Sponsor report
+ * and Executive scorecard, so the tab strip no longer hides them behind `showSystemAdministrationNav` (was TB-605).
+ */
 export function resolveVisibleValueReportOutcomesTabs(
   showSystemAdministrationNav: boolean,
 ): readonly ValueReportOutcomesTab[] {

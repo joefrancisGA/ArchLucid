@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
+import { DismissControl } from "@/components/usability/DismissControl";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
 function explainViewDismissKey(pathname: string): string {

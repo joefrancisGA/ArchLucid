@@ -93,6 +93,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   servicenow: "ServiceNow",
   slack: "Slack",
   webhooks: "Webhooks",
+  scope: "Workspace and scope",
 };
 
 /**

@@ -226,7 +226,7 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
 
-    const manifestLink = page.locator("main").locator('a[href^="/manifests/"]').first();
+    const manifestLink = page.locator("main").locator('a[href^="/signed-records/"]').first();
 
     await expect(manifestLink, "Sample run should link a manifest once summaries hydrate.").toBeVisible({
       timeout: 120_000,

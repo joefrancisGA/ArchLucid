@@ -33,6 +33,12 @@ public static class ObservabilityExtensions
     /// <c>ObservabilityTraceSamplingConfigurator</c>. Use collector tail sampling for additional retention rules.
     /// </para>
     /// <para>
+    /// <strong>Health-check noise:</strong> ASP.NET Core trace instrumentation filters out requests under
+    /// <c>/health</c> (see <see cref="IsHealthCheckRequest"/>) so recurring liveness/readiness probes (container
+    /// orchestrator checks, local <c>Dockerfile HEALTHCHECK</c> polling) never reach the console, OTLP, or
+    /// Azure Monitor trace exporters.
+    /// </para>
+    /// <para>
     /// <strong>OTLP:</strong> When <c>Observability:Otlp:Endpoint</c> is non-empty, trace and metric OTLP exporters
     /// are registered by default. Set <c>Observability:Otlp:Enabled</c> to <c>false</c> to force OTLP off even if
     /// an endpoint string is present (kill-switch). When the endpoint is empty, OTLP is always off.
@@ -121,7 +127,8 @@ public static class ObservabilityExtensions
             {
                 ObservabilityTraceSamplingConfigurator.ConfigureTraceSampling(tracing, configuration);
 
-                tracing.AddAspNetCoreInstrumentation();
+                tracing.AddAspNetCoreInstrumentation(
+                    options => options.Filter = static httpContext => !IsHealthCheckRequest(httpContext));
                 tracing.AddHttpClientInstrumentation();
                 tracing.AddArchLucidSqlClientInstrumentation();
                 tracing.AddSource(
@@ -193,4 +200,12 @@ public static class ObservabilityExtensions
 
         return services;
     }
+
+    /// <summary>
+    /// Excludes health-probe requests (<c>/health</c> and sub-paths, e.g. <c>/health/live</c>) from ASP.NET Core
+    /// trace instrumentation so recurring liveness/readiness polling does not flood the console exporter or
+    /// downstream trace backends with low-value spans.
+    /// </summary>
+    private static bool IsHealthCheckRequest(HttpContext httpContext) =>
+        httpContext.Request.Path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase);
 }

@@ -17,7 +17,10 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   },
   "governance-gate": {
     text: "When enabled, governance approval rules check findings against severity thresholds before allowing finalization.",
-    learnMoreUrl: "/docs/CORE_PILOT.md#governance-gate",
+    // Points at the governance-lead recipe's severity/policy-gate walkthrough (resolves to
+    // /help/evidence-intake, this doc's canonical topic per DOC_PATH_TO_SLUG), not CORE_PILOT.md
+    // (which has no matching anchor) — see the `{#governance-gate}` heading anchor in that doc.
+    learnMoreUrl: "/docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md#governance-gate",
   },
 };
 

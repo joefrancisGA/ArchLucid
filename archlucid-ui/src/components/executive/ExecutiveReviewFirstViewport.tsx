@@ -131,9 +131,9 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
 
   const finalDecisionCaption = buildBuyerReviewPackageDispositionLine({
     hasGoldenManifest: true,
-    findingCountDisplay: summary.findingCount,
+    findingCountDisplay: summary.findingCount ?? null,
     warningCountDisplay: null,
-    unresolvedIssueCountDisplay: summary.unresolvedIssueCount,
+    unresolvedIssueCountDisplay: summary.unresolvedIssueCount ?? null,
     governanceGateLabel: null,
     aggregateRiskPosture: summary.riskPosture,
   });

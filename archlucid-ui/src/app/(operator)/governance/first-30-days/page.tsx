@@ -6,10 +6,11 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export const metadata: Metadata = {
-  title: "First 30 days — governance operating preset",
+  title: "Governance setup guide",
 };
 
 /**
@@ -19,8 +20,8 @@ export default function FirstThirtyDaysGovernancePage() {
   return (
     <div className="w-full max-w-3xl space-y-6 px-1 py-4 sm:px-0">
       <OperatorPageHeader
-        title="First 30 days — governance operating preset"
-        subtitle="A minimal enterprise rhythm: one policy baseline, one alert route, one approval SLA story, and one dashboard anchor."
+        title={OPERATOR_NAV_LINK_LABELS.governanceSetupGuide}
+        subtitle="A minimal enterprise rhythm for your first 30 days: one policy baseline, one alert route, one approval SLA story, and one dashboard anchor."
       />
       <LayerHeader pageKey="governance-first-30-days" />
 

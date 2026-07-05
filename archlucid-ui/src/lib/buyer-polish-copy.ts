@@ -137,9 +137,9 @@ export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY =
 export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY_FIRST_RUN =
   "Workspace readiness signals.";
 
-export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Not ready to configure?";
+export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Start with an example:";
 
-export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Skip setup — see a finished package";
+export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Skip setup and open a completed sample package";
 
 /** Streamlined first-run lead on `/reviews/new` — avoids path-switcher jargon above the fold. */
 export const REVIEWS_NEW_PAGE_LEAD =

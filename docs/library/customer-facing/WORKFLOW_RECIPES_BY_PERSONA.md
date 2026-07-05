@@ -29,7 +29,7 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 
 ---
 
-## 2) Governance lead: critical finding to approval / policy gate
+## 2) Governance lead: critical finding to approval / policy gate {#governance-gate}
 
 **Goal:** Move from **material findings** on a run to an auditable **approval** or **pre-commit gate** posture (policy packs, dry runs, promotions where you use environments).
 

@@ -1,4 +1,5 @@
 import { findingInspectHref } from "@/lib/finding-policy-evidence-citations";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 import type { RetrievalHit } from "./retrieval-hit";
@@ -120,7 +121,7 @@ function reviewPackageHref(runId: string): RetrievalHitActionLink {
 
 function manifestHref(manifestId: string): RetrievalHitActionLink {
   return {
-    href: `/manifests/${encodeURIComponent(manifestId)}`,
+    href: signedRecordDetailPath(manifestId),
     label: `Open ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
   };
 }

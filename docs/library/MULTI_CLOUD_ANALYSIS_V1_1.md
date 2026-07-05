@@ -1,10 +1,10 @@
-> **Scope:** V1.1 engineering deliverable — analyze AWS and GCP customer architectures while ArchLucid remains hosted on Azure (ADR 0020). Not a buyer procurement document; not a commitment to re-host ArchLucid on AWS or GCP.
+> **Scope:** **Promoted to V1** (owner scope 2026-07-05; supersedes the V1.1 deferral below). Analyze AWS and GCP customer architectures while ArchLucid remains hosted on Azure (ADR 0020). Not a buyer procurement document; not a commitment to re-host ArchLucid on AWS or GCP.
 
-# Multi-cloud architecture analysis — V1.1 deliverable
+# Multi-cloud architecture analysis — V1 deliverable (filename/title retained for history)
 
 **Audience:** Product, engineering, pilots, and assessments.
 
-**Relationship:** [V1_SCOPE.md](V1_SCOPE.md) **§2.19** (buyer-contract summary). [ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md) (hosting stays Azure). [V1_DEFERRED.md §6n](V1_DEFERRED.md) (deferred-inventory row).
+**Relationship:** [V1_SCOPE.md](V1_SCOPE.md) **§2.19** (buyer-contract summary, now V1). [ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md) (hosting stays Azure). [V1_DEFERRED.md §6n](V1_DEFERRED.md) (promotion record — Tier 2 hosted polling for AWS/GCP already shipped as TB-402/TB-403).
 
 ---
 

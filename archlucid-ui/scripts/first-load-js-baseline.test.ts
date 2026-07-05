@@ -7,6 +7,7 @@ import {
   DEFAULT_BASELINE_RELATIVE_PATH,
   TRACKED_ROUTES,
   compareFirstLoadJsBudget,
+  isNext16BuildLogWithoutFirstLoadJsTable,
   parseNextBuildFirstLoadJsKb,
   readBaseline,
 } from "./first-load-js-baseline.mjs";
@@ -21,6 +22,17 @@ Route (app)                                             Size  First Load JS  Rev
 `;
 
 describe("first-load-js-baseline (TB-573)", () => {
+  it("detects Next.js 16+ build logs that omit First Load JS columns", () => {
+    const next16Log = `
+Route (app)                                          Revalidate  Expire
+├ ○ /welcome                                                 5m      1y
+├ ƒ /reviews
+`;
+
+    expect(isNext16BuildLogWithoutFirstLoadJsTable(next16Log)).toBe(true);
+    expect(isNext16BuildLogWithoutFirstLoadJsTable(FIXTURE_LOG)).toBe(false);
+  });
+
   it("parses First Load JS per route from Next.js build output", () => {
     const routes = parseNextBuildFirstLoadJsKb(FIXTURE_LOG);
 

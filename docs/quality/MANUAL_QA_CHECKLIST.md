@@ -508,7 +508,7 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Executive workspace health** | `/governance/dashboard` | [ ] |
 | **Decision register** | `/governance/decision-register` | [ ] |
 | **Approval lineage** | `/governance/approval-requests/{id}/lineage` | [ ] |
-| **First 30 days (governance)** | `/governance/first-30-days` | [ ] |
+| **Governance setup guide** | `/governance/first-30-days` | [ ] |
 | **Audit trail** | `/audit` | [ ] |
 | **Security & trust (operator workspace)** | `/workspace/security-trust` | [ ] |
 | **Teams notifications** | `/integrations/teams` | [ ] |
@@ -726,7 +726,7 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 | Governance workflow | `/governance` | **Governance → Governance workflow**, or **Review journey** step **4. Governance approval**. |
 | Executive workspace health | `/governance/dashboard` | Type URL or **Ctrl+K** → “Executive Workspace Health” (not primary sidebar; buyer shell may redirect to workflow). |
 | Decision register | `/governance/decision-register` | **Ctrl+K** → “Decision register”, or governance area cross-links. |
-| First 30 days | `/governance/first-30-days` | **Governance → First 30 days (governance)**. |
+| Governance setup guide | `/governance/first-30-days` | **Governance → Governance setup guide**. |
 | Audit trail | `/audit` | **Governance → Audit trail**, or **Review journey** step **5. Audit trail**. |
 | Security & trust (operator) | `/workspace/security-trust` | **Governance → Security & trust**. |
 | Teams notifications | `/integrations/teams` | **Governance → Teams notifications**. |

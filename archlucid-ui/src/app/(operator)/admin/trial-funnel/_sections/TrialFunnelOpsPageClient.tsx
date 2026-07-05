@@ -65,7 +65,7 @@ export function TrialFunnelOpsPageClient() {
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="trial-funnel-ops-page">
       <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Trial-to-paid funnel</h1>
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Trial funnel</h1>
         <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Trailing 30-day signup, first commit, conversion, and estimated first-review LLM COGS bands. Sales-led checkout
           remains deferred — no live Stripe claims here.

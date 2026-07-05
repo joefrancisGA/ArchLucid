@@ -17,7 +17,11 @@ import {
 } from "@/lib/api/cloud-connections-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { showError, showSuccess } from "@/lib/toast";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 
 import {
   hasTier2FieldValidationErrors,
@@ -53,6 +57,11 @@ function resolveApiErrorMessage(error: unknown, fallback: string): string {
 }
 
 export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
+  const canMutate = useOperateCapability();
+  // The hosted validation-run endpoint (/v1/admin/azure-extractor/hosted/run) is AdminAuthority-gated, stricter than
+  // the ExecuteAuthority "save connection" step — checked separately so non-Admin Execute-tier callers don't hit a
+  // dead-end 403 on a live-looking button.
+  const canRunValidation = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const [step, setStep] = useState(0);
   const [checklist, setChecklist] = useState<Record<string, boolean>>(() => createInitialChecklistState());
   const [tenantId, setTenantId] = useState("");
@@ -114,6 +123,10 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
   }, []);
 
   const handleSave = useCallback(async () => {
+    if (!canMutate) {
+      return;
+    }
+
     if (!validateFields()) {
       setStep(2);
 
@@ -140,9 +153,13 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
     } finally {
       setIsSaving(false);
     }
-  }, [clientId, onSaved, subscriptionIds, tenantId, validateFields]);
+  }, [canMutate, clientId, onSaved, subscriptionIds, tenantId, validateFields]);
 
   const handleValidateHostedRun = useCallback(async () => {
+    if (!canRunValidation) {
+      return;
+    }
+
     const firstSubscriptionId = parseFirstTier2SubscriptionId(subscriptionIds);
 
     if (firstSubscriptionId === null) {
@@ -170,7 +187,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
     } finally {
       setIsValidating(false);
     }
-  }, [subscriptionIds]);
+  }, [canRunValidation, subscriptionIds]);
 
   const handleCopyScript = useCallback(async () => {
     try {
@@ -401,11 +418,18 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
                 type="button"
                 variant="outline"
                 data-testid="tier2-validate-hosted-run"
-                disabled={isValidating}
+                disabled={isValidating || !canRunValidation}
+                title={canRunValidation ? undefined : enterpriseMutationControlDisabledTitle}
                 onClick={() => void handleValidateHostedRun()}
               >
                 {isValidating ? "Validating…" : "Run validation pull"}
               </Button>
+
+              {!canRunValidation ? (
+                <p className={OPERATOR_TYPOGRAPHY.helper}>
+                  Administrator role required to run a hosted validation pull.
+                </p>
+              ) : null}
 
               {validationMessage ? (
                 <p
@@ -433,6 +457,12 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
             </Link>
             .
           </p>
+
+          {!canMutate ? (
+            <p className={OPERATOR_TYPOGRAPHY.helper}>
+              Elevated workspace permissions required to save a cloud connection.
+            </p>
+          ) : null}
         </section>
       ) : null}
 
@@ -440,7 +470,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
         isFirstStep={step === 0}
         isLastInputStep={step === TIER2_CONNECTION_WIZARD_STEPS.length - 1}
         canProceed={canProceed}
-        canSubmit={savedConnection === null}
+        canSubmit={savedConnection === null && canMutate}
         submitting={isSaving}
         onBack={step > 0 ? handleBack : undefined}
         onNext={step < TIER2_CONNECTION_WIZARD_STEPS.length - 1 ? handleNext : undefined}

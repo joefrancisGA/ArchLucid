@@ -8,9 +8,17 @@ import {
 
   CreditCard,
 
+  Fingerprint,
+
+  KeyRound,
+
   LifeBuoy,
 
   ShieldCheck,
+
+  UserCog,
+
+  UserPlus,
 
   Users,
 
@@ -78,6 +86,70 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
+          href: "/settings/identity-providers",
+
+          label: "Identity providers",
+
+          title: "Identity providers — OIDC authority and audience (read-only catalog row)",
+
+          icon: Fingerprint,
+
+          tier: "advanced",
+
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
+          href: "/settings/identity/sso-wizard",
+
+          label: "SSO wizard",
+
+          title: "SSO wizard — guided OIDC / SAML 2.0 tenant configuration",
+
+          icon: UserCog,
+
+          tier: "advanced",
+
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
+          href: "/settings/api-keys",
+
+          label: "API keys",
+
+          title: "API keys — host Authentication:ApiKey status and rotation material",
+
+          icon: KeyRound,
+
+          tier: "advanced",
+
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
+          href: "/settings/scim-provisioning",
+
+          label: "SCIM provisioning",
+
+          title: "SCIM provisioning — inbound bearer tokens and connectivity verification",
+
+          icon: UserPlus,
+
+          tier: "advanced",
+
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
           href: "/settings/billing",
 
           label: "Billing & plans",
@@ -104,7 +176,9 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           tier: "extended",
 
-          requiredAuthority: "AdminAuthority",
+          // Read-only report — TenantLlmCostReportingController is ReadAuthority and this page has no mutations,
+          // so the nav gate matches the backend instead of the stricter AdminAuthority it previously required.
+          requiredAuthority: "ReadAuthority",
 
         },
 

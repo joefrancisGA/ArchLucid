@@ -33,13 +33,26 @@ vi.mock("./_sections/load-cost-reporting-settings-page-data", () => ({
 import CostReportingSettingsPage from "./page";
 
 describe("CostReportingSettingsPage", () => {
-  it("blocks non-admins", async () => {
-    nav.callerAuthorityRank = 2;
+  it("blocks callers without read authority", async () => {
+    nav.callerAuthorityRank = 0;
 
     const page = await CostReportingSettingsPage();
 
     render(page);
     expect(screen.getByTestId("cost-reporting-forbidden")).toBeInTheDocument();
+    nav.callerAuthorityRank = 3;
+  });
+
+  it("allows non-admin Read-authority callers to view the report", async () => {
+    nav.callerAuthorityRank = 2;
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("x", { status: 404 })));
+
+    const page = await CostReportingSettingsPage();
+
+    render(page);
+    expect(await screen.findByTestId("cost-reporting-mock-banner")).toBeInTheDocument();
+    expect(screen.queryByTestId("cost-reporting-forbidden")).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
     nav.callerAuthorityRank = 3;
   });
 

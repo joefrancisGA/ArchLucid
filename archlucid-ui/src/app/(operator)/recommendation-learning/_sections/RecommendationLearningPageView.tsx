@@ -9,6 +9,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
 import type { RecommendationLearningPageViewModel } from "./recommendation-learning-page-view-model";
 import {
@@ -65,10 +66,22 @@ export function RecommendationLearningPageView(props: Props) {
         <Button type="button" onClick={() => void m.loadLatest()} disabled={m.loading}>
           Load current tuning profile
         </Button>
-        <Button type="button" variant="outline" onClick={() => void m.rebuild()} disabled={m.loading}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => void m.rebuild()}
+          disabled={m.loading || !m.canMutate}
+          title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+        >
           Rebuild tuning profile
         </Button>
       </div>
+
+      {!m.canMutate ? (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Elevated workspace permissions required to rebuild the tuning profile.
+        </p>
+      ) : null}
 
       {m.failure !== null ? (
         <div role="alert">

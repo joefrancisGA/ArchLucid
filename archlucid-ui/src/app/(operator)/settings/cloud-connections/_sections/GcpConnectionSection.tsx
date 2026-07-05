@@ -15,6 +15,8 @@ import {
   triggerGcpTier2HostedRun,
 } from "@/lib/api/gcp-cloud-connections-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 
 function formatTimestamp(value: string | null): string {
   if (!value) {
@@ -44,6 +46,7 @@ function statusBadgeClass(status: string): string {
 }
 
 export function GcpConnectionSection() {
+  const canMutate = useOperateCapability();
   const [connections, setConnections] = useState<GcpTier2ConnectionResponse[]>([]);
   const [projectId, setProjectId] = useState("");
   const [workloadIdentityPoolProvider, setWorkloadIdentityPoolProvider] = useState("");
@@ -82,6 +85,10 @@ export function GcpConnectionSection() {
   }, [refreshConnections]);
 
   const handleConnect = useCallback(async () => {
+    if (!canMutate) {
+      return;
+    }
+
     setFormError(null);
     setActionMessage(null);
 
@@ -126,10 +133,14 @@ export function GcpConnectionSection() {
     } finally {
       setIsSaving(false);
     }
-  }, [projectId, workloadIdentityPoolProvider, serviceAccountEmail, refreshConnections]);
+  }, [canMutate, projectId, workloadIdentityPoolProvider, serviceAccountEmail, refreshConnections]);
 
   const handleRePoll = useCallback(
     async (connection: GcpTier2ConnectionResponse) => {
+      if (!canMutate) {
+        return;
+      }
+
       setActionMessage(null);
       setFormError(null);
       setPollingConnectionId(connection.connectionId);
@@ -147,11 +158,15 @@ export function GcpConnectionSection() {
         setPollingConnectionId(null);
       }
     },
-    [refreshConnections],
+    [canMutate, refreshConnections],
   );
 
   const handleDisconnect = useCallback(
     async (connectionId: string) => {
+      if (!canMutate) {
+        return;
+      }
+
       setActionMessage(null);
       setFormError(null);
 
@@ -164,7 +179,7 @@ export function GcpConnectionSection() {
         setFormError("Could not disconnect the GCP connection.");
       }
     },
-    [refreshConnections],
+    [canMutate, refreshConnections],
   );
 
   return (
@@ -216,7 +231,8 @@ export function GcpConnectionSection() {
         <Button
           type="button"
           data-testid="gcp-connect-submit"
-          disabled={isSaving}
+          disabled={isSaving || !canMutate}
+          title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
           onClick={() => void handleConnect()}
         >
           {isSaving ? "Saving…" : "Save GCP connection"}
@@ -266,7 +282,8 @@ export function GcpConnectionSection() {
                     type="button"
                     variant="secondary"
                     data-testid={`gcp-repoll-${connection.connectionId}`}
-                    disabled={pollingConnectionId === connection.connectionId}
+                    disabled={pollingConnectionId === connection.connectionId || !canMutate}
+                    title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
                     onClick={() => void handleRePoll(connection)}
                   >
                     {pollingConnectionId === connection.connectionId ? "Polling…" : "Re-poll now"}
@@ -275,6 +292,8 @@ export function GcpConnectionSection() {
                     type="button"
                     variant="outline"
                     data-testid={`gcp-disconnect-${connection.connectionId}`}
+                    disabled={!canMutate}
+                    title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
                     onClick={() => void handleDisconnect(connection.connectionId)}
                   >
                     Disconnect

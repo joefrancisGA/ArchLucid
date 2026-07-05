@@ -16,5 +16,5 @@
       "firstLoadJsKb": 286
     }
   },
-  "notes": "Captured from `npm run build` (Next.js 15 App Router, CI=true). Refresh with `npm run write:first-load-js-baseline` after intentional bundle-size changes."
+  "notes": "Captured from `npm run build` (Next.js 15 App Router, CI=true). Next.js 16+ omits per-route First Load JS from CLI output; `check:first-load-js` skips until analyze-based capture ships (TB-573 follow-up)."
 }

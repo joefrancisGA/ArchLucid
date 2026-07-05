@@ -4,10 +4,13 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { showError, showInfo } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -25,6 +28,9 @@ type WalletResponse = {
 };
 
 export function OperatorBillingWalletPanel() {
+  // Wallet mutations (cap, auto-replenish, Stripe identifiers) stay AdminAuthority on the backend even though
+  // viewing the wallet is ReadAuthority — see WalletController.PutAsync.
+  const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const [wallet, setWallet] = useState<WalletResponse | null>(null);
   const [monthlyCapUsd, setMonthlyCapUsd] = useState(0);
   const [autoReplenish, setAutoReplenish] = useState(false);
@@ -57,7 +63,7 @@ export function OperatorBillingWalletPanel() {
   }, [loadWallet]);
 
   const saveWallet = async () => {
-    if (!wallet) {
+    if (!wallet || !canMutate) {
       return;
     }
 
@@ -84,6 +90,10 @@ export function OperatorBillingWalletPanel() {
   };
 
   const onAddPaymentMethod = () => {
+    if (!canMutate) {
+      return;
+    }
+
     showInfo("Payment method setup is coming soon. Contact support if you need to attach a card before self-serve checkout ships.");
   };
 
@@ -142,6 +152,8 @@ export function OperatorBillingWalletPanel() {
               step={50}
               value={monthlyCapUsd}
               onChange={(e) => setMonthlyCapUsd(Number(e.target.value))}
+              disabled={!canMutate}
+              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
             />
             <p className={cn("tabular-nums", OPERATOR_TYPOGRAPHY.body)}>${monthlyCapUsd} / month max auto-replenish</p>
           </div>
@@ -151,13 +163,26 @@ export function OperatorBillingWalletPanel() {
               type="checkbox"
               checked={autoReplenish}
               onChange={(e) => setAutoReplenish(e.target.checked)}
+              disabled={!canMutate}
+              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
             />
             Enable auto-replenish (requires payment method and cap &gt; $0)
           </label>
 
-          <Button type="button" onClick={() => void saveWallet()}>
+          <Button
+            type="button"
+            onClick={() => void saveWallet()}
+            disabled={!canMutate}
+            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+          >
             Save credit settings
           </Button>
+
+          {!canMutate ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              Administrator access required to change AI usage credit settings.
+            </p>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -170,7 +195,13 @@ export function OperatorBillingWalletPanel() {
           <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {wallet.hasPaymentMethod ? "Payment method on file." : "No payment method on file."}
           </p>
-          <Button type="button" variant="outline" onClick={onAddPaymentMethod}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onAddPaymentMethod}
+            disabled={!canMutate}
+            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+          >
             Add payment method
           </Button>
         </CardContent>
@@ -189,6 +220,8 @@ export function OperatorBillingWalletPanel() {
               value={stripeCustomerId}
               onChange={(e) => setStripeCustomerId(e.target.value)}
               placeholder="cus_…"
+              disabled={!canMutate}
+              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
             />
           </div>
           <div className="space-y-2">
@@ -198,6 +231,8 @@ export function OperatorBillingWalletPanel() {
               value={stripePaymentMethodId}
               onChange={(e) => setStripePaymentMethodId(e.target.value)}
               placeholder="pm_…"
+              disabled={!canMutate}
+              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
             />
             {wallet.stripePublishableKey ? (
               <p className={OPERATOR_TYPOGRAPHY.helper}>

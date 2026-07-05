@@ -111,7 +111,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/ScopeDebugController.cs` | `/v1/scope` | none | ReadAuthority |  |  |
 | `Admin/SecurityTrustPublicationController.cs` | `/v1/admin/security-trust` | none | AdminAuthority | /settings/security-trust |  |
 | `Admin/SettingsController.cs` | `/v1/admin/settings` | none | AdminAuthority | /settings/tenant |  |
-| `Admin/SupportBundleController.cs` | `/v1/admin` | none | AdminAuthority | /settings/support |  |
+| `Admin/SupportBundleController.cs` | `/v1/admin` | none | ExecuteAuthority | /settings/support |  |
 | `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | AdminAuthority | /settings/users |  |
 | `Advisory/AdvisoryController.cs` | `/v1/advisory` | standard | ReadAuthority | /advisory |  |
 | `Advisory/AdvisorySchedulingController.cs` | `/v1/advisory-scheduling` | standard | ReadAuthority |  |  |

@@ -7,4 +7,6 @@ export type RecommendationLearningPageViewModel = {
   readonly failure: ApiLoadFailureState | null;
   readonly loadLatest: () => Promise<void>;
   readonly rebuild: () => Promise<void>;
+  /** Rebuild hits an ExecuteAuthority endpoint; the nav item and profile GET stay ReadAuthority. */
+  readonly canMutate: boolean;
 };

@@ -137,8 +137,6 @@ export const OPERATOR_NAV_LINK_LABELS = {
   governanceWorkflow: "Approval queue",
   auditTrail: BUYER_SURFACE_VOCABULARY.auditTrail,
   governanceSetupGuide: "Governance setup guide",
-  /** @deprecated Nav label migrated to {@link governanceSetupGuide} (TB-520); page chrome may still reference first-30-days route slug. */
-  first30DaysGovernance: "First 30 days (governance)",
   securityTrust: "Security & trust",
   aiUsage: "AI usage",
   teamsNotifications: "Teams notifications",

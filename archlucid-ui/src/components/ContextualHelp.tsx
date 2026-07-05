@@ -32,6 +32,13 @@ export type ContextualHelpProps = {
 
 const PANEL_GAP_PX = 6;
 
+/**
+ * Grace period before a hover-only preview closes. Covers the gap between the trigger and the
+ * portaled panel (see {@link PANEL_GAP_PX}) so moving the pointer from one to the other never
+ * closes the panel mid-transit; cleared immediately if the pointer re-enters either element.
+ */
+const HOVER_CLOSE_GRACE_MS = 150;
+
 function computePanelStyle(trigger: HTMLElement, placement: ContextualHelpPlacement): CSSProperties {
   const rect = trigger.getBoundingClientRect();
   const baseStyle: CSSProperties = {
@@ -76,10 +83,13 @@ function computePanelStyle(trigger: HTMLElement, placement: ContextualHelpPlacem
 
 /**
  * In-context help (not global Help). Pointer hover may preview the panel; click or Space/Enter toggles
- * a persistent open state until Escape or an outside pointer event. Keyboard users rely on the trigger
- * button only (no hover-only path). Panel uses `role="region"` (not `tooltip`) because copy may include a
- * focusable Learn more link. Content from `contextualHelpByKey` in `src/lib/contextual-help-content.ts`;
- * trigger `aria-label` from {@link contextualHelpTriggerAriaLabel}.
+ * a persistent open state until Escape or an outside pointer event. The panel is portaled to
+ * `document.body` (see {@link computePanelStyle}), so hover tracking is shared by the trigger and the
+ * panel via {@link HOVER_CLOSE_GRACE_MS} — otherwise moving the pointer from the trigger toward panel
+ * content (e.g. a Learn more link) would close the preview before it could be reached. Keyboard users
+ * rely on the trigger button only (no hover-only path). Panel uses `role="region"` (not `tooltip`)
+ * because copy may include a focusable Learn more link. Content from `contextualHelpByKey` in
+ * `src/lib/contextual-help-content.ts`; trigger `aria-label` from {@link contextualHelpTriggerAriaLabel}.
  */
 export function ContextualHelp({
   helpKey,
@@ -93,13 +103,43 @@ export function ContextualHelp({
   const panelId = `${rootId}-panel`;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const hoverCloseTimeoutRef = useRef<number | null>(null);
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
   const entry = contextualHelpByKey[helpKey];
 
+  const clearHoverCloseTimeout = useCallback(() => {
+    if (hoverCloseTimeoutRef.current === null) {
+      return;
+    }
+
+    window.clearTimeout(hoverCloseTimeoutRef.current);
+    hoverCloseTimeoutRef.current = null;
+  }, []);
+
   const close = useCallback(() => {
+    clearHoverCloseTimeout();
     setOpen(false);
     setHover(false);
-  }, []);
+  }, [clearHoverCloseTimeout]);
+
+  /** Pointer entered the trigger or the panel — cancel any pending hover-close. */
+  const handleHoverStart = useCallback(() => {
+    clearHoverCloseTimeout();
+    setHover(true);
+  }, [clearHoverCloseTimeout]);
+
+  /**
+   * Pointer left the trigger or the panel — defer closing by {@link HOVER_CLOSE_GRACE_MS} so
+   * transit through the gap between them (or onto the other one) doesn't drop the preview.
+   */
+  const handleHoverEnd = useCallback(() => {
+    clearHoverCloseTimeout();
+    hoverCloseTimeoutRef.current = window.setTimeout(() => {
+      setHover(false);
+    }, HOVER_CLOSE_GRACE_MS);
+  }, [clearHoverCloseTimeout]);
+
+  useEffect(() => clearHoverCloseTimeout, [clearHoverCloseTimeout]);
 
   const updatePanelPosition = useCallback(() => {
     const trigger = triggerRef.current;
@@ -178,6 +218,8 @@ export function ContextualHelp({
         aria-label="Contextual help"
         style={panelStyle}
         className={cn("rounded-md border border-neutral-200 bg-white px-3 py-2 text-left leading-snug text-neutral-800 shadow-md dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
+        onPointerEnter={handleHoverStart}
+        onPointerLeave={handleHoverEnd}
       >
         <div className={cn("m-0 text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{text}</div>
         {moreHref != null && (
@@ -197,12 +239,8 @@ export function ContextualHelp({
     <>
       <span
         className={cn("inline-flex items-center", className)}
-        onPointerEnter={() => {
-          setHover(true);
-        }}
-        onPointerLeave={() => {
-          setHover(false);
-        }}
+        onPointerEnter={handleHoverStart}
+        onPointerLeave={handleHoverEnd}
       >
         <HelpTooltipTrigger
           ref={triggerRef}

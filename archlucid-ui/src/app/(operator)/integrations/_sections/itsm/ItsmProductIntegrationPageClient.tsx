@@ -19,9 +19,11 @@ import {
   type TenantItsmOutboundSettingsResponse,
 } from "@/lib/api/itsm-outbound-api";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { ITSM_CONNECTOR_SMOKE_HELP } from "@/lib/itsm-connectors-admin-scope";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { isItsmNativeCreateDefaultPathReady } from "@/lib/itsm-native-create-readiness";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 
 import { ItsmConnectorProbeCard } from "./ItsmConnectorProbeCard";
 
@@ -60,6 +62,7 @@ const PRODUCT_COPY: Record<
 };
 
 export function ItsmProductIntegrationPageClient(props: Props): React.ReactElement {
+  const canMutate = useOperateCapability();
   const copy = PRODUCT_COPY[props.product];
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
   const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
@@ -124,6 +127,10 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
   }, []);
 
   const saveSettings = useCallback(async () => {
+    if (!canMutate) {
+      return;
+    }
+
     setIsSaving(true);
     setSaveError(null);
 
@@ -140,7 +147,7 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
     } finally {
       setIsSaving(false);
     }
-  }, [applySettings, issueTypeJson, jiraProjectKey, jiraSendInfo, snowAutoCmdb]);
+  }, [applySettings, canMutate, issueTypeJson, jiraProjectKey, jiraSendInfo, snowAutoCmdb]);
 
   const probe =
     props.product === "jira" ? health?.jira : health?.serviceNow;
@@ -288,13 +295,24 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
               )}
 
               <div className="flex flex-wrap gap-2">
-                <Button type="button" onClick={() => void saveSettings()} disabled={isSaving}>
+                <Button
+                  type="button"
+                  onClick={() => void saveSettings()}
+                  disabled={isSaving || !canMutate}
+                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                >
                   {isSaving ? "Saving…" : "Save tenant settings"}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => void refresh()} disabled={isSaving}>
                   Reload
                 </Button>
               </div>
+
+              {!canMutate ? (
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  Elevated workspace permissions required to save tenant settings.
+                </p>
+              ) : null}
             </CardContent>
           </Card>
 

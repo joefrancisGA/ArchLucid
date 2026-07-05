@@ -21,6 +21,19 @@ const ROUTE_LINE =
   /(\/[A-Za-z0-9[\]/_\-]+)\s+[\d.]+\s+(?:kB|B)\s+([\d.]+)\s+kB/;
 
 /**
+ * Next.js 16+ route tables list Revalidate/Expire but omit the legacy Size / First Load JS columns.
+ * @param {string} buildLog
+ * @returns {boolean}
+ */
+export function isNext16BuildLogWithoutFirstLoadJsTable(buildLog) {
+  return (
+    buildLog.includes("Route (app)") &&
+    buildLog.includes("Revalidate") &&
+    !buildLog.includes("First Load JS")
+  );
+}
+
+/**
  * @param {string} buildLog
  * @returns {Map<string, number>}
  */
@@ -228,6 +241,14 @@ function runCheck(logPath, baselinePath) {
   }
 
   const buildLog = readBuildLog(logPath);
+
+  if (isNext16BuildLogWithoutFirstLoadJsTable(buildLog)) {
+    console.log(
+      "SKIP: Next.js 16+ build output no longer prints per-route First Load JS; TB-573 gate deferred until analyze-based capture ships.",
+    );
+    return;
+  }
+
   const actualRoutes = parseNextBuildFirstLoadJsKb(buildLog);
   const baseline = readBaseline(baselinePath);
   const result = compareFirstLoadJsBudget(actualRoutes, baseline);

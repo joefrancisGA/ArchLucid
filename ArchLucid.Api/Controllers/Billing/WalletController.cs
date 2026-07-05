@@ -40,7 +40,12 @@ public sealed class WalletController(
     private readonly ILlmTenantWalletService _walletService =
         walletService ?? throw new ArgumentNullException(nameof(walletService));
 
+    // Lowered from the class-level AdminAuthority: viewing the credit balance, auto-replenish cap, and refill
+    // history is not itself a sensitive mutation — the "Billing & plans" nav item is ReadAuthority, and any caller
+    // who can see that page should be able to see their wallet, not just Admins. Mutating it via PutAsync below
+    // still requires AdminAuthority.
     [HttpGet]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(LlmTenantWalletGetResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<LlmTenantWalletGetResponse>> GetAsync(CancellationToken cancellationToken)
     {

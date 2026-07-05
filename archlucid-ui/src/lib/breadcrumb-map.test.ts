@@ -103,6 +103,13 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("maps the workspace and scope guide breadcrumb to match its page title", () => {
+    expect(getBreadcrumbs("/help/scope")).toEqual([
+      { label: "Help", href: "/help" },
+      { label: "Workspace and scope" },
+    ]);
+  });
+
   it("uses policy-pack registry trail for governance-scoped pack routes (no workflow parent link)", () => {
     expect(getBreadcrumbs("/governance/policy-packs/undefined")).toEqual([
       { label: "Policy packs", href: "/governance/policy-packs" },

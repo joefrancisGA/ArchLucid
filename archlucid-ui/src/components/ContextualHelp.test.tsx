@@ -110,4 +110,83 @@ describe("ContextualHelp", () => {
     expect(queryByRole("region", { name: /contextual help/i })).toBeNull();
     unmount();
   });
+
+  describe("hover-safe interactive content (governance-gate Learn more link)", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("renders a correctly-routed, clickable Learn more link when the finalize help is open", () => {
+      render(<ContextualHelp helpKey="governance-gate" />);
+      const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!);
+
+      act(() => {
+        fireEvent.click(button);
+      });
+
+      const link = screen.getByRole("link", { name: /learn more/i });
+      expect(link).toHaveAttribute("href", "/help/evidence-intake#governance-gate");
+      expect(link).toHaveAttribute("target", "_blank");
+    });
+
+    it("stays open while the pointer transits from the trigger to the panel (Learn more stays clickable)", () => {
+      vi.useFakeTimers();
+      render(<ContextualHelp helpKey="governance-gate" />);
+      const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!);
+
+      act(() => {
+        fireEvent.pointerOver(button);
+      });
+      expect(screen.getByRole("region", { name: /contextual help/i })).toBeInTheDocument();
+
+      // Leaving the trigger toward the panel must not close the panel mid-transit (no flicker).
+      act(() => {
+        fireEvent.pointerOut(button);
+      });
+      const panel = screen.getByRole("region", { name: /contextual help/i });
+      expect(panel).toBeInTheDocument();
+
+      act(() => {
+        fireEvent.pointerOver(panel);
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(screen.getByRole("region", { name: /contextual help/i })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /learn more/i })).toBeInTheDocument();
+    });
+
+    it("closes the hover-only preview once the pointer leaves both the trigger and the panel", () => {
+      vi.useFakeTimers();
+      render(<ContextualHelp helpKey="governance-gate" />);
+      const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!);
+
+      act(() => {
+        fireEvent.pointerOver(button);
+      });
+      const panel = screen.getByRole("region", { name: /contextual help/i });
+
+      act(() => {
+        fireEvent.pointerOut(button);
+        fireEvent.pointerOut(panel);
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(screen.queryByRole("region", { name: /contextual help/i })).toBeNull();
+    });
+
+    it("keeps a click-opened panel visible even after the pointer leaves (sticky until Escape/outside click)", () => {
+      vi.useFakeTimers();
+      render(<ContextualHelp helpKey="governance-gate" />);
+      const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!);
+
+      act(() => {
+        fireEvent.click(button);
+        fireEvent.pointerOver(button);
+        fireEvent.pointerOut(button);
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(screen.getByRole("region", { name: /contextual help/i })).toBeInTheDocument();
+    });
+  });
 });

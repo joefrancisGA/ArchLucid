@@ -41,7 +41,7 @@ export function CostReportingSettingsPageView(props: Props) {
     return (
       <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
         <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="cost-reporting-forbidden">
-          This page requires tenant administrator access (AdminAuthority). Sign in with an admin-ranked account or API key.
+          This page requires workspace access (ReadAuthority). Sign in with a workspace-scoped account or API key.
         </p>
       </div>
     );

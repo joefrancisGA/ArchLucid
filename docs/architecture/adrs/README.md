@@ -59,6 +59,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0052](0052-monetization-posture-decision-as-product.md) | Monetization posture — **decision-as-product**, seat license for the expert operator (**Status: Accepted**; debate R6/R13) |
 | [0053](0053-enterprise-diagnostic-logging-observability-posture.md) | Enterprise diagnostic logging and observability posture — near-perfect structured, correlated, privacy-safe telemetry for V1 supportability (**Status: Accepted**; enforcement **TB-329–TB-336**) |
 | [0056](0056-manifest-online-fine-tuning-governance.md) | Manifest online fine-tuning governance (RAG-V2-003 / TB-594) (**Status: Accepted**) |
+| [0057](0057-graph-rag-community-summarization-scope-decision.md) | Graph-RAG community summarization (RAG-V2-001 remainder) scope decision — options record; recommends keeping deferred pending G-REAL-06 pilot signal (**Status: Accepted** — decision-only, no feature code authorized) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

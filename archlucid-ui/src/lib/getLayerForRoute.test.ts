@@ -31,7 +31,6 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/settings/ai-usage")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/cost-reporting")).toBe("operator-admin");
     expect(getLayerForRoute("/integrations/readiness")).toBe("operate-analysis");
-    expect(getLayerForRoute("/admin/ai-cost-diagnostics")).toBe("operator-admin");
     expect(getLayerForRoute("/workspace/security-trust")).toBe("operator-admin");
   });
 
@@ -57,7 +56,7 @@ describe("getLayerForRoute", () => {
   it("returns operate-analysis for reports and system-admin nav paths", () => {
     expect(getLayerForRoute("/scorecard")).toBe("operate-analysis");
     expect(getLayerForRoute("/integrations/teams")).toBe("operate-analysis");
-    expect(getLayerForRoute("/product-learning")).toBe("operator-admin");
+    expect(getLayerForRoute("/product-learning")).toBe("operate-analysis");
     expect(getLayerForRoute("/advisory")).toBe("operate-analysis");
   });
 

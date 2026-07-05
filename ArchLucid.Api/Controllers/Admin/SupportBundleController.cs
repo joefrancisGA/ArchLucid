@@ -15,21 +15,23 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
 ///     In-product support-bundle download endpoint — gated on
-///     <see cref="ArchLucidPolicies.AdminAuthority" /> (tenant administrators and workspace administrators).
-///     Reuses the shared
+///     <see cref="ArchLucidPolicies.ExecuteAuthority" />. Reuses the shared
 ///     <see cref="ISupportBundleAssembler" /> service so the artefact shape stays
 ///     in lock-step with the CLI's <c>archlucid support-bundle</c> command.
 /// </summary>
 /// <remarks>
 ///     <b>Why a separate controller (not <c>AdminController</c>)?</b> <c>AdminController</c>
-///     mixes diagnostics routes with the same class-level <see cref="ArchLucidPolicies.AdminAuthority" />; this
-///     controller keeps the support-bundle action isolated for documentation and contract tests.
+///     mixes diagnostics routes with the class-level <see cref="ArchLucidPolicies.AdminAuthority" />; this
+///     controller keeps the support-bundle action isolated for documentation and contract tests, and at a lower
+///     authority tier — the "Support" and "Settings" nav items that surface this download are ExecuteAuthority, and
+///     the bundle content is redacted (secret-shaped env vars show set/not-set only, no raw evidence), so requiring
+///     full Admin was an unnecessary dead-end for Operators/Architects opening a support ticket (owner decision).
 ///     <b>Streaming.</b> The assembler returns the full ZIP in memory because the bundle
 ///     is small (a handful of JSON sections + a README). When future redaction work
 ///     producer if ZIP size materially grows beyond the diagnostic JSON snapshots.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin")]
 [EnableRateLimiting("expensive")]

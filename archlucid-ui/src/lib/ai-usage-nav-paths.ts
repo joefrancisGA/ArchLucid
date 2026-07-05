@@ -6,9 +6,6 @@ export const AI_USAGE_SETTINGS_PATH = "/settings/ai-usage";
 /** App Router implementation path — rewrite target for {@link AI_USAGE_SETTINGS_PATH}. */
 export const AI_USAGE_COST_REPORTING_PATH = "/settings/cost-reporting";
 
-/** Internal-only AI processing queue and dead-letter diagnostics. */
-export const AI_COST_DIAGNOSTICS_PATH = "/admin/ai-cost-diagnostics";
-
 /** Legacy Internal Operations href — redirects to {@link AI_USAGE_SETTINGS_PATH}. */
 export const AI_USAGE_LEGACY_ADMIN_PATH = "/admin/ai-usage-cost";
 

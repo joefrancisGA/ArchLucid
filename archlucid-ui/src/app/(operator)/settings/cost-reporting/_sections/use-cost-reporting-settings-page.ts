@@ -18,7 +18,7 @@ import type { CostReportingSettingsPageServerLoad } from "./load-cost-reporting-
 function resolveSurface(
   isDemo: boolean,
   isAuthorityLoading: boolean,
-  isAdmin: boolean,
+  isReadAllowed: boolean,
 ): CostReportingSettingsPageSurface {
   if (isDemo) {
     return "demo";
@@ -28,11 +28,11 @@ function resolveSurface(
     return "authority_loading";
   }
 
-  if (!isAdmin) {
+  if (!isReadAllowed) {
     return "forbidden";
   }
 
-  return "admin";
+  return "granted";
 }
 
 export function useCostReportingSettingsPage(
@@ -40,8 +40,11 @@ export function useCostReportingSettingsPage(
 ): CostReportingSettingsPageViewModel {
   const isDemo = loaded.demo;
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
-  const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
-  const surface = resolveSurface(isDemo, isAuthorityLoading, isAdmin);
+  // Viewing cost/usage data only requires ReadAuthority on the backend (TenantLlmCostReportingController) —
+  // there is nothing to mutate on this page, so the stricter AdminAuthority nav gate this page previously enforced
+  // was blocking non-Admin callers from a read-only report they were otherwise entitled to see.
+  const isReadAllowed = callerAuthorityRank >= AUTHORITY_RANK.ReadAuthority;
+  const surface = resolveSurface(isDemo, isAuthorityLoading, isReadAllowed);
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<LlmCostReportingDashboard | null>(null);
@@ -60,12 +63,12 @@ export function useCostReportingSettingsPage(
   }, []);
 
   useEffect(() => {
-    if (isDemo || !isAdmin) {
+    if (isDemo || !isReadAllowed) {
       return;
     }
 
     void load();
-  }, [isAdmin, isDemo, load]);
+  }, [isDemo, isReadAllowed, load]);
 
   return {
     surface,

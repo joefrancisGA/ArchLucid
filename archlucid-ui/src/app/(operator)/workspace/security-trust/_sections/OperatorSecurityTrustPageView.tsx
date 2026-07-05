@@ -2,7 +2,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   OPERATOR_SECURITY_TRUST_AVAILABLE_NOW_ITEMS,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_DELETION_INSTRUCTION,
@@ -56,6 +58,10 @@ function SecurityTrustLinkItem({
 export function OperatorSecurityTrustPageView() {
   return (
     <div className="space-y-6">
+      <OperatorPageHeader
+        title={OPERATOR_NAV_LINK_LABELS.securityTrust}
+        subtitle="Procurement-ready security and trust materials for this workspace."
+      />
       <LayerHeader density="compact" pageKey="security-trust" />
 
       <section aria-label="Available now" className="space-y-3">

@@ -77,7 +77,7 @@ describe("buildRetrievalHitActionLink", () => {
     );
 
     expect(link).toEqual({
-      href: `/manifests/${SAMPLE_MANIFEST_ID}`,
+      href: `/signed-records/${SAMPLE_MANIFEST_ID}`,
       label: "Open signed review record",
     });
   });

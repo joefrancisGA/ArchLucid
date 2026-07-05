@@ -101,8 +101,9 @@ public sealed class AwsTier2ConnectionController(
         return Ok(ToResponse(record));
     }
 
+    // Deliberately inherits the class-level ExecuteAuthority policy (not lowered to ReadAuthority): cloud connection
+    // metadata (account IDs, role ARNs) is Execute-tier-and-above only, matching the nav gate on Cloud connections.
     [HttpGet]
-    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [MutatingAuditExcluded("Read-only connection lookup.")]
     [ProducesResponseType(typeof(IReadOnlyList<AwsTier2ConnectionResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListConnectionsAsync(CancellationToken cancellationToken)

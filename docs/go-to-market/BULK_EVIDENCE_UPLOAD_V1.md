@@ -4,4 +4,4 @@
 
 Bulk upload up to **200** files per multipart request at GA. Each **ZIP archive counts as one file** toward the cap; the server expands ZIP entries server-side (up to configured expansion limits).
 
-**Note:** Browser folder recursion (`webkitdirectory`) and other deferred batch UX remain **V1.1** — see `docs/library/V1_DEFERRED.md`.
+**Note:** Browser folder recursion (`webkitdirectory`) was evaluated as a V1.1 candidate and rejected by the owner (2026-07-05) — manual file selection and ZIP upload cover this need. See `docs/library/V1_DEFERRED.md` §6k.

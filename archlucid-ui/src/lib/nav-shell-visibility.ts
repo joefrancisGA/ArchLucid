@@ -70,7 +70,6 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/settings/ai-usage",
   "/settings/cost-reporting",
   "/admin/ai-usage-cost",
-  "/admin/ai-cost-diagnostics",
   "/value-report",
   "/value-report/pilot",
   "/value-report/roi",

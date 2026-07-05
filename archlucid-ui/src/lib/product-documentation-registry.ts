@@ -94,8 +94,9 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "scope",
-    title: "Workspace guide",
-    summary: "Tenant, workspace, and project scope — how the header switcher works and when sample workspace applies.",
+    title: "Workspace and scope guide",
+    summary:
+      "Understand tenant, workspace, and project scope, including how the header switcher and sample workspace work.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/WORKSPACE_SCOPE_GUIDE.md"],
   },

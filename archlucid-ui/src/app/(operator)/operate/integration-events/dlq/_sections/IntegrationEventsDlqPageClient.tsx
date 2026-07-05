@@ -4,9 +4,12 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { components } from "@/lib/api-types.generated";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -53,6 +56,10 @@ function formatAgeUtc(deadLetteredUtc: string | undefined | null): string {
 
 /** Admin operator view for failed integration event outbox rows with manual retry. */
 export function IntegrationEventsDlqPageClient() {
+  // Retry/suppress/bulk-retry are AdminAuthority on the API (AdminController) and operate across every tenant's
+  // dead-lettered events, not just the caller's own — gate the shell so a non-Admin who reaches this route directly
+  // (the nav item itself is hidden from non-Admins) sees disabled controls instead of a live button that 403s.
+  const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const [state, setState] = useState<LoadState>({ status: "idle" });
   const [retryingId, setRetryingId] = useState<string | null>(null);
   const [suppressingId, setSuppressingId] = useState<string | null>(null);
@@ -120,6 +127,10 @@ export function IntegrationEventsDlqPageClient() {
 
   const retry = useCallback(
     async (outboxId: string) => {
+      if (!canMutate) {
+        return;
+      }
+
       setRetryingId(outboxId);
 
       try {
@@ -140,11 +151,15 @@ export function IntegrationEventsDlqPageClient() {
         setRetryingId(null);
       }
     },
-    [load],
+    [canMutate, load],
   );
 
   const suppress = useCallback(
     async (outboxId: string) => {
+      if (!canMutate) {
+        return;
+      }
+
       if (
         !window.confirm(
           "Suppress this dead-letter row without republishing? Use when the event should not be retried.",
@@ -177,10 +192,14 @@ export function IntegrationEventsDlqPageClient() {
         setSuppressingId(null);
       }
     },
-    [load],
+    [canMutate, load],
   );
 
   const bulkRetry = useCallback(async () => {
+    if (!canMutate) {
+      return;
+    }
+
     if (
       !window.confirm(
         "Retry up to 100 dead-letter rows (all tenants and event types)? Fix the root cause before bulk retry.",
@@ -216,7 +235,7 @@ export function IntegrationEventsDlqPageClient() {
     } finally {
       setBulkRetrying(false);
     }
-  }, [load]);
+  }, [canMutate, load]);
 
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="integration-events-dlq-page">
@@ -225,6 +244,11 @@ export function IntegrationEventsDlqPageClient() {
         <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Inspect outbound integration events that exceeded publish retries and requeue them after fixing the root cause.
         </p>
+        {!canMutate ? (
+          <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Administrator access required to retry or suppress dead-letter rows.
+          </p>
+        ) : null}
       </header>
 
       <Card>
@@ -241,7 +265,8 @@ export function IntegrationEventsDlqPageClient() {
               type="button"
               variant="outline"
               size="sm"
-              disabled={bulkRetrying || state.status === "loading"}
+              disabled={bulkRetrying || state.status === "loading" || !canMutate}
+              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
               onClick={() => void bulkRetry()}
             >
               {bulkRetrying ? "Bulk retrying…" : "Bulk retry (100)"}
@@ -302,7 +327,8 @@ export function IntegrationEventsDlqPageClient() {
                             type="button"
                             size="sm"
                             variant="outline"
-                            disabled={retryingId === row.outboxId || suppressingId === row.outboxId}
+                            disabled={retryingId === row.outboxId || suppressingId === row.outboxId || !canMutate}
+                            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
                             onClick={() => {
                               if (row.outboxId === undefined || row.outboxId === null) {
                                 return;
@@ -317,7 +343,8 @@ export function IntegrationEventsDlqPageClient() {
                             type="button"
                             size="sm"
                             variant="secondary"
-                            disabled={retryingId === row.outboxId || suppressingId === row.outboxId}
+                            disabled={retryingId === row.outboxId || suppressingId === row.outboxId || !canMutate}
+                            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
                             onClick={() => {
                               if (row.outboxId === undefined || row.outboxId === null) {
                                 return;

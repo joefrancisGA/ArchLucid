@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { InlineGuidance } from "@/components/InlineGuidance";
@@ -35,11 +35,11 @@ function GuidanceBody(props: {
       {primaryAction !== undefined ? (
         <div className="mt-2.5">
           {primaryAction.href.startsWith("#") ? (
-            <Button variant="primary" size="sm" asChild>
-              <a href={primaryAction.href} className="no-underline">
-                {primaryAction.label}
-              </a>
-            </Button>
+            // Same-page jump to an already-rendered section — link affordance, not a primary button
+            // (see .cursor/rules/UI-Accessibility-Baseline.mdc: same-page jump = link).
+            <a href={primaryAction.href} className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}>
+              {primaryAction.label}
+            </a>
           ) : (
             <Button variant="primary" size="sm" asChild>
               <Link href={primaryAction.href} className="no-underline">

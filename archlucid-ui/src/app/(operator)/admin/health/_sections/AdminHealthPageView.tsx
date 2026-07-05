@@ -42,7 +42,7 @@ export function AdminHealthPageView(props: Props) {
     <div className="w-full max-w-3xl space-y-6" data-testid="admin-health-page">
       <div>
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>System health</h1>
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Diagnostics dashboard</h1>
           <StatusPill
             status={overall}
             domain="health"

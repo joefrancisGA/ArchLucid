@@ -212,6 +212,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         }
         commitBlockedReason={commitBlockedReason}
         hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+        usedStaticDemoRun={m.usedStaticDemoRun}
       />
 
       {reviewPolicyPackCallout !== null ? (

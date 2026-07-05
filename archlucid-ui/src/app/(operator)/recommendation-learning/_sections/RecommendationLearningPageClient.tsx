@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
 
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { rebuildLearningProfile } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -39,7 +40,13 @@ export function RecommendationLearningPageClient(props: RecommendationLearningPa
     refreshFromServer();
   }, [refreshFromServer]);
 
+  const canMutate = useOperateCapability();
+
   const rebuild = useCallback(async () => {
+    if (!canMutate) {
+      return;
+    }
+
     setActionFailure(null);
 
     try {
@@ -48,7 +55,7 @@ export function RecommendationLearningPageClient(props: RecommendationLearningPa
     } catch (e: unknown) {
       setActionFailure(toApiLoadFailure(e));
     }
-  }, [refreshFromServer]);
+  }, [canMutate, refreshFromServer]);
 
   const mergedFailure = actionFailure ?? loadFailure;
 
@@ -58,6 +65,7 @@ export function RecommendationLearningPageClient(props: RecommendationLearningPa
     failure: mergedFailure,
     loadLatest,
     rebuild,
+    canMutate,
   };
 
   return <RecommendationLearningPageView model={model} />;

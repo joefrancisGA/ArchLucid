@@ -1,5 +1,10 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { describe, expect, it } from "vitest";
 
+import { extractHelpMarkdownHeadings } from "./help-markdown-headings";
 import {
   contextualHelpByKey,
   contextualHelpTriggerAriaLabel,
@@ -7,6 +12,11 @@ import {
   toDocsBlobUrl,
 } from "./contextual-help-content";
 import { collectContextualHelpKeysFromSource, defaultArchlucidUiSrcRoot } from "./contextual-help-keys-from-source";
+
+/** Repo root — three levels above `archlucid-ui/src/lib`. */
+function repoRoot(): string {
+  return join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+}
 
 describe("contextualHelpByKey", () => {
   it("defines every helpKey used by <ContextualHelp /> in production source (no missing index entries)", () => {
@@ -79,6 +89,25 @@ describe("contextualHelpByKey", () => {
     const url = toDocsBlobUrl("/docs/CORE_PILOT.md#x");
 
     expect(url).toBe("/help/core-pilot#x");
+  });
+
+  it("governance-gate learn-more link resolves to a real heading anchor (not a dead fragment)", () => {
+    const { learnMoreUrl } = contextualHelpByKey["governance-gate"];
+
+    expect(learnMoreUrl).toBeDefined();
+
+    const [docPath, fragment] = learnMoreUrl!.split("#");
+
+    expect(fragment).toBe("governance-gate");
+    // Aliased via DOC_PATH_TO_SLUG to "evidence-intake" (this markdown file's canonical help
+    // topic), not the "governance-approval" registry entry that also lists it as a source path.
+    expect(toDocsBlobUrl(learnMoreUrl!)).toBe(`/help/evidence-intake#${fragment}`);
+
+    const absoluteDocPath = join(repoRoot(), docPath!.replace(/^\//, ""));
+    const markdown = readFileSync(absoluteDocPath, "utf8");
+    const headings = extractHelpMarkdownHeadings(markdown);
+
+    expect(headings.some((h) => h.id === fragment)).toBe(true);
   });
 });
 

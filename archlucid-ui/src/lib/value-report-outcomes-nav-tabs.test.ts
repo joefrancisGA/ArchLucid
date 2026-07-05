@@ -7,16 +7,21 @@ import {
 } from "@/lib/value-report-outcomes-nav-tabs";
 
 describe("value-report-outcomes-nav-tabs", () => {
-  it("marks pilot and ROI tabs as internal-only", () => {
+  it("marks no tabs as internal-only (Pilot outcomes and ROI summary promoted to customer-facing, TB-605 superseded)", () => {
     const internalHrefs = VALUE_REPORT_OUTCOMES_TABS.filter((tab) => tab.internalOnly).map((tab) => tab.href);
 
-    expect(internalHrefs).toEqual(["/value-report/pilot", "/value-report/roi"]);
+    expect(internalHrefs).toEqual([]);
   });
 
-  it("hides internal-only tabs when system-administration nav is disabled", () => {
+  it("shows every tab regardless of system-administration nav flag", () => {
     const visible = resolveVisibleValueReportOutcomesTabs(false);
 
-    expect(visible.map((tab) => tab.href)).toEqual(["/value-report", "/scorecard"]);
+    expect(visible.map((tab) => tab.href)).toEqual([
+      "/value-report",
+      "/value-report/pilot",
+      "/value-report/roi",
+      "/scorecard",
+    ]);
   });
 
   it("shows all tabs when system-administration nav is enabled", () => {
