@@ -7,15 +7,11 @@ import { useMemo } from "react";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
-import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { Button } from "@/components/ui/button";
 import { PilotPathPreviewStepper } from "@/components/usability/PilotPathPreviewStepper";
 import {
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
-  PILOT_COMMAND_CENTER_CONNECT_AZURE,
-  PILOT_COMMAND_CENTER_INVITE_REVIEWER,
-  PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
   PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK,
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
   PILOT_PATH_PREVIEW_STEPS,
@@ -27,8 +23,6 @@ import {
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
-import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
-import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
@@ -36,7 +30,6 @@ import {
 } from "@/lib/showcase-sample-review-registry";
 
 const heroCtaButtonClass = "h-8";
-const optionalSetupButtonClass = "h-7";
 
 const DEFAULT_NEXT_ACTION: PilotNextBestAction = {
   label: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
@@ -102,29 +95,6 @@ export function PilotCommandCenterCard(): React.JSX.Element {
 
       {!hasCommittedArchitectureReview ? (
         <PilotPathPreviewStepper steps={PILOT_PATH_PREVIEW_STEPS} className="heroSteps mt-2" />
-      ) : null}
-
-      {!hasCommittedArchitectureReview ? (
-        <div className="heroOptionalSetup mt-2 space-y-2" data-testid="pilot-command-center-optional-setup">
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-            <InlineGuidanceLabel
-              label={PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL}
-              testId="inline-guidance-optional-setup"
-            />
-          </p>
-          <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
-            <Button asChild variant="outline" size="sm" className={optionalSetupButtonClass}>
-              <Link href={CLOUD_CONNECTIONS_PATH} data-testid="pilot-command-center-connect-azure">
-                {PILOT_COMMAND_CENTER_CONNECT_AZURE}
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className={optionalSetupButtonClass}>
-              <Link href={INVITE_REVIEWER_PATH} data-testid="pilot-command-center-invite-reviewer">
-                {PILOT_COMMAND_CENTER_INVITE_REVIEWER}
-              </Link>
-            </Button>
-          </div>
-        </div>
       ) : null}
     </section>
   );

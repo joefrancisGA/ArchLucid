@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { PilotCommandCenterCard } from "./PilotCommandCenterCard";
+import { OperatorHomeContinueSetupCard } from "@/components/operator-home/OperatorHomeContinueSetupCard";
 import { RunsListCompareSelectionBar } from "./RunsListCompareSelectionBar";
 import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 import {
@@ -48,15 +49,21 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByTestId("pilot-command-center-cta-row")).toBeInTheDocument();
   });
 
-  it("shows optional setup links inline instead of a Setup disclosure (TB-346)", () => {
+  it("shows optional setup links on the Continue setup card instead of the hero (TB-346)", () => {
     render(<PilotCommandCenterCard />);
 
-    expect(screen.getByTestId("pilot-command-center-optional-setup")).toBeInTheDocument();
+    expect(screen.queryByTestId("pilot-command-center-optional-setup")).toBeNull();
+    expect(screen.queryByTestId("pilot-command-center-connect-azure")).toBeNull();
+    expect(screen.queryByTestId("pilot-command-center-invite-reviewer")).toBeNull();
+
+    render(<OperatorHomeContinueSetupCard />);
+
     const optionalSetupLabel = screen.getByTestId("inline-guidance-optional-setup");
+
     expect(optionalSetupLabel).toHaveTextContent(PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL);
     expect(optionalSetupLabel).toHaveClass(INLINE_GUIDANCE_LABEL_CLASS.split(" ")[0]);
-    expect(screen.getByTestId("pilot-command-center-connect-azure")).toHaveAttribute("href", "/integrations/cloud-connections");
-    expect(screen.getByTestId("pilot-command-center-invite-reviewer")).toHaveAttribute("href", INVITE_REVIEWER_PATH);
+    expect(screen.getByTestId("continue-setup-connect-cloud")).toHaveAttribute("href", "/integrations/cloud-connections");
+    expect(screen.getByTestId("continue-setup-invite-reviewer")).toHaveAttribute("href", INVITE_REVIEWER_PATH);
     expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE }).className).toMatch(/border/);

@@ -6,15 +6,12 @@ import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
-  PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_HEADING,
-  PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK,
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
   PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
-import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
@@ -118,25 +115,12 @@ describe("PilotCommandCenterCard", () => {
     }
   });
 
-  it("hides optional setup footer after first commit", () => {
-    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
-    vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);
-
+  it("does not render optional setup links on the hero card", () => {
     renderWithOperatorQuery(<PilotCommandCenterCard />);
 
     expect(screen.queryByTestId("pilot-command-center-optional-setup")).toBeNull();
-  });
-
-  it("renders optional setup links as outline buttons with visible affordance", () => {
-    renderWithOperatorQuery(<PilotCommandCenterCard />);
-
-    const connectCloud = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE });
-    const inviteReviewer = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER });
-
-    expect(connectCloud).toHaveAttribute("href", CLOUD_CONNECTIONS_PATH);
-    expect(connectCloud.className).toMatch(/border/);
-    expect(inviteReviewer.className).toMatch(/border/);
-    expect(screen.getByTestId("pilot-next-best-action").className).not.toMatch(/border-neutral-300/);
+    expect(screen.queryByTestId("pilot-command-center-connect-azure")).toBeNull();
+    expect(screen.queryByTestId("pilot-command-center-invite-reviewer")).toBeNull();
   });
 
   it("renders first-hour hero CTAs as balanced primary and outline buttons", async () => {

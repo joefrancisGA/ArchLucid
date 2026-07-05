@@ -6,7 +6,14 @@ vi.mock("next/link", () => ({
 }));
 
 import { OPERATOR_HOME_CARD_SECTION_HEADING, INLINE_GUIDANCE_LABEL_CLASS } from "@/lib/design-tokens";
-import { OPERATOR_HOME_CONTINUE_SETUP_BODY } from "@/lib/buyer-polish-copy";
+import {
+  OPERATOR_HOME_CONTINUE_SETUP_BODY,
+  PILOT_COMMAND_CENTER_CONNECT_AZURE,
+  PILOT_COMMAND_CENTER_INVITE_REVIEWER,
+  PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
+} from "@/lib/buyer-polish-copy";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
 
 import { OperatorHomeContinueSetupCard } from "./OperatorHomeContinueSetupCard";
 
@@ -21,7 +28,9 @@ describe("OperatorHomeContinueSetupCard", () => {
     expect(heading).toBeInTheDocument();
     expect(heading.className).toContain("tracking-tight");
     expect(OPERATOR_HOME_CARD_SECTION_HEADING).toContain("tracking-tight");
-    expect(screen.getByTestId("inline-guidance-optional-setup")).toHaveTextContent("Optional setup:");
+    expect(screen.getByTestId("inline-guidance-optional-setup")).toHaveTextContent(
+      PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
+    );
     expect(screen.getByTestId("inline-guidance-optional-setup")).toHaveClass(INLINE_GUIDANCE_LABEL_CLASS.split(" ")[0]);
     expect(screen.getByText(OPERATOR_HOME_CONTINUE_SETUP_BODY)).toBeInTheDocument();
     expect(screen.queryByText(/evidence checklist/i)).not.toBeInTheDocument();
@@ -29,6 +38,16 @@ describe("OperatorHomeContinueSetupCard", () => {
     const setupGuideLink = screen.getByRole("link", { name: "Open setup guide" });
 
     expect(setupGuideLink).toHaveAttribute("href", "/onboarding");
+    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toHaveAttribute(
+      "href",
+      CLOUD_CONNECTIONS_PATH,
+    );
+    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER })).toHaveAttribute(
+      "href",
+      INVITE_REVIEWER_PATH,
+    );
+    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER })).toBeInTheDocument();
     expect(screen.queryByText(/Continue getting started/i)).not.toBeInTheDocument();
   });
 
