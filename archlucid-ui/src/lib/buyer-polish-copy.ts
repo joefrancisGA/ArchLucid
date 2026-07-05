@@ -99,9 +99,12 @@ export const PILOT_COMMAND_CENTER_OUTCOMES = [
 
 export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional setup:";
 
-/** Continue-setup card body — paired with {@link PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL} on Overview. */
+/** Setup readiness card body — paired with {@link PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL} on Overview. */
 export const OPERATOR_HOME_CONTINUE_SETUP_BODY =
   "Finish workspace setup, reviewer access, and optional cloud connections.";
+
+/** Operator home setup card heading (Overview IA final vocabulary). */
+export const OPERATOR_HOME_SETUP_READINESS_TITLE = "Setup readiness";
 
 export const PILOT_COMMAND_CENTER_STEPS_HEADING = "3 steps";
 

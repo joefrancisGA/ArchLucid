@@ -12,6 +12,7 @@ import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
   OPERATOR_HOME_SAMPLE_FINDINGS_HEADING,
+  OPERATOR_HOME_SETUP_READINESS_TITLE,
   PILOT_COMMAND_CENTER_HEADING,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
@@ -99,7 +100,7 @@ describe("operator home peer card titles", () => {
     expectPeerCardTitleClasses(sampleReviewTitle.className);
   });
 
-  it("uses the same peer-card title scale for Continue setup, Workspace metrics, and How ArchLucid works", () => {
+  it("uses the same peer-card title scale for Setup readiness, Workspace metrics, and How ArchLucid works", () => {
     render(<OperatorHomeContinueSetupCard />);
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={emptyRunsDashboard} />);
@@ -117,7 +118,7 @@ describe("operator home peer card titles", () => {
       </OperatorHomeDisclosureSection>,
     );
 
-    for (const name of ["Continue setup", "Workspace metrics and status", OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE]) {
+    for (const name of [OPERATOR_HOME_SETUP_READINESS_TITLE, "Workspace metrics and status", OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE]) {
       expectPeerCardTitleClasses(screen.getByRole("heading", { level: 2, name }).className);
     }
   });

@@ -8,6 +8,7 @@ vi.mock("next/link", () => ({
 import { OPERATOR_HOME_CARD_SECTION_HEADING, INLINE_GUIDANCE_LABEL_CLASS } from "@/lib/design-tokens";
 import {
   OPERATOR_HOME_CONTINUE_SETUP_BODY,
+  OPERATOR_HOME_SETUP_READINESS_TITLE,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
@@ -23,7 +24,7 @@ describe("OperatorHomeContinueSetupCard", () => {
 
     expect(screen.getByTestId("home-block-continue-setup")).toBeInTheDocument();
 
-    const heading = screen.getByRole("heading", { level: 2, name: "Continue setup" });
+    const heading = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_SETUP_READINESS_TITLE });
 
     expect(heading).toBeInTheDocument();
     expect(heading.className).toContain("tracking-tight");

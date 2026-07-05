@@ -4,6 +4,7 @@ import { InlineGuidance } from "@/components/InlineGuidance";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import {
   OPERATOR_HOME_CONTINUE_SETUP_BODY,
+  OPERATOR_HOME_SETUP_READINESS_TITLE,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
@@ -43,7 +44,9 @@ export function OperatorHomeContinueSetupCard(props: OperatorHomeContinueSetupCa
       data-testid="home-block-continue-setup"
     >
       <div className={cn("min-w-0 flex-1", OPERATOR_LAYOUT.sectionHeadingStack)}>
-        <OperatorHomeCardSectionTitle id="continue-setup-heading">Continue setup</OperatorHomeCardSectionTitle>
+        <OperatorHomeCardSectionTitle id="continue-setup-heading">
+          {OPERATOR_HOME_SETUP_READINESS_TITLE}
+        </OperatorHomeCardSectionTitle>
         <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
           <InlineGuidance label={PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL} labelTestId="inline-guidance-optional-setup">
             {OPERATOR_HOME_CONTINUE_SETUP_BODY}
