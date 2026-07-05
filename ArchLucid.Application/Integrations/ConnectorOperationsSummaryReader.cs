@@ -1,6 +1,7 @@
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integrations.Itsm;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Delivery;
@@ -224,8 +225,20 @@ public sealed class ConnectorOperationsSummaryReader(
                        (_confluence.ProjectSpaceKeys is not null &&
                         _confluence.ProjectSpaceKeys.Keys.Any(k => !string.IsNullOrWhiteSpace(k)) &&
                         _confluence.ProjectSpaceKeys.Values.Any(v => !string.IsNullOrWhiteSpace(v)));
-        bool tokenOk = !string.IsNullOrWhiteSpace(_confluence.ApiToken.Trim());
-        bool emailOk = !string.IsNullOrWhiteSpace(_confluence.ServiceAccountEmail.Trim());
+        bool credentialsOk = _confluence.AuthMode switch
+        {
+            ItsmConnectorAuthMode.BasicApiToken =>
+                !string.IsNullOrWhiteSpace(_confluence.ApiToken.Trim())
+                && !string.IsNullOrWhiteSpace(_confluence.ServiceAccountEmail.Trim()),
+            ItsmConnectorAuthMode.OAuth2RefreshToken =>
+                !string.IsNullOrWhiteSpace(_confluence.OAuthClientId.Trim())
+                && !string.IsNullOrWhiteSpace(_confluence.OAuthClientSecret.Trim())
+                && !string.IsNullOrWhiteSpace(_confluence.OAuthRefreshToken.Trim()),
+            ItsmConnectorAuthMode.OAuth2ClientCredentials =>
+                !string.IsNullOrWhiteSpace(_confluence.OAuthClientId.Trim())
+                && !string.IsNullOrWhiteSpace(_confluence.OAuthClientSecret.Trim()),
+            _ => false
+        };
 
         if (!urlOk)
             return (false, "Set Integrations:ConfluencePublishing:CloudBaseUrl to a valid https:// Atlassian URL.");
@@ -233,8 +246,8 @@ public sealed class ConnectorOperationsSummaryReader(
         if (!spaceOk)
             return (false, "Set Integrations:ConfluencePublishing:SpaceKey (default) or ProjectSpaceKeys for per-project routing.");
 
-        if (!emailOk || !tokenOk)
-            return (false, "Confluence requires service account email and API token fields.");
+        if (!credentialsOk)
+            return (false, "Confluence credential fields do not match the configured AuthMode.");
 
         return (true, "Confluence Cloud URL, space, and credential fields are populated (live REST validation still required).");
     }

@@ -295,6 +295,7 @@ public static partial class ServiceCollectionExtensions
             .AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(
                 static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration))
             .AddOutboundExternalHttpResilience();
+        services.AddScoped<IConfluencePublishingHttpAuthenticator, ConfluencePublishingHttpAuthenticator>();
         services.AddScoped<IConfluenceFirstValueReportPublisher, ConfluenceFirstValueReportPublisher>();
         services.AddScoped<FirstValueReportPdfBuilder>();
         services.AddScoped<WhyArchLucidPackPdfBuilder>();

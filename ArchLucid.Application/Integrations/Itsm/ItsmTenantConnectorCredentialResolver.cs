@@ -200,33 +200,78 @@ public sealed class ItsmTenantConnectorCredentialResolver(
 
     private static ResolvedItsmOutboundCredentials? TryJiraDeployment(JiraItsmOutboundOptions jira)
     {
-        if (string.IsNullOrWhiteSpace(jira.CloudBaseUrl)
-            || string.IsNullOrWhiteSpace(jira.ServiceAccountEmail)
-            || string.IsNullOrWhiteSpace(jira.ApiToken))
+        if (string.IsNullOrWhiteSpace(jira.CloudBaseUrl))
+            return null;
+
+        string instanceBaseUrl = jira.CloudBaseUrl.Trim().TrimEnd('/');
+
+        if (jira.AuthMode is ItsmConnectorAuthMode.BasicApiToken)
+        {
+            if (string.IsNullOrWhiteSpace(jira.ServiceAccountEmail)
+                || string.IsNullOrWhiteSpace(jira.ApiToken))
+            {
+                return null;
+            }
+
+            return ResolvedItsmOutboundCredentials.ForBasic(
+                instanceBaseUrl,
+                jira.ServiceAccountEmail.Trim(),
+                jira.ApiToken.Trim(),
+                fromTenantConnection: false);
+        }
+
+        if (string.IsNullOrWhiteSpace(jira.OAuthClientId) || string.IsNullOrWhiteSpace(jira.OAuthClientSecret))
+            return null;
+
+        if (jira.AuthMode is ItsmConnectorAuthMode.OAuth2RefreshToken
+            && string.IsNullOrWhiteSpace(jira.OAuthRefreshToken))
         {
             return null;
         }
 
-        return ResolvedItsmOutboundCredentials.ForBasic(
-            jira.CloudBaseUrl.Trim().TrimEnd('/'),
-            jira.ServiceAccountEmail.Trim(),
-            jira.ApiToken.Trim(),
+        return ResolvedItsmOutboundCredentials.ForOAuth(
+            instanceBaseUrl,
+            jira.AuthMode,
+            jira.OAuthClientId.Trim(),
+            jira.OAuthClientSecret.Trim(),
+            NullIfEmpty(jira.OAuthRefreshToken),
             fromTenantConnection: false);
     }
 
     private static ResolvedItsmOutboundCredentials? TryServiceNowDeployment(ServiceNowItsmOutboundOptions serviceNow)
     {
-        if (string.IsNullOrWhiteSpace(serviceNow.InstanceBaseUrl)
-            || string.IsNullOrWhiteSpace(serviceNow.Username)
-            || string.IsNullOrWhiteSpace(serviceNow.Password))
+        if (string.IsNullOrWhiteSpace(serviceNow.InstanceBaseUrl))
+            return null;
+
+        string instanceBaseUrl = serviceNow.InstanceBaseUrl.Trim().TrimEnd('/');
+
+        if (serviceNow.AuthMode is ItsmConnectorAuthMode.BasicApiToken)
+        {
+            if (string.IsNullOrWhiteSpace(serviceNow.Username)
+                || string.IsNullOrWhiteSpace(serviceNow.Password))
+            {
+                return null;
+            }
+
+            return ResolvedItsmOutboundCredentials.ForBasic(
+                instanceBaseUrl,
+                serviceNow.Username.Trim(),
+                serviceNow.Password.Trim(),
+                fromTenantConnection: false);
+        }
+
+        if (string.IsNullOrWhiteSpace(serviceNow.OAuthClientId)
+            || string.IsNullOrWhiteSpace(serviceNow.OAuthClientSecret))
         {
             return null;
         }
 
-        return ResolvedItsmOutboundCredentials.ForBasic(
-            serviceNow.InstanceBaseUrl.Trim().TrimEnd('/'),
-            serviceNow.Username.Trim(),
-            serviceNow.Password.Trim(),
+        return ResolvedItsmOutboundCredentials.ForOAuth(
+            instanceBaseUrl,
+            serviceNow.AuthMode,
+            serviceNow.OAuthClientId.Trim(),
+            serviceNow.OAuthClientSecret.Trim(),
+            oauthRefreshToken: null,
             fromTenantConnection: false);
     }
 

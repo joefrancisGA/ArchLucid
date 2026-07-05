@@ -123,6 +123,38 @@ public sealed class ItsmTenantConnectorCredentialResolverTests
         resolved.Should().BeNull();
     }
 
+    [Fact]
+    public async Task TryResolveOutboundAsync_resolves_deployment_oauth_jira_when_tenant_row_missing()
+    {
+        IntegrationsItsmOutboundOptions deployment = new()
+        {
+            Jira = new JiraItsmOutboundOptions
+            {
+                CloudBaseUrl = "https://shared.atlassian.net",
+                AuthMode = ItsmConnectorAuthMode.OAuth2RefreshToken,
+                OAuthClientId = "client-id",
+                OAuthClientSecret = "client-secret",
+                OAuthRefreshToken = "refresh-token"
+            }
+        };
+
+        ItsmTenantConnectorCredentialResolver sut = CreateSut(
+            new InMemoryTenantItsmConnectorConnectionRepository(),
+            new DictionarySecretProvider(),
+            deployment);
+
+        ResolvedItsmOutboundCredentials? resolved = await sut.TryResolveOutboundAsync(
+            TenantId,
+            TenantItsmConnectorProvider.Jira,
+            CancellationToken.None);
+
+        resolved.Should().NotBeNull();
+        resolved!.AuthMode.Should().Be(ItsmConnectorAuthMode.OAuth2RefreshToken);
+        resolved.OAuthClientId.Should().Be("client-id");
+        resolved.OAuthRefreshToken.Should().Be("refresh-token");
+        resolved.FromTenantConnection.Should().BeFalse();
+    }
+
     private static ItsmTenantConnectorCredentialResolver CreateSut(
         InMemoryTenantItsmConnectorConnectionRepository repository,
         ISecretProvider secretProvider,

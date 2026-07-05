@@ -1,6 +1,7 @@
 using ArchLucid.Application.Connectors.Publishing;
 using ArchLucid.Core.Connectors.Publishing;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integrations.Itsm;
 
 using FluentAssertions;
 
@@ -42,16 +43,25 @@ public sealed class ConfluenceCloudPublisherConnectorTests
         return new PublishRequest(z, z, z, z, z, "1.0.0", "ok", "hello world", "ArchLucid page", null);
     }
 
+    private static Mock<IConfluencePublishingHttpAuthenticator> AuthenticatorReturningBasic()
+    {
+        Mock<IConfluencePublishingHttpAuthenticator> authenticator = new();
+        authenticator
+            .Setup(a => a.TryCreateAuthorizationHeaderAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", "dGVzdA=="));
+
+        return authenticator;
+    }
+
     [Fact]
     public async Task PublishAsync_when_disabled_skips_http_and_returns_configuration_error()
     {
         ThrowOnSendHandler handler = new();
         using HttpClient http = new(handler);
-        http.BaseAddress = new Uri("https://example.atlassian.net/");
         Mock<IOptionsMonitor<ConfluencePublishingOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(new ConfluencePublishingOptions { Enabled = false, SpaceKey = "S" });
         ConfluenceCloudPublisherConnector sut =
-            new(http, monitor.Object, NullLogger<ConfluenceCloudPublisherConnector>.Instance);
+            new(http, monitor.Object, AuthenticatorReturningBasic().Object, NullLogger<ConfluenceCloudPublisherConnector>.Instance);
 
         PublishOutcome outcome = await sut.PublishDocumentAsync(SampleRequest(), CancellationToken.None);
 
@@ -65,13 +75,12 @@ public sealed class ConfluenceCloudPublisherConnectorTests
     {
         ThrowOnSendHandler handler = new();
         using HttpClient http = new(handler);
-        http.BaseAddress = new Uri("https://example.atlassian.net/");
         Mock<IOptionsMonitor<ConfluencePublishingOptions>> monitor = new();
         monitor
             .Setup(m => m.CurrentValue)
             .Returns(new ConfluencePublishingOptions { Enabled = true, SpaceKey = "   " });
         ConfluenceCloudPublisherConnector sut =
-            new(http, monitor.Object, NullLogger<ConfluenceCloudPublisherConnector>.Instance);
+            new(http, monitor.Object, AuthenticatorReturningBasic().Object, NullLogger<ConfluenceCloudPublisherConnector>.Instance);
 
         PublishOutcome outcome = await sut.PublishDocumentAsync(SampleRequest(), CancellationToken.None);
 
@@ -86,13 +95,17 @@ public sealed class ConfluenceCloudPublisherConnectorTests
         QueueHandler handler = new();
         handler.Enqueue(new HttpResponseMessage(System.Net.HttpStatusCode.TooManyRequests));
         using HttpClient http = new(handler);
-        http.BaseAddress = new Uri("https://example.atlassian.net/");
         Mock<IOptionsMonitor<ConfluencePublishingOptions>> monitor = new();
         monitor
             .Setup(m => m.CurrentValue)
-            .Returns(new ConfluencePublishingOptions { Enabled = true, SpaceKey = "DOC" });
+            .Returns(new ConfluencePublishingOptions
+            {
+                Enabled = true,
+                SpaceKey = "DOC",
+                CloudBaseUrl = "https://example.atlassian.net"
+            });
         ConfluenceCloudPublisherConnector sut =
-            new(http, monitor.Object, NullLogger<ConfluenceCloudPublisherConnector>.Instance);
+            new(http, monitor.Object, AuthenticatorReturningBasic().Object, NullLogger<ConfluenceCloudPublisherConnector>.Instance);
 
         PublishOutcome outcome = await sut.PublishDocumentAsync(SampleRequest(), CancellationToken.None);
 

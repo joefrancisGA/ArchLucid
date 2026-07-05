@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -6,6 +7,7 @@ using System.Text.Json.Serialization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Connectors.Publishing;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Integrations.Itsm;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,16 +25,22 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
 
     private readonly HttpClient _http;
     private readonly IOptionsMonitor<ConfluencePublishingOptions> _options;
+    private readonly IConfluencePublishingHttpAuthenticator _authenticator;
     private readonly ILogger<ConfluenceCloudPublisherConnector> _logger;
 
-    public ConfluenceCloudPublisherConnector(HttpClient http, IOptionsMonitor<ConfluencePublishingOptions> options,
+    public ConfluenceCloudPublisherConnector(
+        HttpClient http,
+        IOptionsMonitor<ConfluencePublishingOptions> options,
+        IConfluencePublishingHttpAuthenticator authenticator,
         ILogger<ConfluenceCloudPublisherConnector> logger)
     {
         ArgumentNullException.ThrowIfNull(http);
         ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(authenticator);
         ArgumentNullException.ThrowIfNull(logger);
         _http = http ?? throw new ArgumentNullException(nameof(http));
         _options = options ?? throw new ArgumentNullException(nameof(options));
+        _authenticator = authenticator ?? throw new ArgumentNullException(nameof(authenticator));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -48,6 +56,24 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
         if (spaceKey.Length is 0)
             return new PublishOutcome(false, null, ConfluencePublishFailureReason.BadResponse,
                 "Confluence space key is not configured for this project (Integrations:ConfluencePublishing:SpaceKey or ProjectSpaceKeys).");
+
+        string cloudBaseUrl = o.CloudBaseUrl.Trim().TrimEnd('/');
+
+        if (cloudBaseUrl.Length is 0)
+        {
+            return new PublishOutcome(false, null, ConfluencePublishFailureReason.BadResponse,
+                "Confluence CloudBaseUrl is not configured.");
+        }
+
+        AuthenticationHeaderValue? authorization =
+            await _authenticator.TryCreateAuthorizationHeaderAsync(cancellationToken).ConfigureAwait(false);
+
+        if (authorization is null)
+        {
+            return new PublishOutcome(false, null, ConfluencePublishFailureReason.Unauthorized,
+                DescribeMissingCredentials(o));
+        }
+
         string html = BuildStorageHtml(request.PayloadJson);
         object body = new
         {
@@ -67,8 +93,13 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
             }
         };
 
+        Uri postUri = new($"{cloudBaseUrl}/wiki/rest/api/content");
+        using HttpRequestMessage httpRequest = new(HttpMethod.Post, postUri);
+        httpRequest.Headers.Authorization = authorization;
+        httpRequest.Content = JsonContent.Create(body, options: SerializerOptions);
+
         using HttpResponseMessage response =
-            await _http.PostAsJsonAsync("wiki/rest/api/content", body, SerializerOptions, cancellationToken).ConfigureAwait(false);
+            await _http.SendAsync(httpRequest, cancellationToken).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
         {
@@ -111,6 +142,18 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
             return s;
         return s[..max];
     }
+
+    private static string DescribeMissingCredentials(ConfluencePublishingOptions options) =>
+        options.AuthMode switch
+        {
+            ItsmConnectorAuthMode.BasicApiToken =>
+                "Confluence requires service account email and API token for BasicApiToken auth.",
+            ItsmConnectorAuthMode.OAuth2RefreshToken =>
+                "Confluence OAuth requires client id, client secret, and refresh token.",
+            ItsmConnectorAuthMode.OAuth2ClientCredentials =>
+                "Confluence OAuth requires client id and client secret.",
+            _ => "Confluence outbound credentials are incomplete."
+        };
 
     private sealed record ConfluenceCreateResponse(string? Id);
 }
