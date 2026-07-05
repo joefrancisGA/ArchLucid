@@ -41,7 +41,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     expect(health.ok(), await health.text()).toBeTruthy();
 
-    await ensureDemoWorkspaceSeedReady(request);
+    await ensureDemoWorkspaceSeedReady(request, { workspaces: ["B"] });
   });
 
   test("regulated storyline surfaces Pack A/B findings, severities, consulting DOCX, whitelabel export JSON", async ({

@@ -526,6 +526,45 @@ export async function getPilotRunDeltasRaw(
   });
 }
 
+const maxPilotRunDeltasPollAttempts = 16;
+
+/**
+ * Same as {@link getPilotRunDeltasRaw} but retries on HTTP 5xx (transient API/SQL) and 429 during CI seed probes.
+ */
+export async function getPilotRunDeltasWithTransientRetries(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope: LiveTenantScopeHeaders,
+  options?: { apiKey?: string | null },
+): Promise<APIResponse> {
+  let lastResponse: APIResponse | undefined;
+
+  for (let attempt = 0; attempt < maxPilotRunDeltasPollAttempts; attempt++) {
+    lastResponse = await getPilotRunDeltasRaw(request, runId, tenantScope, options);
+    const code = lastResponse.status();
+
+    if (lastResponse.ok()) {
+      return lastResponse;
+    }
+
+    if (code === 429 && attempt < maxPilotRunDeltasPollAttempts - 1) {
+      await delayAfterRateLimitedResponse(lastResponse);
+
+      continue;
+    }
+
+    if (code >= 500 && code < 600 && attempt < maxPilotRunDeltasPollAttempts - 1) {
+      await new Promise((r) => setTimeout(r, 500));
+
+      continue;
+    }
+
+    return lastResponse;
+  }
+
+  return lastResponse!;
+}
+
 /** Counts sealed findings on `findingsSnapshot.findings` from {@link getAuthorityRunDetailRaw} JSON (camelCase wire shape). */
 export function countFindingsInAuthorityRunDetailPayload(payload: unknown): number {
   if (payload === null || typeof payload !== "object") {

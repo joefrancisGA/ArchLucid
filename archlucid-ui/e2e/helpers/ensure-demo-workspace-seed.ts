@@ -3,13 +3,23 @@ import type { APIRequestContext } from "@playwright/test";
 import { demoWorkspacesFixtureManifest } from "./demo-workspaces-fixture-manifest";
 import {
   getAuthorityRunDetailRaw,
-  getPilotRunDeltasRaw,
+  getPilotRunDeltasWithTransientRetries,
   liveApiBase,
   liveJsonHeaders,
 } from "./live-api-client";
 
+export type DemoWorkspaceSeedProbe = "A" | "B";
+
+export type EnsureDemoWorkspaceSeedReadyOptions = {
+  /** When omitted, both demo workspaces are probed after seed. */
+  readonly workspaces?: readonly DemoWorkspaceSeedProbe[];
+};
+
 /** Idempotent demo seed plus authority-run probes for merge-blocking `@release-gate` workspace smokes. */
-export async function ensureDemoWorkspaceSeedReady(request: APIRequestContext): Promise<void> {
+export async function ensureDemoWorkspaceSeedReady(
+  request: APIRequestContext,
+  options?: EnsureDemoWorkspaceSeedReadyOptions,
+): Promise<void> {
   const seed = await request.post(`${liveApiBase}/v1/demo/seed`, {
     headers: liveJsonHeaders(),
     timeout: 120_000,
@@ -19,8 +29,11 @@ export async function ensureDemoWorkspaceSeedReady(request: APIRequestContext): 
     throw new Error(`POST /v1/demo/seed expected 204 — ${seed.status()}: ${(await seed.text()).slice(0, 500)}`);
   }
 
+  const requested = new Set<DemoWorkspaceSeedProbe>(options?.workspaces ?? ["A", "B"]);
+
   const workspaceChecks = [
     {
+      probe: "A" as const,
       label: "workspace A product tour",
       runId: demoWorkspacesFixtureManifest.workspaceA.runId,
       scope: {
@@ -30,6 +43,7 @@ export async function ensureDemoWorkspaceSeedReady(request: APIRequestContext): 
       },
     },
     {
+      probe: "B" as const,
       label: "workspace B regulated scenario",
       runId: demoWorkspacesFixtureManifest.workspaceB.runId,
       scope: {
@@ -38,7 +52,7 @@ export async function ensureDemoWorkspaceSeedReady(request: APIRequestContext): 
         projectId: demoWorkspacesFixtureManifest.workspaceB.projectId,
       },
     },
-  ] as const;
+  ].filter((check) => requested.has(check.probe));
 
   for (const check of workspaceChecks) {
     const probe = await getAuthorityRunDetailRaw(request, check.runId, check.scope);
@@ -49,43 +63,7 @@ export async function ensureDemoWorkspaceSeedReady(request: APIRequestContext): 
       );
     }
 
-    const deltas = await getPilotRunDeltasRaw(request, check.runId, check.scope);
-
-    if (deltas.ok()) {
-      continue;
-    }
-
-    if (deltas.status() === 503) {
-      let lastStatus = deltas.status();
-      let lastBody = (await deltas.text()).slice(0, 500);
-
-      for (let attempt = 0; attempt < 8; attempt++) {
-        await new Promise((r) => setTimeout(r, Math.min(250 * 2 ** attempt, 4000)));
-
-        const retry = await getPilotRunDeltasRaw(request, check.runId, check.scope);
-
-        if (retry.ok()) {
-          lastStatus = retry.status();
-          lastBody = "";
-          break;
-        }
-
-        lastStatus = retry.status();
-        lastBody = (await retry.text()).slice(0, 500);
-
-        if (lastStatus !== 503) {
-          break;
-        }
-      }
-
-      if (lastStatus === 200 || lastStatus === 204) {
-        continue;
-      }
-
-      throw new Error(
-        `${check.label}: GET /v1/pilots/runs/{runId}/pilot-run-deltas expected 200 — ${lastStatus}: ${lastBody}`,
-      );
-    }
+    const deltas = await getPilotRunDeltasWithTransientRetries(request, check.runId, check.scope);
 
     if (!deltas.ok()) {
       throw new Error(
