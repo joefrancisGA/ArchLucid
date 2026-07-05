@@ -49,7 +49,6 @@ async function main(): Promise<void> {
   const standaloneRoot = syncStandaloneRuntimeAssets(projectRoot);
   const serverJs = path.join(standaloneRoot, "server.js");
 
-  // eslint-disable-next-line no-console -- startup diagnostics for CI
   console.log(`[e2e-live] Proxying to ArchLucid API at ${LIVE_API_BASE}`);
 
   const child = spawn(process.execPath, [serverJs], {

@@ -1,6 +1,6 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
-import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_HOME_AHA_MOMENT } from "@/lib/showcase-home-aha-moment";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";

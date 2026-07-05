@@ -20,7 +20,6 @@ const claimsShowcasePath = "/showcase/claims-intake-modernization";
  * Marketing showcase QuickNav (`ShowcaseQuickNav`) uses "Open manifest"; review-trail cards use "Manifest";
  * operator runs table still uses "Finalized manifest". Proof-chain tests accept any stable deep-link label.
  */
-const SHOWCASE_MANIFEST_DEEP_LINK = /^(?:Open signed record|Signed review record|Review package|Finalized review package)$/i;
 
 /** Branded 404 — assert visible recovery copy plus stable recovery affordances from OperatorBrandedNotFound. */
 async function expectBrandedNotFoundSurface(page: Page): Promise<void> {

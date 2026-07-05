@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import {
-  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
   OPERATOR_HOME_SAMPLE_FINDINGS_HEADING,
   OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL,

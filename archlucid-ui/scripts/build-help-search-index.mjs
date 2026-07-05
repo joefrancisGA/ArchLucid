@@ -338,7 +338,6 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = ${seriali
 
   const bytes = Buffer.byteLength(serialized, "utf8");
 
-  // eslint-disable-next-line no-console
   console.log(
     `Wrote ${outPath} (${all.length} sections, ~${(bytes / 1024).toFixed(1)}KB records JSON in output file).`,
   );

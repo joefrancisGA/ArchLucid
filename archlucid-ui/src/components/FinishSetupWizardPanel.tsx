@@ -1,6 +1,5 @@
 "use client";
 
-import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

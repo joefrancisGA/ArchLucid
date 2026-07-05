@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";

@@ -1,7 +1,5 @@
 import type { Config } from "tailwindcss";
 
-const alColor = (cssVar: string) => `rgb(var(${cssVar}) / <alpha-value>)`;
-
 const config: Config = {
   darkMode: "class",
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
