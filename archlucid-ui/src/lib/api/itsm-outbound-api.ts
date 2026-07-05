@@ -22,8 +22,12 @@ export type TenantItsmConnectorConnectionResponse = {
   isConfigured?: boolean;
   isEnabled?: boolean;
   instanceBaseUrl?: string | null;
+  authMode?: string | null;
   authUserName?: string | null;
   credentialKeyVaultSecretName?: string | null;
+  oAuthClientIdKeyVaultSecretName?: string | null;
+  oAuthClientSecretKeyVaultSecretName?: string | null;
+  oAuthRefreshTokenKeyVaultSecretName?: string | null;
   inboundWebhookKeyVaultSecretName?: string | null;
   label?: string | null;
   updatedUtc?: string;
@@ -31,11 +35,40 @@ export type TenantItsmConnectorConnectionResponse = {
 
 export type TenantItsmConnectorConnectionUpsertRequest = {
   instanceBaseUrl: string;
-  authUserName: string;
-  credentialKeyVaultSecretName: string;
+  authMode?: string | null;
+  authUserName?: string | null;
+  credentialKeyVaultSecretName?: string | null;
+  oAuthClientIdKeyVaultSecretName?: string | null;
+  oAuthClientSecretKeyVaultSecretName?: string | null;
+  oAuthRefreshTokenKeyVaultSecretName?: string | null;
   inboundWebhookKeyVaultSecretName?: string | null;
   isEnabled?: boolean;
   label?: string | null;
+};
+
+export type ItsmAtlassianOAuthConsentStartRequest = {
+  instanceBaseUrl: string;
+  redirectUri?: string | null;
+  oAuthClientIdKeyVaultSecretName: string;
+  oAuthClientSecretKeyVaultSecretName: string;
+  oAuthRefreshTokenKeyVaultSecretName: string;
+  inboundWebhookKeyVaultSecretName?: string | null;
+  label?: string | null;
+};
+
+export type ItsmAtlassianOAuthConsentStartResponse = {
+  authorizeUrl?: string;
+  state?: string;
+};
+
+export type ItsmAtlassianOAuthConsentCompleteRequest = {
+  code: string;
+  state: string;
+};
+
+export type ItsmAtlassianOAuthConsentCompleteResponse = {
+  refreshTokenStored?: boolean;
+  connection?: TenantItsmConnectorConnectionResponse | null;
 };
 
 export type TenantItsmOutboundSettingsResponse = {
@@ -88,6 +121,31 @@ export async function upsertTenantItsmConnectorConnection(
 
 export async function deleteTenantItsmConnectorConnection(provider: "jira" | "servicenow"): Promise<void> {
   await apiDelete(`/v1/integrations/itsm/connections/${provider}`);
+}
+
+export function buildItsmAtlassianOAuthRedirectUri(): string {
+  if (typeof window === "undefined")
+    return "/integrations/itsm/oauth/callback";
+
+  return `${window.location.origin}/integrations/itsm/oauth/callback`;
+}
+
+export async function startItsmAtlassianOAuthConsent(
+  body: ItsmAtlassianOAuthConsentStartRequest,
+): Promise<ItsmAtlassianOAuthConsentStartResponse> {
+  return apiPostJson<ItsmAtlassianOAuthConsentStartResponse>(
+    "/v1/integrations/itsm/connections/jira/oauth/consent/start",
+    body,
+  );
+}
+
+export async function completeItsmAtlassianOAuthConsent(
+  body: ItsmAtlassianOAuthConsentCompleteRequest,
+): Promise<ItsmAtlassianOAuthConsentCompleteResponse> {
+  return apiPostJson<ItsmAtlassianOAuthConsentCompleteResponse>(
+    "/v1/integrations/itsm/connections/jira/oauth/consent/complete",
+    body,
+  );
 }
 
 export async function listItsmFindingCorrelations(

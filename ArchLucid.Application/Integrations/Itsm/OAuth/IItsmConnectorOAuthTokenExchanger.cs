@@ -13,4 +13,12 @@ public interface IItsmConnectorOAuthTokenExchanger
         string oauthClientSecret,
         string? oauthRefreshToken,
         CancellationToken cancellationToken);
+
+    Task<ItsmConnectorOAuthTokenExchangeResult?> TryExchangeAuthorizationCodeAsync(
+        string oauthClientId,
+        string oauthClientSecret,
+        string authorizationCode,
+        string redirectUri,
+        string codeVerifier,
+        CancellationToken cancellationToken);
 }

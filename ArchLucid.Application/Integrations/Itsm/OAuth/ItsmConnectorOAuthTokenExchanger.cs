@@ -98,7 +98,79 @@ public sealed class ItsmConnectorOAuthTokenExchanger(HttpClient http, ILogger<It
             return new ItsmConnectorOAuthTokenExchangeResult
             {
                 AccessToken = parsed.AccessToken.Trim(),
-                ExpiresAtUtc = TimeProvider.System.GetUtcNow().AddSeconds(expiresInSeconds)
+                ExpiresAtUtc = TimeProvider.System.GetUtcNow().AddSeconds(expiresInSeconds),
+                RefreshToken = string.IsNullOrWhiteSpace(parsed.RefreshToken) ? null : parsed.RefreshToken.Trim()
+            };
+        }
+    }
+
+    public async Task<ItsmConnectorOAuthTokenExchangeResult?> TryExchangeAuthorizationCodeAsync(
+        string oauthClientId,
+        string oauthClientSecret,
+        string authorizationCode,
+        string redirectUri,
+        string codeVerifier,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(oauthClientId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(oauthClientSecret);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authorizationCode);
+        ArgumentException.ThrowIfNullOrWhiteSpace(redirectUri);
+        ArgumentException.ThrowIfNullOrWhiteSpace(codeVerifier);
+
+        Dictionary<string, string> form = new()
+        {
+            ["grant_type"] = "authorization_code",
+            ["client_id"] = oauthClientId.Trim(),
+            ["client_secret"] = oauthClientSecret.Trim(),
+            ["code"] = authorizationCode.Trim(),
+            ["redirect_uri"] = redirectUri.Trim(),
+            ["code_verifier"] = codeVerifier.Trim()
+        };
+
+        using HttpRequestMessage request = new(HttpMethod.Post, AtlassianTokenEndpoint);
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        request.Content = new FormUrlEncodedContent(form);
+
+        HttpResponseMessage response;
+        try
+        {
+            response = await _http.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning(ex, "Atlassian OAuth authorization-code exchange failed: transport error.");
+
+            return null;
+        }
+
+        using (response)
+        {
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Warning))
+                    _logger.LogWarning(
+                        "Atlassian OAuth authorization-code exchange failed: HTTP {StatusCode}.",
+                        (int)response.StatusCode);
+
+                return null;
+            }
+
+            OAuthTokenResponse? parsed = await response.Content
+                .ReadFromJsonAsync<OAuthTokenResponse>(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            if (parsed is null || string.IsNullOrWhiteSpace(parsed.AccessToken))
+                return null;
+
+            int expiresInSeconds = parsed.ExpiresIn is > 0 ? parsed.ExpiresIn.Value : 3600;
+
+            return new ItsmConnectorOAuthTokenExchangeResult
+            {
+                AccessToken = parsed.AccessToken.Trim(),
+                ExpiresAtUtc = TimeProvider.System.GetUtcNow().AddSeconds(expiresInSeconds),
+                RefreshToken = string.IsNullOrWhiteSpace(parsed.RefreshToken) ? null : parsed.RefreshToken.Trim()
             };
         }
     }
@@ -122,6 +194,13 @@ public sealed class ItsmConnectorOAuthTokenExchanger(HttpClient http, ILogger<It
 
         [JsonPropertyName("expires_in")]
         public int? ExpiresIn
+        {
+            get;
+            init;
+        }
+
+        [JsonPropertyName("refresh_token")]
+        public string? RefreshToken
         {
             get;
             init;

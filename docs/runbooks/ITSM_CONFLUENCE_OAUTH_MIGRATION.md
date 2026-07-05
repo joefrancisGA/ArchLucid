@@ -77,14 +77,16 @@ Restart API replicas after configuration change so token cache and options reloa
 
 Smoke: `docs/integrations/smoke/CONNECTOR_SMOKE_CONFLUENCE.md` — expect `Integration.ConfluenceFirstValueReportPublished` on success.
 
-## Atlassian refresh token acquisition (operator-assisted)
+## Atlassian refresh token acquisition (in-product consent)
 
-TB-600 does **not** yet ship an in-product auth-code consent UI. Until that UI lands:
+TB-600 ships an operator **Connect with Atlassian** flow on **ITSM → Jira** settings:
 
-1. Create an OAuth 2.0 (3LO) app in the [Atlassian developer console](https://developer.atlassian.com/).
-2. Complete the authorization code flow once using Atlassian's documented tool or a secure internal script.
-3. Store the **refresh token** in Key Vault; never commit it to git or operator tickets.
-4. Map the refresh token secret into `OAuthRefreshToken` (deployment) or `OAuthRefreshTokenKeyVaultSecretName` (tenant row).
+1. Configure `Integrations:AtlassianOAuth` with the ArchLucid-owned Atlassian 3LO app client id/secret (or Key Vault secret names).
+2. Register the UI callback URL in the Atlassian developer console, e.g. `https://<your-ui-host>/integrations/itsm/oauth/callback` (or set `Integrations:AtlassianOAuth:DefaultRedirectUri`).
+3. In ITSM settings, choose **OAuth 2.0 (Atlassian)**, enter Key Vault secret **names** for client id, client secret, and refresh-token destination.
+4. Click **Connect with Atlassian**, complete consent, and return to the callback page — the refresh token is written to Key Vault and the tenant Jira connection row is saved.
+
+Manual acquisition (script or Atlassian console) remains valid when Key Vault write access is restricted to break-glass operators.
 
 ## Verification checklist
 

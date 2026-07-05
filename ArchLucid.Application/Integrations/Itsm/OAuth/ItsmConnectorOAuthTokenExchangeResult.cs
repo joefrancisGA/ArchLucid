@@ -14,4 +14,10 @@ public sealed class ItsmConnectorOAuthTokenExchangeResult
         get;
         init;
     }
+
+    public string? RefreshToken
+    {
+        get;
+        init;
+    }
 }

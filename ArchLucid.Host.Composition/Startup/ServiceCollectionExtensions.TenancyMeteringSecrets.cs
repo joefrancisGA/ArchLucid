@@ -7,7 +7,9 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Http;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Secrets;
+using ArchLucid.Core.IntegrationSecrets;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Host.Core.Configuration.IntegrationSecrets;
 using ArchLucid.Host.Core.Configuration.Secrets;
 using ArchLucid.Host.Composition.Metering;
 using ArchLucid.Persistence.Metering;
@@ -26,6 +28,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchLucid.Core.Metering.MeteringOptions.SectionName));
         services.PostConfigure<ArchLucid.Core.Metering.MeteringOptions>(static options => options.Normalize());
         services.Configure<ArchLucidSecretOptions>(configuration.GetSection(ArchLucidSecretOptions.SectionName));
+        services.Configure<IntegrationsAtlassianOAuthOptions>(
+            configuration.GetSection(IntegrationsAtlassianOAuthOptions.SectionName));
         services.Configure<TrialAuthOptions>(configuration.GetSection(TrialAuthOptions.SectionPath));
         services.Configure<TrialLifecycleSchedulerOptions>(
             configuration.GetSection(TrialLifecycleSchedulerOptions.SectionName));
@@ -61,19 +65,39 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ITenantUsageStatusService, TenantUsageStatusService>();
         services.AddScoped<TrialLifecycleTransitionEngine>();
 
+        services.AddSingleton<InMemoryIntegrationSecretStore>();
+
         services.AddSingleton<ISecretProvider>(sp =>
+        {
+            IOptions<ArchLucidSecretOptions> options = sp.GetRequiredService<IOptions<ArchLucidSecretOptions>>();
+            ArchLucidSecretOptions o = options.Value;
+            InMemoryIntegrationSecretStore overlay = sp.GetRequiredService<InMemoryIntegrationSecretStore>();
+
+            if (o.Provider == SecretProviderKind.KeyVault)
+            {
+                return new KeyVaultSecretProvider(
+                    Options.Create(o),
+                    sp.GetRequiredService<IMemoryCache>());
+            }
+
+            ISecretProvider inner = new EnvironmentVariableSecretProvider(sp.GetRequiredService<IConfiguration>());
+
+            return new CompositeSecretProvider(inner, overlay);
+        });
+
+        services.AddSingleton<IIntegrationSecretWriter>(sp =>
         {
             IOptions<ArchLucidSecretOptions> options = sp.GetRequiredService<IOptions<ArchLucidSecretOptions>>();
             ArchLucidSecretOptions o = options.Value;
 
             if (o.Provider == SecretProviderKind.KeyVault)
-
-                return new KeyVaultSecretProvider(
+            {
+                return new KeyVaultIntegrationSecretWriter(
                     Options.Create(o),
                     sp.GetRequiredService<IMemoryCache>());
+            }
 
-
-            return new EnvironmentVariableSecretProvider(sp.GetRequiredService<IConfiguration>());
+            return new InMemoryIntegrationSecretWriter(sp.GetRequiredService<InMemoryIntegrationSecretStore>());
         });
     }
 }

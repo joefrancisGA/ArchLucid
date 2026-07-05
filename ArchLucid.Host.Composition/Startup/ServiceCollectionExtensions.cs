@@ -194,6 +194,7 @@ public static partial class ServiceCollectionExtensions
             .AddHttpClient<IItsmConnectorOAuthTokenExchanger, ItsmConnectorOAuthTokenExchanger>(
                 static client => client.Timeout = TimeSpan.FromSeconds(30))
             .AddOutboundExternalHttpResilience();
+        services.AddScoped<IItsmAtlassianOAuthConsentService, ItsmAtlassianOAuthConsentService>();
         services.AddScoped<IItsmOutboundHttpAuthenticator, ItsmOutboundHttpAuthenticator>();
         services.AddScoped<IItsmOutboundIssueCreationService, ItsmOutboundIssueCreationService>();
         services.AddScoped<ItsmOutboundIssueCreationService>();

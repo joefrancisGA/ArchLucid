@@ -37,6 +37,30 @@ public sealed class ItsmConnectorOAuthTokenExchangerTests
         handler.LastRequestUri.Should().Be("https://tenant.service-now.com/oauth_token.do");
     }
 
+    [Fact]
+    public async Task TryExchangeAuthorizationCodeAsync_atlassian_returns_refresh_token()
+    {
+        StubHandler handler = new(static (_, _) => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = JsonContent.Create(new { access_token = "atl-access", expires_in = 3600, refresh_token = "atl-refresh" })
+        });
+
+        ItsmConnectorOAuthTokenExchanger sut = new(new HttpClient(handler), NullLogger<ItsmConnectorOAuthTokenExchanger>.Instance);
+
+        ItsmConnectorOAuthTokenExchangeResult? result = await sut.TryExchangeAuthorizationCodeAsync(
+            "client-id",
+            "client-secret",
+            "auth-code",
+            "https://app.example.com/callback",
+            "verifier",
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.AccessToken.Should().Be("atl-access");
+        result.RefreshToken.Should().Be("atl-refresh");
+        handler.LastRequestUri.Should().Be("https://auth.atlassian.com/oauth/token");
+    }
+
     private sealed class StubHandler : HttpMessageHandler
     {
         private readonly Func<HttpRequestMessage, CancellationToken, HttpResponseMessage> _handler;
