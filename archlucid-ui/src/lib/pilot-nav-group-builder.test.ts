@@ -57,7 +57,13 @@ describe("PilotNavGroupBuilder", () => {
     expect(securityTrustLink?.requiredAuthority).toBe("ReadAuthority");
   });
 
-  it("lists Overview first in Review work nav (TB-516)", () => {
+  it("uses Architecture as the pilot nav group label", () => {
+    const group = new PilotNavGroupBuilder().build();
+
+    expect(group.label).toBe("Architecture");
+  });
+
+  it("lists Overview first in Architecture nav (TB-516)", () => {
     const group = new PilotNavGroupBuilder().build();
     const overviewLink = group.links[0];
 
@@ -66,7 +72,7 @@ describe("PilotNavGroupBuilder", () => {
     expect(overviewLink?.title).toBe("Workspace overview");
   });
 
-  it("keeps Review work focused on first-review essentials only (TB-518)", () => {
+  it("keeps Architecture nav focused on first-review essentials only (TB-518)", () => {
     const group = new PilotNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.label)).toEqual([

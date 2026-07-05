@@ -104,7 +104,7 @@ export const SERVICE_BUS_HEALTH_LABELS = {
 
 /** Sidebar group headings — single source for `*-nav-group-builder.ts` files. */
 export const OPERATOR_NAV_GROUP_LABELS = {
-  reviewWork: "Review work",
+  reviewWork: "Architecture",
   analysis: "Insights",
   governance: "Governance",
   reports: "Reports",

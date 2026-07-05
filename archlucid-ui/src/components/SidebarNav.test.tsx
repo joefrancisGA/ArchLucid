@@ -82,11 +82,12 @@ describe("SidebarNav (primary navigation)", () => {
     localStorage.clear();
   });
 
-  it("shows a calm first-run nav: Review work expanded, Operate hidden until unlock", () => {
+  it("shows a calm first-run nav: Architecture expanded, Operate hidden until unlock", () => {
     render(<SidebarNav />);
 
-    const reviewNav = screen.getByRole("navigation", { name: "Review work" });
+    const reviewNav = screen.getByRole("navigation", { name: "Architecture" });
     expect(reviewNav).toBeInTheDocument();
+    expect(screen.queryByText("Review work")).toBeNull();
     expect(within(reviewNav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(reviewNav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
     expect(within(reviewNav).getByRole("link", { name: "Getting started" })).toHaveAttribute("href", "/onboarding");
@@ -157,7 +158,7 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.queryByRole("button", { name: /Show \d+ more destinations/ })).toBeNull();
   });
 
-  it("uses chevron Administration disclosure separate from Review work", async () => {
+  it("uses chevron Administration disclosure separate from Architecture", async () => {
     render(<SidebarNav />);
 
     const adminToggle = screen.getByTestId("sidebar-group-toggle-operator-admin");
@@ -207,13 +208,13 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     localStorage.clear();
   });
 
-  it("keeps Review work expanded with Operate hidden until unlock", async () => {
+  it("keeps Architecture expanded with Operate hidden until unlock", async () => {
     render(<SidebarNav />);
 
     expect(screen.getByTestId("sidebar-group-toggle-pilot")).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByText("Review work")).toBeInTheDocument();
+    expect(screen.getByText("Architecture")).toBeInTheDocument();
 
-    const nav = screen.getByRole("navigation", { name: "Review work" });
+    const nav = screen.getByRole("navigation", { name: "Architecture" });
     expect(within(nav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(nav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
     expect(within(nav).getByRole("link", { name: "Review packages" })).toHaveAttribute(

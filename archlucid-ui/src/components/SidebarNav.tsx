@@ -30,7 +30,7 @@ import {
 const FIRST_RUN_WORKFLOW_ROUTE_PREFIXES = ["/ask", "/compare"] as const;
 
 /**
- * Grouped sidebar navigation (desktop). Review work defaults open; deeper groups collapse by default
+ * Grouped sidebar navigation (desktop). Architecture defaults open; deeper groups collapse by default
  * unless the user has saved expansion preferences or the active route lives inside a group.
  */
 export function SidebarNav() {

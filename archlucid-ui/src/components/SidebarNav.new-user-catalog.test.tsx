@@ -117,7 +117,7 @@ describe("SidebarNav — new-user buyer-polished catalog (no committed review)",
     localStorage.clear();
   });
 
-  it("keeps Review work destinations visible without expansion", () => {
+  it("keeps Architecture destinations visible without expansion", () => {
     render(<SidebarNav />);
 
     for (const href of REVIEW_WORK_HREFS) {

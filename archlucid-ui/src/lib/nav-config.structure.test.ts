@@ -92,6 +92,13 @@ describe("nav-config structure", () => {
     }
   });
 
+  it("labels pilot nav group Architecture", () => {
+    const pilot = NAV_GROUPS.find((group) => group.id === "pilot");
+
+    expect(pilot?.label).toBe("Architecture");
+    expect(pilot?.label).not.toBe("Review work");
+  });
+
   it("labels operate-analysis nav group Insights (TB-525)", () => {
     const analysis = NAV_GROUPS.find((group) => group.id === "operate-analysis");
 

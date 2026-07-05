@@ -8,7 +8,7 @@ import { runAxe } from "./helpers/axe-helper";
 /**
  * Pilot group `<nav aria-label>` — always `group.label` from `PilotNavGroupBuilder` (`SidebarNav` sets `aria-label={group.label}`).
  */
-const pilotNavGroupAriaLabel = "Review work";
+const pilotNavGroupAriaLabel = "Architecture";
 
 /** Canonical reviews list route — pilot sidebar + minimal-shell header both link here. */
 const reviewsListNavHref = "/reviews?projectId=default";

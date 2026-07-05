@@ -64,7 +64,7 @@ describe("onboarding-secondary-surfaces (TB-342)", () => {
     expect(ONBOARDING_TOUR_WELCOME_BODY).toContain("review packages");
     expect(ONBOARDING_TOUR_NEW_REVIEW_BODY).toContain("Start review");
     expect(ONBOARDING_TOUR_REVIEW_PACKAGES_BODY).toContain("audit trail");
-    expect(ONBOARDING_TOUR_FOLLOW_WORKFLOW_BODY).toContain("Review work");
+    expect(ONBOARDING_TOUR_FOLLOW_WORKFLOW_BODY).toContain("Architecture");
     expect(ONBOARDING_TOUR_GET_HELP_BODY).toContain("restart the tour");
     expect(ONBOARDING_TOUR_READY_BODY).toContain("pilot checklist");
     expect(OPERATOR_ONBOARDING_TOUR_STEPS).toHaveLength(6);

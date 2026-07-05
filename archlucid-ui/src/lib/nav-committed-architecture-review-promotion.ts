@@ -10,7 +10,7 @@ const COMMITTED_ARCHITECTURE_REVIEW_PROMOTED_HREFS = new Set<string>([
 /** Pilot essentials demoted to extended tier after the first committed review (TB-524). */
 const COMMITTED_ARCHITECTURE_REVIEW_DEMOTED_HREFS = new Set<string>(["/onboarding"]);
 
-/** Pilot-group essentials that stay visible before Review work disclosure expands. */
+/** Pilot-group essentials that stay visible before Architecture nav disclosure expands. */
 const COMMITTED_ARCHITECTURE_REVIEW_COLLAPSED_SIDEBAR_HREFS = new Set<string>(["/graph"]);
 
 function navPathWithoutQuery(href: string): string {

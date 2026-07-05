@@ -10,7 +10,7 @@ export const ONBOARDING_TOUR_REVIEW_PACKAGES_BODY =
   "Completed reviews produce review packages with findings, evidence, decisions, and an audit trail. Track recent activity here, or open the full list when you need every review in the workspace.";
 
 export const ONBOARDING_TOUR_FOLLOW_WORKFLOW_BODY =
-  "Use Review work to move between intake, evidence, review packages, and portfolio views. Administration stays collapsed unless you need tenant or project settings.";
+  "Use Architecture to move between intake, evidence, review packages, and portfolio views. Administration stays collapsed unless you need tenant or project settings.";
 
 export const ONBOARDING_TOUR_GET_HELP_BODY =
   "Open Help for the product guide, documentation index, and this tour. You can restart the tour anytime from Help.";
