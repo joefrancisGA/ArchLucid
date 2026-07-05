@@ -14,6 +14,7 @@ import {
   skipDraftQuestionLive,
   submitDraftRequestLive,
 } from "./helpers/live-api-client";
+import { L0_ACTOR_ADDITIONAL_KINDS_QUESTION_KEY } from "./helpers/draft-intake-question-keys";
 
 const INTENT =
   "Design a multi-tenant Azure API platform with private SQL, Redis cache, and Entra ID authentication.";
@@ -112,8 +113,8 @@ test.describe("live-api-socratic-intake", () => {
       await skipDraftQuestionLive(request, draftId, question.questionKey);
     }
 
-    if (!pending.some((question) => question.questionKey === "l0.actor.additional-kinds")) {
-      await skipDraftQuestionLive(request, draftId, "l0.actor.additional-kinds");
+    if (!pending.some((question) => question.questionKey === L0_ACTOR_ADDITIONAL_KINDS_QUESTION_KEY)) {
+      await skipDraftQuestionLive(request, draftId, L0_ACTOR_ADDITIONAL_KINDS_QUESTION_KEY);
     }
 
     const submit = await submitDraftRequestLive(request, draftId);
