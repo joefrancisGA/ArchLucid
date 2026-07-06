@@ -76,6 +76,24 @@ describe("operate-nav-progressive-unlock", () => {
     expect(hrefs).not.toContain("/governance/risk-exceptions");
   });
 
+  it("pilot-nav E2E: phase 2 with extended disclosure only hides advanced-tier approval queue", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      false,
+      AUTHORITY_RANK.ExecuteAuthority,
+      false,
+      "all",
+      true,
+      2,
+    );
+    const governance = rows.find((row) => row.group.id === "operate-governance");
+    const hrefs = governance?.visibleLinks.map((link) => link.href) ?? [];
+
+    expect(hrefs).toContain("/governance/findings");
+    expect(hrefs).not.toContain("/governance");
+  });
+
   it("defaults stored phase to 0 for new users", () => {
     localStorage.clear();
     expect(readOperateNavUnlockPhase()).toBe(0);

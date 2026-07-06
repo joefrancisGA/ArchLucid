@@ -47,6 +47,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
         localStorage.setItem("archlucid_nav_show_extended", "false");
         localStorage.setItem("archlucid_nav_show_advanced", "false");
         localStorage.setItem("archlucid_nav_show_administration", "0");
+        localStorage.removeItem("archlucid.buyerCtoDemoTour.active.v1");
         localStorage.setItem(keys.hasSeenOnboardingKey, "true");
         localStorage.setItem(keys.onboardingTourCompletedKey, "1");
         localStorage.setItem("archlucid_sidebar_recent_activity_open", "0");
@@ -111,8 +112,8 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await page.getByTestId("sidebar-group-toggle-operate-governance").click();
 
     const governanceNav = page.getByRole("navigation", { name: "Governance", exact: true });
-    const riskRegisterLink = governanceNav.getByRole("link", { name: /Risk register/i });
-    const governanceWorkflowLink = governanceNav.getByRole("link", { name: /Approval queue/i });
+    const riskRegisterLink = governanceNav.getByTestId("nav-operate-governance-findings");
+    const governanceWorkflowLink = governanceNav.getByTestId("nav-operate-governance-workflow");
 
     await expect(governanceNav).toBeVisible({ timeout: 15_000 });
     // Pilot profile keeps advanced-tier workflow routes hidden until extended+advanced disclosure is on.

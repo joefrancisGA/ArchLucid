@@ -1,4 +1,5 @@
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
+import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 
 export type SidebarNavExpansionStateInput = {
   readonly pathname: string;
@@ -29,7 +30,9 @@ export function resolveSidebarNavExpansionState(
       : effectiveNavDisclosureForPathname(input.pathname, input.showExtended, input.showAdvanced);
 
   const ctoDemoNavExpanded =
-    input.buyerPolishedShell && (input.ctoDemoNavExpandedEnv || input.runtimeCtoDemoTourActive);
+    !isOperatorExperienceFullShellEnv() &&
+    input.buyerPolishedShell &&
+    (input.ctoDemoNavExpandedEnv || input.runtimeCtoDemoTourActive);
 
   const navExpanded = ctoDemoNavExpanded
     ? true

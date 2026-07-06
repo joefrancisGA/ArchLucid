@@ -14,5 +14,13 @@ export function pilotNavLinkTestId(href: string): string | undefined {
     return "nav-pilot-baseline-settings";
   }
 
+  if (path === "/governance") {
+    return "nav-operate-governance-workflow";
+  }
+
+  if (path === "/governance/findings") {
+    return "nav-operate-governance-findings";
+  }
+
   return undefined;
 }

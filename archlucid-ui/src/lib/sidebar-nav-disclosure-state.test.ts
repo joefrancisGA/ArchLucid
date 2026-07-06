@@ -1,8 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { resolveSidebarNavExpansionState } from "@/lib/sidebar-nav-disclosure-state";
 
 describe("resolveSidebarNavExpansionState", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("expands nav tiers in demo UI mode", () => {
     const state = resolveSidebarNavExpansionState({
       pathname: "/reviews",
@@ -19,7 +23,7 @@ describe("resolveSidebarNavExpansionState", () => {
     expect(state.navAdvanced).toBe(true);
   });
 
-  it("collapses buyer-polished shell unless CTO demo nav is expanded", () => {
+  it("collapses buyer-polished shell in operator-shell builds even when CTO demo nav is flagged", () => {
     const collapsed = resolveSidebarNavExpansionState({
       pathname: "/reviews",
       showExtended: true,
@@ -33,6 +37,24 @@ describe("resolveSidebarNavExpansionState", () => {
 
     expect(collapsed.navExpanded).toBe(false);
     expect(collapsed.navAdvanced).toBe(false);
+
+    const withCtoPackagingFlag = resolveSidebarNavExpansionState({
+      pathname: "/reviews",
+      showExtended: false,
+      showAdvanced: false,
+      navDisclosurePathOverride: false,
+      buyerPolishedShell: true,
+      demoUi: false,
+      ctoDemoNavExpandedEnv: true,
+      runtimeCtoDemoTourActive: false,
+    });
+
+    expect(withCtoPackagingFlag.navExpanded).toBe(false);
+    expect(withCtoPackagingFlag.navAdvanced).toBe(false);
+  });
+
+  it("expands buyer-polished nav for packaged CTO demo when not in operator-shell mode", () => {
+    vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
 
     const expanded = resolveSidebarNavExpansionState({
       pathname: "/reviews",
