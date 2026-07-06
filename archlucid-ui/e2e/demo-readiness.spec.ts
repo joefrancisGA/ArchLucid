@@ -12,7 +12,7 @@ import {
   isShowcaseSignedManifestBrowserPath,
   showcaseSignedManifestBrowserUrlPattern,
 } from "./helpers/buyer-golden-path";
-import { expectGraphPageReadySurface, runsDashboardBuyerProofSummary } from "./helpers/operator-journey";
+import { expectGraphPageReadySurface, expectMainHasNoHardFailureChrome, runsDashboardBuyerProofSummary } from "./helpers/operator-journey";
 
 const claimsShowcasePath = "/showcase/claims-intake-modernization";
 
@@ -59,7 +59,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     const primaryMain = page.getByRole("main").first();
     await expect(primaryMain).not.toContainText(/run not found/i);
-    await expect(primaryMain).not.toContainText(/request failed/i);
+    await expectMainHasNoHardFailureChrome(page);
     await expect(primaryMain).not.toContainText(/Invalid Date/i);
     await expect(primaryMain.getByText(/\b0 of 4 run pipeline stages complete\b/i)).toHaveCount(0);
 
@@ -74,7 +74,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     const primaryMain = page.getByRole("main");
     await expect(primaryMain).toHaveCount(1);
     await expect(primaryMain).not.toContainText(/review record summary could not be loaded/i);
-    await expect(primaryMain).not.toContainText(/request failed/i);
+    await expectMainHasNoHardFailureChrome(page);
   });
 
   test("marketing showcase exposes working deep links into operator proof pages", async ({ page }) => {
@@ -161,12 +161,12 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page).toHaveURL(afterListClickUrl);
 
     if (isShowcaseSignedManifestBrowserPath(new URL(page.url()).pathname)) {
-      await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
+      await expectMainHasNoHardFailureChrome(page);
       await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     }
 
     await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
-    await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
+    await expectMainHasNoHardFailureChrome(page);
 
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`);
     await expect(
@@ -176,17 +176,17 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await page.goto(
       `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
     );
-    await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
+    await expectMainHasNoHardFailureChrome(page);
 
     await page.goto("/showcase/claims-intake-modernization");
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
-    await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
+    await expectMainHasNoHardFailureChrome(page);
 
     await page.goto("/ask");
-    await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
+    await expectMainHasNoHardFailureChrome(page);
 
     await page.goto("/help");
-    await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
+    await expectMainHasNoHardFailureChrome(page);
   });
 
   test("advanced-route smoke — ask graph compare governance advisory replay search policy packs load @demo-readiness", async ({
@@ -210,7 +210,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
         await expectGraphPageReadySurface(page, { timeout: 25_000 });
       }
 
-      await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
+      await expectMainHasNoHardFailureChrome(page);
     }
   });
 

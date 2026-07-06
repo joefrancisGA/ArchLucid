@@ -61,7 +61,7 @@ function ExecutiveRoiDashboardPortfolioSections({
   const dashboardReady = hasCommittedReviews && summaryLoading !== true;
 
   return (
-    <div data-testid={dashboardReady ? "executive-roi-dashboard-ready" : undefined}>
+    <div data-testid="executive-roi-dashboard-ready" data-ready={dashboardReady ? "true" : "false"}>
     <OperatorPageContainer variant="dashboard" className="space-y-6">
       {showSampleBanner ? <ExecutiveDashboardSampleWorkspaceBanner /> : null}
 

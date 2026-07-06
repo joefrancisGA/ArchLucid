@@ -32,11 +32,10 @@ export async function gotoComparePageWithFixturePair(
 }
 
 /**
- * Primary `/compare` H2 from {@link OperatorPageHeader}. Buyer-polished and full-operator shells both use
- * **Compare two reviews**.
+ * Primary `/compare` H2 from {@link OperatorPageHeader}. Title copy varies by shell; test id is stable.
  */
 export function comparePageMainHeading(page: Page): Locator {
-  return page.getByRole("heading", { level: 2, name: /^Compare two reviews$/i });
+  return page.getByTestId("compare-page-heading");
 }
 
 /**
@@ -48,7 +47,15 @@ export function comparePageIntroGuidance(page: Page): Locator {
   );
 }
 
-/** Primary `/ask` H2 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
+/** Asserts no visible error boundary / API failure chrome (avoids false positives from explanatory copy). */
+export async function expectMainHasNoHardFailureChrome(page: Page): Promise<void> {
+  const main = page.getByRole("main").first();
+
+  await expect(main.getByText(/Something went wrong/i)).toHaveCount(0);
+  await expect(main.getByRole("alert").filter({ hasText: /request failed/i })).toHaveCount(0);
+  await expect(main.getByText(/Aggregate explanation could not be loaded/i)).toHaveCount(0);
+}
+
 export function askPageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: ASK_PAGE_PRIMARY_HEADING_PATTERN });
 }

@@ -424,6 +424,7 @@ export function CompareForm() {
     <div>
       <OperatorPageHeader
         title={buyerPolished ? BUYER_COMPARE_PAGE_TITLE : "Compare two reviews"}
+        titleTestId="compare-page-heading"
         subtitle={COMPARE_PAGE_SUBTITLE}
         helpKey="compare-runs"
         docsPageKey="/compare"
