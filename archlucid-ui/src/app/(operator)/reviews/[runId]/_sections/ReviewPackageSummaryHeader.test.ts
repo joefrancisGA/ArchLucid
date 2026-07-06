@@ -31,4 +31,9 @@ describe("ReviewPackageSummaryHeader integration", () => {
     expect(summaryHeaderSource).toContain("<ReviewPackagePrimaryAction");
     expect(summaryHeaderSource).toContain("demoteHeaderFinalizeButton");
   });
+
+  it("uses shared operator layout spacing tokens (TB-621)", () => {
+    expect(summaryHeaderSource).toContain("OPERATOR_LAYOUT.sectionStack");
+    expect(pageViewSource).toContain("OPERATOR_LAYOUT.sectionStack");
+  });
 });

@@ -15,6 +15,7 @@ import {
   REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS,
+  REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS,
 } from "@/lib/review-terminology-surfaces";
 import { scanBuyerFacingTerminology, scanGlobalBuyerSurfaces } from "@/lib/review-terminology-scanner";
 import { AUDIT_TRAIL_LABEL, SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -71,6 +72,16 @@ describe("review terminology guard", () => {
 
   it("first-hour Core Pilot surfaces avoid legacy run-primary labels", () => {
     for (const relativePath of REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS) {
+      const source = readFileSync(path.join(process.cwd(), relativePath), "utf8").toLowerCase();
+
+      for (const pattern of REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS) {
+        expect(source, `${relativePath} should not contain "${pattern}"`).not.toContain(pattern);
+      }
+    }
+  });
+
+  it("Review Package detail surfaces avoid legacy run-primary labels (TB-621)", () => {
+    for (const relativePath of REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS) {
       const source = readFileSync(path.join(process.cwd(), relativePath), "utf8").toLowerCase();
 
       for (const pattern of REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS) {

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ReviewPackageEvidenceDensityStripProps = {
   readonly findingCount: number | null;
@@ -28,7 +28,8 @@ export function ReviewPackageEvidenceDensityStrip(
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-700",
+        "flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-700",
+        OPERATOR_LAYOUT.cardPadding,
         props.className,
       )}
       data-testid="review-package-evidence-density-strip"

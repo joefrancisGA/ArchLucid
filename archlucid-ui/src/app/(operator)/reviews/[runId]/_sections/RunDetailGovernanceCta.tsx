@@ -6,7 +6,7 @@ import {
   RUN_DETAIL_GOVERNANCE_CTA_LABEL,
   runDetailGovernanceWorkflowHref,
 } from "@/lib/run-detail-governance-cta-visibility";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type RunDetailGovernanceCtaProps = {
@@ -24,7 +24,7 @@ export function RunDetailGovernanceCta(props: RunDetailGovernanceCtaProps): Reac
       className="rounded-lg border border-teal-200 bg-teal-50/70 shadow-sm dark:border-teal-900 dark:bg-teal-950/20"
       data-testid="run-detail-governance-cta"
     >
-      <CardHeader className="pb-2">
+      <CardHeader className={OPERATOR_CARD.header}>
         <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Governance approval
         </CardTitle>
@@ -32,7 +32,7 @@ export function RunDetailGovernanceCta(props: RunDetailGovernanceCtaProps): Reac
           This review package is finalized. Continue in Governance to submit source and target environments for approval.
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className={OPERATOR_CARD.content}>
         <Button type="button" variant={demoted ? "outline" : "primary"} asChild>
           <Link href={runDetailGovernanceWorkflowHref(runId)}>{RUN_DETAIL_GOVERNANCE_CTA_LABEL}</Link>
         </Button>

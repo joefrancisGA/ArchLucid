@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 type RunDetailExecutiveBottomLineProps = {
@@ -20,12 +20,12 @@ export function RunDetailExecutiveBottomLine(props: RunDetailExecutiveBottomLine
 
   return (
     <Card className="border-l-4 border-l-teal-600 dark:border-l-teal-500">
-      <CardHeader className="pb-3">
+      <CardHeader className={OPERATOR_CARD.header}>
         <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Bottom-Line Summary
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className={OPERATOR_CARD.content}>
         <ul className={cn("m-0 list-disc space-y-2 pl-5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {themes.map((theme) => (
             <li key={theme} className="leading-relaxed">
