@@ -17,6 +17,7 @@ import {
 } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunsDashboardLoadPhase, RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { listRunsByProjectPaged, restoreArchitectureRequest } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -254,6 +255,11 @@ export function RunsDashboardPanelClient({
       buyerFilterChipClass(active, disabled),
     );
 
+  const selectDashboardTab = (next: RunsDashboardTabId) => {
+    setTab(next);
+    setShowArchived(false);
+  };
+
   return (
     <section aria-labelledby="runs-dashboard-heading" data-onboarding="tour-runs-dashboard">
       {!hideHeading ? (
@@ -261,153 +267,155 @@ export function RunsDashboardPanelClient({
           {buyerPolishedShell ? BUYER_RUNS_DASHBOARD_SECTION_HEADING : RUNS_DASHBOARD_LABELS.sectionHeading}
         </h3>
       ) : null}
-      <Card
-        className="border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
-        data-testid="runs-dashboard-panel"
+      <Tabs
+        value={tab}
+        onValueChange={(next) => {
+          selectDashboardTab(next as RunsDashboardTabId);
+        }}
       >
-        <CardHeader className={OPERATOR_CARD.header}>
-          <div
-            className={cn("flex flex-wrap items-center gap-2", buyerPolishedShell ? "" : OPERATOR_LAYOUT.inlineGap)}
-            role={buyerPolishedShell ? "group" : "tablist"}
-            aria-label={buyerPolishedShell ? "Review filters" : "Review views"}
-            data-testid="runs-dashboard-status-filters"
-          >
-            {buyerPolishedShell && !onlyShowcaseRunInBuyerPolishedWorkspace ? (
-              <Link
-                href={openAllReviewsHref}
-                data-testid="runs-dashboard-filter-all"
-                className={buyerFilterPillClass(false)}
-              >
-                {BUYER_RUNS_DASHBOARD_FILTER_ALL}
-              </Link>
-            ) : null}
-            {(["recent", "attention", "outcomes"] as const).map((id) => (
-              <button
-                key={id}
-                type="button"
-                role={buyerPolishedShell ? undefined : "tab"}
-                aria-selected={buyerPolishedShell ? undefined : tab === id}
-                data-testid={`runs-dashboard-tab-${id}`}
+        <Card
+          className="border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+          data-testid="runs-dashboard-panel"
+        >
+          <CardHeader className={OPERATOR_CARD.header}>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
+                {buyerPolishedShell
+                  ? BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY
+                  : tab === "recent"
+                    ? RUNS_DASHBOARD_LABELS.latestInWorkspace
+                    : null}
+                {!buyerPolishedShell && tab === "attention" ? RUNS_DASHBOARD_LABELS.reviewsNeedingAttention : null}
+                {!buyerPolishedShell && tab === "outcomes" ? RUNS_DASHBOARD_LABELS.reviewOutcomes : null}
+              </CardTitle>
+              {buyerPolishedShell && !onlyShowcaseRunInBuyerPolishedWorkspace ? (
+                <Link
+                  href={openAllReviewsHref}
+                  data-testid="runs-dashboard-filter-all"
+                  className={cn("inline-block shrink-0 font-semibold sm:ml-auto", OPERATOR_LINK.nav)}
+                >
+                  {BUYER_RUNS_DASHBOARD_FILTER_ALL}
+                </Link>
+              ) : null}
+              {!buyerPolishedShell ? (
+                <Link
+                  href={openAllReviewsHref}
+                  className={cn("inline-block shrink-0 font-semibold sm:ml-auto", OPERATOR_LINK.nav)}
+                  data-testid="runs-dashboard-open-all-reviews"
+                >
+                  {RUNS_DASHBOARD_LABELS.openFullReviewsList}
+                </Link>
+              ) : null}
+            </div>
+            <div className={cn("flex flex-wrap items-center gap-2", buyerPolishedShell ? "" : OPERATOR_LAYOUT.inlineGap)}>
+              <TabsList
+                aria-label={buyerPolishedShell ? "Review views" : "Review views"}
+                data-testid="runs-dashboard-status-filters"
                 className={cn(
-                  buyerPolishedShell
-                    ? buyerFilterPillClass(tab === id && !showArchived)
-                    : cn(
-                        "border-b-2 border-transparent bg-transparent px-0 py-0.5",
-                        OPERATOR_TYPE_SCALE.tab,
-                        tab === id
-                          ? "border-teal-700 text-teal-900 dark:border-teal-300 dark:text-teal-200"
-                          : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100",
-                      ),
+                  buyerPolishedShell ? "gap-1 border-0" : "-mb-px overflow-x-auto",
                 )}
-                onClick={() => {
-                  setTab(id);
-                  setShowArchived(false);
-                }}
               >
-                {runsDashboardTabLabel(id, buyerPolishedShell)}
-              </button>
-            ))}
-            {buyerPolishedShell && archivedFieldSupported ? (
-              <button
-                type="button"
-                aria-pressed={showArchived}
-                disabled={archivedFilterDisabled}
-                data-testid="runs-dashboard-show-archived"
-                onClick={() => {
-                  if (archivedFilterDisabled) {
-                    return;
-                  }
+                {(["recent", "attention", "outcomes"] as const).map((id) => (
+                  <TabsTrigger
+                    key={id}
+                    value={id}
+                    data-testid={`runs-dashboard-tab-${id}`}
+                    className={
+                      buyerPolishedShell
+                        ? cn(
+                            buyerFilterPillClass(tab === id && !showArchived),
+                            "!mb-0 min-h-[22px] rounded-full border px-3 py-1 !border-b-2",
+                            OPERATOR_TYPOGRAPHY.badge,
+                          )
+                        : "shrink-0"
+                    }
+                  >
+                    {runsDashboardTabLabel(id, buyerPolishedShell)}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              {buyerPolishedShell && archivedFieldSupported ? (
+                <button
+                  type="button"
+                  aria-pressed={showArchived}
+                  disabled={archivedFilterDisabled}
+                  data-testid="runs-dashboard-show-archived"
+                  onClick={() => {
+                    if (archivedFilterDisabled) {
+                      return;
+                    }
 
-                  setTab("recent");
-                  setShowArchived(!showArchived);
-                }}
-                className={buyerFilterPillClass(showArchived, archivedFilterDisabled)}
-              >
-                Archived {archivedCount}
-              </button>
-            ) : null}
-          </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
-              {buyerPolishedShell
-                ? BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY
-                : tab === "recent"
-                  ? RUNS_DASHBOARD_LABELS.latestInWorkspace
-                  : null}
-              {!buyerPolishedShell && tab === "attention" ? RUNS_DASHBOARD_LABELS.reviewsNeedingAttention : null}
-              {!buyerPolishedShell && tab === "outcomes" ? RUNS_DASHBOARD_LABELS.reviewOutcomes : null}
-            </CardTitle>
-            {!buyerPolishedShell ? (
-              <Link
-                href={openAllReviewsHref}
-                className={cn("inline-block shrink-0 font-semibold sm:ml-auto", OPERATOR_LINK.nav)}
-                data-testid="runs-dashboard-open-all-reviews"
-              >
-                {RUNS_DASHBOARD_LABELS.openFullReviewsList}
-              </Link>
-            ) : null}
-          </div>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
-            {tab === "recent"
-              ? buyerPolishedShell
-                ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY
-                : RUNS_DASHBOARD_LABELS.recentSummary
-              : null}
-            {tab === "attention"
-              ? buyerPolishedShell
-                ? RUNS_DASHBOARD_LABELS.attentionSummaryBuyer
-                : RUNS_DASHBOARD_LABELS.attentionSummary
-              : null}
-            {tab === "outcomes"
-              ? buyerPolishedShell && showcaseDemoRun !== undefined
-                ? "Representative governance posture for this workspace."
-                : "Review packages finalized, findings surfaced, and average time to finalization."
-              : null}
-          </p>
-        </CardHeader>
-        <CardContent className={cn(OPERATOR_CARD.content, OPERATOR_LAYOUT.sectionStack, OPERATOR_TYPE_SCALE.body)}>
-          <RunsDashboardFilters
-            buyerPolishedShell={buyerPolishedShell}
-            governanceWarningsOnly={governanceWarningsOnly}
-            showArchived={showArchived}
-            onGovernanceWarningsOnlyChange={setGovernanceWarningsOnly}
-            onShowArchivedChange={setShowArchived}
-          />
-
-          {tab === "recent" ? (
-            <RunsDashboardRecentTab
-              phase={phase}
-              failure={failure}
-              runListError={runListError}
-              filteredItems={filteredItems}
-              effectiveItems={effectiveItems}
+                    setTab("recent");
+                    setShowArchived(!showArchived);
+                  }}
+                  className={buyerFilterPillClass(showArchived, archivedFilterDisabled)}
+                >
+                  Archived {archivedCount}
+                </button>
+              ) : null}
+            </div>
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
+              {tab === "recent"
+                ? buyerPolishedShell
+                  ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY
+                  : RUNS_DASHBOARD_LABELS.recentSummary
+                : null}
+              {tab === "attention"
+                ? buyerPolishedShell
+                  ? RUNS_DASHBOARD_LABELS.attentionSummaryBuyer
+                  : RUNS_DASHBOARD_LABELS.attentionSummary
+                : null}
+              {tab === "outcomes"
+                ? buyerPolishedShell && showcaseDemoRun !== undefined
+                  ? "Representative governance posture for this workspace."
+                  : "Review packages finalized, findings surfaced, and average time to finalization."
+                : null}
+            </p>
+          </CardHeader>
+          <CardContent className={cn(OPERATOR_CARD.content, OPERATOR_LAYOUT.sectionStack, OPERATOR_TYPE_SCALE.body)}>
+            <RunsDashboardFilters
               buyerPolishedShell={buyerPolishedShell}
-              showcaseDemoRun={showcaseDemoRun}
-              showcasePrimaryCta={showcasePrimaryCta}
-              buyerSafeHighlight={buyerSafeHighlight}
+              governanceWarningsOnly={governanceWarningsOnly}
               showArchived={showArchived}
-              archivedFieldSupported={archivedFieldSupported}
-              restoreBusyRequestId={restoreBusyRequestId}
-              onRestoreArchivedRequest={(requestId) => {
-                void restoreArchivedRequest(requestId);
-              }}
+              onGovernanceWarningsOnlyChange={setGovernanceWarningsOnly}
+              onShowArchivedChange={setShowArchived}
             />
-          ) : null}
 
-          {tab === "attention" ? (
-            <RunsDashboardAttentionTab
-              phase={phase}
-              failure={failure}
-              runListError={runListError}
-              filteredItems={filteredItems}
-            />
-          ) : null}
+            <TabsContent value="recent" className="pt-0" data-testid="runs-dashboard-panel-recent">
+              <RunsDashboardRecentTab
+                phase={phase}
+                failure={failure}
+                runListError={runListError}
+                filteredItems={filteredItems}
+                effectiveItems={effectiveItems}
+                buyerPolishedShell={buyerPolishedShell}
+                showcaseDemoRun={showcaseDemoRun}
+                showcasePrimaryCta={showcasePrimaryCta}
+                buyerSafeHighlight={buyerSafeHighlight}
+                showArchived={showArchived}
+                archivedFieldSupported={archivedFieldSupported}
+                restoreBusyRequestId={restoreBusyRequestId}
+                onRestoreArchivedRequest={(requestId) => {
+                  void restoreArchivedRequest(requestId);
+                }}
+              />
+            </TabsContent>
 
-          {tab === "outcomes" ? (
-            <RunsDashboardOutcomesTab buyerPolishedShell={buyerPolishedShell} showcaseDemoRun={showcaseDemoRun} />
-          ) : null}
-        </CardContent>
-      </Card>
+            <TabsContent value="attention" className="pt-0" data-testid="runs-dashboard-panel-attention">
+              <RunsDashboardAttentionTab
+                phase={phase}
+                failure={failure}
+                runListError={runListError}
+                filteredItems={filteredItems}
+              />
+            </TabsContent>
+
+            <TabsContent value="outcomes" className="pt-0" data-testid="runs-dashboard-panel-outcomes">
+              <RunsDashboardOutcomesTab buyerPolishedShell={buyerPolishedShell} showcaseDemoRun={showcaseDemoRun} />
+            </TabsContent>
+          </CardContent>
+        </Card>
+      </Tabs>
     </section>
   );
 }

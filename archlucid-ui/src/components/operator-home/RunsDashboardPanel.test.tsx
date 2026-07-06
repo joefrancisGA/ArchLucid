@@ -353,15 +353,15 @@ describe("RunsDashboardPanel", () => {
         "data-testid",
         "runs-dashboard-filter-all",
       );
-      expect(screen.getByRole("button", { name: "Approved" })).toHaveAttribute(
+      expect(screen.getByRole("tab", { name: "Approved" })).toHaveAttribute(
         "data-testid",
         "runs-dashboard-tab-recent",
       );
-      expect(screen.getByRole("button", { name: "Action needed" })).toHaveAttribute(
+      expect(screen.getByRole("tab", { name: "Action needed" })).toHaveAttribute(
         "data-testid",
         "runs-dashboard-tab-attention",
       );
-      expect(screen.getByRole("button", { name: "Approved with monitoring" })).toHaveAttribute(
+      expect(screen.getByRole("tab", { name: "Approved with monitoring" })).toHaveAttribute(
         "data-testid",
         "runs-dashboard-tab-outcomes",
       );
@@ -481,6 +481,36 @@ describe("RunsDashboardPanel", () => {
     expect(screen.queryByText(/contact your administrator/i)).toBeNull();
 
     runsDashBuyerPolishedForced.on = false;
+  });
+
+  it("operator shell exposes tablist with tabpanels and keyboard navigation (TB-667)", async () => {
+    listRuns.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    renderRunsDashboardPanel();
+
+    await waitFor(() => {
+      expect(screen.getByRole("tablist", { name: "Review views" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("tab", { name: /recent/i })).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByRole("link", { name: /open all reviews/i })).not.toBeNull();
+    expect(screen.getByTestId("runs-dashboard-status-filters").querySelector("a")).toBeNull();
+
+    const recentTab = screen.getByRole("tab", { name: /recent/i });
+    recentTab.focus();
+    fireEvent.keyDown(screen.getByRole("tablist", { name: "Review views" }), { key: "ArrowRight" });
+
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: /needs attention/i })).toHaveAttribute("aria-selected", "true");
+    });
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("data-testid", "runs-dashboard-panel-attention");
   });
 
   it("shows archived empty state when archived filter is active with no matching reviews", async () => {
