@@ -5,8 +5,12 @@ import type { RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { BUYER_ASK_INPUT_PLACEHOLDER } from "@/lib/buyer-polish-copy";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  BUYER_ASK_CARD_TITLE,
+  BUYER_ASK_INPUT_PLACEHOLDER,
+  BUYER_ASK_SUGGESTED_QUESTIONS_HEADING,
+} from "@/lib/buyer-polish-copy";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   ASK_BUYER_PROMPT_GROUPS,
@@ -29,6 +33,83 @@ export type AskQuestionFormProps = {
   hideBuyerStarterPromptGroups?: boolean;
 };
 
+function SuggestedQuestionChips(props: {
+  buyerPolishedShell: boolean;
+  showRunDeepLinkPrompts: boolean;
+  hideBuyerStarterPromptGroups: boolean;
+  runMissing: boolean;
+  onMergePromptLine: (line: string) => void;
+}) {
+  const showBuyerGroups =
+    props.buyerPolishedShell && !props.hideBuyerStarterPromptGroups && !props.showRunDeepLinkPrompts;
+
+  if (!showBuyerGroups && !props.showRunDeepLinkPrompts && !props.buyerPolishedShell) {
+    return (
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Example prompts">
+        {ASK_EXAMPLE_PROMPTS.map((line) => (
+          <Button
+            key={line}
+            type="button"
+            variant="outline"
+            size="sm"
+            className={cn(
+              "h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left font-normal dark:border-neutral-700",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+            disabled={props.runMissing}
+            onClick={() => props.onMergePromptLine(line)}
+          >
+            {line}
+          </Button>
+        ))}
+      </div>
+    );
+  }
+
+  if (!showBuyerGroups && !props.showRunDeepLinkPrompts) {
+    return null;
+  }
+
+  const groups = props.showRunDeepLinkPrompts
+    ? [{ heading: "Review context", prompts: ASK_DEEP_LINK_RUN_PROMPTS }]
+    : ASK_BUYER_PROMPT_GROUPS;
+
+  return (
+    <div className="space-y-2" data-testid="ask-suggested-questions">
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {props.buyerPolishedShell ? BUYER_ASK_SUGGESTED_QUESTIONS_HEADING : "Example prompts"}
+      </p>
+      <div className="space-y-2">
+        {groups.map((group) => (
+          <div key={group.heading} className="space-y-1">
+            {props.buyerPolishedShell ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>{group.heading}</p>
+            ) : null}
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label={group.heading}>
+              {group.prompts.map((line) => (
+                <Button
+                  key={`${group.heading}-${line}`}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left font-normal dark:border-neutral-700",
+                    OPERATOR_TYPOGRAPHY.helper,
+                  )}
+                  disabled={props.runMissing}
+                  onClick={() => props.onMergePromptLine(line)}
+                >
+                  {line}
+                </Button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function AskQuestionForm(props: AskQuestionFormProps) {
   const {
     questionRef,
@@ -45,9 +126,12 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
   } = props;
 
   return (
-    <>
+    <section className="space-y-3" aria-labelledby="ask-question-card-title">
+      <h3 id="ask-question-card-title" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        {buyerPolishedShell ? BUYER_ASK_CARD_TITLE : "Question"}
+      </h3>
       <div className="space-y-2">
-        <Label htmlFor="ask-question">Question</Label>
+        <Label htmlFor="ask-question">{buyerPolishedShell ? "Your question" : "Question"}</Label>
         <Textarea
           id="ask-question"
           ref={questionRef}
@@ -57,85 +141,36 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
           placeholder={buyerPolishedShell ? BUYER_ASK_INPUT_PLACEHOLDER : "Ask about your architecture..."}
           rows={4}
         />
-        <div
-          className={cn(buyerPolishedShell ? "flex flex-col gap-3" : "flex flex-wrap gap-2")}
-          role="group"
-          aria-label={buyerPolishedShell ? "Suggested prompts" : "Example prompts"}
-        >
-          {showRunDeepLinkPrompts ? (
-            <div className="space-y-1.5">
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>Review context</p>
-              <div className="flex flex-wrap gap-2">
-                {ASK_DEEP_LINK_RUN_PROMPTS.map((line) => (
-                  <Button
-                    key={`deeplink-${line}`}
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    className={cn("h-auto max-w-full whitespace-normal py-1.5 text-left font-normal", OPERATOR_TYPOGRAPHY.helper)}
-                    disabled={runMissing}
-                    onClick={() => onMergePromptLine(line)}
-                  >
-                    {line}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          ) : null}
-          {buyerPolishedShell && !hideBuyerStarterPromptGroups && !showRunDeepLinkPrompts
-            ? ASK_BUYER_PROMPT_GROUPS.map((group) => (
-                <div key={group.heading} className="space-y-1.5">
-                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>{group.heading}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {group.prompts.map((line) => (
-                      <Button
-                        key={`${group.heading}-${line}`}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className={cn("h-auto max-w-full whitespace-normal py-1.5 text-left font-normal", OPERATOR_TYPOGRAPHY.helper)}
-                        disabled={runMissing}
-                        onClick={() => onMergePromptLine(line)}
-                      >
-                        {line}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              ))
-            : ASK_EXAMPLE_PROMPTS.map((line) => (
-                <Button
-                  key={line}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className={cn("h-auto max-w-full whitespace-normal py-1.5 text-left font-normal", OPERATOR_TYPOGRAPHY.helper)}
-                  disabled={runMissing}
-                  onClick={() => onMergePromptLine(line)}
-                >
-                  {line}
-                </Button>
-              ))}
-        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <Button type="button" variant="primary" className="w-fit" onClick={() => void onAsk()} disabled={askDisabled}>
+          {loading ? "Thinking…" : "Ask"}
+        </Button>
         {runMissing ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-prompts-sample-callout">
-            Load the{" "}
-            <Link className={OPERATOR_LINK.nav} href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
-              sample workspace
-            </Link>{" "}
-            to try these questions.
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-select-review-helper">
+            Select a review package first.
           </p>
         ) : null}
       </div>
 
-      <Button type="button" variant="primary" className="w-fit" onClick={() => void onAsk()} disabled={askDisabled}>
-        {loading ? "Thinking…" : "Ask"}
-      </Button>
+      <SuggestedQuestionChips
+        buyerPolishedShell={buyerPolishedShell}
+        showRunDeepLinkPrompts={showRunDeepLinkPrompts}
+        hideBuyerStarterPromptGroups={hideBuyerStarterPromptGroups}
+        runMissing={runMissing}
+        onMergePromptLine={onMergePromptLine}
+      />
+
       {runMissing ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-select-review-helper">
-          Select a review package first.
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-prompts-sample-callout">
+          Open the{" "}
+          <Link className={OPERATOR_LINK.nav} href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
+            sample evidence graph
+          </Link>{" "}
+          to try these questions.
         </p>
       ) : null}
-    </>
+    </section>
   );
 }

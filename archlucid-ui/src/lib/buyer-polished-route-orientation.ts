@@ -150,10 +150,7 @@ export function buyerPolishedRouteOrientation(
   }
 
   if (path.startsWith("/ask")) {
-    return {
-      label: "Ask review questions",
-      line: "Ask questions about a finalized review package. Answers use the signed review record and cite evidence when available.",
-    };
+    return null;
   }
 
   if (path.startsWith("/search")) {

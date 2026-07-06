@@ -101,12 +101,7 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
   } else if (path.startsWith("/graph")) {
     stepIdx = 2;
   } else if (path.startsWith("/ask")) {
-    return {
-      summaryLine: "Evidence Q&A — optional alongside the golden path",
-      prev: { label: defs[2].label, href: defs[2].href },
-      next: { label: defs[3].label, href: defs[3].href },
-      currentStepIndex: null,
-    };
+    return null;
   } else if (path.startsWith("/compare")) {
     return {
       summaryLine: "Optional review change comparison — secondary diligence view",

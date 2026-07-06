@@ -469,6 +469,25 @@ export const BUYER_GOVERNANCE_GOVERNED_USE_SCOPE =
 
 export const BUYER_ASK_PAGE_TITLE = "Evidence-backed review questions";
 
+export const BUYER_ASK_PAGE_HERO =
+  "Ask plain-language questions about a finalized review package. Answers cite review evidence when available and do not replace formal governance records.";
+
+export const BUYER_ASK_CARD_TITLE = "Ask a question";
+
+export const BUYER_ASK_SUGGESTED_QUESTIONS_HEADING = "Suggested questions";
+
+export const BUYER_ASK_SCOPE_PREFIX = "Review package:";
+
+export const BUYER_ASK_SYNTHETIC_SAMPLE_HINT = "Using the sample review package for this workspace.";
+
+export const BUYER_ASK_CONVERSATION_EMPTY_TITLE = "No questions yet.";
+
+export const BUYER_ASK_CONVERSATION_EMPTY_BODY =
+  "Ask a question to start an evidence-backed Q&A exchange.";
+
+export const BUYER_ASK_RETRIEVAL_DEGRADED_LABEL =
+  "Answer quality may be reduced when evidence search is limited.";
+
 export const BUYER_GOVERNANCE_PAGE_TITLE = "Governance decision record";
 
 export const BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE = "Review records and dispositions";
@@ -717,7 +736,8 @@ export const BUYER_RUNS_DASHBOARD_FILTER_ALL = "All";
 
 export const BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA = "Open all reviews";
 
-export const BUYER_ASK_INPUT_PLACEHOLDER = "Ask about this review package…";
+export const BUYER_ASK_INPUT_PLACEHOLDER =
+  "Ask about risks, findings, evidence, mitigations, executive summary, or approval blockers…";
 
 export const BUYER_ASK_GROUNDING_SOURCES_LABEL = "cited evidence";
 

@@ -47,12 +47,8 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(o?.line).toBe("Value metrics and recommended actions.");
   });
 
-  it("orients the ask route with evidence-grounding copy", () => {
-    const o = buyerPolishedRouteOrientation("/ask");
-
-    expect(o?.label).toBe("Ask review questions");
-    expect(o?.line).toContain("signed review record");
-    expect(o?.line).toContain("cite evidence");
+  it("returns null for ask — the page carries its own hero copy", () => {
+    expect(buyerPolishedRouteOrientation("/ask")).toBeNull();
   });
 
   it("orients the advisory route with recommendation copy", () => {
