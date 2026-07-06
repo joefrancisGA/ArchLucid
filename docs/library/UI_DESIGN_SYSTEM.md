@@ -203,6 +203,16 @@ Regenerate metrics: `rg "text-(xs|sm|base|xl|\[1[0-9]px\])" archlucid-ui/src/com
 | `StatusTag` | `archlucid-ui/src/components/ui/status-tag.tsx` | Run/governance badges |
 | `SeverityTag` | `archlucid-ui/src/components/ui/severity-tag.tsx` | Findings, governance queue |
 | `EnterpriseTable` | `archlucid-ui/src/components/ui/enterprise-table.tsx` | Reviews list, governance findings, operator audit |
+| `Tabs` / `EnterpriseTabs` | `archlucid-ui/src/components/ui/tabs.tsx` | Shared WAI-ARIA line tabs (**TB-665**); migrate call sites in **TB-666**–**TB-670** |
+
+### Tabs vs buttons vs filter chips vs segmented controls (**TB-665**)
+
+| Control | Use when | ARIA / behavior | Do not use for |
+| --- | --- | --- | --- |
+| **`Tabs`** (`Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`) | Fixed, peer views of one page (2–7 panels); selection swaps content below without navigation | `role="tablist"` / `tab` / `tabpanel`; `aria-selected`; Left/Right/Home/End keyboard; optional `?tab=` URL sync | One-time actions; unbounded lists; filters that narrow one list |
+| **Primary `Button`** | Single commit actions (Save, Finalize, Export) | `button` | View switchers that swap large panels |
+| **`FilterChip`** | Optional filters, drill-down links, compact toggles outside a tab strip | `button` or `link` | Mutually exclusive page sections with dedicated panels |
+| **Segmented control** (`aria-pressed` / radiogroup) | 2–4 compact modes on one dataset (Cards/Timeline, graph scope) | `aria-pressed` or `radiogroup` | Multi-panel layouts needing `tabpanel` linkage (**TB-671**) |
 
 Cursor enforcement: `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (**TB-120**).
 
