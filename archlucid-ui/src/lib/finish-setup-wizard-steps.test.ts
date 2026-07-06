@@ -1,0 +1,31 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  FINISH_SETUP_SYSTEM_HEALTH_PATH,
+  FINISH_SETUP_WIZARD_STEPS,
+  resolveFinishSetupWizardSteps,
+} from "@/lib/finish-setup-wizard-steps";
+
+describe("finish-setup-wizard-steps", () => {
+  it("links platform health to the buyer-safe /health route", () => {
+    const healthStep = FINISH_SETUP_WIZARD_STEPS.find((step) => step.id === "health");
+
+    expect(healthStep).toBeDefined();
+    expect(healthStep?.href).toBe(FINISH_SETUP_SYSTEM_HEALTH_PATH);
+    expect(healthStep?.href).not.toContain("/admin/health");
+  });
+
+  it("omits the health step on managed SaaS deployments", () => {
+    const steps = resolveFinishSetupWizardSteps({ selfHosted: false });
+
+    expect(steps.some((step) => step.id === "health")).toBe(false);
+    expect(steps.every((step) => step.href !== "/admin/health")).toBe(true);
+  });
+
+  it("keeps the health step on self-hosted deployments", () => {
+    const steps = resolveFinishSetupWizardSteps({ selfHosted: true });
+    const healthStep = steps.find((step) => step.id === "health");
+
+    expect(healthStep?.href).toBe("/health");
+  });
+});
