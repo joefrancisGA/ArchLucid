@@ -259,19 +259,27 @@ function AppShellInner({ children }: AppShellClientProps) {
     (pathname.startsWith("/reviews/") && pathname.split("/").filter(Boolean).length >= 2) ||
     (pathname.startsWith("/executive/reviews/") && pathname.split("/").filter(Boolean).length >= 3);
 
-  /** Auth flow pages (sign-in, callback) render without nav/workspace chrome to avoid confusion. */
+  /** Auth and access-denied pages render without nav/workspace chrome to avoid confusion. */
   const isAuthRoute = pathname.startsWith("/auth/");
+  const isAccessDeniedRoute = pathname === "/403";
+  const isStandaloneAccessSurface = isAuthRoute || isAccessDeniedRoute;
 
   /** `useLayoutEffect`: runs before paint so Playwright sees the marker as soon as the shell DOM commits. */
   useLayoutEffect(() => {
     shellRootRef.current?.setAttribute("data-app-ready", "true");
   }, []);
 
-  if (isAuthRoute) {
+  if (isStandaloneAccessSurface) {
+    const surfaceChildren = isAccessDeniedRoute ? (
+      <OperatorShellProviders>{children}</OperatorShellProviders>
+    ) : (
+      children
+    );
+
     return (
       <div
         ref={shellRootRef}
-        className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 dark:bg-neutral-950"
+        className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 py-10 dark:bg-neutral-950 sm:py-16"
       >
         <div className="mb-8">
           <ArchLucidWordmarkLink
@@ -281,8 +289,8 @@ function AppShellInner({ children }: AppShellClientProps) {
             logoVariant="full"
           />
         </div>
-        <div className="w-full max-w-md">
-          {children}
+        <div className="w-full max-w-[560px]">
+          {surfaceChildren}
         </div>
         <AppToaster />
         <RouteAnnouncer />

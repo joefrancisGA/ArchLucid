@@ -18,12 +18,21 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(u, 308);
   }
 
+  if (request.nextUrl.pathname === "/403") {
+    const response = NextResponse.next();
+
+    response.status = 403;
+
+    return response;
+  }
+
   return NextResponse.next();
 }
 
 /** Routes that pass through this middleware (authority, artifact, and comparison flows). */
 export const config = {
   matcher: [
+    "/403",
     "/reviews/:path*",
     "/executive/reviews/:path*",
     "/executive/scorecard",
