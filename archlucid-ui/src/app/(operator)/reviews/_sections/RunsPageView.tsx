@@ -2,8 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
-import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
-import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
@@ -14,13 +13,10 @@ import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPane
 import { RunsListAggregateErrorBoundary } from "@/components/RunsListAggregateErrorBoundary";
 import { RunsListEmptyState } from "@/components/RunsListEmptyState";
 import { RunsListProofHeadline } from "@/components/RunsListProofHeadline";
-import { RunsPageBuyerHelpTip } from "@/components/RunsPageBuyerHelpTip";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { Button } from "@/components/ui/button";
 import { isBuyerSafeDemoMarketingChromeEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
-  BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
-  BUYER_RUNS_LIST_GLOSSARY_LEAD,
   BUYER_RUNS_LIST_MALFORMED_BODY,
   BUYER_RUNS_LIST_MALFORMED_HEADING,
 } from "@/lib/buyer-polish-copy";
@@ -52,38 +48,20 @@ export function RunsPageView(props: Props) {
         subtitle={RUNS_LIST_PAGE_SUBTITLE}
         metadata={
           <>
-            <span
-              className={cn(OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
-              data-testid="runs-page-project-label"
-            >
-              {m.projectTitle}
-            </span>
+            {m.projectId !== "default" ? (
+              <span
+                className={cn(OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+                data-testid="runs-page-project-label"
+              >
+                <InlineGuidanceText text={m.projectTitle} />
+              </span>
+            ) : null}
             {isOperatorExperienceFullShellEnv() ? <RunsListProofHeadline /> : null}
           </>
         }
         helpKey="runs-list-overview"
         docsPageKey="/runs"
       />
-      {isOperatorExperienceFullShellEnv() ? (
-        <div className="mt-3 max-w-3xl">
-          <FirstWeekRouteGuidance variant="reviews-list" />
-        </div>
-      ) : null}
-      {!isOperatorExperienceFullShellEnv() && m.totalCount > 0 ? (
-        <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-          {m.totalCount === 1 && m.runs[0]?.hasGoldenManifest === true ? (
-            <span className="inline-flex flex-wrap items-center gap-x-1">
-              {BUYER_RUNS_DASHBOARD_RECENT_SUMMARY}
-              <RunsPageBuyerHelpTip variant="sample-workspace" />
-            </span>
-          ) : (
-            <span className="inline-flex flex-wrap items-center gap-x-1">
-              <GlossaryTooltip termKey="review_package">{BUYER_RUNS_LIST_GLOSSARY_LEAD}</GlossaryTooltip>
-              <RunsPageBuyerHelpTip variant="search" />
-            </span>
-          )}
-        </p>
-      ) : null}
       {!isBuyerSafeDemoMarketingChromeEnv() && m.totalCount > 0 ? (
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <div className="inline-flex items-center gap-1.5">

@@ -84,6 +84,7 @@ vi.mock("@/components/ShortcutHint", () => ({
 vi.mock("@/lib/demo-ui-env", () => ({
   isBuyerPolishedOperatorShellEnv: () => true,
   isBuyerSafeDemoMarketingChromeEnv: () => false,
+  isOperatorExperienceFullShellEnv: () => false,
 }));
 
 function baseModel(overrides: Partial<RunsPageModel> = {}): RunsPageModel {
@@ -105,12 +106,26 @@ function baseModel(overrides: Partial<RunsPageModel> = {}): RunsPageModel {
 }
 
 describe("RunsPageView page chrome", () => {
-  it("renders synchronized title, subtitle, and project metadata", () => {
+  it("renders synchronized title and subtitle without default project metadata", () => {
     render(<RunsPageView model={baseModel()} />);
 
     expect(screen.getByRole("heading", { level: 1, name: RUNS_LIST_PAGE_TITLES.buyerPolished })).toBeInTheDocument();
     expect(screen.getByTestId("runs-page-subtitle")).toHaveTextContent(RUNS_LIST_PAGE_SUBTITLE);
-    expect(screen.getByTestId("runs-page-project-label")).toHaveTextContent("Project: default");
+    expect(screen.queryByTestId("runs-page-project-label")).toBeNull();
+  });
+
+  it("shows project metadata when the workspace project is not the default scope", () => {
+    render(
+      <RunsPageView
+        model={baseModel({
+          projectId: "claims-intake",
+          projectTitle: "Project: claims-intake",
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("runs-page-project-label")).toHaveTextContent("Project: claims-intake");
+    expect(screen.getByTestId("runs-page-project-label").querySelector("strong")).toHaveTextContent("Project:");
   });
 
   it("renders empty state without a duplicate page-level primary CTA", () => {

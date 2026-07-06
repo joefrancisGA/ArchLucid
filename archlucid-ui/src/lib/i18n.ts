@@ -39,7 +39,7 @@ export const RUNS_LIST_PAGE_TITLES = {
 
 /** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). */
 export const RUNS_LIST_PAGE_SUBTITLE =
-  "In-progress, finalized, and export-ready architecture review packages.";
+  "Resume in-progress reviews, open committed review packages, or explore a sample package. Each package includes the review record, findings, evidence trail, signed decision record, and exports.";
 
 export const PIPELINE_STATUS_TOOLTIPS = {
   finalized: `The ${DOMAIN_TERMS.goldenManifest} is finalized and the architecture review is complete.`,
