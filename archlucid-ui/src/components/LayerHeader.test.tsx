@@ -43,7 +43,7 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(screen.getByText("Governance")).toBeInTheDocument();
-    expect(screen.getByText(/Search first; CSV export for auditors and admins\./i)).toBeInTheDocument();
+    expect(screen.getByText(/See who acted, when, and why/i)).toBeInTheDocument();
   });
 
   /**
@@ -53,7 +53,7 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(
-      screen.getByRole("complementary", { name: /Governance:.*tenant audit trail/i }),
+      screen.getByRole("complementary", { name: /Governance:.*Audit trail for finalized review activity/i }),
     ).toBeInTheDocument();
   });
 

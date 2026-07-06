@@ -48,6 +48,15 @@ vi.mock("./FirstPilotIntakeWizard", () => ({
   FirstPilotIntakeWizard: () => <div data-testid="first-pilot-intake-wizard">First pilot intake stub</div>,
 }));
 
+vi.mock("@/lib/usability/quick-review-wizard-preferences", () => ({
+  readQuickReviewWizardPreferences: () => ({
+    proofScope: ["cost", "compliance", "topology"],
+    executionMode: "live",
+    advancedConfigExpanded: false,
+  }),
+  persistQuickReviewWizardPreferences: vi.fn(),
+}));
+
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 
 import {

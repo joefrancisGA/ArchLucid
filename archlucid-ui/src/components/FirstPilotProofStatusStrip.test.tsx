@@ -2,8 +2,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { FirstPilotProofStatusStrip } from "@/components/FirstPilotProofStatusStrip";
+import { BUYER_PILOT_EVIDENCE_PENDING } from "@/lib/buyer-home-status-copy";
 import {
-  FIRST_PILOT_PROOF_NOT_RUN_COPY,
   FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND,
   FIRST_PILOT_PROOF_STATUS_UNAVAILABLE,
   FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
@@ -74,7 +74,7 @@ describe("FirstPilotProofStatusStrip", () => {
 
       render(<FirstPilotProofStatusStrip />);
 
-      expect(await screen.findByText(FIRST_PILOT_PROOF_NOT_RUN_COPY)).toBeInTheDocument();
+      expect(await screen.findByText(BUYER_PILOT_EVIDENCE_PENDING)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA })).toHaveAttribute("href", "/health");
       expect(screen.queryByText(/Proof status not loaded/i)).not.toBeInTheDocument();
       expect(
@@ -88,7 +88,7 @@ describe("FirstPilotProofStatusStrip", () => {
 
       render(<FirstPilotProofStatusStrip />);
 
-      await screen.findByText(FIRST_PILOT_PROOF_NOT_RUN_COPY);
+      await screen.findByText(BUYER_PILOT_EVIDENCE_PENDING);
 
       expect(
         screen.getByText(FIRST_PILOT_TECHNICAL_COMMAND_DISCLOSURE_SUMMARY).closest("details"),

@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY } from "@/lib/buyer-polish-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
@@ -125,7 +126,7 @@ describe("ExecutiveScorecardClient recommended actions", () => {
     render(<ExecutiveScorecardClient />);
 
     await waitFor(() => {
-      expect(screen.getByText(/No actions needed — all signals are healthy/i)).toBeInTheDocument();
+      expect(screen.getByText(BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY)).toBeInTheDocument();
     });
   });
 });

@@ -74,6 +74,6 @@ describe("RoiTelemetryCard", () => {
 
     expect(await screen.findByLabelText(/Loaded engineering cost per hour/i)).toBeInTheDocument();
     expect(screen.queryByText(/Implied total:/)).toBeNull();
-    expect(screen.getByText(/Dollar total would round to \$0/i)).toBeInTheDocument();
+    expect(screen.getByText(/Not enough surfaced hours yet for a sponsor-facing dollar estimate/i)).toBeInTheDocument();
   });
 });

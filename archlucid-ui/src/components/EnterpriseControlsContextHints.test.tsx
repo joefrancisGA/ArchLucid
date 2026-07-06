@@ -1,5 +1,15 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    /** Rank cues are omitted in buyer-polished shell; pin full-operator for unit coverage. */
+    isBuyerPolishedOperatorShellEnv: () => false,
+  };
+});
 
 import {
   alertOperatorToolingOperatorRankLine,

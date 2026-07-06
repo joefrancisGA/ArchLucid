@@ -58,7 +58,7 @@ describe("AskPage (operator shell)", () => {
       </Suspense>,
     );
 
-    expect(screen.getByRole("heading", { name: /Ask review questions/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Evidence-backed review questions/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/^question$/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^ask$/i })).toBeInTheDocument();
   });
