@@ -9,6 +9,23 @@ export const BUYER_NEW_REVIEW_NAV_LABEL = "New review";
 /** Operator quick-action label for `/reviews/new` — keep the outcome verb in default shell chrome. */
 export const OPERATOR_START_REVIEW_QUICK_ACTION_LABEL = "Start review";
 
+/** Default left-nav label for `/reviews/new` when buyer vocabulary pass is active (TB-646). */
+export const NEW_REVIEW_NAV_LINK_LABEL = BUYER_NEW_REVIEW_NAV_LABEL;
+
+const NEW_REVIEW_NAV_TOOLTIP = "New review — Quick review, Guided intake, or full wizard (Alt+N)";
+
+export function resolveNewReviewWizardBreadcrumbLabel(): string {
+  if (isBuyerVocabularyPassActive()) {
+    return BUYER_NEW_REVIEW_NAV_LABEL;
+  }
+
+  return "New request";
+}
+
+/** Sidebar / pilot nav tooltip for `/reviews/new` — outcome-first, not mechanism-first (TB-646). */
+export function resolveNewReviewPrimaryNavTitle(): string {
+  return "Start a review — brief, evidence, or optional cloud context (Alt+N)";
+}
 /** Matches `/reviews` list routes (with optional query), not `/reviews/new` or `/reviews/{id}`. */
 export function isReviewsListNavHref(href: string): boolean {
   const path = href.split("?")[0] ?? href;
@@ -28,14 +45,9 @@ export function resolveNewReviewNavLinkLabel(buyerPolishedShell: boolean): strin
   return OPERATOR_NAV_LINK_LABELS.capture;
 }
 
-export function resolveNewReviewNavLinkTitle(buyerPolishedShell: boolean): string {
-  if (buyerPolishedShell) {
-    return "New review — Quick review, Guided intake, or full wizard (Alt+N)";
-  }
-
-  return "New review — Quick review, Guided intake, or full wizard (Alt+N)";
+export function resolveNewReviewNavLinkTitle(_buyerPolishedShell: boolean): string {
+  return NEW_REVIEW_NAV_TOOLTIP;
 }
-
 type NavLinkPresentationSource = {
   readonly href: string;
   readonly label: string;

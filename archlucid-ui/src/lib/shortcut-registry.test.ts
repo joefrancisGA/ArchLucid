@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { BUYER_NEW_REVIEW_NAV_LABEL } from "./operator-nav-labels";
 import {
   ALERTS_PAGE_SHORTCUTS,
   SHORTCUTS,
@@ -58,7 +59,7 @@ describe("shortcut-registry", () => {
 
   it("findShortcutByKey returns the matching entry regardless of casing", () => {
     const byLower = findShortcutByKey("alt+n");
-    expect(byLower?.label).toBe("New request");
+    expect(byLower?.label).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
 
     const byMixed = findShortcutByKey("Alt+N");
     expect(byMixed?.route).toBe("/reviews/new");

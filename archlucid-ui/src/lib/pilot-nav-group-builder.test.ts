@@ -91,4 +91,13 @@ describe("PilotNavGroupBuilder", () => {
 
     expect(reviewsListLink?.label).toBe("Review packages");
   });
+
+  it("TB-646: uses outcome-first new-review nav title in pilot nav", () => {
+    const group = new PilotNavGroupBuilder().build();
+    const newReviewLink = group.links.find((link) => link.href === "/reviews/new");
+
+    expect(newReviewLink?.label).toBe("New review");
+    expect(newReviewLink?.title?.toLowerCase()).toContain("start a review");
+    expect(newReviewLink?.title?.toLowerCase()).not.toContain("architecture request");
+  });
 });

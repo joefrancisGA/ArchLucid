@@ -9,6 +9,7 @@ import { Fragment } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
 
 type PipelineStepStatus = "not-started" | "current" | "completed";
 
@@ -28,8 +29,8 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     step: 1,
     stage: "Start",
     icon: Rocket,
-    label: "Create Request",
-    description: "Capture architecture intent, requirements, and constraints.",
+    label: OPERATOR_START_REVIEW_QUICK_ACTION_LABEL,
+    description: "Start an architecture review from a brief, documents, or optional cloud evidence.",
     href: "/reviews/new",
     shortcut: "Alt+N",
   },

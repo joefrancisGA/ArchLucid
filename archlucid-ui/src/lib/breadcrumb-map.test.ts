@@ -21,9 +21,9 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("shortens the new-review path to a single wizard crumb", () => {
+  it("shortens the new-review path to a single wizard crumb with outcome-first label (TB-646)", () => {
     expect(getBreadcrumbs("/reviews/new")).toEqual([
-      { label: "New request" },
+      { label: "New review" },
     ]);
   });
 

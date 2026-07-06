@@ -40,7 +40,7 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
   {
     title: "3. Start a review",
     body:
-      "Click New request (or press Alt+N) to open the wizard. It guides you through system identity, requirements, and " +
+      "Click New review (or press Alt+N) to open the wizard. It guides you through system identity, requirements, and " +
       "constraints, then kicks off the analysis pipeline for this architecture review. You will see live progress on step 7.",
   },
   {

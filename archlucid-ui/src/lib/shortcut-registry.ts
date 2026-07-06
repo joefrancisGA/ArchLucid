@@ -5,6 +5,8 @@
  * Alt+letter is rarely bound in the page content area on Chrome/Edge/Firefox, which suits an
  * internal operator UI. See also `useKeyboardShortcuts.ts`.
  */
+import { BUYER_NEW_REVIEW_NAV_LABEL, OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
+
 export type ShortcutEntry = {
   key: string;
   label: string;
@@ -15,9 +17,9 @@ export type ShortcutEntry = {
 export const SHORTCUTS: ShortcutEntry[] = [
   {
     key: "alt+n",
-    label: "New request",
+    label: BUYER_NEW_REVIEW_NAV_LABEL,
     route: "/reviews/new",
-    description: "Create request (new request wizard)",
+    description: `${OPERATOR_START_REVIEW_QUICK_ACTION_LABEL} — open the new-review wizard`,
   },
   {
     key: "alt+r",

@@ -399,7 +399,7 @@ export function CorePilotNextStepsCard() {
         <ol className={cn("m-0 mt-3 list-none space-y-2 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           <li className="flex items-start gap-2 text-neutral-400 dark:text-neutral-500" aria-label="Step 1 complete">
             <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-600 dark:text-teal-400", OPERATOR_TYPOGRAPHY.helper)}>✓</span>
-            <span className="line-through">{OPERATOR_NAV_LINK_LABELS.capture} — architecture request</span>
+            <span className="line-through">{OPERATOR_START_REVIEW_QUICK_ACTION_LABEL}</span>
           </li>
           <li className="flex items-start gap-2" aria-label="Step 2 active">
             <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
@@ -447,7 +447,7 @@ export function CorePilotNextStepsCard() {
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.recommendedFirstSessionPath}
       legacyStorageKeys={[NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY]}
       defaultExpanded={false}
-      collapsedSummary={`${corePilotStepBadgeLabel("no-run")} — create your first architecture request and follow the four-step path.`}
+      collapsedSummary={`${corePilotStepBadgeLabel("no-run")} — start your first review and follow the four-step path.`}
       headerAside={<StepBadge label={corePilotStepBadgeLabel("no-run")} />}
     >
       <FirstReviewCheckpointStrip
@@ -466,7 +466,7 @@ export function CorePilotNextStepsCard() {
             className="font-medium text-blue-700 underline dark:text-blue-400"
             data-testid="pilot-active-step-link"
           >
-            {OPERATOR_START_REVIEW_QUICK_ACTION_LABEL} — create architecture request
+            {OPERATOR_START_REVIEW_QUICK_ACTION_LABEL}
           </Link>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 2 pending">

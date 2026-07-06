@@ -10,7 +10,7 @@ import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-
+import { NEW_REVIEW_NAV_LINK_LABEL, resolveNewReviewPrimaryNavTitle } from "@/lib/operator-nav-labels";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
 const PORTFOLIO_OVERVIEW_NAV_TITLE = "Track ROI, risks, and governance posture";
@@ -35,8 +35,8 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/reviews/new",
-          label: OPERATOR_NAV_LINK_LABELS.capture,
-          title: this.shortcutTitle("Create an architecture review", "alt+n"),
+          label: NEW_REVIEW_NAV_LINK_LABEL,
+          title: resolveNewReviewPrimaryNavTitle(),
           keyShortcut: "alt+n",
           icon: Rocket,
           tier: "essential",
