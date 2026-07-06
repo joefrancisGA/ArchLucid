@@ -3,6 +3,7 @@ import type { EffectiveGovernanceResolutionResult } from "@/types/governance-res
 
 /** Client view-model for {@link GovernanceResolutionPageView}; produced by {@link useGovernanceResolutionPage} after server hydration. */
 export type GovernanceResolutionPageViewModel = {
+  readonly buyerPolishedShell: boolean;
   readonly canMutateEnterprisePolicySurfaces: boolean;
   readonly data: EffectiveGovernanceResolutionResult | null;
   readonly loading: boolean;

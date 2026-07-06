@@ -64,6 +64,10 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/policy-packs")).toBeNull();
   });
 
+  it("returns null for standards & rules — the page carries its own governance banner", () => {
+    expect(buyerPolishedRouteOrientation("/governance/resolution")).toBeNull();
+  });
+
   it("orients the advisory route with recommendation copy", () => {
     const o = buyerPolishedRouteOrientation("/advisory");
 

@@ -1,9 +1,12 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
 import { cn } from "@/lib/utils";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { GovernanceConflictsTable } from "@/components/governance/GovernanceConflictsTable";
 import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
+import { StandardsRulesGovernanceStatusBanner } from "@/components/governance/StandardsRulesGovernanceStatusBanner";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -23,41 +26,33 @@ import {
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { triggerGovernanceResolutionMarkdownDownload } from "@/lib/governance-resolution-markdown";
+import { OPERATOR_LAYOUT, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  buildStandardsRuleRows,
+  buildStandardsRulesSummary,
+  collectStandardsRulesFilterOptions,
+  EMPTY_STANDARDS_RULES_FILTER_STATE,
+  filterStandardsRuleRows,
+} from "@/lib/standards-rules-rows";
+import { STANDARDS_RULES_PAGE_SUBTITLE, STANDARDS_RULES_PAGE_TITLE } from "@/lib/standards-rules-page";
 
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
+import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
+import { StandardsRulesFilters } from "./StandardsRulesFilters";
+import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
+import { StandardsRulesTable } from "./StandardsRulesTable";
 
 type Props = {
   readonly model: GovernanceResolutionPageViewModel;
 };
 
-export function GovernanceResolutionPageView(props: Props) {
+function GovernanceResolutionOperatorDiagnostics(props: { readonly model: GovernanceResolutionPageViewModel }) {
   const m = props.model;
   const canMutateEnterprisePolicySurfaces = m.canMutateEnterprisePolicySurfaces;
 
   return (
-    <div className="max-w-6xl">
-      <LayerHeader
-        pageKey="governance-resolution"
-        density="compact"
-        collapsibleGuidance="About policy resolution"
-      />
-      <OperatorPageHeader
-        title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
-        subtitle={canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
-      />
-      <GovernanceResolutionRankCue className="mb-3" />
-      {m.failure !== null ? (
-        <div role="alert">
-          <OperatorApiProblem
-            problem={m.failure.problem}
-            fallbackMessage={m.failure.message}
-            correlationId={m.failure.correlationId}
-          />
-        </div>
-      ) : null}
-
+    <>
       <section className="mb-7" aria-labelledby="governance-conflicts-heading">
         <h3 id="governance-conflicts-heading" className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Policy pack conflicts ({m.data?.conflicts.length ?? 0})
@@ -197,6 +192,71 @@ export function GovernanceResolutionPageView(props: Props) {
           </Button>
         </div>
       </section>
+    </>
+  );
+}
+
+export function GovernanceResolutionPageView(props: Props) {
+  const m = props.model;
+  const [filters, setFilters] = useState(EMPTY_STANDARDS_RULES_FILTER_STATE);
+  const allRuleRows = useMemo(
+    () => buildStandardsRuleRows(m.data, { useShowcaseFallback: m.buyerPolishedShell }),
+    [m.buyerPolishedShell, m.data],
+  );
+  const filteredRuleRows = useMemo(() => filterStandardsRuleRows(allRuleRows, filters), [allRuleRows, filters]);
+  const summary = useMemo(() => buildStandardsRulesSummary(allRuleRows), [allRuleRows]);
+  const filterOptions = useMemo(() => collectStandardsRulesFilterOptions(allRuleRows), [allRuleRows]);
+
+  if (m.buyerPolishedShell) {
+    return (
+      <div className="w-full max-w-[1440px]">
+        <StandardsRulesGovernanceStatusBanner className="mb-3" />
+        <OperatorPageHeader title={STANDARDS_RULES_PAGE_TITLE} subtitle={STANDARDS_RULES_PAGE_SUBTITLE} />
+        {m.failure !== null ? (
+          <div role="alert">
+            <OperatorApiProblem
+              problem={m.failure.problem}
+              fallbackMessage={m.failure.message}
+              correlationId={m.failure.correlationId}
+            />
+          </div>
+        ) : null}
+        <StandardsRulesSummaryStrip summary={summary} />
+        <StandardsRulesFilters filters={filters} options={filterOptions} onChange={setFilters} />
+        {allRuleRows.length === 0 ? (
+          <StandardsRulesEmptyState />
+        ) : filteredRuleRows.length === 0 ? (
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No rules match your filters.</p>
+        ) : (
+          <StandardsRulesTable rows={filteredRuleRows} />
+        )}
+        <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
+          <Button type="button" variant="ghost" size="sm" onClick={() => void m.load()} disabled={m.loading}>
+            {m.loading ? "Refreshing…" : "Refresh"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl">
+      <LayerHeader pageKey="governance-resolution" density="compact" collapsibleGuidance="About policy resolution" />
+      <OperatorPageHeader
+        title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
+        subtitle={m.canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
+      />
+      <GovernanceResolutionRankCue className="mb-3" />
+      {m.failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={m.failure.problem}
+            fallbackMessage={m.failure.message}
+            correlationId={m.failure.correlationId}
+          />
+        </div>
+      ) : null}
+      <GovernanceResolutionOperatorDiagnostics model={m} />
     </div>
   );
 }

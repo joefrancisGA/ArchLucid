@@ -11,6 +11,10 @@ import {
   POLICY_PACKS_VIEW_EXPLANATION_NEXT_ACTION,
   POLICY_PACKS_VIEW_EXPLANATION_SUMMARY,
 } from "@/lib/policy-packs-page";
+import {
+  STANDARDS_RULES_VIEW_EXPLANATION_NEXT_ACTION,
+  STANDARDS_RULES_VIEW_EXPLANATION_SUMMARY,
+} from "@/lib/standards-rules-page";
 
 import {
 
@@ -145,6 +149,22 @@ export function routeViewExplanationForPathname(pathname: string): RouteViewExpl
       summary: POLICY_PACKS_VIEW_EXPLANATION_SUMMARY,
 
       nextAction: POLICY_PACKS_VIEW_EXPLANATION_NEXT_ACTION,
+
+    };
+
+  }
+
+
+
+  if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {
+
+    return {
+
+      title: "Standards & rules",
+
+      summary: STANDARDS_RULES_VIEW_EXPLANATION_SUMMARY,
+
+      nextAction: STANDARDS_RULES_VIEW_EXPLANATION_NEXT_ACTION,
 
     };
 

@@ -109,7 +109,9 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
       next: { label: defs[2].label, href: defs[2].href },
       currentStepIndex: null,
     };
-  } else if (path.startsWith("/governance/policy-packs")) {
+  } else if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
+    return null;
+  } else if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {
     return null;
   } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
     return null;
