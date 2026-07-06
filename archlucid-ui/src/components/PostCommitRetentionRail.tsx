@@ -10,7 +10,7 @@ import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
-import { POST_COMMIT_INTEGRATION_LINK_TITLES } from "@/lib/i18n";
+import { POST_COMMIT_INTEGRATION_LINK_TITLES } from "@/lib/operator-health-labels";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { Button } from "@/components/ui/button";

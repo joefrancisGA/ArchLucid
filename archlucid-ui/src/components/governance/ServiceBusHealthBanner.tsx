@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { isAzureServiceBusHealthUnhealthy } from "@/lib/health-dashboard-types";
-import { SERVICE_BUS_HEALTH_LABELS } from "@/lib/i18n";
+import { SERVICE_BUS_HEALTH_LABELS } from "@/lib/operator-health-labels";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 
 const SERVICE_BUS_HEALTH_POLL_MS = 60_000;
