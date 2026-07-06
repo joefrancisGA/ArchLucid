@@ -38,6 +38,7 @@ public sealed class TrialFunnelHealthProbe(
 
         UriBuilder b = new(u);
         string h = b.Host;
+
         if (h is "0.0.0.0" or "" or "*" or "+")
         {
             b.Host = "127.0.0.1";
@@ -53,11 +54,13 @@ public sealed class TrialFunnelHealthProbe(
     internal string ResolveBaseUrl()
     {
         IServerAddressesFeature? addrs = _server.Features.Get<IServerAddressesFeature>();
+
         if (addrs?.Addresses is { Count: > 0 } set)
         {
             foreach (string a in set)
             {
                 string? mapped = TryMapToLoopbackBase(a);
+
                 if (!string.IsNullOrEmpty(mapped))
                     return mapped;
             }
@@ -125,6 +128,7 @@ public sealed class TrialFunnelHealthProbe(
 
         int consecutiveFailures = 0;
         string baseUrl = ResolveBaseUrl();
+
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation(
                 "Trial funnel health probe: starting against base {BaseUrl} every {Interval} (demo preview {Path}).",
