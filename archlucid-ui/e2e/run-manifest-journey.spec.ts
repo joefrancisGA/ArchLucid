@@ -10,6 +10,7 @@ import {
   SHOWCASE_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
+import { getAppMain } from "./helpers/app-main";
 import { showcaseSignedManifestBrowserUrlPattern } from "./helpers/buyer-golden-path";
 import { outcomeStripSignedRecordLink } from "./helpers/operator-journey";
 
@@ -44,7 +45,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
     await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern(), { timeout: 60_000 });
     await expect(page.getByText(/Fetching manifest summary/i)).toHaveCount(0, { timeout: 60_000 });
     await expect(
-      page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
+      getAppMain(page).getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });
 
     const reviewLink = page

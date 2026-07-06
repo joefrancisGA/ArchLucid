@@ -2,6 +2,8 @@ import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import type { AxeResults } from "axe-core";
 
+import { getAppMain } from "./app-main";
+
 export interface A11yCheckOptions {
   disableRules?: string[];
   include?: string;
@@ -48,7 +50,7 @@ export async function runAxe(page: Page, options?: A11yCheckOptions): Promise<Ax
 
       if (!transientNavigation || attempt === maxAttempts) throw error;
 
-      await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+      await getAppMain(page).waitFor({ state: "visible", timeout: 60_000 });
     }
   }
 

@@ -1,4 +1,4 @@
-import { expect, type Page, type Response } from "@playwright/test";
+import { getAppMain } from "./app-main";
 
 
 
@@ -134,7 +134,7 @@ async function expandExecutiveSupportingMetricsIfPresent(page: Page): Promise<vo
 
 export async function expectNoExecutiveRoiDashboardErrorBoundary(page: Page): Promise<void> {
 
-  await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
+  await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
 }
 

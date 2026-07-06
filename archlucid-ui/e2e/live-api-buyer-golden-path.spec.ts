@@ -18,6 +18,7 @@ import {
 } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import { waitForLiveApiReady } from "./helpers/live-api-client";
+import { getAppMain } from "./helpers/app-main";
 import {
   askPageMainHeading,
   comparePageMainHeading,
@@ -55,21 +56,21 @@ test.describe("live-api-buyer-golden-path", () => {
 
     await page.goto(liveBuyerGoldenPathHrefs.executive);
     await expectBuyerExecutiveSummarySurface(page);
-    await expect(page.getByRole("main")).toBeVisible({ timeout: 60_000 });
+    await expect(getAppMain(page)).toBeVisible({ timeout: 60_000 });
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(liveBuyerGoldenPathHrefs.reviewPackage);
     await expectBuyerGoldenPageReady(page);
-    await expect(page.getByRole("main")).toBeVisible({ timeout: 60_000 });
+    await expect(getAppMain(page)).toBeVisible({ timeout: 60_000 });
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(liveBuyerGoldenPathHrefs.signedManifestFriendly);
     await expect(
-      page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
+      getAppMain(page).getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);

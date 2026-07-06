@@ -21,6 +21,7 @@ import {
   liveApiBase,
   postConsultingAnalysisDocxRaw,
 } from "./helpers/live-api-client";
+import { getAppMain } from "./helpers/app-main";
 import {
   buyerPolishedReviewDetailSectionNav,
   ensureBuyerDeliverablesSectionExpanded,
@@ -78,8 +79,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     /** Pack A narrative (Responsible AI governance engine + rule identifiers from seed fixtures). */
     await expect(
-      page
-        .locator("main")
+      getAppMain(page)
         .getByText(/Promoted scoring ensemble lacks immutable lineage hash/i)
         .first(),
     ).toBeVisible({

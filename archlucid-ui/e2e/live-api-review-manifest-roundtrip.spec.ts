@@ -7,6 +7,7 @@
 import { expect, test } from "@playwright/test";
 
 import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, SHOWCASE_DEMO_RUN_ID } from "./fixtures";
+import { getAppMain } from "./helpers/app-main";
 import { liveApiBase } from "./helpers/live-api-client";
 import { outcomeStripSignedRecordLink } from "./helpers/operator-journey";
 
@@ -30,7 +31,7 @@ test.describe("live-api-review-manifest-roundtrip", () => {
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
 
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 60_000 });
-    await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
+    await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
 
     const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
 
@@ -46,7 +47,7 @@ test.describe("live-api-review-manifest-roundtrip", () => {
       manifestLink.click(),
     ]);
 
-    const manifestMain = page.locator("main");
+    const manifestMain = getAppMain(page);
 
     await expect(manifestMain.getByText(/Fetching manifest summary/i)).toHaveCount(0, {
       timeout: 60_000,

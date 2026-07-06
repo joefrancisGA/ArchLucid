@@ -7,6 +7,7 @@ import { expect, test } from "@playwright/test";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN, SHOWCASE_DEMO_RUN_ID } from "./fixtures";
+import { getAppMain } from "./helpers/app-main";
 import { expectBuyerGoldenPageReady } from "./helpers/buyer-golden-path";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import { waitForLiveApiReady } from "./helpers/live-api-client";
@@ -31,17 +32,17 @@ test.describe("live-api-core-pilot-path", () => {
 
     await page.goto("/reviews/new");
     await expect(page.getByRole("heading", { name: /new architecture review/i, level: 2 })).toBeVisible();
-    await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/reviews?projectId=default");
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
-    await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
     await expect(page.locator('[data-testid^="runs-row-"]').first()).toBeVisible();
 
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
-    await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
+    await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
     await expectBuyerGoldenPageReady(page);
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 60_000 });
 

@@ -8,6 +8,7 @@ import path from "node:path";
 import { expect, test } from "@playwright/test";
 
 import { SHOWCASE_DEMO_RUN_ID } from "./fixtures";
+import { getAppMain } from "./helpers/app-main";
 import { liveApiBase } from "./helpers/live-api-client";
 
 test.describe("live-api-whitelabel-export", () => {
@@ -29,7 +30,7 @@ test.describe("live-api-whitelabel-export", () => {
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
 
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 60_000 });
-    await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
+    await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
 
     const artifactsExports = page.locator("#artifacts-exports");
 

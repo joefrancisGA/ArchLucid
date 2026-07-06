@@ -7,6 +7,7 @@ import {
   SHOWCASE_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
+import { getAppMain } from "./helpers/app-main";
 import { escapeRegExpSource } from "./helpers/escape-reg-exp-source";
 import {
   isShowcaseSignedManifestBrowserPath,
@@ -23,7 +24,7 @@ const claimsShowcasePath = "/showcase/claims-intake-modernization";
 
 /** Branded 404 — assert visible recovery copy plus stable recovery affordances from OperatorBrandedNotFound. */
 async function expectBrandedNotFoundSurface(page: Page): Promise<void> {
-  const main = page.getByRole("main").first();
+  const main = getAppMain(page);
 
   await expect(main.getByText(/We could not find that ArchLucid artifact/i)).toBeVisible();
   await expect(main.getByTestId("branded-not-found")).toBeAttached();
@@ -57,7 +58,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
   test("run detail avoids not-found shells, bogus pipeline progress, and invalid dates", async ({ page }) => {
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
-    const primaryMain = page.getByRole("main").first();
+    const primaryMain = getAppMain(page);
     await expect(primaryMain).not.toContainText(/run not found/i);
     await expectMainHasNoHardFailureChrome(page);
     await expect(primaryMain).not.toContainText(/Invalid Date/i);
@@ -65,13 +66,13 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
     await page.goto(`/reviews/${encodeURIComponent(SCREENSHOT_RUN_ID)}`);
     await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
-    await expect(page.getByRole("main").first()).not.toContainText(/run not found/i);
+    await expect(getAppMain(page)).not.toContainText(/run not found/i);
   });
 
   test("showcase-aligned manifest UUID loads manifest chrome (not indefinite skeleton)", async ({ page }) => {
     await page.goto(`/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
-    const primaryMain = page.getByRole("main");
+    const primaryMain = getAppMain(page);
     await expect(primaryMain).toHaveCount(1);
     await expect(primaryMain).not.toContainText(/review record summary could not be loaded/i);
     await expectMainHasNoHardFailureChrome(page);
@@ -85,7 +86,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
     await page.getByRole("link", { name: /Review package/i }).first().click();
     await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
-    await expect(page.getByRole("main").first()).not.toContainText(/Invalid Date/i);
+    await expect(getAppMain(page)).not.toContainText(/Invalid Date/i);
 
     await page.goto(claimsShowcasePath);
     await page.getByRole("link", { name: "Open signed record" }).first().click();
@@ -122,7 +123,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
     for (const path of paths) {
       await page.goto(path);
-      const mainText = await page.getByRole("main").first().innerText();
+      const mainText = await getAppMain(page).innerText();
 
       for (const pattern of banned) {
         expect(mainText, `Unexpected token on ${path}`).not.toMatch(pattern);
@@ -146,9 +147,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     ).toBeVisible();
     // Buyer-polished table rows expose two Action links ("View review package", "View signed manifest");
     // target the primary explore link via stable test id (Playwright strict mode).
-    const claimsTableRow = page
-      .getByRole("main")
-      .first()
+    const claimsTableRow = getAppMain(page)
       .getByTestId(`runs-row-${SHOWCASE_DEMO_RUN_ID}`)
       .first();
     await expect(claimsTableRow).toBeVisible();
@@ -170,7 +169,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`);
     await expect(
-      page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
+      getAppMain(page).getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });
 
     await page.goto(

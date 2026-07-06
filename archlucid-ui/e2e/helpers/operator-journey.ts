@@ -1,6 +1,9 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
+import { getAppMain } from "./app-main";
 import { expectAnyLocatorVisible } from "./locator-readiness";
+
+export { getAppMain } from "./app-main";
 
 import {
   ASK_PAGE_PRIMARY_HEADING_PATTERN,
@@ -49,7 +52,7 @@ export function comparePageIntroGuidance(page: Page): Locator {
 
 /** Asserts no visible error boundary / API failure chrome (avoids false positives from explanatory copy). */
 export async function expectMainHasNoHardFailureChrome(page: Page): Promise<void> {
-  const main = page.getByRole("main").first();
+  const main = getAppMain(page);
 
   await expect(main.getByText(/Something went wrong/i)).toHaveCount(0);
   await expect(main.getByRole("alert").filter({ hasText: /request failed/i })).toHaveCount(0);
@@ -75,7 +78,7 @@ export function auditPageMainHeading(page: Page): Locator {
  * Buyer-polished demo builds default to the trace table before graph view — older specs only matched canvas / Load graph.
  */
 export function graphPageReadySurfaceCandidates(page: Page): Locator[] {
-  const main = page.getByRole("main");
+  const main = getAppMain(page);
 
   return [
     main.getByTestId("graph-canvas-ready"),
@@ -248,19 +251,19 @@ export async function expectBuyerPolishedReviewDetailSectionNavCore(
   await expect(sectionNav.getByRole("link", { name: "Deliverables" })).toBeVisible({ timeout });
 }
 
-/** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */
+/** Main-content review outcome strip. */
 export function reviewOutcomeSummaryStrip(page: Page): Locator {
-  return page.getByRole("main").locator('section[aria-label="Review outcome summary"]').first();
+  return getAppMain(page).locator('section[aria-label="Review outcome summary"]').first();
 }
 
 /** Finalized package deep link on run detail (prefer over nested outcome-strip traversal). */
 export function runDetailFinalizedPackageLink(page: Page): Locator {
-  return page.getByRole("main").getByTestId("run-detail-finalized-package-link").first();
+  return getAppMain(page).getByTestId("run-detail-finalized-package-link").first();
 }
 
-/** Featured package proof summary on buyer-polished home — visible instance only. */
+/** Featured package proof summary on buyer-polished home. */
 export function runsDashboardBuyerProofSummary(page: Page): Locator {
-  return page.getByRole("main").getByTestId("runs-dashboard-buyer-proof-summary").first();
+  return getAppMain(page).getByTestId("runs-dashboard-buyer-proof-summary").first();
 }
 
 /** Outcome strip deep link to signed record / legacy manifest detail (TB-399 canonical URLs). */
@@ -379,6 +382,6 @@ export function structuredCompareSponsorRecommendationParagraph(page: Page): Loc
 /** Run detail page: loading finished and primary review headline (`RunDetailPageHeader` H1) is visible. */
 export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_000): Promise<void> {
   await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: timeoutMs });
-  await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
-  await expect(page.locator("main h1").first()).toBeVisible({ timeout: timeoutMs });
+  await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
+  await expect(getAppMain(page).locator("h1").first()).toBeVisible({ timeout: timeoutMs });
 }

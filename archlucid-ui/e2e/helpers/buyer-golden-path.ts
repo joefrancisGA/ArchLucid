@@ -8,6 +8,7 @@ import {
   SHOWCASE_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "../fixtures";
+import { getAppMain } from "./app-main";
 import { escapeRegExpSource } from "./escape-reg-exp-source";
 import { expectAnyLocatorVisible } from "./locator-readiness";
 
@@ -57,7 +58,7 @@ export const BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN =
   /Claims Intake Modernization Review( Package)?/i;
 
 export async function expectNoGenericErrorBoundary(page: Page): Promise<void> {
-  await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
+  await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 }
 
 /** CTO demo pack replaces the classic "Executive summary" label with the above-fold hero (mock E2E default). */

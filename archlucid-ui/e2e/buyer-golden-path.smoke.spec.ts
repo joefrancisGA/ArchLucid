@@ -16,6 +16,7 @@ import {
   expectNoGenericErrorBoundary,
   showcaseSignedManifestBrowserUrlPattern,
 } from "./helpers/buyer-golden-path";
+import { getAppMain } from "./helpers/app-main";
 import { askPageMainHeading, comparePageMainHeading, expectGraphPageReadySurface, governancePageMainHeading } from "./helpers/operator-journey";
 
 test.describe("buyer golden path — Claims Intake spine", () => {
@@ -36,7 +37,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     await page.goto(BUYER_GOLDEN_PATH_HREFS.reviewPackage);
     await expectBuyerGoldenPageReady(page);
     await expect(
-      page.getByRole("main").getByRole("heading", { level: 1 }).filter({ hasText: BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN }),
+      getAppMain(page).getByRole("heading", { level: 1 }).filter({ hasText: BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN }),
     ).toBeVisible({
       timeout: 60_000,
     });
@@ -47,7 +48,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     await page.goto(BUYER_GOLDEN_PATH_HREFS.signedManifestFriendly);
     await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
     await expect(
-      page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
+      getAppMain(page).getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
