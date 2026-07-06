@@ -525,6 +525,55 @@ function isTransientHttpStatus(code: number): boolean {
   return code === 429 || (code >= 500 && code < 600);
 }
 
+function isTransientLiveApiTransportError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+
+  return /ECONNREFUSED|ECONNRESET|ETIMEDOUT|ENOTFOUND|socket hang up|request context.*disposed|Failed to connect|Connection refused|network error/i.test(
+    message,
+  );
+}
+
+/** CI live API + SQL commit convergence needs more wall clock than local runs. */
+export function liveE2eCommitWaitMs(requestedMs = 90_000): number {
+  if (process.env.CI && requestedMs <= 90_000) {
+    return 180_000;
+  }
+
+  return requestedMs;
+}
+
+/**
+ * Polls GET /health/ready until success — tolerates brief API process startup and transport blips in CI.
+ */
+export async function waitForLiveApiReady(
+  request: APIRequestContext,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? liveE2eCommitWaitMs(90_000);
+  const deadline = Date.now() + timeoutMs;
+  let lastError = "unknown";
+
+  while (Date.now() < deadline) {
+    try {
+      const res = await request.get(`${resolveLiveApiBase()}/health/ready`, { timeout: 20_000 });
+
+      if (res.ok()) {
+        return;
+      }
+
+      lastError = `status ${res.status()}: ${(await res.text()).slice(0, 300)}`;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+
+  throw new Error(
+    `Live API not ready at ${resolveLiveApiBase()}/health/ready within ${timeoutMs}ms. Last: ${lastError}`,
+  );
+}
+
 /** GET a live API path with transient 5xx/429 retries (CI SQL warmup). */
 export async function getLiveApiPathWithTransientRetries(
   request: APIRequestContext,
@@ -539,10 +588,21 @@ export async function getLiveApiPathWithTransientRetries(
   let lastResponse: APIResponse | undefined;
 
   for (let attempt = 0; attempt < maxTransientHttpPollAttempts; attempt++) {
-    lastResponse = await request.get(`${resolveLiveApiBase()}${path}`, {
-      headers,
-      timeout: options?.timeout ?? 60_000,
-    });
+    try {
+      lastResponse = await request.get(`${resolveLiveApiBase()}${path}`, {
+        headers,
+        timeout: options?.timeout ?? 60_000,
+      });
+    } catch (error) {
+      if (isTransientLiveApiTransportError(error) && attempt < maxTransientHttpPollAttempts - 1) {
+        await sleepTransientHttpBackoff(attempt);
+
+        continue;
+      }
+
+      throw error;
+    }
+
     const code = lastResponse.status();
 
     if (lastResponse.ok()) {
@@ -579,7 +639,18 @@ export async function getAuthorityRunDetailWithTransientRetries(
   let lastResponse: APIResponse | undefined;
 
   for (let attempt = 0; attempt < maxTransientHttpPollAttempts; attempt++) {
-    lastResponse = await getAuthorityRunDetailRaw(request, runId, tenantScope, options);
+    try {
+      lastResponse = await getAuthorityRunDetailRaw(request, runId, tenantScope, options);
+    } catch (error) {
+      if (isTransientLiveApiTransportError(error) && attempt < maxTransientHttpPollAttempts - 1) {
+        await sleepTransientHttpBackoff(attempt);
+
+        continue;
+      }
+
+      throw error;
+    }
+
     const code = lastResponse.status();
 
     if (lastResponse.ok()) {
@@ -700,26 +771,36 @@ export async function getRunDetailsWithTransientRetries(
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<RunDetailsJson> {
   for (let attempt = 0; attempt < maxRunDetailPollAttempts; attempt++) {
-    const res = await request.get(`${resolveLiveApiBase()}/v1/architecture/run/${runId}`, {
-      headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
-    });
-    const code = res.status();
+    try {
+      const res = await request.get(`${resolveLiveApiBase()}/v1/architecture/run/${runId}`, {
+        headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
+      });
+      const code = res.status();
 
-    if (code === 429 && attempt < maxRunDetailPollAttempts - 1) {
-      await delayAfterRateLimitedResponse(res);
+      if (code === 429 && attempt < maxRunDetailPollAttempts - 1) {
+        await delayAfterRateLimitedResponse(res);
 
-      continue;
+        continue;
+      }
+
+      if (code >= 500 && code < 600 && attempt < maxRunDetailPollAttempts - 1) {
+        await new Promise((r) => setTimeout(r, 500));
+
+        continue;
+      }
+
+      await throwIfNotOk(res, "GET /v1/architecture/run/...");
+
+      return res.json() as Promise<RunDetailsJson>;
+    } catch (error) {
+      if (isTransientLiveApiTransportError(error) && attempt < maxRunDetailPollAttempts - 1) {
+        await sleepTransientHttpBackoff(attempt);
+
+        continue;
+      }
+
+      throw error;
     }
-
-    if (code >= 500 && code < 600 && attempt < maxRunDetailPollAttempts - 1) {
-      await new Promise((r) => setTimeout(r, 500));
-
-      continue;
-    }
-
-    await throwIfNotOk(res, "GET /v1/architecture/run/...");
-
-    return res.json() as Promise<RunDetailsJson>;
   }
 
   throw new Error("getRunDetailsWithTransientRetries: retry loop exhausted");
@@ -732,10 +813,10 @@ export async function getRunDetailsWithTransientRetries(
 export async function waitForReadyForCommit(
   request: APIRequestContext,
   runId: string,
-  timeoutMs: number,
+  timeoutMs = 90_000,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
+  const deadline = Date.now() + liveE2eCommitWaitMs(timeoutMs);
 
   while (Date.now() < deadline) {
     const detail = await getRunDetailsWithTransientRetries(request, runId, tenantScope);
@@ -760,7 +841,7 @@ export async function waitForReadyForCommit(
     await new Promise((r) => setTimeout(r, 2000));
   }
 
-  throw new Error(`Run ${runId} did not reach ReadyForCommit within ${timeoutMs}ms`);
+  throw new Error(`Run ${runId} did not reach ReadyForCommit within ${liveE2eCommitWaitMs(timeoutMs)}ms`);
 }
 
 /** Row from `GET /v1/architecture/runs` (coordinator list). */
@@ -804,10 +885,10 @@ export function isArchitectureRunStatusCommitted(status: number | string | undef
 export async function waitForRunDetailCommitted(
   request: APIRequestContext,
   runId: string,
-  timeoutMs: number,
+  timeoutMs = 90_000,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
+  const deadline = Date.now() + liveE2eCommitWaitMs(timeoutMs);
 
   while (Date.now() < deadline) {
     const detail = await getRunDetailsWithTransientRetries(request, runId, tenantScope);
@@ -819,16 +900,18 @@ export async function waitForRunDetailCommitted(
     await new Promise((r) => setTimeout(r, 1000));
   }
 
-  throw new Error(`Run ${runId} did not reach Committed (GET /v1/architecture/run/{id}) within ${timeoutMs}ms`);
+  throw new Error(
+    `Run ${runId} did not reach Committed (GET /v1/architecture/run/{id}) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
+  );
 }
 
 /** Polls GET /v1/architecture/runs until the row shows Committed or timeout (dashboard list consistency). */
 export async function waitForArchitectureRunListCommitted(
   request: APIRequestContext,
   runId: string,
-  timeoutMs: number,
+  timeoutMs = 90_000,
 ): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
+  const deadline = Date.now() + liveE2eCommitWaitMs(timeoutMs);
 
   while (Date.now() < deadline) {
     const rows = await listArchitectureRuns(request);
@@ -841,7 +924,9 @@ export async function waitForArchitectureRunListCommitted(
     await new Promise((r) => setTimeout(r, 1500));
   }
 
-  throw new Error(`Run ${runId} did not show Committed on GET /v1/architecture/runs within ${timeoutMs}ms`);
+  throw new Error(
+    `Run ${runId} did not show Committed on GET /v1/architecture/runs within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
+  );
 }
 
 /** GET `/v1/architecture/runs` — recent runs in scope (dashboard / picker). */

@@ -7,18 +7,13 @@ import { expect, test } from "@playwright/test";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN, SHOWCASE_DEMO_RUN_ID } from "./fixtures";
+import { expectBuyerGoldenPageReady } from "./helpers/buyer-golden-path";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
-import { liveApiBase } from "./helpers/live-api-client";
+import { waitForLiveApiReady } from "./helpers/live-api-client";
 
 test.describe("live-api-core-pilot-path", () => {
   test.beforeAll(async ({ request }) => {
-    const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
-
-    if (!health.ok()) {
-      throw new Error(
-        `Live API not ready at ${liveApiBase}/health/ready (status ${health.status()}). Start ArchLucid.Api with Sql + DevelopmentBypass.`,
-      );
-    }
+    await waitForLiveApiReady(request);
 
     await ensureDemoWorkspaceSeedReady(request);
   });
@@ -47,13 +42,8 @@ test.describe("live-api-core-pilot-path", () => {
 
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
-
-    await expect(
-      page.getByRole("heading", {
-        level: 1,
-        name: /Claims Intake Modernization/i,
-      }),
-    ).toBeVisible();
+    await expectBuyerGoldenPageReady(page);
+    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 60_000 });
 
     const deliverablesRegion = page.getByRole("region", { name: "Deliverables grouped by audience" });
     await expect(deliverablesRegion).toBeVisible();

@@ -29,25 +29,41 @@ export async function postDemoSeedWithTransientRetries(request: APIRequestContex
   let lastBody = "";
 
   for (let attempt = 0; attempt < maxDemoSeedPostAttempts; attempt++) {
-    const seed = await request.post(`${liveApiBase}/v1/demo/seed`, {
-      headers: liveJsonHeaders(),
-      timeout: 120_000,
-    });
+    try {
+      const seed = await request.post(`${liveApiBase}/v1/demo/seed`, {
+        headers: liveJsonHeaders(),
+        timeout: 120_000,
+      });
 
-    if (seed.status() === 204) {
-      return;
+      if (seed.status() === 204) {
+        return;
+      }
+
+      lastStatus = seed.status();
+      lastBody = (await seed.text()).slice(0, 500);
+
+      if (lastStatus >= 500 && lastStatus < 600 && attempt < maxDemoSeedPostAttempts - 1) {
+        await sleepSeedBackoff(attempt);
+
+        continue;
+      }
+
+      throw new Error(`POST /v1/demo/seed expected 204 — ${lastStatus}: ${lastBody}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const transportBlip =
+        /ECONNREFUSED|ECONNRESET|ETIMEDOUT|ENOTFOUND|socket hang up|request context.*disposed|Failed to connect/i.test(
+          message,
+        );
+
+      if (transportBlip && attempt < maxDemoSeedPostAttempts - 1) {
+        await sleepSeedBackoff(attempt);
+
+        continue;
+      }
+
+      throw error;
     }
-
-    lastStatus = seed.status();
-    lastBody = (await seed.text()).slice(0, 500);
-
-    if (lastStatus >= 500 && lastStatus < 600 && attempt < maxDemoSeedPostAttempts - 1) {
-      await sleepSeedBackoff(attempt);
-
-      continue;
-    }
-
-    throw new Error(`POST /v1/demo/seed expected 204 — ${lastStatus}: ${lastBody}`);
   }
 
   throw new Error(`POST /v1/demo/seed expected 204 — ${lastStatus}: ${lastBody}`);

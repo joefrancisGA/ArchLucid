@@ -3568,6 +3568,8 @@ jobs:
           echo $! > "${RUNNER_TEMP}/live-api.pid"
 
       - name: Wait for API readiness
+        env:
+          API_URL: http://127.0.0.1:5128
         run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api.log"
 
       - name: Wait for demo preview (release-gate smokes)
@@ -3586,6 +3588,8 @@ jobs:
         working-directory: archlucid-ui
         env:
           CI: true
+          API_URL: http://127.0.0.1:5128
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api.log
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
@@ -3596,7 +3600,7 @@ jobs:
           LIVE_API_KEY_READONLY: ""
         run: |
           npx playwright install --with-deps chromium
-          curl -fsS http://127.0.0.1:5128/health/ready
+          bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"
           echo "Playwright @release-gate live e2e start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           npx playwright test --grep @release-gate
           echo "Playwright @release-gate live e2e end: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -3730,6 +3734,8 @@ jobs:
           echo $! > "${RUNNER_TEMP}/live-api-extended.pid"
 
       - name: Wait for API readiness
+        env:
+          API_URL: http://127.0.0.1:5128
         run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-extended.log"
 
       - name: Wait for demo preview (extended live smokes)
@@ -3754,6 +3760,8 @@ jobs:
         working-directory: archlucid-ui
         env:
           CI: true
+          API_URL: http://127.0.0.1:5128
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-extended.log
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
@@ -3764,7 +3772,7 @@ jobs:
           LIVE_API_KEY_READONLY: ""
         run: |
           npx playwright install --with-deps chromium
-          curl -fsS http://127.0.0.1:5128/health/ready
+          bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"
           echo "Playwright extended live e2e shard ${{ matrix.shard }}/${{ strategy.job-total }} start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           if [ "${ARCHLUCID_CI_FULL_LIVE_A11Y}" = "true" ]; then
             npx playwright test --grep-invert "@release-gate" --shard=${{ matrix.shard }}/${{ strategy.job-total }}

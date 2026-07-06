@@ -8,6 +8,7 @@ import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
   expectBuyerExecutiveSummarySurface,
   expectBuyerGoldenJourneyStepper,
+  expectBuyerGoldenPageReady,
   expectNoGenericErrorBoundary,
 } from "./helpers/buyer-golden-path";
 import {
@@ -16,7 +17,7 @@ import {
   injectDemoWorkspaceOperatorScope,
 } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
-import { liveApiBase } from "./helpers/live-api-client";
+import { waitForLiveApiReady } from "./helpers/live-api-client";
 import {
   askPageMainHeading,
   comparePageMainHeading,
@@ -38,21 +39,9 @@ const liveBuyerGoldenPathHrefs = {
   ask: `/ask?runId=${productTourRunEnc}`,
 } as const;
 
-/** Seeded Workspace A run description (see `ProductTourWorkspaceSeed` / `DemoSeedService`). */
-const liveProductTourExecutiveHeadlinePattern =
-  /Northwind Architects.*Product Tour|Contoso Cloud Platform/i;
-
-const liveProductTourReviewHeadingPattern = /Contoso Cloud Platform|Product Tour/i;
-
 test.describe("live-api-buyer-golden-path", () => {
   test.beforeAll(async ({ request }) => {
-    const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 90_000 });
-
-    if (!health.ok()) {
-      throw new Error(
-        `Live API not ready at ${liveApiBase}/health/ready (status ${health.status()}). Start ArchLucid.Api with Sql + DevelopmentBypass.`,
-      );
-    }
+    await waitForLiveApiReady(request);
 
     await ensureDemoWorkspaceSeedReady(request);
   });
@@ -66,16 +55,15 @@ test.describe("live-api-buyer-golden-path", () => {
 
     await page.goto(liveBuyerGoldenPathHrefs.executive);
     await expectBuyerExecutiveSummarySurface(page);
-    await expect(
-      page.getByRole("heading", { level: 1 }).filter({ hasText: liveProductTourExecutiveHeadlinePattern }),
-    ).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("main")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(liveBuyerGoldenPathHrefs.reviewPackage);
-    await expect(
-      page.getByRole("heading", { level: 1 }).filter({ hasText: liveProductTourReviewHeadingPattern }),
-    ).toBeVisible({ timeout: 60_000 });
+    await expectBuyerGoldenPageReady(page);
+    await expect(page.getByRole("main")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 

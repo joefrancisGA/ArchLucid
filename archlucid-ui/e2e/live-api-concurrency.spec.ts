@@ -9,23 +9,17 @@ import {
   createApprovalRequest,
   createRun,
   executeRun,
-  liveApiBase,
   liveE2eArchitectureDescription,
   postGovernanceApproveRaw,
   searchAudit,
+  waitForLiveApiReady,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
 
 test.describe("live-api-concurrency", () => {
   test.beforeAll(async ({ request }) => {
-    const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
-
-    if (!health.ok()) {
-      throw new Error(
-        `Live API not ready at ${liveApiBase}/health/ready (status ${health.status()}). Start ArchLucid.Api with Sql + DevelopmentBypass.`,
-      );
-    }
+    await waitForLiveApiReady(request);
   });
 
   test("parallel first commit: both responses succeed without 5xx; run ends Committed", async ({ request }) => {
