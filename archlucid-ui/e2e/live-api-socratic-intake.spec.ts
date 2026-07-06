@@ -10,6 +10,7 @@ import {
   getDraftQuestionsLive,
   getRunDetails,
   liveApiBase,
+  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   patchDraftRequestLive,
   skipDraftQuestionLive,
   submitDraftRequestLive,
@@ -37,7 +38,7 @@ test.describe("live-api-socratic-intake", () => {
     // submit) — the 30s Playwright default has repeatedly been too tight under the extended
     // matrix's shared-API load, causing the wizard's own `toBeVisible({ timeout: 60_000 })` waits
     // to be cut short by the enclosing test timeout before they could complete.
-    test.setTimeout(150_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     await page.goto("/reviews/new");
 

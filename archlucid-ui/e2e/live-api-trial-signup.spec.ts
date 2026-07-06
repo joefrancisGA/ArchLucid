@@ -11,11 +11,14 @@
  */
 import { expect, test } from "@playwright/test";
 
+import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
+import { getAppMain } from "./helpers/app-main";
 import {
   commitRun,
   createRun,
   executeRun,
   liveApiBase,
+  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   resolveLiveAuthMode,
   liveJsonHeaders,
   liveTenantScopeHeaders,
@@ -23,7 +26,7 @@ import {
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
-import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import { expectLiveRunDetailPageReady, runDetailFinalizedPackageLink } from "./helpers/operator-journey";
 import { runIdFromReviewsHref } from "./helpers/run-id-from-href";
 
 const modes = (process.env.LIVE_TRIAL_E2E_MODES ?? "register-baseline")
@@ -115,7 +118,7 @@ test.describe("live-api-trial-signup", () => {
   });
 
   test("ui: signup → verify → onboarding → sample run → manifest (DevelopmentBypass)", async ({ page, request }) => {
-    test.setTimeout(240_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
     test.skip(resolveLiveAuthMode() !== "bypass", "Requires DevelopmentBypass auth (default ui-e2e-live API).");
 
     const suffix = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
@@ -204,7 +207,7 @@ test.describe("live-api-trial-signup", () => {
 
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
 
-    const manifestLink = page.locator("main").locator('a[href^="/signed-records/"]').first();
+    const manifestLink = runDetailFinalizedPackageLink(page);
 
     await expect(
       manifestLink,
@@ -213,13 +216,15 @@ test.describe("live-api-trial-signup", () => {
 
     await manifestLink.click();
 
-    const manifestMain = page.locator("main");
+    const manifestMain = getAppMain(page);
 
-    await expect(manifestMain.getByText(/Fetching manifest summary and artifacts/i)).toHaveCount(0, {
+    await expect(manifestMain.getByText(/Fetching manifest summary/i)).toHaveCount(0, {
       timeout: 120_000,
     });
 
-    await expect(manifestMain.getByRole("heading", { name: "Manifest", level: 2 })).toBeVisible({ timeout: 120_000 });
+    await expect(
+      manifestMain.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
+    ).toBeVisible({ timeout: 120_000 });
 
     const metricsRes = await request.get(`${liveApiBase}/metrics`, { timeout: 30_000 });
 
@@ -235,7 +240,7 @@ test.describe("live-api-trial-signup", () => {
   test("trial funnel: /metrics lists trial instruments after register + coordinator + billing + convert", async ({
     request,
   }) => {
-    test.setTimeout(300_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
     test.skip(resolveLiveAuthMode() !== "bypass", "Requires DevelopmentBypass (AdminAuthority) for tenant billing and convert.");
 
     const suffix = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;

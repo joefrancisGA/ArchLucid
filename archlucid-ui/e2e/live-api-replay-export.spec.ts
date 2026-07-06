@@ -13,6 +13,7 @@ import {
   getRunExportZip,
   liveApiBase,
   liveE2eArchitectureDescription,
+  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   postReplayRunRaw,
   searchAudit,
   waitForReadyForCommit,
@@ -31,7 +32,7 @@ test.describe("live-api-replay-export", () => {
   });
 
   test("replay committed run and verify export + audit trail", async ({ request }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     const createBody = {
       requestId: `E2E-LIVE-REPLAY-${Date.now()}`,

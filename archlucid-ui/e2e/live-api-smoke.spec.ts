@@ -21,6 +21,7 @@ import {
   DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
   injectDemoWorkspaceOperatorScope,
 } from "./helpers/demo-workspace-live-scope";
+import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import {
   assignPolicyPack,
   commitRun,
@@ -33,6 +34,7 @@ import {
   getEffectivePolicyPacks,
   liveApiBase,
   liveE2eArchitectureDescription,
+  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   minimalPolicyPackContentJson,
   resolveLiveJwtMode,
   waitForReadyForCommit,
@@ -119,13 +121,15 @@ test.describe("live-api-smoke", () => {
         `Live API not ready at ${liveApiBase}/health/ready (status ${health.status()}). Set LIVE_API_URL for staging or start ArchLucid.Api.`,
       );
     }
+
+    await ensureDemoWorkspaceSeedReady(request, { workspaces: ["A"] });
   });
 
   test("pilot spine: scoped shell, baseline ZIP wizard, execute, view findings (real proxy, no mocks)", async ({
     page,
     request,
   }) => {
-    test.setTimeout(300_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     if (resolveLiveJwtMode()) {
       const bearer = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
@@ -259,7 +263,7 @@ test.describe("live-api-smoke", () => {
     page,
     request,
   }) => {
-    test.setTimeout(300_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     if (resolveLiveJwtMode()) {
       const bearer = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";

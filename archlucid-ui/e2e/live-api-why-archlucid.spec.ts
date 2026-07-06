@@ -18,6 +18,7 @@ import {
   executeRun,
   liveApiBase,
   liveE2eArchitectureDescription,
+  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   liveJsonHeaders,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -51,7 +52,7 @@ test.describe("live-api-why-archlucid", () => {
   });
 
   test("renders the proof page sections backed by the live API", async ({ page, request }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     // Drive at least one full create → execute → commit so the in-process counters that the page
     // surfaces (`archlucid_runs_created_total`, `archlucid_findings_produced_total`) are non-zero.
@@ -85,7 +86,7 @@ test.describe("live-api-why-archlucid", () => {
     const counters = page.getByTestId("why-archlucid-counters");
 
     await expect(counters).toBeVisible({ timeout: 30_000 });
-    await expect(counters).toContainText("Runs created");
+    await expect(counters).toContainText("Architecture reviews created");
     await expect(counters).toContainText("Audit rows (demo scope)");
     await expect(counters).toContainText("archlucid_runs_created_total");
 

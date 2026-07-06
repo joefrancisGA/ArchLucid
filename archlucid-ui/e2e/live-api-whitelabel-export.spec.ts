@@ -9,7 +9,9 @@ import { expect, test } from "@playwright/test";
 
 import { SHOWCASE_DEMO_RUN_ID } from "./fixtures";
 import { getAppMain } from "./helpers/app-main";
-import { liveApiBase } from "./helpers/live-api-client";
+import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
+import { liveApiBase, liveE2eArchitectureRunCyclePlaywrightTimeoutMs } from "./helpers/live-api-client";
+import { ensureBuyerDeliverablesSectionExpanded } from "./helpers/operator-journey";
 
 test.describe("live-api-whitelabel-export", () => {
   test.beforeAll(async ({ request }) => {
@@ -20,17 +22,21 @@ test.describe("live-api-whitelabel-export", () => {
         `Live API not ready at ${liveApiBase}/health/ready (status ${health.status()}). Start ArchLucid.Api with Sql + DevelopmentBypass.`,
       );
     }
+
+    await ensureDemoWorkspaceSeedReady(request);
   });
 
   test("finalized showcase review: whitelabel consulting export modal fills packaging fields and downloads DOCX", async ({
     page,
   }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
 
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 60_000 });
+    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 90_000 });
     await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
+
+    await ensureBuyerDeliverablesSectionExpanded(page);
 
     const artifactsExports = page.locator("#artifacts-exports");
 

@@ -4,6 +4,7 @@
 import { expect, test } from "@playwright/test";
 
 import { runAxe } from "./helpers/axe-helper";
+import { getAppMain } from "./helpers/app-main";
 import {
   commitRun,
   createRun,
@@ -13,6 +14,7 @@ import {
   listArchitectureRuns,
   liveApiBase,
   liveE2eArchitectureDescription,
+  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   postAskRaw,
   toRunGuidPathSegment,
   waitForReadyForCommit,
@@ -32,7 +34,7 @@ test.describe("live-api-search-ask-graph", () => {
     page,
     request,
   }) => {
-    test.setTimeout(240_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     const systemName = `E2ELiveSearchGraph-${Date.now()}`;
     const createBody = {
@@ -91,13 +93,13 @@ test.describe("live-api-search-ask-graph", () => {
     }
 
     await page.goto("/search?projectId=default", { waitUntil: "load" });
-    await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+    await getAppMain(page).waitFor({ state: "visible", timeout: 60_000 });
     const searchAxe = await runAxe(page);
     const searchCritical = searchAxe.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
     expect(searchCritical, "search page axe").toHaveLength(0);
 
     await page.goto("/ask?projectId=default", { waitUntil: "load" });
-    await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+    await getAppMain(page).waitFor({ state: "visible", timeout: 60_000 });
     const askAxe = await runAxe(page);
     const askCritical = askAxe.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
     expect(askCritical, "ask page axe").toHaveLength(0);
