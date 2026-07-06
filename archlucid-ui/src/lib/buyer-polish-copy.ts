@@ -184,6 +184,31 @@ export const BUYER_CTO_DEMO_READINESS_CHECKING_LABEL = "Checking demo readiness�
 
 export const BUYER_CTO_DEMO_READINESS_REFRESH_CTA = "Recheck";
 
+/** Buyer-facing readiness copy — never mention demo seed, static operator mode, or env flags. */
+export const BUYER_DEMO_READINESS_SAMPLE_READY_DETAIL = "Sample review package is ready.";
+
+export const BUYER_DEMO_READINESS_SAMPLE_UNAVAILABLE_DETAIL = "Sample review is temporarily unavailable.";
+
+export const BUYER_DEMO_READINESS_SAMPLE_PREPARING_DETAIL =
+  "Sample review is being prepared. Try again in a moment.";
+
+/** Presenter/operator diagnostics — gated behind internal demo-operator tooling. */
+export const BUYER_DEMO_READINESS_OPERATOR_SHOWCASE_API_MISSING =
+  "Showcase review not reachable — start the API with demo seed or enable static operator mode.";
+
+export const BUYER_DEMO_READINESS_OPERATOR_SHOWCASE_NOT_FINALIZED =
+  "Showcase review exists but is not finalized — run demo seed or finalize the package.";
+
+export const BUYER_DEMO_READINESS_OPERATOR_API_START_REQUIRED =
+  "API health check failed — start ArchLucid.Api before the CTO demo.";
+
+export const BUYER_DEMO_READINESS_OPERATOR_AUTH_REQUIRED =
+  "Sign in or enable demo/static operator flags before presenting live API data.";
+
+export const BUYER_DEMO_READINESS_BUYER_API_UNAVAILABLE = "Service is temporarily unavailable.";
+
+export const BUYER_DEMO_READINESS_BUYER_AUTH_REQUIRED = "Sign in to continue.";
+
 export const BUYER_CTO_DEMO_RESET_CTA = "Reset demo";
 
 export const BUYER_CTO_DEMO_RESET_BUSY_CTA = "Resetting demo…";

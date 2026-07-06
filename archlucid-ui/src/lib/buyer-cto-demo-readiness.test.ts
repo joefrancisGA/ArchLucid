@@ -40,10 +40,14 @@ vi.mock("@/lib/fetch-health-ready", () => ({
   fetchHealthReadySummary: vi.fn(),
 }));
 
+vi.mock("@/lib/cto-demo-presenter-pack", () => ({
+  isCtoDemoOperatorToolingEnv: vi.fn(() => false),
+}));
+
 vi.mock("@/lib/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: vi.fn(() => false),
-  tryStaticDemoManifestSummary: vi.fn(() => null),
-  tryStaticDemoRunDetail: vi.fn(() => null),
+  isShowcaseSpineStaticPayloadActiveForRun: vi.fn(() => true),
+  tryStaticDemoManifestSummary: vi.fn(() => ({ status: "committed" })),
   tryStaticDemoProvenanceGraph: vi.fn(() => null),
   tryStaticDemoGovernanceApprovalRequests: vi.fn(() => null),
   areSpineStaticDemoPayloadsAvailable: vi.fn(() => false),
@@ -53,11 +57,25 @@ import { getRunSummary } from "@/lib/api";
 import { getBearerToken } from "@/lib/api/http";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import * as demoUiEnv from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
+import {
+  isShowcaseSpineStaticPayloadActiveForRun,
+  isStaticDemoPayloadFallbackEnabled,
+  tryStaticDemoManifestSummary,
+} from "@/lib/operator-static-demo";
+import { TRIAL_ONBOARDING_SAMPLE_RUN_ID } from "@/lib/trial-sample-run";
+import {
+  BUYER_DEMO_READINESS_OPERATOR_SHOWCASE_API_MISSING,
+  BUYER_DEMO_READINESS_SAMPLE_READY_DETAIL,
+  BUYER_DEMO_READINESS_SAMPLE_UNAVAILABLE_DETAIL,
+} from "@/lib/buyer-polish-copy";
 
 const mockGetRunSummary = vi.mocked(getRunSummary);
 const mockFetchHealthReadySummary = vi.mocked(fetchHealthReadySummary);
 const mockGetBearerToken = vi.mocked(getBearerToken);
+const mockIsCtoDemoOperatorToolingEnv = vi.mocked(isCtoDemoOperatorToolingEnv);
+const mockIsShowcaseSpineStaticPayloadActiveForRun = vi.mocked(isShowcaseSpineStaticPayloadActiveForRun);
+const mockTryStaticDemoManifestSummary = vi.mocked(tryStaticDemoManifestSummary);
 
 function buildJwt(expSeconds: number): string {
   const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
@@ -121,12 +139,15 @@ describe("evaluateBuyerCtoDemoReadiness", () => {
   beforeEach(() => {
     mockGetRunSummary.mockReset();
     mockFetchHealthReadySummary.mockReset();
+    mockIsCtoDemoOperatorToolingEnv.mockReturnValue(false);
+    mockIsShowcaseSpineStaticPayloadActiveForRun.mockReturnValue(true);
+    mockTryStaticDemoManifestSummary.mockReturnValue({ status: "committed" } as never);
     vi.mocked(demoUiEnv.isNextPublicDemoMode).mockReturnValue(true);
   });
 
-  it("returns ready when showcase is committed and API health responds", async () => {
+  it("returns ready when showcase static spine is available and API health responds", async () => {
     mockGetRunSummary.mockResolvedValue({
-      runId: "claims-intake-modernization",
+      runId: TRIAL_ONBOARDING_SAMPLE_RUN_ID,
       projectId: "default",
       createdUtc: "2026-01-10T09:15:22.000Z",
       hasGoldenManifest: true,
@@ -138,5 +159,36 @@ describe("evaluateBuyerCtoDemoReadiness", () => {
     expect(evaluateBuyerCtoDemoShellCheck().status).toBe("pass");
     expect(result.verdict).toBe("ready");
     expect(result.checks.every((check) => check.status === "pass")).toBe(true);
+    expect(result.checks.find((check) => check.id === "showcase-committed")?.detail).toBe(
+      BUYER_DEMO_READINESS_SAMPLE_READY_DETAIL,
+    );
+  });
+
+  it("never surfaces demo seed instructions in buyer-facing showcase failures", async () => {
+    mockIsShowcaseSpineStaticPayloadActiveForRun.mockReturnValue(false);
+    mockTryStaticDemoManifestSummary.mockReturnValue(null);
+    mockGetRunSummary.mockRejectedValue(new Error("not found"));
+    mockFetchHealthReadySummary.mockResolvedValue({ status: "Healthy", checks: [] });
+
+    const result = await evaluateBuyerCtoDemoReadiness();
+    const showcaseCheck = result.checks.find((check) => check.id === "showcase-committed");
+
+    expect(showcaseCheck?.status).toBe("fail");
+    expect(showcaseCheck?.detail).toBe(BUYER_DEMO_READINESS_SAMPLE_UNAVAILABLE_DETAIL);
+    expect(showcaseCheck?.detail).not.toMatch(/demo seed/i);
+    expect(showcaseCheck?.detail).not.toMatch(/static operator/i);
+  });
+
+  it("shows operator diagnostics for showcase failures when demo-operator tooling is enabled", async () => {
+    mockIsCtoDemoOperatorToolingEnv.mockReturnValue(true);
+    mockIsShowcaseSpineStaticPayloadActiveForRun.mockReturnValue(false);
+    mockTryStaticDemoManifestSummary.mockReturnValue(null);
+    mockGetRunSummary.mockRejectedValue(new Error("not found"));
+    mockFetchHealthReadySummary.mockResolvedValue({ status: "Healthy", checks: [] });
+
+    const result = await evaluateBuyerCtoDemoReadiness();
+    const showcaseCheck = result.checks.find((check) => check.id === "showcase-committed");
+
+    expect(showcaseCheck?.detail).toBe(BUYER_DEMO_READINESS_OPERATOR_SHOWCASE_API_MISSING);
   });
 });
