@@ -1,12 +1,5 @@
 import { vi } from "vitest";
-
-type NextNavigation = typeof import("next/navigation");
-type UseSearchParamsReturn = ReturnType<NextNavigation["useSearchParams"]>;
-
-/** Read-only search params shape from installed `next/navigation` (not mutable `URLSearchParams`). */
-function createMockSearchParams(): UseSearchParamsReturn {
-  return new URLSearchParams() as unknown as UseSearchParamsReturn;
-}
+import type { ReadonlyURLSearchParams } from "next/navigation";
 
 /** Default `next/navigation` stubs for unit tests (includes server `redirect`). */
 export const nextNavigationVitestStubs = {
@@ -19,22 +12,23 @@ export const nextNavigationVitestStubs = {
     replace: vi.fn(),
   }),
   usePathname: () => "/",
-  useSearchParams: () => createMockSearchParams(),
+  useSearchParams: () =>
+    new URLSearchParams() as unknown as ReadonlyURLSearchParams,
   redirect: vi.fn(),
   permanentRedirect: vi.fn(),
   notFound: vi.fn(),
-} satisfies Partial<NextNavigation>;
+};
 
 /** Extends partial `next/navigation` vitest mocks with redirect and router stubs. */
 export async function extendNextNavigationVitestMock(
-  importOriginal: () => Promise<NextNavigation>,
+  importOriginal: () => Promise<typeof import("next/navigation")>,
   overrides: Record<string, unknown> = {},
-): Promise<NextNavigation> {
+): Promise<typeof import("next/navigation")> {
   const actual = await importOriginal();
 
   return {
     ...actual,
     ...nextNavigationVitestStubs,
     ...overrides,
-  } as NextNavigation;
+  } as unknown as typeof import("next/navigation");
 }
