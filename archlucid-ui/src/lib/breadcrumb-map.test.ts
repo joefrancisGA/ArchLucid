@@ -190,6 +190,13 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("maps governance risk exceptions breadcrumb", () => {
+    expect(getBreadcrumbs("/governance/risk-exceptions")).toEqual([
+      { label: "Governance", href: "/governance" },
+      { label: "Risk exceptions" },
+    ]);
+  });
+
   it("buyer-polished: search hub with showcase runId inserts review package title before search crumb", () => {
     expect(
       getBreadcrumbs("/search", {

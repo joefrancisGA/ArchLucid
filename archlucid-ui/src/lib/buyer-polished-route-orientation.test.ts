@@ -55,6 +55,10 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/governance/findings")).toBeNull();
   });
 
+  it("returns null for risk exceptions — the page carries its own governance banner", () => {
+    expect(buyerPolishedRouteOrientation("/governance/risk-exceptions")).toBeNull();
+  });
+
   it("orients the advisory route with recommendation copy", () => {
     const o = buyerPolishedRouteOrientation("/advisory");
 

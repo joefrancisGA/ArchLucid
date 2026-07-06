@@ -118,6 +118,8 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
     };
   } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
     return null;
+  } else if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {
+    return null;
   } else if (path.startsWith("/governance")) {
     stepIdx = 3;
   } else if (path.startsWith("/audit")) {

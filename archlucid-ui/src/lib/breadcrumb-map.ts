@@ -413,6 +413,10 @@ function labelForSegment(
     return "Risk register";
   }
 
+  if (segment === "risk-exceptions" && prev === "governance") {
+    return "Risk exceptions";
+  }
+
   if (buyer && segment === "findings") {
     return "Findings";
   }

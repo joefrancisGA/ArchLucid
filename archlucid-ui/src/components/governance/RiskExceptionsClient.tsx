@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { LayerHeader } from "@/components/LayerHeader";
+import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,8 +28,24 @@ import {
   revokeRiskException,
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  BUYER_RISK_EXCEPTIONS_EMPTY_BODY,
+  BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION,
+  BUYER_RISK_EXCEPTIONS_EMPTY_TITLE,
+  BUYER_RISK_EXCEPTIONS_PAGE_LEAD,
+  BUYER_RISK_EXCEPTIONS_PAGE_TITLE,
+  BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION,
+} from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import {
+  RISK_EXCEPTIONS_EMPTY_BODY,
+  RISK_EXCEPTIONS_EMPTY_TITLE,
+  RISK_EXCEPTIONS_EXPIRING_WARNING,
+  RISK_EXCEPTIONS_PAGE_SUBTITLE,
+  RISK_EXCEPTIONS_PAGE_TITLE,
+} from "@/lib/risk-exceptions-page";
 
 import {
   formatRiskExceptionExpiresAtUtc,
@@ -70,6 +88,7 @@ function toDatetimeLocalInputValue(isoUtc: string): string {
 /** TB-226 — cross-finding risk exception (waiver) register with renew/revoke. */
 export default function RiskExceptionsClient() {
   const canMutate = useOperateCapability();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [records, setRecords] = useState<RiskExceptionRecord[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -106,6 +125,9 @@ export default function RiskExceptionsClient() {
     () => records.filter((row) => resolveRiskExceptionDisplayStatus(row) === "expiring-soon").length,
     [records],
   );
+
+  const pageTitle = buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_PAGE_TITLE : RISK_EXCEPTIONS_PAGE_TITLE;
+  const pageSubtitle = buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_PAGE_LEAD : RISK_EXCEPTIONS_PAGE_SUBTITLE;
 
   async function submitRenew(record: RiskExceptionRecord): Promise<void> {
     if (!canMutate) {
@@ -155,157 +177,170 @@ export default function RiskExceptionsClient() {
   }
 
   return (
-    <div className="w-full max-w-[1440px] space-y-4">
-      <LayerHeader pageKey="risk-exceptions" />
-      <OperatorPageHeader title="Risk exceptions" />
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-        Track approved waivers for findings that are not immediately remediated.
-      </p>
-
-      {expiringSoonCount > 0 ? (
-        <div
-          className={cn("rounded-md border border-l-4 border-neutral-200 border-l-[var(--al-status-warn-fg)] bg-[var(--al-status-warn-bg)] px-4 py-3 text-neutral-800 dark:border-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="risk-exceptions-expiring-warning"
-          role="status"
-        >
-          {expiringSoonCount} waiver{expiringSoonCount === 1 ? "" : "s"} expire within 14 days — renew or revoke to avoid
-          automatic reversion.
-        </div>
-      ) : null}
-
-      {loadError ? <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{loadError}</p> : null}
-
-      {records.length === 0 ? (
-        <EnterpriseCompactEmptyState
-          testId="risk-exceptions-empty-state"
-          title="No active risk exceptions"
-          description="Risk exceptions appear here when a finding is waived or deferred through governance. Use this page to track owner, expiration, evidence, and the linked decision record."
-          actions={[
-            { label: "Open findings", href: "/governance/findings", variant: "primary" },
-            { label: "Open governance workflow", href: "/governance", variant: "outline" },
-            { label: "Start review", href: "/reviews/new", variant: "outline" },
-          ]}
-        />
+    <div className="w-full max-w-[1440px]">
+      {buyerPolishedShell ? (
+        <GovernanceApprovalStatusBanner className="mb-3" />
       ) : (
-        <EnterpriseTable ariaLabel="Risk exceptions">
-          <EnterpriseTableHead>
-            <EnterpriseTableHeadRow>
-              <EnterpriseTableHeaderCell>Finding ID</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Rationale</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Expires</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
-            </EnterpriseTableHeadRow>
-          </EnterpriseTableHead>
-          <EnterpriseTableBody>
-            {records.map((record) => {
-              const displayStatus = resolveRiskExceptionDisplayStatus(record);
-              const tag = statusTagFor(displayStatus);
-              const isRenewing = renewingId === record.riskExceptionId;
+        <LayerHeader pageKey="risk-exceptions" density="compact" className="mb-3" />
+      )}
 
-              return (
-                <EnterpriseTableRow key={record.riskExceptionId}>
-                  <EnterpriseTableCell>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{truncateMiddle(record.findingId, 24)}</code>
-                      <CopyIdButton value={record.findingId} aria-label="Copy finding ID" />
-                    </div>
-                  </EnterpriseTableCell>
-                  <EnterpriseTableCell>{record.ownerUserId}</EnterpriseTableCell>
-                  <EnterpriseTableCell title={record.rationale ?? undefined}>
-                    {truncateMiddle(record.rationale ?? "", 80)}
-                  </EnterpriseTableCell>
-                  <EnterpriseTableCell>
-                    <StatusTag kind={tag.kind} label={tag.label} />
-                  </EnterpriseTableCell>
-                  <EnterpriseTableCell>{formatRiskExceptionExpiresAtUtc(record.expiresAtUtc)}</EnterpriseTableCell>
-                  <EnterpriseTableCell>
-                    {isRenewing ? (
-                      <form
-                        className="flex min-w-[16rem] flex-col gap-2"
-                        onSubmit={(event) => {
-                          event.preventDefault();
-                          void submitRenew(record);
-                        }}
-                      >
-                        <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
-                          <span>New expiry (UTC)</span>
-                          <input
-                            type="datetime-local"
-                            className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
-                            value={toDatetimeLocalInputValue(renewExpiresAtUtc)}
-                            onChange={(event) => {
-                              const next = new Date(event.target.value);
+      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} />
 
-                              if (!Number.isNaN(next.getTime())) {
-                                setRenewExpiresAtUtc(next.toISOString());
-                              }
-                            }}
-                          />
-                        </label>
-                        <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
-                          <span>Rationale (optional)</span>
-                          <input
-                            className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
-                            value={renewRationale}
-                            onChange={(event) => setRenewRationale(event.target.value)}
-                          />
-                        </label>
+      <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
+        {expiringSoonCount > 0 ? (
+          <div
+            className={cn(
+              "rounded-md border border-l-4 border-neutral-200 border-l-[var(--al-status-warn-fg)] bg-[var(--al-status-warn-bg)] px-4 py-3 text-neutral-800 dark:border-neutral-700 dark:text-neutral-200",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+            data-testid="risk-exceptions-expiring-warning"
+            role="status"
+          >
+            {expiringSoonCount} risk exception{expiringSoonCount === 1 ? "" : "s"} {RISK_EXCEPTIONS_EXPIRING_WARNING}
+          </div>
+        ) : null}
+
+        {loadError ? (
+          <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{loadError}</p>
+        ) : null}
+
+        {records.length === 0 ? (
+          <EnterpriseCompactEmptyState
+            testId="risk-exceptions-empty-state"
+            title={buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_TITLE : RISK_EXCEPTIONS_EMPTY_TITLE}
+            description={buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_BODY : RISK_EXCEPTIONS_EMPTY_BODY}
+            actions={[
+              { label: "Open findings", href: "/governance/findings", variant: "primary" },
+              {
+                label: buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION : "Open governance workflow",
+                href: "/governance",
+                variant: "outline",
+              },
+            ]}
+            footer={
+              <Link className={OPERATOR_LINK.optional} href="/reviews/new">
+                {buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION : "Start review"}
+              </Link>
+            }
+          />
+        ) : (
+          <EnterpriseTable ariaLabel="Risk exceptions">
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow>
+                <EnterpriseTableHeaderCell>Finding ID</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Rationale</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Expires</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
+              {records.map((record) => {
+                const displayStatus = resolveRiskExceptionDisplayStatus(record);
+                const tag = statusTagFor(displayStatus);
+                const isRenewing = renewingId === record.riskExceptionId;
+
+                return (
+                  <EnterpriseTableRow key={record.riskExceptionId}>
+                    <EnterpriseTableCell>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
+                          {truncateMiddle(record.findingId, 24)}
+                        </code>
+                        <CopyIdButton value={record.findingId} aria-label="Copy finding ID" />
+                      </div>
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell>{record.ownerUserId}</EnterpriseTableCell>
+                    <EnterpriseTableCell title={record.rationale ?? undefined}>
+                      {truncateMiddle(record.rationale ?? "", 80)}
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell>
+                      <StatusTag kind={tag.kind} label={tag.label} />
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell>{formatRiskExceptionExpiresAtUtc(record.expiresAtUtc)}</EnterpriseTableCell>
+                    <EnterpriseTableCell>
+                      {isRenewing ? (
+                        <form
+                          className="flex min-w-[16rem] flex-col gap-2"
+                          onSubmit={(event) => {
+                            event.preventDefault();
+                            void submitRenew(record);
+                          }}
+                        >
+                          <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
+                            <span>New expiry (UTC)</span>
+                            <input
+                              type="datetime-local"
+                              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
+                              value={toDatetimeLocalInputValue(renewExpiresAtUtc)}
+                              onChange={(event) => {
+                                const next = new Date(event.target.value);
+
+                                if (!Number.isNaN(next.getTime())) {
+                                  setRenewExpiresAtUtc(next.toISOString());
+                                }
+                              }}
+                            />
+                          </label>
+                          <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
+                            <span>Rationale (optional)</span>
+                            <input
+                              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
+                              value={renewRationale}
+                              onChange={(event) => setRenewRationale(event.target.value)}
+                            />
+                          </label>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="submit"
+                              size="sm"
+                              disabled={busyId === record.riskExceptionId || !canMutate}
+                              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                            >
+                              Save renewal
+                            </Button>
+                            <Button type="button" size="sm" variant="outline" onClick={() => setRenewingId(null)}>
+                              Cancel
+                            </Button>
+                          </div>
+                        </form>
+                      ) : (
                         <div className="flex flex-wrap gap-2">
                           <Button
-                            type="submit"
+                            type="button"
                             size="sm"
+                            variant="outline"
                             disabled={busyId === record.riskExceptionId || !canMutate}
                             title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                            onClick={() => {
+                              setRenewingId(record.riskExceptionId);
+                              setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
+                              setRenewRationale("");
+                            }}
                           >
-                            Save renewal
+                            Renew
                           </Button>
                           <Button
                             type="button"
                             size="sm"
                             variant="outline"
-                            onClick={() => setRenewingId(null)}
+                            disabled={busyId === record.riskExceptionId || !canMutate}
+                            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                            onClick={() => void submitRevoke(record)}
                           >
-                            Cancel
+                            Revoke
                           </Button>
                         </div>
-                      </form>
-                    ) : (
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          disabled={busyId === record.riskExceptionId || !canMutate}
-                          title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                          onClick={() => {
-                            setRenewingId(record.riskExceptionId);
-                            setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
-                            setRenewRationale("");
-                          }}
-                        >
-                          Renew
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          disabled={busyId === record.riskExceptionId || !canMutate}
-                          title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                          onClick={() => void submitRevoke(record)}
-                        >
-                          Revoke
-                        </Button>
-                      </div>
-                    )}
-                  </EnterpriseTableCell>
-                </EnterpriseTableRow>
-              );
-            })}
-          </EnterpriseTableBody>
-        </EnterpriseTable>
-      )}
+                      )}
+                    </EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                );
+              })}
+            </EnterpriseTableBody>
+          </EnterpriseTable>
+        )}
+      </div>
     </div>
   );
 }

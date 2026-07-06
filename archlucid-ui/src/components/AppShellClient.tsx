@@ -442,7 +442,6 @@ function AppShellInner({ children }: AppShellClientProps) {
             >
               <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-col items-end gap-1 px-4 lg:px-6")}>
                 <TrustCenterShellLink variant="footer" />
-                <DeploymentBuildFingerprintStrip className="text-right" />
               </div>
             </footer>
           ) : !isNextPublicDemoMode() && !hideWorkspaceHealthFooter ? (

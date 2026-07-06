@@ -3,6 +3,7 @@
  */
 
 import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
+import { RISK_EXCEPTIONS_EMPTY_BODY, RISK_EXCEPTIONS_PAGE_SUBTITLE } from "@/lib/risk-exceptions-page";
 
 export const BUYER_WORKSPACE_DISPLAY_NAME = "Claims Intake Workspace";
 
@@ -512,6 +513,16 @@ export const BUYER_RISK_REGISTER_EMPTY_BODY =
   "Risks appear here when accepted findings, waivers, exceptions, or governance decisions create follow-up risk items.";
 
 export const BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION = "View governance decisions";
+
+export const BUYER_RISK_EXCEPTIONS_PAGE_TITLE = "Risk exceptions";
+
+export const BUYER_RISK_EXCEPTIONS_PAGE_LEAD = RISK_EXCEPTIONS_PAGE_SUBTITLE;
+
+export const BUYER_RISK_EXCEPTIONS_EMPTY_TITLE = "No active risk exceptions";
+
+export const BUYER_RISK_EXCEPTIONS_EMPTY_BODY = RISK_EXCEPTIONS_EMPTY_BODY;
+
+export const BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION = "Start a new review";
 
 export const BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE = "Monitored risks";
 

@@ -118,6 +118,10 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
+  if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {
+    return null;
+  }
+
   if (path.startsWith("/governance")) {
     return {
       label: "Governance approval record",
