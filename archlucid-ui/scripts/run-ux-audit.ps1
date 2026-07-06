@@ -25,6 +25,7 @@ Set-Location -LiteralPath $uiRoot
 $expectedBuyer = 14
 $expectedOperator = 14
 $expectedMarketing = 2
+# PNG counts must match e2e/ux-audit-route-registry.ts — guarded by scripts/ux-audit-harness-drift-guard.test.ts (TB-653).
 $screenshotRoot = Join-Path $uiRoot 'public/screenshots/ux-audit'
 
 function Test-UxAuditPngCount {

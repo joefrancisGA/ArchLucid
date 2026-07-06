@@ -50,5 +50,18 @@ Write `docs/architecture/UX_AUDIT_YYYY_MM_DD.md` with executive summary, finding
 ## Code anchors
 
 - Route registry: `archlucid-ui/e2e/ux-audit-route-registry.ts`
+- Harness contract + drift guard: `archlucid-ui/e2e/ux-audit-harness-contract.ts`, `archlucid-ui/scripts/ux-audit-harness-drift-guard.test.ts`
 - Playwright spec: `archlucid-ui/e2e/ux-audit-screenshots.spec.ts`
 - Audit trail capture uses scoped `/audit?runId={showcase}` (TB-649)
+
+## Maintenance (TB-653)
+
+Re-run `npm run ux-audit` (or ask the agent to run **lucid-ui-audit**) after changes to:
+
+- Operator shell / buyer polish flags (`NEXT_PUBLIC_*` build-time env)
+- Sidebar nav, intake wizard, or persona-mapped routes in `ux-audit-route-registry.ts`
+- Playwright mock configs or `run-ux-audit.ps1` port alignment
+
+**Quarterly cadence:** at least once per quarter, capture all **30** PNGs (14 buyer + 14 operator + 2 marketing) and write `docs/architecture/UX_AUDIT_YYYY_MM_DD.md`. The drift guard blocks accidental removal of `testIgnore: ['**/.next/**']` or coupling UX audit screenshots into merge-blocking `test:e2e:mock:operator-shell` CI.
+
+When capture routes or env vars change, update `ux-audit-route-registry.ts`, `ux-audit-harness-contract.ts` if needed, and this skill in the same PR.

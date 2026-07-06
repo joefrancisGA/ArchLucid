@@ -41,6 +41,7 @@ export default defineConfig({
       name: "chromium-ux-audit-operator",
       testDir: "e2e",
       testMatch: ["ux-audit-screenshots.spec.ts"],
+      testIgnore: ["**/.next/**"],
       timeout: 120_000,
       use: { ...devices["Desktop Chrome"] },
     },
