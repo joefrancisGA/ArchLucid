@@ -1,4 +1,4 @@
-> **Archived (2026-07-05):** Historical **RC3** prompts only. Active release-candidate work uses branch **`RC6`** and [`docs/runbooks/RC6_CONTAINER_APPS_DEPLOYMENT.md`](../runbooks/RC6_CONTAINER_APPS_DEPLOYMENT.md).
+> **Archived (2026-07-05):** Historical **RC3** prompts only. Active release-candidate work uses branch **`RC7`** and [`docs/runbooks/STAGING_DEPLOYMENT_VALIDATION.md`](../runbooks/STAGING_DEPLOYMENT_VALIDATION.md).
 >
 > **Scope:** Cursor agent copy-paste prompts for **RC3** CI / release-gate remediation after run [28443661305](https://github.com/joefrancisGA/ArchLucid/actions/runs/28443661305). Not a substitute for [`docs/library/TEST_EXECUTION_MODEL.md`](../library/TEST_EXECUTION_MODEL.md) or workflow YAML as source of truth.
 
