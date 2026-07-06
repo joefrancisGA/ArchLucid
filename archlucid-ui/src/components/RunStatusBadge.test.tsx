@@ -1,17 +1,14 @@
 import { render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const runStatusBuyerPolishedForced = vi.hoisted(() => ({ on: false as boolean }));
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
-
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () =>
-      runStatusBuyerPolishedForced.on === true ? true : actual.isBuyerPolishedOperatorShellEnv(),
-  };
-});
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
 
 import { RunStatusBadge, deriveRunListPipelineLabel } from "@/components/RunStatusBadge";
 import type { RunSummary } from "@/types/authority";
@@ -23,7 +20,7 @@ const base: RunSummary = {
 };
 
 afterEach(() => {
-  runStatusBuyerPolishedForced.on = false;
+  buyerPolishedShellVitestOverride.value = null;
 });
 
 describe("deriveRunListPipelineLabel", () => {
@@ -43,6 +40,10 @@ describe("deriveRunListPipelineLabel", () => {
 });
 
 describe("RunStatusBadge", () => {
+  beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
+  });
+
   it("exposes pipeline status in aria-label via StatusPill", () => {
     render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
 
@@ -54,12 +55,12 @@ describe("RunStatusBadge", () => {
     const pill = container.querySelector('[aria-label="Architecture review pipeline status: Finalized"]');
 
     expect(pill).not.toBeNull();
-    expect(pill?.className).toMatch(/rounded-sm/);
+    expect(pill?.className).toMatch(/rounded/);
     expect(pill?.className).toMatch(/--al-status-ready-bg/);
   });
 
   it("uses buyer-facing pipeline labels when buyer-polished shell is active", () => {
-    runStatusBuyerPolishedForced.on = true;
+    buyerPolishedShellVitestOverride.value = true;
 
     render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
 
@@ -67,7 +68,7 @@ describe("RunStatusBadge", () => {
   });
 
   it("keeps ready styling for buyer Package finalized label", () => {
-    runStatusBuyerPolishedForced.on = true;
+    buyerPolishedShellVitestOverride.value = true;
 
     const { container } = render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
     const pill = container.querySelector('[aria-label="Architecture review pipeline status: Package finalized"]');

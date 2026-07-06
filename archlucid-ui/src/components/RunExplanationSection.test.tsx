@@ -1,5 +1,14 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
 
 import { deterministicFallbackBadgeClass, riskPostureBadgeClass, riskPostureBadgeColors, RunExplanationSection } from "@/components/RunExplanationSection";
 import { enterpriseStatusTagClass } from "@/lib/design-tokens";
@@ -73,6 +82,14 @@ describe("deterministicFallbackBadgeClass", () => {
 });
 
 describe("RunExplanationSection", () => {
+  beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
+  });
+
+  afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
+  });
+
   it("shows deterministic narrative badge when aggregate used manifest substitution", () => {
     render(
       <RunExplanationSection

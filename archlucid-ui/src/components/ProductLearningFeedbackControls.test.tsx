@@ -1,5 +1,14 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
 
 import { ProductLearningFeedbackControls } from "./ProductLearningFeedbackControls";
 
@@ -10,6 +19,14 @@ vi.mock("@/lib/api", () => ({
 }));
 
 describe("ProductLearningFeedbackControls", () => {
+  beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
+  });
+
+  afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
+  });
+
   it("submits a scoped trusted signal with optional comment", async () => {
     submitProductLearningSignal.mockResolvedValue(undefined);
 

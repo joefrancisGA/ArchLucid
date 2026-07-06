@@ -35,14 +35,14 @@ describe("ValueReportOutcomesNav", () => {
     expect(screen.getByRole("link", { name: "Executive scorecard" })).toBeInTheDocument();
   });
 
-  it("hides internal ROI and pilot tabs on customer-visible outcome pages when system-administration nav is disabled", () => {
+  it("shows pilot outcomes and ROI tabs for all visitors (TB-643 nav placement)", () => {
     mockIsShowSystemAdministrationNavEnabled.mockReturnValue(false);
 
     render(<ValueReportOutcomesNav />);
 
     expect(screen.getByRole("link", { name: "Sponsor report" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Executive scorecard" })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Pilot outcomes" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "ROI summary" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Pilot outcomes" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "ROI summary" })).toBeInTheDocument();
   });
 });

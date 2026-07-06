@@ -1,6 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
+
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
 
 describe("RunDetailSectionNav", () => {
@@ -8,6 +17,7 @@ describe("RunDetailSectionNav", () => {
   const pinnedOperatorExperience = process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
 
   beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
     vi.stubGlobal(
       "IntersectionObserver",
       class {
@@ -26,6 +36,7 @@ describe("RunDetailSectionNav", () => {
   });
 
   afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = pinnedOperatorExperience;
     vi.unstubAllGlobals();
   });
@@ -60,6 +71,7 @@ describe("RunDetailSectionNav", () => {
   });
 
   it("uses top-16 sticky offset when full-operator experience is active", () => {
+    buyerPolishedShellVitestOverride.value = false;
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
 
     const { getByRole } = render(
@@ -79,6 +91,7 @@ describe("RunDetailSectionNav", () => {
   });
 
   it("uses taller sticky offset when buyer-polished shell is active", () => {
+    buyerPolishedShellVitestOverride.value = true;
     delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
 
     const { getByRole } = render(

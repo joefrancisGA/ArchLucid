@@ -1,6 +1,15 @@
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
+
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/lib/auth-config", () => ({
@@ -30,6 +39,7 @@ const mockClicked = vi.mocked(recordTeamExpansionNudgeClicked);
 
 describe("TeamExpansionNudge", () => {
   beforeEach(async () => {
+    buyerPolishedShellVitestOverride.value = false;
     resetOperatorQueryClientForTests();
     await invalidateTenantUsageStatusCache();
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
@@ -40,6 +50,7 @@ describe("TeamExpansionNudge", () => {
   });
 
   afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
     cleanup();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();

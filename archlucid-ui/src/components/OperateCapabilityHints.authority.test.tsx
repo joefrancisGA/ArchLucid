@@ -3,7 +3,16 @@
  * `useOperateCapability`). Asserts presence/absence and canonical copy imports.
  */
 import { render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
 
 import {
   alertsInboxRankOperatorLine,
@@ -40,7 +49,12 @@ import {
 } from "./OperateCapabilityHints";
 
 describe("OperateCapabilityHints authority shaping", () => {
+  beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
+  });
+
   afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
     navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
   });
 

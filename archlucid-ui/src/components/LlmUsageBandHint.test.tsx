@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 
 const fetchCached = vi.hoisted(() => vi.fn());
-const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
 
 vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/llm-monthly-budget-status")>();
@@ -15,23 +14,12 @@ vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
-
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () => buyerPolishedMock.value,
-    isNextPublicDemoMode: () => false,
-  };
-});
-
 vi.mock("@/lib/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,
 }));
 
 describe("LlmUsageBandHint", () => {
   beforeEach(() => {
-    buyerPolishedMock.value = false;
     fetchCached.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: false,
@@ -47,11 +35,12 @@ describe("LlmUsageBandHint", () => {
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
     vi.clearAllMocks();
   });
 
   it("shows approximate percent remaining at warn utilization in buyer-polished shell", async () => {
-    buyerPolishedMock.value = true;
+    vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
 
     render(<LlmUsageBandHint />);
 
@@ -62,7 +51,7 @@ describe("LlmUsageBandHint", () => {
   });
 
   it("is hidden in operator shell mode", async () => {
-    buyerPolishedMock.value = false;
+    vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
 
     render(<LlmUsageBandHint />);
 
@@ -75,7 +64,8 @@ describe("LlmUsageBandHint", () => {
   });
 
   it("shows exhausted copy with pricing link when execution is blocked", async () => {
-    buyerPolishedMock.value = true;
+    vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
+
     fetchCached.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: true,

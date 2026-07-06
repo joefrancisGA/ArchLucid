@@ -1,6 +1,15 @@
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
+
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { invalidateTenantTrialStatusCache } from "@/lib/tenant-trial-status-client";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
@@ -34,6 +43,7 @@ function createFetchMock(trialStatusPayload: Record<string, unknown>): ReturnTyp
 
 describe("TrialUsageUpgradeNudge telemetry wiring", () => {
   beforeEach(async () => {
+    buyerPolishedShellVitestOverride.value = false;
     resetOperatorQueryClientForTests();
     await invalidateTenantTrialStatusCache();
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
@@ -42,6 +52,7 @@ describe("TrialUsageUpgradeNudge telemetry wiring", () => {
   });
 
   afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
     cleanup();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();

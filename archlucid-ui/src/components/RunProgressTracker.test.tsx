@@ -117,7 +117,9 @@ describe("RunProgressTracker", () => {
 
     expect(mockGetRunSummary).toHaveBeenCalled();
     expect(screen.getAllByText("Complete").length).toBe(1);
-    expect(screen.getByTestId("run-progress-current-stage")).toHaveTextContent(/Currently: graph/i);
+    expect(screen.getByTestId("run-progress-current-stage")).toHaveTextContent(
+      /Currently: Mapping the architecture/i,
+    );
 
     allowFullSummary = true;
 
@@ -204,7 +206,7 @@ describe("RunProgressTracker", () => {
       await vi.runOnlyPendingTimersAsync();
     });
 
-    expect(screen.getByText(/Pipeline may still be running server-side/)).toBeInTheDocument();
+    expect(screen.getByText(/We're preparing this review/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /retry polling/i })).toBeInTheDocument();
   });
 
@@ -246,7 +248,7 @@ describe("RunProgressTracker", () => {
 
     expect(mockGetRunStageTimeline).toHaveBeenCalled();
     expect(screen.getByTestId("run-progress-current-stage")).toHaveTextContent(
-      /Currently: findings/i,
+      /Currently: Analyzing security and cost/i,
     );
   });
 });

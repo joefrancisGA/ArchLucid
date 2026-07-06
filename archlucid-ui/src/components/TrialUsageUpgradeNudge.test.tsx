@@ -1,6 +1,15 @@
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
+
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/lib/auth-config", () => ({
@@ -30,6 +39,7 @@ const mockClicked = vi.mocked(recordTrialUpgradeNudgeClicked);
 
 describe("TrialUsageUpgradeNudge", () => {
   beforeEach(async () => {
+    buyerPolishedShellVitestOverride.value = false;
     resetOperatorQueryClientForTests();
     await invalidateTenantTrialStatusCache();
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
@@ -40,6 +50,7 @@ describe("TrialUsageUpgradeNudge", () => {
   });
 
   afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
     cleanup();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
@@ -48,6 +59,7 @@ describe("TrialUsageUpgradeNudge", () => {
   });
 
   it("does not render in buyer-polished shell", async () => {
+    buyerPolishedShellVitestOverride.value = true;
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "");
     vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "");

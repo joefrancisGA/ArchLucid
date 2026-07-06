@@ -1,6 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -16,20 +21,16 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-const inspectorUiEnv = vi.hoisted(() => ({
-  buyerPolished: false,
-  buyerChrome: false,
-}));
+const buyerChromeForced = vi.hoisted(() => ({ on: false as boolean }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const extended = await extendBuyerPolishedShellVitestMock(importOriginal);
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
   return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () =>
-      inspectorUiEnv.buyerPolished ? true : actual.isBuyerPolishedOperatorShellEnv(),
+    ...extended,
     isBuyerSafeDemoMarketingChromeEnv: () =>
-      inspectorUiEnv.buyerChrome ? true : actual.isBuyerSafeDemoMarketingChromeEnv(),
+      buyerChromeForced.on ? true : actual.isBuyerSafeDemoMarketingChromeEnv(),
   };
 });
 
@@ -54,18 +55,18 @@ function showcaseRun(overrides: Partial<RunSummary> = {}): RunSummary {
 
 describe("RunInspectorPreview", () => {
   beforeEach(() => {
-    inspectorUiEnv.buyerPolished = false;
-    inspectorUiEnv.buyerChrome = false;
+    buyerPolishedShellVitestOverride.value = false;
+    buyerChromeForced.on = false;
   });
 
   afterEach(() => {
-    inspectorUiEnv.buyerPolished = false;
-    inspectorUiEnv.buyerChrome = false;
+    buyerPolishedShellVitestOverride.value = null;
+    buyerChromeForced.on = false;
   });
 
   it("buyer-polished showcase: primary manifest, workspace findings quick link, and no duplicate full-review CTA", () => {
-    inspectorUiEnv.buyerPolished = true;
-    inspectorUiEnv.buyerChrome = true;
+    buyerPolishedShellVitestOverride.value = true;
+    buyerChromeForced.on = true;
 
     render(<RunInspectorPreview run={showcaseRun()} />);
 
@@ -118,7 +119,7 @@ describe("RunInspectorPreview", () => {
   });
 
   it("non-polished showcase with buyer chrome keeps walkthrough targets under more actions", () => {
-    inspectorUiEnv.buyerChrome = true;
+    buyerChromeForced.on = true;
 
     render(<RunInspectorPreview run={showcaseRun()} />);
 
