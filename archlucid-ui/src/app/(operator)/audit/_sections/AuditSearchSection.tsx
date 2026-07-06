@@ -202,7 +202,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
           </>
         )}
       </div>
-      {buyerPolishedShell && buyerOmitSearchFiltersChrome ? null : buyerPolishedShell ? (
+      {buyerPolishedShell ? (
         <Collapsible
           open={buyerPrimaryFiltersOpen}
           onOpenChange={setBuyerPrimaryFiltersOpen}
@@ -210,6 +210,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
         >
           <CollapsibleTrigger
             type="button"
+            data-testid="audit-filters-collapsible-trigger"
             className={cn(
               "flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-left font-medium text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900",
               OPERATOR_TYPOGRAPHY.body,
@@ -245,6 +246,8 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
               <label>
                 Linked review{" "}
                 <input
+                  aria-label="Review ID"
+                  data-testid="audit-review-id-input"
                   value={auditRunIdInputDisplayValue(buyerPolishedShell, runId)}
                   onChange={(e) => setRunId(auditRunIdParseInputValue(buyerPolishedShell, e.target.value))}
                   className="mt-1 w-full"
@@ -296,6 +299,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
+                data-testid="audit-search-button"
                 onClick={() => void runSearch()}
                 disabled={searching || loadingTypes}
                 title={
@@ -372,6 +376,8 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
             <label>
               Review ID{" "}
               <input
+                aria-label="Review ID"
+                data-testid="audit-review-id-input"
                 value={auditRunIdInputDisplayValue(buyerPolishedShell, runId)}
                 onChange={(e) => setRunId(auditRunIdParseInputValue(buyerPolishedShell, e.target.value))}
                 className="mt-1 w-full"
@@ -416,6 +422,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               type="button"
+              data-testid="audit-search-button"
               onClick={() => void runSearch()}
               disabled={searching || loadingTypes}
               title={

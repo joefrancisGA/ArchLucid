@@ -127,7 +127,12 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
 
       <div className="mt-3">
         {events.length === 0 ? (
-          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{auditSearchEmptyLine}</p>
+          <p
+            className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="audit-search-no-results"
+          >
+            {auditSearchEmptyLine}
+          </p>
         ) : (
           <>
             {displayEventGroups !== null ? (

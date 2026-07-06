@@ -70,10 +70,16 @@ test.describe("live-api-error-states", () => {
 
     await expect(auditPageMainHeading(page)).toBeVisible({ timeout: 30_000 });
 
-    await page.getByLabel(/review id/i).fill(fakeRunId);
-    await page.getByRole("button", { name: /^Search$/i }).click();
+    const auditFiltersTrigger = page.getByTestId("audit-filters-collapsible-trigger");
 
-    await expect(page.getByText(/No audit events match your filters/i)).toBeVisible({ timeout: 60_000 });
+    if ((await auditFiltersTrigger.count()) > 0) {
+      await auditFiltersTrigger.click();
+    }
+
+    await page.getByTestId("audit-review-id-input").fill(fakeRunId);
+    await page.getByTestId("audit-search-button").click();
+
+    await expect(page.getByTestId("audit-search-no-results")).toBeVisible({ timeout: 60_000 });
 
     await expect(page.locator('[role="alert"]').filter({ hasText: /problem|error|failed/i })).toHaveCount(0, {
       timeout: 15_000,
