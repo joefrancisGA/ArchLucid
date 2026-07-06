@@ -17,7 +17,9 @@ describe("New Architecture Review page", () => {
   it("renders the title without an adjacent tooltip trigger", () => {
     render(<NewRunPage />);
 
-    expect(screen.getByRole("heading", { level: 2, name: "New Architecture Review" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "New Architecture Review" }).parentElement).toHaveClass(
+      "mt-6",
+    );
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
     expect(screen.getByRole("link", { name: "Review guide" })).toHaveAttribute("href", "/help/review-guide");
     expect(screen.queryByText(/pilot guidance/i)).not.toBeInTheDocument();
