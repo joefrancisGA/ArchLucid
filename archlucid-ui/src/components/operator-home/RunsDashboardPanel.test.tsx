@@ -26,8 +26,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
   return {
     ...actual,
-    isBuyerPolishedOperatorShellEnv: () =>
-      runsDashBuyerPolishedForced.on ? true : actual.isBuyerPolishedOperatorShellEnv(),
+    isBuyerPolishedOperatorShellEnv: () => runsDashBuyerPolishedForced.on,
   };
 });
 
@@ -328,7 +327,7 @@ describe("RunsDashboardPanel", () => {
       );
       expect(screen.queryByRole("link", { name: "Signed manifest summary" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
-      expect(screen.queryByRole("link", { name: "Open full reviews list" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Open all reviews" })).toBeNull();
     } finally {
       runsDashBuyerPolishedForced.on = false;
     }
@@ -361,7 +360,10 @@ describe("RunsDashboardPanel", () => {
         "data-testid",
         "runs-dashboard-tab-outcomes",
       );
+      expect(screen.getByTestId("runs-dashboard-show-archived")).toHaveTextContent("Archived");
     });
+    expect(screen.queryByTestId("runs-dashboard-filters")).toBeNull();
+    expect(screen.queryByTestId("runs-dashboard-governance-warnings-only")).toBeNull();
   });
 
   it("buyer-polished empty state shows workspace empty copy without duplicate onboarding CTAs", async () => {

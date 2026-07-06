@@ -69,7 +69,7 @@ export const RUNS_DASHBOARD_LABELS = {
   oneReviewNeedsAttention: "1 review package needs attention.",
   reviewsNeedAttentionCount: (count: number) => `${count} review packages need attention.`,
   loadingReviews: "Loading review packages…",
-  openFullReviewsList: "Open full reviews list",
+  openFullReviewsList: "Open all reviews",
   governanceWarningTitle: "Governance warnings",
   governanceWarningHint: "Unresolved governance alerts or policy violations require governance lead follow-up.",
   governanceWarningsOnly: "Has governance warnings",

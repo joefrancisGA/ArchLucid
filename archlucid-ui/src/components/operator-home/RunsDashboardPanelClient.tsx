@@ -26,16 +26,19 @@ import {
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
 import {
+  BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY,
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_DASHBOARD_SECTION_HEADING,
 } from "@/lib/buyer-polish-copy";
+import { buyerFilterChipActiveClass } from "@/lib/buyer-shell-home-present";
 import {
   OPERATOR_CARD,
   OPERATOR_HOME_SECTION_HEADING,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
@@ -227,6 +230,11 @@ export function RunsDashboardPanelClient({
     }
   }
 
+  const openAllReviewsHref = `/reviews?projectId=${encodeURIComponent(projectId)}`;
+  const openAllReviewsLabel = buyerPolishedShell
+    ? BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA
+    : RUNS_DASHBOARD_LABELS.openFullReviewsList;
+
   return (
     <section aria-labelledby="runs-dashboard-heading" data-onboarding="tour-runs-dashboard">
       {!hideHeading ? (
@@ -239,7 +247,12 @@ export function RunsDashboardPanelClient({
         data-testid="runs-dashboard-panel"
       >
         <CardHeader className={OPERATOR_CARD.header}>
-          <div className={cn("flex flex-wrap", OPERATOR_LAYOUT.inlineGap)} role="tablist" aria-label="Review views">
+          <div
+            className={cn("flex flex-wrap items-center gap-2", buyerPolishedShell ? "" : OPERATOR_LAYOUT.inlineGap)}
+            role="tablist"
+            aria-label="Review views"
+            data-testid="runs-dashboard-status-filters"
+          >
             {(["recent", "attention", "outcomes"] as const).map((id) => (
               <button
                 key={id}
@@ -248,11 +261,19 @@ export function RunsDashboardPanelClient({
                 aria-selected={tab === id}
                 data-testid={`runs-dashboard-tab-${id}`}
                 className={cn(
-                  "border-b-2 border-transparent bg-transparent px-0 py-0.5",
-                  OPERATOR_TYPE_SCALE.tab,
-                  tab === id
-                    ? "border-teal-700 text-teal-900 dark:border-teal-300 dark:text-teal-200"
-                    : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100",
+                  buyerPolishedShell
+                    ? cn(
+                        "inline-flex min-h-[22px] items-center rounded-full border px-3 py-1 transition-colors",
+                        OPERATOR_TYPOGRAPHY.badge,
+                        buyerFilterChipActiveClass(tab === id),
+                      )
+                    : cn(
+                        "border-b-2 border-transparent bg-transparent px-0 py-0.5",
+                        OPERATOR_TYPE_SCALE.tab,
+                        tab === id
+                          ? "border-teal-700 text-teal-900 dark:border-teal-300 dark:text-teal-200"
+                          : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100",
+                      ),
                 )}
                 onClick={() => {
                   setTab(id);
@@ -261,22 +282,50 @@ export function RunsDashboardPanelClient({
                 {runsDashboardTabLabel(id, buyerPolishedShell)}
               </button>
             ))}
+            {buyerPolishedShell ? (
+              <button
+                type="button"
+                aria-pressed={showArchived}
+                data-testid="runs-dashboard-show-archived"
+                onClick={() => {
+                  setShowArchived(!showArchived);
+                }}
+                className={cn(
+                  "inline-flex min-h-[22px] items-center rounded-full border px-3 py-1 transition-colors",
+                  OPERATOR_TYPOGRAPHY.badge,
+                  buyerFilterChipActiveClass(showArchived),
+                )}
+              >
+                Archived
+              </button>
+            ) : null}
           </div>
-          <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
-            {tab === "recent" && buyerPolishedShell
-              ? showcaseDemoRun !== undefined
-                ? BUYER_RUNS_DASHBOARD_RECENT_LABEL
-                : BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY
-              : tab === "recent"
-                ? RUNS_DASHBOARD_LABELS.latestInWorkspace
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
+              {tab === "recent" && buyerPolishedShell
+                ? showcaseDemoRun !== undefined
+                  ? BUYER_RUNS_DASHBOARD_RECENT_LABEL
+                  : BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY
+                : tab === "recent"
+                  ? RUNS_DASHBOARD_LABELS.latestInWorkspace
+                  : null}
+              {tab === "attention"
+                ? buyerPolishedShell
+                  ? RUNS_DASHBOARD_LABELS.packagingPreFinalPosture
+                  : RUNS_DASHBOARD_LABELS.reviewsNeedingAttention
                 : null}
-            {tab === "attention"
-              ? buyerPolishedShell
-                ? RUNS_DASHBOARD_LABELS.packagingPreFinalPosture
-                : RUNS_DASHBOARD_LABELS.reviewsNeedingAttention
-              : null}
-            {tab === "outcomes" ? RUNS_DASHBOARD_LABELS.reviewOutcomes : null}
-          </CardTitle>
+              {tab === "outcomes" ? RUNS_DASHBOARD_LABELS.reviewOutcomes : null}
+            </CardTitle>
+            {!onlyShowcaseRunInBuyerPolishedWorkspace ? (
+              <Link
+                href={openAllReviewsHref}
+                className={cn("inline-block shrink-0 font-semibold sm:ml-auto", OPERATOR_LINK.nav)}
+                data-testid="runs-dashboard-open-all-reviews"
+              >
+                {openAllReviewsLabel}
+              </Link>
+            ) : null}
+          </div>
           <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
             {tab === "recent"
               ? buyerPolishedShell
@@ -335,15 +384,6 @@ export function RunsDashboardPanelClient({
 
           {tab === "outcomes" ? (
             <RunsDashboardOutcomesTab buyerPolishedShell={buyerPolishedShell} showcaseDemoRun={showcaseDemoRun} />
-          ) : null}
-
-          {!onlyShowcaseRunInBuyerPolishedWorkspace ? (
-            <Link
-              href={`/reviews?projectId=${encodeURIComponent(projectId)}`}
-              className={cn("inline-block font-semibold", OPERATOR_LINK.nav)}
-            >
-              {RUNS_DASHBOARD_LABELS.openFullReviewsList}
-            </Link>
           ) : null}
         </CardContent>
       </Card>

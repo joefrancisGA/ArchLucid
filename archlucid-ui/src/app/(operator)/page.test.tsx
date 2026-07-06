@@ -189,7 +189,7 @@ describe("HomePage — buyer-polished shell", () => {
     expect(screen.queryByText(/AI co-architect/i)).toBeNull();
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Open full reviews list" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Open all reviews" })).toBeInTheDocument();
     });
   });
 });
@@ -242,7 +242,7 @@ describe("HomePage (55R smoke — landing)", () => {
     await renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Open full reviews list" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Open all reviews" })).toHaveAttribute(
         "href",
         "/reviews?projectId=default",
       );
