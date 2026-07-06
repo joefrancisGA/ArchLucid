@@ -70,6 +70,14 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     sourcePaths: ["docs/library/FIRST_HOUR_OPERATOR_PATH.md"],
   },
   {
+    slug: "review-guide",
+    title: "Review guide",
+    summary:
+      "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review package.",
+    audience: "buyer",
+    sourcePaths: ["docs/library/customer-facing/REVIEW_GUIDE.md"],
+  },
+  {
     slug: "first-pilot-path",
     title: "Complete review workflow",
     summary:
@@ -81,8 +89,8 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     slug: "pilot-guide",
     title: "Pilot guide",
     summary:
-      "Create your first architecture review package, attach evidence, review findings, finalize the signed decision record, and export audit-ready evidence.",
-    audience: "buyer",
+      "Internal pilot setup, smoke checks, API payloads, and engineering troubleshooting — for platform implementers only.",
+    audience: "operator",
     sourcePaths: ["docs/library/customer-facing/PILOT_GUIDE.md"],
   },
   {

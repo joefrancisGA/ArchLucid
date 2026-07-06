@@ -46,6 +46,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/customer-facing/concepts_in_5_minutes.md": "getting-started",
   "docs/library/customer-facing/faq.md": "executive-summary",
   "docs/library/customer-facing/pilot_guide.md": "pilot-guide",
+  "docs/library/customer-facing/review_guide.md": "review-guide",
   "docs/library/walkthroughs/readme.md": "specialty-walkthroughs",
   "docs/library/contributor-reference/security.md": "operator-auth-roles",
   "docs/runbooks/common_errors.md": "developer-troubleshooting",

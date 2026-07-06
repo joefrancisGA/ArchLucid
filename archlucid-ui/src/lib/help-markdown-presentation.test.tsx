@@ -124,7 +124,7 @@ describe("help topic product-language drift guards", () => {
     "pilot-nav-profile",
     "troubleshooting",
     "admin-diagnostics",
-    "pilot-guide",
+    "review-guide",
   ] as const;
 
   it("loads scoped architect help topics without operator persona in prepared copy", () => {

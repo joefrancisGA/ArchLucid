@@ -24,7 +24,7 @@ export default function NewRunPage() {
     <OperatorPageContainer variant="workflow">
       <div className="mb-1 flex flex-wrap items-baseline gap-3">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>New Architecture Review</h2>
-        <InAppHelpLink helpSlug="pilot-guide" label="Review guide" variant="text" />
+        <InAppHelpLink helpSlug="review-guide" label="Review guide" variant="text" />
       </div>
       <p className={cn("mt-1 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-new-page-lead">
         {REVIEWS_NEW_PAGE_LEAD}

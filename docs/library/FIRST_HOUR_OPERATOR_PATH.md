@@ -51,4 +51,4 @@ Do not spend the first session configuring every advanced feature. After the fir
 - [Review packages](/help/review-packages)
 - [Evidence trail](/help/evidence-trail)
 - [Governance workflow](/help/governance-approval)
-- [Review artifacts and proof packet](/help/pilot-guide)
+- [Review artifacts and proof packet](/help/review-packages)

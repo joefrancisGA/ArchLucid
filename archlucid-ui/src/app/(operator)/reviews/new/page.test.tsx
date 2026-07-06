@@ -19,7 +19,7 @@ describe("New Architecture Review page", () => {
 
     expect(screen.getByRole("heading", { level: 2, name: "New Architecture Review" })).toBeInTheDocument();
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
-    expect(screen.getByRole("link", { name: "Review guide" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review guide" })).toHaveAttribute("href", "/help/review-guide");
     expect(screen.queryByText(/pilot guidance/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-page-lead")).toHaveTextContent(REVIEWS_NEW_PAGE_LEAD);
     expect(screen.queryByText(/Guided intake/i)).not.toBeInTheDocument();
