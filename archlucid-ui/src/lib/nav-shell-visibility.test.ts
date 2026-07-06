@@ -541,7 +541,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
 });
 
 describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () => {
-  it("returns only operator-admin when surfaceFilter is platform-admin", () => {
+  it("returns operator-admin and platform-ops when surfaceFilter is platform-admin", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       true,
@@ -552,9 +552,38 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
       true,
     );
 
-    expect(rows.map((r) => r.group.id)).toEqual(["operator-admin"]);
-    expect(rows[0]!.visibleLinks.some((l) => l.href === "/settings/users")).toBe(true);
+    expect(rows.map((r) => r.group.id)).toEqual(["operate-platform-ops", "operator-admin"]);
+    expect(rows[0]!.visibleLinks.some((l) => l.href === "/integrations/readiness")).toBe(true);
+    expect(rows[1]!.visibleLinks.some((l) => l.href === "/settings/users")).toBe(true);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/admin/pricing-quote-aging")).toBe(false);
+  });
+
+  it("omits Operations nav for Read and Execute callers without AdminAuthority (TB-647)", () => {
+    const readRows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.ReadAuthority,
+      false,
+      "all",
+      true,
+    );
+
+    expect(readRows.some((r) => r.group.id === "operate-platform-ops")).toBe(false);
+    expect(readRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/health")).toBe(false);
+    expect(readRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/integrations/readiness")).toBe(false);
+
+    const executeRows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.ExecuteAuthority,
+      false,
+      "all",
+      true,
+    );
+
+    expect(executeRows.some((r) => r.group.id === "operate-platform-ops")).toBe(false);
   });
 });
 

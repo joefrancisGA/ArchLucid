@@ -1,4 +1,4 @@
-import { CalendarClock, CloudCog, Hash, Plug, Ticket, UsersRound, Webhook, Workflow } from "lucide-react";
+import { CloudCog, Hash, Ticket, UsersRound, Webhook, Workflow } from "lucide-react";
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
   INTEGRATIONS_JIRA_PATH,
@@ -20,15 +20,6 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
       surface: "review-workflow",
       caption: "Connect evidence sources and send events to external systems.",
       links: [
-        {
-          // Literal href required for route_tier_policy_nav CI (assert_route_tier_policy_nav.py).
-          href: "/integrations/readiness",
-          label: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
-          title: "Connector health and integration status",
-          icon: Plug,
-          tier: "advanced",
-          requiredAuthority: "ReadAuthority",
-        },
         {
           href: "/integrations/cloud-connections",
           label: OPERATOR_NAV_LINK_LABELS.cloudConnections,

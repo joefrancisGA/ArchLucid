@@ -14,6 +14,7 @@ export const PILOT_NAV_PROFILE_HELP_HREF = "/help/pilot-nav-profile";
 /** Operate nav groups hidden entirely until unlock phase ≥ 1. */
 export const PILOT_NAV_OPERATE_GROUP_IDS = [
   "operate-analysis",
+  "operate-architect-advanced",
   "operate-governance",
   "operate-reports",
   "operate-integrations",

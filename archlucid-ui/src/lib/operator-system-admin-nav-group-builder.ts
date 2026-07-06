@@ -4,7 +4,6 @@ import {
   ClipboardList,
   FilePlus,
   Gauge,
-  HeartPulse,
   Inbox,
   LineChart,
   PackageCheck,
@@ -105,14 +104,6 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           icon: PackageCheck,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
-        },
-        {
-          href: "/health",
-          label: OPERATOR_NAV_LINK_LABELS.systemHealth,
-          title: "System health — API liveness, readiness, and critical dependencies",
-          icon: HeartPulse,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
         },
       ],
     };

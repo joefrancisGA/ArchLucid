@@ -17,6 +17,7 @@ import {
 describe("operate-nav-progressive-unlock", () => {
   it("identifies Operate nav group ids", () => {
     expect(isOperateNavGroupId("operate-analysis")).toBe(true);
+    expect(isOperateNavGroupId("operate-architect-advanced")).toBe(true);
     expect(isOperateNavGroupId("operate-governance")).toBe(true);
     expect(isOperateNavGroupId("operate-reports")).toBe(true);
     expect(isOperateNavGroupId("operate-integrations")).toBe(true);
@@ -44,6 +45,7 @@ describe("operate-nav-progressive-unlock", () => {
 
     expect(ids).toContain("pilot");
     expect(ids).not.toContain("operate-analysis");
+    expect(ids).not.toContain("operate-architect-advanced");
     expect(ids).not.toContain("operate-governance");
     expect(ids).not.toContain("operate-reports");
     expect(ids).not.toContain("operate-integrations");

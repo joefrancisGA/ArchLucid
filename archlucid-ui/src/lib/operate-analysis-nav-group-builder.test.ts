@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { OperateAnalysisNavGroupBuilder } from "@/lib/operate-analysis-nav-group-builder";
+import { OperateArchitectAdvancedNavGroupBuilder } from "@/lib/operate-architect-advanced-nav-group-builder";
 
 describe("OperateAnalysisNavGroupBuilder", () => {
   it("uses Insights group label and caption (TB-525)", () => {
@@ -20,7 +21,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
   });
 
   it("labels advisory nav as Advisory scans (TB-529)", () => {
-    const group = new OperateAnalysisNavGroupBuilder().build();
+    const group = new OperateArchitectAdvancedNavGroupBuilder().build();
     const advisoryLink = group.links.find((link) => link.href === "/advisory");
 
     expect(advisoryLink?.label).toBe("Advisory scans");

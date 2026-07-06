@@ -74,7 +74,7 @@ describe("nav-config structure", () => {
             expect(["/integrations/jira", "/integrations/servicenow"], link.href).toContain(link.href);
             expect(group.surface).toBe("review-workflow");
           } else {
-            expect(["operator-admin", "operator-system-admin"], link.href).toContain(group.id);
+            expect(["operator-admin", "operator-system-admin", "operate-platform-ops"], group.id).toContain(group.id);
             expect(["platform-admin", "system-admin"]).toContain(group.surface);
           }
         }
@@ -169,6 +169,12 @@ describe("nav-config structure", () => {
       "/ask",
       "/search",
       "/compare",
+    ]);
+    const architectAdvancedHrefs = NAV_GROUPS.find((group) => group.id === "operate-architect-advanced")!.links.map(
+      (link) => link.href,
+    );
+
+    expect(architectAdvancedHrefs).toEqual([
       "/evolution-review",
       "/advisory",
       "/recommendation-learning",
@@ -195,7 +201,6 @@ describe("nav-config structure", () => {
       "/digests",
     ]);
     expect(integrationsHrefs).toEqual([
-      "/integrations/readiness",
       "/integrations/cloud-connections",
       "/integrations/jira",
       "/integrations/servicenow",
@@ -203,9 +208,14 @@ describe("nav-config structure", () => {
       "/integrations/slack",
       "/integrations/webhooks",
     ]);
+    const platformOpsHrefs = NAV_GROUPS.find((group) => group.id === "operate-platform-ops")!.links.map(
+      (link) => link.href,
+    );
+
+    expect(platformOpsHrefs).toEqual(["/integrations/readiness", "/health"]);
     expect(systemAdminHrefs).toContain("/admin/rag-health");
     expect(systemAdminHrefs).toContain("/replay");
-    expect(systemAdminHrefs).toContain("/health");
+    expect(systemAdminHrefs).not.toContain("/health");
     expect(systemAdminHrefs).not.toContain("/advisory");
     expect(systemAdminHrefs).not.toContain("/settings/tenant");
     expect(systemAdminHrefs).not.toContain("/workspace/security-trust");

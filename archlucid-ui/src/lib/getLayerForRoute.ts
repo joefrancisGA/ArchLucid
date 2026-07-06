@@ -47,8 +47,10 @@ const LAYER_GROUP_ORDER: ReadonlyArray<LayerId> = [
 const NAV_GROUP_TO_LAYER: Readonly<Record<string, LayerId>> = {
   pilot: "pilot",
   "operate-analysis": "operate-analysis",
+  "operate-architect-advanced": "operate-analysis",
   "operate-reports": "operate-analysis",
   "operate-integrations": "operate-analysis",
+  "operate-platform-ops": "operator-admin",
   "operate-governance": "operate-governance",
   "operator-admin": "operator-admin",
   "operator-system-admin": "operator-admin",
@@ -102,7 +104,7 @@ export function getLayerForRoute(pathname: string): LayerId {
   }
 
   if (pathMatchesIntegrationsReadiness(normalized)) {
-    return "operate-analysis";
+    return "operator-admin";
   }
 
   if (pathMatchesAiUsageSettings(normalized)) {
