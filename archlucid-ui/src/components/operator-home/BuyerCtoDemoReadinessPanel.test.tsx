@@ -9,7 +9,10 @@ vi.mock("@/lib/demo-ui-env", () => ({
 
 vi.mock("@/lib/cto-demo-presenter-pack", () => ({
   isCtoDemoOperatorToolingEnv: () => true,
+  isCtoDemoInternalOperatorControlsEnv: () => internalControlsForced.on,
 }));
+
+const internalControlsForced = vi.hoisted(() => ({ on: false as boolean }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -53,9 +56,10 @@ const mockEvaluate = vi.mocked(evaluateBuyerCtoDemoReadiness);
 describe("BuyerCtoDemoReadinessPanel", () => {
   beforeEach(() => {
     mockEvaluate.mockClear();
+    internalControlsForced.on = false;
   });
 
-  it("shows a demo ready badge after checks complete", async () => {
+  it("shows a demo ready badge after checks complete without internal demo controls by default", async () => {
     render(<BuyerCtoDemoReadinessPanel embedded />);
 
     await waitFor(() => {
@@ -64,7 +68,17 @@ describe("BuyerCtoDemoReadinessPanel", () => {
 
     expect(screen.getByTestId("buyer-cto-demo-readiness-check-buyer-shell")).toBeInTheDocument();
     expect(mockEvaluate).toHaveBeenCalledTimes(1);
-    expect(screen.getByTestId("buyer-cto-demo-run-of-show-download")).toBeInTheDocument();
+    expect(screen.queryByTestId("buyer-cto-demo-run-of-show-download")).toBeNull();
     expect(screen.getByRole("button", { name: "Recheck readiness" })).toBeInTheDocument();
+  });
+
+  it("shows run-of-show download when internal demo-operator controls are enabled", async () => {
+    internalControlsForced.on = true;
+
+    render(<BuyerCtoDemoReadinessPanel embedded />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("buyer-cto-demo-run-of-show-download")).toBeInTheDocument();
+    });
   });
 });

@@ -51,6 +51,22 @@ export function isCtoDemoOperatorToolingEnv(): boolean {
   return false;
 }
 
+/**
+ * Stricter gate for run-of-show downloads and reset-demo — never enabled by `NODE_ENV` alone.
+ * Buyer-facing Overview may show {@link isCtoDemoOperatorToolingEnv} readiness recheck without these controls.
+ */
+export function isCtoDemoInternalOperatorControlsEnv(): boolean {
+  if (isCtoDemoOperatorControlsEnvFlag()) {
+    return true;
+  }
+
+  if (isCtoDemoPackEnv() && isOperatorExperienceFullShellEnv()) {
+    return true;
+  }
+
+  return false;
+}
+
 /** Redirect operator home to the showcase executive summary (#4). */
 export function isCtoDemoExecutiveLandingEnv(): boolean {
   return isCtoDemoPresenterSafeModeEnv();

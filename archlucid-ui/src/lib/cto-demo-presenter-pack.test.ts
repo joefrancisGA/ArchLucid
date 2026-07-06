@@ -12,6 +12,7 @@ vi.mock("@/lib/operator-static-demo", () => ({
 
 import {
   isCtoDemoExecutiveLandingEnv,
+  isCtoDemoInternalOperatorControlsEnv,
   isCtoDemoNavExpandedEnv,
   isCtoDemoOperatorToolingEnv,
   isCtoDemoPackEnv,
@@ -68,5 +69,14 @@ describe("cto-demo-presenter-pack", () => {
     process.env.NEXT_PUBLIC_CTO_DEMO_OPERATOR_CONTROLS = "true";
 
     expect(isCtoDemoOperatorToolingEnv()).toBe(true);
+    expect(isCtoDemoInternalOperatorControlsEnv()).toBe(true);
+  });
+
+  it("allows readiness recheck in development without exposing internal presenter controls", () => {
+    process.env.NODE_ENV = "development";
+    delete process.env.NEXT_PUBLIC_CTO_DEMO_OPERATOR_CONTROLS;
+
+    expect(isCtoDemoOperatorToolingEnv()).toBe(true);
+    expect(isCtoDemoInternalOperatorControlsEnv()).toBe(false);
   });
 });

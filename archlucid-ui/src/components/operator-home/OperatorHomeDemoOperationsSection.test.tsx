@@ -8,6 +8,7 @@ const operatorToolingForced = vi.hoisted(() => ({ on: false as boolean }));
 
 vi.mock("@/lib/cto-demo-presenter-pack", () => ({
   isCtoDemoOperatorToolingEnv: () => operatorToolingForced.on,
+  isCtoDemoInternalOperatorControlsEnv: () => false,
 }));
 
 vi.mock("@/lib/buyer-cto-demo-readiness", () => ({
@@ -65,6 +66,7 @@ describe("OperatorHomeDemoOperationsSection", () => {
       expect(screen.getByTestId("buyer-cto-demo-readiness-panel")).toBeInTheDocument();
     });
     expect(screen.getByRole("button", { name: "Recheck readiness" })).toBeInTheDocument();
+    expect(screen.queryByTestId("buyer-cto-demo-run-of-show-download")).toBeNull();
     expect(screen.queryByRole("heading", { name: "Demo readiness" })).toBeNull();
   });
 });
