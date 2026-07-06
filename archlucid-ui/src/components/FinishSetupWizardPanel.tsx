@@ -36,7 +36,7 @@ function readSetupCompleted(): boolean {
   }
 }
 
-/** Guided post-deploy checklist: health, identity, admin role, optional extractor. */
+/** Guided post-deploy checklist: health, identity, and admin role. */
 export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps = {}): React.JSX.Element | null {
   const panelVariant = variant ?? "default";
   const { phase, context } = useFinishSetupReadinessContext();

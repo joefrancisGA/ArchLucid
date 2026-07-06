@@ -1,5 +1,4 @@
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
-import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 import { isSelfHostedDeploymentEnv } from "@/lib/finish-setup-deployment";
 
 /** Buyer-safe readiness route (`ReadAuthority`) — not Internal Operations diagnostics. */
@@ -48,14 +47,6 @@ export const FINISH_SETUP_WIZARD_STEPS: readonly FinishSetupWizardStep[] = [
     cta: "Manage roles",
     isDone: (ctx) => ctx.principalAdmin,
   },
-  {
-    id: "extract",
-    label: "Add cloud inventory evidence (optional)",
-    description: CLOUD_NEUTRAL_PRIMARY_COPY.finishSetupInventoryAccelerator,
-    href: "/settings/extract-upload",
-    cta: "Add evidence",
-    isDone: () => false,
-  },
 ] as const;
 
 export type FinishSetupWizardDeploymentOptions = {
@@ -96,7 +87,5 @@ export function areFinishSetupRequiredStepsComplete(
   ctx: FinishSetupWizardContext,
   deployment: FinishSetupWizardDeploymentOptions = resolveFinishSetupWizardDeploymentOptions(),
 ): boolean {
-  return resolveFinishSetupWizardSteps(deployment)
-    .filter((step) => step.id !== "extract")
-    .every((step) => step.isDone(ctx));
+  return resolveFinishSetupWizardSteps(deployment).every((step) => step.isDone(ctx));
 }

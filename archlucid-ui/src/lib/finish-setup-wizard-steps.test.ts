@@ -28,4 +28,9 @@ describe("finish-setup-wizard-steps", () => {
 
     expect(healthStep?.href).toBe("/health");
   });
+
+  it("does not include cloud inventory evidence — Core Pilot walkthrough owns that link", () => {
+    expect(FINISH_SETUP_WIZARD_STEPS.some((step) => step.id === "extract")).toBe(false);
+    expect(FINISH_SETUP_WIZARD_STEPS.some((step) => step.href === "/settings/extract-upload")).toBe(false);
+  });
 });

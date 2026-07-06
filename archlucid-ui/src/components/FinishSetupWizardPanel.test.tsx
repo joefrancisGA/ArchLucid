@@ -27,7 +27,7 @@ describe("FinishSetupWizardPanel", () => {
         principalAdmin: true,
       },
       readyCount: 1,
-      totalCount: 3,
+      totalCount: 2,
     });
   });
 
