@@ -6,7 +6,11 @@ import {
   listProductDocumentationEntries,
   type ProductDocumentationEntry,
 } from "@/lib/product-documentation-registry";
-import { prepareHelpMarkdownForPresentation, stripMarkdownHorizontalRules } from "@/lib/help-markdown-presentation";
+import {
+  isDocumentationMaintenanceMetadataLine,
+  prepareHelpMarkdownForPresentation,
+  stripMarkdownHorizontalRules,
+} from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 const HORIZONTAL_RULE_LINE = /^(\*{3,}|-{3,}|_{3,})\s*$/;
@@ -64,6 +68,7 @@ describe("help horizontal rule presentation", () => {
 
   it("keeps buyer and operator registry help topics free of horizontal rule lines after preparation", () => {
     const violations: string[] = [];
+    const maintenanceViolations: string[] = [];
 
     for (const entry of listProductDocumentationEntries()) {
       if (!isBuyerOrOperatorHelpEntry(entry)) {
@@ -83,9 +88,18 @@ describe("help horizontal rule presentation", () => {
       if (rules.length > 0) {
         violations.push(`${entry.slug}: ${rules.length} horizontal rule line(s) after preparation`);
       }
+
+      const maintenanceLines = prepared
+        .split("\n")
+        .filter((line) => isDocumentationMaintenanceMetadataLine(line));
+
+      if (maintenanceLines.length > 0) {
+        maintenanceViolations.push(`${entry.slug}: maintenance metadata line(s) after preparation`);
+      }
     }
 
     expect(violations).toEqual([]);
+    expect(maintenanceViolations).toEqual([]);
   });
 });
 

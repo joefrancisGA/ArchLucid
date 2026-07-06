@@ -19,7 +19,10 @@ type HelpTopicMarkdownViewProps = {
 export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.ReactElement {
   const { entry, markdown } = props;
   const sourceDocPath = entry.sourcePaths[0] ?? "";
-  const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath);
+  const preserveMaintenanceMetadata = entry.audience === "developer";
+  const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
+    preserveMaintenanceMetadata,
+  });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
 
   return (
@@ -47,6 +50,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             tableCaption={`${entry.title} reference table`}
             presentation="help"
             sourceDocPath={entry.sourcePaths[0]}
+            preserveMaintenanceMetadata={preserveMaintenanceMetadata}
           />
         </div>
         <HelpTopicTableOfContents headings={headings} />

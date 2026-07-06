@@ -383,10 +383,59 @@ export function stripMarkdownHorizontalRules(markdown: string): string {
   return lines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
 }
 
+export type PrepareHelpMarkdownPresentationOptions = {
+  /** Engineering runbooks keep documentation governance lines (Last reviewed, etc.). */
+  readonly preserveMaintenanceMetadata?: boolean;
+};
+
+/** Documentation governance lines stripped from buyer/operator help presentation. */
+const HELP_DOCUMENTATION_MAINTENANCE_LINE_PATTERNS: readonly RegExp[] = [
+  /^\s*(?:>\s*)?(?:[-*]\s+)?(?:\*\*)?(?:Last reviewed|Last updated|Maintained by|Doc owner)(?:\*\*)?:\s*.+$/i,
+  /^\s*(?:>\s*)?(?:[-*]\s+)?(?:\*\*)?Owner(?:\*\*)?:\s*.+$/i,
+] as const;
+
+export function isDocumentationMaintenanceMetadataLine(line: string): boolean {
+  const trimmed = line.trim();
+
+  if (trimmed.length === 0 || trimmed.startsWith("|")) {
+    return false;
+  }
+
+  return HELP_DOCUMENTATION_MAINTENANCE_LINE_PATTERNS.some((pattern) => pattern.test(line));
+}
+
+/**
+ * Removes wiki-style maintenance metadata lines from help markdown (source files unchanged on disk).
+ */
+export function stripDocumentationMaintenanceMetadata(markdown: string): string {
+  let inFence = false;
+
+  const lines = markdown.split("\n").filter((line) => {
+    const trimmedStart = line.trimStart();
+
+    if (trimmedStart.startsWith("```")) {
+      inFence = !inFence;
+      return true;
+    }
+
+    if (inFence) {
+      return true;
+    }
+
+    return !isDocumentationMaintenanceMetadataLine(line);
+  });
+
+  return lines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+}
+
 /**
  * Prepares repo markdown for in-app help rendering — no raw `.md` paths in operator UI.
  */
-export function prepareHelpMarkdownForPresentation(markdown: string, sourceDocPath: string): string {
+export function prepareHelpMarkdownForPresentation(
+  markdown: string,
+  sourceDocPath: string,
+  options?: PrepareHelpMarkdownPresentationOptions,
+): string {
   const withoutPreamble = stripLeadingContributorScopeBlockquote(markdown);
   const withoutInternalPreamble = stripInternalBuyerHelpPreamble(withoutPreamble);
   const normalized = stripDuplicateMarkdownTitle(stripInternalEngineeringBatchLabels(withoutInternalPreamble));
@@ -396,6 +445,10 @@ export function prepareHelpMarkdownForPresentation(markdown: string, sourceDocPa
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(withoutInlineReferences, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
   const withoutHorizontalRules = stripMarkdownHorizontalRules(sanitized);
+  const presentationBody =
+    options?.preserveMaintenanceMetadata === true
+      ? withoutHorizontalRules
+      : stripDocumentationMaintenanceMetadata(withoutHorizontalRules);
 
-  return applyHelpTopicProductLanguage(emphasizeInlineGuidanceLabels(withoutHorizontalRules));
+  return applyHelpTopicProductLanguage(emphasizeInlineGuidanceLabels(presentationBody));
 }
