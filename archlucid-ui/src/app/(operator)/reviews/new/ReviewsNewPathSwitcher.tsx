@@ -7,6 +7,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { Button } from "@/components/ui/button";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
@@ -167,7 +168,7 @@ export function ReviewsNewPathSwitcher() {
       ) : null}
       {ready && showPathSwitcher ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-new-path-hint">
-          {REVIEWS_NEW_PATH_HINTS[activePath]}
+          <InlineGuidanceText text={REVIEWS_NEW_PATH_HINTS[activePath]} />
         </p>
       ) : null}
       {ready ? null : (

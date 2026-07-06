@@ -19,6 +19,15 @@ describe("InlineGuidanceText", () => {
     ).toBeInTheDocument();
   });
 
+  it("emphasizes the fastest first-pilot path scan label", () => {
+    render(
+      <InlineGuidanceText text="Fastest first-pilot path: review title, attach evidence, and start analysis in one screen." />,
+    );
+
+    expect(screen.getByText("Fastest first-pilot path:").tagName).toBe("STRONG");
+    expect(screen.getByText(/review title, attach evidence, and start analysis in one screen\./)).toBeInTheDocument();
+  });
+
   it("renders plain copy when no guidance label prefix is present", () => {
     render(<InlineGuidanceText text="Finish architecture reviews first." />);
 

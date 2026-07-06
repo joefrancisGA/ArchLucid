@@ -27,6 +27,15 @@ describe("emphasizeInlineGuidanceLabels", () => {
     );
   });
 
+  it("bolds fastest first-pilot path scan labels in help markdown", () => {
+    const input =
+      "Fastest first-pilot path: First Real Value (`archlucid try --real`, `ARCHLUCID_REAL_AOAI=1`).";
+
+    expect(emphasizeInlineGuidanceLabels(input)).toBe(
+      "**Fastest first-pilot path:** First Real Value (`archlucid try --real`, `ARCHLUCID_REAL_AOAI=1`).",
+    );
+  });
+
   it("does not change fenced code blocks", () => {
     const input = "```\nStatus: Pending\n```";
 

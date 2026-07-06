@@ -11,6 +11,7 @@ describe("NewReviewSampleEscapeLink", () => {
     expect(
       screen.getByTestId("new-review-sample-escape"),
     ).toHaveTextContent("Start with an example: Skip setup and open a completed sample package.");
+    expect(screen.getByText("Start with an example:").tagName).toBe("STRONG");
   });
 
   it("does not render the retired salesy lead copy", () => {

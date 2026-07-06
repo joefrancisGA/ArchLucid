@@ -44,5 +44,6 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     fireEvent.click(screen.getByRole("button", { name: "More options" }));
 
     expect(screen.getByTestId("reviews-new-path-toggle")).toBeTruthy();
+    expect(screen.getByText("Fastest first-pilot path:", { selector: "strong" })).toBeInTheDocument();
   });
 });
