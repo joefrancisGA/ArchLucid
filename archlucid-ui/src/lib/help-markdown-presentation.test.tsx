@@ -91,7 +91,17 @@ describe("help-markdown-presentation", () => {
 
     expect(prepared.includes(".md")).toBe(false);
     expect(prepared).toContain("[Workspace route map](/help/operator-shell)");
-    expect(prepared).toMatch(/\[Core Pilot\]\(\/help\/core-pilot\)/);
+    expect(prepared).toMatch(/\[Your first architecture review\]\(\/help\/core-pilot\)/);
+  });
+
+  it("strips markdown horizontal rules from prepared help copy", () => {
+    const prepared = prepareHelpMarkdownForPresentation(
+      "## Section\n\n---\n\nParagraph.",
+      "docs/CORE_PILOT.md",
+    );
+
+    expect(prepared).not.toMatch(/^---$/m);
+    expect(prepared).toContain("## Section");
   });
 
   it("applies review-package product language and migrates legacy /runs/ links", () => {

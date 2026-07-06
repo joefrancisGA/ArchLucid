@@ -89,8 +89,8 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     slug: "pilot-guide",
     title: "Pilot guide",
     summary:
-      "Internal pilot setup, smoke checks, API payloads, and engineering troubleshooting — for platform implementers only.",
-    audience: "operator",
+      "Prepare for a pilot, run the first architecture review, interpret outputs, report issues, and get help.",
+    audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/PILOT_GUIDE.md"],
   },
   {

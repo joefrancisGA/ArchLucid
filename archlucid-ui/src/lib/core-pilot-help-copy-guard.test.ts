@@ -54,4 +54,12 @@ describe("core-pilot help copy guard", () => {
     expect(text).toContain("connector access has not yet been approved");
     expect(text).not.toContain("no azure extractor");
   });
+
+  it("uses section headings instead of markdown horizontal rules", () => {
+    const source = readCorePilotHelpMarkdown();
+
+    expect(source.split("\n").some((line) => /^---\s*$/.test(line.trim()))).toBe(false);
+    expect(source).toContain("## Run the first review");
+    expect(source).toContain("## Cloud connectors");
+  });
 });

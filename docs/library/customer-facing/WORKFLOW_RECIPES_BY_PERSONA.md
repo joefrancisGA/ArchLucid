@@ -6,7 +6,6 @@
 
 Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAVIGATOR.md`](../../archive/NAVIGATOR.md)** lists one “best next doc” per task.
 
----
 
 ## 1) Solution architect: from request to committed review package
 
@@ -27,7 +26,6 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 
 **Reference:** [CORE_PILOT.md](../../CORE_PILOT.md), [ARCHITECTURE_FLOWS.md](../ARCHITECTURE_FLOWS.md), [API_CONTRACTS.md](../API_CONTRACTS.md).
 
----
 
 ## 2) Governance lead: critical finding to approval / policy gate {#governance-gate}
 
@@ -50,7 +48,6 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 
 **Reference:** [GOVERNANCE.md](../contributor-reference/GOVERNANCE.md), [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md).
 
----
 
 ## 3) Procurement / security reviewer: trust artefacts and run-level proof
 
@@ -71,7 +68,6 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 
 **Reference:** [SECURITY.md](../contributor-reference/SECURITY.md), [API_CONTRACTS.md](../API_CONTRACTS.md).
 
----
 
 ## 4) Platform engineer: manifest delta in CI and deployment evidence
 

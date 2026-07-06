@@ -45,7 +45,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "users-and-roles": "product",
   "billing-and-plans": "product",
   troubleshooting: "product",
-  "pilot-guide": "internal",
+  "pilot-guide": "product",
   "path-chooser": "product",
   glossary: "product",
   "enterprise-onboarding": "admin",
@@ -89,6 +89,11 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     title: "Your first architecture review",
     summary:
       "First-session checklist — evidence-only or cloud connectors (Azure, AWS, GCP), finalize, and sponsor exports.",
+  },
+  "pilot-guide": {
+    title: "Pilot guide",
+    summary:
+      "Prepare for a pilot, run the first review, interpret outputs, report issues, and get help.",
   },
 };
 

@@ -64,6 +64,7 @@ const HELP_LINK_LABEL_OVERRIDES: Readonly<Record<string, string>> = {
   operator_admin_diagnostics: "Admin diagnostics",
   operator_shell_tutorial: "Workspace tutorial",
   first_hour_operator_path: "First-review guide",
+  core_pilot: "Your first architecture review",
 };
 
 /**
@@ -355,6 +356,33 @@ export function emphasizeInlineGuidanceLabels(markdown: string): string {
     .join("\n");
 }
 
+/** Markdown horizontal rules used as section dividers — not rendered in in-app help. */
+const MARKDOWN_HORIZONTAL_RULE_LINE = /^(\*{3,}|-{3,}|_{3,})\s*$/;
+
+/**
+ * Removes `---` / `***` / `___` thematic-break lines from help markdown (preserves fenced code blocks).
+ */
+export function stripMarkdownHorizontalRules(markdown: string): string {
+  let inFence = false;
+
+  const lines = markdown.split("\n").filter((line) => {
+    const trimmedStart = line.trimStart();
+
+    if (trimmedStart.startsWith("```")) {
+      inFence = !inFence;
+      return true;
+    }
+
+    if (inFence) {
+      return true;
+    }
+
+    return !MARKDOWN_HORIZONTAL_RULE_LINE.test(line.trim());
+  });
+
+  return lines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+}
+
 /**
  * Prepares repo markdown for in-app help rendering — no raw `.md` paths in operator UI.
  */
@@ -367,6 +395,7 @@ export function prepareHelpMarkdownForPresentation(markdown: string, sourceDocPa
   const withoutInlineReferences = stripInternalBuyerHelpInlineReferences(withoutInternalSections);
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(withoutInlineReferences, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
+  const withoutHorizontalRules = stripMarkdownHorizontalRules(sanitized);
 
-  return applyHelpTopicProductLanguage(emphasizeInlineGuidanceLabels(sanitized));
+  return applyHelpTopicProductLanguage(emphasizeInlineGuidanceLabels(withoutHorizontalRules));
 }

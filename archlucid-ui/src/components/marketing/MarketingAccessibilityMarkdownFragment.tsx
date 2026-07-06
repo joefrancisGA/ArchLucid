@@ -254,6 +254,11 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       continue;
     }
 
+    if (isHelp && /^(\*{3,}|-{3,}|_{3,})\s*$/.test(line.trim())) {
+      i++;
+      continue;
+    }
+
     if (line.trim().startsWith("<details")) {
       const { summary, contentStartOffset } = parseDetailsSummary(line, lines[i + 1]);
       i++;
