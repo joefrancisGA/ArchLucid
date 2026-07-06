@@ -66,8 +66,8 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/admin/rag-health",
-          label: "RAG health",
-          title: "RAG health — per-corpus index freshness and embedding dimension",
+          label: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth,
+          title: `${OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth} — per-corpus index freshness and embedding dimension`,
           icon: BookOpen,
           tier: "advanced",
           requiredAuthority: "AdminAuthority",
@@ -82,8 +82,8 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/operate/integration-events/dlq",
-          label: "Integration DLQ",
-          title: "Integration dead letters — inspect and retry failed outbound integration events",
+          label: OPERATOR_NAV_LINK_LABELS.failedIntegrationMessages,
+          title: "Failed integration messages — inspect and retry failed outbound integration events",
           icon: Inbox,
           tier: "advanced",
           requiredAuthority: "AdminAuthority",

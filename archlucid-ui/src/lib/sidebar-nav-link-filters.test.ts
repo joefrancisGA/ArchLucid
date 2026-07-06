@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { NavLinkItem } from "@/lib/nav-config.types";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { filterSidebarNavClusterLinks, presentSidebarNavLinkForCluster } from "@/lib/sidebar-nav-link-filters";
 
 const sampleLinks: NavLinkItem[] = [
@@ -51,8 +52,8 @@ describe("presentSidebarNavLinkForCluster", () => {
     const presented = presentSidebarNavLinkForCluster(
       {
         href: "/admin/rag-health",
-        label: "RAG health",
-        title: "RAG health — per-corpus index freshness and embedding dimension",
+        label: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth,
+        title: `${OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth} — per-corpus index freshness and embedding dimension`,
         tier: "advanced",
         requiredAuthority: "AdminAuthority",
       },
@@ -60,7 +61,7 @@ describe("presentSidebarNavLinkForCluster", () => {
       "system-admin",
     );
 
-    expect(presented.title).toBe("RAG health");
+    expect(presented.title).toBe(OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth);
   });
 
   it("preserves review-workflow nav titles outside Internal Operations", () => {

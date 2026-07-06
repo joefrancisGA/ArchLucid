@@ -585,6 +585,45 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
 
     expect(executeRows.some((r) => r.group.id === "operate-platform-ops")).toBe(false);
   });
+
+  it("omits AI usage from Administration for Read and Execute callers (TB-648)", () => {
+    const admin = NAV_GROUPS.find((g) => g.id === "operator-admin");
+
+    expect(admin).toBeDefined();
+
+    const readVisible = filterNavLinksForOperatorShell(
+      admin!.links,
+      true,
+      true,
+      AUTHORITY_RANK.ReadAuthority,
+      false,
+      true,
+    );
+
+    expect(readVisible.some((l) => l.href === "/settings/ai-usage")).toBe(false);
+
+    const executeVisible = filterNavLinksForOperatorShell(
+      admin!.links,
+      true,
+      true,
+      AUTHORITY_RANK.ExecuteAuthority,
+      false,
+      true,
+    );
+
+    expect(executeVisible.some((l) => l.href === "/settings/ai-usage")).toBe(false);
+
+    const adminVisible = filterNavLinksForOperatorShell(
+      admin!.links,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      true,
+    );
+
+    expect(adminVisible.some((l) => l.href === "/settings/ai-usage")).toBe(true);
+  });
 });
 
 describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
@@ -622,6 +661,7 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
     expect(visible.map((r) => r.group.id)).toEqual(["operator-system-admin"]);
     expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/admin/pricing-quote-aging");
     expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/admin/rag-health");
+    expect(visible[0]!.visibleLinks.map((l) => l.label)).toContain("Knowledge index health");
     expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/replay");
   });
 });

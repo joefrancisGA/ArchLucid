@@ -140,6 +140,9 @@ export const OPERATOR_NAV_LINK_LABELS = {
   governanceSetupGuide: "Governance setup guide",
   securityTrust: "Security & trust",
   aiUsage: "AI usage",
+  /** Internal Operations — buyer-facing nav label (TB-648). */
+  knowledgeIndexHealth: "Knowledge index health",
+  failedIntegrationMessages: "Failed integration messages",
   teamsNotifications: "Teams notifications",
   itsmConnectors: "Jira & ServiceNow",
   valueReport: "Value report",
