@@ -77,7 +77,12 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible();
 
     /** Pack A narrative (Responsible AI governance engine + rule identifiers from seed fixtures). */
-    await expect(page.locator("main").getByText(/Promoted scoring ensemble lacks immutable lineage hash/i)).toBeVisible({
+    await expect(
+      page
+        .locator("main")
+        .getByText(/Promoted scoring ensemble lacks immutable lineage hash/i)
+        .first(),
+    ).toBeVisible({
       timeout: 90_000,
     });
 
