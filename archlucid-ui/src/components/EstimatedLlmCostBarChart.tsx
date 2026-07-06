@@ -1,8 +1,11 @@
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactNode } from "react";
 
+import { Button } from "@/components/ui/button";
 import type { LlmCostDailyBucket } from "@/lib/llm-cost-reporting";
+import { hasLlmUsageInDailyBuckets } from "@/lib/llm-cost-reporting-display-labels";
 
 export type EstimatedLlmCostBarChartProps = {
   daily: LlmCostDailyBucket[];
@@ -30,16 +33,38 @@ function formatEstimatedUsd(value: number, currencyCode: string): string {
   }
 }
 
+function DailyUsageEmptyState(): ReactNode {
+  return (
+    <div
+      className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50/80 px-4 py-8 text-center dark:border-neutral-700 dark:bg-neutral-900/30"
+      data-testid="llm-daily-usage-empty"
+    >
+      <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        No AI usage in the last 30 days
+      </h3>
+      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        Usage will appear here after users run AI-assisted review, evidence, or Q&amp;A workflows.
+      </p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        <Button asChild variant="outline" size="sm">
+          <Link href="/ask">Open review questions</Link>
+        </Button>
+        <Button asChild variant="primary" size="sm">
+          <Link href="/reviews/new">Start a review</Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Inline bar chart (no external chart lib) — estimated LLM cost height per day; aligns with {@link ComplianceDriftChart}.
  */
 export function EstimatedLlmCostBarChart(props: EstimatedLlmCostBarChartProps): ReactNode {
   const { daily, currencyCode } = props;
 
-  if (daily.length === 0) {
-    return (
-      <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No AI usage recorded in the last 30 days.</p>
-    );
+  if (daily.length === 0 || !hasLlmUsageInDailyBuckets(daily)) {
+    return <DailyUsageEmptyState />;
   }
 
   const maxCost = Math.max(...daily.map((d) => d.estimatedCostUsd), 0.01);
@@ -49,7 +74,7 @@ export function EstimatedLlmCostBarChart(props: EstimatedLlmCostBarChartProps): 
     <div
       className="flex gap-1 border-b border-neutral-200 pb-1 dark:border-neutral-700"
       role="img"
-      aria-label="Estimated LLM cost by day: bar height shows estimated spend per day in the selected currency"
+      aria-label="Daily AI usage trend for the last 30 days"
     >
       {daily.map((point) => {
         const barPx =

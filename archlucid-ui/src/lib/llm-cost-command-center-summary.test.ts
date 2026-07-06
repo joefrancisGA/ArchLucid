@@ -10,7 +10,7 @@ describe("buildLlmCostCommandCenterSummary", () => {
 
     expect(summary).not.toBeNull();
     expect(summary!.utcMonthEstimatedUsd).toBeGreaterThan(0);
-    expect(summary!.topWorkspaceProjectLabel).toContain("Core workspace");
+    expect(summary!.topWorkspaceName).toContain("Core workspace");
   });
 
   it("returns null when dashboard is empty", () => {

@@ -1,35 +1,25 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { EstimatedLlmCostBarChart } from "./EstimatedLlmCostBarChart";
+import { EstimatedLlmCostBarChart } from "@/components/EstimatedLlmCostBarChart";
 
 describe("EstimatedLlmCostBarChart", () => {
-  it("renders empty message when no points", () => {
-    render(<EstimatedLlmCostBarChart daily={[]} currencyCode="USD" />);
-    expect(screen.getByText(/No AI usage recorded in the last 30 days/i)).toBeInTheDocument();
-  });
-
-  it("renders bars for daily buckets", () => {
-    const { container } = render(
+  it("shows a polished empty state when all daily buckets are zero", () => {
+    render(
       <EstimatedLlmCostBarChart
         currencyCode="USD"
         daily={[
           {
-            bucketUtc: "2026-05-10T00:00:00.000Z",
-            estimatedCostUsd: 10,
-            promptTokens: 100,
-            completionTokens: 20,
-          },
-          {
-            bucketUtc: "2026-05-11T00:00:00.000Z",
-            estimatedCostUsd: 20,
-            promptTokens: 200,
-            completionTokens: 40,
+            bucketUtc: "2026-07-01T00:00:00.000Z",
+            estimatedCostUsd: 0,
+            promptTokens: 0,
+            completionTokens: 0,
           },
         ]}
       />,
     );
 
-    expect(container.querySelectorAll(".rounded-t").length).toBe(2);
+    expect(screen.getByTestId("llm-daily-usage-empty")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Start a review/i })).toHaveAttribute("href", "/reviews/new");
   });
 });

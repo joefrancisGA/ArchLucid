@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EstimatedLlmCostBarChart } from "@/components/EstimatedLlmCostBarChart";
 import { LlmBudgetUtilizationMeter } from "@/components/LlmBudgetUtilizationMeter";
@@ -11,7 +12,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { formatCostReportingEstimatedUsd } from "./cost-reporting-page-helpers";
 import type { CostReportingSettingsPageViewModel } from "./cost-reporting-settings-page-view-model";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { hasWorkspaceProjectUsage } from "@/lib/llm-cost-reporting-display-labels";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 
 type Props = {
   readonly model: CostReportingSettingsPageViewModel;
@@ -19,6 +22,7 @@ type Props = {
 
 export function CostReportingSettingsPageView(props: Props) {
   const m = props.model;
+  const showUsageDiagnostics = isArchLucidInternalOperatorShellEnv();
 
   if (m.surface === "demo") {
     return (
@@ -48,14 +52,15 @@ export function CostReportingSettingsPageView(props: Props) {
   }
 
   const data = m.data;
+  const tableHasUsage = data !== null && hasWorkspaceProjectUsage(data.byWorkspaceProject);
 
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
       <div>
         <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>AI usage and cost</h1>
-        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          Track estimated AI usage cost for this workspace. These figures are usage estimates, not invoices.
-          Reconcile with Azure Cost Management or your reseller statements for billing truth.
+        <p className={cn("mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Track estimated AI usage and cost for this workspace. Billing totals may differ from provider invoices or
+          reseller statements.
         </p>
       </div>
 
@@ -68,39 +73,38 @@ export function CostReportingSettingsPageView(props: Props) {
           role="status"
           data-testid="cost-reporting-mock-banner"
         >
-          Showing <strong>sample estimated cost</strong> data — the reporting API is not available on this environment
-          yet. Numbers are for layout only.
+          Showing <strong>sample usage data</strong> for layout preview — connect a live tenant for actual reporting.
         </p>
       ) : null}
 
       <LlmCostCommandCenterSummaryCard dashboard={data} />
 
       <Card>
-        <CardHeader>
+        <CardHeader className={OPERATOR_CARD.header}>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Monthly AI budget</CardTitle>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-            UTC-month hard cap usage. Bar turns amber when nearing the configured warn threshold and red at the hard cap.
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Workspace AI budget utilization for the current billing month.
           </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className={OPERATOR_CARD.content}>
           <LlmBudgetUtilizationMeter />
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className={OPERATOR_CARD.header}>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Daily AI usage (last 30 days)</CardTitle>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-            Daily estimated cost totals in {data?.currency ?? "USD"} — all figures are estimates.
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Daily usage trend for the selected workspace.
           </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className={OPERATOR_CARD.content}>
           {m.loading ? <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading…</p> : null}
           {!m.loading && data !== null ? (
             <EstimatedLlmCostBarChart daily={data.daily} currencyCode={data.currency} />
           ) : null}
           {!m.loading && data === null ? (
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Could not load cost reporting.</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Could not load usage reporting.</p>
           ) : null}
           {!m.loading && data !== null ? (
             <div className="mt-3 flex flex-wrap gap-2">
@@ -113,17 +117,19 @@ export function CostReportingSettingsPageView(props: Props) {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className={OPERATOR_CARD.header}>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Usage by workspace and project</CardTitle>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-            Breakdown over the same 30-day window — token counts are summed from provider usage records where available.
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Breakdown for the last 30 days in {data?.currency ?? "USD"}.
           </p>
         </CardHeader>
-        <CardContent>
-          {!m.loading && data !== null && data.byWorkspaceProject.length === 0 ? (
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No workspace/project rows returned.</p>
+        <CardContent className={OPERATOR_CARD.content}>
+          {!m.loading && data !== null && !tableHasUsage ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              No AI usage recorded for this workspace during the selected period.
+            </p>
           ) : null}
-          {!m.loading && data !== null && data.byWorkspaceProject.length > 0 ? (
+          {!m.loading && data !== null && tableHasUsage ? (
             <div className="overflow-x-auto">
               <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
                 <thead>
@@ -141,17 +147,15 @@ export function CostReportingSettingsPageView(props: Props) {
 
                     return (
                       <tr key={key} className="border-b border-neutral-100 dark:border-neutral-800">
-                        <td className="py-2 pr-3 font-medium text-neutral-900 dark:text-neutral-100">
-                          {row.workspaceName}
-                        </td>
-                        <td className="py-2 pr-3 text-neutral-700 dark:text-neutral-300">{row.projectName}</td>
-                        <td className="py-2 pr-3 text-neutral-800 dark:text-neutral-200">
+                        <td className="py-2 pr-3 font-medium text-al-text-primary">{row.workspaceName}</td>
+                        <td className="py-2 pr-3 text-al-text-secondary">{row.projectName}</td>
+                        <td className="py-2 pr-3 tabular-nums text-al-text-primary">
                           {formatCostReportingEstimatedUsd(row.estimatedCostUsd, data.currency)}
                         </td>
-                        <td className={cn("py-2 pr-3 font-mono text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
+                        <td className={cn("py-2 pr-3 font-mono tabular-nums text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                           {row.promptTokens.toLocaleString()}
                         </td>
-                        <td className={cn("py-2 pr-3 font-mono text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
+                        <td className={cn("py-2 pr-3 font-mono tabular-nums text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                           {row.completionTokens.toLocaleString()}
                         </td>
                       </tr>
@@ -164,17 +168,19 @@ export function CostReportingSettingsPageView(props: Props) {
         </CardContent>
       </Card>
 
-      <details className="group">
-        <summary className="cursor-pointer list-none">
-          <span className={cn("font-medium text-neutral-700 underline decoration-dotted underline-offset-2 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-            Related diagnostics
-          </span>
-          <span className={cn("ml-1 group-open:hidden", OPERATOR_TYPOGRAPHY.helper)}>(processing queues and dead-letter health)</span>
-        </summary>
-        <div className="mt-4">
-          <OperatorOutboxDiagnosticsCard />
-        </div>
-      </details>
+      {showUsageDiagnostics ? (
+        <details className="group">
+          <summary className="cursor-pointer list-none">
+            <span className={cn("font-medium text-al-text-secondary underline decoration-dotted underline-offset-2 hover:text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              View usage diagnostics
+            </span>
+            <span className={cn("ml-1 group-open:hidden", OPERATOR_TYPOGRAPHY.helper)}>(internal support queues)</span>
+          </summary>
+          <div className="mt-4">
+            <OperatorOutboxDiagnosticsCard />
+          </div>
+        </details>
+      ) : null}
     </div>
   );
 }

@@ -51,7 +51,7 @@ describe("LlmBudgetUtilizationMeter", () => {
     render(<LlmBudgetUtilizationMeter />);
 
     expect(await screen.findByTestId("llm-budget-utilization-meter")).toBeInTheDocument();
-    expect(screen.getByText("80% of cap")).toBeInTheDocument();
-    expect(screen.getByText(/Approaching warn threshold/)).toBeInTheDocument();
+    expect(screen.getByText("80% used")).toBeInTheDocument();
+    expect(screen.getByText(/Approaching the configured warn threshold/)).toBeInTheDocument();
   });
 });
