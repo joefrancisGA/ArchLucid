@@ -90,6 +90,7 @@ public sealed class TenantItsmConnectorConnectionsController(
             : TenantItsmConnectorConnectionMapper.ToResponse(row));
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{provider}")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(TenantItsmConnectorConnectionResponse), StatusCodes.Status200OK)]
@@ -197,6 +198,7 @@ public sealed class TenantItsmConnectorConnectionsController(
         return NoContent();
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("jira/oauth/consent/start")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ItsmAtlassianOAuthConsentStartResponse), StatusCodes.Status200OK)]
@@ -238,6 +240,7 @@ public sealed class TenantItsmConnectorConnectionsController(
         return Ok(response);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("jira/oauth/consent/complete")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ItsmAtlassianOAuthConsentCompleteResponse), StatusCodes.Status200OK)]
