@@ -9,6 +9,33 @@ vi.mock("@/components/AskRunIdPicker", () => ({
 }));
 
 describe("GraphPageControls buyer presentation tabs (TB-669)", () => {
+  it("hides load button when workspace has no completed review packages", () => {
+    render(
+      <GraphPageControls
+        graphMainColumnMaxClass="max-w-3xl"
+        runId=""
+        onRunIdChange={() => undefined}
+        mode="provenance-full"
+        onModeChange={() => undefined}
+        demoUi
+        buyerPolishedShell
+        showLoadButton={false}
+        loadButtonLabel="Load evidence graph"
+        loading={false}
+        onLoadGraph={() => undefined}
+        decisionId=""
+        nodeId=""
+        reviewPickerState="no-packages"
+        sampleGraphActive={false}
+        showPresentationTabs={false}
+        compactEmptyWorkspace
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "Load evidence graph" })).toBeNull();
+    expect(screen.getByTestId("graph-page-controls-buyer")).toBeInTheDocument();
+  });
+
   it("renders tablist with aria-selected and keyboard navigation", () => {
     const onPresentationViewChange = vi.fn();
 

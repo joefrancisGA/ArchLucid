@@ -5,6 +5,7 @@ import {
   isSampleGraphActive,
   isShowcaseDemoRunId,
   resolveGraphReviewPickerState,
+  shouldShowBuyerEvidenceGraphLoadButton,
   shouldShowGraphIdleCard,
 } from "@/lib/graph-page-state";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -95,5 +96,52 @@ describe("graph-page-state", () => {
         "review-42",
       ),
     ).toBe("real-review");
+  });
+
+  it("hides buyer load button until a real completed package is selected", () => {
+    expect(
+      shouldShowBuyerEvidenceGraphLoadButton({
+        reviewPickerState: "no-packages",
+        runId: "",
+        graphLoadRequested: false,
+        effectiveGraph: null,
+      }),
+    ).toBe(false);
+
+    expect(
+      shouldShowBuyerEvidenceGraphLoadButton({
+        reviewPickerState: "no-selection",
+        runId: "",
+        graphLoadRequested: false,
+        effectiveGraph: null,
+      }),
+    ).toBe(false);
+
+    expect(
+      shouldShowBuyerEvidenceGraphLoadButton({
+        reviewPickerState: "sample-review",
+        runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+        graphLoadRequested: false,
+        effectiveGraph: null,
+      }),
+    ).toBe(false);
+
+    expect(
+      shouldShowBuyerEvidenceGraphLoadButton({
+        reviewPickerState: "real-review",
+        runId: "review-42",
+        graphLoadRequested: false,
+        effectiveGraph: null,
+      }),
+    ).toBe(true);
+
+    expect(
+      shouldShowBuyerEvidenceGraphLoadButton({
+        reviewPickerState: "real-review",
+        runId: "review-42",
+        graphLoadRequested: true,
+        effectiveGraph: SAMPLE_GRAPH,
+      }),
+    ).toBe(false);
   });
 });

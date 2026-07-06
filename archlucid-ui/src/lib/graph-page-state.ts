@@ -75,6 +75,24 @@ export function shouldShowGraphIdleCard(options: {
   return options.buyerGraphAwaitingSelection || options.effectiveGraph === null;
 }
 
+/** Buyer shell: only show Load evidence graph when a real completed package is selected. */
+export function shouldShowBuyerEvidenceGraphLoadButton(options: {
+  readonly reviewPickerState: GraphReviewPickerState;
+  readonly runId: string;
+  readonly graphLoadRequested: boolean;
+  readonly effectiveGraph: GraphViewModel | null;
+}): boolean {
+  if (options.reviewPickerState !== "real-review") {
+    return false;
+  }
+
+  if (options.runId.trim().length === 0) {
+    return false;
+  }
+
+  return !options.graphLoadRequested || options.effectiveGraph === null;
+}
+
 export function resolveGraphReviewPickerState(
   availability: AskRunListAvailability,
   runId: string,

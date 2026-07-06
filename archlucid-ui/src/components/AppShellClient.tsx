@@ -399,24 +399,24 @@ function AppShellInner({ children }: AppShellClientProps) {
         <a href="#main-content" className="skip-to-main">
           Skip to main content
         </a>
-        <div ref={shellRootRef} className="flex min-h-screen flex-col overflow-x-hidden bg-neutral-50 dark:bg-neutral-950">
+        <div ref={shellRootRef} className="flex min-h-dvh flex-col overflow-x-hidden bg-neutral-50 dark:bg-neutral-950">
           <div ref={stickyHeaderRef} className="sticky top-0 z-30 overflow-x-hidden bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
             <FrictionlessTrialBanner />
             <OperatorShellTopBar onOpenHelpSearch={openHelpSearch} />
             <CtoDemoJourneyCaptionBar />
           </div>
-          <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-1")}>
+          <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "mx-auto flex min-h-0 w-full flex-1")}>
             <nav
               data-testid="sidebar-nav"
               aria-label="Primary navigation"
               className={cn(
-                "hidden shrink-0 overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 px-2 py-4 print:!hidden dark:border-neutral-800 dark:bg-neutral-950/80 lg:block",
+                "hidden shrink-0 self-stretch overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 px-2 py-4 print:!hidden dark:border-neutral-800 dark:bg-neutral-950/80 lg:block lg:max-h-full",
                 OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS,
               )}
             >
               <SidebarNav />
             </nav>
-            <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
+            <div data-testid="app-shell-main" className="min-h-0 min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
               <AppShellStatusBanners variant="full" />
               <KeyboardShortcutProvider onHelpRequested={openHelpSearch}>
                 <main

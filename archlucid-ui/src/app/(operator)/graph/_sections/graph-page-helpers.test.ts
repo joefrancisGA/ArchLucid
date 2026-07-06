@@ -28,6 +28,7 @@ describe("resolveGraphIdleEmptyPreset", () => {
 
     expect(preset.title).toBe("No completed review packages yet");
     expect(preset.description).toContain("Complete a review package to generate an evidence graph");
+    expect(preset.description).toContain("evidence relationships work");
     expect(preset.actions?.[0]?.label).toBe("Open sample evidence graph");
     expect(preset.actions?.[1]?.label).toBe("Start review");
   });

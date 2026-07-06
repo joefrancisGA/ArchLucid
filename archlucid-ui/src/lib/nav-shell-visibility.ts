@@ -5,7 +5,7 @@ import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-commi
 import { applyCommittedArchitectureReviewNavPromotions } from "@/lib/nav-committed-architecture-review-promotion";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import {
@@ -213,8 +213,14 @@ export function listNavGroupsVisibleInOperatorShell(
       continue;
     }
 
-    if (group.surface === "system-admin" && !isShowSystemAdministrationNavEnabled()) {
-      continue;
+    if (group.surface === "system-admin") {
+      if (!isShowSystemAdministrationNavEnabled()) {
+        continue;
+      }
+
+      if (isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv()) {
+        continue;
+      }
     }
 
     if (surfaceFilter !== "all" && group.surface !== surfaceFilter) {

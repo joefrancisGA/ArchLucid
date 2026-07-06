@@ -17,9 +17,8 @@ import { OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { cn } from "@/lib/utils";
-import { OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
 import {
-  EVIDENCE_GRAPH_PAGE_HELPER,
   EVIDENCE_GRAPH_PAGE_SUBTITLE,
   EVIDENCE_GRAPH_PAGE_TITLE,
 } from "@/lib/evidence-graph-page";
@@ -40,6 +39,7 @@ import {
 import {
   isSampleGraphActive,
   resolveGraphReviewPickerState,
+  shouldShowBuyerEvidenceGraphLoadButton,
   shouldShowGraphIdleCard,
   type AskRunListAvailability,
 } from "@/lib/graph-page-state";
@@ -481,11 +481,18 @@ export function GraphPageContent() {
       ? "Loading…"
       : "Load graph";
 
-  const showLoadButton =
-    buyerPolishedShell
-      ? !graphLoadRequested || effectiveGraph === null
-      : !(demoUi && mode === "provenance-full") &&
-        (!demoUi || mode !== "provenance-full" || effectiveGraph === null);
+  const showLoadButton = buyerPolishedShell
+    ? shouldShowBuyerEvidenceGraphLoadButton({
+        reviewPickerState,
+        runId,
+        graphLoadRequested,
+        effectiveGraph,
+      })
+    : !(demoUi && mode === "provenance-full") &&
+      (!demoUi || mode !== "provenance-full" || effectiveGraph === null);
+
+  const buyerEmptyWorkspaceFocus =
+    buyerPolishedShell && showIdleCard && reviewPickerState === "no-packages";
 
   const showSavedViews =
     canMutateEnterpriseShell &&
@@ -571,8 +578,18 @@ export function GraphPageContent() {
       reviewPickerState={reviewPickerState}
       sampleGraphActive={sampleGraphActive}
       showPresentationTabs={showBuyerPresentationTabs}
+      compactEmptyWorkspace={buyerEmptyWorkspaceFocus}
     />
   );
+
+  const buyerIdlePlaceholder = showIdleCard ? (
+    <GraphIdlePlaceholder
+      graphIdlePreset={graphIdlePreset}
+      buyerPolishedShell={buyerPolishedShell}
+      className={graphMainColumnMaxClass}
+      prioritize={buyerEmptyWorkspaceFocus}
+    />
+  ) : null;
 
   const buyerTraceOnlyIdle = buyerTraceWithoutGraph;
 
@@ -584,7 +601,17 @@ export function GraphPageContent() {
           setPresentationView(next as EvidenceTrailPresentationView);
         }}
       >
-        {controls}
+        {buyerEmptyWorkspaceFocus ? (
+          <div className={cn(graphMainColumnMaxClass, OPERATOR_LAYOUT.sectionHeadingStack)}>
+            {buyerIdlePlaceholder}
+            {controls}
+          </div>
+        ) : (
+          <>
+            {controls}
+            {buyerIdlePlaceholder}
+          </>
+        )}
         <GraphFetchStatusAlerts
           loading={loading}
           loadFailure={showLoadFailureAlert ? loadFailure : null}
@@ -597,9 +624,6 @@ export function GraphPageContent() {
           }}
           graphEndpointHint={graphEndpointHint}
         />
-        {showIdleCard ? (
-          <GraphIdlePlaceholder graphIdlePreset={graphIdlePreset} buyerPolishedShell={buyerPolishedShell} />
-        ) : null}
         {sampleGraphActive && effectiveGraph !== null ? (
           <GraphSampleModeBanner
             className={graphMainColumnMaxClass}
@@ -648,17 +672,11 @@ export function GraphPageContent() {
   return (
     <OperatorPageContainer variant="dashboard">
       {buyerPolishedShell ? (
-        <EvidenceGraphLifecycleStatusBanner className="mb-3" />
+        <EvidenceGraphLifecycleStatusBanner className="mb-2" />
       ) : (
         <CtoDemoBuyerValueStrip stepIndex={2} />
       )}
-      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle}>
-        {buyerPolishedShell ? (
-          <p className={cn("m-0 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {EVIDENCE_GRAPH_PAGE_HELPER}
-          </p>
-        ) : null}
-      </OperatorPageHeader>
+      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} />
       <GraphEvidenceTrailGuidanceDisclosure className={buyerPolishedShell ? "hidden" : undefined} />
       {buyerGraphBody}
       {!buyerPolishedShell && showOperatorControls && effectiveGraph === null ? (

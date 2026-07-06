@@ -77,6 +77,8 @@ export type GraphPageControlsProps = {
 
   sampleGraphActive: boolean;
   showPresentationTabs: boolean;
+  /** When true, demote the review picker below the empty-state card (no completed packages). */
+  compactEmptyWorkspace?: boolean;
 };
 
 
@@ -117,6 +119,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
     sampleGraphActive,
     showPresentationTabs,
+    compactEmptyWorkspace = false,
   } = props;
 
 
@@ -149,9 +152,21 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
     return (
 
-      <div className={cn("mb-3 space-y-2", graphMainColumnMaxClass)} data-testid="graph-page-controls-buyer">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="min-w-[12rem] flex-1 lg:max-w-sm">
+      <div
+        className={cn(
+          compactEmptyWorkspace ? "mb-0 space-y-2" : "mb-3 space-y-2",
+          graphMainColumnMaxClass,
+        )}
+        data-testid="graph-page-controls-buyer"
+      >
+        <div
+          className={cn(
+            "flex flex-wrap items-end gap-3",
+            compactEmptyWorkspace &&
+              "rounded-md border border-neutral-200/80 bg-neutral-50/60 p-2 opacity-90 dark:border-neutral-800 dark:bg-neutral-900/40",
+          )}
+        >
+          <div className={cn("min-w-[12rem] flex-1", compactEmptyWorkspace ? "lg:max-w-md" : "lg:max-w-sm")}>
             <AskRunIdPicker
               value={runId}
               onChange={onRunIdChange}
@@ -170,7 +185,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
               emptyListHint={BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT}
               onListAvailabilityChange={onReviewsListAvailabilityChange}
             />
-            {reviewPickerState !== "no-packages" ? (
+            {reviewPickerState !== "no-packages" && !compactEmptyWorkspace ? (
               <GraphReviewPickerStatus state={reviewPickerState} className="mt-2" />
             ) : null}
           </div>

@@ -11,6 +11,7 @@ import {
   EVIDENCE_GRAPH_EMPTY_SECONDARY_UPLOAD,
   EVIDENCE_GRAPH_EMPTY_TITLE,
 } from "@/lib/evidence-graph-page";
+import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { GRAPH_IDLE, GRAPH_IDLE_BUYER } from "@/lib/empty-state-presets";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { graphLooksLikeCoordinatorProvenanceTrail } from "@/lib/graph-mapper";
@@ -24,7 +25,7 @@ const evidenceGraphSampleHref = `/graph?runId=${encodeURIComponent(SHOWCASE_STAT
 const EVIDENCE_GRAPH_IDLE_ACTIONS: EmptyStateProps["actions"] = [
   { label: EVIDENCE_GRAPH_EMPTY_PRIMARY_ACTION, href: evidenceGraphSampleHref },
   { label: EVIDENCE_GRAPH_EMPTY_SECONDARY_START, href: "/reviews/new", variant: "outline" as const },
-  { label: EVIDENCE_GRAPH_EMPTY_SECONDARY_UPLOAD, href: "/reviews/new", variant: "outline" as const },
+  { label: EVIDENCE_GRAPH_EMPTY_SECONDARY_UPLOAD, href: EXTRACT_UPLOAD_SETTINGS_PATH, variant: "outline" as const },
 ];
 
 /** Graph visualization mode: which endpoint to query and what graph subset to display. */
