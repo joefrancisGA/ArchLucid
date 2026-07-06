@@ -64,9 +64,6 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
         props.active
           ? DESIGN_TOKENS.interactive.navActive
           : "text-neutral-900 dark:text-neutral-100",
-        props.buyerPolishedShell && presented.href === "/reviews/new"
-          ? "font-normal text-neutral-600 dark:text-neutral-300"
-          : null,
       )}
       title={
         props.advancedDemo

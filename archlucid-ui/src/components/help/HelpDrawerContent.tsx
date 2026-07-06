@@ -29,7 +29,7 @@ export const HelpDrawerContent = React.forwardRef<
       ref={ref}
       aria-modal="true"
       className={cn(
-        "fixed inset-y-0 right-0 top-0 z-[51] flex h-full max-h-none w-full max-w-[min(100vw,480px)] min-w-0 translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-none border border-l border-neutral-200 bg-white p-0 text-neutral-900 shadow-xl outline-none duration-200 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100",
+        "fixed inset-y-0 right-0 top-0 z-[51] flex h-full max-h-none w-full max-w-[min(100vw,32rem)] min-w-0 translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-none border border-l border-neutral-200 bg-white p-0 text-neutral-900 shadow-xl outline-none duration-200 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
         className,
