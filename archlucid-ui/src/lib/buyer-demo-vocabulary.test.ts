@@ -14,4 +14,10 @@ describe("applyBuyerDemoVocabulary", () => {
       "Open run manifest after commit",
     );
   });
+
+  it("defaults to active vocabulary pass in production shells (TB-645)", () => {
+    expect(applyBuyerDemoVocabulary("Open run manifest after commit")).toBe(
+      "Open review signed package after finalize",
+    );
+  });
 });

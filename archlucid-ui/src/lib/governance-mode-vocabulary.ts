@@ -1,3 +1,6 @@
+import { applyBuyerDemoVocabulary } from "@/lib/buyer-demo-vocabulary";
+import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
+
 /**
  * Presentation-layer labels toggled by governance mode — routes and API DTOs stay unchanged.
  */
@@ -31,18 +34,33 @@ const PILOT_VOCABULARY: GovernanceModeVocabulary = {
 };
 
 const GOVERNANCE_VOCABULARY: GovernanceModeVocabulary = {
-  reviewSingular: "Run",
-  reviewPlural: "Runs",
-  reviewDetailTitle: "Run detail",
+  reviewSingular: "Review",
+  reviewPlural: "Reviews",
+  reviewDetailTitle: "Review detail",
   goldenManifestLabel: "Signed review record",
   authorityChainLabel: "Authority chain",
   manifestSummaryHeading: "Signed review record summary",
 };
 
-export function governanceModeVocabulary(isGovernanceModeEnabled: boolean): GovernanceModeVocabulary {
-  if (isGovernanceModeEnabled) {
-    return GOVERNANCE_VOCABULARY;
+function applyBuyerVocabularyToGovernanceMode(vocabulary: GovernanceModeVocabulary): GovernanceModeVocabulary {
+  if (!isBuyerVocabularyPassActive()) {
+    return vocabulary;
   }
 
-  return PILOT_VOCABULARY;
+  return {
+    reviewSingular: applyBuyerDemoVocabulary(vocabulary.reviewSingular),
+    reviewPlural: applyBuyerDemoVocabulary(vocabulary.reviewPlural),
+    reviewDetailTitle: applyBuyerDemoVocabulary(vocabulary.reviewDetailTitle),
+    goldenManifestLabel: applyBuyerDemoVocabulary(vocabulary.goldenManifestLabel),
+    authorityChainLabel: applyBuyerDemoVocabulary(vocabulary.authorityChainLabel),
+    manifestSummaryHeading: applyBuyerDemoVocabulary(vocabulary.manifestSummaryHeading),
+  };
+}
+
+export function governanceModeVocabulary(isGovernanceModeEnabled: boolean): GovernanceModeVocabulary {
+  if (isGovernanceModeEnabled) {
+    return applyBuyerVocabularyToGovernanceMode(GOVERNANCE_VOCABULARY);
+  }
+
+  return applyBuyerVocabularyToGovernanceMode(PILOT_VOCABULARY);
 }

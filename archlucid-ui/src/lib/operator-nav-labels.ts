@@ -1,4 +1,5 @@
 import { applyBuyerDemoVocabulary } from "@/lib/buyer-demo-vocabulary";
+import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -20,7 +21,7 @@ export function resolveReviewsListNavLinkLabel(isGovernanceModeEnabled: boolean)
 }
 
 export function resolveNewReviewNavLinkLabel(buyerPolishedShell: boolean): string {
-  if (buyerPolishedShell) {
+  if (buyerPolishedShell || isBuyerVocabularyPassActive()) {
     return BUYER_NEW_REVIEW_NAV_LABEL;
   }
 
@@ -54,11 +55,13 @@ export function resolveNavLinkPresentation(
   buyerPolishedShell: boolean,
   isGovernanceModeEnabled = false,
 ): NavLinkPresentationSource {
-  if (link.href === "/reviews/new" && buyerPolishedShell) {
+  const vocabularyPassActive = isBuyerVocabularyPassActive();
+
+  if (link.href === "/reviews/new" && (buyerPolishedShell || vocabularyPassActive)) {
     return applyBuyerNavVocabulary({
       href: link.href,
-      label: resolveNewReviewNavLinkLabel(true),
-      title: resolveNewReviewNavLinkTitle(true),
+      label: resolveNewReviewNavLinkLabel(buyerPolishedShell || vocabularyPassActive),
+      title: resolveNewReviewNavLinkTitle(buyerPolishedShell || vocabularyPassActive),
     });
   }
 

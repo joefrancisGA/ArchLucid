@@ -93,6 +93,6 @@ describe("presentSidebarNavLinkForCluster", () => {
       true,
     );
 
-    expect(presented.label).toBe("Runs");
+    expect(presented.label).toBe("Reviews");
   });
 });

@@ -14,7 +14,8 @@ describe("governanceModeVocabulary", () => {
   it("uses enterprise governance labels when governance view is on", () => {
     const vocabulary = governanceModeVocabulary(true);
 
-    expect(vocabulary.reviewPlural).toBe("Runs");
+    expect(vocabulary.reviewPlural).toBe("Reviews");
+    expect(vocabulary.reviewDetailTitle).toBe("Review detail");
     expect(vocabulary.goldenManifestLabel).toBe("Signed review record");
     expect(vocabulary.authorityChainLabel).toBe("Authority chain");
   });

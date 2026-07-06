@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
   isBuyerPolishedOperatorShellEnv,
+  isBuyerVocabularyPassActive,
   isCompareRouteBlockedUnderDemoStrictShell,
   isOperatorExperienceFullShellEnv,
 } from "@/lib/demo-ui-env";
@@ -54,6 +55,18 @@ describe("demo-ui-env — TB-643 buyer-default shell", () => {
 
     expect(isBuyerPolishedOperatorShellEnv()).toBe(true);
     expect(isOperatorExperienceFullShellEnv()).toBe(true);
+  });
+
+  it("keeps buyer vocabulary pass active for default and full-operator shells", () => {
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+    delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
+
+    expect(isBuyerVocabularyPassActive()).toBe(true);
+
+    process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
+
+    expect(isBuyerVocabularyPassActive()).toBe(true);
   });
 
   it("does not block compare solely because buyer-polished is the default shell", () => {

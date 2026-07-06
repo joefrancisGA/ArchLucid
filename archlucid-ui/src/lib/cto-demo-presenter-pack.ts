@@ -1,5 +1,5 @@
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isBuyerVocabularyPassActive, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 
 function isCtoDemoNavExpandedEnvFlag(): boolean {
@@ -38,7 +38,7 @@ export function isCtoDemoNavExpandedEnv(): boolean {
   return readBuyerCtoDemoTourActive();
 }
 
-/** Buyer-facing vocabulary replacements (#6). */
+/** @deprecated Prefer {@link isBuyerVocabularyPassActive} — vocabulary is production-wide since TB-645. */
 export function isCtoDemoVocabularyPassEnv(): boolean {
-  return isBuyerPolishedOperatorShellEnv();
+  return isBuyerVocabularyPassActive();
 }

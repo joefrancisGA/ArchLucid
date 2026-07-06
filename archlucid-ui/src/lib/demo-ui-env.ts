@@ -54,6 +54,14 @@ export function isBuyerPolishedOperatorShellEnv(): boolean {
 }
 
 /**
+ * Buyer vocabulary replacements (run→review, manifest→signed package) on primary operator surfaces.
+ * **Default:** active for all authenticated production deploys (TB-645); independent of full-operator chrome opt-in.
+ */
+export function isBuyerVocabularyPassActive(): boolean {
+  return isBuyerPolishedOperatorShellEnv();
+}
+
+/**
  * Next.js client-only redirect gate for packaged demos — active when static-operator or explicit demo mode builds ship.
  */
 export function isDemoStrictNavigationRedirectsActive(): boolean {

@@ -14,10 +14,10 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 describe("operator-nav-labels", () => {
   it("returns New review for left nav in buyer-polished and default shells", () => {
     expect(resolveNewReviewNavLinkLabel(true)).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
-    expect(resolveNewReviewNavLinkLabel(false)).toBe(OPERATOR_NAV_LINK_LABELS.capture);
+    expect(resolveNewReviewNavLinkLabel(false)).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
   });
 
-  it("overrides /reviews/new presentation for buyer shell", () => {
+  it("overrides /reviews/new presentation when buyer vocabulary pass is active", () => {
     const source = {
       href: "/reviews/new",
       label: OPERATOR_NAV_LINK_LABELS.capture,
@@ -25,7 +25,7 @@ describe("operator-nav-labels", () => {
     };
 
     expect(resolveNavLinkPresentation(source, true).label).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
-    expect(resolveNavLinkPresentation(source, false).label).toBe(OPERATOR_NAV_LINK_LABELS.capture);
+    expect(resolveNavLinkPresentation(source, false).label).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
   });
 
   it("labels quick action /reviews/new as Start review", () => {
@@ -47,7 +47,7 @@ describe("operator-nav-labels", () => {
 
   it("TB-606: aligns reviews-list sidebar labels with governance-mode vocabulary", () => {
     expect(resolveReviewsListNavLinkLabel(false)).toBe("Review packages");
-    expect(resolveReviewsListNavLinkLabel(true)).toBe("Runs");
+    expect(resolveReviewsListNavLinkLabel(true)).toBe("Reviews");
 
     const source = {
       href: "/reviews?projectId=default",
@@ -56,6 +56,6 @@ describe("operator-nav-labels", () => {
     };
 
     expect(resolveNavLinkPresentation(source, false, false).label).toBe("Review packages");
-    expect(resolveNavLinkPresentation(source, false, true).label).toBe("Runs");
+    expect(resolveNavLinkPresentation(source, false, true).label).toBe("Reviews");
   });
 });
