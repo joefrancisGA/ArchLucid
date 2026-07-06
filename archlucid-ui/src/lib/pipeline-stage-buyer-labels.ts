@@ -1,3 +1,5 @@
+import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
+
 const PIPELINE_STAGE_BUYER_LABELS: Readonly<Record<string, string>> = {
   context_ingestion: "Reading your evidence",
   graph: "Mapping the architecture",
@@ -17,11 +19,14 @@ function fallbackStageName(stageName: string): string {
   return stageName.replaceAll("_", " ");
 }
 
-/** Maps authority pipeline stage names to buyer-facing labels when the polished shell is active. */
-export function buyerPipelineStageName(stageName: string, buyerPolished: boolean): string {
+/** Maps authority pipeline stage names to buyer-facing labels when the vocabulary pass is active (TB-651). */
+export function buyerPipelineStageName(
+  stageName: string,
+  buyerLabelsActive: boolean = isBuyerVocabularyPassActive(),
+): string {
   const trimmed = stageName.trim();
 
-  if (!buyerPolished || trimmed.length === 0) {
+  if (!buyerLabelsActive || trimmed.length === 0) {
     return fallbackStageName(trimmed);
   }
 

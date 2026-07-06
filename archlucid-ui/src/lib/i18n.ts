@@ -39,9 +39,14 @@ export const PIPELINE_STATUS_LABELS = {
   readyToFinalize: "Ready to finalize",
   inPipeline: "In pipeline",
   starting: "Starting",
-  packageFinalized: "Package finalized",
-  readyToSeal: "Ready to finalize",
-  inFlight: "In review",
+} as const;
+
+/** Canonical buyer-facing pipeline status pills when vocabulary pass is active (TB-651 / UI_DESIGN_SYSTEM). */
+export const PIPELINE_STATUS_BUYER_DISPLAY_LABELS = {
+  finalized: "Ready",
+  readyToFinalize: "Needs attention",
+  inPipeline: "In progress",
+  starting: "Starting",
 } as const;
 
 export const PIPELINE_STATUS_TOOLTIPS = {

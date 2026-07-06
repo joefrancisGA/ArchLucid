@@ -67,15 +67,15 @@ describe("partitionRunsIntoWorkQueueSections", () => {
 });
 
 describe("workQueueSectionHeading", () => {
-  it("returns stable labels", () => {
-    expect(workQueueSectionHeading("needs-attention")).toBe("Needs attention");
-    expect(workQueueSectionHeading("in-progress")).toBe("In progress");
-    expect(workQueueSectionHeading("committed")).toBe("Finalized");
+  it("returns engineering labels when vocabulary pass is off", () => {
+    expect(workQueueSectionHeading("needs-attention", false)).toBe("Needs attention");
+    expect(workQueueSectionHeading("in-progress", false)).toBe("In progress");
+    expect(workQueueSectionHeading("committed", false)).toBe("Finalized");
   });
 
-  it("returns buyer-polished labels when requested", () => {
-    expect(workQueueSectionHeading("needs-attention", true)).toBe("Pre-final — manifest pending");
+  it("returns canonical buyer labels when vocabulary pass is on", () => {
+    expect(workQueueSectionHeading("needs-attention", true)).toBe("Needs attention");
     expect(workQueueSectionHeading("in-progress", true)).toBe("In progress");
-    expect(workQueueSectionHeading("committed", true)).toBe("Finalized review packages");
+    expect(workQueueSectionHeading("committed", true)).toBe("Ready");
   });
 });

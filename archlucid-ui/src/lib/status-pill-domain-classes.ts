@@ -11,15 +11,17 @@ function pipelineSemanticClass(status: string): string {
   switch (status) {
     case "Finalized":
     case "Package finalized":
+    case "Ready":
       return "bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)]";
 
     case "Ready to finalize":
-    case "Ready to seal":
+    case "Needs attention":
       return "bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]";
 
     case "In pipeline":
     case "In flight":
     case "In review":
+    case "In progress":
       return "bg-blue-500/10 text-blue-900 dark:bg-blue-500/15 dark:text-blue-200";
 
     case "Starting":

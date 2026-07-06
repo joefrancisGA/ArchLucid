@@ -1,5 +1,7 @@
 import type { RunSummary } from "@/types/authority";
 
+import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
+
 /** Queue slice derived only from {@link RunSummary} snapshot flags (no extra API fields). */
 export type RunWorkQueueGroupId = "needs-attention" | "in-progress" | "committed";
 
@@ -47,17 +49,24 @@ export function partitionRunsIntoWorkQueueSections(runs: RunSummary[]): RunWorkQ
   }));
 }
 
-export function workQueueSectionHeading(groupId: RunWorkQueueGroupId, buyerPolished = false): string {
-  if (buyerPolished) {
+export function workQueueSectionHeading(
+  groupId: RunWorkQueueGroupId,
+  buyerLabelsActive: boolean = isBuyerVocabularyPassActive(),
+): string {
+  if (buyerLabelsActive) {
     switch (groupId) {
       case "needs-attention":
-        return "Pre-final — manifest pending";
+        return "Needs attention";
+
       case "in-progress":
         return "In progress";
+
       case "committed":
-        return "Finalized review packages";
+        return "Ready";
+
       default: {
         const _exhaustive: never = groupId;
+
         return _exhaustive;
       }
     }

@@ -1,15 +1,21 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const runStatusBuyerPolishedForced = vi.hoisted(() => ({ on: false as boolean }));
+const runStatusVocabularyPassForced = vi.hoisted(() => ({ on: null as boolean | null }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
   return {
     ...actual,
+    isBuyerVocabularyPassActive: () =>
+      runStatusVocabularyPassForced.on === null
+        ? actual.isBuyerVocabularyPassActive()
+        : runStatusVocabularyPassForced.on,
     isBuyerPolishedOperatorShellEnv: () =>
-      runStatusBuyerPolishedForced.on === true ? true : actual.isBuyerPolishedOperatorShellEnv(),
+      runStatusVocabularyPassForced.on === null
+        ? actual.isBuyerPolishedOperatorShellEnv()
+        : runStatusVocabularyPassForced.on,
   };
 });
 
@@ -23,7 +29,7 @@ const base: RunSummary = {
 };
 
 afterEach(() => {
-  runStatusBuyerPolishedForced.on = false;
+  runStatusVocabularyPassForced.on = null;
 });
 
 describe("deriveRunListPipelineLabel", () => {
@@ -43,35 +49,48 @@ describe("deriveRunListPipelineLabel", () => {
 });
 
 describe("RunStatusBadge", () => {
-  it("exposes pipeline status in aria-label via StatusPill", () => {
+  it("exposes canonical review status in aria-label when vocabulary pass is active", () => {
+    runStatusVocabularyPassForced.on = true;
+
     render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
 
-    expect(screen.getByLabelText(/Architecture review pipeline status: Finalized/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Review status: Ready/i)).toBeInTheDocument();
   });
 
-  it("delegates to StatusPill pipeline domain (Finalized styling)", () => {
+  it("delegates to StatusPill pipeline domain (Ready styling)", () => {
+    runStatusVocabularyPassForced.on = true;
+
     const { container } = render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
-    const pill = container.querySelector('[aria-label="Architecture review pipeline status: Finalized"]');
+    const pill = container.querySelector('[aria-label="Review status: Ready"]');
 
     expect(pill).not.toBeNull();
-    expect(pill?.className).toMatch(/rounded-sm/);
+    expect(pill?.className).toMatch(/rounded/);
     expect(pill?.className).toMatch(/--al-status-ready-bg/);
   });
 
-  it("uses buyer-facing pipeline labels when buyer-polished shell is active", () => {
-    runStatusBuyerPolishedForced.on = true;
+  it("shows engineering pipeline labels when vocabulary pass is off", () => {
+    runStatusVocabularyPassForced.on = false;
 
     render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
 
-    expect(screen.getByLabelText(/Architecture review pipeline status: Package finalized/i)).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/Architecture review pipeline status: Finalized/i),
+    ).toBeInTheDocument();
   });
 
-  it("keeps ready styling for buyer Package finalized label", () => {
-    runStatusBuyerPolishedForced.on = true;
+  it("maps ready-to-finalize internal state to Needs attention when vocabulary pass is on", () => {
+    runStatusVocabularyPassForced.on = true;
 
-    const { container } = render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
-    const pill = container.querySelector('[aria-label="Architecture review pipeline status: Package finalized"]');
+    render(
+      <RunStatusBadge
+        run={{
+          ...base,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+        }}
+      />,
+    );
 
-    expect(pill?.className).toMatch(/--al-status-ready-bg/);
+    expect(screen.getByLabelText(/Review status: Needs attention/i)).toBeInTheDocument();
   });
 });

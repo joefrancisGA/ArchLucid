@@ -227,7 +227,7 @@ describe("RunsDashboardPanel", () => {
     fireEvent.click(screen.getByRole("tab", { name: /needs attention/i }));
 
     expect(
-      await screen.findByLabelText(/Architecture review pipeline status: Ready to finalize/i),
+      await screen.findByLabelText(/Review status: Needs attention/i),
     ).toBeInTheDocument();
   });
 
@@ -328,6 +328,7 @@ describe("RunsDashboardPanel", () => {
       expect(screen.queryByRole("link", { name: "Signed manifest summary" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Open all reviews" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "All" })).toBeNull();
     } finally {
       runsDashBuyerPolishedForced.on = false;
     }
@@ -348,19 +349,24 @@ describe("RunsDashboardPanel", () => {
     renderRunsDashboardPanel();
 
     await waitFor(() => {
-      expect(screen.getByRole("tab", { name: "Approved" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "All" })).toHaveAttribute(
+        "data-testid",
+        "runs-dashboard-filter-all",
+      );
+      expect(screen.getByRole("button", { name: "Approved" })).toHaveAttribute(
         "data-testid",
         "runs-dashboard-tab-recent",
       );
-      expect(screen.getByRole("tab", { name: "Action needed" })).toHaveAttribute(
+      expect(screen.getByRole("button", { name: "Action needed" })).toHaveAttribute(
         "data-testid",
         "runs-dashboard-tab-attention",
       );
-      expect(screen.getByRole("tab", { name: "Approved with monitoring" })).toHaveAttribute(
+      expect(screen.getByRole("button", { name: "Approved with monitoring" })).toHaveAttribute(
         "data-testid",
         "runs-dashboard-tab-outcomes",
       );
       expect(screen.queryByTestId("runs-dashboard-show-archived")).toBeNull();
+      expect(screen.queryByTestId("runs-dashboard-open-all-reviews")).toBeNull();
     });
     expect(screen.queryByTestId("runs-dashboard-filters")).toBeNull();
     expect(screen.queryByTestId("runs-dashboard-governance-warnings-only")).toBeNull();

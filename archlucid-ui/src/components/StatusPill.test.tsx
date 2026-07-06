@@ -6,7 +6,7 @@ import { StatusPill } from "./StatusPill";
 
 expect.extend(toHaveNoViolations);
 
-const pipelineStatuses = ["Finalized", "Ready to finalize", "In pipeline", "Starting"] as const;
+const pipelineStatuses = ["Finalized", "Ready to finalize", "In pipeline", "Starting", "Ready", "Needs attention", "In progress"] as const;
 const governanceStatuses = [
   "Submitted",
   "Approved",
