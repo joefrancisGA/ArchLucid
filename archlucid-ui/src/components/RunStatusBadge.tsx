@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { StatusPill } from "@/components/StatusPill";
 import { StatusTag } from "@/components/ui/status-tag";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { PIPELINE_STATUS_LABELS } from "@/lib/i18n";
+import { PIPELINE_STATUS_LABELS } from "@/lib/pipeline-status-labels";
 import {
   resolvePipelineStatusAriaPrefix,
   resolvePipelineStatusDisplayLabel,

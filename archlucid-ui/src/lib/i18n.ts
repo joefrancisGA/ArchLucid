@@ -5,6 +5,13 @@
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 
+// Canonical definitions live in the dependency-free leaf module `pipeline-status-labels.ts`
+// (see rationale there); re-exported here so existing `@/lib/i18n` imports keep working.
+export {
+  PIPELINE_STATUS_BUYER_DISPLAY_LABELS,
+  PIPELINE_STATUS_LABELS,
+} from "@/lib/pipeline-status-labels";
+
 export const DOMAIN_TERMS = {
   goldenManifest: "Signed review record",
   decisionTrace: "Decision Trace",
@@ -33,21 +40,6 @@ export const RUNS_LIST_PAGE_TITLES = {
 /** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). */
 export const RUNS_LIST_PAGE_SUBTITLE =
   "In-progress, finalized, and export-ready architecture review packages.";
-
-export const PIPELINE_STATUS_LABELS = {
-  finalized: "Finalized",
-  readyToFinalize: "Ready to finalize",
-  inPipeline: "In pipeline",
-  starting: "Starting",
-} as const;
-
-/** Canonical buyer-facing pipeline status pills when vocabulary pass is active (TB-651 / UI_DESIGN_SYSTEM). */
-export const PIPELINE_STATUS_BUYER_DISPLAY_LABELS = {
-  finalized: "Ready",
-  readyToFinalize: "Needs attention",
-  inPipeline: "In progress",
-  starting: "Starting",
-} as const;
 
 export const PIPELINE_STATUS_TOOLTIPS = {
   finalized: `The ${DOMAIN_TERMS.goldenManifest} is finalized and the architecture review is complete.`,

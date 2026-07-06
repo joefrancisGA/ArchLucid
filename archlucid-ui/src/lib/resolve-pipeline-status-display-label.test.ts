@@ -25,6 +25,15 @@ describe("resolvePipelineStatusDisplayLabel", () => {
     expect(resolvePipelineStatusDisplayLabel(PIPELINE_STATUS_LABELS.inPipeline, true)).toBe(
       PIPELINE_STATUS_BUYER_DISPLAY_LABELS.inPipeline,
     );
+    expect(resolvePipelineStatusDisplayLabel(PIPELINE_STATUS_LABELS.starting, true)).toBe(
+      PIPELINE_STATUS_BUYER_DISPLAY_LABELS.starting,
+    );
+  });
+
+  it("falls back to the internal label for unmapped values from loosely-typed callers", () => {
+    const unmapped = "Unknown status" as never;
+
+    expect(resolvePipelineStatusDisplayLabel(unmapped, true)).toBe("Unknown status");
   });
 });
 
