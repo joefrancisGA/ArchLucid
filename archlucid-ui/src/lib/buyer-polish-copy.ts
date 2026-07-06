@@ -700,6 +700,8 @@ export const BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING = "Approved with monitori
 
 export const BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION = "Action needed";
 
+export const BUYER_RUNS_DASHBOARD_FILTER_ALL = "All";
+
 export const BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA = "Open all reviews";
 
 export const BUYER_ASK_INPUT_PLACEHOLDER = "Ask about this review package…";

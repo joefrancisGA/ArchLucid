@@ -189,7 +189,7 @@ describe("HomePage — buyer-polished shell", () => {
     expect(screen.queryByText(/AI co-architect/i)).toBeNull();
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Open all reviews" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "All" })).toBeInTheDocument();
     });
   });
 });
