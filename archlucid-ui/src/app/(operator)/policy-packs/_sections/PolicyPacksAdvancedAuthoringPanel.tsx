@@ -35,8 +35,11 @@ export function PolicyPacksAdvancedAuthoringPanel(props: PolicyPacksAdvancedAuth
         onOpenChange={m.setAuthoringToolsOpen}
         triggerLabel="Authoring and generation tools"
       >
-        <nav className="mb-4" aria-label="Authoring tools">
-          <div className="flex flex-wrap gap-2">
+        <div
+          className="mb-4 flex flex-wrap gap-2"
+          role="group"
+          aria-label="Authoring tools mode"
+        >
             <button
               type="button"
               className={cn(
@@ -46,6 +49,7 @@ export function PolicyPacksAdvancedAuthoringPanel(props: PolicyPacksAdvancedAuth
                   ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:bg-accent/60",
               )}
+              aria-pressed={authoringTab === "author"}
               onClick={() => {
                 props.onAuthoringTabChange("author");
               }}
@@ -62,6 +66,7 @@ export function PolicyPacksAdvancedAuthoringPanel(props: PolicyPacksAdvancedAuth
                   ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:bg-accent/60",
               )}
+              aria-pressed={authoringTab === "generator"}
               onClick={() => {
                 props.onAuthoringTabChange("generator");
               }}
@@ -69,8 +74,7 @@ export function PolicyPacksAdvancedAuthoringPanel(props: PolicyPacksAdvancedAuth
             >
               Generate
             </button>
-          </div>
-        </nav>
+        </div>
 
         {authoringTab === "author" ? <PolicyPacksAuthoringTabSection model={m} /> : null}
 

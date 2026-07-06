@@ -10,9 +10,11 @@ const source = readFileSync(
 );
 
 describe("PolicyPacksPageView progressive disclosure", () => {
-  it("limits primary nav to My packs and Catalog", () => {
+  it("limits primary nav to My packs and Catalog tabs", () => {
     expect(source).toContain('data-testid="policy-packs-tab-my-packs"');
     expect(source).toContain('data-testid="policy-packs-tab-catalog"');
+    expect(source).toContain('data-testid="policy-packs-surface-tabs"');
+    expect(source).toContain("<TabsList");
     expect(source).not.toContain('data-testid="policy-packs-tab-author"');
     expect(source).not.toContain('data-testid="policy-packs-tab-generator"');
   });
