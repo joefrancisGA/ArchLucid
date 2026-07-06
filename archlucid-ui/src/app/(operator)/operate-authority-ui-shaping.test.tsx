@@ -13,7 +13,16 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
 const mutateCapability = vi.hoisted(() => ({ current: false }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: (): boolean => mutateCapability.current,
@@ -209,6 +218,7 @@ const sampleAlert = {
 
 describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
   beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
     mutateCapability.current = false;
     apiHoisted.listPolicyPacks.mockResolvedValue([]);
     apiHoisted.getEffectivePolicyPacks.mockResolvedValue({

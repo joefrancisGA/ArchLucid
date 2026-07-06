@@ -1,8 +1,17 @@
 import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
 
 const tabValue: { current: string | null } = { current: null };
 const push = vi.fn();
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -39,8 +48,13 @@ import { AlertsHubClient } from "./AlertsHubClient";
 
 describe("AlertsHubClient", () => {
   beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
     push.mockReset();
     tabValue.current = null;
+  });
+
+  afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
   });
 
   it("shows inbox by default (no ?tab=)", () => {

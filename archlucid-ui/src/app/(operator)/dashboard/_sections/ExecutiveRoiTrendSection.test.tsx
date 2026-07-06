@@ -1,10 +1,20 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
 
 import { ExecutiveRoiTrendSection } from "./ExecutiveRoiTrendSection";
 
 describe("ExecutiveRoiTrendSection", () => {
   beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -33,6 +43,10 @@ describe("ExecutiveRoiTrendSection", () => {
         }),
       } as Response),
     );
+  });
+
+  afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
   });
 
   it("shows mixed-mode footnote and simulator-only badge when history includes both modes", async () => {

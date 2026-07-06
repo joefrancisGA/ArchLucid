@@ -3,6 +3,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
@@ -26,17 +31,9 @@ vi.mock("@/lib/api", async (importOriginal) => {
   };
 });
 
-const runsDashBuyerPolishedForced = vi.hoisted(() => ({ on: false as boolean }));
-
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
-
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () =>
-      runsDashBuyerPolishedForced.on ? true : actual.isBuyerPolishedOperatorShellEnv(),
-  };
-});
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import { OPERATOR_HOME_WORKSPACE_EMPTY_BODY } from "@/lib/buyer-polish-copy";
@@ -86,10 +83,12 @@ function stubFetchForDashboard() {
 
 describe("RunsDashboardPanel", () => {
   beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
     vi.clearAllMocks();
   });
 
   afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
     globalThis.fetch = originalFetch;
   });
 
@@ -300,7 +299,7 @@ describe("RunsDashboardPanel", () => {
   });
 
   it("buyer-polished recent tab features sample review, omits showcase banner, and hides full list when only sample run", async () => {
-    runsDashBuyerPolishedForced.on = true;
+    buyerPolishedShellVitestOverride.value = true;
 
     try {
       const run: RunSummary = {
@@ -337,12 +336,12 @@ describe("RunsDashboardPanel", () => {
       expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Open full reviews list" })).toBeNull();
     } finally {
-      runsDashBuyerPolishedForced.on = false;
+      buyerPolishedShellVitestOverride.value = false;
     }
   });
 
   it("uses buyer-polished tab labels with stable test ids (TB-352)", async () => {
-    runsDashBuyerPolishedForced.on = true;
+    buyerPolishedShellVitestOverride.value = true;
 
     listRuns.mockResolvedValue({
       items: [],
@@ -372,7 +371,7 @@ describe("RunsDashboardPanel", () => {
   });
 
   it("buyer-polished empty state shows workspace empty copy without duplicate onboarding CTAs", async () => {
-    runsDashBuyerPolishedForced.on = true;
+    buyerPolishedShellVitestOverride.value = true;
 
     const fallbackSpy = vi.spyOn(operatorStaticDemo, "tryStaticDemoRunSummariesPaged").mockReturnValue(null);
 
@@ -397,7 +396,7 @@ describe("RunsDashboardPanel", () => {
       expect(screen.queryByTestId("example-request-panel")).toBeNull();
     } finally {
       fallbackSpy.mockRestore();
-      runsDashBuyerPolishedForced.on = false;
+      buyerPolishedShellVitestOverride.value = false;
     }
   });
 });

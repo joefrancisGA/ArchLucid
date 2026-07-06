@@ -66,7 +66,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         id="scorecard-time-range-help"
       >
-        Window matches pilot-value-report bounds (toUtc exclusive where applicable).
+        Showing the selected time range.
       </p>
     </div>
     <a
@@ -164,7 +164,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         <p
           class="m-0 mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
-          Severity-weighted ROI model
+          Estimated hours saved (methodology in pilot guide)
         </p>
       </div>
     </div>

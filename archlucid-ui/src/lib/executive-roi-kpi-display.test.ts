@@ -66,7 +66,7 @@ describe("presentCostEvidenceFreshness", () => {
     });
 
     expect(result.state).toBe("missing");
-    expect(result.display).toBe("Unavailable");
+    expect(result.display).toBe("Cost baseline not configured");
   });
 
   it("uses executive-friendly labels when requested", () => {

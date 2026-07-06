@@ -1,12 +1,22 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
+
 import { ServiceBusHealthBanner } from "./ServiceBusHealthBanner";
 
 const originalFetch = globalThis.fetch;
 
 describe("ServiceBusHealthBanner", () => {
   beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
     globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
@@ -25,6 +35,7 @@ describe("ServiceBusHealthBanner", () => {
   });
 
   afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
     globalThis.fetch = originalFetch;
   });
 

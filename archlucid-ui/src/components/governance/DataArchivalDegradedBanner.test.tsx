@@ -1,12 +1,22 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
+
 import { DataArchivalDegradedBanner } from "./DataArchivalDegradedBanner";
 
 const originalFetch = globalThis.fetch;
 
 describe("DataArchivalDegradedBanner", () => {
   beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
     globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
@@ -25,6 +35,7 @@ describe("DataArchivalDegradedBanner", () => {
   });
 
   afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
     globalThis.fetch = originalFetch;
   });
 

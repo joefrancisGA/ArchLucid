@@ -1,6 +1,15 @@
 import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
+
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
@@ -12,6 +21,7 @@ describe("SetupHealthShellBanner", () => {
   useOperatorQueryTestLifecycle();
 
   beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
     globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
@@ -24,6 +34,7 @@ describe("SetupHealthShellBanner", () => {
   });
 
   afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
     globalThis.fetch = originalFetch;
   });
 

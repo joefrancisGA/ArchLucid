@@ -200,13 +200,13 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
           data-testid="explanation-evidence-basis-badges"
         >
           <span
-            class="inline-flex max-w-full items-center rounded-sm border px-1.5 py-px cursor-default select-none pointer-events-none border-amber-700/50 bg-[var(--al-status-warn-bg)] text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="border inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none bg-[var(--al-status-warn-bg)] text-xs font-normal leading-[18px] text-al-text-secondary"
             title="Illustrative sample output; do not present as buyer evidence."
           >
             Demo-derived
           </span>
           <span
-            class="inline-flex max-w-full items-center rounded-sm border px-1.5 py-px cursor-default select-none pointer-events-none border-emerald-800/50 bg-[var(--al-status-ready-bg)] text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="border inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none bg-[var(--al-status-ready-bg)] text-xs font-normal leading-[18px] text-al-text-secondary"
             title="2 persisted citations support this explanation."
           >
             Evidence-backed

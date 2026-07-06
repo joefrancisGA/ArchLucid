@@ -1,7 +1,10 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const runsListBuyerPolishedForced = vi.hoisted(() => ({ on: false as boolean }));
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -14,15 +17,9 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
-
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () =>
-      runsListBuyerPolishedForced.on === true ? true : actual.isBuyerPolishedOperatorShellEnv(),
-  };
-});
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
 
 import { RunsListClient } from "./RunsListClient";
 
@@ -30,8 +27,12 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 import type { RunSummary } from "@/types/authority";
 
+beforeEach(() => {
+  buyerPolishedShellVitestOverride.value = false;
+});
+
 afterEach(() => {
-  runsListBuyerPolishedForced.on = false;
+  buyerPolishedShellVitestOverride.value = null;
 });
 
 const sampleRun: RunSummary = {
@@ -169,7 +170,7 @@ describe("RunsListClient inspector", () => {
   });
 
   it("buyer-polished: uses finalized section heading and scope chips", () => {
-    runsListBuyerPolishedForced.on = true;
+    buyerPolishedShellVitestOverride.value = true;
 
     const committed: RunSummary = {
       ...sampleRun,
@@ -194,7 +195,7 @@ describe("RunsListClient inspector", () => {
   });
 
   it("buyer-polished: hides list filters when exactly one review exists", () => {
-    runsListBuyerPolishedForced.on = true;
+    buyerPolishedShellVitestOverride.value = true;
 
     const committed: RunSummary = {
       ...sampleRun,
@@ -209,7 +210,7 @@ describe("RunsListClient inspector", () => {
   });
 
   it("buyer-polished: finalized scope hides in-flight runs", () => {
-    runsListBuyerPolishedForced.on = true;
+    buyerPolishedShellVitestOverride.value = true;
 
     const inFlight: RunSummary = {
       ...sampleRun,

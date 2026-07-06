@@ -56,6 +56,6 @@ describe("operator-nav-labels", () => {
     };
 
     expect(resolveNavLinkPresentation(source, false, false).label).toBe("Review packages");
-    expect(resolveNavLinkPresentation(source, false, true).label).toBe("Runs");
+    expect(resolveNavLinkPresentation(source, false, true).label).toBe("reviews");
   });
 });

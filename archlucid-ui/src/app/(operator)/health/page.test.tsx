@@ -1,5 +1,14 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
 
 import SystemHealthPage from "./page";
 
@@ -8,6 +17,14 @@ function jsonResponse(data: unknown, status = 200) {
 }
 
 describe("SystemHealthPage", () => {
+  beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
+  });
+
+  afterEach(() => {
+    buyerPolishedShellVitestOverride.value = null;
+  });
+
   it("renders liveness, readiness dependencies, version, and uptime", async () => {
     const fetchMock = vi.fn(async (url: string | URL) => {
       const s = String(url);
