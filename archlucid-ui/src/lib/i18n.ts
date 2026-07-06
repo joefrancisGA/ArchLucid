@@ -102,6 +102,29 @@ export const SERVICE_BUS_HEALTH_LABELS = {
   systemHealthLink: "System health",
 } as const;
 
+/** Operator-facing data retention health copy — no worker-log or readiness-check jargon (TB-650). */
+export const DATA_ARCHIVAL_HEALTH_LABELS = {
+  bannerTitle: "Retention history may be incomplete",
+  bannerBody:
+    "Governance metrics in this workspace may be stale until background retention catches up. Contact your ArchLucid administrator if this persists.",
+  systemHealthLink: "System health",
+  homeStripLabel: "Retention history",
+} as const;
+
+/** Workspace setup health callout on operator home (TB-650). */
+export const WORKSPACE_SETUP_HEALTH_LABELS = {
+  unknownBody: "Some workspace services are unavailable.",
+  attentionBody: "Finish workspace setup before starting reviews.",
+  troubleshootingLink: "Open troubleshooting",
+  systemHealthLink: "system health",
+} as const;
+
+/** Post-commit retention rail integration link tooltips (TB-650). */
+export const POST_COMMIT_INTEGRATION_LINK_TITLES = {
+  mutate: "Connection status and integration health",
+  readOnly: "View connection status (read-only at your rank)",
+} as const;
+
 /** Sidebar group headings — single source for `*-nav-group-builder.ts` files. */
 export const OPERATOR_NAV_GROUP_LABELS = {
   reviewWork: "Architecture",

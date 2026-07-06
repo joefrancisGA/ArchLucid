@@ -90,7 +90,7 @@ describe("SystemHealthStatusStrip", () => {
     await waitFor(() => {
       expect(screen.getByTestId("command-center-data-archival-health")).toBeInTheDocument();
     });
-    expect(screen.getByText(/data archival:/i)).toBeInTheDocument();
+    expect(screen.getByText(/retention history:/i)).toBeInTheDocument();
   });
 
   it("shows explicit warning label when data_archival is Degraded", async () => {

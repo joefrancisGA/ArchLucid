@@ -10,6 +10,7 @@ import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
+import { POST_COMMIT_INTEGRATION_LINK_TITLES } from "@/lib/i18n";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { Button } from "@/components/ui/button";
@@ -93,7 +94,7 @@ export function PostCommitRetentionRail({
             <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
               <Link
                 href={INTEGRATIONS_READINESS_PATH}
-                title={canMutate ? "Connector readiness and Service Bus posture" : "View connector readiness (read-only at your rank)"}
+                title={canMutate ? POST_COMMIT_INTEGRATION_LINK_TITLES.mutate : POST_COMMIT_INTEGRATION_LINK_TITLES.readOnly}
               >
                 Integration readiness
               </Link>
