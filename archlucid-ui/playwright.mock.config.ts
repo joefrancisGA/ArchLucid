@@ -50,6 +50,8 @@ export default defineConfig({
         "**/live-api-*.spec.ts",
         "**/demo-workspace-*.smoke.spec.ts",
         "**/pilot-nav-profile.spec.ts",
+        "**/ux-audit-screenshots.spec.ts",
+        "**/.next/**",
         "tests/e2e/**",
       ],
       use: { ...devices["Desktop Chrome"] },
@@ -67,6 +69,22 @@ export default defineConfig({
      * (`*-chromium-visual-win32.png` vs `*-linux.png`). Not run in merge-blocking CI — run locally or in Docker
      * (`scripts/update-visual-snapshots-docker.ps1`) when updating baselines.
      */
+    /** Persona UX audit — buyer-polished shell; `npm run ux-audit:screenshots:buyer`. */
+    {
+      name: "chromium-ux-audit-buyer",
+      testDir: "e2e",
+      testMatch: ["ux-audit-screenshots.spec.ts"],
+      timeout: 120_000,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    /** Public marketing entry points — `npm run ux-audit:screenshots:marketing`. */
+    {
+      name: "chromium-ux-audit-marketing",
+      testDir: "e2e",
+      testMatch: ["ux-audit-screenshots.spec.ts"],
+      timeout: 120_000,
+      use: { ...devices["Desktop Chrome"] },
+    },
     {
       name: "chromium-visual",
       testDir: "tests/e2e",
