@@ -5,7 +5,11 @@
 import { expect, test } from "@playwright/test";
 
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
-import { getLiveApiPathWithTransientRetries, liveApiBase } from "./helpers/live-api-client";
+import {
+  getLiveApiPathWithTransientRetries,
+  liveApiBase,
+  liveE2eApiContractPlaywrightTimeoutMs,
+} from "./helpers/live-api-client";
 
 test.describe("live-api-executive-board-pack", () => {
   test.beforeAll(async ({ request }) => {
@@ -21,6 +25,8 @@ test.describe("live-api-executive-board-pack", () => {
   });
 
   test("executive summary exposes orphan + freshness fields; board-pack markdown downloads", async ({ request }) => {
+    test.setTimeout(liveE2eApiContractPlaywrightTimeoutMs());
+
     const summaryRes = await getLiveApiPathWithTransientRetries(request, "/v1/roi/executive-summary");
 
     expect(summaryRes.ok(), `executive-summary expected 2xx, got ${summaryRes.status()}`).toBe(true);

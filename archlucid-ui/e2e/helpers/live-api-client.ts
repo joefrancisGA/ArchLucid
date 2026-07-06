@@ -543,6 +543,19 @@ export function liveE2eCommitWaitMs(requestedMs = 90_000): number {
 }
 
 /**
+ * Playwright per-test timeout for specs that run create → execute → commit (and often governance) via API.
+ * Budgets two {@link liveE2eCommitWaitMs} polls (each up to 180s in CI) plus commit retries and UI steps.
+ */
+export function liveE2eArchitectureRunCyclePlaywrightTimeoutMs(): number {
+  return process.env.CI ? 600_000 : 300_000;
+}
+
+/** Playwright per-test timeout for lighter live API contract probes (no full architecture run cycle). */
+export function liveE2eApiContractPlaywrightTimeoutMs(): number {
+  return process.env.CI ? 120_000 : 60_000;
+}
+
+/**
  * Polls GET /health/ready until success — tolerates brief API process startup and transport blips in CI.
  */
 export async function waitForLiveApiReady(

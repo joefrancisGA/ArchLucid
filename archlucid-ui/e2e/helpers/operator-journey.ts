@@ -291,6 +291,24 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page): Promis
   await expect(deliverablesDetails).toHaveAttribute("open", "");
 }
 
+/** Buyer-polished run detail collapses the executive briefing package by default — expand before sponsor CTA assertions. */
+export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page): Promise<void> {
+  const briefingDetails = page.locator("details").filter({
+    has: page.locator("summary", { hasText: /^Executive briefing package$/ }),
+  }).first();
+  const briefingSummary = briefingDetails.locator("summary");
+
+  await expect(briefingSummary).toBeVisible({ timeout: 60_000 });
+
+  const detailsOpen: boolean = await briefingDetails.evaluate((element) => (element as HTMLDetailsElement).open);
+
+  if (!detailsOpen) {
+    await briefingSummary.click();
+  }
+
+  await expect(briefingDetails).toHaveAttribute("open", "");
+}
+
 /** Opens buyer-polished run deliverables and switches to the ARB/audit artifact tab. */
 export async function openBuyerRunDetailArchitectureReviewBoardDeliverables(page: Page): Promise<Locator> {
   await ensureBuyerDeliverablesSectionExpanded(page);

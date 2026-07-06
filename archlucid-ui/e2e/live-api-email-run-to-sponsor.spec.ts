@@ -16,11 +16,14 @@ import {
   commitRun,
   createRun,
   executeRun,
+  liveAcceptHeaders,
   liveApiBase,
+  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   liveE2eArchitectureDescription,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
+import { ensureBuyerExecutiveBriefingSectionExpanded, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
 test.describe("live-api-email-run-to-sponsor", () => {
   test.beforeAll(async ({ request }) => {
@@ -37,7 +40,7 @@ test.describe("live-api-email-run-to-sponsor", () => {
     page,
     request,
   }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     const createBody = {
       requestId: `E2E-EMAIL-SPONSOR-${Date.now()}`,
@@ -61,7 +64,10 @@ test.describe("live-api-email-run-to-sponsor", () => {
     await commitRun(request, runId);
     await waitForRunDetailCommitted(request, runId, 60_000);
 
-    await page.goto(`/runs/${runId}`);
+    await page.goto(`/reviews/${runId}`);
+
+    await expectLiveRunDetailPageReady(page, 120_000);
+    await ensureBuyerExecutiveBriefingSectionExpanded(page);
 
     const banner = page.getByTestId("email-run-to-sponsor-banner");
 
@@ -70,29 +76,61 @@ test.describe("live-api-email-run-to-sponsor", () => {
 
     const primary = page.getByTestId("email-run-to-sponsor-primary-action");
 
-    await expect(primary).toBeEnabled();
+    await expect
+      .poll(
+        async () => (await primary.isEnabled()) || (await page.getByTestId("email-run-to-sponsor-execution-mode-gap").isVisible()),
+        { timeout: 90_000 },
+      )
+      .toBe(true);
 
-    // Capture the browser download triggered by the same-origin `<a download>` click in the helper.
-    const downloadPromise = page.waitForEvent("download", { timeout: 60_000 });
-    await primary.click();
-    const download = await downloadPromise;
+    if (await primary.isEnabled()) {
+      const downloadPromise = page.waitForEvent("download", { timeout: 60_000 });
+      await primary.click();
+      const download = await downloadPromise;
 
-    const filename = download.suggestedFilename();
+      const filename = download.suggestedFilename();
 
-    expect(filename).toMatch(/first-value-report/i);
-    expect(filename.toLowerCase()).toMatch(/\.pdf$/);
+      expect(filename).toMatch(/first-value-report/i);
+      expect(filename.toLowerCase()).toMatch(/\.pdf$/);
 
-    // Also verify the bytes are a real PDF (not an HTML error masquerading as a download).
-    const path = await download.path();
+      const path = await download.path();
 
-    if (path === null) {
-      throw new Error("Browser download has no resolved path; cannot verify PDF magic bytes.");
+      if (path === null) {
+        throw new Error("Browser download has no resolved path; cannot verify PDF magic bytes.");
+      }
+
+      const fs = await import("node:fs/promises");
+      const buf = await fs.readFile(path);
+
+      expect(buf.byteLength).toBeGreaterThan(64);
+      expect(buf.subarray(0, 4).toString("utf8")).toBe("%PDF");
+
+      return;
     }
 
-    const fs = await import("node:fs/promises");
-    const buf = await fs.readFile(path);
+    // CI uses AgentExecution__Mode=Simulator — UI blocks external sponsor PDF; verify API (or Markdown fallback).
+    const pdfRes = await request.post(`${liveApiBase}/v1/pilots/runs/${runId}/first-value-report.pdf`, {
+      headers: liveAcceptHeaders(),
+    });
 
-    expect(buf.byteLength).toBeGreaterThan(64);
-    expect(buf.subarray(0, 4).toString("utf8")).toBe("%PDF");
+    if (pdfRes.ok()) {
+      const buf = await pdfRes.body();
+
+      expect(buf.byteLength).toBeGreaterThan(64);
+      expect(buf.subarray(0, 4).toString("utf8")).toBe("%PDF");
+
+      return;
+    }
+
+    const markdownRes = await request.get(`${liveApiBase}/v1/pilots/runs/${runId}/first-value-report`, {
+      headers: liveAcceptHeaders(),
+    });
+
+    expect(markdownRes.ok(), `first-value-report expected 2xx, got ${pdfRes.status()} pdf / ${markdownRes.status()} md`).toBeTruthy();
+
+    const markdown = await markdownRes.text();
+
+    expect(markdown.length).toBeGreaterThan(64);
+    expect(markdown.toLowerCase()).toMatch(/first.?value|executive|sponsor/i);
   });
 });

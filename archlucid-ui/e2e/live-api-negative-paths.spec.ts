@@ -18,6 +18,7 @@ import {
   resolveLiveApiBase,
   resolveLiveAuthActorName,
   liveE2eArchitectureDescription,
+  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   searchAudit,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -48,7 +49,7 @@ test.describe("live-api-negative-paths", () => {
   test("governance self-approval blocked: submit then approve as same actor → 400 + audit", async ({
     request,
   }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     const createBody = {
       requestId: `E2E-LIVE-SELF-APPR-${Date.now()}`,
@@ -156,7 +157,7 @@ test.describe("live-api-negative-paths", () => {
   });
 
   test("second commit on already-committed run returns 409 conflict", async ({ request }) => {
-    test.setTimeout(240_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     const createBody = {
       requestId: `E2E-LIVE-DBL-COMMIT-${Date.now()}`,

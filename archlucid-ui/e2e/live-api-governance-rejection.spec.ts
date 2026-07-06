@@ -11,6 +11,7 @@ import {
   executeRun,
   liveApiBase,
   liveE2eArchitectureDescription,
+  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   postGovernanceApproveRaw,
   postGovernanceRejectRaw,
   rejectGovernanceRequest,
@@ -46,7 +47,7 @@ test.describe("live-api-governance-rejection", () => {
     page,
     request,
   }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     const createBody = {
       requestId: `E2E-LIVE-REJECT-${Date.now()}`,

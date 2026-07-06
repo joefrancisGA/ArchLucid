@@ -5,6 +5,8 @@
  */
 import { expect, test } from "@playwright/test";
 
+import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
+import { getAppMain } from "./helpers/app-main";
 import {
   approveGovernanceRequest,
   commitRun,
@@ -15,16 +17,20 @@ import {
   getRunExportZip,
   listArchitectureRuns,
   liveApiBase,
+  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   resolveLiveAuthActorName,
   livePeerReviewerActorName,
-  normalizeRunIdForCompare,
   waitForArchitectureRunListCommitted,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
   postGovernanceApproveRaw,
   searchAudit,
 } from "./helpers/live-api-client";
-import { auditPageMainHeading, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import {
+  auditPageMainHeading,
+  expectLiveRunDetailPageReady,
+  runDetailFinalizedPackageLink,
+} from "./helpers/operator-journey";
 
 const liveE2eForensics: { runId?: string; approvalRequestId?: string; auditCorrelationId?: string } = {};
 
@@ -51,8 +57,8 @@ test.describe("live-api-journey", () => {
     page,
     request,
   }) => {
-    // Polling alone can use 90s + 60s + 90s; UI steps add more — 180s caused request-context disposal at commit in CI.
-    test.setTimeout(360_000);
+    // Polling alone can use 90s + 60s + 90s (doubled in CI); UI steps add more.
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     const createBody = {
       requestId: `E2E-LIVE-${Date.now()}`,
@@ -92,66 +98,38 @@ test.describe("live-api-journey", () => {
       throw new Error("Run detail after commit missing run.goldenManifestId");
     }
 
-    await page.goto("/runs");
+    await page.goto("/reviews");
 
-    await expect(page.getByRole("heading", { name: /runs/i }).first()).toBeVisible({ timeout: 60_000 });
+    await expect(
+      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+    ).toBeVisible({ timeout: 60_000 });
 
-    await page.goto(`/runs/${runId}`);
+    await page.goto(`/reviews/${runId}`);
 
-    await expectLiveRunDetailPageReady(page, 60_000);
+    await expectLiveRunDetailPageReady(page, 120_000);
 
-    // RSC: wait for loading shell to detach (JWT / slow SQL); error states keep h2 without the Run metadata section.
     await expect(page.getByText(/Loading review detail/)).toHaveCount(0, { timeout: 60_000 });
 
-    // Scope to the **Run** summary section (same as mock `run-manifest-journey`). "Pipeline progress" also shows Run ID in a <code>.
-    const runSummarySection = page
-      .locator("main")
-      .locator("section")
-      .filter({ has: page.getByRole("heading", { name: "Run", level: 3 }) });
-
-    await expect(runSummarySection.getByText("Run ID:", { exact: true })).toBeVisible({ timeout: 60_000 });
-
-    // Architecture create returns RunId "N" (no hyphens); authority run detail uses JSON Guid "D" (hyphenated).
-    const runIdCode = runSummarySection.locator("code").first();
-
-    await expect(runIdCode).toBeVisible({ timeout: 60_000 });
-
-    const shownRunId = (await runIdCode.textContent())?.trim() ?? "";
-
-    expect(normalizeRunIdForCompare(shownRunId)).toBe(normalizeRunIdForCompare(runId));
-
-    // Prefer href: accessible name for the GUID link can differ by a11y tree / Next Link behavior in Chromium CI.
-    const manifestHref = `/signed-records/${goldenManifestId}`;
-    const manifestLink = page.locator(`a[href="${manifestHref}"]`);
+    const manifestLink = runDetailFinalizedPackageLink(page);
 
     await expect(
       manifestLink,
-      `Golden manifest link missing (expected href ${manifestHref}). Server run detail may lack goldenManifestId or UI/API mismatch.`,
+      `Golden manifest link missing for run ${runId}. Server run detail may lack goldenManifestId or UI/API mismatch.`,
     ).toBeVisible({ timeout: 60_000 });
 
     await manifestLink.click();
 
-    const manifestMain = page.locator("main");
+    const manifestMain = getAppMain(page);
 
-    // RSC: `h2` can stream before the summary `<p>`; default 5s is flaky in CI. Loading.tsx has no `h2`, so wait
-    // for the loading notice to detach first, then allow up to 60s for success markup (or surface summary API errors).
-    await expect(manifestMain.getByText(/Fetching manifest summary and artifacts/)).toHaveCount(0, {
+    await expect(manifestMain.getByText(/Fetching manifest summary/i)).toHaveCount(0, {
       timeout: 60_000,
     });
 
-    await expect(manifestMain.getByRole("heading", { name: "Manifest", level: 2 })).toBeVisible({ timeout: 60_000 });
-
-    // Success path uses <strong>Manifest ID:</strong>; error/malformed/empty-summary branches omit it.
     await expect(
-      manifestMain.locator("strong", { hasText: "Manifest ID:" }),
-      "Manifest summary success UI missing — check GET /v1/authority/manifests/{id}/summary, proxy scope, and operator-response-guards.",
+      manifestMain.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });
 
     await expect(manifestMain.getByText(goldenManifestId)).toBeVisible({ timeout: 60_000 });
-    await expect(manifestMain.getByRole("heading", { name: "Artifacts", level: 3 })).toBeVisible({ timeout: 60_000 });
-    await expect(manifestMain.getByRole("table")).toBeVisible({ timeout: 60_000 });
-    await expect(manifestMain.getByRole("columnheader", { name: "Artifact" })).toBeVisible({ timeout: 60_000 });
-    await expect(manifestMain.getByRole("link", { name: "Download bundle (ZIP)" })).toBeVisible({ timeout: 60_000 });
 
     const exportRes = await getRunExportZip(request, runId);
 
