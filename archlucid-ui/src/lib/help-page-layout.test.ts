@@ -31,4 +31,14 @@ describe("help-page-layout", () => {
     expect(HELP_PAGE_TOC.link).toContain("focus-visible:outline");
     expect(HELP_PAGE_TOC.linkActive).toContain("font-semibold");
   });
+
+  it("uses document scroll for typical TOC lists without nested list scrollbars", () => {
+    expect(HELP_PAGE_TOC.list).not.toContain("overflow-y");
+    expect(HELP_PAGE_TOC.list).not.toContain("max-h");
+  });
+
+  it("caps sticky TOC rail height at the viewport for unusually long topic lists", () => {
+    expect(HELP_PAGE_TOC.nav).toContain("overflow-y-auto");
+    expect(HELP_PAGE_TOC.nav).toContain("max-h-[calc");
+  });
 });
