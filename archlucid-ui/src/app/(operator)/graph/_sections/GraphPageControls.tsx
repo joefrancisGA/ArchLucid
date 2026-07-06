@@ -17,32 +17,19 @@ import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GraphReviewPickerStatus } from "@/app/(operator)/graph/_sections/GraphReviewPickerStatus";
 
 import {
-
   BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT,
-
   BUYER_EVIDENCE_GRAPH_EMPTY_LIST_PLACEHOLDER,
-
   BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT,
-
   BUYER_EVIDENCE_GRAPH_SYNTHETIC_SAMPLE_HINT,
-
   BUYER_EVIDENCE_TRAIL_LOAD_BUTTON,
-
   BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE,
-
   BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_HINT,
-
   BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER,
-
   BUYER_EVIDENCE_TRAIL_VIEW_GRAPH,
-
   BUYER_EVIDENCE_TRAIL_VIEW_TRACE,
-
-  OPERATOR_GRAPH_SELECT_REVIEW_FIRST_HINT,
-
   OPERATOR_GRAPH_SCOPE_LABEL,
-
 } from "@/lib/buyer-polish-copy";
+import { EVIDENCE_GRAPH_TABS_HELPER } from "@/lib/evidence-graph-page";
 
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
@@ -89,7 +76,7 @@ export type GraphPageControlsProps = {
   reviewPickerState: GraphReviewPickerState;
 
   sampleGraphActive: boolean;
-
+  showPresentationTabs: boolean;
 };
 
 
@@ -129,7 +116,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
     reviewPickerState,
 
     sampleGraphActive,
-
+    showPresentationTabs,
   } = props;
 
 
@@ -146,7 +133,11 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
     (mode === "node-neighborhood" && nodeId.trim().length === 0);
 
-  const showSelectReviewHint = showLoadButton && runTrim.length === 0 && !loading;
+  const showSelectReviewHint =
+    showLoadButton &&
+    runTrim.length === 0 &&
+    !loading &&
+    reviewPickerState === "no-selection";
 
   const reviewPackageHref =
 
@@ -158,48 +149,30 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
     return (
 
-      <div className={cn("mb-4 space-y-3", graphMainColumnMaxClass)} data-testid="graph-page-controls-buyer">
-
+      <div className={cn("mb-3 space-y-2", graphMainColumnMaxClass)} data-testid="graph-page-controls-buyer">
         <div className="flex flex-wrap items-end gap-3">
-
           <div className="min-w-[12rem] flex-1 lg:max-w-sm">
-
             <AskRunIdPicker
-
               value={runId}
-
               onChange={onRunIdChange}
-
               selectedThreadId=""
-
               fieldId="graph-run"
-
               label="Review package"
-
               committedOnly
-
-              preferAutoPick
-
+              preferAutoPick={false}
               autoSelectSyntheticSample={false}
-
+              hideFieldHelper
               reviewsLoadErrorPlaceholder={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER}
-
               reviewsLoadErrorHint={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_HINT}
-
               syntheticSampleHint={BUYER_EVIDENCE_GRAPH_SYNTHETIC_SAMPLE_HINT}
-
               syntheticLoadErrorHint={BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT}
-
               emptyListPlaceholder={BUYER_EVIDENCE_GRAPH_EMPTY_LIST_PLACEHOLDER}
-
               emptyListHint={BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT}
-
               onListAvailabilityChange={onReviewsListAvailabilityChange}
-
             />
-
-            <GraphReviewPickerStatus state={reviewPickerState} className="mt-2" />
-
+            {reviewPickerState !== "no-packages" ? (
+              <GraphReviewPickerStatus state={reviewPickerState} className="mt-2" />
+            ) : null}
           </div>
 
           {showLoadButton ? (
@@ -223,13 +196,9 @@ export function GraphPageControls(props: GraphPageControlsProps) {
               </Button>
 
               {showSelectReviewHint ? (
-
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-
-                  {OPERATOR_GRAPH_SELECT_REVIEW_FIRST_HINT}
-
+                  Select a completed review package, then load its evidence graph.
                 </p>
-
               ) : null}
 
             </div>
@@ -240,35 +209,26 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
 
 
-        <div className="flex flex-wrap items-center gap-2">
-
-          <TabsList aria-label="Evidence graph view" data-testid="graph-presentation-tabs" className="gap-1 border-0">
-
-            <TabsTrigger value="trace" data-testid="graph-presentation-tab-trace" className="shrink-0">
-
-              {BUYER_EVIDENCE_TRAIL_VIEW_TRACE}
-
-            </TabsTrigger>
-
-            <TabsTrigger value="graph" data-testid="graph-presentation-tab-graph" className="shrink-0">
-
-              {BUYER_EVIDENCE_TRAIL_VIEW_GRAPH}
-
-            </TabsTrigger>
-
-          </TabsList>
-
-          {runTrim.length > 0 && !sampleGraphActive ? (
-
-            <Button type="button" variant="outline" size="sm" asChild>
-
-              <Link href={reviewPackageHref}>{BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE}</Link>
-
-            </Button>
-
-          ) : null}
-
-        </div>
+        {showPresentationTabs ? (
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <TabsList aria-label="Evidence graph view" data-testid="graph-presentation-tabs" className="gap-1 border-0">
+                <TabsTrigger value="trace" data-testid="graph-presentation-tab-trace" className="shrink-0">
+                  {BUYER_EVIDENCE_TRAIL_VIEW_TRACE}
+                </TabsTrigger>
+                <TabsTrigger value="graph" data-testid="graph-presentation-tab-graph" className="shrink-0">
+                  {BUYER_EVIDENCE_TRAIL_VIEW_GRAPH}
+                </TabsTrigger>
+              </TabsList>
+              {runTrim.length > 0 && !sampleGraphActive ? (
+                <Button type="button" variant="outline" size="sm" asChild>
+                  <Link href={reviewPackageHref}>{BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE}</Link>
+                </Button>
+              ) : null}
+            </div>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{EVIDENCE_GRAPH_TABS_HELPER}</p>
+          </div>
+        ) : null}
 
       </div>
 
@@ -403,13 +363,9 @@ export function GraphPageControls(props: GraphPageControlsProps) {
           </Button>
 
           {showSelectReviewHint ? (
-
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-
-              {OPERATOR_GRAPH_SELECT_REVIEW_FIRST_HINT}
-
+              Select a review package first.
             </p>
-
           ) : null}
 
         </div>

@@ -108,10 +108,7 @@ export function buyerPolishedRouteOrientation(
   }
 
   if (path.startsWith("/graph")) {
-    return {
-      label: "Evidence graph",
-      line: "Explore review evidence connections.",
-    };
+    return null;
   }
 
   if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {

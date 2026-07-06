@@ -42,24 +42,6 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
 
   {
 
-    prefix: "/graph",
-
-    explanation: {
-
-      title: "Evidence graph",
-
-      summary:
-
-        "Trace how architecture evidence supports findings, decisions, approvals, and the final review package.",
-
-      nextAction: "Select a node to inspect linked evidence and decisions in the side panel.",
-
-    },
-
-  },
-
-  {
-
     prefix: "/compare",
 
     explanation: {
@@ -117,6 +99,14 @@ export function routeViewExplanationForPathname(pathname: string): RouteViewExpl
 
 
   if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
+
+    return null;
+
+  }
+
+
+
+  if (path === "/graph" || path.startsWith("/graph/")) {
 
     return null;
 

@@ -26,11 +26,8 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(o?.line).toContain(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
   });
 
-  it("orients the evidence graph route with trace-focused copy", () => {
-    const o = buyerPolishedRouteOrientation("/graph");
-
-    expect(o?.label).toBe("Evidence graph");
-    expect(o?.line).toContain("Explore review evidence connections.");
+  it("returns null for evidence graph — the page carries its own lifecycle banner and header", () => {
+    expect(buyerPolishedRouteOrientation("/graph")).toBeNull();
   });
 
   it("orients the portfolio dashboard route", () => {

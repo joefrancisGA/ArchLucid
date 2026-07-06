@@ -3,10 +3,14 @@ import {
   BUYER_EVIDENCE_TRAIL_GRAPH_MODE_ARCHITECTURE,
   BUYER_EVIDENCE_TRAIL_GRAPH_MODE_DECISION,
   BUYER_EVIDENCE_TRAIL_GRAPH_MODE_FINDING,
-  BUYER_EVIDENCE_TRAIL_NO_REVIEWS_BODY,
-  BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE,
-  BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON,
 } from "@/lib/buyer-polish-copy";
+import {
+  EVIDENCE_GRAPH_EMPTY_BODY,
+  EVIDENCE_GRAPH_EMPTY_PRIMARY_ACTION,
+  EVIDENCE_GRAPH_EMPTY_SECONDARY_START,
+  EVIDENCE_GRAPH_EMPTY_SECONDARY_UPLOAD,
+  EVIDENCE_GRAPH_EMPTY_TITLE,
+} from "@/lib/evidence-graph-page";
 import { GRAPH_IDLE, GRAPH_IDLE_BUYER } from "@/lib/empty-state-presets";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { graphLooksLikeCoordinatorProvenanceTrail } from "@/lib/graph-mapper";
@@ -14,6 +18,14 @@ import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEna
 import { applyBuyerLabelsToProvenanceGraphViewModel } from "@/lib/provenance-graph-presentation";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { GraphViewModel } from "@/types/graph";
+
+const evidenceGraphSampleHref = `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+
+const EVIDENCE_GRAPH_IDLE_ACTIONS: EmptyStateProps["actions"] = [
+  { label: EVIDENCE_GRAPH_EMPTY_PRIMARY_ACTION, href: evidenceGraphSampleHref },
+  { label: EVIDENCE_GRAPH_EMPTY_SECONDARY_START, href: "/reviews/new", variant: "outline" as const },
+  { label: EVIDENCE_GRAPH_EMPTY_SECONDARY_UPLOAD, href: "/reviews/new", variant: "outline" as const },
+];
 
 /** Graph visualization mode: which endpoint to query and what graph subset to display. */
 export type GraphMode =
@@ -67,25 +79,13 @@ export type GraphIdleEmptyPresetOptions = {
 
 /** Resolves graph idle empty-state copy — showcase demo override, then buyer preset, then operator default. */
 export function resolveGraphIdleEmptyPreset(options: GraphIdleEmptyPresetOptions): EmptyStateProps {
-  if (options.demoUi && options.showIdleCard) {
+  if (options.buyerPolished || (options.demoUi && options.showIdleCard)) {
     return {
-      ...GRAPH_IDLE_BUYER,
-      title: BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE,
-      description: BUYER_EVIDENCE_TRAIL_NO_REVIEWS_BODY,
-      actions: [
-        { label: "Start review", href: "/reviews/new" },
-        {
-          label: BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON,
-          href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
-          variant: "outline" as const,
-        },
-        { label: "Upload evidence", href: "/reviews/new", variant: "outline" as const },
-      ],
+      icon: GRAPH_IDLE_BUYER.icon,
+      title: EVIDENCE_GRAPH_EMPTY_TITLE,
+      description: EVIDENCE_GRAPH_EMPTY_BODY,
+      actions: EVIDENCE_GRAPH_IDLE_ACTIONS,
     };
-  }
-
-  if (options.buyerPolished) {
-    return GRAPH_IDLE_BUYER;
   }
 
   return GRAPH_IDLE;

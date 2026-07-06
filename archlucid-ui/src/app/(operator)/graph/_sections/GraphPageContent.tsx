@@ -7,15 +7,22 @@ import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { EvidenceGraphLifecycleStatusBanner } from "@/components/governance/EvidenceGraphLifecycleStatusBanner";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE, BUYER_EVIDENCE_TRAIL_PAGE_TITLE, OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
+import { OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+import { OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  EVIDENCE_GRAPH_PAGE_HELPER,
+  EVIDENCE_GRAPH_PAGE_SUBTITLE,
+  EVIDENCE_GRAPH_PAGE_TITLE,
+} from "@/lib/evidence-graph-page";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
 import {
@@ -137,6 +144,11 @@ export function GraphPageContent() {
 
   const handleGraphInteractiveSurfaceReady = useCallback(() => {
     setGraphInteractiveReady(true);
+  }, []);
+
+  const handleReviewsListAvailabilityChange = useCallback((availability: AskRunListAvailability) => {
+    setReviewsListLoadError(availability.loadError);
+    setReviewListAvailability(availability);
   }, []);
 
   useEffect(() => {
@@ -458,7 +470,8 @@ export function GraphPageContent() {
     [buyerPolishedShell, demoUi, showIdleCard],
   );
 
-  const pageTitle = buyerPolishedShell ? BUYER_EVIDENCE_TRAIL_PAGE_TITLE : BUYER_SURFACE_VOCABULARY.evidenceGraph;
+  const pageTitle = buyerPolishedShell ? EVIDENCE_GRAPH_PAGE_TITLE : BUYER_SURFACE_VOCABULARY.evidenceGraph;
+  const pageSubtitle = buyerPolishedShell ? EVIDENCE_GRAPH_PAGE_SUBTITLE : OPERATOR_GRAPH_PAGE_SUBTITLE;
 
   const loadButtonLabel = buyerPolishedShell
     ? loading
@@ -533,6 +546,9 @@ export function GraphPageContent() {
       />
     ) : null;
 
+  const showBuyerPresentationTabs =
+    buyerPolishedShell && !showIdleCard && (effectiveGraph !== null || graphLoadRequested);
+
   const controls = (
     <GraphPageControls
       graphMainColumnMaxClass={graphMainColumnMaxClass}
@@ -551,12 +567,10 @@ export function GraphPageContent() {
       }}
       decisionId={decisionId}
       nodeId={nodeId}
-      onReviewsListAvailabilityChange={(availability) => {
-        setReviewsListLoadError(availability.loadError);
-        setReviewListAvailability(availability);
-      }}
+      onReviewsListAvailabilityChange={handleReviewsListAvailabilityChange}
       reviewPickerState={reviewPickerState}
       sampleGraphActive={sampleGraphActive}
+      showPresentationTabs={showBuyerPresentationTabs}
     />
   );
 
@@ -633,13 +647,18 @@ export function GraphPageContent() {
 
   return (
     <OperatorPageContainer variant="dashboard">
-      <CtoDemoBuyerValueStrip stepIndex={2} />
-      <OperatorPageHeader
-        title={pageTitle}
-        subtitle={
-          buyerPolishedShell ? BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE : OPERATOR_GRAPH_PAGE_SUBTITLE
-        }
-      />
+      {buyerPolishedShell ? (
+        <EvidenceGraphLifecycleStatusBanner className="mb-3" />
+      ) : (
+        <CtoDemoBuyerValueStrip stepIndex={2} />
+      )}
+      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle}>
+        {buyerPolishedShell ? (
+          <p className={cn("m-0 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {EVIDENCE_GRAPH_PAGE_HELPER}
+          </p>
+        ) : null}
+      </OperatorPageHeader>
       <GraphEvidenceTrailGuidanceDisclosure className={buyerPolishedShell ? "hidden" : undefined} />
       {buyerGraphBody}
       {!buyerPolishedShell && showOperatorControls && effectiveGraph === null ? (

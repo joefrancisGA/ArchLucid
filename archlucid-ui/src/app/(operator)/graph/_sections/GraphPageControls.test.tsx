@@ -30,6 +30,7 @@ describe("GraphPageControls buyer presentation tabs (TB-669)", () => {
           nodeId=""
           reviewPickerState="real-review"
           sampleGraphActive={false}
+          showPresentationTabs
         />
       </Tabs>,
     );

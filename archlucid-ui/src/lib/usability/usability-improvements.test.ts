@@ -52,10 +52,8 @@ describe("usability improvements", () => {
     expect(snapshot.nextStepIndex).toBe(2);
   });
 
-  it("routeViewExplanationForPathname covers graph", () => {
-    const explanation = routeViewExplanationForPathname("/graph");
-
-    expect(explanation?.title.toLowerCase()).toContain("evidence");
+  it("routeViewExplanationForPathname returns null for evidence graph — header owns help copy", () => {
+    expect(routeViewExplanationForPathname("/graph")).toBeNull();
   });
 
   it("routeViewExplanationForPathname uses policy-pack help copy instead of generic governance approval queue", () => {

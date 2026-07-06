@@ -846,7 +846,7 @@ export const BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP = "Download review packa
 export const BUYER_EVIDENCE_TRAIL_PAGE_TITLE = "Evidence graph";
 
 export const BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE =
-  "Trace how architecture evidence supports findings, decisions, approvals, and the final review package.";
+  "Trace how evidence supports findings, decisions, approvals, and the final review package.";
 
 export const BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE = "What is the evidence graph?";
 
@@ -904,7 +904,7 @@ export const BUYER_EVIDENCE_GRAPH_UPLOAD_EVIDENCE_CTA = "Upload evidence";
 export const BUYER_EVIDENCE_GRAPH_PICKER_LOADING = "Loading review packages…";
 
 export const BUYER_EVIDENCE_GRAPH_PICKER_NO_PACKAGES =
-  "No completed review packages are available yet. You can start a new review or explore the sample evidence graph.";
+  "No completed review packages in this workspace yet.";
 
 export const BUYER_EVIDENCE_GRAPH_PICKER_NO_SELECTION = "Select a review package to load its evidence graph.";
 
@@ -912,16 +912,14 @@ export const BUYER_EVIDENCE_GRAPH_PICKER_SAMPLE_REVIEW = "Showing sample review 
 
 export const BUYER_EVIDENCE_GRAPH_PICKER_REAL_REVIEW = "Selected review package";
 
-export const BUYER_EVIDENCE_GRAPH_SYNTHETIC_SAMPLE_HINT =
-  "No completed review packages are available yet. You can start a new review or explore the sample evidence graph.";
+export const BUYER_EVIDENCE_GRAPH_SYNTHETIC_SAMPLE_HINT = "Sample review package";
 
 export const BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT =
   "Review packages could not be loaded. Showing the sample review package for this page.";
 
 export const BUYER_EVIDENCE_GRAPH_EMPTY_LIST_PLACEHOLDER = "No completed review packages yet";
 
-export const BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT =
-  "No completed review packages yet. Start a new review or open the sample evidence graph.";
+export const BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT = "";
 
 export const BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA = "Fit graph";
 

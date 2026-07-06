@@ -19,17 +19,17 @@ describe("resolveGraphIdleEmptyPreset", () => {
     expect(preset.actions?.[1]?.label).toBe("Open sample evidence graph");
   });
 
-  it("returns GRAPH_IDLE_BUYER title in buyer-polished mode without demo idle override", () => {
+  it("returns buyer empty-state copy in buyer-polished mode without demo idle override", () => {
     const preset = resolveGraphIdleEmptyPreset({
       buyerPolished: true,
       demoUi: true,
       showIdleCard: false,
     });
 
-    expect(preset.title).toBe(GRAPH_IDLE_BUYER.title);
     expect(preset.title).toBe("No completed review packages yet");
-    expect(preset.description).toBe(GRAPH_IDLE_BUYER.description);
-    expect(preset.actions).toEqual(GRAPH_IDLE_BUYER.actions);
+    expect(preset.description).toContain("Complete a review package to generate an evidence graph");
+    expect(preset.actions?.[0]?.label).toBe("Open sample evidence graph");
+    expect(preset.actions?.[1]?.label).toBe("Start review");
   });
 
   it("prefers showcase demo idle copy when demoUi and showIdleCard are both true", () => {
@@ -40,7 +40,7 @@ describe("resolveGraphIdleEmptyPreset", () => {
     });
 
     expect(preset.title).toBe("No completed review packages yet");
-    expect(preset.actions?.[0]?.label).toBe("Start review");
-    expect(preset.actions?.[1]?.label).toBe("Open sample evidence graph");
+    expect(preset.actions?.[0]?.label).toBe("Open sample evidence graph");
+    expect(preset.actions?.[1]?.label).toBe("Start review");
   });
 });

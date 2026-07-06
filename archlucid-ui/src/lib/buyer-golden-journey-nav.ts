@@ -99,7 +99,7 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
   ) {
     stepIdx = 1;
   } else if (path.startsWith("/graph")) {
-    stepIdx = 2;
+    return null;
   } else if (path.startsWith("/ask")) {
     return null;
   } else if (path.startsWith("/compare")) {

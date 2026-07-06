@@ -49,19 +49,18 @@ export const GRAPH_IDLE: EmptyStateProps = {
   ],
 };
 
-/** Buyer-polished graph idle: no runId/query jargon or signed-manifest shortcut. */
+/** Buyer-polished graph idle: sample graph is the primary next action. */
 export const GRAPH_IDLE_BUYER: EmptyStateProps = {
   icon: Network,
   title: "No completed review packages yet",
   description:
-    "Start a new review, upload evidence, or open the sample evidence graph to see how findings link to decisions and audit records.",
+    "Complete a review package to generate an evidence graph, or open the sample graph to see how findings link to evidence, decisions, and audit records.",
   actions: [
-    { label: "Start review", href: "/reviews/new" },
     {
       label: "Open sample evidence graph",
       href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
-      variant: "outline" as const,
     },
+    { label: "Start review", href: "/reviews/new", variant: "outline" as const },
     { label: "Upload evidence", href: "/reviews/new", variant: "outline" as const },
   ],
 };

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Label } from "@/components/ui/label";
 import {
@@ -68,6 +68,8 @@ export type AskRunIdPickerProps = {
   readonly syntheticLoadErrorHint?: string;
   readonly emptyListPlaceholder?: string;
   readonly emptyListHint?: string;
+  /** When true, omit helper copy under the field — parent empty state or status line owns messaging. */
+  readonly hideFieldHelper?: boolean;
 };
 
 /**
@@ -92,6 +94,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     syntheticLoadErrorHint,
     emptyListPlaceholder,
     emptyListHint,
+    hideFieldHelper = false,
   } = props;
   const [items, setItems] = useState<RunSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,6 +116,9 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     emptyListHint ??
     "No completed review packages yet. Start a new review or open the sample evidence graph.";
 
+  const onListAvailabilityChangeRef = useRef(onListAvailabilityChange);
+  onListAvailabilityChangeRef.current = onListAvailabilityChange;
+
   useEffect(() => {
     const usingSyntheticSample =
       isShowcaseDemoRunId(value) ||
@@ -124,21 +130,13 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         autoSelectSyntheticSample &&
         value.trim().length > 0);
 
-    onListAvailabilityChange?.({
+    onListAvailabilityChangeRef.current?.({
       loadError,
       loading,
       packageCount: items.length,
       usingSyntheticSample,
     });
-  }, [
-    autoSelectSyntheticSample,
-    items.length,
-    loadError,
-    loading,
-    onListAvailabilityChange,
-    preferAutoPick,
-    value,
-  ]);
+  }, [autoSelectSyntheticSample, items.length, loadError, loading, preferAutoPick, value]);
 
   useEffect(() => {
     let cancelled = false;
@@ -287,9 +285,11 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
               <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Review</SelectItem>
             </SelectContent>
           </Select>
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {syntheticLoadErrorHintText}
-          </p>
+          {!hideFieldHelper ? (
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {syntheticLoadErrorHintText}
+            </p>
+          ) : null}
         </div>
       );
     }
@@ -304,7 +304,9 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             <SelectValue placeholder={reviewsUnavailablePlaceholder} />
           </SelectTrigger>
         </Select>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{reviewsUnavailableHint}</p>
+        {!hideFieldHelper ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{reviewsUnavailableHint}</p>
+        ) : null}
       </div>
     );
   }
@@ -343,9 +345,11 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
               <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Review</SelectItem>
             </SelectContent>
           </Select>
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {syntheticSampleHintText}
-          </p>
+          {!hideFieldHelper ? (
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {syntheticSampleHintText}
+            </p>
+          ) : null}
         </div>
       );
     }
@@ -360,20 +364,22 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             <SelectValue placeholder={emptyListPlaceholderText} />
           </SelectTrigger>
         </Select>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {emptyListHintText}{" "}
-          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new">
-            Start a review
-          </Link>{" "}
-          or{" "}
-          <Link
-            className="font-medium text-teal-800 underline dark:text-teal-300"
-            href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
-          >
-            open the sample evidence graph
-          </Link>
-          .
-        </p>
+        {!hideFieldHelper ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {emptyListHintText}{" "}
+            <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new">
+              Start a review
+            </Link>{" "}
+            or{" "}
+            <Link
+              className="font-medium text-teal-800 underline dark:text-teal-300"
+              href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+            >
+              open the sample evidence graph
+            </Link>
+            .
+          </p>
+        ) : null}
       </div>
     );
   }
