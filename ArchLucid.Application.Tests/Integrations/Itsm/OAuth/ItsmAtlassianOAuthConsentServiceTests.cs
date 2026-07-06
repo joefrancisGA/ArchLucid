@@ -4,6 +4,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integrations.Itsm;
 using ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
 using ArchLucid.Core.IntegrationSecrets;
+using ArchLucid.Core.Secrets;
 using ArchLucid.Persistence.Integrations;
 
 using FluentAssertions;
@@ -12,7 +13,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
-using NSubstitute;
+using Moq;
 
 namespace ArchLucid.Application.Tests.Integrations.Itsm.OAuth;
 
@@ -23,8 +24,8 @@ public sealed class ItsmAtlassianOAuthConsentServiceTests
     public async Task TryStartAsync_returns_authorize_url_with_state()
     {
         ItsmAtlassianOAuthConsentService sut = CreateSut(
-            tokenExchanger: Substitute.For<IItsmConnectorOAuthTokenExchanger>(),
-            secretWriter: Substitute.For<IIntegrationSecretWriter>(),
+            tokenExchanger: new Mock<IItsmConnectorOAuthTokenExchanger>().Object,
+            secretWriter: new Mock<IIntegrationSecretWriter>().Object,
             connectionRepository: new InMemoryTenantItsmConnectorConnectionRepository());
 
         ItsmAtlassianOAuthConsentStartRequest request = new()
@@ -51,31 +52,34 @@ public sealed class ItsmAtlassianOAuthConsentServiceTests
     {
         Guid tenantId = Guid.NewGuid();
         InMemoryTenantItsmConnectorConnectionRepository repository = new();
-        IItsmConnectorOAuthTokenExchanger tokenExchanger = Substitute.For<IItsmConnectorOAuthTokenExchanger>();
-        IIntegrationSecretWriter secretWriter = Substitute.For<IIntegrationSecretWriter>();
+        Mock<IItsmConnectorOAuthTokenExchanger> tokenExchangerMock = new();
+        Mock<IIntegrationSecretWriter> secretWriterMock = new();
 
-        tokenExchanger
-            .TryExchangeAuthorizationCodeAsync(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>())
-            .Returns(new ItsmConnectorOAuthTokenExchangeResult
+        tokenExchangerMock
+            .Setup(exchanger => exchanger.TryExchangeAuthorizationCodeAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ItsmConnectorOAuthTokenExchangeResult
             {
                 AccessToken = "access",
                 RefreshToken = "refresh-token-value",
                 ExpiresAtUtc = DateTimeOffset.UtcNow.AddHours(1)
             });
 
-        secretWriter
-            .TryUpsertSecretAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(true);
+        secretWriterMock
+            .Setup(writer => writer.TryUpsertSecretAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         ItsmAtlassianOAuthConsentService sut = CreateSut(
-            tokenExchanger,
-            secretWriter,
+            tokenExchangerMock.Object,
+            secretWriterMock.Object,
             repository);
 
         ItsmAtlassianOAuthConsentStartRequest startRequest = new()
@@ -106,10 +110,12 @@ public sealed class ItsmAtlassianOAuthConsentServiceTests
         completed.Connection.Should().NotBeNull();
         completed.Connection!.AuthMode.Should().Be("OAuth2RefreshToken");
 
-        await secretWriter.Received(1).TryUpsertSecretAsync(
-            "kv-jira-refresh",
-            "refresh-token-value",
-            Arg.Any<CancellationToken>());
+        secretWriterMock.Verify(
+            writer => writer.TryUpsertSecretAsync(
+                "kv-jira-refresh",
+                "refresh-token-value",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
 
         TenantItsmConnectorConnectionRecord? row =
             await repository.GetAsync(tenantId, TenantItsmConnectorProvider.Jira, CancellationToken.None);
@@ -130,7 +136,7 @@ public sealed class ItsmAtlassianOAuthConsentServiceTests
             Scopes = "read:jira-work write:jira-work offline_access"
         });
 
-        ISecretProvider secretProvider = Substitute.For<ISecretProvider>();
+        ISecretProvider secretProvider = new Mock<ISecretProvider>().Object;
 
         return new ItsmAtlassianOAuthConsentService(
             options,
