@@ -797,51 +797,100 @@ export const BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP = "Download review packa
 export const BUYER_EVIDENCE_TRAIL_PAGE_TITLE = "Evidence graph";
 
 export const BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE =
-  "Visualize provenance for a finalized architecture review: inputs, pipeline steps, findings, decisions, and audit trail.";
+  "Trace how architecture evidence supports findings, decisions, approvals, and the final review package.";
 
 export const BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE = "What is the evidence graph?";
 
 export const BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE_LEAD =
-  "Use this page to trace review evidence — see how architecture inputs, pipeline steps, findings, decisions, and audit events connect for a finalized review.";
+  "Use this page to trace review evidence — see how architecture inputs, findings, decisions, approvals, and audit records connect for a finalized review.";
 
-export const BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER = "Reviews could not be loaded";
+export const BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER = "Review packages unavailable";
 
 export const BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_HINT =
-  "Reviews could not be loaded because the API service is unavailable. Check workspace setup or retry.";
+  "Review packages could not be loaded right now. Start a new review or explore the sample evidence graph.";
 
 export const BUYER_EVIDENCE_TRAIL_LOAD_BUTTON = "Load evidence graph";
 
-export const BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON = "Open sample review package";
+export const BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON = "Open sample evidence graph";
 
 export const BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE = "Open review package";
 
 export const BUYER_EVIDENCE_TRAIL_EMPTY_TITLE = "No review package selected";
 
 export const BUYER_EVIDENCE_TRAIL_EMPTY_BODY =
-  "Start a review or load the sample workspace to view an evidence graph.";
+  "Choose a finalized review package to load its evidence graph, or explore the sample evidence graph.";
 
-export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE = "No review packages yet";
+export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE = "No completed review packages yet";
 
 export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_BODY =
-  "Start a review or load the sample workspace to explore how findings link to evidence.";
+  "Start a new review or explore the sample evidence graph to see how findings link to evidence, decisions, and audit records.";
 
 export const BUYER_EVIDENCE_TRAIL_ERROR_HEADING = "Workspace data unavailable";
 
 export const BUYER_EVIDENCE_TRAIL_ERROR_BODY =
-  "ArchLucid could not reach the API service for this workspace.";
+  "ArchLucid could not load review data for this workspace.";
 
 export const BUYER_EVIDENCE_TRAIL_ERROR_TRY_NEXT =
-  "Try retrying first. If this continues, open troubleshooting or check system health.";
+  "Try again, open troubleshooting, or explore the sample evidence graph while you set up your first review.";
 
 export const BUYER_EVIDENCE_TRAIL_VIEW_TRACE = "Trace table";
 
 export const BUYER_EVIDENCE_TRAIL_VIEW_GRAPH = "Graph view";
 
-export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_FINDING = "Finding provenance";
+export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_FINDING = "Evidence provenance";
 
 export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_DECISION = "Decision traceability";
 
 export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_ARCHITECTURE = "Architecture context";
+
+export const BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE = "Sample evidence graph";
+
+export const BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_BODY =
+  "This example shows how findings link to evidence, decisions, and audit records in a completed review package.";
+
+export const BUYER_EVIDENCE_GRAPH_USE_MY_REVIEW_CTA = "Use my review package";
+
+export const BUYER_EVIDENCE_GRAPH_UPLOAD_EVIDENCE_CTA = "Upload evidence";
+
+export const BUYER_EVIDENCE_GRAPH_PICKER_LOADING = "Loading review packages…";
+
+export const BUYER_EVIDENCE_GRAPH_PICKER_NO_PACKAGES =
+  "No completed review packages are available yet. You can start a new review or explore the sample evidence graph.";
+
+export const BUYER_EVIDENCE_GRAPH_PICKER_NO_SELECTION = "Select a review package to load its evidence graph.";
+
+export const BUYER_EVIDENCE_GRAPH_PICKER_SAMPLE_REVIEW = "Showing sample review package";
+
+export const BUYER_EVIDENCE_GRAPH_PICKER_REAL_REVIEW = "Selected review package";
+
+export const BUYER_EVIDENCE_GRAPH_SYNTHETIC_SAMPLE_HINT =
+  "No completed review packages are available yet. You can start a new review or explore the sample evidence graph.";
+
+export const BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT =
+  "Review packages could not be loaded. Showing the sample review package for this page.";
+
+export const BUYER_EVIDENCE_GRAPH_EMPTY_LIST_PLACEHOLDER = "No completed review packages yet";
+
+export const BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT =
+  "No completed review packages yet. Start a new review or open the sample evidence graph.";
+
+export const BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA = "Fit graph";
+
+export const BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA = "Trace path to review package";
+
+export const BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA = "Show only selected path";
+
+export const BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA = "Show all nodes";
+
+export const BUYER_EVIDENCE_GRAPH_SELECTED_NODE_PANEL_LABEL = "Selected graph node";
+
+export const BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA = "Open finding detail";
+
+export const BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA = "Open decision record";
+
+export const BUYER_EVIDENCE_GRAPH_VIEW_EVIDENCE_CHAIN_CTA = "View evidence chain";
+
+export const BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA = "Export evidence trail";
 
 export const BUYER_GRAPH_PAGE_LEAD = BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE;
 
@@ -865,10 +914,10 @@ export const OPERATOR_GRAPH_LOAD_ERROR_BODY =
 export const OPERATOR_GRAPH_LOAD_ERROR_TRY_NEXT =
   "Try retrying, or open the review package to confirm it is finalized.";
 
-export const OPERATOR_GRAPH_IDLE_TITLE = "No review package available";
+export const OPERATOR_GRAPH_IDLE_TITLE = "No completed review packages yet";
 
 export const OPERATOR_GRAPH_IDLE_BODY =
-  "Create a review package or load the sample workspace to view the evidence graph.";
+  "Create a review package or open the sample evidence graph to explore how evidence connects to findings and decisions.";
 
 export const OPERATOR_GRAPH_WHAT_YOU_WILL_SEE =
   "The graph connects review inputs, evidence, policy references, findings, decisions, and signed review records.";

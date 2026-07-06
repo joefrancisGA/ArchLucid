@@ -1,5 +1,8 @@
 import type { EmptyStateProps } from "@/components/EmptyState";
 import {
+  BUYER_EVIDENCE_TRAIL_GRAPH_MODE_ARCHITECTURE,
+  BUYER_EVIDENCE_TRAIL_GRAPH_MODE_DECISION,
+  BUYER_EVIDENCE_TRAIL_GRAPH_MODE_FINDING,
   BUYER_EVIDENCE_TRAIL_NO_REVIEWS_BODY,
   BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE,
   BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON,
@@ -25,9 +28,9 @@ export type EvidenceTrailPresentationView = "trace" | "graph";
 export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS: Readonly<
   { mode: GraphMode; label: string }[]
 > = [
-  { mode: "provenance-full", label: "Finding provenance" },
-  { mode: "decision-subgraph", label: "Decision traceability" },
-  { mode: "architecture", label: "Architecture context" },
+  { mode: "provenance-full", label: BUYER_EVIDENCE_TRAIL_GRAPH_MODE_FINDING },
+  { mode: "decision-subgraph", label: BUYER_EVIDENCE_TRAIL_GRAPH_MODE_DECISION },
+  { mode: "architecture", label: BUYER_EVIDENCE_TRAIL_GRAPH_MODE_ARCHITECTURE },
 ];
 
 export type GraphSavedViewState = {
@@ -76,6 +79,7 @@ export function resolveGraphIdleEmptyPreset(options: GraphIdleEmptyPresetOptions
           href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
           variant: "outline" as const,
         },
+        { label: "Upload evidence", href: "/reviews/new", variant: "outline" as const },
       ],
     };
   }

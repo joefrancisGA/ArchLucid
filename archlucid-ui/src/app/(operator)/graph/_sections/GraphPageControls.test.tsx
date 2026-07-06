@@ -28,6 +28,8 @@ describe("GraphPageControls buyer presentation tabs (TB-669)", () => {
           onLoadGraph={() => undefined}
           decisionId=""
           nodeId=""
+          reviewPickerState="real-review"
+          sampleGraphActive={false}
         />
       </Tabs>,
     );

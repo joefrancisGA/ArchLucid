@@ -14,9 +14,10 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
   {
     prefix: "/graph",
     explanation: {
-      title: "Evidence trail",
-      summary: "This graph links your architecture inputs, pipeline steps, findings, and the signed review record.",
-      nextAction: "Select a node to inspect provenance, then open linked findings from the side panel.",
+      title: "Evidence graph",
+      summary:
+        "Trace how architecture evidence supports findings, decisions, approvals, and the final review package.",
+      nextAction: "Select a node to inspect linked evidence and decisions in the side panel.",
     },
   },
   {

@@ -12,7 +12,8 @@ import { EvidenceTrailTracePanel } from "@/app/(operator)/graph/_sections/Eviden
 import {
   BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED,
   BUYER_GRAPH_GOVERNANCE_NEXT_PENDING,
-  BUYER_GRAPH_WHAT_THIS_PROVES,
+  BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA,
+  BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE,
 } from "@/lib/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -50,6 +51,7 @@ export type GraphLoadedExperienceProps = {
   defaultSelectedGraphNodeId?: string;
   presentationView?: EvidenceTrailPresentationView;
   onPresentationViewChange?: (view: EvidenceTrailPresentationView) => void;
+  sampleGraphActive?: boolean;
 };
 
 export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
@@ -72,6 +74,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
     defaultSelectedGraphNodeId,
     presentationView = "trace",
     onPresentationViewChange,
+    sampleGraphActive = false,
   } = props;
 
   const runTrim = runId.trim();
@@ -104,13 +107,13 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                 </Button>
               ))}
             </div>
-            {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
+            {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi && !sampleGraphActive ? (
               <div>
                 <p className={cn("m-0 mb-1.5", OPERATOR_NAV_GROUP_LABEL)}>
-                  What this graph proves
+                  How to read this graph
                 </p>
                 <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.body)}>
-                  {BUYER_GRAPH_WHAT_THIS_PROVES}
+                  Trace how architecture evidence supports findings, decisions, approvals, and the final review package.
                 </p>
               </div>
             ) : null}
@@ -141,12 +144,19 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
               onInteractiveSurfaceReady={buyerPolishedShell ? onGraphInteractiveSurfaceReady : undefined}
               defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
             />
-            <div className={cn("mt-6 space-y-2", graphMainColumnMaxClass)}>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.tab, "text-al-text-secondary")}>Next</p>
-                <Button type="button" asChild variant="default" size="sm">
-                  <Link href={`/governance?runId=${encodeURIComponent(runTrim)}`}>
-                    {showcaseRun ? BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED : BUYER_GRAPH_GOVERNANCE_NEXT_PENDING}
-                  </Link>
+            <div className={cn("mt-6 flex flex-wrap gap-2", graphMainColumnMaxClass)}>
+              <Button type="button" asChild variant="default" size="sm">
+                <Link href={`/governance?runId=${encodeURIComponent(runTrim)}`}>
+                  {showcaseRun ? BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED : BUYER_GRAPH_GOVERNANCE_NEXT_PENDING}
+                </Link>
+              </Button>
+              <Button type="button" asChild variant="outline" size="sm">
+                <Link href={`/reviews/${encodeURIComponent(runTrim)}`}>{BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE}</Link>
+              </Button>
+              <Button type="button" asChild variant="outline" size="sm">
+                <Link href={`/graph?runId=${encodeURIComponent(runTrim)}&presentation=trace`}>
+                  {BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA}
+                </Link>
               </Button>
             </div>
           </TabsContent>

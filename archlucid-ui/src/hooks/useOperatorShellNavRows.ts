@@ -101,7 +101,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     // Always pass true for both showExtended and showAdvanced so every link is visible to anyone
     // who can see the section.
     const systemAdminNavRows: NavGroupWithVisibleLinks[] =
-      omitAdminClusters || !isShowSystemAdministrationNavEnabled()
+      omitAdminClusters || !isShowSystemAdministrationNavEnabled() || buyerPolishedShell
         ? []
         : listNavGroupsVisibleInOperatorShell(
             NAV_GROUPS,

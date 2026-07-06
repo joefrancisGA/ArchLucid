@@ -13,10 +13,10 @@ describe("resolveGraphIdleEmptyPreset", () => {
     });
 
     expect(preset.title).toBe(GRAPH_IDLE.title);
-    expect(preset.title).toBe("No review package available");
+    expect(preset.title).toBe("No completed review packages yet");
     expect(preset.description).toBe(GRAPH_IDLE.description);
     expect(preset.actions?.[0]?.label).toBe("Start review");
-    expect(preset.actions?.[1]?.label).toBe("Load sample workspace");
+    expect(preset.actions?.[1]?.label).toBe("Open sample evidence graph");
   });
 
   it("returns GRAPH_IDLE_BUYER title in buyer-polished mode without demo idle override", () => {
@@ -27,7 +27,7 @@ describe("resolveGraphIdleEmptyPreset", () => {
     });
 
     expect(preset.title).toBe(GRAPH_IDLE_BUYER.title);
-    expect(preset.title).toBe("No review package selected");
+    expect(preset.title).toBe("No completed review packages yet");
     expect(preset.description).toBe(GRAPH_IDLE_BUYER.description);
     expect(preset.actions).toEqual(GRAPH_IDLE_BUYER.actions);
   });
@@ -39,8 +39,8 @@ describe("resolveGraphIdleEmptyPreset", () => {
       showIdleCard: true,
     });
 
-    expect(preset.title).toBe("No review packages yet");
+    expect(preset.title).toBe("No completed review packages yet");
     expect(preset.actions?.[0]?.label).toBe("Start review");
-    expect(preset.actions?.[1]?.label).toBe("Open sample review package");
+    expect(preset.actions?.[1]?.label).toBe("Open sample evidence graph");
   });
 });

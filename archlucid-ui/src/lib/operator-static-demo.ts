@@ -816,7 +816,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: chain.graphSnapshotId ?? "graph-demo",
 
-        name: "Evidence trail assembled",
+        name: "Evidence trail created",
 
       },
 

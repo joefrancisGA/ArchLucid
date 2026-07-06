@@ -30,6 +30,13 @@ import {
   isStaticDemoPayloadFallbackEnabled,
   tryStaticDemoProvenanceGraph,
 } from "@/lib/operator-static-demo";
+import {
+  isSampleGraphActive,
+  resolveGraphReviewPickerState,
+  shouldShowGraphIdleCard,
+  type AskRunListAvailability,
+} from "@/lib/graph-page-state";
+import { GraphSampleModeBanner } from "@/app/(operator)/graph/_sections/GraphSampleModeBanner";
 import { coerceGraphViewModel } from "@/lib/operator-response-guards";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import {
@@ -77,6 +84,12 @@ export function GraphPageContent() {
     isBuyerPolishedOperatorShellEnv() ? "graph" : "trace",
   );
   const [reviewsListLoadError, setReviewsListLoadError] = useState(false);
+  const [reviewListAvailability, setReviewListAvailability] = useState<AskRunListAvailability>({
+    loadError: false,
+    loading: true,
+    packageCount: 0,
+    usingSyntheticSample: false,
+  });
 
   const loadGenRef = useRef(0);
 
@@ -184,6 +197,12 @@ export function GraphPageContent() {
   }, [mode, runId]);
 
   const effectiveGraph = graph ?? seededProvenanceGraphVm;
+  const sampleGraphActive = isSampleGraphActive({
+    runId,
+    graph,
+    seededProvenanceGraphVm,
+  });
+  const reviewPickerState = resolveGraphReviewPickerState(reviewListAvailability, runId);
 
   const graphSurfaceKey = useMemo(() => {
     if (effectiveGraph === null) {
@@ -411,14 +430,15 @@ export function GraphPageContent() {
 
   const showOperatorControls = buyerPolishedShell || demoUi || runId.trim().length > 0;
 
-  const showIdleCard =
-    !reviewsListLoadError &&
-    (buyerGraphAwaitingSelection ||
-      (effectiveGraph === null &&
-        !loading &&
-        loadFailure === null &&
-        malformedMessage === null &&
-        !buyerTraceWithoutGraph));
+  const showIdleCard = shouldShowGraphIdleCard({
+    effectiveGraph,
+    loading,
+    loadFailure,
+    malformedMessage,
+    buyerGraphAwaitingSelection,
+    buyerTraceWithoutGraph,
+    reviewsListLoadError,
+  });
 
   useEffect(() => {
     if (!demoUi && !buyerPolishedShell) {
@@ -531,9 +551,12 @@ export function GraphPageContent() {
       }}
       decisionId={decisionId}
       nodeId={nodeId}
-      onReviewsListAvailabilityChange={({ loadError }) => {
-        setReviewsListLoadError(loadError);
+      onReviewsListAvailabilityChange={(availability) => {
+        setReviewsListLoadError(availability.loadError);
+        setReviewListAvailability(availability);
       }}
+      reviewPickerState={reviewPickerState}
+      sampleGraphActive={sampleGraphActive}
     />
   );
 
@@ -562,6 +585,12 @@ export function GraphPageContent() {
         />
         {showIdleCard ? (
           <GraphIdlePlaceholder graphIdlePreset={graphIdlePreset} buyerPolishedShell={buyerPolishedShell} />
+        ) : null}
+        {sampleGraphActive && effectiveGraph !== null ? (
+          <GraphSampleModeBanner
+            className={graphMainColumnMaxClass}
+            showUseMyReviewAction={reviewListAvailability.packageCount > 0}
+          />
         ) : null}
         <TabsContent value="trace" className="pt-0" data-testid="graph-presentation-panel-trace">
           {buyerTraceOnlyIdle ? (
@@ -596,6 +625,7 @@ export function GraphPageContent() {
             defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
             presentationView={presentationView}
             onPresentationViewChange={setPresentationView}
+            sampleGraphActive={sampleGraphActive}
           />
         ) : null}
       </Tabs>
@@ -610,7 +640,7 @@ export function GraphPageContent() {
           buyerPolishedShell ? BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE : OPERATOR_GRAPH_PAGE_SUBTITLE
         }
       />
-      <GraphEvidenceTrailGuidanceDisclosure />
+      <GraphEvidenceTrailGuidanceDisclosure className={buyerPolishedShell ? "hidden" : undefined} />
       {buyerGraphBody}
       {!buyerPolishedShell && showOperatorControls && effectiveGraph === null ? (
         <>
@@ -677,6 +707,7 @@ export function GraphPageContent() {
             defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
             presentationView={presentationView}
             onPresentationViewChange={setPresentationView}
+            sampleGraphActive={sampleGraphActive}
           />
         </>
       ) : null}
