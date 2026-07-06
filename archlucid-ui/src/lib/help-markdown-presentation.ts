@@ -58,7 +58,7 @@ function posixNormalize(path: string): string {
 const HELP_LINK_LABEL_OVERRIDES: Readonly<Record<string, string>> = {
   operator_atlas: "Workspace route map",
   operator_decision_guide: "Deployment decision guide",
-  first_pilot_operator_path: "Complete review workflow",
+  first_pilot_operator_path: "First-pilot operator runbook",
   operator_quickstart: "Getting started",
   operator_troubleshooting: "Troubleshooting",
   operator_admin_diagnostics: "Admin diagnostics",

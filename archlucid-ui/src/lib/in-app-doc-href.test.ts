@@ -38,6 +38,15 @@ describe("resolveInAppDocHref", () => {
     expect(resolveInAppDocHref("docs/library/SECOND_RUN.md")).toBe("/help/repeat-review-loop");
   });
 
+  it("maps first-pilot operator runbook alias to internal help slug", () => {
+    expect(resolveInAppDocHref("docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBe(
+      "/help/first-pilot-operator-runbook",
+    );
+    expect(resolveInAppDocHref("/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md#phase-a--platform-ready")).toBe(
+      "/help/first-pilot-operator-runbook#phase-a--platform-ready",
+    );
+  });
+
   it("returns null from tryResolve for unmapped contributor docs", () => {
     expect(tryResolveInAppDocHref("docs/BUILD.md")).toBeNull();
     expect(tryResolveInAppDocHref("docs/library/OPERATOR_ATLAS.md")).toBe("/help/operator-shell");

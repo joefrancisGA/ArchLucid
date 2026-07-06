@@ -1,6 +1,6 @@
-> **Scope:** Single first-pilot operator path — storage/auth through sponsor export and next action; V1 surfaces only (no V1.1 connectors in required steps).
+> **Scope:** Internal operator runbook — platform readiness, pilot proof collection, and phase-level recovery. **Customer architects:** use [Complete review workflow](/help/first-pilot-path) (`docs/library/customer-facing/COMPLETE_REVIEW_WORKFLOW.md`).
 
-# First-pilot operator path (V1)
+# First-pilot operator path (internal runbook)
 
 **Audience:** Buyer operators, design partners, and sales engineers guiding a first architecture review without jumping across unrelated docs.
 

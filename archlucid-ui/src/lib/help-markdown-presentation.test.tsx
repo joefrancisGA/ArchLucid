@@ -26,7 +26,7 @@ describe("help-markdown-presentation", () => {
   it("humanizes repo filenames without extensions", () => {
     expect(humanizeMarkdownFileReference("OPERATOR_ATLAS.md")).toBe("Workspace route map");
     expect(humanizeMarkdownFileReference("../runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBe(
-      "Complete review workflow",
+      "First-pilot operator runbook",
     );
   });
 

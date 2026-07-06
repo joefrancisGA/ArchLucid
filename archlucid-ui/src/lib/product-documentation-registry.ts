@@ -81,8 +81,16 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     slug: "first-pilot-path",
     title: "Complete review workflow",
     summary:
-      "Six-step path from setup verification to a finalized review package — what to do, when to defer advanced surfaces, and how to recover.",
-    audience: "operator",
+      "End-to-end review lifecycle — create a package, attach evidence, review findings, finalize, and export sponsor-ready artifacts.",
+    audience: "buyer",
+    sourcePaths: ["docs/library/customer-facing/COMPLETE_REVIEW_WORKFLOW.md"],
+  },
+  {
+    slug: "first-pilot-operator-runbook",
+    title: "First-pilot operator runbook",
+    summary:
+      "Internal phase checklist — platform readiness, evidence ingest, proof collection, and pilot recovery for platform and release owners.",
+    audience: "developer",
     sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
   },
   {
