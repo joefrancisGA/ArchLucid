@@ -14,8 +14,8 @@ import {
   AFTER_CORE_PILOT_WHATS_NEXT_DISMISSED_KEY,
   CORE_PILOT_CHECKLIST_CHANGED_EVENT,
   readAfterCorePilotWhatsNextDismissed,
-  readCorePilotChecklistAllDone,
 } from "@/lib/core-pilot-checklist-storage";
+import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 
 type Suggestion = {
@@ -58,19 +58,18 @@ const suggestions: Suggestion[] = [
  * with dismissal persisted in localStorage. Does not change sidebar toggles—only explains them.
  */
 export function AfterCorePilotChecklistHint() {
-  const [allDone, setAllDone] = useState(false);
+  const { progress } = useCorePilotDerivedStepStatus();
   const [dismissed, setDismissed] = useState(false);
 
-  const refresh = useCallback(() => {
-    setAllDone(readCorePilotChecklistAllDone());
+  const refreshDismissed = useCallback(() => {
     setDismissed(readAfterCorePilotWhatsNextDismissed());
   }, []);
 
   useEffect(() => {
-    refresh();
+    refreshDismissed();
 
     function onChanged() {
-      refresh();
+      refreshDismissed();
     }
 
     window.addEventListener(CORE_PILOT_CHECKLIST_CHANGED_EVENT, onChanged);
@@ -78,7 +77,7 @@ export function AfterCorePilotChecklistHint() {
     return () => {
       window.removeEventListener(CORE_PILOT_CHECKLIST_CHANGED_EVENT, onChanged);
     };
-  }, [refresh]);
+  }, [refreshDismissed]);
 
   const onDismiss = useCallback(() => {
     try {
@@ -89,7 +88,7 @@ export function AfterCorePilotChecklistHint() {
     setDismissed(true);
   }, []);
 
-  if (!allDone || dismissed) {
+  if (!progress.allDone || dismissed) {
     return null;
   }
 

@@ -4,21 +4,16 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import Link from "next/link";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import {
-  getCorePilotChecklistStorageServerSnapshot,
-  getCorePilotChecklistStorageSnapshot,
-  subscribeCorePilotChecklist,
-} from "@/lib/core-pilot-checklist-storage";
-import {
   FIRST_VALUE_MINUTES_ESTIMATE,
-  parseCorePilotProgressFromSnapshot,
 } from "@/lib/usability/core-pilot-progress-tracker";
 import { resolveCorePilotStepPresentation } from "@/lib/core-pilot-step-presentation";
 import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
+import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 
 type CorePilotProgressTrackerBannerProps = {
   readonly className?: string;
@@ -26,19 +21,13 @@ type CorePilotProgressTrackerBannerProps = {
 };
 
 /**
- * Cross-page "5 steps to first review package" tracker with time-to-value estimate.
- * Reads the same localStorage keys as {@link CorePilotChecklist}.
- *
- * Defers render until client hydration (localStorage is unavailable on SSR).
+ * Cross-page first-review progress tracker with time-to-value estimate.
+ * Derived from tenant/review lifecycle (same signals as {@link CorePilotChecklist}).
  */
 export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBannerProps) {
   const [hydrated, setHydrated] = useState(false);
   const commitPresentationContext = useCorePilotCommitPresentationContext();
-  const storageSnapshot = useSyncExternalStore(
-    subscribeCorePilotChecklist,
-    getCorePilotChecklistStorageSnapshot,
-    getCorePilotChecklistStorageServerSnapshot,
-  );
+  const { progress, statuses } = useCorePilotDerivedStepStatus();
 
   useEffect(() => {
     setHydrated(true);
@@ -47,8 +36,6 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
   if (!hydrated) {
     return null;
   }
-
-  const progress = parseCorePilotProgressFromSnapshot(storageSnapshot);
 
   if (progress.allDone) {
     return null;
@@ -103,7 +90,7 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
       {!props.compact ? (
         <ol className="m-0 mt-3 flex list-none flex-wrap gap-2 p-0" aria-label="Core pilot steps">
           {CORE_PILOT_STEPS.map((step, index) => {
-            const done = storageSnapshot[index] === "1";
+            const done = statuses[index] === "done";
 
             return (
               <li
