@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 import {
   auditEventLifecycleSortKey,
@@ -13,6 +13,7 @@ import {
   principalRolesAllowAuditCsvExport,
 } from "@/app/(operator)/audit/audit-ui-helpers";
 import { useNavCallerAuthorityRank, useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -26,6 +27,7 @@ import {
   auditSearchNoResultsReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { resolveOperatorShellAuditRunId } from "@/lib/resolve-operator-shell-audit-run-id";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
@@ -51,7 +53,9 @@ import { resolveAuditSearchPageForUi, shouldInjectAuditDemoOnSearchError } from 
 /** Page controller: audit filters, search/export, and derived buyer display state. */
 export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProps {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const workspaceRun = useWorkspaceActiveRun();
   const { currentPrincipal } = useOperatorNavAuthority();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canMutateEnterpriseShell = useOperateCapability();
@@ -64,11 +68,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
   const [toUtc, setToUtc] = useState<string>("");
   const [correlationId, setCorrelationId] = useState<string>("");
   const [actorUserId, setActorUserId] = useState<string>("");
-  const [runId, setRunId] = useState<string>(() =>
-    isBuyerPolishedOperatorShellEnv() || isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()
-      ? SHOWCASE_STATIC_DEMO_RUN_ID
-      : "",
-  );
+  const [runId, setRunId] = useState<string>("");
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [hasMoreResults, setHasMoreResults] = useState(false);
   const [auditNextCursor, setAuditNextCursor] = useState<string | null>(null);
@@ -80,6 +80,31 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
   const [auditDatePreset, setAuditDatePreset] = useState<null | "24h" | "7d">(null);
   const demoAuditPrimedRef = useRef(false);
   const ctoDemoAuditFilterActive = isCtoDemoAuditFilterActive(searchParams.get(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM));
+
+  useEffect(() => {
+    const fromQuery = searchParams.get("runId")?.trim() ?? "";
+
+    if (fromQuery.length > 0) {
+      setRunId(fromQuery);
+
+      return;
+    }
+
+    const resolvedRunId = resolveOperatorShellAuditRunId({
+      pathname: pathname ?? "/audit",
+      search: searchParams.toString(),
+      workspaceActiveRunId: workspaceRun?.activeRunId ?? null,
+    });
+
+    if (resolvedRunId === null || resolvedRunId.length === 0) {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("runId", resolvedRunId);
+    router.replace(`/audit?${params.toString()}`, { scroll: false });
+    setRunId(resolvedRunId);
+  }, [pathname, router, searchParams, workspaceRun?.activeRunId]);
 
   const onClearCtoDemoAuditFilter = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());

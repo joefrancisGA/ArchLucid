@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   EnterpriseTable,
@@ -18,6 +19,7 @@ import {
 import { formatUtc } from "@/app/(operator)/audit/_sections/audit-page-helpers";
 import type { AuditEvent } from "@/lib/api";
 import { GOVERNANCE_BYPASS_INVOKED_EVENT_TYPE, parseGovernanceBypassAuditPayload } from "@/lib/governance-bypass-audit-payload";
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { listRecentGovernanceBypassAuditEvents } from "@/lib/list-recent-governance-bypass-audit-events";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -35,6 +37,8 @@ function resolveAuditActorLabel(event: AuditEvent): string {
 /** Governance dashboard panel surfacing recent pre-commit break-glass bypass audit events. */
 export function GovernanceBypassAuditPanel(): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const workspaceRun = useWorkspaceActiveRun();
+  const auditHref = auditTrailNavHref(workspaceRun?.activeRunId ?? null);
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -82,7 +86,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
               )}
             </p>
           </div>
-          <Link href="/governance/audit" className={cn("font-medium text-teal-700 underline dark:text-teal-400", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link href={auditHref} className={cn("font-medium text-teal-700 underline dark:text-teal-400", OPERATOR_TYPOGRAPHY.helper)}>
             Open audit log
           </Link>
         </div>

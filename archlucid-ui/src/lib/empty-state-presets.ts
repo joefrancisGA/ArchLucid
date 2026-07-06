@@ -1,6 +1,7 @@
 import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lucide-react";
 
 import type { EmptyStateProps } from "@/components/EmptyState";
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { OPERATOR_GRAPH_IDLE_BODY, OPERATOR_GRAPH_WHAT_YOU_WILL_SEE } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
@@ -107,7 +108,7 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   gettingStarted: governanceWorkflowIdleGettingStartedOperator,
   secondaryAction: {
     label: "View audit trail →",
-    href: "/governance/audit",
+    href: auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID),
   },
 };
 
@@ -125,6 +126,6 @@ export const GOVERNANCE_WORKFLOW_IDLE_READER: EmptyStateProps = {
   gettingStarted: governanceWorkflowIdleGettingStartedReader,
   secondaryAction: {
     label: "View audit trail →",
-    href: "/governance/audit",
+    href: auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID),
   },
 };

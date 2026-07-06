@@ -40,8 +40,9 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 1. **Triage in UI** — Open `/runs/{runId}` or `/reviews/{runId}`; drill **findings** (`/reviews/{runId}/findings/{findingId}`) and confirm severity labels match your pack intent.
 2. **Assign / confirm policy** — UI: `/policy-packs` · API: `/v1/policy-packs…` · Behaviour matrix: [PRE_COMMIT_GOVERNANCE_GATE.md](../PRE_COMMIT_GOVERNANCE_GATE.md) (`BlockCommitOnCritical`, `BlockCommitMinimumSeverity`).
 3. **Pre-commit dry run** — API: `POST /v1/governance/approval-requests?dryRun=true` (validation path per [GOVERNANCE.md](../contributor-reference/GOVERNANCE.md)).
-4. **Workflow** — UI: `/governance`, `/governance/dashboard` · API: `POST /v1/governance/approval-requests`, promote/activate routes on `GovernanceController` as needed ([GOVERNANCE.md](../contributor-reference/GOVERNANCE.md)).
-5. **Optional gate feature flag** — Host: `ArchLucid:Governance:PreCommitGateEnabled` ([PRE_COMMIT_GOVERNANCE_GATE.md](../PRE_COMMIT_GOVERNANCE_GATE.md)).
+4. **Workflow** — UI: `/governance?runId={runId}`, `/governance/dashboard` · API: `POST /v1/governance/approval-requests`, promote/activate routes on `GovernanceController` as needed ([GOVERNANCE.md](../contributor-reference/GOVERNANCE.md)).
+5. **Audit trail** — UI: `/audit?runId={runId}` (scoped review events; avoid unscoped `/audit` without a review id) · API: `GET /v1/audit/search?runId=…`.
+6. **Optional gate feature flag** — Host: `ArchLucid:Governance:PreCommitGateEnabled` ([PRE_COMMIT_GOVERNANCE_GATE.md](../PRE_COMMIT_GOVERNANCE_GATE.md)).
 
 **Expected outputs:** Recorded approval request or documented rejection; commit either allowed or blocked with a clear policy reason in API/UI.
 

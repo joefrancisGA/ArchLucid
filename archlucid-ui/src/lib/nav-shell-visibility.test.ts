@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { NAV_GROUPS, type NavGroupConfig } from "@/lib/nav-config";
+import { isAuditNavPath } from "@/lib/audit-nav-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { applyAuditNavRunScope } from "@/lib/nav-audit-run-scope";
 import {
   countLinksHiddenByProgressiveDisclosure,
   countSidebarLinksHiddenByCollapsedPilot,
@@ -584,6 +586,17 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
     );
 
     expect(executeRows.some((r) => r.group.id === "operate-platform-ops")).toBe(false);
+  });
+
+  it("scopes governance audit nav when review context is known (TB-649)", () => {
+    const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
+
+    expect(enterprise).toBeDefined();
+
+    const scoped = applyAuditNavRunScope(enterprise!.links, "run-abc");
+    const auditLink = scoped.find((l) => isAuditNavPath(l.href.split("?")[0] ?? ""));
+
+    expect(auditLink?.href).toBe("/audit?runId=run-abc");
   });
 
   it("omits AI usage from Administration for Read and Execute callers (TB-648)", () => {
