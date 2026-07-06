@@ -234,8 +234,12 @@ export async function expectBuyerPolishedReviewDetailSectionNavCore(
   await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible({ timeout });
 
   const outcomeLikeLink = sectionNav.getByRole("link", {
-    name: /Outcome record|Finalized record|Signed review record/i,
+    name: /Finalized decision record|Outcome record|Finalized record|Signed review record/i,
   });
+
+  await expect
+    .poll(async () => outcomeLikeLink.count(), { timeout })
+    .toBeGreaterThan(0);
 
   await expect(outcomeLikeLink.first()).toBeVisible({ timeout });
   await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible({ timeout });

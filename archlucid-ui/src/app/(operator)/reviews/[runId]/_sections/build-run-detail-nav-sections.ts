@@ -19,7 +19,7 @@ export function buildRunDetailNavSections(
     if (buyerPolishedSections) {
       return [
         { id: "run-decision-summary", label: "Decision", available: Boolean(manifestId) },
-        { id: "manifest-summary", label: "Outcome record", available: Boolean(manifestSummary) },
+        { id: "manifest-summary", label: "Finalized decision record", available: Boolean(manifestId) },
         { id: "capture-evidence", label: "Capture evidence", available: !Boolean(manifestId) },
         { id: "trust-evidence", label: "Evidence", available: Boolean(trustEvidenceCard) },
         { id: "run-explanation", label: "Assessment", available: Boolean(manifestId) },
