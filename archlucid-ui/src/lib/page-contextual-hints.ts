@@ -18,14 +18,6 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     },
   },
   {
-    prefix: "/policy-packs",
-    hint: {
-      id: "policy-packs",
-      message: "Start from a named template, then dry-run against a past review before publishing.",
-      learnMoreHref: "/help/governance-approval",
-    },
-  },
-  {
     prefix: "/reviews/",
     hint: {
       id: "review-detail",

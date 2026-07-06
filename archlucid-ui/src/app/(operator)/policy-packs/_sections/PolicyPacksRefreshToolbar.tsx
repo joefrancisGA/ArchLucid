@@ -18,7 +18,7 @@ export function PolicyPacksRefreshToolbar(props: PolicyPacksRefreshToolbarProps)
 
   return (
     <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-      <Button type="button" variant="secondary" size="sm" onClick={() => void onRefresh()} disabled={loading}>
+      <Button type="button" variant={buyerPolishedShell ? "ghost" : "secondary"} size="sm" onClick={() => void onRefresh()} disabled={loading}>
         {loading ? "Loading…" : "Refresh"}
       </Button>
       {!canMutatePacks ? (

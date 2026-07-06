@@ -122,6 +122,10 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
+  if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
+    return null;
+  }
+
   if (path.startsWith("/governance")) {
     return {
       label: "Governance approval record",
@@ -151,10 +155,7 @@ export function buyerPolishedRouteOrientation(
   }
 
   if (path.startsWith("/policy-packs")) {
-    return {
-      label: "Policy packs",
-      line: "Control libraries applied to architecture reviews — what each pack checks for this tenant.",
-    };
+    return null;
   }
 
   if (path.startsWith("/ask")) {

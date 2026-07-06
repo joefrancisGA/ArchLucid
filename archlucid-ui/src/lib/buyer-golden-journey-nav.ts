@@ -110,12 +110,7 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
       currentStepIndex: null,
     };
   } else if (path.startsWith("/governance/policy-packs")) {
-    return {
-      summaryLine: "Policy pack basis — governance guardrails referenced by this review",
-      prev: { label: defs[1].label, href: defs[1].href },
-      next: { label: defs[2].label, href: defs[2].href },
-      currentStepIndex: null,
-    };
+    return null;
   } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
     return null;
   } else if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {

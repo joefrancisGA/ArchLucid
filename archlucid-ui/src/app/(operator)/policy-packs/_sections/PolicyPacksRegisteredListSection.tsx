@@ -6,7 +6,7 @@ import {
   policyPacksEmptyScopeReaderLine,
   policyPacksPackSelectReaderTitle,
 } from "@/lib/enterprise-controls-context-copy";
-import { policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
+import { policyPackTypeBuyerDisplayLabel, policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
 import { isStandardBaselinePolicyPackName } from "@/lib/policy-pack-standard-baseline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -60,8 +60,11 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
               </div>
               <span className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 {" "}
-                — {policyPackTypeDisplayLabel(p.packType)} / {p.status} / current{" "}
-                <code>{p.currentVersion}</code>
+                —{" "}
+                {buyerPolishedShell
+                  ? `${policyPackTypeBuyerDisplayLabel(p.packType)} · Version ${p.currentVersion}`
+                  : `${policyPackTypeDisplayLabel(p.packType)} / ${p.status} / current `}
+                {!buyerPolishedShell ? <code>{p.currentVersion}</code> : null}
               </span>
               <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{p.description}</div>
             </li>

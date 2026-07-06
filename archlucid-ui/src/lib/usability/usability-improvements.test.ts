@@ -58,6 +58,15 @@ describe("usability improvements", () => {
     expect(explanation?.title.toLowerCase()).toContain("evidence");
   });
 
+  it("routeViewExplanationForPathname uses policy-pack help copy instead of generic governance approval queue", () => {
+    const explanation = routeViewExplanationForPathname("/governance/policy-packs");
+
+    expect(explanation?.title).toBe("Policy packs");
+    expect(explanation?.summary).toContain("standards and checks applied to review packages");
+    expect(explanation?.nextAction).toContain("Inspect the active pack");
+    expect(explanation?.summary).not.toContain("Approval queue");
+  });
+
   it("canonical product terms use audit trail and signed review record", () => {
     expect(AUDIT_TRAIL_LABEL).toBe("Audit trail");
     expect(SIGNED_MANIFEST_LABEL).toBe("Signed review record");
