@@ -57,7 +57,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "first-hour-operator-path": "product",
   "review-guide": "product",
   "first-pilot-path": "internal",
-  "core-pilot": "internal",
+  "core-pilot": "product",
   "first-value-20-minutes": "internal",
   "cli-usage": "internal",
   "developer-troubleshooting": "internal",
@@ -83,7 +83,12 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
   "enterprise-onboarding": {
     title: "Hosted SaaS enterprise onboarding checklist",
     summary:
-      "Configure an enterprise tenant — SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
+      "Configure an enterprise tenant — SSO, roles, governance, policy packs, audit export, and optional cloud connector evidence.",
+  },
+  "core-pilot": {
+    title: "Your first architecture review",
+    summary:
+      "First-session checklist — evidence-only or cloud connectors (Azure, AWS, GCP), finalize, and sponsor exports.",
   },
 };
 

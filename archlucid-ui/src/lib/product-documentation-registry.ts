@@ -230,9 +230,10 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "core-pilot",
-    title: "Core Pilot",
-    summary: "Operator walkthrough from first session through commit — checklist anchors and recovery links.",
-    audience: "operator",
+    title: "Your first architecture review",
+    summary:
+      "Guided first-session path — evidence intake, optional cloud connectors for Azure/AWS/GCP, finalize, and sponsor exports.",
+    audience: "buyer",
     sourcePaths: ["docs/CORE_PILOT.md"],
   },
   {
