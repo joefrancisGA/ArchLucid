@@ -52,8 +52,8 @@ The workflow [`.github/workflows/cd-staging-on-merge.yml`](../../.github/workflo
 
 | Source | What to verify |
 |--------|----------------|
-| `infra/terraform-container-apps` | **Terraform root:** `azurerm_container_app` **api** (`var.api_container_image`), **worker** (`local.worker_effective_image` — same as API image unless `worker_container_image` set), **ui** (`var.ui_container_image`). Registry: optional ACR pull via user-assigned identity and `azurerm_container_app` `registry` block. **Do not** change `.tf` here — confirm applied state in Azure matches the images you expect. **CLI:** `az containerapp show -g <rg> -n <app> --query "properties.template.containers[0].image" -o tsv` for each of API, worker, UI. |
-| `cd-staging-on-merge` / `cd.yml` | CD updates revisions with `az containerapp update --image` to `<ACR_LOGIN_SERVER>/archlucid-api:<tag>` and `archlucid-ui:<tag>`. If Terraform later reapplies with **pinned** image variables, reconcile process (operator policy) so CD and Terraform do not fight. This checklist does not prescribe merge strategy — it flags the dependency. |
+| `infra/terraform-container-apps` | **Terraform root:** `azurerm_container_app` **api** (`var.api_container_image`), **worker** (`local.worker_effective_image`), **ui** (`var.ui_container_image`). **TB-657:** each app uses `lifecycle { ignore_changes = [template[0].container[0].image] }` — Terraform seeds warm-start pins; **CD owns live tags**. **CLI:** `az containerapp show -g <rg> -n <app> --query "properties.template.containers[0].image" -o tsv` for API, worker, UI. |
+| `cd-staging-on-merge` / `cd.yml` | CD updates revisions with `az containerapp update --image`. After TB-657, `terraform apply` on `terraform-container-apps` should **not** plan image changes on existing apps when only CD rolled tags — verify with `terraform plan` (empty image delta expected). |
 
 **Dockerfile references (for local parity only):** `ArchLucid.Api/Dockerfile` (API + worker DLLs in one image), `archlucid-ui/Dockerfile` (UI). Full-stack local: `docker compose` profile `full-stack` in [`docker-compose.yml`](../../docker-compose.yml).
 

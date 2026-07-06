@@ -167,6 +167,12 @@ resource "azurerm_container_app" "api_secondary" {
       percentage      = 100
     }
   }
+  # TB-657: CD owns runtime image tags (cd.yml `az containerapp update`). Terraform seeds warm-start pins only.
+  lifecycle {
+    ignore_changes = [
+      template[0].container[0].image,
+    ]
+  }
 }
 
 resource "azurerm_role_assignment" "api_secondary_blob_data_contributor" {
@@ -330,6 +336,13 @@ resource "azurerm_container_app" "worker_secondary" {
       }
     }
   }
+
+  # TB-657: CD owns runtime image tags (cd.yml `az containerapp update`). Terraform seeds warm-start pins only.
+  lifecycle {
+    ignore_changes = [
+      template[0].container[0].image,
+    ]
+  }
 }
 
 resource "azurerm_role_assignment" "worker_secondary_blob_data_contributor" {
@@ -406,5 +419,12 @@ resource "azurerm_container_app" "ui_secondary" {
       latest_revision = true
       percentage      = 100
     }
+  }
+
+  # TB-657: CD owns runtime image tags (cd.yml `az containerapp update`). Terraform seeds warm-start pins only.
+  lifecycle {
+    ignore_changes = [
+      template[0].container[0].image,
+    ]
   }
 }

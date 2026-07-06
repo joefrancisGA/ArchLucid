@@ -124,6 +124,23 @@ else {
     $checks.Add((Add-Check "terraform-container-apps: variables.tf" "WARN" "file missing or unreadable")) | Out-Null
 }
 
+[string] $caMain = Read-RepoText "infra/terraform-container-apps/main.tf"
+[string] $caSecondary = Read-RepoText "infra/terraform-container-apps/secondary_region.tf"
+
+if ($null -ne $caMain -and $caMain -match 'ignore_changes\s*=\s*\[[\s\S]*template\[0\]\.container\[0\]\.image') {
+    $checks.Add((Add-Check "terraform-container-apps: CD-owned image lifecycle (TB-657)" "PASS" "main.tf ignores template[0].container[0].image on Container Apps")) | Out-Null
+}
+else {
+    $checks.Add((Add-Check "terraform-container-apps: CD-owned image lifecycle (TB-657)" "WARN" "expected lifecycle.ignore_changes on container image in main.tf")) | Out-Null
+}
+
+if ($null -eq $caSecondary -or $caSecondary -match 'ignore_changes\s*=\s*\[[\s\S]*template\[0\]\.container\[0\]\.image') {
+    $checks.Add((Add-Check "terraform-container-apps: secondary image lifecycle (TB-657)" "PASS" "secondary_region.tf ignores container image or file absent")) | Out-Null
+}
+else {
+    $checks.Add((Add-Check "terraform-container-apps: secondary image lifecycle (TB-657)" "WARN" "secondary_region.tf missing lifecycle.ignore_changes on container image")) | Out-Null
+}
+
 [string] $appsettingsProd = Read-RepoText "ArchLucid.Api/appsettings.Production.json"
 [string[]] $telemetryKeys = @(
     "Observability:Otlp:Endpoint",

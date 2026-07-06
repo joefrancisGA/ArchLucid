@@ -8,7 +8,7 @@
 #   TF_WORKING_DIRECTORY — optional, e.g. infra/terraform-container-apps (copy .example tfvars to dev.tfvars / terraform.tfvars / production.tfvars)
 #   DEV_TFVARS — optional multiline secret (GitHub Environment `dev` only): full contents of dev.tfvars written before `terraform plan` so CD works without committing gitignored tfvars
 #   NUGET_API_KEY — optional; pushes ArchLucid.Api.Client when set (production path)
-#   AZURE_RESOURCE_GROUP, CONTAINER_APP_API_NAME — optional; `az containerapp update` after image push
+#   AZURE_RESOURCE_GROUP, CONTAINER_APP_API_NAME — optional; `az containerapp update` after image push (TB-657: CD owns runtime image tags; Terraform `lifecycle.ignore_changes` on container image)
 #   CONTAINER_APP_WORKER_NAME — optional; worker uses the same image as the API (ArchLucid.Api Dockerfile publishes Worker.dll; CA command is already set in Terraform)
 #   CONTAINER_APP_UI_NAME — optional second Container App for the UI image
 #   SMOKE_TEST_BASE_URL — optional; post-deploy validation + deployment-evidence Markdown (`archlucid deployment-evidence`; legacy: scripts/ci/cd-post-deploy-verify.sh)
