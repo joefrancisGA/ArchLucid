@@ -12,7 +12,7 @@ export type FocusedPilotPolicyPackAppliedCalloutProps = {
   readonly className?: string;
 };
 
-/** Surfaces auto-applied focused pilot policy packs on first-run intake (no manual assignment). */
+/** Surfaces auto-applied ArchLucid default standards on first-run intake (no manual assignment). */
 export function FocusedPilotPolicyPackAppliedCallout(
   props: FocusedPilotPolicyPackAppliedCalloutProps,
 ): ReactElement {

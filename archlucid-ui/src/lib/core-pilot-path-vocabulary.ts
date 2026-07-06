@@ -13,9 +13,10 @@ export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
   reviewWarnings: "Review warnings",
   approvalCheck: "Approval check",
   reviewApproval: "Review approval",
-  standardsAppliedTitle: "Customer standards applied automatically",
+  /** ArchLucid platform defaults — not customer-configured standards (future tenant customization is out of scope here). */
+  standardsAppliedTitle: "ArchLucid default standards applied automatically",
   standardsAppliedBody:
-    "This first review evaluates against Security Architecture Baseline and FinOps & Cloud Cost Optimization — no manual assignment required.",
+    "For your first review, ArchLucid evaluates against its default Security Architecture Baseline and FinOps & Cloud Cost Optimization standards — no manual assignment required.",
   focusedPilotToggleLabel: "Focused review scope",
   focusedPilotToggleDescription:
     "Limit this review to Security Architecture Baseline and FinOps & Cloud Cost Optimization standards so your first package stays actionable.",
