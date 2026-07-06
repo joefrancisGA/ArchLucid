@@ -62,3 +62,21 @@ variable "worker_managed_identity_principal_id" {
   description = "Container App Worker system-assigned managed identity principal_id. Granted Key Vault Secrets User when enable_key_vault is true."
   default     = ""
 }
+
+variable "enable_user_assigned_keyvault_workload_identities" {
+  type        = bool
+  description = "TB-656: When true with enable_key_vault, create API/Worker user-assigned identities and grant Key Vault Secrets User in the same apply (no TB-092 second pass)."
+  default     = true
+}
+
+variable "api_keyvault_identity_name" {
+  type        = string
+  description = "Name of the API user-assigned identity used for Key Vault secret resolution."
+  default     = "id-archlucid-api-keyvault"
+}
+
+variable "worker_keyvault_identity_name" {
+  type        = string
+  description = "Name of the Worker user-assigned identity used for Key Vault secret resolution."
+  default     = "id-archlucid-worker-keyvault"
+}

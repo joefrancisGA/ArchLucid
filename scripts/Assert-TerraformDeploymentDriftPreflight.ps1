@@ -134,11 +134,35 @@ else {
     $checks.Add((Add-Check "terraform-container-apps: CD-owned image lifecycle (TB-657)" "WARN" "expected lifecycle.ignore_changes on container image in main.tf")) | Out-Null
 }
 
-if ($null -eq $caSecondary -or $caSecondary -match 'ignore_changes\s*=\s*\[[\s\S]*template\[0\]\.container\[0\]\.image') {
+if ($null -ne $caSecondary -or $caSecondary -match 'ignore_changes\s*=\s*\[[\s\S]*template\[0\]\.container\[0\]\.image') {
     $checks.Add((Add-Check "terraform-container-apps: secondary image lifecycle (TB-657)" "PASS" "secondary_region.tf ignores container image or file absent")) | Out-Null
 }
 else {
     $checks.Add((Add-Check "terraform-container-apps: secondary image lifecycle (TB-657)" "WARN" "secondary_region.tf missing lifecycle.ignore_changes on container image")) | Out-Null
+}
+
+[string] $kvWorkloadIdentities = Read-RepoText "infra/terraform-keyvault/workload_identities.tf"
+[string] $kvWorkloadRbac = Read-RepoText "infra/terraform-keyvault/workload_rbac.tf"
+
+if ($null -ne $kvWorkloadIdentities -and $kvWorkloadIdentities -match 'azurerm_user_assigned_identity" "api_keyvault"' -and $kvWorkloadIdentities -match 'azurerm_user_assigned_identity" "worker_keyvault"') {
+    $checks.Add((Add-Check "terraform-keyvault: user-assigned Key Vault workload identities (TB-656)" "PASS" "api_keyvault and worker_keyvault identities declared")) | Out-Null
+}
+else {
+    $checks.Add((Add-Check "terraform-keyvault: user-assigned Key Vault workload identities (TB-656)" "WARN" "workload_identities.tf missing expected user-assigned resources")) | Out-Null
+}
+
+if ($null -ne $kvWorkloadRbac -and $kvWorkloadRbac -match 'user_assigned_keyvault_principal_ids') {
+    $checks.Add((Add-Check "terraform-keyvault: UAMI Key Vault RBAC wiring (TB-656)" "PASS" "workload_rbac.tf includes user-assigned principal IDs")) | Out-Null
+}
+else {
+    $checks.Add((Add-Check "terraform-keyvault: UAMI Key Vault RBAC wiring (TB-656)" "WARN" "workload_rbac.tf missing user_assigned_keyvault_principal_ids")) | Out-Null
+}
+
+if ($null -ne $caMain -and $caMain -match 'key_vault_reference_identity_id' -and $caMain -match 'api_keyvault_uami_enabled') {
+    $checks.Add((Add-Check "terraform-container-apps: Key Vault reference identity (TB-656)" "PASS" "main.tf wires key_vault_reference_identity_id for API/Worker")) | Out-Null
+}
+else {
+    $checks.Add((Add-Check "terraform-container-apps: Key Vault reference identity (TB-656)" "WARN" "expected key_vault_reference_identity_id wiring not found")) | Out-Null
 }
 
 [string] $appsettingsProd = Read-RepoText "ArchLucid.Api/appsettings.Production.json"
