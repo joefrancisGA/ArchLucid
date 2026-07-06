@@ -2,6 +2,11 @@
 
 Last reviewed: 2026-06-24
 
+> **Public statement:** Buyer-facing copy for **https://archlucid.net/accessibility** lives in
+> `archlucid-ui/src/lib/accessibility-marketing-public-statement.ts` and
+> `archlucid-ui/src/components/marketing/AccessibilityMarketingPublicView.tsx`. This file is the **internal engineering**
+> policy (CI gates, route matrices, tooling commands, and manual QA evidence).
+
 ## Target compliance level
 
 **WCAG 2.2 Level AA** — the ArchLucid operator UI targets conformance with the [Web Content Accessibility Guidelines (WCAG) 2.2](https://www.w3.org/TR/WCAG22/) at Level AA, including WCAG 2.0/2.1 success criteria retained at that level.

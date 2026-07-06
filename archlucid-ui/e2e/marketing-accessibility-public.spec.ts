@@ -38,7 +38,8 @@ test.describe("marketing-accessibility-public", () => {
     await page.locator("main#main-content").waitFor({ state: "visible", timeout: 60_000 });
 
     await expect(page.getByRole("heading", { name: "Accessibility", level: 1 })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Target compliance level", level: 2 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Accessibility standard", level: 2 })).toBeVisible();
+    await expect(page.getByTestId("accessibility-status-card")).toBeVisible();
     await expect(page.getByText(new RegExp(`Last reviewed:\\s*${escapeRegex(reviewedRaw)}`))).toBeVisible();
     await expect(page.getByRole("link", { name: "accessibility@archlucid.net" })).toBeVisible();
   });

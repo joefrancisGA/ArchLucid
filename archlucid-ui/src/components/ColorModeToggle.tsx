@@ -1,5 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { Moon, Sun } from "lucide-react";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import {
@@ -30,8 +31,8 @@ export function ColorModeToggle() {
 
   const resolvedDark = resolveDarkAppearance(preference, systemPrefersDark);
   const nextMode = resolveNextColorModePreference(preference, systemPrefersDark);
-  const icon = resolvedDark ? "🌙" : "☀️";
   const label = buildColorModeToggleLabel(preference, systemPrefersDark);
+  const Icon = resolvedDark ? Moon : Sun;
 
   return (
     <button
@@ -42,7 +43,7 @@ export function ColorModeToggle() {
       title={label}
       onClick={() => setAndPersist(nextMode)}
     >
-      <span aria-hidden className={OPERATOR_TYPOGRAPHY.helper}>{icon}</span>
+      <Icon className="size-4 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden />
     </button>
   );
 }
