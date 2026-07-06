@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorHomeWorkspaceArchivedEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceArchivedEmptyState";
 import { OperatorHomeWorkspaceEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceEmptyState";
 import {
   runListPrimaryRequestId,
@@ -53,6 +54,20 @@ export type RunsDashboardRecentTabProps = {
 };
 
 export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
+  const showArchivedEmptyState =
+    props.showArchived &&
+    props.archivedFieldSupported &&
+    props.filteredItems.length === 0 &&
+    !props.runListError &&
+    (props.phase === "ready" || props.phase === "error");
+
+  const showWorkspaceEmptyState =
+    !props.showArchived &&
+    props.filteredItems.length === 0 &&
+    props.effectiveItems.length === 0 &&
+    !props.runListError &&
+    (props.phase === "ready" || props.phase === "error");
+
   return (
     <div data-testid="runs-dashboard-tab-recent">
       {props.phase === "loading" ? (
@@ -132,21 +147,9 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
         </div>
       ) : null}
 
-      {props.showArchived && !props.archivedFieldSupported && (props.phase === "ready" || props.phase === "error") ? (
-        <p
-          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="runs-dashboard-archived-unsupported"
-        >
-          {RUNS_DASHBOARD_LABELS.archivedListUnsupported}
-        </p>
-      ) : null}
+      {showArchivedEmptyState ? <OperatorHomeWorkspaceArchivedEmptyState /> : null}
 
-      {(props.phase === "ready" || props.phase === "error") &&
-      props.filteredItems.length === 0 &&
-      props.effectiveItems.length === 0 &&
-      !props.runListError ? (
-        <OperatorHomeWorkspaceEmptyState />
-      ) : null}
+      {showWorkspaceEmptyState ? <OperatorHomeWorkspaceEmptyState /> : null}
 
       {(props.phase === "ready" || props.phase === "error") && props.showcaseDemoRun !== undefined && props.buyerPolishedShell ? (
         <section

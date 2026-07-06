@@ -32,7 +32,7 @@ import {
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_DASHBOARD_SECTION_HEADING,
 } from "@/lib/buyer-polish-copy";
-import { buyerFilterChipActiveClass } from "@/lib/buyer-shell-home-present";
+import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
 import {
   OPERATOR_CARD,
   OPERATOR_HOME_SECTION_HEADING,
@@ -181,6 +181,22 @@ export function RunsDashboardPanelClient({
     [effectiveItems],
   );
 
+  const archivedCount = useMemo(() => {
+    if (!archivedFieldSupported) {
+      return 0;
+    }
+
+    return effectiveItems.filter((run) => run.isArchived === true).length;
+  }, [archivedFieldSupported, effectiveItems]);
+
+  const archivedFilterDisabled = !archivedFieldSupported || archivedCount === 0;
+
+  useEffect(() => {
+    if (archivedFilterDisabled && showArchived) {
+      setShowArchived(false);
+    }
+  }, [archivedFilterDisabled, showArchived]);
+
   const filteredItems = useMemo(() => {
     let rows = effectiveItems;
 
@@ -265,7 +281,7 @@ export function RunsDashboardPanelClient({
                     ? cn(
                         "inline-flex min-h-[22px] items-center rounded-full border px-3 py-1 transition-colors",
                         OPERATOR_TYPOGRAPHY.badge,
-                        buyerFilterChipActiveClass(tab === id),
+                        buyerFilterChipClass(tab === id, false),
                       )
                     : cn(
                         "border-b-2 border-transparent bg-transparent px-0 py-0.5",
@@ -282,21 +298,26 @@ export function RunsDashboardPanelClient({
                 {runsDashboardTabLabel(id, buyerPolishedShell)}
               </button>
             ))}
-            {buyerPolishedShell ? (
+            {buyerPolishedShell && archivedFieldSupported ? (
               <button
                 type="button"
                 aria-pressed={showArchived}
+                disabled={archivedFilterDisabled}
                 data-testid="runs-dashboard-show-archived"
                 onClick={() => {
+                  if (archivedFilterDisabled) {
+                    return;
+                  }
+
                   setShowArchived(!showArchived);
                 }}
                 className={cn(
                   "inline-flex min-h-[22px] items-center rounded-full border px-3 py-1 transition-colors",
                   OPERATOR_TYPOGRAPHY.badge,
-                  buyerFilterChipActiveClass(showArchived),
+                  buyerFilterChipClass(showArchived, archivedFilterDisabled),
                 )}
               >
-                Archived
+                Archived {archivedCount}
               </button>
             ) : null}
           </div>

@@ -76,8 +76,6 @@ export const RUNS_DASHBOARD_LABELS = {
   showArchived: "Show archived",
   restoreRequest: "Restore",
   restoringRequest: "Restoring…",
-  archivedListUnsupported:
-    "Archived review packages are not yet shown when the archived filter is enabled. Contact your administrator if you expected to see archived items here.",
 } as const;
 
 export const RUN_PACKAGE_EXPORT_LABELS = {

@@ -63,6 +63,10 @@ export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No committed reviews yet";
 
 export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY = "Your review packages will appear here.";
 
+export const OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE = "No archived reviews yet.";
+
+export const OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_BODY = "Archived review packages will appear here.";
+
 export const PILOT_COMMAND_CENTER_HEADING = "Start your first review";
 
 export const OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING = "Recent activity";

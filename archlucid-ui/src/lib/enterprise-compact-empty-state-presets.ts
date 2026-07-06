@@ -1,5 +1,10 @@
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
-import { OPERATOR_HOME_WORKSPACE_EMPTY_BODY, OPERATOR_HOME_WORKSPACE_EMPTY_TITLE } from "@/lib/buyer-polish-copy";
+import {
+  OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_BODY,
+  OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE,
+  OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
+  OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
+} from "@/lib/buyer-polish-copy";
 
 /** Reviews list when the project has zero review packages. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -18,6 +23,13 @@ export const OPERATOR_HOME_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStatePro
   testId: "operator-home-workspace-empty-state",
   title: OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
   description: OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
+};
+
+/** Workspace Activity archived filter — no archived review packages in scope. */
+export const OPERATOR_HOME_ARCHIVED_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "operator-home-workspace-archived-empty-state",
+  title: OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE,
+  description: OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_BODY,
 };
 
 /** Semantic search returned no hits. */

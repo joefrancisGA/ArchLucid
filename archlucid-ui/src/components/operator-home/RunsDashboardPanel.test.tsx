@@ -360,7 +360,7 @@ describe("RunsDashboardPanel", () => {
         "data-testid",
         "runs-dashboard-tab-outcomes",
       );
-      expect(screen.getByTestId("runs-dashboard-show-archived")).toHaveTextContent("Archived");
+      expect(screen.queryByTestId("runs-dashboard-show-archived")).toBeNull();
     });
     expect(screen.queryByTestId("runs-dashboard-filters")).toBeNull();
     expect(screen.queryByTestId("runs-dashboard-governance-warnings-only")).toBeNull();
@@ -394,5 +394,129 @@ describe("RunsDashboardPanel", () => {
       fallbackSpy.mockRestore();
       runsDashBuyerPolishedForced.on = false;
     }
+  });
+
+  it("buyer-polished archived filter is disabled with zero count when archive field is supported", async () => {
+    runsDashBuyerPolishedForced.on = true;
+
+    const run: RunSummary = {
+      runId: "33333333-3333-3333-3333-333333333333",
+      projectId: "default",
+      description: "Active review",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      isArchived: false,
+    };
+    listRuns.mockResolvedValue({
+      items: [run],
+      totalCount: 1,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    renderRunsDashboardPanel();
+
+    const archivedFilter = await screen.findByTestId("runs-dashboard-show-archived");
+    expect(archivedFilter).toHaveTextContent("Archived 0");
+    expect(archivedFilter).toBeDisabled();
+    expect(screen.queryByTestId("runs-dashboard-archived-unsupported")).toBeNull();
+    expect(screen.queryByText(/contact your administrator/i)).toBeNull();
+
+    runsDashBuyerPolishedForced.on = false;
+  });
+
+  it("buyer-polished archived filter lists archived reviews when count is greater than zero", async () => {
+    runsDashBuyerPolishedForced.on = true;
+
+    const activeRun: RunSummary = {
+      runId: "44444444-4444-4444-4444-444444444444",
+      projectId: "default",
+      description: "Active review",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      isArchived: false,
+    };
+    const archivedRun: RunSummary = {
+      runId: "55555555-5555-5555-5555-555555555555",
+      projectId: "default",
+      description: "Archived review",
+      createdUtc: "2026-01-10T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      isArchived: true,
+      requestId: "req-archived-1",
+    };
+    listRuns.mockResolvedValue({
+      items: [activeRun, archivedRun],
+      totalCount: 2,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    renderRunsDashboardPanel();
+
+    const archivedFilter = await screen.findByTestId("runs-dashboard-show-archived");
+    expect(archivedFilter).toHaveTextContent("Archived 1");
+    expect(archivedFilter).not.toBeDisabled();
+
+    fireEvent.click(archivedFilter);
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Archived review" })).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("link", { name: "Active review" })).toBeNull();
+    expect(screen.queryByTestId("operator-home-workspace-archived-empty-state")).toBeNull();
+    expect(screen.queryByText(/contact your administrator/i)).toBeNull();
+
+    runsDashBuyerPolishedForced.on = false;
+  });
+
+  it("shows archived empty state when archived filter is active with no matching reviews", async () => {
+    const activeRun: RunSummary = {
+      runId: "66666666-6666-6666-6666-666666666666",
+      projectId: "default",
+      description: "Active review",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      isArchived: false,
+    };
+    const archivedRun: RunSummary = {
+      runId: "77777777-7777-7777-7777-777777777777",
+      projectId: "default",
+      description: "Archived review",
+      createdUtc: "2026-01-10T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      isArchived: true,
+    };
+    listRuns.mockResolvedValue({
+      items: [activeRun, archivedRun],
+      totalCount: 2,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    renderRunsDashboardPanel();
+
+    await screen.findByRole("link", { name: "Active review" });
+
+    fireEvent.click(screen.getByTestId("runs-dashboard-show-archived"));
+    fireEvent.click(screen.getByTestId("runs-dashboard-governance-warnings-only"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-home-workspace-archived-empty-state")).toBeInTheDocument();
+    });
+    expect(screen.getByText("No archived reviews yet.")).toBeInTheDocument();
+    expect(screen.getByText("Archived review packages will appear here.")).toBeInTheDocument();
+    expect(screen.queryByTestId("runs-dashboard-archived-unsupported")).toBeNull();
   });
 });

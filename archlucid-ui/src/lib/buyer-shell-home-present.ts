@@ -243,6 +243,17 @@ export function shellHealthReadinessSummary(healthLoadFailed: boolean, healthSta
   return BUYER_READINESS_UNAVAILABLE;
 }
 
+const BUYER_FILTER_CHIP_DISABLED_CLASS =
+  "cursor-not-allowed border-neutral-200 bg-neutral-50 text-neutral-400 opacity-70 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-500";
+
 export function buyerFilterChipActiveClass(active: boolean): string {
   return active ? BUYER_FILTER_CHIP_ACTIVE_CLASS : BUYER_FILTER_CHIP_IDLE_CLASS;
+}
+
+export function buyerFilterChipClass(active: boolean, disabled: boolean): string {
+  if (disabled) {
+    return BUYER_FILTER_CHIP_DISABLED_CLASS;
+  }
+
+  return buyerFilterChipActiveClass(active);
 }
