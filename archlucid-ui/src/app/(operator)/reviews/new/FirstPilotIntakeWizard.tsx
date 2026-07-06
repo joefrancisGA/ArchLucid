@@ -34,7 +34,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import {
   buildEvidenceBackedIntakeBrief,
-  FIRST_PILOT_MIN_BRIEF_CHARS,
   isFirstPilotIntakeReady,
   normalizeFirstPilotReviewTitle,
 } from "@/lib/first-pilot-intake";
@@ -229,7 +228,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
         <CardHeader>
           <CardTitle>{CREATE_REVIEW_PACKAGE_HEADING}</CardTitle>
           <CardDescription>
-            Start with a title and one architecture diagram. A brief description is optional when a file is attached.
+            Start with a title and one architecture diagram. Architecture context is optional when a file is attached.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -256,7 +255,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           />
 
           <div className="space-y-2">
-            <Label htmlFor="first-pilot-brief">Short architecture description (optional)</Label>
+            <Label htmlFor="first-pilot-brief">Architecture context</Label>
             <Textarea
               id="first-pilot-brief"
               value={briefText}
@@ -264,13 +263,13 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
                 setBriefText(event.target.value);
               }}
               className={cn("min-h-[100px]", OPERATOR_TYPOGRAPHY.body)}
-              placeholder="Optional: 2–3 sentences on goals, constraints, or what you want reviewed."
+              placeholder="Add as much useful context as you can: goals, constraints, risks, business drivers, integrations, data flows, security concerns, known tradeoffs, and what you want ArchLucid to focus on."
               data-testid="first-pilot-brief"
             />
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               {evidenceFiles.length > 0
-                ? `${evidenceFiles.length} file${evidenceFiles.length === 1 ? "" : "s"} attached — brief optional.`
-                : `Without files, brief must be at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters.`}
+                ? `${evidenceFiles.length} file${evidenceFiles.length === 1 ? "" : "s"} attached — architecture context optional.`
+                : "If you do not upload files, provide enough context for ArchLucid to understand what should be reviewed."}
             </p>
           </div>
 

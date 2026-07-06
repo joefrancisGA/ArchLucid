@@ -23,7 +23,7 @@ export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
   focusedPilotToggleAssistiveOn: "Evaluation is limited to security baseline and cost standards.",
   focusedPilotToggleAssistiveOff: "All enabled standards may contribute findings.",
   firstIntakeLead:
-    "Upload one architecture diagram and add a short description if you want. Evaluation standards apply automatically.",
+    "Upload one architecture diagram and add architecture context when you can. Evaluation standards apply automatically.",
   firstIntakeAdvancedNote:
     "Focused review scope is on by default. Turn off only if you need every enabled standard to contribute findings.",
   streamlinedFirstReviewBanner:

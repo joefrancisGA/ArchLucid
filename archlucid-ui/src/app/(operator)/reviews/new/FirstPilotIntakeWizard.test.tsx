@@ -51,6 +51,17 @@ describe("FirstPilotIntakeWizard", () => {
     expect(FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE.toLowerCase()).not.toContain("evidence file");
   });
 
+  it("encourages rich architecture context without short-brief guidance", () => {
+    render(<FirstPilotIntakeWizard />);
+
+    expect(screen.getByLabelText("Architecture context")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Add as much useful context as you can/i)).toBeInTheDocument();
+    expect(screen.queryByText(/2–3 sentences/i)).toBeNull();
+    expect(
+      screen.getByText(/If you do not upload files, provide enough context for ArchLucid to understand what should be reviewed/i),
+    ).toBeInTheDocument();
+  });
+
   it("enables start with title and evidence file without a long brief", async () => {
     createRun.mockResolvedValue({ run: { runId: "first-pilot-run-1" } });
 
