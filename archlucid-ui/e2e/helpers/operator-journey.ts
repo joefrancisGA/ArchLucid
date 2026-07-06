@@ -31,12 +31,22 @@ export async function gotoComparePageWithFixturePair(
   await page.goto(`/compare?${comparePairSearchParams(leftRunId, rightRunId)}`);
 }
 
-/**
- * Primary `/compare` H2 from {@link OperatorPageHeader}. Buyer-polished and full-operator shells both use
- * **Compare two reviews**.
- */
+/** Stable `/compare` page anchor — decoupled from buyer-polished vs full-operator title copy. */
+export function comparePageReady(page: Page): Locator {
+  return page.getByTestId("compare-page-ready");
+}
+
+/** Primary `/compare` H2 from {@link OperatorPageHeader} (`titleTestId="compare-page-heading"`). */
 export function comparePageMainHeading(page: Page): Locator {
-  return page.getByRole("heading", { level: 2, name: /^Compare two reviews$/i });
+  return page.getByTestId("compare-page-heading");
+}
+
+/** Waits for `/compare` to finish Suspense hydration and render the interactive form shell. */
+export async function waitForComparePageReady(page: Page, options?: { timeout?: number }): Promise<void> {
+  const timeout = options?.timeout ?? 15_000;
+
+  await expect(comparePageReady(page)).toBeVisible({ timeout });
+  await expect(comparePageMainHeading(page)).toBeVisible({ timeout });
 }
 
 /**
@@ -170,6 +180,8 @@ export function compareManifestComparisonHeading(page: Page): Locator {
  * and clicks **Compare** (mock routes, slow CI, or pages without auto-compare).
  */
 export async function waitForCompareResultsReady(page: Page): Promise<void> {
+  await waitForComparePageReady(page);
+
   const manifestHeading = compareManifestComparisonHeading(page);
 
   try {
