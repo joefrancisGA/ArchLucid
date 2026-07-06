@@ -2,9 +2,8 @@
 
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { OperatorCorePilotDiagnosticsChecklist } from "@/components/OperatorCorePilotDiagnosticsChecklist";
-import { BuyerCtoDemoReadinessPanel } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
+import { ExploreArchLucidBuyerContent } from "@/components/operator-home/ExploreArchLucidBuyerContent";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
-import { StartCtoDemoCard } from "@/components/operator-home/StartCtoDemoCard";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY,
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
@@ -17,7 +16,7 @@ type OperatorHomeAdvancedGuidanceSectionProps = {
   readonly checklistVariant?: "full" | "compact";
 };
 
-/** Collapsed-by-default help rail — review walkthrough and optional demo setup. */
+/** Collapsed-by-default help rail — buyer exploration or operator walkthroughs. */
 export function OperatorHomeAdvancedGuidanceSection(
   props: OperatorHomeAdvancedGuidanceSectionProps,
 ): React.JSX.Element {
@@ -35,13 +34,11 @@ export function OperatorHomeAdvancedGuidanceSection(
       collapsedSummary={OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY}
     >
       <div className="space-y-3">
-        <CorePilotChecklist variant={checklistVariant} />
         {props.buyerPolishedShell ? (
-          <>
-            <StartCtoDemoCard />
-            <BuyerCtoDemoReadinessPanel />
-          </>
-        ) : null}
+          <ExploreArchLucidBuyerContent />
+        ) : (
+          <CorePilotChecklist variant={checklistVariant} />
+        )}
         {props.fullOperatorShell === true ? <OperatorCorePilotDiagnosticsChecklist /> : null}
       </div>
     </OperatorHomeDisclosureSection>

@@ -100,7 +100,7 @@ describe("operator home peer card titles", () => {
     expectPeerCardTitleClasses(sampleReviewTitle.className);
   });
 
-  it("uses the same peer-card title scale for Setup readiness, Workspace metrics, and How ArchLucid works", () => {
+  it("uses the same peer-card title scale for Setup readiness, Workspace metrics, and Explore ArchLucid", () => {
     render(<OperatorHomeContinueSetupCard />);
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={emptyRunsDashboard} />);

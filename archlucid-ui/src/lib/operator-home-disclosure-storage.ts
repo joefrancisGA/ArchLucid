@@ -4,6 +4,7 @@ export const OPERATOR_HOME_DISCLOSURE_COLLAPSED_VALUE = "1";
 
 export const OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS = {
   advancedGuidance: "archlucid_operator_home_disclosure_advanced_guidance_v1",
+  demoOperations: "archlucid_operator_home_disclosure_demo_operations_v1",
   workspaceReadiness: "archlucid_operator_home_disclosure_workspace_readiness_v1",
   pilotStartHere: "archlucid_operator_home_disclosure_pilot_start_here_v1",
   recommendedFirstSessionPath: "archlucid_operator_home_disclosure_recommended_first_session_v1",

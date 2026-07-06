@@ -125,10 +125,22 @@ export const PILOT_PATH_PREVIEW_STEPS = [
 /** Section B on operator home — optional setup, walkthroughs, and workspace context. */
 export const OPERATOR_HOME_WORKSPACE_SETUP_SECTION_TITLE = "Workspace setup";
 
-export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "How ArchLucid works";
+export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Explore ArchLucid";
 
 export const OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY =
-  "Review walkthrough and help links.";
+  "Review walkthrough and example review package.";
+
+export const OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING = "Review walkthrough";
+
+export const OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_LEAD =
+  "Walk through the architecture review flow from evidence to decision record.";
+
+export const OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA = "View walkthrough";
+
+export const OPERATOR_HOME_DEMO_OPERATIONS_TITLE = "Demo operations";
+
+export const OPERATOR_HOME_DEMO_OPERATIONS_COLLAPSED_SUMMARY =
+  "Internal demo readiness checks and reset controls.";
 
 export const OPERATOR_HOME_WORKSPACE_STATUS_TITLE = "Workspace status";
 
@@ -154,7 +166,7 @@ export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION =
 export const BUYER_HOME_START_CTO_DEMO_HEADING = "Open example review";
 
 export const BUYER_HOME_START_CTO_DEMO_LEAD =
-  "Open a finalized sample architecture review and walk the 5-step diligence path — no setup.";
+  "Open a completed sample architecture review package.";
 
 export const BUYER_HOME_START_CTO_DEMO_CTA = "Open example review";
 
@@ -186,7 +198,7 @@ export const BUYER_CTO_DEMO_READINESS_NOT_READY_LABEL = "Demo not ready";
 
 export const BUYER_CTO_DEMO_READINESS_CHECKING_LABEL = "Checking demo readiness…";
 
-export const BUYER_CTO_DEMO_READINESS_REFRESH_CTA = "Recheck";
+export const BUYER_CTO_DEMO_READINESS_REFRESH_CTA = "Recheck readiness";
 
 /** Buyer-facing readiness copy — never mention demo seed, static operator mode, or env flags. */
 export const BUYER_DEMO_READINESS_SAMPLE_READY_DETAIL = "Sample review package is ready.";

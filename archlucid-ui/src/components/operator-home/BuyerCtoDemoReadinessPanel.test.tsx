@@ -8,7 +8,7 @@ vi.mock("@/lib/demo-ui-env", () => ({
 }));
 
 vi.mock("@/lib/cto-demo-presenter-pack", () => ({
-  isCtoDemoOperatorToolingEnv: () => false,
+  isCtoDemoOperatorToolingEnv: () => true,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -56,7 +56,7 @@ describe("BuyerCtoDemoReadinessPanel", () => {
   });
 
   it("shows a demo ready badge after checks complete", async () => {
-    render(<BuyerCtoDemoReadinessPanel />);
+    render(<BuyerCtoDemoReadinessPanel embedded />);
 
     await waitFor(() => {
       expect(screen.getByTestId("buyer-cto-demo-readiness-badge")).toHaveTextContent("Demo ready");
@@ -64,7 +64,7 @@ describe("BuyerCtoDemoReadinessPanel", () => {
 
     expect(screen.getByTestId("buyer-cto-demo-readiness-check-buyer-shell")).toBeInTheDocument();
     expect(mockEvaluate).toHaveBeenCalledTimes(1);
-    expect(screen.queryByTestId("buyer-cto-demo-run-of-show-download")).toBeNull();
-    expect(screen.queryByTestId("cto-demo-reset-button")).toBeNull();
+    expect(screen.getByTestId("buyer-cto-demo-run-of-show-download")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Recheck readiness" })).toBeInTheDocument();
   });
 });

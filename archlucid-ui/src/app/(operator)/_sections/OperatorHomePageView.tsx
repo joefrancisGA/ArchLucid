@@ -1,4 +1,5 @@
 import { OperatorHomeAdvancedGuidancePanel } from "@/components/operator-home/OperatorHomeAdvancedGuidancePanel";
+import { OperatorHomeDemoOperationsPanel } from "@/components/operator-home/OperatorHomeDemoOperationsPanel";
 import {
   OperatorHomeDeferredOnboarding,
   OperatorHomeFirstValueCallout,
@@ -51,6 +52,7 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
       <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={props.model.runsDashboard} />
 
       <OperatorHomeAdvancedGuidancePanel buyerPolishedShell checklistVariant="compact" />
+      <OperatorHomeDemoOperationsPanel />
     </>
   );
 }
