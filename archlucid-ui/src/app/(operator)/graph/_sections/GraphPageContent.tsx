@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
@@ -530,8 +531,6 @@ export function GraphPageContent() {
       }}
       decisionId={decisionId}
       nodeId={nodeId}
-      presentationView={presentationView}
-      onPresentationViewChange={setPresentationView}
       onReviewsListAvailabilityChange={({ loadError }) => {
         setReviewsListLoadError(loadError);
       }}
@@ -539,6 +538,68 @@ export function GraphPageContent() {
   );
 
   const buyerTraceOnlyIdle = buyerTraceWithoutGraph;
+
+  const buyerGraphBody =
+    buyerPolishedShell && showOperatorControls ? (
+      <Tabs
+        value={presentationView}
+        onValueChange={(next) => {
+          setPresentationView(next as EvidenceTrailPresentationView);
+        }}
+      >
+        {controls}
+        <GraphFetchStatusAlerts
+          loading={loading}
+          loadFailure={showLoadFailureAlert ? loadFailure : null}
+          malformedMessage={malformedMessage}
+          buyerPolishedShell={buyerPolishedShell}
+          runId={runId}
+          onRetry={() => {
+            setGraphLoadRequested(true);
+            void performGraphLoad();
+          }}
+          graphEndpointHint={graphEndpointHint}
+        />
+        {showIdleCard ? (
+          <GraphIdlePlaceholder graphIdlePreset={graphIdlePreset} buyerPolishedShell={buyerPolishedShell} />
+        ) : null}
+        <TabsContent value="trace" className="pt-0" data-testid="graph-presentation-panel-trace">
+          {buyerTraceOnlyIdle ? (
+            <div className={graphMainColumnMaxClass}>
+              <EvidenceTrailTracePanel runId={runId} onOpenGraphView={() => setPresentationView("graph")} />
+            </div>
+          ) : null}
+        </TabsContent>
+        {architectureGraphNote ? (
+          <GraphArchitectureNoteBanner
+            graphMainColumnMaxClass={graphMainColumnMaxClass}
+            architectureGraphNote={architectureGraphNote}
+          />
+        ) : null}
+        {effectiveGraph ? (
+          <GraphLoadedExperience
+            buyerPolishedShell={buyerPolishedShell}
+            graphMainColumnMaxClass={graphMainColumnMaxClass}
+            graph={effectiveGraph}
+            demoUi={demoUi}
+            graphSurfaceKey={graphSurfaceKey}
+            typeFilter={typeFilter}
+            onTypeFilterChange={setTypeFilter}
+            nodeTypes={nodeTypes}
+            runId={runId}
+            mode={mode}
+            onModeChange={setMode}
+            loading={loading}
+            graphInteractiveReady={graphInteractiveReady}
+            onGraphInteractiveSurfaceReady={handleGraphInteractiveSurfaceReady}
+            controls={controls}
+            defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
+            presentationView={presentationView}
+            onPresentationViewChange={setPresentationView}
+          />
+        ) : null}
+      </Tabs>
+    ) : null;
 
   return (
     <OperatorPageContainer variant="dashboard">
@@ -550,7 +611,7 @@ export function GraphPageContent() {
         }
       />
       <GraphEvidenceTrailGuidanceDisclosure />
-      {showOperatorControls ? (buyerPolishedShell ? controls : null) : null}
+      {buyerGraphBody}
       {!buyerPolishedShell && showOperatorControls && effectiveGraph === null ? (
         <>
           {savedViewsBar}
@@ -571,55 +632,52 @@ export function GraphPageContent() {
         />
       ) : null}
 
-      <GraphFetchStatusAlerts
-        loading={loading}
-        loadFailure={showLoadFailureAlert ? loadFailure : null}
-        malformedMessage={malformedMessage}
-        buyerPolishedShell={buyerPolishedShell}
-        runId={runId}
-        onRetry={() => {
-          setGraphLoadRequested(true);
-          void performGraphLoad();
-        }}
-        graphEndpointHint={graphEndpointHint}
-      />
+      {!buyerPolishedShell ? (
+        <GraphFetchStatusAlerts
+          loading={loading}
+          loadFailure={showLoadFailureAlert ? loadFailure : null}
+          malformedMessage={malformedMessage}
+          buyerPolishedShell={buyerPolishedShell}
+          runId={runId}
+          onRetry={() => {
+            setGraphLoadRequested(true);
+            void performGraphLoad();
+          }}
+          graphEndpointHint={graphEndpointHint}
+        />
+      ) : null}
 
-      {showIdleCard ? (
+      {!buyerPolishedShell && showIdleCard ? (
         <GraphIdlePlaceholder graphIdlePreset={graphIdlePreset} buyerPolishedShell={buyerPolishedShell} />
       ) : null}
 
-      {buyerTraceOnlyIdle ? (
-        <div className={graphMainColumnMaxClass}>
-          <EvidenceTrailTracePanel runId={runId} onOpenGraphView={() => setPresentationView("graph")} />
-        </div>
+      {!buyerPolishedShell && architectureGraphNote ? (
+        <GraphArchitectureNoteBanner graphMainColumnMaxClass={graphMainColumnMaxClass} architectureGraphNote={architectureGraphNote} />
       ) : null}
 
-      {architectureGraphNote && (
-        <GraphArchitectureNoteBanner graphMainColumnMaxClass={graphMainColumnMaxClass} architectureGraphNote={architectureGraphNote} />
-      )}
-
-      {effectiveGraph ? (
+      {!buyerPolishedShell && effectiveGraph ? (
         <>
-          {!buyerPolishedShell ? savedViewsBar : null}
+          {savedViewsBar}
           <GraphLoadedExperience
-          buyerPolishedShell={buyerPolishedShell}
-          graphMainColumnMaxClass={graphMainColumnMaxClass}
-          graph={effectiveGraph}
-          demoUi={demoUi}
-          graphSurfaceKey={graphSurfaceKey}
-          typeFilter={typeFilter}
-          onTypeFilterChange={setTypeFilter}
-          nodeTypes={nodeTypes}
-          runId={runId}
-          mode={mode}
-          loading={loading}
-          graphInteractiveReady={graphInteractiveReady}
-          onGraphInteractiveSurfaceReady={handleGraphInteractiveSurfaceReady}
-          controls={controls}
-          defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
-          presentationView={presentationView}
-          onPresentationViewChange={setPresentationView}
-        />
+            buyerPolishedShell={buyerPolishedShell}
+            graphMainColumnMaxClass={graphMainColumnMaxClass}
+            graph={effectiveGraph}
+            demoUi={demoUi}
+            graphSurfaceKey={graphSurfaceKey}
+            typeFilter={typeFilter}
+            onTypeFilterChange={setTypeFilter}
+            nodeTypes={nodeTypes}
+            runId={runId}
+            mode={mode}
+            onModeChange={setMode}
+            loading={loading}
+            graphInteractiveReady={graphInteractiveReady}
+            onGraphInteractiveSurfaceReady={handleGraphInteractiveSurfaceReady}
+            controls={controls}
+            defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
+            presentationView={presentationView}
+            onPresentationViewChange={setPresentationView}
+          />
         </>
       ) : null}
     </OperatorPageContainer>

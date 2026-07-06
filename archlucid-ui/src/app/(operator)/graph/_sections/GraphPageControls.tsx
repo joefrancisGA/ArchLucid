@@ -5,6 +5,7 @@ import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { GRAPH_MODE_NATIVE_TITLES } from "@/components/GraphIdleLegend";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BUYER_EVIDENCE_TRAIL_LOAD_BUTTON,
   BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE,
@@ -13,17 +14,13 @@ import {
   BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON,
   BUYER_EVIDENCE_TRAIL_VIEW_GRAPH,
   BUYER_EVIDENCE_TRAIL_VIEW_TRACE,
-  OPERATOR_GRAPH_SCOPE_LABEL,
   OPERATOR_GRAPH_SELECT_REVIEW_FIRST_HINT,
+  OPERATOR_GRAPH_SCOPE_LABEL,
 } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import {
-  BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS,
-  type EvidenceTrailPresentationView,
-  type GraphMode,
-} from "@/app/(operator)/graph/_sections/graph-page-helpers";
+import type { GraphMode } from "@/app/(operator)/graph/_sections/graph-page-helpers";
 
 export type GraphPageControlsProps = {
   graphMainColumnMaxClass: string;
@@ -39,8 +36,6 @@ export type GraphPageControlsProps = {
   onLoadGraph: () => void;
   decisionId: string;
   nodeId: string;
-  presentationView?: EvidenceTrailPresentationView;
-  onPresentationViewChange?: (view: EvidenceTrailPresentationView) => void;
   onReviewsListAvailabilityChange?: (state: { loadError: boolean }) => void;
 };
 
@@ -59,8 +54,6 @@ export function GraphPageControls(props: GraphPageControlsProps) {
     onLoadGraph,
     decisionId,
     nodeId,
-    presentationView = "trace",
-    onPresentationViewChange,
     onReviewsListAvailabilityChange,
   } = props;
 
@@ -93,23 +86,6 @@ export function GraphPageControls(props: GraphPageControlsProps) {
               onListAvailabilityChange={onReviewsListAvailabilityChange}
             />
           </div>
-          {presentationView === "graph" ? (
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Graph scope">
-              {BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS.map((option) => (
-                <Button
-                  key={option.mode}
-                  type="button"
-                  size="sm"
-                  variant={mode === option.mode ? "primary" : "outline"}
-                  aria-pressed={mode === option.mode}
-                  title={GRAPH_MODE_NATIVE_TITLES[option.mode]}
-                  onClick={() => onModeChange(option.mode)}
-                >
-                  {option.label}
-                </Button>
-              ))}
-            </div>
-          ) : null}
           {showLoadButton ? (
             <div className="flex flex-col gap-1">
               <Button
@@ -130,26 +106,14 @@ export function GraphPageControls(props: GraphPageControlsProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Evidence graph view">
-            <Button
-              type="button"
-              size="sm"
-              variant={presentationView === "trace" ? "primary" : "outline"}
-              aria-pressed={presentationView === "trace"}
-              onClick={() => onPresentationViewChange?.("trace")}
-            >
+          <TabsList aria-label="Evidence graph view" data-testid="graph-presentation-tabs" className="gap-1 border-0">
+            <TabsTrigger value="trace" data-testid="graph-presentation-tab-trace" className="shrink-0">
               {BUYER_EVIDENCE_TRAIL_VIEW_TRACE}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={presentationView === "graph" ? "primary" : "outline"}
-              aria-pressed={presentationView === "graph"}
-              onClick={() => onPresentationViewChange?.("graph")}
-            >
+            </TabsTrigger>
+            <TabsTrigger value="graph" data-testid="graph-presentation-tab-graph" className="shrink-0">
               {BUYER_EVIDENCE_TRAIL_VIEW_GRAPH}
-            </Button>
-          </div>
+            </TabsTrigger>
+          </TabsList>
           <Button type="button" variant="outline" size="sm" asChild>
             <Link href={sampleTrailHref}>{BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON}</Link>
           </Button>
