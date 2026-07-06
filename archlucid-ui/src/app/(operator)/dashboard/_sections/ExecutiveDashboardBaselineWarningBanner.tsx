@@ -8,6 +8,7 @@ import { InlineGuidance } from "@/components/InlineGuidance";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { useWorkspaceBaselineArtifactsPresence } from "@/hooks/use-workspace-baseline-artifacts";
+import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -16,11 +17,11 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 const EXECUTIVE_DASHBOARD_BASELINE_WARNING_DISMISSED_SESSION_KEY: string =
   "archlucid-dashboard-baseline-upload-warning-dismissed";
 
-/** Baseline-first new-run wizard (`?baseline=1`) — Azure extractor ZIP upload before identity. */
+/** Baseline-first new-run wizard (`?baseline=1`) — cloud inventory ZIP upload before identity. */
 
 export const EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF = "/reviews/new?baseline=1";
 
-/** Prominent nudge when no Azure extractor baseline artifact exists in the active workspace. */
+/** Prominent nudge when no cloud inventory baseline artifact exists in the active workspace. */
 
 export type ExecutiveDashboardBaselineWarningBannerProps = {
   /** `setup` renders a neutral optional-setup card; `banner` keeps the legacy alert strip. */
@@ -86,8 +87,7 @@ export function ExecutiveDashboardBaselineWarningBanner({
       <div className="min-w-0 flex-1">
         <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>Upload workspace baseline inventory</p>
         <p className={cn("mb-0 mt-2 text-amber-900/95 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.body)}>
-          Executive ROI summaries stay grounded when you upload an Azure extractor inventory ZIP for this workspace.
-          Use the baseline upload wizard to parse the packager output and start your first review from real inventory.
+          {CLOUD_NEUTRAL_PRIMARY_COPY.executiveBaselineBannerBody}
         </p>
         <p className="mt-2 mb-0">
           <Link

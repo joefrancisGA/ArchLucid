@@ -1,3 +1,5 @@
+import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
+
 /**
  * Buyer-first labels for the Core Pilot checklist (“architecture review” in operator chrome).
  */
@@ -21,7 +23,7 @@ export const CORE_PILOT_WORKFLOW_SUMMARY_LINE =
 export const CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS: readonly string[] = [
   "Start from New review or the sample showcase — capture goals, constraints, and what you want reviewed.",
   "Let the assessment finish on review detail before you finalize the review package.",
-  "Upload your Azure extractor ZIP after commit so ROI and cost findings cite measured inventory.",
+  CLOUD_NEUTRAL_PRIMARY_COPY.corePilotFirstSessionInventoryBullet,
   "Open the dashboard ROI summary and export run-scoped audit CSV from Artifacts & exports for your proof packet.",
   "Read governed findings and sponsor exports on review detail when you are ready to share internally.",
 ];

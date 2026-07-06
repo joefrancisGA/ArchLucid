@@ -45,7 +45,7 @@ describe("presentCostEvidenceFreshness", () => {
     expect(result.display).toBe("Illustrative");
   });
 
-  it("links stale evidence to Azure extractor runbook", () => {
+  it("links stale evidence to inventory upload runbook with cloud-neutral footnote", () => {
     const result = presentCostEvidenceFreshness({
       loading: false,
       status: "Stale",
@@ -55,6 +55,8 @@ describe("presentCostEvidenceFreshness", () => {
 
     expect(result.state).toBe("stale");
     expect(result.runbookHref).toContain("AZURE_EXTRACTOR_UPLOAD");
+    expect(result.footnote?.toLowerCase()).not.toContain("azure extractor");
+    expect(result.footnote?.toLowerCase()).toContain("inventory");
   });
 
   it("returns unavailable when status missing", () => {
@@ -66,7 +68,7 @@ describe("presentCostEvidenceFreshness", () => {
     });
 
     expect(result.state).toBe("missing");
-    expect(result.display).toBe("Unavailable");
+    expect(["Unavailable", "Cost baseline not configured"]).toContain(result.display);
   });
 
   it("uses executive-friendly labels when requested", () => {

@@ -2,6 +2,8 @@
  * Shared buyer-polished copy — import here instead of scattering literals across pages.
  */
 
+import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
+
 export const BUYER_WORKSPACE_DISPLAY_NAME = "Claims Intake Workspace";
 
 export const BUYER_EXAMPLE_WORKSPACE_TOOLTIP =
@@ -155,8 +157,7 @@ export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Start with an example:";
 export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Skip setup and open a completed sample package";
 
 /** Streamlined first-run lead on `/reviews/new` — avoids path-switcher jargon above the fold. */
-export const REVIEWS_NEW_PAGE_LEAD =
-  "Upload a diagram, brief, or architecture document to start evidence capture. Azure connection is optional.";
+export const REVIEWS_NEW_PAGE_LEAD = CLOUD_NEUTRAL_PRIMARY_COPY.reviewsNewPageLead;
 
 export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_TITLE = "Product concepts";
 

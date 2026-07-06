@@ -1,3 +1,5 @@
+import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
+
 export function formatExecutiveRoiPricingBasisLabel(
   savingsPricingBasis: string | null | undefined,
   eaDiscountMultiplier: number | null | undefined,
@@ -42,11 +44,11 @@ export function formatRoiCostEvidenceFreshnessWarning(
         ? latestCollectionTimestampUtc
         : "unknown";
 
-    return `Uploaded cost evidence is stale (>${String(staleAfterDays ?? 90)} days). Latest collection UTC: ${collected}. Re-run the Azure extractor for current pricing.`;
+    return `Uploaded cost evidence is stale (>${String(staleAfterDays ?? 90)} days). Latest collection UTC: ${collected}. ${CLOUD_NEUTRAL_PRIMARY_COPY.roiStaleInventoryHint}`;
   }
 
   if (normalized === "Missing") {
-    return "Cost baseline not configured. Savings may rely on Retail catalog or heuristic estimates until you upload Azure cost evidence.";
+    return "Cost baseline not configured. Savings may rely on Retail catalog or heuristic estimates until you upload cloud cost evidence from an inventory ZIP.";
   }
 
   return "";

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 type ResourceCoverageRow = {
@@ -12,7 +13,7 @@ type ResourceCoverageRow = {
   count: number;
 };
 
-/** Table of Azure resource types from the latest scoped extractor ZIP. */
+/** Table of resource provider types from the latest scoped cloud inventory ZIP. */
 export function ResourceCoveragePageClient() {
   const [rows, setRows] = useState<ResourceCoverageRow[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +48,7 @@ export function ResourceCoveragePageClient() {
       <header>
         <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Resource type coverage</h1>
         <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Breakdown of Azure provider types in the latest uploaded extractor ZIP for this workspace.
+          Breakdown of resource provider types in the latest uploaded cloud inventory ZIP for this workspace.
         </p>
       </header>
 
@@ -60,7 +61,7 @@ export function ResourceCoveragePageClient() {
           {error ? <p className={cn("m-0 text-red-600", OPERATOR_TYPOGRAPHY.body)}>{error}</p> : null}
           {!error && rows.length === 0 ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Upload an Azure extractor ZIP to populate coverage metrics.
+              {CLOUD_NEUTRAL_PRIMARY_COPY.resourceCoverageEmptyHint}
             </p>
           ) : null}
           {!error && rows.length > 0 ? (

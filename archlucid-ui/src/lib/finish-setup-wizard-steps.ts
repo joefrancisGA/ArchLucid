@@ -1,4 +1,5 @@
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 
 export type FinishSetupWizardContext = {
   readonly healthReady: boolean;
@@ -43,9 +44,8 @@ export const FINISH_SETUP_WIZARD_STEPS: readonly FinishSetupWizardStep[] = [
   },
   {
     id: "extract",
-    label: "Add Azure export evidence (optional)",
-    description:
-      "Optional accelerator: upload an Azure extractor ZIP for production-faithful subscription inventory.",
+    label: "Add cloud inventory evidence (optional)",
+    description: CLOUD_NEUTRAL_PRIMARY_COPY.finishSetupInventoryAccelerator,
     href: "/settings/extract-upload",
     cta: "Add evidence",
     isDone: () => false,

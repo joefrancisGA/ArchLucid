@@ -4,7 +4,7 @@ export const ONBOARDING_TOUR_WELCOME_BODY =
   "ArchLucid turns architecture evidence into findings, decisions, and review packages. Complete the steps in order, or jump ahead when you are ready.";
 
 export const ONBOARDING_TOUR_NEW_REVIEW_BODY =
-  "Use Start review to open the guided intake. Each review begins with architecture evidence: a brief, uploaded files, or an optional Azure export.";
+  "Use Start review to open the guided intake. Each review begins with architecture evidence: a brief, uploaded files, or an optional cloud inventory ZIP.";
 
 export const ONBOARDING_TOUR_REVIEW_PACKAGES_BODY =
   "Completed reviews produce review packages with findings, evidence, decisions, and an audit trail. Track recent activity here, or open the full list when you need every review in the workspace.";

@@ -17,6 +17,10 @@ import { Separator } from "@/components/ui/separator";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import {
+  CLOUD_NEUTRAL_PRIMARY_COPY,
+  WIZARD_CLOUD_PROVIDER_OPTIONS,
+} from "@/lib/cloud-neutral-primary-copy";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 const ENVIRONMENT_OPTIONS = [
@@ -125,10 +129,10 @@ export function WizardStepIdentity() {
                   <SelectValue placeholder="Select cloud target" />
                 </SelectTrigger>
                 <SelectContent className="border-neutral-200/90 dark:border-neutral-600">
-                  <SelectItem value="None">No cloud / evidence-only</SelectItem>
-                  <SelectItem value="Azure">Microsoft Azure (accelerated V1 path)</SelectItem>
-                  <SelectItem value="Aws">Amazon Web Services (cloud inventory ZIP available)</SelectItem>
-                  <SelectItem value="Gcp">Google Cloud Platform (cloud inventory ZIP available)</SelectItem>
+                  <SelectItem value="None">{WIZARD_CLOUD_PROVIDER_OPTIONS.none}</SelectItem>
+                  <SelectItem value="Aws">{WIZARD_CLOUD_PROVIDER_OPTIONS.aws}</SelectItem>
+                  <SelectItem value="Gcp">{WIZARD_CLOUD_PROVIDER_OPTIONS.gcp}</SelectItem>
+                  <SelectItem value="Azure">{WIZARD_CLOUD_PROVIDER_OPTIONS.azure}</SelectItem>
                 </SelectContent>
               </Select>
             )}
@@ -138,8 +142,7 @@ export function WizardStepIdentity() {
             message={cloudErr != null ? String(cloudErr) : undefined}
           />
           <p className={cn("mt-1 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-            Evidence-only is the default first-pilot path. A cloud inventory ZIP (Azure, AWS, or GCP) accelerates
-            topology and cost findings when your InfoSec team approves the extractor script.
+            {CLOUD_NEUTRAL_PRIMARY_COPY.wizardCloudTargetHint}
           </p>
         </div>
 

@@ -33,9 +33,9 @@ export const architectureReviewTemplates: ArchitectureReviewTemplate[] = [
     id: "cloud-migration-assessment",
     name: "Cloud migration assessment",
     description:
-      "On-premises .NET monolith moving to Azure with App Service, Azure SQL, and managed identity for auth and data access.",
+      "Brownfield .NET monolith migration — example brief maps managed web tier, relational datastore, workload identity, and private connectivity (full brief uses Microsoft Azure service names).",
     category: "migration",
-    suggestedTitle: "Organization — brownfield migration to Azure",
+    suggestedTitle: "Organization — brownfield cloud migration",
     briefText: `Organization operates a brownfield .NET monolith that currently runs on premises: IIS-hosted ASP.NET Core APIs, Windows services for batch jobs, and SQL Server as the system of record. Traffic is modest but spiky during month-end close. The platform team wants to migrate to Microsoft Azure without a full rewrite.
 
 Target landing zone uses Azure App Service for the API tier (Linux containers or .NET 8 stack), Azure SQL Database (General Purpose, zone-redundant where available) with Entra ID–authenticated access, and Azure Key Vault for secrets. Application code should use managed identity from App Service to reach SQL and blob storage; legacy SQL logins must not persist in production.
@@ -48,7 +48,7 @@ Please assess topology, security boundaries (public vs private endpoints), ident
     id: "microservices-architecture-review",
     name: "Microservices architecture review",
     description:
-      "Event-driven microservices on Azure Container Apps, Azure Service Bus, and a shared Azure SQL instance with clear ownership boundaries.",
+      "Event-driven microservices — example brief maps container platform, messaging, and per-service relational stores (full brief uses Microsoft Azure service names).",
     category: "greenfield",
     suggestedTitle: "Organization — event-driven services platform",
     briefText: `Organization is building a new internal platform of event-driven microservices to replace a set of overlapping CRUD apps. Workloads are moderate: hundreds of events per second peak, strict ordering required for financial adjustment workflows only on a dedicated topic. The team chose Azure Container Apps for compute (consumption plan with KEDA scale rules), Azure Service Bus (topics and subscriptions) for messaging, and a single Azure SQL logical server with one database per bounded context for now (not ideal long-term but acceptable for MVP).
@@ -61,7 +61,7 @@ Please review service boundaries, messaging reliability (dead-letter handling, i
     id: "security-posture-review",
     name: "Security posture review",
     description:
-      "Customer-facing web application using Entra ID, an API gateway, private endpoints to backends, and defense-in-depth patterns.",
+      "Customer-facing web application — example brief maps identity provider, API gateway, private backend connectivity, and defense-in-depth patterns.",
     category: "security",
     suggestedTitle: "Organization — customer portal security posture",
     briefText: `Organization runs a customer-facing web application and companion BFF/API layer in Azure. End users authenticate with Microsoft Entra ID (workforce and selected B2B partners). A regional Azure API Management instance fronts the APIs, applies JWT validation, rate limits, and IP restrictions for admin routes. App Services and Azure Functions connect to Azure SQL and Azure Storage only over private endpoints within a hub-spoke VNet; public ingress is limited to Front Door → APIM → internal backends.
@@ -76,7 +76,7 @@ The team is also piloting a read-only data replica exposed via a second APIM pro
     id: "compliance-gap-analysis-hipaa",
     name: "Compliance gap analysis (HIPAA-aligned)",
     description:
-      "Healthcare-adjacent workload needing HIPAA-aligned administrative, technical, and physical safeguards mapped to Azure controls.",
+      "Healthcare-adjacent ePHI workload — example brief maps HIPAA-aligned administrative, technical, and physical safeguards to cloud controls.",
     category: "compliance",
     suggestedTitle: "Organization — HIPAA-aligned controls review",
     briefText: `Organization processes limited electronic protected health information (ePHI) for care coordination: appointment scheduling, referrals, and secure messaging between covered-entity staff and business associates. The workload runs on Azure (App Service, SQL, Blob for document artifacts) in a single US region. Contracts with downstream vendors are in progress; BAAs are executed for Azure as a processor but not yet for all SaaS integrations.
@@ -91,9 +91,9 @@ Disaster recovery today is manual runbook restore from SQL geo-redundant backup 
     id: "cost-optimization-review",
     name: "Cost optimization review",
     description:
-      "Over-provisioned Azure footprint: many App Service plans, premium SQL tiers, and idle capacity suitable for rightsizing.",
+      "Over-provisioned cloud footprint — example brief covers compute consolidation, database tiering, storage lifecycle, and reserved capacity (full brief uses Microsoft Azure service names).",
     category: "optimization",
-    suggestedTitle: "Organization — Azure cost reduction initiative",
+    suggestedTitle: "Organization — cloud cost reduction initiative",
     briefText: `Organization inherited a large Azure footprint after several acquisitions. There are more than twenty App Service Plans across subscriptions, many on Premium v3 SKUs with low CPU averages. Several production databases use Business Critical tiers while monitoring shows P95 DTU well below 40% baseline. Three environments (dev, test, staging) each mirror production SKUs even though test data is synthetic and traffic is negligible weekends.
 
 Networking uses multiple ExpressRoute circuits with overlapping usage; some regional pairs were never consolidated. Blob storage holds years of developer uploads without lifecycle policy; cool and archive tiers are unused. Reservations were purchased ad hoc and do not match actual VMSS or SQL capacity.

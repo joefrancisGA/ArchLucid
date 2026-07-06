@@ -39,7 +39,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   home: {
     useWhen: "You are in your first pilot session and need the shortest path to a committed review package.",
     bridgeCopy:
-      "Each architecture review is tracked as one review package — the same object from capture through signed review record and export. Start with briefs, diagrams, or IaC only (evidence-only); Azure extractor ZIP is optional when you need live topology or cost grounding.",
+      "Each architecture review is tracked as one review package — the same object from capture through signed review record and export. Start with briefs, diagrams, or IaC only (evidence-only); cloud inventory ZIP (AWS, Azure, or GCP) is optional when you need live topology or cost grounding.",
     primaryAction: { label: "Start new review", href: "/reviews/new" },
     operateDeferralNote:
       "Graph, Compare, and heavy governance surfaces stay out of the sidebar until after your first committed package.",
@@ -54,9 +54,9 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   "new-review": {
     useWhen: "You have enough context to start an architecture review.",
     bridgeCopy:
-      "ArchLucid produces a defensible review package — committed findings, evidence trail, and sponsor-ready exports. Default to evidence-only (no cloud target) unless you attach Azure extractor output.",
+      "ArchLucid produces a defensible review package — committed findings, evidence trail, and sponsor-ready exports. Default to evidence-only (no cloud target) unless you attach cloud inventory output.",
     operateDeferralNote:
-      "Policy packs and deeper governance can wait until after your first committed package. Azure extractor ZIP is optional — see the InfoSec pre-read if security must approve the script.",
+      "Policy packs and deeper governance can wait until after your first committed package. Cloud inventory ZIP is optional — see the InfoSec pre-read if security must approve the read-only script.",
   },
   "reviews-list": {
     useWhen: "You want to resume an in-progress review or open a committed review package.",
