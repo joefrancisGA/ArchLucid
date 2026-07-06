@@ -1,9 +1,13 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Retrieval.Models;
 using ArchLucid.Retrieval.Topology;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Retrieval.Tests.Topology;
 
@@ -57,5 +61,75 @@ public sealed class TopologyExemplarStylePriorFormatterTests
         query.Should().Contain("Azure");
         query.Should().Contain("ContosoRetailWeb");
         query.Should().Contain("Private endpoints for data tiers");
+    }
+
+    [Fact]
+    public async Task FormatStylePriorBlock_WhenMicroservicesExemplarIndexed_IncludesStyleGuideText()
+    {
+        string exemplarsRoot = ResolveRepoReferenceArchitecturesDirectory();
+        if (!Directory.Exists(exemplarsRoot))
+            throw new FileNotFoundException("Reference architectures directory not found.", exemplarsRoot);
+
+        MockOptionsMonitor<ExemplarCorpusIndexerOptions> options = new(new ExemplarCorpusIndexerOptions
+        {
+            ReferenceArchitecturesDirectory = exemplarsRoot,
+            StarterProofPacksDirectory = Path.Combine(exemplarsRoot, "_no_starter_packs_for_test"),
+        });
+
+        ExemplarCorpusIndexer indexer = new(options);
+        IReadOnlyList<RetrievalDocument> docs = await indexer.BuildDocumentsAsync(CancellationToken.None);
+        RetrievalDocument microservices = docs.Single(d => d.SourceId == "REF-TPL-MICROSERVICES-API-GW-001");
+
+        RetrievalHit hit = new()
+        {
+            ChunkId = "chunk-microservices",
+            DocumentId = microservices.DocumentId,
+            CorpusKind = CorpusKind.ReferenceArchitecture.ToString(),
+            SourceType = "ReferenceArchitectureExemplar",
+            SourceId = microservices.SourceId,
+            Title = microservices.Title,
+            Text = microservices.Content,
+            Score = 0.88,
+        };
+
+        string block = TopologyExemplarStylePriorFormatter.FormatStylePriorBlock([hit]);
+
+        block.Should().Contain("exemplarMissing: false");
+        block.Should().Contain("Azure API Management");
+    }
+
+    private static string ResolveRepoReferenceArchitecturesDirectory()
+    {
+        DirectoryInfo? current = new(AppContext.BaseDirectory);
+
+        for (int depth = 0; depth < 8 && current is not null; depth++)
+        {
+            string candidate = Path.Combine(current.FullName, "templates", "reference-architectures");
+
+            if (Directory.Exists(candidate))
+                return candidate;
+
+            current = current.Parent;
+        }
+
+        return Path.Combine(AppContext.BaseDirectory, "templates", "reference-architectures");
+    }
+
+    private sealed class MockOptionsMonitor<T>(T value) : IOptionsMonitor<T> where T : class
+    {
+        public T CurrentValue => value;
+
+        public T Get(string? name) => value;
+
+        public IDisposable OnChange(Action<T, string?> listener) => NullDisposable.Instance;
+
+        private sealed class NullDisposable : IDisposable
+        {
+            internal static readonly NullDisposable Instance = new();
+
+            public void Dispose()
+            {
+            }
+        }
     }
 }

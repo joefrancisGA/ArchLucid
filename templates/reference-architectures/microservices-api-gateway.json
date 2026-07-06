@@ -1,0 +1,25 @@
+{
+  "requestId": "REF-TPL-MICROSERVICES-API-GW-001",
+  "systemName": "MicroservicesApiGateway",
+  "description": "Domain-oriented microservices behind Azure API Management with AKS workload hosting, mutual TLS between services, centralized JWT validation at the gateway, and private ingress from a hub-spoke virtual network.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "No direct public access to individual microservices",
+    "Centralized rate limiting and WAF at the gateway",
+    "Service-to-service auth via managed identity or mTLS",
+    "Independent deployability per bounded context"
+  ],
+  "requiredCapabilities": [
+    "Azure API Management",
+    "Azure Kubernetes Service",
+    "Azure Application Gateway or Front Door",
+    "Microsoft Entra ID",
+    "Azure Monitor and Application Insights"
+  ],
+  "assumptions": [
+    "Eight to twelve microservices at GA",
+    "Gateway handles north-south traffic only; east-west stays inside the cluster mesh"
+  ],
+  "priorManifestVersion": null
+}

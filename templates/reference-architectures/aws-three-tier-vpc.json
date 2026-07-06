@@ -1,0 +1,25 @@
+{
+  "requestId": "REF-TPL-AWS-THREE-TIER-VPC-001",
+  "systemName": "AwsThreeTierVpc",
+  "description": "Classic three-tier web application on AWS with public ALB, private ECS Fargate API tier, RDS PostgreSQL in isolated subnets, S3 for static assets, and VPC endpoints to keep AWS API traffic off the public internet.",
+  "environment": "prod",
+  "cloudProvider": "Aws",
+  "constraints": [
+    "No public RDS or ECS task ENIs",
+    "TLS termination at ALB with modern cipher policy",
+    "IAM roles per service — no long-lived access keys",
+    "Encryption at rest on RDS and S3"
+  ],
+  "requiredCapabilities": [
+    "Amazon VPC with public and private subnets",
+    "Application Load Balancer",
+    "Amazon ECS Fargate",
+    "Amazon RDS for PostgreSQL",
+    "AWS IAM and Secrets Manager"
+  ],
+  "assumptions": [
+    "Single primary region; multi-region DR handled in a separate exemplar",
+    "Moderate traffic suitable for Fargate without EKS overhead"
+  ],
+  "priorManifestVersion": null
+}
