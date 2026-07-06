@@ -1,4 +1,5 @@
-﻿using ArchLucid.Persistence.Billing;
+﻿using ArchLucid.Core.Billing;
+using ArchLucid.Persistence.Billing;
 
 namespace ArchLucid.Persistence.Tests.Billing;
 [Trait("Category", "Unit")]
@@ -179,5 +180,66 @@ public sealed class InMemoryBillingLedgerTests
         await sut.ChangeQuantityAsync(tenantId, 10, null, CancellationToken.None);
 
         (await sut.TenantHasActiveSubscriptionAsync(tenantId, CancellationToken.None)).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task TryGetSubscriptionAsync_returns_snapshot_when_active()
+    {
+        InMemoryBillingLedger sut = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await sut.ActivateSubscriptionAsync(
+            tenantId,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "stripe",
+            "sub-1",
+            "team",
+            4,
+            2,
+            null,
+            CancellationToken.None);
+
+        BillingSubscriptionSnapshot? snapshot =
+            await sut.TryGetSubscriptionAsync(tenantId, CancellationToken.None);
+
+        snapshot.Should().NotBeNull();
+        snapshot!.Provider.Should().Be("stripe");
+        snapshot.TierCode.Should().Be("team");
+        snapshot.SeatsPurchased.Should().Be(4);
+        snapshot.WorkspacesPurchased.Should().Be(2);
+        snapshot.Status.Should().Be("Active");
+    }
+
+    [SkippableFact]
+    public async Task TryGetSubscriptionAsync_unknown_tenant_returns_null()
+    {
+        InMemoryBillingLedger sut = new();
+
+        BillingSubscriptionSnapshot? snapshot =
+            await sut.TryGetSubscriptionAsync(Guid.NewGuid(), CancellationToken.None);
+
+        snapshot.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task SuspendSubscriptionAsync_missing_tenant_is_no_op()
+    {
+        InMemoryBillingLedger sut = new();
+
+        Func<Task> act = async () => await sut.SuspendSubscriptionAsync(Guid.NewGuid(), CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
+
+    [SkippableFact]
+    public async Task GetSubscriptionStateHistoryAsync_invalid_maxRows_throws()
+    {
+        InMemoryBillingLedger sut = new();
+
+        Func<Task> act = async () =>
+            await sut.GetSubscriptionStateHistoryAsync(Guid.NewGuid(), 0, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
     }
 }

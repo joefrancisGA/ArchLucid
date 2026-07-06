@@ -28,4 +28,54 @@ public sealed class TrialFunnelOperationalSummaryBuilderTests
         ok.Should().BeTrue();
         seconds.Should().Be(42.5);
     }
+
+    [Fact]
+    public void TryReadSignupToCommitSeconds_returns_false_for_invalid_payloads()
+    {
+        TrialFunnelOperationalSummaryBuilder.TryReadSignupToCommitSeconds(null, out _).Should().BeFalse();
+        TrialFunnelOperationalSummaryBuilder.TryReadSignupToCommitSeconds("not-json", out _).Should().BeFalse();
+        TrialFunnelOperationalSummaryBuilder.TryReadSignupToCommitSeconds("""{"signupToCommitSeconds": 0}""", out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Build_computes_median_and_cogs_bands()
+    {
+        var summary = TrialFunnelOperationalSummaryBuilder.Build(
+            activeTrials: 2,
+            signupAttempts: 10,
+            signupFailures: 1,
+            firstCommits: 4,
+            conversions: 2,
+            checkouts: 3,
+            budgetCutoffs: 1,
+            signupToCommitSeconds: [10.0, 20.0, 30.0],
+            firstReviewCogsUsd: [1.5m, 2.0m, 4.0m]);
+
+        summary.MedianSignupToFirstCommitSeconds.Should().Be(20.0);
+        summary.EstimatedFirstReviewCogsUsdLow.Should().Be(1.5m);
+        summary.EstimatedFirstReviewCogsUsdMid.Should().Be(2.0m);
+        summary.EstimatedFirstReviewCogsUsdHigh.Should().Be(4.0m);
+        summary.SignupAttempts30Days.Should().Be(10);
+        summary.LlmBudgetCutoffEvents30Days.Should().Be(1);
+    }
+
+    [Fact]
+    public void Build_returns_null_medians_when_signal_lists_empty()
+    {
+        var summary = TrialFunnelOperationalSummaryBuilder.Build(
+            activeTrials: 0,
+            signupAttempts: 0,
+            signupFailures: 0,
+            firstCommits: 0,
+            conversions: 0,
+            checkouts: 0,
+            budgetCutoffs: 0,
+            signupToCommitSeconds: [],
+            firstReviewCogsUsd: []);
+
+        summary.MedianSignupToFirstCommitSeconds.Should().BeNull();
+        summary.EstimatedFirstReviewCogsUsdLow.Should().BeNull();
+        summary.EstimatedFirstReviewCogsUsdMid.Should().BeNull();
+        summary.EstimatedFirstReviewCogsUsdHigh.Should().BeNull();
+    }
 }
