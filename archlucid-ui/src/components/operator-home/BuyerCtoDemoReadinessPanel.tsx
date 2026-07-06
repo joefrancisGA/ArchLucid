@@ -88,7 +88,7 @@ export function BuyerCtoDemoReadinessPanel(): React.JSX.Element | null {
       data-testid="buyer-cto-demo-readiness-panel"
       className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-2">
           <h2 id="buyer-cto-demo-readiness-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle)}>
             {BUYER_CTO_DEMO_READINESS_HEADING}
@@ -99,29 +99,37 @@ export function BuyerCtoDemoReadinessPanel(): React.JSX.Element | null {
             data-testid="buyer-cto-demo-readiness-badge"
           />
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={loading}
-          onClick={() => {
-            void runChecks();
-          }}
+        <div
+          role="toolbar"
+          aria-label="Demo readiness actions"
+          className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end"
         >
-          {BUYER_CTO_DEMO_READINESS_REFRESH_CTA}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          data-testid="buyer-cto-demo-run-of-show-download"
-          onClick={() => {
-            downloadCtoDemoRunOfShow();
-          }}
-        >
-          {BUYER_CTO_DEMO_RUN_OF_SHOW_DOWNLOAD_CTA}
-        </Button>
-        <CtoDemoResetButton />
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            disabled={loading}
+            onClick={() => {
+              void runChecks();
+            }}
+          >
+            {BUYER_CTO_DEMO_READINESS_REFRESH_CTA}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            data-testid="buyer-cto-demo-run-of-show-download"
+            onClick={() => {
+              downloadCtoDemoRunOfShow();
+            }}
+          >
+            {BUYER_CTO_DEMO_RUN_OF_SHOW_DOWNLOAD_CTA}
+          </Button>
+          <div className="flex items-center border-l border-neutral-200 pl-2 dark:border-neutral-700 sm:ml-1">
+            <CtoDemoResetButton />
+          </div>
+        </div>
       </div>
 
       {result !== null ? (
