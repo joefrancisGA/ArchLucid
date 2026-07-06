@@ -21,6 +21,16 @@ dotnet run --project ArchLucid.Cli -- stack init --answers archlucid.stack.yaml
 
 This emits per-root `terraform.tfvars` fragments, hosted `appsettings.Hosted.json`, a GitHub environment secret manifest, and a Key Vault secret checklist (names only) under `deploy/generated/<environment>/`. Use `archlucid stack diff` to detect drift before apply. Schema: [`deploy/archlucid.stack.schema.json`](../../deploy/archlucid.stack.schema.json).
 
+**TB-658 deployment readiness router:** run a single profile-aware gate instead of choosing among prerequisite, lint, drift, and post-deploy scripts manually:
+
+```bash
+dotnet run --project ArchLucid.Cli -- stack doctor --profile FirstPilotMinimum
+dotnet run --project ArchLucid.Cli -- stack doctor --profile staging-deploy
+dotnet run --project ArchLucid.Cli -- stack doctor --profile post-deploy --api-base-url https://api.example.com
+```
+
+When `--profile` is omitted, `stack doctor` infers **FirstPilotMinimum**, **StagingRealLlm**, or **ProductionLike** from `azure.environment` in `archlucid.stack.yaml`. Profile matrix: [`PILOT_PREREQUISITES.md`](../runbooks/PILOT_PREREQUISITES.md).
+
 ## Assumptions
 
 - You have an **Azure subscription** where you can create resource groups, and a **service principal** (or user) with rights to deploy the stacks you enable.

@@ -12,6 +12,26 @@
 .\scripts\Test-ArchLucidPrerequisites.ps1 -Profile ProductionLike
 ```
 
+**TB-658 unified router (preferred):** one command runs the right subset for your phase — prerequisites, config lint, Terraform/CD drift preflight, and post-deploy HTTP verification:
+
+```powershell
+archlucid stack doctor --profile FirstPilotMinimum
+archlucid stack doctor --profile StagingRealLlm
+archlucid stack doctor --profile ProductionLike
+archlucid stack doctor --profile staging-deploy
+archlucid stack doctor --profile post-deploy --api-base-url https://api.example.com
+```
+
+| Profile | Steps (in order) |
+| --- | --- |
+| **FirstPilotMinimum** | `Test-ArchLucidPrerequisites.ps1` + `archlucid config lint` (simulate production) |
+| **StagingRealLlm** | prerequisites (StagingRealLlm) + config lint |
+| **ProductionLike** | prerequisites (ProductionLike) + production-like config lint |
+| **staging-deploy** | prerequisites (ProductionLike) + `Assert-TerraformDeploymentDriftPreflight.ps1` + production-like config lint |
+| **post-deploy** | `deployment-evidence` probes + `onboard-preflight` HTTP checks (requires `--api-base-url`) |
+
+Omit `--profile` when `archlucid.stack.yaml` is present: `azure.environment` maps **dev/pilot → FirstPilotMinimum**, **staging → StagingRealLlm**, **production → ProductionLike**. JSON/Markdown rollup: `--json` / `--json-out` / `--markdown-out`.
+
 Reports land under `artifacts/pilot/prerequisites-<profile>.md` (and `.json`). Exit code **2** = **BLOCK** (fix before continuing); **1** = **WARN** only; **0** = all checks **PASS**.
 
 **Related:** [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) · [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) pilot profiles · [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](MINIMAL_AZURE_PILOT_DEPLOYMENT.md) · [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md)

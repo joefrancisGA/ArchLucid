@@ -583,8 +583,11 @@ public static class Program
                     if (normalized.Length > 1 && string.Equals(normalized[1], "diff", StringComparison.Ordinal))
                         return await StackDiffCommand.RunAsync(normalized.Skip(2).ToArray());
 
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "doctor", StringComparison.Ordinal))
+                        return await StackDoctorCommand.RunAsync(normalized.Skip(2).ToArray());
+
                     Console.WriteLine(
-                        "Usage: archlucid stack init [--from-example] [--answers <path>] [--out <dir>] [--force] [--repo-root <dir>] | archlucid stack diff [--answers <path>] [--out <dir>] [--repo-root <dir>]");
+                        "Usage: archlucid stack init [--from-example] [--answers <path>] [--out <dir>] [--force] [--repo-root <dir>] | archlucid stack diff [--answers <path>] [--out <dir>] [--repo-root <dir>] | archlucid stack doctor [--profile FirstPilotMinimum|StagingRealLlm|ProductionLike|staging-deploy|post-deploy] [--answers <path>] [--api-base-url <url>] [--json]");
 
                     return CliExitCode.UsageError;
 
