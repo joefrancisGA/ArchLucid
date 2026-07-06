@@ -57,14 +57,6 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
       learnMoreHref: "/help/review-packages",
     },
   },
-  {
-    prefix: "/dashboard",
-    hint: {
-      id: "executive-dashboard",
-      message: "Sponsor-safe ROI and risk posture for the active workspace.",
-      learnMoreHref: "/help/executive-summary",
-    },
-  },
 ];
 
 export function pageContextualHintForPathname(pathname: string): PageContextualHint | null {

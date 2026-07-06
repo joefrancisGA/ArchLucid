@@ -26,6 +26,14 @@ vi.mock("@/components/ExecutiveValueNarrativeBanner", () => ({
   ExecutiveValueNarrativeBanner: () => null,
 }));
 
+vi.mock("@/components/executive/ExecutiveDashboardPageHero", () => ({
+  ExecutiveDashboardPageHero: ({ dashboardEmpty }: { dashboardEmpty: boolean }) => (
+    <header data-testid="executive-dashboard-page-hero" data-dashboard-empty={dashboardEmpty ? "true" : "false"}>
+      <h2 data-testid="executive-summary-heading">Executive dashboard</h2>
+    </header>
+  ),
+}));
+
 vi.mock("@/app/(operator)/dashboard/_sections/ExecutiveComplianceDriftTrendSection", () => ({
   ExecutiveComplianceDriftTrendSection: () => <div data-testid="compliance-drift-section" />,
 }));
@@ -47,7 +55,8 @@ describe("ExecutiveRoiDashboardPageView executive surface", () => {
     render(<ExecutiveRoiDashboardPageView surface="executive" />);
 
     expect(screen.getByTestId("executive-dashboard-empty-state")).toBeInTheDocument();
-    expect(screen.getByTestId("executive-dashboard-empty-preview")).toBeInTheDocument();
+    expect(screen.getByTestId("executive-dashboard-page-hero")).toHaveAttribute("data-dashboard-empty", "true");
+    expect(screen.queryByTestId("executive-dashboard-empty-preview")).not.toBeInTheDocument();
     expect(screen.queryByTestId("executive-primary-decisions-needed")).not.toBeInTheDocument();
     expect(screen.getByTestId("sponsor-exports-section")).toHaveAttribute("data-surface", "executive");
     expect(screen.getByRole("heading", { name: "Executive dashboard" })).toBeInTheDocument();

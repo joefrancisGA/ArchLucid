@@ -126,6 +126,6 @@ describe("ExecutiveDashboardBaselineWarningBanner", () => {
     expect(screen.getByTestId("executive-baseline-upload-setup-card")).toBeInTheDocument();
     expect(screen.queryByTestId("executive-baseline-upload-warning-banner")).toBeNull();
     expect(screen.getByTestId("inline-guidance-optional")).toHaveTextContent("Optional:");
-    expect(screen.getByText(/upload workspace baseline inventory/i)).toBeInTheDocument();
+    expect(screen.getByText(/upload a baseline inventory to improve ROI estimates/i)).toBeInTheDocument();
   });
 });

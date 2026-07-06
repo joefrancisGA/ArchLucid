@@ -4,10 +4,10 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getArtifactDownloadUrl } from "@/lib/api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
-import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
@@ -82,14 +82,9 @@ export function SponsorExportsSection({ surface = "operator" }: SponsorExportsSe
             ? BUYER_EXECUTIVE_SUMMARY_VOCABULARY.executiveExportsTitle
             : "Sponsor exports"}
         </CardTitle>
-        <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
-          {executiveSurface
-            ? BUYER_EXECUTIVE_SUMMARY_VOCABULARY.executiveExportsDescription
-            : "Open executive-ready views used in sponsor updates and pilot value readouts."}
-        </CardDescription>
       </CardHeader>
       <CardContent>
-        <ul className={cn("m-0 space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <ul className={cn("m-0 space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {sponsorDocx !== null ? (
             <li>
               <a
@@ -99,9 +94,6 @@ export function SponsorExportsSection({ surface = "operator" }: SponsorExportsSe
               >
                 {executiveSurface ? "Download executive review (DOCX)" : "Download sponsor review (DOCX)"}
               </a>
-              <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Board-ready architecture review from your latest committed review record.
-              </p>
             </li>
           ) : null}
           <li>
@@ -111,9 +103,6 @@ export function SponsorExportsSection({ surface = "operator" }: SponsorExportsSe
             >
               Executive scorecard
             </Link>
-            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Board-ready rollup of estimated savings and systemic issues.
-            </p>
           </li>
           <li>
             <Link
@@ -122,9 +111,6 @@ export function SponsorExportsSection({ surface = "operator" }: SponsorExportsSe
             >
               Pilot value report
             </Link>
-            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Pilot-period narrative for sponsors evaluating ROI.
-            </p>
           </li>
           <li>
             <Link
@@ -133,9 +119,6 @@ export function SponsorExportsSection({ surface = "operator" }: SponsorExportsSe
             >
               ROI methodology help
             </Link>
-            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              How directional savings estimates are calculated.
-            </p>
           </li>
         </ul>
       </CardContent>

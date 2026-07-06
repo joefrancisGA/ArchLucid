@@ -72,13 +72,15 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   /** `/dashboard` portfolio surface — aligns with sidebar “Executive dashboard”. */
   portfolioPageTitle: "Executive dashboard",
   portfolioPageLead:
-    "Track governance posture, remediation progress, and estimated ROI across committed review packages.",
+    "Track governance posture, remediation progress, estimated ROI, and sponsor-ready proof across committed review packages.",
+  portfolioPageNextStep: "Finalize at least one review package to populate dashboard metrics.",
+  portfolioPageLearnMoreHref: "/help/executive-summary",
+  portfolioPageLearnMoreLabel: "Open dashboard guide",
   pageLead:
     "Status, risk, ROI impact, and governance readiness for your current workspace — decision-first, with operator detail one click away.",
   roiMetricsSrOnly: "Executive ROI metrics",
-  emptyStateTitle: "No committed reviews yet",
-  emptyStateDescription:
-    "Portfolio metrics appear after you finalize at least one review package.",
+  emptyStateTitle: "No committed reviews yet.",
+  emptyStateDescription: "Finalize a review package to populate dashboard metrics.",
   emptyStatePrimaryAction: "Start review",
   emptyStateSecondaryAction: "Load sample workspace",
   emptyStateTertiaryAction: "View sample portfolio dashboard",
