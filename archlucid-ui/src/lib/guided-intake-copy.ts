@@ -6,8 +6,25 @@ export const GUIDED_INTAKE_STEP0_CARD_TITLE = "Describe the architecture intent"
 export const GUIDED_INTAKE_STEP0_CARD_DESCRIPTION =
   "Describe the system, the business outcome, and the users or systems that interact with it.";
 
+export const GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS = 100;
+
+export const GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER =
+  "Provide at least 100 characters so ArchLucid can understand the system, outcome, and review focus.";
+
 export const GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER =
-  "Example: This review evaluates whether the claims intake workflow is ready for tenant onboarding, with focus on approval conditions, evidence quality, SSO, usage metering, and audit export readiness.";
+  "Describe the system, business outcome, users, integrations, constraints, risks, and what you want ArchLucid to evaluate.";
+
+export function guidedIntakeArchitectureIntentHelperText(trimmedLength: number): string {
+  if (trimmedLength === 0) {
+    return GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER;
+  }
+
+  if (trimmedLength < GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
+    return `${trimmedLength} / ${GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS} characters. ${GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER}`;
+  }
+
+  return `${trimmedLength} characters.`;
+}
 
 export const GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER =
   "Example: Reduce intake cycle time, improve auditability, and give operations teams a single governed workflow for claims submissions.";

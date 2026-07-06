@@ -111,6 +111,7 @@ vi.mock("./SocraticIntakeWizardDeferredPanels", async () => {
 });
 
 import {
+  GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
@@ -140,9 +141,12 @@ const secondQuestion = {
   ruleKeys: [],
 };
 
+const VALID_GUIDED_INTENT =
+  "Modernize the claims intake workflow for analysts with governed REST APIs, FHIR validation, and HIPAA-aligned audit trails across enterprise tenants.";
+
 function fillStep0ForAdmission(): void {
   fireEvent.change(screen.getByTestId("socratic-intent"), {
-    target: { value: "Modernize the claims intake workflow for analysts." },
+    target: { value: VALID_GUIDED_INTENT },
   });
   fireEvent.change(screen.getByTestId("socratic-outcome"), {
     target: { value: "Reduce manual triage time by thirty percent." },
@@ -185,10 +189,35 @@ describe("SocraticIntakeWizard", () => {
       GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
     );
     expect(screen.getByLabelText("Architecture intent (required)")).toBeInTheDocument();
+    expect(screen.getByTestId("socratic-intent-helper")).toHaveTextContent(
+      GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
+    );
+    expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS })).toBeDisabled();
     expect(screen.getByTestId("socratic-intake-progress")).toHaveTextContent(
       /step 1 of 3 — describe the system/i,
     );
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS })).toBeInTheDocument();
+  });
+
+  it("shows under-minimum intent helper copy and blocks continue until 100 characters", () => {
+    render(<SocraticIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("socratic-intent"), {
+      target: { value: "Too short for guided intake." },
+    });
+
+    expect(screen.getByTestId("socratic-intent-helper")).toHaveTextContent(/\/ 100 characters/i);
+    expect(screen.getByTestId("socratic-intent-helper")).toHaveTextContent(
+      GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
+    );
+    expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS })).toBeDisabled();
+
+    fireEvent.change(screen.getByTestId("socratic-intent"), {
+      target: { value: VALID_GUIDED_INTENT },
+    });
+
+    expect(screen.getByTestId("socratic-intent-helper")).toHaveTextContent(/characters\.$/);
+    expect(screen.queryByText(/Minimum 10 characters/i)).not.toBeInTheDocument();
   });
 
   it("creates, patches, and admits a draft when intent and outcome are provided", async () => {

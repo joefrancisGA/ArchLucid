@@ -67,8 +67,9 @@ public sealed class DraftRequestService(
 
         string intent = request.FreeTextIntent.Trim();
 
-        if (intent.Length < 10)
-            throw new InvalidOperationException("FreeTextIntent must be at least 10 characters after trim.");
+        if (intent.Length < DraftIntakeValidation.MinimumFreeTextIntentLength)
+            throw new InvalidOperationException(
+                $"FreeTextIntent must be at least {DraftIntakeValidation.MinimumFreeTextIntentLength} characters after trim.");
 
         DraftRequestDocument document = new() { FreeTextIntent = intent, FocusedPilotModeEnabled = true };
 
@@ -592,8 +593,9 @@ public sealed class DraftRequestService(
         {
             string intent = patch.FreeTextIntent.Trim();
 
-            if (intent.Length < 10)
-                throw new InvalidOperationException("FreeTextIntent must be at least 10 characters after trim.");
+            if (intent.Length < DraftIntakeValidation.MinimumFreeTextIntentLength)
+                throw new InvalidOperationException(
+                    $"FreeTextIntent must be at least {DraftIntakeValidation.MinimumFreeTextIntentLength} characters after trim.");
 
             document.FreeTextIntent = intent;
         }

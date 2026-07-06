@@ -85,7 +85,11 @@ public sealed class DraftRequestsControllerTests
         DraftRequestsController sut = BuildSut();
 
         IActionResult result = await sut.CreateDraft(
-            new CreateDraftRequest { FreeTextIntent = "Build a compliance workflow platform." },
+            new CreateDraftRequest
+            {
+                FreeTextIntent =
+                    "Build a compliance workflow platform for analysts with governed evidence intake, Entra ID authentication, and exportable architecture review packages.",
+            },
             CancellationToken.None);
 
         CreatedAtActionResult createdResult = result.Should().BeOfType<CreatedAtActionResult>().Subject;
