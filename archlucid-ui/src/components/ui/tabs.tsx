@@ -175,6 +175,7 @@ export type TabsListProps = {
   readonly children: ReactNode;
   readonly className?: string;
   readonly "aria-label": string;
+  readonly "data-testid"?: string;
 };
 
 export function TabsList(props: TabsListProps): ReactElement {
@@ -221,6 +222,7 @@ export function TabsList(props: TabsListProps): ReactElement {
       )}
       onKeyDown={handleKeyDown}
       data-tabs-list
+      data-testid={props["data-testid"]}
     >
       {props.children}
     </div>
@@ -232,6 +234,7 @@ export type TabsTriggerProps = {
   readonly value: string;
   readonly className?: string;
   readonly disabled?: boolean;
+  readonly "data-testid"?: string;
 };
 
 export function TabsTrigger(props: TabsTriggerProps): ReactElement {
@@ -268,6 +271,7 @@ export function TabsTrigger(props: TabsTriggerProps): ReactElement {
       disabled={props.disabled}
       data-tabs-value={props.value}
       data-tabs-trigger
+      data-testid={props["data-testid"]}
       className={cn(
         "px-4 py-2 font-medium leading-none outline-none transition-colors",
         OPERATOR_TYPOGRAPHY.body,
@@ -295,6 +299,7 @@ export type TabsContentProps = {
   readonly value: string;
   readonly className?: string;
   readonly forceMount?: boolean;
+  readonly "data-testid"?: string;
 };
 
 export function TabsContent(props: TabsContentProps): ReactElement | null {
@@ -315,6 +320,7 @@ export function TabsContent(props: TabsContentProps): ReactElement | null {
       hidden={!selected}
       data-tabs-panel
       data-tabs-value={props.value}
+      data-testid={props["data-testid"]}
       className={cn("pt-4 focus:outline-none", !selected && "hidden", props.className)}
     >
       {props.children}

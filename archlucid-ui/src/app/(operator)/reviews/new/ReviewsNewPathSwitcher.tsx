@@ -11,6 +11,7 @@ import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
 import { ReviewIntakeInvalidTemplateCallout } from "@/components/review-intake/ReviewIntakeInvalidTemplateCallout";
@@ -41,14 +42,6 @@ const REVIEWS_NEW_PATH_TABS: readonly { id: ReviewsNewActivePath; label: string 
   { id: "guided-intake", label: "Guided intake" },
   { id: "detailed", label: "Templates and imports" },
 ] as const;
-
-function reviewsNewPathTabId(path: ReviewsNewActivePath): string {
-  return `reviews-new-path-tab-${path}`;
-}
-
-function reviewsNewPathPanelId(path: ReviewsNewActivePath): string {
-  return `reviews-new-path-panel-${path}`;
-}
 
 function reviewsNewPathTabTestId(path: ReviewsNewActivePath): string {
   switch (path) {
@@ -118,66 +111,40 @@ export function ReviewsNewPathSwitcher() {
         <ReviewIntakeInvalidTemplateCallout templateId={invalidExampleTemplateId} />
       ) : null}
       {ready ? (
-        <nav aria-label="Review creation path">
-          <div
-            className="-mb-px flex flex-wrap gap-1 overflow-x-auto border-b border-neutral-200 dark:border-neutral-800"
-            role="tablist"
-            data-testid="reviews-new-path-toggle"
-          >
-            {REVIEWS_NEW_PATH_TABS.map((tab) => {
-              const selected = activePath === tab.id;
-
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  role="tab"
-                  id={reviewsNewPathTabId(tab.id)}
-                  aria-selected={selected}
-                  aria-controls={reviewsNewPathPanelId(tab.id)}
-                  data-testid={reviewsNewPathTabTestId(tab.id)}
-                  onClick={() => {
-                    selectPath(tab.id);
-                  }}
-                  className={cn(
-                    "shrink-0 px-4 py-2 font-medium leading-none outline-none transition-colors",
-                    OPERATOR_TYPOGRAPHY.body,
-                    "-mb-px border-b-2",
-                    selected
-                      ? "border-teal-600 text-teal-700 dark:border-teal-400 dark:text-teal-300"
-                      : "border-transparent text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100",
-                  )}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-      ) : null}
-      {ready ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-new-path-hint">
-          <InlineGuidanceText text={REVIEWS_NEW_PATH_HINTS[activePath]} />
-        </p>
+        <Tabs
+          value={activePath}
+          onValueChange={(next) => {
+            selectPath(next as ReviewsNewActivePath);
+          }}
+        >
+          <TabsList aria-label="Review creation path" data-testid="reviews-new-path-toggle" className="-mb-px overflow-x-auto">
+            {REVIEWS_NEW_PATH_TABS.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                data-testid={reviewsNewPathTabTestId(tab.id)}
+                className="shrink-0"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-new-path-hint">
+            <InlineGuidanceText text={REVIEWS_NEW_PATH_HINTS[activePath]} />
+          </p>
+          <TabsContent value="quick-review" className="pt-0" data-testid="reviews-new-path-panel">
+            <FirstPilotIntakeWizard />
+          </TabsContent>
+          <TabsContent value="guided-intake" className="pt-0" data-testid="reviews-new-path-panel">
+            <SocraticIntakeWizard />
+          </TabsContent>
+          <TabsContent value="detailed" className="pt-0" data-testid="reviews-new-path-panel">
+            <NewRunWizardClient />
+          </TabsContent>
+        </Tabs>
       ) : (
         <p className={OPERATOR_TYPOGRAPHY.helper}>Loading…</p>
       )}
-      {ready ? (
-        <div
-          role="tabpanel"
-          id={reviewsNewPathPanelId(activePath)}
-          aria-labelledby={reviewsNewPathTabId(activePath)}
-          data-testid="reviews-new-path-panel"
-        >
-          {activePath === "quick-review" ? (
-            <FirstPilotIntakeWizard />
-          ) : activePath === "guided-intake" ? (
-            <SocraticIntakeWizard />
-          ) : (
-            <NewRunWizardClient />
-          )}
-        </div>
-      ) : null}
     </OperatorPageContainer>
   );
 }

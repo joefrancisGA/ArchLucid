@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
@@ -27,6 +27,10 @@ vi.mock("./NewRunWizardClient", () => ({
 import { ReviewsNewPathSwitcher } from "./ReviewsNewPathSwitcher";
 
 describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   it("shows review-start tabs immediately and switches modes", async () => {
     render(<ReviewsNewPathSwitcher />);
 
@@ -40,6 +44,25 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(screen.getByText("Fastest first-pilot path:", { selector: "strong" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: "Guided intake" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.getByRole("tab", { name: "Guided intake" })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("moves selection with ArrowRight keyboard navigation on the tablist", async () => {
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+    });
+
+    const quickStartTab = screen.getByRole("tab", { name: "Quick start" });
+    quickStartTab.focus();
+
+    fireEvent.keyDown(screen.getByRole("tablist"), { key: "ArrowRight" });
 
     await waitFor(() => {
       expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
