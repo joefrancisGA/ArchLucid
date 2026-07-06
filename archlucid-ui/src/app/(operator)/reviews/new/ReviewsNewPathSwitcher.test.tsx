@@ -36,6 +36,8 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
 
     expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
     expect(screen.getByTestId("reviews-new-more-intake-options")).toBeTruthy();
+    expect(screen.getByText("Quick path:", { selector: "strong" })).toBeInTheDocument();
+    expect(screen.getByText(/upload one diagram to start/i)).toBeInTheDocument();
     expect(screen.queryByText(/intake/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/evaluation standards/i)).not.toBeInTheDocument();
 

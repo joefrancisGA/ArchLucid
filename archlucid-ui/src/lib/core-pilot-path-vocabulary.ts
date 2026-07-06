@@ -26,8 +26,8 @@ export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
     "Upload one architecture diagram and add architecture context when you can. Evaluation standards apply automatically.",
   firstIntakeAdvancedNote:
     "Focused review scope is on by default. Turn off only if you need every enabled standard to contribute findings.",
-  streamlinedFirstReviewBanner:
-    "Quick path: upload one diagram to start. Review scope is pre-configured.",
+  streamlinedFirstReviewBannerLabel: "Quick path:",
+  streamlinedFirstReviewBannerBody: "upload one diagram to start. Review scope is pre-configured.",
   operateUnlockLead:
     "Your first session focuses on starting and finalizing a review package. Compare, evidence graph, ask-this-review, and enterprise control routes stay hidden until you unlock them — or until you finalize your first review package.",
   operateUnlockAnalysisUnlocks: "Analysis — compare, graph, replay, and Q&A",

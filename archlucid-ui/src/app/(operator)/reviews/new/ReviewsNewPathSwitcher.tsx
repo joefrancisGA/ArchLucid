@@ -147,7 +147,10 @@ export function ReviewsNewPathSwitcher() {
       {ready && isFirstRunTenant && !showPathSwitcher ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40">
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body, "text-neutral-700 dark:text-neutral-300")}>
-            {CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBanner}
+            <strong className="font-semibold">
+              {CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBannerLabel}
+            </strong>{" "}
+            {CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBannerBody}
           </p>
           <Button
             type="button"
