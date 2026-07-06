@@ -234,7 +234,7 @@ export async function expectBuyerPolishedReviewDetailSectionNavCore(
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 15_000;
 
-  await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Decision", exact: true })).toBeVisible({ timeout });
 
   const outcomeLikeLink = sectionNav.getByRole("link", {
     name: /Finalized decision record|Outcome record|Finalized record|Signed review record/i,

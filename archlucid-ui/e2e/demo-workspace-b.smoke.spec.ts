@@ -75,7 +75,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0);
 
-    await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible();
+    await expect(sectionNav.getByRole("link", { name: "Decision", exact: true })).toBeVisible();
 
     /** Pack A narrative (Responsible AI governance engine + rule identifiers from seed fixtures). */
     await expect(
