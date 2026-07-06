@@ -1,18 +1,18 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 
-export const ARCHITECTURE_RISK_REGISTER_PAGE_TITLE = "Architecture risk register";
+export const ARCHITECTURE_RISK_REGISTER_PAGE_TITLE = "Risk register";
 
 export const ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE =
-  "Track owned architecture risks across review packages, including disposition, owner, age, evidence, exceptions, and linked decisions.";
+  "Track architecture risks created from findings, waivers, exceptions, and governance decisions for this review.";
 
 export const ARCHITECTURE_RISK_REGISTER_GOVERNANCE_INTRO =
   "Track architecture risks created from accepted findings, waivers, exceptions, and governance decisions. Each risk should remain traceable to the review package, evidence, policy rule, and signed review record that produced it. Use this register to assign owners, monitor aging risks, review exceptions before expiry, and prepare audit evidence.";
 
-export const ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE = "No architecture risks yet";
+export const ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE = "No risks recorded for this review";
 
 export const ARCHITECTURE_RISK_REGISTER_EMPTY_BODY =
-  "Risks appear here after review findings are accepted into governance, a waiver is granted, or a review decision creates a follow-up risk item. To create risk records, start from a review package with findings or open the governance workflow.";
+  "Risks appear here when accepted findings, waivers, exceptions, or governance decisions create follow-up risk items.";
 
 export const ARCHITECTURE_RISK_REGISTER_CONTAINS_COPY =
   "Each row represents a governed architecture risk. A risk should identify the source finding or decision, owner, severity, disposition, linked evidence, exception status, and review history. The record should be traceable back to the signed review package that created it.";

@@ -10,14 +10,6 @@ export type PageContextualHint = {
 
 const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
   {
-    prefix: "/governance/findings",
-    hint: {
-      id: "governance-findings-queue",
-      message: "Start with open risks, expiring exceptions, or risks without owners — then open a row to inspect evidence and linked decisions.",
-      learnMoreHref: "/help/governance-approval",
-    },
-  },
-  {
     prefix: "/audit",
     hint: {
       id: "audit-trail",

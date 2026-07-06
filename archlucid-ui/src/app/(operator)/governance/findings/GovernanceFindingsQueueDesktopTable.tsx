@@ -464,9 +464,7 @@ export function GovernanceFindingsQueueDesktopTable(
     onSelectionChange(next);
   }
 
-  const ariaLabel = buyerPolishedShell
-    ? "Review records and dispositions"
-    : "Architecture risk register";
+  const ariaLabel = buyerPolishedShell ? "Risk register" : "Architecture risk register";
   const resourceGroups = groupByResource ? groupGovernanceFindingQueueRows(rows) : [];
 
   return (

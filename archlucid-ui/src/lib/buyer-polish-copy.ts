@@ -490,10 +490,28 @@ export const BUYER_ASK_RETRIEVAL_DEGRADED_LABEL =
 
 export const BUYER_GOVERNANCE_PAGE_TITLE = "Governance decision record";
 
-export const BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE = "Review records and dispositions";
+export const BUYER_GOVERNANCE_STATUS_BANNER_TITLE = "Governance approval record";
+
+export const BUYER_GOVERNANCE_STATUS_BANNER_BODY =
+  "Approved for governed use with monitored PHI minimization control. Production deployments remain governed by enterprise change management.";
+
+export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_APPROVAL = "View approval record";
+
+export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_DISPOSITIONS = "View dispositions";
+
+export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_AUDIT = "View audit trail";
+
+export const BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE = "Risk register";
 
 export const BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD =
-  "Architecture risks across reviews — disposition, owner, and evidence links.";
+  "Track architecture risks created from findings, waivers, exceptions, and governance decisions for this review.";
+
+export const BUYER_RISK_REGISTER_EMPTY_TITLE = "No risks recorded for this review";
+
+export const BUYER_RISK_REGISTER_EMPTY_BODY =
+  "Risks appear here when accepted findings, waivers, exceptions, or governance decisions create follow-up risk items.";
+
+export const BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION = "View governance decisions";
 
 export const BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE = "Monitored risks";
 

@@ -79,7 +79,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     // Satellites — optional diligence surfaces linked from the layer strip / command palette
     await page.goto(BUYER_GOLDEN_PATH_HREFS.governanceFindings);
     await expect(
-      page.getByRole("heading", { level: 2, name: "Review records and dispositions" }),
+      page.getByRole("heading", { level: 2, name: "Risk register" }),
     ).toBeVisible();
     await expectNoGenericErrorBoundary(page);
 

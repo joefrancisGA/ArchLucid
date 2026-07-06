@@ -29,14 +29,6 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
     },
   },
   {
-    prefix: "/governance/findings",
-    explanation: {
-      title: "Risk register",
-      summary: "Review architecture risks created from findings, waivers, exceptions, and governance decisions.",
-      nextAction: "Start with open risks, expiring exceptions, or risks without owners.",
-    },
-  },
-  {
     prefix: "/governance",
     explanation: {
       title: OPERATOR_NAV_LINK_LABELS.governanceWorkflow,
@@ -56,6 +48,11 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
 
 export function routeViewExplanationForPathname(pathname: string): RouteViewExplanation | null {
   const path = (pathname ?? "").split("?")[0] ?? "";
+
+  if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
+    return null;
+  }
+
   const sorted = [...ROUTE_VIEW_EXPLANATIONS].sort((left, right) => right.prefix.length - left.prefix.length);
 
   for (const row of sorted) {

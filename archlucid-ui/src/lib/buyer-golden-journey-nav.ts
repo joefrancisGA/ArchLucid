@@ -117,12 +117,7 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
       currentStepIndex: null,
     };
   } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
-    return {
-      summaryLine: `Review records and dispositions — linked from governance approval`,
-      prev: { label: defs[3].label, href: defs[3].href },
-      next: { label: defs[4].label, href: defs[4].href },
-      currentStepIndex: null,
-    };
+    return null;
   } else if (path.startsWith("/governance")) {
     stepIdx = 3;
   } else if (path.startsWith("/audit")) {

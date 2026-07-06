@@ -252,6 +252,8 @@ export const DESIGN_TOKENS = {
       "rounded-xl border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800",
     trial:
       "rounded-xl border border-neutral-200 border-l-4 border-l-amber-600 bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800",
+    governanceApproval:
+      "rounded-md border border-neutral-200 border-l-4 border-l-[var(--al-status-approved-monitoring-fg)] bg-[var(--al-status-approved-monitoring-bg)] px-4 py-3 dark:border-neutral-800",
   },
   interactive: {
     rowHover:

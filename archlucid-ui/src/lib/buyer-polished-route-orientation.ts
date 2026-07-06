@@ -114,6 +114,10 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
+  if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
+    return null;
+  }
+
   if (path.startsWith("/governance")) {
     return {
       label: "Governance approval record",
