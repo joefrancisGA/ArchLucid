@@ -16,9 +16,13 @@ vi.mock("@/hooks/use-pilot-roi-baseline-completeness", () => ({
   }),
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isNextPublicDemoMode: () => false,
-}));
+};
+});
 
 vi.mock("@/lib/pilot-roi-baseline-chrome", () => ({
   suppressPilotRoiBaselineChrome: () => false,

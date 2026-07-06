@@ -11,11 +11,18 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useRouter: () => ({
     refresh: vi.fn(),
   }),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 import { OperatorBrandedTransientFailure } from "./OperatorBrandedTransientFailure";
 

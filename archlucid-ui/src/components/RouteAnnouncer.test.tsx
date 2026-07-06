@@ -3,9 +3,16 @@ import { describe, expect, it, vi } from "vitest";
 
 const pathnameRef = { current: "/" };
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   usePathname: () => pathnameRef.current,
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 import { RouteAnnouncer } from "./RouteAnnouncer";
 

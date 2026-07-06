@@ -4,11 +4,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 /** Must match `NewRunWizardClient` — stored "quick" overrides `listRunsByProjectPaged` and hides the import path. */
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useSearchParams: () => new URLSearchParams(),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
   usePathname: () => "",
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 vi.mock("next/link", () => ({
   default: ({

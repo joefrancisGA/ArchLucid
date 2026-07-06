@@ -7,9 +7,13 @@ vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   return createCorePilotCommitContextModuleMock(importOriginal);
 });
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: vi.fn(() => true),
-}));
+};
+});
 
 import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";

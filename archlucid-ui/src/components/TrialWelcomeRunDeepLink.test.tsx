@@ -17,9 +17,16 @@ const { routerReplace } = vi.hoisted(() => ({
   routerReplace: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useRouter: () => ({ replace: routerReplace }),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 import { TrialWelcomeRunDeepLink } from "./TrialWelcomeRunDeepLink";
 

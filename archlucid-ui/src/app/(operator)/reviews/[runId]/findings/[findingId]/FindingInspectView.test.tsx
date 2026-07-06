@@ -3,9 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 
 import { FindingInspectView } from "./FindingInspectView";
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: () => false,
-}));
+};
+});
 
 describe("FindingInspectView review terminology", () => {
   it("uses review vocabulary with runId bridge when URL runId mismatches payload", () => {

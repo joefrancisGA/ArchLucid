@@ -6,12 +6,19 @@ import { WelcomeModal } from "@/components/ui/welcome-modal";
 import { ARCHLUCID_ONBOARDING_TOUR_START_EVENT } from "@/lib/onboarding-tour";
 import { isWelcomeModalVisible, setWelcomeModalVisible } from "@/lib/operator-onboarding-coordination";
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   usePathname: () => "/",
   useRouter: () => ({
     push: vi.fn(),
   }),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 function queryWelcomeModal(): HTMLElement | null {
   return screen.queryByTestId("welcome-modal");

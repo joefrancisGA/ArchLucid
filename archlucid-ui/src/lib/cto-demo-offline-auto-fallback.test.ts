@@ -7,9 +7,13 @@ import {
 import { BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY } from "@/lib/buyer-cto-demo-tour";
 import { OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY } from "@/lib/operator-static-demo";
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: () => true,
-}));
+};
+});
 
 describe("cto-demo-offline-auto-fallback", () => {
   beforeEach(() => {

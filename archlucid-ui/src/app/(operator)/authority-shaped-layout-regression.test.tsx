@@ -34,11 +34,18 @@ vi.mock("@/lib/use-nav-surface", async (importOriginal) => {
   };
 });
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   usePathname: (): string => "/alerts",
   useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
   useSearchParams: (): URLSearchParams => new URLSearchParams(),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 const apiHoisted = vi.hoisted(() => ({
   listPolicyPacks: vi.fn(),

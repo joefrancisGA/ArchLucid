@@ -16,10 +16,14 @@ vi.mock("@/components/OperatorEvidenceLimitsFooter", () => ({
   OperatorEvidenceLimitsFooter: () => <div data-testid="operator-evidence-limits-footer-stub" />,
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: () => false,
   isNextPublicDemoMode: () => false,
-}));
+};
+});
 
 describe("FindingInspectView", () => {
   it("renders core labeled sections when payload matches route run", () => {

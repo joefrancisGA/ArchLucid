@@ -1,9 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: () => true,
   isNextPublicDemoMode: () => true,
-}));
+};
+});
 
 vi.mock("@/lib/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,

@@ -6,14 +6,21 @@ import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import { getBreadcrumbs } from "@/lib/breadcrumb-map";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
   usePathname: () => "/governance/findings",
   useSearchParams: () => ({
     get: () => null,
     toString: () => "",
   }),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 vi.mock("@/lib/api", () => ({
   getRunExplanationSummary: vi.fn().mockResolvedValue({ traces: [] }),
@@ -29,10 +36,14 @@ vi.mock("@/lib/buyer-demo-content-gating", () => ({
   shouldUseGovernanceCuratedDemoSpine: () => false,
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: () => false,
   isNextPublicDemoMode: () => false,
-}));
+};
+});
 
 vi.mock("@/lib/use-nav-surface", () => ({
   useNavSurface: () => ({

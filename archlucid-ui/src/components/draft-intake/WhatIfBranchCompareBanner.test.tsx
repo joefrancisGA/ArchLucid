@@ -3,9 +3,16 @@ import { describe, expect, it, vi } from "vitest";
 
 const useSearchParams = vi.fn();
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useSearchParams: () => useSearchParams(),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 vi.mock("@/hooks/useWhatIfBranchAutoCompare", () => ({
   useWhatIfBranchAutoCompare: () => "idle",
@@ -22,7 +29,7 @@ describe("WhatIfBranchCompareBanner", () => {
     expect(screen.getByTestId("what-if-branch-compare-banner")).toBeInTheDocument();
     expect(screen.getByTestId("what-if-branch-compare-link")).toHaveAttribute(
       "href",
-      "/compare?leftRunId=parent-run&rightRunId=branch-run",
+      "/compare?priorRunId=parent-run&laterRunId=branch-run",
     );
   });
 

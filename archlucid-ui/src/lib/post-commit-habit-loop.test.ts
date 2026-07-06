@@ -2,9 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 
 import { buildPostCommitHabitLoop } from "@/lib/post-commit-habit-loop";
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: () => false,
-}));
+};
+});
 
 describe("buildPostCommitHabitLoop", () => {
   it("returns one primary sponsor action and optional compare when enabled", () => {

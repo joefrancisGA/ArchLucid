@@ -19,11 +19,18 @@ vi.mock("next/link", () => ({
 const refreshMock = vi.fn();
 const getRunDetailMock = vi.fn();
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useRouter: () => ({
     refresh: refreshMock,
   }),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 vi.mock("@/lib/api", () => ({
   getRunDetail: (...args: unknown[]) => getRunDetailMock(...args),

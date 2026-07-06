@@ -5,9 +5,16 @@ import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 
 import { ValueReportOutcomesNav } from "./ValueReportOutcomesNav";
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   usePathname: vi.fn(() => "/value-report"),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 vi.mock("@/lib/features", () => ({
   isShowSystemAdministrationNavEnabled: vi.fn(() => true),

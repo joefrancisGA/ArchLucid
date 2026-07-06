@@ -8,10 +8,14 @@ import {
   evaluateBuyerCtoDemoShellCheck,
 } from "@/lib/buyer-cto-demo-readiness";
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: vi.fn(() => true),
   isNextPublicDemoMode: vi.fn(() => true),
-}));
+};
+});
 
 vi.mock("@/lib/api", () => ({
   getRunSummary: vi.fn(),

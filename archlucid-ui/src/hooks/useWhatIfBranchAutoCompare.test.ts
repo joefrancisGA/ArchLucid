@@ -8,9 +8,16 @@ vi.mock("@/lib/api", () => ({
   getRunSummary: (...args: unknown[]) => getRunSummary(...args),
 }));
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useRouter: () => ({ push: routerPush }),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 import { useWhatIfBranchAutoCompare } from "./useWhatIfBranchAutoCompare";
 
@@ -32,7 +39,7 @@ describe("useWhatIfBranchAutoCompare", () => {
 
     await waitFor(() => {
       expect(routerPush).toHaveBeenCalledWith(
-        "/compare?leftRunId=parent-run&rightRunId=branch-run",
+        "/compare?priorRunId=parent-run&laterRunId=branch-run",
       );
     });
   });

@@ -40,9 +40,16 @@ const RELATED_GUIDE_LINKS: ReadonlyArray<{ readonly label: string; readonly href
   { label: "Review artifacts and proof packet", href: "/help/pilot-guide" },
 ];
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   usePathname: () => "/",
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 describe("First-review guide", () => {
   const entry = getProductDocumentationEntry(GUIDE_SLUG);

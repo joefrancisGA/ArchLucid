@@ -40,7 +40,7 @@ describe("ChangesSinceLastReviewBanner", () => {
 
     expect(link).toHaveAttribute(
       "href",
-      "/compare?leftRunId=prior-run&rightRunId=current-run",
+      "/compare?priorRunId=prior-run&laterRunId=current-run",
     );
   });
 

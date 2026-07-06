@@ -5,9 +5,13 @@ import type { RunTrustEvidenceCard, TrustEvidenceFieldSnapshot } from "@/types/a
 
 import { RunTrustEvidenceCardSection } from "./RunTrustEvidenceCardSection";
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: vi.fn(() => false),
-}));
+};
+});
 
 vi.mock("next/link", () => ({  default: ({
     href,

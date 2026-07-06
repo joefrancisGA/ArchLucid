@@ -9,10 +9,17 @@ import {
 
 const mockPush = vi.fn();
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useRouter: () => ({ push: mockPush }),
   usePathname: () => "/",
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 vi.mock("@/hooks/useNavProgressiveDisclosure", () => ({
   useNavProgressiveDisclosure: () => ({ showExtended: true, showAdvanced: true }),

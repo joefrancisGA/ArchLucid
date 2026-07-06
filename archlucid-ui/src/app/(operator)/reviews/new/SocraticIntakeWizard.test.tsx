@@ -11,10 +11,17 @@ const submitDraftRequest = vi.fn();
 const routerPush = vi.fn();
 const searchParamsGet = vi.hoisted(() => vi.fn(() => null as string | null));
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useRouter: () => ({ push: routerPush }),
   useSearchParams: () => ({ get: (key: string) => searchParamsGet(key) }),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   useLlmMonthlyBudgetExecutionGate: () => ({

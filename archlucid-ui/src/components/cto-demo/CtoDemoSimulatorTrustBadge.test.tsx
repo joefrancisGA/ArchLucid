@@ -3,9 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 
 import { CtoDemoSimulatorTrustBadge } from "@/components/cto-demo/CtoDemoSimulatorTrustBadge";
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: vi.fn(() => true),
-}));
+};
+});
 
 vi.mock("@/hooks/useIsLiveApiActive", () => ({
   useIsLiveApiActive: vi.fn(() => false),

@@ -5,9 +5,13 @@ vi.mock("@/lib/buyer-cto-demo-tour", () => ({
   readBuyerCtoDemoTourActive: vi.fn(() => true),
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: vi.fn(() => true),
-}));
+};
+});
 
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";

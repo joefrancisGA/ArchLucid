@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 
 describe("comparePageHrefAdaptive", () => {
-  it("tracks vitest.setup operator default (technical query keys)", () => {
+  it("uses buyer-polished friendly keys by default (TB-643)", () => {
     expect(process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE).toBe("operator");
-    expect(comparePageHrefAdaptive("a", "b")).toBe("/compare?leftRunId=a&rightRunId=b");
+    expect(comparePageHrefAdaptive("a", "b")).toBe("/compare?priorRunId=a&laterRunId=b");
   });
 
   it("uses friendly labels when buyer-polished shell is active", () => {

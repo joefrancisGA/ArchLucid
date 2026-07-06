@@ -7,9 +7,13 @@ vi.mock("@/lib/cto-demo-presenter-pack", () => ({
   isCtoDemoPackEnv: () => false,
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: () => true,
-}));
+};
+});
 
 vi.mock("@/lib/buyer-cto-demo-tour", () => ({
   readBuyerCtoDemoTourActive: () => true,

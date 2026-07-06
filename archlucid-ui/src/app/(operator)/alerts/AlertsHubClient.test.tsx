@@ -4,13 +4,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const tabValue: { current: string | null } = { current: null };
 const push = vi.fn();
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useRouter: () => ({ push }),
   usePathname: () => "/alerts",
   useSearchParams: () => ({
     get: (k: string) => (k === "tab" ? tabValue.current : null),
   }),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 vi.mock("@/components/alerts/AlertsInboxContent", () => ({
   AlertsInboxContent: () => <div data-testid="stub-inbox" />,

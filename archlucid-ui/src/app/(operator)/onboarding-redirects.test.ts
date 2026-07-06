@@ -1,9 +1,13 @@
 import { permanentRedirect } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("next/navigation", () => ({
-  permanentRedirect: vi.fn(),
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    permanentRedirect: vi.fn(),
+  };
+});
 
 import OnboardRedirectPage from "./onboard/page";
 import GettingStartedRedirectPage from "./getting-started/page";

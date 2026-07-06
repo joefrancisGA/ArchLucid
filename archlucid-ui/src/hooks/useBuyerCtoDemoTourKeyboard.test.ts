@@ -13,9 +13,16 @@ import {
 
 const push = vi.fn();
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useRouter: () => ({ push, refresh: vi.fn() }),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 describe("useBuyerCtoDemoTourKeyboard", () => {
   it("dispatches spotlight changed on S when tour is active", () => {

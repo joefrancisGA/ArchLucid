@@ -25,11 +25,18 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 const pathnameMock = vi.fn(() => getShowcaseExecutiveHref());
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   usePathname: () => pathnameMock(),
   useRouter: () => ({ replace: replaceMock, prefetch: prefetchMock }),
   useSearchParams: () => new URLSearchParams(""),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 describe("BuyerCtoDemoTourOverlay", () => {
   beforeEach(() => {

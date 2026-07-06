@@ -3,6 +3,7 @@ import { afterEach, vi } from "vitest";
 
 import "@testing-library/jest-dom/vitest";
 
+import { extendNextNavigationVitestMock } from "@/testing/next-navigation-vitest-mock";
 import { emptyCorePilotCommitContext } from "@/testing/core-pilot-commit-context.mock";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
@@ -23,18 +24,9 @@ vi.mock("@/hooks/use-core-pilot-commit-context-query", () => ({
   }),
 }));
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    back: vi.fn(),
-    forward: vi.fn(),
-    prefetch: vi.fn(),
-    push: vi.fn(),
-    refresh: vi.fn(),
-    replace: vi.fn(),
-  }),
-  usePathname: () => "/",
-  useSearchParams: () => new URLSearchParams(),
-}));
+vi.mock("next/navigation", async (importOriginal) =>
+  extendNextNavigationVitestMock(importOriginal),
+);
 
 process.env.NEXT_PUBLIC_OPERATOR_NAV_SHOW_PRE_RELEASE_ROUTES = "1";
 

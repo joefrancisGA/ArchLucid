@@ -6,9 +6,16 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 import { QuickDecisionSummary } from "./QuickDecisionSummary";
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useRouter: (): { refresh: () => void } => ({ refresh: (): void => {} }),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 vi.mock("@/lib/api/itsm-outbound-api", () => ({
   listItsmFindingCorrelations: vi.fn().mockResolvedValue({ correlations: [] }),

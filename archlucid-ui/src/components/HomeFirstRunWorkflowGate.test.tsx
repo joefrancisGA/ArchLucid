@@ -3,11 +3,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { HomeFirstRunWorkflowGate } from "./HomeFirstRunWorkflowGate";
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: vi.fn(() => false),
   isBuyerSafeDemoMarketingChromeEnv: vi.fn(() => false),
   isOperatorExperienceFullShellEnv: vi.fn(() => true),
-}));
+};
+});
 
 vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");

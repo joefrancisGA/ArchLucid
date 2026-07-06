@@ -5,11 +5,18 @@ import { OPERATOR_FIRST_RUN_WELCOME, WelcomeModal } from "@/components/ui/welcom
 
 const routerPushSpy = vi.fn();
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   useRouter: () => ({
     push: routerPushSpy,
   }),
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 describe("WelcomeModal", () => {
   beforeEach(() => {

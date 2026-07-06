@@ -26,9 +26,13 @@ vi.mock("@/components/RunDetailRunGovernanceDispositionActions", () => ({
   RunDetailRunGovernanceDispositionActions: () => null,
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+  return {
+    ...actual,
   isBuyerPolishedOperatorShellEnv: () => true,
-}));
+};
+});
 
 describe("RunDetailRunActionsSection", () => {
   it("does not surface pipeline diagnostics in the primary Actions card", () => {

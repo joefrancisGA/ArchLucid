@@ -9,9 +9,16 @@ import {
   ONBOARDING_TOUR_WELCOME_BODY,
 } from "@/lib/operator-onboarding-tour-steps";
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
   usePathname: () => "/",
-}));
+  redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
+    notFound: vi.fn(),
+  };
+});
 
 describe("OnboardingTour", () => {
   it("shows workflow-oriented first step copy without internal jargon", () => {
