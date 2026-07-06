@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -9,13 +9,14 @@ import { useSupportBundleDownload } from "@/lib/use-support-bundle-download";
 
 type SupportBundleDownloadButtonProps = {
   className?: string;
-  showAdminLink?: boolean;
+  /** When true, shows a secondary link to the full support diagnostics page (Execute+ surfaces). */
+  showDiagnosticsLink?: boolean;
 };
 
 /** Discoverable support-bundle download for Help and Settings surfaces. */
 export function SupportBundleDownloadButton({
   className,
-  showAdminLink = true,
+  showDiagnosticsLink = false,
 }: SupportBundleDownloadButtonProps) {
   const { downloading, error, onDownload } = useSupportBundleDownload();
 
@@ -30,13 +31,11 @@ export function SupportBundleDownloadButton({
         {downloading ? "Preparing bundle…" : "Download support bundle"}
       </Button>
 
-      {showAdminLink ? (
+      {showDiagnosticsLink ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Requires admin API access. Full diagnostics page:{" "}
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/settings/support">
-            Settings → Support
+          <Link className={OPERATOR_LINK.nav} href="/settings/support">
+            Open support diagnostics
           </Link>
-          .
         </p>
       ) : null}
 
