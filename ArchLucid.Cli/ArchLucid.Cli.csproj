@@ -27,6 +27,7 @@
     <PackageReference Include="Polly" />
     <PackageReference Include="Spectre.Console" />
     <PackageReference Include="Tomlyn" />
+    <PackageReference Include="YamlDotNet" />
     <PackageReference Include="JsonSchema.Net" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
@@ -56,6 +57,8 @@
     <Content Include="Data\buyer_proof_evidence_ledger_rules.v1.json"
              CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Data\decision_owner_scoreboard_rules.v1.json"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\deploy\archlucid.stack.schema.json" Link="deploy\archlucid.stack.schema.json"
              CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

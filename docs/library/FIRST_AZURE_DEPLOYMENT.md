@@ -13,6 +13,14 @@
 
 Provide a **preflight checklist**, **backend configuration** for Terraform remote state, and **apply order** aligned with [`REFERENCE_SAAS_STACK_ORDER.md`](REFERENCE_SAAS_STACK_ORDER.md). **Default:** start from **[`infra/terraform-pilot/`](../../infra/terraform-pilot/README.md)** (canonical pilot profile; no Azure resources in that root). Use **per-root** applies only when you intentionally opt into the **multi-root** path documented there. This doc does not replace each root’s `README.md` — read those for variable semantics.
 
+**TB-654 operator entry point:** after remote-state bootstrap, copy [`deploy/archlucid.stack.example.yaml`](../../deploy/archlucid.stack.example.yaml) to `archlucid.stack.yaml`, edit the ~15 operator-owned fields, then run:
+
+```bash
+dotnet run --project ArchLucid.Cli -- stack init --answers archlucid.stack.yaml
+```
+
+This emits per-root `terraform.tfvars` fragments, hosted `appsettings.Hosted.json`, a GitHub environment secret manifest, and a Key Vault secret checklist (names only) under `deploy/generated/<environment>/`. Use `archlucid stack diff` to detect drift before apply. Schema: [`deploy/archlucid.stack.schema.json`](../../deploy/archlucid.stack.schema.json).
+
 ## Assumptions
 
 - You have an **Azure subscription** where you can create resource groups, and a **service principal** (or user) with rights to deploy the stacks you enable.

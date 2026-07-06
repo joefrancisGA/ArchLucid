@@ -576,6 +576,18 @@ public static class Program
                 case "onboard-preflight":
                     return await OnboardPreflightCommand.RunAsync(normalized.Skip(1).ToArray());
 
+                case "stack":
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "init", StringComparison.Ordinal))
+                        return await StackInitCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "diff", StringComparison.Ordinal))
+                        return await StackDiffCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                    Console.WriteLine(
+                        "Usage: archlucid stack init [--from-example] [--answers <path>] [--out <dir>] [--force] [--repo-root <dir>] | archlucid stack diff [--answers <path>] [--out <dir>] [--repo-root <dir>]");
+
+                    return CliExitCode.UsageError;
+
                 case "doctor":
                 case "check":
                     return await DoctorCommand.RunAsync(CliCommandShared.TryLoadConfigFromCwd());
