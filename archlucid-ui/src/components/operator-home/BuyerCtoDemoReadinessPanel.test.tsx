@@ -7,6 +7,10 @@ vi.mock("@/lib/demo-ui-env", () => ({
   isBuyerPolishedOperatorShellEnv: () => true,
 }));
 
+vi.mock("@/lib/cto-demo-presenter-pack", () => ({
+  isCtoDemoOperatorToolingEnv: () => false,
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: vi.fn(),
@@ -60,5 +64,7 @@ describe("BuyerCtoDemoReadinessPanel", () => {
 
     expect(screen.getByTestId("buyer-cto-demo-readiness-check-buyer-shell")).toBeInTheDocument();
     expect(mockEvaluate).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("buyer-cto-demo-run-of-show-download")).toBeNull();
+    expect(screen.queryByTestId("cto-demo-reset-button")).toBeNull();
   });
 });

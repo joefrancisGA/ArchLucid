@@ -22,6 +22,7 @@ import {
   type BuyerCtoDemoReadinessResult,
 } from "@/lib/buyer-cto-demo-readiness";
 import { buildCtoDemoRunOfShowMarkdown } from "@/lib/buyer-cto-demo-tour";
+import { isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
@@ -81,6 +82,7 @@ export function BuyerCtoDemoReadinessPanel(): React.JSX.Element | null {
   }
 
   const statusKind = result === null ? "needs-attention" : buyerCtoDemoReadinessStatusKind(result.verdict);
+  const showOperatorTooling = isCtoDemoOperatorToolingEnv();
 
   return (
     <section
@@ -115,20 +117,25 @@ export function BuyerCtoDemoReadinessPanel(): React.JSX.Element | null {
           >
             {BUYER_CTO_DEMO_READINESS_REFRESH_CTA}
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            data-testid="buyer-cto-demo-run-of-show-download"
-            onClick={() => {
-              downloadCtoDemoRunOfShow();
-            }}
-          >
-            {BUYER_CTO_DEMO_RUN_OF_SHOW_DOWNLOAD_CTA}
-          </Button>
-          <div className="flex items-center border-l border-neutral-200 pl-2 dark:border-neutral-700 sm:ml-1">
-            <CtoDemoResetButton />
-          </div>
+          {showOperatorTooling ? (
+            <>
+              {/* Run-of-show downloads are internal demo-operator tooling — never buyer-facing. */}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="buyer-cto-demo-run-of-show-download"
+                onClick={() => {
+                  downloadCtoDemoRunOfShow();
+                }}
+              >
+                {BUYER_CTO_DEMO_RUN_OF_SHOW_DOWNLOAD_CTA}
+              </Button>
+              <div className="flex items-center border-l border-neutral-200 pl-2 dark:border-neutral-700 sm:ml-1">
+                <CtoDemoResetButton />
+              </div>
+            </>
+          ) : null}
         </div>
       </div>
 

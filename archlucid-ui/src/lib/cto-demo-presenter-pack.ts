@@ -1,5 +1,10 @@
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
-import { isBuyerPolishedOperatorShellEnv, isBuyerVocabularyPassActive, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import {
+  isBuyerPolishedOperatorShellEnv,
+  isBuyerVocabularyPassActive,
+  isNextPublicDemoMode,
+  isOperatorExperienceFullShellEnv,
+} from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 
 function isCtoDemoNavExpandedEnvFlag(): boolean {
@@ -7,6 +12,12 @@ function isCtoDemoNavExpandedEnvFlag(): boolean {
     process.env.NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED === "true" ||
     process.env.NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED === "1"
   );
+}
+
+function isCtoDemoOperatorControlsEnvFlag(): boolean {
+  const raw = (process.env.NEXT_PUBLIC_CTO_DEMO_OPERATOR_CONTROLS ?? "").trim().toLowerCase();
+
+  return raw === "true" || raw === "1";
 }
 
 /** Explicit demo packaging — `NEXT_PUBLIC_DEMO_MODE` or static operator build. */
@@ -17,6 +28,27 @@ export function isCtoDemoPackEnv(): boolean {
 /** Presenter safe mode (#10) — buyer-polished shell in packaged demo builds. */
 export function isCtoDemoPresenterSafeModeEnv(): boolean {
   return isBuyerPolishedOperatorShellEnv() && isCtoDemoPackEnv();
+}
+
+/**
+ * Run-of-show downloads, reset-demo, and similar presenter scaffolding are internal demo-operator
+ * tooling and must not surface on buyer-facing Overview. Opt in via
+ * `NEXT_PUBLIC_CTO_DEMO_OPERATOR_CONTROLS`, packaged demo + full-operator builds, or local development.
+ */
+export function isCtoDemoOperatorToolingEnv(): boolean {
+  if (isCtoDemoOperatorControlsEnvFlag()) {
+    return true;
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    return true;
+  }
+
+  if (isCtoDemoPackEnv() && isOperatorExperienceFullShellEnv()) {
+    return true;
+  }
+
+  return false;
 }
 
 /** Redirect operator home to the showcase executive summary (#4). */
