@@ -3363,6 +3363,7 @@ jobs:
           npm run lint:terminology
           npm run typecheck
           npm run build
+          npm run check:first-load-js
 
   ui-playwright-mock-smoke:
     name: "Operator UI: Playwright mock functional (mock API)"

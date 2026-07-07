@@ -1,13 +1,22 @@
 /**
- * TB-573 — Parse Next.js production build output and compare First Load JS against a committed baseline.
+ * TB-573 / TB-691 — Compare per-route First Load JS against a committed baseline.
+ * Next 16+ reads `.next/diagnostics/route-bundle-stats.json`; Next 15 logs remain supported.
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /** @typedef {{ schemaVersion: number; updatedUtc: string; regressionToleranceKb: number; routes: Record<string, { firstLoadJsKb: number }>; notes?: string }} FirstLoadJsBaseline */
 
+/** @typedef {{ route: string; firstLoadUncompressedJsBytes: number; firstLoadChunkPaths?: string[] }} RouteBundleStat */
+
 export const DEFAULT_BASELINE_RELATIVE_PATH = join("performance", "first-load-js-baseline.v1.json");
+
+export const DEFAULT_ROUTE_BUNDLE_STATS_RELATIVE_PATH = join(
+  ".next",
+  "diagnostics",
+  "route-bundle-stats.json",
+);
 
 /** Routes tracked for UI performance regression gates (TB-573). */
 export const TRACKED_ROUTES = [
@@ -59,6 +68,101 @@ export function parseNextBuildFirstLoadJsKb(buildLog) {
   }
 
   return routes;
+}
+
+/**
+ * @param {string} route
+ * @returns {string}
+ */
+export function normalizeRouteBundleStatsRoute(route) {
+  if (route.endsWith("/page")) {
+    const trimmed = route.slice(0, -"/page".length);
+
+    return trimmed.length === 0 ? "/" : trimmed;
+  }
+
+  return route;
+}
+
+/**
+ * @param {readonly RouteBundleStat[]} stats
+ * @returns {Map<string, number>}
+ */
+export function parseRouteBundleStatsFirstLoadJsKb(stats) {
+  /** @type {Map<string, number>} */
+  const routes = new Map();
+
+  for (const entry of stats) {
+    if (typeof entry.route !== "string" || typeof entry.firstLoadUncompressedJsBytes !== "number") {
+      continue;
+    }
+
+    const normalizedRoute = normalizeRouteBundleStatsRoute(entry.route);
+    const firstLoadJsKb = roundKb(entry.firstLoadUncompressedJsBytes / 1024);
+
+    routes.set(normalizedRoute, firstLoadJsKb);
+  }
+
+  return routes;
+}
+
+/**
+ * @param {Map<string, number>} statsRoutes
+ * @param {string} trackedRoute
+ * @returns {number | undefined}
+ */
+export function resolveTrackedRouteFirstLoadJsKb(statsRoutes, trackedRoute) {
+  const direct = statsRoutes.get(trackedRoute);
+
+  if (direct !== undefined) {
+    return direct;
+  }
+
+  const pageVariant = `${trackedRoute}/page`;
+  const pageMatch = statsRoutes.get(pageVariant);
+
+  if (pageMatch !== undefined) {
+    return pageMatch;
+  }
+
+  return undefined;
+}
+
+/**
+ * @param {readonly RouteBundleStat[]} stats
+ * @param {readonly string[]} [trackedRoutes]
+ * @returns {Map<string, number>}
+ */
+export function buildTrackedRouteFirstLoadJsMap(stats, trackedRoutes = TRACKED_ROUTES) {
+  const statsRoutes = parseRouteBundleStatsFirstLoadJsKb(stats);
+  /** @type {Map<string, number>} */
+  const tracked = new Map();
+
+  for (const route of trackedRoutes) {
+    const firstLoadJsKb = resolveTrackedRouteFirstLoadJsKb(statsRoutes, route);
+
+    if (firstLoadJsKb !== undefined) {
+      tracked.set(route, firstLoadJsKb);
+    }
+  }
+
+  return tracked;
+}
+
+/**
+ * @param {string} statsPath
+ * @returns {readonly RouteBundleStat[]}
+ */
+export function readRouteBundleStats(statsPath) {
+  const raw = readFileSync(statsPath, "utf8");
+  /** @type {unknown} */
+  const parsed = JSON.parse(raw);
+
+  if (!Array.isArray(parsed)) {
+    throw new Error(`Route bundle stats must be a JSON array: ${statsPath}`);
+  }
+
+  return parsed;
 }
 
 /**
@@ -189,29 +293,83 @@ function readBuildLog(buildLogPath) {
   return buffer.toString("utf8");
 }
 
+/**
+ * @param {string | null} statsPath
+ * @param {string | null} logPath
+ * @returns {Map<string, number>}
+ */
+function resolveActualRoutes(statsPath, logPath) {
+  if (statsPath !== null) {
+    if (!existsSync(statsPath)) {
+      throw new Error(
+        `Route bundle stats not found at ${statsPath}. Run production \`npm run build\` first (Next 16 writes ${DEFAULT_ROUTE_BUNDLE_STATS_RELATIVE_PATH}).`,
+      );
+    }
+
+    const stats = readRouteBundleStats(statsPath);
+    const tracked = buildTrackedRouteFirstLoadJsMap(stats);
+
+    if (tracked.size === 0) {
+      throw new Error(`Route bundle stats at ${statsPath} did not contain any tracked routes.`);
+    }
+
+    return tracked;
+  }
+
+  if (logPath === null) {
+    throw new Error(
+      "check requires --stats <path> (preferred on Next 16+) or --log <path> (legacy Next 15 build output).",
+    );
+  }
+
+  const buildLog = readBuildLog(logPath);
+
+  if (isNext16BuildLogWithoutFirstLoadJsTable(buildLog)) {
+    throw new Error(
+      "Next.js 16+ build logs omit per-route First Load JS. Re-run with --stats .next/diagnostics/route-bundle-stats.json after `npm run build`.",
+    );
+  }
+
+  const actualRoutes = parseNextBuildFirstLoadJsKb(buildLog);
+
+  if (actualRoutes.size === 0) {
+    throw new Error(`Build log at ${logPath} did not contain parseable First Load JS rows.`);
+  }
+
+  return actualRoutes;
+}
+
 function printUsage() {
   console.log(`Usage:
-  node scripts/first-load-js-baseline.mjs check [--log <path>] [--baseline <path>]
-  node scripts/first-load-js-baseline.mjs write-baseline [--log <path>] [--baseline <path>]
+  node scripts/first-load-js-baseline.mjs check [--stats <path>] [--log <path>] [--baseline <path>]
+  node scripts/first-load-js-baseline.mjs write-baseline [--stats <path>] [--log <path>] [--baseline <path>]
 
 Defaults:
   --baseline  performance/first-load-js-baseline.v1.json (relative to archlucid-ui cwd)
-  --log       required for both commands`);
+  --stats     .next/diagnostics/route-bundle-stats.json when present (Next 16+)
+  --log       legacy Next 15 build console capture`);
 }
 
 /**
  * @param {string[]} argv
- * @returns {{ command: string; logPath: string | null; baselinePath: string }}
+ * @returns {{ command: string; logPath: string | null; statsPath: string | null; baselinePath: string }}
  */
 function parseCli(argv) {
   const command = argv[0];
 
   if (command === undefined || command === "--help" || command === "-h") {
-    return { command: "help", logPath: null, baselinePath: join(process.cwd(), DEFAULT_BASELINE_RELATIVE_PATH) };
+    return {
+      command: "help",
+      logPath: null,
+      statsPath: null,
+      baselinePath: join(process.cwd(), DEFAULT_BASELINE_RELATIVE_PATH),
+    };
   }
 
   /** @type {string | null} */
   let logPath = null;
+  /** @type {string | null} */
+  let statsPath = null;
   let baselinePath = join(process.cwd(), DEFAULT_BASELINE_RELATIVE_PATH);
 
   for (let index = 1; index < argv.length; index += 1) {
@@ -219,6 +377,12 @@ function parseCli(argv) {
 
     if (token === "--log") {
       logPath = argv[index + 1] ?? null;
+      index += 1;
+      continue;
+    }
+
+    if (token === "--stats") {
+      statsPath = argv[index + 1] ?? null;
       index += 1;
       continue;
     }
@@ -232,24 +396,19 @@ function parseCli(argv) {
     throw new Error(`Unknown argument: ${token}`);
   }
 
-  return { command, logPath, baselinePath };
+  if (statsPath === null) {
+    const defaultStatsPath = join(process.cwd(), DEFAULT_ROUTE_BUNDLE_STATS_RELATIVE_PATH);
+
+    if (existsSync(defaultStatsPath)) {
+      statsPath = defaultStatsPath;
+    }
+  }
+
+  return { command, logPath, statsPath, baselinePath };
 }
 
-function runCheck(logPath, baselinePath) {
-  if (logPath === null) {
-    throw new Error("check requires --log <path> (capture `npm run build 2>&1 | tee .next-build.log`).");
-  }
-
-  const buildLog = readBuildLog(logPath);
-
-  if (isNext16BuildLogWithoutFirstLoadJsTable(buildLog)) {
-    console.log(
-      "SKIP: Next.js 16+ build output no longer prints per-route First Load JS; TB-573 gate deferred until analyze-based capture ships.",
-    );
-    return;
-  }
-
-  const actualRoutes = parseNextBuildFirstLoadJsKb(buildLog);
+function runCheck(statsPath, logPath, baselinePath) {
+  const actualRoutes = resolveActualRoutes(statsPath, logPath);
   const baseline = readBaseline(baselinePath);
   const result = compareFirstLoadJsBudget(actualRoutes, baseline);
 
@@ -262,16 +421,12 @@ function runCheck(logPath, baselinePath) {
     return;
   }
 
-  console.log(`First Load JS budget check passed (${baselinePath}).`);
+  const source = statsPath ?? logPath;
+  console.log(`First Load JS budget check passed (${baselinePath}; source ${source}).`);
 }
 
-function runWriteBaseline(logPath, baselinePath) {
-  if (logPath === null) {
-    throw new Error("write-baseline requires --log <path> (capture `npm run build 2>&1 | tee .next-build.log`).");
-  }
-
-  const buildLog = readBuildLog(logPath);
-  const actualRoutes = parseNextBuildFirstLoadJsKb(buildLog);
+function runWriteBaseline(statsPath, logPath, baselinePath) {
+  const actualRoutes = resolveActualRoutes(statsPath, logPath);
   const existingBaseline = readBaseline(baselinePath);
   const updated = buildUpdatedBaseline(actualRoutes, existingBaseline);
 
@@ -280,7 +435,7 @@ function runWriteBaseline(logPath, baselinePath) {
 }
 
 function main() {
-  const { command, logPath, baselinePath } = parseCli(process.argv.slice(2));
+  const { command, logPath, statsPath, baselinePath } = parseCli(process.argv.slice(2));
 
   if (command === "help") {
     printUsage();
@@ -288,12 +443,12 @@ function main() {
   }
 
   if (command === "check") {
-    runCheck(logPath, baselinePath);
+    runCheck(statsPath, logPath, baselinePath);
     return;
   }
 
   if (command === "write-baseline") {
-    runWriteBaseline(logPath, baselinePath);
+    runWriteBaseline(statsPath, logPath, baselinePath);
     return;
   }
 

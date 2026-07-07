@@ -6,10 +6,13 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_BASELINE_RELATIVE_PATH,
   TRACKED_ROUTES,
+  buildTrackedRouteFirstLoadJsMap,
   compareFirstLoadJsBudget,
   isNext16BuildLogWithoutFirstLoadJsTable,
   parseNextBuildFirstLoadJsKb,
+  parseRouteBundleStatsFirstLoadJsKb,
   readBaseline,
+  readRouteBundleStats,
 } from "./first-load-js-baseline.mjs";
 
 const FIXTURE_LOG = `
@@ -21,7 +24,14 @@ Route (app)                                             Size  First Load JS  Rev
 + First Load JS shared by all                         105 kB
 `;
 
-describe("first-load-js-baseline (TB-573)", () => {
+const NEXT16_STATS_FIXTURE = join(
+  process.cwd(),
+  "scripts",
+  "fixtures",
+  "route-bundle-stats.next16.v1.json",
+);
+
+describe("first-load-js-baseline (TB-573 / TB-691)", () => {
   it("detects Next.js 16+ build logs that omit First Load JS columns", () => {
     const next16Log = `
 Route (app)                                          Revalidate  Expire
@@ -33,7 +43,7 @@ Route (app)                                          Revalidate  Expire
     expect(isNext16BuildLogWithoutFirstLoadJsTable(FIXTURE_LOG)).toBe(false);
   });
 
-  it("parses First Load JS per route from Next.js build output", () => {
+  it("parses First Load JS per route from legacy Next.js build output", () => {
     const routes = parseNextBuildFirstLoadJsKb(FIXTURE_LOG);
 
     expect(routes.get("/welcome")).toBe(145);
@@ -42,8 +52,20 @@ Route (app)                                          Revalidate  Expire
     expect(routes.get("/governance")).toBe(286);
   });
 
+  it("parses Next 16 route-bundle-stats.json into tracked routes", () => {
+    const stats = readRouteBundleStats(NEXT16_STATS_FIXTURE);
+    const routes = buildTrackedRouteFirstLoadJsMap(stats);
+
+    expect(routes.get("/welcome")).toBe(145);
+    expect(routes.get("/reviews")).toBe(287);
+    expect(routes.get("/reviews/[runId]")).toBe(420);
+    expect(routes.get("/governance")).toBe(286);
+    expect(parseRouteBundleStatsFirstLoadJsKb(stats).size).toBeGreaterThanOrEqual(4);
+  });
+
   it("passes when actual sizes are within baseline tolerance", () => {
-    const actualRoutes = parseNextBuildFirstLoadJsKb(FIXTURE_LOG);
+    const stats = readRouteBundleStats(NEXT16_STATS_FIXTURE);
+    const actualRoutes = buildTrackedRouteFirstLoadJsMap(stats);
     const baseline = readBaseline(join(process.cwd(), DEFAULT_BASELINE_RELATIVE_PATH));
     const result = compareFirstLoadJsBudget(actualRoutes, baseline);
 
@@ -52,7 +74,8 @@ Route (app)                                          Revalidate  Expire
   });
 
   it("fails when /reviews exceeds baseline tolerance", () => {
-    const actualRoutes = parseNextBuildFirstLoadJsKb(FIXTURE_LOG);
+    const stats = readRouteBundleStats(NEXT16_STATS_FIXTURE);
+    const actualRoutes = buildTrackedRouteFirstLoadJsMap(stats);
     actualRoutes.set("/reviews", 320);
 
     const baseline = readBaseline(join(process.cwd(), DEFAULT_BASELINE_RELATIVE_PATH));

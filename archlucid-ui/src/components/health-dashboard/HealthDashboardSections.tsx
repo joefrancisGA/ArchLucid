@@ -164,7 +164,7 @@ export function HealthCheckRow(props: HealthCheckRowProps) {
 type HealthGroupedReadinessProps = {
   readonly groups: ReadonlyArray<{
     readonly category: { readonly title: string };
-    readonly rows: HealthCheckRowProps["row"][];
+    readonly rows: ReadonlyArray<HealthCheckRowProps["row"]>;
     readonly aggregateSeverity: HealthDisplaySeverity;
   }>;
   readonly testId: string;
