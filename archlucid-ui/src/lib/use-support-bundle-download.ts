@@ -4,20 +4,30 @@ import { useCallback, useState } from "react";
 
 import { defaultSupportBundleFilename } from "@/app/(operator)/admin/support/_sections/default-support-bundle-filename";
 import { parseFilenameFromContentDisposition } from "@/app/(operator)/admin/support/_sections/parse-filename-from-content-disposition";
+import {
+  classifySupportBundleDownloadError,
+  formatSupportBundleDownloadError,
+  type SupportBundleStatus,
+} from "@/lib/support-workspace-present";
 
 export type UseSupportBundleDownloadModel = {
   downloading: boolean;
+  bundleStatus: SupportBundleStatus;
   error: string | null;
+  lastGeneratedAt: Date | null;
   onDownload: () => Promise<void>;
 };
 
 /** Downloads the in-product support bundle ZIP via POST /v1/admin/support-bundle. */
 export function useSupportBundleDownload(): UseSupportBundleDownloadModel {
   const [downloading, setDownloading] = useState(false);
+  const [bundleStatus, setBundleStatus] = useState<SupportBundleStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+  const [lastGeneratedAt, setLastGeneratedAt] = useState<Date | null>(null);
 
   const onDownload = useCallback(async () => {
     setDownloading(true);
+    setBundleStatus("generating");
     setError(null);
 
     try {
@@ -28,10 +38,16 @@ export function useSupportBundleDownload(): UseSupportBundleDownloadModel {
 
       if (!response.ok) {
         const text = await response.text().catch(() => "");
+        const status = classifySupportBundleDownloadError(response.status, text);
+        const message =
+          status === "failed"
+            ? `Support bundle download failed (HTTP ${response.status}). ${text.slice(0, 280)}`
+            : formatSupportBundleDownloadError(status, null);
 
-        throw new Error(
-          `Support-bundle download failed (HTTP ${response.status}). ${text.slice(0, 280)}`,
-        );
+        setBundleStatus(status);
+        setError(message);
+
+        return;
       }
 
       const disposition = response.headers.get("content-disposition") ?? "";
@@ -41,19 +57,23 @@ export function useSupportBundleDownload(): UseSupportBundleDownloadModel {
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
       URL.revokeObjectURL(url);
+
+      setBundleStatus("ready");
+      setLastGeneratedAt(new Date());
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : String(cause));
+      setBundleStatus("failed");
+      setError(formatSupportBundleDownloadError("failed", cause));
     } finally {
       setDownloading(false);
     }
   }, []);
 
-  return { downloading, error, onDownload };
+  return { downloading, bundleStatus, error, lastGeneratedAt, onDownload };
 }

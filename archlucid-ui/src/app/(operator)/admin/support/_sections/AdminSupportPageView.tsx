@@ -2,38 +2,59 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useCallback, useState } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatRelativeTime } from "@/lib/relative-time";
+import {
+  ARCHLUCID_SUPPORT_EMAIL,
+  SUPPORT_BUNDLE_EXCLUDED_ITEMS,
+  SUPPORT_BUNDLE_INCLUDED_ITEMS,
+  SUPPORT_BUNDLE_SAFETY_SUMMARY,
+  SUPPORT_CONTACT_WORKFLOW,
+  SUPPORT_PAGE_GUIDANCE,
+  SUPPORT_REQUEST_CHECKLIST,
+  SUPPORT_TROUBLESHOOTING_SHORTCUTS,
+  buildSupportRequestTemplate,
+  resolveSupportBundleStatusLabel,
+  resolveSupportTroubleshootingHref,
+} from "@/lib/support-workspace-present";
 
 import type { UseAdminSupportPageModel } from "./use-admin-support-page";
 
 type AdminSupportPageViewProps = {
-  model: UseAdminSupportPageModel;
+  readonly model: UseAdminSupportPageModel;
 };
 
-const BUNDLE_INCLUDED_ITEMS = [
-  "Workspace and tenant identifiers",
-  "App version, runtime, and host environment",
-  "Feature flags and configuration readiness",
-  "Redacted ARCHLUCID_* and DOTNET_* environment variables (secret-shaped names show set / not set only)",
-  "Diagnostics summary and automated triage hints",
-  "Correlation reference hints",
-] as const;
+async function copyText(value: string): Promise<void> {
+  if (typeof navigator === "undefined" || navigator.clipboard === undefined) {
+    return;
+  }
 
-const BUNDLE_NOT_INCLUDED_ITEMS = [
-  "Secrets, API keys, or bearer tokens",
-  "Connection-string passwords or email addresses",
-  "Raw uploaded evidence",
-  "Full customer documents",
-] as const;
+  await navigator.clipboard.writeText(value);
+}
 
 export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
-  const { downloading, error, isDemo, onDownload } = model;
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedTemplate, setCopiedTemplate] = useState(false);
 
-  if (isDemo) {
+  const copySupportEmail = useCallback(async () => {
+    await copyText(ARCHLUCID_SUPPORT_EMAIL);
+    setCopiedEmail(true);
+    window.setTimeout(() => setCopiedEmail(false), 2000);
+  }, []);
+
+  const copySupportTemplate = useCallback(async () => {
+    await copyText(buildSupportRequestTemplate(model.workspaceLabel));
+    setCopiedTemplate(true);
+    window.setTimeout(() => setCopiedTemplate(false), 2000);
+  }, [model.workspaceLabel]);
+
+  if (model.isDemo) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
         capability="Support tools"
@@ -42,131 +63,197 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
     );
   }
 
+  const troubleshootingShortcuts = SUPPORT_TROUBLESHOOTING_SHORTCUTS.filter(
+    (shortcut) => !shortcut.internalOnly || model.showInternalDiagnostics,
+  );
+
+  const bundleStatusLabel =
+    model.bundleStatus === "ready" && model.lastGeneratedAt !== null
+      ? `Download ready — last generated ${formatRelativeTime(model.lastGeneratedAt.toISOString())}`
+      : resolveSupportBundleStatusLabel(model.bundleStatus, model.lastGeneratedAt);
+
+  const downloadDisabled = model.downloading || !model.canGenerateBundle;
+
   return (
-    <div className="w-full max-w-3xl space-y-8">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Support</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Get help, download diagnostics, and review troubleshooting resources.
-        </p>
-      </div>
+    <div className="w-full max-w-[1280px] space-y-6" data-testid="admin-support-page">
+      <OperatorPageHeader
+        title="Support"
+        titleTestId="admin-support-title"
+        subtitle="Contact ArchLucid support, gather redacted diagnostics, and follow guided troubleshooting paths."
+      />
 
-      <Section title="Contact support">
-        <p className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          For questions before sharing diagnostics, contact{" "}
-          <a className={OPERATOR_LINK.nav} href="mailto:support@archlucid.net">
-            support@archlucid.net
-          </a>
-          .
-        </p>
-      </Section>
+      <p
+        className={cn(
+          "m-0 rounded-lg border border-neutral-200 bg-neutral-50/70 px-4 py-3 text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/40",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
+        data-testid="admin-support-guidance"
+      >
+        {SUPPORT_PAGE_GUIDANCE}
+      </p>
 
-      <Section title="Support bundle">
-        <p className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          Download a redacted diagnostics bundle to attach to a support ticket. The bundle contains redacted diagnostic
-          context that an administrator may choose to share with support.
-        </p>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-6">
+          <SupportSection title="Contact support" testId="admin-support-contact">
+            <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{SUPPORT_CONTACT_WORKFLOW}</p>
 
-        <div className="mt-4 space-y-3">
-          <Button
-            type="button"
-            data-testid="admin-support-download-bundle"
-            disabled={downloading}
-            onClick={() => void onDownload()}
-          >
-            {downloading ? "Preparing bundle…" : "Download support bundle"}
-          </Button>
+            <div className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/60 px-3 py-3 dark:border-neutral-800 dark:bg-neutral-900/40">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Support email</p>
+              <a className={cn("mt-1 inline-block font-medium", OPERATOR_LINK.nav)} href={`mailto:${ARCHLUCID_SUPPORT_EMAIL}`}>
+                {ARCHLUCID_SUPPORT_EMAIL}
+              </a>
+            </div>
 
-          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Download requires appropriate API permissions for your tenant. Review the bundle before sharing outside your
-            organization.
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => void copySupportEmail()}>
+                {copiedEmail ? "Email copied" : "Copy support email"}
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => void copySupportTemplate()}>
+                {copiedTemplate ? "Template copied" : "Copy support template"}
+              </Button>
+            </div>
+
+            <div className="mt-4">
+              <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>What to include</p>
+              <ul className="m-0 mt-2 list-disc space-y-1 pl-5">
+                {SUPPORT_REQUEST_CHECKLIST.map((item) => (
+                  <li key={item} className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </SupportSection>
+
+          <SupportSection title="Common next steps" testId="admin-support-troubleshooting">
+            <ul className="m-0 list-none space-y-3 p-0">
+              {troubleshootingShortcuts.map((shortcut) => (
+                <li
+                  key={shortcut.id}
+                  className="rounded-md border border-neutral-200 bg-white px-3 py-3 dark:border-neutral-800 dark:bg-neutral-950"
+                  data-testid={`admin-support-shortcut-${shortcut.id}`}
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      href={resolveSupportTroubleshootingHref(shortcut.route)}
+                      className={cn("font-medium", OPERATOR_LINK.nav)}
+                    >
+                      {shortcut.title}
+                    </Link>
+                    {shortcut.internalOnly ? (
+                      <Badge variant="outline" className="border-neutral-300 text-neutral-600 dark:border-neutral-600 dark:text-neutral-400">
+                        Internal
+                      </Badge>
+                    ) : null}
+                  </div>
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{shortcut.detail}</p>
+                </li>
+              ))}
+            </ul>
+          </SupportSection>
+        </div>
+
+        <SupportSection title="Support bundle" testId="admin-support-bundle">
+          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            Download a redacted diagnostics bundle to attach when ArchLucid support requests it.
           </p>
 
-          {error !== null ? (
-            <p
-              role="alert"
-              className={cn(
-                "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-              data-testid="admin-support-download-error"
+          <p
+            className={cn(
+              "m-0 mt-3 rounded-md border border-emerald-200 bg-emerald-50/70 px-3 py-2 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+            data-testid="admin-support-bundle-safety"
+          >
+            {SUPPORT_BUNDLE_SAFETY_SUMMARY}
+          </p>
+
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <BundleDataList title="Included" items={SUPPORT_BUNDLE_INCLUDED_ITEMS} testId="admin-support-bundle-included" />
+            <BundleDataList title="Not included" items={SUPPORT_BUNDLE_EXCLUDED_ITEMS} testId="admin-support-bundle-excluded" />
+          </div>
+
+          <div className="mt-4 space-y-3">
+            <Button
+              type="button"
+              data-testid="admin-support-download-bundle"
+              disabled={downloadDisabled}
+              onClick={() => void model.onDownload()}
             >
-              {error}
+              {model.downloading ? "Preparing bundle…" : "Download support bundle"}
+            </Button>
+
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="admin-support-bundle-status"
+            >
+              {bundleStatusLabel}
             </p>
-          ) : null}
-        </div>
 
-        <div className="mt-4 space-y-2">
-          <BundleDisclosure summary="What's included" items={BUNDLE_INCLUDED_ITEMS} />
-          <BundleDisclosure summary="Not included" items={BUNDLE_NOT_INCLUDED_ITEMS} />
-        </div>
-      </Section>
+            {!model.canGenerateBundle ? (
+              <p
+                className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
+                role="status"
+                data-testid="admin-support-bundle-permission"
+              >
+                Execute authority or higher is required to generate a support bundle.
+              </p>
+            ) : null}
 
-      <Section title="Troubleshooting">
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          <ResourceLink href="/admin/health" label="Open system health" />
-          <ResourceLink href={inAppHelpHref("troubleshooting")} label="Open troubleshooting guide" />
-          <ResourceLink href={inAppHelpHref("admin-diagnostics")} label="View admin diagnostics" />
-        </div>
-      </Section>
+            {model.error !== null ? (
+              <p
+                role="alert"
+                className={cn(
+                  "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50",
+                  OPERATOR_TYPOGRAPHY.body,
+                )}
+                data-testid="admin-support-download-error"
+              >
+                {model.error}
+              </p>
+            ) : null}
+          </div>
+        </SupportSection>
+      </div>
     </div>
   );
 }
 
-type SectionProps = {
-  title: string;
-  children: React.ReactNode;
+type SupportSectionProps = {
+  readonly title: string;
+  readonly testId: string;
+  readonly children: React.ReactNode;
 };
 
-function Section({ title, children }: SectionProps) {
+function SupportSection({ title, testId, children }: SupportSectionProps) {
   return (
-    <section className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
-      <h2 className={cn("mb-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>{title}</h2>
+    <section
+      className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950"
+      data-testid={testId}
+    >
+      <h2 className={cn("m-0 mb-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>{title}</h2>
       {children}
     </section>
   );
 }
 
-type BundleDisclosureProps = {
-  summary: string;
-  items: readonly string[];
+type BundleDataListProps = {
+  readonly title: string;
+  readonly items: readonly string[];
+  readonly testId: string;
 };
 
-function BundleDisclosure({ summary, items }: BundleDisclosureProps) {
+function BundleDataList({ title, items, testId }: BundleDataListProps) {
   return (
-    <details className="group rounded border border-neutral-200 dark:border-neutral-800">
-      <summary className={cn("cursor-pointer select-none list-none px-3 py-2 text-al-text-primary hover:text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-        {summary}
-      </summary>
-      <ul className="space-y-1 px-3 pb-3 pt-1">
+    <div data-testid={testId}>
+      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{title}</p>
+      <ul className="m-0 mt-2 list-disc space-y-1 pl-5">
         {items.map((item) => (
-          <li key={item} className={cn("flex items-start gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            <span className="mt-0.5 shrink-0 text-al-text-secondary" aria-hidden>
-              –
-            </span>
+          <li key={item} className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {item}
           </li>
         ))}
       </ul>
-    </details>
-  );
-}
-
-type ResourceLinkProps = {
-  href: string;
-  label: string;
-};
-
-function ResourceLink({ href, label }: ResourceLinkProps) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "inline-flex items-center rounded border border-neutral-200 bg-neutral-50 px-3 py-1.5 font-medium text-al-text-primary hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800",
-        OPERATOR_TYPOGRAPHY.tab,
-      )}
-    >
-      {label}
-    </Link>
+    </div>
   );
 }
