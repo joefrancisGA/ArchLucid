@@ -1,4 +1,5 @@
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { pathMatchesGovernanceAlerts } from "@/lib/governance-route-paths";
 import {
   BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
   BUYER_SURFACE_VOCABULARY,
@@ -124,6 +125,10 @@ export function buyerPolishedRouteOrientation(
   }
 
   if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {
+    return null;
+  }
+
+  if (pathMatchesGovernanceAlerts(path)) {
     return null;
   }
 

@@ -7,6 +7,7 @@
 
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { pathMatchesGovernanceAlerts } from "@/lib/governance-route-paths";
 import {
   POLICY_PACKS_VIEW_EXPLANATION_NEXT_ACTION,
   POLICY_PACKS_VIEW_EXPLANATION_SUMMARY,
@@ -95,6 +96,14 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
 export function routeViewExplanationForPathname(pathname: string): RouteViewExplanation | null {
 
   const path = (pathname ?? "").split("?")[0] ?? "";
+
+
+
+  if (pathMatchesGovernanceAlerts(path)) {
+
+    return null;
+
+  }
 
 
 

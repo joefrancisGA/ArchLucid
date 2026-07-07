@@ -385,8 +385,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
   });
 
   /**
-   * **Visibility** vs **Capability:** the Execute+ rank line on **`LayerHeader`** only renders when mutation is on;
-   * **`AlertsInboxRankCue`** renders at read tier so the inbox keeps a single `role="note"` write-boundary strip.
+   * **Visibility** vs **Capability:** **`AlertsInboxRankCue`** renders at read tier so the inbox keeps a single
+   * `role="note"` write-boundary strip. Governance context now lives on the alerts hub header instead of LayerHeader.
    */
   it("Alerts inbox: shows inbox rank cue note when mutation capability is false", async () => {
     mutateCapability.current = false;
@@ -400,15 +400,15 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     expect(screen.queryByTestId("layer-header-operate-execute-rank-cue")).toBeNull();
   });
 
-  it("Alerts inbox: shows LayerHeader Execute rank cue when mutation capability is true (inbox cue omitted)", async () => {
+  it("Alerts inbox: omits inbox rank cue when mutation capability is true", async () => {
     mutateCapability.current = true;
     render(<AlertsInboxContent />);
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /^Acknowledge$/ })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /^Acknowledge$/ })).not.toBeDisabled();
     });
 
-    expect(screen.getByTestId("layer-header-operate-execute-rank-cue")).toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header-operate-execute-rank-cue")).toBeNull();
     expect(screen.queryByText(alertsInboxRankReaderLine)).toBeNull();
   });
 

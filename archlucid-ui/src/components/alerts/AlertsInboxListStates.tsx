@@ -22,17 +22,11 @@ export function AlertsInboxListStates(props: AlertsInboxListStatesProps) {
         props.buyerPolishedShell === true ? (
           <div
             className={cn(
-              "rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-6 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+              "rounded-md border border-dashed border-neutral-200 px-4 py-4 text-neutral-700 dark:border-neutral-700 dark:text-neutral-300",
               OPERATOR_TYPOGRAPHY.body,
             )}
           >
-            <p className="m-0 font-medium text-neutral-900 dark:text-neutral-50">
-              Alerts surface for tenant-backed workspaces
-            </p>
-            <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">
-              This polished demo inbox preview loads without a live alerting backend. Operational alerts populate here
-              when your tenant connects notification sources.
-            </p>
+            <p className="m-0">Loading alerts…</p>
           </div>
         ) : (
           <OperatorLoadingNotice>

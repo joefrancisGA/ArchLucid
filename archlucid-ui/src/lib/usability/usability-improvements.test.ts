@@ -56,6 +56,11 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/graph")).toBeNull();
   });
 
+  it("routeViewExplanationForPathname returns null for alerts — the page carries its own governance context header", () => {
+    expect(routeViewExplanationForPathname("/governance/alerts")).toBeNull();
+    expect(routeViewExplanationForPathname("/alerts")).toBeNull();
+  });
+
   it("routeViewExplanationForPathname uses policy-pack help copy instead of generic governance approval queue", () => {
     const explanation = routeViewExplanationForPathname("/governance/policy-packs");
 

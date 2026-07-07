@@ -65,6 +65,11 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/governance/resolution")).toBeNull();
   });
 
+  it("returns null for alerts — the page carries its own governance context header", () => {
+    expect(buyerPolishedRouteOrientation("/governance/alerts")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/alerts")).toBeNull();
+  });
+
   it("orients the advisory route with recommendation copy", () => {
     const o = buyerPolishedRouteOrientation("/advisory");
 

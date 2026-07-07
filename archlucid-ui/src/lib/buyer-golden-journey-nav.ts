@@ -10,6 +10,7 @@ import {
   SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import { pathMatchesGovernanceAlerts } from "@/lib/governance-route-paths";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 
@@ -116,6 +117,8 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
   } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
     return null;
   } else if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {
+    return null;
+  } else if (pathMatchesGovernanceAlerts(path)) {
     return null;
   } else if (path.startsWith("/governance")) {
     stepIdx = 3;
