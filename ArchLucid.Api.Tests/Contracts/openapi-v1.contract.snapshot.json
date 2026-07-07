@@ -4731,6 +4731,10 @@
           "runId": {
             "format": "uuid",
             "type": "string"
+          },
+          "scopeProjectId": {
+            "format": "uuid",
+            "type": "string"
           }
         },
         "type": "object",

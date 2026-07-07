@@ -17,6 +17,13 @@ public sealed class BuyerRunDetailRunDto
         set;
     } = "";
 
+    /// <summary>Scoped solution/project boundary (GUID). Distinct from <see cref="ProjectId" /> slug.</summary>
+    public Guid ScopeProjectId
+    {
+        get;
+        set;
+    }
+
     public string? Description
     {
         get;

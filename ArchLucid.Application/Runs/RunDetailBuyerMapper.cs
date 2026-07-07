@@ -23,6 +23,7 @@ public static class RunDetailBuyerMapper
             {
                 RunId = run.RunId,
                 ProjectId = run.ProjectId,
+                ScopeProjectId = run.ScopeProjectId,
                 Description = run.Description,
                 DisplayName = run.Description,
                 CreatedUtc = run.CreatedUtc,

@@ -233,6 +233,7 @@ export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots 
     run: NonNullable<RunDetailDtoBase["run"]> & {
       runId: string;
       projectId: string;
+      scopeProjectId?: string;
       createdUtc: string;
       hasGovernanceWarnings?: boolean;
       lastFailureReason?: string | null;

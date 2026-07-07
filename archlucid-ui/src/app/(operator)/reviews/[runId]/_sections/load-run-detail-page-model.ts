@@ -155,7 +155,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   if (
     !isPinnedDemoWorkspaceRunId(runId)
     && !isShowcaseStaticDemoRunId(runId)
-    && !runProjectMatchesEffectiveScope(resolvedDetail.run.projectId, effectiveProjectId)
+    && !runProjectMatchesEffectiveScope(resolvedDetail.run.scopeProjectId, effectiveProjectId)
   ) {
     return { kind: "not-found", reason: "workspace-mismatch" };
   }
