@@ -110,7 +110,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       {props.isExpanded ? (
         <nav
           id={contentId}
-          className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
+          className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-1.5 dark:border-neutral-700"
           aria-labelledby={headingId}
           aria-label={group.label}
         >

@@ -2,6 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppShellClient } from "@/components/AppShellClient";
+import { OPERATOR_SHELL_BODY_ROW_CLASS, OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS } from "@/lib/design-tokens";
 import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -207,5 +208,21 @@ describe("AppShellClient — shell chrome labels", () => {
       PERSONA_SHELL_WORDMARK_ARIA_LABEL,
     );
     expect(topbar.textContent?.toLowerCase() ?? "").not.toContain("operator");
+  });
+
+  it("left-aligns the sidebar row with the top bar and reserves a fixed sidebar width", () => {
+    renderWithOperatorQuery(
+      <AppShellClient>
+        <div>child</div>
+      </AppShellClient>,
+    );
+
+    const sidebarRow = screen.getByTestId("sidebar-nav").parentElement;
+    const sidebarNav = screen.getByTestId("sidebar-nav");
+
+    expect(sidebarRow).not.toBeNull();
+    expect(sidebarRow?.className).toContain(OPERATOR_SHELL_BODY_ROW_CLASS);
+    expect(sidebarRow?.className).not.toMatch(/mx-auto/);
+    expect(sidebarNav).toHaveClass(OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS);
   });
 });

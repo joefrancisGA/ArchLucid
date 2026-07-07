@@ -68,7 +68,7 @@ export function SidebarAdministrationSection(props: SidebarAdministrationSection
       {props.showAdministration ? (
         <div id="sidebar-administration-content" className="pt-1">
           <nav
-            className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
+            className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-1.5 dark:border-neutral-700"
             aria-label="Administration"
           >
             {props.adminNavRows.flatMap((row) => {
