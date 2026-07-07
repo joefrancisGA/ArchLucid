@@ -29,9 +29,6 @@ import {
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import {
-  governanceWorkflowOutcomeBannerLine,
-} from "@/lib/enterprise-controls-context-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { CtoDemoGovernancePreviewHint } from "@/components/OperateCapabilityHints";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -70,6 +67,7 @@ import type {
 } from "@/types/governance-workflow";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { GovernanceOverviewPanel } from "./GovernanceOverviewPanel";
+import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
 import { GovernanceReviewContextBar } from "./GovernanceReviewContextBar";
 import { GovernanceWorkflowApprovalsList } from "./GovernanceWorkflowApprovalsList";
 import { GovernanceWorkflowDialogs } from "./GovernanceWorkflowDialogs";
@@ -81,6 +79,13 @@ import {
   type GovernanceWorkflowPendingReview,
   type GovernanceWorkflowToastState,
 } from "./governance-workflow-helpers";
+import {
+  GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE,
+  GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD,
+  GOVERNANCE_APPROVAL_REQUESTS_SECTION_LEAD,
+  GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE,
+  governanceWorkflowOutcomeLineForPhase,
+} from "@/lib/governance-workflow-section-copy";
 
 export function GovernanceWorkflowPageContent() {
   const searchParams = useSearchParams();
@@ -111,10 +116,14 @@ export function GovernanceWorkflowPageContent() {
   const isShowcaseSampleContext =
     isReviewContext &&
     canonicalizeDemoRunId(activeRunId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
-  const hasApprovedApproval = approvals.some((row) => row.status.trim().toLowerCase() === "approved");
+  const approvalWorkflowState = deriveGovernanceApprovalWorkflowState({
+    activeRunId,
+    approvals,
+    listsLoading,
+  });
 
   const buyerSuppressGovernanceSubmitChrome =
-    buyerPolishedShell && isReviewContext && hasApprovedApproval;
+    buyerPolishedShell && isReviewContext && approvalWorkflowState.canShowCompletionMessaging;
 
   const listsLoadingShowsBusyChrome = listsLoading && !(buyerPolishedShell && approvals.length > 0);
 
@@ -474,7 +483,12 @@ export function GovernanceWorkflowPageContent() {
     }
   }
 
-  const showBuyerApprovalStory = buyerPolishedShell && hasApprovedApproval && isReviewContext;
+  const showBuyerApprovalStory =
+    buyerPolishedShell &&
+    isReviewContext &&
+    approvalWorkflowState.canShowCompletionMessaging &&
+    approvalWorkflowState.primaryApprovedRequest !== null;
+  const workflowOutcomeLine = governanceWorkflowOutcomeLineForPhase(approvalWorkflowState.phase);
   const pageTitle = isReviewContext ? GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE : GOVERNANCE_OVERVIEW_PAGE_TITLE;
   const pageLead = isReviewContext
     ? showBuyerApprovalStory
@@ -583,19 +597,20 @@ export function GovernanceWorkflowPageContent() {
                 {BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD}
               </p>
               <GovernanceApprovalStoryCard
-                row={approvals.find((row) => row.status.trim().toLowerCase() === "approved") ?? approvals[0]!}
+                row={approvalWorkflowState.primaryApprovedRequest!}
                 auditTrailHref={`/audit?runId=${encodeURIComponent(activeRunId)}`}
                 emphasizeComplete
+                decisionRecordTitle={GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE}
               />
             </>
-          ) : (
+          ) : workflowOutcomeLine !== null ? (
             <p
               className={cn("mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body)}
               data-testid="governance-workflow-outcome-banner"
             >
-              {governanceWorkflowOutcomeBannerLine}
+              {workflowOutcomeLine}
             </p>
-          )}
+          ) : null}
 
           <div ref={submitSectionRef}>
             <GovernanceWorkflowSubmitSection
@@ -620,7 +635,7 @@ export function GovernanceWorkflowPageContent() {
 
           <Separator className="mb-10" />
 
-          <section className="mb-10">
+          <section className="mb-10" data-testid="governance-approval-requests-section">
             {showingStaticDemoGovernanceRecords ? (
               <p
                 role="status"
@@ -633,13 +648,23 @@ export function GovernanceWorkflowPageContent() {
                 {STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS}
               </p>
             ) : null}
+            <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE}
+            </h3>
+            <p className={cn("m-0 mt-2 mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {showBuyerApprovalStory
+                ? GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD
+                : GOVERNANCE_APPROVAL_REQUESTS_SECTION_LEAD}
+            </p>
             <GovernanceWorkflowApprovalsList
               buyerPolishedShell={buyerPolishedShell}
               canMutateWorkflow={canMutateWorkflow}
               listsLoading={listsLoading}
               activeRunId={activeRunId}
               approvals={approvals}
+              workflowState={approvalWorkflowState}
               listFailure={listFailure}
+              emphasizeDecisionRecord={showBuyerApprovalStory}
               pendingReview={pendingReview}
               setPendingReview={setPendingReview}
               reviewedBy={reviewedBy}

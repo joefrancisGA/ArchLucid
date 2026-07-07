@@ -22,6 +22,7 @@ import {
   governanceNoApprovalsGettingStartedOperator,
   governanceNoApprovalsGettingStartedReader,
 } from "@/lib/governance-workflow-empty-guidance";
+import type { GovernanceApprovalWorkflowState } from "@/app/(operator)/governance/_sections/governance-approval-workflow-state";
 import {
   GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON,
   GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON_READER,
@@ -45,7 +46,9 @@ type GovernanceWorkflowApprovalsListProps = {
   listsLoading: boolean;
   activeRunId: string | null;
   approvals: GovernanceApprovalRequest[];
+  workflowState: GovernanceApprovalWorkflowState;
   listFailure: ApiLoadFailureState | null;
+  emphasizeDecisionRecord: boolean;
   pendingReview: GovernanceWorkflowPendingReview | null;
   setPendingReview: (v: GovernanceWorkflowPendingReview | null) => void;
   reviewedBy: string;
@@ -65,10 +68,10 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
   const {
     buyerPolishedShell,
     canMutateWorkflow,
-    listsLoading,
-    activeRunId,
     approvals,
+    workflowState,
     listFailure,
+    emphasizeDecisionRecord,
     pendingReview,
     setPendingReview,
     reviewedBy,
@@ -84,9 +87,11 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
     pendingPromoteRequestRef,
   } = props;
 
+  const compactSupportingRows = emphasizeDecisionRecord && workflowState.canShowCompletionMessaging;
+
   return (
     <div className="mt-6 grid gap-4">
-      {listsLoading && activeRunId !== null && approvals.length === 0 ? (
+      {workflowState.phase === "loading" ? (
         <OperatorLoadingNotice>
           <strong>Loading workflow data.</strong>
           <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -95,7 +100,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
         </OperatorLoadingNotice>
       ) : null}
 
-      {!listsLoading && activeRunId !== null && approvals.length === 0 && listFailure === null ? (
+      {workflowState.phase === "no_requests" && listFailure === null ? (
         <OperatorEmptyState title="No approval requests for this review">
           <div className="grid gap-3">
             <p className={OPERATOR_TYPOGRAPHY.body}>
@@ -110,9 +115,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
         </OperatorEmptyState>
       ) : null}
 
-      {buyerPolishedShell && approvals.length > 0
-        ? null
-        : approvals.map((row) => (
+      {approvals.map((row) => (
             <Card key={row.approvalRequestId}>
               <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0">
                 <div className="min-w-0 flex-1">
@@ -157,7 +160,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                   </div>
                 ) : null}
 
-                {pendingReview?.approvalRequestId === row.approvalRequestId ? (
+                {!compactSupportingRows && pendingReview?.approvalRequestId === row.approvalRequestId ? (
                   <div className="mt-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
                     <p className={cn("mb-3 font-medium", OPERATOR_TYPOGRAPHY.body)}>
                       {pendingReview.mode === "approve" ? "Approve request" : "Reject request"}
@@ -225,6 +228,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                   </div>
                 ) : null}
               </CardContent>
+              {compactSupportingRows ? null : (
               <CardFooter className="flex flex-wrap gap-2">
                 {row.status === "Submitted" ? (
                   <>
@@ -297,6 +301,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                   )
                 ) : null}
               </CardFooter>
+              )}
             </Card>
           ))}
     </div>

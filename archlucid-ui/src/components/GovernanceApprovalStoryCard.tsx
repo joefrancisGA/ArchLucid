@@ -27,9 +27,12 @@ export function GovernanceApprovalStoryCard(props: {
   readonly auditTrailHref?: string | null;
   /** When the approval path is complete, emphasize the card for sponsor-first scanning. */
   readonly emphasizeComplete?: boolean;
+  /** Optional heading override — distinguishes decision record from approval requests. */
+  readonly decisionRecordTitle?: string;
 }) {
   const row = props.row;
   const emphasizeComplete = props.emphasizeComplete === true;
+  const decisionRecordTitle = props.decisionRecordTitle?.trim() ?? "Approval decision record";
   const auditTrailHref = props.auditTrailHref?.trim() ?? "";
   const submitted = row.requestedUtc.trim().length > 0;
   const reviewed = (row.reviewedBy?.trim().length ?? 0) > 0;
@@ -73,7 +76,7 @@ export function GovernanceApprovalStoryCard(props: {
     >
       <CardHeader className="pb-2">
         <CardTitle className={cn("text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
-          {approved ? "This package completed the approval path" : "Approval status for this review"}
+          {approved ? `${decisionRecordTitle} — approval path complete` : "Approval status for this review"}
         </CardTitle>
         <div className={cn("space-y-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0 leading-relaxed">
