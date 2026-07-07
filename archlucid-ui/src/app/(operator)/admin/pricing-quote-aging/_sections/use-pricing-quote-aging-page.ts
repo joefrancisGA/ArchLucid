@@ -18,6 +18,7 @@ export type PricingQuoteAgingPageViewModel = {
   readonly loading: boolean;
   readonly data: PricingQuoteAgingDashboard | null;
   readonly error: string | null;
+  readonly lastRefreshedAt: Date | null;
   readonly refresh: () => Promise<void>;
 };
 
@@ -52,6 +53,7 @@ export function usePricingQuoteAgingPage(
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<PricingQuoteAgingDashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -62,15 +64,16 @@ export function usePricingQuoteAgingPage(
 
       if (next === null) {
         setData(null);
-        setError("Admin access required for pricing quote aging.");
+        setError("Admin access required for pricing quote follow-up.");
 
         return;
       }
 
       setData(next);
+      setLastRefreshedAt(new Date());
     } catch {
       setData(null);
-      setError("Could not load pricing quote aging.");
+      setError("Could not load pricing quote follow-up.");
     } finally {
       setLoading(false);
     }
@@ -89,6 +92,7 @@ export function usePricingQuoteAgingPage(
     loading,
     data,
     error,
+    lastRefreshedAt,
     refresh,
   };
 }
