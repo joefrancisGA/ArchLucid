@@ -220,3 +220,17 @@ The improvement is due to removing untestable SQL infrastructure code from the d
 Merged **`Cobertura.xml`** is produced only after a successful **full regression** test run (see **`.github/workflows/ci.yml`** → **`.NET: full regression (SQL)`**). If that job fails **`assert_merged_line_coverage_min.py`** on the per-package gate, the script stdout lists each offending **`ArchLucid.*`** package and its line percentage.
 
 **Remediation:** Add or extend tests for that assembly, adjust **`[ExcludeFromCodeCoverage]`** only per **Exclusion Policy** above, or open a time-bound exemption with an explicit tracking item (issue/ADR) — do not weaken the gate without product sign-off.
+
+
+
+
+## ArchLucid.Api Cobertura triage (TB-635)
+
+Merged Cobertura understates **ArchLucid.Api** integration coverage because Integration-category tests run on shards without Coverlet (`test.runsettings`). The classified inventory lives in [`COVERAGE_GAP_ANALYSIS.md`](../COVERAGE_GAP_ANALYSIS.md) under **TB-635 Cobertura triage inventory**.
+
+| Bucket | Count |
+|--------|------:|
+| pure-DTO | 21 |
+| integration-covered | 33 |
+| small-logic | 34 |
+| genuinely-untested | 32 |
