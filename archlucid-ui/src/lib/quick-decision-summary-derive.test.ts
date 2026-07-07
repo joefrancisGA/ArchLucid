@@ -89,6 +89,33 @@ describe("quick-decision-summary-derive", () => {
     expect(sorted[2]?.findingId).toBe("a");
   });
 
+  it("extractQuickDecisionFindingsFromRunDetail maps string severity enum names from authority wire", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      results: [
+        {
+          findings: [
+            {
+              findingId: "error-severity",
+              message: "Error-class issue",
+              severity: "Error",
+            },
+            {
+              findingId: "warning-severity",
+              message: "Warning-class issue",
+              severity: "Warning",
+            },
+          ],
+        },
+      ],
+    } as unknown as RunDetail;
+
+    const extracted = extractQuickDecisionFindingsFromRunDetail(detail);
+
+    expect(extracted.find((row) => row.findingId === "error-severity")?.severityValue).toBe(2);
+    expect(extracted.find((row) => row.findingId === "warning-severity")?.severityValue).toBe(1);
+  });
+
   it("extractQuickDecisionFindingsFromRunDetail maps confidenceLevel, evaluation score, and evidenceRefs count", () => {
     const detail = {
       run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },

@@ -16,6 +16,7 @@ import {
   ensureBuyerDeliverablesSectionExpanded,
   expectBuyerPipelineTimelineSectionVisible,
   expectBuyerPolishedReviewDetailSectionNavCore,
+  expectQuickDecisionSeverityVisible,
 } from "./helpers/operator-journey";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 
@@ -61,12 +62,9 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await page.locator("#run-explanation").scrollIntoViewIfNeeded();
 
-    const severityBadge = page
-      .getByTestId("quick-decision-summary")
-      .getByText(/^Critical$|^High$|^Medium$/, { exact: true })
-      .first();
+    const quickSummary = page.getByTestId("quick-decision-summary");
 
-    await expect(severityBadge).toBeVisible({ timeout: 30_000 });
+    await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
 
     await page.locator("#manifest-summary").scrollIntoViewIfNeeded();
 

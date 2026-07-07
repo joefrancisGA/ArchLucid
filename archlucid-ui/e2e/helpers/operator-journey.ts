@@ -244,6 +244,20 @@ export async function expectBuyerPolishedReviewDetailSectionNavCore(
   await expect(sectionNav.getByRole("link", { name: "Deliverables" })).toBeVisible({ timeout });
 }
 
+/** Severity metadata labels on quick-decision finding rows (`SeverityTag`). */
+export function quickDecisionSeverityBadge(quickSummary: Locator): Locator {
+  return quickSummary.getByLabel(/^Severity: (Critical|High|Medium)$/i);
+}
+
+export async function expectQuickDecisionSeverityVisible(
+  quickSummary: Locator,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  await expect(quickDecisionSeverityBadge(quickSummary).first()).toBeVisible({
+    timeout: options?.timeoutMs ?? 30_000,
+  });
+}
+
 /** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */
 export function reviewOutcomeSummaryStrip(page: Page): Locator {
   return page.getByRole("main").locator('section[aria-label="Review outcome summary"]').first();

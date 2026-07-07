@@ -24,6 +24,7 @@ import {
 import {
   buyerPolishedReviewDetailSectionNav,
   ensureBuyerDeliverablesSectionExpanded,
+  expectQuickDecisionSeverityVisible,
 } from "./helpers/operator-journey";
 
 const releaseGateTag = "@release-gate";
@@ -92,9 +93,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
       quickSummary.getByText(/Inference gateway still advertises interim public listener/i).first(),
     ).toBeVisible({ timeout: 90_000 });
 
-    await expect(
-      quickSummary.getByText(/^High$|^Critical$/, { exact: true }).first(),
-    ).toBeVisible({ timeout: 30_000 });
+    await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
 
     const docxExport = await postConsultingAnalysisDocxRaw(request, DEMO_WORKSPACE_B_REGULATED_RUN_ID, {
       tenantId: DEMO_WORKSPACE_B_LIVE_IDS.tenantId,

@@ -162,10 +162,38 @@ function coerceArchitectureFindingSeverity(raw: unknown): number {
   }
 
   if (typeof raw === "string") {
-    const parsed = Number.parseInt(raw, 10);
+    const trimmed = raw.trim();
+
+    if (trimmed.length === 0) {
+      return 0;
+    }
+
+    const parsed = Number.parseInt(trimmed, 10);
 
     if (!Number.isNaN(parsed)) {
       return normalizedSeverity(parsed);
+    }
+
+    // Authority run detail emits ArchitectureFinding.Severity as enum names (see ArchitectureFindingJsonConverter).
+    switch (trimmed.toLowerCase()) {
+      case "critical":
+        return 3;
+
+      case "error":
+      case "high":
+        return 2;
+
+      case "warning":
+      case "medium":
+        return 1;
+
+      case "info":
+      case "informational":
+      case "low":
+        return 0;
+
+      default:
+        return 0;
     }
   }
 
