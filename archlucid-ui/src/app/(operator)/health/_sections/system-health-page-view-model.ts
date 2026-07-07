@@ -10,4 +10,5 @@ export type SystemHealthPageViewModel = {
   readonly version: VersionInfoResponse | null;
   readonly criticalDependencies: readonly CriticalDependencyRow[];
   readonly refresh: () => Promise<void>;
+  readonly lastRefreshedAt: Date | null;
 };

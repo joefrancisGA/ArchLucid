@@ -46,7 +46,9 @@ describe("AdminHealthPage", () => {
 
     render(page);
     expect(await screen.findByTestId("admin-health-ready-table")).toBeInTheDocument();
-    expect(await screen.findByText("database")).toBeInTheDocument();
+    fireEvent.click(await screen.findByText(/Show Data stores checks/i));
+    expect(await screen.findByText("Primary database")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("health-check-technical-database").querySelector("summary")!);
     expect(await screen.findByText("12 ms")).toBeInTheDocument();
     vi.unstubAllGlobals();
   });
@@ -140,7 +142,7 @@ describe("AdminHealthPage", () => {
     const page = await AdminHealthPage();
 
     render(page);
-    expect(await screen.findByTestId("admin-health-circuit-note")).toHaveTextContent(/requires API authentication/i);
+    expect(await screen.findByTestId("admin-health-circuit-note")).toHaveTextContent(/authenticated administrator session/i);
     vi.unstubAllGlobals();
   });
 

@@ -22,6 +22,7 @@ export function useSystemHealthPage(): SystemHealthPageViewModel {
   const [ready, setReady] = useState<HealthReadyResponse | null>(null);
   const [readyError, setReadyError] = useState<string | null>(null);
   const [version, setVersion] = useState<VersionInfoResponse | null>(null);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
   const refresh = useCallback(async () => {
     if (isDemo) {
@@ -61,6 +62,7 @@ export function useSystemHealthPage(): SystemHealthPageViewModel {
     } catch (e) {
       setReadyError(e instanceof Error ? e.message : String(e));
     } finally {
+      setLastRefreshedAt(new Date());
       setLoading(false);
     }
   }, [isDemo]);
@@ -84,5 +86,6 @@ export function useSystemHealthPage(): SystemHealthPageViewModel {
     version,
     criticalDependencies,
     refresh,
+    lastRefreshedAt,
   };
 }
