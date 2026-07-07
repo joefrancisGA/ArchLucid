@@ -136,7 +136,33 @@ Pure data-transfer objects used by Dapper for SQL result mapping. They contain o
 
 Pure API contract types with auto-properties only (no methods or validation logic). Controllers and services with branching logic are **not** excluded here even when Cobertura reports 0% — many are exercised by `Category=Integration` tests on shards that run without Coverlet (see **ArchLucid.Api measurement vs testing** below).
 
-Representative excluded types (2026-07-05 RC6 pass): `AdminArchiveRunsBatchRequest`, `TenantRegistrationRequest`, `TrialLocalRegisterRequest`, `LearningPlanDetailResponse`, `AlertsAcknowledgeBatchRequest`, `GovernanceApprovalBatchReviewRequest`, `E2eHarnessTrialExpiresPostRequest`, `DataConsistencyOrphanCounts`, `EvolutionSimulationRunResponse`, and sibling request/response DTOs under `ArchLucid.Api/Controllers/**`, `ArchLucid.Api/Models/**`, and `ArchLucid.Api/Services/Admin/*Counts*.cs`.
+**TB-635 pure-DTO bucket (21 types, closed **TB-636** 2026-07-07):** each carries `[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]`.
+
+| File | Class |
+|------|-------|
+| `Controllers/Admin/AdminArchiveRunsBatchRequest.cs` | `AdminArchiveRunsBatchRequest` |
+| `Controllers/Admin/AdminArchiveRunsByIdsRequest.cs` | `AdminArchiveRunsByIdsRequest` |
+| `Controllers/Admin/TenantProvisionAdminRequest.cs` | `TenantProvisionAdminRequest` |
+| `Controllers/Alerts/AlertsAcknowledgeBatchItemResult.cs` | `AlertsAcknowledgeBatchItemResult` |
+| `Controllers/Alerts/AlertsAcknowledgeBatchRequest.cs` | `AlertsAcknowledgeBatchRequest` |
+| `Controllers/Alerts/AlertsAcknowledgeBatchResponse.cs` | `AlertsAcknowledgeBatchResponse` |
+| `Controllers/Governance/GovernanceApprovalBatchReviewRequest.cs` | `GovernanceApprovalBatchReviewRequest` |
+| `Controllers/Governance/GovernanceBatchReviewItemResult.cs` | `GovernanceBatchReviewItemResult` |
+| `Controllers/Governance/GovernanceBatchReviewResponse.cs` | `GovernanceBatchReviewResponse` |
+| `Models/E2e/E2eHarnessBillingSimulatePostRequest.cs` | `E2eHarnessBillingSimulatePostRequest` |
+| `Models/E2e/E2eHarnessTrialExpiresPostRequest.cs` | `E2eHarnessTrialExpiresPostRequest` |
+| `Models/Evolution/EvolutionSimulationRunResponse.cs` | `EvolutionSimulationRunResponse` |
+| `Models/Learning/LearningPlanDetailResponse.cs` | `LearningPlanDetailResponse` |
+| `Models/Learning/LearningPlanEvidenceCountsResponse.cs` | `LearningPlanEvidenceCountsResponse` |
+| `Models/Learning/LearningPlanListItemResponse.cs` | `LearningPlanListItemResponse` |
+| `Models/Learning/LearningPlanStepResponse.cs` | `LearningPlanStepResponse` |
+| `Models/Learning/LearningThemeResponse.cs` | `LearningThemeResponse` |
+| `Models/Tenancy/TenantRegistrationRequest.cs` | `TenantRegistrationRequest` |
+| `Models/Tenancy/TenantTrialConvertRequest.cs` | `TenantTrialConvertRequest` |
+| `Services/Admin/DataConsistencyOrphanCounts.cs` | `DataConsistencyOrphanCounts` |
+| `Services/Admin/OrphanComparisonRemediationResult.cs` | `OrphanComparisonRemediationResult` |
+
+Additional auto-property-only API DTOs outside the TB-635 inventory (e.g. `TrialLocalRegisterRequest`, run/manifest response types under `ArchLucid.Api/Models/**` and `ArchLucid.Api/Contracts/**`) may carry the same attribute when triaged; they are not listed here until inventoried.
 
 ## ArchLucid.Api measurement vs testing
 
