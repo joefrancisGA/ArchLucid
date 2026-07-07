@@ -90,6 +90,20 @@ export function liveTenantScopeHeaders(scope: LiveTenantScopeHeaders): Record<st
   };
 }
 
+/**
+ * Fresh, isolated tenant/workspace/project scope so this spec's real-run commits cannot trigger a
+ * tenant-wide sample-run purge (`SampleRunPurgeForTenant`) against the shared demo tenant
+ * (`ScopeIds.DefaultTenant`) that pinned Workspace A/B fixtures live in — see
+ * `.cursor/prompts/fix-ci-run-2526-live-api-extended-shard2-sample-purge.md`. `DevelopmentBypass`
+ * honors these headers (`ArchLucidAuth:AllowTestActorHeaders`) and dev/CI defaults to
+ * `SqlTopologyMode.SingleCatalog`, so an arbitrary never-seen tenant id needs no pre-provisioning.
+ */
+export function freshIsolatedTenantScope(): LiveTenantScopeHeaders {
+  const id = crypto.randomUUID();
+
+  return { tenantId: id, workspaceId: id, projectId: id };
+}
+
 function mergeTenantScope(
   headers: Record<string, string>,
   tenantScope?: LiveTenantScopeHeaders | null,
@@ -943,9 +957,12 @@ export async function waitForArchitectureRunListCommitted(
 }
 
 /** GET `/v1/architecture/runs` — recent runs in scope (dashboard / picker). */
-export async function listArchitectureRuns(request: APIRequestContext): Promise<ArchitectureRunListItemJson[]> {
+export async function listArchitectureRuns(
+  request: APIRequestContext,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<ArchitectureRunListItemJson[]> {
   const res = await request.get(`${resolveLiveApiBase()}/v1/architecture/runs`, {
-    headers: liveAcceptHeaders(),
+    headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
   });
 
   await throwIfNotOk(res, "GET /v1/architecture/runs");
@@ -959,13 +976,14 @@ export async function postGovernanceApproveRaw(
   approvalRequestId: string,
   body: { reviewedBy: string; reviewComment?: string | null },
   options?: { apiKey?: string | null },
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   return request.post(`${resolveLiveApiBase()}/v1/governance/approval-requests/${approvalRequestId}/approve`, {
     data: {
       reviewedBy: body.reviewedBy,
       reviewComment: body.reviewComment ?? null,
     },
-    headers: liveJsonHeaders(options?.apiKey),
+    headers: mergeTenantScope(liveJsonHeaders(options?.apiKey), tenantScope),
   });
 }
 
@@ -983,6 +1001,7 @@ export type RunDetailsJson = {
 export async function createApprovalRequest(
   request: APIRequestContext,
   body: CreateGovernanceApprovalRequestBody,
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<GovernanceApprovalRequestJson> {
   const res = await request.post(`${resolveLiveApiBase()}/v1/governance/approval-requests`, {
     data: {
@@ -992,7 +1011,7 @@ export async function createApprovalRequest(
       targetEnvironment: body.targetEnvironment,
       requestComment: body.requestComment ?? null,
     },
-    headers: liveJsonHeaders(),
+    headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
   });
 
   await throwIfNotOk(res, "POST /v1/governance/approval-requests");
@@ -1320,10 +1339,11 @@ export async function compareAuthorityRuns(
 export async function postAdvisoryScanRaw(
   request: APIRequestContext,
   body: { runId: string; description?: string },
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   return request.post(`${resolveLiveApiBase()}/v1/advisory/scans`, {
     data: { runId: body.runId, description: body.description ?? "" },
-    headers: liveJsonHeaders(),
+    headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
   });
 }
 
@@ -1345,10 +1365,11 @@ export async function postReplayRunRaw(
 export async function postAnalysisReportRaw(
   request: APIRequestContext,
   body: { runId: string },
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   return request.post(`${resolveLiveApiBase()}/v1/reports/analysis`, {
     data: { runId: body.runId },
-    headers: liveJsonHeaders(),
+    headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
   });
 }
 
@@ -1356,9 +1377,13 @@ export async function postAnalysisReportRaw(
 export async function getDocxArchitecturePackageExportRaw(
   request: APIRequestContext,
   runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   return request.get(`${resolveLiveApiBase()}/v1/exports/docx/runs/${runId}/architecture-package`, {
-    headers: liveBinaryAcceptHeaders("application/vnd.openxmlformats-officedocument.wordprocessingml.document, */*"),
+    headers: mergeTenantScope(
+      liveBinaryAcceptHeaders("application/vnd.openxmlformats-officedocument.wordprocessingml.document, */*"),
+      tenantScope,
+    ),
   });
 }
 
@@ -1374,17 +1399,21 @@ export async function postAlertRuleRaw(
     targetChannelType: string;
     metadataJson: string;
   },
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   return request.post(`${resolveLiveApiBase()}/v1/alert-rules`, {
     data: body,
-    headers: liveJsonHeaders(),
+    headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
   });
 }
 
 /** GET `/v1/alert-rules` — list rules. */
-export async function getAlertRulesRaw(request: APIRequestContext): Promise<APIResponse> {
+export async function getAlertRulesRaw(
+  request: APIRequestContext,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<APIResponse> {
   return request.get(`${resolveLiveApiBase()}/v1/alert-rules`, {
-    headers: liveAcceptHeaders(),
+    headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
   });
 }
 

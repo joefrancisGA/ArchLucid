@@ -3562,6 +3562,9 @@ jobs:
           Demo__Enabled: "true"
           Demo__SeedOnStartup: "true"
           Demo__AnonymousViewer__Enabled: "true"
+          # CI run 2526 shard 2 diagnosis: default (Development) console trace exporter dumps every
+          # SQL/HTTP Activity to stdout, ballooning the API log to 189 MB and compounding job slowness.
+          Observability__ConsoleExporter__Enabled: "false"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api.log" 2>&1 &
@@ -3728,6 +3731,9 @@ jobs:
           Demo__Enabled: "true"
           Demo__SeedOnStartup: "true"
           Demo__AnonymousViewer__Enabled: "true"
+          # CI run 2526 shard 2 diagnosis: default (Development) console trace exporter dumps every
+          # SQL/HTTP Activity to stdout, ballooning the API log to 189 MB and compounding job slowness.
+          Observability__ConsoleExporter__Enabled: "false"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-extended.log" 2>&1 &
@@ -3899,6 +3905,9 @@ jobs:
           Cors__AllowedOrigins__1: "http://localhost:3000"
           DataConsistency__InitialDelaySeconds: "0"
           HostLeaderElection__Enabled: "false"
+          # CI run 2526 shard 2 diagnosis: default (Development) console trace exporter dumps every
+          # SQL/HTTP Activity to stdout, ballooning the API log to 189 MB and compounding job slowness.
+          Observability__ConsoleExporter__Enabled: "false"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-apikey.log" 2>&1 &
@@ -4056,6 +4065,9 @@ jobs:
           Cors__AllowedOrigins__1: "http://localhost:3000"
           DataConsistency__InitialDelaySeconds: "0"
           HostLeaderElection__Enabled: "false"
+          # CI run 2526 shard 2 diagnosis: default (Development) console trace exporter dumps every
+          # SQL/HTTP Activity to stdout, ballooning the API log to 189 MB and compounding job slowness.
+          Observability__ConsoleExporter__Enabled: "false"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-jwt.log" 2>&1 &

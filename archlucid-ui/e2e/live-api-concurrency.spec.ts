@@ -9,6 +9,7 @@ import {
   createApprovalRequest,
   createRun,
   executeRun,
+  freshIsolatedTenantScope,
   liveE2eArchitectureDescription,
   postGovernanceApproveRaw,
   searchAudit,
@@ -18,6 +19,8 @@ import {
 } from "./helpers/live-api-client";
 
 test.describe("live-api-concurrency", () => {
+  const tenantScope = freshIsolatedTenantScope();
+
   test.beforeAll(async ({ request }) => {
     await waitForLiveApiReady(request);
   });
@@ -37,13 +40,16 @@ test.describe("live-api-concurrency", () => {
       priorManifestVersion: null as string | null,
     };
 
-    const { runId } = await createRun(request, createBody);
+    const { runId } = await createRun(request, createBody, tenantScope);
     test.info().annotations.push({ type: "e2e-run-id", description: runId });
 
-    await executeRun(request, runId);
-    await waitForReadyForCommit(request, runId, 90_000);
+    await executeRun(request, runId, tenantScope);
+    await waitForReadyForCommit(request, runId, 90_000, tenantScope);
 
-    const [first, second] = await Promise.all([commitRunRaw(request, runId), commitRunRaw(request, runId)]);
+    const [first, second] = await Promise.all([
+      commitRunRaw(request, runId, tenantScope),
+      commitRunRaw(request, runId, tenantScope),
+    ]);
 
     expect(first.status(), `commit A status ${first.status()}`).toBeLessThan(500);
     expect(second.status(), `commit B status ${second.status()}`).toBeLessThan(500);
@@ -57,10 +63,10 @@ test.describe("live-api-concurrency", () => {
 
     if (!hasSuccessfulCommit) {
       // Both callers can observe transient 409 while the winning commit still converges.
-      await waitForRunDetailCommitted(request, runId, 90_000);
+      await waitForRunDetailCommitted(request, runId, 90_000, tenantScope);
     } else {
       expect(hasSuccessfulCommit, "at least one successful commit").toBe(true);
-      await waitForRunDetailCommitted(request, runId, 60_000);
+      await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
     }
   });
 
@@ -81,26 +87,30 @@ test.describe("live-api-concurrency", () => {
       priorManifestVersion: null as string | null,
     };
 
-    const { runId } = await createRun(request, createBody);
-    await executeRun(request, runId);
-    await waitForReadyForCommit(request, runId, 90_000);
+    const { runId } = await createRun(request, createBody, tenantScope);
+    await executeRun(request, runId, tenantScope);
+    await waitForReadyForCommit(request, runId, 90_000, tenantScope);
 
-    const commitJson = await commitRun(request, runId);
+    const commitJson = await commitRun(request, runId, tenantScope);
     const manifestVersion = commitJson.manifest?.metadata?.manifestVersion;
 
     if (!manifestVersion) {
       throw new Error("Commit response missing manifest.metadata.manifestVersion");
     }
 
-    await waitForRunDetailCommitted(request, runId, 60_000);
+    await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
 
-    const submitted = await createApprovalRequest(request, {
-      runId,
-      manifestVersion,
-      sourceEnvironment: "dev",
-      targetEnvironment: "test",
-      requestComment: "E2E concurrent approve",
-    });
+    const submitted = await createApprovalRequest(
+      request,
+      {
+        runId,
+        manifestVersion,
+        sourceEnvironment: "dev",
+        targetEnvironment: "test",
+        requestComment: "E2E concurrent approve",
+      },
+      tenantScope,
+    );
 
     const approvalRequestId = submitted.approvalRequestId;
 
@@ -108,18 +118,31 @@ test.describe("live-api-concurrency", () => {
       throw new Error("Governance submit response missing approvalRequestId");
     }
 
-    const beforeApproved = await searchAudit(request, { runId, eventType: "GovernanceApprovalApproved", take: "50" });
+    const beforeApproved = await searchAudit(request, {
+      runId,
+      eventType: "GovernanceApprovalApproved",
+      take: "50",
+      tenantId: tenantScope.tenantId,
+      workspaceId: tenantScope.workspaceId,
+      projectId: tenantScope.projectId,
+    });
     const baselineApproved = beforeApproved.filter((e) => e.eventType === "GovernanceApprovalApproved").length;
 
     const [r1, r2] = await Promise.all([
-      postGovernanceApproveRaw(request, approvalRequestId, {
-        reviewedBy: "e2e-concurrent-approver-a",
-        reviewComment: "parallel a",
-      }),
-      postGovernanceApproveRaw(request, approvalRequestId, {
-        reviewedBy: "e2e-concurrent-approver-b",
-        reviewComment: "parallel b",
-      }),
+      postGovernanceApproveRaw(
+        request,
+        approvalRequestId,
+        { reviewedBy: "e2e-concurrent-approver-a", reviewComment: "parallel a" },
+        undefined,
+        tenantScope,
+      ),
+      postGovernanceApproveRaw(
+        request,
+        approvalRequestId,
+        { reviewedBy: "e2e-concurrent-approver-b", reviewComment: "parallel b" },
+        undefined,
+        tenantScope,
+      ),
     ]);
 
     expect(r1.status()).toBeLessThan(500);
@@ -131,7 +154,14 @@ test.describe("live-api-concurrency", () => {
     expect(successes, "exactly one approve should win with 2xx").toBe(1);
     expect(statuses.some((s) => s >= 400 && s < 500), "loser should be a 4xx client error").toBe(true);
 
-    const afterApproved = await searchAudit(request, { runId, eventType: "GovernanceApprovalApproved", take: "100" });
+    const afterApproved = await searchAudit(request, {
+      runId,
+      eventType: "GovernanceApprovalApproved",
+      take: "100",
+      tenantId: tenantScope.tenantId,
+      workspaceId: tenantScope.workspaceId,
+      projectId: tenantScope.projectId,
+    });
     const approvedCount = afterApproved.filter((e) => e.eventType === "GovernanceApprovalApproved").length;
 
     expect(approvedCount - baselineApproved, "single new GovernanceApprovalApproved").toBe(1);

@@ -4,11 +4,13 @@
  */
 import { expect, test, type APIResponse } from "@playwright/test";
 
+import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
 import {
   commitRun,
   compareAuthorityRuns,
   createRun,
   executeRun,
+  freshIsolatedTenantScope,
   liveApiBase,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -31,6 +33,8 @@ function buildCreateBody(suffix: string): Record<string, unknown> {
 }
 
 test.describe("live-api-compare-runs", () => {
+  const tenantScope = freshIsolatedTenantScope();
+
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 
@@ -45,24 +49,24 @@ test.describe("live-api-compare-runs", () => {
     // Two execute/commit cycles plus compare UI hydration can exceed 240s in CI (see live-api-journey timeout note).
     test.setTimeout(480_000);
 
-    const { runId: runIdA } = await createRun(request, buildCreateBody("A"));
-    await executeRun(request, runIdA);
-    await waitForReadyForCommit(request, runIdA, 90_000);
-    await commitRun(request, runIdA);
-    await waitForRunDetailCommitted(request, runIdA, 60_000);
+    const { runId: runIdA } = await createRun(request, buildCreateBody("A"), tenantScope);
+    await executeRun(request, runIdA, tenantScope);
+    await waitForReadyForCommit(request, runIdA, 90_000, tenantScope);
+    await commitRun(request, runIdA, tenantScope);
+    await waitForRunDetailCommitted(request, runIdA, 60_000, tenantScope);
 
-    const { runId: runIdB } = await createRun(request, buildCreateBody("B"));
-    await executeRun(request, runIdB);
-    await waitForReadyForCommit(request, runIdB, 90_000);
-    await commitRun(request, runIdB);
-    await waitForRunDetailCommitted(request, runIdB, 60_000);
+    const { runId: runIdB } = await createRun(request, buildCreateBody("B"), tenantScope);
+    await executeRun(request, runIdB, tenantScope);
+    await waitForReadyForCommit(request, runIdB, 90_000, tenantScope);
+    await commitRun(request, runIdB, tenantScope);
+    await waitForRunDetailCommitted(request, runIdB, 60_000, tenantScope);
 
     test.info().annotations.push(
       { type: "run-id-a", description: runIdA },
       { type: "run-id-b", description: runIdB },
     );
 
-    const compareRes = await compareAuthorityRuns(request, runIdA, runIdB);
+    const compareRes = await compareAuthorityRuns(request, runIdA, runIdB, tenantScope);
 
     await throwIfNotCompareOk(compareRes, "GET /v1/authority/compare/runs");
 
@@ -77,6 +81,7 @@ test.describe("live-api-compare-runs", () => {
     expect(body.rightRunId).toBeTruthy();
     expect(typeof body.runLevelDiffCount).toBe("number");
 
+    await injectDemoWorkspaceOperatorScope(page, tenantScope);
     await page.goto(`/compare?leftRunId=${encodeURIComponent(runIdA)}&rightRunId=${encodeURIComponent(runIdB)}`, {
       waitUntil: "domcontentloaded",
     });
@@ -91,13 +96,13 @@ test.describe("live-api-compare-runs", () => {
   test("compare with missing right run returns 404", async ({ request }) => {
     test.setTimeout(240_000);
 
-    const { runId: runIdA } = await createRun(request, buildCreateBody("404A"));
-    await executeRun(request, runIdA);
-    await waitForReadyForCommit(request, runIdA, 90_000);
-    await commitRun(request, runIdA);
+    const { runId: runIdA } = await createRun(request, buildCreateBody("404A"), tenantScope);
+    await executeRun(request, runIdA, tenantScope);
+    await waitForReadyForCommit(request, runIdA, 90_000, tenantScope);
+    await commitRun(request, runIdA, tenantScope);
 
     const fakeRight = "00000000000000000000000000000000";
-    const res = await compareAuthorityRuns(request, runIdA, fakeRight);
+    const res = await compareAuthorityRuns(request, runIdA, fakeRight, tenantScope);
 
     expect(res.status()).toBe(404);
   });

@@ -8,6 +8,7 @@ import {
   commitRun,
   createRun,
   executeRun,
+  freshIsolatedTenantScope,
   listArchitectureRuns,
   liveApiBase,
   liveE2eArchitectureDescription,
@@ -16,6 +17,8 @@ import {
 } from "./helpers/live-api-client";
 
 test.describe("live-api-archival", () => {
+  const tenantScope = freshIsolatedTenantScope();
+
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 
@@ -53,16 +56,16 @@ test.describe("live-api-archival", () => {
         priorManifestVersion: null as string | null,
       };
 
-      const { runId } = await createRun(request, createBody);
+      const { runId } = await createRun(request, createBody, tenantScope);
       runIds.push(runId);
 
-      await executeRun(request, runId);
-      await waitForReadyForCommit(request, runId, 90_000);
-      await commitRun(request, runId);
-      await waitForRunDetailCommitted(request, runId, 60_000);
+      await executeRun(request, runId, tenantScope);
+      await waitForReadyForCommit(request, runId, 90_000, tenantScope);
+      await commitRun(request, runId, tenantScope);
+      await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
     }
 
-    const rows = await listArchitectureRuns(request);
+    const rows = await listArchitectureRuns(request, tenantScope);
 
     for (const id of runIds) {
       const row = rows.find((r) => r.runId === id);

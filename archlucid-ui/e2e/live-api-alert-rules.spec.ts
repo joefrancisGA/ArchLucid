@@ -9,6 +9,7 @@ import {
   commitRun,
   createRun,
   executeRun,
+  freshIsolatedTenantScope,
   getAlertRulesRaw,
   liveApiBase,
   liveE2eArchitectureDescription,
@@ -18,6 +19,8 @@ import {
 } from "./helpers/live-api-client";
 
 test.describe("live-api-alert-rules", () => {
+  const tenantScope = freshIsolatedTenantScope();
+
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 
@@ -41,22 +44,26 @@ test.describe("live-api-alert-rules", () => {
       priorManifestVersion: null as string | null,
     };
 
-    const { runId } = await createRun(request, createBody);
-    await executeRun(request, runId);
-    await waitForReadyForCommit(request, runId, 90_000);
-    await commitRun(request, runId);
-    await waitForRunDetailCommitted(request, runId, 60_000);
+    const { runId } = await createRun(request, createBody, tenantScope);
+    await executeRun(request, runId, tenantScope);
+    await waitForReadyForCommit(request, runId, 90_000, tenantScope);
+    await commitRun(request, runId, tenantScope);
+    await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
 
     const ruleName = `e2e-metric-${Date.now()}`;
-    const createRuleRes = await postAlertRuleRaw(request, {
-      name: ruleName,
-      ruleType: "CriticalRecommendationCount",
-      severity: "Warning",
-      thresholdValue: 1,
-      isEnabled: true,
-      targetChannelType: "DigestOnly",
-      metadataJson: "{}",
-    });
+    const createRuleRes = await postAlertRuleRaw(
+      request,
+      {
+        name: ruleName,
+        ruleType: "CriticalRecommendationCount",
+        severity: "Warning",
+        thresholdValue: 1,
+        isEnabled: true,
+        targetChannelType: "DigestOnly",
+        metadataJson: "{}",
+      },
+      tenantScope,
+    );
 
     expect(createRuleRes.ok(), `POST alert-rules expected 200, got ${createRuleRes.status()}`).toBeTruthy();
     const created = (await createRuleRes.json()) as { ruleId?: string; name?: string };
@@ -64,7 +71,7 @@ test.describe("live-api-alert-rules", () => {
     expect(created.ruleId).toBeTruthy();
     expect(created.name).toBe(ruleName);
 
-    const listRes = await getAlertRulesRaw(request);
+    const listRes = await getAlertRulesRaw(request, tenantScope);
 
     expect(listRes.ok()).toBeTruthy();
     const list = (await listRes.json()) as Array<{ name?: string; ruleId?: string }>;

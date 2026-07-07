@@ -10,6 +10,7 @@ import {
   commitRun,
   createRun,
   executeRun,
+  freshIsolatedTenantScope,
   liveApiBase,
   liveE2eArchitectureDescription,
   postAdvisoryScanRaw,
@@ -19,6 +20,8 @@ import {
 } from "./helpers/live-api-client";
 
 test.describe("live-api-advisory-flow", () => {
+  const tenantScope = freshIsolatedTenantScope();
+
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 
@@ -44,15 +47,15 @@ test.describe("live-api-advisory-flow", () => {
       priorManifestVersion: null as string | null,
     };
 
-    const { runId } = await createRun(request, createBody);
+    const { runId } = await createRun(request, createBody, tenantScope);
     test.info().annotations.push({ type: "e2e-run-id", description: runId });
 
-    await executeRun(request, runId);
-    await waitForReadyForCommit(request, runId, 90_000);
-    await commitRun(request, runId);
-    await waitForRunDetailCommitted(request, runId, 60_000);
+    await executeRun(request, runId, tenantScope);
+    await waitForReadyForCommit(request, runId, 90_000, tenantScope);
+    await commitRun(request, runId, tenantScope);
+    await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
 
-    const scanRes = await postAdvisoryScanRaw(request, { runId, description: "E2E advisory scan test" });
+    const scanRes = await postAdvisoryScanRaw(request, { runId, description: "E2E advisory scan test" }, tenantScope);
 
     if (scanRes.status() === 404) {
       test.skip(true, "Advisory scan scheduling endpoint not available in this build");
@@ -63,7 +66,13 @@ test.describe("live-api-advisory-flow", () => {
       .soft(scanRes.ok() || scanRes.status() === 409, `advisory scan POST expected 2xx or 409, got ${scanRes.status()}`)
       .toBe(true);
 
-    const auditEvents = await searchAudit(request, { runId, take: "200" });
+    const auditEvents = await searchAudit(request, {
+      runId,
+      take: "200",
+      tenantId: tenantScope.tenantId,
+      workspaceId: tenantScope.workspaceId,
+      projectId: tenantScope.projectId,
+    });
     const types = new Set(auditEvents.map((e) => e.eventType).filter(Boolean) as string[]);
 
     expect
