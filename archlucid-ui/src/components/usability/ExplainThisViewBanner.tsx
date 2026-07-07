@@ -1,4 +1,5 @@
 "use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -13,7 +14,7 @@ function explainViewDismissKey(pathname: string): string {
   return `archlucid.explain-view.dismissed.${pathname}`;
 }
 
-/** Dismissible side-panel summary of the current high-density view. */
+/** Compact per-route orientation — merged into the main column, not a competing right-side hero card. */
 export function ExplainThisViewBanner() {
   const pathname = usePathname() ?? "/";
   const explanation = routeViewExplanationForPathname(pathname);
@@ -22,8 +23,7 @@ export function ExplainThisViewBanner() {
   useEffect(() => {
     try {
       setDismissed(sessionStorage.getItem(explainViewDismissKey(pathname)) === "1");
-    }
-    catch {
+    } catch {
       setDismissed(false);
     }
   }, [pathname]);
@@ -33,36 +33,53 @@ export function ExplainThisViewBanner() {
   }
 
   return (
-    <aside
-      className={cn("mb-4 rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body,
-        "lg:ml-auto lg:max-w-sm lg:border-l-4 lg:border-l-teal-700 lg:pl-3 dark:lg:border-l-teal-500",
+    <div
+      className={cn(
+        "mb-3 flex flex-wrap items-start justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/50",
+        OPERATOR_TYPOGRAPHY.body,
       )}
       aria-label={`About ${explanation.title}`}
       data-testid="explain-this-view-banner"
+      role="note"
     >
-      <div className="flex items-start justify-between gap-2">
-        <p className="m-0 font-semibold text-neutral-900 dark:text-neutral-50">{explanation.title}</p>
-        <DismissControl
-          iconOnly
-          ariaLabel={`Dismiss ${explanation.title} help`}
-          className="h-auto w-auto shrink-0 p-1 text-neutral-500 hover:bg-neutral-200/80 hover:text-neutral-800 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
-          onDismiss={() => {
-            try {
-              sessionStorage.setItem(explainViewDismissKey(pathname), "1");
-            }
-            catch {
-              /* ignore */
-            }
-
-            setDismissed(true);
-          }}
-        />
+      <div className="min-w-0 flex-1 space-y-1">
+        <p className="m-0 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-neutral-800 dark:text-neutral-200">
+          <span className="font-semibold text-neutral-900 dark:text-neutral-50">{explanation.title}</span>
+          <span className="text-neutral-500 dark:text-neutral-400" aria-hidden>
+            ·
+          </span>
+          <span className="text-neutral-700 dark:text-neutral-300">
+            <InlineGuidanceLabel label="Next:" testId="inline-guidance-what-to-do-next" /> {explanation.nextAction}
+          </span>
+        </p>
+        <details className="m-0" data-testid="explain-this-view-details">
+          <summary
+            className={cn(
+              "cursor-pointer list-none text-neutral-600 underline decoration-neutral-300 underline-offset-2 dark:text-neutral-400 dark:decoration-neutral-600",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+          >
+            About this page
+          </summary>
+          <p className={cn("m-0 mt-1 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {explanation.summary}
+          </p>
+        </details>
       </div>
-      <p className="m-0 mt-1 text-neutral-700 dark:text-neutral-300">{explanation.summary}</p>
-      <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">
-        <InlineGuidanceLabel label="What to do next:" testId="inline-guidance-what-to-do-next" />{" "}
-        {explanation.nextAction}
-      </p>
-    </aside>
+      <DismissControl
+        iconOnly
+        ariaLabel={`Dismiss ${explanation.title} help`}
+        className="h-7 w-7 shrink-0 p-1 text-neutral-500 hover:bg-neutral-200/80 hover:text-neutral-800 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+        onDismiss={() => {
+          try {
+            sessionStorage.setItem(explainViewDismissKey(pathname), "1");
+          } catch {
+            /* ignore */
+          }
+
+          setDismissed(true);
+        }}
+      />
+    </div>
   );
 }

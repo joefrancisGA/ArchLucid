@@ -136,13 +136,8 @@ describe("RiskExceptionsClient", () => {
     expect(screen.getByRole("link", { name: "Start a new review" })).toHaveAttribute("href", "/reviews/new");
   });
 
-  it("maps explain-this-view copy to risk exceptions instead of approval queue", () => {
-    const explanation = routeViewExplanationForPathname("/governance/risk-exceptions");
-
-    expect(explanation?.title).toBe("Risk exceptions");
-    expect(explanation?.summary).toContain("approved waivers and deferred findings");
-    expect(explanation?.nextAction).toContain("waived or deferred through governance");
-    expect(explanation?.title).not.toBe("Approval queue");
+  it("does not duplicate explain-this-view guidance for risk exceptions", () => {
+    expect(routeViewExplanationForPathname("/governance/risk-exceptions")).toBeNull();
   });
 
   it("revokes after confirmation", async () => {

@@ -16,7 +16,7 @@ describe("AlertsGovernanceContextPanel", () => {
     expect(screen.getByTestId("alerts-governance-context-panel")).toBeInTheDocument();
     expect(screen.getByTestId("inline-guidance-approval-queue")).toHaveTextContent("Approval queue:");
     expect(screen.getByText(new RegExp(ALERTS_APPROVAL_QUEUE_GUIDANCE, "i"))).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open approval queue" })).toHaveAttribute("href", "/governance");
+    expect(screen.getByRole("link", { name: "Open governance" })).toHaveAttribute("href", "/governance");
 
     for (const bullet of ALERTS_QUICK_GUIDANCE_BULLETS) {
       expect(screen.getByText(bullet)).toBeInTheDocument();

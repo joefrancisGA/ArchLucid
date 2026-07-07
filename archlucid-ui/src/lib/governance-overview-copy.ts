@@ -43,3 +43,6 @@ export const GOVERNANCE_OVERVIEW_RECENT_DECISIONS_SECTION_TITLE = "Recent decisi
 export const GOVERNANCE_OVERVIEW_NO_PENDING = "No approval requests are waiting for review.";
 
 export const GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER = "How governance approvals work";
+
+export const GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION =
+  "Start from pending approvals or open the risk register to clear blocking items.";

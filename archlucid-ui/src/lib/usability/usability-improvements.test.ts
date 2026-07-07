@@ -61,22 +61,22 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/alerts")).toBeNull();
   });
 
-  it("routeViewExplanationForPathname uses policy-pack help copy instead of generic governance approval queue", () => {
-    const explanation = routeViewExplanationForPathname("/governance/policy-packs");
-
-    expect(explanation?.title).toBe("Policy packs");
-    expect(explanation?.summary).toContain("standards and checks applied to review packages");
-    expect(explanation?.nextAction).toContain("Inspect the active pack");
-    expect(explanation?.summary).not.toContain("Approval queue");
+  it("routeViewExplanationForPathname returns null for governance routes — page headers own orientation", () => {
+    expect(routeViewExplanationForPathname("/governance")).toBeNull();
+    expect(routeViewExplanationForPathname("/governance/policy-packs")).toBeNull();
+    expect(routeViewExplanationForPathname("/governance/resolution")).toBeNull();
+    expect(routeViewExplanationForPathname("/governance/risk-exceptions")).toBeNull();
+    expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
   });
 
-  it("routeViewExplanationForPathname uses standards & rules help copy instead of generic governance approval queue", () => {
-    const explanation = routeViewExplanationForPathname("/governance/resolution");
+  it("routeViewExplanationForPathname keeps compare and audit orientation strips", () => {
+    const compare = routeViewExplanationForPathname("/compare");
+    expect(compare?.title).toBe("Compare two reviews");
+    expect(compare?.nextAction).toContain("baseline");
 
-    expect(explanation?.title).toBe("Standards & rules");
-    expect(explanation?.summary).toContain("standards and checks applied to this review");
-    expect(explanation?.nextAction).toContain("enforced rules");
-    expect(explanation?.summary).not.toContain("Approval queue");
+    const audit = routeViewExplanationForPathname("/audit");
+    expect(audit?.title).toBe("Audit trail");
+    expect(audit?.nextAction).toContain("Search");
   });
 
   it("canonical product terms use audit trail and signed review record", () => {

@@ -13,6 +13,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
 import { GovernanceInteractiveQuickstartCard } from "@/components/GovernanceInteractiveQuickstartCard";
 import { GovernanceApprovalStoryCard } from "@/components/GovernanceApprovalStoryCard";
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -45,6 +46,7 @@ import {
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER,
+  GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION,
   GOVERNANCE_OVERVIEW_PAGE_LEAD,
   GOVERNANCE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL,
@@ -493,7 +495,12 @@ export function GovernanceWorkflowPageContent() {
         docsPageKey="/governance"
         subtitle={pageLead}
         metadata={
-          buyerPolishedShell && isReviewContext && !showBuyerApprovalStory ? (
+          !isReviewContext ? (
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <InlineGuidanceLabel label="Next" testId="inline-guidance-governance-overview-next" />{" "}
+              {GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION}
+            </span>
+          ) : buyerPolishedShell && !showBuyerApprovalStory ? (
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Production deployments and change-managed releases follow your enterprise process—this page does not configure
               releases.
