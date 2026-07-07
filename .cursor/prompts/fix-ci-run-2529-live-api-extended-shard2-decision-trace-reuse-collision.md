@@ -328,6 +328,9 @@ scheduled/`workflow_dispatch` run of shard 2 and shard 3 of the extended-matrix 
 - `.cursor/prompts/fix-ci-run-2529-live-api-extended-shard2-followup-recheck.md` — run this **after**
   the fix in this prompt has merged and a fresh shard 2/3 CI run has completed, to decide whether the
   old tenant-isolation prompts are still needed.
+- `.cursor/prompts/fix-ci-run-2529-live-api-extended-shard3-decision-trace-timeout.md` — shard 3/4
+  sibling diagnosis for run **2529** (90m timeout, same bug, different spec subset); **do not implement
+  separately** — this prompt's fix covers both shards.
 - `docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md` — background on why the
   Authority pipeline runs inline at request-creation time for non-deferred runs (intentional design;
   not itself the bug).

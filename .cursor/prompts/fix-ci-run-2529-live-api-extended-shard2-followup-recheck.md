@@ -5,6 +5,11 @@
 > implemented and merged, and a fresh CI run of the extended-matrix job has completed on `RC7`. Its
 > only job is to decide whether the two older, never-implemented tenant-isolation prompts are still
 > needed — **not** to re-run the full forensic log analysis from scratch.
+>
+> Shard 3/4 in run **2529** hit the same decision-trace bug (90m timeout, job `85651988168`) — see
+> `.cursor/prompts/fix-ci-run-2529-live-api-extended-shard3-decision-trace-timeout.md` for shard-3
+> forensics. One production fix (`SkipPersistingPipelineArtifacts`, commit `dcbbb4542d`) should green
+> both shards; evaluate both in steps 1–4 below.
 
 ## What to do
 
