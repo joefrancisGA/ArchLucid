@@ -51,6 +51,7 @@
     "security:coordinated-disclosure-pgp": "node ./scripts/security/generate-coordinated-disclosure-pgp.mjs"
   },
   "dependencies": {
+    "@azure/communication-email": "^1.1.0",
     "@archlucid/api-types": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
     "@microsoft/applicationinsights-react-js": "^19.4.0",
