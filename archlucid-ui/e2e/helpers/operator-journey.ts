@@ -245,7 +245,7 @@ export async function expectBuyerPolishedReviewDetailSectionNavCore(
     .toBeGreaterThan(0);
 
   await expect(outcomeLikeLink.first()).toBeVisible({ timeout });
-  await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Evidence", exact: true })).toBeVisible({ timeout });
   await expect(sectionNav.getByRole("link", { name: "Assessment" })).toBeVisible({ timeout });
   await expect(sectionNav.getByRole("link", { name: "Activity" })).toBeVisible({ timeout });
   await expect(sectionNav.getByRole("link", { name: "Deliverables" })).toBeVisible({ timeout });
