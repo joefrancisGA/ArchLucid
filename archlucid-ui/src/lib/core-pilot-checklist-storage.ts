@@ -20,28 +20,14 @@ export function subscribeCorePilotChecklist(onStoreChange: () => void): () => vo
   };
 }
 
-/** Serialized step-done flags for external-store snapshots (client). */
+/** @deprecated Manual step-done keys are ignored — progress is derived from tenant/review state. */
 export function getCorePilotChecklistStorageSnapshot(): string {
-  if (typeof window === "undefined") {
-    return "";
-  }
-
-  try {
-    const parts: string[] = [];
-
-    for (let i = 0; i < CORE_PILOT_STEP_COUNT; i++) {
-      parts.push(window.localStorage.getItem(corePilotStepDoneStorageKey(i)) === "1" ? "1" : "0");
-    }
-
-    return parts.join("");
-  } catch {
-    return "";
-  }
+  return getCorePilotOptionalSkipSnapshot();
 }
 
 /** SSR / hydration fallback for {@link getCorePilotChecklistStorageSnapshot}. */
 export function getCorePilotChecklistStorageServerSnapshot(): string {
-  return "";
+  return getCorePilotOptionalSkipServerSnapshot();
 }
 
 /** When set to `"1"`, `AfterCorePilotChecklistHint` stays hidden (operator dismissed the "what's next" panel). */
@@ -60,6 +46,68 @@ export function readAfterCorePilotWhatsNextDismissed(): boolean {
 
 export function corePilotStepDoneStorageKey(index: number): string {
   return `archlucid_onboarding_step_${index}_done`;
+}
+
+/** Optional-step skip flag — only indices 3–6 honor skip persistence. */
+export function corePilotOptionalStepSkippedStorageKey(index: number): string {
+  return `archlucid_core_pilot_step_${index}_skipped`;
+}
+
+export function readCorePilotOptionalStepSkipped(index: number): boolean {
+  if (!isCorePilotStepOptionalIndex(index) || typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.localStorage.getItem(corePilotOptionalStepSkippedStorageKey(index)) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function writeCorePilotOptionalStepSkipped(index: number, skipped: boolean): void {
+  if (!isCorePilotStepOptionalIndex(index) || typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(corePilotOptionalStepSkippedStorageKey(index), skipped ? "1" : "0");
+    emitCorePilotChecklistChanged();
+  } catch {
+    /* ignore */
+  }
+}
+
+function isCorePilotStepOptionalIndex(index: number): boolean {
+  return index >= 3 && index < CORE_PILOT_STEP_COUNT;
+}
+
+/** Bitmap of optional-step skip flags for external-store subscribers. */
+export function getCorePilotOptionalSkipSnapshot(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  try {
+    const parts: string[] = [];
+
+    for (let index = 0; index < CORE_PILOT_STEP_COUNT; index++) {
+      if (!isCorePilotStepOptionalIndex(index)) {
+        parts.push("0");
+        continue;
+      }
+
+      parts.push(readCorePilotOptionalStepSkipped(index) ? "1" : "0");
+    }
+
+    return parts.join("");
+  } catch {
+    return "";
+  }
+}
+
+export function getCorePilotOptionalSkipServerSnapshot(): string {
+  return "";
 }
 
 /** Full panel state (step checks + hide UI); legacy per-step keys stay in sync for other Home surfaces. */
@@ -112,11 +160,10 @@ export function writePilotChecklistPanelState(state: PilotChecklistPanelPersiste
   }
 
   try {
-    window.localStorage.setItem(PILOT_CHECKLIST_PANEL_STORAGE_KEY, JSON.stringify(state));
-
-    for (let i = 0; i < CORE_PILOT_STEP_COUNT; i++) {
-      window.localStorage.setItem(corePilotStepDoneStorageKey(i), state.steps[i] ? "1" : "0");
-    }
+    window.localStorage.setItem(
+      PILOT_CHECKLIST_PANEL_STORAGE_KEY,
+      JSON.stringify({ steps: state.steps, hidden: state.hidden }),
+    );
 
     emitCorePilotChecklistChanged();
   } catch {
@@ -124,23 +171,12 @@ export function writePilotChecklistPanelState(state: PilotChecklistPanelPersiste
   }
 }
 
-/** True when every checklist step has localStorage value "1". */
+/**
+ * Required-step completion is derived from tenant/review lifecycle — callers should use
+ * {@link useCorePilotDerivedStepStatus} or pass commit context into step-status helpers.
+ */
 export function readCorePilotChecklistAllDone(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  try {
-    for (let i = 0; i < CORE_PILOT_STEP_COUNT; i++) {
-      if (window.localStorage.getItem(corePilotStepDoneStorageKey(i)) !== "1") {
-        return false;
-      }
-    }
-
-    return true;
-  } catch {
-    return false;
-  }
+  return false;
 }
 
 /** Defer so listeners never run during another component's render or passive-effect flush. */

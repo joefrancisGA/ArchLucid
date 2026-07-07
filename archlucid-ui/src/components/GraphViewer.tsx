@@ -38,8 +38,21 @@ import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import {
   graphBuyerTrailDispositionLine,
   graphBuyerTrailMetadataLines,
+  graphBuyerTrailPanelTitle,
   graphBuyerTrailRecordTypeLine,
 } from "@/lib/graph-buyer-node-detail";
+import {
+  filterGraphViewModelToNodeIds,
+  resolveBuyerTrailPathNodeIds,
+} from "@/lib/graph-buyer-path-filter";
+import {
+  BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA,
+  BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA,
+  BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA,
+  BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA,
+  BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA,
+  BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA,
+} from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_CALLOUT_WARN_CLASS,
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
@@ -80,6 +93,62 @@ function pickHeroNodeId(graph: GraphViewModel, preferredId: string | undefined):
   }
 
   return graph.nodes[0] ?? null;
+}
+
+function GraphBuyerCanvasToolbar({
+  onFitGraph,
+  onTracePath,
+  onTogglePathOnly,
+  showPathOnly,
+  pathFilterAvailable,
+}: {
+  onFitGraph: () => void;
+  onTracePath: () => void;
+  onTogglePathOnly: () => void;
+  showPathOnly: boolean;
+  pathFilterAvailable: boolean;
+}) {
+  return (
+    <div className="mb-2 flex flex-wrap gap-2" data-testid="graph-buyer-canvas-toolbar">
+      <Button type="button" size="sm" variant="outline" onClick={onFitGraph}>
+        {BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA}
+      </Button>
+      <Button type="button" size="sm" variant="outline" onClick={onTracePath} disabled={!pathFilterAvailable}>
+        {BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA}
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant={showPathOnly ? "primary" : "outline"}
+        onClick={onTogglePathOnly}
+        disabled={!pathFilterAvailable}
+      >
+        {showPathOnly ? BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA : BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA}
+      </Button>
+    </div>
+  );
+}
+
+function GraphBuyerFitViewTrigger({
+  fitPadding,
+  fitMaxZoom,
+  trigger,
+}: {
+  fitPadding: number;
+  fitMaxZoom: number;
+  trigger: number;
+}) {
+  const { fitView } = useReactFlow();
+
+  useEffect(() => {
+    if (trigger === 0) {
+      return;
+    }
+
+    void fitView({ padding: fitPadding, maxZoom: fitMaxZoom, duration: 260 });
+  }, [fitMaxZoom, fitPadding, fitView, trigger]);
+
+  return null;
 }
 
 /**
@@ -166,11 +235,6 @@ export function GraphViewer({
       ? "buyerTrail"
       : "operator";
 
-  const { nodes, edges } = useMemo(
-    () => mapGraphToReactFlow(filtered, flowPresentation),
-    [filtered, flowPresentation],
-  );
-
   const [selectedNode, setSelectedNode] = useState<GraphNodeVm | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<GraphEdgeVm | null>(null);
   const [explainStatusLine, setExplainStatusLine] = useState("");
@@ -178,12 +242,78 @@ export function GraphViewer({
 
   const { isAdvanced, toggle } = useBasicAdvancedToggle("archlucid_graph_settings_advanced_toggle");
   const [edgeInferenceThreshold, setEdgeInferenceThreshold] = useState("0.75");
+  const [showPathOnly, setShowPathOnly] = useState(false);
+  const [pathNodeIds, setPathNodeIds] = useState<Set<string> | null>(null);
+  const [fitViewTrigger, setFitViewTrigger] = useState(0);
+
+  const pathScopedGraph = useMemo(() => {
+    if (!showPathOnly || pathNodeIds === null || pathNodeIds.size === 0) {
+      return filtered;
+    }
+
+    return filterGraphViewModelToNodeIds(filtered, pathNodeIds);
+  }, [filtered, pathNodeIds, showPathOnly]);
+
+  const { nodes, edges } = useMemo(() => {
+    const mapped = mapGraphToReactFlow(pathScopedGraph, flowPresentation);
+    const selectedId = selectedNode?.id;
+
+    if (selectedId === undefined || selectedId.length === 0) {
+      return mapped;
+    }
+
+    return {
+      nodes: mapped.nodes.map((node) =>
+        node.id === selectedId
+          ? {
+              ...node,
+              style: {
+                ...node.style,
+                border: "4px solid #0f766e",
+                boxShadow: "0 0 0 3px rgba(15, 118, 110, 0.25)",
+              },
+            }
+          : node,
+      ),
+      edges: mapped.edges,
+    };
+  }, [flowPresentation, pathScopedGraph, selectedNode?.id]);
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
   const [interactiveSurfaceReady, setInteractiveSurfaceReady] = useState(false);
 
   const fitPadding = buyerTrailPanel ? 0.005 : 0.08;
   const fitMaxZoom = buyerTrailPanel ? 6.2 : 1.52;
+  const pathFilterAvailable =
+    buyerTrailPanel && selectedNode !== null && resolveBuyerTrailPathNodeIds(filtered, selectedNode.id) !== null;
+
+  const handleTracePath = (): void => {
+    if (selectedNode === null) {
+      return;
+    }
+
+    const nextPath = resolveBuyerTrailPathNodeIds(filtered, selectedNode.id);
+
+    if (nextPath === null) {
+      return;
+    }
+
+    setPathNodeIds(nextPath);
+    setShowPathOnly(true);
+    setFitViewTrigger((current) => current + 1);
+  };
+
+  const handleTogglePathOnly = (): void => {
+    if (showPathOnly) {
+      setShowPathOnly(false);
+      setPathNodeIds(null);
+      setFitViewTrigger((current) => current + 1);
+
+      return;
+    }
+
+    handleTracePath();
+  };
 
   useEffect(() => {
     setInteractiveSurfaceReady(false);
@@ -236,7 +366,7 @@ export function GraphViewer({
 
     return (
       <OperatorEmptyState title="No graph data to display">
-        <p className="m-0">The API returned a graph with no nodes (valid empty result, not a filter).</p>
+        <p className="m-0">This review package has no graph nodes to display yet.</p>
       </OperatorEmptyState>
     );
   }
@@ -260,6 +390,18 @@ export function GraphViewer({
               : "h-[70vh] w-full border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
         }
       >
+        {buyerTrailPanel ? (
+          <div className="border-b border-slate-200 px-3 py-2 dark:border-slate-700">
+            <GraphBuyerCanvasToolbar
+              onFitGraph={() => setFitViewTrigger((current) => current + 1)}
+              onTracePath={handleTracePath}
+              onTogglePathOnly={handleTogglePathOnly}
+              showPathOnly={showPathOnly}
+              pathFilterAvailable={pathFilterAvailable}
+            />
+          </div>
+        ) : null}
+        <div className={buyerTrailPanel ? "h-[calc(100%-3rem)] min-h-[380px]" : "h-full"}>
         <ReactFlowProvider>
           <ReactFlow
             nodes={nodes as Node[]}
@@ -300,6 +442,11 @@ export function GraphViewer({
               padding={fitPadding}
               maxZoom={fitMaxZoom}
             />
+            <GraphBuyerFitViewTrigger
+              fitPadding={fitPadding}
+              fitMaxZoom={fitMaxZoom}
+              trigger={fitViewTrigger}
+            />
             {buyerTrailPanel ? null : compactChrome ? null : <MiniMap />}
 
             <Controls
@@ -316,6 +463,7 @@ export function GraphViewer({
             />
           </ReactFlow>
         </ReactFlowProvider>
+        </div>
       </div>
 
       <aside
@@ -467,20 +615,20 @@ export function GraphViewer({
           {selectedNode ? (
             <>
               {buyerTrailPanel ? (
-                (() => {
-                  const recordType = graphBuyerTrailRecordTypeLine(selectedNode);
+                <div className="space-y-3">
+                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                    {graphBuyerTrailPanelTitle(selectedNode)}
+                  </h3>
+                  {(() => {
+                    const recordType = graphBuyerTrailRecordTypeLine(selectedNode);
 
-                  return (
-                    <div className="space-y-0.5">
-                      <p className={cn("m-0 font-semibold leading-snug text-al-text-primary text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                        {recordType.primary}
+                    return recordType.secondary !== null ? (
+                      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+                        {recordType.secondary}
                       </p>
-                      {recordType.secondary !== null ? (
-                        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{recordType.secondary}</p>
-                      ) : null}
-                    </div>
-                  );
-                })()
+                    ) : null;
+                  })()}
+                </div>
               ) : (
                 <>
                   <h3 className="mt-0">Node detail</h3>
@@ -535,7 +683,7 @@ export function GraphViewer({
                     <Link
                       href={`/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId.trim()))}#run-explanation`}
                     >
-                      View recorded decisions on review
+                      {BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA}
                     </Link>
                   </Button>
                 </div>
@@ -562,7 +710,7 @@ export function GraphViewer({
                           <Link href={getShowcaseManifestHref()}>{BUYER_VIEW_SIGNED_RECORD_CTA}</Link>
                         </Button>
                         <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
-                          <Link href={graphFindingDetailHref(rid, fid)}>View finding detail</Link>
+                          <Link href={graphFindingDetailHref(rid, fid)}>{BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA}</Link>
                         </Button>
                       </div>
                     );

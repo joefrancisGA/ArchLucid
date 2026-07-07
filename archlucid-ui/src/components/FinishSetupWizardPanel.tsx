@@ -12,7 +12,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import {
   areFinishSetupRequiredStepsComplete,
-  FINISH_SETUP_WIZARD_STEPS,
+  resolveFinishSetupWizardSteps,
 } from "@/lib/finish-setup-wizard-steps";
 
 const FINISH_SETUP_STORAGE_KEY = "archlucid.finishSetupWizard.completed.v1";
@@ -21,8 +21,6 @@ export type FinishSetupWizardPanelProps = {
   /** When nested under onboarding optional setup, use softer framing. */
   readonly variant?: "default" | "optional";
 };
-
-const SETUP_STEPS = FINISH_SETUP_WIZARD_STEPS;
 
 function readSetupCompleted(): boolean {
   if (typeof window === "undefined") {
@@ -37,7 +35,7 @@ function readSetupCompleted(): boolean {
   }
 }
 
-/** Guided post-deploy checklist: health, identity, admin role, optional extractor. */
+/** Guided post-deploy checklist: health, identity, and admin role. */
 export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps = {}): React.JSX.Element | null {
   const panelVariant = variant ?? "default";
   const { phase, context } = useFinishSetupReadinessContext();
@@ -63,6 +61,7 @@ export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps 
   }
 
   const ctx = context;
+  const setupSteps = resolveFinishSetupWizardSteps();
   const allRequiredDone = areFinishSetupRequiredStepsComplete(ctx);
 
   return (
@@ -83,7 +82,7 @@ export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps 
         </CardHeader>
         <CardContent className="space-y-3">
           <ol className="m-0 list-decimal space-y-3 pl-5">
-            {SETUP_STEPS.map((step) => {
+            {setupSteps.map((step) => {
               const done = step.isDone(ctx);
 
               return (

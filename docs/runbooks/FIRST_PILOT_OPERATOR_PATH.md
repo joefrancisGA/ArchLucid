@@ -1,6 +1,6 @@
-> **Scope:** Single first-pilot operator path — storage/auth through sponsor export and next action; V1 surfaces only (no V1.1 connectors in required steps).
+> **Scope:** Internal operator runbook — platform readiness, pilot proof collection, and phase-level recovery. **Customer architects:** use [Complete review workflow](/help/first-pilot-path) (`docs/library/customer-facing/COMPLETE_REVIEW_WORKFLOW.md`).
 
-# First-pilot operator path (V1)
+# First-pilot operator path (internal runbook)
 
 **Audience:** Buyer operators, design partners, and sales engineers guiding a first architecture review without jumping across unrelated docs.
 
@@ -10,7 +10,6 @@
 
 **Canonical seven-step minimum path:** [`../library/CANONICAL_FIRST_RUN_PATH.md`](../library/CANONICAL_FIRST_RUN_PATH.md) (command wrapper: `scripts/Run-CanonicalFirstPilotPath.ps1`). **Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **Before you start (Azure + config):** [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md). **Production-like preflight:** [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** [`FIRST_VALUE_20_MINUTES.md`](FIRST_VALUE_20_MINUTES.md). **In-product rail:** operator **Home** → **First-pilot path (about 20 minutes)** strip. **Starter pack chooser:** [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md). **Golden walkthrough:** [`docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · **Support triage:** [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md).
 
----
 
 ## Inputs, outputs, and stop conditions
 
@@ -37,7 +36,6 @@ When Phase D completes with `-RunId` and sponsor handoff flags as needed, expect
 
 Do not hand-edit missing proof into the packet — re-run collectors per [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md).
 
----
 
 ## Operator status vocabulary
 
@@ -53,13 +51,11 @@ Use this small vocabulary across cockpit rows, proof summaries, and sponsor hand
 
 **Canonical operational checklist:** this file. **Canonical narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **Post-commit evidence:** [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md).
 
----
 
 ## Grounding rule
 
 Every step below maps to a **shipped** API, operator UI route, or CLI verb. Optional accelerators use only V1 policy packs and ingest paths — **Jira**, **ServiceNow**, **Confluence**, **Slack**, **Teams**, and broad outbound webhooks are **V1.1** and appear only under *Optional later*.
 
----
 
 ## Pilot UI deployment (buyer-default shell)
 
@@ -73,7 +69,6 @@ Before provisioning a **pilot or staging tenant UI**, confirm the build **does n
 
 Canonical reference: [`OPERATOR_UI_EXPERIENCE_MODES.md`](../library/OPERATOR_UI_EXPERIENCE_MODES.md).
 
----
 
 ## Phase A — Platform ready
 
@@ -92,7 +87,6 @@ Canonical reference: [`OPERATOR_UI_EXPERIENCE_MODES.md`](../library/OPERATOR_UI_
 
 Until you have one **committed** architecture review package, you do **not** need: Operate compare/replay/graph lanes, V1.1 connectors, MCP, live commerce, or reading the full V1 integration catalog. Optional policy-pack dry-run (step C4) is the only governance touch in the default path.
 
----
 
 ## Phase B — Evidence ingest (Azure Tier 1)
 
@@ -103,7 +97,6 @@ Until you have one **committed** architecture review package, you do **not** nee
 
 **Failure recovery (Phase B):** extractor script errors → [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) § troubleshooting · wrong scope headers on demo URLs → DEMO_WORKSPACES scope triplet table.
 
----
 
 ## Phase C — Review lifecycle
 
@@ -117,7 +110,6 @@ Until you have one **committed** architecture review package, you do **not** nee
 
 **Failure recovery (Phase C):** execute stalls → [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · pre-commit blocked → disposition findings per gate doc · commit 409 → governance extension `#governance-pre-commit-blocked`.
 
----
 
 ## Phase D — Review package and sponsor export
 
@@ -131,7 +123,6 @@ Until you have one **committed** architecture review package, you do **not** nee
 | D4 | Collect first-pilot proof with `-RunId` for sponsor/procurement handoff. | **`first-pilot-command-center.md`** (primary status) plus `go-no-go-summary.md` and committed-run evidence folder with checksum manifest and buyer-safe artifacts. Production-like or sponsor handoff also collects `config-lint-production-like-hosted-pilot.md`, `route-tier-policy-nav-parity.md`, and `procurement-deal-ready-check.txt` (deal-ready **PASS/HOLD**). | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
 | D5 | *(Optional workflow handoff)* Attach proof artifacts to a GitHub PR/issue or Azure DevOps work item. | Work item links to the sponsor packet, evidence manifest, and send/hold status without requiring a V1.1 connector. | [`V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md`](V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md) |
 
----
 
 ## Phase E — Decide next action
 
@@ -150,14 +141,12 @@ Until you have one **committed** architecture review package, you do **not** nee
 | [AI governance review](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md) | Responsible-AI policy pack, findings, governance decision, sponsor export |
 | [Healthcare claims pilot](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md) | Regulated healthcare pack + PHI storyline (demo seed) |
 
----
 
 ## Optional later (not required for first-pilot success)
 
 - First-party **Jira**, **ServiceNow**, **Confluence**, **Slack**, **Teams** — [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) (V1.1)
 - MCP tool membrane, live Stripe/Marketplace commerce, hosted Tier 2 extractor WIF
 
----
 
 ## Related
 

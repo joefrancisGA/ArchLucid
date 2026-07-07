@@ -12,6 +12,15 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
 
 import { DataArchivalDegradedBanner } from "./DataArchivalDegradedBanner";
 
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: () => false,
+  isNextPublicDemoMode: () => false,
+}));
+
+vi.mock("@/lib/operator-static-demo", () => ({
+  isStaticDemoPayloadFallbackEnabled: () => false,
+}));
+
 const originalFetch = globalThis.fetch;
 
 describe("DataArchivalDegradedBanner", () => {
@@ -97,7 +106,9 @@ describe("DataArchivalDegradedBanner", () => {
     await waitFor(() => {
       expect(screen.getByTestId("governance-dashboard-data-archival-degraded")).toBeInTheDocument();
     });
-    expect(screen.getByRole("alert")).toHaveTextContent(/data retention archival is degraded/i);
+    expect(screen.getByRole("alert")).toHaveTextContent(/retention history may be incomplete/i);
     expect(screen.getByRole("link", { name: /system health/i })).toHaveAttribute("href", "/admin/health");
+    expect(screen.getByRole("alert")).not.toHaveTextContent(/worker log/i);
+    expect(screen.getByRole("alert")).not.toHaveTextContent(/readiness check/i);
   });
 });

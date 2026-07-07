@@ -92,8 +92,17 @@ export const OPERATOR_PAGE_CONTAINER = {
 /** Max shell width shared by operator top bar, sidebar row, and footer. */
 export const OPERATOR_SHELL_MAX_WIDTH_CLASS = "w-full max-w-[1600px]";
 
+/**
+ * Sidebar + main content row beneath the sticky header.
+ * Left-aligned with the top bar brand rail — never `mx-auto` (wide viewports otherwise gain a dead left gutter).
+ */
+export const OPERATOR_SHELL_BODY_ROW_CLASS = "flex min-h-0 w-full flex-1";
+
 /** Primary sidebar column width — top-bar brand rail uses {@link OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS}. */
-export const OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS = "w-[15.5rem]";
+export const OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS = "w-[15rem]";
+
+/** Horizontal padding inside the sidebar column — matches top-bar brand rail at `lg`. */
+export const OPERATOR_SHELL_SIDEBAR_PADDING_CLASS = "px-3 py-4";
 
 /** Scroll offset for in-page anchors below the sticky operator header stack. */
 export const OPERATOR_SHELL_SCROLL_OFFSET_CLASS = "scroll-mt-[var(--app-shell-sticky,6rem)]";
@@ -102,7 +111,7 @@ export const OPERATOR_SHELL_SCROLL_OFFSET_CLASS = "scroll-mt-[var(--app-shell-st
 export const OPERATOR_SHELL_STICKY_TOP_CLASS = "top-[calc(var(--app-shell-sticky,6rem)+0.5rem)]";
 
 /** Sidebar width from the `lg` breakpoint — matches hidden sidebar below `lg`. */
-export const OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS = "lg:w-[15.5rem]";
+export const OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS = "lg:w-[15rem]";
 
 /**
  * Canonical operator type scale — one treatment per role; avoid ad-hoc size/weight pairs.
@@ -252,6 +261,8 @@ export const DESIGN_TOKENS = {
       "rounded-xl border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800",
     trial:
       "rounded-xl border border-neutral-200 border-l-4 border-l-amber-600 bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800",
+    governanceApproval:
+      "rounded-md border border-neutral-200 border-l-4 border-l-[var(--al-status-approved-monitoring-fg)] bg-[var(--al-status-approved-monitoring-bg)] px-4 py-3 dark:border-neutral-800",
   },
   interactive: {
     rowHover:

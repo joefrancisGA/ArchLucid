@@ -1,6 +1,7 @@
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 
 export type ExecutiveKpiCountState = "loading" | "missing" | "zero" | "value";
 
@@ -71,14 +72,14 @@ export function presentCostEvidenceFreshness(input: {
       return {
         display: "Showcase review",
         state: "demo-derived",
-        footnote: "Seeded Claims Intake showcase — upload your Azure inventory to ground cost evidence in measured spend.",
+        footnote: `Seeded Claims Intake showcase — ${CLOUD_NEUTRAL_PRIMARY_COPY.roiKpiMissingInventoryHint}`,
         runbookHref: "/docs/runbooks/AZURE_EXTRACTOR_UPLOAD.md",
       };
     }
 
     const footnote = isBuyerPolishedOperatorShellEnv()
-      ? "Upload your Azure inventory to ground cost evidence in measured spend."
-      : "Cost evidence is illustrative — do not treat as measured Azure spend.";
+      ? CLOUD_NEUTRAL_PRIMARY_COPY.roiKpiMissingInventoryHint
+      : "Cost evidence is illustrative — do not treat as measured cloud spend.";
 
     return {
       display: "Illustrative",
@@ -112,8 +113,8 @@ export function presentCostEvidenceFreshness(input: {
       state: "stale",
       footnote:
         input.staleAfterDays && input.staleAfterDays > 0
-          ? `Evidence is older than ${input.staleAfterDays} day(s). Refresh your Azure inventory upload.`
-          : "Evidence is stale. Refresh your Azure inventory upload.",
+          ? `Evidence is older than ${input.staleAfterDays} day(s). ${CLOUD_NEUTRAL_PRIMARY_COPY.roiStaleInventoryHint}`
+          : CLOUD_NEUTRAL_PRIMARY_COPY.roiStaleInventoryHint,
       runbookHref: "/docs/runbooks/AZURE_EXTRACTOR_UPLOAD.md",
     };
   }

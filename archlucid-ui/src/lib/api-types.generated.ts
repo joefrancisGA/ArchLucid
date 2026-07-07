@@ -33585,6 +33585,8 @@ export interface components {
             runDegradedExecution?: boolean;
             /** Format: uuid */
             runId?: string;
+            /** Format: uuid */
+            scopeProjectId?: string;
         };
         BuyerRunDetailSummaryDto: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];

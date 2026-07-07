@@ -9,17 +9,21 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Api.Hosting;
 
 /// <summary>
-///     Applies the Contoso demo seed once at startup when <c>Demo:AnonymousViewer:Enabled</c> is true so
-///     <c>GET /v1/demo/explain</c> is populated on freshly deployed demo hosts without a manual
-///     <c>POST /v1/demo/seed</c>. Work runs on a background thread so host startup is not blocked.
+///     Applies idempotent showcase demo seed once at startup when <see cref="DemoSeedBootstrapPolicy" /> allows it so
+///     demo/trial hosts have committed sample reviews without a manual <c>POST /v1/demo/seed</c>.
+///     Work runs on a background thread so host startup is not blocked.
 /// </summary>
 public sealed class DemoSeedStartupHostedService(
     IServiceScopeFactory scopeFactory,
+    IHostEnvironment hostEnvironment,
     IOptions<DemoOptions> demoOptions,
     ILogger<DemoSeedStartupHostedService> logger) : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+
+    private readonly IHostEnvironment _hostEnvironment =
+        hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
 
     private readonly IOptions<DemoOptions> _demoOptions =
         demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
@@ -29,5 +33,5 @@ public sealed class DemoSeedStartupHostedService(
 
     /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken) =>
-        DemoSeedStartupWork.RunAsync(_scopeFactory, _demoOptions.Value, _logger, stoppingToken);
+        DemoSeedStartupWork.RunAsync(_scopeFactory, _hostEnvironment, _demoOptions.Value, _logger, stoppingToken);
 }

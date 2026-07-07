@@ -4,10 +4,11 @@ import { NextResponse } from "next/server";
 import { demoRunAliasRedirectDestinationPath } from "@/lib/demo-run-alias-path-redirect";
 
 /**
- * Next.js middleware: demo run id aliases (bookmark slugs → canonical showcase id) MUST preserve pathname tails
- * (`/findings/.../inspect`, `/provenance`, …). Matching logic also lives alongside {@link canonicalizeDemoRunId}.
+ * Next.js proxy (formerly "middleware"): demo run id aliases (bookmark slugs → canonical showcase id) MUST
+ * preserve pathname tails (`/findings/.../inspect`, `/provenance`, …). Matching logic also lives alongside
+ * {@link canonicalizeDemoRunId}.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const nextPath = demoRunAliasRedirectDestinationPath(request.nextUrl.pathname);
 
   if (nextPath !== null) {
@@ -18,12 +19,21 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(u, 308);
   }
 
+  if (request.nextUrl.pathname === "/403") {
+    const response = NextResponse.next();
+
+    response.status = 403;
+
+    return response;
+  }
+
   return NextResponse.next();
 }
 
-/** Routes that pass through this middleware (authority, artifact, and comparison flows). */
+/** Routes that pass through this proxy (authority, artifact, and comparison flows). */
 export const config = {
   matcher: [
+    "/403",
     "/reviews/:path*",
     "/executive/reviews/:path*",
     "/executive/scorecard",

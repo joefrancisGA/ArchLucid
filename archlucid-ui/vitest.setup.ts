@@ -7,6 +7,8 @@ import { extendNextNavigationVitestMock } from "@/testing/next-navigation-vitest
 import { emptyCorePilotCommitContext } from "@/testing/core-pilot-commit-context.mock";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
+vi.mock("server-only", () => ({}));
+
 vi.mock("@/lib/use-core-pilot-commit-presentation-context", () => ({
   useCorePilotCommitPresentationContext: () => ({
     hasCommittedManifest: false,

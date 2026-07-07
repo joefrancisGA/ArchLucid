@@ -1,12 +1,10 @@
 "use client";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { ExecutiveDashboardDataProvider, useExecutiveDashboardData } from "@/components/executive/ExecutiveDashboardDataContext";
 import { ExecutiveDashboardEmptyState } from "@/components/executive/ExecutiveDashboardEmptyState";
+import { ExecutiveDashboardPageHero } from "@/components/executive/ExecutiveDashboardPageHero";
 import { ExecutiveDashboardSampleWorkspaceBanner } from "@/components/executive/ExecutiveDashboardSampleWorkspaceBanner";
-import { ExecutiveValueNarrativeBanner } from "@/components/ExecutiveValueNarrativeBanner";
-import { OperatorPilotOrientationBanner } from "@/components/OperatorPilotOrientationBanner";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
@@ -66,17 +64,8 @@ function ExecutiveRoiDashboardPortfolioSections({
       {showSampleBanner ? <ExecutiveDashboardSampleWorkspaceBanner /> : null}
 
       {!dashboardEmpty ? <OperatorWelcomeOnboarding /> : null}
-      {!dashboardEmpty ? <OperatorPilotOrientationBanner /> : null}
 
-      <OperatorPageHeader
-        title={v.portfolioPageTitle}
-        subtitle={v.portfolioPageLead}
-        titleTestId="executive-summary-heading"
-      />
-
-      {!dashboardEmpty ? (
-        <ExecutiveValueNarrativeBanner timeRange={defaultTrendRange} roiSummary={summary} />
-      ) : null}
+      <ExecutiveDashboardPageHero dashboardEmpty={dashboardEmpty} />
 
       {dashboardEmpty ? (
         <ExecutiveDashboardEmptyState />
@@ -91,7 +80,7 @@ function ExecutiveRoiDashboardPortfolioSections({
         </>
       )}
 
-      <SponsorExportsSection surface={surface} />
+      <SponsorExportsSection surface={surface} hasCommittedReviews={hasCommittedReviews} />
 
       {hasCommittedReviews ? (
         <section aria-labelledby="executive-findings-heading" className="space-y-4">

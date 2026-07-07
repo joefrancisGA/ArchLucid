@@ -9,6 +9,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { focusHelpDrawerRow } from "@/components/help/help-drawer-list-keyboard";
+import {
+  HELP_DRAWER_CHEVRON_CLASS,
+  helpDrawerRowButtonClass,
+} from "@/components/help/help-drawer-row-class";
 import { HelpDrawerTopicRow } from "@/components/help/HelpDrawerTopicRow";
 import { Button } from "@/components/ui/button";
 import {
@@ -98,12 +102,7 @@ function HelpDrawerDocHitRow({
         type="button"
         data-help-drawer-row=""
         aria-label={accessibleLabel}
-        className={cn(
-          "flex w-full cursor-pointer items-start gap-3 rounded-md border px-3 py-3 text-left transition-colors",
-          isHighlighted
-            ? "border-neutral-300 bg-[var(--al-layer-hover)] dark:border-neutral-600 dark:bg-neutral-800/80"
-            : "border-transparent hover:border-neutral-200 hover:bg-neutral-50 dark:hover:border-neutral-700 dark:hover:bg-neutral-900/60",
-        )}
+        className={cn("group", helpDrawerRowButtonClass(isHighlighted))}
         onClick={() => {
           onActivate(hit);
         }}
@@ -128,10 +127,7 @@ function HelpDrawerDocHitRow({
             {excerpt}
           </span>
         </span>
-        <ChevronRight
-          className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400 dark:text-neutral-500"
-          aria-hidden
-        />
+        <ChevronRight className={HELP_DRAWER_CHEVRON_CLASS} aria-hidden />
       </button>
     </li>
   );
@@ -443,14 +439,14 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
             </>
           ) : (
             <>
-              <DialogHeader className="shrink-0 space-y-1 border-b border-neutral-200 px-4 pb-3 pt-4 text-left dark:border-neutral-800">
+              <DialogHeader className="shrink-0 space-y-1 border-b border-neutral-200 px-5 pb-3 pt-5 text-left dark:border-neutral-800">
                 <DialogTitle className="text-left text-lg text-neutral-900 dark:text-neutral-100">Help</DialogTitle>
                 <DialogDescription className={cn("text-left", OPERATOR_TYPOGRAPHY.body)}>
                   {isSearching ? HELP_SEARCH_PANEL_SEARCHING_SUBTITLE : HELP_SEARCH_PANEL_SUBTITLE}
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="shrink-0 border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+              <div className="shrink-0 border-b border-neutral-200 px-5 py-3 dark:border-neutral-800">
                 <label htmlFor="help-doc-search-input" className="sr-only">
                   Search help
                 </label>
@@ -482,7 +478,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
 
               <div
                 ref={topicListRef}
-                className="min-h-0 flex-1 overflow-y-auto px-1 py-1"
+                className="min-h-0 flex-1 overflow-y-auto px-3 py-3"
                 role="navigation"
                 aria-label="Help topics"
                 onKeyDown={handleTopicListKeyDown}
@@ -506,7 +502,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                     {filteredTopics.length > 0 ? (
                       <section aria-labelledby="help-search-topics-heading">
                         <HelpDrawerGroupHeading id="help-search-topics-heading">Topics</HelpDrawerGroupHeading>
-                        <ul className="m-0 space-y-0.5 p-0">
+                        <ul className="m-0 space-y-2 p-0">
                           {filteredTopics.map((topic) => {
                             const rowId = `search:${topic.id}`;
 
@@ -528,7 +524,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                     {hits.length > 0 ? (
                       <section aria-labelledby="help-search-documentation-heading">
                         <HelpDrawerGroupHeading id="help-search-documentation-heading">Documentation</HelpDrawerGroupHeading>
-                        <ul className="m-0 space-y-0.5 p-0">
+                        <ul className="m-0 space-y-2 p-0">
                           {hits.map((hit) => {
                             const rowId = `doc:${helpRecordSelectionValue(hit)}`;
 
@@ -549,7 +545,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                     ) : null}
                   </>
                 ) : (
-                  <>
+                  <div className="space-y-4">
                     {recommendedTopics.length > 0 ? (
                       <section
                         aria-labelledby="help-search-recommended-heading"
@@ -558,7 +554,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                         <HelpDrawerGroupHeading id="help-search-recommended-heading">
                           Recommended for this page
                         </HelpDrawerGroupHeading>
-                        <ul className="m-0 space-y-0.5 p-0">
+                        <ul className="m-0 space-y-2 p-0">
                           {recommendedTopics.map((topic) => {
                             const rowId = `recommended:${topic.id}`;
 
@@ -584,15 +580,10 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                           aria-labelledby={`help-search-group-${group.id}-heading`}
                           data-testid={`help-search-group-${group.id}`}
                         >
-                          <h3
-                            id={`help-search-group-${group.id}-heading`}
-                            className={cn(
-                              "m-0 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400",
-                            )}
-                          >
+                          <HelpDrawerGroupHeading id={`help-search-group-${group.id}-heading`}>
                             {group.heading}
-                          </h3>
-                          <ul className="m-0 space-y-0.5 p-0">
+                          </HelpDrawerGroupHeading>
+                          <ul className="m-0 space-y-2 p-0">
                             {group.topics.map((topic) => {
                               const rowId = `group:${group.id}:${topic.id}`;
 
@@ -612,12 +603,12 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                         </section>
                       ),
                     )}
-                  </>
+                  </div>
                 )}
               </div>
 
               <footer
-                className="shrink-0 space-y-2 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800"
+                className="shrink-0 space-y-2 border-t border-neutral-200 px-5 py-3 dark:border-neutral-800"
                 data-testid="help-search-panel-footer"
               >
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

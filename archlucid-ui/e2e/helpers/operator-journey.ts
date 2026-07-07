@@ -1,9 +1,6 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
-import { getAppMain } from "./app-main";
 import { expectAnyLocatorVisible } from "./locator-readiness";
-
-export { getAppMain } from "./app-main";
 
 import {
   ASK_PAGE_PRIMARY_HEADING_PATTERN,
@@ -34,11 +31,22 @@ export async function gotoComparePageWithFixturePair(
   await page.goto(`/compare?${comparePairSearchParams(leftRunId, rightRunId)}`);
 }
 
-/**
- * Primary `/compare` H2 from {@link OperatorPageHeader}. Title copy varies by shell; test id is stable.
- */
+/** Stable `/compare` page anchor — decoupled from buyer-polished vs full-operator title copy. */
+export function comparePageReady(page: Page): Locator {
+  return page.getByTestId("compare-page-ready");
+}
+
+/** Primary `/compare` H2 from {@link OperatorPageHeader} (`titleTestId="compare-page-heading"`). */
 export function comparePageMainHeading(page: Page): Locator {
   return page.getByTestId("compare-page-heading");
+}
+
+/** Waits for `/compare` to finish Suspense hydration and render the interactive form shell. */
+export async function waitForComparePageReady(page: Page, options?: { timeout?: number }): Promise<void> {
+  const timeout = options?.timeout ?? 15_000;
+
+  await expect(comparePageReady(page)).toBeVisible({ timeout });
+  await expect(comparePageMainHeading(page)).toBeVisible({ timeout });
 }
 
 /**
@@ -50,15 +58,7 @@ export function comparePageIntroGuidance(page: Page): Locator {
   );
 }
 
-/** Asserts no visible error boundary / API failure chrome (avoids false positives from explanatory copy). */
-export async function expectMainHasNoHardFailureChrome(page: Page): Promise<void> {
-  const main = getAppMain(page);
-
-  await expect(main.getByText(/Something went wrong/i)).toHaveCount(0);
-  await expect(main.getByRole("alert").filter({ hasText: /request failed/i })).toHaveCount(0);
-  await expect(main.getByText(/Aggregate explanation could not be loaded/i)).toHaveCount(0);
-}
-
+/** Primary `/ask` H2 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
 export function askPageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: ASK_PAGE_PRIMARY_HEADING_PATTERN });
 }
@@ -78,7 +78,7 @@ export function auditPageMainHeading(page: Page): Locator {
  * Buyer-polished demo builds default to the trace table before graph view — older specs only matched canvas / Load graph.
  */
 export function graphPageReadySurfaceCandidates(page: Page): Locator[] {
-  const main = getAppMain(page);
+  const main = page.getByRole("main");
 
   return [
     main.getByTestId("graph-canvas-ready"),
@@ -180,6 +180,8 @@ export function compareManifestComparisonHeading(page: Page): Locator {
  * and clicks **Compare** (mock routes, slow CI, or pages without auto-compare).
  */
 export async function waitForCompareResultsReady(page: Page): Promise<void> {
+  await waitForComparePageReady(page);
+
   const manifestHeading = compareManifestComparisonHeading(page);
 
   try {
@@ -234,36 +236,27 @@ export async function expectBuyerPolishedReviewDetailSectionNavCore(
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 15_000;
 
-  await expect(sectionNav.getByRole("link", { name: "Decision", exact: true })).toBeVisible({ timeout });
-
-  const outcomeLikeLink = sectionNav.getByRole("link", {
-    name: /Finalized decision record|Outcome record|Finalized record|Signed review record/i,
-  });
-
-  await expect
-    .poll(async () => outcomeLikeLink.count(), { timeout })
-    .toBeGreaterThan(0);
-
-  await expect(outcomeLikeLink.first()).toBeVisible({ timeout });
-  await expect(sectionNav.getByRole("link", { name: /^Evidence$/i })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Outcome record" })).toBeVisible({ timeout });
+  await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible({ timeout });
   await expect(sectionNav.getByRole("link", { name: "Assessment" })).toBeVisible({ timeout });
   await expect(sectionNav.getByRole("link", { name: "Activity" })).toBeVisible({ timeout });
   await expect(sectionNav.getByRole("link", { name: "Deliverables" })).toBeVisible({ timeout });
 }
 
-/** Main-content review outcome strip. */
+/** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */
 export function reviewOutcomeSummaryStrip(page: Page): Locator {
-  return getAppMain(page).locator('section[aria-label="Review outcome summary"]').first();
+  return page.getByRole("main").locator('section[aria-label="Review outcome summary"]').first();
 }
 
 /** Finalized package deep link on run detail (prefer over nested outcome-strip traversal). */
 export function runDetailFinalizedPackageLink(page: Page): Locator {
-  return getAppMain(page).getByTestId("run-detail-finalized-package-link").first();
+  return page.getByRole("main").getByTestId("run-detail-finalized-package-link").first();
 }
 
-/** Featured package proof summary on buyer-polished home. */
+/** Featured package proof summary on buyer-polished home — visible instance only. */
 export function runsDashboardBuyerProofSummary(page: Page): Locator {
-  return getAppMain(page).getByTestId("runs-dashboard-buyer-proof-summary").first();
+  return page.getByRole("main").getByTestId("runs-dashboard-buyer-proof-summary").first();
 }
 
 /** Outcome strip deep link to signed record / legacy manifest detail (TB-399 canonical URLs). */
@@ -289,24 +282,6 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page): Promis
   }
 
   await expect(deliverablesDetails).toHaveAttribute("open", "");
-}
-
-/** Buyer-polished run detail collapses the executive briefing package by default — expand before sponsor CTA assertions. */
-export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page): Promise<void> {
-  const briefingDetails = page.locator("details").filter({
-    has: page.locator("summary", { hasText: /^Executive briefing package$/ }),
-  }).first();
-  const briefingSummary = briefingDetails.locator("summary");
-
-  await expect(briefingSummary).toBeVisible({ timeout: 60_000 });
-
-  const detailsOpen: boolean = await briefingDetails.evaluate((element) => (element as HTMLDetailsElement).open);
-
-  if (!detailsOpen) {
-    await briefingSummary.click();
-  }
-
-  await expect(briefingDetails).toHaveAttribute("open", "");
 }
 
 /** Opens buyer-polished run deliverables and switches to the ARB/audit artifact tab. */
@@ -400,6 +375,6 @@ export function structuredCompareSponsorRecommendationParagraph(page: Page): Loc
 /** Run detail page: loading finished and primary review headline (`RunDetailPageHeader` H1) is visible. */
 export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_000): Promise<void> {
   await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: timeoutMs });
-  await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
-  await expect(getAppMain(page).locator("h1").first()).toBeVisible({ timeout: timeoutMs });
+  await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
+  await expect(page.locator("main h1").first()).toBeVisible({ timeout: timeoutMs });
 }

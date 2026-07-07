@@ -55,11 +55,22 @@ Apply each directory below **in order** with **its own backend key** when you ne
 
 CI validates **`terraform validate`** + **Trivy config** across these roots (see `.github/workflows/ci.yml`) **and** `infra/terraform-pilot`.
 
-### TB-092 â€” Key Vault workload RBAC (second pass)
+### TB-656 — User-assigned Key Vault workload identities (no second pass)
 
-`terraform-keyvault` runs **before** `terraform-container-apps`, so API/Worker `principal_id` values are not known on the first Key Vault apply. After Container Apps exist, grant **`Key Vault Secrets User`** by either:
+When **`enable_user_assigned_keyvault_workload_identities = true`** (default) in `infra/terraform-keyvault`, API and Worker **user-assigned** identities are created in the **same** keyvault apply that creates the vault. **`Key Vault Secrets User`** is granted immediately — **no TB-092 second pass**.
 
-1. **`infra/apply-saas.ps1 -MultiRoot -Apply`** â€” runs an extra apply on `terraform-keyvault` (and `terraform-private` when `key_vault_workload_principal_ids` / `key_vault_id` are configured) using Container Apps `terraform output` principal IDs; or
+Wire Container Apps with outputs from `terraform-keyvault`:
+
+- `api_keyvault_user_assigned_identity_id` / `api_keyvault_user_assigned_identity_client_id`
+- `worker_keyvault_user_assigned_identity_id` / `worker_keyvault_user_assigned_identity_client_id`
+
+**`infra/apply-saas.ps1 -MultiRoot -Apply`** passes these vars to `terraform-container-apps` automatically and skips the legacy TB-092 re-apply when user-assigned identities are enabled.
+
+### TB-092 — Key Vault workload RBAC (legacy second pass)
+
+Only required when **`enable_user_assigned_keyvault_workload_identities = false`**. `terraform-keyvault` runs **before** `terraform-container-apps`, so API/Worker **system-assigned** `principal_id` values are not known on the first Key Vault apply. After Container Apps exist, grant **`Key Vault Secrets User`** by either:
+
+1. **`infra/apply-saas.ps1 -MultiRoot -Apply`** — runs an extra apply on `terraform-keyvault` (and `terraform-private` when `key_vault_workload_principal_ids` / `key_vault_id` are configured) using Container Apps `terraform output` principal IDs; or
 2. Manual re-apply of `terraform-keyvault` with `api_managed_identity_principal_id` / `worker_managed_identity_principal_id` from `api_system_assigned_principal_id` / `worker_system_assigned_principal_id` outputs.
 
 See [`CONFIGURATION_KEY_VAULT.md`](CONFIGURATION_KEY_VAULT.md) and [`TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md`](TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md).

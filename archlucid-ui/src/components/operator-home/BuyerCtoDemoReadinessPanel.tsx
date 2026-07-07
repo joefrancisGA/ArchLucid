@@ -22,8 +22,14 @@ import {
   type BuyerCtoDemoReadinessResult,
 } from "@/lib/buyer-cto-demo-readiness";
 import { buildCtoDemoRunOfShowMarkdown } from "@/lib/buyer-cto-demo-tour";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { EXPLORE_ARCHLUCID_ROW_CLASS } from "@/components/operator-home/explore-archlucid-row-class";
+import { isCtoDemoInternalOperatorControlsEnv, isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+
+export type BuyerCtoDemoReadinessPanelProps = {
+  /** When true, renders inside Demo operations without a duplicate card shell. */
+  readonly embedded?: boolean;
+};
 
 function readinessBadgeLabel(result: BuyerCtoDemoReadinessResult | null): string {
   if (result === null) {
@@ -52,8 +58,8 @@ function downloadCtoDemoRunOfShow(): void {
   URL.revokeObjectURL(url);
 }
 
-/** Presenter-only preflight panel — verifies showcase seed and golden journey before Start CTO demo. */
-export function BuyerCtoDemoReadinessPanel(): React.JSX.Element | null {
+/** Internal demo-operator preflight — showcase seed and golden journey checks. */
+export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProps = {}): React.JSX.Element | null {
   const [result, setResult] = useState<BuyerCtoDemoReadinessResult | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -69,63 +75,81 @@ export function BuyerCtoDemoReadinessPanel(): React.JSX.Element | null {
   }, []);
 
   useEffect(() => {
-    if (!isBuyerPolishedOperatorShellEnv()) {
+    if (!isCtoDemoOperatorToolingEnv()) {
       return;
     }
 
     void runChecks();
   }, [runChecks]);
 
-  if (!isBuyerPolishedOperatorShellEnv()) {
+  if (!isCtoDemoOperatorToolingEnv()) {
     return null;
   }
 
   const statusKind = result === null ? "needs-attention" : buyerCtoDemoReadinessStatusKind(result.verdict);
+  const embedded = props.embedded === true;
+  const shellClassName = embedded ? "space-y-3" : cn(EXPLORE_ARCHLUCID_ROW_CLASS, "p-4");
+  const showInternalDemoControls = isCtoDemoInternalOperatorControlsEnv();
 
   return (
     <section
       aria-label={BUYER_CTO_DEMO_READINESS_ARIA}
       data-testid="buyer-cto-demo-readiness-panel"
-      className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
+      className={shellClassName}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-2">
-          <h2 id="buyer-cto-demo-readiness-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle)}>
-            {BUYER_CTO_DEMO_READINESS_HEADING}
-          </h2>
+          {embedded ? null : (
+            <h2 id="buyer-cto-demo-readiness-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle)}>
+              {BUYER_CTO_DEMO_READINESS_HEADING}
+            </h2>
+          )}
           <StatusTag
             kind={statusKind}
             label={readinessBadgeLabel(result)}
             data-testid="buyer-cto-demo-readiness-badge"
           />
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={loading}
-          onClick={() => {
-            void runChecks();
-          }}
+        <div
+          role="toolbar"
+          aria-label="Demo operations actions"
+          className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end"
         >
-          {BUYER_CTO_DEMO_READINESS_REFRESH_CTA}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          data-testid="buyer-cto-demo-run-of-show-download"
-          onClick={() => {
-            downloadCtoDemoRunOfShow();
-          }}
-        >
-          {BUYER_CTO_DEMO_RUN_OF_SHOW_DOWNLOAD_CTA}
-        </Button>
-        <CtoDemoResetButton />
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            disabled={loading}
+            onClick={() => {
+              void runChecks();
+            }}
+          >
+            {BUYER_CTO_DEMO_READINESS_REFRESH_CTA}
+          </Button>
+          {showInternalDemoControls ? (
+            <>
+              {/* Run-of-show is internal presenter scaffolding — never show in buyer-facing mode. */}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="buyer-cto-demo-run-of-show-download"
+                onClick={() => {
+                  downloadCtoDemoRunOfShow();
+                }}
+              >
+                {BUYER_CTO_DEMO_RUN_OF_SHOW_DOWNLOAD_CTA}
+              </Button>
+              <div className="flex items-center border-l border-neutral-200 pl-2 dark:border-neutral-700 sm:ml-1">
+                <CtoDemoResetButton />
+              </div>
+            </>
+          ) : null}
+        </div>
       </div>
 
       {result !== null ? (
-        <ul className={cn("m-0 mt-3 list-none space-y-2 p-0", OPERATOR_TYPE_SCALE.body)}>
+        <ul className={cn("m-0 list-none space-y-2 p-0", embedded ? "" : "mt-3", OPERATOR_TYPE_SCALE.body)}>
           {result.checks.map((check) => (
             <li
               key={check.id}

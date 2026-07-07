@@ -37,7 +37,7 @@ const RELATED_GUIDE_LINKS: ReadonlyArray<{ readonly label: string; readonly href
   { label: "Review packages", href: "/help/review-packages" },
   { label: "Evidence trail", href: "/help/evidence-trail" },
   { label: "Governance workflow", href: "/help/governance-approval" },
-  { label: "Review artifacts and proof packet", href: "/help/pilot-guide" },
+  { label: "Review artifacts and proof packet", href: "/help/review-packages" },
 ];
 
 vi.mock("next/navigation", async (importOriginal) => {

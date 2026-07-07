@@ -52,10 +52,31 @@ describe("usability improvements", () => {
     expect(snapshot.nextStepIndex).toBe(2);
   });
 
-  it("routeViewExplanationForPathname covers graph", () => {
-    const explanation = routeViewExplanationForPathname("/graph");
+  it("routeViewExplanationForPathname returns null for evidence graph — header owns help copy", () => {
+    expect(routeViewExplanationForPathname("/graph")).toBeNull();
+  });
 
-    expect(explanation?.title.toLowerCase()).toContain("evidence");
+  it("routeViewExplanationForPathname returns null for alerts — the page carries its own governance context header", () => {
+    expect(routeViewExplanationForPathname("/governance/alerts")).toBeNull();
+    expect(routeViewExplanationForPathname("/alerts")).toBeNull();
+  });
+
+  it("routeViewExplanationForPathname returns null for governance routes — page headers own orientation", () => {
+    expect(routeViewExplanationForPathname("/governance")).toBeNull();
+    expect(routeViewExplanationForPathname("/governance/policy-packs")).toBeNull();
+    expect(routeViewExplanationForPathname("/governance/resolution")).toBeNull();
+    expect(routeViewExplanationForPathname("/governance/risk-exceptions")).toBeNull();
+    expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
+  });
+
+  it("routeViewExplanationForPathname keeps compare and audit orientation strips", () => {
+    const compare = routeViewExplanationForPathname("/compare");
+    expect(compare?.title).toBe("Compare two reviews");
+    expect(compare?.nextAction).toContain("baseline");
+
+    const audit = routeViewExplanationForPathname("/audit");
+    expect(audit?.title).toBe("Audit trail");
+    expect(audit?.nextAction).toContain("Search");
   });
 
   it("canonical product terms use audit trail and signed review record", () => {

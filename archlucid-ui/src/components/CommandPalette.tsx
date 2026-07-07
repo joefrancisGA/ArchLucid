@@ -22,7 +22,10 @@ import {
   commandPaletteOpenAriaLabel,
 } from "@/lib/keyboard-shortcut-display";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
+import { auditTrailNavHref, isAuditNavPath } from "@/lib/audit-nav-paths";
+import { scopeOperatorShellHrefSet, scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
 import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
 import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
@@ -163,10 +166,12 @@ function CommandPaletteActions({ onNavigate }: { onNavigate: (href: string) => v
 function CommandPaletteCuratedTasks({
   visibleHrefs,
   buyerPolishedShell,
+  auditRunId,
   onNavigate,
 }: {
   visibleHrefs: ReadonlySet<string>;
   buyerPolishedShell: boolean;
+  auditRunId: string | null;
   onNavigate: (href: string) => void;
 }) {
   const curated = useMemo(() => {
@@ -183,17 +188,23 @@ function CommandPaletteCuratedTasks({
 
   return (
     <CommandGroup heading={buyerPolishedShell ? "Shortcuts" : "Quick tasks"}>
-      {curated.map((task) => (
+      {curated.map((task) => {
+        const href = isAuditNavPath(task.href.split("?")[0] ?? "")
+          ? auditTrailNavHref(auditRunId)
+          : task.href;
+
+        return (
         <CommandItem
           key={`curated-${task.href}`}
           value={`quick ${task.label} ${task.searchValue}`}
           onSelect={() => {
-            onNavigate(task.href);
+            onNavigate(href);
           }}
         >
           {task.label}
         </CommandItem>
-      ))}
+        );
+      })}
     </CommandGroup>
   );
 }
@@ -217,6 +228,7 @@ function CommandPaletteNavGroups({
   hasCommittedArchitectureReview,
   buyerPolishedShell,
   operateNavUnlockPhase,
+  auditRunId,
   onNavigate,
 }: {
   callerAuthorityRank: number;
@@ -225,31 +237,38 @@ function CommandPaletteNavGroups({
   hasCommittedArchitectureReview: boolean;
   buyerPolishedShell: boolean;
   operateNavUnlockPhase: ReturnType<typeof resolveOperateNavUnlockPhase>;
+  auditRunId: string | null;
   onNavigate: (href: string) => void;
 }) {
   const search = useCommandState((state) => state.search);
   const showAdminPalette = search.trim().length > 0;
 
-  const reviewRows = listNavGroupsVisibleInOperatorShell(
-    NAV_GROUPS,
-    shellShowExtended,
-    shellShowAdvanced,
-    callerAuthorityRank,
-    false,
-    "review-workflow",
-    hasCommittedArchitectureReview,
-    operateNavUnlockPhase,
+  const reviewRows = scopeOperatorShellNavRows(
+    listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      shellShowExtended,
+      shellShowAdvanced,
+      callerAuthorityRank,
+      false,
+      "review-workflow",
+      hasCommittedArchitectureReview,
+      operateNavUnlockPhase,
+    ),
+    auditRunId,
   );
 
-  const adminRows = listNavGroupsVisibleInOperatorShell(
-    NAV_GROUPS,
-    shellShowExtended,
-    shellShowAdvanced,
-    callerAuthorityRank,
-    false,
-    "platform-admin",
-    hasCommittedArchitectureReview,
-    operateNavUnlockPhase,
+  const adminRows = scopeOperatorShellNavRows(
+    listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      shellShowExtended,
+      shellShowAdvanced,
+      callerAuthorityRank,
+      false,
+      "platform-admin",
+      hasCommittedArchitectureReview,
+      operateNavUnlockPhase,
+    ),
+    auditRunId,
   );
 
   const systemAdminRows = isShowSystemAdministrationNavEnabled()
@@ -406,6 +425,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const auditRunId = useOperatorShellAuditRunId();
   const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
@@ -427,14 +447,18 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   );
 
   const visibleHrefs = useMemo(() => {
-    return visibleOperatorShellHrefSet(
-      paletteExtended,
-      paletteAdvanced,
-      callerAuthorityRank,
-      hasCommittedArchitectureReview,
-      operateNavUnlockPhase,
+    return scopeOperatorShellHrefSet(
+      visibleOperatorShellHrefSet(
+        paletteExtended,
+        paletteAdvanced,
+        callerAuthorityRank,
+        hasCommittedArchitectureReview,
+        operateNavUnlockPhase,
+      ),
+      auditRunId,
     );
   }, [
+    auditRunId,
     paletteExtended,
     paletteAdvanced,
     callerAuthorityRank,
@@ -573,6 +597,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           <CommandPaletteCuratedTasks
             visibleHrefs={visibleHrefs}
             buyerPolishedShell={buyerPolishedShell}
+            auditRunId={auditRunId}
             onNavigate={navigate}
           />
           <CommandEmpty>
@@ -587,6 +612,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
             hasCommittedArchitectureReview={hasCommittedArchitectureReview}
             buyerPolishedShell={buyerPolishedShell}
             operateNavUnlockPhase={operateNavUnlockPhase}
+            auditRunId={auditRunId}
             onNavigate={navigate}
           />
           {buyerPolishedShell ? null : (

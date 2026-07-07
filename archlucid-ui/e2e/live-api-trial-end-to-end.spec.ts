@@ -7,14 +7,11 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
-import { getAppMain } from "./helpers/app-main";
 import {
   createRun,
   executeRun,
   getTenantTrialStatus,
   liveApiBase,
-  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   resolveLiveAuthMode,
   liveE2eHarnessHeaders,
   liveJsonHeaders,
@@ -24,13 +21,8 @@ import {
   postHarnessTrialSetExpires,
   searchAudit,
   waitForReadyForCommit,
-  waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
-import {
-  ensureBuyerExecutiveBriefingSectionExpanded,
-  expectLiveRunDetailPageReady,
-  runDetailFinalizedPackageLink,
-} from "./helpers/operator-journey";
+import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
 type Register201 = {
   tenantId: string;
@@ -238,17 +230,13 @@ test.describe("live-api-trial-end-to-end", () => {
     // Canonical route is `/reviews/*` (`next.config.ts` permanently redirects legacy `/runs/*`).
     expect(sampleHref).toMatch(/^\/reviews\//);
 
-    const sampleRunIdFromHref = sampleHref.replace(/^\/reviews\//, "").split("/")[0] ?? "";
-
-    await waitForRunDetailCommitted(request, sampleRunIdFromHref, 180_000, scope);
-
     await page.getByTestId("onboarding-open-sample-run").click();
 
     await expectLiveRunDetailPageReady(page, 120_000);
 
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
 
-    const manifestLink = runDetailFinalizedPackageLink(page);
+    const manifestLink = page.locator("main").locator('a[href^="/signed-records/"]').first();
 
     await expect(manifestLink, "Sample run should link a manifest once summaries hydrate.").toBeVisible({
       timeout: 120_000,
@@ -256,15 +244,15 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await manifestLink.click();
 
-    const manifestMain = getAppMain(page);
+    const manifestMain = page.locator("main");
 
-    await expect(manifestMain.getByText(/Fetching manifest summary/i)).toHaveCount(0, {
+    await expect(manifestMain.getByText(/Fetching manifest summary and artifacts/i)).toHaveCount(0, {
       timeout: 120_000,
     });
 
-    await expect(
-      manifestMain.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
-    ).toBeVisible({ timeout: 120_000 });
+    await expect(manifestMain.getByRole("heading", { name: "Manifest", level: 2 })).toBeVisible({ timeout: 120_000 });
+
+    await expect(manifestMain.getByRole("heading", { name: "Artifacts", level: 3 })).toBeVisible({ timeout: 120_000 });
 
     const sampleRunId = trialJson.trialSampleRunId!.includes("-")
       ? trialJson.trialSampleRunId!
@@ -310,8 +298,6 @@ test.describe("live-api-trial-end-to-end", () => {
     await page.getByRole("alertdialog").getByRole("button", { name: "Finalize manifest" }).click();
 
     await expect(page.getByText(/This review is already finalized/i)).toBeVisible({ timeout: 120_000 });
-
-    await ensureBuyerExecutiveBriefingSectionExpanded(page);
 
     await expect(page.getByTestId("email-run-to-sponsor-first-commit-badge")).toBeVisible({ timeout: 120_000 });
     await expect(page.getByText(/Day \d+ since first finalization/i)).toBeVisible({ timeout: 10_000 });

@@ -70,18 +70,34 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     sourcePaths: ["docs/library/FIRST_HOUR_OPERATOR_PATH.md"],
   },
   {
+    slug: "review-guide",
+    title: "Review guide",
+    summary:
+      "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review package.",
+    audience: "buyer",
+    sourcePaths: ["docs/library/customer-facing/REVIEW_GUIDE.md"],
+  },
+  {
     slug: "first-pilot-path",
     title: "Complete review workflow",
     summary:
-      "Six-step path from setup verification to a finalized review package — what to do, when to defer advanced surfaces, and how to recover.",
-    audience: "operator",
+      "End-to-end review lifecycle — create a package, attach evidence, review findings, finalize, and export sponsor-ready artifacts.",
+    audience: "buyer",
+    sourcePaths: ["docs/library/customer-facing/COMPLETE_REVIEW_WORKFLOW.md"],
+  },
+  {
+    slug: "first-pilot-operator-runbook",
+    title: "First-pilot operator runbook",
+    summary:
+      "Internal phase checklist — platform readiness, evidence ingest, proof collection, and pilot recovery for platform and release owners.",
+    audience: "developer",
     sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
   },
   {
     slug: "pilot-guide",
     title: "Pilot guide",
     summary:
-      "Create your first architecture review package, attach evidence, review findings, finalize the signed decision record, and export audit-ready evidence.",
+      "Prepare for a pilot, run the first architecture review, interpret outputs, report issues, and get help.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/PILOT_GUIDE.md"],
   },
@@ -222,9 +238,10 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "core-pilot",
-    title: "Core Pilot",
-    summary: "Operator walkthrough from first session through commit — checklist anchors and recovery links.",
-    audience: "operator",
+    title: "Your first architecture review",
+    summary:
+      "Guided first-session path — evidence intake, optional cloud connectors for Azure/AWS/GCP, finalize, and sponsor exports.",
+    audience: "buyer",
     sourcePaths: ["docs/CORE_PILOT.md"],
   },
   {

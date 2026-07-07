@@ -30,7 +30,7 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/settings/roles/invite-reviewer")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/ai-usage")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/cost-reporting")).toBe("operator-admin");
-    expect(getLayerForRoute("/integrations/readiness")).toBe("operate-analysis");
+    expect(getLayerForRoute("/integrations/readiness")).toBe("operator-admin");
     expect(getLayerForRoute("/workspace/security-trust")).toBe("operator-admin");
   });
 

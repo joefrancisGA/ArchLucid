@@ -4,14 +4,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OperatorHomeContinueSetupCard } from "@/components/operator-home/OperatorHomeContinueSetupCard";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
+import { OperatorHomeExploreSampleSection } from "@/components/operator-home/OperatorHomeExploreSampleSection";
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
-import { OperatorHomeSampleReviewPreview } from "@/components/operator-home/OperatorHomeSampleReviewPreview";
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
-  OPERATOR_HOME_SAMPLE_FINDINGS_HEADING,
+  OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
   OPERATOR_HOME_SETUP_READINESS_TITLE,
   PILOT_COMMAND_CENTER_HEADING,
 } from "@/lib/buyer-polish-copy";
@@ -86,21 +86,21 @@ describe("operator home peer card titles", () => {
     localStorage.clear();
   });
 
-  it("uses shared peer-card title typography for Start your first review and Try a sample review", () => {
+  it("uses shared peer-card title typography for hero and explore sample sections", () => {
     renderWithOperatorQuery(<PilotCommandCenterCard />);
-    render(<OperatorHomeSampleReviewPreview />);
+    render(<OperatorHomeExploreSampleSection />);
 
-    const startReviewTitle = screen.getByRole("heading", { level: 2, name: PILOT_COMMAND_CENTER_HEADING });
-    const sampleReviewTitle = screen.getByRole("heading", {
+    const heroTitle = screen.getByRole("heading", { level: 2, name: PILOT_COMMAND_CENTER_HEADING });
+    const exploreSampleTitle = screen.getByRole("heading", {
       level: 2,
-      name: OPERATOR_HOME_SAMPLE_FINDINGS_HEADING,
+      name: OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
     });
 
-    expectPeerCardTitleClasses(startReviewTitle.className);
-    expectPeerCardTitleClasses(sampleReviewTitle.className);
+    expectPeerCardTitleClasses(heroTitle.className);
+    expectPeerCardTitleClasses(exploreSampleTitle.className);
   });
 
-  it("uses the same peer-card title scale for Setup readiness, Workspace metrics, and How ArchLucid works", () => {
+  it("uses the same peer-card title scale for Setup readiness, Workspace metrics, and Explore ArchLucid", () => {
     render(<OperatorHomeContinueSetupCard />);
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={emptyRunsDashboard} />);

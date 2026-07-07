@@ -14,6 +14,7 @@ export const REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS = [
   "src/components/ProvenanceNodeExplainCell.tsx",
   "src/components/RunTableRowErrorBoundary.tsx",
   "src/components/RunDetailRunGovernanceDispositionActions.tsx",
+  "src/components/RunDetailPageHeader.tsx",
   "src/components/CompareToBaselineCta.tsx",
   "src/components/wizard/ArchitectureRequestWizardHelpDrawer.tsx",
   "src/components/wizard/steps/AzureExtractorPackageZipField.tsx",
@@ -170,6 +171,9 @@ export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
   "src/lib/contextual-help-content.ts",
   "src/lib/glossary-terms.ts",
   "src/lib/architecture-review-vocabulary.ts",
+  "src/lib/governance-mode-vocabulary.ts",
+  "src/lib/operator-nav-labels.ts",
+  "src/app/(operator)/reviews/[runId]/_sections/RunDetailBreadcrumb.tsx",
   "src/components/OperatorFirstRunWorkflowPanel.tsx",
   "src/components/WelcomeBanner.tsx",
   "src/components/EmailRunToSponsorBanner.tsx",
@@ -180,4 +184,23 @@ export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
   "src/app/(operator)/reviews/new/QuickStartWizard.tsx",
   "src/app/(operator)/reviews/new/QuickReviewWizard.tsx",
   "src/app/(operator)/reviews/RunsListClient.tsx",
+] as const;
+
+/**
+ * Review Package detail page modules (TB-617–TB-621 summary layer and section chrome).
+ * Scanned by {@link ./review-terminology-guard.test.ts} for {@link REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS}.
+ */
+export const REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS = [
+  "src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx",
+  "src/app/(operator)/reviews/[runId]/_sections/ReviewPackageSummaryHeader.tsx",
+  "src/app/(operator)/reviews/[runId]/_sections/ReviewPackagePrimaryAction.tsx",
+  "src/app/(operator)/reviews/[runId]/_sections/resolve-review-package-attention-line.ts",
+  "src/app/(operator)/reviews/[runId]/_sections/RunDetailExecutiveSummaryCtaCard.tsx",
+  "src/app/(operator)/reviews/[runId]/_sections/RunDetailGovernanceCta.tsx",
+  "src/app/(operator)/reviews/[runId]/_sections/RunDetailCaptureEvidenceSection.tsx",
+  "src/app/(operator)/reviews/[runId]/_sections/RunDetailExecutiveBottomLine.tsx",
+  "src/components/RunDetailOutcomeCards.tsx",
+  "src/components/usability/ReviewPackagePlainSummary.tsx",
+  "src/components/usability/ReviewPackageEvidenceDensityStrip.tsx",
+  "src/components/QuickDecisionSummary.tsx",
 ] as const;

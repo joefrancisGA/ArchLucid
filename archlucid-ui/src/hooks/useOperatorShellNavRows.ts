@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { useOperateNavUnlockPhase } from "@/hooks/useOperateNavUnlockPhase";
 import { NAV_GROUPS } from "@/lib/nav-config";
@@ -12,6 +13,7 @@ import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import { scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { resolveSidebarNavExpansionState } from "@/lib/sidebar-nav-disclosure-state";
 import { resolveOperateNavUnlockPhase } from "@/lib/usability/operate-advanced-features-disclosure";
@@ -35,6 +37,7 @@ type UseOperatorShellNavRowsResult = {
 /** Shared sidebar / mobile drawer nav composition. */
 export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const pathname = usePathname();
+  const auditRunId = useOperatorShellAuditRunId();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const demoUi = isStaticDemoPayloadFallbackEnabled();
@@ -98,7 +101,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     // Always pass true for both showExtended and showAdvanced so every link is visible to anyone
     // who can see the section.
     const systemAdminNavRows: NavGroupWithVisibleLinks[] =
-      omitAdminClusters || !isShowSystemAdministrationNavEnabled()
+      omitAdminClusters || !isShowSystemAdministrationNavEnabled() || buyerPolishedShell
         ? []
         : listNavGroupsVisibleInOperatorShell(
             NAV_GROUPS,
@@ -112,7 +115,10 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
           );
 
     return {
-      allRows: [...reviewNavRows, ...adminNavRows, ...systemAdminNavRows],
+      allRows: scopeOperatorShellNavRows(
+        [...reviewNavRows, ...adminNavRows, ...systemAdminNavRows],
+        auditRunId,
+      ),
       buyerPolishedShell,
       demoUi,
       effectiveHasCommittedArchitectureReview,
@@ -126,6 +132,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       shellShowAdvanced,
     };
   }, [
+    auditRunId,
     buyerPolishedShell,
     callerAuthorityRank,
     demoUi,

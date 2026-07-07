@@ -39,12 +39,14 @@ import {
 } from "@/lib/draft-intake-actor-suggestions";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
 import {
+  GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
   GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP0_CARD_TITLE,
   GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
+  guidedIntakeArchitectureIntentHelperText,
 } from "@/lib/guided-intake-copy";
 import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
@@ -55,7 +57,7 @@ import {
   SocraticIntakeWizardAdvancedRail,
 } from "./SocraticIntakeWizardDeferredPanels";
 
-const MIN_INTENT_CHARS = 10;
+const MIN_INTENT_CHARS = GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS;
 const MIN_OUTCOME_CHARS = 10;
 
 const INTAKE_STEPS = [
@@ -120,8 +122,11 @@ export function SocraticIntakeWizard() {
   const otherPendingQuestions =
     viewAllClarifications && activePendingQuestions.length > 1 ? activePendingQuestions.slice(1) : [];
 
+  const intentTrimmedLength = freeTextIntent.trim().length;
+  const intentMeetsMinimum = intentTrimmedLength >= MIN_INTENT_CHARS;
+
   const canAdvanceIntent =
-    freeTextIntent.trim().length >= MIN_INTENT_CHARS &&
+    intentMeetsMinimum &&
     businessOutcome.trim().length >= MIN_OUTCOME_CHARS &&
     actorSet.actors.length > 0 &&
     !busy;
@@ -399,8 +404,17 @@ export function SocraticIntakeWizard() {
                 disabled={busy}
                 placeholder={GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER}
                 data-testid="socratic-intent"
+                aria-invalid={intentTrimmedLength > 0 && !intentMeetsMinimum}
+                aria-describedby="socratic-intent-helper"
               />
-              <p className={OPERATOR_TYPOGRAPHY.helper}>Minimum {MIN_INTENT_CHARS} characters.</p>
+              <p
+                id="socratic-intent-helper"
+                className={OPERATOR_TYPOGRAPHY.helper}
+                role={intentTrimmedLength > 0 && !intentMeetsMinimum ? "alert" : "status"}
+                data-testid="socratic-intent-helper"
+              >
+                {guidedIntakeArchitectureIntentHelperText(intentTrimmedLength)}
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="socratic-system-name">System name (optional)</Label>

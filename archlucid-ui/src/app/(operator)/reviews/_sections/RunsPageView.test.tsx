@@ -6,8 +6,9 @@ import {
   BUYER_RUNS_LIST_MALFORMED_BODY,
   BUYER_RUNS_LIST_MALFORMED_HEADING,
 } from "@/lib/buyer-polish-copy";
-import { RUNS_LIST_PAGE_SUBTITLE, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
+import { RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
+import { REVIEWS_HUB_PAGE_SUBTITLE, REVIEWS_HUB_PRIMARY_START_LABEL, REVIEWS_HUB_RECENT_EMPTY_TITLE } from "./reviews-hub-copy";
 import { RunsPageView } from "./RunsPageView";
 import type { RunsPageModel } from "./runs-page-model";
 
@@ -41,18 +42,6 @@ vi.mock("@/components/OperatorWelcomeOnboarding", () => ({
   OperatorWelcomeOnboarding: () => null,
 }));
 
-vi.mock("@/components/FirstWeekRouteGuidance", () => ({
-  FirstWeekRouteGuidance: () => null,
-}));
-
-vi.mock("@/components/RunsPageBuyerHelpTip", () => ({
-  RunsPageBuyerHelpTip: () => null,
-}));
-
-vi.mock("@/components/GlossaryTooltip", () => ({
-  GlossaryTooltip: ({ children }: { children: ReactNode }) => <span>{children}</span>,
-}));
-
 vi.mock("@/components/RunsListProofHeadline", () => ({
   RunsListProofHeadline: () => null,
 }));
@@ -65,29 +54,33 @@ vi.mock("@/components/RunsIndexBeforeAfterPanel", () => ({
   RunsIndexBeforeAfterPanel: () => null,
 }));
 
-vi.mock("@/components/RunsListEmptyState", () => ({
-  RunsListEmptyState: () => <div data-testid="runs-list-empty-state" />,
-}));
-
 vi.mock("@/components/RunsListAggregateErrorBoundary", () => ({
-  RunsListAggregateErrorBoundary: () => null,
+  RunsListAggregateErrorBoundary: () => <div data-testid="runs-list-advanced" />,
 }));
 
 vi.mock("@/components/OperatorDemoStaticBanner", () => ({
   OperatorDemoStaticBanner: () => null,
 }));
 
-vi.mock("@/components/ShortcutHint", () => ({
-  ShortcutHint: () => null,
+vi.mock("./ReviewsHubPrimaryActions", () => ({
+  ReviewsHubPrimaryActions: () => (
+    <div data-testid="reviews-hub-primary-actions">
+      <a href="/reviews/new" data-testid="runs-page-start-review">
+        {REVIEWS_HUB_PRIMARY_START_LABEL}
+      </a>
+    </div>
+  ),
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
   return {
     ...actual,
-  isBuyerPolishedOperatorShellEnv: () => true,
-  isBuyerSafeDemoMarketingChromeEnv: () => false,
-};
+    isBuyerPolishedOperatorShellEnv: () => true,
+    isBuyerSafeDemoMarketingChromeEnv: () => false,
+    isOperatorExperienceFullShellEnv: () => false,
+  };
 });
 
 function baseModel(overrides: Partial<RunsPageModel> = {}): RunsPageModel {
@@ -109,26 +102,61 @@ function baseModel(overrides: Partial<RunsPageModel> = {}): RunsPageModel {
 }
 
 describe("RunsPageView page chrome", () => {
-  it("renders synchronized title, subtitle, and project metadata", () => {
+  it("renders synchronized title and hub subtitle without default project metadata", () => {
     render(<RunsPageView model={baseModel()} />);
 
     expect(screen.getByRole("heading", { level: 1, name: RUNS_LIST_PAGE_TITLES.buyerPolished })).toBeInTheDocument();
-    expect(screen.getByTestId("runs-page-subtitle")).toHaveTextContent(RUNS_LIST_PAGE_SUBTITLE);
-    expect(screen.getByTestId("runs-page-project-label")).toHaveTextContent("Project: default");
+    expect(screen.getByTestId("runs-page-subtitle")).toHaveTextContent(REVIEWS_HUB_PAGE_SUBTITLE);
+    expect(screen.queryByTestId("runs-page-project-label")).toBeNull();
   });
 
-  it("renders empty state without a duplicate page-level primary CTA", () => {
+  it("shows project metadata when the workspace project is not the default scope", () => {
+    render(
+      <RunsPageView
+        model={baseModel({
+          projectId: "claims-intake",
+          projectTitle: "Project: claims-intake",
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("runs-page-project-label")).toHaveTextContent("Project: claims-intake");
+    expect(screen.getByTestId("runs-page-project-label").querySelector("strong")).toHaveTextContent("Project:");
+  });
+
+  it("renders hub summary, actions, includes, and intentional empty recent section", () => {
     render(<RunsPageView model={baseModel({ totalCount: 0 })} />);
 
-    expect(screen.getByTestId("runs-list-empty-state")).toBeInTheDocument();
-    expect(screen.queryByTestId("runs-page-start-review")).toBeNull();
+    expect(screen.getByTestId("reviews-hub-summary-row")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-primary-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-package-includes")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-recent-empty")).toBeInTheDocument();
+    expect(screen.getByText(REVIEWS_HUB_RECENT_EMPTY_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("runs-page-start-review")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.queryByTestId("runs-list-advanced")).toBeNull();
   });
 
-  it("renders page-level start review CTA when packages exist", () => {
-    render(<RunsPageView model={baseModel({ totalCount: 2, runs: [{ runId: "a" } as RunsPageModel["runs"][number]] })} />);
+  it("renders recent package rows when packages exist", () => {
+    render(
+      <RunsPageView
+        model={baseModel({
+          totalCount: 1,
+          runs: [
+            {
+              runId: "review-001",
+              projectId: "default",
+              createdUtc: "2026-01-15T12:00:00.000Z",
+              hasFindingsSnapshot: true,
+              findingCount: 2,
+            } as RunsPageModel["runs"][number],
+          ],
+        })}
+      />,
+    );
 
-    expect(screen.queryByTestId("runs-list-empty-state")).toBeNull();
-    expect(screen.getByRole("link", { name: "Start architecture review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("reviews-hub-packages-table")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-hub-recent-empty")).toBeNull();
   });
 });
 
@@ -154,6 +182,7 @@ describe("RunsPageView malformed response", () => {
     expect(screen.getByText(BUYER_RUNS_LIST_MALFORMED_BODY)).toBeInTheDocument();
     expect(screen.queryByText(/Expected array at items/)).not.toBeInTheDocument();
     expect(screen.queryByText(/expected paged review summary shape/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-hub-summary-row")).toBeNull();
   });
 
   it("shows developer diagnostics in development when the reviews list response is malformed", () => {

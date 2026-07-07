@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import type { FirstPilotReadinessRow } from "@/lib/first-pilot-readiness-cockpit";
 import {
   READINESS_AZURE_EXTRACTOR_CTA,
@@ -23,7 +24,7 @@ const EXECUTIVE_READINESS_ROW_PRESENT: Readonly<Record<string, ReadinessRowPrese
   "sponsor-packet": { label: "Executive evidence package", cta: "Open review package" },
   "proof-pipeline": { label: "Pilot evidence package", cta: "View pilot guide" },
   "data-consistency": { label: "Readiness status", cta: "View status" },
-  "second-review": { label: "Next recommended review", cta: "Start review" },
+  "second-review": { label: "Next recommended review", cta: CREATE_ARCHITECTURE_LABEL },
 };
 
 const OPERATOR_READINESS_ROW_CTA: Readonly<Partial<Record<string, string>>> = {

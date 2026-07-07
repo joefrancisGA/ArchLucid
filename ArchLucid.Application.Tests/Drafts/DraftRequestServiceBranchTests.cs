@@ -219,7 +219,7 @@ public sealed class DraftRequestServiceBranchTests
         DraftRequestResponse parent = await _service.CreateAsync(
             _scope,
             "user-1",
-            new CreateDraftRequest { FreeTextIntent = "Build a workflow platform for analysts." },
+            new CreateDraftRequest { FreeTextIntent = DraftIntakeTestIntents.ValidWorkflowPlatform },
             CancellationToken.None);
 
         Func<Task> act = () => _service.BranchAsync(
@@ -244,7 +244,7 @@ public sealed class DraftRequestServiceBranchTests
             "user-1",
             new CreateDraftRequest
             {
-                FreeTextIntent = "Build an AI-assisted GRC workflow for internal analysts.",
+                FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow,
             },
             CancellationToken.None);
 

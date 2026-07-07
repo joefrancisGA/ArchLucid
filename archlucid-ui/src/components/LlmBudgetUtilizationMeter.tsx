@@ -12,6 +12,7 @@ import {
   type LlmBudgetUtilizationTone,
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
+import { formatUtcBillingMonthLabel } from "@/lib/llm-cost-reporting-display-labels";
 
 export type LlmBudgetUtilizationMeterProps = {
   /** When set, re-fetches on change (e.g. parent refresh button). */
@@ -59,7 +60,7 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
   if (loading) {
     return (
       <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="llm-budget-utilization-loading">
-        Loading LLM budget utilization…
+        Loading budget utilization…
       </p>
     );
   }
@@ -67,7 +68,7 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
   if (loadError) {
     return (
       <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="llm-budget-utilization-unavailable">
-        LLM monthly budget status is unavailable right now.
+        Monthly budget status is unavailable right now.
       </p>
     );
   }
@@ -75,7 +76,7 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
   if (status === null || !status.monthlyBudgetMonitoringActive) {
     return (
       <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="llm-budget-utilization-inactive">
-        Monthly LLM dollar budget monitoring is not enabled for this environment.
+        Monthly AI budget monitoring is not enabled for this workspace.
       </p>
     );
   }
@@ -89,10 +90,10 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
   const indicatorClassName = indicatorClassForTone(tone);
   const statusText =
     tone === "critical"
-      ? "At or over hard cap — new LLM runs may be blocked."
+      ? "Monthly budget reached — new AI-assisted workflows may be paused until the next billing month."
       : tone === "warn"
-        ? `Approaching warn threshold (${warnPct ?? "—"}% of cap).`
-        : "Within normal utilization.";
+        ? `Approaching the configured warn threshold (${warnPct ?? "—"}% of budget).`
+        : "Monthly budget utilization is within normal limits.";
   const labelId = "llm-budget-utilization-label";
   const displayPct = pct ?? 0;
 
@@ -100,7 +101,7 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
     <div data-testid="llm-budget-utilization-meter">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p id={labelId} className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-          LLM budget utilization (UTC month {status.utcMonth})
+          {formatUtcBillingMonthLabel()}
         </p>
         <p
           className={cn("m-0 font-semibold tabular-nums", OPERATOR_TYPOGRAPHY.cardTitle,
@@ -112,7 +113,7 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
           )}
           aria-live="polite"
         >
-          {pct !== null ? `${pct}%` : "—"} of cap
+          {pct !== null ? `${pct}% used` : "—"}
         </p>
       </div>
       <Progress
@@ -127,10 +128,10 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
       <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
         {statusText}
         {status.effectiveHardCapUsd !== null ? (
-          <span className={cn("block font-mono text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-            Estimated pressure {formatUsd(status.estimatedUsdPressure)} / cap {formatUsd(status.effectiveHardCapUsd)}
+          <span className={cn("mt-1 block tabular-nums text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+            Budget used: {formatUsd(status.estimatedUsdPressure)} of {formatUsd(status.effectiveHardCapUsd)}
             {status.purchasedCapBumpUsd !== null && status.purchasedCapBumpUsd > 0
-              ? ` (includes +${formatUsd(status.purchasedCapBumpUsd)} purchased bump)`
+              ? ` (includes +${formatUsd(status.purchasedCapBumpUsd)} purchased allowance)`
               : ""}
           </span>
         ) : null}

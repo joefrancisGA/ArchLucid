@@ -8,6 +8,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
+[Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class EvolutionSimulationReportBuilderTests
 {

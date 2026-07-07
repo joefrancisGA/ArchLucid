@@ -1,3 +1,6 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
+
 export type CorePilotStepBase = {
   title: string;
   shortBody: string;
@@ -22,7 +25,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     shortBody:
       "Open the sample showcase review or start a new architecture request — capture system identity and constraints in the wizard.",
     detail:
-      "Use New review for a guided intake, or open the curated sample package to explore a committed review package before running your own.",
+      `Use ${CREATE_ARCHITECTURE_LABEL} for guided intake, or open the curated sample package to explore a committed review package before running your own.`,
     primaryHref: "/reviews/new",
     primaryLabel: "Start or open review",
   },
@@ -45,8 +48,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   {
     title: "Upload cloud inventory evidence",
     shortBody: "Optional for document/brief-only reviews — cloud inventory required for cost ROI accuracy.",
-    detail:
-      "Run the read-only Azure extractor locally, then upload an inventory ZIP (`manifest.json` + `resources.json`) from Extract & Upload settings or review detail. If you are using brief, document, or diagram evidence only, skip this step — findings will still run and may have lower confidence on cost claims.",
+    detail: CLOUD_NEUTRAL_PRIMARY_COPY.corePilotInventoryStepDetail,
     primaryHref: EXTRACT_UPLOAD_SETTINGS_PATH,
     primaryLabel: "Upload inventory ZIP",
   },

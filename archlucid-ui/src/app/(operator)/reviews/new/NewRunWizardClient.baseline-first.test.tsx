@@ -71,6 +71,7 @@ vi.mock("@/lib/upload-azure-extractor-package", () => ({
 }));
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
+import { uploadBaselineWizardZip } from "@/testing/wizard-baseline-zip-test-helpers";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
@@ -152,19 +153,19 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
     });
 
     expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 1 of 4/i);
-    expect(screen.getByTestId("wizard-baseline-zip-field")).toBeInTheDocument();
+    expect(screen.getByLabelText("System name")).toBeInTheDocument();
     expect(screen.queryByTestId("new-run-wizard-mode-toggle")).not.toBeInTheDocument();
 
-    const zipInput = within(screen.getByTestId("wizard-baseline-zip-field")).getByTestId("wizard-baseline-zip-field-input");
-    const zipFile = makeArchLucidPackageZip();
+    const description = screen.getByLabelText("Description") as HTMLTextAreaElement;
 
-    await act(async () => {
-      fireEvent.change(zipInput, { target: { files: [zipFile] } });
-    });
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("wizard-azure-zip-error")).not.toBeInTheDocument();
-    });
+    if (description.value.trim().length < 10) {
+      fireEvent.change(description, {
+        target: {
+          value:
+            "Ten char min: assess this architecture for security, cost, and governance before production rollout.",
+        },
+      });
+    }
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Next" }));
@@ -172,8 +173,7 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
 
     expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 2 of 4/i);
 
-    const systemName = screen.getByLabelText("System name") as HTMLInputElement;
-    expect(systemName.value).toBe("MyRg");
+    await uploadBaselineWizardZip(makeArchLucidPackageZip());
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Next" }));
@@ -206,6 +206,9 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
     await waitFor(() => {
       expect(createArchitectureRunMock).toHaveBeenCalled();
     });
+
+    const createPayload = createArchitectureRunMock.mock.calls[0]?.[0] as { systemName?: string } | undefined;
+    expect(createPayload?.systemName).toBe("MyRg");
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: "Track review progress" })).toBeInTheDocument();

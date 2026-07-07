@@ -12,6 +12,9 @@ namespace ArchLucid.Cli.Tests;
 [Trait("Suite", "Core")]
 public sealed class DraftNewCommandCoreTests
 {
+    private const string ValidDraftIntent =
+        "Review our Azure platform for production readiness with private networking, Entra ID authentication, and governed evidence export for architecture board approval.";
+
     private static readonly Guid DraftId = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -50,7 +53,7 @@ public sealed class DraftNewCommandCoreTests
         int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
 
         exit.Should().Be(CliExitCode.UsageError);
-        error.ToString().Should().Contain("at least 10 characters");
+        error.ToString().Should().Contain("at least 100 characters");
     }
 
     [Fact]
@@ -58,7 +61,7 @@ public sealed class DraftNewCommandCoreTests
     {
         DraftNewCommandOptions options = new()
         {
-            IntentText = "Review our Azure platform for production readiness.",
+            IntentText = ValidDraftIntent,
             SystemName = "Contoso API",
             BusinessOutcome = "Ship a governed review package for the architecture board.",
         };
@@ -81,7 +84,7 @@ public sealed class DraftNewCommandCoreTests
     {
         DraftNewCommandOptions options = new()
         {
-            IntentText = "Review our Azure platform for production readiness.",
+            IntentText = ValidDraftIntent,
             SystemName = "Contoso API",
             BusinessOutcome = "Ship a governed review package for the architecture board.",
             SkipMustQuestions = true,
@@ -105,7 +108,7 @@ public sealed class DraftNewCommandCoreTests
     {
         DraftNewCommandOptions options = new()
         {
-            IntentText = "Review our Azure platform for production readiness.",
+            IntentText = ValidDraftIntent,
             SystemName = "Contoso API",
             BusinessOutcome = "Ship a governed review package for the architecture board.",
             SkipMustQuestions = true,

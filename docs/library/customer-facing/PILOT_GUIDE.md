@@ -1,99 +1,117 @@
-> **Scope:** Customer-facing — pilot guide (redirect); full detail, tables, and links in the sections below.
+> **Scope:** Customer-facing — prepare for a pilot, run the first architecture review, interpret outputs, report issues, and get help.
 
-> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
+# Pilot guide
 
+Use this guide to prepare for a pilot, run the first architecture review, review outputs, and know how to get help.
 
-# Pilot guide (redirect)
+> **Important:** Cloud connectors are available for **Azure, AWS, and GCP**. Use them when the review needs source-system evidence such as cloud inventory, configuration, identity, policy, cost, or operational signals.
 
-**Pilot and IT setup** material is merged into the command-first quickstart. **V1 boundary** (scope, gates) stays in **[V1_SCOPE.md](../V1_SCOPE.md)**.
+## Prepare for a pilot
 
-**Hosted first-review path:** [`HOSTED_PILOT_SINGLE_PATH.md`](../HOSTED_PILOT_SINGLE_PATH.md) — one command sequence via `Invoke-FirstPilotStrictPath.ps1`.
+Before your first session, confirm:
 
-**Getting started:** [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)
+- **Workspace access** — sign in with your corporate identity and select the correct workspace from the header switcher.
+- **Evidence in hand** — a brief, diagrams, documents, IaC, screenshots, exports, or policy PDFs are enough to start.
+- **Optional cloud connectors** — when security approves read-only access, connect Azure, AWS, or GCP under **Settings → Cloud connections**.
 
-**Minimum viable success lane (five steps):** [MINIMUM_VIABLE_PILOT_SUCCESS.md](../MINIMUM_VIABLE_PILOT_SUCCESS.md)
+### Evidence-only review path
 
-**Deployment presets (auth, storage, execution, retrieval):** [OPERATOR_DECISION_GUIDE.md](../OPERATOR_DECISION_GUIDE.md#1a-fast-path-deployment-presets-hosted-vs-self-hosted)
+Use this path when connector access has not yet been approved, or when the first session only has uploaded evidence:
 
-**Evaluator / buyer — first review package without the deep stack:** [CORE_PILOT.md](../../CORE_PILOT.md#first-session-checklist) (four steps + what to send a sponsor).
+1. Start a review with **No cloud / evidence-only** as the cloud target.
+2. Upload files or paste your architecture brief — a cloud connector is **not** required.
+3. Execute, finalize, and export the sponsor packet.
 
-**First real Azure OpenAI on the demo stack:** [FIRST_REAL_VALUE.md](../FIRST_REAL_VALUE.md) (`archlucid try --real`, **`ARCHLUCID_REAL_AOAI=1`**, ADR **[`../architecture/adrs/0033-first-real-value-single-env-var-flip.md`](../../architecture/adrs/0033-first-real-value-single-env-var-flip.md)**).
+### Cloud connector intake checklist
 
-**Prior pilot narrative:** [archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md](../../archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md)
+Share this checklist with security, platform, or cloud operations teams before requesting connector access:
 
-## How to know you are ready
+- Read-only scope and no long-lived secrets in ArchLucid when using laptop-side inventory upload.
+- Provider-specific steps under **Help → Cloud connections** (Azure, AWS, and GCP).
+- Your organization's cloud risk questionnaire alongside ArchLucid's connector security summary.
 
-1. **A — Run / deploy readiness** — environment checks your team already runs before declaring “ready.”  
-2. **B — Release smoke** — **[RELEASE_SMOKE.md](../RELEASE_SMOKE.md)** (API + CLI + artifact checks).  
-3. **C — Live E2E (UI + SQL truth)** — merge-blocking Playwright **`live-api-*.spec.ts`** per **`TEST_STRUCTURE.md`**; happy path **[LIVE_E2E_HAPPY_PATH.md](../LIVE_E2E_HAPPY_PATH.md)**. Release smoke alone does not prove SQL-backed UI parity — see **[RELEASE_SMOKE.md](../RELEASE_SMOKE.md#release-smoke-ui-sql-parity)**.
+### Optional specialty templates
 
-## Reference architecture payloads (instant runs)
+When the buyer job is clear, optional templates cover **SaaS readiness**, **AI governance**, and **healthcare policy** reviews. See [Specialty walkthroughs](/help/specialty-walkthroughs) — not required before first value.
 
-Starter **`ArchitectureRequest`** JSON files aligned with **`POST /v1/architecture/request`** live under **[`templates/reference-architectures/README.md`](../../../templates/reference-architectures/README.md)** (pattern samples) and **[`templates/architecture-requests/README.md`](../../../templates/architecture-requests/README.md)** (named scenario pack). Use them verbatim or as copy-paste baselines during pilots when teams do not yet have their own drafted request bodies.
+## Run the first review
 
-**Field map (no schema drift):** **[`ARCHITECTURE_REQUEST_WIRE_FORMAT.md`](../ARCHITECTURE_REQUEST_WIRE_FORMAT.md)** summarizes the binding type and points at **`GET /openapi/v1.json`**. **Buyer-safe evidence** for updating pilot trackers: **[`../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md`](../../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md)**. **Real-LLM session evidence** when live AOAI is in scope: **[`../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md)**.
+The guided workflow on **Home** walks readiness → evidence → create → execute → finalize → sponsor packet.
 
-There is no `archlucid request create --from-file` subcommand today; submit the file as the JSON body to **`POST /v1/architecture/request`** (same contract as the new-review wizard import). From the repository root, after **`export BASE=https://your-api-host`** (or `http://localhost:5128`):
+**Four-step sponsor narrative:**
 
-```bash
-curl -sS -X POST "$BASE/v1/architecture/request" \
-  -H "Content-Type: application/json" \
-  -H "X-Correlation-ID: pilot-ref-arch-standard-3tier" \
-  --data-binary "@templates/reference-architectures/standard-3-tier-web.json"
-```
+1. **Create** an architecture review from **New review** or the sample showcase.
+2. **Execute** the assessment on review detail until findings are ready to finalize.
+3. **Finalize** the review package to lock the signed review record and exports.
+4. **Open exports** — download the sponsor packet and executive summary.
 
-Use **`templates/reference-architectures/azure-serverless-api.json`** the same way for the serverless pattern. **`archlucid second-run`** expects the smaller **`SECOND_RUN`** schema ([`SECOND_RUN.md`](../SECOND_RUN.md)), not a full **`ArchitectureRequest`** document.
+For step-by-step depth, open [Your first architecture review](/help/core-pilot) or the checklist on **Onboarding**.
 
-## When you report an issue
+## Review outputs
 
-Include **API `GET /version`**, **`X-Correlation-ID`**, relevant logs, and (if policy allows) a **support bundle** (`dotnet run --project ArchLucid.Cli -- support-bundle --zip`). Full checklist: [archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md#when-you-report-an-issue](../../archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md#when-you-report-an-issue).
+After finalize, each review package includes:
 
-## Getting help
+| Output | What it gives you |
+|--------|-------------------|
+| **Findings** | Severity, business impact, evidence citations, and recommended actions |
+| **Signed review record** | Immutable decision snapshot for audit and procurement |
+| **Sponsor packet** | Shareable export for executives and program sponsors |
+| **Executive summary** | ROI and disposition labels when cost evidence is attached |
+| **Audit export** | Scoped CSV when your role includes audit access |
 
-- **Product / pilot support:** **support@archlucid.net** — how-to, integration behavior, non-security defects during pilots.
-- **Security vulnerabilities:** **security@archlucid.net** — coordinated disclosure only; see [SECURITY.md](../SECURITY.md).
-- **Accessibility barriers (non-security):** **accessibility@archlucid.net** — WCAG / usability in product or marketing surfaces.
-- **Self-serve Q&A:** [FAQ.md](FAQ.md).
+**Good to know:** Use **Email this review to your sponsor** on review detail after finalize when sponsor handoff is enabled for your workspace.
 
-## Capturing your baseline at signup
+## Report an issue
 
-Optional **review-cycle baseline** fields on anonymous **`POST /v1/register`** (see [PILOT_ROI_MODEL.md](../PILOT_ROI_MODEL.md) §3.1):
+When something fails during a pilot, include:
 
-| Field | Type | Rules |
-|-------|------|--------|
-| `baselineReviewCycleHours` | number (decimal) | Optional. When set: must be **greater than 0** and **at most 10000** (hours). |
-| `baselineReviewCycleSource` | string | Optional. Max **256** characters after trim; control characters stripped. If you send a non-empty source, you **must** also send `baselineReviewCycleHours`. |
+- **What you were doing** — page, action, and review name if applicable.
+- **Review identifier** — shown on review detail and in error banners.
+- **Correlation identifier** — copy from the error banner when present.
+- **Screenshot** — redact secrets and customer data.
 
-Example (PowerShell; replace organization and email):
+Open [Troubleshooting](/help/troubleshooting) for symptom-first fixes before filing a ticket.
 
-```bash
-curl -sS -X POST "https://localhost:5001/v1/register" ^
-  -H "Content-Type: application/json" ^
-  -d "{\"organizationName\":\"Acme Pilot Eval\",\"adminEmail\":\"you@example.com\",\"baselineReviewCycleHours\":18,\"baselineReviewCycleSource\":\"team estimate, two most recent reviews\"}"
-```
+## Get help
 
-The workspace signup form for these fields ships in a follow-up UI PR; this API contract ships first.
+- **Product and pilot questions:** **support@archlucid.net**
+- **Security vulnerabilities:** **security@archlucid.net** (coordinated disclosure only)
+- **Accessibility barriers:** **accessibility@archlucid.net**
+- **Self-serve Q&A:** [Getting started](/help/getting-started) and [Troubleshooting](/help/troubleshooting)
 
-## Post-commit sponsor banner (first commit clock)
+<details>
+<summary>Advanced operator notes — for platform and engineering teams</summary>
 
-After the first golden manifest commit, the **review detail** page (`/runs/[runId]` — legacy URL; may redirect to `/reviews/…`) shows the **“Email this review to your sponsor”** banner when the review has a manifest (exact banner text may still say *run* until label-only UI updates land). The banner may add a small **“Day N since first commit”** badge (UTC full days since this tenant’s first committed manifest, from **`GET /v1/tenant/trial-status`** field **`firstCommitUtc`**) so the sponsor pitch is anchored in the tenant’s own clock. Details: **[`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`](../SPONSOR_BANNER_FIRST_COMMIT_BADGE.md)**.
+The sections below are for teams deploying, integrating, or validating ArchLucid infrastructure. They are not required for a buyer's first architecture review.
 
-Sponsors who do not have a workspace install can preview a real commit page at **`/demo/preview`** on your marketing host (URL as deployed); the data is the **ArchLucid demo seed**, not your tenant. See **`docs/DEMO_PREVIEW.md`**.
+### Environment and release readiness
 
-## Evidence-only first pilot (no Azure extractor)
+1. **Run / deploy readiness** — environment checks your team runs before declaring production-ready.
+2. **Release smoke** — API, CLI, and artifact checks documented in engineering runbooks.
+3. **Live end-to-end validation** — UI and database parity tests when your team owns CI gates.
 
-When InfoSec has not approved the Azure extractor script, or you only have briefs, diagrams, and IaC:
+### Reference architecture payloads
 
-1. Create a review with **`cloudProvider: None`** (new-review wizard: **No cloud / evidence-only** — the quick-review default).
-2. Skip Phase B extractor upload in [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md); use demo evidence only for internal dry-runs.
-3. Complete execute → commit → sponsor export on uploaded documents alone.
+Starter architecture request JSON patterns for instant pilot runs live under engineering template folders. Submit the JSON body to the architecture request API (same contract as the new-review wizard import). See [CLI usage](/help/cli-usage) for non-interactive commands.
 
-When you need live Azure topology or cost grounding, share the InfoSec pre-read with security reviewers: [`go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](../../go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md).
+### Support bundle and API diagnostics
 
-## Pull-request decoration in your CI
+When policy allows, engineering support may request API version output, correlation identifiers, logs, and a CLI support bundle. See [Admin diagnostics](/help/admin-diagnostics) and [CLI usage](/help/cli-usage).
 
-ArchLucid surfaces **`GET /v1/compare`** Markdown in CI/CD for both GitHub Actions and Azure DevOps Pipelines — pick the entry point that matches your vendor:
+### Post-commit sponsor banner
 
-- **Navigator:** [GitHub job summary](../../integrations/GITHUB_ACTION_MANIFEST_DELTA.md) · [GitHub PR comment](../../integrations/GITHUB_ACTION_MANIFEST_DELTA_PR_COMMENT.md) · [Azure DevOps job summary](../../integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md) · [Azure DevOps PR comment](../../integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA_PR_COMMENT.md) · [Azure DevOps server-side (Worker)](../../integrations/AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md)
+After the first finalized review, review detail may show **Email this review to your sponsor** and a day-count badge anchored to your workspace's first finalize timestamp.
 
-The server-side path is optional and posts to a **single configured PR** from Worker settings; the pipeline templates are the usual choice for ADO-shop pilots who want YAML snippets.
+### Pull-request decoration in CI
+
+ArchLucid can surface review comparison output in GitHub Actions and Azure DevOps pipelines. See [CI/CD integration guide](/help/review-guide) and integration docs linked from [Troubleshooting](/help/troubleshooting).
+
+### Baseline fields at signup
+
+Optional review-cycle baseline fields may be captured during workspace registration for ROI modeling. See [Pilot ROI model](/help/pilot-roi-model).
+
+### Complete first-session operator path
+
+Platform teams implementing the full storage → evidence → finalize → export sequence should follow [Complete review workflow](/help/first-pilot-path).
+
+</details>

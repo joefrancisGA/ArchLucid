@@ -609,3 +609,26 @@ variable "enable_container_app_diagnostics" {
   description = "TB-099: forward Container App console/system logs to the stack Log Analytics workspace."
   default     = false
 }
+variable "api_keyvault_user_assigned_identity_id" {
+  type        = string
+  description = "TB-656: Resource ID of the API user-assigned identity granted Key Vault Secrets User in terraform-keyvault. When set, attaches to the API Container App and sets key_vault_reference_identity_id."
+  default     = ""
+}
+
+variable "api_keyvault_user_assigned_identity_client_id" {
+  type        = string
+  description = "TB-656: Client ID of the API Key Vault user-assigned identity (AZURE_CLIENT_ID for secret resolution)."
+  default     = ""
+}
+
+variable "worker_keyvault_user_assigned_identity_id" {
+  type        = string
+  description = "TB-656: Resource ID of the Worker user-assigned identity granted Key Vault Secrets User in terraform-keyvault."
+  default     = ""
+}
+
+variable "worker_keyvault_user_assigned_identity_client_id" {
+  type        = string
+  description = "TB-656: Client ID of the Worker Key Vault user-assigned identity (AZURE_CLIENT_ID for secret resolution)."
+  default     = ""
+}

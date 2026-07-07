@@ -1,9 +1,10 @@
 /**
  * **Next.js:** `process.env.NEXT_PUBLIC_*` is inlined at build time — safe to read from client bundles.
  *
- * **Full operator shell** — set `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator` for internal engineer builds that surface
- * dense dev chrome, technical identifiers, and engineering-only budget banners. **Does not** disable buyer-polished
- * vocabulary (TB-643) — see `isBuyerPolishedOperatorShellEnv`.
+ * **Full operator shell** — set `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator` to opt into the dense operator nav, shortcuts,
+ * and unpolished labels. **Unset or any other value** uses the buyer-oriented shell (new-tenant default — see
+ * `docs/library/OPERATOR_UI_EXPERIENCE_MODES.md`). Demos (`NEXT_PUBLIC_DEMO_MODE` / `NEXT_PUBLIC_DEMO_STATIC_OPERATOR`)
+ * stay buyer-polished regardless.
  */
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
 export function isOperatorExperienceFullShellEnv(): boolean {
@@ -33,8 +34,8 @@ export function isBuyerSafeDemoMarketingChromeEnv(): boolean {
 
 /**
  * Operator shell chrome tuned for buyer walkthroughs: softer Jump control, friendly scope labels, fewer shortcut chips.
- * **Default:** buyer-polished for all authenticated shells (TB-643). Demos and frictionless trial always use this path.
- * Engineering-only surfaces gate on {@link isOperatorExperienceFullShellEnv} instead of inverting this helper.
+ * **Default:** buyer-polished for all authenticated production deploys (TB-643). Full-operator opt-in keeps buyer
+ * vocabulary; engineering chrome is gated separately via {@link isOperatorExperienceFullShellEnv}.
  */
 export function isBuyerPolishedOperatorShellEnv(): boolean {
   if (isNextPublicDemoMode()) {
@@ -50,6 +51,14 @@ export function isBuyerPolishedOperatorShellEnv(): boolean {
   }
 
   return true;
+}
+
+/**
+ * Buyer vocabulary replacements (run→review, manifest→signed package) on primary operator surfaces.
+ * **Default:** active for all authenticated production deploys (TB-645); independent of full-operator chrome opt-in.
+ */
+export function isBuyerVocabularyPassActive(): boolean {
+  return isBuyerPolishedOperatorShellEnv();
 }
 
 /**

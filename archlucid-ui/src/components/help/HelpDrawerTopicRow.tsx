@@ -3,6 +3,10 @@
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 
+import {
+  HELP_DRAWER_CHEVRON_CLASS,
+  helpDrawerRowButtonClass,
+} from "@/components/help/help-drawer-row-class";
 import type { HelpSearchPanelTopic } from "@/lib/help-search-panel-catalog";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -28,12 +32,7 @@ export function HelpDrawerTopicRow({
         type="button"
         data-help-drawer-row=""
         aria-label={accessibleLabel}
-        className={cn(
-          "flex w-full cursor-pointer items-start gap-3 rounded-md border px-3 py-3 text-left transition-colors",
-          isHighlighted
-            ? "border-neutral-300 bg-[var(--al-layer-hover)] dark:border-neutral-600 dark:bg-neutral-800/80"
-            : "border-transparent hover:border-neutral-200 hover:bg-neutral-50 dark:hover:border-neutral-700 dark:hover:bg-neutral-900/60",
-        )}
+        className={cn("group", helpDrawerRowButtonClass(isHighlighted))}
         onClick={() => {
           onActivate(topic);
         }}
@@ -58,10 +57,7 @@ export function HelpDrawerTopicRow({
             {topic.description}
           </span>
         </span>
-        <ChevronRight
-          className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400 dark:text-neutral-500"
-          aria-hidden
-        />
+        <ChevronRight className={HELP_DRAWER_CHEVRON_CLASS} aria-hidden />
       </button>
     </li>
   );

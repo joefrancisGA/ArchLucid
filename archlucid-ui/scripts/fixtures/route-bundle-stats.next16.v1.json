@@ -1,0 +1,22 @@
+[
+  {
+    "route": "/welcome",
+    "firstLoadUncompressedJsBytes": 148480,
+    "firstLoadChunkPaths": [".next/static/chunks/welcome.js"]
+  },
+  {
+    "route": "/reviews",
+    "firstLoadUncompressedJsBytes": 293888,
+    "firstLoadChunkPaths": [".next/static/chunks/reviews.js"]
+  },
+  {
+    "route": "/reviews/[runId]",
+    "firstLoadUncompressedJsBytes": 430080,
+    "firstLoadChunkPaths": [".next/static/chunks/run-detail.js"]
+  },
+  {
+    "route": "/governance",
+    "firstLoadUncompressedJsBytes": 292864,
+    "firstLoadChunkPaths": [".next/static/chunks/governance.js"]
+  }
+]

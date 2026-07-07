@@ -1,8 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+
 import RiskExceptionsClient from "@/components/governance/RiskExceptionsClient";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
+import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   defaultRiskExceptionExpiresAtUtc: vi.fn(() => "2099-01-01T00:00:00.000Z"),
@@ -11,11 +14,47 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
   revokeRiskException: vi.fn(),
 }));
 
+const demoUiEnvMock = vi.hoisted(() => ({ buyerPolishedShell: false }));
+
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: () => demoUiEnvMock.buyerPolishedShell,
+  isNextPublicDemoMode: () => false,
+}));
+
+vi.mock("@/lib/use-nav-surface", () => ({
+  useNavSurface: () => ({
+    layerGuidance: {
+      layerBadge: "Governance",
+      headline: "Track active waivers, expirations, owners, and linked governance decisions.",
+      useWhen: "Use this page to track owner, expiration, evidence, and the linked decision record.",
+      firstPilotNote: null,
+      enterpriseFootnote: "Risk exceptions are approved waivers for findings that are not immediately remediated.",
+      omitReviewPackageScopeHelp: true,
+    },
+    contextHints: {
+      enterpriseNavGroupHint: "",
+      enterpriseExecutePageHint: null,
+      layerHeaderEnterpriseRankCue: null,
+      governanceResolutionRank: "",
+      alertsInboxRank: "",
+      auditLogRank: "",
+      alertOperatorToolingRank: "",
+      governanceDashboardReaderAction: null,
+    },
+    callerAuthorityRank: 0,
+    showExtended: true,
+    showAdvanced: true,
+    mounted: true,
+  }),
+}));
+
 const soonExpiry = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString();
 const laterExpiry = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString();
 
 describe("RiskExceptionsClient", () => {
   beforeEach(() => {
+    demoUiEnvMock.buyerPolishedShell = false;
+
     vi.mocked(governanceApi.listRiskExceptions).mockResolvedValue([
       {
         riskExceptionId: "11111111-1111-1111-1111-111111111111",
@@ -51,13 +90,14 @@ describe("RiskExceptionsClient", () => {
     expect(screen.getAllByRole("row").length).toBeGreaterThan(3);
   });
 
-  it("shows expiring-soon warning when any waiver is within 14 days", async () => {
+  it("shows expiring-soon warning when any risk exception is within 14 days", async () => {
     render(<RiskExceptionsClient />);
 
     expect(await screen.findByTestId("risk-exceptions-expiring-warning")).toBeInTheDocument();
+    expect(screen.getByText(/risk exception/)).toBeInTheDocument();
   });
 
-  it("shows empty state when no active exceptions", async () => {
+  it("shows empty state with primary and secondary actions", async () => {
     vi.mocked(governanceApi.listRiskExceptions).mockResolvedValue([]);
 
     render(<RiskExceptionsClient />);
@@ -68,10 +108,10 @@ describe("RiskExceptionsClient", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open findings" })).toHaveAttribute("href", "/governance/findings");
     expect(screen.getByRole("link", { name: "Open governance workflow" })).toHaveAttribute("href", "/governance");
-    expect(screen.getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/reviews/new");
   });
 
-  it("uses risk-exceptions layer guidance instead of governance workflow copy", async () => {
+  it("uses risk-exceptions layer guidance instead of governance workflow copy in operator shell", async () => {
     vi.mocked(governanceApi.listRiskExceptions).mockResolvedValue([]);
 
     render(<RiskExceptionsClient />);
@@ -82,6 +122,24 @@ describe("RiskExceptionsClient", () => {
     expect(
       screen.queryByText("Submit finalized architecture outputs for governance review and promotion."),
     ).not.toBeInTheDocument();
+  });
+
+  it("renders governance approval banner instead of layer guidance in buyer shell", async () => {
+    demoUiEnvMock.buyerPolishedShell = true;
+    vi.mocked(governanceApi.listRiskExceptions).mockResolvedValue([]);
+
+    render(<RiskExceptionsClient />);
+
+    expect(await screen.findByTestId("governance-approval-status-banner")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Track active waivers, expirations, owners, and linked governance decisions."),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View governance decisions" })).toHaveAttribute("href", "/governance");
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/reviews/new");
+  });
+
+  it("does not duplicate explain-this-view guidance for risk exceptions", () => {
+    expect(routeViewExplanationForPathname("/governance/risk-exceptions")).toBeNull();
   });
 
   it("revokes after confirmation", async () => {

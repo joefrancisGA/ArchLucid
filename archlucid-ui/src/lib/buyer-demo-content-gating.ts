@@ -54,16 +54,17 @@ export function shouldUseGovernanceCuratedDemoSpine(): boolean {
 }
 
 /**
- * TB-643: buyer-polished shell is the default for all authenticated builds; full operator experience is an explicit opt-in.
+ * Fail-closed coherence: full-operator shell is an explicit internal opt-in; buyer-polished vocabulary remains the
+ * default even when {@link isOperatorExperienceFullShellEnv} is true (TB-643).
  */
 export function assertBuyerPolishedBuildEnvCoherence(): void {
-  if (
-    process.env.NODE_ENV === "production" &&
-    process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE === "operator" &&
-    !isBuyerPolishedOperatorShellEnv()
-  ) {
+  if (process.env.NODE_ENV !== "production") {
+    return;
+  }
+
+  if (process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE === "operator" && !isBuyerPolishedOperatorShellEnv()) {
     throw new Error(
-      "Invalid UI env: production build disabled buyer-polished shell — demo banners may leak (TB-273 / BDA-024).",
+      "Invalid UI env: NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator without buyer-polished shell — demo banners may leak (TB-273 / BDA-024).",
     );
   }
 }

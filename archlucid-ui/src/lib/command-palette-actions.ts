@@ -2,6 +2,8 @@
  * Action-oriented command palette entries (navigate + pre-filled intent).
  */
 
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+
 export type CommandPaletteAction = {
   id: string;
   label: string;
@@ -12,7 +14,7 @@ export type CommandPaletteAction = {
 export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
   {
     id: "action-create-review",
-    label: "Create architecture review",
+    label: CREATE_ARCHITECTURE_LABEL,
     href: "/reviews/new",
     searchValue: "action create new review package wizard",
   },

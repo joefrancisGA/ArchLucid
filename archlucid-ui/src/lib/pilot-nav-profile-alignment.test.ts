@@ -30,6 +30,7 @@ describe("pilot-nav-profile-alignment", () => {
   it("lists Operate group ids aligned with operate-nav-progressive-unlock", () => {
     expect(PILOT_NAV_OPERATE_GROUP_IDS).toEqual([
       "operate-analysis",
+      "operate-architect-advanced",
       "operate-governance",
       "operate-reports",
       "operate-integrations",

@@ -6,10 +6,17 @@ import {
   INTEGRATIONS_SERVICENOW_PATH,
 } from "@/lib/integrations-nav-paths";
 import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-nav-group-builder";
+import { OperatePlatformOpsNavGroupBuilder } from "@/lib/operate-platform-ops-nav-group-builder";
 
 describe("OperateIntegrationsNavGroupBuilder", () => {
-  it("labels integration readiness nav as Connection status (TB-530)", () => {
+  it("omits connector readiness from Integrations — moved to Operations (TB-647)", () => {
     const group = new OperateIntegrationsNavGroupBuilder().build();
+
+    expect(group.links.some((link) => link.href === "/integrations/readiness")).toBe(false);
+  });
+
+  it("labels integration readiness nav as Connection status in Operations (TB-530)", () => {
+    const group = new OperatePlatformOpsNavGroupBuilder().build();
     const readinessLink = group.links.find((link) => link.href === "/integrations/readiness");
 
     expect(readinessLink?.label).toBe("Connection status");

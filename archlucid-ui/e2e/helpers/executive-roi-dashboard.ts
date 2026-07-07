@@ -162,7 +162,7 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
 
   ).toBeVisible();
 
-  await expect(page.getByText(v.pageLead).or(page.getByText(v.portfolioPageLead))).toBeVisible();
+  await expect(page.getByText(v.portfolioPageLead)).toBeVisible();
 
 }
 

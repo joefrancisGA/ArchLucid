@@ -1,6 +1,6 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
-import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_HOME_AHA_MOMENT } from "@/lib/showcase-home-aha-moment";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
@@ -119,13 +119,24 @@ export function warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce(): void {
 /**
  * Governance approval/promotion seeding is limited to packaged demo deploys so UAT workspaces with
  * transient API failures show empty states instead of example approval records (TB-507).
+ * Buyer-polished diligence on known showcase reviews keeps request history aligned with completion messaging.
  */
 export function shouldSeedStaticDemoGovernanceRecordsForRun(runId: string): boolean {
-  if (!isPackagedDemoDeployEnv()) {
+  const effectiveRunId = canonicalizeDemoRunId(runId.trim());
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
     return false;
   }
 
-  return isStaticDemoPayloadFallbackActiveForRun(runId);
+  if (isPackagedDemoDeployEnv()) {
+    return isStaticDemoPayloadFallbackEnabled();
+  }
+
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return true;
+  }
+
+  return false;
 }
 
 export function isStaticDemoPayloadFallbackEnabled(): boolean {
@@ -816,7 +827,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: chain.graphSnapshotId ?? "graph-demo",
 
-        name: "Evidence trail assembled",
+        name: "Evidence trail created",
 
       },
 
@@ -1005,7 +1016,7 @@ export type PolicyPacksStaticFallbackOptions = {
 };
 
 function isPolicyPacksStaticFallbackActive(options?: PolicyPacksStaticFallbackOptions): boolean {
-  // Buyer-default shell uses the same env flags as static demo today; keep explicit so empty API responses still
+  // Buyer-polished shell uses the same env flags as static demo today; keep explicit so empty API responses still
   // merge curated Healthcare Claims sample layers if flags or option wiring ever diverge.
   if (!isOperatorExperienceFullShellEnv()) {
     return true;

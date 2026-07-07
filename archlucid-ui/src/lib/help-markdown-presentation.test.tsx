@@ -11,10 +11,12 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import { HELP_DOC_SEARCH_RECORDS } from "@/lib/help-index.generated";
 import {
   humanizeMarkdownFileReference,
+  isDocumentationMaintenanceMetadataLine,
   prepareHelpMarkdownForPresentation,
   resolveRelativeRepoDocPath,
   rewriteHelpMarkdownDocLinks,
   sanitizeBareMarkdownFileReferences,
+  stripDocumentationMaintenanceMetadata,
 } from "@/lib/help-markdown-presentation";
 import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -24,7 +26,7 @@ describe("help-markdown-presentation", () => {
   it("humanizes repo filenames without extensions", () => {
     expect(humanizeMarkdownFileReference("OPERATOR_ATLAS.md")).toBe("Workspace route map");
     expect(humanizeMarkdownFileReference("../runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBe(
-      "Complete review workflow",
+      "First-pilot operator runbook",
     );
   });
 
@@ -91,7 +93,56 @@ describe("help-markdown-presentation", () => {
 
     expect(prepared.includes(".md")).toBe(false);
     expect(prepared).toContain("[Workspace route map](/help/operator-shell)");
-    expect(prepared).toMatch(/\[Core Pilot\]\(\/help\/core-pilot\)/);
+    expect(prepared).toMatch(/\[Your first architecture review\]\(\/help\/core-pilot\)/);
+  });
+
+  it("strips markdown horizontal rules from prepared help copy", () => {
+    const prepared = prepareHelpMarkdownForPresentation(
+      "## Section\n\n---\n\nParagraph.",
+      "docs/CORE_PILOT.md",
+    );
+
+    expect(prepared).not.toMatch(/^---$/m);
+    expect(prepared).toContain("## Section");
+  });
+
+  it("detects documentation maintenance metadata lines", () => {
+    expect(isDocumentationMaintenanceMetadataLine("**Last reviewed:** 2026-06-06")).toBe(true);
+    expect(isDocumentationMaintenanceMetadataLine("- **Last updated:** 2026-04-25")).toBe(true);
+    expect(isDocumentationMaintenanceMetadataLine("| Control | Last reviewed |")).toBe(false);
+    expect(isDocumentationMaintenanceMetadataLine("Note: illustrative dates only.")).toBe(false);
+  });
+
+  it("hides maintenance metadata from default help presentation", () => {
+    const source = [
+      "## Prepare",
+      "",
+      "**Last reviewed:** 2026-06-06",
+      "",
+      "Pilot body copy.",
+    ].join("\n");
+
+    const prepared = prepareHelpMarkdownForPresentation(source, "docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md");
+
+    expect(prepared.toLowerCase()).not.toContain("last reviewed");
+    expect(prepared).toContain("Pilot body copy.");
+  });
+
+  it("preserves maintenance metadata for developer-audience help topics", () => {
+    const source = "**Last reviewed:** 2026-06-06\n\nEngineering notes.";
+    const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/CLI_USAGE.md", {
+      preserveMaintenanceMetadata: true,
+    });
+
+    expect(prepared).toContain("**Last reviewed:** 2026-06-06");
+  });
+
+  it("stripDocumentationMaintenanceMetadata leaves fenced code unchanged", () => {
+    const input = "```bash\nLast reviewed: 2026-01-01\n```\n\n**Last reviewed:** 2026-06-06";
+    const stripped = stripDocumentationMaintenanceMetadata(input);
+
+    expect(stripped).toContain("```bash\nLast reviewed: 2026-01-01\n```");
+    expect(stripped.toLowerCase()).not.toContain("**last reviewed:**");
   });
 
   it("applies review-package product language and migrates legacy /runs/ links", () => {
@@ -124,7 +175,7 @@ describe("help topic product-language drift guards", () => {
     "pilot-nav-profile",
     "troubleshooting",
     "admin-diagnostics",
-    "pilot-guide",
+    "review-guide",
   ] as const;
 
   it("loads scoped architect help topics without operator persona in prepared copy", () => {

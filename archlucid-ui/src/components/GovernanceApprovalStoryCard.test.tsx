@@ -23,7 +23,7 @@ describe("GovernanceApprovalStoryCard", () => {
 
     render(<GovernanceApprovalStoryCard row={row} />);
 
-    expect(screen.getByText(/This package completed the approval path/i)).toBeInTheDocument();
+    expect(screen.getByText(/Approval decision record — approval path complete/i)).toBeInTheDocument();
     expect(screen.getByText("Submitted for review")).toBeInTheDocument();
     expect(screen.getByText("Architecture review completed")).toBeInTheDocument();
     expect(screen.getByText("Governance approval recorded")).toBeInTheDocument();

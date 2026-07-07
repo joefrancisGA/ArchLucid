@@ -176,9 +176,8 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           tier: "extended",
 
-          // Read-only report — TenantLlmCostReportingController is ReadAuthority and this page has no mutations,
-          // so the nav gate matches the backend instead of the stricter AdminAuthority it previously required.
-          requiredAuthority: "ReadAuthority",
+          // Tenant LLM cost report — nav gated to AdminAuthority so architects/exec personas do not see vendor cost chrome (TB-648).
+          requiredAuthority: "AdminAuthority",
 
         },
 

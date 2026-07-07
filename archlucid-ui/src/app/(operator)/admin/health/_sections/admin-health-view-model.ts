@@ -23,4 +23,5 @@ export type AdminHealthPageViewModel = {
   readonly configLintNote: string | null;
   readonly configurationHealth: ConfigurationHealthPayload | null;
   readonly configurationHealthNote: string | null;
+  readonly lastRefreshedAt: Date | null;
 };

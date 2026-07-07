@@ -35,6 +35,35 @@ export function policyPackTypeDisplayLabel(packTypeRaw: string): string {
   }
 }
 
+/** Buyer-polished labels without implementation jargon. */
+export function policyPackTypeBuyerDisplayLabel(packTypeRaw: string): string {
+  const t = packTypeRaw.trim();
+
+  if (t.length === 0) {
+    return "—";
+  }
+
+  switch (t) {
+    case POLICY_PACK_TYPE_PLATFORM_DEFAULT:
+      return "Platform default";
+
+    case "BuiltIn":
+      return "Template pack";
+
+    case "TenantCustom":
+      return "Tenant pack";
+
+    case "WorkspaceCustom":
+      return "Workspace pack";
+
+    case "ProjectCustom":
+      return "Project pack";
+
+    default:
+      return policyPackTypeDisplayLabel(t);
+  }
+}
+
 /**
  * Seeded first-party bundles use {@link POLICY_PACK_TYPE_PLATFORM_DEFAULT}; republish is blocked server-side (and masked in UI).
  */

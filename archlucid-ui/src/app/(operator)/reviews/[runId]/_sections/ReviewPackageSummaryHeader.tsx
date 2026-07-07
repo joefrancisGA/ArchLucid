@@ -4,7 +4,7 @@ import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemo
 import { RunDetailPageHeader, type RunDetailPageHeaderProps } from "@/components/RunDetailPageHeader";
 import { ReviewPackageEvidenceDensityStrip } from "@/components/usability/ReviewPackageEvidenceDensityStrip";
 import { ReviewPackagePlainSummary } from "@/components/usability/ReviewPackagePlainSummary";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import {
   resolveReviewPackageAttentionLine,
@@ -52,7 +52,7 @@ export function ReviewPackageSummaryHeader(props: ReviewPackageSummaryHeaderProp
 
   return (
     <section
-      className="space-y-3"
+      className={OPERATOR_LAYOUT.sectionStack}
       data-testid="review-package-summary-header"
       data-review-package-summary-mode={props.mode}
       aria-label={props.mode === "finalized" ? "Review package summary" : "Review in progress"}

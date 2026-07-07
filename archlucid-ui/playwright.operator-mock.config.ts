@@ -32,7 +32,16 @@ export default defineConfig({
     {
       name: "chromium-operator-shell",
       testDir: "e2e",
-      testMatch: ["pilot-nav-profile.spec.ts", "ux-audit-screenshots.spec.ts"],
+      testMatch: ["pilot-nav-profile.spec.ts"],
+      timeout: 120_000,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    /** Persona UX audit — full operator shell; `npm run ux-audit:screenshots:operator` (not merge-blocking CI). */
+    {
+      name: "chromium-ux-audit-operator",
+      testDir: "e2e",
+      testMatch: ["ux-audit-screenshots.spec.ts"],
+      testIgnore: ["**/.next/**"],
       timeout: 120_000,
       use: { ...devices["Desktop Chrome"] },
     },

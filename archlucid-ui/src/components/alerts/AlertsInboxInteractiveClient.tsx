@@ -16,7 +16,7 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
   const controller = useAlertsInboxController(initialModel);
 
   return (
-    <div className="w-full max-w-3xl">
+    <div className="w-full max-w-4xl">
       <AlertsInboxPageIntro
         canMutateAlertInbox={controller.canMutateAlertInbox}
         buyerPolishedShell={controller.buyerPolishedShell}

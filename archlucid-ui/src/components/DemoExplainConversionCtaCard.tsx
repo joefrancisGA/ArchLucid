@@ -1,5 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
@@ -28,7 +29,7 @@ export function DemoExplainConversionCtaCard() {
               Ready to run this on your own architecture?
             </p>
             <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              Upload your Azure evidence file to get a review like this in about 15 minutes.
+              {CLOUD_NEUTRAL_PRIMARY_COPY.demoExplainConversionLead}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">

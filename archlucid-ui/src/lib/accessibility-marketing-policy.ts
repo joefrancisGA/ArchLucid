@@ -2,23 +2,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 /**
- * Section headings from {@link ../../ACCESSIBILITY.md} that the public marketing page renders verbatim.
- * CI (`assert_marketing_accessibility_in_sync.py`) and `scripts/accessibility-marketing-dump-sections.ts` must stay aligned.
- */
-export const ACCESSIBILITY_MARKETING_SYNC_SECTION_TITLES = [
-  "Target compliance level",
-  "Current status",
-  "Tooling",
-  "Existing accessibility controls",
-  "Known exemptions",
-  "Review cadence",
-] as const;
-
-export type AccessibilityMarketingSyncSectionTitle = (typeof ACCESSIBILITY_MARKETING_SYNC_SECTION_TITLES)[number];
-
-/**
- * Loads root `ACCESSIBILITY.md`: monorepo dev/CI uses `../ACCESSIBILITY.md`; Docker copies the same file into
- * `go-to-market-samples/` (see `archlucid-ui/Dockerfile`) so standalone builds can still resolve policy text.
+ * Loads repo-root `ACCESSIBILITY.md` for policy metadata (e.g. Last reviewed).
+ * Public buyer-facing statement copy lives in `accessibility-marketing-public-statement.ts`.
  */
 export function readAccessibilityPolicyMarkdown(): string {
   const cwd = process.cwd();
@@ -69,17 +54,9 @@ export function parseLastReviewedLine(markdown: string): string | null {
   return `Last reviewed: ${m[1].trim()}`;
 }
 
+/** @deprecated Public `/accessibility` no longer renders section bodies from ACCESSIBILITY.md. */
 export function requireAccessibilityMarketingSections(
   markdown: string,
 ): ReadonlyMap<string, string> {
-  const sections = parseAccessibilityMarkdownSections(markdown);
-
-  for (const title of ACCESSIBILITY_MARKETING_SYNC_SECTION_TITLES) {
-    const body = sections.get(title);
-    if (body === undefined || body.length === 0) {
-      throw new Error(`ACCESSIBILITY.md is missing required non-empty section: ## ${title}`);
-    }
-  }
-
-  return sections;
+  return parseAccessibilityMarkdownSections(markdown);
 }

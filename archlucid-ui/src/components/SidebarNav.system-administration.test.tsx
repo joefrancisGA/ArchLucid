@@ -5,6 +5,7 @@ import {
   SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION,
   SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
 } from "@/lib/sidebar-nav-group-expansion-storage";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
 import { SidebarNav } from "./SidebarNav";
@@ -126,7 +127,7 @@ describe("SidebarNav — Internal Operations section", () => {
     });
 
     expect(screen.queryByRole("link", { name: "Architecture advisory" })).toBeNull();
-    expect(screen.queryByRole("link", { name: "RAG health" })).toBeNull();
+    expect(screen.queryByRole("link", { name: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth })).toBeNull();
   });
 
   it("expands Internal Operations and highlights an active internal route", async () => {
@@ -139,7 +140,9 @@ describe("SidebarNav — Internal Operations section", () => {
     });
 
     const internalOpsNav = screen.getByRole("navigation", { name: "Internal Operations" });
-    const ragLink = within(internalOpsNav).getByRole("link", { name: "RAG health" });
+    const ragLink = within(internalOpsNav).getByRole("link", {
+      name: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth,
+    });
 
     expect(ragLink).toHaveAttribute("href", "/admin/rag-health");
     expect(ragLink).toHaveAttribute("aria-current", "page");

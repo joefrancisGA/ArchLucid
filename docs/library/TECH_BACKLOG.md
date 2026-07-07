@@ -2,33 +2,33 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-07-05 (**TB-642–TB-653 added** — persona-driven UX audit 2026-07-05 cluster from `docs/architecture/UX_AUDIT_2026_07_05.md`: remove header AI budget pill for non-admin; default authenticated shell to buyer polish (authority-gate admin density); cloud-neutral intake defaults; production vocabulary pass; outcome-first intake CTA; split architect workflows from ops telemetry in sidebar; hide/relabel admin tools for non-admin; scope audit nav to review context; re-audit Service Bus/Azure infra health copy; pipeline/manifest vocabulary on status surfaces; extend UX audit capture to `/welcome`/`/why`; maintain Playwright UX audit harness + `lucid-ui-audit` skill — see `## TB-642` below). Prior: 2026-07-05 (**TB-635–TB-639 added** — `ArchLucid.Api` merged-Cobertura triage cluster: classify gap-analysis classes vs `ArchLucid.Api.Tests` before exclusions or new tests; batch pure-DTO `[ExcludeFromCodeCoverage]`; cheap unit tests for auth patterns/mappers/validators; document Integration-shard Coverlet-off measurement gap (owner: keep Coverlet disabled on Integration shards); post-triage tests only for genuinely untested logic — not metric gaming on Integration-covered controllers). Prior: 2026-07-05 (**TB-620 closed** — Review Package detail section reorder per architect workflow: buyer finalized findings/evidence promoted above export actions and below-fold pipeline; operator findings lead below-fold; draft capture-evidence + progress tracker after proof status; `run-detail-architect-section-order.ts` + regression tests). Prior: 2026-07-05 (**TB-634 closed** — "Internal Operations" mixed genuinely internal ArchLucid-employee surfaces (cross-tenant business data, `AdminAuthority`, no tenant-tier gate) with tenant-scoped and tenant-admin surfaces that only *appeared* internal because they sat behind `features.showSystemAdministrationNav` (defaults `false` in production, doc-commented "internal diagnostics, sales-ops, and employee tools"); a left-nav business-purpose review found 10 of 21 items were actually `[RequiresCommercialTenantTier(Standard)]` tenant features — Recommendation tuning, Pilot feedback, Planning (all three also hit plain `ReadAuthority`/`ExecuteAuthority` policies scoped to "the caller's scope", not cross-tenant), Pilot value report, ROI report, Digests (same tier gate; `/planning`'s own empty state already links to `/product-learning` as a companion feature, proving both were meant to be reachable by real tenants) — or tenant-admin settings where `AdminAuthority` means the tenant's own IT admin, not an ArchLucid employee (Identity providers, SSO wizard, API keys, SCIM provisioning); confirmed by contrast that Integration DLQ (list/retry endpoints have no tenant filter and bulk-retry spans "all tenants and event types" — TB-632) and Replay review (backend `AuthorityReplayController` requires `RequireOperatorRole`, stricter than any tenant authority tier) are genuinely internal and correctly stay; System health also stays in Internal Operations despite being a weak fit, because the Administration group has a hard `/settings/*`-only invariant (TB-406) that a bare `/health` route would violate; moved Recommendation tuning/Pilot feedback/Planning to Insights (`operate-analysis-nav-group-builder.ts`), Pilot value report/ROI report/Digests to Reports (`operate-reports-nav-group-builder.ts` — Digests needed a `nav-route-namespace-exceptions.ts` row since Reports' canonical prefix is `/scorecard`+`/value-report`; Governance was considered first but rejected, its TB-405 test hard-enforces `/governance/*` with no exception path), and Identity providers/SSO wizard/API keys/SCIM provisioning to Administration (`operator-admin-nav-group-builder.ts`, matches its existing `/settings`-prefix `AdminAuthority` "Users & roles" row); separately fixed Planning's nav `requiredAuthority` from `ExecuteAuthority` to `ReadAuthority` (backend `LearningController`'s themes/plans GETs are class-level `ReadAuthority` and `PlanningPageClient`/`PlanningPlanDetailPageClient` render zero mutation controls — the only mutation, "Create draft plans", lives on the Pilot feedback page) and removed the parallel `internalOnly` gate on the `/value-report` tab strip for Pilot outcomes/ROI summary (`value-report-outcomes-nav-tabs.ts`, supersedes TB-605) so the in-page tab strip matches the new sidebar placement; updated `nav-config.structure.test.ts`, `getLayerForRoute.test.ts`, `nav-route-namespace-exceptions.ts`, `nav-committed-architecture-review-promotion.test.ts`, `value-report-outcomes-nav-tabs.test.ts`, and `route-readiness.ts` (`/product-learning` and `/recommendation-learning` from `hidden` to `advanced-only`, matching `/planning`/`/advisory`); note a separate, independent `PRE_RELEASE_OPERATOR_HREFS` gate in `nav-publish-readiness.ts` still hides `/recommendation-learning` and `/product-learning` from the default sidebar pending a deliberate GA decision — left untouched, this pass only fixed placement/RBAC, not feature-completeness gating; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-633 closed** — "Recommendation tuning" (`/recommendation-learning`, `ReadAuthority`) — the "Rebuild tuning profile" button hit `POST /v1/recommendation-learning/rebuild`, which overrides the controller's class-level `ReadAuthority` up to `ExecuteAuthority`, but the button had zero client-side capability check — the same gap as TB-614/616/632; owner confirmed this whole "Internal Operations" group is only reachable in ArchLucid's own internal deployment (`showSystemAdministrationNav` feature flag), but directed adding the gating anyway since internal staff still hold different authority ranks; added `useOperateCapability()` to `RecommendationLearningPageClient`, threaded a new `canMutate` field through the view model, disabled the Rebuild button with `enterpriseMutationControlDisabledTitle` and a helper message, and added `RecommendationLearningPageClient.test.tsx` (previously untested); found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-632 closed** — "Integration DLQ" (`/operate/integration-events/dlq`, `AdminAuthority`) had zero client-side authority gate — `page.tsx` rendered the client component unconditionally and the Retry/Suppress/Bulk retry(100) buttons had no capability check, only the backend's `AdminAuthority` policy on `AdminController` caught non-Admins with a raw 403 toast; confirmed this is a genuine cross-tenant, internal-staff-only surface (the list endpoint has no tenant filter and the bulk-retry confirm dialog says "all tenants and event types"), so the nav item correctly stays in Internal Operations rather than moving to the tenant-facing Administration group; added `useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority` gating to all three mutation buttons in `IntegrationEventsDlqPageClient` with `enterpriseMutationControlDisabledTitle` tooltips, early-return guards on `retry`/`suppress`/`bulkRetry`, a helper message, and a new `IntegrationEventsDlqPageClient.test.tsx` (this component had no prior test coverage); found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-619 closed** — first item picked up from the **TB-617–TB-621** principal-architect Review Package detail page hierarchy audit cluster; `QuickDecisionSummary` — the actual per-finding rendering on this page (findings do not render as an inline table; they render via this severity-sorted card) — now surfaces an explicit "Evidence gap" `StatusTag` when a finding has zero evidence refs/snippets/policy-rule citation (`findingHasNoSourceEvidence` in `quick-decision-summary-derive.ts`; previously a finding with no evidence rendered no signal at all), plus owner (`assignedToUserId`) and review-status (`humanReviewStatus` → Pending review/Approved/Rejected/Overridden via new `humanReviewStatusDisplay`) rows and a bolded "Recommended action:" label; `FindingEvidenceLinkChip` restyled from a bordered chip (looked like a noninteractive badge) to genuine underlined-link styling; also added summary-table rows for **TB-617**, **TB-618**, **TB-620**, **TB-621** (the cluster's other 4 items existed only as `## TB-617` etc. detail sections below, never synced to this table — fixed same pass); **TB-617** (P1, consolidate the header/summary widgets) and **TB-618** (P1, single primary CTA) remain open and are blocked this pass by a concurrent uncommitted edit to their primary target files (`RunDetailPageView.tsx`, `RunDetailPageHeader.tsx`); full 5-term evidence vocabulary (Evidence/Evidence gap/Assumption/Policy rule/Decision) unification across `FindingPolicyProvenancePanel` remains open for a follow-up pass). Prior: 2026-07-05 (**TB-631 closed** — "Diagnostics dashboard" (`/admin/health`, `AdminAuthority`) and the separate "System health" (`/health`, `ReadAuthority`) both rendered an identical `<h1>`/header text "System health", despite being two different pages at two different authority tiers with materially different content (the Admin page adds configuration probes, config-lint, and operator task success rates on top of the readiness/circuit-breaker/build-identity sections both share); renamed the Admin page's heading in `AdminHealthPageView` to "Diagnostics dashboard" to match its own nav label and disambiguate from `/health`; the page's per-section graceful degradation (readiness/version public, circuit/rates/config-lint/configuration-health each independently show an auth-specific note on 401/403) is a deliberate design for a health page, not a gating bug, so left untouched; found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-630 closed** — "Trial funnel" (`/admin/trial-funnel`) nav label vs. page `<h1>` mismatch — page read "Trial-to-paid funnel"; renamed the `<h1>` in `TrialFunnelOpsPageClient` to "Trial funnel" to match; backend (`AdminTrialFunnelOperationalController`) and nav authority were already aligned at `AdminAuthority`, and the page is read-only (no mutations) so no gating gap; found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-629 closed** — "AI processing diagnostics" (`/admin/ai-cost-diagnostics`) sidebar nav item was a dead link — no `page.tsx` ever existed for that route, no rewrite/redirect covered it, and it would 404 on click; its described content (outbox queue depth, dead-letter posture) already ships as the `OperatorOutboxDiagnosticsCard` "Related diagnostics" section on the AI usage page (`/settings/cost-reporting`); owner directed removing the redundant nav item outright rather than re-pointing or building a standalone page; removed the link from `operator-system-admin-nav-group-builder.ts`, the now-unused `AI_COST_DIAGNOSTICS_PATH` constant, and the dead route references in `nav-shell-visibility.ts` / `route-readiness.ts` / `getLayerForRoute.test.ts`; found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-628 closed** — "Support" (`/settings/support`) nav item is `ExecuteAuthority`, but `SupportBundleController` (backing both the Support page's and the Settings page's "Download support bundle" buttons) was class-level `AdminAuthority` — any Execute-tier non-Admin (Operator, Architect, Reviewer, WorkspaceAdmin, Sponsor) saw a fully-enabled download button with zero indication it would 403; owner directed lowering the backend instead of gating the UI, since the bundle is already redacted (secret-shaped env vars show set/not-set only, no raw evidence); lowered `SupportBundleController`'s class policy to `ExecuteAuthority`; updated `SupportBundleEndpointTests` (`Post_WithOperatorRole_...` now asserts 200 instead of 403, reader-role test renamed to reflect ExecuteAuthority) and the `route_tier_policy_nav_registry.json` / `ROUTE_TIER_POLICY_NAV_MATRIX.md` snapshots; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-627 closed** — "Security & trust" (`/settings/security-trust` → `/workspace/security-trust`) had no page-level heading at all — `OperatorSecurityTrustPageView` went straight from the `LayerHeader` contextual banner into `<h2>` subsection headings with no parent title, the only page in this review's sweep missing one entirely; added an `OperatorPageHeader` titled "Security & trust" (matching the nav label) above the existing sections; page has no backend calls (static procurement content), so no authority mismatch to fix; found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-626 closed** — "AI usage" (`/settings/ai-usage` → `/settings/cost-reporting`) nav item and page were gated at `AdminAuthority`, but the backend (`TenantLlmCostReportingController`) is `ReadAuthority` and the page has zero mutations (read-only report + a "Refresh" button) — owner directed lowering to match, consistent with the Billing wallet call (TB-625); lowered the nav item's `requiredAuthority` to `ReadAuthority`, renamed the page's `"admin"` surface state to `"granted"` and its gating check from `AdminAuthority` to `ReadAuthority` in `use-cost-reporting-settings-page.ts`, and updated the forbidden-state copy; `page.test.tsx` updated (renamed "blocks non-admins" → "blocks callers without read authority" at rank 0, added a new case asserting Execute-rank callers can view the report); found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-625 closed** — "Billing & plans" (`/settings/billing`) nav item is ReadAuthority, but `WalletController`'s class-level `AdminAuthority` policy covered its `GET` too, so any non-Admin visitor (which is most callers who can reach this ReadAuthority-gated page) got a 403 on load, surfaced as an alarming "Could not load AI usage credit settings" error toast before the panel silently vanished; owner directed that non-Admins should be able to see their wallet — lowered `GET` to `ReadAuthority` (view balance/cap/refill history), kept `PUT` at `AdminAuthority` (mutations stay Admin-only), and added `useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority` gating to `OperatorBillingWalletPanel`'s Save/Add-payment-method controls with `enterpriseMutationControlDisabledTitle` tooltips; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-624 closed** — owner kept "Jira"/"ServiceNow" nav items at AdminAuthority (ITSM connector config stays Admin-only), but `ItsmProductIntegrationPageClient`'s shared "Save tenant settings" button had zero `useOperateCapability()` check even though the backend (`TenantItsmOutboundSettingsController` `PUT`) only requires ExecuteAuthority — added the check as defense-in-depth so a direct URL visit or future nav-authority relaxation can't produce a live-looking button with no client-side signal; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-623 closed** — "Cloud connections" (`/integrations/cloud-connections`) nav item stays ExecuteAuthority by owner decision (Readers must not see or touch cloud connections), but its three connector-config `GET` endpoints (`Tier2ConnectionController` Azure, `AwsTier2ConnectionController`, `GcpTier2ConnectionController`) had each explicitly lowered their list endpoint to ReadAuthority — closed that gap so all three now inherit the class-level ExecuteAuthority; also added `useOperateCapability()` gating (Save/Re-poll/Disconnect buttons) to all three connector sections (`Tier2ConnectionWizard`, `AwsConnectionSection`, `GcpConnectionSection`), which previously had zero capability checks — same gap as TB-614/TB-616 — plus a separate AdminAuthority-tier check on the Azure wizard's "Run validation pull" button, which hits an Admin-only hosted-run endpoint stricter than the Execute-tier "Save connection" step; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-622 closed** — TB-520 (2026-06-30) renamed the sidebar nav label to "Governance setup guide" but never touched the page itself: `<h1>`/tab title still said "First 30 days — governance operating preset" and `GovernanceInteractiveQuickstartCard`'s inline link said "First 30 days — governance rhythm" — three names for one page; both now say "Governance setup guide", the unused `@deprecated first30DaysGovernance` i18n key was removed, and `MANUAL_QA_CHECKLIST.md` updated; also tightened Value report's disabled-state copy from a stale "Operator or Administrator role required" to generic "Elevated workspace permissions required" now that Execute-tier includes more roles — found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-617–TB-621 added** — Review Package detail page principal-architect hierarchy audit: `RunDetailPageView.tsx` and its deferred sections carry duplicate summary widgets (`RunDetailPageHeader` + `ReviewPackagePlainSummary` + `RunDetailOutcomeCards` + `ReviewPackageEvidenceDensityStrip` all answering "what's the status" separately), multiple competing primary CTAs, and no explicit dual-mode-aware (`buyerPolishedArtifactTable`) reorder spec; split into 5 sequential items, see `## TB-617` below). Prior: 2026-07-04 (**TB-600 Done** — operator Atlassian auth-code consent UI: `ItsmAtlassianOAuthConsentService`, `Integrations:AtlassianOAuth`, PKCE start/complete API, `/integrations/itsm/oauth/callback`, Key Vault refresh-token writer). Prior: 2026-07-04 (**TB-600 Confluence OAuth + deployment-wide ITSM OAuth + migration runbook** — `ConfluencePublishingOptions.AuthMode` + `ConfluencePublishingHttpAuthenticator`; deployment-wide `Integrations:ItsmOutbound` Jira/ServiceNow OAuth fields; `docs/runbooks/ITSM_CONFLUENCE_OAUTH_MIGRATION.md`; operator auth-code consent UI still open). Prior: 2026-07-04 (**TB-600 foundation** — OAuth auth-mode schema + token exchange + Bearer outbound auth for tenant-scoped Jira/ServiceNow connections; `BasicApiToken` remains default; Confluence + auth-code UI still open). Prior: 2026-07-04 (**TB-404** and **TB-405** summary-table rows synced **Done** — policy + drift guard shipped 2026-06-28 (`nav-route-namespace-policy.ts`, `nav-route-namespace-exceptions.ts`, `nav-route-namespace.test.ts`, `NAV_CONFIG_CONTRACT.md` § Route namespace); governance route tree consolidation shipped 2026-06-28 (canonical `/governance/*` paths + legacy redirects); Vitest re-verified this pass). Prior: 2026-07-04 (**TB-609 closed** — `SanitizedLoggerDebugExtensions` migrated to `[LoggerMessage]` emitters in `SanitizedLoggerDebugExtensions.LoggerMessage.cs` (EventIds 3101–3103); caller `cs/log-forging` suppressions removed; tests extended in `SanitizedLoggerDebugExtensionsTests`). Prior: 2026-07-04 (**TB-611 closed** — CodeQL model pack `integration-event-logging-barrier.model.yml` registers `IntegrationEventTypes` canonical URNs and `SanitizedLoggerWarningExtensions` / `SanitizedLoggerHostLeaderElectionExtensions` as `file-content-store` neutral/summary models; caller-line `cs/exposure-of-sensitive-information` suppressions removed from Service Bus publisher and outbox paths; documented in `CODEQL_TRIAGE.md`). Prior: 2026-07-04 (**TB-610 closed** — `LogSanitizer.EmailDomainForLogs` logs only the email domain on trial-bootstrap email-verification denial paths; full mailbox retained in `AuditEvent` actor fields; tests in `LogSanitizerTests` and `TrialTenantBootstrapServiceTests`). Prior: 2026-07-04 (**TB-616 closed** — `RecurrenceSchedulesClient` (sidebar "Recurrence schedules") and its `RecurrenceScheduleCreatePanel` rendered live Create/Edit/Save/Enable/Disable buttons with zero `useOperateCapability()` gating, the same gap as TB-614's Risk exceptions pages, even though `GovernanceStickinessController`'s recurrence-schedule create/update endpoints are ExecuteAuthority — found + fixed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-615 closed** — sidebar "Alerts" (`/governance/alerts`) hub had no page-level heading at all: the Inbox tab showed its own `<h2>Alerts</h2>` and Rules/Routing/Composite/Simulation tabs each showed only their own tab-specific `<h2>` with no parent "Alerts" heading, so a deep link straight to a non-Inbox tab gave no indication of which hub it belonged to; added `OperatorPageHeader` titled "Alerts" above the tab bar in `AlertsHubClient` and renamed the now-redundant Inbox `<h2>` to "Inbox" (each tab already carries its own distinct `LayerHeader` guidance, which was left untouched) — found + directed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-604 closed** — `RetrievalIndexingScopeValidator.ValidateChunks` fail-closes `InMemoryVectorIndex` and `AzureAiSearchVectorIndex` upserts when chunk tenant/workspace/project metadata disagrees with ambient `IScopeContextProvider` scope; platform corpus sentinel chunks bypass; regression tests in `RetrievalIndexingScopeValidatorTests` and `InMemoryVectorIndexTests`). Prior: 2026-07-04 (**TB-614 closed** — `RiskExceptionsClient` (sidebar "Risk exceptions") and its sibling `FindingInspectGovernanceStickinessPanel` (finding-detail waiver/disposition panel) rendered live, always-enabled Renew/Revoke/Create-waiver/Save-disposition buttons with zero `useOperateCapability()` gating, unlike every other mutating Governance surface; Readers/Sponsors could click an action and get a raw 403 instead of a disabled control — found + fixed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-613 closed** — sidebar "Approval queue" (`/governance`) lowered from ExecuteAuthority to ReadAuthority to match `GovernanceController`'s class-level policy default and the reader-mode support already built into `GovernanceWorkflowPageContent`; found + directed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-596 closed** — `GraphRagQualityPosture` promotes Azure Search vector-index posture from advisory `GraphRagProductionLikeConfigurationLint` to run-level `graphRagQualityPosture` (`proven` \| `unproven`) on `RunRetrievalGroundingSummaryDto` when Graph-RAG neighbors/seeds contributed; operator diagnostics strip surfaces posture on review detail). Prior: 2026-07-04 (**TB-612 closed** — Advisory hub naming unified: `OperatorPageHeader` "Advisory scans" added above the `/advisory` tab bar, tabs renamed **Scans**/**Schedules** to match content headings (previously "Recommendation scans"/"Scheduled scans" tabs vs. "Architecture advisory"/"Advisory schedules" headings), and `WeeklyDigestHealthBanner`'s schedules quick link fixed to deep-link `?tab=schedules` instead of the Scans-default `/advisory`; found + directed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-609–TB-611 added** — CodeQL triage session dismissed GitHub alerts **#729–#738** as false positives (not exploitable); residual hardening: Debug `[LoggerMessage]` migration to stop recurring `cs/log-forging` at call sites (**TB-609**), trial-bootstrap denial-path email log redaction policy (**TB-610**), `IntegrationEventTypes` CodeQL model pack for `cs/exposure-of-sensitive-information` noise (**TB-611**); see `docs/library/CODEQL_TRIAGE.md`). Prior: 2026-07-04 (**TB-608 closed** — retired the standalone `/executive/dashboard` route (301 redirect to `/dashboard`) and the "legacy operator" ROI dashboard layout that only real (non-demo/trial) tenants saw; `ExecutiveRoiDashboardPageView` now always renders the richer "portfolio" layout so the sidebar's **Executive dashboard** link and the former executive-shell route show identical content; `ExecutiveShellFrame`'s own "Dashboard" tab now points at `/dashboard`, and Sponsor-only principals are exempted from the forced executive-shell redirect for `/dashboard` and `/` (the shell's own "Architect workspace" handoff link) instead of being bounced back out; found + directed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-605 closed** — `ValueReportOutcomesNav` gates internal **Pilot outcomes** and **ROI summary** tabs behind `isShowSystemAdministrationNavEnabled()` via `value-report-outcomes-nav-tabs.ts`, matching `operator-system-admin` sidebar gating; tests in `value-report-outcomes-nav-tabs.test.ts` and `ValueReportOutcomesNav.test.tsx`). Prior: 2026-07-04 (**TB-606 closed** — reviews-list sidebar label uses `governanceModeVocabulary` (`Reviews` / `Runs`) via `resolveReviewsListNavLinkLabel` in `operator-nav-labels.ts`, matching `RunDetailBreadcrumb` and removing garden-path **Review packages**; tests in `operator-nav-labels.test.ts`, `sidebar-nav-link-filters.test.ts`, `pilot-nav-group-builder.test.ts`). Prior: 2026-07-04 (**TB-607 closed** — shared `help-page-layout.ts` + `InlineHelp` (`HelpTooltipTrigger` 28×28px, `Help: …` aria labels) standardize `/help/*` section rhythm/TOC and replace ad hoc inline info icons; `help-search-panel-catalog.ts` groups architect Help drawer topics with route-based recommendations; tests in `help-page-layout.test.ts`, `InlineHelp.test.tsx`, `HelpSearchPanel.test.tsx`). Prior: 2026-07-04 (**TB-606 added** — sidebar label **"Review packages"** is a noun/verb garden-path phrase ("package" primes a software-dependency reading for a technical audience) and diverges from breadcrumb labels for the same destination (**"Reviews"** Pilot mode / **"Runs"** Governance mode via `governance-mode-vocabulary.ts`), which the sidebar builder does not consume; found during left-nav business-purpose review). Prior: 2026-07-04 (**TB-605 added** — `ValueReportOutcomesNav` tab strip on customer-facing `/value-report` and `/scorecard` unconditionally links to the nominally staff-only `/value-report/roi` and `/value-report/pilot` routes with no feature-flag or authority check, undermining the `operator-system-admin` sidebar gating and `nav-route-namespace-exceptions.ts` "internal" designation; found during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-602 closed** — `INTEGRATION_CATALOG.md` §2 roadmap + §3 "Build your own" distinguish **V1 GA first-party** Jira/ServiceNow/Confluence/Slack/Teams from **V1.1 customer-operated** recipe bridges; `integration-catalog-buyer-copy.test.ts` guard). Prior: 2026-07-04 (**TB-603 closed** — `IAwsRetailPriceStructuredLookup` / `IGcpRetailPriceStructuredLookup` + multi-cloud `CostRetailGroundingBuilder` branches wire AWS Price List and GCP Billing Catalog into Cost-agent LLM grounding). Prior: 2026-07-04 (**TB-598 closed** — owner chose relabel: buyer-facing term **single-pass query expansion + managed semantic reranking** replaces unqualified "agentic retrieval"; `V1_SCOPE.md` §2.20 + `V1_DEFERRED.md` §6q + `V1_MAGIC_GUARDRAILS.md` aligned; iterative loop deferred pending G-REAL-06). Prior: 2026-07-03 (**TB-597 closed** — bounded multi-hop Graph-RAG neighbor expansion via `GraphRagBoundedNeighborCollector`; `Retrieval:Advanced:MaxGraphTraversalHops` default 2, cycle-safe BFS, per-hop score decay; `V1_SCOPE.md` §2.20 + `V1_DEFERRED.md` §6q aligned). Prior: 2026-07-03 (**TB-599 closed** — `Integrations:Itsm:NativeEnabled` defaults `true` in options + appsettings with documented deployment opt-out; operator admin copy aligned). Prior: 2026-07-03 (**TB-589 closed** — `FindingsSnapshotTypeIndex` + `FindingsSnapshotIdIndex`, single-pass graph topology populate, `DecisionRuleFindingTypeIndex` for rule eval). Prior: 2026-07-03 (**TB-570 closed** — recharts hot-path drift guard; dynamic loading shipped in `cc5a18275f`, table row synced same session). Prior: 2026-07-03 (**TB-572 closed** — shared `app-insights-init-scheduler.ts` + drift guard; idle defer landed in `cc5a18275f`, table row synced same session). Prior: 2026-07-03 (**TB-567 closed** — shared `marketing-isr-route-policy.ts` + drift guard for `/welcome`, `/pricing`, `/trust`; ISR landed in `cc5a18275f`, table row synced same session). Prior: 2026-07-03 (**TB-021 closed** — RAG quality V1-foundation closeout audit verified all 12 **RAG-V1-000**–**RAG-V1-011** sub-items shipped in code; 3 had missing "Status: Shipped" lines in `RAG_QUALITY_TECHNICAL_BACKLOG.md`, corrected same session; 2 genuine residual gaps split into fresh items **TB-603** (RAG-V1-003 has no AWS/GCP structured retail-price grounding for the Cost agent, now that multi-cloud ships) and **TB-604** (RAG-V1-010 P2 upsert-time tenant validation never picked up)). Prior: 2026-07-03 (TB-599–TB-602 added — first-party **Jira/ServiceNow/Confluence/Slack/Microsoft Teams** connectors promoted from V1.1 to **V1 GA** (owner scope 2026-07-03) after `CONNECTOR_READINESS_MATRIX.md` showed all five already **Shipped**/**Shipped + manual vendor**; `V1_DEFERRED.md` §6/§6a, `V1_SCOPE.md` §2.13–§2.15/§3, `CONNECTOR_READINESS_MATRIX.md`, `CONNECTOR_SMOKE_INDEX.md`, and `INTEGRATION_CATALOG.md` corrected same session; new items cover native-create default posture, OAuth upgrade, live-validation parity, and a buyer-copy sweep). Prior: 2026-07-03 (TB-594–TB-598 added — RAG-V2 doc-accuracy audit found `V1_DEFERRED.md` §6q / `V1_SCOPE.md` §2.20 claimed "None remainder" for RAG-V2-001/002/003 while RAG-V2-003 online fine-tuning has **zero code** and RAG-V2-001/002 are shallower than claimed; both docs corrected same session). Prior: 2026-07-03 (TB-560 **Done** — `CommandPaletteLazy.tsx` + Ctrl+K chunk preload). Prior: 2026-07-03 (TB-561 **Done** re-verified — `FindingEvidenceGraphLazy.tsx` in `cc5a18275f`). Prior: 2026-07-02 (TB-587 **Done** — Azure DevOps HTTP client Polly resilience). Prior: 2026-07-02 (TB-577–**TB-586** **Done** — backend performance assessment batch). Prior: 2026-07-02 (TB-573 **Done** — First Load JS baseline + CI regression gate). Prior: 2026-06-30 (TB-530 **Done** — Integration readiness nav renamed Connection status). Prior: 2026-06-30 (TB-525 **Done** — Analysis nav group renamed Insights). Prior: 2026-06-30 (TB-519 **Done** — Evidence graph first in Analysis nav). Prior: 2026-06-28 (TB-506 **Done** — security-trust data retention section). Prior: 2026-06-28 (TB-505 **Done** — security-trust tenant isolation section). Prior: 2026-06-28 (TB-479 **Done** — workspace list unavailable session copy). Prior: 2026-06-28 (TB-478 **Done** — service bus banner System health link label). Prior: 2026-06-28 (TB-477 **Done** — roles settings Finalize reviews permission label). Prior: 2026-06-28 (TB-476 **Done** — onboarding step tracker Finalize checkpoint label). Prior: 2026-06-28 (TB-475 **Done** — Rule-based analysis simulator trust badge). Prior: 2026-06-28 (TB-474 **Done** — example review defensible-layer caption). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
+**Updated:** 2026-07-07 (**TB-691–TB-698 added** — UI performance review cluster: broken Next 16 First Load JS bundle regression gate (**P0**), real Core Web Vitals field data collection (owner-requested), Lighthouse CI synthetic checks, governance-findings table virtualization + query migration, `AppShellClient` hydration surface trim, `/reviews/[runId]` bundle re-audit, and policy-pack authoring lazy-load — see `## TB-691` below). Prior: 2026-07-07 (**TB-681–TB-690 added** — AI quality/cost/speed optimization cluster from 2026-07-07 architecture review: **TB-681**–**TB-685** are **V1** (Azure OpenAI prompt-cache prefix ordering, escalation-based model-tier routing, nightly real-mode eval loop, promote quality gates + advanced RAG defaults, Batch API for offline LLM/judge paths); **TB-686**–**TB-690** are **V2** (semantic chunking, prompt A/B iteration harness, per-tier model refresh cadence, multi-vendor LLM routing decision gate, fine-tuning activation gate — see `## TB-681` below). Prior: 2026-07-07 (**TB-679 closed** — onboarding trial/optional-setup copy drift: `GettingStartedTrialSection` checklist-on-this-page copy, optional-setup collapsed summary, home continue-setup body; tests). Prior: 2026-07-07 (**TB-639 closed** — `ArchLucid.Api` post-triage genuine coverage gaps: unit + integration tests for TB-635 genuinely-untested bucket; `coverage-exclusions.md` § TB-639 resolution table). Prior: 2026-07-07 (**TB-638 closed** — `ArchLucid.Api` Integration-shard Coverlet measurement-gap documentation in `coverage-exclusions.md` and `COVERAGE_GAP_ANALYSIS.md`; skip-gate removal criteria). Prior: 2026-07-07 (**TB-637 closed** — unit tests for `ArchLucid.Api` small-logic surfaces: `ComparisonResponseMapperTests`, `EvolutionOutcomeParserTests`, `MicrosoftOpenApiAnonymousSecurityOperationTransformerTests`; auth/mapper examples from triage already covered). Prior: 2026-07-07 (**TB-636 closed** — `[ExcludeFromCodeCoverage]` on all 21 **TB-635** pure-DTO `ArchLucid.Api` types; `docs/library/coverage-exclusions.md` Category 2b table lists each file/class). Prior: 2026-07-06 (**TB-678 closed** — role-gate `/onboarding` optional workspace setup on `principalAdmin`; non-admins see admin-delegation copy only). Prior: 2026-07-06 (**TB-674 closed** — `/onboarding` renamed **First review guide**: `BUYER_ONBOARDING_PAGE_TITLE`, nav tooltip, home CTA, contextual help label). Prior: 2026-07-06 (**TB-676 closed** — Finish setup wizard no longer duplicates Core Pilot cloud-inventory evidence step; `finish-setup-wizard-steps.ts` + regression tests). Prior: 2026-07-06 (**TB-621 closed** — Review Package detail spacing/affordance pass: `OPERATOR_LAYOUT`/`OPERATOR_CARD` on summary layer + section cards; `REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS` terminology guard). Prior: 2026-07-06 (**TB-677 closed** — Finish setup wizard links platform health to buyer-safe `/health`; health step hidden on managed SaaS via `NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED` / production default; `finish-setup-deployment.ts` + regression tests). Prior: 2026-07-06 (**TB-674–TB-680 added** — First review guide / onboarding hub redundancy audit cluster: rename Getting started → First review guide; derive Core Pilot checklist from tenant state; remove duplicate cloud-inventory setup step; customer-safe platform-health link (no `/admin/health` leak); role-gate workspace setup block; trial/copy drift fixes; hub-page do-not-duplicate IA contract + drift guard — see `## TB-674` below). Prior: 2026-07-06 (**TB-673 batch B executed** — archived Review Package detail sections **TB-617–620**; **TB-621** remains open; **TB-622–634** summary-only Done). Prior: 2026-07-06 (**TB-668 closed** — `/governance/policy-packs` My packs / Catalog on TB-665 `Tabs` with `tabpanel` linkage; authoring segmented controls gain `aria-pressed`). Prior: 2026-07-06 (**TB-660 closed** — reference-architecture exemplar library expanded to 10 indexed `ArchitectureRequest` JSON patterns under `templates/reference-architectures/**`; renamed `azure-data-pipeline-batch.json` (`.request.` suffix excluded from indexer); README pattern matrix; `ExemplarCorpusIndexerTests` + style-prior smoke). Prior: 2026-07-06 (**TB-669 closed** — `/graph` buyer evidence trail Trace table / Graph view on TB-665 `Tabs`; graph-scope pills inside Graph `tabpanel`; Open graph view selects Graph tab). Prior: 2026-07-06 (**TB-667 closed** — runs dashboard view switcher unified on TB-665 `Tabs` in buyer and operator shells; `All`/open-list links moved outside tablist; Archived toggle beside tablist; `tabpanel` wrappers + keyboard roving). Prior: 2026-07-06 (**TB-658 closed** — `archlucid stack doctor` unified deployment readiness router over prerequisites, config lint, terraform drift preflight, and post-deploy HTTP verification by profile). Prior: 2026-07-06 (**TB-656 closed** — user-assigned API/Worker Key Vault identities in `terraform-keyvault`; Container Apps attach + `key_vault_reference_identity_id`; TB-092 second pass retired by default). Prior: 2026-07-06 (**TB-673 batch A executed** — archived Done detail sections **TB-642–654**, **TB-657** to [`docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`](../archive/TECH_BACKLOG_DONE_ARCHIVE.md); regenerated [`TECH_BACKLOG_OPEN.md`](TECH_BACKLOG_OPEN.md); **TB-655**/**TB-656** remain open). Prior: 2026-07-06 (**TB-673 added** — TECH_BACKLOG done-item archive hygiene program — see `## TB-673` below). Prior: 2026-07-06 (**TB-671–TB-672 added** — tab-candidate assessment "possible" tier triage: decision register Cards/Timeline segmented-control semantics; Ask thread list selection semantics; policy-pack authoring switcher semantics folded into **TB-668**; internal hub single-tab chrome already covered by **TB-670** — see `## TB-671` below). Prior: 2026-07-06 (**TB-665–TB-670 added** — tab semantics UX cluster from 2026-07-06 tab-candidate assessment: shared accessible `Tabs` primitive; convert `/reviews/new` start-mode selector, overview runs dashboard, policy packs section switcher, and evidence graph view toggle; migrate nine hand-rolled tab UIs — see `## TB-665` below). Prior: 2026-07-06 (**TB-654 closed** — canonical `archlucid.stack.yaml` + `archlucid stack init`/`stack diff` generator; schema, example answers, Vitest drift guard). Prior: 2026-07-06 (**TB-657 closed** — CD owns Container App runtime image tags; Terraform `lifecycle.ignore_changes` on API/worker/UI). Prior: 2026-07-06 (**TB-653 closed** — UX audit harness drift guard + Playwright `testIgnore` hardening + skill maintenance cadence). Prior: 2026-07-06 (**TB-652 closed** — UX audit harness + marketing `/welcome`/`/why` capture; `run-ux-audit.ps1`, dedicated Playwright projects, 30 PNG validation). Prior: 2026-07-06 (**TB-651 closed** — canonical pipeline status labels via `PIPELINE_STATUS_BUYER_DISPLAY_LABELS` + `resolvePipelineStatusDisplayLabel`; vocabulary pass on list badges and stage names). Prior: 2026-07-06 (**TB-650 closed** — operator health labels use product-language copy; `DATA_ARCHIVAL_HEALTH_LABELS` + `operator-health-label-guard` tests; archival banner, home strip, setup callout, post-commit tooltips). Prior: 2026-07-06 (**TB-648 closed** — gate AI usage nav at AdminAuthority; relabel Internal Operations jargon). Prior: 2026-07-06 (**TB-645 closed** — production-wide buyer vocabulary pass: `isBuyerVocabularyPassActive`, governance-mode Reviews labels, nav vocabulary wiring, terminology guard surfaces). Prior: 2026-07-05 (**TB-660–TB-664 added** — incremental RAG reference-architecture exemplar curation cluster from corpus-quality analysis: owner-reviewed exemplar library expansion under `templates/reference-architectures/**` (RAG-V1.1-001 content); curation runbook; `ReferenceArchitecture` IR golden cases; topology style-prior observability on run detail; prior-manifest commit guidance for Ask cross-run memory — see `## TB-660` below). Prior: 2026-07-05 (**TB-654–TB-659 added** — setup/deployment simplification cluster from operator setup-complexity review: canonical `archlucid.stack.yaml` + `archlucid stack init` generator; user-assigned managed identities to retire TB-092 Key Vault second pass; CD-vs-Terraform Container App image ownership; `archlucid stack doctor` readiness router; Terraform three-root consolidation target; onboarding doc consolidation per persona — see `## TB-654` below). Prior: 2026-07-05 (**TB-642–TB-653 added** — persona-driven UX audit 2026-07-05 cluster from `docs/architecture/UX_AUDIT_2026_07_05.md`: remove header AI budget pill for non-admin; default authenticated shell to buyer polish (authority-gate admin density); cloud-neutral intake defaults; production vocabulary pass; outcome-first intake CTA; split architect workflows from ops telemetry in sidebar; hide/relabel admin tools for non-admin; scope audit nav to review context; re-audit Service Bus/Azure infra health copy; pipeline/manifest vocabulary on status surfaces; extend UX audit capture to `/welcome`/`/why`; maintain Playwright UX audit harness + `lucid-ui-audit` skill — see `## TB-642` below). Prior: 2026-07-05 (**TB-635–TB-639 added** — `ArchLucid.Api` merged-Cobertura triage cluster: classify gap-analysis classes vs `ArchLucid.Api.Tests` before exclusions or new tests; batch pure-DTO `[ExcludeFromCodeCoverage]`; cheap unit tests for auth patterns/mappers/validators; document Integration-shard Coverlet-off measurement gap (owner: keep Coverlet disabled on Integration shards); post-triage tests only for genuinely untested logic — not metric gaming on Integration-covered controllers). Prior: 2026-07-05 (**TB-620 closed** — Review Package detail section reorder per architect workflow: buyer finalized findings/evidence promoted above export actions and below-fold pipeline; operator findings lead below-fold; draft capture-evidence + progress tracker after proof status; `run-detail-architect-section-order.ts` + regression tests). Prior: 2026-07-05 (**TB-634 closed** — "Internal Operations" mixed genuinely internal ArchLucid-employee surfaces (cross-tenant business data, `AdminAuthority`, no tenant-tier gate) with tenant-scoped and tenant-admin surfaces that only *appeared* internal because they sat behind `features.showSystemAdministrationNav` (defaults `false` in production, doc-commented "internal diagnostics, sales-ops, and employee tools"); a left-nav business-purpose review found 10 of 21 items were actually `[RequiresCommercialTenantTier(Standard)]` tenant features — Recommendation tuning, Pilot feedback, Planning (all three also hit plain `ReadAuthority`/`ExecuteAuthority` policies scoped to "the caller's scope", not cross-tenant), Pilot value report, ROI report, Digests (same tier gate; `/planning`'s own empty state already links to `/product-learning` as a companion feature, proving both were meant to be reachable by real tenants) — or tenant-admin settings where `AdminAuthority` means the tenant's own IT admin, not an ArchLucid employee (Identity providers, SSO wizard, API keys, SCIM provisioning); confirmed by contrast that Integration DLQ (list/retry endpoints have no tenant filter and bulk-retry spans "all tenants and event types" — TB-632) and Replay review (backend `AuthorityReplayController` requires `RequireOperatorRole`, stricter than any tenant authority tier) are genuinely internal and correctly stay; System health also stays in Internal Operations despite being a weak fit, because the Administration group has a hard `/settings/*`-only invariant (TB-406) that a bare `/health` route would violate; moved Recommendation tuning/Pilot feedback/Planning to Insights (`operate-analysis-nav-group-builder.ts`), Pilot value report/ROI report/Digests to Reports (`operate-reports-nav-group-builder.ts` — Digests needed a `nav-route-namespace-exceptions.ts` row since Reports' canonical prefix is `/scorecard`+`/value-report`; Governance was considered first but rejected, its TB-405 test hard-enforces `/governance/*` with no exception path), and Identity providers/SSO wizard/API keys/SCIM provisioning to Administration (`operator-admin-nav-group-builder.ts`, matches its existing `/settings`-prefix `AdminAuthority` "Users & roles" row); separately fixed Planning's nav `requiredAuthority` from `ExecuteAuthority` to `ReadAuthority` (backend `LearningController`'s themes/plans GETs are class-level `ReadAuthority` and `PlanningPageClient`/`PlanningPlanDetailPageClient` render zero mutation controls — the only mutation, "Create draft plans", lives on the Pilot feedback page) and removed the parallel `internalOnly` gate on the `/value-report` tab strip for Pilot outcomes/ROI summary (`value-report-outcomes-nav-tabs.ts`, supersedes TB-605) so the in-page tab strip matches the new sidebar placement; updated `nav-config.structure.test.ts`, `getLayerForRoute.test.ts`, `nav-route-namespace-exceptions.ts`, `nav-committed-architecture-review-promotion.test.ts`, `value-report-outcomes-nav-tabs.test.ts`, and `route-readiness.ts` (`/product-learning` and `/recommendation-learning` from `hidden` to `advanced-only`, matching `/planning`/`/advisory`); note a separate, independent `PRE_RELEASE_OPERATOR_HREFS` gate in `nav-publish-readiness.ts` still hides `/recommendation-learning` and `/product-learning` from the default sidebar pending a deliberate GA decision — left untouched, this pass only fixed placement/RBAC, not feature-completeness gating; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-633 closed** — "Recommendation tuning" (`/recommendation-learning`, `ReadAuthority`) — the "Rebuild tuning profile" button hit `POST /v1/recommendation-learning/rebuild`, which overrides the controller's class-level `ReadAuthority` up to `ExecuteAuthority`, but the button had zero client-side capability check — the same gap as TB-614/616/632; owner confirmed this whole "Internal Operations" group is only reachable in ArchLucid's own internal deployment (`showSystemAdministrationNav` feature flag), but directed adding the gating anyway since internal staff still hold different authority ranks; added `useOperateCapability()` to `RecommendationLearningPageClient`, threaded a new `canMutate` field through the view model, disabled the Rebuild button with `enterpriseMutationControlDisabledTitle` and a helper message, and added `RecommendationLearningPageClient.test.tsx` (previously untested); found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-632 closed** — "Integration DLQ" (`/operate/integration-events/dlq`, `AdminAuthority`) had zero client-side authority gate — `page.tsx` rendered the client component unconditionally and the Retry/Suppress/Bulk retry(100) buttons had no capability check, only the backend's `AdminAuthority` policy on `AdminController` caught non-Admins with a raw 403 toast; confirmed this is a genuine cross-tenant, internal-staff-only surface (the list endpoint has no tenant filter and the bulk-retry confirm dialog says "all tenants and event types"), so the nav item correctly stays in Internal Operations rather than moving to the tenant-facing Administration group; added `useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority` gating to all three mutation buttons in `IntegrationEventsDlqPageClient` with `enterpriseMutationControlDisabledTitle` tooltips, early-return guards on `retry`/`suppress`/`bulkRetry`, a helper message, and a new `IntegrationEventsDlqPageClient.test.tsx` (this component had no prior test coverage); found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-619 closed** — first item picked up from the **TB-617–TB-621** principal-architect Review Package detail page hierarchy audit cluster; `QuickDecisionSummary` — the actual per-finding rendering on this page (findings do not render as an inline table; they render via this severity-sorted card) — now surfaces an explicit "Evidence gap" `StatusTag` when a finding has zero evidence refs/snippets/policy-rule citation (`findingHasNoSourceEvidence` in `quick-decision-summary-derive.ts`; previously a finding with no evidence rendered no signal at all), plus owner (`assignedToUserId`) and review-status (`humanReviewStatus` → Pending review/Approved/Rejected/Overridden via new `humanReviewStatusDisplay`) rows and a bolded "Recommended action:" label; `FindingEvidenceLinkChip` restyled from a bordered chip (looked like a noninteractive badge) to genuine underlined-link styling; also added summary-table rows for **TB-617**, **TB-618**, **TB-620**, **TB-621** (the cluster's other 4 items existed only as `## TB-617` etc. detail sections below, never synced to this table — fixed same pass); **TB-617** (P1, consolidate the header/summary widgets) and **TB-618** (P1, single primary CTA) remain open and are blocked this pass by a concurrent uncommitted edit to their primary target files (`RunDetailPageView.tsx`, `RunDetailPageHeader.tsx`); full 5-term evidence vocabulary (Evidence/Evidence gap/Assumption/Policy rule/Decision) unification across `FindingPolicyProvenancePanel` remains open for a follow-up pass). Prior: 2026-07-05 (**TB-631 closed** — "Diagnostics dashboard" (`/admin/health`, `AdminAuthority`) and the separate "System health" (`/health`, `ReadAuthority`) both rendered an identical `<h1>`/header text "System health", despite being two different pages at two different authority tiers with materially different content (the Admin page adds configuration probes, config-lint, and operator task success rates on top of the readiness/circuit-breaker/build-identity sections both share); renamed the Admin page's heading in `AdminHealthPageView` to "Diagnostics dashboard" to match its own nav label and disambiguate from `/health`; the page's per-section graceful degradation (readiness/version public, circuit/rates/config-lint/configuration-health each independently show an auth-specific note on 401/403) is a deliberate design for a health page, not a gating bug, so left untouched; found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-630 closed** — "Trial funnel" (`/admin/trial-funnel`) nav label vs. page `<h1>` mismatch — page read "Trial-to-paid funnel"; renamed the `<h1>` in `TrialFunnelOpsPageClient` to "Trial funnel" to match; backend (`AdminTrialFunnelOperationalController`) and nav authority were already aligned at `AdminAuthority`, and the page is read-only (no mutations) so no gating gap; found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-629 closed** — "AI processing diagnostics" (`/admin/ai-cost-diagnostics`) sidebar nav item was a dead link — no `page.tsx` ever existed for that route, no rewrite/redirect covered it, and it would 404 on click; its described content (outbox queue depth, dead-letter posture) already ships as the `OperatorOutboxDiagnosticsCard` "Related diagnostics" section on the AI usage page (`/settings/cost-reporting`); owner directed removing the redundant nav item outright rather than re-pointing or building a standalone page; removed the link from `operator-system-admin-nav-group-builder.ts`, the now-unused `AI_COST_DIAGNOSTICS_PATH` constant, and the dead route references in `nav-shell-visibility.ts` / `route-readiness.ts` / `getLayerForRoute.test.ts`; found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-628 closed** — "Support" (`/settings/support`) nav item is `ExecuteAuthority`, but `SupportBundleController` (backing both the Support page's and the Settings page's "Download support bundle" buttons) was class-level `AdminAuthority` — any Execute-tier non-Admin (Operator, Architect, Reviewer, WorkspaceAdmin, Sponsor) saw a fully-enabled download button with zero indication it would 403; owner directed lowering the backend instead of gating the UI, since the bundle is already redacted (secret-shaped env vars show set/not-set only, no raw evidence); lowered `SupportBundleController`'s class policy to `ExecuteAuthority`; updated `SupportBundleEndpointTests` (`Post_WithOperatorRole_...` now asserts 200 instead of 403, reader-role test renamed to reflect ExecuteAuthority) and the `route_tier_policy_nav_registry.json` / `ROUTE_TIER_POLICY_NAV_MATRIX.md` snapshots; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-627 closed** — "Security & trust" (`/settings/security-trust` → `/workspace/security-trust`) had no page-level heading at all — `OperatorSecurityTrustPageView` went straight from the `LayerHeader` contextual banner into `<h2>` subsection headings with no parent title, the only page in this review's sweep missing one entirely; added an `OperatorPageHeader` titled "Security & trust" (matching the nav label) above the existing sections; page has no backend calls (static procurement content), so no authority mismatch to fix; found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-626 closed** — "AI usage" (`/settings/ai-usage` → `/settings/cost-reporting`) nav item and page were gated at `AdminAuthority`, but the backend (`TenantLlmCostReportingController`) is `ReadAuthority` and the page has zero mutations (read-only report + a "Refresh" button) — owner directed lowering to match, consistent with the Billing wallet call (TB-625); lowered the nav item's `requiredAuthority` to `ReadAuthority`, renamed the page's `"admin"` surface state to `"granted"` and its gating check from `AdminAuthority` to `ReadAuthority` in `use-cost-reporting-settings-page.ts`, and updated the forbidden-state copy; `page.test.tsx` updated (renamed "blocks non-admins" → "blocks callers without read authority" at rank 0, added a new case asserting Execute-rank callers can view the report); found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-625 closed** — "Billing & plans" (`/settings/billing`) nav item is ReadAuthority, but `WalletController`'s class-level `AdminAuthority` policy covered its `GET` too, so any non-Admin visitor (which is most callers who can reach this ReadAuthority-gated page) got a 403 on load, surfaced as an alarming "Could not load AI usage credit settings" error toast before the panel silently vanished; owner directed that non-Admins should be able to see their wallet — lowered `GET` to `ReadAuthority` (view balance/cap/refill history), kept `PUT` at `AdminAuthority` (mutations stay Admin-only), and added `useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority` gating to `OperatorBillingWalletPanel`'s Save/Add-payment-method controls with `enterpriseMutationControlDisabledTitle` tooltips; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-624 closed** — owner kept "Jira"/"ServiceNow" nav items at AdminAuthority (ITSM connector config stays Admin-only), but `ItsmProductIntegrationPageClient`'s shared "Save tenant settings" button had zero `useOperateCapability()` check even though the backend (`TenantItsmOutboundSettingsController` `PUT`) only requires ExecuteAuthority — added the check as defense-in-depth so a direct URL visit or future nav-authority relaxation can't produce a live-looking button with no client-side signal; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-623 closed** — "Cloud connections" (`/integrations/cloud-connections`) nav item stays ExecuteAuthority by owner decision (Readers must not see or touch cloud connections), but its three connector-config `GET` endpoints (`Tier2ConnectionController` Azure, `AwsTier2ConnectionController`, `GcpTier2ConnectionController`) had each explicitly lowered their list endpoint to ReadAuthority — closed that gap so all three now inherit the class-level ExecuteAuthority; also added `useOperateCapability()` gating (Save/Re-poll/Disconnect buttons) to all three connector sections (`Tier2ConnectionWizard`, `AwsConnectionSection`, `GcpConnectionSection`), which previously had zero capability checks — same gap as TB-614/TB-616 — plus a separate AdminAuthority-tier check on the Azure wizard's "Run validation pull" button, which hits an Admin-only hosted-run endpoint stricter than the Execute-tier "Save connection" step; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-622 closed** — TB-520 (2026-06-30) renamed the sidebar nav label to "Governance setup guide" but never touched the page itself: `<h1>`/tab title still said "First 30 days — governance operating preset" and `GovernanceInteractiveQuickstartCard`'s inline link said "First 30 days — governance rhythm" — three names for one page; both now say "Governance setup guide", the unused `@deprecated first30DaysGovernance` i18n key was removed, and `MANUAL_QA_CHECKLIST.md` updated; also tightened Value report's disabled-state copy from a stale "Operator or Administrator role required" to generic "Elevated workspace permissions required" now that Execute-tier includes more roles — found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-617–TB-621 added** — Review Package detail page principal-architect hierarchy audit: `RunDetailPageView.tsx` and its deferred sections carry duplicate summary widgets (`RunDetailPageHeader` + `ReviewPackagePlainSummary` + `RunDetailOutcomeCards` + `ReviewPackageEvidenceDensityStrip` all answering "what's the status" separately), multiple competing primary CTAs, and no explicit dual-mode-aware (`buyerPolishedArtifactTable`) reorder spec; split into 5 sequential items, see `## TB-617` below). Prior: 2026-07-04 (**TB-600 Done** — operator Atlassian auth-code consent UI: `ItsmAtlassianOAuthConsentService`, `Integrations:AtlassianOAuth`, PKCE start/complete API, `/integrations/itsm/oauth/callback`, Key Vault refresh-token writer). Prior: 2026-07-04 (**TB-600 Confluence OAuth + deployment-wide ITSM OAuth + migration runbook** — `ConfluencePublishingOptions.AuthMode` + `ConfluencePublishingHttpAuthenticator`; deployment-wide `Integrations:ItsmOutbound` Jira/ServiceNow OAuth fields; `docs/runbooks/ITSM_CONFLUENCE_OAUTH_MIGRATION.md`; operator auth-code consent UI still open). Prior: 2026-07-04 (**TB-600 foundation** — OAuth auth-mode schema + token exchange + Bearer outbound auth for tenant-scoped Jira/ServiceNow connections; `BasicApiToken` remains default; Confluence + auth-code UI still open). Prior: 2026-07-04 (**TB-404** and **TB-405** summary-table rows synced **Done** — policy + drift guard shipped 2026-06-28 (`nav-route-namespace-policy.ts`, `nav-route-namespace-exceptions.ts`, `nav-route-namespace.test.ts`, `NAV_CONFIG_CONTRACT.md` § Route namespace); governance route tree consolidation shipped 2026-06-28 (canonical `/governance/*` paths + legacy redirects); Vitest re-verified this pass). Prior: 2026-07-04 (**TB-609 closed** — `SanitizedLoggerDebugExtensions` migrated to `[LoggerMessage]` emitters in `SanitizedLoggerDebugExtensions.LoggerMessage.cs` (EventIds 3101–3103); caller `cs/log-forging` suppressions removed; tests extended in `SanitizedLoggerDebugExtensionsTests`). Prior: 2026-07-04 (**TB-611 closed** — CodeQL model pack `integration-event-logging-barrier.model.yml` registers `IntegrationEventTypes` canonical URNs and `SanitizedLoggerWarningExtensions` / `SanitizedLoggerHostLeaderElectionExtensions` as `file-content-store` neutral/summary models; caller-line `cs/exposure-of-sensitive-information` suppressions removed from Service Bus publisher and outbox paths; documented in `CODEQL_TRIAGE.md`). Prior: 2026-07-04 (**TB-610 closed** — `LogSanitizer.EmailDomainForLogs` logs only the email domain on trial-bootstrap email-verification denial paths; full mailbox retained in `AuditEvent` actor fields; tests in `LogSanitizerTests` and `TrialTenantBootstrapServiceTests`). Prior: 2026-07-04 (**TB-616 closed** — `RecurrenceSchedulesClient` (sidebar "Recurrence schedules") and its `RecurrenceScheduleCreatePanel` rendered live Create/Edit/Save/Enable/Disable buttons with zero `useOperateCapability()` gating, the same gap as TB-614's Risk exceptions pages, even though `GovernanceStickinessController`'s recurrence-schedule create/update endpoints are ExecuteAuthority — found + fixed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-615 closed** — sidebar "Alerts" (`/governance/alerts`) hub had no page-level heading at all: the Inbox tab showed its own `<h2>Alerts</h2>` and Rules/Routing/Composite/Simulation tabs each showed only their own tab-specific `<h2>` with no parent "Alerts" heading, so a deep link straight to a non-Inbox tab gave no indication of which hub it belonged to; added `OperatorPageHeader` titled "Alerts" above the tab bar in `AlertsHubClient` and renamed the now-redundant Inbox `<h2>` to "Inbox" (each tab already carries its own distinct `LayerHeader` guidance, which was left untouched) — found + directed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-604 closed** — `RetrievalIndexingScopeValidator.ValidateChunks` fail-closes `InMemoryVectorIndex` and `AzureAiSearchVectorIndex` upserts when chunk tenant/workspace/project metadata disagrees with ambient `IScopeContextProvider` scope; platform corpus sentinel chunks bypass; regression tests in `RetrievalIndexingScopeValidatorTests` and `InMemoryVectorIndexTests`). Prior: 2026-07-04 (**TB-614 closed** — `RiskExceptionsClient` (sidebar "Risk exceptions") and its sibling `FindingInspectGovernanceStickinessPanel` (finding-detail waiver/disposition panel) rendered live, always-enabled Renew/Revoke/Create-waiver/Save-disposition buttons with zero `useOperateCapability()` gating, unlike every other mutating Governance surface; Readers/Sponsors could click an action and get a raw 403 instead of a disabled control — found + fixed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-613 closed** — sidebar "Approval queue" (`/governance`) lowered from ExecuteAuthority to ReadAuthority to match `GovernanceController`'s class-level policy default and the reader-mode support already built into `GovernanceWorkflowPageContent`; found + directed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-596 closed** — `GraphRagQualityPosture` promotes Azure Search vector-index posture from advisory `GraphRagProductionLikeConfigurationLint` to run-level `graphRagQualityPosture` (`proven` \| `unproven`) on `RunRetrievalGroundingSummaryDto` when Graph-RAG neighbors/seeds contributed; operator diagnostics strip surfaces posture on review detail). Prior: 2026-07-04 (**TB-612 closed** — Advisory hub naming unified: `OperatorPageHeader` "Advisory scans" added above the `/advisory` tab bar, tabs renamed **Scans**/**Schedules** to match content headings (previously "Recommendation scans"/"Scheduled scans" tabs vs. "Architecture advisory"/"Advisory schedules" headings), and `WeeklyDigestHealthBanner`'s schedules quick link fixed to deep-link `?tab=schedules` instead of the Scans-default `/advisory`; found + directed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-609–TB-611 added** — CodeQL triage session dismissed GitHub alerts **#729–#738** as false positives (not exploitable); residual hardening: Debug `[LoggerMessage]` migration to stop recurring `cs/log-forging` at call sites (**TB-609**), trial-bootstrap denial-path email log redaction policy (**TB-610**), `IntegrationEventTypes` CodeQL model pack for `cs/exposure-of-sensitive-information` noise (**TB-611**); see `docs/library/CODEQL_TRIAGE.md`). Prior: 2026-07-04 (**TB-608 closed** — retired the standalone `/executive/dashboard` route (301 redirect to `/dashboard`) and the "legacy operator" ROI dashboard layout that only real (non-demo/trial) tenants saw; `ExecutiveRoiDashboardPageView` now always renders the richer "portfolio" layout so the sidebar's **Executive dashboard** link and the former executive-shell route show identical content; `ExecutiveShellFrame`'s own "Dashboard" tab now points at `/dashboard`, and Sponsor-only principals are exempted from the forced executive-shell redirect for `/dashboard` and `/` (the shell's own "Architect workspace" handoff link) instead of being bounced back out; found + directed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-605 closed** — `ValueReportOutcomesNav` gates internal **Pilot outcomes** and **ROI summary** tabs behind `isShowSystemAdministrationNavEnabled()` via `value-report-outcomes-nav-tabs.ts`, matching `operator-system-admin` sidebar gating; tests in `value-report-outcomes-nav-tabs.test.ts` and `ValueReportOutcomesNav.test.tsx`). Prior: 2026-07-04 (**TB-606 closed** — reviews-list sidebar label uses `governanceModeVocabulary` (`Reviews` / `Runs`) via `resolveReviewsListNavLinkLabel` in `operator-nav-labels.ts`, matching `RunDetailBreadcrumb` and removing garden-path **Review packages**; tests in `operator-nav-labels.test.ts`, `sidebar-nav-link-filters.test.ts`, `pilot-nav-group-builder.test.ts`). Prior: 2026-07-04 (**TB-607 closed** — shared `help-page-layout.ts` + `InlineHelp` (`HelpTooltipTrigger` 28×28px, `Help: …` aria labels) standardize `/help/*` section rhythm/TOC and replace ad hoc inline info icons; `help-search-panel-catalog.ts` groups architect Help drawer topics with route-based recommendations; tests in `help-page-layout.test.ts`, `InlineHelp.test.tsx`, `HelpSearchPanel.test.tsx`). Prior: 2026-07-04 (**TB-606 added** — sidebar label **"Review packages"** is a noun/verb garden-path phrase ("package" primes a software-dependency reading for a technical audience) and diverges from breadcrumb labels for the same destination (**"Reviews"** Pilot mode / **"Runs"** Governance mode via `governance-mode-vocabulary.ts`), which the sidebar builder does not consume; found during left-nav business-purpose review). Prior: 2026-07-04 (**TB-605 added** — `ValueReportOutcomesNav` tab strip on customer-facing `/value-report` and `/scorecard` unconditionally links to the nominally staff-only `/value-report/roi` and `/value-report/pilot` routes with no feature-flag or authority check, undermining the `operator-system-admin` sidebar gating and `nav-route-namespace-exceptions.ts` "internal" designation; found during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-602 closed** — `INTEGRATION_CATALOG.md` §2 roadmap + §3 "Build your own" distinguish **V1 GA first-party** Jira/ServiceNow/Confluence/Slack/Teams from **V1.1 customer-operated** recipe bridges; `integration-catalog-buyer-copy.test.ts` guard). Prior: 2026-07-04 (**TB-603 closed** — `IAwsRetailPriceStructuredLookup` / `IGcpRetailPriceStructuredLookup` + multi-cloud `CostRetailGroundingBuilder` branches wire AWS Price List and GCP Billing Catalog into Cost-agent LLM grounding). Prior: 2026-07-04 (**TB-598 closed** — owner chose relabel: buyer-facing term **single-pass query expansion + managed semantic reranking** replaces unqualified "agentic retrieval"; `V1_SCOPE.md` §2.20 + `V1_DEFERRED.md` §6q + `V1_MAGIC_GUARDRAILS.md` aligned; iterative loop deferred pending G-REAL-06). Prior: 2026-07-03 (**TB-597 closed** — bounded multi-hop Graph-RAG neighbor expansion via `GraphRagBoundedNeighborCollector`; `Retrieval:Advanced:MaxGraphTraversalHops` default 2, cycle-safe BFS, per-hop score decay; `V1_SCOPE.md` §2.20 + `V1_DEFERRED.md` §6q aligned). Prior: 2026-07-03 (**TB-599 closed** — `Integrations:Itsm:NativeEnabled` defaults `true` in options + appsettings with documented deployment opt-out; operator admin copy aligned). Prior: 2026-07-03 (**TB-589 closed** — `FindingsSnapshotTypeIndex` + `FindingsSnapshotIdIndex`, single-pass graph topology populate, `DecisionRuleFindingTypeIndex` for rule eval). Prior: 2026-07-03 (**TB-570 closed** — recharts hot-path drift guard; dynamic loading shipped in `cc5a18275f`, table row synced same session). Prior: 2026-07-03 (**TB-572 closed** — shared `app-insights-init-scheduler.ts` + drift guard; idle defer landed in `cc5a18275f`, table row synced same session). Prior: 2026-07-03 (**TB-567 closed** — shared `marketing-isr-route-policy.ts` + drift guard for `/welcome`, `/pricing`, `/trust`; ISR landed in `cc5a18275f`, table row synced same session). Prior: 2026-07-03 (**TB-021 closed** — RAG quality V1-foundation closeout audit verified all 12 **RAG-V1-000**–**RAG-V1-011** sub-items shipped in code; 3 had missing "Status: Shipped" lines in `RAG_QUALITY_TECHNICAL_BACKLOG.md`, corrected same session; 2 genuine residual gaps split into fresh items **TB-603** (RAG-V1-003 has no AWS/GCP structured retail-price grounding for the Cost agent, now that multi-cloud ships) and **TB-604** (RAG-V1-010 P2 upsert-time tenant validation never picked up)). Prior: 2026-07-03 (TB-599–TB-602 added — first-party **Jira/ServiceNow/Confluence/Slack/Microsoft Teams** connectors promoted from V1.1 to **V1 GA** (owner scope 2026-07-03) after `CONNECTOR_READINESS_MATRIX.md` showed all five already **Shipped**/**Shipped + manual vendor**; `V1_DEFERRED.md` §6/§6a, `V1_SCOPE.md` §2.13–§2.15/§3, `CONNECTOR_READINESS_MATRIX.md`, `CONNECTOR_SMOKE_INDEX.md`, and `INTEGRATION_CATALOG.md` corrected same session; new items cover native-create default posture, OAuth upgrade, live-validation parity, and a buyer-copy sweep). Prior: 2026-07-03 (TB-594–TB-598 added — RAG-V2 doc-accuracy audit found `V1_DEFERRED.md` §6q / `V1_SCOPE.md` §2.20 claimed "None remainder" for RAG-V2-001/002/003 while RAG-V2-003 online fine-tuning has **zero code** and RAG-V2-001/002 are shallower than claimed; both docs corrected same session). Prior: 2026-07-03 (TB-560 **Done** — `CommandPaletteLazy.tsx` + Ctrl+K chunk preload). Prior: 2026-07-03 (TB-561 **Done** re-verified — `FindingEvidenceGraphLazy.tsx` in `cc5a18275f`). Prior: 2026-07-02 (TB-587 **Done** — Azure DevOps HTTP client Polly resilience). Prior: 2026-07-02 (TB-577–**TB-586** **Done** — backend performance assessment batch). Prior: 2026-07-02 (TB-573 **Done** — First Load JS baseline + CI regression gate). Prior: 2026-06-30 (TB-530 **Done** — Integration readiness nav renamed Connection status). Prior: 2026-06-30 (TB-525 **Done** — Analysis nav group renamed Insights). Prior: 2026-06-30 (TB-519 **Done** — Evidence graph first in Analysis nav). Prior: 2026-06-28 (TB-506 **Done** — security-trust data retention section). Prior: 2026-06-28 (TB-505 **Done** — security-trust tenant isolation section). Prior: 2026-06-28 (TB-479 **Done** — workspace list unavailable session copy). Prior: 2026-06-28 (TB-478 **Done** — service bus banner System health link label). Prior: 2026-06-28 (TB-477 **Done** — roles settings Finalize reviews permission label). Prior: 2026-06-28 (TB-476 **Done** — onboarding step tracker Finalize checkpoint label). Prior: 2026-06-28 (TB-475 **Done** — Rule-based analysis simulator trust badge). Prior: 2026-06-28 (TB-474 **Done** — example review defensible-layer caption). Prior: 2026-06-28 (TB-493 **Done** — Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** — FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** — remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** — plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** — Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** — Cloud inventory ZIP label on AzureExtractorPackageZipField).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
-| Correctness | 12 |
-| Testability | 10 |
+| Correctness | 13 |
+| Testability | 9 |
 | Reliability | 4 |
-| Deployability | 5 |
-| AI/Agent readiness | 2 |
+| Deployability | 9 |
+| AI/Agent readiness | 7 |
 | Architectural integrity | 8 |
-| Adoption friction | 136 |
+| Adoption friction | 141 |
 | Commercial / marketability | 3 |
 | Data consistency | 5 |
-| Cutting-edge AI | 4 |
-| Explainability | 4 |
+| Cutting-edge AI | 9 |
+| Explainability | 5 |
 | Proof-of-ROI / executive value | 4 |
 | Trustworthiness | 16 |
-| Maintainability | 6 |
+| Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 8 |
 | Compliance readiness | 3 |
-| Performance | 14 |
+| Performance | 22 |
 | Scalability | 1 |
-| Cost-effectiveness | 1 |
-| Supportability | 7 |
+| Cost-effectiveness | 3 |
+| Supportability | 8 |
 | Code hygiene | 10 |
-| **Total (unique)** | **~231** |
+| **Total (unique)** | **~250** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1→V1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` §6/§6a); **TB-599–TB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector — **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -149,6 +149,18 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-560 — TB-573** were added 2026-06-30 from an **archlucid-ui performance audit** (Next.js 15 App Router; canvas `canvases/ui-performance-backlog.canvas.tsx`). The operator product shell pays a large client bundle and hydration tax: `OperatorShellTopBar` statically imports `CommandPalette` (~617 lines + `cmdk`) on every page; `FindingEvidenceGraph` statically imports `reactflow` + CSS; only **4** TanStack Query hooks exist while **80+** components still use ad-hoc `useEffect`+`fetch`; and several monolithic client files (`GovernanceFindingsQueueClient` ~1115 lines, `AlertsInboxContent` ~903, `RunsDashboardPanel` ~822) widen re-render and hydration scope. **TB-560**–**TB-565** **Done** (2026-07-01) — command palette and evidence graph lazy chunks, TanStack Query on operator-home/executive reads, component decompositions, and `optimizePackageImports`. **TB-566**–**TB-571** **Done** (2026-07-03) — welcome server sections, memoized shell providers, executive dashboard React Query, nested Suspense on governance findings. **TB-567**, **TB-570**, **TB-572** **Done** (2026-07-01). **TB-573** **Done** (2026-07-02) — First Load JS baseline + CI regression gate (`ui-first-load-js-budget`, +25 kB tolerance). Does **not** duplicate **TB-319** (pilot-critical performance *evidence* step — **Done**); these are engineering fixes toward fast first paint and navigation. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1 (TanStack Query), §4 (operator route caching), §7 (nested Suspense).
 
+**TB-660 — TB-664** were added 2026-07-05 from an **incremental RAG corpus quality** analysis (reference-architecture exemplars vs prior-manifest memory vs measured faithfulness/IR ceilings). Infrastructure for **RAG-V1.1-001** is shipped (`ExemplarCorpusIndexer`, `TopologyAgentHandler.AppendExemplarStylePriorAsync`, `TopologyExemplarStylePriorFormatter`); only **three** reviewed exemplars exist today and **ReferenceArchitecture** is absent from the retrieval IR golden harness. Offline faithfulness (97.8% positive readiness) and IR (recall@5 97.9%) are already above CI floors — corpus curation targets **cold-start topology quality** and **tenant prior-memory**, not headline RAG metric lifts. **TB-660** (P1) expands the owner-reviewed exemplar library; **TB-661** (P2) publishes curation discipline; **TB-662** (P2) adds CI regression coverage for exemplar retrieval; **TB-663** (P2) surfaces style-prior hits/`exemplarMissing` on run detail (extends **TB-109**); **TB-664** (P2) documents when committed runs are worth indexing for Ask. Does not duplicate **TB-021** (Done), **TB-049/RAG-V1-011** (IR harness — extend, not replace), **TB-194** (corpus operator monitoring panel), or **TB-170** (accelerator chooser). Cross-ref [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) **RAG-V1.1-001**, [`templates/reference-architectures/README.md`](../../templates/reference-architectures/README.md), `docs/quality/faithfulness-report.md`, `docs/quality/retrieval-ir-report.md`.
+
+**TB-665 — TB-672** were added 2026-07-06 from a **tab-candidate UX assessment** of `archlucid-ui` (mutually exclusive view/mode controls dressed as buttons, pills, or filter chips). No shared `src/components/ui/tabs.tsx` exists today; nine hand-rolled tab implementations use inconsistent ARIA (`role="tab"` without `tabpanel`, `aria-pressed` on view switches, buyer vs operator shell semantic splits) and **none** implement arrow-key roving. **TB-665** (P1) ships the shared accessible `Tabs` primitive (Carbon line-tab styling per `UI_DESIGN_SYSTEM.md`). **TB-666** (P1) converts `/reviews/new` start-mode selector (Quick start / Guided intake / Templates and imports) and removes the first-run "More options" disclosure that hides peer modes. **TB-667** (P1) unifies the overview runs dashboard panel as tabs in both buyer-polished and full-operator shells, extracting the "All" navigation link and Archived filter from the tab strip. **TB-668** (P2) adds proper tab semantics to policy packs My packs / Catalog. **TB-669** (P1) converts evidence graph Trace table / Graph view to tabs on `/graph` (buyer shell); graph-scope pills stay a segmented control inside the Graph panel. **TB-670** (P2) migrates existing hand-rolled tab UIs (Settings roles, Help shell/panel, deliverables artifact tabs, Alerts/Digests/Advisory hubs) onto **TB-665**. From the assessment's "possible" tier (2026-07-06 triage): **TB-671** (P2) gives the decision register Cards/Timeline switcher segmented-control semantics (not tabs — two presentations of the same collection); **TB-672** (P2) adds selection semantics to the Ask thread list (not tabs — dynamic unbounded set); policy-pack authoring switcher semantics folded into **TB-668**; internal hub single-tab chrome omission already covered by **TB-670**. Explicitly **out of scope**: risk-register filter pills, reviews list scope filters, run-detail anchor nav, route subnavs, wizard steppers, and integration pages' stacked-card layouts. Cross-ref `.cursor/rules/UI-Accessibility-Baseline.mdc`, `.cursor/rules/UI-Enterprise-Design-Standard.mdc`, `archlucid-ui/docs/COMPONENT_REFERENCE.md`.
+
+**TB-673** (2026-07-06) — **TECH_BACKLOG archive hygiene:** move closed `## TB-xxx` detail bodies to [`docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`](../archive/TECH_BACKLOG_DONE_ARCHIVE.md) (same pattern as [`NEXT_REFACTORINGS.md`](NEXT_REFACTORINGS.md) → [`NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md`](../archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md)); keep summary-table **Done** rows in the main file for assessment grep; regenerate [`TECH_BACKLOG_OPEN.md`](TECH_BACKLOG_OPEN.md). Main file is ~18k lines / 600+ detail sections — batched script pass, not a single manual edit.
+
+**TB-681 — TB-690** were added 2026-07-07 from an **AI quality, cost, and speed optimization review** of the quad-agent review pipeline, RAG stack, eval harness, and FinOps controls. **Finding:** ArchLucid already ships tiered deployments, response caching, quality gates, golden-cohort eval, and advanced retrieval — but several high-leverage controls default off, prompt construction does not maximize Azure OpenAI automatic prompt caching, auto-retries do not escalate model tier, and live-model regression signal remains owner-gated (**TB-140** partial, **G-REAL-01**). **TB-681** (P1, V1) reorders agent/Ask prompt assembly so stable system templates and cloud addenda precede per-run evidence and retrieval hits, maximizing cached-input discounts without changing agent semantics. **TB-682** (P1, V1) changes quality-gate auto-retry to escalate Economy → Standard → Premium instead of repeating the same tier. **TB-683** (P1, V1) closes the real-mode eval measurement loop with a credentialed nightly small live cohort inside the existing 200k/day judge budget — complements **TB-140**, does not replace owner unblock for **G-REAL-01**. **TB-684** (P1, V1) executes **QUALITY_GATE_PROMOTION_PLAN.md** promotion criteria and enables staging/prod defaults for semantic reranking, faithfulness judges on lowest-floor agents, and selective LLM semantic judges — gated on **TB-683** trend data. **TB-685** (P2, V1) routes non-interactive eval/judge/corpus-summarization paths through Azure OpenAI Batch API (~50% discount). **TB-686**–**TB-690** (V2) defer semantic chunking, prompt-variant optimization loop, per-tier model-generation refresh, multi-vendor routing, and fine-tuning activation until V1 measurement and pilot scale justify them — **TB-594** infrastructure for fine-tuning remains dormant by default. Cross-ref `AgentUserPromptBuilder.cs`, `AgentModelTierDefaults.cs`, `ArchitectureRunExecuteOrchestrator.cs`, `AgentOutputQualityGate.cs`, `RetrievalQueryService.cs`, `docs/library/AGENT_OUTPUT_EVALUATION.md`, `docs/library/QUALITY_GATE_PROMOTION_PLAN.md`, `docs/library/AI_LEVERAGE_ROADMAP.md` (multi-model tiers 30–50% cost target).
+
+**TB-674 — TB-680** were added 2026-07-06 from a **First review guide / onboarding hub redundancy audit** of `/onboarding` (sidebar **Getting started**; `/getting-started` redirects here). **Finding:** the page is already a lightweight hub (links out, no embedded wizards) and **TB-524** already demotes the nav item after first commit — but five drift issues remain: manual localStorage checklist progress that can contradict tenant state; **Finish setup** links customers to Internal Operations **Diagnostics dashboard** (`/admin/health`); cloud inventory evidence appears twice (Core Pilot step 4 + setup wizard step 4); workspace setup (SSO, admin role, ROI) is collapsed but not role-gated; trial/copy still references a checklist "on Overview" and renders a second in-page **Onboarding** heading. **TB-674** (P2) renames the surface **First review guide** (supersedes **TB-434**'s interim "Getting started" label now that scope is first-review-only, not all workspace setup). **TB-675** (P1) derives checklist completion from review lifecycle signals and highlights one next action. **TB-676** (P3) dedupes cloud inventory from `FINISH_SETUP_WIZARD_STEPS`. **TB-677** (P1) routes platform health to a customer-safe readiness surface (self-hosted deployments only). **TB-678** (P2) gates optional workspace setup on `principalAdmin`. **TB-679** (P2) fixes stale trial/optional-setup copy. **TB-680** (P2) codifies the hub-page **do not duplicate** rule in `NAV_CONFIG_CONTRACT.md` with an optional Vitest drift guard. Does not remove `/onboarding` (unique sequencing job), merge with Governance setup guide (different audience), or duplicate **TB-169** (Operate progressive disclosure — Done), **TB-337–TB-344** (evidence-first narrative — largely Done), or **TB-659** (platform-operator doc consolidation). Cross-ref `archlucid-ui/src/app/(operator)/onboarding/_sections/OnboardingPageView.tsx`, `CorePilotChecklist.tsx`, `FinishSetupWizardPanel.tsx`, `finish-setup-wizard-steps.ts`, `OperatorHomeContinueSetupCard.tsx`, `nav-committed-architecture-review-promotion.ts`.
+
+**TB-654 — TB-659** were added 2026-07-05 from an **operator setup / deployment complexity** review (15+ Terraform roots with manual ordering, 168 configuration keys, dual CD-vs-Terraform image ownership, TB-092 Key Vault second pass, 20+ readiness scripts, fragmented onboarding docs). Dev onboarding is already healthy (`FIRST_30_MINUTES.md`, `demo-start.ps1`); the cluster targets **platform-operator** friction only. **TB-654** (P1) introduces a single `archlucid.stack.yaml` answers file and `archlucid stack init` to generate per-root tfvars, appsettings overrides, GitHub environment variables, and a Key Vault secret checklist. **TB-656** (P1) and **TB-657** (P1) are quick structural wins: user-assigned managed identities eliminate the post–Container Apps Key Vault RBAC second pass; explicit Container App image ownership stops CD/Terraform drift. **TB-658** (P2) routes existing readiness scripts through `archlucid stack doctor`. **TB-655** (P2, XL) consolidates 15+ Terraform roots into three (`foundation`, `platform`, `app`) with a state-migration plan and retires conflicting orchestrator orderings (`apply-saas.ps1` vs `provision-landing-zone.ps1`). **TB-659** (P3) archives superseded setup runbooks so `START_HERE.md` + one doc per persona remain canonical. Does not duplicate **TB-092** (Done — second pass exists today; **TB-656** removes the need), **TB-210** (pilot prerequisites — Done), **TB-212** (hosted-prod Terraform — Done), or **TB-208** (CLI global tool — Done). Cross-ref `docs/library/REFERENCE_SAAS_STACK_ORDER.md`, `docs/library/FIRST_AZURE_DEPLOYMENT.md`, `docs/library/DEPLOYMENT_CD_PIPELINE.md`, `docs/engineering/FIRST_30_MINUTES.md`.
+
 **TB-635 — TB-639** were added 2026-07-05 from a **`ArchLucid.Api` merged-Cobertura triage** (CI #2516 `dotnet-coverage-merge`: package at ~50% line with per-package gate skipped; many 0% classes are either pure DTOs, already exercised by `Category=Integration` tests on Coverlet-disabled shards, or small logic worth cheap unit tests). Owner decision: **keep Coverlet off** on Integration shards (`test.runsettings`) — collector finalization is unstable under chunked SQL load. **TB-635** (P2) is the prerequisite inventory; **TB-636** (P3) batches Category-2 DTO exclusions only; **TB-637** (P2) adds cheap unit tests for auth patterns/mappers/validators; **TB-638** (P3) documents the measurement-vs-testing gap; **TB-639** (P2) closes only genuinely untested logic after triage — not duplicate controller tests for metric gaming. Does not duplicate **TB-289–301** (risk-weighted buyer/pilot coverage hardening — Done), re-enable Coverlet on Integration shards (explicitly out of scope per owner), or remove `--skip-package-line-gate ArchLucid.Api` until reported % is honest. Cross-ref `docs/COVERAGE_GAP_ANALYSIS.md` § ArchLucid.Api, `docs/library/coverage-exclusions.md`, `.github/workflows/ci.yml` `dotnet-full-regression-core-api-integration`.
 
 **TB-574 — TB-593** were added 2026-07-02 from [`docs/architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md`](../architecture/BACKEND_PERFORMANCE_ASSESSMENT_2026_07_02.md) (persistence, API middleware, commit/findings hot paths, caching). **TB-574**–**TB-586** **Done** (2026-07-02) — trial-seat middleware short-circuit; pipeline manifest reuse at commit; run-list warning-flag join aggregates; audit/trace JSON projection; run-list scope-revision eviction; parallel commit loads and finding engines; Redis L2 + replica count; governance/audit/policy-pack hot-path cache; API metering batching; `ConfigureAwait(false)` on hot reads; SQL write batching; run-list `EngineProvenanceJson` projection trim; authority-pipeline and integration-outbox worker batch parallelism (`BoundedBatchParallelism`). **TB-587** **Done** (2026-07-02) — Azure DevOps commit-status and PR-decorator named `HttpClient` instances use `AddOutboundExternalHttpResilience()` (parity with ITSM/webhooks). **TB-588** **Done** (2026-07-02) — deduplicated redundant commit-path loads (single run fetch, parallel scope assignments, preloaded pre-commit gate + finalization findings, batched policy-pack lookup, reused evidence/agent results for decision-node materialization). **TB-589**–**TB-593** **Done** (2026-07-03) — manifest CPU index, hybrid-cache typed L2 slots, SQL pool/MARS normalizer, k6 governance/audit scenarios, findings snapshot read cache. Cross-ref [`PERFORMANCE.md`](PERFORMANCE.md), [`API_PERFORMANCE_TARGETS.md`](API_PERFORMANCE_TARGETS.md).
@@ -240,24 +252,69 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-632 | ~~"Integration DLQ" (`/operate/integration-events/dlq`) had zero client-side `AdminAuthority` gate — Retry/Suppress/Bulk retry(100) buttons were always live, only the backend's 403 caught non-Admins~~ **Done 2026-07-05** — confirmed this is a genuine cross-tenant, internal-staff-only surface (no tenant filter on the list endpoint; bulk retry explicitly spans "all tenants and event types"), so the nav item stays in Internal Operations; added `useNavCallerAuthorityRank() >= AdminAuthority` gating to all three mutation buttons with tooltips + early-return guards, plus new test coverage (`IntegrationEventsDlqPageClient.test.tsx`, previously untested) | Adoption friction P2 — **V1**; found + directed during a left-nav business-purpose review 2026-07-05 | S |
 | TB-619 | ~~Findings and evidence-trail presentation polish on Review Package detail page~~ **Done 2026-07-05** — `QuickDecisionSummary` (the page's actual per-finding rendering) now shows an explicit "Evidence gap" `StatusTag` when a finding has no evidence refs/snippets/policy-rule citation, plus owner/review-status rows and a bolded "Recommended action:" label; `FindingEvidenceLinkChip` restyled from bordered-chip to underlined-link styling so it reads as interactive, not a status badge; full 5-term evidence vocabulary (Evidence/Evidence gap/Assumption/Policy rule/Decision) unification across `FindingPolicyProvenancePanel` remains open for a follow-up pass | Adoption friction P2 — **V1**; found during a principal-architect Review Package detail page hierarchy audit 2026-07-05 | M |
 | TB-620 | ~~Reorder Review Package detail page sections per architect workflow, dual-mode aware~~ **Done 2026-07-05** — `run-detail-architect-section-order.ts` documents draft/finalized target orders; buyer finalized findings (`RunDetailExplanationDeferred`) move above decision delta/evidence/export; operator findings lead below-fold before pipeline timeline; draft capture-evidence + progress tracker promoted after proof status; regression tests in `run-detail-architect-section-order.test.ts` and `RunDetailPageView.progressive-disclosure.test.ts` | Adoption friction P2 — **V1**; depends on **TB-617**, **TB-618**; found during a principal-architect Review Package detail page hierarchy audit 2026-07-05 | L |
-| TB-621 | Review Package detail page spacing/affordance pass and terminology-surface extension — apply `OPERATOR_TYPOGRAPHY`/spacing tokens per `.cursor/rules/UI-Enterprise-Design-Standard.mdc`; residual badge/link/button affordance sweep; extend `review-terminology-surfaces.ts`; see `## TB-621` below | Adoption friction P3 — **V1**; depends on **TB-617**, **TB-618**, **TB-620**; found during a principal-architect Review Package detail page hierarchy audit 2026-07-05 | S |
-| TB-635 | `ArchLucid.Api` Cobertura triage inventory — classify every below-95% class in `docs/COVERAGE_GAP_ANALYSIS.md` § ArchLucid.Api into pure-DTO / integration-covered (measurement gap) / small-logic unit-test / genuinely untested; cross-reference `ArchLucid.Api.Tests` by class and `Category` trait; publish inventory before exclusions or new tests; see `## TB-635` below | Testability P2 — **V1**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 | M |
-| TB-636 | Batch `[ExcludeFromCodeCoverage]` for `ArchLucid.Api` pure request/response DTOs — apply `docs/library/coverage-exclusions.md` Category 2 to auto-property-only types confirmed by **TB-635**; update exclusion table; do **not** exclude controllers, services, or field mappers with logic; see `## TB-636` below | Testability P3 — **V1**; depends on **TB-635**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 | S |
-| TB-637 | Unit tests for `ArchLucid.Api` small logic surfaces — `[Theory]`/mapper tests for auth issuer patterns, payload/response mappers, and validators triaged in **TB-635** (e.g. `ExternalIdIssuerPatterns`, `ConsultingDocxJobPayloadMapper`, `EvolutionCandidateChangeSetResponseMapper`); use non-Integration `ArchLucid.Api.Tests` so Coverlet on `coverage.runsettings` shards collects them; see `## TB-637` below | Testability P2 — **V1**; depends on **TB-635**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 | S |
-| TB-638 | Document `ArchLucid.Api` Integration-shard Coverlet measurement gap — expand `docs/library/coverage-exclusions.md` with which `ArchLucid.Api.Tests` categories feed merged Cobertura vs run without instrumentation (`test.runsettings` on Integration shards); record owner decision to **keep Coverlet off** on Integration shards (collector finalization unstable under chunked SQL); clarify `--skip-package-line-gate ArchLucid.Api` is intentional until reported % reflects real risk; see `## TB-638` below | Maintainability P3 — **V1**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 | XS |
-| TB-639 | `ArchLucid.Api` post-triage genuine coverage gaps — add tests only for classes **TB-635** marks genuinely untested with real branching logic (e.g. services with no Integration test and no cheap unit path); do **not** add duplicate unit tests for controllers already covered by `Category=Integration` tests solely to move Cobertura %; see `## TB-639` below | Testability P2 — **V1**; depends on **TB-635**, **TB-636**, **TB-637**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 | M |
+| TB-621 | **Done** (2026-07-06) — Review Package detail spacing/affordance pass: `OPERATOR_LAYOUT`/`OPERATOR_CARD` tokens on summary header, outcome cards, executive/governance CTAs, and capture-evidence section; `REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS` + TB-621 guard test; see `## TB-621` below | Adoption friction P3 — **V1**; depends on **TB-617**, **TB-618**, **TB-620**; found during a principal-architect Review Package detail page hierarchy audit 2026-07-05 | S |
+| TB-635 | ~~`ArchLucid.Api` Cobertura triage inventory~~ **Done 2026-07-07** — classify every below-95% class in `docs/COVERAGE_GAP_ANALYSIS.md` § ArchLucid.Api into pure-DTO / integration-covered / small-logic / genuinely-untested; `scripts/ci/api_cobertura_triage_inventory.py` + unittest; inventory published (21/33/34/32); see `## TB-635` below | Testability P2 — **V1**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 | M |
+| TB-636 | ~~Batch `[ExcludeFromCodeCoverage]` for `ArchLucid.Api` pure request/response DTOs~~ **Done 2026-07-07** — all 21 **TB-635** pure-DTO types carry Category 2b attribute; `docs/library/coverage-exclusions.md` lists each file/class; controllers/services/mappers with logic untouched; see `## TB-636` below | Testability P3 — **V1**; depends on **TB-635**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 | S |
+| TB-637 | ~~Unit tests for `ArchLucid.Api` small logic surfaces~~ **Done 2026-07-07** — `ComparisonResponseMapperTests`, `EvolutionOutcomeParserTests`, `MicrosoftOpenApiAnonymousSecurityOperationTransformerTests`; triage auth/mapper examples (`ExternalIdIssuerPatterns`, `ConsultingDocxJobPayloadMapper`, `EvolutionCandidateChangeSetResponseMapper`, `TrialExternalIdJwtBearerSupport`) already had Unit-category coverage; see `## TB-637` below | Testability P2 — **V1**; depends on **TB-635**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 | S |
+| TB-638 | ~~Document `ArchLucid.Api` Integration-shard Coverlet measurement gap~~ **Done** (2026-07-07) — `coverage-exclusions.md` § **ArchLucid.Api measurement vs testing** (shard/runsettings table, owner decision, skip-gate removal criteria); `COVERAGE_GAP_ANALYSIS.md` § Recommended workflow pointer; **TB-635** inventory follow-up column updated | Maintainability P3 — **V1**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 | XS |
+| TB-639 | **Done** (2026-07-07) — `ArchLucid.Api` post-triage genuine coverage gaps: unit tests for services/filters/OpenAPI helpers + integration authorization smokes for 11 genuinely-untested controllers; TrialLocal DTOs in Category 2b; startup exclusions for `PipelineExtensions`/`InfrastructureExtensions`; see `## TB-639` below | Testability P2 — **V1**; depends on **TB-635**, **TB-636**, **TB-637**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 | M |
 | TB-642 | **Done** (2026-07-05) — Remove `LlmBudgetStatusPill` from primary operator header for non-admin callers — AdminAuthority gate in `OperatorShellTopBar`; operator-mock E2E uses `MOCK_AUTH_ME_ROLE=Operator`; see `## TB-642` below | Adoption friction P0 — **V1** | S |
-| TB-643 | **Done** (2026-07-05) — Default authenticated shell to buyer-polished vocabulary; gate dev chrome on `isOperatorExperienceFullShellEnv` not inverse of demo flags; see `## TB-643` below | Adoption friction P0 — **V1** | L |
-| TB-644 | Cloud-neutral new-review intake defaults — change wizard presets from `cloudProvider: "Azure"` to `"None"`; move Azure extractor ZIP / packager command under Advanced evidence (Azure) disclosure; see `## TB-644` below | Adoption friction P0 — **V1**; regression open from 2026-06-15 leakage audit #3; found during persona-driven UX audit 2026-07-05 | M |
-| TB-645 | Apply buyer vocabulary pass in production operator builds — run→review, manifest→signed package, and related copy for all authenticated shells, not only CTO-demo / buyer-polished builds; see `## TB-645` below | Adoption friction P0 — **V1**; depends on **TB-643**; derived from 2026-06-15 leakage audit #6; found during persona-driven UX audit 2026-07-05 | M |
-| TB-646 | Rename primary intake create action to outcome language — wire **Start review** / **New review** (`OPERATOR_START_REVIEW_QUICK_ACTION_LABEL`) as default nav and quick-action CTA instead of mechanism-first "Evidence intake"; see `## TB-646` below | Adoption friction P1 — **V1**; partial regression from 2026-06-15 leakage audit #5; found during persona-driven UX audit 2026-07-05 | S |
-| TB-647 | Split architect workflows from ops telemetry in sidebar — re-group Analysis nav so Compare/Ask/Graph sit apart from System health, connector posture, RAG health, and cost reporting; collapse ops/SRE labels for non-admin personas; see `## TB-647` below | Adoption friction P1 — **V1**; regression open from 2026-06-15 leakage audit #7–#8; found during persona-driven UX audit 2026-07-05 | M |
-| TB-648 | Hide or relabel Admin tools for non-admin tenants — gate Fleet LLM COGS, RAG health, Integration DLQ, Trial funnel, Tenant cost from default operator nav unless `AdminAuthority`; prefer buyer-facing names where surfaces must remain; see `## TB-648` below | Adoption friction P1 — **V1**; complements **TB-634**; found during persona-driven UX audit 2026-07-05 | M |
-| TB-649 | Scope audit nav links to review context — default audit entry to scoped URLs (`/audit?runId=…` or governance context), not empty global search showing "0 events"; update nav + `WORKFLOW_RECIPES_BY_PERSONA.md`; see `## TB-649` below | Adoption friction P1 — **V1**; found during persona-driven UX audit 2026-07-05 (buyer capture timeout on unscoped `/audit`) | S |
-| TB-650 | Re-audit Service Bus / Azure infra copy in operator-facing health labels — replace Azure Service Bus, readiness-check, and worker-log strings with product-language status or hide behind admin health; see `## TB-650` below | Adoption friction P1 — **V1**; regression not re-verified from 2026-06-15 leakage audit #4; found during persona-driven UX audit 2026-07-05 | S |
-| TB-651 | Extend buyer vocabulary to pipeline stage labels, tooltips, and status pills in operator build — canonical Ready/Needs attention/Blocked/Approved copy on `PIPELINE_STATUS_LABELS`, seal/readiness tooltips, etc.; see `## TB-651` below | Adoption friction P2 — **V1**; partial regression from 2026-06-15 leakage audit #6; depends on **TB-645**; found during persona-driven UX audit 2026-07-05 | S |
-| TB-652 | Extend UX audit screenshot capture to marketing entry points — add `/welcome` and `/why` to `ux-audit-screenshots.spec.ts` for full-app audits aligned with `SCREENSHOT_GALLERY.md`; see `## TB-652` below | Maintainability P2 — **V1**; found during persona-driven UX audit 2026-07-05 | S |
-| TB-653 | Maintain UX audit harness — keep `run-ux-audit.ps1`, `.cursor/skills/lucid-ui-audit/`, and Playwright `testIgnore` for `.next/**` so re-audits stay one command; re-run after shell/nav/intake changes; see `## TB-653` below | Maintainability P2 — **V1**; harness partially shipped 2026-07-05; found during persona-driven UX audit 2026-07-05 | XS |
+| TB-643 | **Done** (2026-07-05) — Default authenticated shell to buyer-polished vocabulary; gate dev chrome on `isOperatorExperienceFullShellEnv` / AdminAuthority, not inverse of demo flags; see `## TB-643` below | Adoption friction P0 — **V1** | L |
+| TB-644 | **Done** (2026-07-05) — Cloud-neutral new-review intake defaults (`cloudProvider: "None"` on presets); outcome-first simplified pilot wizard; Azure extractor under Advanced evidence (Azure) disclosure; see `## TB-644` below | Adoption friction P0 — **V1** | M |
+| TB-645 | **Done** (2026-07-06) — Production-wide buyer vocabulary pass via `isBuyerVocabularyPassActive`; governance-mode labels use Reviews not Runs; nav + terminology guard coverage extended; see `## TB-645` below | Adoption friction P0 — **V1**; depends on **TB-643**; derived from 2026-06-15 leakage audit #6; found during persona-driven UX audit 2026-07-05 | M |
+| TB-646 | **Done** (2026-07-06) — Outcome-first intake CTA wired via `OPERATOR_START_REVIEW_QUICK_ACTION_LABEL` / `NEW_REVIEW_NAV_LINK_LABEL` on home quick actions, pilot nav, shortcuts, and breadcrumbs; see `## TB-646` below | Adoption friction P1 — **V1**; partial regression from 2026-06-15 leakage audit #5; found during persona-driven UX audit 2026-07-05 | S |
+| TB-647 | **Done** (2026-07-06) — Split Insights (core analysis) from Programs (advisory/tuning/planning) and Operations (connector health + system health under `AdminAuthority`); moved readiness out of Integrations; see `## TB-647` below | Adoption friction P1 — **V1**; regression open from 2026-06-15 leakage audit #7–#8; found during persona-driven UX audit 2026-07-05 | M |
+| TB-648 | **Done** (2026-07-06) — Gate `/settings/ai-usage` at `AdminAuthority`; relabel Internal Operations **RAG health** → **Knowledge index health** and **Integration DLQ** → **Failed integration messages**; see `## TB-648` below | Adoption friction P1 — **V1**; complements **TB-634**; found during persona-driven UX audit 2026-07-05 | M |
+| TB-649 | **Done** (2026-07-06) — Scope audit nav to review context (`/audit?runId=…`); shell run-id resolution + audit page URL sync; updated `WORKFLOW_RECIPES_BY_PERSONA.md`; see `## TB-649` below | Adoption friction P1 — **V1**; found during persona-driven UX audit 2026-07-05 (buyer capture timeout on unscoped `/audit`) | S |
+| TB-650 | **Done** (2026-07-06) — Re-audit operator health labels: product-language archival banner/strip, setup callout, integration link tooltips; `operator-health-label-guard` tests; see `## TB-650` below | Adoption friction P1 — **V1**; 2026-06-15 leakage audit #4 | S |
+| TB-651 | **Done** (2026-07-06) — Canonical pipeline status pills (`Ready` / `Needs attention` / `In progress`); `resolvePipelineStatusDisplayLabel` + `pipeline-status-label-guard`; see `## TB-651` below | Adoption friction P2 — **V1**; 2026-06-15 leakage audit #6 | S |
+| TB-652 | **Done** (2026-07-06) — UX audit harness + marketing `/welcome` and `/why` capture (`ux-audit-route-registry`, `run-ux-audit.ps1`, dedicated Playwright projects); see `## TB-652` below | Maintainability P2 — **V1**; found during persona-driven UX audit 2026-07-05 | S |
+| TB-653 | **Done** (2026-07-06) — UX audit harness drift guard (`ux-audit-harness-contract.ts`, `ux-audit-harness-drift-guard.test.ts`); Playwright `testIgnore` on UX audit projects; skill maintenance cadence; see `## TB-653` below | Maintainability P2 — **V1**; harness partially shipped 2026-07-05; found during persona-driven UX audit 2026-07-05 | XS |
+| TB-654 | **Done** (2026-07-06) — Canonical `archlucid.stack.yaml` + `archlucid stack init`/`stack diff` — schema, generator, hosted appsettings + GitHub env manifest + Key Vault checklist; see `## TB-654` below | Deployability P1 — **V1**; found during setup/deployment complexity review 2026-07-05 | L |
+| TB-655 | Terraform root consolidation — collapse 15+ roots into `foundation` / `platform` / `app` modules with state-migration plan; retire conflicting `apply-saas.ps1` vs `provision-landing-zone.ps1` orderings; see `## TB-655` below | Deployability P2 — **V1**; depends on **TB-654** schema; found during setup/deployment complexity review 2026-07-05 | XL |
+| TB-656 | **Done** (2026-07-06) — User-assigned API/Worker Key Vault identities in `terraform-keyvault`; RBAC on first apply; Container Apps wiring + `apply-saas.ps1` skips TB-092 second pass; see `## TB-656` below | Deployability P1 — **V1**; supersedes operational need for TB-092 second pass; found during setup/deployment complexity review 2026-07-05 | M |
+| TB-657 | **Done** (2026-07-06) — CD owns Container App runtime image tags; `lifecycle { ignore_changes = [template[0].container[0].image] }` on API/worker/UI (+ secondary); drift guard + `DEPLOYMENT_CD_PIPELINE.md`; see `## TB-657` below | Deployability P1 — **V1**; found during setup/deployment complexity review 2026-07-05 | S |
+| TB-658 | **Done** (2026-07-06) — `archlucid stack doctor` profiles route `Test-ArchLucidPrerequisites.ps1`, config lint, drift preflight, deployment-evidence, and onboard-preflight; Vitest drift guard; see `## TB-658` below | Supportability P2 — **V1**; complements **TB-654**; found during setup/deployment complexity review 2026-07-05 | M |
+| TB-659 | Onboarding doc consolidation — one canonical setup path per persona (dev, platform operator, enterprise tenant); archive superseded runbooks with redirect notes under `docs/archive/`; see `## TB-659` below | Maintainability P3 — **V1**; extends **FIRST_30_MINUTES.md** discipline; found during setup/deployment complexity review 2026-07-05 | S |
+| TB-660 | **Done** (2026-07-06) — reference-architecture exemplar library: 10 indexed owner-reviewed `ArchitectureRequest` JSON patterns (microservices, DR, zero-trust, regulated finance, event-driven saga, AKS, AWS 3-tier, plus existing 3-tier/serverless/pipeline); README pattern matrix; `ExemplarCorpusIndexerTests` + `TopologyExemplarStylePriorFormatterTests` smoke | Time-to-Value P1 — **V1**; **RAG-V1.1-001** content gap closed | M |
+| TB-661 | Reference-architecture exemplar curation runbook — checklist for constraints, topology diversity, PII/customer-name bans, fingerprint coverage, and review sign-off before merge; see `## TB-661` below | Maintainability P2 — **V1**; complements **TB-660** | S |
+| TB-662 | `ReferenceArchitecture` retrieval IR golden cases — add corpus rows to `tests/eval-datasets/retrieval-golden/cases.json` + floor ratchet entry so exemplar fingerprint matching cannot regress silently; see `## TB-662` below | Correctness P2 — **V1**; extends **RAG-V1-011** / **TB-049** | S |
+| TB-663 | Topology exemplar style-prior observability on run detail — show `exemplarMissing` vs retrieved `ReferenceArchitecture` hits (informational only) in retrieval grounding panel; see `## TB-663` below | Explainability P2 — **V1**; extends **TB-109** | S |
+| TB-664 | Prior-manifest corpus quality guidance for operators — when accepted runs produce useful Ask/prior-decision chunks vs noise; commit-time doc + optional UI hint; see `## TB-664` below | Stickiness P2 — **V1**; **RAG-V1-002** already indexes on commit | S |
+| TB-665 | **Done** (2026-07-06) — `Tabs`/`EnterpriseTabs` primitive (`tabs.tsx`): Carbon line tabs, `tablist`/`tab`/`tabpanel`, keyboard roving, optional URL sync; decision table in `UI_DESIGN_SYSTEM.md`; **TB-666**–**TB-670** consume next | Adoption friction P1 — **V1**; prerequisite for **TB-666**–**TB-670**; found during tab-candidate UX assessment 2026-07-06 | M |
+| TB-666 | **Done** (2026-07-06) — `/reviews/new` start-mode selector uses TB-665 `Tabs` (Quick start / Guided intake / Templates and imports); keyboard roving; first-run disclosure removed; `ReviewsNewPathSwitcher.test.tsx` | Adoption friction P1 — **V1**; depends on **TB-665**; found during tab-candidate UX assessment 2026-07-06 | M |
+| TB-667 | **Done** (2026-07-06) — runs dashboard `RunsDashboardPanelClient` uses TB-665 `Tabs` in buyer and operator shells; `All`/open-list links outside tablist; Archived `aria-pressed` beside tablist; `tabpanel` + keyboard tests | Adoption friction P1 — **V1**; depends on **TB-665**; found during tab-candidate UX assessment 2026-07-06 | M |
+| TB-668 | **Done** (2026-07-06) — policy packs My packs / Catalog on TB-665 `Tabs` (`PolicyPacksPageView`); nested authoring mode switchers use `aria-pressed`; `PolicyPacksPageView.tabs.test.tsx` | Adoption friction P2 — **V1**; depends on **TB-665**; found during tab-candidate UX assessment 2026-07-06 | S |
+| TB-669 | **Done** (2026-07-06) — `/graph` buyer Trace table / Graph view on TB-665 `Tabs`; scope pills inside Graph `tabpanel`; `GraphPageControls.test.tsx` | Adoption friction P1 — **V1**; depends on **TB-665**; found during tab-candidate UX assessment 2026-07-06 | S |
+| TB-670 | Migrate existing hand-rolled tab UIs onto shared `Tabs` primitive — Settings roles, Help shell/panel, deliverables artifact tabs, Alerts/Digests/Advisory hubs; add arrow-key support and `tabpanel` linkage everywhere; see `## TB-670` below | Adoption friction P2 — **V1**; depends on **TB-665**; found during tab-candidate UX assessment 2026-07-06 | M |
+| TB-671 | Decision register Cards/Timeline view switcher — segmented control with machine-readable selected state (`aria-pressed` or radiogroup); currently zero ARIA state; see `## TB-671` below | Adoption friction P2 — **V1**; independent of **TB-665**; found during tab-candidate UX assessment 2026-07-06 | S |
+| TB-672 | Ask conversation thread list selection semantics — `aria-current` (or listbox) on `AskThreadHistoryPanel` so assistive tech announces the active conversation; not tabs (dynamic unbounded set); see `## TB-672` below | Adoption friction P2 — **V1**; independent of **TB-665**; found during tab-candidate UX assessment 2026-07-06 | S |
+| TB-673 | TECH_BACKLOG done-item archive hygiene — move closed `## TB-xxx` bodies to `docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`; regenerate `TECH_BACKLOG_OPEN.md`; batched script + link stubs in main file; see `## TB-673` below | Maintainability P2 — **V1**; found during backlog readability review 2026-07-06 | L |
+| TB-674 | **Done** (2026-07-06) — Rename Getting started → First review guide: `BUYER_ONBOARDING_PAGE_TITLE`, nav label/tooltip, home CTA, `/onboarding` contextual help label; see `## TB-674` below | Adoption friction P2 — **V1**; supersedes interim **TB-434** label; found during First review guide redundancy audit 2026-07-06 | S |
+| TB-675 | **Done** (2026-07-06) — Core Pilot checklist derives step status from tenant/review lifecycle (`core-pilot-step-status.ts`, `useCorePilotDerivedStepStatus`); manual checkboxes removed; optional-step skip only; see `## TB-675` below | Adoption friction P1 — **V1**; found during First review guide redundancy audit 2026-07-06 | M |
+| TB-676 | **Done** (2026-07-06) — Removed duplicate cloud-inventory evidence step from Finish setup wizard; Core Pilot walkthrough step 4 owns the single `/settings/extract-upload` pointer; see `## TB-676` below | Adoption friction P3 — **V1**; found during First review guide redundancy audit 2026-07-06 | XS |
+| TB-677 | **Done** (2026-07-06) — Finish setup wizard uses buyer-safe `/health` (not `/admin/health`); health step gated to self-hosted deployments (`finish-setup-deployment.ts`, `resolveFinishSetupWizardSteps`); regression tests in `finish-setup-wizard-steps.test.ts` and `FinishSetupWizardPanel.test.tsx`; see `## TB-677` below | Adoption friction P1 — **V1**; cross-ref **TB-631**, **TB-634**; found during First review guide redundancy audit 2026-07-06 | M |
+| TB-678 | **Done** (2026-07-06) — Role-gate `OnboardingOptionalSetupSection` on `principalAdmin`; non-admins see admin-delegation one-liner instead of SSO/ROI wizard links; see `## TB-678` below | Adoption friction P2 — **V1**; found during First review guide redundancy audit 2026-07-06 | S |
+| TB-679 | **Done** (2026-07-07) — Onboarding trial and optional-setup copy drift: removed duplicate in-page Onboarding heading; checklist copy references this page; optional-setup collapsed summary scoped to admin identity/ROI; home continue-setup body aligned; see `## TB-679` below | Adoption friction P2 — **V1**; found during First review guide redundancy audit 2026-07-06 | XS |
+| TB-680 | Hub-page do-not-duplicate IA contract + drift guard — document owning-page rule; forbid ungated system-admin links from hub surfaces; see `## TB-680` below | Maintainability P2 — **V1**; extends **TB-404** / `NAV_CONFIG_CONTRACT.md`; found during First review guide redundancy audit 2026-07-06 | M |
+| TB-681 | Azure OpenAI prompt-cache prefix ordering — static system templates, cloud addenda, and policy boilerplate before per-run evidence/retrieval in agent and Ask prompt assembly; OTel cached-input token counters; see `## TB-681` below | Cost-effectiveness P1 — **V1**; found during AI quality/cost/speed review 2026-07-07 | S |
+| TB-682 | Escalation-based model-tier auto-retry — quality-gate rejections retry at next tier (Economy → Standard → Premium) instead of same deployment; cap spend via existing tenant/judge budgets; see `## TB-682` below | Cost-effectiveness P1 — **V1**; extends **TB-179**; found during AI quality/cost/speed review 2026-07-07 | M |
+| TB-683 | Nightly real-mode eval loop — credentialed small live cohort (18 `*.real.json` exemplars) scored by existing harness inside 200k/day judge budget; trend artifact for prompt/model changes; see `## TB-683` below | AI/Agent readiness P1 — **V1**; complements **TB-140** / **TB-181**; found during AI quality/cost/speed review 2026-07-07 | M |
+| TB-684 | Promote quality gates and advanced RAG production defaults — execute **QUALITY_GATE_PROMOTION_PLAN.md** (5 green main runs); enable semantic reranking + faithfulness/semantic judges on lowest-floor agents in staging/prod; see `## TB-684` below | AI/Agent readiness P1 — **V1**; depends on **TB-683** for promotion evidence; found during AI quality/cost/speed review 2026-07-07 | M |
+| TB-685 | Azure OpenAI Batch API for offline LLM paths — nightly eval scoring, golden-cohort drift, judge calls, manifest chunk summarization; ~50% non-interactive discount; see `## TB-685` below | Cost-effectiveness P2 — **V1**; complements **TB-683**; found during AI quality/cost/speed review 2026-07-07 | M |
+| TB-686 | Semantic retrieval chunking — replace or augment character-window chunkers with structure-aware/semantic splits when recall@5 regresses or long-manifest precision drops; see `## TB-686` below | Cutting-edge AI P2 — **V2**; current IR ~98% — polish not gap; found during AI quality/cost/speed review 2026-07-07 | L |
+| TB-687 | Prompt A/B iteration harness — wire `VariantAwareAgentSystemPromptCatalog` to offline/live eval scores for weighted variant selection; see `## TB-687` below | AI/Agent readiness P2 — **V2**; depends on **TB-683** measurement loop; found during AI quality/cost/speed review 2026-07-07 | M |
+| TB-688 | Per-tier model-generation refresh cadence — evaluate newer Azure OpenAI deployments per Economy/Standard/Premium tier against golden cohort; config-only swap when quality/cost improves; see `## TB-688` below | AI/Agent readiness P2 — **V2**; depends on **TB-683**; found during AI quality/cost/speed review 2026-07-07 | S |
+| TB-689 | Multi-vendor LLM routing decision gate — explicit owner ADR before activating `LlmProviderType` scaffolds (Anthropic/Gemini/Ollama); default remain Azure-native; see `## TB-689` below | Cutting-edge AI P3 — **V2**; deferred at current pilot scale; found during AI quality/cost/speed review 2026-07-07 | XL |
+| TB-690 | Fine-tuning activation gate — promote `DisabledFineTuningJobOrchestrator` only when **TB-683** corpus is stable, DPA signed, and **GoldenCohortFineTuningPromotionGate** passes; see `## TB-690` below | Cutting-edge AI P2 — **V2**; infrastructure **TB-594** shipped; found during AI quality/cost/speed review 2026-07-07 | L |
+| TB-691 | **Done** (2026-07-07) — Next 16 `route-bundle-stats.json` parser restores `check:first-load-js` (no silent skip); CI `ui-static-quality` runs gate post-build; baseline notes updated for uncompressed-bytes source; see `## TB-691` below | Performance **P0** — **V1**; extends **TB-573**; found during UI performance review 2026-07-07 | S |
+| TB-692 | Real Core Web Vitals field data collection — wire `web-vitals` (LCP/CLS/INP/TTFB) into existing `AppInsightsTelemetryInit` idle-deferred init; ship as custom events with route + tenant-tier dimensions; owner explicitly requested real field data over the current bundle-size proxy metric; see `## TB-692` below | Performance P1 — **V1**; found during UI performance review 2026-07-07 | M |
+| TB-693 | Lighthouse CI synthetic checks on key routes — `/welcome`, `/reviews`, `/reviews/[runId]`, `/governance/findings`; TB-573 named "Lighthouse CI" but shipped only a bundle-size gate, no synthetic Lighthouse run exists; complements **TB-692** field data with lab data; see `## TB-693` below | Performance P2 — **V1**; closes **TB-573** naming gap; found during UI performance review 2026-07-07 | M |
+| TB-694 | Virtualize `GovernanceFindingsQueueDesktopTable` rows — adopt existing `@tanstack/react-virtual` pattern already used in `AuditEventsOperatorTable` / `RunFindingExplainabilityTable`; `/governance/findings` is the highest-weighted row (144) in `docs/architecture/ui_route_traffic_estimates.md`; see `## TB-694` below | Performance P1 — **V1**; found during UI performance review 2026-07-07 | M |
+| TB-695 | Migrate `useGovernanceFindingsQuery` to TanStack Query + cap fallback fan-out — replace manual `useEffect`+`fetch` with shared query key/cache; bound the fallback path's up-to-12 parallel `getRunExplanationSummary` calls; see `## TB-695` below | Performance P2 — **V1**; extends **TB-562**; found during UI performance review 2026-07-07 | M |
+| TB-696 | Shrink `AppShellClient` always-hydrated surface — split remaining eager providers/panels (beyond sidebar/help/tours already dynamic) so lightweight operator pages don't pay the full ~496-line shell hydration cost; see `## TB-696` below | Performance P2 — **V1**; extends **TB-568**; found during UI performance review 2026-07-07 | M |
+| TB-697 | Re-audit `/reviews/[runId]` bundle composition post-gate-fix — rerun `build:analyze` once **TB-691** restores real numbers (stale baseline showed 421 kB First Load JS, largest of any route); push additional client sections into the existing `RunDetailBelowFoldSections` deferred-chunk pattern; see `## TB-697` below | Performance P3 — **V1**; depends on **TB-691**; found during UI performance review 2026-07-07 | S |
+| TB-698 | Lazy-load policy-pack authoring surfaces — `dynamic()`-wrap `PolicyRuleAuthoringWizard`, `PolicyPackNaturalLanguageBuilder`, and `PolicyPackVisualBuilder` so `/governance/policy-packs` only pays their bundle cost when an author/generator tab opens; see `## TB-698` below | Performance P3 — **V1**; extends **TB-566**; found during UI performance review 2026-07-07 | S |
 | TB-404 | Operator nav ↔ URL prefix policy + CI drift guard — **Done** (2026-06-28) — `NAV_CONFIG_CONTRACT.md` § Route namespace; `nav-route-namespace-exceptions.ts` + `nav-route-namespace-policy.ts`; Vitest drift guard `nav-route-namespace.test.ts` | Maintainability P1 — **V1.1**; prerequisite for TB-405?408 | S |
 | TB-405 | Governance route tree consolidation — **Done** (2026-06-28) — canonical `/governance/policy-packs`, `/governance/resolution`, `/governance/audit`, `/governance/alerts`; permanent redirects from legacy paths; nav + palette + breadcrumbs migrated | Adoption friction P1 — **V1.1** | M |
 | TB-406 | Administration route namespace reconciliation — `/workspace/security-trust` → `/settings/security-trust`; align **Users & roles** (`/admin/users`) with **Role management** (`/settings/roles`) under one prefix; move **Recurrence schedules** nav to Governance or add Administration-prefixed alias | **Done** (2026-06-28) — Adoption friction P1 **V1.1** | M |
@@ -17128,95 +17185,31 @@ experimental: {
 
 ## TB-617 — Consolidate Review Package detail page summary/header layer (P1) — **Done 2026-07-05**
 
-**Closure note:** shipped `ReviewPackageSummaryHeader` with explicit `mode: "draft" | "finalized"`; composes `RunDetailPageHeader`, `ReviewPackagePlainSummary`, `ReviewPackageEvidenceDensityStrip`, and `RunDetailOutcomeCards` as the single summary layer on `RunDetailPageView`; `resolveReviewPackageAttentionLine` surfaces commit-blocking, draft-finalize, blocking-finding, and proof-packet-ready copy only when data supports it. Source widgets retained (other call sites/tests). Tests: `ReviewPackageSummaryHeader.test.ts`, `resolve-review-package-attention-line.test.ts`, `resolve-review-package-summary-mode.test.ts`, updated `RunDetailPageView.progressive-disclosure.test.ts`.
-
-**Window:** V1 — adoption friction polish on an already-shipped page; no route/permission/contract change.
-
-**Why:** `RunDetailPageView.tsx` currently answers "what am I looking at / what's the status" via four separate, independently-conditioned widgets stacked vertically: `RunDetailPageHeader`, `ReviewPackagePlainSummary`, `RunDetailOutcomeCards`, `ReviewPackageEvidenceDensityStrip`. A principal architect has to visually re-assemble one mental model from four cards instead of reading one.
-
-**Approach:**
-
-1. Build one `ReviewPackageSummaryHeader` component with an explicit `mode: "draft" | "finalized"` prop (mirrors `buyerPolishedArtifactTable` + `manifestId`), absorbing: title/status/project/last-updated (from `RunDetailPageHeader`), blocking/advisory finding counts + risk label (from `ReviewPackagePlainSummary`), evidence count + policy packs + governance status (from `ReviewPackageEvidenceDensityStrip`, `RunDetailOutcomeCards`), and export/proof-packet availability (new signal).
-2. Retire the four source widgets as standalone renders on this page specifically — check other call sites first (e.g. `SampleReviewPackageSummary`, showcase pages) before deleting the components outright.
-3. Add a small "what needs attention" line (e.g. "2 high-severity findings need review", "Proof packet not ready") only when the underlying data supports it; do not synthesize when data is unavailable.
-4. Draft mode emphasizes next action + missing evidence; finalized mode emphasizes signed record + export readiness — this must be an explicit branch in the new component, not inferred from prop absence.
-
-**Affected files:** `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`, `archlucid-ui/src/components/RunDetailPageHeader.tsx`, `archlucid-ui/src/components/usability/ReviewPackagePlainSummary.tsx`, `archlucid-ui/src/components/RunDetailOutcomeCards.tsx`, `archlucid-ui/src/components/usability/ReviewPackageEvidenceDensityStrip.tsx`.
-
-**Refs:** found during a principal-architect Review Package detail page hierarchy audit 2026-07-05; see cluster note above **TB-617**.
-
-**Size estimate:** M.
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-617](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-617) — Done 2026-07-05
 
 ---
 
 ## TB-618 — Single primary next-action CTA per Review Package state (P1) — **Done 2026-07-05**
 
-**Closure note:** shipped `resolveReviewPackagePrimaryAction` + `ReviewPackagePrimaryAction` inside `ReviewPackageSummaryHeader`; demoted header `CommitRunButton` to outline, governance/executive-summary cards to outline (governance card hidden when primary slot covers it), and `RunDetailRunGovernanceDispositionActions` approve button to outline. Tests: `resolve-review-package-primary-action.test.ts`, `ReviewPackageSummaryHeader.test.ts`, `RunDetailGovernanceCta.test.tsx`.
-
-**Window:** V1 — depends on **TB-617** landing first (the new summary header is where the primary CTA slot lives).
-
-**Why:** `RunDetailGovernanceCta`, `ExportDeliverableDialog`, `RunDetailExecutiveSummaryCtaCard`, `RunDetailRunActionsSection`, and `GenerateAdrFromRunModal` all render conditionally on this page with no explicit ranking, so multiple green/primary-looking buttons can appear at once with no signal of which one matters right now.
-
-**Approach:**
-
-1. Add a pure, unit-testable resolver function (e.g. `resolveReviewPackagePrimaryAction`) that picks exactly one of: Review findings / Add evidence / Finalize package / Export proof packet / Open governance decision, based on `manifestId`, `operatorGovernanceDecision`, `hasCommitBlockingFailures`.
-2. Render that single choice as the one green filled primary button inside `ReviewPackageSummaryHeader` (**TB-617**); demote the other CTA components to secondary (neutral outline) placement inside their own sections, or remove if redundant with the primary slot.
-3. Only revisit the "sticky action bar" idea (Back to packages / Add evidence / Finalize / Export) after this item lands — it may no longer be needed once there is one clear primary CTA.
-
-**Affected files:** `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailGovernanceCta.tsx`, `RunDetailExecutiveSummaryCtaCard.tsx`, `RunDetailRunActionsSection.tsx`, `archlucid-ui/src/components/usability/ExportDeliverableDialog.tsx`, `archlucid-ui/src/components/GenerateAdrFromRunModal.tsx`.
-
-**Refs:** found during a principal-architect Review Package detail page hierarchy audit 2026-07-05; depends on **TB-617**.
-
-**Size estimate:** M.
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-618](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-618) — Done 2026-07-05
 
 ---
 
 ## TB-619 — Findings and evidence-trail presentation polish on Review Package detail page (P2) — **Done 2026-07-05**
 
-**Closure note:** shipped the evidence-gap signal, owner/review-status rows, bolded "Recommended action" label, and link/badge visual distinction described below. The full 5-term evidence vocabulary (Evidence/Evidence gap/Assumption/Policy rule/Decision) unification across `FindingPolicyProvenancePanel` and sibling citation components was judged a separate, larger terminology-standardization effort and was **not** attempted this pass — see summary-table row for detail. Tests: `quick-decision-summary-derive.test.ts`, `QuickDecisionSummary.test.tsx`, `FindingEvidenceLinkChip.test.tsx`.
-
-**Window:** V1 — scoped to the findings/evidence sections only; independent of **TB-617**/**TB-618** and can land in parallel.
-
-**Why:** Findings need to be triage-scannable (severity, confidence, source evidence, recommended action, disposition, owner/status) and evidence traceability needs consistent labeling (`Evidence`, `Evidence gap`, `Assumption`, `Policy rule`, `Decision`) so a reviewer can tell what's proven vs. assumed without opening every finding.
-
-**Approach:**
-
-1. Audit the findings section and evidence-trail rendering for missing fields per the list above; add what's missing using `SeverityTag`/`StatusTag` (never ad hoc colored `span`).
-2. Make evidence links visually distinct from non-interactive status badges (design-system rule: badges are noninteractive, links are recognizable, buttons are for in-place actions).
-3. Bold the five guidance labels consistently wherever they appear.
-
-**Affected files:** review findings/evidence components under `archlucid-ui/src/components/findings/` and `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/` (exact file list to be confirmed at pickup time — findings rendering is currently split across several components).
-
-**Refs:** found during a principal-architect Review Package detail page hierarchy audit 2026-07-05.
-
-**Size estimate:** M.
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-619](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-619) — Done 2026-07-05
 
 ---
 
 ## TB-620 — Reorder Review Package detail page sections per architect workflow, dual-mode aware (P2) — **Done 2026-07-05**
 
-**Closure note:** buyer finalized packages now render findings immediately after first-screen proof status; evidence trust + manifest summary follow governance alerts before export actions; operator-mode findings lead `RunDetailBelowFoldSections` before pipeline timeline. Draft in-progress packages promote capture-evidence and progress tracker after proof status. Full Suspense boundaries preserved.
-
-**Window:** V1 — pick up only after **TB-617** and **TB-618** land; reordering ahead of those would multiply the diff surface for no benefit.
-
-**Why:** Recommended architect-facing order is summary/next-action → findings → evidence → decisions/governance → risks/exceptions → artifacts/proof packet → audit trail → assistant/advanced tools. Today, sections are interleaved with operational content (forensics, pipeline tooling, technical footers) ahead of some of those. Any reorder must be specified **separately for draft and finalized mode** — they are structurally different render trees, not one layout with a toggle — and must account for which Suspense boundary (`RunDetailMidDeferredSections` vs. `RunDetailBelowFoldSections` vs. `RunDetailExplanationDeferred`) each moved section lives in, since that controls streaming/paint order, not just visual order.
-
-**Approach:**
-
-1. Write the target order per mode explicitly (two lists, not one) before touching JSX.
-2. Move sections without changing their Suspense boundary unless the boundary itself is part of the explicit plan.
-3. Update the source-order assertion tests that will break intentionally: `RunDetailPageView.progressive-disclosure.test.ts`, `RunDetailPackageSubnav.test.tsx`, `RunDetailRunActionsSection.test.tsx` (and any other `indexOf`-based ordering test found at pickup time) — do not treat these as collateral damage to fix later; they are part of this item's scope.
-4. `RunDetailSectionNav` anchors already exist; update its section list only if the reorder changes which sections exist, not just their position.
-
-**Affected files:** `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`, `RunDetailMidDeferredSections.tsx`, `RunDetailBelowFoldSections.tsx`, `RunDetailExplanationDeferred.tsx`, `archlucid-ui/src/components/RunDetailSectionNav.tsx`, plus the three test files named above.
-
-**Refs:** found during a principal-architect Review Package detail page hierarchy audit 2026-07-05; depends on **TB-617**, **TB-618**.
-
-**Size estimate:** L.
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-620](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-620) — Done 2026-07-05
 
 ---
 
-## TB-621 — Review Package detail page spacing/affordance pass and terminology-surface extension (P3)
+## TB-621 — Review Package detail page spacing/affordance pass and terminology-surface extension (P3) — **Done** (2026-07-06)
+
+**Closure:** `ReviewPackageSummaryHeader`, `RunDetailPageView`, `RunDetailOutcomeCards`, executive/governance CTA cards, and capture-evidence section use shared `OPERATOR_LAYOUT`/`OPERATOR_CARD` spacing; plain-summary and evidence-density strips use `p-4`; `REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS` + TB-621 guard test in `review-terminology-guard.test.ts`; `ReviewPackageSummaryHeader.test.ts` layout-token regression.
 
 **Window:** V1 — polish pass; land last so it doesn't get overwritten by **TB-617**/**TB-618**/**TB-620** structural moves.
 
@@ -17280,9 +17273,11 @@ experimental: {
 
 ---
 
-## TB-635 — `ArchLucid.Api` Cobertura triage inventory (P2)
+## TB-635 — `ArchLucid.Api` Cobertura triage inventory (P2) — **Done 2026-07-07**
 
 **Window:** V1 — prerequisite for **TB-636**–**TB-639**; do not batch exclusions or add tests until this inventory exists.
+
+**Closure:** `scripts/ci/api_cobertura_triage_inventory.py` parses `docs/COVERAGE_GAP_ANALYSIS.md` § ArchLucid.Api (120 classes below 95% line), cross-references `ArchLucid.Api.Tests` by type name and `[Trait("Category", …)]`, and assigns one bucket per class. Regenerate with `python scripts/ci/api_cobertura_triage_inventory.py --write-inventory`. Published inventory counts: **pure-DTO 21**, **integration-covered 33**, **small-logic 34**, **genuinely-untested 32** — under `docs/COVERAGE_GAP_ANALYSIS.md` (**TB-635 Cobertura triage inventory**) and `docs/library/coverage-exclusions.md` appendix. Unittest: `scripts/ci/test_api_cobertura_triage_inventory.py`.
 
 **Why:** Merged Cobertura reports `ArchLucid.Api` at ~50% line (CI #2516) while `--skip-package-line-gate ArchLucid.Api` exempts it from the per-package floor. Many classes at 0% in `docs/COVERAGE_GAP_ANALYSIS.md` are misleading: e.g. `ProductLearningController` has `Category=Integration` tests (`ProductLearningControllerTests.cs`) but Integration shards run without Coverlet (`test.runsettings`), so exercised code still shows 0%. Without a classified inventory, engineers either waste effort unit-testing already-covered controllers or exclude types that still carry real logic.
 
@@ -17306,9 +17301,11 @@ experimental: {
 
 ---
 
-## TB-636 — Batch `[ExcludeFromCodeCoverage]` for `ArchLucid.Api` pure DTOs (P3)
+## TB-636 — Batch `[ExcludeFromCodeCoverage]` for `ArchLucid.Api` pure DTOs (P3) — **Done 2026-07-07**
 
 **Window:** V1 — after **TB-635** confirms the pure-DTO bucket.
+
+**Closure:** All 21 **TB-635** pure-DTO classes carry `[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]`; `docs/library/coverage-exclusions.md` Category 2b table enumerates each file/class. No controllers, services, or mappers with logic were excluded.
 
 **Why:** Dozens of `ArchLucid.Api` types at 0% are request/response bodies with only `{ get; set; }` properties (e.g. `AdminArchiveRunsBatchRequest`, `TrialLocalRegisterRequest`, `AlertsAcknowledgeBatchRequest`, `LearningPlanListItemResponse`). They match `docs/library/coverage-exclusions.md` **Category 2** (same policy as `AzureOpenAiOptions` / Dapper row DTOs) but lack the attribute, inflating the denominator without representing testable risk.
 
@@ -17328,9 +17325,11 @@ experimental: {
 
 ---
 
-## TB-637 — Unit tests for `ArchLucid.Api` small logic surfaces (P2)
+## TB-637 — Unit tests for `ArchLucid.Api` small logic surfaces (P2) — **Done 2026-07-07**
 
 **Window:** V1 — after **TB-635** confirms the **small-logic** bucket.
+
+**Closure:** Added Unit-category tests for untriaged small-logic types: `ComparisonResponseMapperTests` (all five mapper methods), `EvolutionOutcomeParserTests` (60R-v2 JSON parse + legacy/invalid paths), `MicrosoftOpenApiAnonymousSecurityOperationTransformerTests` (anonymous security clearing). Triage examples `ExternalIdIssuerPatterns`, `ConsultingDocxJobPayloadMapper`, `EvolutionCandidateChangeSetResponseMapper`, and `TrialExternalIdJwtBearerSupport` already had `[Trait("Category", "Unit")]` coverage in `ArchLucid.Api.Tests`.
 
 **Why:** Some low-line-count types are not "unbreakable" DTOs: they encode security or contract behavior where a regression is costly and a test is cheaper than an exclusion. Examples already identified: `ExternalIdIssuerPatterns.IsConsumerIdentityIssuer` (CIAM issuer regex), `ConsultingDocxJobPayloadMapper.ToPayload`, `EvolutionCandidateChangeSetResponseMapper.ToResponse` (field-drift guard). These should be unit-tested in non-Integration tests so `coverage.runsettings` shards collect Coverlet hits.
 
@@ -17349,301 +17348,1242 @@ experimental: {
 
 ---
 
-## TB-638 — Document `ArchLucid.Api` Integration-shard Coverlet measurement gap (P3)
+## TB-638 — Document `ArchLucid.Api` Integration-shard Coverlet measurement gap (P3) — **Done** (2026-07-07)
 
-**Window:** V1 — can land in parallel with **TB-635**; no code changes required beyond docs.
-
-**Why:** Contributors reading `ArchLucid.Api` at 50% line in CI may assume undertested controllers; in practice the largest HTTP surface is exercised by `Category=Integration` tests on shards that intentionally omit Coverlet because collector finalization crashes under chunked SQL load (`.github/workflows/ci.yml`, `test.runsettings`). The `--skip-package-line-gate ArchLucid.Api` flag is correct given that blind spot but is easy to misread as permission to ignore API testing entirely.
-
-**Approach:**
-
-1. Add a subsection to `docs/library/coverage-exclusions.md` — **ArchLucid.Api measurement vs testing** — documenting:
-   - which `ArchLucid.Api.Tests` filters use `coverage.runsettings` + Coverlet (non-Integration, Slow SQL subset);
-   - which use `test.runsettings` without Coverlet (Integration shards via `Invoke-ApiIntegrationTestShard.ps1`);
-   - owner decision (2026-07-05): **do not** re-enable Coverlet on Integration shards until a separate stability initiative succeeds.
-2. Add a short pointer in `docs/COVERAGE_GAP_ANALYSIS.md` § Recommended workflow: 0% on Integration-only controllers is often a measurement artifact.
-3. List when `--skip-package-line-gate ArchLucid.Api` could be removed (honest per-package % after DTO exclusions + optional future Coverlet fix).
-
-**Affected files:** `docs/library/coverage-exclusions.md`, `docs/COVERAGE_GAP_ANALYSIS.md`.
-
-**Refs:** CI #2516; `test.runsettings`, `.github/workflows/ci.yml` `dotnet-full-regression-core-api-integration`.
-
-**Size estimate:** XS.
+**Closed:** `docs/library/coverage-exclusions.md` § **ArchLucid.Api measurement vs testing** documents shard/runsettings/Coverlet matrix, owner decision to keep Coverlet off Integration shards, and criteria for removing `--skip-package-line-gate ArchLucid.Api`. `docs/COVERAGE_GAP_ANALYSIS.md` § Recommended workflow adds the measurement-artifact pointer for contributors triaging low Api %.
 
 ---
 
-## TB-639 — `ArchLucid.Api` post-triage genuine coverage gaps (P2)
+## TB-639 — `ArchLucid.Api` post-triage genuine coverage gaps (P2) — **Done** (2026-07-07)
 
-**Window:** V1 — after **TB-635**, **TB-636**, and **TB-637**; last item in the cluster.
-
-**Why:** After DTO exclusions and small-logic unit tests, remaining gaps should reflect real untested behavior — not Cobertura blind spots. Services/controllers like `AdminDiagnosticsService`, `EvolutionSimulationService`, or admin controllers with no matching test file may still lack meaningful coverage; controllers with existing Integration tests should not get shallow duplicate unit tests.
-
-**Approach:**
-
-1. Filter **TB-635** inventory to **genuinely-untested** only.
-2. For each, prefer extending or adding `Category=Integration` tests when the type is HTTP-pipeline or SQL-backed; prefer unit tests when pure logic in a service class.
-3. Target highest-risk surfaces first: admin/diagnostics, governance mutations, billing webhooks, tenant registration — confirm against existing `ArchLucid.Api.Tests` before writing.
-4. Success criteria: every **genuinely-untested** row either has a new test or a documented Category 1/4 exclusion with justification in `coverage-exclusions.md`.
-5. **Explicit anti-pattern:** do not unit-test `ProductLearningController`-style endpoints that already have Integration tests solely to satisfy per-package line %.
-
-**Affected files:** `ArchLucid.Api.Tests/**/*.cs`, `ArchLucid.Api/**/*.cs` (only where triage confirms gap), `docs/library/coverage-exclusions.md` (new justified exclusions if any).
-
-**Refs:** depends on **TB-635**, **TB-636**, **TB-637**; `docs/COVERAGE_GAP_ANALYSIS.md` § ArchLucid.Api.
-
-**Size estimate:** M.
+Closed 2026-07-07: unit tests for `PagingParameters`, `ReplayArtifactResponseFactory`, `ApiFileResults`, `EvolutionOutcomeShadowReader`, trial-limit authorization pipeline, `LearningPlanningReadService`, `OpenApiAuthDocumentMutator`, `ProblemDetailsResponsesOperationFilter`, `RateLimitingRolePartitionBuilder`, `LocalTrialJwtIssuer`; `Category=Unit` traits on existing `TrialLimitFilterTests` / `EvolutionSimulationReportBuilderTests`; `GenuinelyUntestedControllersIntegrationTests` authorization smokes for 11 controllers; Category 2b + Category 8 exclusions documented in `coverage-exclusions.md` § TB-639.
 
 ---
 
 ## TB-642 — Remove AI budget pill from primary operator header for non-admin callers (P0) — **Done** (2026-07-05)
 
-**Closure:** `OperatorShellTopBar` mounts `LlmBudgetStatusPill` only when `useNavCallerAuthorityRank() >= AdminAuthority` (defense in depth retained in the pill). Operator-mock Playwright config sets `MOCK_AUTH_ME_ROLE=Operator` so UX audit / pilot-nav captures assert no header pill for architect persona. JIT budget notice when a review is blocked remains optional follow-on (not shipped).
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-642](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-642) — Done 2026-07-05
 
-**Window:** V1 — regression from 2026-06-15 leakage audit finding #1; still open in operator-shell capture 2026-07-05.
+---
 
-**Why:** `LlmBudgetStatusPill` renders in `OperatorShellTopBar` when `showDevOperatorChrome = !buyerPolished` — visible to `ExecuteAuthority` architects and exec personas who cannot act on tenant budget. Operator-shell UX audit screenshots (`shell-reviews-list.png`) show the pill; buyer-polished capture hides it. Teaches cost-control anxiety before value narrative; CTO/CIO and Enterprise Architect rejection criteria in `BUYER_PERSONAS.md`.
+## TB-643 — Default authenticated shell to buyer-polished vocabulary and hidden dev chrome (P0) — **Done 2026-07-05**
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-643](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-643) — Done 2026-07-05
+
+---
+
+## TB-644 — Cloud-neutral new-review intake defaults (P0) — **Done 2026-07-05**
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-644](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-644) — Done 2026-07-05
+
+---
+
+## TB-645 — Apply buyer vocabulary pass in production operator builds (P0) — **Done 2026-07-06**
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-645](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-645) — Done 2026-07-06
+
+---
+
+## TB-646 — Rename primary intake create action to outcome language (P1) — **Done 2026-07-06**
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-646](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-646) — Done 2026-07-06
+
+---
+
+## TB-647 — Split architect workflows from ops telemetry in sidebar (P1) — **Done 2026-07-06**
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-647](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-647) — Done 2026-07-06
+
+---
+
+## TB-648 — Hide or relabel Admin tools for non-admin tenants (P1) — **Done 2026-07-06**
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-648](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-648) — Done 2026-07-06
+
+---
+
+## TB-649 — Scope audit nav links to review context (P1) — **Done 2026-07-06**
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-649](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-649) — Done 2026-07-06
+
+---
+
+## TB-650 — Re-audit Service Bus / Azure infra copy in operator-facing health labels (P1) — **Done 2026-07-06**
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-650](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-650) — Done 2026-07-06
+
+---
+
+## TB-651 — Extend buyer vocabulary to pipeline stage labels and status pills (P2) — **Done 2026-07-06**
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-651](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-651) — Done 2026-07-06
+
+---
+
+## TB-652 — Extend UX audit screenshot capture to marketing entry points (P2) — **Done** (2026-07-06)
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-652](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-652) — Done 2026-07-06
+
+---
+
+## TB-653 — Maintain UX audit harness (P2) — **Done** (2026-07-06)
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-653](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-653) — Done 2026-07-06
+
+---
+
+## TB-654 — Canonical `archlucid.stack.yaml` + `archlucid stack init` config generator (P1) — **Done** (2026-07-06)
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-654](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-654) — Done 2026-07-06
+
+---
+
+## TB-655 — Terraform root consolidation into foundation / platform / app (P2)
+
+**Window:** V1 — large IaC refactor; schedule after **TB-656** and **TB-657** quick wins.
+
+**Why:** ArchLucid hosting uses 15+ separate Terraform state roots with a manually enforced 13-step apply order (`REFERENCE_SAAS_STACK_ORDER.md`), an mandatory TB-092 Key Vault RBAC second pass after Container Apps, and two orchestrators (`infra/apply-saas.ps1` vs `scripts/provision-landing-zone.ps1`) that apply roots in slightly different orders. Module dependencies inside fewer roots replace human ordering and shrink greenfield apply from ~13 steps to ~3.
 
 **Approach:**
 
-1. Remove `LlmBudgetStatusPill` from the primary header for callers below `AdminAuthority` (or equivalent billing-admin tier — confirm against `WalletController` / cost-reporting RBAC).
-2. Keep spend/budget controls under `/settings/cost-reporting` and billing surfaces where admins already manage caps.
-3. Optional just-in-time notice only when a review action will actually be blocked by budget — not persistent header chrome.
-4. Regression: re-run `npm run ux-audit:screenshots:operator` — `shell-reviews-list.png` and `executive-dashboard.png` must show no header pill for non-admin mock persona.
+1. Design three composition roots: **`foundation`** (network, Key Vault, DNS, user-assigned identities — pairs with **TB-656**), **`platform`** (SQL, storage, Redis, Cosmos, Service Bus, OpenAI, Search, Content Safety), **`app`** (Container Apps, edge, monitoring, Entra app wiring).
+2. Move existing `infra/terraform-*` modules under the new roots without changing resource addressing where possible; publish `terraform state mv` migration runbook per environment.
+3. Retire or thin `provision-landing-zone.ps1` to delegate to the single canonical orchestrator; align `REFERENCE_SAAS_STACK_ORDER.md` and `apply-saas.ps1`.
+4. Update CI `validate-saas-infra.ps1` root list; keep `terraform-pilot` profile as a validate-only subset if still needed for fast PR checks.
+5. Owner sign-off on blast-radius trade-off (larger plan/apply per root vs fewer operator steps).
 
-**Affected files:** `archlucid-ui/src/components/LlmBudgetStatusPill.tsx`, `archlucid-ui/src/components/shell/OperatorShellTopBar.tsx`, related tests.
+**Affected files:** `infra/terraform-*/`, `infra/apply-saas.ps1`, `scripts/provision-landing-zone.ps1`, `docs/library/REFERENCE_SAAS_STACK_ORDER.md`, `docs/library/DEPLOYMENT_TERRAFORM.md`, `.github/workflows/ci.yml`.
 
-**Refs:** `docs/architecture/PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md` #1; `docs/architecture/UX_AUDIT_2026_07_05.md` finding #1.
+**Depends on:** **TB-654** schema (generated tfvars should target the new root layout); **TB-656** (identity model).
+
+**Refs:** TB-091–TB-102 IaC parity cluster (Done); `deploy/hosted-prod-terraform/`.
+
+**Size estimate:** XL.
+
+---
+
+## TB-656 — User-assigned managed identities for Key Vault RBAC (P1) — **Done** (2026-07-06)
+
+**Status:** **Done** (2026-07-06). Added `workload_identities.tf` in `terraform-keyvault` (API/Worker user-assigned identities + same-apply `Key Vault Secrets User` RBAC), Container Apps `key_vault_reference_identity_id` + `AZURE_CLIENT_ID` wiring, `apply-saas.ps1` auto-var pass and TB-092 skip when UAMI enabled, drift guard (`terraform-keyvault-uami-drift-guard.test.ts`), and updated `CONFIGURATION_KEY_VAULT.md` / `REFERENCE_SAAS_STACK_ORDER.md`.
+
+**Window:** V1 — eliminates TB-092 operational second pass.
+
+**Why:** **TB-092** (Done) grants `Key Vault Secrets User` to API and Worker **system-assigned** managed identities, but those principal IDs do not exist until Container Apps are created — forcing a documented second Terraform apply after `terraform-container-apps`. User-assigned identities created in the foundation apply have stable principal IDs upfront.
+
+**Approach:**
+
+1. Add `azurerm_user_assigned_identity` resources for API and Worker in `terraform-private` or `terraform-keyvault` (foundation wave).
+2. Grant `Key Vault Secrets User` on the vault to those identities in the same apply (replacing or supplementing `workload_rbac.tf` principal-ID variables).
+3. Configure Container Apps to attach the user-assigned identities instead of (or in addition to) system-assigned for Key Vault secret resolution.
+4. Update `Apply-HostedProdStack.ps1`, `apply-saas.ps1`, and `REFERENCE_SAAS_STACK_ORDER.md` to remove the TB-092 second-pass step when this ships.
+5. Migration note for existing environments: import identities, rebind apps, remove redundant role assignments.
+
+**Affected files:** `infra/terraform-private/`, `infra/terraform-keyvault/workload_rbac.tf`, `infra/terraform-container-apps/`, `scripts/deploy/Apply-HostedProdStack.ps1`, `docs/library/CONFIGURATION_KEY_VAULT.md`.
+
+**Refs:** **TB-092** (Done — this item retires its operational second pass).
+
+**Size estimate:** M.
+
+---
+
+## TB-657 — Resolve CD vs Terraform Container App image drift (P1) — **Done** (2026-07-06)
+
+**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-657](../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-657) — Done 2026-07-06
+
+---
+
+## TB-658 — `archlucid stack doctor` unified deployment readiness command (P2) — **Done** (2026-07-06)
+
+**Shipped:** `archlucid stack doctor --profile <FirstPilotMinimum|StagingRealLlm|ProductionLike|staging-deploy|post-deploy>` orchestrates existing readiness checks in order with PASS/WARN/FAIL rollup (JSON + human summary). Profiles map to `Test-ArchLucidPrerequisites.ps1`, in-process `config lint`, `Assert-TerraformDeploymentDriftPreflight.ps1`, `deployment-evidence` probes, and `onboard-preflight` HTTP checks. Optional profile default from `archlucid.stack.yaml` `azure.environment`. Docs: `FIRST_AZURE_DEPLOYMENT.md`, `PILOT_PREREQUISITES.md`. Tests: `StackDoctor*Tests`, `archlucid-stack-doctor-drift-guard.test.ts`.
+
+**Window:** V1 — CLI router; underlying scripts remain.
+
+**Why:** Platform operators must choose among `Test-ArchLucidPrerequisites.ps1`, `run-readiness-check.ps1`, `Assert-TerraformDeploymentDriftPreflight.ps1`, `archlucid config lint`, `Invoke-OnboardPreflight.ps1`, `collect-first-pilot-proof.ps1`, and post-deploy smoke scripts with no single entry point.
+
+**Approach:**
+
+1. Add `archlucid stack doctor --profile <FirstPilotMinimum|StagingRealLlm|ProductionLike|staging-deploy|post-deploy>` that runs the appropriate subset in order and emits a single PASS/FAIL/WARN rollup JSON + human summary.
+2. Map profiles to existing scripts (invoke via `Process.Start` or shared library — do not duplicate logic).
+3. Document profile matrix in `docs/library/FIRST_AZURE_DEPLOYMENT.md` and `PILOT_PREREQUISITES.md`.
+4. Optional: wire into `cd.yml` as a pre-smoke gate behind a feature flag.
+
+**Affected files:** `ArchLucid.Cli`, `scripts/Test-ArchLucidPrerequisites.ps1` (call-through), `docs/library/FIRST_AZURE_DEPLOYMENT.md`.
+
+**Depends on:** **TB-654** optional (doctor can read `archlucid.stack.yaml` for profile defaults).
+
+**Refs:** **TB-210** (pilot prerequisites — Done); `scripts/Invoke-OnboardPreflight.ps1`.
+
+**Size estimate:** M.
+
+---
+
+## TB-659 — Onboarding doc consolidation per persona (P3)
+
+**Window:** V1 — documentation-only; zero runtime change.
+
+**Why:** `FIRST_30_MINUTES.md` exists because engineers previously had too many onboarding paths. The hosted-operator surface still spans dozens of runbooks, checklists, and persona docs with overlapping scope (`START_HERE.md`, `INSTALL_ORDER.md`, `DEPLOYMENT.md`, `FIRST_AZURE_DEPLOYMENT.md`, `HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md`, deprecated `ONBOARDING_HAPPY_PATH.md` aliases). Buyers and contributors hit the wrong doc.
+
+**Approach:**
+
+1. Publish a three-row canonical map in `docs/START_HERE.md`: **Contributor** → `FIRST_30_MINUTES.md`; **Platform operator** → `FIRST_AZURE_DEPLOYMENT.md` + **TB-654** answers file; **Enterprise customer admin** → `HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md` (in-product, no repo clone).
+2. Move superseded paths to `docs/archive/onboarding/` with one-line redirect stubs at old locations (pattern: `ONBOARDING_HAPPY_PATH.md` deprecation).
+3. Add CI advisory or `check_doc_links.py` guard for banned duplicate "quickstart" filenames outside the canonical trio.
+4. Do **not** merge runbook operational detail — only collapse *entry-point* confusion.
+
+**Affected files:** `docs/START_HERE.md`, `docs/engineering/FIRST_30_MINUTES.md`, `docs/library/FIRST_AZURE_DEPLOYMENT.md`, `docs/archive/onboarding/`, `scripts/ci/check_doc_links.py` (optional guard).
+
+**Refs:** `docs/archive/ARCHLUCID_INTERNAL_DOC_REVIEW` ("too many plausible starting points"); **TB-143–TB-148** (in-app docs — different surface).
 
 **Size estimate:** S.
 
 ---
 
-## TB-643 — Default authenticated shell to buyer-polished vocabulary and hidden dev chrome (P0) — **Done** (2026-07-05)
+## TB-660 — Curate reference-architecture exemplar library (P1) — **Done** (2026-07-06)
 
-**Closure:** `isBuyerPolishedOperatorShellEnv()` no longer returns false when `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator` — buyer-polished vocabulary and API audience headers are the default for all authenticated builds. Engineering-only chrome (header budget pill/banners, technical run-list affordances, static-demo fallbacks outside dev) gates on `isOperatorExperienceFullShellEnv()`; dense System Administration nav remains behind `isShowSystemAdministrationNavEnabled()`. See `docs/library/OPERATOR_UI_EXPERIENCE_MODES.md`.
+**Closed:** Ten indexed exemplars under `templates/reference-architectures/**` (renamed `azure-data-pipeline-batch.json`; seven new patterns); README matrix; `ExemplarCorpusIndexerTests` + style-prior formatter smoke.
 
-**Window:** V1 — root cause behind most "two products" delta in 2026-07-05 UX audit; regression from 2026-06-15 leakage audit finding #2.
+**Window:** V1 — **RAG-V1.1-001** content; indexer and Topology style-prior injection already shipped.
 
-**Why:** `isBuyerPolishedOperatorShellEnv()` returns false when `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator` at build time (`demo-ui-env.ts`). Paying customers on operator deploys get engineering-console density and dev chrome while packaged demos flip buyer polish via `NEXT_PUBLIC_DEMO_MODE`. Product narrative must not depend on inverse-of-demo build flags.
+**Why:** `ExemplarCorpusIndexer` indexes `templates/reference-architectures/**`, but only **three** exemplars ship today (3-tier web, serverless API, data pipeline). `TopologyAgentHandler` retrieves up to three `ReferenceArchitecture` hits as a **style prior only** — they do not affect manifest hash, compliance citations, or gate outcomes. The measured gap is **cold-start topology quality** on novel briefs, not offline faithfulness/IR (both already above CI floors at ~98%).
 
 **Approach:**
 
-1. Default signed-in authenticated shell to buyer-polished vocabulary and hidden dev chrome for all production operator deploys.
-2. Expose dense admin/ops nav, COGS surfaces, and telemetry only by **authority tier** (or explicit opt-in), not by `NEXT_PUBLIC_DEMO_MODE` vs `NEXT_PUBLIC_OPERATOR_EXPERIENCE`.
-3. Preserve an explicit escape hatch for internal ArchLucid staff (`showSystemAdministrationNav` / admin density) without making that the default customer experience.
-4. Update `.env.pilot.example`, `.env.development`, and deployment runbooks so production operator builds no longer require demo flags for buyer language.
-5. **TB-645** lands the vocabulary pass details once this shell default is in place.
+1. Add ~7–12 new owner-reviewed `ArchitectureRequest` JSON files under `templates/reference-architectures/` covering pilot-common patterns not represented today (e.g. microservices/API gateway, multi-region DR, zero-trust segmentation, regulated healthcare/finance constraints, event-driven integration, Kubernetes/AKS baseline).
+2. Each file must pass existing API validation (description length, required fields) and the curation checklist from **TB-661** once available (or inline review notes in PR until **TB-661** lands).
+3. Update `templates/reference-architectures/README.md` with a pattern matrix (file, cloud, domain, constraints exercised).
+4. Verify `ExemplarCorpusStartupIndexerHostedService` re-indexes on deploy; smoke: Topology run on a matching brief shows `exemplarMissing: false` in prompt grounding trace.
+5. Do **not** wire exemplars into compliance/cost agents or manifest hash paths.
 
-**Affected files:** `archlucid-ui/src/lib/demo-ui-env.ts`, `archlucid-ui/src/lib/buyer-demo-vocabulary.ts`, shell layout components, deploy env templates, `docs/architecture/UX_AUDIT_2026_07_05.md`.
+**Acceptance:**
 
-**Refs:** `docs/architecture/PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md` #2; `docs/architecture/UX_AUDIT_2026_07_05.md` finding #2; `docs/library/UI_DESIGN_SYSTEM.md`.
+- At least **10** distinct exemplars indexed (including existing three).
+- Integration or unit test: `TopologyExemplarStylePriorFormatter.FormatStylePriorBlock` receives non-empty hits for at least one new fixture request fingerprint.
+
+**Affected files:** `templates/reference-architectures/**`, `templates/reference-architectures/README.md`, `ArchLucid.Retrieval.Tests` (smoke), optional `docs/library/customer-facing/PILOT_GUIDE.md` cross-link.
+
+**Refs:** **RAG-V1.1-001**; `TopologyExemplarStylePriorFormatter.cs`; `ExemplarCorpusIndexer.cs`; **TB-661**, **TB-662**.
+
+**Size estimate:** M.
+
+---
+
+## TB-661 — Reference-architecture exemplar curation runbook (P2)
+
+**Window:** V1 — documentation + lightweight CI guard optional.
+
+**Why:** Exemplar text is injected verbatim into the Topology agent prompt as structural guidance. Low-quality or near-duplicate JSON steers topology wrong while still being "retrieved." Human review discipline matters more than corpus volume.
+
+**Approach:**
+
+1. Publish `docs/runbooks/REFERENCE_ARCHITECTURE_EXEMPLAR_CURATION.md` with: required `ArchitectureRequest` fields, constraint-writing guidance, diversity targets (avoid ten near-duplicate 3-tier variants), PII/customer-name prohibitions, cloud-provider alignment, and reviewer sign-off checklist.
+2. Document explicit scope boundary: exemplars are **style prior only** — never cited in findings, never in manifest hash (mirror `TopologyExemplarStylePriorFormatter` XML docs).
+3. Optional: `scripts/ci/assert_reference_architecture_exemplars.py` — fail when new JSON lacks README matrix row or duplicates `systemName`+`cloudProvider` fingerprint.
+4. Link from `templates/reference-architectures/README.md` and **TB-660** PR template.
+
+**Affected files:** `docs/runbooks/REFERENCE_ARCHITECTURE_EXEMPLAR_CURATION.md`, `templates/reference-architectures/README.md`, optional `scripts/ci/assert_reference_architecture_exemplars.py`.
+
+**Refs:** **TB-660**; **RAG-V1.1-001**; `docs/library/ai-pack-design-specs/SPEC_AI05_RAG_ARCHITECTURE.md` (scope boundary — architecture posture, not output accuracy).
+
+**Size estimate:** S.
+
+---
+
+## TB-662 — `ReferenceArchitecture` retrieval IR golden cases (P2)
+
+**Window:** V1 — extends **RAG-V1-011** / **TB-049** harness.
+
+**Why:** `tests/eval-datasets/retrieval-golden/cases.json` covers PolicyPack, PriorManifest, PlatformDoc, AzureRetail, DemoDerived, and CustomerProvided — **not** `ReferenceArchitecture`. Exemplar fingerprint regressions (chunking, embedding, query text in `BuildExemplarQueryText`) have no CI gate today.
+
+**Approach:**
+
+1. Add 4–6 IR golden rows with `corpusKind: ReferenceArchitecture` — query text shaped like `TopologyExemplarStylePriorFormatter.BuildExemplarQueryText` and expected chunk IDs from fixture-indexed exemplars.
+2. Add per-corpus floor entry in `tests/eval-datasets/faithfulness-ir-floors.json` if needed.
+3. Wire through existing `eval_retrieval_ir.py` + `assert_faithfulness_ir_floor_ratchet.py` (no new harness).
+4. Document distinction from output faithfulness (**RAG-V1-005**) in `docs/library/AGENT_OUTPUT_EVALUATION.md` § or `DEEPER_RAG_QUALITY_PROGRAM.md`.
+
+**Acceptance:**
+
+- `python scripts/ci/eval_retrieval_ir.py --enforce` passes with new cases.
+- At least one case proves tenant/platform sentinel scoping does not hide platform exemplars from Topology retrieval.
+
+**Affected files:** `tests/eval-datasets/retrieval-golden/cases.json`, `tests/eval-datasets/faithfulness-ir-floors.json`, `scripts/ci/data/rag_golden_dataset_manifest.v1.json`, `ArchLucid.Retrieval.Tests`.
+
+**Refs:** **TB-049**, **RAG-V1-011**; **TB-660**.
+
+**Size estimate:** S.
+
+---
+
+## TB-663 — Topology exemplar style-prior observability on run detail (P2)
+
+**Window:** V1 — operator UI; extends **TB-109** retrieval grounding panel.
+
+**Why:** Operators see retrieval hits for policy packs and prior manifests but cannot tell whether Topology received a reference-architecture style prior or `exemplarMissing: true`. When first-pass topology is weak, debugging requires trace/blob forensics.
+
+**Approach:**
+
+1. Ensure retrieval grounding summary DTO exposes `ReferenceArchitecture` hits separately (or filterable by `corpusKind`) from compliance/policy hits.
+2. In `RunDetailRetrievalGroundingSection` (or Topology-specific subsection), show: exemplar count, titles/snippet preview, and explicit **Style prior only — not cited in findings** disclaimer.
+3. When zero exemplar hits contributed, show **No reference architecture exemplar matched** (not an error — fail-open by design).
+4. Link from Topology agent task card when exemplars were used.
+
+**Affected files:** `ArchLucid.Api` (grounding DTO if needed), `archlucid-ui` run detail retrieval section, `ArchLucid.Api.Tests` contract snapshot if DTO changes.
+
+**Refs:** **TB-109** (Done — extend); `TopologyAgentHandler.AppendExemplarStylePriorAsync`; `docs/runbooks/RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md`.
+
+**Size estimate:** S.
+
+---
+
+## TB-664 — Prior-manifest corpus quality guidance for operators (P2)
+
+**Window:** V1 — documentation + light product copy; indexing already ships (**RAG-V1-002**).
+
+**Why:** Each authority commit auto-indexes prior decisions/findings for Ask and cross-run retrieval. Incremental **reviewed** architectures help tenant memory, but noisy or abandoned draft runs add retrieval noise without improving Ask answers. PriorManifest IR golden cases already score 100% on fixtures — the gap is **operator judgment**, not plumbing.
+
+**Approach:**
+
+1. Add `docs/library/customer-facing/PRIOR_MANIFEST_RETRIEVAL_GUIDE.md` (or section in `PILOT_GUIDE.md`): what makes a committed run a good future prior (clear decisions, accepted findings, complete evidence), when to avoid citing stale runs, tenant/workspace scope behavior.
+2. Optional UI: one-line hint on commit success — "This review's decisions are now searchable in Ask" with link to guide.
+3. Cross-reference `AskService` prior-manifest intent and `PriorManifestRetrievalOptions.MaxPriorManifestsPerIndex` limits.
+4. Do **not** add manual "index this run" toggle unless owner requests — stay with commit-triggered indexing.
+
+**Affected files:** `docs/library/customer-facing/PRIOR_MANIFEST_RETRIEVAL_GUIDE.md` or `PILOT_GUIDE.md`, optional `archlucid-ui` commit toast copy.
+
+**Refs:** **RAG-V1-002**; `RetrievalRunCompletionIndexer`; `docs/quality/retrieval-ir-report.md` (PriorManifest corpus).
+
+**Size estimate:** S.
+
+---
+
+## TB-665 — Shared accessible `Tabs` primitive for operator shell (P1) — **Done** (2026-07-06)
+
+**Shipped:** `archlucid-ui/src/components/ui/tabs.tsx` (`Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`) and `enterprise-tabs.tsx` alias with Carbon line-tab styling, full `tablist`/`tab`/`tabpanel` pairing (`aria-selected`, `aria-controls`, `aria-labelledby`), Left/Right/Home/End automatic-activation keyboard navigation, optional `syncUrlParam` (`?tab=` via `replaceState`). Decision table (tabs vs buttons vs filter chips vs segmented controls) in `UI_DESIGN_SYSTEM.md`. Tests: `tabs.test.tsx`, `enterprise-tabs-drift-guard.test.ts`. Call-site migrations remain **TB-666**–**TB-670**.
+
+**Window:** V1 — prerequisite for **TB-666**–**TB-670**; buyer-facing and internal hub surfaces.
+
+**Why:** `archlucid-ui` has **no** `src/components/ui/tabs.tsx`. Nine hand-rolled tab implementations (`ReviewsNewPathSwitcher`, `RunsDashboardPanelClient`, `PolicyPacksPageView`, `GraphPageControls`, `SettingsRolesPageView`, `HelpTabsShell`, `HelpPanel`, `BuyerDeliverablesArtifactTabs`, Alerts/Digests/Advisory hubs) each re-implement partial ARIA: some use `role="tab"` without `tabpanel`/`aria-controls`, some use primary `<Button>` styling that reads as actions, buyer-polished and full-operator shells disagree on semantics for the same control, and **none** implement WAI-ARIA tab keyboard behavior (Left/Right/Home/End roving `tabindex`).
+
+**Approach:**
+
+1. Add `archlucid-ui/src/components/ui/tabs.tsx` (and thin wrapper `EnterpriseTabs` if needed for Carbon tokens): `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` with `role="tablist"` / `role="tab"` / `role="tabpanel"`, `aria-selected`, paired `id` + `aria-controls` + `aria-labelledby`, and roving keyboard focus per [WAI-ARIA tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
+2. Visual: Carbon-inspired **line tabs** (underline selected state), not filled primary buttons — per `docs/library/UI_DESIGN_SYSTEM.md` and `.cursor/rules/UI-Enterprise-Design-Standard.mdc`.
+3. Optional props: `syncUrlParam` (`?tab=`) with `replaceState` on change; `defaultValue`; controlled `value`/`onValueChange`.
+4. Document tabs vs buttons vs filter chips vs segmented controls in `UI_DESIGN_SYSTEM.md` § Components (one short decision table).
+5. Vitest: keyboard navigation, `aria-selected` toggling, `tabpanel` visibility/`hidden`, URL sync when enabled.
+6. Do **not** migrate call sites in this item — **TB-666**–**TB-670** consume the primitive.
+
+**Acceptance:**
+
+- Primitive passes axe-core or equivalent a11y unit assertions for a three-tab fixture.
+- At least one Storybook or doc example shows correct tab vs filter-chip distinction.
+
+**Affected files:** `archlucid-ui/src/components/ui/tabs.tsx`, `archlucid-ui/src/components/ui/tabs.test.tsx`, `docs/library/UI_DESIGN_SYSTEM.md`, optional `archlucid-ui/docs/COMPONENT_REFERENCE.md`.
+
+**Refs:** Tab-candidate UX assessment 2026-07-06; `.cursor/rules/UI-Accessibility-Baseline.mdc`; **TB-666**–**TB-670**.
+
+**Size estimate:** M.
+
+---
+
+## TB-666 — Convert `/reviews/new` start-mode selector to proper tabs (P1) — **Done 2026-07-06**
+
+**Window:** V1 — buyer-facing first-pilot intake; highest-impact tab semantics fix.
+
+**Why:** `ReviewsNewPathSwitcher.tsx` already assigns `role="tablist"`/`role="tab"` to three `<Button>` pills (**Quick start**, **Guided intake**, **Templates and imports**), but primary-button styling signals one-time actions, there is no `tabpanel` linkage, no keyboard support, and first-run tenants see only Quick start until they click **More options** — hiding two fixed peer modes behind a disclosure.
+
+**Approach:**
+
+1. Replace hand-rolled button row with **TB-665** `Tabs`; tabs: **Quick start** · **Guided intake** · **Templates and imports**.
+2. Wrap `FirstPilotIntakeWizard`, `SocraticIntakeWizard`, and `NewRunWizardClient` in `TabsContent` panels with stable `id`/`aria-labelledby`.
+3. Remove first-run **More options** collapse — render the tablist always with Quick start selected; keep streamlined first-run *default*, not hidden alternatives.
+4. Preserve `?path=`, `?baseline=1`, `?preset=greenfield`, and `readStoredActivePath()` behavior via controlled tab value.
+5. Update `ReviewsNewPathSwitcher` / `NewRunWizardClient` tests and UX audit `reviews-new` capture selectors (`data-testid` may remain but should target tab triggers, not action buttons).
+
+**Acceptance:**
+
+- Screen reader announces tablist with three tabs; arrow keys move selection; activating a tab swaps wizard below without navigation.
+- First-run tenant sees all three tabs on first paint.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/reviews/new/ReviewsNewPathSwitcher.tsx`, `reviews-new-path-switcher-state.ts`, related tests, `e2e/ux-audit-route-registry.ts` if selectors change.
+
+**Refs:** depends on **TB-665**; tab-candidate UX assessment 2026-07-06 § High-confidence #1.
+
+**Size estimate:** M.
+
+---
+
+## TB-667 — Unify overview runs dashboard view switcher as tabs (P1) — **Done 2026-07-06**
+
+**Window:** V1 — operator home `/` (`RunsDashboardPanelClient`).
+
+**Why:** The three view controls (**Recent** / **Needs attention** / **Outcomes** in operator shell; **Approved** / **Action needed** / **Approved with monitoring** in buyer shell) swap full panel components but buyer-polished shell styles them as filter pills inside `role="group"` while operator shell uses `role="tablist"` without `tabpanel`. The same row mixes a navigation **All** link, view switches, and an **Archived** `aria-pressed` toggle — three different control types in one strip.
+
+**Approach:**
+
+1. Migrate to **TB-665** `Tabs` in **both** shells with one semantic model; buyer shell may use compact visual density but must keep tab roles.
+2. Move **All** / "Open full reviews list" out of the tablist as a plain text link beside the card header.
+3. Keep **Archived** as a separate filter toggle (`aria-pressed`) below or beside the tablist — not inside `tablist`.
+4. Add `tabpanel` wrappers for `RunsDashboardRecentTab`, `RunsDashboardAttentionTab`, `RunsDashboardOutcomesTab`.
+5. Preserve `RunsDashboardFilters` checkboxes (operator only) as secondary filters within the active panel.
+6. Regression: `runs-dashboard` UX audit capture; Vitest for buyer vs operator tab labels via `runsDashboardTabLabel`.
+
+**Acceptance:**
+
+- Identical ARIA tab pattern in buyer-polished and full-operator builds.
+- No `<Link>` inside `role="tablist"`.
+
+**Affected files:** `archlucid-ui/src/components/operator-home/RunsDashboardPanelClient.tsx`, `runs-dashboard-helpers.tsx`, tests, buyer-polish copy modules.
+
+**Refs:** depends on **TB-665**; tab-candidate UX assessment 2026-07-06 § High-confidence #3.
+
+**Size estimate:** M.
+
+---
+
+## TB-668 — Convert policy packs section switcher to proper tabs (P2) — **Done** (2026-07-06)
+
+**Closed:** `PolicyPacksPageView` My packs / Catalog on TB-665 `Tabs`; authoring mode segmented controls use `aria-pressed`; `PolicyPacksPageView.tabs.test.tsx`.
+
+**Window:** V1 — `/governance/policy-packs` (`PolicyPacksPageView.tsx`).
+
+**Why:** **My packs** / **Catalog** buttons already look like tabs and switch the full page panel, but use plain `<button>` inside `<nav>` with dynamic `aria-label` workarounds instead of `role="tablist"` / `aria-selected` / `tabpanel`.
+
+**Approach:**
+
+1. Replace `pageTab` button row with **TB-665** `Tabs`: **My packs** · **Catalog**.
+2. Wrap `PolicyPacksRegisteredListSection` stack and `PolicyPacksCatalogSection` in `TabsContent`.
+3. Do **not** convert nested authoring controls (**Author rules** / **Generate**, **Guided fields** / **AI builder** / **Visual builder**) — those stay segmented controls inside the Advanced accordion to avoid nested tablists.
+4. While touching the page, add `aria-pressed` (or radiogroup semantics) to those nested authoring switchers — today they carry no machine-readable selected state at all (2026-07-06 assessment "possible" tier #7; folded here instead of a standalone item because both switchers are hidden in the buyer-polished shell and low traffic).
+5. Update any `data-testid` hooks and policy-packs page tests.
+
+**Acceptance:**
+
+- Tab keyboard model works; panel swap is announced to assistive tech.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/governance/policy-packs/_sections/PolicyPacksPageView.tsx`, tests.
+
+**Refs:** depends on **TB-665**; tab-candidate UX assessment 2026-07-06 § High-confidence #2.
+
+**Size estimate:** S.
+
+---
+
+## TB-669 — Convert evidence graph presentation view to proper tabs (P1) — **Done 2026-07-06**
+
+**Window:** V1 — `/graph` buyer-polished shell (`GraphPageControls.tsx`).
+
+**Why:** **Trace table** / **Graph view** use `aria-pressed` buttons inside `role="group"`, implying independent toggles, but they switch the entire content region between `EvidenceTrailTracePanel` and the graph canvas — a canonical tab pattern and a flagship demo surface.
+
+**Approach:**
+
+1. Replace presentation-view button pair with **TB-665** `Tabs`: **Trace table** · **Graph view**.
+2. Keep **Graph scope** pills (**Finding provenance**, **Decision traceability**, **Architecture context**) as a `role="group"` segmented control with `aria-pressed` **inside** the Graph view panel only — do not nest a second tablist.
+3. Wire `EvidenceTrailBuyerTraceTable` **Open graph view** action to programmatically select the Graph tab (not a duplicate control).
+4. Operator (non-buyer) shell: optional follow-on to align presentation toggle if product wants parity; minimum scope is buyer shell.
+5. Update graph page tests and UX audit `/graph` capture.
+
+**Acceptance:**
+
+- `aria-selected` (not `aria-pressed`) on view switch; scope pills unchanged.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/graph/_sections/GraphPageControls.tsx`, `GraphPageContent.tsx`, `EvidenceTrailBuyerTraceTable.tsx`, tests.
+
+**Refs:** depends on **TB-665**; tab-candidate UX assessment 2026-07-06 § High-confidence #4.
+
+**Size estimate:** S.
+
+---
+
+## TB-670 — Migrate existing hand-rolled tab UIs onto shared `Tabs` primitive (P2)
+
+**Window:** V1 — consolidation pass after **TB-665** lands.
+
+**Why:** Several surfaces already use partial tab ARIA but diverge in implementation quality: `SettingsRolesPageView` (full `tabpanel` but no keyboard/URL write-back), `HelpTabsShell` (tabs as primary Buttons), `HelpPanel` (single `tabpanel` for three tabs), `BuyerDeliverablesArtifactTabs` (no `tabpanel`), Alerts/Digests/Advisory hubs (shared visual pattern, `?tab=` URL, no `aria-controls`, no arrow keys). Consolidating prevents an eleventh hand-rolled variant after **TB-666**–**TB-669**.
+
+**Approach:**
+
+1. Migrate each call site to **TB-665**:
+   - `/settings/roles` — Users and invitations · Roles and permissions · API keys; add `?tab=` write-back on change.
+   - `/help` — Product guide · Documentation.
+   - Help dialog — Guides · Keyboard shortcuts · Troubleshooting (one `tabpanel` per tab).
+   - Run detail deliverables — Executive and sponsor artifacts · Architecture review board artifacts.
+   - `/alerts`, `/digests`, `/advisory` hubs — preserve `?tab=` URL sync and buyer-polished tab allowlists; when only one tab is visible, omit tab chrome (no single-tab tablist).
+2. Delete duplicated tab styling/helpers where superseded.
+3. Add shared Vitest coverage for hub URL sync and keyboard behavior.
+4. Internal-only hub labels (e.g. Alerts **Simulation & Tuning**) must not appear in buyer-polished allowlist regressions.
+
+**Acceptance:**
+
+- All migrated surfaces use the same primitive; axe/a11y tests pass on representative hub + settings fixtures.
+- No regression to Alerts buyer-polished single-tab (Inbox-only) behavior.
+
+**Affected files:** `SettingsRolesPageView.tsx`, `HelpTabsShell.tsx`, `HelpPanel.tsx`, `BuyerDeliverablesArtifactTabs.tsx`, `AlertsHubClient.tsx`, `DigestsHubClient.tsx`, `AdvisoryHubClient.tsx`, related tests.
+
+**Refs:** depends on **TB-665**; tab-candidate UX assessment 2026-07-06 § High-confidence #5.
+
+**Size estimate:** M.
+
+---
+
+## TB-671 — Decision register Cards/Timeline segmented control semantics (P2)
+
+**Window:** V1 — `/governance/decision-register` (`DecisionRegisterClient.tsx`); buyer-facing governance surface.
+
+**Why:** The **Cards** / **Timeline** button pair in the page header switches the full content panel between a card grid and `DecisionRegisterTimeline`, but carries **zero** machine-readable state — no `aria-pressed`, `aria-selected`, or role grouping. Sighted users infer the active view from button fill (`primary` vs `outline`); screen-reader users get two identically announced buttons and no way to tell which view is showing. Deliberately **not** tabs: two presentations of the *same* collection is a view-format switch, and the page already has a filter card above the content — a segmented control communicates it with less chrome (2026-07-06 assessment "possible" tier #6).
+
+**Approach:**
+
+1. Wrap the pair in `role="group"` with `aria-label="Decision register view"`; add `aria-pressed={viewMode === …}` to each button (or convert to a radiogroup if a shared segmented-control primitive emerges from **TB-665** work).
+2. Keep the existing `viewMode` state and filter card untouched — filters continue to narrow data for both views.
+3. Announce the panel swap: ensure the content region has an accessible name reflecting the active view (e.g. `aria-label` on the card grid / timeline containers).
+4. Vitest: selected-state toggling and group labeling.
+
+**Acceptance:**
+
+- Assistive tech can determine the active view without visual styling cues.
+- No `role="tab"` introduced — segmented-control semantics only.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/governance/decision-register/DecisionRegisterClient.tsx`, related tests.
+
+**Refs:** tab-candidate UX assessment 2026-07-06 § Possible #6; `.cursor/rules/UI-Accessibility-Baseline.mdc`.
+
+**Size estimate:** S.
+
+---
+
+## TB-672 — Ask conversation thread list selection semantics (P2)
+
+**Window:** V1 — `/ask` (`AskThreadHistoryPanel.tsx`); buyer-facing review Q&A surface.
+
+**Why:** Selecting a conversation thread swaps the main conversation panel (loads messages for `selectedThreadId`), but the ghost-button thread list exposes **no** selection state — no `aria-current`, `aria-selected`, or list semantics. The active thread is indicated only by border/background highlight, invisible to assistive technology. Deliberately **not** tabs: the item set is dynamic and unbounded (user-created threads), so the right pattern is a **list with selection** — `aria-current="true"` on the active item within a labeled list, or a `listbox`/`option` structure — not a tablist (2026-07-06 assessment "possible" tier #8).
+
+**Approach:**
+
+1. Render threads as a semantic list (`<ul>`/`<li>` inside `<nav>` or a labeled region, e.g. `aria-label="Conversation history"`).
+2. Add `aria-current="true"` to the selected thread's control (simplest fit for the existing button list); alternatively `role="listbox"` + `role="option"` + `aria-selected` if arrow-key navigation is added in the same pass — either is acceptable, pick one and be consistent with `RunIdPicker`'s existing listbox pattern.
+3. Ensure the "Ask a new review question" / "New conversation" action remains a plain action button outside the selection list semantics.
+4. Vitest: active-thread announcement and selection change.
+
+**Acceptance:**
+
+- Screen reader announces which conversation is active on focus and after selection change.
+- No `role="tab"` introduced.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/ask/_sections/AskThreadHistoryPanel.tsx` (or actual panel path), related tests.
+
+**Refs:** tab-candidate UX assessment 2026-07-06 § Possible #8; `RunIdPicker.tsx` listbox precedent; `.cursor/rules/UI-Accessibility-Baseline.mdc`.
+
+**Size estimate:** S.
+
+---
+
+## TB-673 — TECH_BACKLOG done-item archive hygiene (P2)
+
+**Window:** V1 — documentation maintainability; does not change engineering scope.
+
+**Why:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md) is ~18k lines with **600+** `## TB-xxx` detail sections, most marked **Done** in the summary table but still inlined in full. That obscures open work, slows agent/human scanning, and duplicates the pattern already solved for refactors ([`NEXT_REFACTORINGS.md`](NEXT_REFACTORINGS.md) → [`docs/archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md`](../archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md)). [`TECH_BACKLOG_OPEN.md`](TECH_BACKLOG_OPEN.md) was meant as an open-only extract but is **stale** (2026-06-07) and is **not** a done archive.
+
+**Approach:**
+
+1. **Archive file (created):** [`docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`](../archive/TECH_BACKLOG_DONE_ARCHIVE.md) — append moved `## TB-xxx` bodies in batches (see batch table in that file).
+2. **Main file contract (unchanged for assessments):**
+   - Keep **summary table rows** for Done items (assessments grep `TECH_BACKLOG.md` for **Done** — see `docs/assessments/ASSESSMENT_PROMPT_V3.MD`).
+   - Replace moved detail sections with a one-line stub: `**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-xxx](...) — Done YYYY-MM-DD`.
+   - Keep cluster narrative paragraphs and **Updated:** header changelog (trim only after archive stabilizes).
+3. **Do not move:** **TB-273** BDA mega-table (already indexed via [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md)); **TB-274** (no body); open or partial items; items with live cross-refs from assessments in the same sprint.
+4. **Script:** add `scripts/ci/archive-tech-backlog-done-sections.py` — input: TB ID list or `--batch a`; moves sections; idempotent; Vitest or unit test on fixture markdown.
+5. **Regenerate** [`TECH_BACKLOG_OPEN.md`](TECH_BACKLOG_OPEN.md) from summary table rows that are not **Done** / deferred / owner-blocked.
+6. **Batches (suggested order):** A TB-642–657 (**Done 2026-07-06**) → B TB-617–634 (**Done 2026-07-06** — **TB-617–620** archived; **TB-621** open; **TB-622–634** summary-only) → C TB-560–573 → D early Done waves → E remainder.
+
+**Acceptance:**
+
+- Main file shrinks by ≥40% line count after batch E without losing summary-table Done discoverability.
+- `TECH_BACKLOG_OPEN.md` reflects current open IDs only.
+- `check_tech_backlog_next_batch.py` still passes.
+
+**Affected files:** `docs/library/TECH_BACKLOG.md`, `docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`, `docs/library/TECH_BACKLOG_OPEN.md`, `scripts/ci/archive-tech-backlog-done-sections.py` (new).
+
+**Refs:** [`NEXT_REFACTORINGS.md`](NEXT_REFACTORINGS.md) archive pattern; **TB-659** (onboarding doc archive discipline).
+
+**Size estimate:** L (multi-batch; script + batch A can ship as M).
+
+---
+
+## TB-674 — Rename Getting started → First review guide (P2) — **Done** (2026-07-06)
+
+**Closure:** `BUYER_ONBOARDING_PAGE_TITLE` → **First review guide**; `BUYER_ONBOARDING_NAV_TOOLTIP` + `OPERATOR_HOME_OPEN_FIRST_REVIEW_GUIDE_CTA`; pilot nav caption/tooltip; home continue-setup CTA; `/onboarding` contextual help label in `page-help-topic-map.ts`; `SidebarNav.test.tsx` `useSearchParams` mock fix for audit-run nav hook.
+
+**Window:** V1 — `/onboarding` (sidebar **Getting started** today); buyer-facing first-run orientation.
+
+**Why:** **TB-434** (2026-06-28) renamed the page from **Onboarding** to **Getting started**, which was correct then but now overpromises: the page's actual scope is the **first architecture review package** path, while tenant setup (identity, admin role, ROI) lives in a collapsed optional block. Three names still collide — route `/onboarding`, nav label **Getting started**, and the unrelated empty-state component `GettingStartedSteps`. **First review guide** matches the page lead (`BUYER_ONBOARDING_PAGE_LEAD`), the lifecycle (**TB-524** demotes nav after first commit), and scopes the page away from workspace setup.
+
+**Approach:**
+
+1. Change `BUYER_ONBOARDING_PAGE_TITLE` in `buyer-polish-copy.ts` from `"Getting started"` to `"First review guide"`.
+2. Update `OPERATOR_NAV_LINK_LABELS.onboarding` (via the constant above) and `PilotNavGroupBuilder` nav `title` tooltip.
+3. Update `OperatorHomeContinueSetupCard` CTA from `"Open setup guide"` to `"Open first review guide"` (or equivalent buyer copy).
+4. Sweep help cross-refs and snapshot tests that assert **Getting started** on this surface only — do **not** rename `GettingStartedSteps` (different component; separate follow-up if desired).
+5. Keep `/getting-started` → `/onboarding` redirect and route path unchanged.
+
+**Acceptance:**
+
+- Page `<h1>` and sidebar label read **First review guide** (or agreed variant).
+- No customer-facing copy on this page still says **Getting started** or **Onboarding** as the page title.
+- Nav demotion after first commit (**TB-524**) unchanged.
+
+**Affected files:** `archlucid-ui/src/lib/buyer-polish-copy.ts`, `archlucid-ui/src/lib/pilot-nav-group-builder.ts`, `archlucid-ui/src/components/operator-home/OperatorHomeContinueSetupCard.tsx`, `OnboardingPageView.test.tsx`, `SidebarNav.test.tsx`, `pilot-nav-group-builder.test.ts`.
+
+**Refs:** First review guide redundancy audit 2026-07-06; **TB-434**, **TB-524**, BDA-032 (internal **Core Pilot** jargon on home — separate).
+
+**Size estimate:** S.
+
+---
+
+## TB-675 — Derive Core Pilot checklist completion from tenant/review lifecycle state (P1) — **Done** (2026-07-06)
+
+**Closure:** `core-pilot-step-status.ts` derives required-step completion from `CorePilotCommitContext` (start / execute / finalize); `CorePilotChecklist` shows `StatusTag` rows, one highlighted **Next** action, and optional-step **Skip for now** only; manual `localStorage` checkboxes retired; `CorePilotChecklist.test.tsx` + `core-pilot-step-status.test.ts`.
+
+**Window:** V1 — `CorePilotChecklist` on `/onboarding` and compact variant on operator home.
+
+**Why:** The 7-step checklist uses manual **Mark complete** checkboxes persisted in `localStorage` (`core-pilot-checklist-storage.ts`). Status can contradict reality (user checks "Finalize" before commit, or leaves steps unchecked after completion). The page's unique job is **onboarding status + next best action** — that requires derived state, not self-reported progress.
+
+**Approach:**
+
+1. Define a small `resolveCorePilotStepStatus(stepIndex, context)` using existing signals: review started (`/reviews` or active run), pipeline ready-to-finalize, committed review exists (`hasCommittedArchitectureReview` / manifest commit), evidence upload signal (if API exists; else keep optional step as skippable), dashboard ROI viewed (optional/deferred), audit export used (optional/deferred), findings/export inspected (optional/deferred).
+2. Replace checkbox UI with `StatusTag` per step (**Done** / **In progress** / **Not started** / **Skipped** for optional steps).
+3. Highlight exactly one **Next:** primary action (reuse `resolveCorePilotStepPresentation` href/label).
+4. Retain **Skip for now** only on optional steps (inventory upload, ROI dashboard, audit CSV) — not on start/execute/finalize.
+5. Migrate or deprecate `localStorage` step keys; if migration is costly, stop writing new manual state and treat legacy keys as ignored.
+6. Vitest: derived status for empty tenant, in-progress run, committed run fixtures.
+
+**Acceptance:**
+
+- Required steps (start, execute, finalize) show **Done** only when tenant/review signals confirm completion.
+- Page surfaces one highlighted next action when any required step is incomplete.
+- No manual checkbox remains for required steps.
+
+**Affected files:** `archlucid-ui/src/components/CorePilotChecklist.tsx`, `archlucid-ui/src/lib/core-pilot-step-presentation.ts`, `archlucid-ui/src/lib/use-core-pilot-commit-presentation-context.ts`, `archlucid-ui/src/lib/core-pilot-checklist-storage.ts`, `CorePilotChecklist.test.tsx`, `OnboardingPageView.test.tsx`.
+
+**Refs:** First review guide redundancy audit 2026-07-06; `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md`; **TB-169** (first-run workflow panel — coordinate, do not duplicate CTAs).
+
+**Size estimate:** M.
+
+---
+
+## TB-676 — Remove duplicate cloud inventory step from Finish setup wizard (P3) — **Done** (2026-07-06)
+
+**Window:** V1 — `FinishSetupWizardPanel` nested under onboarding optional setup and any other embed sites.
+
+**Shipped:** Removed the `extract` step from `FINISH_SETUP_WIZARD_STEPS`; Core Pilot walkthrough step 4 remains the single cloud-inventory pointer on `/onboarding`. Tests in `finish-setup-wizard-steps.test.ts` and `FinishSetupWizardPanel.test.tsx`.
+
+**Why:** Cloud inventory evidence appeared twice on `/onboarding`: **Core Pilot** walkthrough step 4 (`CORE_PILOT_STEPS[3]`, href `/settings/extract-upload`) and **Finish setup** wizard step 4 (`FINISH_SETUP_WIZARD_STEPS` id `extract`, same href). Hub pages should link once per action; the walkthrough owns the first-review narrative.
+
+**Approach:**
+
+1. Remove the `extract` step from `FINISH_SETUP_WIZARD_STEPS` in `finish-setup-wizard-steps.ts`.
+2. Update `areFinishSetupRequiredStepsComplete` / `countFinishSetupReadySteps` accordingly (extract was already optional).
+3. Adjust `FinishSetupWizardPanel` copy if step count changes.
+4. Vitest: wizard step list no longer contains cloud inventory; Core Pilot step 4 unchanged.
+
+**Acceptance:**
+
+- `/onboarding` shows exactly one cloud-inventory pointer (Core Pilot step 4).
+- Finish setup wizard still covers health, identity, and admin role only.
+
+**Affected files:** `archlucid-ui/src/lib/finish-setup-wizard-steps.ts`, `archlucid-ui/src/components/FinishSetupWizardPanel.tsx`, related tests.
+
+**Refs:** First review guide redundancy audit 2026-07-06; **TB-337**–**TB-339** (evidence-first framing).
+
+**Size estimate:** XS.
+
+---
+
+## TB-677 — Customer-safe platform health link on onboarding workspace setup (P1) — **Done** (2026-07-06)
+
+**Window:** V1 — `FinishSetupWizardPanel` health step; any other buyer hub that links platform readiness.
+
+**Shipped:** `finish-setup-deployment.ts` (`isSelfHostedDeploymentEnv` via `NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED`, production default hosted SaaS); `FINISH_SETUP_SYSTEM_HEALTH_PATH` (`/health`); `resolveFinishSetupWizardSteps` omits health on SaaS; `FinishSetupWizardPanel` consumes resolved steps; tests in `finish-setup-deployment.test.ts`, `finish-setup-wizard-steps.test.ts`, `FinishSetupWizardPanel.test.tsx`.
+
+**Why:** The **Confirm platform health** setup step links to `/admin/health` (**Diagnostics dashboard**), which lives in the **Internal Operations** nav group (`showSystemAdministrationNav`, `AdminAuthority`). Customer-facing onboarding must not deep-link into employee-only diagnostics (**TB-631**, **TB-634**). Platform health is relevant for **self-hosted** deployments before first review; SaaS tenants should not see this step by default.
+
+**Approach:**
+
+1. Replace `href: "/admin/health"` on the health step with a customer-safe readiness route — candidate: `/health` (**System health**, `ReadAuthority`) for deployment readiness, or a dedicated buyer-safe readiness strip if `/health` is too sparse.
+2. Gate rendering of the health step behind a self-hosted / deployment-mode signal (env flag or tenant deployment metadata) — hide entirely for managed SaaS unless owner directs otherwise.
+3. Never link hub surfaces to `system-admin` cluster routes without `showSystemAdministrationNav` + authority checks.
+4. Vitest: onboarding optional setup does not emit `/admin/health` in customer shell fixtures.
+
+**Acceptance:**
+
+- Default customer onboarding does not link to `/admin/health`.
+- Self-hosted operators still have a clear path to confirm readiness before first review.
+- Internal Operations deep links remain gated as today.
+
+**Affected files:** `archlucid-ui/src/lib/finish-setup-wizard-steps.ts`, `archlucid-ui/src/components/FinishSetupWizardPanel.tsx`, `OnboardingOptionalSetupSection.test.tsx`, optionally `nav-config.structure.test.ts`.
+
+**Refs:** First review guide redundancy audit 2026-07-06; **TB-631**, **TB-634**, **TB-408** (health route dedup).
+
+**Size estimate:** M.
+
+---
+
+## TB-678 — Role-gate onboarding workspace setup block on `principalAdmin` (P2) — **Done** (2026-07-06)
+
+**Closure:** `OnboardingOptionalSetupSection` uses `useFinishSetupReadinessContext`; non-`principalAdmin` callers see `ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION` instead of ROI baseline links and `FinishSetupWizardPanel`; Core Pilot checklist unchanged; tests in `OnboardingOptionalSetupSection.test.tsx`.
+
+**Window:** V1 — `OnboardingOptionalSetupSection` + `FinishSetupWizardPanel` on `/onboarding`.
+
+**Why:** SSO configuration, admin-role assignment, and ROI baseline are **tenant-admin** tasks. The block is collapsed by default but still visible to architects/reviewers who cannot act on those links — creating confusion and false "setup incomplete" signals. `useFinishSetupReadinessContext` already exposes `principalAdmin`.
+
+**Approach:**
+
+1. When `principalAdmin === false`, hide `OnboardingOptionalSetupSection` (or render a one-line delegation message: ask your workspace admin to finish identity and ROI setup).
+2. When `principalAdmin === true`, show the existing collapsed optional setup block unchanged (post-**TB-676**/**TB-677**).
+3. Do not gate the Core Pilot checklist (**TB-675**) — reviewers need the first-review path.
+4. Vitest: non-admin fixture sees no SSO/admin-role wizard; admin fixture sees workspace setup.
+
+**Acceptance:**
+
+- Non-admin principals do not see SSO wizard or **Manage roles** setup steps on `/onboarding`.
+- Admin principals retain optional workspace setup with links to owning pages.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/onboarding/_sections/OnboardingOptionalSetupSection.tsx`, `FinishSetupWizardPanel.tsx`, `OnboardingOptionalSetupSection.test.tsx`, `OnboardingPageView.test.tsx`.
+
+**Refs:** First review guide redundancy audit 2026-07-06; **TB-625**–**TB-628** (nav/page authority alignment pattern).
+
+**Size estimate:** S.
+
+---
+
+## TB-679 — Onboarding trial and optional-setup copy drift fixes (P2) — **Done** (2026-07-07)
+
+**Closure:** `GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD` and `ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY` in `buyer-polish-copy.ts`; removed duplicate in-page **Onboarding** `<h2>` from `GettingStartedTrialSection`; optional-setup collapsed summary scoped to admin identity/ROI (not integrations); `OPERATOR_HOME_CONTINUE_SETUP_BODY` points to first review guide; tests in `GettingStartedTrialSection.test.tsx`, `OnboardingOptionalSetupSection.test.tsx`, `OperatorHomeContinueSetupCard.test.tsx`.
+
+**Window:** V1 — `GettingStartedTrialSection`, `OnboardingOptionalSetupSection`, `OperatorHomeContinueSetupCard` helper copy.
+
+**Why:** Stale copy undermines the hub-page model. `GettingStartedTrialSection` tells users to use the checklist **on Overview** while the checklist lives on `/onboarding`; it also renders a second `<h2>Onboarding</h2>` inside the page that already has a title. Optional setup summary says "integrations" though the block covers identity and ROI, not Jira/ServiceNow connectors.
+
+**Approach:**
+
+1. `GettingStartedTrialSection`: remove the inner **Onboarding** `<h2>`; fix body copy to reference the checklist **on this page** (or **First review guide** after **TB-674**).
+2. `OnboardingOptionalSetupSection` `collapsedSummary`: e.g. **Workspace setup for admins — identity, roles, and ROI baseline. Not required for your first review.**
+3. Align `OPERATOR_HOME_CONTINUE_SETUP_BODY` if it still implies a full setup wizard on this page.
+4. Update snapshots/tests.
+
+**Acceptance:**
+
+- No duplicate page title inside trial section.
+- No copy points users to Overview for the first-review checklist.
+- Optional setup summary does not mention integrations unless linking to Cloud connections elsewhere.
+
+**Affected files:** `archlucid-ui/src/components/GettingStartedTrialSection.tsx`, `OnboardingOptionalSetupSection.tsx`, `buyer-polish-copy.ts`, related tests.
+
+**Refs:** First review guide redundancy audit 2026-07-06; **TB-431**–**TB-455** cluster (onboarding copy).
+
+**Size estimate:** XS.
+
+---
+
+## TB-680 — Hub-page do-not-duplicate IA contract + drift guard (P2)
+
+**Window:** V1 — navigation/IA contract docs + CI guard for hub surfaces (`/onboarding`, operator home setup cards, empty-state guidance blocks).
+
+**Why:** The product principle — hub pages show status and link out; owning pages execute actions — is not encoded. Without a contract, future pages will re-embed wizards (Settings SSO on onboarding, health dashboards on home, etc.). **TB-404** guards route namespaces; this guards **surface responsibility**.
+
+**Approach:**
+
+1. Add **Hub pages** section to `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md` (or `docs/library/ONBOARDING_HUB_CONTRACT.md` linked from AGENTS.md) stating:
+   - Every action has exactly one owning page.
+   - Hub pages may show completion status and deep-link; they must not embed forms, wizards, or mutation controls for actions owned elsewhere.
+   - Hub pages must not link to `system-admin` cluster routes in default customer shells.
+   - Role-gated blocks use authority flags, not disclosure alone.
+2. Optional Vitest fixture: scan known hub components (`OnboardingPageView`, `OperatorHomeContinueSetupCard`, `CorePilotChecklist`) for forbidden href prefixes (`/admin/health`, other `operator-system-admin` routes) unless behind explicit internal-operator fixture.
+3. Cross-link from **TB-674**–**TB-679** acceptance criteria.
+
+**Acceptance:**
+
+- Contract doc merged and referenced from `archlucid-ui/AGENTS.md` or `NAV_CONFIG_CONTRACT.md`.
+- CI test fails if onboarding hub reintroduces `/admin/health` or embeds a non-status SSO form.
+
+**Affected files:** `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md` (or new contract doc), `archlucid-ui/src/lib/onboarding-hub-contract.ts` (+ Vitest), `archlucid-ui/AGENTS.md`.
+
+**Refs:** First review guide redundancy audit 2026-07-06; **TB-404**, **TB-169**, **TB-659**.
+
+**Size estimate:** M.
+
+---
+
+## TB-681 — Azure OpenAI prompt-cache prefix ordering (P1)
+
+**Window:** V1 — agent execute, Ask, and draft-intake LLM prompt assembly.
+
+**Why:** App-level response caching (`CachingAgentCompletionClient`) only helps identical repeats. Azure OpenAI automatic prompt caching discounts cached input tokens when the first ~1024 tokens of a request are stable across calls. Versioned system prompts in `ArchLucid.AgentRuntime/Prompts/*SystemPromptTemplate.cs` and cloud-provider addenda are identical across runs, but per-run evidence and retrieval blocks may precede or interleave with static content today — reducing cache hit rate across the four parallel agent calls and sequential retries.
+
+**Approach:**
+
+1. Audit and refactor `AgentUserPromptBuilder.cs` and handler-specific builders so **static prefix** order is: system template → cloud addendum (`CloudProviderAgentPromptComposer`) → policy boilerplate → **dynamic suffix**: evidence, retrieval hits, request-specific fields.
+2. Apply the same static-first rule to `AskService` and `DraftIntakeReasoningService` user-message assembly where feasible.
+3. Add OTel counters or span attributes for provider-reported cached input tokens when Azure OpenAI returns them (alongside existing `LlmCompletionAccountingClient` totals).
+4. Document prefix contract in `docs/library/CONFIGURATION_REFERENCE.md` or ADR addendum — no change to agent output schemas or gate semantics.
+
+**Acceptance:**
+
+- Integration or unit test asserts static system hash appears before first evidence/retrieval token in assembled user prompts for at least Topology and Compliance handlers.
+- Real-mode smoke (or documented manual check) shows non-zero cached input tokens on second agent call in the same run when deployment supports prompt caching.
+- No regression in `AgentPromptRegressionTests` baselines.
+
+**Affected files:** `ArchLucid.AgentRuntime/AgentUserPromptBuilder.cs`, `TopologyAgentHandler.cs`, `ComplianceAgentHandler.cs`, `CostAgentHandler.cs`, `CriticAgentHandler.cs`, `ArchLucid.Host.Core/AskService.cs`, `LlmCompletionAccountingClient.cs`, `ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`.
+
+**Refs:** **TB-179** (multi-model tiers); ADR 0005 (LLM completion pipeline); `docs/library/AI_LEVERAGE_ROADMAP.md`.
+
+**Size estimate:** S.
+
+---
+
+## TB-682 — Escalation-based model-tier auto-retry (P1)
+
+**Window:** V1 — `ArchitectureRunExecuteOrchestrator` quality-gate auto-retry path.
+
+**Why:** `AgentModelTierDefaults` statically pins Compliance/Critic to Premium and Topology/Cost to Economy. Quality-gate auto-retry (`MaxAutoRetries`) re-invokes the same tier, wasting Premium spend on easy runs and failing hard runs that might succeed one tier up. Escalation routing captures the **AI_LEVERAGE_ROADMAP** 30–50% multi-model cost target without sacrificing quality — the gate remains the arbiter.
+
+**Approach:**
+
+1. Extend auto-retry in `ArchitectureRunExecuteOrchestrator.cs` (or `RealAgentExecutor` retry wrapper) to bump `LlmModelTier` one step per rejection: Economy → Standard → Premium (stop at Premium).
+2. Record escalated tier and retry reason on `AgentExecutionTrace` / forensics DTO for operator visibility.
+3. Respect existing `LlmDailyTenantBudgetTracker`, `LlmJudgeDailyTokenBudgetTracker`, and per-agent timeout caps — do not escalate when budget would be exceeded.
+4. Optional config flag `ArchLucid:AgentOutput:QualityGate:EscalateTierOnRetry` (default **true** in Staging/Prod after **TB-683** validates).
+
+**Acceptance:**
+
+- Unit test: simulated reject at Economy tier schedules retry at Standard deployment (`AgentModelTierResolverTests` pattern).
+- Unit test: Premium reject does not escalate further; respects `MaxAutoRetries`.
+- Documented expected cost impact in run telemetry (tier mix histogram).
+
+**Affected files:** `ArchitectureRunExecuteOrchestrator.cs`, `AgentModelTierResolver.cs`, `AgentOutputQualityGate.cs`, `AgentExecutionTrace` persistence, `RunAgentForensicsSection.tsx` (optional tier-escalation badge).
+
+**Refs:** **TB-179**; `AgentModelTierDefaults.cs`; `docs/library/AGENT_OUTPUT_EVALUATION.md`.
+
+**Size estimate:** M.
+
+---
+
+## TB-683 — Nightly real-mode eval loop (P1)
+
+**Window:** V1 — CI/nightly measurement; complements **TB-140** (partial).
+
+**Why:** Prompt regression today is hash-based (`AgentPromptRegressionTests`) — it detects change, not quality. Golden-cohort real-mode tests are credential-gated and owner-blocked (**G-REAL-01**). Without a small always-on live eval trend line, **TB-681**, **TB-682**, and **TB-684** cannot be validated safely.
+
+**Approach:**
+
+1. Add or extend `.github/workflows/golden-cohort-expanded-nightly.yml` (or sibling) to run the 18 committed `tests/eval-corpus/**/*.real.json` exemplars against a credentialed Real-mode API when `ARCHLUCID_GOLDEN_COHORT_REAL_LLM` (or documented equivalent) is set.
+2. Score with existing `AgentOutputEvaluationHarness` + structural/semantic/faithfulness floors from `AGENT_OUTPUT_EVALUATION.md`; write JSON + Markdown trend artifact under `artifacts/real-mode-eval-nightly/{date}/`.
+3. Cap spend inside **200k tokens/day** judge budget (`LlmJudge:Budget:HardCutoffTokensPerUtcDay`); fail workflow on floor breach, warn on regression trend (2 consecutive nights).
+4. Cross-link completion criteria in **TB-140** — this item delivers engineering automation; **G-REAL-01** owner unblock for broader live API paths remains separate.
+
+**Acceptance:**
+
+- Workflow runs on schedule when secrets present; skips cleanly with documented message when absent.
+- At least one trend artifact committed or uploaded as CI artifact with agent-level scores.
+- `TECH_BACKLOG_OPEN.md` Real-mode slice references **TB-683** as the nightly loop.
+
+**Affected files:** `.github/workflows/golden-cohort-expanded-nightly.yml`, `scripts/ci/eval_agent_corpus.py`, `tests/eval-corpus/**/*.real.json`, `docs/library/AGENT_EVAL_CORPUS.md`, `docs/library/TECH_BACKLOG.md` § **TB-140**.
+
+**Refs:** **TB-140**, **TB-181**, **TB-007** Gap C, **G-REAL-01**.
+
+**Size estimate:** M.
+
+---
+
+## TB-684 — Promote quality gates and advanced RAG production defaults (P1)
+
+**Window:** V1 — Staging/Prod configuration and merge-blocking promotion per **QUALITY_GATE_PROMOTION_PLAN.md**.
+
+**Why:** Shipped quality controls default warn-only or off: `EnforceOnReject` / `BlockRunOnReject` false; semantic reranking disabled in dev and conservative elsewhere; LLM semantic judge opt-in and limited to Topology/Critic; faithfulness judge thresholds defined but not uniformly enforced. PilotStrict floors exist for Cost (0.75/0.55) and Critic (0.65/0.55) — the lowest-margin agents — but production posture does not fully exploit them.
+
+**Approach:**
+
+1. Execute promotion plan: after **5 green main runs** with agent eval WARN → merge-blocking, flip `ArchLucid:AgentOutput:QualityGate:EnforceOnReject` in Staging then Prod.
+2. Enable `Retrieval:Reranking:Enabled=true` in Staging/Prod (keep false in Development per RC6 runbook).
+3. Enable LLM faithfulness judge on Cost and Critic agents (lowest PilotStrict floors); extend LLM semantic judge to Cost when judge budget allows.
+4. Enable `AdvancedRetrievalOptions` (query rewrite, HyDE, Graph-RAG) in Staging first; promote to Prod only when **TB-683** + **TB-595** ablation show no floor breach for 2 weeks.
+5. Update `appsettings.Production.json`, `CONFIGURATION_REFERENCE.md`, and operator runbook with rollback knobs.
+
+**Acceptance:**
+
+- Documented promotion checklist signed off with **TB-683** trend evidence attached.
+- Staging config PR merged; Prod promotion tracked separately with owner sign-off.
+- No increase in commit-blocking false positives above agreed threshold (document in PR).
+
+**Affected files:** `ArchLucid.Api/appsettings.Production.json`, `appsettings.Staging.json`, `docs/library/QUALITY_GATE_PROMOTION_PLAN.md`, `docs/library/AGENT_OUTPUT_EVALUATION.md`, `RetrievalQueryService.cs` options.
+
+**Refs:** **TB-683**, **TB-595**, **TB-596**, PilotStrict floors in `AGENT_OUTPUT_EVALUATION.md`.
+
+**Size estimate:** M.
+
+---
+
+## TB-685 — Azure OpenAI Batch API for offline LLM paths (P2)
+
+**Window:** V1 — non-interactive eval, judge, and corpus maintenance paths only.
+
+**Why:** Nightly eval (**TB-683**), golden-cohort drift, faithfulness/semantic judges, and `ManifestChunkSummarizer` are not latency-sensitive. Azure OpenAI Batch API offers ~50% discount with 24h SLA — reducing the always-on cost of quality investment.
+
+**Approach:**
+
+1. Add `IBatchAgentCompletionClient` (or extend `AzureOpenAiCompletionClient`) with submit/poll/retrieve for Batch API jobs.
+2. Route **TB-683** nightly scoring, offline judge harness, and manifest chunk summarization through batch client when `ArchLucid:LlmBatch:Enabled=true`.
+3. Keep synchronous completion path for interactive execute/Ask/commit flows unchanged.
+4. Record batch job id, token usage, and estimated savings in eval artifacts and OTel.
+
+**Acceptance:**
+
+- Nightly workflow uses batch path when enabled; falls back to sync when disabled.
+- Unit test with mocked batch API client verifies job lifecycle.
+- Cost estimate documents expected $/month reduction at current eval volume.
+
+**Affected files:** `ArchLucid.AgentRuntime/AzureOpenAiCompletionClient.cs` (or new batch adapter), `scripts/ci/eval_agent_corpus.py` integration, `ManifestChunkSummarizer.cs`, `ArchLucid.Core/Configuration/` batch options.
+
+**Refs:** **TB-683**, **TB-181**; Azure OpenAI Batch API docs.
+
+**Size estimate:** M.
+
+---
+
+## TB-686 — Semantic retrieval chunking (P2)
+
+**Window:** V2 — `ArchLucid.Retrieval` chunking pipeline.
+
+**Why:** `SimpleTextChunker` (1200 char / 150 overlap), `PolicyPackChunker`, and `PriorManifestChunker` use fixed character windows. Measured offline IR is ~97.9% recall@5 today — so this is precision polish for long manifests and policy prose, not a V1 gap.
+
+**Approach:**
+
+1. Prototype structure-aware chunker (headings, JSON blocks, ADR sections) behind `Retrieval:Chunking:Strategy=Semantic|Simple`.
+2. Re-index dev corpus; compare IR golden (`tests/eval-datasets/retrieval-golden/cases.json`) and faithfulness floors via **TB-595** ablation harness.
+3. Promote only if recall@5 or citation precision improves without tenancy or cost regression.
+
+**Acceptance:**
+
+- Ablation report shows measurable lift or documents no-go.
+- ADR if promoted to default.
+
+**Affected files:** `ArchLucid.Retrieval/Chunking/`, `RetrievalDocumentBuilder.cs`, `RAG_QUALITY_TECHNICAL_BACKLOG.md`.
+
+**Refs:** **RAG-V1-007**–**009** (chunk fingerprint); **TB-595**.
 
 **Size estimate:** L.
 
 ---
 
-## TB-644 — Cloud-neutral new-review intake defaults (P0)
+## TB-687 — Prompt A/B iteration harness (P2)
 
-**Window:** V1 — regression from 2026-06-15 leakage audit finding #3.
+**Window:** V2 — `VariantAwareAgentSystemPromptCatalog` + eval loop.
 
-**Why:** Wizard presets and `AzureExtractorPackageZipField` still default `cloudProvider: "Azure"` (`wizard-presets.ts`, `NewRunWizardClient.tsx`). Step 1–2 copy remains Azure-extractor shaped, narrowing ICP narrative to Azure tooling and conflicting with multi-cloud buyer language in `BUYER_PERSONAS.md`.
+**Why:** Prompt variant infrastructure exists (`PromptVariantSelector`, weighted catalog) but selection is not tied to measured quality outcomes. Without **TB-683** trend data, A/B prompts cannot be judged.
 
 **Approach:**
 
-1. Change wizard presets and intake defaults from `cloudProvider: "Azure"` to `"None"`.
-2. Move Azure extractor ZIP / packager command into an **Advanced evidence (Azure)** disclosure — not the default path.
-3. Lead wizard steps with outcome-first "Start a review" language; cloud selection becomes optional context, not pre-selected assumption.
-4. Regression: `wizard-new-review.png` in both buyer and operator UX audit captures should read outcome-first with Azure optional.
+1. Persist variant id on agent execution traces.
+2. Aggregate eval scores by variant from nightly **TB-683** artifacts.
+3. Auto-adjust weights or flag losing variants for human review; never auto-promote without floor pass.
 
-**Affected files:** `archlucid-ui/src/lib/wizard-presets.ts`, `archlucid-ui/src/app/(operator)/reviews/new/NewRunWizardClient.tsx`, `archlucid-ui/src/components/AzureExtractorPackageZipField.tsx`, wizard copy tests.
+**Acceptance:**
 
-**Refs:** `docs/architecture/PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md` #3; `docs/architecture/UX_AUDIT_2026_07_05.md` finding #3.
+- Dashboard or JSON report: variant × agent × mean structural/semantic score.
+- Documented owner approval before weight changes affect production.
+
+**Affected files:** `VariantAwareAgentSystemPromptCatalog.cs`, `PromptVariantSelector.cs`, eval aggregation script.
+
+**Refs:** **TB-683**, `docs/library/AI_AGENT_PROMPT_REGRESSION.md`.
 
 **Size estimate:** M.
 
 ---
 
-## TB-645 — Apply buyer vocabulary pass in production operator builds (P0)
+## TB-688 — Per-tier model-generation refresh cadence (P2)
 
-**Window:** V1 — depends on **TB-643**; derived from 2026-06-15 leakage audit finding #6 (partial).
+**Window:** V2 — deployment config + eval gate.
 
-**Why:** Run→review, manifest→signed package, and related buyer vocabulary apply only when `isCtoDemoVocabularyPassEnv()` / buyer-polished shell is active (`buyer-demo-vocabulary.ts`). Operator production builds still expose raw "run/manifest/commit" on primary surfaces (`run-detail.png` delta in 2026-07-05 audit).
+**Why:** Deployment names are config-only (`AgentModelTierOptions`, `Llm:Deployments:Reasoning/Fast`). Newer Azure OpenAI model generations may improve quality/cost per tier but require live validation.
 
 **Approach:**
 
-1. Enable the existing vocabulary pass for **all** authenticated shells once **TB-643** defaults buyer polish — not only CTO-demo / buyer-polished builds.
-2. Reuse `buyer-demo-vocabulary.ts` mappings; extend `review-terminology-surfaces.ts` coverage rather than parallel copy forks.
-3. Align nav labels, run detail headlines, and primary status surfaces with `UI_DESIGN_SYSTEM.md` canonical terms.
-4. Regression: operator-shell UX audit `run-detail.png` must match buyer vocabulary on primary surfaces without demo build flags.
+1. Quarterly (or on Azure GA notice) run golden cohort at candidate deployment vs incumbent per tier.
+2. Document swap recommendation in `artifacts/model-tier-refresh/{date}/`.
+3. Swap requires **TB-683** green trend + owner sign-off; no hardcoded model names in code.
 
-**Affected files:** `archlucid-ui/src/lib/buyer-demo-vocabulary.ts`, `archlucid-ui/src/lib/demo-ui-env.ts`, `archlucid-ui/src/lib/review-terminology-surfaces.ts`, run detail and nav label modules.
+**Acceptance:**
 
-**Refs:** depends on **TB-643**; `docs/architecture/UX_AUDIT_2026_07_05.md`; `docs/library/UI_DESIGN_SYSTEM.md`.
+- Runbook `docs/runbooks/MODEL_TIER_REFRESH.md` with checklist.
+- One completed comparison artifact checked in or linked from CI.
+
+**Affected files:** `docs/runbooks/MODEL_TIER_REFRESH.md`, `scripts/ci/` eval wrapper, `AgentModelTierOptions` sample configs.
+
+**Refs:** **TB-683**, **TB-179**.
+
+**Size estimate:** S.
+
+---
+
+## TB-689 — Multi-vendor LLM routing decision gate (P3)
+
+**Window:** V2 — explicit defer; do not implement without owner ADR.
+
+**Why:** `LlmProviderType` scaffolds Anthropic, Google Gemini, and Local Ollama but no production clients exist. At 5 pilot tenants × 25 reviews/month, vendor arbitrage saves minimal dollars while forfeiting Azure structured-output, Content Safety, and managed-identity integration.
+
+**Approach:**
+
+1. Publish ADR: stay Azure-native unless buyer requires alternate provider (data residency, existing enterprise agreement).
+2. If approved: define interface parity (JSON schema, token accounting, content safety), per-tenant provider routing, and eval regression suite.
+3. Until ADR approved: **do not** implement live routing.
+
+**Acceptance:**
+
+- ADR merged with explicit go/no-go and cost/security trade-offs.
+- If no-go: close item with pointer to reassessment trigger (tenant count, $/review threshold).
+
+**Affected files:** `docs/architecture/adrs/` (new), `LlmProviderType.cs`, `ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`.
+
+**Refs:** **TB-080** (Entra/MI for AOAI); Azure-native preference in engineering rules.
+
+**Size estimate:** XL (if go); XS (if no-go ADR only).
+
+---
+
+## TB-690 — Fine-tuning activation gate (P2)
+
+**Window:** V2 — online fine-tuning; infrastructure **TB-594** already shipped dormant.
+
+**Why:** `DisabledFineTuningJobOrchestrator` defaults off. Fine-tuning without stable eval corpus and DPA risks model drift and compliance exposure. **GoldenCohortFineTuningPromotionGate** exists but should not run until measurement and consent gates pass.
+
+**Approach:**
+
+1. Define activation checklist: **TB-683** stable 4 weeks, tenant `FineTuning.ManifestConsent` policy, signed DPA addendum, minimum accepted-manifest corpus size.
+2. Wire promoted deployment into `TieredAgentCompletionRouter` only after gate pass.
+3. Monitor golden cohort weekly post-promotion; auto-rollback hook to prior deployment on floor breach.
+
+**Acceptance:**
+
+- Checklist doc linked from `MANIFEST_FINE_TUNING_ADDENDUM.md`.
+- No production fine-tuned deployment without gate artifact on file.
+
+**Affected files:** `DisabledFineTuningJobOrchestrator.cs`, `GoldenCohortFineTuningPromotionGate.cs`, `docs/go-to-market/MANIFEST_FINE_TUNING_ADDENDUM.md`, ADR 0056.
+
+**Refs:** **TB-594**, **RAG-V2-003**, **TB-683**.
+
+**Size estimate:** L.
+
+---
+
+## TB-691 — Fix Next 16 First Load JS bundle regression gate (P0)
+
+**Status:** **Done** (2026-07-07) — `first-load-js-baseline.mjs` reads Next 16 `.next/diagnostics/route-bundle-stats.json` (`firstLoadUncompressedJsBytes` → kB); removed silent skip on Next 16 build logs; legacy Next 15 console parsing retained; fixture + Vitest coverage; `ui-static-quality` runs `npm run check:first-load-js` after `npm run build`; baseline notes updated (refresh with `npm run write:first-load-js-baseline` after intentional bundle changes).
+
+**Window:** V1 — restores an existing, already-relied-upon CI gate; not new scope.
+
+**Why:** **TB-573** shipped `npm run check:first-load-js` against a committed `performance/first-load-js-baseline.v1.json` captured on **Next 15**. After the Next 16 upgrade (Turbopack default), production build output no longer prints per-route First Load JS in the format the checker parses, so the gate either silently skips or always passes regardless of real bundle size. This means every bundle-size regression since the Next 16 upgrade has gone undetected — the CI signal the team believes exists does not exist. Found during a 2026-07-07 UI performance review while trying to trust the committed baseline numbers (`/reviews/[runId]` at 421 kB) against current code.
+
+**Approach:**
+
+1. Confirm the exact failure mode: run `npm run build` locally and diff actual output against what `check:first-load-js` expects to parse; capture whether it throws, skips, or false-passes.
+2. Switch measurement source to `next build --experimental-build-mode=... ` route manifest or `ANALYZE=1 npm run build:analyze` stats JSON (webpack/turbopack stats are stable across Next versions) instead of parsing human-readable build console output.
+3. Recapture the baseline for every route in `first-load-js-baseline.v1.json` on current Next 16 code; keep the existing ±25 kB regression tolerance unless data suggests otherwise.
+4. Add a fast-fail unit test asserting the parser recognizes at least N routes from a fixture build output, so a future Next upgrade breaking the format again fails loudly instead of silently.
+5. Re-verify the CI workflow step actually fails the build on a synthetic regression (temporarily bloat a route, confirm gate fires, revert).
+
+**Acceptance:**
+
+- `check:first-load-js` demonstrably fails CI when a route's First Load JS regresses beyond tolerance on current Next 16 build output.
+- Baseline file regenerated with current numbers and a comment noting the Next version it was captured on.
+- Parser has a regression test using a Next 16 build-output fixture.
+
+**Affected files:** `scripts/ci/check-first-load-js.*` (or equivalent), `performance/first-load-js-baseline.v1.json`, `archlucid-ui/next.config.ts`, CI workflow invoking the check.
+
+**Refs:** **TB-573** (original gate), **TB-565** (`optimizePackageImports`).
+
+**Size estimate:** S.
+
+---
+
+## TB-692 — Real Core Web Vitals field data collection (P1)
+
+**Window:** V1 — owner explicitly requested real field data over the current bundle-size proxy metric (2026-07-07).
+
+**Why:** The only performance signal in CI today is First Load JS (a build-time proxy, currently broken per **TB-691**). There is no runtime measurement of LCP, CLS, or INP from real sessions. `@microsoft/applicationinsights-web` is already a dependency and already idle-deferred (**TB-572**), giving a ready-made transport for field metrics without adding a new vendor or blocking render further.
+
+**Approach:**
+
+1. Add the `web-vitals` package; call `onLCP`, `onCLS`, `onINP`, `onTTFB` (and `onFCP` if useful) from the existing `app-insights-init-scheduler.ts` idle-deferred init path so metric wiring shares the same non-blocking init as telemetry.
+2. Emit each metric as an App Insights custom event/metric with dimensions: route (normalized, no dynamic IDs — reuse whatever route-normalization helper nav/telemetry code already has), tenant tier, and device/connection hints if cheaply available.
+3. Sample deliberately (e.g. 100% for now given pilot-scale traffic; document the sampling knob for later scale-up) rather than hardcoding an assumption.
+4. Add a lightweight owner-facing view (App Insights workbook/dashboard query, not new UI) for p75 LCP/CLS/INP by route, matching the routes already tracked in `docs/architecture/ui_route_traffic_estimates.md`.
+5. Document the new metrics and how to query them in `docs/architecture/` alongside the existing route traffic doc.
+
+**Acceptance:**
+
+- Real LCP/CLS/INP events visible in App Insights for at least `/welcome`, `/reviews`, `/reviews/[runId]`, `/governance/findings` after a production deploy.
+- No measurable regression to `app-insights-init-scheduler.ts` deferred-init timing (still fires after idle/interaction, not eagerly).
+- Query/dashboard doc committed so the data is discoverable without tribal knowledge.
+
+**Affected files:** `archlucid-ui/package.json`, `app-insights-init-scheduler.ts` (or sibling telemetry init file), new `web-vitals-reporter.ts`, `docs/architecture/ui_route_traffic_estimates.md` (cross-link).
+
+**Refs:** **TB-572** (deferred App Insights init); owner request 2026-07-07.
 
 **Size estimate:** M.
 
 ---
 
-## TB-646 — Rename primary intake create action to outcome language (P1)
+## TB-693 — Lighthouse CI synthetic checks on key routes (P2)
 
-**Window:** V1 — partial regression from 2026-06-15 leakage audit finding #5.
+**Window:** V1 — closes a naming/scope gap left by **TB-573**.
 
-**Why:** "Evidence intake" / mechanism-first labels still appear as the default create action in nav and quick actions. `OPERATOR_START_REVIEW_QUICK_ACTION_LABEL` ("Start review") already exists in `operator-nav-labels.ts` but is not wired as the default primary CTA.
-
-**Approach:**
-
-1. Replace default primary intake label with **Start review** / **New review** using existing `OPERATOR_START_REVIEW_QUICK_ACTION_LABEL` constant.
-2. Update nav config, home quick actions, and any wizard entry points that still say "Evidence intake" as the headline action.
-3. Keep mechanism-specific copy inside the wizard evidence step — not on the front door.
-4. Regression: nav and home surfaces describe the goal (review), not the mechanism (ingestion).
-
-**Affected files:** `archlucid-ui/src/lib/operator-nav-labels.ts`, nav config / quick-action surfaces, related Vitest guards.
-
-**Refs:** `docs/architecture/PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md` #5; `docs/architecture/UX_AUDIT_2026_07_05.md` finding #6.
-
-**Size estimate:** S.
-
----
-
-## TB-647 — Split architect workflows from ops telemetry in sidebar (P1)
-
-**Window:** V1 — regression from 2026-06-15 leakage audit findings #7–#8; open in operator-shell captures 2026-07-05.
-
-**Why:** Operator shell `Analysis` nav clusters Compare / Ask / Graph with System health, connector posture, RAG health, and cost reporting — ops/SRE telemetry adjacent to architect outcome workflows. Enterprise Architect sidebar should lead with review/analysis outcomes; admin telemetry belongs under Administration or authority-gated groups.
+**Why:** **TB-573**'s title says "Bundle baseline + Lighthouse CI gate" but its shipped implementation is bundle-size-only; no synthetic Lighthouse run exists anywhere in the repo. Lab data (Lighthouse, controlled network/CPU throttling) is a useful complement to the field data landing in **TB-692** — field data tells you what real users experienced, lab data tells you why, with a reproducible trace.
 
 **Approach:**
 
-1. Re-group `Analysis` / Insights nav so Compare, Ask, and Graph sit apart from operational health and cost surfaces.
-2. Hide or collapse ops/SRE labels for non-admin personas (`ReadAuthority` / `ExecuteAuthority` without admin tier).
-3. Reuse existing `*-nav-group-builder.ts` patterns from **TB-634** rather than ad hoc one-off filters.
-4. Update `nav-config.structure.test.ts` and `nav-shell-visibility.test.ts` for the new grouping.
+1. Add `@lhci/cli` (or equivalent) as a dev dependency; configure `lighthouserc` for `/welcome`, `/reviews`, `/reviews/[runId]` (representative run id fixture), `/governance/findings`.
+2. Run against a local production build/start in CI (not against a live deployed environment) to keep results deterministic and independent of network variance.
+3. Set score/metric budgets informed by **TB-692** field-data baselines once available; start with directional non-blocking thresholds (warn, not fail) for the first few weeks, then tighten.
+4. Store historical run artifacts (JSON reports) so trend regressions are visible, not just pass/fail.
 
-**Affected files:** `archlucid-ui/src/lib/nav/*-nav-group-builder.ts`, `archlucid-ui/src/lib/nav-config.ts`, nav structure tests.
+**Acceptance:**
 
-**Refs:** `docs/architecture/PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md` #7–#8; `docs/architecture/UX_AUDIT_2026_07_05.md` finding #4; complements **TB-634**.
+- CI job produces a Lighthouse report artifact per configured route on each run.
+- Budgets documented with rationale (not copy-pasted defaults).
+- Report retained/linked so a regression is diagnosable without re-running locally.
+
+**Affected files:** new `archlucid-ui/lighthouserc.js` (or `.json`), CI workflow, `docs/architecture/` (new perf-tooling doc or extend existing).
+
+**Refs:** **TB-573**, **TB-692**.
 
 **Size estimate:** M.
 
 ---
 
-## TB-648 — Hide or relabel Admin tools for non-admin tenants (P1)
+## TB-694 — Virtualize `GovernanceFindingsQueueDesktopTable` rows (P1)
 
-**Window:** V1 — complements **TB-634** internal-ops re-grouping; CTO/exec nav noise in 2026-07-05 audit.
+**Window:** V1.
 
-**Why:** Surfaces like Fleet LLM COGS, RAG health, Integration DLQ, Trial funnel, and Tenant cost remain visible or jargon-labeled in default operator nav for callers who are not `AdminAuthority`. CTO/exec glancing at nav should not see vendor COGS or queue jargon.
+**Why:** `/governance/findings` is the highest-weighted row (traffic × evidence score = 144) in `docs/architecture/ui_route_traffic_estimates.md`, yet `GovernanceFindingsQueueDesktopTable.tsx` (~559 lines) maps every row into `EnterpriseTable` with no virtualization. `@tanstack/react-virtual` is already a dependency and already proven on this exact table shape in `AuditEventsOperatorTable.tsx` and `RunFindingExplainabilityTable.tsx` — this is applying an existing, working pattern, not introducing a new one.
 
 **Approach:**
 
-1. Gate listed admin/telemetry nav items at `AdminAuthority` (or stricter where backend requires it — e.g. Integration DLQ stays `AdminAuthority` per **TB-632**).
-2. Where surfaces must remain visible to non-admin roles, relabel to buyer-facing names (e.g. "Knowledge index health" vs "RAG health").
-3. Prefer moving items into Administration / Internal Operations groups over inline hiding when **TB-634** placement already applies.
-4. Update `i18n.ts` and nav builder tests.
+1. Extract the row-rendering contract from `AuditEventsOperatorTable` (or `RunFindingExplainabilityTable`) as the reference implementation for virtualized `EnterpriseTable` usage.
+2. Apply the same `useVirtualizer` wiring to `GovernanceFindingsQueueDesktopTable`, preserving existing sort/filter/selection behavior and the `memo()`-wrapped `GovernanceFindingRow`.
+3. Gate virtualization behind a row-count threshold if there's a concern about small lists losing simple-DOM debuggability (match whatever convention the reference tables use, if any).
+4. Verify keyboard navigation, row selection, and screen-reader row announcement still work post-virtualization (virtualized lists are an easy place to regress a11y).
 
-**Affected files:** `archlucid-ui/src/lib/nav/operator-admin-nav-group-builder.ts`, `operator-system-admin-nav-group-builder.ts`, `archlucid-ui/src/lib/i18n.ts`, nav visibility tests.
+**Acceptance:**
 
-**Refs:** `docs/architecture/UX_AUDIT_2026_07_05.md`; complements **TB-634**, **TB-632**.
+- Table renders correctly with large synthetic finding sets (hundreds of rows) without unbounded DOM node growth.
+- No regression in existing `GovernanceFindingsQueueClient` / table interaction tests; new test covers virtualized scroll + selection.
+- No a11y regression (row roles/labels still present).
+
+**Affected files:** `src/app/(operator)/governance/findings/GovernanceFindingsQueueDesktopTable.tsx`, `GovernanceFindingsQueueClient.tsx`, `GovernanceFindingRow.tsx`.
+
+**Refs:** **TB-563** (prior decomposition of this component), `AuditEventsOperatorTable.tsx` pattern.
 
 **Size estimate:** M.
 
 ---
 
-## TB-649 — Scope audit nav links to review context (P1)
+## TB-695 — Migrate `useGovernanceFindingsQuery` to TanStack Query + cap fallback fan-out (P2)
 
-**Window:** V1 — found during 2026-07-05 UX audit capture (buyer-polished timeout on unscoped `/audit`).
+**Window:** V1.
 
-**Why:** Unscoped `/audit` shows "0 events" until manual search — buyer capture quality gate timed out. Scoped `/audit?runId={showcase}` succeeds. Nav and persona docs should default to populated audit views when entering from run or governance context.
+**Why:** `use-governance-findings-query.ts` still uses manual `useEffect`+`fetch` instead of the TanStack Query adoption already in place for 8 other hooks (**TB-562**), so governance findings gets no cross-navigation cache/dedupe. Its fallback path (used when the primary register fetch path is unavailable) can fan out up to 12 parallel `getRunExplanationSummary` calls with no cap, which can spike network/CPU for tenants with large run histories.
 
 **Approach:**
 
-1. Default audit nav links from run detail, governance hub, and related surfaces to scoped URLs (`/audit?runId=…` or governance context query params).
-2. Update `WORKFLOW_RECIPES_BY_PERSONA.md` and operator help copy to prefer scoped deep links.
-3. Consider empty-state guidance on unscoped `/audit` that routes users to select a review — but nav should not land there by default from architect workflows.
-4. Keep `ux-audit-screenshots.spec.ts` on scoped audit URL (already fixed 2026-07-05).
+1. Wrap the existing fetch logic in a `useQuery` with a scoped key (tenant/workspace), matching the stale/GC-time conventions in `operator-query-stale-time.ts`.
+2. Cap the fallback path's parallel `getRunExplanationSummary` fan-out (e.g. bounded batches via `Promise.all` in chunks, or a concurrency limiter already used elsewhere in the codebase per **TB-586**'s bounded-parallel pattern).
+3. Confirm the primary register-fetch path's existing `Promise.all` parallelism is preserved, not regressed, by the migration.
+4. Add a test asserting the fallback path never issues more than the capped number of concurrent summary requests.
 
-**Affected files:** nav link builders, audit page default behavior, `docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md`, `archlucid-ui/e2e/ux-audit-screenshots.spec.ts`.
+**Acceptance:**
 
-**Refs:** `docs/architecture/UX_AUDIT_2026_07_05.md` finding #5.
+- Governance findings query participates in TanStack Query cache/dedupe like other migrated hooks.
+- Fallback fan-out is provably bounded under test.
+- No behavior regression for tenants on the primary (non-fallback) path.
+
+**Affected files:** `use-governance-findings-query.ts`, `operator-query-stale-time.ts` (key/stale-time reuse).
+
+**Refs:** **TB-562** (TanStack Query expansion), **TB-586** (bounded parallel fan-out pattern), **TB-694** (same route).
+
+**Size estimate:** M.
+
+---
+
+## TB-696 — Shrink `AppShellClient` always-hydrated surface (P2)
+
+**Window:** V1.
+
+**Why:** Every route under `(operator)/layout.tsx` mounts `AppShellClient.tsx` (~496 lines), a client component wiring `OperatorQueryProvider`, telemetry, sidebar, help panels, tours, and auth. **TB-568** already memoized/split some context providers and several panels (sidebar, help, command palette, evidence graph) are already `dynamic()`. What remains eagerly bundled/mounted is still paid by every operator page regardless of whether that page needs tours, wizards, or heavier providers.
+
+**Approach:**
+
+1. Use `build:analyze` (post-**TB-691** fix) to identify which pieces of `AppShellClient`'s current import graph are not yet `dynamic()` and are not needed on first paint for a representative lightweight page (e.g. `/settings/*`).
+2. Move remaining non-critical mounts (tour orchestration, less-common banners/wizards) behind `dynamic(..., { ssr: false })` following the existing sidebar/help precedent.
+3. Consider splitting `OperatorShellProviders` so pages that don't touch workspace-active-run state or governance-mode context don't pull those providers' code and re-render surface at all.
+4. Re-measure First Load JS for a lightweight settings route before/after to quantify the win.
+
+**Acceptance:**
+
+- Measurable First Load JS reduction on at least one lightweight operator route, verified via the restored **TB-691** gate.
+- No regression to shell functionality (sidebar, help, command palette, tours still reachable where expected).
+
+**Affected files:** `src/app/(operator)/layout.tsx`, `AppShellClient.tsx`, `OperatorShellProviders` (or equivalent provider composition file).
+
+**Refs:** **TB-568** (prior provider split), **TB-560/TB-561** (prior dynamic-import precedent), **TB-691** (measurement dependency).
+
+**Size estimate:** M.
+
+---
+
+## TB-697 — Re-audit `/reviews/[runId]` bundle composition post-gate-fix (P3)
+
+**Window:** V1.
+
+**Why:** `/reviews/[runId]` is the top-traffic operator route (10% of hits per `ui_route_traffic_estimates.md`) and carries the largest known First Load JS (421 kB in the stale, Next-15-era baseline). That number can't be trusted until **TB-691** restores real measurement, and the route may have shifted (better or worse) across the Next 16 upgrade and subsequent feature work.
+
+**Approach:**
+
+1. After **TB-691** lands, run `npm run build:analyze` against `/reviews/[runId]` and identify which client-imported sections land in the initial chunk vs already-deferred `RunDetailBelowFoldSections`.
+2. Extend the below-fold deferred-chunk pattern to any additional sections found eagerly bundled that aren't needed for first paint.
+3. Update the committed baseline for this route specifically once genuinely optimized, rather than just accepting whatever number the Next 16 remeasurement produces.
+
+**Acceptance:**
+
+- Current, trustworthy First Load JS number recorded for this route.
+- Any newly-identified eager section moved to the existing deferred pattern, with before/after size delta noted in the PR.
+
+**Affected files:** `src/app/(operator)/reviews/[runId]/page.tsx`, `RunDetailPageView.tsx`, `RunDetailBelowFoldSections.tsx`.
+
+**Refs:** **TB-691** (hard dependency — do not start until the gate reports real numbers), **TB-571** (nested Suspense on this route).
 
 **Size estimate:** S.
 
 ---
 
-## TB-650 — Re-audit Service Bus / Azure infra copy in operator-facing health labels (P1)
+## TB-698 — Lazy-load policy-pack authoring surfaces (P3)
 
-**Window:** V1 — regression not re-verified in 2026-07-05 capture pass; open from 2026-06-15 leakage audit finding #4.
+**Window:** V1.
 
-**Why:** Operator-facing health strings may still mention Azure Service Bus, readiness checks, and worker logs via `SERVICE_BUS_HEALTH_LABELS` and related `i18n.ts` entries — platform component names visible to architects who expect user-impact language.
+**Why:** `PolicyPacksPageView.tsx` (~489 lines) and its `use-policy-packs-page.ts` state hook (~555 lines) ship `PolicyRuleAuthoringWizard`, `PolicyPackNaturalLanguageBuilder`, and `PolicyPackVisualBuilder` as static imports even though these authoring surfaces are only used when a user actively opens an author/generator tab — the common read/browse path (viewing catalog and effective packs) never touches them.
 
 **Approach:**
 
-1. Audit `i18n.ts` health label modules (`SERVICE_BUS_HEALTH_LABELS` and siblings) for Azure infra jargon on non-admin-visible surfaces.
-2. Replace with product-language status describing user impact (degraded notifications, delayed reviews) or relocate raw infra detail behind admin diagnostics (`/admin/health`, Internal Operations).
-3. Add or extend copy guard tests if a pattern module exists for health labels.
-4. Re-verify in next UX audit operator capture set.
+1. Confirm current import style (static vs already-dynamic) for all three authoring components via `build:analyze`.
+2. Wrap each in `dynamic(..., { ssr: false })` with a lightweight loading placeholder, following the precedent already used for `CommandPalette` (**TB-560**) and `FindingEvidenceGraph` (**TB-561**).
+3. Verify the catalog/browse tabs' bundle no longer includes authoring-only code after the change.
 
-**Affected files:** `archlucid-ui/src/lib/i18n.ts` (health label sections), health banner components, optional terminology guard tests.
+**Acceptance:**
 
-**Refs:** `docs/architecture/PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md` #4; `docs/architecture/UX_AUDIT_2026_07_05.md` regression table.
+- Authoring components confirmed lazy via bundle analysis (not present in the initial `/governance/policy-packs` chunk).
+- No regression to authoring tab functionality or to `PolicyPacksPageView`'s existing tests.
+
+**Affected files:** `src/app/(operator)/policy-packs/_sections/PolicyPacksPageView.tsx`, `PolicyRuleAuthoringWizard.tsx`, `PolicyPackNaturalLanguageBuilder.tsx`, `PolicyPackVisualBuilder.tsx`.
+
+**Refs:** **TB-566** (push-down `"use client"` boundaries), **TB-560/TB-561** (dynamic-import precedent).
 
 **Size estimate:** S.
-
----
-
-## TB-651 — Extend buyer vocabulary to pipeline stage labels and status pills (P2)
-
-**Window:** V1 — partial regression from 2026-06-15 leakage audit finding #6; depends on **TB-645**.
-
-**Why:** Pipeline stage labels, tooltips, and status pills in operator build still use engineering vocabulary ("Ready to seal", "execution pipeline initializing", raw manifest/pipeline terms) where `PIPELINE_STATUS_LABELS` and run detail tooltips should use canonical buyer copy: Ready, Needs attention, Blocked, Approved, etc.
-
-**Approach:**
-
-1. Extend **TB-645** vocabulary pass to pipeline status modules and run detail tooltips.
-2. Map engineering states to `UI_DESIGN_SYSTEM.md` canonical status tags without losing operator precision in admin-only detail panels.
-3. Regression: status tags on operator `run-detail.png` use canonical copy when **TB-645** is active.
-
-**Affected files:** pipeline status copy modules, run detail tooltip components, `buyer-demo-vocabulary.ts` / terminology surfaces.
-
-**Refs:** depends on **TB-645**; `docs/architecture/UX_AUDIT_2026_07_05.md` regression table #6.
-
-**Size estimate:** S.
-
----
-
-## TB-652 — Extend UX audit screenshot capture to marketing entry points (P2)
-
-**Window:** V1 — full-app audit scope gap identified 2026-07-05.
-
-**Why:** Current `ux-audit-screenshots.spec.ts` captures 14 buyer + 14 operator authenticated routes but omits public marketing entry points `/welcome` and `/why` referenced in `SCREENSHOT_GALLERY.md` and GTM materials.
-
-**Approach:**
-
-1. Add `/welcome` and `/why` routes to `ux-audit-screenshots.spec.ts` (likely a third output folder, e.g. `public/screenshots/ux-audit/marketing/`).
-2. Update `run-ux-audit.ps1` PNG count validation and `.cursor/skills/lucid-ui-audit/SKILL.md` workflow.
-3. Document marketing capture build flags (likely static/marketing shell — no separate operator rebuild required if routes are public).
-
-**Affected files:** `archlucid-ui/e2e/ux-audit-screenshots.spec.ts`, `archlucid-ui/scripts/run-ux-audit.ps1`, `archlucid-ui/package.json`, `.cursor/skills/lucid-ui-audit/SKILL.md`, `docs/architecture/UX_AUDIT_2026_07_05.md`.
-
-**Refs:** `docs/architecture/UX_AUDIT_2026_07_05.md` recommended follow-ups.
-
-**Size estimate:** S.
-
----
-
-## TB-653 — Maintain UX audit harness (P2)
-
-**Window:** V1 — harness partially shipped 2026-07-05; ongoing maintainability.
-
-**Why:** Persona-driven UX audits depend on `run-ux-audit.ps1`, Playwright dual-build capture, `testIgnore` for `.next/**` duplicate spec discovery, and the `lucid-ui-audit` Cursor skill. Without maintenance, re-audits regress to manual port/env debugging.
-
-**Approach:**
-
-1. Keep `archlucid-ui/scripts/run-ux-audit.ps1` as the one-command entry point (`npm run ux-audit`).
-2. Preserve Playwright `testIgnore: ['**/.next/**']` on mock configs when standalone copies duplicate specs.
-3. Re-run full audit (`npm run ux-audit`) after any shell, nav, or intake change; produce dated report under `docs/architecture/UX_AUDIT_YYYY_MM_DD.md`.
-4. Update `.cursor/skills/lucid-ui-audit/SKILL.md` when capture routes or env vars change.
-5. Quarterly audit cadence: 14+14 PNGs (plus marketing routes after **TB-652**) without manual port alignment fixes.
-
-**Affected files:** `archlucid-ui/scripts/run-ux-audit.ps1`, `archlucid-ui/e2e/ux-audit-screenshots.spec.ts`, `archlucid-ui/playwright.mock.config.ts`, `archlucid-ui/playwright.operator-mock.config.ts`, `.cursor/skills/lucid-ui-audit/SKILL.md`.
-
-**Refs:** `docs/architecture/UX_AUDIT_2026_07_05.md` capture methodology and re-run instructions.
-
-**Size estimate:** XS.

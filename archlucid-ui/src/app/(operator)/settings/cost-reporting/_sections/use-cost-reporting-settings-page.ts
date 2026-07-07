@@ -7,6 +7,7 @@ import {
   type LlmCostReportingDashboard,
   fetchLlmCostReportingDashboard,
 } from "@/lib/llm-cost-reporting";
+import { normalizeLlmCostReportingDashboardForDisplay } from "@/lib/llm-cost-reporting-display-labels";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import type {
@@ -53,7 +54,7 @@ export function useCostReportingSettingsPage(
     setLoading(true);
 
     try {
-      const next = await fetchLlmCostReportingDashboard();
+      const next = normalizeLlmCostReportingDashboardForDisplay(await fetchLlmCostReportingDashboard());
       setData(next);
     } catch {
       setData(null);

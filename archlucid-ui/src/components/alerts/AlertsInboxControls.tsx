@@ -40,83 +40,94 @@ export type AlertsInboxControlsProps = {
   readonly onToggleSelectAllVisible: (checked: boolean) => void;
 };
 
+function formatAlertsInboxCountLabel(totalCount: number, status: string, loading: boolean): string {
+  if (loading) {
+    return "Loading alerts…";
+  }
+
+  if (status === "Open") {
+    return `${totalCount} open ${totalCount === 1 ? "alert" : "alerts"}`;
+  }
+
+  if (status === ALERTS_INBOX_ALL_STATUSES_VALUE) {
+    return `${totalCount} ${totalCount === 1 ? "alert" : "alerts"}`;
+  }
+
+  return `${totalCount} ${status.toLowerCase()} ${totalCount === 1 ? "alert" : "alerts"}`;
+}
+
 export function AlertsInboxControls(props: AlertsInboxControlsProps) {
+  const countLabel = formatAlertsInboxCountLabel(props.totalCount, props.status, props.loading);
+
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-end gap-3">
-        <div className="grid gap-2">
-          <Label htmlFor="alerts-status-filter">Status filter</Label>
-          <Select value={props.status} onValueChange={props.onStatusChange}>
-            <SelectTrigger id="alerts-status-filter" className="w-[200px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALERTS_INBOX_ALL_STATUSES_VALUE}>All</SelectItem>
-              <SelectItem value="Open">Open</SelectItem>
-              <SelectItem value="Acknowledged">Acknowledged</SelectItem>
-              <SelectItem value="Resolved">Resolved</SelectItem>
-              <SelectItem value="Suppressed">Suppressed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={props.onRefresh}
-          disabled={props.loading}
-          title={
-            props.canMutateAlertInbox ? alertsInboxRefreshButtonTitleOperator : alertsInboxRefreshButtonTitleReader
-          }
-        >
-          {props.loading ? "Loading…" : "Refresh"}
-        </Button>
-        {props.canMutateAlertInbox && props.visibleAlertCount > 0 ? (
+      <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="grid gap-2">
+            <Label htmlFor="alerts-status-filter">Status</Label>
+            <Select value={props.status} onValueChange={props.onStatusChange}>
+              <SelectTrigger id="alerts-status-filter" className="w-[200px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALERTS_INBOX_ALL_STATUSES_VALUE}>All</SelectItem>
+                <SelectItem value="Open">Open</SelectItem>
+                <SelectItem value="Acknowledged">Acknowledged</SelectItem>
+                <SelectItem value="Resolved">Resolved</SelectItem>
+                <SelectItem value="Suppressed">Suppressed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button
             type="button"
-            variant="primary"
-            disabled={props.batchAckBusy || props.selectedAlertCount === 0}
-            data-testid="alerts-acknowledge-selected"
-            onClick={props.onAcknowledgeSelected}
+            variant="secondary"
+            onClick={props.onRefresh}
+            disabled={props.loading}
+            title={
+              props.canMutateAlertInbox ? alertsInboxRefreshButtonTitleOperator : alertsInboxRefreshButtonTitleReader
+            }
           >
-            {props.batchAckBusy
-              ? ALERTS_INBOX_LABELS.acknowledgingSelected
-              : `${ALERTS_INBOX_LABELS.acknowledgeSelected}${props.selectedAlertCount > 0 ? ` (${props.selectedAlertCount})` : ""}`}
+            {props.loading ? "Loading…" : "Refresh"}
           </Button>
+          {props.canMutateAlertInbox && props.visibleAlertCount > 0 ? (
+            <Button
+              type="button"
+              variant="primary"
+              disabled={props.batchAckBusy || props.selectedAlertCount === 0}
+              data-testid="alerts-acknowledge-selected"
+              onClick={props.onAcknowledgeSelected}
+            >
+              {props.batchAckBusy
+                ? ALERTS_INBOX_LABELS.acknowledgingSelected
+                : `${ALERTS_INBOX_LABELS.acknowledgeSelected}${props.selectedAlertCount > 0 ? ` (${props.selectedAlertCount})` : ""}`}
+            </Button>
+          ) : null}
+        </div>
+
+        {!props.hasLoadFailure ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="alerts-inbox-count-label"
+            aria-live="polite"
+          >
+            {countLabel}
+          </p>
         ) : null}
       </div>
 
-      {!props.hasLoadFailure ? (
-        <div
-          className={cn(
-            "mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200",
-            OPERATOR_TYPOGRAPHY.body,
-          )}
-          data-testid="alerts-inbox-operational-summary"
-        >
-          {props.loading ? (
-            <p className="m-0 text-neutral-600 dark:text-neutral-400">Refreshing alert counts…</p>
-          ) : (
-            <>
-              <p className="m-0">
-                <strong>{props.totalCount}</strong> {props.totalCount === 1 ? "alert" : "alerts"}{" "}
-                {props.status === ALERTS_INBOX_ALL_STATUSES_VALUE ? "for the current filter." : `with status “${props.status}”.`}
-              </p>
-              {props.pageMixSummary !== null && props.status === ALERTS_INBOX_ALL_STATUSES_VALUE ? (
-                <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  Page {props.page} of {props.totalPages}: {props.pageMixSummary}.
-                </p>
-              ) : null}
-              {props.totalCount === 0 && !props.buyerPolishedShell ? (
-                <p className="m-0 mt-1">
-                  <Link className={cn("font-medium", OPERATOR_LINK.nav)} href="/alerts?tab=rules">
-                    Configure alert rules
-                  </Link>{" "}
-                  when you expect traffic.
-                </p>
-              ) : null}
-            </>
-          )}
-        </div>
+      {props.pageMixSummary !== null && props.status === ALERTS_INBOX_ALL_STATUSES_VALUE && !props.hasLoadFailure ? (
+        <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)} data-testid="alerts-inbox-page-mix">
+          Page {props.page} of {props.totalPages}: {props.pageMixSummary}.
+        </p>
+      ) : null}
+
+      {!props.hasLoadFailure && props.totalCount === 0 && !props.buyerPolishedShell && !props.loading ? (
+        <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link className={cn("font-medium", OPERATOR_LINK.nav)} href="/governance/alerts?tab=rules">
+            Configure alert rules
+          </Link>{" "}
+          when you expect traffic.
+        </p>
       ) : null}
 
       {props.buyerPolishedShell ? null : (
@@ -128,7 +139,7 @@ export function AlertsInboxControls(props: AlertsInboxControlsProps) {
       )}
 
       {props.canMutateAlertInbox && props.visibleAlertCount > 0 ? (
-        <div className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)} data-testid="alerts-inbox-bulk-select">
+        <div className={cn("mb-3 flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)} data-testid="alerts-inbox-bulk-select">
           <input
             id="alerts-select-all-visible"
             type="checkbox"

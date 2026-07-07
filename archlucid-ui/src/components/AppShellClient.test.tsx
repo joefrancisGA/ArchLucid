@@ -2,13 +2,13 @@ import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppShellClient } from "@/components/AppShellClient";
+import { OPERATOR_SHELL_BODY_ROW_CLASS, OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS } from "@/lib/design-tokens";
 import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
-const buyerPolishedMock = vi.hoisted(() => ({ value: true }));
 const fullShellMock = vi.hoisted(() => ({ value: true }));
 const fetchBudgetStatus = vi.hoisted(() => vi.fn());
 const fetchBudgetStatusCached = vi.hoisted(() => vi.fn());
@@ -23,7 +23,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
   return {
     ...actual,
-    isBuyerPolishedOperatorShellEnv: () => buyerPolishedMock.value,
     isOperatorExperienceFullShellEnv: () => fullShellMock.value,
     isNextPublicDemoMode: () => false,
   };
@@ -62,18 +61,11 @@ vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
   };
 });
 
-vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
-  return {
-    ...actual,
+vi.mock("next/navigation", () => ({
   usePathname: () => "/",
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),
-  redirect: vi.fn(),
-    permanentRedirect: vi.fn(),
-    notFound: vi.fn(),
-  };
-});
+}));
 
 vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
@@ -95,7 +87,6 @@ describe("AppShellClient — LLM budget chrome", () => {
   });
 
   beforeEach(() => {
-    buyerPolishedMock.value = true;
     fullShellMock.value = true;
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
@@ -160,7 +151,7 @@ describe("AppShellClient — LLM budget chrome", () => {
     expect(fetchBudgetStatusCached).not.toHaveBeenCalled();
   });
 
-  it("hides budget pill when full operator shell is off", async () => {
+  it("hides budget pill in buyer-default shell mode", async () => {
     fullShellMock.value = false;
 
     renderWithOperatorQuery(
@@ -179,7 +170,7 @@ describe("AppShellClient — shell chrome labels", () => {
   useOperatorQueryTestLifecycle();
 
   beforeEach(() => {
-    buyerPolishedMock.value = false;
+    fullShellMock.value = true;
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => new Response(JSON.stringify({ status: "Healthy", entries: [] }), { status: 200 })),
@@ -217,5 +208,21 @@ describe("AppShellClient — shell chrome labels", () => {
       PERSONA_SHELL_WORDMARK_ARIA_LABEL,
     );
     expect(topbar.textContent?.toLowerCase() ?? "").not.toContain("operator");
+  });
+
+  it("left-aligns the sidebar row with the top bar and reserves a fixed sidebar width", () => {
+    renderWithOperatorQuery(
+      <AppShellClient>
+        <div>child</div>
+      </AppShellClient>,
+    );
+
+    const sidebarRow = screen.getByTestId("sidebar-nav").parentElement;
+    const sidebarNav = screen.getByTestId("sidebar-nav");
+
+    expect(sidebarRow).not.toBeNull();
+    expect(sidebarRow?.className).toContain(OPERATOR_SHELL_BODY_ROW_CLASS);
+    expect(sidebarRow?.className).not.toMatch(/mx-auto/);
+    expect(sidebarNav).toHaveClass(OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS);
   });
 });

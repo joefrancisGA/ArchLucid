@@ -1,5 +1,11 @@
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
-import { OPERATOR_HOME_WORKSPACE_EMPTY_BODY, OPERATOR_HOME_WORKSPACE_EMPTY_TITLE } from "@/lib/buyer-polish-copy";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import {
+  OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_BODY,
+  OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE,
+  OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
+  OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
+} from "@/lib/buyer-polish-copy";
 
 /** Reviews list when the project has zero review packages. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -8,7 +14,7 @@ export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   description:
     "Start an architecture review to generate a package with findings, evidence, and exports. Or explore a completed sample package.",
   actions: [
-    { label: "Start architecture review", href: "/reviews/new", variant: "primary" },
+    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "primary" },
     { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
 };
@@ -18,6 +24,13 @@ export const OPERATOR_HOME_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStatePro
   testId: "operator-home-workspace-empty-state",
   title: OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
   description: OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
+};
+
+/** Workspace Activity archived filter — no archived review packages in scope. */
+export const OPERATOR_HOME_ARCHIVED_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "operator-home-workspace-archived-empty-state",
+  title: OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE,
+  description: OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_BODY,
 };
 
 /** Semantic search returned no hits. */
@@ -61,7 +74,7 @@ export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = 
   description:
     "You need at least two finalized review packages before ArchLucid can compare changes over time.",
   actions: [
-    { label: "Start review", href: "/reviews/new", variant: "primary" },
+    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "primary" },
     { label: "Open review packages", href: "/reviews?projectId=default", variant: "outline" },
   ],
 };
@@ -73,7 +86,7 @@ export const COMPARE_INSUFFICIENT_FINALIZED_COMPACT: EnterpriseCompactEmptyState
   description: "Finalize one more review package to compare changes over time.",
   actions: [
     { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
-    { label: "Start review", href: "/reviews/new", variant: "outline" },
+    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "outline" },
   ],
 };
 

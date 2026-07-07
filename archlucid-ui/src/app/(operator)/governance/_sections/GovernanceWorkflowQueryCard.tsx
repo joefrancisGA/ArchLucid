@@ -99,8 +99,8 @@ export function GovernanceWorkflowQueryCard(props: GovernanceWorkflowQueryCardPr
                 />
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button type="button" variant="secondary" onClick={onLoadRun} disabled={listsLoading}>
-                  {listsLoadingShowsBusyChrome ? "Loading…" : buyerPolishedShell ? "Load review" : "Load"}
+                <Button type="button" variant="secondary" size="sm" onClick={onLoadRun} disabled={listsLoading}>
+                  {listsLoadingShowsBusyChrome ? "Loading…" : "Load selected review"}
                 </Button>
                 {activeRunId !== null ? (
                   <Button

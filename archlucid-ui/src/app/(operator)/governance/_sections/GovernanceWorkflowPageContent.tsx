@@ -9,12 +9,11 @@ import { CtoDemoSegregationCallout } from "@/components/cto-demo/CtoDemoSegregat
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
-import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { GovernanceInteractiveQuickstartCard } from "@/components/GovernanceInteractiveQuickstartCard";
 import { GovernanceApprovalStoryCard } from "@/components/GovernanceApprovalStoryCard";
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -28,33 +27,33 @@ import {
   rejectRequest,
   submitApprovalRequest,
 } from "@/lib/api";
-import { GOVERNANCE_WORKFLOW_IDLE, GOVERNANCE_WORKFLOW_IDLE_READER } from "@/lib/empty-state-presets";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import {
-  governanceWorkflowPageLeadOperator,
-  governanceWorkflowPageLeadReader,
-  governanceWorkflowOutcomeBannerLine,
-} from "@/lib/enterprise-controls-context-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { CtoDemoGovernancePreviewHint } from "@/components/OperateCapabilityHints";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
-  isStaticDemoPayloadFallbackEnabled,
   shouldSeedStaticDemoGovernanceRecordsForRun,
   STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS,
   tryStaticDemoGovernanceApprovalRequests,
   tryStaticDemoGovernancePromotions,
   warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce,
 } from "@/lib/operator-static-demo";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import {
+  GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER,
+  GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION,
+  GOVERNANCE_OVERVIEW_PAGE_LEAD,
+  GOVERNANCE_OVERVIEW_PAGE_TITLE,
+  GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL,
+  GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE,
+  GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
+  GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE,
+} from "@/lib/governance-overview-copy";
 import {
   BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
   BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
-  BUYER_GOVERNANCE_SEGREGATION_OF_DUTIES,
-  BUYER_GOVERNANCE_WORKFLOW_LIVE_INTRO,
 } from "@/lib/buyer-polish-copy";
 import {
   GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE,
@@ -66,10 +65,13 @@ import type {
   GovernanceEnvironmentActivation,
   GovernancePromotionRecord,
 } from "@/types/governance-workflow";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { GovernanceOverviewPanel } from "./GovernanceOverviewPanel";
+import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
+import { GovernanceReviewContextBar } from "./GovernanceReviewContextBar";
 import { GovernanceWorkflowApprovalsList } from "./GovernanceWorkflowApprovalsList";
 import { GovernanceWorkflowDialogs } from "./GovernanceWorkflowDialogs";
 import { GovernanceWorkflowPromotionsActivationsSection } from "./GovernanceWorkflowPromotionsActivationsSection";
-import { GovernanceWorkflowQueryCard } from "./GovernanceWorkflowQueryCard";
 import { GovernanceWorkflowSubmitSection } from "./GovernanceWorkflowSubmitSection";
 import {
   sortGovernanceActivations,
@@ -77,54 +79,51 @@ import {
   type GovernanceWorkflowPendingReview,
   type GovernanceWorkflowToastState,
 } from "./governance-workflow-helpers";
+import {
+  GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE,
+  GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD,
+  GOVERNANCE_APPROVAL_REQUESTS_SECTION_LEAD,
+  GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE,
+  governanceWorkflowOutcomeLineForPhase,
+} from "@/lib/governance-workflow-section-copy";
 
 export function GovernanceWorkflowPageContent() {
   const searchParams = useSearchParams();
   const canMutateWorkflow = useOperateCapability();
   const [toast, setToast] = useState<GovernanceWorkflowToastState>(null);
-  const isStaticDemoFallbackActiveForShowcase = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const staticGovernanceSeedAllowed = shouldSeedStaticDemoGovernanceRecordsForRun(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const submitSectionRef = useRef<HTMLElement | null>(null);
 
-  // Pre-seed demo state synchronously so the first render already shows the approval
-  // outcome card rather than the empty / instruction-first state that appears before
-  // the useEffect hydration cycle completes.
-  const isDemoShell = isStaticDemoFallbackActiveForShowcase || buyerPolishedShell;
-  const initialDemoApprovals = staticGovernanceSeedAllowed
-    ? (tryStaticDemoGovernanceApprovalRequests(SHOWCASE_STATIC_DEMO_RUN_ID) ?? [])
-    : [];
-  const initialDemoPromotions = staticGovernanceSeedAllowed
-    ? (tryStaticDemoGovernancePromotions(SHOWCASE_STATIC_DEMO_RUN_ID) ?? [])
-    : [];
-  const initialDemoActiveRunId: string | null = isDemoShell ? SHOWCASE_STATIC_DEMO_RUN_ID : null;
-
-  const [submitRunId, setSubmitRunId] = useState(isDemoShell ? SHOWCASE_STATIC_DEMO_RUN_ID : "");
-  const [submitManifestVersion, setSubmitManifestVersion] = useState(
-    isStaticDemoFallbackActiveForShowcase ? "3.4.1 (Claims Intake example)" : "",
-  );
+  const [submitRunId, setSubmitRunId] = useState("");
+  const [submitManifestVersion, setSubmitManifestVersion] = useState("");
   const [submitSource, setSubmitSource] = useState<string>("");
   const [submitTarget, setSubmitTarget] = useState<string>("");
   const [submitComment, setSubmitComment] = useState("");
   const [submitBusy, setSubmitBusy] = useState(false);
 
-  const [queryRunId, setQueryRunId] = useState(isDemoShell ? SHOWCASE_STATIC_DEMO_RUN_ID : "");
-  const [activeRunId, setActiveRunId] = useState<string | null>(initialDemoActiveRunId);
+  const [queryRunId, setQueryRunId] = useState("");
+  const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [workflowActor, setWorkflowActor] = useState("");
 
-  const [approvals, setApprovals] = useState<GovernanceApprovalRequest[]>(initialDemoApprovals);
-  const [promotions, setPromotions] = useState<GovernancePromotionRecord[]>(
-    sortGovernancePromotions(initialDemoPromotions),
-  );
+  const [approvals, setApprovals] = useState<GovernanceApprovalRequest[]>([]);
+  const [promotions, setPromotions] = useState<GovernancePromotionRecord[]>([]);
   const [activations, setActivations] = useState<GovernanceEnvironmentActivation[]>([]);
   const [listsLoading, setListsLoading] = useState(false);
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
-  const [showingStaticDemoGovernanceRecords, setShowingStaticDemoGovernanceRecords] = useState(
-    staticGovernanceSeedAllowed && initialDemoApprovals.length > 0,
-  );
-  const hideGovernanceQueryLoadCard = buyerPolishedShell && approvals.length > 0;
+  const [showingStaticDemoGovernanceRecords, setShowingStaticDemoGovernanceRecords] = useState(false);
+
+  const isReviewContext = activeRunId !== null;
+  const isShowcaseSampleContext =
+    isReviewContext &&
+    canonicalizeDemoRunId(activeRunId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const approvalWorkflowState = deriveGovernanceApprovalWorkflowState({
+    activeRunId,
+    approvals,
+    listsLoading,
+  });
 
   const buyerSuppressGovernanceSubmitChrome =
-    buyerPolishedShell && activeRunId !== null && approvals.length > 0;
+    buyerPolishedShell && isReviewContext && approvalWorkflowState.canShowCompletionMessaging;
 
   const listsLoadingShowsBusyChrome = listsLoading && !(buyerPolishedShell && approvals.length > 0);
 
@@ -149,7 +148,15 @@ export function GovernanceWorkflowPageContent() {
 
   const [activateBusyId, setActivateBusyId] = useState<string | null>(null);
 
-  const demoPrefillRanRef = useRef(false);
+  const clearReviewContext = useCallback((): void => {
+    setActiveRunId(null);
+    setApprovals([]);
+    setPromotions([]);
+    setActivations([]);
+    setListFailure(null);
+    setShowingStaticDemoGovernanceRecords(false);
+    setPendingReview(null);
+  }, []);
 
   useEffect(() => {
     warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce();
@@ -176,14 +183,6 @@ export function GovernanceWorkflowPageContent() {
     setPendingActivate(null);
     pendingActivatePromotionRef.current = null;
   }, [canMutateWorkflow]);
-
-  useEffect(() => {
-    const fromQuery = searchParams.get("runId");
-
-    if (fromQuery?.trim()) {
-      setQueryRunId(fromQuery.trim());
-    }
-  }, [searchParams]);
 
   const loadLists = useCallback(async (runId: string) => {
     setListsLoading(true);
@@ -295,37 +294,31 @@ export function GovernanceWorkflowPageContent() {
   }, [activeRunId, loadLists]);
 
   useEffect(() => {
-    if (!isStaticDemoPayloadFallbackEnabled() && !isStaticDemoFallbackActiveForShowcase) {
+    const fromQuery = searchParams.get("runId")?.trim() ?? "";
+
+    if (fromQuery.length === 0) {
       return;
     }
 
-    if (demoPrefillRanRef.current) {
-      return;
+    setQueryRunId(fromQuery);
+    setActiveRunId(fromQuery);
+    setSubmitRunId((prev) => (prev.trim().length === 0 ? fromQuery : prev));
+    void loadLists(fromQuery);
+  }, [searchParams, loadLists]);
+
+  const focusSubmitSection = useCallback((): void => {
+    const selectedRunId = queryRunId.trim();
+
+    if (!isReviewContext && selectedRunId.length > 0) {
+      setActiveRunId(selectedRunId);
+      setSubmitRunId(selectedRunId);
+      void loadLists(selectedRunId);
     }
 
-    const fromSearch = searchParams.get("runId")?.trim() ?? "";
-
-    if (fromSearch.length > 0) {
-      demoPrefillRanRef.current = true;
-
-      return;
-    }
-
-    if (queryRunId.trim().length > 0) {
-      demoPrefillRanRef.current = true;
-      // State was pre-seeded synchronously; still try the API to replace demo data with live data.
-      void loadLists(queryRunId.trim());
-
-      return;
-    }
-
-    demoPrefillRanRef.current = true;
-    setQueryRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
-    setActiveRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
-    setSubmitRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
-    setSubmitManifestVersion("3.4.1");
-    void loadLists(SHOWCASE_STATIC_DEMO_RUN_ID);
-  }, [searchParams, queryRunId, loadLists, isStaticDemoFallbackActiveForShowcase]);
+    window.setTimeout(() => {
+      submitSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  }, [isReviewContext, queryRunId, loadLists]);
 
   async function onSubmitApproval() {
     if (!canMutateWorkflow) {
@@ -491,30 +484,37 @@ export function GovernanceWorkflowPageContent() {
   }
 
   const showBuyerApprovalStory =
-    buyerPolishedShell && approvals.length > 0 && activeRunId !== null;
+    buyerPolishedShell &&
+    isReviewContext &&
+    approvalWorkflowState.canShowCompletionMessaging &&
+    approvalWorkflowState.primaryApprovedRequest !== null;
+  const workflowOutcomeLine = governanceWorkflowOutcomeLineForPhase(approvalWorkflowState.phase);
+  const pageTitle = isReviewContext ? GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE : GOVERNANCE_OVERVIEW_PAGE_TITLE;
+  const pageLead = isReviewContext
+    ? showBuyerApprovalStory
+      ? BUYER_GOVERNANCE_GOVERNED_USE_SCOPE
+      : GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD
+    : GOVERNANCE_OVERVIEW_PAGE_LEAD;
 
   return (
     <MutationErrorBoundary title="Governance workflow failed to render">
     <TooltipProvider delayDuration={300}>
     <div className="w-full max-w-[1200px]">
-      <LayerHeader pageKey="governance-workflow" />
-      <CtoDemoBuyerValueStrip stepIndex={3} />
-      <CtoDemoSegregationCallout />
-      <CtoDemoGovernancePreviewHint />
+      {isReviewContext ? <LayerHeader pageKey="governance-workflow" density="compact" collapsibleGuidance={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER} /> : null}
+      {isReviewContext ? <CtoDemoBuyerValueStrip stepIndex={3} /> : null}
+      {isReviewContext ? <CtoDemoSegregationCallout /> : null}
+      {isReviewContext ? <CtoDemoGovernancePreviewHint /> : null}
       <OperatorPageHeader
-        title={OPERATOR_NAV_LINK_LABELS.governanceWorkflow}
+        title={pageTitle}
         docsPageKey="/governance"
-        subtitle={
-          showBuyerApprovalStory
-            ? BUYER_GOVERNANCE_GOVERNED_USE_SCOPE
-            : buyerPolishedShell
-              ? "Governance holds the approval decision and audit linkage for this review package."
-              : canMutateWorkflow
-                ? governanceWorkflowPageLeadOperator
-                : governanceWorkflowPageLeadReader
-        }
+        subtitle={pageLead}
         metadata={
-          buyerPolishedShell && !showBuyerApprovalStory ? (
+          !isReviewContext ? (
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <InlineGuidanceLabel label="Next" testId="inline-guidance-governance-overview-next" />{" "}
+              {GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION}
+            </span>
+          ) : buyerPolishedShell && !showBuyerApprovalStory ? (
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Production deployments and change-managed releases follow your enterprise process—this page does not configure
               releases.
@@ -523,65 +523,6 @@ export function GovernanceWorkflowPageContent() {
         }
         helpKey="governance-workflow"
       />
-      {buyerPolishedShell && !showBuyerApprovalStory ? (
-        <p
-          className={cn("mb-4 max-w-prose rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="governance-buyer-why-matters"
-        >
-          This confirms the review package has passed the required approval sequence before being used for architecture
-          decision support, review-board readouts, and audit inquiries.
-        </p>
-      ) : null}
-      {showBuyerApprovalStory ? (
-        <>
-          <p
-            className={cn("mb-4 max-w-prose rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 font-semibold leading-snug shadow-sm dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="governance-buyer-approval-record-lead"
-          >
-            {BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD}
-          </p>
-          <GovernanceApprovalStoryCard
-            row={approvals[0]!}
-            auditTrailHref={`/audit?runId=${encodeURIComponent(activeRunId)}`}
-            emphasizeComplete
-          />
-        </>
-      ) : null}
-      {!showBuyerApprovalStory ? (
-        <p
-          className={cn("mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="governance-workflow-outcome-banner"
-        >
-          {governanceWorkflowOutcomeBannerLine}
-        </p>
-      ) : null}
-
-      {buyerPolishedShell ? (
-        <CollapsibleSection title="Supporting approval records" defaultOpen={false}>
-          <GovernanceInteractiveQuickstartCard hideFirst30DaysLink suppressCardTitle className="mb-0" />
-        </CollapsibleSection>
-      ) : (
-        <AdvancedOptionsAccordion triggerLabel="How governance approval works" defaultOpen={false} className="mb-6">
-          <GovernanceInteractiveQuickstartCard hideFirst30DaysLink suppressCardTitle className="mb-0" />
-        </AdvancedOptionsAccordion>
-      )}
-
-      {buyerPolishedShell && !showBuyerApprovalStory ? (
-        <div className={cn("mb-6 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}>
-          <p className="m-0">{BUYER_GOVERNANCE_WORKFLOW_LIVE_INTRO}</p>
-          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{BUYER_GOVERNANCE_SEGREGATION_OF_DUTIES}</p>
-        </div>
-      ) : null}
-      {!buyerPolishedShell &&
-      (isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) &&
-      !showBuyerApprovalStory ? (
-        <div className={cn("mb-6 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}>
-          <strong>Approval workflow reference</strong>
-          {" — "}
-          In production, authorized roles submit requests, complete approval, release approved packages to each environment,
-          and record go-live.
-        </div>
-      ) : null}
 
       {toast ? (
         <div className="fixed bottom-6 right-6 z-50 max-w-sm" role="status">
@@ -597,125 +538,178 @@ export function GovernanceWorkflowPageContent() {
         </div>
       ) : null}
 
-      {listFailure !== null ? (
-        <div className="mb-6" role="alert">
-          <OperatorApiProblem
-            problem={listFailure.problem}
-            fallbackMessage={listFailure.message}
-            correlationId={listFailure.correlationId}
-          />
-        </div>
-      ) : null}
-
-      {activeRunId === null && !listsLoading && listFailure === null ? (
-        <div className="mb-6">
-          <EmptyState {...(canMutateWorkflow ? GOVERNANCE_WORKFLOW_IDLE : GOVERNANCE_WORKFLOW_IDLE_READER)} />
-        </div>
-      ) : null}
-
-      <div
-        className={cn(
-          "flex flex-col",
-          buyerPolishedShell || !canMutateWorkflow ? "flex-col-reverse" : "flex-col",
-        )}
-      >
-      <GovernanceWorkflowSubmitSection
-        buyerPolishedShell={buyerPolishedShell}
-        buyerSuppressGovernanceSubmitChrome={buyerSuppressGovernanceSubmitChrome}
-        canMutateWorkflow={canMutateWorkflow}
-        hideGovernanceQueryLoadCard={hideGovernanceQueryLoadCard}
-        submitRunId={submitRunId}
-        setSubmitRunId={setSubmitRunId}
-        submitManifestVersion={submitManifestVersion}
-        setSubmitManifestVersion={setSubmitManifestVersion}
-        submitSource={submitSource}
-        setSubmitSource={setSubmitSource}
-        submitTarget={submitTarget}
-        setSubmitTarget={setSubmitTarget}
-        submitComment={submitComment}
-        setSubmitComment={setSubmitComment}
-        submitBusy={submitBusy}
-        onSubmitApproval={onSubmitApproval}
-      />
-
-      <Separator className="mb-10" />
-
-      <section className="mb-10">
-        <GovernanceWorkflowQueryCard
-          hideGovernanceQueryLoadCard={hideGovernanceQueryLoadCard}
-          activeRunId={activeRunId}
+      {!isReviewContext ? (
+        <GovernanceOverviewPanel
           buyerPolishedShell={buyerPolishedShell}
-          canMutateWorkflow={canMutateWorkflow}
           queryRunId={queryRunId}
           setQueryRunId={setQueryRunId}
-          setActiveRunId={setActiveRunId}
-          loadLists={loadLists}
-          onLoadRun={onLoadRun}
+          onLoadReview={onLoadRun}
+          onFocusSubmit={focusSubmitSection}
+          onFocusPending={() => undefined}
           listsLoading={listsLoading}
-          listsLoadingShowsBusyChrome={listsLoadingShowsBusyChrome}
-          refreshIfActive={refreshIfActive}
-          workflowActor={workflowActor}
-          setWorkflowActor={setWorkflowActor}
         />
-        {showingStaticDemoGovernanceRecords ? (
-          <p
-            role="status"
-            data-testid="governance-static-demo-fallback-status"
-            className={cn(
-              "mb-4 rounded-md border border-amber-600/40 bg-amber-50/90 px-3 py-2 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100",
-              OPERATOR_TYPOGRAPHY.body,
-            )}
-          >
-            {STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS}
-          </p>
-        ) : null}
-        <GovernanceWorkflowApprovalsList
-          buyerPolishedShell={buyerPolishedShell}
-          canMutateWorkflow={canMutateWorkflow}
-          listsLoading={listsLoading}
-          activeRunId={activeRunId}
-          approvals={approvals}
-          listFailure={listFailure}
-          pendingReview={pendingReview}
-          setPendingReview={setPendingReview}
-          reviewedBy={reviewedBy}
-          setReviewedBy={setReviewedBy}
-          reviewComment={reviewComment}
-          setReviewComment={setReviewComment}
-          reviewBusy={reviewBusy}
-          onConfirmReview={onConfirmReview}
-          workflowActor={workflowActor}
-          refreshIfActive={refreshIfActive}
-          pendingPromote={pendingPromote}
-          setPendingPromote={setPendingPromote}
-          pendingPromoteRequestRef={pendingPromoteRequestRef}
-        />
-      </section>
-      </div>
+      ) : null}
 
-      {buyerPolishedShell ? null : (
+      {isReviewContext ? (
         <>
+          {isShowcaseSampleContext ? (
+            <p
+              className={cn(
+                "mb-4 rounded-md border border-amber-600/40 bg-amber-50/90 px-3 py-2 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+              data-testid="governance-sample-context-banner"
+            >
+              <strong>{GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL}.</strong> {GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE}
+            </p>
+          ) : null}
+
+          <GovernanceReviewContextBar
+            activeRunId={activeRunId}
+            buyerPolishedShell={buyerPolishedShell}
+            canMutateWorkflow={canMutateWorkflow}
+            listsLoading={listsLoading}
+            listsLoadingShowsBusyChrome={listsLoadingShowsBusyChrome}
+            workflowActor={workflowActor}
+            setWorkflowActor={setWorkflowActor}
+            onBackToOverview={clearReviewContext}
+            onRefresh={() => {
+              void refreshIfActive();
+            }}
+          />
+
+          {listFailure !== null ? (
+            <div className="mb-6" role="alert">
+              <OperatorApiProblem
+                problem={listFailure.problem}
+                fallbackMessage={listFailure.message}
+                correlationId={listFailure.correlationId}
+              />
+            </div>
+          ) : null}
+
+          {showBuyerApprovalStory ? (
+            <>
+              <p
+                className={cn("mb-4 max-w-prose rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 font-semibold leading-snug shadow-sm dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="governance-buyer-approval-record-lead"
+              >
+                {BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD}
+              </p>
+              <GovernanceApprovalStoryCard
+                row={approvalWorkflowState.primaryApprovedRequest!}
+                auditTrailHref={`/audit?runId=${encodeURIComponent(activeRunId)}`}
+                emphasizeComplete
+                decisionRecordTitle={GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE}
+              />
+            </>
+          ) : workflowOutcomeLine !== null ? (
+            <p
+              className={cn("mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="governance-workflow-outcome-banner"
+            >
+              {workflowOutcomeLine}
+            </p>
+          ) : null}
+
+          <div ref={submitSectionRef}>
+            <GovernanceWorkflowSubmitSection
+              buyerPolishedShell={buyerPolishedShell}
+              buyerSuppressGovernanceSubmitChrome={buyerSuppressGovernanceSubmitChrome}
+              canMutateWorkflow={canMutateWorkflow}
+              hideGovernanceQueryLoadCard
+              submitRunId={submitRunId}
+              setSubmitRunId={setSubmitRunId}
+              submitManifestVersion={submitManifestVersion}
+              setSubmitManifestVersion={setSubmitManifestVersion}
+              submitSource={submitSource}
+              setSubmitSource={setSubmitSource}
+              submitTarget={submitTarget}
+              setSubmitTarget={setSubmitTarget}
+              submitComment={submitComment}
+              setSubmitComment={setSubmitComment}
+              submitBusy={submitBusy}
+              onSubmitApproval={onSubmitApproval}
+            />
+          </div>
+
           <Separator className="mb-10" />
 
-          <div data-testid="governance-workflow-advanced-options">
-            <AdvancedOptionsAccordion triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL} className="mb-10">
-              <GovernanceWorkflowPromotionsActivationsSection
-                canMutateWorkflow={canMutateWorkflow}
-                listsLoading={listsLoading}
-                activeRunId={activeRunId}
-                promotions={promotions}
-                activations={activations}
-                listFailure={listFailure}
-                workflowActor={workflowActor}
-                pendingActivate={pendingActivate}
-                setPendingActivate={setPendingActivate}
-                pendingActivatePromotionRef={pendingActivatePromotionRef}
-                activateBusyId={activateBusyId}
-              />
-            </AdvancedOptionsAccordion>
-          </div>
+          <section className="mb-10" data-testid="governance-approval-requests-section">
+            {showingStaticDemoGovernanceRecords ? (
+              <p
+                role="status"
+                data-testid="governance-static-demo-fallback-status"
+                className={cn(
+                  "mb-4 rounded-md border border-amber-600/40 bg-amber-50/90 px-3 py-2 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100",
+                  OPERATOR_TYPOGRAPHY.body,
+                )}
+              >
+                {STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS}
+              </p>
+            ) : null}
+            <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE}
+            </h3>
+            <p className={cn("m-0 mt-2 mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {showBuyerApprovalStory
+                ? GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD
+                : GOVERNANCE_APPROVAL_REQUESTS_SECTION_LEAD}
+            </p>
+            <GovernanceWorkflowApprovalsList
+              buyerPolishedShell={buyerPolishedShell}
+              canMutateWorkflow={canMutateWorkflow}
+              listsLoading={listsLoading}
+              activeRunId={activeRunId}
+              approvals={approvals}
+              workflowState={approvalWorkflowState}
+              listFailure={listFailure}
+              emphasizeDecisionRecord={showBuyerApprovalStory}
+              pendingReview={pendingReview}
+              setPendingReview={setPendingReview}
+              reviewedBy={reviewedBy}
+              setReviewedBy={setReviewedBy}
+              reviewComment={reviewComment}
+              setReviewComment={setReviewComment}
+              reviewBusy={reviewBusy}
+              onConfirmReview={onConfirmReview}
+              workflowActor={workflowActor}
+              refreshIfActive={refreshIfActive}
+              pendingPromote={pendingPromote}
+              setPendingPromote={setPendingPromote}
+              pendingPromoteRequestRef={pendingPromoteRequestRef}
+            />
+          </section>
+
+          {buyerPolishedShell ? null : (
+            <>
+              <Separator className="mb-10" />
+
+              <div data-testid="governance-workflow-advanced-options">
+                <AdvancedOptionsAccordion triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL} className="mb-10">
+                  <GovernanceWorkflowPromotionsActivationsSection
+                    canMutateWorkflow={canMutateWorkflow}
+                    listsLoading={listsLoading}
+                    activeRunId={activeRunId}
+                    promotions={promotions}
+                    activations={activations}
+                    listFailure={listFailure}
+                    workflowActor={workflowActor}
+                    pendingActivate={pendingActivate}
+                    setPendingActivate={setPendingActivate}
+                    pendingActivatePromotionRef={pendingActivatePromotionRef}
+                    activateBusyId={activateBusyId}
+                  />
+                </AdvancedOptionsAccordion>
+              </div>
+            </>
+          )}
         </>
-      )}
+      ) : null}
+
+      <AdvancedOptionsAccordion triggerLabel={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER} defaultOpen={false} className="mb-6">
+        <GovernanceInteractiveQuickstartCard hideFirst30DaysLink suppressCardTitle className="mb-0" />
+      </AdvancedOptionsAccordion>
 
       <GovernanceWorkflowDialogs
         pendingPromote={pendingPromote}

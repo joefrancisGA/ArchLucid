@@ -14,12 +14,14 @@ public sealed class RunDetailBuyerMapperTests
     public void Map_copies_whitelisted_proof_fields_and_omits_snapshots()
     {
         Guid runId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        Guid scopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
         RunDetailDto source = new()
         {
             Run = new RunRecord
             {
                 RunId = runId,
                 ProjectId = "default",
+                ScopeProjectId = scopeProjectId,
                 Description = "Buyer review",
                 CreatedUtc = DateTime.UtcNow,
                 GoldenManifestId = Guid.Parse("11111111-2222-3333-4444-555555555555"),
@@ -39,6 +41,8 @@ public sealed class RunDetailBuyerMapperTests
         BuyerRunDetailSummaryDto mapped = RunDetailBuyerMapper.Map(source);
 
         mapped.Run.RunId.Should().Be(runId);
+        mapped.Run.ProjectId.Should().Be("default");
+        mapped.Run.ScopeProjectId.Should().Be(scopeProjectId);
         mapped.ExecutionFlavorBuyerSummary.Should().Be("Simulator");
         mapped.TrustEvidenceCard.Should().NotBeNull();
         mapped.Run.HasGraphSnapshot.Should().BeTrue();

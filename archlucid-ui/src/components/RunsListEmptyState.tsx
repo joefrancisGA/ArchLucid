@@ -32,7 +32,7 @@ export function RunsListEmptyState() {
       role="status"
       aria-label="No review packages yet"
       data-testid="runs-list-empty-state"
-      className={cn("mt-6 grid max-w-4xl gap-4 md:grid-cols-2", OPERATOR_LAYOUT.sectionStack)}
+      className={cn("mt-6 flex max-w-4xl flex-col", OPERATOR_LAYOUT.sectionStack)}
     >
       <section data-testid="runs-list-empty-primary-path" className={pathCardClass}>
         <div className="space-y-1">

@@ -1,29 +1,17 @@
-"use client";
-
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { SeedSampleReviewButton } from "@/components/SeedSampleReviewButton";
 import { ExecutiveDashboardEmptyStatePreview } from "@/components/executive/ExecutiveDashboardEmptyStatePreview";
-import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
-/** Global empty state when the portfolio dashboard has no committed reviews. */
+/** Compact empty state when portfolio metrics are not yet populated — actions live in the page hero. */
 export function ExecutiveDashboardEmptyState(): React.JSX.Element {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
   return (
-    <div className="space-y-4" data-testid="executive-dashboard-empty-state">
+    <div className="space-y-4" data-testid="executive-dashboard-empty-state-region">
       <EnterpriseCompactEmptyState
         title={v.emptyStateTitle}
         description={v.emptyStateDescription}
-        actions={[
-          { label: v.emptyStatePrimaryAction, href: "/reviews/new", variant: "primary" },
-          {
-            label: v.emptyStateTertiaryAction,
-            href: getShowcaseExecutiveHref(),
-            variant: "outline",
-          },
-        ]}
-        footer={<SeedSampleReviewButton label={v.emptyStateSecondaryAction} />}
+        testId="executive-dashboard-empty-state"
       />
       <ExecutiveDashboardEmptyStatePreview />
     </div>

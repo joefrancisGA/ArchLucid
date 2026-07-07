@@ -18,28 +18,37 @@ export type ReviewPackagePrimaryActionProps = {
 export function ReviewPackagePrimaryAction(props: ReviewPackagePrimaryActionProps): React.JSX.Element {
   const { action, runId, hasGoldenManifest, commitBlockedReason } = props;
 
-  if (action.kind === "finalize-package") {
-    return (
-      <div data-testid="review-package-primary-action" data-review-package-primary-action-kind={action.kind}>
-        <CommitRunButton
-          runId={runId}
-          disabled={hasGoldenManifest}
-          commitBlockedReason={commitBlockedReason}
-          buttonVariant="primary"
-        />
-      </div>
-    );
-  }
+  switch (action.kind) {
+    case "finalize-package":
+      return (
+        <div data-testid="review-package-primary-action" data-review-package-primary-action-kind={action.kind}>
+          <CommitRunButton
+            runId={runId}
+            disabled={hasGoldenManifest}
+            commitBlockedReason={commitBlockedReason}
+            buttonVariant="primary"
+          />
+        </div>
+      );
+    case "review-findings":
+    case "add-evidence":
+    case "export-proof-packet":
+    case "open-governance-decision": {
+      if (action.href === null) {
+        throw new Error(`Primary action ${action.kind} requires an href.`);
+      }
 
-  if (action.href === null) {
-    throw new Error(`Primary action ${action.kind} requires an href or finalize handler.`);
+      return (
+        <div data-testid="review-package-primary-action" data-review-package-primary-action-kind={action.kind}>
+          <Button type="button" variant="primary" size="sm" asChild>
+            <Link href={action.href}>{action.label}</Link>
+          </Button>
+        </div>
+      );
+    }
+    default: {
+      const unreachable: never = action.kind;
+      throw new Error(`Unhandled primary action ${unreachable}.`);
+    }
   }
-
-  return (
-    <div data-testid="review-package-primary-action" data-review-package-primary-action-kind={action.kind}>
-      <Button type="button" variant="primary" size="sm" asChild>
-        <Link href={action.href}>{action.label}</Link>
-      </Button>
-    </div>
-  );
 }

@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import type { AdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
 import { mapConfigLintReadinessForShell, shellHealthReadinessSummary } from "@/lib/buyer-shell-home-present";
 import type { CurrentPrincipal } from "@/lib/current-principal";
@@ -156,7 +157,7 @@ export function buildFirstPilotReadinessRows(input: {
             ? "Create or continue the first architecture review."
             : "Read-only role cannot execute or finalize. Ask an operator or admin.",
       href: input.signals.latestRunId ? `/reviews/${encodeURIComponent(input.signals.latestRunId)}` : "/reviews/new",
-      cta: input.signals.latestRunId ? "Open latest review" : "New review",
+      cta: input.signals.latestRunId ? "Open latest review" : CREATE_ARCHITECTURE_LABEL,
     },
     {
       id: "sample-review",

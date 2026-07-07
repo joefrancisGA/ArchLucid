@@ -19,8 +19,8 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
   OperatorHomeWorkspaceStatusPanel: () => <div data-testid="home-block-workspace-status" />,
 }));
 
-vi.mock("@/components/operator-home/OperatorHomeSampleReviewPreview", () => ({
-  OperatorHomeSampleReviewPreview: () => <div data-testid="home-block-sample-review-preview" />,
+vi.mock("@/components/operator-home/OperatorHomeExploreSampleSection", () => ({
+  OperatorHomeExploreSampleSection: () => <div data-testid="home-block-explore-sample" />,
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeAdvancedGuidancePanel", () => ({
@@ -107,51 +107,52 @@ describe("OperatorHomePageView", () => {
     expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
   });
 
-  it("orders buyer-polished home as hero, merged sample tour card, reviews, then collapsed setup section", () => {
+  it("orders buyer-polished home as hero, setup, workspace activity, explore sample, then advanced guidance", () => {
     render(<OperatorHomePageView model={mockHomeModel(true)} />);
 
     expect(screen.getByTestId("operator-home-hero-section")).toBeInTheDocument();
-    expect(screen.getByTestId("home-block-sample-review-preview")).toBeInTheDocument();
+    expect(screen.getByTestId("home-block-continue-setup")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-runs-dashboard")).toBeInTheDocument();
+    expect(screen.getByTestId("home-block-explore-sample")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-advanced-guidance")).toBeInTheDocument();
     expect(screen.queryByTestId("home-block-workspace-status")).toBeNull();
     expect(screen.queryByTestId("home-block-example-request")).toBeNull();
 
     const heroSection = screen.getByTestId("operator-home-hero-section");
-    const sampleReviewPreview = screen.getByTestId("home-block-sample-review-preview");
     const continueSetup = screen.getByTestId("home-block-continue-setup");
     const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
+    const exploreSample = screen.getByTestId("home-block-explore-sample");
     const advancedGuidance = screen.getByTestId("home-block-advanced-guidance");
 
-    expect(heroSection.compareDocumentPosition(sampleReviewPreview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(sampleReviewPreview.compareDocumentPosition(continueSetup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(heroSection.compareDocumentPosition(continueSetup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(continueSetup.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(runsDashboard.compareDocumentPosition(advancedGuidance) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(runsDashboard.compareDocumentPosition(exploreSample) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(exploreSample.compareDocumentPosition(advancedGuidance) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("keeps operator shell hero, merged sample tour card, reviews, workspace context, and setup section in order", () => {
+  it("keeps operator shell hero, setup, workspace activity, explore sample, workspace context, and advanced guidance in order", () => {
     render(<OperatorHomePageView model={mockHomeModel(false)} />);
 
     expect(screen.getByTestId("home-block-pilot-command-center")).toBeInTheDocument();
-    expect(screen.getByTestId("home-block-sample-review-preview")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-continue-setup")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-runs-dashboard")).toBeInTheDocument();
+    expect(screen.getByTestId("home-block-explore-sample")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-workspace-context")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-workspace-status")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-advanced-guidance")).toBeInTheDocument();
     expect(screen.queryByTestId("home-block-example-request")).toBeNull();
 
     const hero = screen.getByTestId("home-block-pilot-command-center");
-    const sampleReviewPreview = screen.getByTestId("home-block-sample-review-preview");
     const continueSetup = screen.getByTestId("home-block-continue-setup");
     const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
+    const exploreSample = screen.getByTestId("home-block-explore-sample");
     const workspaceContext = screen.getByTestId("home-block-workspace-context");
     const advancedGuidance = screen.getByTestId("home-block-advanced-guidance");
 
-    expect(hero.compareDocumentPosition(sampleReviewPreview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(sampleReviewPreview.compareDocumentPosition(continueSetup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(hero.compareDocumentPosition(continueSetup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(continueSetup.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(runsDashboard.compareDocumentPosition(workspaceContext) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(runsDashboard.compareDocumentPosition(exploreSample) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(exploreSample.compareDocumentPosition(workspaceContext) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(workspaceContext.compareDocumentPosition(advancedGuidance) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

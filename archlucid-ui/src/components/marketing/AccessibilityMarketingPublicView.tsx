@@ -1,142 +1,153 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { MarketingAccessibilityContentSection } from "@/components/marketing/MarketingAccessibilityContentSection";
+import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
+import {
+  ACCESSIBILITY_PUBLIC_BASICS,
+  ACCESSIBILITY_PUBLIC_CURRENT_STATUS,
+  ACCESSIBILITY_PUBLIC_INTRO,
+  ACCESSIBILITY_PUBLIC_KNOWN_LIMITATIONS,
+  ACCESSIBILITY_PUBLIC_REVIEW_CADENCE,
+  ACCESSIBILITY_PUBLIC_STANDARD,
+  ACCESSIBILITY_PUBLIC_STATUS_CARD,
+  ACCESSIBILITY_PUBLIC_VPAT,
+  ACCESSIBILITY_PUBLIC_WHAT_WE_TEST_AREAS,
+  ACCESSIBILITY_PUBLIC_WHAT_WE_TEST_SUMMARY,
+} from "@/lib/accessibility-marketing-public-statement";
+import { MARKETING_LAYOUT, MARKETING_SURFACES, MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type AccessibilityMarketingPublicViewProps = {
-  sections: ReadonlyMap<string, string>;
   lastReviewedLine: string | null;
 };
 
-function sectionId(title: string): string {
-  return `a11y-${title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")}`;
+function sectionHeading(id: string, title: string): ReactNode {
+  return (
+    <h2
+      id={id}
+      className={cn("font-semibold tracking-tight text-al-text-primary", MARKETING_TYPOGRAPHY.sectionTitle)}
+    >
+      {title}
+    </h2>
+  );
 }
 
 /**
- * Public WCAG 2.1 AA self-attestation (marketing). Content bodies are sourced from root `ACCESSIBILITY.md`.
+ * Public WCAG accessibility statement for marketing — buyer/procurement appropriate; no engineering internals.
  */
 export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPublicViewProps): ReactNode {
-  const target = props.sections.get("Target compliance level");
-  const current = props.sections.get("Current status");
-  const tooling = props.sections.get("Tooling");
-  const controls = props.sections.get("Existing accessibility controls");
-  const exemptions = props.sections.get("Known exemptions");
-  const cadence = props.sections.get("Review cadence");
-
-  if (
-    target === undefined ||
-    current === undefined ||
-    tooling === undefined ||
-    controls === undefined ||
-    exemptions === undefined ||
-    cadence === undefined
-  ) {
-    throw new Error("AccessibilityMarketingPublicView requires all synced ACCESSIBILITY.md sections.");
-  }
-
   return (
-    <main id="main-content" className="mx-auto max-w-3xl px-4 py-10" tabIndex={-1}>
-      <h1 className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Accessibility</h1>
-      <p className={cn("mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-        WCAG 2.1 Level AA — public self-attestation for the ArchLucid marketing site and product posture (no formal VPAT).
-      </p>
+    <MarketingPageShell variant="reading" className="space-y-10">
+      <header className="space-y-3">
+        <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Accessibility</h1>
+        <p className={cn(MARKETING_TYPOGRAPHY.body, "max-w-3xl text-al-text-secondary")}>{ACCESSIBILITY_PUBLIC_INTRO}</p>
+      </header>
 
-      <MarketingAccessibilityContentSection
-        id={sectionId("Target compliance level")}
-        title="Target compliance level"
-        markdownBody={target}
-        tableCaption="Target compliance summary"
-      />
-
-      <MarketingAccessibilityContentSection
-        id={sectionId("Current status")}
-        title="Current status"
-        markdownBody={current}
-        tableCaption="Operator pages covered by automated accessibility checks"
-      />
-
-      <section aria-labelledby="a11y-tooling-scope" className="scroll-mt-24">
-        <h2 id="a11y-tooling-scope" className={cn("mt-10 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
-          Tooling and scope
+      <section
+        aria-labelledby="a11y-status-card"
+        className="rounded-xl border border-neutral-200 bg-al-surface-raised p-5 shadow-sm dark:border-neutral-800 sm:p-6"
+        data-testid="accessibility-status-card"
+      >
+        <h2 id="a11y-status-card" className="sr-only">
+          Accessibility program summary
         </h2>
-        <p className={cn("mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Automated checks use <strong className="font-semibold text-neutral-800 dark:text-neutral-200">axe-core</strong> via{" "}
-          <strong className="font-semibold text-neutral-800 dark:text-neutral-200">@axe-core/playwright</strong> and static analysis via{" "}
-          <strong className="font-semibold text-neutral-800 dark:text-neutral-200">eslint-plugin-jsx-a11y</strong> as described in the policy
-          tables below.
-        </p>
-
-        <MarketingAccessibilityContentSection
-          id={sectionId("Tooling")}
-          title="Tooling"
-          markdownBody={tooling}
-          tableCaption="Accessibility tooling and CI scope"
-          headingLevel={3}
-        />
-
-        <MarketingAccessibilityContentSection
-          id={sectionId("Existing accessibility controls")}
-          title="Existing accessibility controls"
-          markdownBody={controls}
-          tableCaption="Product accessibility controls"
-          headingLevel={3}
-        />
+        <dl className="m-0 grid gap-4 sm:grid-cols-2">
+          <div>
+            <dt className={cn(MARKETING_TYPOGRAPHY.meta, "font-semibold uppercase tracking-wide text-al-text-secondary")}>
+              Target
+            </dt>
+            <dd className={cn("mt-1 text-al-text-primary", MARKETING_TYPOGRAPHY.body)}>{ACCESSIBILITY_PUBLIC_STATUS_CARD.target}</dd>
+          </div>
+          <div>
+            <dt className={cn(MARKETING_TYPOGRAPHY.meta, "font-semibold uppercase tracking-wide text-al-text-secondary")}>
+              Status
+            </dt>
+            <dd className={cn("mt-1 text-al-text-primary", MARKETING_TYPOGRAPHY.body)}>{ACCESSIBILITY_PUBLIC_STATUS_CARD.status}</dd>
+          </div>
+          <div>
+            <dt className={cn(MARKETING_TYPOGRAPHY.meta, "font-semibold uppercase tracking-wide text-al-text-secondary")}>
+              VPAT
+            </dt>
+            <dd className={cn("mt-1 text-al-text-primary", MARKETING_TYPOGRAPHY.body)}>{ACCESSIBILITY_PUBLIC_STATUS_CARD.vpat}</dd>
+          </div>
+          <div>
+            <dt className={cn(MARKETING_TYPOGRAPHY.meta, "font-semibold uppercase tracking-wide text-al-text-secondary")}>
+              Review cadence
+            </dt>
+            <dd className={cn("mt-1 text-al-text-primary", MARKETING_TYPOGRAPHY.body)}>
+              {ACCESSIBILITY_PUBLIC_STATUS_CARD.reviewCadence}
+            </dd>
+          </div>
+        </dl>
       </section>
 
-      <MarketingAccessibilityContentSection
-        id={sectionId("Known exemptions")}
-        title="Known exemptions"
-        markdownBody={exemptions}
-        tableCaption="Known accessibility exemptions"
-      />
-
-      <section aria-labelledby="a11y-vpat" className="scroll-mt-24">
-        <h2 id="a11y-vpat" className={cn("mt-10 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
-          VPAT
-        </h2>
-        <p className="mt-3 leading-relaxed text-neutral-800 dark:text-neutral-200">
-          ArchLucid does not publish a formal <span className="font-semibold">VPAT</span> or third-party accessibility conformance report for
-          download. This page is a <span className="font-semibold">WCAG 2.1 AA self-attestation</span> only, aligned with the same statements in
-          the repository policy file.
-        </p>
+      <section aria-labelledby="a11y-standard" className={MARKETING_LAYOUT.sectionStack}>
+        {sectionHeading("a11y-standard", "Accessibility standard")}
+        <p className={cn(MARKETING_TYPOGRAPHY.body, "text-al-text-secondary")}>{ACCESSIBILITY_PUBLIC_STANDARD}</p>
       </section>
 
-      <MarketingAccessibilityContentSection
-        id={sectionId("Review cadence")}
-        title="Review cadence"
-        markdownBody={cadence}
-        tableCaption="Accessibility review cadence"
-      />
+      <section aria-labelledby="a11y-current-status" className={MARKETING_LAYOUT.sectionStack}>
+        {sectionHeading("a11y-current-status", "Current status")}
+        <p className={cn(MARKETING_TYPOGRAPHY.body, "text-al-text-secondary")}>{ACCESSIBILITY_PUBLIC_CURRENT_STATUS}</p>
+      </section>
 
-      <section aria-labelledby="a11y-report" className="scroll-mt-24">
-        <h2 id="a11y-report" className={cn("mt-10 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
-          Reporting an accessibility barrier
-        </h2>
-        <p className="mt-3 leading-relaxed text-neutral-800 dark:text-neutral-200">
-          Email{" "}
-          <Link
-            className="text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
-            href="mailto:accessibility@archlucid.net"
-          >
+      <section aria-labelledby="a11y-what-we-test" className={MARKETING_LAYOUT.sectionStack}>
+        {sectionHeading("a11y-what-we-test", "What we test")}
+        <p className={cn(MARKETING_TYPOGRAPHY.body, "text-al-text-secondary")}>{ACCESSIBILITY_PUBLIC_WHAT_WE_TEST_SUMMARY}</p>
+        <ul className={cn("m-0 list-disc space-y-2 pl-5 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
+          {ACCESSIBILITY_PUBLIC_WHAT_WE_TEST_AREAS.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="a11y-basics" className={MARKETING_LAYOUT.sectionStack}>
+        {sectionHeading("a11y-basics", "Accessibility basics")}
+        <ul className={cn("m-0 list-disc space-y-2 pl-5 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
+          {ACCESSIBILITY_PUBLIC_BASICS.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="a11y-known-limitations" className={MARKETING_LAYOUT.sectionStack}>
+        {sectionHeading("a11y-known-limitations", "Known limitations")}
+        <p className={cn(MARKETING_TYPOGRAPHY.body, "text-al-text-secondary")}>{ACCESSIBILITY_PUBLIC_KNOWN_LIMITATIONS}</p>
+      </section>
+
+      <section aria-labelledby="a11y-vpat" className={MARKETING_LAYOUT.sectionStack}>
+        {sectionHeading("a11y-vpat", "VPAT")}
+        <p className={cn(MARKETING_TYPOGRAPHY.body, "text-al-text-secondary")}>{ACCESSIBILITY_PUBLIC_VPAT}</p>
+      </section>
+
+      <section aria-labelledby="a11y-report" className={MARKETING_LAYOUT.sectionStack}>
+        {sectionHeading("a11y-report", "Reporting an accessibility issue")}
+        <p className={cn(MARKETING_TYPOGRAPHY.body, "text-al-text-secondary")}>
+          If you experience an accessibility barrier while using ArchLucid, email{" "}
+          <Link className={MARKETING_SURFACES.inlineLink} href="mailto:accessibility@archlucid.net">
             accessibility@archlucid.net
-          </Link>{" "}
-          with the page, assistive technology (if any), and what you expected versus what happened. This alias routes to the same operational
-          custodian as <span className="font-semibold">security@archlucid.net</span>; triage distinguishes accessibility follow-up from
-          coordinated security disclosure.
+          </Link>
+          . Please include the page or workflow, the assistive technology or browser you are using, and what you were trying to do.
+          Please do not include sensitive customer data.
         </p>
       </section>
 
-      <footer className={cn("mt-12 border-t border-neutral-200 pt-6 text-neutral-600 dark:border-neutral-800 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-        <p>
-          {props.lastReviewedLine ?? "Last reviewed: (missing — update ACCESSIBILITY.md)"} — review cadence:{" "}
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">annually</span>.
+      <section aria-labelledby="a11y-review-cadence" className={MARKETING_LAYOUT.sectionStack}>
+        {sectionHeading("a11y-review-cadence", "Review cadence")}
+        <p className={cn(MARKETING_TYPOGRAPHY.body, "text-al-text-secondary")}>{ACCESSIBILITY_PUBLIC_REVIEW_CADENCE}</p>
+      </section>
+
+      <footer
+        className={cn(
+          "border-t border-neutral-200 pt-6 text-al-text-secondary dark:border-neutral-800",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
+      >
+        <p className="m-0">
+          {props.lastReviewedLine ?? "Last reviewed: (missing — update ACCESSIBILITY.md)"}. Review cadence: annually and after
+          material changes.
         </p>
       </footer>
-    </main>
+    </MarketingPageShell>
   );
 }

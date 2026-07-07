@@ -1,6 +1,6 @@
-# Container Apps (API / Worker / UI) â€” Terraform resource labels use `archlucid` naming (greenfield IaC).
+﻿# Container Apps (API / Worker / UI) ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Terraform resource labels use `archlucid` naming (greenfield IaC).
 # Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/library/V1_DEFERRED.md Â§3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
+# Tracked in docs/library/V1_DEFERRED.md Ãƒâ€šÃ‚Â§3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
 
 # count = local.enabled ? 1 : 0 creates exactly one Azure resource when enabled, zero when disabled.
 # data blocks read existing Azure objects; resource blocks declare infrastructure Terraform owns in state.
@@ -50,6 +50,22 @@ locals {
 
   acr_rg_for_pull   = length(local.acr_registry_id_parts) > 0 ? local.acr_registry_id_parts[0] : ""
   acr_name_for_pull = length(local.acr_registry_id_parts) > 1 ? local.acr_registry_id_parts[1] : ""
+
+  api_keyvault_uami_enabled = local.enabled && length(trimspace(var.api_keyvault_user_assigned_identity_id)) > 0
+  worker_keyvault_uami_enabled = local.enabled && length(trimspace(var.worker_keyvault_user_assigned_identity_id)) > 0
+
+  api_user_assigned_identity_ids = compact(concat(
+    local.acr_pull_enabled ? [azurerm_user_assigned_identity.acr_pull[0].id] : [],
+    local.api_keyvault_uami_enabled ? [trimspace(var.api_keyvault_user_assigned_identity_id)] : [],
+  ))
+
+  worker_user_assigned_identity_ids = compact(concat(
+    local.acr_pull_enabled ? [azurerm_user_assigned_identity.acr_pull[0].id] : [],
+    local.worker_keyvault_uami_enabled ? [trimspace(var.worker_keyvault_user_assigned_identity_id)] : [],
+  ))
+
+  api_has_user_assigned_identities = length(local.api_user_assigned_identity_ids) > 0
+  worker_has_user_assigned_identities = length(local.worker_user_assigned_identity_ids) > 0
 }
 
 data "azurerm_resource_group" "target" {
@@ -139,11 +155,20 @@ resource "azurerm_container_app" "api" {
   depends_on = [azurerm_role_assignment.acr_pull_identity]
 
   identity {
-    type = local.acr_pull_enabled ? "SystemAssigned, UserAssigned" : "SystemAssigned"
+    type = local.api_has_user_assigned_identities ? "SystemAssigned, UserAssigned" : "SystemAssigned"
 
-    identity_ids = local.acr_pull_enabled ? [azurerm_user_assigned_identity.acr_pull[0].id] : null
+    identity_ids = local.api_has_user_assigned_identities ? local.api_user_assigned_identity_ids : null
   }
 
+  key_vault_reference_identity_id = local.api_keyvault_uami_enabled ? trimspace(var.api_keyvault_user_assigned_identity_id) : null
+
+  dynamic "env" {
+    for_each = local.api_keyvault_uami_enabled && length(trimspace(var.api_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
+    content {
+      name  = "AZURE_CLIENT_ID"
+      value = trimspace(var.api_keyvault_user_assigned_identity_client_id)
+    }
+  }
   dynamic "registry" {
     for_each = local.acr_pull_enabled ? [1] : []
     content {
@@ -159,7 +184,14 @@ resource "azurerm_container_app" "api" {
       name  = "hot-path-redis-connection"
       value = var.hot_path_cache_redis_connection_string
     }
-  }
+  }      dynamic "env" {
+        for_each = local.api_keyvault_uami_enabled && length(trimspace(var.api_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
+        content {
+          name  = "AZURE_CLIENT_ID"
+          value = trimspace(var.api_keyvault_user_assigned_identity_client_id)
+        }
+      }
+
 
   template {
     min_replicas = var.api_min_replicas
@@ -327,6 +359,12 @@ resource "azurerm_container_app" "api" {
       percentage      = 100
     }
   }
+  # TB-657: CD owns runtime image tags (cd.yml `az containerapp update`). Terraform seeds warm-start pins only.
+  lifecycle {
+    ignore_changes = [
+      template[0].container[0].image,
+    ]
+  }
 }
 
 resource "azurerm_role_assignment" "api_blob_data_contributor" {
@@ -380,11 +418,20 @@ resource "azurerm_container_app" "worker" {
   }
 
   identity {
-    type = local.acr_pull_enabled ? "SystemAssigned, UserAssigned" : "SystemAssigned"
+    type = local.worker_has_user_assigned_identities ? "SystemAssigned, UserAssigned" : "SystemAssigned"
 
-    identity_ids = local.acr_pull_enabled ? [azurerm_user_assigned_identity.acr_pull[0].id] : null
+    identity_ids = local.worker_has_user_assigned_identities ? local.worker_user_assigned_identity_ids : null
   }
 
+  key_vault_reference_identity_id = local.worker_keyvault_uami_enabled ? trimspace(var.worker_keyvault_user_assigned_identity_id) : null
+
+  dynamic "env" {
+    for_each = local.worker_keyvault_uami_enabled && length(trimspace(var.worker_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
+    content {
+      name  = "AZURE_CLIENT_ID"
+      value = trimspace(var.worker_keyvault_user_assigned_identity_client_id)
+    }
+  }
   dynamic "registry" {
     for_each = local.acr_pull_enabled ? [1] : []
     content {
@@ -400,7 +447,14 @@ resource "azurerm_container_app" "worker" {
       name  = "hot-path-redis-connection"
       value = var.hot_path_cache_redis_connection_string
     }
-  }
+  }          dynamic "env" {
+            for_each = local.worker_keyvault_uami_enabled && length(trimspace(var.worker_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
+            content {
+              name  = "AZURE_CLIENT_ID"
+              value = trimspace(var.worker_keyvault_user_assigned_identity_client_id)
+            }
+          }
+
 
   template {
     min_replicas = var.worker_min_replicas
@@ -598,6 +652,13 @@ resource "azurerm_container_app" "worker" {
       }
     }
   }
+
+  # TB-657: CD owns runtime image tags (cd.yml `az containerapp update`). Terraform seeds warm-start pins only.
+  lifecycle {
+    ignore_changes = [
+      template[0].container[0].image,
+    ]
+  }
 }
 
 resource "azurerm_role_assignment" "worker_blob_data_contributor" {
@@ -693,5 +754,12 @@ resource "azurerm_container_app" "ui" {
       latest_revision = true
       percentage      = 100
     }
+  }
+
+  # TB-657: CD owns runtime image tags (cd.yml `az containerapp update`). Terraform seeds warm-start pins only.
+  lifecycle {
+    ignore_changes = [
+      template[0].container[0].image,
+    ]
   }
 }

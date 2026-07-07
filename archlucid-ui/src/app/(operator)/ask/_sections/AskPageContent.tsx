@@ -18,12 +18,9 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/dem
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { tryStaticDemoConversationMessages } from "@/lib/ask-static-demo-messages";
 import { formatConversationListDate, formatConversationListDatePolished } from "@/lib/locale-datetime";
-import { BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { BUYER_ASK_PAGE_HERO, BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { AskContextParagraph } from "@/app/(operator)/ask/_sections/AskContextParagraph";
 import { AskMainPanel } from "@/app/(operator)/ask/_sections/AskMainPanel";
 import { AskNoReviewEmptyState } from "@/app/(operator)/ask/_sections/AskNoReviewEmptyState";
 import { AskThreadHistoryPanel } from "@/app/(operator)/ask/_sections/AskThreadHistoryPanel";
@@ -376,20 +373,8 @@ export function AskPageContent() {
       <OperatorPageHeader
         title={buyerPolishedShell ? BUYER_ASK_PAGE_TITLE : "Ask review questions"}
         helpKey="ask-archlucid"
-        subtitle={buyerPolishedShell ? undefined : ASK_PAGE_SUBTITLE}
+        subtitle={buyerPolishedShell ? BUYER_ASK_PAGE_HERO : ASK_PAGE_SUBTITLE}
       />
-      {buyerPolishedShell ? (
-        <p
-          className={cn(
-            "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-2 px-3 py-2",
-            OPERATOR_TYPOGRAPHY.cardTitle,
-          )}
-          data-testid="ask-buyer-scope-banner"
-        >
-          Scoped to {buyerFacingReviewLinkLabelFromRunId(runId.trim())}
-        </p>
-      ) : null}
-      {buyerPolishedShell ? <AskContextParagraph buyerPolishedShell={buyerPolishedShell} runId={runId} /> : null}
 
       {listFailure !== null ? (
         <div role="alert" className="mb-4">

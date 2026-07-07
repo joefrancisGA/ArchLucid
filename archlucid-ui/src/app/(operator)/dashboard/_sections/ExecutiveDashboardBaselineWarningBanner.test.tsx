@@ -126,6 +126,10 @@ describe("ExecutiveDashboardBaselineWarningBanner", () => {
     expect(screen.getByTestId("executive-baseline-upload-setup-card")).toBeInTheDocument();
     expect(screen.queryByTestId("executive-baseline-upload-warning-banner")).toBeNull();
     expect(screen.getByTestId("inline-guidance-optional")).toHaveTextContent("Optional:");
-    expect(screen.getByText(/upload workspace baseline inventory/i)).toBeInTheDocument();
+    expect(screen.getByText(/Upload a baseline inventory to improve ROI estimates/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Upload baseline inventory" })).toHaveAttribute(
+      "href",
+      EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF,
+    );
   });
 });

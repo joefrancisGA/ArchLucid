@@ -10,15 +10,18 @@ const source = readFileSync(
 );
 
 describe("OperatorHomePageView progressive disclosure", () => {
-  it("places Continue setup after sample review and before workspace activity", () => {
-    const sampleIndex = source.indexOf("<OperatorHomeSampleReviewPreview />");
+  it("places Continue setup after hero and before workspace activity", () => {
+    const heroIndex = source.indexOf("PilotCommandCenterCard");
     const continueSetupIndex = source.indexOf('<OperatorHomeContinueSetupSlot placement="prominent" />');
     const reviewsIndex = source.indexOf('aria-labelledby="operator-home-reviews-heading"');
+    const exploreSampleIndex = source.indexOf("<OperatorHomeExploreSampleSection />");
 
-    expect(sampleIndex).toBeGreaterThan(-1);
-    expect(continueSetupIndex).toBeGreaterThan(sampleIndex);
+    expect(heroIndex).toBeGreaterThan(-1);
+    expect(continueSetupIndex).toBeGreaterThan(heroIndex);
     expect(reviewsIndex).toBeGreaterThan(continueSetupIndex);
+    expect(exploreSampleIndex).toBeGreaterThan(reviewsIndex);
     expect(source).not.toContain("<OperatorHomeContinueSetupCard");
+    expect(source).not.toContain("<OperatorHomeSampleReviewPreview />");
   });
 
   it("keeps workspace metrics behind default-closed disclosure below recent reviews", () => {

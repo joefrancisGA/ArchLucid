@@ -23,6 +23,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\deploy\archlucid.stack.schema.json" Link="deploy\archlucid.stack.schema.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\deploy\archlucid.stack.example.yaml" Link="deploy\archlucid.stack.example.yaml" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\ArchLucid.Cli\Data\proof_packet_claim_lint_rules.v1.json" Link="Data\proof_packet_claim_lint_rules.v1.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\ArchLucid.Cli\Data\citation_integrity_rules.v1.json" Link="Data\citation_integrity_rules.v1.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\ArchLucid.Cli\Data\first_review_ui_route_smoke_contract.v1.json" Link="Data\first_review_ui_route_smoke_contract.v1.json" CopyToOutputDirectory="PreserveNewest" />

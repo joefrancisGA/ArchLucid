@@ -6,6 +6,7 @@ import { useMemo } from "react";
 
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { findHealthReadyEntryByName } from "@/lib/health-dashboard-types";
+import { DATA_ARCHIVAL_HEALTH_LABELS } from "@/lib/operator-health-labels";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -102,14 +103,14 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
         <div
           data-testid="command-center-data-archival-health"
           className="flex flex-wrap items-center gap-2 ps-0 sm:ps-4"
-          aria-label={`Data archival health: ${archivalStatus}`}
+          aria-label={`${DATA_ARCHIVAL_HEALTH_LABELS.homeStripLabel}: ${archivalStatus}`}
         >
           <span
             className={cn("h-2 w-2 shrink-0 rounded-full", healthReadinessDotClass(archivalStatus))}
             aria-hidden
           />
           <span className="text-al-text-primary">
-            Data archival: <span className="font-medium">{archivalStatus}</span>
+            {DATA_ARCHIVAL_HEALTH_LABELS.homeStripLabel}: <span className="font-medium">{archivalStatus}</span>
             {archivalStatus.toLowerCase().includes("degraded") ? (
               <span className="ms-1 text-amber-800 dark:text-amber-200">(warning)</span>
             ) : null}

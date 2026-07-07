@@ -3,12 +3,12 @@ import { expect, test } from "@playwright/test";
 import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID } from "../e2e/fixtures";
 import {
   comparePageLeftRunInput,
-  comparePageMainHeading,
   comparePageRightRunInput,
   expandCompareStructuredDecisionChanges,
   expandCompareTechnicalDetails,
   gotoComparePageWithFixturePair,
   structuredCompareSponsorRecommendationParagraph,
+  waitForComparePageReady,
 } from "../e2e/helpers/operator-journey";
 import { registerDefaultPairLegacyStructuredCompare } from "../e2e/helpers/register-operator-api-routes";
 
@@ -21,7 +21,7 @@ test.describe("Compare view — mocked manifest delta", () => {
     await registerDefaultPairLegacyStructuredCompare(page);
     await gotoComparePageWithFixturePair(page);
 
-    await expect(comparePageMainHeading(page)).toBeVisible();
+    await waitForComparePageReady(page);
     await expect(comparePageLeftRunInput(page)).toHaveValue(FIXTURE_LEFT_RUN_ID);
     await expect(comparePageRightRunInput(page)).toHaveValue(FIXTURE_RIGHT_RUN_ID);
 

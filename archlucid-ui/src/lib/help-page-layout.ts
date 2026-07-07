@@ -42,10 +42,15 @@ export const HELP_PAGE_LAYOUT = {
 } as const;
 
 export const HELP_PAGE_TOC = {
-  nav: cn("lg:sticky lg:self-start", OPERATOR_SHELL_STICKY_TOP_CLASS),
+  nav: cn(
+    "lg:sticky lg:self-start",
+    OPERATOR_SHELL_STICKY_TOP_CLASS,
+    // Cap height only when the sticky rail exceeds the viewport; overflow-y-auto avoids always-visible scrollbars.
+    "lg:max-h-[calc(100dvh-var(--app-shell-sticky,6rem)-2rem)] lg:overflow-y-auto lg:overscroll-y-contain",
+  ),
   heading:
     "m-0 text-xs font-semibold uppercase tracking-[0.08em] text-al-text-primary dark:text-neutral-200",
-  list: "m-0 mt-3 max-h-[min(70vh,28rem)] list-none space-y-1.5 overflow-y-auto p-0",
+  list: "m-0 mt-3 list-none space-y-1.5 p-0",
   link: cn(
     "block rounded-sm py-1 text-al-text-secondary underline-offset-2 transition-colors hover:text-teal-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:hover:text-teal-300",
     OPERATOR_TYPOGRAPHY.body,

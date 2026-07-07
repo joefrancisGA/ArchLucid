@@ -336,12 +336,12 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     firstPilotNote: null,
   },
   "governance-workflow": {
-    headline: "Governance approval completed for this review package.",
+    headline: "Governance overview and review-scoped approval workflow.",
     useWhen:
-      "Review approvers, the recorded decision, and monitoring hooks before citing this package.",
+      "Start here for workspace governance status, then load a review to inspect or advance its approval path.",
     firstPilotNote: null,
     enterpriseFootnote:
-      "This page records who reviewed the package, what approval was granted, and what monitoring remains.",
+      "Approvals follow the configured approval path for packages in this workspace.",
   },
 };
 

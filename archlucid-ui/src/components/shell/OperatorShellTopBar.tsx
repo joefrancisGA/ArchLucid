@@ -52,7 +52,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
         <div
           data-testid="app-shell-topbar-primary"
           className={cn(
-            "flex min-w-0 shrink-0 items-center gap-3 px-4 py-2.5 lg:px-2",
+            "flex min-w-0 shrink-0 items-center gap-3 px-4 py-2.5 lg:px-3",
             OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
           )}
         >

@@ -25,7 +25,7 @@ export function GraphViewerLegend() {
         </span>
       ))}
       <span className="text-neutral-500">
-        <InlineGuidanceLabel label="Tip:" className="text-neutral-600 dark:text-neutral-400" /> start in review-trail mode; use filters to reduce noise.
+        <InlineGuidanceLabel label="Tip:" className="text-neutral-600 dark:text-neutral-400" /> Start in review-trail mode; use filters to reduce noise.
       </span>
     </div>
   );

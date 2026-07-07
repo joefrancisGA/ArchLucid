@@ -2,9 +2,21 @@ import { getRunSummary } from "@/lib/api";
 import { getBearerToken } from "@/lib/api/http";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
+  BUYER_DEMO_READINESS_BUYER_API_UNAVAILABLE,
+  BUYER_DEMO_READINESS_BUYER_AUTH_REQUIRED,
+  BUYER_DEMO_READINESS_OPERATOR_API_START_REQUIRED,
+  BUYER_DEMO_READINESS_OPERATOR_AUTH_REQUIRED,
+  BUYER_DEMO_READINESS_OPERATOR_SHOWCASE_API_MISSING,
+  BUYER_DEMO_READINESS_OPERATOR_SHOWCASE_NOT_FINALIZED,
+  BUYER_DEMO_READINESS_SAMPLE_PREPARING_DETAIL,
+  BUYER_DEMO_READINESS_SAMPLE_READY_DETAIL,
+  BUYER_DEMO_READINESS_SAMPLE_UNAVAILABLE_DETAIL,
+} from "@/lib/buyer-polish-copy";
+import {
   BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS,
   resolveBuyerGoldenJourneyNav,
 } from "@/lib/buyer-golden-journey-nav";
+import { isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { fetchLlmMonthlyDollarBudgetStatusCached } from "@/lib/llm-monthly-budget-status";
@@ -12,16 +24,17 @@ import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { DEMO_MINIMUM_SESSION_SECONDS, decodeJwtExpirySeconds } from "@/lib/jwt-expiry";
 import {
   areSpineStaticDemoPayloadsAvailable,
+  isShowcaseSpineStaticPayloadActiveForRun,
   isStaticDemoPayloadFallbackEnabled,
   tryStaticDemoManifestSummary,
   tryStaticDemoProvenanceGraph,
   tryStaticDemoGovernanceApprovalRequests,
-  tryStaticDemoRunDetail,
 } from "@/lib/operator-static-demo";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import { TRIAL_ONBOARDING_SAMPLE_RUN_ID } from "@/lib/trial-sample-run";
 
 export type BuyerCtoDemoReadinessCheckId =
   | "buyer-shell"
@@ -50,6 +63,29 @@ export type BuyerCtoDemoReadinessResult = {
   readonly verdict: BuyerCtoDemoReadinessVerdict;
   readonly checks: readonly BuyerCtoDemoReadinessCheck[];
 };
+
+/** Buyer-safe detail by default; internal setup instructions only for demo-operator tooling. */
+function readinessDetail(buyerFacing: string, operatorFacing: string): string {
+  if (isCtoDemoOperatorToolingEnv()) {
+    return operatorFacing;
+  }
+
+  return buyerFacing;
+}
+
+function isShowcaseStaticSpineReady(): boolean {
+  if (!isShowcaseSpineStaticPayloadActiveForRun(SHOWCASE_STATIC_DEMO_RUN_ID)) {
+    return false;
+  }
+
+  const staticManifest = tryStaticDemoManifestSummary(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
+
+  if (staticManifest === null) {
+    return false;
+  }
+
+  return /^committed$/i.test(staticManifest.status ?? "");
+}
 
 export function evaluateBuyerCtoDemoJourneyRoutesCheck(): BuyerCtoDemoReadinessCheck {
   const unresolvedSteps = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.filter((def) => {
@@ -91,20 +127,56 @@ export function evaluateBuyerCtoDemoShellCheck(): BuyerCtoDemoReadinessCheck {
     id: "buyer-shell",
     label: "Buyer-polished shell",
     status: "fail",
-    detail: "Unset NEXT_PUBLIC_OPERATOR_EXPERIENCE or enable demo flags for buyer-polished mode.",
+    detail: readinessDetail(
+      "Workspace presentation is not ready.",
+      "Unset NEXT_PUBLIC_OPERATOR_EXPERIENCE or enable demo flags for buyer-polished mode.",
+    ),
   };
 }
 
 async function evaluateBuyerCtoDemoShowcaseCommittedCheck(): Promise<BuyerCtoDemoReadinessCheck> {
+  if (isShowcaseStaticSpineReady()) {
+    try {
+      const summary = await getRunSummary(TRIAL_ONBOARDING_SAMPLE_RUN_ID);
+
+      if (summary.hasGoldenManifest === true) {
+        return {
+          id: "showcase-committed",
+          label: "Showcase review finalized",
+          status: "pass",
+          detail: readinessDetail(
+            BUYER_DEMO_READINESS_SAMPLE_READY_DETAIL,
+            "Claims Intake showcase review is committed on the API.",
+          ),
+        };
+      }
+    } catch {
+      // Static spine still satisfies buyer-facing readiness when curated payloads are active.
+    }
+
+    return {
+      id: "showcase-committed",
+      label: "Showcase review finalized",
+      status: "pass",
+      detail: readinessDetail(
+        BUYER_DEMO_READINESS_SAMPLE_READY_DETAIL,
+        "API seed not confirmed — curated static showcase payloads will be used.",
+      ),
+    };
+  }
+
   try {
-    const summary = await getRunSummary(SHOWCASE_STATIC_DEMO_RUN_ID);
+    const summary = await getRunSummary(TRIAL_ONBOARDING_SAMPLE_RUN_ID);
 
     if (summary.hasGoldenManifest === true) {
       return {
         id: "showcase-committed",
         label: "Showcase review finalized",
         status: "pass",
-        detail: "Claims Intake showcase review is committed on the API.",
+        detail: readinessDetail(
+          BUYER_DEMO_READINESS_SAMPLE_READY_DETAIL,
+          "Claims Intake showcase review is committed on the API.",
+        ),
       };
     }
 
@@ -112,31 +184,20 @@ async function evaluateBuyerCtoDemoShowcaseCommittedCheck(): Promise<BuyerCtoDem
       id: "showcase-committed",
       label: "Showcase review finalized",
       status: "fail",
-      detail: "Showcase review exists but is not finalized — run demo seed or finalize the package.",
+      detail: readinessDetail(
+        BUYER_DEMO_READINESS_SAMPLE_PREPARING_DETAIL,
+        BUYER_DEMO_READINESS_OPERATOR_SHOWCASE_NOT_FINALIZED,
+      ),
     };
   } catch {
-    const staticRun = tryStaticDemoRunDetail(SHOWCASE_STATIC_DEMO_RUN_ID);
-    const staticManifest = tryStaticDemoManifestSummary(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
-
-    if (
-      isStaticDemoPayloadFallbackEnabled() &&
-      staticRun !== null &&
-      staticManifest !== null &&
-      /^committed$/i.test(staticManifest.status ?? "")
-    ) {
-      return {
-        id: "showcase-committed",
-        label: "Showcase review finalized",
-        status: "warn",
-        detail: "API seed not confirmed — curated static showcase payloads will be used.",
-      };
-    }
-
     return {
       id: "showcase-committed",
       label: "Showcase review finalized",
       status: "fail",
-      detail: "Showcase review not reachable — start the API with demo seed or enable static operator mode.",
+      detail: readinessDetail(
+        BUYER_DEMO_READINESS_SAMPLE_UNAVAILABLE_DETAIL,
+        BUYER_DEMO_READINESS_OPERATOR_SHOWCASE_API_MISSING,
+      ),
     };
   }
 }
@@ -158,7 +219,10 @@ async function evaluateBuyerCtoDemoApiReadyCheck(): Promise<BuyerCtoDemoReadines
       id: "api-ready",
       label: "API readiness",
       status: "warn",
-      detail: "API unreachable — static demo payloads will be used for the showcase spine.",
+      detail: readinessDetail(
+        BUYER_DEMO_READINESS_SAMPLE_READY_DETAIL,
+        "API unreachable — static demo payloads will be used for the showcase spine.",
+      ),
     };
   }
 
@@ -166,7 +230,10 @@ async function evaluateBuyerCtoDemoApiReadyCheck(): Promise<BuyerCtoDemoReadines
     id: "api-ready",
     label: "API readiness",
     status: "fail",
-    detail: "API health check failed — start ArchLucid.Api before the CTO demo.",
+    detail: readinessDetail(
+      BUYER_DEMO_READINESS_BUYER_API_UNAVAILABLE,
+      BUYER_DEMO_READINESS_OPERATOR_API_START_REQUIRED,
+    ),
   };
 }
 
@@ -179,7 +246,10 @@ async function evaluateBuyerCtoDemoLlmBudgetCheck(): Promise<BuyerCtoDemoReadine
         id: "llm-budget",
         label: "LLM execution budget",
         status: "fail",
-        detail: "Monthly LLM budget is exhausted — use seeded showcase or simulator paths on stage.",
+        detail: readinessDetail(
+          "Review automation is temporarily limited.",
+          "Monthly LLM budget is exhausted — use seeded showcase or simulator paths on stage.",
+        ),
       };
     }
 
@@ -194,7 +264,10 @@ async function evaluateBuyerCtoDemoLlmBudgetCheck(): Promise<BuyerCtoDemoReadine
       id: "llm-budget",
       label: "LLM execution budget",
       status: "warn",
-      detail: "Budget status unavailable — prefer seeded showcase over live pipeline on stage.",
+      detail: readinessDetail(
+        "Budget status is temporarily unavailable.",
+        "Budget status unavailable — prefer seeded showcase over live pipeline on stage.",
+      ),
     };
   }
 }
@@ -222,7 +295,10 @@ export function evaluateBuyerCtoDemoAuthCheck(): BuyerCtoDemoReadinessCheck {
           id: "demo-auth",
           label: "Demo auth bypass",
           status: "fail",
-          detail: "Session has already expired — sign in before presenting.",
+          detail: readinessDetail(
+            BUYER_DEMO_READINESS_BUYER_AUTH_REQUIRED,
+            "Session has already expired — sign in before presenting.",
+          ),
         };
       }
 
@@ -255,7 +331,10 @@ export function evaluateBuyerCtoDemoAuthCheck(): BuyerCtoDemoReadinessCheck {
     id: "demo-auth",
     label: "Demo auth bypass",
     status: "fail",
-    detail: "Sign in or enable demo/static operator flags before presenting live API data.",
+    detail: readinessDetail(
+      BUYER_DEMO_READINESS_BUYER_AUTH_REQUIRED,
+      BUYER_DEMO_READINESS_OPERATOR_AUTH_REQUIRED,
+    ),
   };
 }
 
@@ -304,7 +383,10 @@ export function evaluateBuyerCtoDemoSpineOfflineCheck(): BuyerCtoDemoReadinessCh
     id: "spine-offline",
     label: "Offline spine payloads",
     status: "warn",
-    detail: "One or more spine static payloads are missing — some demo steps may require a live API.",
+    detail: readinessDetail(
+      "Some sample review details are temporarily unavailable.",
+      "One or more spine static payloads are missing — some demo steps may require a live API.",
+    ),
   };
 }
 
@@ -331,7 +413,10 @@ export function evaluateBuyerCtoDemoCompareSeededCheck(): BuyerCtoDemoReadinessC
     id: "compare-seeded",
     label: "Compare demo pair",
     status: "warn",
-    detail: "Compare static payloads are not fully available.",
+    detail: readinessDetail(
+      "Compare sample data is temporarily unavailable.",
+      "Compare static payloads are not fully available.",
+    ),
   };
 }
 
@@ -341,7 +426,10 @@ export function evaluateBuyerCtoDemoStaticLabelCheck(): BuyerCtoDemoReadinessChe
       id: "static-label",
       label: "Static data labeling",
       status: "warn",
-      detail: "Static fallback is on — presenter banner will show cached showcase data to you.",
+      detail: readinessDetail(
+        "Sample review data is shown from cached workspace content.",
+        "Static fallback is on — presenter banner will show cached showcase data to you.",
+      ),
     };
   }
 

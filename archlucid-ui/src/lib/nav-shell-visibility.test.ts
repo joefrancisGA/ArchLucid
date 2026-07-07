@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { NAV_GROUPS, type NavGroupConfig } from "@/lib/nav-config";
+import { isAuditNavPath } from "@/lib/audit-nav-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { applyAuditNavRunScope } from "@/lib/nav-audit-run-scope";
 import {
   countLinksHiddenByProgressiveDisclosure,
   countSidebarLinksHiddenByCollapsedPilot,
@@ -541,7 +543,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
 });
 
 describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () => {
-  it("returns only operator-admin when surfaceFilter is platform-admin", () => {
+  it("returns operator-admin and platform-ops when surfaceFilter is platform-admin", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       true,
@@ -552,9 +554,88 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
       true,
     );
 
-    expect(rows.map((r) => r.group.id)).toEqual(["operator-admin"]);
-    expect(rows[0]!.visibleLinks.some((l) => l.href === "/settings/users")).toBe(true);
+    expect(rows.map((r) => r.group.id)).toEqual(["operate-platform-ops", "operator-admin"]);
+    expect(rows[0]!.visibleLinks.some((l) => l.href === "/integrations/readiness")).toBe(true);
+    expect(rows[1]!.visibleLinks.some((l) => l.href === "/settings/users")).toBe(true);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/admin/pricing-quote-aging")).toBe(false);
+  });
+
+  it("omits Operations nav for Read and Execute callers without AdminAuthority (TB-647)", () => {
+    const readRows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.ReadAuthority,
+      false,
+      "all",
+      true,
+    );
+
+    expect(readRows.some((r) => r.group.id === "operate-platform-ops")).toBe(false);
+    expect(readRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/health")).toBe(false);
+    expect(readRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/integrations/readiness")).toBe(false);
+
+    const executeRows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.ExecuteAuthority,
+      false,
+      "all",
+      true,
+    );
+
+    expect(executeRows.some((r) => r.group.id === "operate-platform-ops")).toBe(false);
+  });
+
+  it("scopes governance audit nav when review context is known (TB-649)", () => {
+    const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
+
+    expect(enterprise).toBeDefined();
+
+    const scoped = applyAuditNavRunScope(enterprise!.links, "run-abc");
+    const auditLink = scoped.find((l) => isAuditNavPath(l.href.split("?")[0] ?? ""));
+
+    expect(auditLink?.href).toBe("/audit?runId=run-abc");
+  });
+
+  it("omits AI usage from Administration for Read and Execute callers (TB-648)", () => {
+    const admin = NAV_GROUPS.find((g) => g.id === "operator-admin");
+
+    expect(admin).toBeDefined();
+
+    const readVisible = filterNavLinksForOperatorShell(
+      admin!.links,
+      true,
+      true,
+      AUTHORITY_RANK.ReadAuthority,
+      false,
+      true,
+    );
+
+    expect(readVisible.some((l) => l.href === "/settings/ai-usage")).toBe(false);
+
+    const executeVisible = filterNavLinksForOperatorShell(
+      admin!.links,
+      true,
+      true,
+      AUTHORITY_RANK.ExecuteAuthority,
+      false,
+      true,
+    );
+
+    expect(executeVisible.some((l) => l.href === "/settings/ai-usage")).toBe(false);
+
+    const adminVisible = filterNavLinksForOperatorShell(
+      admin!.links,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      true,
+    );
+
+    expect(adminVisible.some((l) => l.href === "/settings/ai-usage")).toBe(true);
   });
 });
 
@@ -593,6 +674,7 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
     expect(visible.map((r) => r.group.id)).toEqual(["operator-system-admin"]);
     expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/admin/pricing-quote-aging");
     expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/admin/rag-health");
+    expect(visible[0]!.visibleLinks.map((l) => l.label)).toContain("Knowledge index health");
     expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/replay");
   });
 });

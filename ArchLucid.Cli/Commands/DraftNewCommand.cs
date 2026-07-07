@@ -52,17 +52,18 @@ internal static class DraftNewCommand
         if (options.IntentText is not null)
         {
 
-            if (intent.Length < 10)
+            if (intent.Length < DraftIntakeValidation.MinimumFreeTextIntentLength)
             {
-                await error.WriteLineAsync("Intent must be at least 10 characters after trim.");
+                await error.WriteLineAsync(
+                    $"Intent must be at least {DraftIntakeValidation.MinimumFreeTextIntentLength} characters after trim.");
 
                 return CliExitCode.UsageError;
             }
         }
-        else if (intent.Length < 10)
+        else if (intent.Length < DraftIntakeValidation.MinimumFreeTextIntentLength)
         {
             string? prompted = await hooks.PromptRequiredAsync(
-                "Describe the architecture you want reviewed (minimum 10 characters):",
+                $"Describe the architecture you want reviewed (minimum {DraftIntakeValidation.MinimumFreeTextIntentLength} characters):",
                 output,
                 cancellationToken);
 
@@ -71,9 +72,10 @@ internal static class DraftNewCommand
 
             intent = prompted;
 
-            if (intent.Length < 10)
+            if (intent.Length < DraftIntakeValidation.MinimumFreeTextIntentLength)
             {
-                await error.WriteLineAsync("Intent must be at least 10 characters after trim.");
+                await error.WriteLineAsync(
+                    $"Intent must be at least {DraftIntakeValidation.MinimumFreeTextIntentLength} characters after trim.");
 
                 return CliExitCode.UsageError;
             }

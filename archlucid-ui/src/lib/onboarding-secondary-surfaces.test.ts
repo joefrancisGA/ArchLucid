@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { describe, expect, it } from "vitest";
 
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
@@ -62,7 +63,7 @@ describe("onboarding-secondary-surfaces (TB-342)", () => {
     expect(listOnboardingTourCopyViolations()).toEqual([]);
 
     expect(ONBOARDING_TOUR_WELCOME_BODY).toContain("review packages");
-    expect(ONBOARDING_TOUR_NEW_REVIEW_BODY).toContain("Start review");
+    expect(ONBOARDING_TOUR_NEW_REVIEW_BODY).toContain(CREATE_ARCHITECTURE_LABEL);
     expect(ONBOARDING_TOUR_REVIEW_PACKAGES_BODY).toContain("audit trail");
     expect(ONBOARDING_TOUR_FOLLOW_WORKFLOW_BODY).toContain("Architecture");
     expect(ONBOARDING_TOUR_GET_HELP_BODY).toContain("restart the tour");

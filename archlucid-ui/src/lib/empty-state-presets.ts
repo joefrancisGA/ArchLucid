@@ -1,7 +1,9 @@
 import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lucide-react";
 
 import type { EmptyStateProps } from "@/components/EmptyState";
-import { OPERATOR_GRAPH_IDLE_BODY, OPERATOR_GRAPH_WHAT_YOU_WILL_SEE } from "@/lib/buyer-polish-copy";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
+import { OPERATOR_GRAPH_IDLE_BODY, OPERATOR_GRAPH_IDLE_TITLE, OPERATOR_GRAPH_WHAT_YOU_WILL_SEE } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   governanceWorkflowIdleGettingStartedOperator,
@@ -16,7 +18,7 @@ export const RUNS_EMPTY: EmptyStateProps = {
   description:
     "Start an architecture review to generate a review package with findings, evidence, signed review record, and exports. Or open the sample package to see the completed flow.",
   actions: [
-    { label: "Start architecture review", href: "/reviews/new" },
+    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new" },
     { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",
@@ -36,30 +38,31 @@ export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
 
 export const GRAPH_IDLE: EmptyStateProps = {
   icon: Network,
-  title: "No review package available",
+  title: OPERATOR_GRAPH_IDLE_TITLE,
   description: `${OPERATOR_GRAPH_WHAT_YOU_WILL_SEE} ${OPERATOR_GRAPH_IDLE_BODY}`,
   actions: [
-    { label: "Start review", href: "/reviews/new" },
+    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new" },
     {
-      label: "Load sample workspace",
+      label: "Open sample evidence graph",
       href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
       variant: "outline" as const,
     },
   ],
 };
 
-/** Buyer-polished graph idle: no runId/query jargon or signed-manifest shortcut. */
+/** Buyer-polished graph idle: sample graph is the primary next action. */
 export const GRAPH_IDLE_BUYER: EmptyStateProps = {
   icon: Network,
-  title: "No review package selected",
-  description: "Start a review or load the sample workspace to view an evidence graph.",
+  title: "No completed review packages yet",
+  description:
+    "Complete a review package to generate an evidence graph, or open the sample graph to see how findings link to evidence, decisions, and audit records.",
   actions: [
-    { label: "Start review", href: "/reviews/new" },
     {
-      label: "Load sample workspace",
+      label: "Open sample evidence graph",
       href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
-      variant: "outline" as const,
     },
+    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "outline" as const },
+    { label: "Upload evidence", href: "/reviews/new", variant: "outline" as const },
   ],
 };
 
@@ -107,7 +110,7 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   gettingStarted: governanceWorkflowIdleGettingStartedOperator,
   secondaryAction: {
     label: "View audit trail →",
-    href: "/governance/audit",
+    href: auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID),
   },
 };
 
@@ -125,6 +128,6 @@ export const GOVERNANCE_WORKFLOW_IDLE_READER: EmptyStateProps = {
   gettingStarted: governanceWorkflowIdleGettingStartedReader,
   secondaryAction: {
     label: "View audit trail →",
-    href: "/governance/audit",
+    href: auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID),
   },
 };

@@ -40,6 +40,7 @@ export function useAdminHealthPage(loaded: AdminHealthPageServerLoad): AdminHeal
   const [configLintNote, setConfigLintNote] = useState<string | null>(null);
   const [configurationHealth, setConfigurationHealth] = useState<ConfigurationHealthPayload | null>(null);
   const [configurationHealthNote, setConfigurationHealthNote] = useState<string | null>(null);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -81,7 +82,7 @@ export function useAdminHealthPage(loaded: AdminHealthPageServerLoad): AdminHeal
       if (healthRes.status === 401 || healthRes.status === 403) {
         setCircuitGates([]);
         setCircuitNote(
-          "Circuit breaker detail requires API authentication. Sign in with Read access (or use DevelopmentBypass with a valid scope) to load full health JSON.",
+          "Circuit breaker detail requires an authenticated administrator session. Sign in with read access to load protective gate status.",
         );
       } else if (healthRes.ok) {
         const h = (await healthRes.json()) as HealthDetailedResponse;
@@ -130,6 +131,7 @@ export function useAdminHealthPage(loaded: AdminHealthPageServerLoad): AdminHeal
     } catch (e) {
       setReadyError(e instanceof Error ? e.message : String(e));
     } finally {
+      setLastRefreshedAt(new Date());
       setLoading(false);
     }
   }, []);
@@ -157,5 +159,6 @@ export function useAdminHealthPage(loaded: AdminHealthPageServerLoad): AdminHeal
     configLintNote,
     configurationHealth,
     configurationHealthNote,
+    lastRefreshedAt,
   };
 }

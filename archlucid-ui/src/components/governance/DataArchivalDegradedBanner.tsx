@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { isDataArchivalHealthDegraded } from "@/lib/health-dashboard-types";
+import { DATA_ARCHIVAL_HEALTH_LABELS } from "@/lib/operator-health-labels";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 
 /**
@@ -55,14 +56,13 @@ export function DataArchivalDegradedBanner() {
       role="alert"
       data-testid="governance-dashboard-data-archival-degraded"
     >
-      <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">Data retention archival is degraded</p>
+      <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">{DATA_ARCHIVAL_HEALTH_LABELS.bannerTitle}</p>
       <p className="m-0 mt-1 leading-snug">
-        The last background archival iteration failed while retention archival was enabled. Governance KPIs in this
-        workspace may be stale until archival recovers. Review worker logs, then open{" "}
+        {DATA_ARCHIVAL_HEALTH_LABELS.bannerBody}{" "}
         <Link href="/admin/health" className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100">
-          System health
-        </Link>{" "}
-        for the <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>data_archival</span> readiness check.
+          {DATA_ARCHIVAL_HEALTH_LABELS.systemHealthLink}
+        </Link>
+        .
       </p>
     </div>
   );

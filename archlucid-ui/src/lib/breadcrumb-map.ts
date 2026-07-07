@@ -1,9 +1,9 @@
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { pathMatchesCloudConnections } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { resolveNewReviewWizardBreadcrumbLabel } from "@/lib/operator-nav-labels";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
@@ -29,10 +29,9 @@ export type GetBreadcrumbsOptions = {
   readonly reviewsListReturnHref?: string;
 };
 
-function newReviewWizardCrumbLabel(buyerPolishedShell: boolean | undefined): string {
-  return buyerPolishedShell === true ? "New review" : "New request";
+function newReviewWizardCrumbLabel(_buyerPolishedShell: boolean | undefined): string {
+  return resolveNewReviewWizardBreadcrumbLabel();
 }
-
 const BUYER_HUB_RUN_SCOPED_SEGMENTS = new Set<string>([
   "graph",
   "audit",
@@ -412,6 +411,10 @@ function labelForSegment(
 
   if (segment === "findings" && prev === "governance") {
     return "Risk register";
+  }
+
+  if (segment === "risk-exceptions" && prev === "governance") {
+    return "Risk exceptions";
   }
 
   if (buyer && segment === "findings") {

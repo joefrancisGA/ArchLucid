@@ -114,21 +114,17 @@ describe("GovernanceFindingsQueueClient", () => {
     ]);
   });
 
-  it("renders helper card copy for the risk register route", () => {
-    const explanation = routeViewExplanationForPathname("/governance/findings");
-
-    expect(explanation?.title).toBe("Risk register");
-    expect(explanation?.summary).toContain("Review architecture risks created from findings");
-    expect(explanation?.nextAction).toContain("open risks, expiring exceptions, or risks without owners");
+  it("does not render a duplicate explain-this-view card for the risk register route", () => {
+    expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
   });
 
-  it("renders empty state guidance, actions, summary metrics, and collapsed terminology", async () => {
+  it("renders empty state guidance, actions, and summary metrics", async () => {
     render(<GovernanceFindingsQueueClient />);
 
     expect(await screen.findByTestId("governance-findings-empty-state")).toBeInTheDocument();
-    expect(screen.getByText("No architecture risks yet")).toBeInTheDocument();
+    expect(screen.getByText("No risks recorded for this review")).toBeInTheDocument();
     expect(
-      screen.getByText(/Risks appear here after review findings are accepted into governance/),
+      screen.getByText(/Risks appear here when accepted findings, waivers, exceptions, or governance decisions/),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open review packages" })).toHaveAttribute(
       "href",
@@ -147,12 +143,7 @@ describe("GovernanceFindingsQueueClient", () => {
     expect(screen.getByTestId("architecture-risk-register-summary-owner")).toHaveTextContent("Pending owner: 0");
     expect(screen.getByTestId("architecture-risk-register-summary-overdue")).toHaveTextContent("Overdue review: 0");
 
-    const terminology = screen.getByText("Terminology reference").closest("details");
-
-    expect(terminology).not.toBeNull();
-    expect(terminology).not.toHaveAttribute("open");
-    expect(within(terminology as HTMLElement).getByText("Architecture review")).toBeInTheDocument();
-    expect(screen.queryByText("Proof packet")).not.toBeInTheDocument();
+    expect(screen.queryByText("Terminology reference")).not.toBeInTheDocument();
   });
 
   it("renders operational table rows and filters when risk data is loaded", async () => {

@@ -136,7 +136,72 @@ Pure data-transfer objects used by Dapper for SQL result mapping. They contain o
 
 Pure API contract types with auto-properties only (no methods or validation logic). Controllers and services with branching logic are **not** excluded here even when Cobertura reports 0% — many are exercised by `Category=Integration` tests on shards that run without Coverlet (see **ArchLucid.Api measurement vs testing** below).
 
-Representative excluded types (2026-07-05 RC6 pass): `AdminArchiveRunsBatchRequest`, `TenantRegistrationRequest`, `TrialLocalRegisterRequest`, `LearningPlanDetailResponse`, `AlertsAcknowledgeBatchRequest`, `GovernanceApprovalBatchReviewRequest`, `E2eHarnessTrialExpiresPostRequest`, `DataConsistencyOrphanCounts`, `EvolutionSimulationRunResponse`, and sibling request/response DTOs under `ArchLucid.Api/Controllers/**`, `ArchLucid.Api/Models/**`, and `ArchLucid.Api/Services/Admin/*Counts*.cs`.
+**TB-635 pure-DTO bucket (21 types, closed **TB-636** 2026-07-07):** each carries `[ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]`.
+
+| File | Class |
+|------|-------|
+| `Controllers/Admin/AdminArchiveRunsBatchRequest.cs` | `AdminArchiveRunsBatchRequest` |
+| `Controllers/Admin/AdminArchiveRunsByIdsRequest.cs` | `AdminArchiveRunsByIdsRequest` |
+| `Controllers/Admin/TenantProvisionAdminRequest.cs` | `TenantProvisionAdminRequest` |
+| `Controllers/Alerts/AlertsAcknowledgeBatchItemResult.cs` | `AlertsAcknowledgeBatchItemResult` |
+| `Controllers/Alerts/AlertsAcknowledgeBatchRequest.cs` | `AlertsAcknowledgeBatchRequest` |
+| `Controllers/Alerts/AlertsAcknowledgeBatchResponse.cs` | `AlertsAcknowledgeBatchResponse` |
+| `Controllers/Governance/GovernanceApprovalBatchReviewRequest.cs` | `GovernanceApprovalBatchReviewRequest` |
+| `Controllers/Governance/GovernanceBatchReviewItemResult.cs` | `GovernanceBatchReviewItemResult` |
+| `Controllers/Governance/GovernanceBatchReviewResponse.cs` | `GovernanceBatchReviewResponse` |
+| `Models/E2e/E2eHarnessBillingSimulatePostRequest.cs` | `E2eHarnessBillingSimulatePostRequest` |
+| `Models/E2e/E2eHarnessTrialExpiresPostRequest.cs` | `E2eHarnessTrialExpiresPostRequest` |
+| `Models/Evolution/EvolutionSimulationRunResponse.cs` | `EvolutionSimulationRunResponse` |
+| `Models/Learning/LearningPlanDetailResponse.cs` | `LearningPlanDetailResponse` |
+| `Models/Learning/LearningPlanEvidenceCountsResponse.cs` | `LearningPlanEvidenceCountsResponse` |
+| `Models/Learning/LearningPlanListItemResponse.cs` | `LearningPlanListItemResponse` |
+| `Models/Learning/LearningPlanStepResponse.cs` | `LearningPlanStepResponse` |
+| `Models/Learning/LearningThemeResponse.cs` | `LearningThemeResponse` |
+| `Models/Tenancy/TenantRegistrationRequest.cs` | `TenantRegistrationRequest` |
+| `Models/Tenancy/TenantTrialConvertRequest.cs` | `TenantTrialConvertRequest` |
+| `Services/Admin/DataConsistencyOrphanCounts.cs` | `DataConsistencyOrphanCounts` |
+| `Services/Admin/OrphanComparisonRemediationResult.cs` | `OrphanComparisonRemediationResult` |
+
+| `Models/Auth/TrialLocalRegisterRequest.cs` | `TrialLocalRegisterRequest` |
+| `Models/Auth/TrialLocalRegisterResponse.cs` | `TrialLocalRegisterResponse` |
+| `Models/Auth/TrialLocalTokenRequest.cs` | `TrialLocalTokenRequest` |
+| `Models/Auth/TrialLocalTokenResponse.cs` | `TrialLocalTokenResponse` |
+| `Models/Auth/TrialLocalVerifyEmailRequest.cs` | `TrialLocalVerifyEmailRequest` |
+
+**TB-639 genuinely-untested bucket (32 types, closed 2026-07-07):** each row below is closed by **Category=Unit** tests, **Category=Integration** authorization smokes (`GenuinelyUntestedControllersIntegrationTests`), or Category 8 startup exclusion — not duplicate shallow controller unit tests.
+
+| Resolution | Class | Test / exclusion |
+|------------|-------|------------------|
+| Integration smoke | `TenantsAdminController` | `GenuinelyUntestedControllersIntegrationTests` |
+| Integration smoke | `RecommendationLearningController` | same |
+| Integration smoke | `AlertRoutingSubscriptionsController` | same |
+| Integration smoke | `AlertSimulationController` | same |
+| Integration smoke | `AlertTuningController` | same |
+| Integration smoke | `CompositeAlertRulesController` | same |
+| Integration smoke | `TrialLocalIdentityAuthController` | same |
+| Integration smoke | `AuthorityReplayController` | same |
+| Integration smoke | `AuthorityRunEventsController` | same |
+| Integration smoke | `RunAgentEvaluationController` | same |
+| Integration smoke | `E2EHarnessController` | same (disabled harness → 404) |
+| Category 2b DTO | `TrialLocalRegisterRequest` … `TrialLocalVerifyEmailRequest` | `[ExcludeFromCodeCoverage]` (TB-636 pattern) |
+| Unit | `PagingParameters` | `PagingParametersTests` |
+| Unit | `ReplayArtifactResponseFactory` | `ReplayArtifactResponseFactoryTests` |
+| Unit | `ApiFileResults` | `ApiFileResultsTests` |
+| Unit | `EvolutionOutcomeShadowReader` | `EvolutionOutcomeShadowReaderTests` |
+| Unit | `TrialLimitProblemResponse` | `TrialLimitFilterTests` (`Category=Unit`) |
+| Unit | `TrialLimitAuthorizationHandler` | `TrialLimitAuthorizationPipelineTests` |
+| Unit | `TrialLimitExceededAuditFilter` | same |
+| Unit | `TrialLimitAuthorizationResultHandler` | same |
+| Unit | `LearningPlanningReadService` | `LearningPlanningReadServiceTests` |
+| Unit | `OpenApiAuthDocumentMutator` | `OpenApiAuthDocumentMutatorTests` |
+| Unit | `ProblemDetailsResponsesOperationFilter` | `ProblemDetailsResponsesOperationFilterTests` |
+| Unit | `RateLimitingRolePartitionBuilder` | `RateLimitingRolePartitionBuilderTests` |
+| Unit | `EvolutionSimulationReportBuilder` | `EvolutionSimulationReportBuilderTests` (`Category=Unit`) |
+| Unit | `LocalTrialJwtIssuer` | `LocalTrialJwtIssuerTests` |
+| Category 8 startup | `PipelineExtensions` | ASP.NET pipeline registration; exercised via `WebApplicationFactory` integration hosts |
+| Category 8 startup | `InfrastructureExtensions` | DI/bootstrap wiring; exercised via integration hosts |
+
+Additional auto-property-only API DTOs outside the TB-635 inventory (e.g. run/manifest response types under `ArchLucid.Api/Models/**` and `ArchLucid.Api/Contracts/**`) may carry the same attribute when triaged; they are not listed here until inventoried.
 
 ## ArchLucid.Api measurement vs testing
 
@@ -149,6 +214,15 @@ Merged Cobertura **understates** `ArchLucid.Api` HTTP coverage:
 | `Category=Integration` (six parallel shards) | `test.runsettings` | **Off** — collector finalization unstable under chunked SQL load |
 
 **Owner decision (2026-07-05):** keep Coverlet disabled on Integration shards. CI continues `--skip-package-line-gate ArchLucid.Api` until merged per-package % reflects real risk (DTO exclusions + optional future Coverlet stability work). Integration tests remain the authoritative behavior coverage for controllers; 0% on those types is a **measurement gap**, not a testing gap.
+
+**Removing `--skip-package-line-gate ArchLucid.Api` (all required):**
+
+1. **TB-636** pure-DTO exclusions are applied so Cobertura denominators are honest (closed 2026-07-07).
+2. **TB-639** genuinely-untested logic is covered or carries a documented Category 1/4 exclusion — not duplicate unit tests for Integration-covered controllers (**Done** 2026-07-07).
+3. Either Integration shards collect Coverlet reliably on `test.runsettings` (separate collector-stability initiative), **or** merged Cobertura otherwise includes Integration-category hits.
+4. A full **`dotnet-full-regression`** merge shows **`ArchLucid.Api`** at or above the **63%** per-product line floor **without** the skip flag.
+
+Until then, treat low **`ArchLucid.Api`** percentages in PR comments as advisory; use the **TB-635** `integration-covered` bucket to distinguish measurement gaps from real test debt.
 
 ## Category 7: Process-External / Filesystem Tools
 
@@ -220,3 +294,17 @@ The improvement is due to removing untestable SQL infrastructure code from the d
 Merged **`Cobertura.xml`** is produced only after a successful **full regression** test run (see **`.github/workflows/ci.yml`** → **`.NET: full regression (SQL)`**). If that job fails **`assert_merged_line_coverage_min.py`** on the per-package gate, the script stdout lists each offending **`ArchLucid.*`** package and its line percentage.
 
 **Remediation:** Add or extend tests for that assembly, adjust **`[ExcludeFromCodeCoverage]`** only per **Exclusion Policy** above, or open a time-bound exemption with an explicit tracking item (issue/ADR) — do not weaken the gate without product sign-off.
+
+
+
+
+## ArchLucid.Api Cobertura triage (TB-635)
+
+Merged Cobertura understates **ArchLucid.Api** integration coverage because Integration-category tests run on shards without Coverlet (`test.runsettings`). The classified inventory lives in [`COVERAGE_GAP_ANALYSIS.md`](../COVERAGE_GAP_ANALYSIS.md) under **TB-635 Cobertura triage inventory**.
+
+| Bucket | Count |
+|--------|------:|
+| pure-DTO | 21 |
+| integration-covered | 33 |
+| small-logic | 34 |
+| genuinely-untested | 32 |

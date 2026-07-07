@@ -246,9 +246,15 @@
     "url": "/help/pilot-roi-model"
   },
   {
-    "title": "Pilot guide",
-    "summary": "Create your first architecture review package, attach evidence, review findings, finalize the signed decision record, and export audit-ready evidence.",
+    "title": "Review guide",
+    "summary": "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review package.",
     "category": "Go-to-market",
+    "url": "/help/review-guide"
+  },
+  {
+    "title": "Pilot guide",
+    "summary": "Internal pilot setup, smoke checks, API payloads, and engineering troubleshooting — for platform implementers only.",
+    "category": "Operations",
     "url": "/help/pilot-guide"
   },
   {

@@ -298,8 +298,10 @@ export function TenantSettingsPageView(props: Props) {
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Support bundle</CardTitle>
         </CardHeader>
         <CardContent className={cn("space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <p className="m-0">Download a redacted diagnostics ZIP when opening a support ticket.</p>
-          <SupportBundleDownloadButton />
+          <p className="m-0">
+            Download a redacted diagnostics bundle to include with a support ticket.
+          </p>
+          <SupportBundleDownloadButton showDiagnosticsLink />
         </CardContent>
       </Card>
 

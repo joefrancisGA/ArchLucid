@@ -1,4 +1,10 @@
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+import { isSelfHostedDeploymentEnv } from "@/lib/finish-setup-deployment";
+
+/** Buyer-safe readiness route (`ReadAuthority`) — not Internal Operations diagnostics. */
+export const FINISH_SETUP_SYSTEM_HEALTH_PATH = "/health";
+
+const FINISH_SETUP_HEALTH_STEP_ID = "health";
 
 export type FinishSetupWizardContext = {
   readonly healthReady: boolean;
@@ -17,12 +23,12 @@ export type FinishSetupWizardStep = {
 
 export const FINISH_SETUP_WIZARD_STEPS: readonly FinishSetupWizardStep[] = [
   {
-    id: "health",
+    id: FINISH_SETUP_HEALTH_STEP_ID,
     label: "Confirm platform health",
     description:
       "Required for self-hosted deployments before your first review. API and database migrations must be healthy.",
-    href: "/admin/health",
-    cta: "Open health",
+    href: FINISH_SETUP_SYSTEM_HEALTH_PATH,
+    cta: "Open system health",
     isDone: (ctx) => ctx.healthReady && !ctx.healthLoadFailed,
   },
   {
@@ -41,26 +47,45 @@ export const FINISH_SETUP_WIZARD_STEPS: readonly FinishSetupWizardStep[] = [
     cta: "Manage roles",
     isDone: (ctx) => ctx.principalAdmin,
   },
-  {
-    id: "extract",
-    label: "Add Azure export evidence (optional)",
-    description:
-      "Optional accelerator: upload an Azure extractor ZIP for production-faithful subscription inventory.",
-    href: "/settings/extract-upload",
-    cta: "Add evidence",
-    isDone: () => false,
-  },
 ] as const;
 
-export function countFinishSetupReadySteps(ctx: FinishSetupWizardContext): { readonly ready: number; readonly total: number } {
-  const ready = FINISH_SETUP_WIZARD_STEPS.filter((step) => step.isDone(ctx)).length;
+export type FinishSetupWizardDeploymentOptions = {
+  readonly selfHosted: boolean;
+};
 
+export function resolveFinishSetupWizardDeploymentOptions(): FinishSetupWizardDeploymentOptions {
   return {
-    ready,
-    total: FINISH_SETUP_WIZARD_STEPS.length,
+    selfHosted: isSelfHostedDeploymentEnv(),
   };
 }
 
-export function areFinishSetupRequiredStepsComplete(ctx: FinishSetupWizardContext): boolean {
-  return FINISH_SETUP_WIZARD_STEPS.filter((step) => step.id !== "extract").every((step) => step.isDone(ctx));
+/** Health confirmation applies only on self-hosted stacks — hide on managed SaaS onboarding hubs. */
+export function resolveFinishSetupWizardSteps(
+  deployment: FinishSetupWizardDeploymentOptions = resolveFinishSetupWizardDeploymentOptions(),
+): readonly FinishSetupWizardStep[] {
+  if (deployment.selfHosted) {
+    return FINISH_SETUP_WIZARD_STEPS;
+  }
+
+  return FINISH_SETUP_WIZARD_STEPS.filter((step) => step.id !== FINISH_SETUP_HEALTH_STEP_ID);
+}
+
+export function countFinishSetupReadySteps(
+  ctx: FinishSetupWizardContext,
+  deployment: FinishSetupWizardDeploymentOptions = resolveFinishSetupWizardDeploymentOptions(),
+): { readonly ready: number; readonly total: number } {
+  const steps = resolveFinishSetupWizardSteps(deployment);
+  const ready = steps.filter((step) => step.isDone(ctx)).length;
+
+  return {
+    ready,
+    total: steps.length,
+  };
+}
+
+export function areFinishSetupRequiredStepsComplete(
+  ctx: FinishSetupWizardContext,
+  deployment: FinishSetupWizardDeploymentOptions = resolveFinishSetupWizardDeploymentOptions(),
+): boolean {
+  return resolveFinishSetupWizardSteps(deployment).every((step) => step.isDone(ctx));
 }

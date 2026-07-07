@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import {
   NEW_REVIEW_SAMPLE_ESCAPE_CTA,
   NEW_REVIEW_SAMPLE_ESCAPE_LEAD,
@@ -17,7 +18,7 @@ export function NewReviewSampleEscapeLink(props: { readonly className?: string }
       className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary", props.className)}
       data-testid="new-review-sample-escape"
     >
-      {NEW_REVIEW_SAMPLE_ESCAPE_LEAD}{" "}
+      <InlineGuidanceLabel label={NEW_REVIEW_SAMPLE_ESCAPE_LEAD} />{" "}
       <Link
         href={sampleReviewHref}
         className="font-medium text-al-accent-interactive underline underline-offset-2"

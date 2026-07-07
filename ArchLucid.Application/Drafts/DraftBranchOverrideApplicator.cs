@@ -26,8 +26,9 @@ public static class DraftBranchOverrideApplicator
             case DraftBranchOverrideKind.FreeTextIntent:
                 string intent = request.OverrideValue.Trim();
 
-                if (intent.Length < 10)
-                    throw new InvalidOperationException("FreeTextIntent override must be at least 10 characters.");
+                if (intent.Length < DraftIntakeValidation.MinimumFreeTextIntentLength)
+                    throw new InvalidOperationException(
+                        $"FreeTextIntent override must be at least {DraftIntakeValidation.MinimumFreeTextIntentLength} characters.");
 
                 document.FreeTextIntent = intent;
                 break;

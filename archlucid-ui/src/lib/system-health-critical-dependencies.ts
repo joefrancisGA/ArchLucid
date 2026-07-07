@@ -40,7 +40,7 @@ export function buildCriticalDependencyRows(
       entryName: spec.entryName,
       label: spec.label,
       status: entry.status,
-      detail: "Reported by GET /health/ready.",
+      detail: "Included in readiness summary for this deployment.",
     };
   });
 }

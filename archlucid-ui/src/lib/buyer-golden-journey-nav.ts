@@ -10,6 +10,7 @@ import {
   SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import { pathMatchesGovernanceAlerts } from "@/lib/governance-route-paths";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 
@@ -62,6 +63,10 @@ export type BuyerGoldenJourneyNavLink = {
   readonly href: string;
 };
 
+export type BuyerGoldenJourneyNavOptions = {
+  readonly searchRunId?: string;
+};
+
 export type ResolvedBuyerGoldenJourneyNav = {
   /** Line shown between prev/next, e.g. "Step 3 of 5 · View evidence trail" */
   readonly summaryLine: string;
@@ -78,7 +83,10 @@ function normalizedPath(pathname: string): string {
 /**
  * When the URL is on the curated Claims Intake spine, returns adjacent journey links for the layer strip stepper.
  */
-export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGoldenJourneyNav | null {
+export function resolveBuyerGoldenJourneyNav(
+  pathname: string,
+  options?: BuyerGoldenJourneyNavOptions,
+): ResolvedBuyerGoldenJourneyNav | null {
   const path = normalizedPath(pathname);
   const defs = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS;
 
@@ -99,14 +107,9 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
   ) {
     stepIdx = 1;
   } else if (path.startsWith("/graph")) {
-    stepIdx = 2;
+    return null;
   } else if (path.startsWith("/ask")) {
-    return {
-      summaryLine: "Evidence Q&A — optional alongside the golden path",
-      prev: { label: defs[2].label, href: defs[2].href },
-      next: { label: defs[3].label, href: defs[3].href },
-      currentStepIndex: null,
-    };
+    return null;
   } else if (path.startsWith("/compare")) {
     return {
       summaryLine: "Optional review change comparison — secondary diligence view",
@@ -114,22 +117,30 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
       next: { label: defs[2].label, href: defs[2].href },
       currentStepIndex: null,
     };
-  } else if (path.startsWith("/governance/policy-packs")) {
-    return {
-      summaryLine: "Policy pack basis — governance guardrails referenced by this review",
-      prev: { label: defs[1].label, href: defs[1].href },
-      next: { label: defs[2].label, href: defs[2].href },
-      currentStepIndex: null,
-    };
+  } else if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
+    return null;
+  } else if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {
+    return null;
   } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
-    return {
-      summaryLine: `Review records and dispositions — linked from governance approval`,
-      prev: { label: defs[3].label, href: defs[3].href },
-      next: { label: defs[4].label, href: defs[4].href },
-      currentStepIndex: null,
-    };
-  } else if (path.startsWith("/governance")) {
+    return null;
+  } else if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {
+    return null;
+  } else if (pathMatchesGovernanceAlerts(path)) {
+    return null;
+  } else if (path === "/governance") {
+    const searchRunId = options?.searchRunId?.trim() ?? "";
+
+    if (searchRunId.length === 0) {
+      return null;
+    }
+
+    if (canonicalizeDemoRunId(searchRunId) !== canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
+      return null;
+    }
+
     stepIdx = 3;
+  } else if (path.startsWith("/governance")) {
+    return null;
   } else if (path.startsWith("/audit")) {
     stepIdx = 4;
   } else {

@@ -31,4 +31,22 @@ describe("review intake terminology", () => {
     expect(socraticSource).toContain("BUYER_START_ARCHITECTURE_REVIEW_CTA");
     expect(socraticSource).not.toMatch(/cardTitle:\s*"Start review"/);
   });
+
+  it("uses Create architecture on home quick-action cards", () => {
+    const source = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "..", "components", "operator-home", "OperatorHomeGlossarySections.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain("OPERATOR_START_REVIEW_QUICK_ACTION_LABEL");
+    expect(source).not.toContain('"Create Request"');
+    expect(source).not.toMatch(/Evidence intake/i);
+  });
+
+  it("uses outcome-first Alt+N shortcut label (TB-646)", () => {
+    const source = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "shortcut-registry.ts"), "utf8");
+
+    expect(source).toContain("BUYER_NEW_REVIEW_NAV_LABEL");
+    expect(source).not.toContain('"New request"');
+  });
 });

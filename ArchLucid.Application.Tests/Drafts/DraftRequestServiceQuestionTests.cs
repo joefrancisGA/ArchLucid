@@ -241,7 +241,8 @@ public sealed class DraftRequestServiceQuestionTests
             "user-1",
             new CreateDraftRequest
             {
-                FreeTextIntent = "Second pilot review for the same regulated workload.",
+                FreeTextIntent =
+                    "Second pilot review for the same regulated workload with governed evidence intake, Entra ID authentication, and exportable architecture review packages.",
             },
             CancellationToken.None);
 
@@ -286,7 +287,7 @@ public sealed class DraftRequestServiceQuestionTests
             "user-1",
             new CreateDraftRequest
             {
-                FreeTextIntent = "Build an AI-assisted GRC workflow for internal analysts.",
+                FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow,
             },
             CancellationToken.None);
 

@@ -42,17 +42,9 @@ test.describe("live-api-socratic-intake", () => {
 
     await page.goto("/reviews/new");
 
-    // The path switcher is collapsed behind a "More options" affordance for first-run tenants
-    // (no committed manifest yet) and shown immediately once the tenant has review history —
-    // wait for whichever renders, then reveal the switcher if needed before selecting guided intake.
-    const moreIntakeOptions = page.getByTestId("reviews-new-more-intake-options");
     const guidedIntakePathTab = page.getByTestId("reviews-new-path-guided-intake");
 
-    await expect(moreIntakeOptions.or(guidedIntakePathTab)).toBeVisible({ timeout: 30_000 });
-
-    if (await moreIntakeOptions.isVisible()) {
-      await moreIntakeOptions.click();
-    }
+    await expect(guidedIntakePathTab).toBeVisible({ timeout: 30_000 });
 
     await guidedIntakePathTab.click();
     await expect(guidedIntakePathTab).toHaveAttribute("aria-selected", "true");

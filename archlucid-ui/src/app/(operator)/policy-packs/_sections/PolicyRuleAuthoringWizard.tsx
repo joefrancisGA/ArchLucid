@@ -378,11 +378,16 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
 
       <div className="mt-4 grid gap-6 lg:grid-cols-2 lg:items-start">
         <div className="space-y-4" data-testid="policy-rule-wizard-step-design">
-          <div className="flex flex-wrap gap-2">
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label="Rule authoring input mode"
+          >
             <Button
               type="button"
               size="sm"
               variant={inputMode === "guided" ? "default" : "secondary"}
+              aria-pressed={inputMode === "guided"}
               onClick={() => setInputMode("guided")}
             >
               Guided fields
@@ -391,6 +396,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               type="button"
               size="sm"
               variant={inputMode === "ai" ? "default" : "secondary"}
+              aria-pressed={inputMode === "ai"}
               onClick={() => setInputMode("ai")}
               data-testid="policy-rule-wizard-ai-tab"
             >
@@ -400,6 +406,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               type="button"
               size="sm"
               variant={inputMode === "visual" ? "default" : "secondary"}
+              aria-pressed={inputMode === "visual"}
               onClick={() => setInputMode("visual")}
               data-testid="policy-rule-wizard-visual-tab"
             >

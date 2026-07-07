@@ -205,16 +205,13 @@ public static class ArchLucidPersistenceStartup
             }
         }
 
-        if (!app.Environment.IsDevelopment())
-            return;
-
         DemoOptions? demo = app.Configuration.GetSection(DemoOptions.SectionName).Get<DemoOptions>();
 
-        if (demo is not { Enabled: true, SeedOnStartup: true })
+        if (demo is null || !DemoSeedBootstrapPolicy.ShouldSeedShowcaseOnStartup(app.Environment, demo))
             return;
 
         app.Logger.LogInformation(
-            "Startup: Demo:SeedOnStartup=true; running {Service}.",
+            "Startup: showcase demo seed enabled; running {Service}.",
             nameof(IDemoSeedService));
 
         try

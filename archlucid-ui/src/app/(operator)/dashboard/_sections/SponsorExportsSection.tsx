@@ -4,10 +4,11 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { getArtifactDownloadUrl } from "@/lib/api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
-import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
@@ -18,16 +19,67 @@ type SponsorDocxTarget = {
   readonly manifestId: string;
 };
 
+type SponsorExportRowProps = {
+  readonly title: string;
+  readonly description: string;
+  readonly actionLabel: string;
+  readonly href?: string;
+  readonly externalHref?: string;
+  readonly disabled?: boolean;
+  readonly unavailableFootnote?: string;
+  readonly testId?: string;
+};
+
+function SponsorExportRow(props: SponsorExportRowProps): React.JSX.Element {
+  const disabled = props.disabled === true || (props.href === undefined && props.externalHref === undefined);
+
+  return (
+    <li
+      className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
+      data-testid={props.testId}
+    >
+      <div className="min-w-0 flex-1">
+        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{props.title}</p>
+        <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.description}</p>
+
+        {disabled && props.unavailableFootnote !== undefined ? (
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{props.unavailableFootnote}</p>
+        ) : null}
+      </div>
+
+      {!disabled ? (
+        <Button asChild size="sm" variant="outline" className="shrink-0 border-neutral-300 dark:border-neutral-600">
+          {props.externalHref !== undefined ? (
+            <a href={props.externalHref} data-testid={props.testId !== undefined ? `${props.testId}-action` : undefined}>
+              {props.actionLabel}
+            </a>
+          ) : (
+            <Link href={props.href ?? "#"} data-testid={props.testId !== undefined ? `${props.testId}-action` : undefined}>
+              {props.actionLabel}
+            </Link>
+          )}
+        </Button>
+      ) : null}
+    </li>
+  );
+}
+
 /**
  * Sponsor-ready quick links for executive reporting exports and ROI framing context.
  * Includes a direct sponsor DOCX download when a committed manifest exposes `architecture-review-board`.
  */
 export type SponsorExportsSectionProps = {
   readonly surface?: "operator" | "executive";
+  readonly hasCommittedReviews?: boolean;
 };
 
-export function SponsorExportsSection({ surface = "operator" }: SponsorExportsSectionProps) {
+export function SponsorExportsSection({
+  surface = "operator",
+  hasCommittedReviews = false,
+}: SponsorExportsSectionProps) {
   const executiveSurface = surface === "executive";
+  const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+  const exportsLocked = !hasCommittedReviews;
   const [sponsorDocx, setSponsorDocx] = useState<SponsorDocxTarget | null>(null);
 
   useEffect(() => {
@@ -78,65 +130,48 @@ export function SponsorExportsSection({ surface = "operator" }: SponsorExportsSe
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle} data-testid="executive-exports-heading">
-          {executiveSurface
-            ? BUYER_EXECUTIVE_SUMMARY_VOCABULARY.executiveExportsTitle
-            : "Sponsor exports"}
+          {executiveSurface ? v.executiveExportsTitle : "Sponsor exports"}
         </CardTitle>
-        <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
-          {executiveSurface
-            ? BUYER_EXECUTIVE_SUMMARY_VOCABULARY.executiveExportsDescription
-            : "Open executive-ready views used in sponsor updates and pilot value readouts."}
-        </CardDescription>
+        {executiveSurface ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{v.executiveExportsDescription}</p>
+        ) : null}
       </CardHeader>
       <CardContent>
-        <ul className={cn("m-0 space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <ul className={cn("m-0 list-none divide-y divide-neutral-200 dark:divide-neutral-800", OPERATOR_TYPOGRAPHY.body)}>
           {sponsorDocx !== null ? (
-            <li>
-              <a
-                href={getArtifactDownloadUrl(sponsorDocx.manifestId, "architecture-review-board")}
-                className={OPERATOR_LINK.inline}
-                data-testid="sponsor-exports-docx-download"
-              >
-                {executiveSurface ? "Download executive review (DOCX)" : "Download sponsor review (DOCX)"}
-              </a>
-              <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Board-ready architecture review from your latest committed review record.
-              </p>
-            </li>
+            <SponsorExportRow
+              title={v.sponsorExportsDocxTitle}
+              description={v.sponsorExportsDocxDescription}
+              actionLabel={v.sponsorExportsDocxAction}
+              externalHref={getArtifactDownloadUrl(sponsorDocx.manifestId, "architecture-review-board")}
+              testId="sponsor-exports-docx-download"
+            />
           ) : null}
-          <li>
-            <Link
-              href="/executive/scorecard"
-              className={OPERATOR_LINK.inline}
-            >
-              Executive scorecard
-            </Link>
-            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Board-ready rollup of estimated savings and systemic issues.
-            </p>
-          </li>
-          <li>
-            <Link
-              href="/value-report/pilot"
-              className={OPERATOR_LINK.inline}
-            >
-              Pilot value report
-            </Link>
-            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Pilot-period narrative for sponsors evaluating ROI.
-            </p>
-          </li>
-          <li>
-            <Link
-              href="/value-report/roi"
-              className={OPERATOR_LINK.inline}
-            >
-              ROI methodology help
-            </Link>
-            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              How directional savings estimates are calculated.
-            </p>
-          </li>
+          <SponsorExportRow
+            title={v.sponsorExportsScorecardTitle}
+            description={v.sponsorExportsScorecardDescription}
+            actionLabel={v.sponsorExportsScorecardAction}
+            href="/executive/scorecard"
+            disabled={exportsLocked}
+            unavailableFootnote={v.sponsorExportsUnavailableFootnote}
+            testId="sponsor-exports-scorecard"
+          />
+          <SponsorExportRow
+            title={v.sponsorExportsPilotValueTitle}
+            description={v.sponsorExportsPilotValueDescription}
+            actionLabel={v.sponsorExportsPilotValueAction}
+            href="/value-report/pilot"
+            disabled={exportsLocked}
+            unavailableFootnote={v.sponsorExportsUnavailableFootnote}
+            testId="sponsor-exports-pilot-value"
+          />
+          <SponsorExportRow
+            title={v.sponsorExportsRoiTitle}
+            description={v.sponsorExportsRoiDescription}
+            actionLabel={v.sponsorExportsRoiAction}
+            href="/value-report/roi"
+            testId="sponsor-exports-roi-methodology"
+          />
         </ul>
       </CardContent>
     </Card>

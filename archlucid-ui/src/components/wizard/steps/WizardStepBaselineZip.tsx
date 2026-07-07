@@ -13,8 +13,8 @@ export function WizardStepBaselineZip(props: WizardStepBaselineZipProps) {
 
   return (
     <WizardStepPanel
-      title="Upload Azure extractor package"
-      description="Run the read-only packager locally, drop the ZIP here, and we prefill your review brief before you name the system."
+      title="Optional evidence"
+      description="Attach cloud inventory or supporting files when you have them. You can start a review from your architecture brief alone."
     >
       <AzureExtractorPackageZipField variant="baseline" onPendingZipFileChange={onPendingZipFileChange} />
     </WizardStepPanel>

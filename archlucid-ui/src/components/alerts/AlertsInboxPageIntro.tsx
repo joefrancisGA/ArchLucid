@@ -1,14 +1,8 @@
 import Link from "next/link";
 
 import { AlertsInboxRankCue } from "@/components/EnterpriseControlsContextHints";
-import { GlossaryTooltip } from "@/components/GlossaryTooltip";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorTryNext } from "@/components/OperatorShellMessage";
-import {
-  alertsPageLeadOperator,
-  alertsPageLeadReader,
-} from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 import { cn } from "@/lib/utils";
@@ -23,30 +17,19 @@ export type AlertsInboxPageIntroProps = {
 export function AlertsInboxPageIntro({ canMutateAlertInbox, buyerPolishedShell, failure }: AlertsInboxPageIntroProps) {
   return (
     <>
-      <LayerHeader pageKey="alerts" />
-      <div className="mb-0 flex flex-wrap items-center gap-2">
-        <h2 className={cn("m-0 tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Inbox</h2>
-      </div>
-      <p className={cn("max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-        {canMutateAlertInbox ? alertsPageLeadOperator : alertsPageLeadReader}
-      </p>
-      <p className={cn("mt-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-        Deduplicated architecture-risk alerts in this workspace. Acknowledge or resolve items tied to findings in scope.
-        Each card links a risk signal to a <GlossaryTooltip termKey="findings">finding</GlossaryTooltip> in scope so
-        you can triage, acknowledge, or resolve.
-      </p>
-      {!canMutateAlertInbox ? <AlertsInboxRankCue /> : null}
-
       {buyerPolishedShell && shouldMergeOperatorDemoAlertSample() ? (
-        <div
-          className={cn(
-            "mb-4 max-w-prose rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800",
-            OPERATOR_TYPOGRAPHY.body,
-          )}
-          role="status"
+        <p
+          className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+          role="note"
+          data-testid="alerts-inbox-demo-note"
         >
-          <strong className="font-semibold">Sample inbox.</strong> This alert ties drift detection to the PHI minimization
-          finding — controls below stay read-only in this walkthrough.
+          Demo inbox preview — triage controls may stay read-only in this walkthrough.
+        </p>
+      ) : null}
+
+      {!canMutateAlertInbox ? (
+        <div className="mb-3">
+          <AlertsInboxRankCue />
         </div>
       ) : null}
 

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Label } from "@/components/ui/label";
 import {
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
+import { isShowcaseDemoRunId } from "@/lib/graph-page-state";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
@@ -52,7 +53,23 @@ export type AskRunIdPickerProps = {
   /** Overrides the helper line shown under the picker when the reviews list cannot be loaded. */
   readonly reviewsLoadErrorHint?: string;
   /** Notifies parents when list availability changes — avoids duplicate downstream error surfaces. */
-  readonly onListAvailabilityChange?: (state: { loadError: boolean }) => void;
+  readonly onListAvailabilityChange?: (state: {
+    readonly loadError: boolean;
+    readonly loading: boolean;
+    readonly packageCount: number;
+    readonly usingSyntheticSample: boolean;
+  }) => void;
+  /**
+   * When false, do not auto-select the showcase sample when the workspace has zero reviews.
+   * Real packages from the list can still auto-select when {@link preferAutoPick} is true.
+   */
+  readonly autoSelectSyntheticSample?: boolean;
+  readonly syntheticSampleHint?: string;
+  readonly syntheticLoadErrorHint?: string;
+  readonly emptyListPlaceholder?: string;
+  readonly emptyListHint?: string;
+  /** When true, omit helper copy under the field — parent empty state or status line owns messaging. */
+  readonly hideFieldHelper?: boolean;
 };
 
 /**
@@ -72,6 +89,12 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     reviewsLoadErrorPlaceholder,
     reviewsLoadErrorHint,
     onListAvailabilityChange,
+    autoSelectSyntheticSample = true,
+    syntheticSampleHint,
+    syntheticLoadErrorHint,
+    emptyListPlaceholder,
+    emptyListHint,
+    hideFieldHelper = false,
   } = props;
   const [items, setItems] = useState<RunSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,12 +103,40 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   const labelText = label ?? "Review";
   const controlIdPrefix = fieldId ?? "ask-run-primary";
   const selectControlId = `${controlIdPrefix}-select`;
-  const reviewsUnavailablePlaceholder = reviewsLoadErrorPlaceholder ?? "Reviews could not be loaded";
+  const reviewsUnavailablePlaceholder = reviewsLoadErrorPlaceholder ?? "Review packages unavailable";
   const reviewsUnavailableHint = reviewsLoadErrorHint ?? "Check workspace setup or retry.";
+  const syntheticSampleHintText =
+    syntheticSampleHint ??
+    "No completed review packages are available yet. You can start a new review or explore the sample evidence graph.";
+  const syntheticLoadErrorHintText =
+    syntheticLoadErrorHint ??
+    "Review packages could not be loaded. Showing the sample review package for this page.";
+  const emptyListPlaceholderText = emptyListPlaceholder ?? "No completed review packages yet";
+  const emptyListHintText =
+    emptyListHint ??
+    "No completed review packages yet. Start a new review or open the sample evidence graph.";
+
+  const onListAvailabilityChangeRef = useRef(onListAvailabilityChange);
+  onListAvailabilityChangeRef.current = onListAvailabilityChange;
 
   useEffect(() => {
-    onListAvailabilityChange?.({ loadError });
-  }, [loadError, onListAvailabilityChange]);
+    const usingSyntheticSample =
+      isShowcaseDemoRunId(value) ||
+      (!loading &&
+        !loadError &&
+        items.length === 0 &&
+        operatorAllowsSyntheticAskRunPick() &&
+        preferAutoPick &&
+        autoSelectSyntheticSample &&
+        value.trim().length > 0);
+
+    onListAvailabilityChangeRef.current?.({
+      loadError,
+      loading,
+      packageCount: items.length,
+      usingSyntheticSample,
+    });
+  }, [autoSelectSyntheticSample, items.length, loadError, loading, preferAutoPick, value]);
 
   useEffect(() => {
     let cancelled = false;
@@ -171,12 +222,16 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       return;
     }
 
+    if (!autoSelectSyntheticSample) {
+      return;
+    }
+
     if (value.trim().length > 0) {
       return;
     }
 
     onChange(SHOWCASE_STATIC_DEMO_RUN_ID);
-  }, [loading, loadError, items, preferAutoPick, value, onChange]);
+  }, [autoSelectSyntheticSample, loading, loadError, items, preferAutoPick, value, onChange]);
 
   useEffect(() => {
     if (!loadError) {
@@ -191,12 +246,16 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       return;
     }
 
+    if (!autoSelectSyntheticSample) {
+      return;
+    }
+
     if (value.trim().length > 0) {
       return;
     }
 
     onChange(SHOWCASE_STATIC_DEMO_RUN_ID);
-  }, [loadError, preferAutoPick, value, onChange]);
+  }, [autoSelectSyntheticSample, loadError, preferAutoPick, value, onChange]);
 
   const optionalCopy =
     selectedThreadId.trim().length > 0
@@ -226,9 +285,11 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
               <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Review</SelectItem>
             </SelectContent>
           </Select>
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Review list could not be reached — using the Claims Intake sample review for this page.
-          </p>
+          {!hideFieldHelper ? (
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {syntheticLoadErrorHintText}
+            </p>
+          ) : null}
         </div>
       );
     }
@@ -243,7 +304,9 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             <SelectValue placeholder={reviewsUnavailablePlaceholder} />
           </SelectTrigger>
         </Select>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{reviewsUnavailableHint}</p>
+        {!hideFieldHelper ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{reviewsUnavailableHint}</p>
+        ) : null}
       </div>
     );
   }
@@ -282,9 +345,11 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
               <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Review</SelectItem>
             </SelectContent>
           </Select>
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            No reviews returned from the API — selecting the Claims Intake sample review package for this workspace.
-          </p>
+          {!hideFieldHelper ? (
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {syntheticSampleHintText}
+            </p>
+          ) : null}
         </div>
       );
     }
@@ -296,23 +361,25 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         </Label>
         <Select disabled>
           <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
-            <SelectValue placeholder="No review packages yet" />
+            <SelectValue placeholder={emptyListPlaceholderText} />
           </SelectTrigger>
         </Select>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          No review packages yet.{" "}
-          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new">
-            Start a review
-          </Link>{" "}
-          or{" "}
-          <Link
-            className="font-medium text-teal-800 underline dark:text-teal-300"
-            href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
-          >
-            load the sample workspace
-          </Link>
-          .
-        </p>
+        {!hideFieldHelper ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {emptyListHintText}{" "}
+            <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new">
+              Start a review
+            </Link>{" "}
+            or{" "}
+            <Link
+              className="font-medium text-teal-800 underline dark:text-teal-300"
+              href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+            >
+              open the sample evidence graph
+            </Link>
+            .
+          </p>
+        ) : null}
       </div>
     );
   }

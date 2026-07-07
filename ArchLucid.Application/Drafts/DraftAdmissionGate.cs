@@ -5,7 +5,7 @@ namespace ArchLucid.Application.Drafts;
 /// <inheritdoc cref="IDraftAdmissionGate" />
 public sealed class DraftAdmissionGate : IDraftAdmissionGate
 {
-    private const int MinimumIntentLength = 10;
+    private const int MinimumIntentLength = DraftIntakeValidation.MinimumFreeTextIntentLength;
 
     /// <inheritdoc />
     public DraftAdmissionEvaluation Evaluate(DraftRequestDocument document)
@@ -17,7 +17,7 @@ public sealed class DraftAdmissionGate : IDraftAdmissionGate
         if (intent.Length < MinimumIntentLength)
         {
             return Redirect(
-                "I don't understand yet — please describe the system you want designed in at least ten characters.");
+                $"I don't understand yet — please describe the system you want designed in at least {MinimumIntentLength} characters.");
         }
 
         if (!HasFunctionalOutcome(document))

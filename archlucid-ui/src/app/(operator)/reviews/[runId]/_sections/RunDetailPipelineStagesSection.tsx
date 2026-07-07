@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import { StatusTag } from "@/components/ui/status-tag";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { formatStageDurationMs } from "@/lib/format-stage-duration";
 import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
 import {
@@ -29,7 +29,7 @@ export function RunDetailPipelineStagesSection({
     return null;
   }
 
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const buyerPipelineLabels = isBuyerVocabularyPassActive();
 
   return (
     <section
@@ -59,7 +59,7 @@ export function RunDetailPipelineStagesSection({
               data-testid={`pipeline-stage-row-${stage.stageName}`}
             >
               <span className="font-medium text-al-text-primary">
-                {buyerPipelineStageName(stage.stageName, buyerPolished)}
+                {buyerPipelineStageName(stage.stageName, buyerPipelineLabels)}
               </span>
               <span className="flex flex-wrap items-center gap-2">
                 <span className="text-al-text-secondary" data-testid="pipeline-stage-duration">

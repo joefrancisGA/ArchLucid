@@ -5,16 +5,9 @@ import { describe, expect, it, vi } from "vitest";
 import AskPage from "@/app/(operator)/ask/page";
 import SearchPage from "@/app/(operator)/search/page";
 
-vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
-  return {
-    ...actual,
+vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
-  redirect: vi.fn(),
-    permanentRedirect: vi.fn(),
-    notFound: vi.fn(),
-  };
-});
+}));
 
 vi.mock("@/lib/api", () => ({
   apiGet: vi.fn().mockResolvedValue([]),
@@ -58,8 +51,8 @@ describe("AskPage (operator shell)", () => {
       </Suspense>,
     );
 
-    expect(screen.getByRole("heading", { name: /Evidence-backed review questions/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/^question$/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /evidence-backed review questions/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/your question/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^ask$/i })).toBeInTheDocument();
   });
 });

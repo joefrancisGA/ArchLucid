@@ -41,6 +41,15 @@ describe("architectureReviewTemplates", () => {
     expect(suggestedSystemNameFromTemplateId("a-b")).toBe("AB");
   });
 
+  it("keeps template picker descriptions pattern-first without implying a default cloud provider", () => {
+    for (const template of architectureReviewTemplates) {
+      const normalized = template.description.toLowerCase();
+
+      expect(normalized).not.toContain("accelerated v1");
+      expect(normalized).not.toMatch(/\bdefault to azure\b/);
+    }
+  });
+
   it("each template merges into valid wizard values and create-run payload", () => {
     for (const t of architectureReviewTemplates) {
       const base = buildDefaultWizardValues();

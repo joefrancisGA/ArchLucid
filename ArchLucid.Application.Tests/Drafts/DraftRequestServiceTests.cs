@@ -77,7 +77,7 @@ public sealed class DraftRequestServiceTests
         DraftRequestResponse created = await _service.CreateAsync(
             _scope,
             "user-1",
-            new CreateDraftRequest { FreeTextIntent = "Build an AI-assisted GRC workflow for analysts." },
+            new CreateDraftRequest { FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow },
             CancellationToken.None);
 
         created.Status.Should().Be(DraftRequestStatus.Drafting);
@@ -92,7 +92,7 @@ public sealed class DraftRequestServiceTests
             "user-1",
             new CreateDraftRequest
             {
-                FreeTextIntent = "Build an AI-assisted GRC workflow for analysts.",
+                FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow,
             },
             CancellationToken.None);
 
@@ -123,7 +123,7 @@ public sealed class DraftRequestServiceTests
             "user-1",
             new CreateDraftRequest
             {
-                FreeTextIntent = "Build an AI-assisted GRC workflow for internal analysts.",
+                FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow,
             },
             CancellationToken.None);
 

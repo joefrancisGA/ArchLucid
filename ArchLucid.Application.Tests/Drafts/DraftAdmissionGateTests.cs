@@ -25,7 +25,7 @@ public sealed class DraftAdmissionGateTests
     [Fact]
     public void Evaluate_Redirects_WhenNoBusinessOutcome()
     {
-        DraftRequestDocument document = new() { FreeTextIntent = "We need a compliance automation platform for GRC." };
+        DraftRequestDocument document = new() { FreeTextIntent = DraftIntakeTestIntents.ValidCompliancePlatform };
 
         DraftAdmissionEvaluation result = _gate.Evaluate(document);
 
@@ -38,7 +38,7 @@ public sealed class DraftAdmissionGateTests
     {
         DraftRequestDocument document = new()
         {
-            FreeTextIntent = "We need a compliance automation platform for GRC analysts.",
+            FreeTextIntent = DraftIntakeTestIntents.ValidCompliancePlatform,
             BusinessOutcome = "Reduce manual audit prep time",
         };
 
@@ -53,7 +53,7 @@ public sealed class DraftAdmissionGateTests
     {
         DraftRequestDocument document = new()
         {
-            FreeTextIntent = "We need a compliance automation platform for GRC analysts.",
+            FreeTextIntent = DraftIntakeTestIntents.ValidCompliancePlatform,
             BusinessOutcome = "Reduce manual audit prep time",
             ActorSet = new ActorSet
             {

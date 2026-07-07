@@ -39,10 +39,10 @@ export type HelpSearchPanelGroup = {
 const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "first-review-guide",
-    title: "First-review guide",
-    description: "Complete one review package before configuring advanced workflows.",
-    keywords: ["first review", "first hour", "starter guide", "getting started", "pilot"],
-    action: { kind: "route", href: "/help/first-hour-operator-path", helpSlug: "first-hour-operator-path" },
+    title: "Review guide",
+    description: "Step-by-step: name the review, upload evidence, add context, and finalize the package.",
+    keywords: ["first review", "review guide", "new review", "architecture context", "getting started"],
+    action: { kind: "route", href: "/help/review-guide", helpSlug: "review-guide" },
   },
   {
     id: "create-first-review",

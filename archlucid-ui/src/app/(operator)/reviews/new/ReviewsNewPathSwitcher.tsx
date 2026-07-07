@@ -7,12 +7,11 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
-import { Button } from "@/components/ui/button";
-import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
-import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
 import { ReviewIntakeInvalidTemplateCallout } from "@/components/review-intake/ReviewIntakeInvalidTemplateCallout";
@@ -38,8 +37,29 @@ const NewRunWizardClient = dynamic(
   { loading: () => <NewRunWizardSkeleton /> },
 );
 
+const REVIEWS_NEW_PATH_TABS: readonly { id: ReviewsNewActivePath; label: string }[] = [
+  { id: "quick-review", label: "Quick start" },
+  { id: "guided-intake", label: "Guided intake" },
+  { id: "detailed", label: "Templates and imports" },
+] as const;
+
+function reviewsNewPathTabTestId(path: ReviewsNewActivePath): string {
+  switch (path) {
+    case "quick-review":
+      return "reviews-new-path-quick";
+    case "guided-intake":
+      return "reviews-new-path-guided-intake";
+    case "detailed":
+      return "reviews-new-path-detailed";
+    default: {
+      const exhaustive: never = path;
+      return exhaustive;
+    }
+  }
+}
+
 /**
- * Path switcher at the top of `/reviews/new`: guided intake (default), quick review, or templates wizard.
+ * Path switcher at the top of `/reviews/new`: quick start, guided intake, or templates wizard.
  * Wizards load on demand so the initial `/reviews/new` chunk stays smaller.
  */
 export function ReviewsNewPathSwitcher() {
@@ -53,12 +73,6 @@ export function ReviewsNewPathSwitcher() {
   );
   const [activePath, setActivePath] = useState<ReviewsNewActivePath>("quick-review");
   const [ready, setReady] = useState(false);
-  const [showMoreIntakeOptions, setShowMoreIntakeOptions] = useState(false);
-  const commitContext = useCorePilotCommitPresentationContext();
-
-  const forceDetailedPath = baselineFirst;
-  const isFirstRunTenant = !commitContext.hasCommittedManifest;
-  const showPathSwitcher = forceDetailedPath || !isFirstRunTenant || showMoreIntakeOptions;
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
@@ -96,86 +110,40 @@ export function ReviewsNewPathSwitcher() {
       {invalidExampleTemplateId !== null ? (
         <ReviewIntakeInvalidTemplateCallout templateId={invalidExampleTemplateId} />
       ) : null}
-      {ready && showPathSwitcher ? (
-        <div
-          className="flex flex-wrap gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
-          role="tablist"
-          aria-label="Review creation path"
-          data-testid="reviews-new-path-toggle"
+      {ready ? (
+        <Tabs
+          value={activePath}
+          onValueChange={(next) => {
+            selectPath(next as ReviewsNewActivePath);
+          }}
         >
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={activePath === "quick-review"}
-            variant={activePath === "quick-review" ? "primary" : "outline"}
-            className="min-w-[10rem]"
-            onClick={() => {
-              selectPath("quick-review");
-            }}
-            data-testid="reviews-new-path-quick"
-          >
-            Quick start
-          </Button>
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={activePath === "guided-intake"}
-            variant={activePath === "guided-intake" ? "primary" : "outline"}
-            className="min-w-[10rem]"
-            onClick={() => {
-              selectPath("guided-intake");
-            }}
-            data-testid="reviews-new-path-guided-intake"
-          >
-            Guided intake
-          </Button>
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={activePath === "detailed"}
-            variant={activePath === "detailed" ? "primary" : "outline"}
-            className="min-w-[10rem]"
-            onClick={() => {
-              selectPath("detailed");
-            }}
-            data-testid="reviews-new-path-detailed"
-          >
-            Templates and imports
-          </Button>
-        </div>
-      ) : null}
-      {ready && isFirstRunTenant && !showPathSwitcher ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body, "text-neutral-700 dark:text-neutral-300")}>
-            {CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBanner}
+          <TabsList aria-label="Review creation path" data-testid="reviews-new-path-toggle" className="-mb-px overflow-x-auto">
+            {REVIEWS_NEW_PATH_TABS.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                data-testid={reviewsNewPathTabTestId(tab.id)}
+                className="shrink-0"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-new-path-hint">
+            <InlineGuidanceText text={REVIEWS_NEW_PATH_HINTS[activePath]} />
           </p>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setShowMoreIntakeOptions(true);
-            }}
-            data-testid="reviews-new-more-intake-options"
-          >
-            More options
-          </Button>
-        </div>
-      ) : null}
-      {ready && showPathSwitcher ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-new-path-hint">
-          {REVIEWS_NEW_PATH_HINTS[activePath]}
-        </p>
-      ) : null}
-      {ready ? null : (
-        <p className={OPERATOR_TYPOGRAPHY.helper}>Loading…</p>
-      )}
-      {!ready ? null : activePath === "quick-review" || (isFirstRunTenant && !showMoreIntakeOptions && !forceDetailedPath) ? (
-        <FirstPilotIntakeWizard />
-      ) : activePath === "guided-intake" ? (
-        <SocraticIntakeWizard />
+          <TabsContent value="quick-review" className="pt-0" data-testid="reviews-new-path-panel">
+            <FirstPilotIntakeWizard />
+          </TabsContent>
+          <TabsContent value="guided-intake" className="pt-0" data-testid="reviews-new-path-panel">
+            <SocraticIntakeWizard />
+          </TabsContent>
+          <TabsContent value="detailed" className="pt-0" data-testid="reviews-new-path-panel">
+            <NewRunWizardClient />
+          </TabsContent>
+        </Tabs>
       ) : (
-        <NewRunWizardClient />
+        <p className={OPERATOR_TYPOGRAPHY.helper}>Loading…</p>
       )}
     </OperatorPageContainer>
   );

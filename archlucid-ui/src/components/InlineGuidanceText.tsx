@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
-import { parseLeadingInlineGuidanceLabel } from "@/lib/inline-guidance-labels";
+import { capitalizeInlineGuidanceBody, parseLeadingInlineGuidanceLabel } from "@/lib/inline-guidance-labels";
 
 export type InlineGuidanceTextProps = {
   readonly text: string;
@@ -20,9 +20,11 @@ export function InlineGuidanceText(props: InlineGuidanceTextProps): ReactNode {
     return <span className={props.className}>{props.text}</span>;
   }
 
+  const body = capitalizeInlineGuidanceBody(parsed.label, parsed.body);
+
   return (
     <span className={cn(props.className)}>
-      <InlineGuidanceLabel label={parsed.label} /> {parsed.body}
+      <InlineGuidanceLabel label={parsed.label} /> {body}
     </span>
   );
 }

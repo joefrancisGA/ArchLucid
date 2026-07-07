@@ -34,11 +34,13 @@ Represent the App Service settings as `azurerm_app_service` / `azurerm_linux_web
 
 When `public_network_access_enabled = false` on the vault, provision **`infra/terraform-private`** Key Vault private endpoint + `privatelink.vaultcore.azure.net` DNS (TB-091). Set `enable_private_data_plane = true` and pass `key_vault_id` before apply. Validate with `terraform -chdir=infra/terraform-private validate` (see [`IAC_RUNTIME_PARITY.md`](IAC_RUNTIME_PARITY.md)).
 
-## Workload RBAC (TB-092)
+## Workload RBAC (TB-656 / TB-092)
 
-Container Apps API and Worker use **system-assigned** managed identities to resolve `@Microsoft.KeyVault(...)` references at runtime. Grant **`Key Vault Secrets User`** on the vault scope (not **Secrets Officer**):
+**TB-656 (default):** `infra/terraform-keyvault` creates **user-assigned** API and Worker identities (`workload_identities.tf`) and grants **`Key Vault Secrets User`** in the **same apply** as the vault. Pass the identity outputs into `terraform-container-apps` (`api_keyvault_user_assigned_identity_id`, `worker_keyvault_user_assigned_identity_id`, and matching `*_client_id` values). `infra/apply-saas.ps1 -MultiRoot -Apply` wires these automatically.
+
+**TB-092 (legacy):** Container Apps API and Worker use **system-assigned** managed identities to resolve `@Microsoft.KeyVault(...)` references at runtime. Grant **`Key Vault Secrets User`** on the vault scope (not **Secrets Officer**):
 
 - **`infra/terraform-keyvault`:** `api_managed_identity_principal_id` and `worker_managed_identity_principal_id` (from `terraform-container-apps` outputs `api_system_assigned_principal_id` / `worker_system_assigned_principal_id`).
 - **`infra/terraform-private`:** `key_vault_workload_principal_ids` when assigning RBAC on an existing `key_vault_id` with private data plane enabled.
 
-**Apply order:** Key Vault is created before Container Apps in the default multi-root sequence; principal IDs exist only after Container Apps apply. Use **`infra/apply-saas.ps1 -MultiRoot -Apply`** (automated TB-092 second pass) or re-apply `terraform-keyvault` with the principal ID variables from Container Apps outputs. Example tfvars: `infra/terraform-keyvault/terraform.tfvars.example`.
+**Apply order (legacy only):** Key Vault is created before Container Apps in the default multi-root sequence; principal IDs exist only after Container Apps apply. Use **`infra/apply-saas.ps1 -MultiRoot -Apply`** (automated TB-092 second pass when user-assigned identities are disabled) or re-apply `terraform-keyvault` with the principal ID variables from Container Apps outputs. Example tfvars: `infra/terraform-keyvault/terraform.tfvars.example`.

@@ -41,7 +41,8 @@ describe("RunsListEmptyState", () => {
     render(<RunsListEmptyState />);
 
     expect(screen.getByTestId("runs-list-empty-state")).toBeInTheDocument();
-    expect(screen.getByTestId("runs-list-empty-primary-path")).toBeInTheDocument();
+    expect(screen.getByTestId("runs-list-empty-state").className).not.toMatch(/grid-cols-2/);
+    expect(screen.getByTestId("runs-list-empty-state").className).toContain("flex-col");
     expect(screen.getByTestId("runs-list-empty-sample-path")).toBeInTheDocument();
 
     const startReview = screen.getByRole("link", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA });

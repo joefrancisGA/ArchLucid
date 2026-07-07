@@ -1,12 +1,32 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { applyBuyerDemoVocabulary } from "@/lib/buyer-demo-vocabulary";
+import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
-/** Buyer-polished shell left-nav label for `/reviews/new` — navigation destination, not the hero CTA. */
-export const BUYER_NEW_REVIEW_NAV_LABEL = "New review";
+/** Buyer-polished shell left-nav label for `/reviews/new`. */
+export const BUYER_NEW_REVIEW_NAV_LABEL = CREATE_ARCHITECTURE_LABEL;
 
-/** Operator quick-action label for `/reviews/new` — keep the outcome verb in default shell chrome. */
-export const OPERATOR_START_REVIEW_QUICK_ACTION_LABEL = "Start review";
+/** Quick actions, hero CTAs, and empty states that open `/reviews/new`. */
+export const OPERATOR_START_REVIEW_QUICK_ACTION_LABEL = CREATE_ARCHITECTURE_LABEL;
+
+/** Default left-nav label for `/reviews/new` when buyer vocabulary pass is active (TB-646). */
+export const NEW_REVIEW_NAV_LINK_LABEL = BUYER_NEW_REVIEW_NAV_LABEL;
+
+const NEW_REVIEW_NAV_TOOLTIP = `${CREATE_ARCHITECTURE_LABEL} — Quick review, Guided intake, or full wizard (Alt+N)`;
+
+export function resolveNewReviewWizardBreadcrumbLabel(): string {
+  if (isBuyerVocabularyPassActive()) {
+    return BUYER_NEW_REVIEW_NAV_LABEL;
+  }
+
+  return CREATE_ARCHITECTURE_LABEL;
+}
+
+/** Sidebar / pilot nav tooltip for `/reviews/new` — creation-first, not mechanism-first. */
+export function resolveNewReviewPrimaryNavTitle(): string {
+  return `${CREATE_ARCHITECTURE_LABEL} — brief, diagram, document, or optional cloud context (Alt+N)`;
+}
 
 /** Matches `/reviews` list routes (with optional query), not `/reviews/new` or `/reviews/{id}`. */
 export function isReviewsListNavHref(href: string): boolean {
@@ -20,19 +40,15 @@ export function resolveReviewsListNavLinkLabel(isGovernanceModeEnabled: boolean)
 }
 
 export function resolveNewReviewNavLinkLabel(buyerPolishedShell: boolean): string {
-  if (buyerPolishedShell) {
+  if (buyerPolishedShell || isBuyerVocabularyPassActive()) {
     return BUYER_NEW_REVIEW_NAV_LABEL;
   }
 
   return OPERATOR_NAV_LINK_LABELS.capture;
 }
 
-export function resolveNewReviewNavLinkTitle(buyerPolishedShell: boolean): string {
-  if (buyerPolishedShell) {
-    return "New review — Quick review, Guided intake, or full wizard (Alt+N)";
-  }
-
-  return "New review — Quick review, Guided intake, or full wizard (Alt+N)";
+export function resolveNewReviewNavLinkTitle(_buyerPolishedShell: boolean): string {
+  return NEW_REVIEW_NAV_TOOLTIP;
 }
 
 type NavLinkPresentationSource = {
@@ -54,11 +70,13 @@ export function resolveNavLinkPresentation(
   buyerPolishedShell: boolean,
   isGovernanceModeEnabled = false,
 ): NavLinkPresentationSource {
-  if (link.href === "/reviews/new" && buyerPolishedShell) {
+  const vocabularyPassActive = isBuyerVocabularyPassActive();
+
+  if (link.href === "/reviews/new" && (buyerPolishedShell || vocabularyPassActive)) {
     return applyBuyerNavVocabulary({
       href: link.href,
-      label: resolveNewReviewNavLinkLabel(true),
-      title: resolveNewReviewNavLinkTitle(true),
+      label: resolveNewReviewNavLinkLabel(buyerPolishedShell || vocabularyPassActive),
+      title: resolveNewReviewNavLinkTitle(buyerPolishedShell || vocabularyPassActive),
     });
   }
 
@@ -73,7 +91,7 @@ export function resolveNavLinkPresentation(
   return applyBuyerNavVocabulary(link);
 }
 
-/** Quick actions and hero CTAs use Start review; left nav uses New review. */
+/** Quick actions and hero CTAs share the creation label with left nav. */
 export function resolveQuickActionNavLinkPresentation(
   link: NavLinkPresentationSource,
 ): NavLinkPresentationSource {
@@ -81,7 +99,7 @@ export function resolveQuickActionNavLinkPresentation(
     return applyBuyerNavVocabulary({
       href: link.href,
       label: OPERATOR_START_REVIEW_QUICK_ACTION_LABEL,
-      title: "Start review — Quick review, Guided intake, or full wizard (Alt+N)",
+      title: NEW_REVIEW_NAV_TOOLTIP,
     });
   }
 

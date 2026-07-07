@@ -44,6 +44,7 @@ function assertNotRedirectStub(entry: ProductDocumentationEntry): void {
 
 describe("product-documentation-registry", () => {
   it("maps canonical slugs to in-app routes", () => {
+    expect(inAppHelpHref("review-guide")).toBe("/help/review-guide");
     expect(inAppHelpHref("pilot-guide")).toBe("/help/pilot-guide");
     expect(getProductDocumentationEntry("troubleshooting")?.title).toBe("Troubleshooting");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");

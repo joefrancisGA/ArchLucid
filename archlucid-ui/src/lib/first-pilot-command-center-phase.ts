@@ -1,4 +1,5 @@
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 
 
 
@@ -128,7 +129,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
       headline: "Evidence needed",
 
       summary:
-        "Add architecture evidence — brief, documents, diagrams, IaC, or an Azure export — or acknowledge the sample package before starting the first architecture review.",
+        "Add architecture evidence — brief, documents, diagrams, IaC, or a cloud inventory ZIP (AWS, Azure, or GCP) — or acknowledge the sample package before starting the first architecture review.",
 
       href: "/settings/extract-upload",
 
@@ -158,7 +159,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
       href: canExecute ? "/reviews/new" : "/help",
 
-      cta: canExecute ? "New review" : "Review permissions",
+      cta: canExecute ? CREATE_ARCHITECTURE_LABEL : "Review permissions",
 
       sponsorDisposition: "readiness-only",
 

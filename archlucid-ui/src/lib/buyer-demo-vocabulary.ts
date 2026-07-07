@@ -1,4 +1,4 @@
-import { isCtoDemoVocabularyPassEnv } from "@/lib/cto-demo-presenter-pack";
+import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 
 const WHOLE_WORD_REPLACEMENTS: readonly { readonly pattern: RegExp; readonly replacement: string }[] = [
   { pattern: /\bruns\b/gi, replacement: "reviews" },
@@ -10,8 +10,8 @@ const WHOLE_WORD_REPLACEMENTS: readonly { readonly pattern: RegExp; readonly rep
   { pattern: /\bcommitted\b/gi, replacement: "finalized" },
 ];
 
-/** Maps engineering terms to buyer demo vocabulary when the vocabulary pass is active (#6). */
-export function applyBuyerDemoVocabulary(text: string, active: boolean = isCtoDemoVocabularyPassEnv()): string {
+/** Maps engineering terms to buyer vocabulary when the vocabulary pass is active (#6 / TB-645). */
+export function applyBuyerDemoVocabulary(text: string, active: boolean = isBuyerVocabularyPassActive()): string {
   if (!active || text.trim().length === 0) {
     return text;
   }

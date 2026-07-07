@@ -1,0 +1,25 @@
+{
+  "requestId": "REF-TPL-MULTI-REGION-DR-001",
+  "systemName": "ActivePassiveMultiRegion",
+  "description": "Active-passive multi-region Azure deployment with primary region serving production traffic, secondary region warm standby, geo-replicated SQL and storage, Front Door health-probe failover, and runbook-driven DNS or traffic manager cutover within a four-hour RTO.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "RPO under 15 minutes for transactional data",
+    "RTO under 4 hours for full regional failover",
+    "No cross-region public data-plane exposure",
+    "Failover drills quarterly with evidence capture"
+  ],
+  "requiredCapabilities": [
+    "Azure Front Door or Traffic Manager",
+    "Azure SQL geo-replication or Cosmos DB multi-region writes",
+    "Azure Site Recovery or paired-region App Service slots",
+    "Azure Key Vault with regional redundancy",
+    "Azure Monitor alert routing to on-call"
+  ],
+  "assumptions": [
+    "Secondary region sized for 70% of peak load during failover",
+    "Configuration and secrets replicated via IaC pipeline, not manual edits"
+  ],
+  "priorManifestVersion": null
+}

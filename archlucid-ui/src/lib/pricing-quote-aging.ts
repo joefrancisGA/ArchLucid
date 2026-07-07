@@ -6,6 +6,9 @@ export type PricingQuoteAgingRow = {
   workEmail: string;
   companyName: string;
   tierInterest: string;
+  status: string;
+  firstResponseUtc: string | null;
+  assignedOwner: string | null;
 };
 
 export type PricingQuoteAgingDashboard = {
@@ -57,6 +60,9 @@ export async function fetchPricingQuoteAgingDashboard(): Promise<PricingQuoteAgi
       workEmail?: string;
       companyName?: string;
       tierInterest?: string;
+      status?: string;
+      firstResponseUtc?: string | null;
+      assignedOwner?: string | null;
     }>;
     warnCount?: number;
     breachCount?: number;
@@ -70,6 +76,9 @@ export async function fetchPricingQuoteAgingDashboard(): Promise<PricingQuoteAgi
     workEmail: row.workEmail ?? "",
     companyName: row.companyName ?? "",
     tierInterest: row.tierInterest ?? "",
+    status: row.status ?? "",
+    firstResponseUtc: row.firstResponseUtc ?? null,
+    assignedOwner: row.assignedOwner ?? null,
   }));
 
   return {

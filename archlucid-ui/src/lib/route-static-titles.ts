@@ -1,5 +1,7 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
@@ -8,12 +10,12 @@ import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integ
 export const ROUTE_TITLES: Record<string, string> = {
   "/": OPERATOR_NAV_LINK_LABELS.home,
   "/reviews": RUNS_LIST_PAGE_TITLES.buyerPolished,
-  "/reviews/new": "New review",
+  "/reviews/new": CREATE_ARCHITECTURE_LABEL,
   "/alerts": "Alerts",
   "/alert-rules": "Alert rules",
   "/compare": "Compare",
   "/graph": "Graph",
-  "/governance": OPERATOR_NAV_LINK_LABELS.governanceWorkflow,
+  "/governance": GOVERNANCE_OVERVIEW_PAGE_TITLE,
   "/governance/dashboard": "Executive Workspace Health",
   "/governance/findings": "Architecture risk register",
   "/governance/decision-register": "Decision register",

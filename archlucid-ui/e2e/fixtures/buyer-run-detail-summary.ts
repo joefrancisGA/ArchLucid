@@ -19,6 +19,7 @@ export function toMockBuyerRunDetailSummary(full: RunDetail): RunDetail {
     run: {
       runId: run.runId,
       projectId: run.projectId,
+      scopeProjectId: run.scopeProjectId,
       description: run.description,
       displayName: run.displayName ?? run.description,
       createdUtc: run.createdUtc,

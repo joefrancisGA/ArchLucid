@@ -6,12 +6,40 @@ import Link from "next/link";
 import { FinishSetupWizardPanel } from "@/components/FinishSetupWizardPanel";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { Button } from "@/components/ui/button";
+import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
+import {
+  ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
+  ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
+} from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY = "archlucid_onboarding_disclosure_optional_setup_v1";
 
 /** Collapsed-by-default ROI and workspace setup — not required for the first review package. */
 export function OnboardingOptionalSetupSection() {
+  const { phase, context } = useFinishSetupReadinessContext();
+
+  if (phase === "loading") {
+    return null;
+  }
+
+  if (context !== null && !context.principalAdmin) {
+    return (
+      <section
+        aria-labelledby="onboarding-optional-setup-delegation-heading"
+        className="rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800"
+        data-testid="onboarding-optional-setup-delegation"
+      >
+        <h2 id="onboarding-optional-setup-delegation-heading" className={`m-0 ${OPERATOR_TYPOGRAPHY.cardTitle}`}>
+          Optional setup
+        </h2>
+        <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
+          {ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION}
+        </p>
+      </section>
+    );
+  }
+
   return (
     <OperatorHomeDisclosureSection
       title="Optional setup"
@@ -19,7 +47,7 @@ export function OnboardingOptionalSetupSection() {
       sectionTestId="onboarding-optional-setup"
       storageKey={ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY}
       defaultExpanded={false}
-      collapsedSummary="Configure integrations, identity, and ROI baseline when you are ready."
+      collapsedSummary={ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY}
     >
       <div className="space-y-6">
         <section aria-labelledby="onboarding-roi-baseline-setup-heading" data-testid="onboarding-roi-baseline-setup">

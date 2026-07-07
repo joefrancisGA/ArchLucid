@@ -4,7 +4,7 @@ import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCente
 export function BuyerPolishedHomeHeroSection(): React.JSX.Element {
   return (
     <section
-      aria-label="Your first architecture review"
+      aria-label="Overview command center"
       data-testid="operator-home-hero-section"
     >
       <PilotCommandCenterCard />

@@ -1,8 +1,6 @@
 import { CORE_PILOT_STEP_COUNT } from "@/lib/core-pilot-steps";
 import {
-  corePilotStepDoneStorageKey,
-  getCorePilotChecklistStorageSnapshot,
-  subscribeCorePilotChecklist,
+  writeCorePilotOptionalStepSkipped,
 } from "@/lib/core-pilot-checklist-storage";
 
 export const CORE_PILOT_PROGRESS_CHANGED_EVENT = "archlucid-core-pilot-progress-changed";
@@ -44,20 +42,11 @@ export function parseCorePilotProgressFromSnapshot(snapshot: string): CorePilotP
 }
 
 export function readCorePilotProgressSnapshot(): CorePilotProgressSnapshot {
-  return parseCorePilotProgressFromSnapshot(getCorePilotChecklistStorageSnapshot());
+  return parseCorePilotProgressFromSnapshot("");
 }
 
 export function markCorePilotStepSkipped(index: number): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  try {
-    window.localStorage.setItem(corePilotStepDoneStorageKey(index), "0");
-    window.dispatchEvent(new Event(CORE_PILOT_PROGRESS_CHANGED_EVENT));
-  } catch {
-    /* private mode */
-  }
+  writeCorePilotOptionalStepSkipped(index, true);
 }
 
-export { subscribeCorePilotChecklist };
+export { subscribeCorePilotChecklist } from "@/lib/core-pilot-checklist-storage";

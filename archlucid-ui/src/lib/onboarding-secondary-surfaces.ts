@@ -26,18 +26,18 @@ export {
   type OperatorOnboardingTourStepCopy,
 };
 
-/** Canonical opt-in tour step — evidence-first with Azure as optional accelerator (TB-342). */
+/** Canonical opt-in tour step — evidence-first with optional cloud inventory ZIP (TB-342). */
 export const OPT_IN_TOUR_EVIDENCE_STEP = {
   title: "2. Provide architecture evidence",
   body:
-    "Add a brief, documents, diagrams, or IaC in the new-review wizard — or upload an Azure export from Settings → Extract & upload when you want production-faithful subscription inventory. Explore a sample review anytime without providing your own evidence.",
+    "Add a brief, documents, diagrams, or IaC in the new-review wizard — or upload a cloud inventory ZIP (AWS, Azure, or GCP) from Settings → Extract & upload when you want production-faithful account inventory. Explore a sample review anytime without providing your own evidence.",
 } as const;
 
-/** Operator welcome modal step — no Azure prerequisite (TB-342). */
+/** Operator welcome modal step — no cloud prerequisite (TB-342). */
 export const WELCOME_OPERATOR_EVIDENCE_STEP = {
   title: "Provide architecture evidence",
   description:
-    `Start with a brief, documents, or an optional Azure export — cloud connectors are accelerators, not prerequisites. ${ARCHITECTURE_REVIEW_VOCABULARY.runIdBridgeSentence} The new review wizard keeps you on the path to a finalized package.`,
+    `Start with a brief, documents, or an optional cloud inventory ZIP — cloud connectors are accelerators, not prerequisites. ${ARCHITECTURE_REVIEW_VOCABULARY.runIdBridgeSentence} The new review wizard keeps you on the path to a finalized package.`,
 } as const;
 
 /** First-visit help banner on operator home (TB-342). */
@@ -83,6 +83,8 @@ export const ONBOARDING_SECONDARY_BANNED_PHRASES: readonly string[] = [
   "upload azure architecture context",
   "connect azure before",
   "must connect azure",
+  "optional azure export",
+  "upload an azure export",
 ] as const;
 
 export function listOnboardingSecondarySurfaceViolations(surfaces: Readonly<Record<string, string>>): string[] {

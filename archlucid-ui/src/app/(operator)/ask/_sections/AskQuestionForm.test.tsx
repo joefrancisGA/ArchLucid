@@ -22,8 +22,8 @@ describe("AskQuestionForm", () => {
     );
 
     expect(screen.getByTestId("ask-select-review-helper")).toHaveTextContent("Select a review package first.");
-    expect(screen.getByTestId("ask-prompts-sample-callout")).toHaveTextContent("sample workspace");
-    expect(screen.getByRole("link", { name: "sample workspace" })).toHaveAttribute(
+    expect(screen.getByTestId("ask-prompts-sample-callout")).toHaveTextContent("sample evidence graph");
+    expect(screen.getByRole("link", { name: "sample evidence graph" })).toHaveAttribute(
       "href",
       `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
     );

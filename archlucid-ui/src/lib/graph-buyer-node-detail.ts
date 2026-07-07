@@ -61,6 +61,30 @@ export function graphBuyerTrailDispositionLine(
   return null;
 }
 
+/** Buyer trail panel heading tied to the selected graph node. */
+export function graphBuyerTrailPanelTitle(node: GraphNodeVm): string {
+  const recordType = graphBuyerTrailRecordTypeLine(node);
+  const label = node.label.trim().length > 0 ? node.label.trim() : recordType.primary;
+
+  if (node.type === "Finding") {
+    return `Selected finding: ${label}`;
+  }
+
+  if (node.type === "Decision") {
+    return `Selected decision: ${label}`;
+  }
+
+  if (node.type === "GoldenManifest") {
+    return `Selected review package: ${label}`;
+  }
+
+  if (node.type === "Artifact") {
+    return `Selected evidence: ${label}`;
+  }
+
+  return `Selected ${recordType.primary.toLowerCase()}: ${label}`;
+}
+
 /** Buyer trail panel: human record type line (Finding vs risk finding vs other node types). */
 export function graphBuyerTrailRecordTypeLine(node: GraphNodeVm): {
   readonly primary: string;

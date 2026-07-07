@@ -45,7 +45,9 @@ import {
   pathMatchesGovernancePolicyPacks,
 } from "@/lib/governance-route-paths";
 import {
+  OPERATOR_SHELL_BODY_ROW_CLASS,
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
+  OPERATOR_SHELL_SIDEBAR_PADDING_CLASS,
   OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -259,19 +261,27 @@ function AppShellInner({ children }: AppShellClientProps) {
     (pathname.startsWith("/reviews/") && pathname.split("/").filter(Boolean).length >= 2) ||
     (pathname.startsWith("/executive/reviews/") && pathname.split("/").filter(Boolean).length >= 3);
 
-  /** Auth flow pages (sign-in, callback) render without nav/workspace chrome to avoid confusion. */
+  /** Auth and access-denied pages render without nav/workspace chrome to avoid confusion. */
   const isAuthRoute = pathname.startsWith("/auth/");
+  const isAccessDeniedRoute = pathname === "/403";
+  const isStandaloneAccessSurface = isAuthRoute || isAccessDeniedRoute;
 
   /** `useLayoutEffect`: runs before paint so Playwright sees the marker as soon as the shell DOM commits. */
   useLayoutEffect(() => {
     shellRootRef.current?.setAttribute("data-app-ready", "true");
   }, []);
 
-  if (isAuthRoute) {
+  if (isStandaloneAccessSurface) {
+    const surfaceChildren = isAccessDeniedRoute ? (
+      <OperatorShellProviders>{children}</OperatorShellProviders>
+    ) : (
+      children
+    );
+
     return (
       <div
         ref={shellRootRef}
-        className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 dark:bg-neutral-950"
+        className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 py-10 dark:bg-neutral-950 sm:py-16"
       >
         <div className="mb-8">
           <ArchLucidWordmarkLink
@@ -281,8 +291,8 @@ function AppShellInner({ children }: AppShellClientProps) {
             logoVariant="full"
           />
         </div>
-        <div className="w-full max-w-md">
-          {children}
+        <div className="w-full max-w-[560px]">
+          {surfaceChildren}
         </div>
         <AppToaster />
         <RouteAnnouncer />
@@ -405,18 +415,19 @@ function AppShellInner({ children }: AppShellClientProps) {
             <OperatorShellTopBar onOpenHelpSearch={openHelpSearch} />
             <CtoDemoJourneyCaptionBar />
           </div>
-          <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-1")}>
+          <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_BODY_ROW_CLASS)}>
             <nav
               data-testid="sidebar-nav"
               aria-label="Primary navigation"
               className={cn(
-                "hidden shrink-0 overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 px-2 py-4 print:!hidden dark:border-neutral-800 dark:bg-neutral-950/80 lg:block",
+                "hidden shrink-0 self-stretch overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 print:!hidden dark:border-neutral-800 dark:bg-neutral-950/80 lg:block lg:max-h-full",
+                OPERATOR_SHELL_SIDEBAR_PADDING_CLASS,
                 OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS,
               )}
             >
               <SidebarNav />
             </nav>
-            <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
+            <div data-testid="app-shell-main" className="min-h-0 min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
               <AppShellStatusBanners variant="full" />
               <KeyboardShortcutProvider onHelpRequested={openHelpSearch}>
                 <main
@@ -442,7 +453,6 @@ function AppShellInner({ children }: AppShellClientProps) {
             >
               <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-col items-end gap-1 px-4 lg:px-6")}>
                 <TrustCenterShellLink variant="footer" />
-                <DeploymentBuildFingerprintStrip className="text-right" />
               </div>
             </footer>
           ) : !isNextPublicDemoMode() && !hideWorkspaceHealthFooter ? (

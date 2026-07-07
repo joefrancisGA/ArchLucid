@@ -3,23 +3,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  buyerPolishedShellVitestOverride,
-  extendBuyerPolishedShellVitestMock,
-} from "@/testing/buyer-polished-shell-vitest-override";
-
-vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
-  return {
-    ...actual,
+vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
   usePathname: () => "",
   useSearchParams: () => new URLSearchParams(),
-  redirect: vi.fn(),
-    permanentRedirect: vi.fn(),
-    notFound: vi.fn(),
-  };
-});
+}));
 
 vi.mock("@/lib/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api")>();
@@ -31,9 +19,16 @@ vi.mock("@/lib/api", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
-  extendBuyerPolishedShellVitestMock(importOriginal),
-);
+const runsDashBuyerPolishedForced = vi.hoisted(() => ({ on: false as boolean }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => runsDashBuyerPolishedForced.on,
+  };
+});
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import { OPERATOR_HOME_WORKSPACE_EMPTY_BODY } from "@/lib/buyer-polish-copy";
@@ -83,12 +78,10 @@ function stubFetchForDashboard() {
 
 describe("RunsDashboardPanel", () => {
   beforeEach(() => {
-    buyerPolishedShellVitestOverride.value = false;
     vi.clearAllMocks();
   });
 
   afterEach(() => {
-    buyerPolishedShellVitestOverride.value = null;
     globalThis.fetch = originalFetch;
   });
 
@@ -234,7 +227,7 @@ describe("RunsDashboardPanel", () => {
     fireEvent.click(screen.getByRole("tab", { name: /needs attention/i }));
 
     expect(
-      await screen.findByLabelText(/Architecture review pipeline status: Ready to finalize/i),
+      await screen.findByLabelText(/Review status: Needs attention/i),
     ).toBeInTheDocument();
   });
 
@@ -299,7 +292,7 @@ describe("RunsDashboardPanel", () => {
   });
 
   it("buyer-polished recent tab features sample review, omits showcase banner, and hides full list when only sample run", async () => {
-    buyerPolishedShellVitestOverride.value = true;
+    runsDashBuyerPolishedForced.on = true;
 
     try {
       const run: RunSummary = {
@@ -334,14 +327,15 @@ describe("RunsDashboardPanel", () => {
       );
       expect(screen.queryByRole("link", { name: "Signed manifest summary" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
-      expect(screen.queryByRole("link", { name: "Open full reviews list" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Open all reviews" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "All" })).toBeNull();
     } finally {
-      buyerPolishedShellVitestOverride.value = false;
+      runsDashBuyerPolishedForced.on = false;
     }
   });
 
   it("uses buyer-polished tab labels with stable test ids (TB-352)", async () => {
-    buyerPolishedShellVitestOverride.value = true;
+    runsDashBuyerPolishedForced.on = true;
 
     listRuns.mockResolvedValue({
       items: [],
@@ -355,6 +349,10 @@ describe("RunsDashboardPanel", () => {
     renderRunsDashboardPanel();
 
     await waitFor(() => {
+      expect(screen.getByRole("link", { name: "All" })).toHaveAttribute(
+        "data-testid",
+        "runs-dashboard-filter-all",
+      );
       expect(screen.getByRole("tab", { name: "Approved" })).toHaveAttribute(
         "data-testid",
         "runs-dashboard-tab-recent",
@@ -367,11 +365,15 @@ describe("RunsDashboardPanel", () => {
         "data-testid",
         "runs-dashboard-tab-outcomes",
       );
+      expect(screen.queryByTestId("runs-dashboard-show-archived")).toBeNull();
+      expect(screen.queryByTestId("runs-dashboard-open-all-reviews")).toBeNull();
     });
+    expect(screen.queryByTestId("runs-dashboard-filters")).toBeNull();
+    expect(screen.queryByTestId("runs-dashboard-governance-warnings-only")).toBeNull();
   });
 
   it("buyer-polished empty state shows workspace empty copy without duplicate onboarding CTAs", async () => {
-    buyerPolishedShellVitestOverride.value = true;
+    runsDashBuyerPolishedForced.on = true;
 
     const fallbackSpy = vi.spyOn(operatorStaticDemo, "tryStaticDemoRunSummariesPaged").mockReturnValue(null);
 
@@ -396,7 +398,161 @@ describe("RunsDashboardPanel", () => {
       expect(screen.queryByTestId("example-request-panel")).toBeNull();
     } finally {
       fallbackSpy.mockRestore();
-      buyerPolishedShellVitestOverride.value = false;
+      runsDashBuyerPolishedForced.on = false;
     }
+  });
+
+  it("buyer-polished archived filter is disabled with zero count when archive field is supported", async () => {
+    runsDashBuyerPolishedForced.on = true;
+
+    const run: RunSummary = {
+      runId: "33333333-3333-3333-3333-333333333333",
+      projectId: "default",
+      description: "Active review",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      isArchived: false,
+    };
+    listRuns.mockResolvedValue({
+      items: [run],
+      totalCount: 1,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    renderRunsDashboardPanel();
+
+    const archivedFilter = await screen.findByTestId("runs-dashboard-show-archived");
+    expect(archivedFilter).toHaveTextContent("Archived 0");
+    expect(archivedFilter).toBeDisabled();
+    expect(screen.queryByTestId("runs-dashboard-archived-unsupported")).toBeNull();
+    expect(screen.queryByText(/contact your administrator/i)).toBeNull();
+
+    runsDashBuyerPolishedForced.on = false;
+  });
+
+  it("buyer-polished archived filter lists archived reviews when count is greater than zero", async () => {
+    runsDashBuyerPolishedForced.on = true;
+
+    const activeRun: RunSummary = {
+      runId: "44444444-4444-4444-4444-444444444444",
+      projectId: "default",
+      description: "Active review",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      isArchived: false,
+    };
+    const archivedRun: RunSummary = {
+      runId: "55555555-5555-5555-5555-555555555555",
+      projectId: "default",
+      description: "Archived review",
+      createdUtc: "2026-01-10T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      isArchived: true,
+      requestId: "req-archived-1",
+    };
+    listRuns.mockResolvedValue({
+      items: [activeRun, archivedRun],
+      totalCount: 2,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    renderRunsDashboardPanel();
+
+    const archivedFilter = await screen.findByTestId("runs-dashboard-show-archived");
+    expect(archivedFilter).toHaveTextContent("Archived 1");
+    expect(archivedFilter).not.toBeDisabled();
+
+    fireEvent.click(archivedFilter);
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Archived review" })).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("link", { name: "Active review" })).toBeNull();
+    expect(screen.queryByTestId("operator-home-workspace-archived-empty-state")).toBeNull();
+    expect(screen.queryByText(/contact your administrator/i)).toBeNull();
+
+    runsDashBuyerPolishedForced.on = false;
+  });
+
+  it("operator shell exposes tablist with tabpanels and keyboard navigation (TB-667)", async () => {
+    listRuns.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    renderRunsDashboardPanel();
+
+    await waitFor(() => {
+      expect(screen.getByRole("tablist", { name: "Review views" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("tab", { name: /recent/i })).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByRole("link", { name: /open all reviews/i })).not.toBeNull();
+    expect(screen.getByTestId("runs-dashboard-status-filters").querySelector("a")).toBeNull();
+
+    const recentTab = screen.getByRole("tab", { name: /recent/i });
+    recentTab.focus();
+    fireEvent.keyDown(screen.getByRole("tablist", { name: "Review views" }), { key: "ArrowRight" });
+
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: /needs attention/i })).toHaveAttribute("aria-selected", "true");
+    });
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("data-testid", "runs-dashboard-panel-attention");
+  });
+
+  it("shows archived empty state when archived filter is active with no matching reviews", async () => {
+    const activeRun: RunSummary = {
+      runId: "66666666-6666-6666-6666-666666666666",
+      projectId: "default",
+      description: "Active review",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      isArchived: false,
+    };
+    const archivedRun: RunSummary = {
+      runId: "77777777-7777-7777-7777-777777777777",
+      projectId: "default",
+      description: "Archived review",
+      createdUtc: "2026-01-10T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      isArchived: true,
+    };
+    listRuns.mockResolvedValue({
+      items: [activeRun, archivedRun],
+      totalCount: 2,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    renderRunsDashboardPanel();
+
+    await screen.findByRole("link", { name: "Active review" });
+
+    fireEvent.click(screen.getByTestId("runs-dashboard-show-archived"));
+    fireEvent.click(screen.getByTestId("runs-dashboard-governance-warnings-only"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-home-workspace-archived-empty-state")).toBeInTheDocument();
+    });
+    expect(screen.getByText("No archived reviews yet.")).toBeInTheDocument();
+    expect(screen.getByText("Archived review packages will appear here.")).toBeInTheDocument();
+    expect(screen.queryByTestId("runs-dashboard-archived-unsupported")).toBeNull();
   });
 });

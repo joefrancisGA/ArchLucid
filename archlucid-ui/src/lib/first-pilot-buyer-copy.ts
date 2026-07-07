@@ -5,7 +5,7 @@ export const FIRST_PILOT_BUYER_COPY = {
   proofPipelineAction: "Generate the proof package for sign-off review",
   governanceDryRun: "preview governance checks against the policy pack",
   ingestEvidenceWithoutUpload:
-    "Add a brief, documents, diagrams, or IaC — or upload an Azure export for production-faithful evidence. Open the example package to preview outputs before your own upload.",
+    "Add a brief, documents, diagrams, or IaC — or upload a cloud inventory ZIP (AWS, Azure, or GCP) for production-faithful evidence. Open the example package to preview outputs before your own upload.",
 } as const;
 
 /** Returns true when buyer-facing copy leads with architecture-review language. */

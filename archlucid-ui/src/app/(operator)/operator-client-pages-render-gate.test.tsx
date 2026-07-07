@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
-import { BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
 import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";
 import { AlertTuningContent } from "@/components/alerts/AlertTuningContent";
@@ -290,13 +289,13 @@ describe("operator client pages — render gate", () => {
 
   it("AskPage renders primary heading without heading-level contextual help", () => {
     render(<AskPage />);
-    expect(screen.getByRole("heading", { level: 2, name: BUYER_ASK_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Evidence-backed review questions" })).toBeInTheDocument();
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
   });
 
   it("OnboardingPage renders primary heading", async () => {
     const page = await OnboardingPage({ searchParams: Promise.resolve({}) });
     render(page);
-    expect(screen.getByRole("heading", { level: 1, name: "Getting started" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "First review guide" })).toBeInTheDocument();
   });
 });

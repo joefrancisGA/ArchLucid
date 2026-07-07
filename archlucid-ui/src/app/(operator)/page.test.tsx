@@ -168,24 +168,25 @@ describe("HomePage — buyer-polished shell", () => {
     vi.unstubAllEnvs();
   });
 
-  it("keeps the home launchpad focused on hero, merged sample tour card, reviews, and collapsed setup section", async () => {
+  it("keeps the home launchpad focused on dual-path hero, workspace activity, explore sample, and collapsed setup section", async () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
     mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(defaultRunsDashboard(true));
 
     await renderHomePage();
 
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("no setup");
+    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
     expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
     expect(screen.queryByText("What you'll get")).toBeNull();
     expect(screen.queryByTestId("operator-home-example-request-panel")).toBeNull();
-    expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-sample-review-preview")).toBeNull();
+    expect(screen.getByTestId("operator-home-explore-sample-section")).toBeInTheDocument();
+
     const workspaceActivityHeading = screen.getByRole("heading", { name: "Workspace activity" });
     expect(workspaceActivityHeading).toBeInTheDocument();
 
-    const sampleReviewPreview = screen.getByTestId("operator-home-sample-review-preview");
-    expect(screen.getByTestId("pilot-command-center-card").compareDocumentPosition(sampleReviewPreview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(sampleReviewPreview.compareDocumentPosition(workspaceActivityHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const exploreSample = screen.getByTestId("operator-home-explore-sample-section");
+    expect(workspaceActivityHeading.compareDocumentPosition(exploreSample) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     });
@@ -196,7 +197,7 @@ describe("HomePage — buyer-polished shell", () => {
     expect(screen.queryByText(/AI co-architect/i)).toBeNull();
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Open full reviews list" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "All" })).toBeInTheDocument();
     });
   });
 });
@@ -204,25 +205,30 @@ describe("HomePage — buyer-polished shell", () => {
 describe("HomePage (55R smoke — landing)", () => {
   useOperatorQueryTestLifecycle();
 
-  it("renders compact hero, merged sample tour card, reviews panel, and collapsed setup section", async () => {
+  it("renders dual-path hero, workspace activity, consolidated explore sample section, and collapsed setup section", async () => {
     await renderHomePage();
 
     expect(screen.getByRole("heading", { name: "Workspace activity" })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-example-request-panel")).toBeNull();
-    expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-next-best-action")).toHaveAttribute(
+    expect(screen.queryByTestId("operator-home-sample-review-preview")).toBeNull();
+    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-command-center-open-completed-sample")).toHaveAttribute(
       "href",
       showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
     );
+    expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
-    expect(screen.getByTestId("operator-home-sample-review-run")).toHaveAttribute(
+    expect(screen.getByTestId("operator-home-explore-run-sample-review")).toHaveAttribute(
       "href",
       "/reviews/new?template=claims-intake-modernization",
     );
-    expect(screen.queryByTestId("operator-home-sample-review-open")).toBeNull();
     expect(screen.getByRole("link", { name: "Run sample review" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open completed sample" })).toHaveAttribute(
+    expect(screen.getByTestId("pilot-command-center-open-completed-sample")).toHaveAttribute(
+      "href",
+      "/reviews/claims-intake-modernization",
+    );
+    expect(screen.getByTestId("operator-home-explore-open-completed-sample")).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
     );
@@ -234,14 +240,11 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
   });
 
-  it("exposes create-first-request CTA from sample tour card", async () => {
+  it("exposes create and review CTAs from the dual-path hero", async () => {
     await renderHomePage();
 
-    const runsLinks = screen
-      .getAllByRole("link")
-      .filter((el) => el.getAttribute("href") === "/reviews?projectId=default");
-    expect(runsLinks.length).toBeGreaterThan(0);
-
+    expect(screen.getByRole("link", { name: "Create architecture" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: "Run sample review" })).toBeInTheDocument();
   });
 
@@ -249,7 +252,7 @@ describe("HomePage (55R smoke — landing)", () => {
     await renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Open full reviews list" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Open all reviews" })).toHaveAttribute(
         "href",
         "/reviews?projectId=default",
       );

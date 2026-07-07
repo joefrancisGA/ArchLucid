@@ -1,91 +1,38 @@
 "use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import Link from "next/link";
 import { useEffect, useState, type ReactElement } from "react";
 
+import {
+  ConnectorReadinessCard,
+  IntegrationReadinessSummaryStrip,
+  IntegrationRecommendedNextStepsStrip,
+} from "@/components/integrations/IntegrationReadinessSections";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { Badge } from "@/components/ui/badge";
 import { fetchTenantIntegrationsOperations } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
   CONNECTOR_PURPOSE_GROUPS,
   connectorCardTitle,
-  formatConnectorStatusLabel,
   formatIntegrationEventBusTechnicalDetails,
   groupConnectorsByPurpose,
-  humanStatusBadgeClass,
+  resolveConnectorBestFor,
+  resolveConnectorDisplayStatus,
   resolveConnectorGuidance,
   resolveConnectorHumanStatus,
+  resolveIntegrationEventBusDisplayStatus,
   resolveIntegrationEventBusGuidance,
   resolveIntegrationEventBusHumanStatus,
 } from "@/lib/connector-operations-present";
-import type { ConnectorSurfaceStatusDto, TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
-
-function ConnectorReadinessCard(props: { readonly connector: ConnectorSurfaceStatusDto }): ReactElement {
-  const { connector } = props;
-  const humanStatus = resolveConnectorHumanStatus(connector);
-  const statusLabel = formatConnectorStatusLabel(connector, humanStatus);
-  const guidance = resolveConnectorGuidance(connector, humanStatus);
-
-  return (
-    <li
-      className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
-      data-testid={`connector-card-${connector.connectorKey}`}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <strong className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{connectorCardTitle(connector)}</strong>
-        <Badge variant="outline" className={cn(OPERATOR_TYPOGRAPHY.helper, humanStatusBadgeClass(humanStatus))}>
-          {statusLabel}
-        </Badge>
-      </div>
-      <p className={cn("mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{guidance}</p>
-      {connector.configurationHref ? (
-        <Link
-          className={cn("mt-2 inline-block font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
-          href={connector.configurationHref}
-        >
-          Open configuration
-        </Link>
-      ) : null}
-      <details className={cn("mt-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.helper)}>
-        <summary className="cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200">
-          Technical details
-        </summary>
-        <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">{connector.summary}</p>
-      </details>
-    </li>
-  );
-}
-
-function IntegrationEventBusCard(props: { readonly bus: TenantIntegrationsOperationsDto["integrationEventBus"] }): ReactElement {
-  const { bus } = props;
-  const humanStatus = resolveIntegrationEventBusHumanStatus(bus);
-  const guidance = resolveIntegrationEventBusGuidance(bus, humanStatus);
-
-  return (
-    <li
-      className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
-      data-testid="connector-card-integration-event-bus"
-    >
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <strong className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Integration event bus</strong>
-        <Badge variant="outline" className={cn(OPERATOR_TYPOGRAPHY.helper, humanStatusBadgeClass(humanStatus))}>
-          {humanStatus}
-        </Badge>
-      </div>
-      <p className={cn("mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{guidance}</p>
-      <details className={cn("mt-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.helper)}>
-        <summary className="cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200">
-          Technical details
-        </summary>
-        <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">{formatIntegrationEventBusTechnicalDetails(bus)}</p>
-      </details>
-    </li>
-  );
-}
+import {
+  buildIntegrationReadinessSummaryTiles,
+  buildIntegrationRecommendedNextSteps,
+  resolveIntegrationReadinessHeadline,
+} from "@/lib/connector-readiness-summary";
+import type { TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
 
 export function ConnectorOperationsDashboard(): ReactElement {
   const [data, setData] = useState<TenantIntegrationsOperationsDto | null>(null);
@@ -141,13 +88,16 @@ export function ConnectorOperationsDashboard(): ReactElement {
   }
 
   const groupedConnectors = groupConnectorsByPurpose(data.connectors);
+  const summaryTiles = buildIntegrationReadinessSummaryTiles(data);
+  const headline = resolveIntegrationReadinessHeadline(data.connectors, data.integrationEventBus);
+  const nextSteps = buildIntegrationRecommendedNextSteps(data);
+  const eventBusHumanStatus = resolveIntegrationEventBusHumanStatus(data.integrationEventBus);
+  const eventBusDisplayStatus = resolveIntegrationEventBusDisplayStatus(data.integrationEventBus);
 
   return (
-    <div className="space-y-6">
-      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-        Check whether notification, ticketing, publishing, and messaging integrations are configured for this workspace.
-        These connectors are optional for first review value.
-      </p>
+    <div className="space-y-8">
+      <IntegrationReadinessSummaryStrip headline={headline} tiles={summaryTiles} />
+      <IntegrationRecommendedNextStepsStrip steps={nextSteps} />
 
       {CONNECTOR_PURPOSE_GROUPS.filter((group) => group.id !== "technical").map((group) => {
         const connectors = groupedConnectors.get(group.id) ?? [];
@@ -157,29 +107,50 @@ export function ConnectorOperationsDashboard(): ReactElement {
         }
 
         return (
-          <section key={group.id}>
-            <h2 className={cn("m-0 font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          <section key={group.id} data-testid={`integration-readiness-group-${group.id}`}>
+            <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {group.title}
             </h2>
             <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{group.description}</p>
-            <ul className="mt-4 grid list-none gap-3 p-0 sm:grid-cols-2">
-              {connectors.map((connector) => (
-                <ConnectorReadinessCard key={connector.connectorKey} connector={connector} />
-              ))}
+            <ul className="mt-4 grid list-none gap-4 p-0 md:grid-cols-2">
+              {connectors.map((connector) => {
+                const humanStatus = resolveConnectorHumanStatus(connector);
+
+                return (
+                  <ConnectorReadinessCard
+                    key={connector.connectorKey}
+                    title={connectorCardTitle(connector)}
+                    displayStatus={resolveConnectorDisplayStatus(connector)}
+                    guidance={resolveConnectorGuidance(connector, humanStatus)}
+                    bestFor={resolveConnectorBestFor(connector.connectorKey)}
+                    configurationHref={connector.configurationHref ?? null}
+                    technicalDetails={connector.summary}
+                    testId={`connector-card-${connector.connectorKey}`}
+                  />
+                );
+              })}
             </ul>
           </section>
         );
       })}
 
-      <section>
-        <h2 className={cn("m-0 font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          Technical readiness
+      <section data-testid="integration-readiness-group-technical">
+        <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Advanced delivery infrastructure
         </h2>
         <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Messaging infrastructure used by integration events. Expand technical details for publisher, consumer, and queue settings.
+          Background delivery for asynchronous integration events. Standard review workflows do not require this layer.
         </p>
-        <ul className="mt-4 grid list-none gap-3 p-0 sm:grid-cols-2">
-          <IntegrationEventBusCard bus={data.integrationEventBus} />
+        <ul className="mt-4 grid list-none gap-4 p-0 md:grid-cols-2">
+          <ConnectorReadinessCard
+            title="Integration event bus"
+            displayStatus={eventBusDisplayStatus}
+            guidance={resolveIntegrationEventBusGuidance(data.integrationEventBus, eventBusHumanStatus)}
+            bestFor="Use when integration events must be delivered asynchronously across services."
+            configurationHref={null}
+            technicalDetails={formatIntegrationEventBusTechnicalDetails(data.integrationEventBus)}
+            testId="connector-card-integration-event-bus"
+          />
         </ul>
       </section>
     </div>

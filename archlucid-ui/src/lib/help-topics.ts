@@ -45,7 +45,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "First review in 90 minutes",
     keywords: ["checklist", "first run", "pilot", "extractor", "audit", "roi"],
     summary:
-      "Guided path from demo or new request through finalize, Azure extractor ZIP upload, dashboard ROI, and run-scoped audit export.",
+      "Guided path from demo or new request through finalize, optional cloud inventory ZIP upload, dashboard ROI, and run-scoped audit export.",
     docPath: "docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md",
     routes: ["/", "/onboarding", "/reviews/new", "/dashboard"],
   },

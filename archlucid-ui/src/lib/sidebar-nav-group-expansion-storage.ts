@@ -6,9 +6,11 @@ export const SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY = "archlucid_nav_sidebar_gr
 export type SidebarCollapsibleNavGroupId =
   | "pilot"
   | "operate-analysis"
+  | "operate-architect-advanced"
   | "operate-governance"
   | "operate-reports"
   | "operate-integrations"
+  | "operate-platform-ops"
   | "operator-admin"
   | "operator-system-admin";
 
@@ -23,9 +25,11 @@ const LEGACY_COLLAPSED_PILOT_EXPANDED_KEY = "archlucid-nav-collapsed-pilot-expan
 export const SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION: SidebarNavGroupExpansionState = {
   pilot: true,
   "operate-analysis": false,
+  "operate-architect-advanced": false,
   "operate-governance": false,
   "operate-reports": false,
   "operate-integrations": false,
+  "operate-platform-ops": false,
   "operator-admin": false,
   "operator-system-admin": false,
 };
@@ -94,9 +98,11 @@ function migrateLegacySidebarExpansion(): SidebarNavGroupExpansionState {
   return {
     pilot: true,
     "operate-analysis": analysisExpanded,
+    "operate-architect-advanced": analysisExpanded,
     "operate-governance": governanceExpanded,
     "operate-reports": reportsExpanded,
     "operate-integrations": integrationsExpanded,
+    "operate-platform-ops": false,
     "operator-admin": showAdministration,
     "operator-system-admin": false,
   };
@@ -116,9 +122,12 @@ function parseStoredExpansion(raw: string): SidebarNavGroupExpansionState | null
     return {
       pilot: record.pilot !== false,
       "operate-analysis": record["operate-analysis"] === true,
+      "operate-architect-advanced":
+        record["operate-architect-advanced"] === true || record["operate-analysis"] === true,
       "operate-governance": record["operate-governance"] === true,
       "operate-reports": record["operate-reports"] === true || legacyOperationsExpanded,
       "operate-integrations": record["operate-integrations"] === true || legacyOperationsExpanded,
+      "operate-platform-ops": record["operate-platform-ops"] === true || legacyOperationsExpanded,
       "operator-admin": record["operator-admin"] === true,
       "operator-system-admin": record["operator-system-admin"] === true,
     };
@@ -174,9 +183,11 @@ export function isSidebarCollapsibleNavGroupId(groupId: string): groupId is Side
   return (
     groupId === "pilot" ||
     groupId === "operate-analysis" ||
+    groupId === "operate-architect-advanced" ||
     groupId === "operate-governance" ||
     groupId === "operate-reports" ||
     groupId === "operate-integrations" ||
+    groupId === "operate-platform-ops" ||
     groupId === "operator-admin" ||
     groupId === "operator-system-admin"
   );

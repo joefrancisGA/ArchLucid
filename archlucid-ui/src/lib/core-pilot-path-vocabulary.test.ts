@@ -31,7 +31,7 @@ describe("core-pilot-path-vocabulary", () => {
       operateUnlock: CORE_PILOT_PATH_STREAMLINED_LABELS.operateUnlockLead,
       operateStillHidden: CORE_PILOT_PATH_STREAMLINED_LABELS.operateUnlockStillHidden,
       firstIntake: CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeLead,
-      firstReviewBanner: CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBanner,
+      firstReviewBanner: `${CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBannerLabel} ${CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBannerBody}`,
       focusedPilotToggle: FOCUSED_PILOT_MODE_COPY.toggleDescription,
       focusedPilotCallout: `${FOCUSED_PILOT_MODE_COPY.appliedCalloutTitle} ${FOCUSED_PILOT_MODE_COPY.appliedCalloutBody}`,
       autoUnlockHint: CORE_PILOT_PATH_STREAMLINED_LABELS.operateAutoUnlockHint,
@@ -40,11 +40,17 @@ describe("core-pilot-path-vocabulary", () => {
     expect(listCorePilotPathCopyViolations(surfaces)).toEqual([]);
     expect(CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleLabel).toBe("Focused review scope");
     expect(CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeAdvancedNote.toLowerCase()).not.toContain("pilot");
-    expect(CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBanner.toLowerCase()).not.toContain("intake");
-    expect(CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBanner.toLowerCase()).not.toContain(
+    expect(
+      `${CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBannerLabel} ${CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBannerBody}`.toLowerCase(),
+    ).not.toContain("intake");
+    expect(
+      `${CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBannerLabel} ${CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBannerBody}`.toLowerCase(),
+    ).not.toContain(
       "evaluation standards",
     );
-    expect(CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBanner.toLowerCase()).not.toContain("pilot");
+    expect(
+      `${CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBannerLabel} ${CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBannerBody}`.toLowerCase(),
+    ).not.toContain("pilot");
     expect(CORE_PILOT_PATH_BANNED_PHRASES).toContain("governance");
     expect(CORE_PILOT_PATH_BANNED_PHRASES).toContain("policy pack");
   });

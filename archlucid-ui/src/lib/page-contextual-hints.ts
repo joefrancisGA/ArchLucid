@@ -10,27 +10,11 @@ export type PageContextualHint = {
 
 const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
   {
-    prefix: "/governance/findings",
-    hint: {
-      id: "governance-findings-queue",
-      message: "Start with open risks, expiring exceptions, or risks without owners — then open a row to inspect evidence and linked decisions.",
-      learnMoreHref: "/help/governance-approval",
-    },
-  },
-  {
     prefix: "/audit",
     hint: {
       id: "audit-trail",
       message: "Save named filter views for repeat investigations. Export CSV when you need an offline audit packet.",
       learnMoreHref: "/help/audit-trail",
-    },
-  },
-  {
-    prefix: "/policy-packs",
-    hint: {
-      id: "policy-packs",
-      message: "Start from a named template, then dry-run against a past review before publishing.",
-      learnMoreHref: "/help/governance-approval",
     },
   },
   {
@@ -55,14 +39,6 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
       id: "ask-review",
       message: "Ask plain-language questions scoped to the active review package.",
       learnMoreHref: "/help/review-packages",
-    },
-  },
-  {
-    prefix: "/dashboard",
-    hint: {
-      id: "executive-dashboard",
-      message: "Sponsor-safe ROI and risk posture for the active workspace.",
-      learnMoreHref: "/help/executive-summary",
     },
   },
 ];

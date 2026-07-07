@@ -13,6 +13,9 @@ describe("sortPricingQuoteAgingRows", () => {
         workEmail: "a@example.com",
         companyName: "A",
         tierInterest: "Team",
+        status: "Open",
+        firstResponseUtc: null,
+        assignedOwner: null,
       },
       {
         id: "2",
@@ -22,6 +25,9 @@ describe("sortPricingQuoteAgingRows", () => {
         workEmail: "b@example.com",
         companyName: "B",
         tierInterest: "Pro",
+        status: "Open",
+        firstResponseUtc: null,
+        assignedOwner: null,
       },
       {
         id: "3",
@@ -31,6 +37,9 @@ describe("sortPricingQuoteAgingRows", () => {
         workEmail: "c@example.com",
         companyName: "C",
         tierInterest: "Enterprise",
+        status: "Open",
+        firstResponseUtc: null,
+        assignedOwner: null,
       },
     ];
 

@@ -1,3 +1,4 @@
+import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
 import type { RunSummary } from "@/types/authority";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
@@ -58,19 +59,19 @@ export function inferNextPipelineStageName(summary: RunSummary | null): string |
 export function resolveCurrentPipelineStageLabel(
   timeline: readonly StageTimelineSummary[],
   summary: RunSummary | null,
-  buyerPolished: boolean,
+  buyerLabelsActive: boolean = isBuyerVocabularyPassActive(),
 ): string {
   const activeRow = resolveActivePipelineStageRow(timeline);
 
   if (activeRow !== null) {
-    return buyerPipelineStageName(activeRow.stageName, buyerPolished);
+    return buyerPipelineStageName(activeRow.stageName, buyerLabelsActive);
   }
 
   const inferredStageName = inferNextPipelineStageName(summary);
 
   if (inferredStageName !== null) {
-    return buyerPipelineStageName(inferredStageName, buyerPolished);
+    return buyerPipelineStageName(inferredStageName, buyerLabelsActive);
   }
 
-  return buyerPolished ? "Finalizing signed package" : "Review package finalization";
+  return buyerLabelsActive ? "Finalizing signed package" : "Review package finalization";
 }

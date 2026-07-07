@@ -4,8 +4,6 @@
 
 **Audience:** first-time operators, pilot engineers, or sponsors skimming before a guided session.
 
----
-
 ## Diagram (mental model)
 
 ```mermaid
@@ -35,8 +33,6 @@ flowchart LR
 
 **After commit:** optional **Operate** flows (compare, replay, audit, alerts) consume the same review session identifiers (**`runId`** / manifest ids in API and storage).
 
----
-
 ## Seven terms (plain language)
 
 | Term | One-line meaning |
@@ -49,8 +45,6 @@ flowchart LR
 | **Governance gate** | Configurable blocker on commit when severity counts breach declared thresholds (**[PRE_COMMIT_GOVERNANCE_GATE.md](../PRE_COMMIT_GOVERNANCE_GATE.md)**). |
 | **Compare / replay** | Diff two manifests or replay authority chain validations for drift—**Operate** tier tools after Pilot success (**[OPERATOR_DECISION_GUIDE.md](../OPERATOR_DECISION_GUIDE.md)**). |
 
----
-
 ## What happens when I start a review?
 
 1. **Context ingestion** — Description, hints, docs, IaC snippets normalize into **`ContextSnapshot`**.
@@ -58,8 +52,6 @@ flowchart LR
 3. **Findings** — Decisioning engines persist findings with traces.
 4. **Decisioning** — Merge and validate manifest proposals (**[ARCHITECTURE_COMPONENTS.md](../ARCHITECTURE_COMPONENTS.md)** → Decisioning).
 5. **Artifacts** — Exported bundles, markdown/DOCX, etc., appear after execution/commit per configuration.
-
----
 
 ## Where to go next
 

@@ -9,7 +9,6 @@ import { GLOBAL_SEARCH_ARIA_LABEL } from "@/lib/keyboard-shortcut-display";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
 
-const buyerPolishedMock = vi.hoisted(() => ({ value: true }));
 const fullShellMock = vi.hoisted(() => ({ value: true }));
 const fetchBudgetCached = vi.hoisted(() => vi.fn());
 
@@ -23,7 +22,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
   return {
     ...actual,
-    isBuyerPolishedOperatorShellEnv: () => buyerPolishedMock.value,
     isOperatorExperienceFullShellEnv: () => fullShellMock.value,
     isNextPublicDemoMode: () => false,
   };
@@ -52,18 +50,11 @@ vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
   };
 });
 
-vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
-  return {
-    ...actual,
+vi.mock("next/navigation", () => ({
   usePathname: () => "/",
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),
-  redirect: vi.fn(),
-    permanentRedirect: vi.fn(),
-    notFound: vi.fn(),
-  };
-});
+}));
 
 vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
@@ -76,7 +67,6 @@ vi.mock("@/components/CommandPaletteLazy", () => ({
 
 describe("OperatorShellTopBar", () => {
   beforeEach(() => {
-    buyerPolishedMock.value = true;
     fullShellMock.value = true;
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
@@ -168,7 +158,7 @@ describe("OperatorShellTopBar", () => {
     expect(helpTriggers[0]).toHaveAttribute("data-help-tooltip-icon", "help");
   });
 
-  it("omits dev-only chrome when not in full operator shell mode but keeps help", () => {
+  it("omits dev-only chrome in buyer-default shell mode but keeps help", () => {
     fullShellMock.value = false;
 
     render(

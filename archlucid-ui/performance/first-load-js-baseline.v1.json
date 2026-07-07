@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-07-02T23:10:00Z",
+  "updatedUtc": "2026-07-07T19:35:00.000Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/welcome": {
@@ -16,5 +16,5 @@
       "firstLoadJsKb": 286
     }
   },
-  "notes": "Captured from `npm run build` (Next.js 15 App Router, CI=true). Next.js 16+ omits per-route First Load JS from CLI output; `check:first-load-js` skips until analyze-based capture ships (TB-573 follow-up)."
+  "notes": "Captured from Next.js 16.2.10 `.next/diagnostics/route-bundle-stats.json` (`firstLoadUncompressedJsBytes` converted to kB). TB-691 restores the gate after Next 16 removed per-route First Load JS from CLI output. Refresh after intentional bundle changes: `npm run build && npm run write:first-load-js-baseline`."
 }

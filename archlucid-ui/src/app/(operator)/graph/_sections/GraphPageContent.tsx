@@ -4,17 +4,24 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { EvidenceGraphLifecycleStatusBanner } from "@/components/governance/EvidenceGraphLifecycleStatusBanner";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE, BUYER_EVIDENCE_TRAIL_PAGE_TITLE, OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
+import { OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
+import {
+  EVIDENCE_GRAPH_PAGE_SUBTITLE,
+  EVIDENCE_GRAPH_PAGE_TITLE,
+} from "@/lib/evidence-graph-page";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
 import {
@@ -29,6 +36,14 @@ import {
   isStaticDemoPayloadFallbackEnabled,
   tryStaticDemoProvenanceGraph,
 } from "@/lib/operator-static-demo";
+import {
+  isSampleGraphActive,
+  resolveGraphReviewPickerState,
+  shouldShowBuyerEvidenceGraphLoadButton,
+  shouldShowGraphIdleCard,
+  type AskRunListAvailability,
+} from "@/lib/graph-page-state";
+import { GraphSampleModeBanner } from "@/app/(operator)/graph/_sections/GraphSampleModeBanner";
 import { coerceGraphViewModel } from "@/lib/operator-response-guards";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import {
@@ -76,6 +91,12 @@ export function GraphPageContent() {
     isBuyerPolishedOperatorShellEnv() ? "graph" : "trace",
   );
   const [reviewsListLoadError, setReviewsListLoadError] = useState(false);
+  const [reviewListAvailability, setReviewListAvailability] = useState<AskRunListAvailability>({
+    loadError: false,
+    loading: true,
+    packageCount: 0,
+    usingSyntheticSample: false,
+  });
 
   const loadGenRef = useRef(0);
 
@@ -123,6 +144,11 @@ export function GraphPageContent() {
 
   const handleGraphInteractiveSurfaceReady = useCallback(() => {
     setGraphInteractiveReady(true);
+  }, []);
+
+  const handleReviewsListAvailabilityChange = useCallback((availability: AskRunListAvailability) => {
+    setReviewsListLoadError(availability.loadError);
+    setReviewListAvailability(availability);
   }, []);
 
   useEffect(() => {
@@ -183,6 +209,12 @@ export function GraphPageContent() {
   }, [mode, runId]);
 
   const effectiveGraph = graph ?? seededProvenanceGraphVm;
+  const sampleGraphActive = isSampleGraphActive({
+    runId,
+    graph,
+    seededProvenanceGraphVm,
+  });
+  const reviewPickerState = resolveGraphReviewPickerState(reviewListAvailability, runId);
 
   const graphSurfaceKey = useMemo(() => {
     if (effectiveGraph === null) {
@@ -410,14 +442,15 @@ export function GraphPageContent() {
 
   const showOperatorControls = buyerPolishedShell || demoUi || runId.trim().length > 0;
 
-  const showIdleCard =
-    !reviewsListLoadError &&
-    (buyerGraphAwaitingSelection ||
-      (effectiveGraph === null &&
-        !loading &&
-        loadFailure === null &&
-        malformedMessage === null &&
-        !buyerTraceWithoutGraph));
+  const showIdleCard = shouldShowGraphIdleCard({
+    effectiveGraph,
+    loading,
+    loadFailure,
+    malformedMessage,
+    buyerGraphAwaitingSelection,
+    buyerTraceWithoutGraph,
+    reviewsListLoadError,
+  });
 
   useEffect(() => {
     if (!demoUi && !buyerPolishedShell) {
@@ -437,7 +470,8 @@ export function GraphPageContent() {
     [buyerPolishedShell, demoUi, showIdleCard],
   );
 
-  const pageTitle = buyerPolishedShell ? BUYER_EVIDENCE_TRAIL_PAGE_TITLE : BUYER_SURFACE_VOCABULARY.evidenceGraph;
+  const pageTitle = buyerPolishedShell ? EVIDENCE_GRAPH_PAGE_TITLE : BUYER_SURFACE_VOCABULARY.evidenceGraph;
+  const pageSubtitle = buyerPolishedShell ? EVIDENCE_GRAPH_PAGE_SUBTITLE : OPERATOR_GRAPH_PAGE_SUBTITLE;
 
   const loadButtonLabel = buyerPolishedShell
     ? loading
@@ -447,11 +481,18 @@ export function GraphPageContent() {
       ? "Loading…"
       : "Load graph";
 
-  const showLoadButton =
-    buyerPolishedShell
-      ? !graphLoadRequested || effectiveGraph === null
-      : !(demoUi && mode === "provenance-full") &&
-        (!demoUi || mode !== "provenance-full" || effectiveGraph === null);
+  const showLoadButton = buyerPolishedShell
+    ? shouldShowBuyerEvidenceGraphLoadButton({
+        reviewPickerState,
+        runId,
+        graphLoadRequested,
+        effectiveGraph,
+      })
+    : !(demoUi && mode === "provenance-full") &&
+      (!demoUi || mode !== "provenance-full" || effectiveGraph === null);
+
+  const buyerEmptyWorkspaceFocus =
+    buyerPolishedShell && showIdleCard && reviewPickerState === "no-packages";
 
   const showSavedViews =
     canMutateEnterpriseShell &&
@@ -512,6 +553,9 @@ export function GraphPageContent() {
       />
     ) : null;
 
+  const showBuyerPresentationTabs =
+    buyerPolishedShell && !showIdleCard && (effectiveGraph !== null || graphLoadRequested);
+
   const controls = (
     <GraphPageControls
       graphMainColumnMaxClass={graphMainColumnMaxClass}
@@ -530,27 +574,111 @@ export function GraphPageContent() {
       }}
       decisionId={decisionId}
       nodeId={nodeId}
-      presentationView={presentationView}
-      onPresentationViewChange={setPresentationView}
-      onReviewsListAvailabilityChange={({ loadError }) => {
-        setReviewsListLoadError(loadError);
-      }}
+      onReviewsListAvailabilityChange={handleReviewsListAvailabilityChange}
+      reviewPickerState={reviewPickerState}
+      sampleGraphActive={sampleGraphActive}
+      showPresentationTabs={showBuyerPresentationTabs}
+      compactEmptyWorkspace={buyerEmptyWorkspaceFocus}
     />
   );
 
+  const buyerIdlePlaceholder = showIdleCard ? (
+    <GraphIdlePlaceholder
+      graphIdlePreset={graphIdlePreset}
+      buyerPolishedShell={buyerPolishedShell}
+      className={graphMainColumnMaxClass}
+      prioritize={buyerEmptyWorkspaceFocus}
+    />
+  ) : null;
+
   const buyerTraceOnlyIdle = buyerTraceWithoutGraph;
+
+  const buyerGraphBody =
+    buyerPolishedShell && showOperatorControls ? (
+      <Tabs
+        value={presentationView}
+        onValueChange={(next) => {
+          setPresentationView(next as EvidenceTrailPresentationView);
+        }}
+      >
+        {buyerEmptyWorkspaceFocus ? (
+          <div className={cn(graphMainColumnMaxClass, OPERATOR_LAYOUT.sectionHeadingStack)}>
+            {buyerIdlePlaceholder}
+            {controls}
+          </div>
+        ) : (
+          <>
+            {controls}
+            {buyerIdlePlaceholder}
+          </>
+        )}
+        <GraphFetchStatusAlerts
+          loading={loading}
+          loadFailure={showLoadFailureAlert ? loadFailure : null}
+          malformedMessage={malformedMessage}
+          buyerPolishedShell={buyerPolishedShell}
+          runId={runId}
+          onRetry={() => {
+            setGraphLoadRequested(true);
+            void performGraphLoad();
+          }}
+          graphEndpointHint={graphEndpointHint}
+        />
+        {sampleGraphActive && effectiveGraph !== null ? (
+          <GraphSampleModeBanner
+            className={graphMainColumnMaxClass}
+            showUseMyReviewAction={reviewListAvailability.packageCount > 0}
+          />
+        ) : null}
+        <TabsContent value="trace" className="pt-0" data-testid="graph-presentation-panel-trace">
+          {buyerTraceOnlyIdle ? (
+            <div className={graphMainColumnMaxClass}>
+              <EvidenceTrailTracePanel runId={runId} onOpenGraphView={() => setPresentationView("graph")} />
+            </div>
+          ) : null}
+        </TabsContent>
+        {architectureGraphNote ? (
+          <GraphArchitectureNoteBanner
+            graphMainColumnMaxClass={graphMainColumnMaxClass}
+            architectureGraphNote={architectureGraphNote}
+          />
+        ) : null}
+        {effectiveGraph ? (
+          <GraphLoadedExperience
+            buyerPolishedShell={buyerPolishedShell}
+            graphMainColumnMaxClass={graphMainColumnMaxClass}
+            graph={effectiveGraph}
+            demoUi={demoUi}
+            graphSurfaceKey={graphSurfaceKey}
+            typeFilter={typeFilter}
+            onTypeFilterChange={setTypeFilter}
+            nodeTypes={nodeTypes}
+            runId={runId}
+            mode={mode}
+            onModeChange={setMode}
+            loading={loading}
+            graphInteractiveReady={graphInteractiveReady}
+            onGraphInteractiveSurfaceReady={handleGraphInteractiveSurfaceReady}
+            controls={controls}
+            defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
+            presentationView={presentationView}
+            onPresentationViewChange={setPresentationView}
+            sampleGraphActive={sampleGraphActive}
+          />
+        ) : null}
+      </Tabs>
+    ) : null;
 
   return (
     <OperatorPageContainer variant="dashboard">
-      <CtoDemoBuyerValueStrip stepIndex={2} />
-      <OperatorPageHeader
-        title={pageTitle}
-        subtitle={
-          buyerPolishedShell ? BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE : OPERATOR_GRAPH_PAGE_SUBTITLE
-        }
-      />
-      <GraphEvidenceTrailGuidanceDisclosure />
-      {showOperatorControls ? (buyerPolishedShell ? controls : null) : null}
+      {buyerPolishedShell ? (
+        <EvidenceGraphLifecycleStatusBanner className="mb-2" />
+      ) : (
+        <CtoDemoBuyerValueStrip stepIndex={2} />
+      )}
+      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} />
+      <GraphEvidenceTrailGuidanceDisclosure className={buyerPolishedShell ? "hidden" : undefined} />
+      {buyerGraphBody}
       {!buyerPolishedShell && showOperatorControls && effectiveGraph === null ? (
         <>
           {savedViewsBar}
@@ -571,55 +699,53 @@ export function GraphPageContent() {
         />
       ) : null}
 
-      <GraphFetchStatusAlerts
-        loading={loading}
-        loadFailure={showLoadFailureAlert ? loadFailure : null}
-        malformedMessage={malformedMessage}
-        buyerPolishedShell={buyerPolishedShell}
-        runId={runId}
-        onRetry={() => {
-          setGraphLoadRequested(true);
-          void performGraphLoad();
-        }}
-        graphEndpointHint={graphEndpointHint}
-      />
+      {!buyerPolishedShell ? (
+        <GraphFetchStatusAlerts
+          loading={loading}
+          loadFailure={showLoadFailureAlert ? loadFailure : null}
+          malformedMessage={malformedMessage}
+          buyerPolishedShell={buyerPolishedShell}
+          runId={runId}
+          onRetry={() => {
+            setGraphLoadRequested(true);
+            void performGraphLoad();
+          }}
+          graphEndpointHint={graphEndpointHint}
+        />
+      ) : null}
 
-      {showIdleCard ? (
+      {!buyerPolishedShell && showIdleCard ? (
         <GraphIdlePlaceholder graphIdlePreset={graphIdlePreset} buyerPolishedShell={buyerPolishedShell} />
       ) : null}
 
-      {buyerTraceOnlyIdle ? (
-        <div className={graphMainColumnMaxClass}>
-          <EvidenceTrailTracePanel runId={runId} onOpenGraphView={() => setPresentationView("graph")} />
-        </div>
+      {!buyerPolishedShell && architectureGraphNote ? (
+        <GraphArchitectureNoteBanner graphMainColumnMaxClass={graphMainColumnMaxClass} architectureGraphNote={architectureGraphNote} />
       ) : null}
 
-      {architectureGraphNote && (
-        <GraphArchitectureNoteBanner graphMainColumnMaxClass={graphMainColumnMaxClass} architectureGraphNote={architectureGraphNote} />
-      )}
-
-      {effectiveGraph ? (
+      {!buyerPolishedShell && effectiveGraph ? (
         <>
-          {!buyerPolishedShell ? savedViewsBar : null}
+          {savedViewsBar}
           <GraphLoadedExperience
-          buyerPolishedShell={buyerPolishedShell}
-          graphMainColumnMaxClass={graphMainColumnMaxClass}
-          graph={effectiveGraph}
-          demoUi={demoUi}
-          graphSurfaceKey={graphSurfaceKey}
-          typeFilter={typeFilter}
-          onTypeFilterChange={setTypeFilter}
-          nodeTypes={nodeTypes}
-          runId={runId}
-          mode={mode}
-          loading={loading}
-          graphInteractiveReady={graphInteractiveReady}
-          onGraphInteractiveSurfaceReady={handleGraphInteractiveSurfaceReady}
-          controls={controls}
-          defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
-          presentationView={presentationView}
-          onPresentationViewChange={setPresentationView}
-        />
+            buyerPolishedShell={buyerPolishedShell}
+            graphMainColumnMaxClass={graphMainColumnMaxClass}
+            graph={effectiveGraph}
+            demoUi={demoUi}
+            graphSurfaceKey={graphSurfaceKey}
+            typeFilter={typeFilter}
+            onTypeFilterChange={setTypeFilter}
+            nodeTypes={nodeTypes}
+            runId={runId}
+            mode={mode}
+            onModeChange={setMode}
+            loading={loading}
+            graphInteractiveReady={graphInteractiveReady}
+            onGraphInteractiveSurfaceReady={handleGraphInteractiveSurfaceReady}
+            controls={controls}
+            defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
+            presentationView={presentationView}
+            onPresentationViewChange={setPresentationView}
+            sampleGraphActive={sampleGraphActive}
+          />
         </>
       ) : null}
     </OperatorPageContainer>

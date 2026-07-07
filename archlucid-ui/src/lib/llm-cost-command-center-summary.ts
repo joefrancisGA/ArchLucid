@@ -7,8 +7,11 @@ export type LlmCostCommandCenterSummary = {
   readonly utcTodayEstimatedUsd: number | null;
   readonly utcTodayPromptTokens: number | null;
   readonly utcTodayCompletionTokens: number | null;
-  readonly topWorkspaceProjectLabel: string | null;
+  readonly topWorkspaceName: string | null;
+  readonly topProjectName: string | null;
   readonly topWorkspaceProjectEstimatedUsd: number | null;
+  readonly topWorkspaceProjectPromptTokens: number;
+  readonly topWorkspaceProjectCompletionTokens: number;
   readonly topExpensiveRunId: string | null;
   readonly topExpensiveRunEstimatedUsd: number | null;
 };
@@ -75,9 +78,11 @@ export function buildLlmCostCommandCenterSummary(
     utcTodayEstimatedUsd: todayBucket?.estimatedCostUsd ?? null,
     utcTodayPromptTokens: todayBucket?.promptTokens ?? null,
     utcTodayCompletionTokens: todayBucket?.completionTokens ?? null,
-    topWorkspaceProjectLabel:
-      topRow !== undefined ? `${topRow.workspaceName} / ${topRow.projectName}` : null,
+    topWorkspaceName: topRow?.workspaceName ?? null,
+    topProjectName: topRow?.projectName ?? null,
     topWorkspaceProjectEstimatedUsd: topRow?.estimatedCostUsd ?? null,
+    topWorkspaceProjectPromptTokens: topRow?.promptTokens ?? 0,
+    topWorkspaceProjectCompletionTokens: topRow?.completionTokens ?? 0,
     topExpensiveRunId: topRun?.runId ?? null,
     topExpensiveRunEstimatedUsd: topRun?.estimatedCostUsd ?? null,
   };

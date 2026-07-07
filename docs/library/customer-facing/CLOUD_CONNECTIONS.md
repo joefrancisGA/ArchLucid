@@ -6,8 +6,6 @@ Cloud connections are **optional**. You can start and finalize review packages f
 
 When you connect Azure, ArchLucid uses **read-only** inventory and cost signals to enrich findings — it does not store long-lived client secrets in your tenant configuration.
 
----
-
 ## Overview {#connect-azure-securely}
 
 ArchLucid can use Azure metadata and cost evidence when you connect selected subscriptions. The Azure connection is optional; reviews can also use briefs, diagrams, documents, and uploaded evidence.
@@ -51,8 +49,6 @@ Do **not** assign Owner, Contributor, User Access Administrator, or broad direct
 - Owner or Contributor privileges
 - Tenant-wide Global Reader permissions
 
----
-
 ## Workload identity federation {#workload-identity-federation}
 
 ArchLucid-hosted cloud-connected ingestion uses **Microsoft Entra ID workload identity federation**:
@@ -63,8 +59,6 @@ ArchLucid-hosted cloud-connected ingestion uses **Microsoft Entra ID workload id
 
 If federation is misconfigured, validation fails fast with an API error — fix the federated credential trust chain before retrying.
 
----
-
 ## Azure permissions reference {#azure-permissions}
 
 | Azure role | Purpose | Write access |
@@ -73,8 +67,6 @@ If federation is misconfigured, validation fails fast with an API error — fix 
 | **Cost Management Reader** | Read-only cost posture for value and risk context | No |
 
 Do **not** assign Owner, Contributor, User Access Administrator, or broad directory roles for the Azure connection.
-
----
 
 ## Related topics {#related-topics}
 

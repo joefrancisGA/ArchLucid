@@ -65590,6 +65590,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public System.Guid? RunId { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("scopeProjectId")]
+        public System.Guid? ScopeProjectId { get; set; } = default!;
+
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]

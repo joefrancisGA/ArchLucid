@@ -2,8 +2,23 @@
  * Central dictionary for operator-facing domain terms and reusable UI labels.
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+
+// Canonical definitions live in the dependency-free leaf module `pipeline-status-labels.ts`
+// (see rationale there); re-exported here so existing `@/lib/i18n` imports keep working.
+export {
+  PIPELINE_STATUS_BUYER_DISPLAY_LABELS,
+  PIPELINE_STATUS_LABELS,
+} from "@/lib/pipeline-status-labels";
+
+export {
+  DATA_ARCHIVAL_HEALTH_LABELS,
+  POST_COMMIT_INTEGRATION_LINK_TITLES,
+  SERVICE_BUS_HEALTH_LABELS,
+  WORKSPACE_SETUP_HEALTH_LABELS,
+} from "@/lib/operator-health-labels";
 
 export const DOMAIN_TERMS = {
   goldenManifest: "Signed review record",
@@ -30,19 +45,9 @@ export const RUNS_LIST_PAGE_TITLES = {
   fullOperator: "Review Packages",
 } as const;
 
-/** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). */
+/** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). @deprecated Use `REVIEWS_HUB_PAGE_SUBTITLE`. */
 export const RUNS_LIST_PAGE_SUBTITLE =
-  "In-progress, finalized, and export-ready architecture review packages.";
-
-export const PIPELINE_STATUS_LABELS = {
-  finalized: "Finalized",
-  readyToFinalize: "Ready to finalize",
-  inPipeline: "In pipeline",
-  starting: "Starting",
-  packageFinalized: "Package finalized",
-  readyToSeal: "Ready to finalize",
-  inFlight: "In review",
-} as const;
+  "Create, resume, and inspect evidence-backed architecture review packages.";
 
 export const PIPELINE_STATUS_TOOLTIPS = {
   finalized: `The ${DOMAIN_TERMS.goldenManifest} is finalized and the architecture review is complete.`,
@@ -69,15 +74,13 @@ export const RUNS_DASHBOARD_LABELS = {
   oneReviewNeedsAttention: "1 review package needs attention.",
   reviewsNeedAttentionCount: (count: number) => `${count} review packages need attention.`,
   loadingReviews: "Loading review packages…",
-  openFullReviewsList: "Open full reviews list",
+  openFullReviewsList: "Open all reviews",
   governanceWarningTitle: "Governance warnings",
   governanceWarningHint: "Unresolved governance alerts or policy violations require governance lead follow-up.",
   governanceWarningsOnly: "Has governance warnings",
   showArchived: "Show archived",
   restoreRequest: "Restore",
   restoringRequest: "Restoring…",
-  archivedListUnsupported:
-    "Archived review packages are not yet shown when the archived filter is enabled. Contact your administrator if you expected to see archived items here.",
 } as const;
 
 export const RUN_PACKAGE_EXPORT_LABELS = {
@@ -95,27 +98,6 @@ export const ALERTS_INBOX_LABELS = {
   selectAllOnPage: "Select all alerts on this page",
 } as const;
 
-export const SERVICE_BUS_HEALTH_LABELS = {
-  bannerTitle: "Some analysis tasks are delayed",
-  bannerBody:
-    "Results may take longer than usual. Contact your ArchLucid administrator if this persists.",
-  systemHealthLink: "System health",
-} as const;
-
-/** Cold-start boot gate (dev/staging only) — see {@link isColdStartGateEnv}. */
-export const COLD_START_GATE_LABELS = {
-  title: "ArchLucid is waking up",
-  body: "This environment scales down to save cost when nobody is using it. It's coming back online now — this usually takes under a minute.",
-  statusLabel: "Status",
-  waitingStatus: "Starting up…",
-  readyStatus: "Ready",
-  entriesProgress: (readyCount: number, totalCount: number) => `${readyCount} of ${totalCount} systems ready`,
-  slowHint: "Still going — a paused database can occasionally take a bit longer to resume.",
-  readyTitle: "You're all set",
-  readyBody: "Everything is up and running.",
-  continueButton: "Continue to ArchLucid",
-} as const;
-
 /** Sidebar group headings — single source for `*-nav-group-builder.ts` files. */
 export const OPERATOR_NAV_GROUP_LABELS = {
   reviewWork: "Architecture",
@@ -124,6 +106,7 @@ export const OPERATOR_NAV_GROUP_LABELS = {
   reports: "Reports",
   integrations: "Integrations",
   operations: "Operations",
+  architectPrograms: "Programs",
 } as const;
 
 /** Primary sidebar link labels — adapt terminology here without editing each nav builder. */
@@ -135,8 +118,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   reviewPackage: "Review packages",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
-  /** Left nav destination for `/reviews/new` — distinct from hero/quick-action "Start review". */
-  capture: "New review",
+  /** Left nav destination for `/reviews/new` — creation intake (brief, diagram, document, optional cloud). */
+  capture: CREATE_ARCHITECTURE_LABEL,
   onboarding: BUYER_ONBOARDING_PAGE_TITLE,
   findings: "Risk register",
   riskExceptions: "Risk exceptions",
@@ -153,6 +136,9 @@ export const OPERATOR_NAV_LINK_LABELS = {
   governanceSetupGuide: "Governance setup guide",
   securityTrust: "Security & trust",
   aiUsage: "AI usage",
+  /** Internal Operations — buyer-facing nav label (TB-648). */
+  knowledgeIndexHealth: "Knowledge index health",
+  failedIntegrationMessages: "Failed integration messages",
   teamsNotifications: "Teams notifications",
   itsmConnectors: "Jira & ServiceNow",
   valueReport: "Value report",

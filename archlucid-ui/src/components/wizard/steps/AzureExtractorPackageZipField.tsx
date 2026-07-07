@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
@@ -9,6 +10,7 @@ import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorU
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
 import { CloudInventoryExtractorCommandPanel } from "@/components/wizard/CloudInventoryExtractorCommandPanel";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
@@ -63,10 +65,11 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
   const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<DemoReviewScenarioId>(
     DEFAULT_DEMO_REVIEW_SCENARIO_ID,
   );
+  const [azureAdvancedOpen, setAzureAdvancedOpen] = useState(false);
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
   const successMessage =
     variant === "baseline"
-      ? "Extractor package applied — confirm system identity on the next step."
+      ? "Extractor package applied — confirm the prefilled brief on the review step."
       : "Extractor package applied — review identity and brief on earlier steps if needed.";
 
   function applyManifestToWizard(manifest: ArchLucidAzurePackageManifest): void {
@@ -129,15 +132,8 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
     }
   }
 
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Label className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-          Cloud inventory ZIP
-        </Label>
-        <InAppHelpLink helpSlug="pilot-guide" label="Open pilot guide" className="h-5 w-5" />
-      </div>
-
+  const baselineAzureContent = (
+    <>
       {variant === "baseline" ? (
         <div className="space-y-4">
           <BaselineStepHeading
@@ -227,17 +223,75 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
         }}
       />
 
+      {variant === "baseline" && acceptedFileLabel !== null ? (
+        <BaselineStepHeading
+          step={3}
+          title="Continue to review confirmation"
+          description="Confirm the prefilled brief on the review step, then submit to link this package to your review."
+        />
+      ) : null}
+
       {variant === "ingest" ? (
-        <>
-          <CloudInventoryExtractorCommandPanel platform="azure" testIdPrefix="wizard-ingest-extractor" />
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Or use the{" "}
-            <Link className={OPERATOR_LINK.nav} href="/reviews/new?baseline=1">
-              baseline-first wizard
-            </Link>{" "}
-            to lead with ZIP upload.
-          </p>
-        </>
+        <CloudInventoryExtractorCommandPanel platform="azure" testIdPrefix="wizard-ingest-extractor" />
+      ) : null}
+    </>
+  );
+
+  return (
+    <div className="space-y-4">
+      {variant === "baseline" ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          Azure inventory ZIP is optional enrichment — expand below only when you have packager output to attach.
+        </p>
+      ) : (
+        <div className="flex flex-wrap items-center gap-2">
+          <Label className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+            Cloud inventory ZIP
+          </Label>
+          <InAppHelpLink helpSlug="pilot-guide" label="Open pilot guide" className="h-5 w-5" />
+        </div>
+      )}
+
+      {variant === "baseline" ? (
+        <Collapsible
+          open={azureAdvancedOpen}
+          onOpenChange={setAzureAdvancedOpen}
+          data-testid="wizard-azure-advanced-evidence"
+        >
+          <CollapsibleTrigger
+            type="button"
+            className={cn(
+              "flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 text-left hover:bg-al-layer-hover dark:border-neutral-700",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+            aria-expanded={azureAdvancedOpen}
+            data-testid="wizard-azure-advanced-toggle"
+          >
+            <span className="font-medium text-al-text-primary">Advanced evidence (Azure)</span>
+            <span className={cn("mr-auto ml-2 font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              optional
+            </span>
+            <ChevronDown
+              className={cn("h-4 w-4 shrink-0 transition-transform", azureAdvancedOpen ? "rotate-180" : "rotate-0")}
+              aria-hidden
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 space-y-4 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
+            {baselineAzureContent}
+          </CollapsibleContent>
+        </Collapsible>
+      ) : (
+        baselineAzureContent
+      )}
+
+      {variant === "ingest" ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Or use the{" "}
+          <Link className={OPERATOR_LINK.nav} href="/reviews/new?baseline=1">
+            baseline-first wizard
+          </Link>{" "}
+          to attach optional evidence after your review brief.
+        </p>
       ) : null}
 
       {localError !== null && localError.length > 0 ? (
@@ -262,14 +316,6 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
             {acceptedFileLabel} — uploads automatically when you start the architecture review.
           </p>
         </div>
-      ) : null}
-
-      {variant === "baseline" && acceptedFileLabel !== null ? (
-        <BaselineStepHeading
-          step={3}
-          title="Continue to system identity"
-          description="Confirm the prefilled system name and brief on the next step, then submit to link this package to your review."
-        />
       ) : null}
 
       {variant === "ingest" ? (

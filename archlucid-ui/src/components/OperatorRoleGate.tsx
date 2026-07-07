@@ -1,14 +1,10 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
-import { Button } from "@/components/ui/button";
-import { OperatorJwtBearerRoleMappingCallout } from "@/components/OperatorJwtBearerRoleMappingCallout";
+import { operatorPrincipalLacksArchLucidAccess } from "@/lib/access-denied-context";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 
@@ -24,6 +20,8 @@ export function OperatorRoleGate({ children }: OperatorRoleGateProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
+  const jwtSignedIn = isJwtAuthMode() && isLikelySignedIn();
+  const lacksArchLucidAccess = operatorPrincipalLacksArchLucidAccess(currentPrincipal, { jwtSignedIn });
 
   useEffect(() => {
     if (pathname === "/403" || pathname.startsWith("/auth/")) {
@@ -38,53 +36,20 @@ export function OperatorRoleGate({ children }: OperatorRoleGateProps) {
       return;
     }
 
-    if (currentPrincipal.provenance !== "auth-me") {
-      return;
-    }
-
-    if (currentPrincipal.hasRecognizedArchLucidRole) {
+    if (!lacksArchLucidAccess) {
       return;
     }
 
     router.replace("/403");
-  }, [currentPrincipal, isAuthorityLoading, pathname, router]);
+  }, [currentPrincipal, isAuthorityLoading, lacksArchLucidAccess, pathname, router]);
 
   if (pathname === "/403") {
     return <>{children}</>;
   }
 
-  if (
-    !isAuthorityLoading
-    && currentPrincipal.provenance === "auth-me"
-    && !currentPrincipal.hasRecognizedArchLucidRole
-    && (isJwtAuthMode() ? isLikelySignedIn() : true)
-  ) {
+  if (!isAuthorityLoading && lacksArchLucidAccess && (isJwtAuthMode() ? isLikelySignedIn() : true)) {
     return null;
   }
 
   return <>{children}</>;
-}
-
-/** Static unauthorized page for principals missing ArchLucid app roles. */
-export function OperatorUnauthorizedPageClient() {
-  const showJwtRoleMappingCallout = isJwtAuthMode() && isLikelySignedIn();
-
-  return (
-    <div className="mx-auto max-w-lg space-y-4 py-16 text-center" data-testid="operator-unauthorized-page">
-      <h1 className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Access not authorized</h1>
-      {showJwtRoleMappingCallout ? (
-        <div className="text-left">
-          <OperatorJwtBearerRoleMappingCallout testId="operator-unauthorized-jwt-role-callout" />
-        </div>
-      ) : (
-        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Your identity signed in successfully, but no ArchLucid app role (Admin, Operator, Reader, or Auditor) was found on
-          your token. Ask your tenant administrator to assign an app role in your identity provider, then sign in again.
-        </p>
-      )}
-      <Button asChild variant="primary">
-        <Link href="/auth/signin">Return to sign-in</Link>
-      </Button>
-    </div>
-  );
 }

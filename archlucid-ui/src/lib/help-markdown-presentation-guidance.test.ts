@@ -7,7 +7,7 @@ describe("emphasizeInlineGuidanceLabels", () => {
     const input = "Audience: principal architects\n**Last reviewed:** 2026-06-15\nNote: illustrative dates only.";
 
     expect(emphasizeInlineGuidanceLabels(input)).toBe(
-      "**Audience:** principal architects\n**Last reviewed:** 2026-06-15\n**Note:** illustrative dates only.",
+      "**Audience:** principal architects\n**Last reviewed:** 2026-06-15\n**Note:** Illustrative dates only.",
     );
   });
 
@@ -15,7 +15,7 @@ describe("emphasizeInlineGuidanceLabels", () => {
     const input = "- Optional setup: connect cloud and invite a reviewer.";
 
     expect(emphasizeInlineGuidanceLabels(input)).toBe(
-      "- **Optional setup:** connect cloud and invite a reviewer.",
+      "- **Optional setup:** Connect cloud and invite a reviewer.",
     );
   });
 
@@ -23,7 +23,16 @@ describe("emphasizeInlineGuidanceLabels", () => {
     const input = "- Optional: configure routing after your first rule.";
 
     expect(emphasizeInlineGuidanceLabels(input)).toBe(
-      "- **Optional:** configure routing after your first rule.",
+      "- **Optional:** Configure routing after your first rule.",
+    );
+  });
+
+  it("bolds fastest first-pilot path scan labels in help markdown", () => {
+    const input =
+      "Fastest first-pilot path: First Real Value (`archlucid try --real`, `ARCHLUCID_REAL_AOAI=1`).";
+
+    expect(emphasizeInlineGuidanceLabels(input)).toBe(
+      "**Fastest first-pilot path:** First Real Value (`archlucid try --real`, `ARCHLUCID_REAL_AOAI=1`).",
     );
   });
 

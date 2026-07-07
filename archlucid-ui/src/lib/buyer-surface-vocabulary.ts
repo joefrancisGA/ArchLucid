@@ -2,6 +2,8 @@
  * Canonical labels for buyer-polished surfaces — keeps “evidence graph”, “audit trail”,
  * and “approval path” consistent across Review, Manifest, Graph, Governance, and Audit.
  */
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+
 export const BUYER_SURFACE_VOCABULARY = {
   /** Graph surface / citations — matches graph page title in buyer shell. */
   evidenceGraph: "Evidence graph",
@@ -43,7 +45,7 @@ export const PILOT_FEEDBACK_VOCABULARY = {
   emptyStateDescription:
     "Feedback from pilots and review evaluations will appear here after users accept, reject, revise, or comment on review outputs.",
   emptyStatePrimaryAction: "Open review packages",
-  emptyStateSecondaryAction: "Start review",
+  emptyStateSecondaryAction: CREATE_ARCHITECTURE_LABEL,
   summaryKpiFeedbackSummaries: "Feedback summaries",
   summaryKpiRepeatedIssues: "Repeated issues",
   summaryKpiImprovementOpportunities: "Improvement opportunities",
@@ -72,16 +74,18 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   /** `/dashboard` portfolio surface — aligns with sidebar “Executive dashboard”. */
   portfolioPageTitle: "Executive dashboard",
   portfolioPageLead:
-    "Track governance posture, remediation progress, and estimated ROI across committed review packages.",
+    "Track governance posture, remediation progress, estimated ROI, and sponsor-ready proof across committed review packages.",
+  portfolioPageNextStep: "Finalize at least one review package to populate dashboard metrics.",
+  portfolioPageLearnMoreHref: "/help/executive-summary",
+  portfolioPageLearnMoreLabel: "View dashboard guide",
   pageLead:
     "Status, risk, ROI impact, and governance readiness for your current workspace — decision-first, with operator detail one click away.",
   roiMetricsSrOnly: "Executive ROI metrics",
   emptyStateTitle: "No committed reviews yet",
   emptyStateDescription:
-    "Portfolio metrics appear after you finalize at least one review package.",
-  emptyStatePrimaryAction: "Start review",
+    "Finalize a review package to populate executive metrics, remediation progress, ROI estimates, and sponsor-ready exports.",
+  emptyStatePrimaryAction: CREATE_ARCHITECTURE_LABEL,
   emptyStateSecondaryAction: "Load sample workspace",
-  emptyStateTertiaryAction: "View sample portfolio dashboard",
   emptyStatePreviewSectionTitle: "What this dashboard will show",
   emptyStatePreviewBullets: [
     "Findings discovered and resolved",
@@ -95,7 +99,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   scorecardPageTitle: "Executive scorecard",
   scorecardEmptyStateDescription:
     "The scorecard appears after at least one review package is finalized. It summarizes review volume, findings, estimated hours saved, compliance drift, and recommended actions.",
-  scorecardEmptyStatePrimaryAction: "Start review",
+  scorecardEmptyStatePrimaryAction: CREATE_ARCHITECTURE_LABEL,
   scorecardEmptyStateSecondaryAction: "Load sample workspace",
   scorecardEmptyStateTertiaryAction: "Open sample scorecard",
   scorecardEmptyStatePreviewSectionTitle: "What this scorecard will show",
@@ -126,6 +130,21 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   executiveExportsTitle: "Executive exports",
   executiveExportsDescription:
     "Sponsor-ready reports and board views from committed review packages.",
+  sponsorExportsUnavailableFootnote: "Available after at least one review package is committed.",
+  sponsorExportsScorecardTitle: "Executive scorecard",
+  sponsorExportsScorecardDescription: "KPI summary and recommended actions for sponsor briefings.",
+  sponsorExportsScorecardAction: "Open scorecard",
+  sponsorExportsPilotValueTitle: "Pilot value report",
+  sponsorExportsPilotValueDescription: "Quantified outcomes and improvement themes from committed reviews.",
+  sponsorExportsPilotValueAction: "Open value report",
+  sponsorExportsRoiTitle: "ROI methodology",
+  sponsorExportsRoiDescription: "How savings and ROI estimates are derived from review evidence.",
+  sponsorExportsRoiAction: "View methodology",
+  sponsorExportsDocxTitle: "Executive review (DOCX)",
+  sponsorExportsDocxDescription: "Board-ready narrative export from a committed review package.",
+  sponsorExportsDocxAction: "Download DOCX",
+  baselineInventoryUploadAction: "Upload baseline inventory",
+  baselineInventoryOptionalGuidance: "Upload a baseline inventory to improve ROI estimates.",
   orphanCandidatesMetric: {
     title: "Unattached resources",
     description: "Resources flagged for cleanup from the latest committed review",

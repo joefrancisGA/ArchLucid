@@ -2,6 +2,7 @@ using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Api.Hosting;
@@ -13,29 +14,20 @@ internal static class DemoSeedStartupWork
 {
     internal static async Task RunAsync(
         IServiceScopeFactory scopeFactory,
+        IHostEnvironment hostEnvironment,
         DemoOptions demoOptions,
         ILogger logger,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scopeFactory);
+        ArgumentNullException.ThrowIfNull(hostEnvironment);
         ArgumentNullException.ThrowIfNull(demoOptions);
         ArgumentNullException.ThrowIfNull(logger);
 
-        if (!demoOptions.AnonymousViewer.Enabled)
+        if (!DemoSeedBootstrapPolicy.ShouldSeedShowcaseOnStartup(hostEnvironment, demoOptions))
         {
             if (logger.IsEnabled(LogLevel.Information))
-                logger.LogInformation("Demo seed skipped (AnonymousViewer disabled).");
-
-            return;
-        }
-
-        if (!demoOptions.Enabled)
-        {
-            if (logger.IsEnabled(LogLevel.Warning))
-            {
-                logger.LogWarning(
-                    "Demo seed skipped: Demo:AnonymousViewer:Enabled is true but Demo:Enabled is false.");
-            }
+                logger.LogInformation("Demo seed skipped (showcase bootstrap policy).");
 
             return;
         }
@@ -48,12 +40,12 @@ internal static class DemoSeedStartupWork
             await demoSeed.SeedAsync(cancellationToken).ConfigureAwait(false);
 
             if (logger.IsEnabled(LogLevel.Information))
-                logger.LogInformation("Demo seed applied on startup.");
+                logger.LogInformation("Showcase demo seed applied on startup.");
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning(ex, "Demo seed failed on startup; continuing without demo data.");
+                logger.LogWarning(ex, "Showcase demo seed failed on startup; continuing without demo data.");
         }
     }
 }

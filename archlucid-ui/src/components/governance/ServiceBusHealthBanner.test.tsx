@@ -12,6 +12,15 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
 
 import { ServiceBusHealthBanner } from "./ServiceBusHealthBanner";
 
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: () => false,
+  isNextPublicDemoMode: () => false,
+}));
+
+vi.mock("@/lib/operator-static-demo", () => ({
+  isStaticDemoPayloadFallbackEnabled: () => false,
+}));
+
 const originalFetch = globalThis.fetch;
 
 describe("ServiceBusHealthBanner", () => {

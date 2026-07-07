@@ -1,20 +1,23 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { AzureExtractorPackageZipField } from "@/components/wizard/steps/AzureExtractorPackageZipField";
 import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-utils";
 
 describe("AzureExtractorPackageZipField (TB-495)", () => {
-  it("uses CloudInventoryExtractorCommandPanel for baseline inventory script", () => {
+  it("uses CloudInventoryExtractorCommandPanel for baseline inventory script", async () => {
     render(
       <WizardFormTestHarness>
         <AzureExtractorPackageZipField variant="baseline" />
       </WizardFormTestHarness>,
     );
 
-    const panel = screen.getByTestId("wizard-baseline-extractor-panel");
+    fireEvent.click(screen.getByTestId("wizard-azure-advanced-toggle"));
 
-    expect(panel).toHaveAttribute("data-platform", "azure");
+    await waitFor(() => {
+      expect(screen.getByTestId("wizard-baseline-extractor-panel")).toHaveAttribute("data-platform", "azure");
+    });
+
     expect(screen.getByText("Azure inventory script")).toBeInTheDocument();
   });
 

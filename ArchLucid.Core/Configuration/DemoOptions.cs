@@ -64,4 +64,15 @@ public sealed class DemoOptions
         get;
         init;
     }
+
+    /// <summary>
+    ///     When <c>true</c> with <see cref="Enabled"/>, runs idempotent showcase seed after schema bootstrap in
+    ///     non-Development hosts (explicit CTO demo / trial staging). Default <c>false</c> — normal customer workspaces
+    ///     must not receive demo data silently.
+    /// </summary>
+    public bool EnableShowcaseSeed
+    {
+        get;
+        set;
+    }
 }

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Tests.Filters;
 
+[Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class TrialLimitFilterTests
 {

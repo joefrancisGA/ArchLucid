@@ -28,7 +28,7 @@ import { useViewportNarrow } from "@/hooks/useViewportNarrow";
 import { RunsListCompareSelectionBar } from "@/components/usability/RunsListCompareSelectionBar";
 import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/lib/run-work-queue-groups";
 import { formatRelativeTime } from "@/lib/relative-time";
-import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv, isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import {
@@ -264,6 +264,7 @@ export function RunsListClient({
   }, [runs]);
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const buyerPipelineLabels = isBuyerVocabularyPassActive();
   const buyerCollapseFilters = buyerPolished && totalCount <= 1;
 
   const [filterText, setFilterText] = useState("");
@@ -570,7 +571,7 @@ export function RunsListClient({
                       setBuyerPackageScope("in_flight");
                     }}
                   >
-                    {buyerPolished ? BUYER_PIPELINE_IN_PROGRESS_LABEL : "In flight"}
+                    {buyerPipelineLabels ? BUYER_PIPELINE_IN_PROGRESS_LABEL : "In flight"}
                   </Button>
                 </div>
               </fieldset>
@@ -689,9 +690,9 @@ export function RunsListClient({
                     id={headingId}
                     className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}
                   >
-                    {workQueueSectionHeading(section.groupId, buyerPolished)}
+                    {workQueueSectionHeading(section.groupId, buyerPipelineLabels)}
                   </h3>
-                  <EnterpriseTable ariaLabel={workQueueSectionHeading(section.groupId, buyerPolished)}>
+                  <EnterpriseTable ariaLabel={workQueueSectionHeading(section.groupId, buyerPipelineLabels)}>
                     <EnterpriseTableHead>
                       <EnterpriseTableHeadRow>
                         {showCompareSelection ? (

@@ -1,5 +1,8 @@
 import { Suspense } from "react";
 
+import { cn } from "@/lib/utils";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
 import { WhatIfBranchCompareBanner } from "@/components/draft-intake/WhatIfBranchCompareBanner";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
@@ -198,7 +201,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
   const runDetailBody = (
     <div
-      className={`w-full space-y-4 px-1 py-2 sm:px-0 ${m.buyerPolishedArtifactTable ? "max-w-[1440px]" : "max-w-[1200px]"}`}
+      className={`w-full ${OPERATOR_LAYOUT.sectionStack} px-1 py-2 sm:px-0 ${m.buyerPolishedArtifactTable ? "max-w-[1440px]" : "max-w-[1200px]"}`}
     >
       <CtoDemoReviewRouteGuard runId={m.resolvedDetail.run.runId} />
       <RunDetailBreadcrumb headline={m.headline} />
@@ -391,7 +394,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       ) : null}
 
       {m.manifestId ? (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
           <ExportDeliverableDialog runId={m.resolvedDetail.run.runId} manifestId={m.manifestId} />
           <ShareableReviewLinkButton runId={m.resolvedDetail.run.runId} isCommitted />
           {m.resolvedDetail.run.completedUtc ? (
@@ -443,7 +446,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       )}
 
       {!m.buyerPolishedArtifactTable ? (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
           <GenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
         </div>
       ) : null}

@@ -14,6 +14,8 @@ import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
+  OPERATOR_CARD,
+  OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
@@ -457,12 +459,15 @@ export function RunDetailOutcomeCards({
   });
 
   return (
-    <div id="run-decision-summary" className="scroll-mt-24 space-y-3">
+    <div id="run-decision-summary" className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}>
       {coverageBanner}
       {dispositionPanel}
       {statusHeadline !== null ? (
         <div
-          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3 shadow-sm"
+          className={cn(
+            "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 shadow-sm",
+            OPERATOR_CARD.body,
+          )}
           data-testid="buyer-review-status-headline"
           role="status"
         >
@@ -513,7 +518,8 @@ export function RunDetailOutcomeCards({
       ) : null}
       <p
         className={cn(
-          "m-0 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 font-medium leading-snug dark:border-neutral-800",
+          "m-0 rounded-md border border-neutral-200 bg-al-surface-raised font-medium leading-snug dark:border-neutral-800",
+          OPERATOR_CARD.nested,
           OPERATOR_TYPOGRAPHY.body,
         )}
         role="status"
@@ -549,7 +555,7 @@ export function RunDetailOutcomeCards({
         showcasePolicyPackStrip={showcasePolicyPackStrip ?? null}
       />
       <details className="rounded-lg border border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-900/30">
-        <summary className={cn("cursor-pointer select-none px-3 py-2 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+        <summary className={cn("cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_CARD.nested, OPERATOR_TYPOGRAPHY.body)}>
           {BUYER_DECISION_KEY_SUMMARY}
         </summary>
         <div className="border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
@@ -569,7 +575,7 @@ export function RunDetailOutcomeCards({
 
   const findingsCardEl = (
     <Card className="h-full border-neutral-200 dark:border-neutral-800">
-      <CardHeader className="pb-2">
+      <CardHeader className={OPERATOR_CARD.header}>
         <CardTitle className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Findings</CardTitle>
         <CardDescription>
           {manifestId ? "From architecture review — click to jump" : "From architecture review"}
@@ -590,7 +596,7 @@ export function RunDetailOutcomeCards({
 
   const artifactsCardEl = (
     <Card className="h-full border-neutral-200 dark:border-neutral-800">
-      <CardHeader className="pb-2">
+      <CardHeader className={OPERATOR_CARD.header}>
         <CardTitle className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Artifacts</CardTitle>
         <CardDescription>{manifestId ? "Generated outputs — click to jump" : "Generated outputs"}</CardDescription>
       </CardHeader>
@@ -604,12 +610,12 @@ export function RunDetailOutcomeCards({
   );
 
   return (
-    <div className="space-y-3">
+    <div className={OPERATOR_LAYOUT.sectionStack}>
       {coverageBanner}
       {dispositionPanel}
-      <section aria-label="Review outcomes" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section aria-label="Review outcomes" className={cn("grid sm:grid-cols-2 xl:grid-cols-4", OPERATOR_LAYOUT.controlClusterGap)}>
       <Card className="border-neutral-200 dark:border-neutral-800">
-        <CardHeader className="pb-2">
+        <CardHeader className={OPERATOR_CARD.header}>
           <CardTitle className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{SIGNED_MANIFEST_LABEL}</CardTitle>
           <CardDescription>Reviewed architecture record</CardDescription>
         </CardHeader>
@@ -665,7 +671,7 @@ export function RunDetailOutcomeCards({
       )}
 
       <Card className="border-neutral-200 dark:border-neutral-800">
-        <CardHeader className="pb-2">
+        <CardHeader className={OPERATOR_CARD.header}>
           <CardTitle className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>In-page activity</CardTitle>
           <CardDescription>Shortcuts on this review — the authoritative timeline is the Audit trail.</CardDescription>
         </CardHeader>

@@ -6,6 +6,7 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { getGovernanceResolution } from "@/lib/api";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
@@ -35,6 +36,7 @@ export function useGovernanceResolutionPage(
   }, []);
 
   return {
+    buyerPolishedShell: isBuyerPolishedOperatorShellEnv(),
     canMutateEnterprisePolicySurfaces,
     data,
     loading,

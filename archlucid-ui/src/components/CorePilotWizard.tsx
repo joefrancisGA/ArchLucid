@@ -8,6 +8,7 @@ import { useCallback, useEffect, useReducer, useState } from "react";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
+import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -40,7 +41,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
     title: "Welcome — your first architecture review",
     body: (
       <p className="m-0 leading-relaxed text-neutral-700 dark:text-neutral-200">
-        This short guide matches <strong>docs/CORE_PILOT.md</strong> (the V1 happy path): readiness → structured request → pipeline → finalization → review outputs. Close anytime; your place is saved in this browser.
+        This short guide follows the first architecture review path: readiness → structured request → assessment → finalize → review outputs. Close anytime; your place is saved in this browser.
       </p>
     ),
   },
@@ -58,7 +59,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
             href="/onboarding"
             className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
-            Open Getting started →
+            Open {BUYER_ONBOARDING_PAGE_TITLE} →
           </Link>
         </p>
       </div>
@@ -138,7 +139,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">
-          After finalization, review the package summary and artifact previews, then export bundle ZIP from review detail when you need a portable package — CORE_PILOT.md calls this step the pilot deliverable.
+          After finalize, review the package summary and artifact previews, then export the sponsor packet from review detail when you need a portable handoff for stakeholders.
         </p>
       </div>
     ),
@@ -263,7 +264,7 @@ export function CorePilotWizardLauncher() {
         >
           <DialogHeader className="space-y-4 text-left">
             <DialogDescription className="sr-only">
-              Guided checklist aligned with docs/library/V1_SCOPE.md pilot-path section and docs/CORE_PILOT.md; progress saves locally in this browser.
+              Guided first architecture review checklist; progress saves locally in this browser.
             </DialogDescription>
 
             <div className="flex flex-wrap items-center gap-3">

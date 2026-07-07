@@ -41,6 +41,11 @@ describe("HelpTopicTableOfContents", () => {
     for (const item of SAMPLE_HEADINGS) {
       expect(screen.getByRole("link", { name: item.title })).toHaveAttribute("href", `#${item.id}`);
     }
+
+    const list = screen.getByRole("list");
+
+    expect(list.className).not.toContain("overflow-y");
+    expect(list.className).not.toContain("max-h");
   });
 
   it("marks the hash-matched section as the current location", () => {

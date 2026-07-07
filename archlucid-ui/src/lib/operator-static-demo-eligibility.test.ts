@@ -1,4 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+import * as demoUiEnv from "@/lib/demo-ui-env";
 
 import {
   isPackagedDemoDeployEnv,
@@ -268,15 +270,43 @@ describe("operator-static-demo — showcase eligibility without demo env vars", 
     }
   });
 
-  it("shouldSeedStaticDemoGovernanceRecordsForRun is false without packaged demo env even when demo run id matches", () => {
+  it("shouldSeedStaticDemoGovernanceRecordsForRun is false without packaged demo or buyer-polished shell", () => {
     const originalDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
     const originalStatic = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
 
     delete process.env.NEXT_PUBLIC_DEMO_MODE;
     delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
 
+    const buyerPolishedSpy = vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(false);
+
     expect(isPackagedDemoDeployEnv()).toBe(false);
     expect(shouldSeedStaticDemoGovernanceRecordsForRun(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(false);
+
+    buyerPolishedSpy.mockRestore();
+
+    if (originalDemo !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_MODE = originalDemo;
+    }
+
+    if (originalStatic !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = originalStatic;
+    }
+  });
+
+  it("shouldSeedStaticDemoGovernanceRecordsForRun is true for showcase run on buyer-polished diligence spine", () => {
+    const originalDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
+    const originalStatic = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+
+    const buyerPolishedSpy = vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
+
+    expect(isPackagedDemoDeployEnv()).toBe(false);
+    expect(shouldSeedStaticDemoGovernanceRecordsForRun(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(true);
+    expect(shouldSeedStaticDemoGovernanceRecordsForRun("not-a-demo-run")).toBe(false);
+
+    buyerPolishedSpy.mockRestore();
 
     if (originalDemo !== undefined) {
       process.env.NEXT_PUBLIC_DEMO_MODE = originalDemo;

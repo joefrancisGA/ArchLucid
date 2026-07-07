@@ -55,8 +55,10 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   alerts: "admin",
   "specialty-walkthroughs": "admin",
   "first-hour-operator-path": "product",
-  "first-pilot-path": "internal",
-  "core-pilot": "internal",
+  "review-guide": "product",
+  "first-pilot-path": "product",
+  "first-pilot-operator-runbook": "internal",
+  "core-pilot": "product",
   "first-value-20-minutes": "internal",
   "cli-usage": "internal",
   "developer-troubleshooting": "internal",
@@ -82,7 +84,22 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
   "enterprise-onboarding": {
     title: "Hosted SaaS enterprise onboarding checklist",
     summary:
-      "Configure an enterprise tenant — SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
+      "Configure an enterprise tenant — SSO, roles, governance, policy packs, audit export, and optional cloud connector evidence.",
+  },
+  "core-pilot": {
+    title: "Your first architecture review",
+    summary:
+      "First-session checklist — evidence-only or cloud connectors (Azure, AWS, GCP), finalize, and sponsor exports.",
+  },
+  "pilot-guide": {
+    title: "Pilot guide",
+    summary:
+      "Prepare for a pilot, run the first review, interpret outputs, report issues, and get help.",
+  },
+  "first-pilot-path": {
+    title: "Complete review workflow",
+    summary:
+      "Create a review package, attach evidence, review findings, finalize, and export sponsor-ready artifacts.",
   },
 };
 

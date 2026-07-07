@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
+import { AuthCallbackAccessPanel } from "@/app/(operator)/auth/callback/AuthCallbackAccessPanel";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import {
@@ -177,7 +177,7 @@ export function CallbackClient() {
   }, [code, oauthError, oauthErrorDescription, state]);
 
   if (failed) {
-    return <AuthErrorPanel title="Sign-in could not finish" message={message} />;
+    return <AuthCallbackAccessPanel technicalDetail={message} />;
   }
 
   return (

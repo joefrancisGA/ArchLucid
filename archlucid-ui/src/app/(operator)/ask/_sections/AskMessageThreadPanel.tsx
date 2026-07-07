@@ -7,6 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
+import {
+  BUYER_ASK_CONVERSATION_EMPTY_BODY,
+  BUYER_ASK_CONVERSATION_EMPTY_TITLE,
+  BUYER_ASK_RETRIEVAL_DEGRADED_LABEL,
+} from "@/lib/buyer-polish-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ASK_BUYER_PROMPT_GROUPS } from "@/app/(operator)/ask/_sections/ask-page-constants";
 import type { ConversationMessage } from "@/types/conversation";
@@ -55,13 +60,25 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         {retrievalDegraded ? (
           <StatusTag
             kind="needs-attention"
-            label="Vector search unavailable; using fallback text search."
+            label={
+              buyerPolishedShell
+                ? BUYER_ASK_RETRIEVAL_DEGRADED_LABEL
+                : "Vector search unavailable; using text search instead."
+            }
             data-testid="ask-retrieval-degraded-badge"
           />
         ) : null}
       </div>
       <div className="grid gap-3">
-        {messages.length === 0 ? <EnterpriseCompactEmptyState {...ASK_CONVERSATION_EMPTY} /> : null}
+        {messages.length === 0 ? (
+          <EnterpriseCompactEmptyState
+            {...ASK_CONVERSATION_EMPTY}
+            title={buyerPolishedShell ? BUYER_ASK_CONVERSATION_EMPTY_TITLE : ASK_CONVERSATION_EMPTY.title}
+            description={
+              buyerPolishedShell ? BUYER_ASK_CONVERSATION_EMPTY_BODY : ASK_CONVERSATION_EMPTY.description
+            }
+          />
+        ) : null}
         {messages.map((message) => (
           <Card
             key={message.messageId}
