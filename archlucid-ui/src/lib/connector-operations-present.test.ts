@@ -1,14 +1,20 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  formatConnectorStatusLabel,
+  formatConnectorDisplayStatus,
   groupConnectorsByPurpose,
   resolveConnectorGuidance,
   resolveConnectorHumanStatus,
+  resolveIntegrationEventBusDisplayStatus,
   resolveIntegrationEventBusGuidance,
   resolveIntegrationEventBusHumanStatus,
 } from "@/lib/connector-operations-present";
-import type { ConnectorSurfaceStatusDto, IntegrationEventBusStatusDto } from "@/types/operate-rhythm";
+import {
+  buildIntegrationReadinessSummaryTiles,
+  buildIntegrationRecommendedNextSteps,
+  resolveIntegrationReadinessHeadline,
+} from "@/lib/connector-readiness-summary";
+import type { ConnectorSurfaceStatusDto, IntegrationEventBusStatusDto, TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
 
 function connector(partial: Partial<ConnectorSurfaceStatusDto> & Pick<ConnectorSurfaceStatusDto, "connectorKey">): ConnectorSurfaceStatusDto {
   return {
@@ -19,6 +25,19 @@ function connector(partial: Partial<ConnectorSurfaceStatusDto> & Pick<ConnectorS
     configurationHref: partial.configurationHref ?? null,
     ...partial,
   };
+}
+
+function operationsData(
+  connectors: ConnectorSurfaceStatusDto[],
+  bus: IntegrationEventBusStatusDto = {
+    publisherConfigured: false,
+    transactionalOutboxEnabled: false,
+    consumerConfigured: false,
+    usesLegacyConnectionString: false,
+    smokeReadiness: "NotConfigured",
+  },
+): TenantIntegrationsOperationsDto {
+  return { connectors, integrationEventBus: bus };
 }
 
 describe("connector-operations-present", () => {
@@ -36,27 +55,37 @@ describe("connector-operations-present", () => {
     ).toBe("Configuration incomplete");
   });
 
-  it("labels optional ticketing connectors without blocker framing", () => {
+  it("labels optional ticketing connectors without defect framing", () => {
     const jira = connector({ connectorKey: "jira", smokeReadiness: "NotConfigured" });
-    const humanStatus = resolveConnectorHumanStatus(jira);
 
-    expect(formatConnectorStatusLabel(jira, humanStatus)).toBe("Optional — not configured");
-    expect(resolveConnectorGuidance(jira, humanStatus)).toMatch(/Jira Cloud base URL/i);
+    expect(formatConnectorDisplayStatus(jira)).toBe("Not configured");
+    expect(resolveConnectorGuidance(jira, resolveConnectorHumanStatus(jira))).toMatch(/Jira Cloud base URL/i);
   });
 
-  it("marks disabled Confluence publishing as optional disabled", () => {
+  it("labels recommended notification connectors as Recommended when not ready", () => {
+    const teams = connector({ connectorKey: "teams", smokeReadiness: "NotConfigured" });
+
+    expect(formatConnectorDisplayStatus(teams)).toBe("Recommended");
+  });
+
+  it("labels partially configured optional connectors as Optional", () => {
+    const jira = connector({ connectorKey: "jira", smokeReadiness: "ConfigurationIncomplete" });
+
+    expect(formatConnectorDisplayStatus(jira)).toBe("Optional");
+  });
+
+  it("marks disabled Confluence publishing as Disabled", () => {
     const confluence = connector({
       connectorKey: "confluence",
       smokeReadiness: "ConfigurationIncomplete",
       summary: "Confluence publishing is disabled in Integrations:ConfluencePublishing:Enabled.",
     });
-    const humanStatus = resolveConnectorHumanStatus(confluence);
 
-    expect(humanStatus).toBe("Disabled");
-    expect(formatConnectorStatusLabel(confluence, humanStatus)).toBe("Optional — disabled");
+    expect(resolveConnectorHumanStatus(confluence)).toBe("Disabled");
+    expect(formatConnectorDisplayStatus(confluence)).toBe("Disabled");
   });
 
-  it("groups connectors by purpose", () => {
+  it("groups connectors by user-intent sections", () => {
     const grouped = groupConnectorsByPurpose([
       connector({ connectorKey: "teams" }),
       connector({ connectorKey: "outbound_webhooks" }),
@@ -69,7 +98,7 @@ describe("connector-operations-present", () => {
     expect(grouped.get("publishing")?.map((row) => row.connectorKey)).toEqual(["confluence"]);
   });
 
-  it("summarizes integration event bus readiness in human language", () => {
+  it("summarizes integration event bus readiness in customer language", () => {
     const bus: IntegrationEventBusStatusDto = {
       publisherConfigured: false,
       transactionalOutboxEnabled: false,
@@ -79,7 +108,36 @@ describe("connector-operations-present", () => {
     };
     const humanStatus = resolveIntegrationEventBusHumanStatus(bus);
 
-    expect(humanStatus).toBe("Not configured");
-    expect(resolveIntegrationEventBusGuidance(bus, humanStatus)).toMatch(/not configured/i);
+    expect(resolveIntegrationEventBusDisplayStatus(bus)).toBe("Not configured");
+    expect(resolveIntegrationEventBusGuidance(bus, humanStatus)).toMatch(/Standard review workflows do not require this/i);
+  });
+});
+
+describe("connector-readiness-summary", () => {
+  it("builds summary tiles and a reassuring headline for default workspace", () => {
+    const data = operationsData([
+      connector({ connectorKey: "teams", smokeReadiness: "NotConfigured", configurationHref: "/integrations/teams" }),
+      connector({ connectorKey: "jira", smokeReadiness: "NotConfigured", configurationHref: "/integrations/jira" }),
+    ]);
+
+    expect(resolveIntegrationReadinessHeadline(data.connectors, data.integrationEventBus)).toMatch(
+      /Core review workflows are ready/i,
+    );
+
+    const tiles = buildIntegrationReadinessSummaryTiles(data);
+    expect(tiles.find((tile) => tile.id === "recommended")?.value).toBe("1");
+    expect(tiles.find((tile) => tile.id === "optional")?.value).toBe("1");
+  });
+
+  it("prioritizes recommended next steps without scrolling", () => {
+    const data = operationsData([
+      connector({ connectorKey: "teams", smokeReadiness: "NotConfigured", configurationHref: "/integrations/teams" }),
+      connector({ connectorKey: "jira", smokeReadiness: "NotConfigured", configurationHref: "/integrations/jira" }),
+    ]);
+
+    const steps = buildIntegrationRecommendedNextSteps(data);
+
+    expect(steps.map((step) => step.id)).toEqual(["notify-team", "create-tickets", "event-bus"]);
+    expect(steps[0]?.href).toBe("/integrations/teams");
   });
 });

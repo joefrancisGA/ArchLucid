@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 
 export default function IntegrationsOperationsPage() {
   return (
-    <div className="w-full max-w-[1200px] space-y-6 px-1 py-4 sm:px-0">
+    <div className="w-full max-w-[1120px] space-y-6 px-1 py-4 sm:px-0">
       <OperatorPageHeader
         title="Integration readiness"
-        subtitle="Check readiness for Jira, ServiceNow, Microsoft Teams, Slack, Azure, webhooks, publishing, and integration events. Open a product page below to configure one integration at a time."
+        subtitle="See which integrations are ready, recommended, or optional for this workspace — and what to configure first."
       />
       <LayerHeader
         pageKey="integrations-operations"
