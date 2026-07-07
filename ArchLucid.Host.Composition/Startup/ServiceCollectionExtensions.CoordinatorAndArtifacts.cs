@@ -125,6 +125,7 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IEvidenceBundleRepository, InMemoryEvidenceBundleRepository>();
             services.AddSingleton<IAgentEvidencePackageRepository, InMemoryAgentEvidencePackageRepository>();
             services.AddSingleton<IAgentExecutionTraceRepository, InMemoryAgentExecutionTraceRepository>();
+            services.AddSingleton<ITechnologyLedgerRepository, InMemoryTechnologyLedgerRepository>();
             services.AddSingleton<IAgentOutputEvaluationResultRepository, NoOpAgentOutputEvaluationResultRepository>();
             services.AddSingleton<IAgentOutputEvaluationRepository, NoOpAgentOutputEvaluationRepository>();
             services.AddSingleton<IPromptVariantStatsRepository, NoOpPromptVariantStatsRepository>();
@@ -147,6 +148,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IEvidenceBundleRepository, EvidenceBundleRepository>();
         services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
         services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
+        services.AddScoped<ITechnologyLedgerRepository, TechnologyLedgerRepository>();
         services.AddScoped<IAgentOutputEvaluationResultRepository, AgentOutputEvaluationResultRepository>();
         services.AddScoped<IAgentOutputEvaluationRepository, AgentOutputEvaluationRepository>();
         services.AddScoped<IPromptVariantStatsRepository, SqlPromptVariantStatsRepository>();
