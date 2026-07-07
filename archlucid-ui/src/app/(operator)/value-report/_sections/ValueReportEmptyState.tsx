@@ -1,5 +1,6 @@
 "use client";
 
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { SeedSampleReviewButton } from "@/components/SeedSampleReviewButton";
 import {
@@ -16,7 +17,7 @@ export function ValueReportEmptyState(): React.JSX.Element {
       title={BUYER_VALUE_REPORT_EMPTY_TITLE}
       description={BUYER_VALUE_REPORT_EMPTY_DESCRIPTION}
       actions={[
-        { label: "Start review", href: "/reviews/new", variant: "primary" },
+        { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "primary" },
         { label: "Open review packages", href: "/reviews?projectId=default", variant: "outline" },
       ]}
       footer={<SeedSampleReviewButton label={BUYER_SEED_SAMPLE_WORKSPACE_CTA} />}

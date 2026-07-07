@@ -1,4 +1,5 @@
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 
 
 
@@ -158,7 +159,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
       href: canExecute ? "/reviews/new" : "/help",
 
-      cta: canExecute ? "New review" : "Review permissions",
+      cta: canExecute ? CREATE_ARCHITECTURE_LABEL : "Review permissions",
 
       sponsorDisposition: "readiness-only",
 

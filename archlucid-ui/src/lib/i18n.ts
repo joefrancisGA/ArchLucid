@@ -2,6 +2,7 @@
  * Central dictionary for operator-facing domain terms and reusable UI labels.
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 
@@ -117,8 +118,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   reviewPackage: "Review packages",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
-  /** Left nav destination for `/reviews/new` — distinct from hero/quick-action "Start review". */
-  capture: "New review",
+  /** Left nav destination for `/reviews/new` — creation intake (brief, diagram, document, optional cloud). */
+  capture: CREATE_ARCHITECTURE_LABEL,
   onboarding: BUYER_ONBOARDING_PAGE_TITLE,
   findings: "Risk register",
   riskExceptions: "Risk exceptions",

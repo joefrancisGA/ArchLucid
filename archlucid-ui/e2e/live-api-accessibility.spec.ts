@@ -99,7 +99,7 @@ const PAGES = [
     name: "Executive finding detail (showcase)",
     path: `/executive/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}`,
   },
-  { name: "New review (canonical /reviews)", path: "/reviews/new" },
+  { name: "Create architecture (canonical /reviews)", path: "/reviews/new" },
   { name: "Reviews list (canonical /reviews)", path: "/reviews?projectId=default" },
   { name: "Run detail (canonical /reviews)", path: `/reviews/${FIXTURE_RUN_ID}` },
   { name: "Run provenance (canonical /reviews)", path: `/reviews/${FIXTURE_RUN_ID}/provenance` },

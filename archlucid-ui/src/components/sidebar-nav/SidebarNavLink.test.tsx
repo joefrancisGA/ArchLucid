@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -24,7 +25,7 @@ vi.mock("next/link", () => ({
 
 const newReviewLink: NavLinkItem = {
   href: "/reviews/new",
-  label: "New review",
+  label: CREATE_ARCHITECTURE_LABEL,
   title: "Start a review",
   tier: "essential",
 };
@@ -40,7 +41,7 @@ describe("SidebarNavLink", () => {
       />,
     );
 
-    const link = screen.getByRole("link", { name: "New review" });
+    const link = screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL });
 
     expect(link).toHaveAttribute("aria-current", "page");
     expect(link.className).toContain(DESIGN_TOKENS.interactive.navActive);
@@ -57,7 +58,7 @@ describe("SidebarNavLink", () => {
       />,
     );
 
-    const link = screen.getByRole("link", { name: "New review" });
+    const link = screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL });
 
     expect(link).not.toHaveAttribute("aria-current");
     expect(link.className).toContain("text-neutral-900");

@@ -1,3 +1,5 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+
 export const EVIDENCE_GRAPH_PAGE_TITLE = "Evidence graph";
 
 export const EVIDENCE_GRAPH_PAGE_SUBTITLE =
@@ -23,6 +25,6 @@ export const EVIDENCE_GRAPH_EMPTY_BODY =
 
 export const EVIDENCE_GRAPH_EMPTY_PRIMARY_ACTION = "Open sample evidence graph";
 
-export const EVIDENCE_GRAPH_EMPTY_SECONDARY_START = "Start review";
+export const EVIDENCE_GRAPH_EMPTY_SECONDARY_START = CREATE_ARCHITECTURE_LABEL;
 
 export const EVIDENCE_GRAPH_EMPTY_SECONDARY_UPLOAD = "Upload evidence";

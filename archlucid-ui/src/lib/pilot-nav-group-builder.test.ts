@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { describe, expect, it, vi, afterEach } from "vitest";
 
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator-admin-nav-group-builder";
@@ -77,7 +78,7 @@ describe("PilotNavGroupBuilder", () => {
 
     expect(group.links.map((link) => link.label)).toEqual([
       "Overview",
-      "New review",
+      CREATE_ARCHITECTURE_LABEL,
       "Review packages",
       "Executive dashboard",
       "First review guide",
@@ -92,12 +93,12 @@ describe("PilotNavGroupBuilder", () => {
     expect(reviewsListLink?.label).toBe("Review packages");
   });
 
-  it("TB-646: uses outcome-first new-review nav title in pilot nav", () => {
+  it("TB-646: uses creation-first new-review nav title in pilot nav", () => {
     const group = new PilotNavGroupBuilder().build();
     const newReviewLink = group.links.find((link) => link.href === "/reviews/new");
 
-    expect(newReviewLink?.label).toBe("New review");
-    expect(newReviewLink?.title?.toLowerCase()).toContain("start a review");
+    expect(newReviewLink?.label).toBe(CREATE_ARCHITECTURE_LABEL);
+    expect(newReviewLink?.title?.toLowerCase()).toContain("create architecture");
     expect(newReviewLink?.title?.toLowerCase()).not.toContain("architecture request");
   });
 });

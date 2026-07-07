@@ -1,3 +1,5 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 import { describe, expect, it } from "vitest";
 
 import { getRouteTitle } from "./route-titles";
@@ -6,8 +8,8 @@ describe("getRouteTitle — static routes", () => {
   it("returns known titles", () => {
     expect(getRouteTitle("/")).toBe("Overview");
     expect(getRouteTitle("/alerts")).toBe("Alerts");
-    expect(getRouteTitle("/reviews/new")).toBe("New review");
-    expect(getRouteTitle("/governance")).toBe("Approval queue");
+    expect(getRouteTitle("/reviews/new")).toBe(CREATE_ARCHITECTURE_LABEL);
+    expect(getRouteTitle("/governance")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
   });
 });
 

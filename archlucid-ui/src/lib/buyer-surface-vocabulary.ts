@@ -2,6 +2,8 @@
  * Canonical labels for buyer-polished surfaces — keeps “evidence graph”, “audit trail”,
  * and “approval path” consistent across Review, Manifest, Graph, Governance, and Audit.
  */
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+
 export const BUYER_SURFACE_VOCABULARY = {
   /** Graph surface / citations — matches graph page title in buyer shell. */
   evidenceGraph: "Evidence graph",
@@ -43,7 +45,7 @@ export const PILOT_FEEDBACK_VOCABULARY = {
   emptyStateDescription:
     "Feedback from pilots and review evaluations will appear here after users accept, reject, revise, or comment on review outputs.",
   emptyStatePrimaryAction: "Open review packages",
-  emptyStateSecondaryAction: "Start review",
+  emptyStateSecondaryAction: CREATE_ARCHITECTURE_LABEL,
   summaryKpiFeedbackSummaries: "Feedback summaries",
   summaryKpiRepeatedIssues: "Repeated issues",
   summaryKpiImprovementOpportunities: "Improvement opportunities",
@@ -82,7 +84,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   emptyStateTitle: "No committed reviews yet",
   emptyStateDescription:
     "Finalize a review package to populate executive metrics, remediation progress, ROI estimates, and sponsor-ready exports.",
-  emptyStatePrimaryAction: "Start review",
+  emptyStatePrimaryAction: CREATE_ARCHITECTURE_LABEL,
   emptyStateSecondaryAction: "Load sample workspace",
   emptyStatePreviewSectionTitle: "What this dashboard will show",
   emptyStatePreviewBullets: [
@@ -97,7 +99,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   scorecardPageTitle: "Executive scorecard",
   scorecardEmptyStateDescription:
     "The scorecard appears after at least one review package is finalized. It summarizes review volume, findings, estimated hours saved, compliance drift, and recommended actions.",
-  scorecardEmptyStatePrimaryAction: "Start review",
+  scorecardEmptyStatePrimaryAction: CREATE_ARCHITECTURE_LABEL,
   scorecardEmptyStateSecondaryAction: "Load sample workspace",
   scorecardEmptyStateTertiaryAction: "Open sample scorecard",
   scorecardEmptyStatePreviewSectionTitle: "What this scorecard will show",

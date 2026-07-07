@@ -32,7 +32,7 @@ describe("review intake terminology", () => {
     expect(socraticSource).not.toMatch(/cardTitle:\s*"Start review"/);
   });
 
-  it("uses Start review on home quick-action cards (TB-646)", () => {
+  it("uses Create architecture on home quick-action cards", () => {
     const source = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "..", "components", "operator-home", "OperatorHomeGlossarySections.tsx"),
       "utf8",

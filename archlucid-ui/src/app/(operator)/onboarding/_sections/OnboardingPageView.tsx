@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -37,7 +38,7 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <Button asChild size="sm" variant="default">
-            <Link href="/reviews/new">Start review</Link>
+            <Link href="/reviews/new">{CREATE_ARCHITECTURE_LABEL}</Link>
           </Button>
           <Button asChild size="sm" variant="outline">
             <Link href={sampleReviewHref}>Open sample review</Link>

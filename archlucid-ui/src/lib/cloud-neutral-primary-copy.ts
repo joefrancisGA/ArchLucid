@@ -65,7 +65,7 @@ export const CLOUD_CAPABILITY_PROVIDER_MAP = [
 /** Shared neutral phrasing for surfaces shown before the user selects a cloud target. */
 export const CLOUD_NEUTRAL_PRIMARY_COPY = {
   reviewsNewPageLead:
-    "Upload a diagram, brief, or architecture document to start evidence capture. Cloud connection is optional.",
+    "Create an architecture review from a diagram, brief, or document. Cloud connection is optional.",
   executiveBaselineBannerBody:
     "Executive ROI summaries stay grounded when you upload a cloud inventory ZIP (AWS, Azure, or GCP) for this workspace. Use the baseline upload wizard to parse packager output and start your first review from measured inventory.",
   corePilotInventoryStepDetail:

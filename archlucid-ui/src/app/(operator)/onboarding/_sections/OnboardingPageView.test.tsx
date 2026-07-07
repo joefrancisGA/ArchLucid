@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -50,7 +51,7 @@ describe("OnboardingPageView", () => {
     expect(screen.getByRole("heading", { name: BUYER_ONBOARDING_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(BUYER_ONBOARDING_PAGE_LEAD)).toBeInTheDocument();
     expect(screen.queryByText(/intake|committed package/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: "Open sample review" })).toHaveAttribute(
       "href",
       `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,

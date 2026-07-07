@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+
 import RiskExceptionsClient from "@/components/governance/RiskExceptionsClient";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
@@ -106,7 +108,7 @@ describe("RiskExceptionsClient", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open findings" })).toHaveAttribute("href", "/governance/findings");
     expect(screen.getByRole("link", { name: "Open governance workflow" })).toHaveAttribute("href", "/governance");
-    expect(screen.getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/reviews/new");
   });
 
   it("uses risk-exceptions layer guidance instead of governance workflow copy in operator shell", async () => {
@@ -133,7 +135,7 @@ describe("RiskExceptionsClient", () => {
       screen.queryByText("Track active waivers, expirations, owners, and linked governance decisions."),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View governance decisions" })).toHaveAttribute("href", "/governance");
-    expect(screen.getByRole("link", { name: "Start a new review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/reviews/new");
   });
 
   it("does not duplicate explain-this-view guidance for risk exceptions", () => {

@@ -1,4 +1,4 @@
-"use client";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -435,7 +435,7 @@ export function FirstPilotReadinessCockpit() {
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   Tier-1 inventory scripts (Azure, AWS, GCP) — run locally, then upload from{" "}
                   <Link href="/reviews/new" className="font-medium text-teal-800 underline dark:text-teal-300">
-                    New review
+                    {CREATE_ARCHITECTURE_LABEL}
                   </Link>
                   .
                 </p>

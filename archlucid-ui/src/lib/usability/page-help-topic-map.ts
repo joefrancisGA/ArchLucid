@@ -2,6 +2,7 @@
  * Maps operator routes to in-app `/help/{slug}` topics for contextual help buttons.
  */
 
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 
 export type PageHelpTopic = {
@@ -12,7 +13,7 @@ export type PageHelpTopic = {
 const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/", topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/onboarding", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
-  { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: "Start review" } },
+  { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: CREATE_ARCHITECTURE_LABEL } },
   { prefix: "/reviews", topic: { slug: "review-packages", label: "Review packages" } },
   { prefix: "/dashboard", topic: { slug: "executive-summary", label: "Executive dashboard" } },
   { prefix: "/graph", topic: { slug: "evidence-trail", label: "Evidence trail" } },

@@ -4,6 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useState } from "react";
 
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { Button } from "@/components/ui/button";
 import { OPT_IN_TOUR_EVIDENCE_STEP } from "@/lib/onboarding-secondary-surfaces";
 
@@ -38,9 +39,9 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
     body: OPT_IN_TOUR_EVIDENCE_STEP.body,
   },
   {
-    title: "3. Start a review",
+    title: "3. Create architecture",
     body:
-      "Click New review (or press Alt+N) to open the wizard. It guides you through system identity, requirements, and " +
+      `Click ${CREATE_ARCHITECTURE_LABEL} (or press Alt+N) to open the wizard. It guides you through system identity, requirements, and ` +
       "constraints, then kicks off the analysis pipeline for this architecture review. You will see live progress on step 7.",
   },
   {

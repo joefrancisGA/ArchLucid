@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+
 import { OPERATOR_NAV_LINK_LABELS } from "./i18n";
 import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "./showcase-static-demo";
 import { getBreadcrumbs } from "./breadcrumb-map";
@@ -15,15 +17,15 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("uses New review on the wizard path when buyer-polished breadcrumbs are requested", () => {
+  it("uses Create architecture on the wizard path when buyer-polished breadcrumbs are requested", () => {
     expect(getBreadcrumbs("/reviews/new", { buyerPolishedShell: true })).toEqual([
-      { label: "New review" },
+      { label: CREATE_ARCHITECTURE_LABEL },
     ]);
   });
 
-  it("shortens the new-review path to a single wizard crumb with outcome-first label (TB-646)", () => {
+  it("shortens the new-review path to a single wizard crumb with creation-first label", () => {
     expect(getBreadcrumbs("/reviews/new")).toEqual([
-      { label: "New review" },
+      { label: CREATE_ARCHITECTURE_LABEL },
     ]);
   });
 

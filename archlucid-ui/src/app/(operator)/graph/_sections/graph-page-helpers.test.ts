@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { describe, expect, it } from "vitest";
 
 import { GRAPH_IDLE, GRAPH_IDLE_BUYER } from "@/lib/empty-state-presets";
@@ -15,7 +16,7 @@ describe("resolveGraphIdleEmptyPreset", () => {
     expect(preset.title).toBe(GRAPH_IDLE.title);
     expect(preset.title).toBe("No completed review packages yet");
     expect(preset.description).toBe(GRAPH_IDLE.description);
-    expect(preset.actions?.[0]?.label).toBe("Start review");
+    expect(preset.actions?.[0]?.label).toBe(CREATE_ARCHITECTURE_LABEL);
     expect(preset.actions?.[1]?.label).toBe("Open sample evidence graph");
   });
 
@@ -30,7 +31,7 @@ describe("resolveGraphIdleEmptyPreset", () => {
     expect(preset.description).toContain("Complete a review package to generate an evidence graph");
     expect(preset.description).toContain("evidence relationships work");
     expect(preset.actions?.[0]?.label).toBe("Open sample evidence graph");
-    expect(preset.actions?.[1]?.label).toBe("Start review");
+    expect(preset.actions?.[1]?.label).toBe(CREATE_ARCHITECTURE_LABEL);
   });
 
   it("prefers showcase demo idle copy when demoUi and showIdleCard are both true", () => {
@@ -42,6 +43,6 @@ describe("resolveGraphIdleEmptyPreset", () => {
 
     expect(preset.title).toBe("No completed review packages yet");
     expect(preset.actions?.[0]?.label).toBe("Open sample evidence graph");
-    expect(preset.actions?.[1]?.label).toBe("Start review");
+    expect(preset.actions?.[1]?.label).toBe(CREATE_ARCHITECTURE_LABEL);
   });
 });

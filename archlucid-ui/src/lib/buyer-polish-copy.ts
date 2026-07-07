@@ -2,6 +2,7 @@
  * Shared buyer-polished copy — import here instead of scattering literals across pages.
  */
 
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 import { RISK_EXCEPTIONS_EMPTY_BODY, RISK_EXCEPTIONS_PAGE_SUBTITLE } from "@/lib/risk-exceptions-page";
 
@@ -91,7 +92,7 @@ export const PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY =
 /** Secondary text link on the home hero when the primary CTA opens the completed sample. */
 export const PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK = "Start your own review";
 
-export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start review";
+export const PILOT_COMMAND_CENTER_PRIMARY_CTA = CREATE_ARCHITECTURE_LABEL;
 
 export const PILOT_COMMAND_CENTER_OUTCOMES_HEADING = "What ArchLucid discovers";
 
@@ -421,7 +422,7 @@ export const BUYER_RUNS_LIST_MALFORMED_HEADING = "Review packages could not be d
 export const BUYER_RUNS_LIST_MALFORMED_BODY =
   "Try reloading the page. If this continues, contact support.";
 
-export const BUYER_NEW_REVIEW_TOAST_CATEGORY = "New review";
+export const BUYER_NEW_REVIEW_TOAST_CATEGORY = CREATE_ARCHITECTURE_LABEL;
 
 /** Form section heading when the user is defining the governed review package artifact. */
 export const CREATE_REVIEW_PACKAGE_HEADING = "Create review package";
@@ -538,7 +539,7 @@ export const BUYER_RISK_EXCEPTIONS_EMPTY_TITLE = "No active risk exceptions";
 
 export const BUYER_RISK_EXCEPTIONS_EMPTY_BODY = RISK_EXCEPTIONS_EMPTY_BODY;
 
-export const BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION = "Start a new review";
+export const BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION = CREATE_ARCHITECTURE_LABEL;
 
 export const BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE = "Monitored risks";
 

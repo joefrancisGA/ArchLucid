@@ -28,6 +28,7 @@ import {
   revokeRiskException,
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
   BUYER_RISK_EXCEPTIONS_EMPTY_BODY,
   BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION,
@@ -219,7 +220,7 @@ export default function RiskExceptionsClient() {
             ]}
             footer={
               <Link className={OPERATOR_LINK.optional} href="/reviews/new">
-                {buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION : "Start review"}
+                {buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION : CREATE_ARCHITECTURE_LABEL}
               </Link>
             }
           />

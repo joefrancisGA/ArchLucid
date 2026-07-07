@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -90,7 +91,7 @@ describe("SidebarNav (primary navigation)", () => {
     expect(reviewNav).toBeInTheDocument();
     expect(screen.queryByText("Review work")).toBeNull();
     expect(within(reviewNav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
-    expect(within(reviewNav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
+    expect(within(reviewNav).getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/reviews/new");
     expect(within(reviewNav).getByRole("link", { name: "First review guide" })).toHaveAttribute("href", "/onboarding");
     expect(within(reviewNav).queryByRole("link", { name: "Risk register" })).toBeNull();
     expect(within(reviewNav).queryByRole("link", { name: "Scorecard" })).toBeNull();
@@ -217,7 +218,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
 
     const nav = screen.getByRole("navigation", { name: "Architecture" });
     expect(within(nav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
-    expect(within(nav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
+    expect(within(nav).getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/reviews/new");
     expect(within(nav).getByRole("link", { name: "Review packages" })).toHaveAttribute(
       "href",
       "/reviews?projectId=default",

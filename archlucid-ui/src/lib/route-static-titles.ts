@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
@@ -9,7 +10,7 @@ import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integ
 export const ROUTE_TITLES: Record<string, string> = {
   "/": OPERATOR_NAV_LINK_LABELS.home,
   "/reviews": RUNS_LIST_PAGE_TITLES.buyerPolished,
-  "/reviews/new": "New review",
+  "/reviews/new": CREATE_ARCHITECTURE_LABEL,
   "/alerts": "Alerts",
   "/alert-rules": "Alert rules",
   "/compare": "Compare",
