@@ -75,6 +75,15 @@ const nextConfig: NextConfig = {
   },
   transpilePackages: ["reactflow"],
   async headers() {
+    const securityHeaderRules = [{ source: "/:path*", headers: securityHeaders }];
+
+    // `next dev` manages its own Cache-Control for these paths (recompiled assets/edited
+    // images keep the same URL, unlike production's fingerprinted /_next/static output);
+    // a year-long override here fights the dev server and can serve stale bundles/images.
+    if (process.env.NODE_ENV === "development") {
+      return securityHeaderRules;
+    }
+
     return [
       {
         source: "/_next/static/:path*",
@@ -84,10 +93,7 @@ const nextConfig: NextConfig = {
         source: "/images/:path*",
         headers: [immutableStaticAssetCacheControl],
       },
-      {
-        source: "/:path*",
-        headers: securityHeaders,
-      },
+      ...securityHeaderRules,
     ];
   },
   async redirects() {
