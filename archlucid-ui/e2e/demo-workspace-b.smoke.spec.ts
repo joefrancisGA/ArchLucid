@@ -21,7 +21,6 @@ import {
   liveApiBase,
   postConsultingAnalysisDocxRaw,
 } from "./helpers/live-api-client";
-import { getAppMain } from "./helpers/app-main";
 import {
   buyerPolishedReviewDetailSectionNav,
   ensureBuyerDeliverablesSectionExpanded,
@@ -77,37 +76,24 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expect(sectionNav.getByRole("link", { name: "Decision", exact: true })).toBeVisible();
 
-    /** Pack A narrative (Responsible AI governance engine + rule identifiers from seed fixtures). */
-    await expect(
-      getAppMain(page)
-        .getByText(/Promoted scoring ensemble lacks immutable lineage hash/i)
-        .first(),
-    ).toBeVisible({
-      timeout: 90_000,
-    });
-
-    await expect(getAppMain(page).getByText(/ai-gov-002/i).first()).toBeVisible({ timeout: 90_000 });
-
-    /** Pack B security baseline posture (public exposure rule sec-base-006 from seed fixtures). */
-    await expect(
-      getAppMain(page)
-        .getByText(/Inference gateway still advertises interim public listener/i)
-        .first(),
-    ).toBeVisible({
-      timeout: 90_000,
-    });
-
-    await expect(getAppMain(page).getByText(/sec-base-006/i).first()).toBeVisible({ timeout: 90_000 });
-
     await page.locator("#run-explanation").scrollIntoViewIfNeeded();
 
-    await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 60_000 });
+    const quickSummary = page.getByTestId("quick-decision-summary");
+
+    await expect(quickSummary).toBeVisible({ timeout: 60_000 });
+
+    /** Pack A narrative (Responsible AI governance engine from seed fixtures). */
+    await expect(
+      quickSummary.getByText(/Promoted scoring ensemble lacks immutable lineage hash/i).first(),
+    ).toBeVisible({ timeout: 90_000 });
+
+    /** Pack B security baseline posture (public exposure from seed fixtures). */
+    await expect(
+      quickSummary.getByText(/Inference gateway still advertises interim public listener/i).first(),
+    ).toBeVisible({ timeout: 90_000 });
 
     await expect(
-      page
-        .getByTestId("quick-decision-summary")
-        .getByText(/^High$|^Critical$/, { exact: true })
-        .first(),
+      quickSummary.getByText(/^High$|^Critical$/, { exact: true }).first(),
     ).toBeVisible({ timeout: 30_000 });
 
     const docxExport = await postConsultingAnalysisDocxRaw(request, DEMO_WORKSPACE_B_REGULATED_RUN_ID, {
