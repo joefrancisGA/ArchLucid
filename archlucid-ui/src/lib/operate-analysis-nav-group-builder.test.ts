@@ -20,6 +20,21 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     expect(graphLink?.keyShortcut).toBe("alt+y");
   });
 
+  it("lists Review scorecard last in Insights nav", () => {
+    const group = new OperateAnalysisNavGroupBuilder().build();
+
+    expect(group.links.map((link) => link.href)).toEqual([
+      "/graph",
+      "/ask",
+      "/search",
+      "/compare",
+      "/scorecard",
+    ]);
+    expect(group.links.at(-1)?.label).toBe("Review scorecard");
+  });
+});
+
+describe("OperateArchitectAdvancedNavGroupBuilder", () => {
   it("labels advisory nav as Advisory scans (TB-529)", () => {
     const group = new OperateArchitectAdvancedNavGroupBuilder().build();
     const advisoryLink = group.links.find((link) => link.href === "/advisory");

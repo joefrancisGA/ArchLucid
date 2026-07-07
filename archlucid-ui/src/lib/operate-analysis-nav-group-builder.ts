@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   GitCompare,
   GitGraph,
   MessageSquare,
@@ -6,6 +7,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -51,6 +53,14 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
           title: this.shortcutTitle("See what changed between reviews", "alt+c"),
           keyShortcut: "alt+c",
           icon: GitCompare,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/scorecard",
+          label: OPERATOR_NAV_LINK_LABELS.scorecard,
+          title: `${BUYER_TERMINOLOGY.reviewScorecard} — finalized-review metrics and ROI baselines`,
+          icon: BarChart3,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

@@ -169,6 +169,7 @@ describe("nav-config structure", () => {
       "/ask",
       "/search",
       "/compare",
+      "/scorecard",
     ]);
     const architectAdvancedHrefs = NAV_GROUPS.find((group) => group.id === "operate-architect-advanced")!.links.map(
       (link) => link.href,
@@ -194,7 +195,6 @@ describe("nav-config structure", () => {
       "/governance/first-30-days",
     ]);
     expect(reportsHrefs).toEqual([
-      "/scorecard",
       "/value-report",
       "/value-report/pilot",
       "/value-report/roi",

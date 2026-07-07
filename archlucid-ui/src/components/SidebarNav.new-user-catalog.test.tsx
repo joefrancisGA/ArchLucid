@@ -25,6 +25,7 @@ vi.mock("@/hooks/use-governance-mode", async () => {
 
 vi.mock("next/navigation", () => ({
   usePathname: (): string => mockPathname(),
+  useSearchParams: (): URLSearchParams => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -75,15 +76,11 @@ const REVIEW_WORK_HREFS: ReadonlyArray<string> = [
 const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   {
     toggleTestId: "sidebar-group-toggle-operate-analysis",
-    hrefs: ["/graph", "/ask", "/compare"],
+    hrefs: ["/graph", "/ask", "/compare", "/scorecard"],
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-governance",
     hrefs: ["/governance/findings", "/governance/risk-exceptions", "/governance/first-30-days"],
-  },
-  {
-    toggleTestId: "sidebar-group-toggle-operate-reports",
-    hrefs: ["/scorecard"],
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-integrations",

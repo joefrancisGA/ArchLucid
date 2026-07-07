@@ -30,4 +30,10 @@ describe("OperateReportsNavGroupBuilder", () => {
     expect(group.links.some((link) => link.href === "/governance/first-30-days")).toBe(false);
     expect(group.links.map((link) => link.label)).not.toContain("First 30 days (governance)");
   });
+
+  it("does not duplicate Review scorecard after Insights promotion", () => {
+    const group = new OperateReportsNavGroupBuilder().build();
+
+    expect(group.links.some((link) => link.href === "/scorecard")).toBe(false);
+  });
 });
