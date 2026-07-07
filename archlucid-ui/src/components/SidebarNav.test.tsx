@@ -33,6 +33,7 @@ vi.mock("@/hooks/use-governance-mode", async () => {
 
 vi.mock("next/navigation", () => ({
   usePathname: (): string => mockPathname(),
+  useSearchParams: (): URLSearchParams => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -90,7 +91,7 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.queryByText("Review work")).toBeNull();
     expect(within(reviewNav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(reviewNav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
-    expect(within(reviewNav).getByRole("link", { name: "Getting started" })).toHaveAttribute("href", "/onboarding");
+    expect(within(reviewNav).getByRole("link", { name: "First review guide" })).toHaveAttribute("href", "/onboarding");
     expect(within(reviewNav).queryByRole("link", { name: "Risk register" })).toBeNull();
     expect(within(reviewNav).queryByRole("link", { name: "Scorecard" })).toBeNull();
 

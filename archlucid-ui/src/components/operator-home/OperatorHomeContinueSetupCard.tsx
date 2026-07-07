@@ -4,6 +4,7 @@ import { InlineGuidance } from "@/components/InlineGuidance";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import {
   OPERATOR_HOME_CONTINUE_SETUP_BODY,
+  OPERATOR_HOME_OPEN_FIRST_REVIEW_GUIDE_CTA,
   OPERATOR_HOME_SETUP_READINESS_TITLE,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
@@ -29,7 +30,7 @@ const setupActionLinkClass = cn(
   "dark:border-neutral-700 dark:hover:border-neutral-600",
 );
 
-/** Slim home card linking to Getting started for workspace setup without internal checklist jargon (TB-443). */
+/** Slim home card linking to the first review guide for workspace setup without internal checklist jargon (TB-443). */
 export function OperatorHomeContinueSetupCard(props: OperatorHomeContinueSetupCardProps = {}) {
   const showReadinessStatus =
     props.loading !== true
@@ -62,7 +63,7 @@ export function OperatorHomeContinueSetupCard(props: OperatorHomeContinueSetupCa
       </div>
       <div className={cn("flex shrink-0 flex-wrap items-center justify-end", OPERATOR_LAYOUT.inlineGap)}>
         <Link href="/onboarding" className={setupActionLinkClass}>
-          Open setup guide
+          {OPERATOR_HOME_OPEN_FIRST_REVIEW_GUIDE_CTA}
         </Link>
         <Link
           href={CLOUD_CONNECTIONS_PATH}

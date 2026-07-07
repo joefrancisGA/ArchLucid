@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer-polish-copy";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -23,7 +24,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Overview → New review → Review packages → Executive dashboard; then Getting started and governance follow-up.",
+        "Buyer-first path: Overview → New review → Review packages → Executive dashboard; then First review guide and governance follow-up.",
       links: [
         {
           href: "/",
@@ -62,7 +63,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/onboarding",
           label: OPERATOR_NAV_LINK_LABELS.onboarding,
-          title: "Getting started — checklist and milestones",
+          title: BUYER_ONBOARDING_NAV_TOOLTIP,
           // Catalog tier is essential; demoted to extended after first commit in nav-committed-architecture-review-promotion.ts (TB-524).
           tier: "essential",
           icon: Compass,

@@ -432,10 +432,14 @@ export const RUNS_LIST_EMPTY_SAMPLE_PATH_DESCRIPTION =
 
 export const RUNS_LIST_VIEW_SAMPLE_PACKAGE_CTA = "View sample package";
 
-export const BUYER_ONBOARDING_PAGE_TITLE = "Getting started";
+export const BUYER_ONBOARDING_PAGE_TITLE = "First review guide";
 
 export const BUYER_ONBOARDING_PAGE_LEAD =
   "Create and finalize your first architecture review package.";
+
+export const BUYER_ONBOARDING_NAV_TOOLTIP = "First review guide — checklist and milestones";
+
+export const OPERATOR_HOME_OPEN_FIRST_REVIEW_GUIDE_CTA = "Open first review guide";
 
 export const BUYER_ONBOARDING_WALKTHROUGH_HELP_LINK = "Architecture review walkthrough";
 

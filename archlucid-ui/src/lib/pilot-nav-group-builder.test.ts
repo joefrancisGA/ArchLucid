@@ -80,7 +80,7 @@ describe("PilotNavGroupBuilder", () => {
       "New review",
       "Review packages",
       "Executive dashboard",
-      "Getting started",
+      "First review guide",
     ]);
     expect(group.links.some((link) => link.href === "/graph")).toBe(false);
   });

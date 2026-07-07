@@ -8,6 +8,7 @@ import { useCallback, useEffect, useReducer, useState } from "react";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
+import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -58,7 +59,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
             href="/onboarding"
             className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
-            Open Getting started →
+            Open {BUYER_ONBOARDING_PAGE_TITLE} →
           </Link>
         </p>
       </div>
