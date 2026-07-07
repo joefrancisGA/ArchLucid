@@ -15,6 +15,8 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 
+using System.Data;
+
 using FluentAssertions;
 
 using Moq;
@@ -410,10 +412,113 @@ public sealed class ManifestFinalizationServiceTests
         result.PersistedManifest.Should().BeNull();
     }
 
+    [SkippableFact]
+    public async Task FinalizeAsync_legacy_skips_trace_and_manifest_save_when_pipeline_artifacts_already_persisted()
+    {
+        Guid runId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        RunRecord header = new()
+        {
+            RunId = runId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "proj",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            FindingsSnapshotId = findingsId
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(header);
+
+        Mock<IDecisionTraceRepository> traces = new();
+        traces.Setup(t => t.SaveAsync(It.IsAny<PersistenceDecisionTraceDto>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IGoldenManifestRepository> golden = new();
+        ManifestDocument existingManifest = CreateMinimalManifest(runId, findingsId, traceId);
+        golden.Setup(g => g.SupersedeUnreferencedActiveGoldenManifestsAsync(
+                scope,
+                existingManifest.ManifestId,
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Guid>());
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        outbox.Setup(o => o.EnqueueAsync(
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ManifestFinalizationService sut = CreateSut(
+            scopeProvider: scopeProvider.Object,
+            runRepository: runs.Object,
+            decisionTraceRepository: traces.Object,
+            goldenManifestRepository: golden.Object,
+            auditService: audit.Object,
+            integrationEventOutbox: outbox.Object);
+
+        ManifestFinalizationRequest request = CreateMinimalRequest(
+            runId,
+            findingsId,
+            traceId,
+            skipPersistingPipelineArtifacts: true,
+            manifestModel: existingManifest);
+
+        ManifestFinalizationResult result = await sut.FinalizeAsync(request, CancellationToken.None);
+
+        result.WasIdempotentReturn.Should().BeFalse();
+        result.ManifestId.Should().Be(existingManifest.ManifestId);
+        traces.Verify(
+            t => t.SaveAsync(It.IsAny<PersistenceDecisionTraceDto>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        golden.Verify(
+            g => g.SaveAsync(
+                It.IsAny<GoldenManifest>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<SaveContractsManifestOptions>(),
+                It.IsAny<IManifestHashService>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>(),
+                It.IsAny<ManifestDocument>()),
+            Times.Never);
+        runs.Verify(
+            r => r.UpdateAsync(It.Is<RunRecord>(h => h.LegacyRunStatus == nameof(ArchitectureRunStatus.Committed)),
+                It.IsAny<CancellationToken>(),
+                null,
+                null),
+            Times.Once);
+    }
+
     private static ManifestFinalizationRequest CreateMinimalRequest(
         Guid runId,
         Guid findingsId,
-        Guid? decisionTraceId = null)
+        Guid? decisionTraceId = null,
+        bool skipPersistingPipelineArtifacts = false,
+        ManifestDocument? manifestModel = null)
     {
         Guid tid = decisionTraceId ?? Guid.NewGuid();
         DecisionTrace trace = RuleAuditTrace.From(
@@ -442,7 +547,7 @@ public sealed class ManifestFinalizationServiceTests
             ExpectedFindingsSnapshotId = findingsId,
             ActorUserId = "u1",
             ActorUserName = "User One",
-            ManifestModel = model,
+            ManifestModel = manifestModel ?? model,
             Contract = new GoldenManifest
             {
                 RunId = runId.ToString("N"),
@@ -467,6 +572,7 @@ public sealed class ManifestFinalizationServiceTests
                 CreatedUtc = model.CreatedUtc,
             },
             Trace = trace,
+            SkipPersistingPipelineArtifacts = skipPersistingPipelineArtifacts
         };
     }
 

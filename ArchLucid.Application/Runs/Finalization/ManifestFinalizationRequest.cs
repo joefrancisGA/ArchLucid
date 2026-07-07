@@ -89,4 +89,14 @@ public sealed class ManifestFinalizationRequest
         get;
         init;
     }
+
+    /// <summary>
+    ///     When true, decision trace and golden manifest rows were already persisted during inline authority pipeline
+    ///     execution (non-deferred create); finalization only transitions the run header to Committed.
+    /// </summary>
+    public bool SkipPersistingPipelineArtifacts
+    {
+        get;
+        init;
+    }
 }

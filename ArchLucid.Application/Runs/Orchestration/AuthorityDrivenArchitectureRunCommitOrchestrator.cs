@@ -338,6 +338,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         IReadOnlyList<AgentResult>? agentResultsForTelemetry;
         FindingsSnapshot? findingsForFinalization;
         IReadOnlyList<PolicyPackAssignment>? scopePolicyPackAssignments;
+        bool skipPersistingPipelineArtifacts = false;
         try
         {
             if (runRecord.ContextSnapshotId is not { } contextSnapshotId || runRecord.GraphSnapshotId is not { } graphId ||
@@ -383,6 +384,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             {
                 manifestModel = reusedManifest.Manifest;
                 traceDto = reusedManifest.TraceDto;
+                skipPersistingPipelineArtifacts = true;
             }
             else
             {
@@ -436,7 +438,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     Keying = BuildSaveContractsManifestOptions(manifestModel, trace),
                     Trace = trace,
                     PreloadedFindingsSnapshot = findingsForFinalization,
-                    PreloadedScopePolicyPackAssignments = scopePolicyPackAssignments
+                    PreloadedScopePolicyPackAssignments = scopePolicyPackAssignments,
+                    SkipPersistingPipelineArtifacts = skipPersistingPipelineArtifacts
                 }, cancellationToken);
 
             if (finalization.WasIdempotentReturn)

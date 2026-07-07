@@ -121,13 +121,12 @@ public sealed class ManifestFinalizationService(
         }
 
         RuleAuditTracePayload audit = request.Trace.RequireRuleAudit();
-        await decisionTraceRepository.SaveAsync(DecisionTraceRecordMapper.ToDto(request.Trace), cancellationToken, connection, transaction);
-        await _committedEffectiveGovernanceSnapshotCapturer.ApplyToManifestAsync(
-            request.ManifestModel,
-            BuildGovernanceSnapshotCaptureOptions(request),
-            cancellationToken);
-        ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
-            cancellationToken, connection, transaction, request.ManifestModel);
+        ManifestDocument persisted = await PersistPipelineArtifactsForFinalizationAsync(
+            scope,
+            request,
+            cancellationToken,
+            connection,
+            transaction);
         DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
         Guid auditEventId = Guid.NewGuid();
         Guid outboxId = Guid.NewGuid();
@@ -228,13 +227,7 @@ public sealed class ManifestFinalizationService(
                 throw new InvalidOperationException("Artifact bundle on the run record does not match the expected bundle for finalization.");
         }
 
-        await decisionTraceRepository.SaveAsync(DecisionTraceRecordMapper.ToDto(request.Trace), cancellationToken);
-        await _committedEffectiveGovernanceSnapshotCapturer.ApplyToManifestAsync(
-            request.ManifestModel,
-            BuildGovernanceSnapshotCaptureOptions(request),
-            cancellationToken);
-        ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
-            cancellationToken, authorityPersistBody: request.ManifestModel);
+        ManifestDocument persisted = await PersistPipelineArtifactsForFinalizationAsync(scope, request, cancellationToken);
         RuleAuditTracePayload audit = request.Trace.RequireRuleAudit();
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
         header.CurrentManifestVersion = request.Contract.Metadata.ManifestVersion;
@@ -332,6 +325,48 @@ public sealed class ManifestFinalizationService(
         {
             PreloadedScopePolicyPackAssignments = request.PreloadedScopePolicyPackAssignments
         };
+    }
+
+    private async Task<ManifestDocument> PersistPipelineArtifactsForFinalizationAsync(
+        ScopeContext scope,
+        ManifestFinalizationRequest request,
+        CancellationToken cancellationToken,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        if (request.SkipPersistingPipelineArtifacts)
+            return request.ManifestModel;
+
+        await decisionTraceRepository.SaveAsync(
+            DecisionTraceRecordMapper.ToDto(request.Trace),
+            cancellationToken,
+            connection,
+            transaction);
+        await _committedEffectiveGovernanceSnapshotCapturer.ApplyToManifestAsync(
+            request.ManifestModel,
+            BuildGovernanceSnapshotCaptureOptions(request),
+            cancellationToken);
+
+        if (connection is not null)
+        {
+            return await goldenManifestRepository.SaveAsync(
+                request.Contract,
+                scope,
+                request.Keying,
+                manifestHashService,
+                cancellationToken,
+                connection,
+                transaction,
+                request.ManifestModel);
+        }
+
+        return await goldenManifestRepository.SaveAsync(
+            request.Contract,
+            scope,
+            request.Keying,
+            manifestHashService,
+            cancellationToken,
+            authorityPersistBody: request.ManifestModel);
     }
 
     private async Task EnsureFindingsSnapshotFinalizableAsync(
