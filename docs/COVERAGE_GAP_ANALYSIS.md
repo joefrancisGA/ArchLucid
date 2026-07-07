@@ -25,6 +25,8 @@ dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Re
 
 Many SQL-backed tests **skip** unless **`ARCHLUCID_SQL_TEST`** points at a reachable database (same idea as CI). A green local **InMemory-only** run does **not** prove the strict merged package percentages; **push and rely on `dotnet-full-regression`** (or run the full solution test + merge flow locally only when you intentionally reproduce CI).
 
+**`ArchLucid.Api` measurement vs testing (TB-638):** Low **`ArchLucid.Api`** line % in merged Cobertura is often a **measurement artifact**, not missing tests. `Category=Integration` HTTP tests run on six parallel shards via **`scripts/ci/Invoke-ApiIntegrationTestShard.ps1`** with **`test.runsettings`** (Coverlet off — collector finalization unstable under chunked SQL load). Before adding unit tests solely to move percentages, read **`docs/library/coverage-exclusions.md`** § **ArchLucid.Api measurement vs testing** and the **TB-635** triage inventory (`integration-covered` bucket). CI intentionally passes **`--skip-package-line-gate ArchLucid.Api`** until reported % reflects real risk after DTO exclusions and genuine-gap closure (**TB-639**).
+
 **Optional local strict reproduction.** To approximate CI before push: Release-build the solution, set **`ARCHLUCID_SQL_TEST`** to a local SQL instance, run **`dotnet test ArchLucid.sln -c Release --settings coverage.runsettings --collect:"XPlat Code Coverage"`**, merge Cobertura with ReportGenerator, then run **`assert_merged_line_coverage_min.py`** with the same arguments as the workflow. Expect **long** wall time; this path is for deep debugging, not every edit.
 
 ## Strict profile (product target)
@@ -384,7 +386,7 @@ Prerequisite for **TB-636**–**TB-639**; regenerate with `python scripts/ci/api
 | Bucket | Count | Follow-up |
 |--------|------:|-----------|
 | pure-DTO | 21 | **TB-636** `[ExcludeFromCodeCoverage]` batch |
-| integration-covered | 33 | **TB-638** measurement-gap doc |
+| integration-covered | 33 | **TB-638** measurement-gap doc (**Done** 2026-07-07) |
 | small-logic | 34 | **TB-637** cheap unit tests |
 | genuinely-untested | 32 | **TB-639** post-triage tests |
 

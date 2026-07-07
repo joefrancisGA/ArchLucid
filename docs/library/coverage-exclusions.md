@@ -176,6 +176,15 @@ Merged Cobertura **understates** `ArchLucid.Api` HTTP coverage:
 
 **Owner decision (2026-07-05):** keep Coverlet disabled on Integration shards. CI continues `--skip-package-line-gate ArchLucid.Api` until merged per-package % reflects real risk (DTO exclusions + optional future Coverlet stability work). Integration tests remain the authoritative behavior coverage for controllers; 0% on those types is a **measurement gap**, not a testing gap.
 
+**Removing `--skip-package-line-gate ArchLucid.Api` (all required):**
+
+1. **TB-636** pure-DTO exclusions are applied so Cobertura denominators are honest (closed 2026-07-07).
+2. **TB-639** genuinely-untested logic is covered or carries a documented Category 1/4 exclusion — not duplicate unit tests for Integration-covered controllers.
+3. Either Integration shards collect Coverlet reliably on `test.runsettings` (separate collector-stability initiative), **or** merged Cobertura otherwise includes Integration-category hits.
+4. A full **`dotnet-full-regression`** merge shows **`ArchLucid.Api`** at or above the **63%** per-product line floor **without** the skip flag.
+
+Until then, treat low **`ArchLucid.Api`** percentages in PR comments as advisory; use the **TB-635** `integration-covered` bucket to distinguish measurement gaps from real test debt.
+
 ## Category 7: Process-External / Filesystem Tools
 
 | Class | Assembly | Justification |
