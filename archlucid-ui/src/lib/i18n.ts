@@ -44,9 +44,9 @@ export const RUNS_LIST_PAGE_TITLES = {
   fullOperator: "Review Packages",
 } as const;
 
-/** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). */
+/** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). @deprecated Use `REVIEWS_HUB_PAGE_SUBTITLE`. */
 export const RUNS_LIST_PAGE_SUBTITLE =
-  "Resume in-progress reviews, open committed review packages, or explore a sample package. Each package includes the review record, findings, evidence trail, signed decision record, and exports.";
+  "Create, resume, and inspect evidence-backed architecture review packages.";
 
 export const PIPELINE_STATUS_TOOLTIPS = {
   finalized: `The ${DOMAIN_TERMS.goldenManifest} is finalized and the architecture review is complete.`,
