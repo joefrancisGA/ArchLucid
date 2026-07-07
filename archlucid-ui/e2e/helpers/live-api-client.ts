@@ -9,7 +9,14 @@
  */
 import type { APIRequestContext, APIResponse } from "@playwright/test";
 
+import {
+  continueInfrastructureMutationRetry,
+  InfraTransientError,
+  maxInfrastructureMutationAttempts,
+} from "./live-api-infra-retry";
 import { getLiveJwtTokenFromEnvSync, isLiveJwtTokenConfigured } from "./jwt-token-provider";
+
+export { InfraTransientError } from "./live-api-infra-retry";
 
 /** Base URL for ArchLucid.Api (e.g. http://127.0.0.1:5128), resolved when read (supports late env injection). */
 export function resolveLiveApiBase(): string {
@@ -270,6 +277,28 @@ async function delayAfterRateLimitedResponse(res: APIResponse): Promise<void> {
   await new Promise((r) => setTimeout(r, ms));
 }
 
+/** Replays a consumed Playwright response so negative-path callers can still read status/body. */
+function replayBufferedApiResponse(status: number, body: string, source: APIResponse): APIResponse {
+  const headers = source.headers();
+
+  return {
+    ok: () => status >= 200 && status < 300,
+    status: () => status,
+    statusText: () => source.statusText(),
+    headers: () => headers,
+    headersArray: () =>
+      Object.entries(headers).map(([name, value]) => ({
+        name,
+        value,
+      })),
+    text: async () => body,
+    json: async () => JSON.parse(body) as unknown,
+    body: async () => Buffer.from(body),
+    url: () => source.url(),
+    [Symbol.asyncDispose]: async () => {},
+  };
+}
+
 /** POST `/v1/architecture/request` — raw response for negative-path tests (400/422). */
 export async function postArchitectureRequestRaw(
   request: APIRequestContext,
@@ -282,8 +311,8 @@ export async function postArchitectureRequestRaw(
   });
 }
 
-/** Mutating architecture POSTs share one API with many live specs — retry fixed-window 429 and brief 5xx. */
-const maxArchitectureMutationAttempts = 8;
+/** Mutating architecture POSTs share one API with many live specs — retry transient infra before failing journeys. */
+const maxArchitectureMutationAttempts = maxInfrastructureMutationAttempts;
 
 /** Per-attempt HTTP timeout — prevents a wedged commit from burning the whole Playwright test timeout. */
 const commitAttemptHttpTimeoutMs = 90_000;
@@ -298,11 +327,10 @@ function isManifestNotLoadedYetConflict(status: number, body: string): boolean {
   return status === 409 && body.includes("manifest could not be loaded yet");
 }
 
-function isTransientCommitConflict(status: number, body: string): boolean {
-  if (status === 503) {
-    return true;
-  }
+/** Dedicated infrastructure retry budget for commit (503 database warmup, gateway faults). */
+const maxCommitInfrastructureAttempts = maxInfrastructureMutationAttempts;
 
+function isTransientCommitConflict(status: number, body: string): boolean {
   if (status !== 409) {
     return false;
   }
@@ -311,6 +339,16 @@ function isTransientCommitConflict(status: number, body: string): boolean {
     body.includes("manifest could not be loaded yet") ||
     body.includes("transient database condition")
   );
+}
+
+function throwCommitHttpError(status: number, body: string, runId: string): never {
+  const message = `POST /v1/architecture/run/${runId}/commit failed ${status}: ${body.slice(0, 500)}`;
+
+  if (status >= 500 && status < 600) {
+    throw new InfraTransientError(message);
+  }
+
+  throw new Error(message);
 }
 
 async function tryFetchCommittedRunCommitShape(
@@ -340,20 +378,38 @@ export async function createRun(
 ): Promise<{ runId: string }> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
     const res = await postArchitectureRequestRaw(request, body, tenantScope);
+    const status = res.status();
 
-    if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
+    if (status === 429 && attempt < maxArchitectureMutationAttempts - 1) {
       await delayAfterRateLimitedResponse(res);
 
       continue;
     }
 
-    if (res.status() >= 500 && res.status() < 600 && attempt < maxArchitectureMutationAttempts - 1) {
-      await new Promise((r) => setTimeout(r, 500));
+    if (!res.ok()) {
+      const responseBody = await res.text();
 
-      continue;
+      if (
+        await continueInfrastructureMutationRetry(
+          status,
+          responseBody,
+          attempt,
+          maxArchitectureMutationAttempts,
+          "POST /v1/architecture/request",
+        )
+      ) {
+        continue;
+      }
+
+      let hint = "";
+
+      if (status === 401) {
+        hint =
+          " Hint: use auth lane matching the API — DevelopmentBypass expects no Bearer/X-Api-Key (omit LIVE_JWT_TOKEN and LIVE_API_KEY); JwtBearer CI needs LIVE_JWT_TOKEN; ApiKey needs LIVE_API_KEY. Confirm LIVE_API_URL points at ArchLucid.Api.";
+      }
+
+      throw new Error(`POST /v1/architecture/request failed ${status}: ${responseBody.slice(0, 500)}${hint}`);
     }
-
-    await throwIfNotOk(res, "POST /v1/architecture/request");
 
     const created = (await res.json()) as { run?: { runId?: string } };
     const runId = created.run?.runId;
@@ -365,7 +421,7 @@ export async function createRun(
     return { runId };
   }
 
-  throw new Error("createRun: retry loop exhausted");
+  throw new InfraTransientError("createRun: retry loop exhausted");
 }
 
 /** POST `/v1/architecture/run/{runId}/execute` — run agents (Simulator in CI). */
@@ -378,25 +434,38 @@ export async function executeRun(
     const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/execute`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
+    const status = res.status();
 
-    if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
+    if (status === 429 && attempt < maxArchitectureMutationAttempts - 1) {
       await delayAfterRateLimitedResponse(res);
 
       continue;
     }
 
-    if (res.status() >= 500 && res.status() < 600 && attempt < maxArchitectureMutationAttempts - 1) {
-      await new Promise((r) => setTimeout(r, 500));
+    if (!res.ok()) {
+      const responseBody = await res.text();
 
-      continue;
+      if (
+        await continueInfrastructureMutationRetry(
+          status,
+          responseBody,
+          attempt,
+          maxArchitectureMutationAttempts,
+          `POST /v1/architecture/run/${runId}/execute`,
+        )
+      ) {
+        continue;
+      }
+
+      throw new Error(
+        `POST /v1/architecture/run/${runId}/execute failed ${status}: ${responseBody.slice(0, 500)}`,
+      );
     }
-
-    await throwIfNotOk(res, "POST /v1/architecture/run/.../execute");
 
     return res.json();
   }
 
-  throw new Error("executeRun: retry loop exhausted");
+  throw new InfraTransientError("executeRun: retry loop exhausted");
 }
 
 /** POST `/v1/architecture/run/{runId}/commit` — merge and persist golden manifest. */
@@ -408,6 +477,7 @@ export async function commitRun(
   const retryStartedMs = Date.now();
   let delayMs = 250;
   let consecutiveManifestNotLoaded409 = 0;
+  let infrastructureAttempt = 0;
 
   for (let attempt = 0; attempt < maxCommitTransient409Attempts; attempt++) {
     if (Date.now() - retryStartedMs >= commitRetryWallClockBudgetMs) {
@@ -442,6 +512,20 @@ export async function commitRun(
       continue;
     }
 
+    if (
+      await continueInfrastructureMutationRetry(
+        status,
+        body,
+        infrastructureAttempt,
+        maxCommitInfrastructureAttempts,
+        `POST /v1/architecture/run/${runId}/commit`,
+      )
+    ) {
+      infrastructureAttempt += 1;
+
+      continue;
+    }
+
     if (isTransientCommitConflict(status, body) && attempt < maxCommitTransient409Attempts - 1) {
       if (isManifestNotLoadedYetConflict(status, body)) {
         consecutiveManifestNotLoaded409 += 1;
@@ -459,21 +543,16 @@ export async function commitRun(
       continue;
     }
 
-    if (status >= 500 && status < 600 && attempt < maxCommitTransient409Attempts - 1) {
-      await new Promise((r) => setTimeout(r, 500));
-
-      continue;
-    }
-
-    throw new Error(`POST /v1/architecture/run/.../commit failed ${status}: ${body.slice(0, 500)}`);
+    throwCommitHttpError(status, body, runId);
   }
 
-  throw new Error("commitRun: retry loop exhausted");
+  throw new InfraTransientError(`commitRun: retry loop exhausted for run ${runId}`);
 }
 
 /**
  * Same as {@link commitRun} but returns the raw response for negative-path assertions (409, 404, …).
- * Retries **429** / transient **5xx** only so callers still see the first definitive 4xx (e.g. 404) body.
+ * Retries **429** / transient infrastructure (**502** / **503** / **504**, database-unavailable payloads) only
+ * so callers still see the first definitive 4xx (e.g. 404) body.
  */
 export async function commitRunRaw(
   request: APIRequestContext,
@@ -485,23 +564,36 @@ export async function commitRunRaw(
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
       timeout: commitAttemptHttpTimeoutMs,
     });
+    const status = res.status();
 
-    if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
+    if (status === 429 && attempt < maxArchitectureMutationAttempts - 1) {
       await delayAfterRateLimitedResponse(res);
 
       continue;
     }
 
-    if (res.status() >= 500 && res.status() < 600 && attempt < maxArchitectureMutationAttempts - 1) {
-      await new Promise((r) => setTimeout(r, 500));
+    if (!res.ok()) {
+      const responseBody = await res.text();
 
-      continue;
+      if (
+        await continueInfrastructureMutationRetry(
+          status,
+          responseBody,
+          attempt,
+          maxArchitectureMutationAttempts,
+          `POST /v1/architecture/run/${runId}/commit`,
+        )
+      ) {
+        continue;
+      }
+
+      return replayBufferedApiResponse(status, responseBody, res);
     }
 
     return res;
   }
 
-  throw new Error("commitRunRaw: retry loop exhausted");
+  throw new InfraTransientError("commitRunRaw: retry loop exhausted");
 }
 
 /** Minimal commit response shape for E2E (camelCase JSON). */

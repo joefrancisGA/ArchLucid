@@ -3606,7 +3606,7 @@ jobs:
           npx playwright install --with-deps chromium
           bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"
           echo "Playwright @release-gate live e2e start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          npx playwright test --grep @release-gate
+          npx playwright test --workers=1 --grep @release-gate
           echo "Playwright @release-gate live e2e end: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
       - name: Upload Playwright test-results (traces)
@@ -3782,9 +3782,9 @@ jobs:
           bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"
           echo "Playwright extended live e2e shard ${{ matrix.shard }}/${{ strategy.job-total }} start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           if [ "${ARCHLUCID_CI_FULL_LIVE_A11Y}" = "true" ]; then
-            npx playwright test --grep-invert "@release-gate" --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+            npx playwright test --workers=1 --grep-invert "@release-gate" --shard=${{ matrix.shard }}/${{ strategy.job-total }}
           else
-            npx playwright test --grep-invert "@release-gate|@live-a11y-full-matrix" --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+            npx playwright test --workers=1 --grep-invert "@release-gate|@live-a11y-full-matrix" --shard=${{ matrix.shard }}/${{ strategy.job-total }}
           fi
           echo "Playwright extended live e2e shard ${{ matrix.shard }}/${{ strategy.job-total }} end: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -3929,7 +3929,7 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           curl -fsS http://127.0.0.1:5128/health/ready
-          npx playwright test \
+          npx playwright test --workers=1 \
             live-api-apikey-auth.spec.ts \
             live-api-auth-parity-spine.spec.ts \
             live-api-journey.spec.ts \
@@ -4097,7 +4097,7 @@ jobs:
           export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
           npx playwright install --with-deps chromium
           curl -fsS http://127.0.0.1:5128/health/ready
-          npx playwright test \
+          npx playwright test --workers=1 \
             live-api-jwt-auth.spec.ts \
             live-api-auth-parity-spine.spec.ts \
             live-api-journey.spec.ts \
