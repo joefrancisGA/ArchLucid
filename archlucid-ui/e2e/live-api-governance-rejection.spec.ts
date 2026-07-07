@@ -9,6 +9,7 @@ import {
   createApprovalRequest,
   createRun,
   executeRun,
+  freshIsolatedTenantScope,
   liveApiBase,
   liveE2eArchitectureDescription,
   liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
@@ -19,6 +20,7 @@ import {
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
+import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
 
 const e2eRejectorActor = "e2e-rejector";
 
@@ -63,30 +65,36 @@ test.describe("live-api-governance-rejection", () => {
       priorManifestVersion: null as string | null,
     };
 
-    const { runId } = await createRun(request, createBody);
+    const tenantScope = freshIsolatedTenantScope();
+
+    const { runId } = await createRun(request, createBody, tenantScope);
 
     liveRejectionForensics.runId = runId;
     test.info().annotations.push({ type: "e2e-run-id", description: runId });
 
-    await executeRun(request, runId);
-    await waitForReadyForCommit(request, runId, 90_000);
+    await executeRun(request, runId, tenantScope);
+    await waitForReadyForCommit(request, runId, 90_000, tenantScope);
 
-    const commitJson = await commitRun(request, runId);
+    const commitJson = await commitRun(request, runId, tenantScope);
     const manifestVersion = commitJson.manifest?.metadata?.manifestVersion;
 
     if (!manifestVersion) {
       throw new Error("Commit response missing manifest.metadata.manifestVersion");
     }
 
-    await waitForRunDetailCommitted(request, runId, 60_000);
+    await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
 
-    const submitted = await createApprovalRequest(request, {
-      runId,
-      manifestVersion,
-      sourceEnvironment: "dev",
-      targetEnvironment: "test",
-      requestComment: "E2E live rejection path",
-    });
+    const submitted = await createApprovalRequest(
+      request,
+      {
+        runId,
+        manifestVersion,
+        sourceEnvironment: "dev",
+        targetEnvironment: "test",
+        requestComment: "E2E live rejection path",
+      },
+      tenantScope,
+    );
 
     const approvalRequestId = submitted.approvalRequestId;
 
@@ -97,32 +105,56 @@ test.describe("live-api-governance-rejection", () => {
     liveRejectionForensics.approvalRequestId = approvalRequestId;
     test.info().annotations.push({ type: "e2e-approval-request-id", description: approvalRequestId });
 
-    const rejected = await rejectGovernanceRequest(request, approvalRequestId, {
-      reviewedBy: e2eRejectorActor,
-      reviewComment: "E2E rejection test",
-    });
+    const rejected = await rejectGovernanceRequest(
+      request,
+      approvalRequestId,
+      {
+        reviewedBy: e2eRejectorActor,
+        reviewComment: "E2E rejection test",
+      },
+      undefined,
+      tenantScope,
+    );
 
     expect(rejected.status).toBe("Rejected");
 
-    const approveAfterReject = await postGovernanceApproveRaw(request, approvalRequestId, {
-      reviewedBy: e2eRejectorActor,
-      reviewComment: "should fail — already rejected",
-    });
+    const approveAfterReject = await postGovernanceApproveRaw(
+      request,
+      approvalRequestId,
+      {
+        reviewedBy: e2eRejectorActor,
+        reviewComment: "should fail — already rejected",
+      },
+      undefined,
+      tenantScope,
+    );
 
     expect.soft(approveAfterReject.ok(), `approve after reject should fail, got ${approveAfterReject.status()}`).toBe(
       false,
     );
     expect.soft(approveAfterReject.status()).toBe(400);
 
-    const duplicateReject = await postGovernanceRejectRaw(request, approvalRequestId, {
-      reviewedBy: e2eRejectorActor,
-      reviewComment: "second reject should fail",
-    });
+    const duplicateReject = await postGovernanceRejectRaw(
+      request,
+      approvalRequestId,
+      {
+        reviewedBy: e2eRejectorActor,
+        reviewComment: "second reject should fail",
+      },
+      undefined,
+      tenantScope,
+    );
 
     expect.soft(duplicateReject.ok(), `duplicate reject should fail, got ${duplicateReject.status()}`).toBe(false);
     expect.soft(duplicateReject.status()).toBe(400);
 
-    const auditEvents = await searchAudit(request, { runId, take: "200" });
+    const auditEvents = await searchAudit(request, {
+      runId,
+      take: "200",
+      tenantId: tenantScope.tenantId,
+      workspaceId: tenantScope.workspaceId,
+      projectId: tenantScope.projectId,
+    });
 
     const types = new Set(auditEvents.map((e) => e.eventType).filter(Boolean) as string[]);
 
@@ -140,6 +172,7 @@ test.describe("live-api-governance-rejection", () => {
         .toBe(true);
     }
 
+    await injectDemoWorkspaceOperatorScope(page, tenantScope);
     await page.goto(`/governance?runId=${encodeURIComponent(runId)}`);
 
     await expect(page.getByRole("heading", { name: /governance workflow/i })).toBeVisible({

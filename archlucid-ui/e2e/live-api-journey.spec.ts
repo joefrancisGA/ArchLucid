@@ -13,12 +13,14 @@ import {
   createApprovalRequest,
   createRun,
   executeRun,
+  freshIsolatedTenantScope,
   getRunDetailsWithTransientRetries,
   getRunExportZip,
   listArchitectureRuns,
   liveApiBase,
   liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   resolveLiveAuthActorName,
+  resolveLiveAuthMode,
   livePeerReviewerActorName,
   waitForArchitectureRunListCommitted,
   waitForReadyForCommit,
@@ -26,6 +28,7 @@ import {
   postGovernanceApproveRaw,
   searchAudit,
 } from "./helpers/live-api-client";
+import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
 import {
   auditPageMainHeading,
   expectLiveRunDetailPageReady,
@@ -73,29 +76,42 @@ test.describe("live-api-journey", () => {
       priorManifestVersion: null as string | null,
     };
 
-    const { runId } = await createRun(request, createBody);
+    const tenantScope = freshIsolatedTenantScope();
+
+    const { runId } = await createRun(request, createBody, tenantScope);
 
     liveE2eForensics.runId = runId;
     test.info().annotations.push({ type: "e2e-run-id", description: runId });
 
-    await executeRun(request, runId);
+    await executeRun(request, runId, tenantScope);
 
-    await waitForReadyForCommit(request, runId, 90_000);
+    await waitForReadyForCommit(request, runId, 90_000, tenantScope);
 
-    const commitJson = await commitRun(request, runId);
+    const commitJson = await commitRun(request, runId, tenantScope);
     const manifestVersion = commitJson.manifest?.metadata?.manifestVersion;
 
     if (!manifestVersion) {
       throw new Error("Commit response missing manifest.metadata.manifestVersion");
     }
 
-    await waitForRunDetailCommitted(request, runId, 60_000);
+    await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
 
-    const afterCommit = await getRunDetailsWithTransientRetries(request, runId);
+    const afterCommit = await getRunDetailsWithTransientRetries(request, runId, tenantScope);
     const goldenManifestId = afterCommit.run?.goldenManifestId;
 
     if (!goldenManifestId) {
       throw new Error("Run detail after commit missing run.goldenManifestId");
+    }
+
+    // `live-api-journey.spec.ts` also runs under the ApiKey and JWT CI jobs (see
+    // `.github/workflows/ci.yml`), which don't support `x-tenant-id`-header scope overrides (ApiKey CI
+    // keys carry no bound `tenant_id` claim → 403 via `ScopeIdentityBindingMiddleware`; JWT resolves
+    // scope from token claims). `mergeTenantScope` already no-ops the `request`-side headers outside
+    // `DevelopmentBypass`, but browser-side `localStorage` scope injection has no such gate, so it's
+    // skipped explicitly outside bypass mode to avoid the proxy forwarding the same forbidden header.
+    // Call at use site (not module load) — the auth lane can change between import and test run.
+    if (resolveLiveAuthMode() === "bypass") {
+      await injectDemoWorkspaceOperatorScope(page, tenantScope);
     }
 
     await page.goto("/reviews");
@@ -131,7 +147,7 @@ test.describe("live-api-journey", () => {
 
     await expect(manifestMain.getByText(goldenManifestId)).toBeVisible({ timeout: 60_000 });
 
-    const exportRes = await getRunExportZip(request, runId);
+    const exportRes = await getRunExportZip(request, runId, tenantScope);
 
     expect(exportRes.ok(), `GET run export expected 200, got ${exportRes.status()}`).toBeTruthy();
 
@@ -146,13 +162,17 @@ test.describe("live-api-journey", () => {
 
     expect(exportBody.length).toBeGreaterThan(0);
 
-    const submitted = await createApprovalRequest(request, {
-      runId,
-      manifestVersion,
-      sourceEnvironment: "dev",
-      targetEnvironment: "test",
-      requestComment: "E2E live happy path",
-    });
+    const submitted = await createApprovalRequest(
+      request,
+      {
+        runId,
+        manifestVersion,
+        sourceEnvironment: "dev",
+        targetEnvironment: "test",
+        requestComment: "E2E live happy path",
+      },
+      tenantScope,
+    );
 
     const approvalRequestId = submitted.approvalRequestId;
 
@@ -163,30 +183,54 @@ test.describe("live-api-journey", () => {
     liveE2eForensics.approvalRequestId = approvalRequestId;
     test.info().annotations.push({ type: "e2e-approval-request-id", description: approvalRequestId });
 
-    const selfApprovalRes = await postGovernanceApproveRaw(request, approvalRequestId, {
-      reviewedBy: resolveLiveAuthActorName(),
-      reviewComment: "should be blocked (same as submitter)",
-    });
+    const selfApprovalRes = await postGovernanceApproveRaw(
+      request,
+      approvalRequestId,
+      {
+        reviewedBy: resolveLiveAuthActorName(),
+        reviewComment: "should be blocked (same as submitter)",
+      },
+      undefined,
+      tenantScope,
+    );
 
     expect.soft(selfApprovalRes.ok(), `self-approval should fail, got ${selfApprovalRes.status()}`).toBe(false);
     expect.soft(selfApprovalRes.status()).toBe(400);
 
-    const approved = await approveGovernanceRequest(request, approvalRequestId, {
-      reviewedBy: livePeerReviewerActorName,
-      reviewComment: "E2E test auto-approve",
-    });
+    const approved = await approveGovernanceRequest(
+      request,
+      approvalRequestId,
+      {
+        reviewedBy: livePeerReviewerActorName,
+        reviewComment: "E2E test auto-approve",
+      },
+      undefined,
+      tenantScope,
+    );
 
     expect(approved.status).toBe("Approved");
 
-    const duplicateApprove = await postGovernanceApproveRaw(request, approvalRequestId, {
-      reviewedBy: livePeerReviewerActorName,
-      reviewComment: "second approve should fail",
-    });
+    const duplicateApprove = await postGovernanceApproveRaw(
+      request,
+      approvalRequestId,
+      {
+        reviewedBy: livePeerReviewerActorName,
+        reviewComment: "second approve should fail",
+      },
+      undefined,
+      tenantScope,
+    );
 
     expect.soft(duplicateApprove.ok(), `duplicate approve should fail, got ${duplicateApprove.status()}`).toBe(false);
     expect.soft(duplicateApprove.status()).toBe(400);
 
-    const auditEvents = await searchAudit(request, { runId, take: "100" });
+    const auditEvents = await searchAudit(request, {
+      runId,
+      take: "100",
+      tenantId: tenantScope.tenantId,
+      workspaceId: tenantScope.workspaceId,
+      projectId: tenantScope.projectId,
+    });
 
     for (const ev of auditEvents) {
       expect
@@ -200,7 +244,13 @@ test.describe("live-api-journey", () => {
       liveE2eForensics.auditCorrelationId = firstCorrelation;
       test.info().annotations.push({ type: "e2e-audit-correlation-id", description: firstCorrelation });
 
-      const byCorrelation = await searchAudit(request, { correlationId: firstCorrelation, take: "100" });
+      const byCorrelation = await searchAudit(request, {
+        correlationId: firstCorrelation,
+        take: "100",
+        tenantId: tenantScope.tenantId,
+        workspaceId: tenantScope.workspaceId,
+        projectId: tenantScope.projectId,
+      });
 
       expect.soft(byCorrelation.length, "audit search by correlationId should return at least one row").toBeGreaterThan(0);
     }
@@ -222,9 +272,9 @@ test.describe("live-api-journey", () => {
       );
     }
 
-    await waitForArchitectureRunListCommitted(request, runId, 90_000);
+    await waitForArchitectureRunListCommitted(request, runId, 90_000, tenantScope);
 
-    const runsList = await listArchitectureRuns(request);
+    const runsList = await listArchitectureRuns(request, tenantScope);
     const listed = runsList.find((r) => r.runId === runId);
 
     expect(listed, `run ${runId} should appear in GET /v1/architecture/runs`).toBeTruthy();

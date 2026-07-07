@@ -16,13 +16,16 @@ import {
   commitRun,
   createRun,
   executeRun,
+  freshIsolatedTenantScope,
   liveAcceptHeaders,
   liveApiBase,
+  liveTenantScopeHeaders,
   liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   liveE2eArchitectureDescription,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
+import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
 import { ensureBuyerExecutiveBriefingSectionExpanded, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
 test.describe("live-api-email-run-to-sponsor", () => {
@@ -56,14 +59,17 @@ test.describe("live-api-email-run-to-sponsor", () => {
       priorManifestVersion: null as string | null,
     };
 
-    const { runId } = await createRun(request, createBody);
+    const tenantScope = freshIsolatedTenantScope();
+
+    const { runId } = await createRun(request, createBody, tenantScope);
     test.info().annotations.push({ type: "e2e-run-id", description: runId });
 
-    await executeRun(request, runId);
-    await waitForReadyForCommit(request, runId, 90_000);
-    await commitRun(request, runId);
-    await waitForRunDetailCommitted(request, runId, 60_000);
+    await executeRun(request, runId, tenantScope);
+    await waitForReadyForCommit(request, runId, 90_000, tenantScope);
+    await commitRun(request, runId, tenantScope);
+    await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
 
+    await injectDemoWorkspaceOperatorScope(page, tenantScope);
     await page.goto(`/reviews/${runId}`);
 
     await expectLiveRunDetailPageReady(page, 120_000);
@@ -110,7 +116,7 @@ test.describe("live-api-email-run-to-sponsor", () => {
 
     // CI uses AgentExecution__Mode=Simulator — UI blocks external sponsor PDF; verify API (or Markdown fallback).
     const pdfRes = await request.post(`${liveApiBase}/v1/pilots/runs/${runId}/first-value-report.pdf`, {
-      headers: liveAcceptHeaders(),
+      headers: { ...liveAcceptHeaders(), ...liveTenantScopeHeaders(tenantScope) },
     });
 
     if (pdfRes.ok()) {
@@ -123,7 +129,7 @@ test.describe("live-api-email-run-to-sponsor", () => {
     }
 
     const markdownRes = await request.get(`${liveApiBase}/v1/pilots/runs/${runId}/first-value-report`, {
-      headers: liveAcceptHeaders(),
+      headers: { ...liveAcceptHeaders(), ...liveTenantScopeHeaders(tenantScope) },
     });
 
     expect(markdownRes.ok(), `first-value-report expected 2xx, got ${pdfRes.status()} pdf / ${markdownRes.status()} md`).toBeTruthy();

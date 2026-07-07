@@ -10,6 +10,7 @@ import {
   createApprovalRequest,
   createRun,
   executeRun,
+  freshIsolatedTenantScope,
   getRunDetailsRaw,
   liveAcceptHeaders,
   liveApiBase,
@@ -65,27 +66,33 @@ test.describe("live-api-negative-paths", () => {
       priorManifestVersion: null as string | null,
     };
 
-    const { runId } = await createRun(request, createBody);
+    const tenantScope = freshIsolatedTenantScope();
 
-    await executeRun(request, runId);
-    await waitForReadyForCommit(request, runId, 90_000);
+    const { runId } = await createRun(request, createBody, tenantScope);
 
-    const commitJson = await commitRun(request, runId);
+    await executeRun(request, runId, tenantScope);
+    await waitForReadyForCommit(request, runId, 90_000, tenantScope);
+
+    const commitJson = await commitRun(request, runId, tenantScope);
     const manifestVersion = commitJson.manifest?.metadata?.manifestVersion;
 
     if (!manifestVersion) {
       throw new Error("Commit response missing manifest.metadata.manifestVersion");
     }
 
-    await waitForRunDetailCommitted(request, runId, 60_000);
+    await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
 
-    const submitted = await createApprovalRequest(request, {
-      runId,
-      manifestVersion,
-      sourceEnvironment: "dev",
-      targetEnvironment: "test",
-      requestComment: "E2E self-approval negative path",
-    });
+    const submitted = await createApprovalRequest(
+      request,
+      {
+        runId,
+        manifestVersion,
+        sourceEnvironment: "dev",
+        targetEnvironment: "test",
+        requestComment: "E2E self-approval negative path",
+      },
+      tenantScope,
+    );
 
     const approvalRequestId = submitted.approvalRequestId;
 
@@ -93,10 +100,16 @@ test.describe("live-api-negative-paths", () => {
       throw new Error("Governance submit response missing approvalRequestId");
     }
 
-    const selfApprove = await postGovernanceApproveRaw(request, approvalRequestId, {
-      reviewedBy: resolveLiveAuthActorName(),
-      reviewComment: "same actor as submitter — must fail",
-    });
+    const selfApprove = await postGovernanceApproveRaw(
+      request,
+      approvalRequestId,
+      {
+        reviewedBy: resolveLiveAuthActorName(),
+        reviewComment: "same actor as submitter — must fail",
+      },
+      undefined,
+      tenantScope,
+    );
 
     expect(selfApprove.ok(), `self-approve expected 400, got ${selfApprove.status()}`).toBe(false);
     expect(selfApprove.status()).toBe(400);
@@ -106,7 +119,13 @@ test.describe("live-api-negative-paths", () => {
 
     expect(typeUri, "problem type should reference governance-self-approval").toContain("#governance-self-approval");
 
-    const auditEvents = await searchAudit(request, { runId, take: "200" });
+    const auditEvents = await searchAudit(request, {
+      runId,
+      take: "200",
+      tenantId: tenantScope.tenantId,
+      workspaceId: tenantScope.workspaceId,
+      projectId: tenantScope.projectId,
+    });
     const types = new Set(auditEvents.map((e) => e.eventType).filter(Boolean) as string[]);
 
     expect(types.has("GovernanceSelfApprovalBlocked")).toBe(true);
@@ -173,16 +192,18 @@ test.describe("live-api-negative-paths", () => {
       priorManifestVersion: null as string | null,
     };
 
-    const { runId } = await createRun(request, createBody);
+    const tenantScope = freshIsolatedTenantScope();
 
-    await executeRun(request, runId);
-    await waitForReadyForCommit(request, runId, 120_000);
+    const { runId } = await createRun(request, createBody, tenantScope);
 
-    await commitRun(request, runId);
+    await executeRun(request, runId, tenantScope);
+    await waitForReadyForCommit(request, runId, 120_000, tenantScope);
 
-    await waitForRunDetailCommitted(request, runId, 90_000);
+    await commitRun(request, runId, tenantScope);
 
-    const second = await commitRunRaw(request, runId);
+    await waitForRunDetailCommitted(request, runId, 90_000, tenantScope);
+
+    const second = await commitRunRaw(request, runId, tenantScope);
 
     expect(second.status()).toBe(409);
 

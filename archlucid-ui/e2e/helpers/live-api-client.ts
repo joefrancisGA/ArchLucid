@@ -104,6 +104,15 @@ export function freshIsolatedTenantScope(): LiveTenantScopeHeaders {
   return { tenantId: id, workspaceId: id, projectId: id };
 }
 
+/**
+ * `x-tenant-id` overrides are only safe under `DevelopmentBypass` (`AllowTestActorHeaders`). Under
+ * `ApiKey` mode the CI keys carry no `Authentication:ApiKey:TenantId` claim, so
+ * `ScopeIdentityBindingMiddleware` returns **403 Forbidden** for any `x-tenant-id` header on a
+ * claims-less key; under `JWT` mode scope is resolved from token claims and the header is ignored
+ * anyway. Gate here (not per call-site) so every helper below can unconditionally accept a
+ * `tenantScope` and stay safe when the same spec file is shared across auth-mode CI jobs — see
+ * `.cursor/prompts/fix-ci-run-28828296262-live-api-extended-shard3-sample-purge.md` Step 0.
+ */
 function mergeTenantScope(
   headers: Record<string, string>,
   tenantScope?: LiveTenantScopeHeaders | null,
@@ -113,7 +122,8 @@ function mergeTenantScope(
     tenantScope === null ||
     tenantScope.tenantId.trim().length === 0 ||
     tenantScope.workspaceId.trim().length === 0 ||
-    tenantScope.projectId.trim().length === 0
+    tenantScope.projectId.trim().length === 0 ||
+    resolveLiveAuthMode() !== "bypass"
   ) {
     return headers;
   }
@@ -937,11 +947,12 @@ export async function waitForArchitectureRunListCommitted(
   request: APIRequestContext,
   runId: string,
   timeoutMs = 90_000,
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<void> {
   const deadline = Date.now() + liveE2eCommitWaitMs(timeoutMs);
 
   while (Date.now() < deadline) {
-    const rows = await listArchitectureRuns(request);
+    const rows = await listArchitectureRuns(request, tenantScope);
     const row = rows.find((r) => r.runId === runId);
 
     if (row !== undefined && isArchitectureRunStatusCommitted(row.status)) {
@@ -1039,6 +1050,7 @@ export async function approveGovernanceRequest(
   approvalRequestId: string,
   body: { reviewedBy: string; reviewComment?: string },
   options?: { apiKey?: string | null },
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<GovernanceApprovalRequestJson> {
   const res = await request.post(
     `${resolveLiveApiBase()}/v1/governance/approval-requests/${approvalRequestId}/approve`,
@@ -1047,7 +1059,7 @@ export async function approveGovernanceRequest(
         reviewedBy: body.reviewedBy,
         reviewComment: body.reviewComment ?? null,
       },
-      headers: liveJsonHeaders(options?.apiKey),
+      headers: mergeTenantScope(liveJsonHeaders(options?.apiKey), tenantScope),
     },
   );
 
@@ -1062,6 +1074,7 @@ export async function rejectGovernanceRequest(
   approvalRequestId: string,
   body: { reviewedBy: string; reviewComment?: string },
   options?: { apiKey?: string | null },
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<GovernanceApprovalRequestJson> {
   const res = await request.post(
     `${resolveLiveApiBase()}/v1/governance/approval-requests/${approvalRequestId}/reject`,
@@ -1070,7 +1083,7 @@ export async function rejectGovernanceRequest(
         reviewedBy: body.reviewedBy,
         reviewComment: body.reviewComment ?? null,
       },
-      headers: liveJsonHeaders(options?.apiKey),
+      headers: mergeTenantScope(liveJsonHeaders(options?.apiKey), tenantScope),
     },
   );
 
@@ -1085,13 +1098,14 @@ export async function postGovernanceRejectRaw(
   approvalRequestId: string,
   body: { reviewedBy: string; reviewComment?: string | null },
   options?: { apiKey?: string | null },
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   return request.post(`${resolveLiveApiBase()}/v1/governance/approval-requests/${approvalRequestId}/reject`, {
     data: {
       reviewedBy: body.reviewedBy,
       reviewComment: body.reviewComment ?? null,
     },
-    headers: liveJsonHeaders(options?.apiKey),
+    headers: mergeTenantScope(liveJsonHeaders(options?.apiKey), tenantScope),
   });
 }
 
@@ -1126,27 +1140,22 @@ export async function searchAudit(
     query.eventType = params.eventType;
   }
 
-  const scopeHeaders: Record<string, string> = {};
-
-  if (
+  const scopeCandidate: LiveTenantScopeHeaders | null =
     params.tenantId !== undefined &&
     params.tenantId.trim().length > 0 &&
     params.workspaceId !== undefined &&
     params.workspaceId.trim().length > 0 &&
     params.projectId !== undefined &&
     params.projectId.trim().length > 0
-  ) {
-    scopeHeaders["x-tenant-id"] = params.tenantId.trim();
-    scopeHeaders["x-workspace-id"] = params.workspaceId.trim();
-    scopeHeaders["x-project-id"] = params.projectId.trim();
-  }
+      ? { tenantId: params.tenantId, workspaceId: params.workspaceId, projectId: params.projectId }
+      : null;
 
   const maxAuditSearchAttempts = 8;
 
   for (let attempt = 0; attempt < maxAuditSearchAttempts; attempt++) {
     const res = await request.get(`${resolveLiveApiBase()}/v1/audit/search`, {
       params: query,
-      headers: { ...liveAcceptHeaders(), ...scopeHeaders },
+      headers: mergeTenantScope(liveAcceptHeaders(), scopeCandidate),
     });
 
     if (res.status() === 429 && attempt < maxAuditSearchAttempts - 1) {
@@ -1187,9 +1196,16 @@ export type AuditEventJson = {
 };
 
 /** GET `/v1/artifacts/runs/{runId}/export` — ZIP of committed run (binary). */
-export async function getRunExportZip(request: APIRequestContext, runId: string): Promise<APIResponse> {
+export async function getRunExportZip(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<APIResponse> {
   return request.get(`${resolveLiveApiBase()}/v1/artifacts/runs/${runId}/export`, {
-    headers: liveBinaryAcceptHeaders("application/zip, application/octet-stream, */*"),
+    headers: mergeTenantScope(
+      liveBinaryAcceptHeaders("application/zip, application/octet-stream, */*"),
+      tenantScope,
+    ),
   });
 }
 
