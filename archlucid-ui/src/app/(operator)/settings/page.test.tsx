@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const navAuth = vi.hoisted(() => ({
@@ -19,6 +19,20 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 
 vi.mock("@/lib/internal-operator-env", () => ({
   isArchLucidInternalOperatorShellEnv: () => internalShell.enabled,
+}));
+
+vi.mock("@/lib/finish-setup-deployment", () => ({
+  isSelfHostedDeploymentEnv: () => false,
+}));
+
+vi.mock("@/lib/operator-scope-storage", () => ({
+  readOperatorScopeFromStorage: () => ({
+    tenantId: "tenant-1",
+    workspaceId: "workspace-1",
+    projectId: "project-1",
+    workspaceLabel: "Contoso",
+    projectLabel: "Pilot",
+  }),
 }));
 
 vi.mock("next/link", () => ({
@@ -46,35 +60,55 @@ describe("SettingsPageView", () => {
     internalShell.enabled = false;
   });
 
-  it("shows appearance and help for read-tier users without developer or support cards", () => {
+  it("renders master overview, search, and section navigation for read-tier users", () => {
     render(<SettingsPageView />);
 
     expect(screen.getByRole("heading", { level: 1, name: "Settings" })).toBeInTheDocument();
+    expect(screen.getByTestId("settings-master-overview-header")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Search settings…")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-master-section-nav")).toBeInTheDocument();
     expect(screen.getByTestId("color-mode-segmented-stub")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
-    expect(screen.queryByText("Visual theme (developer preview)")).not.toBeInTheDocument();
+    expect(screen.getByTestId("settings-section-security-trust")).toBeInTheDocument();
+    expect(screen.queryByTestId("settings-section-advanced")).not.toBeInTheDocument();
     expect(screen.queryByTestId("settings-developer-tools-card")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("settings-support-bundle-card")).not.toBeInTheDocument();
-    expect(screen.getByTestId("settings-security-trust-card")).toBeInTheDocument();
   });
 
-  it("shows workspace and support cards for execute-tier users", () => {
+  it("shows workspace and support sections for execute-tier users", () => {
     navAuth.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
 
     render(<SettingsPageView />);
 
-    expect(screen.getByTestId("settings-workspace-card")).toBeInTheDocument();
-    expect(screen.getByTestId("settings-support-bundle-card")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-section-workspace")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-section-support")).toBeInTheDocument();
     expect(screen.getByTestId("support-bundle-stub")).toHaveAttribute("data-diagnostics", "true");
-    expect(screen.queryByTestId("settings-security-trust-card")).not.toBeInTheDocument();
   });
 
-  it("shows developer tools card only in the internal operator shell", () => {
+  it("filters visible sections when searching", () => {
+    navAuth.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+
+    render(<SettingsPageView />);
+
+    fireEvent.change(screen.getByPlaceholderText("Search settings…"), { target: { value: "billing" } });
+
+    expect(screen.getByTestId("settings-section-billing")).toBeInTheDocument();
+    expect(screen.queryByTestId("settings-section-general")).not.toBeInTheDocument();
+  });
+
+  it("shows advanced section when advanced toggle is expanded", () => {
+    navAuth.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+
+    render(<SettingsPageView />);
+
+    fireEvent.click(screen.getByTestId("settings-advanced-toggle"));
+
+    expect(screen.getByTestId("settings-section-advanced")).toBeInTheDocument();
+  });
+
+  it("shows internal developer section only in internal operator shell", () => {
     internalShell.enabled = true;
 
     render(<SettingsPageView />);
 
-    expect(screen.getByTestId("settings-developer-tools-card")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open developer tools" })).toHaveAttribute("href", "/settings/developer");
+    expect(screen.getByTestId("settings-section-developer-internal")).toBeInTheDocument();
   });
 });

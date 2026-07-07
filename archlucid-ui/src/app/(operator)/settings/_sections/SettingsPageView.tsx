@@ -1,136 +1,183 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useMemo, useState } from "react";
 
 import { ColorModeSegmentedControl } from "@/components/ColorModeSegmentedControl";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { isSelfHostedDeploymentEnv } from "@/lib/finish-setup-deployment";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
+import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
+import { cn } from "@/lib/utils";
+
+import { SETTINGS_MASTER_SECTIONS, settingsMasterSectionDomId } from "./settings-master-catalog";
+import { buildSettingsMasterVisibleSections } from "./settings-master-page-model";
+import { SettingsMasterDestinationCard } from "./SettingsMasterDestinationCard";
+import { SettingsMasterOverviewHeader } from "./SettingsMasterOverviewHeader";
+import { SettingsMasterRecentChangesCard } from "./SettingsMasterRecentChangesCard";
+import { SettingsMasterSearchField } from "./SettingsMasterSearchField";
+import { SettingsMasterSectionNav } from "./SettingsMasterSectionNav";
+import { SettingsScopeMeta } from "./SettingsScopeMeta";
 
 export function SettingsPageView() {
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
-  const showWorkspaceLinks = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
-  const showSupportBundle = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
-  const showDeveloperTools = isArchLucidInternalOperatorShellEnv();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const scope = useMemo(() => readOperatorScopeFromStorage(), []);
+  const environmentLabel = isSelfHostedDeploymentEnv() ? "Self-hosted deployment" : "Managed SaaS";
+
+  const visibleSections = useMemo(
+    () =>
+      buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
+        callerAuthorityRank,
+        isAuthorityLoading,
+        showInternalShell: isArchLucidInternalOperatorShellEnv(),
+        searchQuery,
+        showAdvanced,
+      }),
+    [callerAuthorityRank, isAuthorityLoading, searchQuery, showAdvanced],
+  );
+
+  const hasAdvancedCatalog = SETTINGS_MASTER_SECTIONS.some((section) => section.tier === "advanced");
+  const showAdvancedToggle = hasAdvancedCatalog && searchQuery.trim().length === 0;
 
   return (
-    <div className="w-full max-w-3xl space-y-6" data-testid="settings-page">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Settings</h1>
-        <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Manage how ArchLucid looks in this browser and find help for your account.
-        </p>
-      </div>
+    <div className="w-full max-w-6xl space-y-6" data-testid="settings-page">
+      <SettingsMasterOverviewHeader scope={scope} environmentLabel={environmentLabel} />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Choose how ArchLucid appears in this browser.
-          </p>
-          <div className="space-y-2">
-            <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              Color mode
-            </p>
-            <ColorModeSegmentedControl />
-          </div>
-        </CardContent>
-      </Card>
+      <SettingsMasterSearchField
+        value={searchQuery}
+        onChange={setSearchQuery}
+        resultCount={visibleSections.length}
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Help</CardTitle>
-        </CardHeader>
-        <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <p className="m-0">Browse product guides, troubleshooting steps, and common workflows.</p>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/help">{OPERATOR_NAV_LINK_LABELS.help}</Link>
+      {showAdvancedToggle ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-expanded={showAdvanced}
+            data-testid="settings-advanced-toggle"
+            onClick={() => setShowAdvanced((current) => !current)}
+          >
+            {showAdvanced ? "Hide advanced settings" : "Show advanced settings"}
           </Button>
-        </CardContent>
-      </Card>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Identity, API keys, and rarely changed controls stay collapsed until you need them.
+          </p>
+        </div>
+      ) : null}
 
-      {showWorkspaceLinks ? (
-        <Card data-testid="settings-workspace-card">
-          <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Workspace &amp; administration</CardTitle>
-          </CardHeader>
-          <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            <p className="m-0">Workspace defaults, billing, users, and procurement materials.</p>
-            <ul className="m-0 list-none space-y-2 p-0">
-              <li>
-                <Link className={OPERATOR_LINK.nav} href="/settings/tenant">
-                  {OPERATOR_NAV_LINK_LABELS.workspaceSettings}
-                </Link>
-              </li>
-              {callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority ? (
-                <li>
-                  <Link className={OPERATOR_LINK.nav} href="/settings/users">
-                    Users &amp; roles
-                  </Link>
-                </li>
-              ) : null}
-              <li>
-                <Link className={OPERATOR_LINK.nav} href={SETTINGS_SECURITY_TRUST_PATH}>
-                  {OPERATOR_NAV_LINK_LABELS.securityTrust}
-                </Link>
-              </li>
-            </ul>
+      {isAuthorityLoading ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading settings…</p>
+      ) : visibleSections.length === 0 ? (
+        <Card data-testid="settings-search-empty">
+          <CardContent className={cn("py-6 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className="m-0">No settings match your search. Try a different term or clear the search field.</p>
           </CardContent>
         </Card>
       ) : (
-        <Card data-testid="settings-security-trust-card">
-          <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{OPERATOR_NAV_LINK_LABELS.securityTrust}</CardTitle>
-          </CardHeader>
-          <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            <p className="m-0">Share procurement-ready materials, trust-center links, and assessment status.</p>
-            <Button asChild variant="outline" size="sm">
-              <Link href={SETTINGS_SECURITY_TRUST_PATH}>Open security &amp; trust</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
+          <SettingsMasterSectionNav sections={visibleSections} />
+
+          <div className="space-y-8">
+            {visibleSections.map((section) => (
+              <section
+                key={section.id}
+                id={settingsMasterSectionDomId(section.id)}
+                className="scroll-mt-24 space-y-4"
+                aria-labelledby={`${settingsMasterSectionDomId(section.id)}-title`}
+                data-testid={`settings-section-${section.id}`}
+              >
+                <div>
+                  <h2 id={`${settingsMasterSectionDomId(section.id)}-title`} className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+                    {section.title}
+                  </h2>
+                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                    {section.description}
+                  </p>
+                </div>
+
+                <div className="grid gap-4">
+                  {section.showAppearance ? (
+                    <Card data-testid="settings-appearance-card">
+                      <CardHeader>
+                        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                          Choose how ArchLucid appears in this browser.
+                        </p>
+                        <SettingsScopeMeta
+                          scope="browser"
+                          source="local"
+                          editability="editable"
+                          saveBehavior="Saved automatically in this browser."
+                        />
+                        <div className="space-y-2">
+                          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                            Color mode
+                          </p>
+                          <ColorModeSegmentedControl />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : null}
+
+                  {section.showHelp ? (
+                    <Card data-testid="settings-help-card">
+                      <CardHeader>
+                        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Help</CardTitle>
+                      </CardHeader>
+                      <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                        <p className="m-0">Browse product guides, troubleshooting steps, and common workflows.</p>
+                        <Button asChild variant="outline" size="sm">
+                          <Link href="/help">{OPERATOR_NAV_LINK_LABELS.help}</Link>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ) : null}
+
+                  {section.showSupportBundle ? (
+                    <Card data-testid="settings-support-bundle-card">
+                      <CardHeader>
+                        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Support bundle</CardTitle>
+                      </CardHeader>
+                      <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                        <p className="m-0">
+                          Download a redacted diagnostics bundle to include with a support ticket.
+                        </p>
+                        <p className={cn("m-0 italic", OPERATOR_TYPOGRAPHY.helper)}>
+                          No support bundle generated yet in this session.
+                        </p>
+                        <SupportBundleDownloadButton showDiagnosticsLink />
+                        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                          The bundle is redacted before download. Review it before sending if your organization requires approval.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ) : null}
+
+                  {section.destinations.map((destination) => (
+                    <SettingsMasterDestinationCard key={destination.id} destination={destination} />
+                  ))}
+                </div>
+              </section>
+            ))}
+
+            <SettingsMasterRecentChangesCard
+              showAuditLink={callerAuthorityRank >= AUTHORITY_RANK.ReadAuthority}
+            />
+          </div>
+        </div>
       )}
-
-      {showSupportBundle ? (
-        <Card data-testid="settings-support-bundle-card">
-          <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Support bundle</CardTitle>
-          </CardHeader>
-          <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            <p className="m-0">
-              Download a redacted diagnostics bundle to include with a support ticket.
-            </p>
-            <SupportBundleDownloadButton showDiagnosticsLink />
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              The bundle is redacted before download. Review it before sending if your organization requires approval.
-            </p>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {showDeveloperTools ? (
-        <Card data-testid="settings-developer-tools-card">
-          <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Developer tools</CardTitle>
-          </CardHeader>
-          <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            <p className="m-0">Internal tools for local demos, diagnostics, and support workflows.</p>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/settings/developer">Open developer tools</Link>
-            </Button>
-            <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Internal operator shell only</p>
-          </CardContent>
-        </Card>
-      ) : null}
     </div>
   );
 }
