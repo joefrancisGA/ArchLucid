@@ -8,6 +8,7 @@ import { OperatorHomeDisclosureSection } from "@/components/operator-home/Operat
 import { Button } from "@/components/ui/button";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import {
+  ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
   ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -46,7 +47,7 @@ export function OnboardingOptionalSetupSection() {
       sectionTestId="onboarding-optional-setup"
       storageKey={ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY}
       defaultExpanded={false}
-      collapsedSummary="Configure integrations, identity, and ROI baseline when you are ready."
+      collapsedSummary={ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY}
     >
       <div className="space-y-6">
         <section aria-labelledby="onboarding-roi-baseline-setup-heading" data-testid="onboarding-roi-baseline-setup">

@@ -108,7 +108,15 @@ export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional setup:";
 
 /** Setup readiness card body — paired with {@link PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL} on Overview. */
 export const OPERATOR_HOME_CONTINUE_SETUP_BODY =
-  "Finish workspace setup, reviewer access, and optional cloud connections.";
+  "Open the first review guide for the checklist, then add reviewer access or cloud connections when you are ready.";
+
+/** Collapsed summary on `/onboarding` optional setup disclosure (TB-679). */
+export const ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY =
+  "Workspace setup for admins — identity, roles, and ROI baseline. Not required for your first review.";
+
+/** Post-registration trial handoff on `/onboarding` (TB-679). */
+export const GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD =
+  "Confirm trial limits below, then use the checklist on this page or start a review with the sample highlighted on step one.";
 
 /** Operator home setup card heading (Overview IA final vocabulary). */
 export const OPERATOR_HOME_SETUP_READINESS_TITLE = "Setup readiness";

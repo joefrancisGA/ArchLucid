@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 import { OnboardingStartClient } from "@/components/OnboardingStartClient";
+import { GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readLastRegistrationPayload } from "@/lib/registration-session";
 
@@ -27,14 +28,10 @@ export function GettingStartedTrialSection({ fromRegistrationQuery }: GettingSta
   if (!fromRegistrationQuery && !fromSession) return null;
 
   return (
-    <div className="mb-8">
-      {fromRegistrationQuery ? (
-        <h2 className={cn("mb-2 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.pageTitle)}>Onboarding</h2>
-      ) : null}
+    <div className="mb-8" data-testid="getting-started-trial-section">
       {fromRegistrationQuery ? (
         <p className={cn("mb-6 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          Confirm trial limits below, then use the first-review checklist on Overview or open the new-run wizard with the sample
-          highlighted on step one.
+          {GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD}
         </p>
       ) : null}
       <OnboardingStartClient />

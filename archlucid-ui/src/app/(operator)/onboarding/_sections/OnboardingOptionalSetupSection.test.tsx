@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION } from "@/lib/buyer-polish-copy";
+import { ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY, ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION } from "@/lib/buyer-polish-copy";
 
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
 
@@ -27,13 +27,16 @@ vi.mock("@/components/operator-home/OperatorHomeDisclosureSection", () => ({
     title,
     children,
     sectionTestId,
+    collapsedSummary,
   }: {
     title: string;
     children: ReactNode;
     sectionTestId?: string;
+    collapsedSummary?: string;
   }) => (
     <section data-testid={sectionTestId ?? title}>
       <h2>{title}</h2>
+      {collapsedSummary ? <p data-testid="optional-setup-collapsed-summary">{collapsedSummary}</p> : null}
       {children}
     </section>
   ),
@@ -57,6 +60,9 @@ describe("OnboardingOptionalSetupSection", () => {
     render(<OnboardingOptionalSetupSection />);
 
     expect(screen.getByTestId("onboarding-optional-setup")).toBeInTheDocument();
+    expect(screen.getByTestId("optional-setup-collapsed-summary")).toHaveTextContent(
+      ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
+    );
     expect(screen.getByRole("link", { name: "Configure ROI baseline" })).toHaveAttribute("href", "/settings/baseline");
     expect(screen.getByTestId("finish-setup-wizard-panel-stub")).toHaveAttribute("data-variant", "optional");
     expect(screen.queryByTestId("onboarding-optional-setup-delegation")).not.toBeInTheDocument();

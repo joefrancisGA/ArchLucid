@@ -2,7 +2,7 @@
 
 # Tech backlog — verified open items
 
-> **Updated:** 2026-07-06 (regenerated manually after **TB-674–TB-680** added). **Source of truth:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md). **Done detail archive:** [`docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`](../archive/TECH_BACKLOG_DONE_ARCHIVE.md). **Sonnet questions:** [`SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`](SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md).
+> **Updated:** 2026-07-07 (regenerated manually after **TB-679** closed). **Source of truth:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md). **Done detail archive:** [`docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`](../archive/TECH_BACKLOG_DONE_ARCHIVE.md). **Sonnet questions:** [`SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`](SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md).
 
 ## Recently closed (do not re-open)
 
@@ -27,7 +27,7 @@
 
 ## Open items (auto-generated from summary table)
 
-_Regenerated 2026-07-06. 37 open rows._
+_Regenerated 2026-07-07. 36 open rows._
 
 | ID | Title | Cluster |
 | --- | --- | --- |
@@ -65,7 +65,6 @@ _Regenerated 2026-07-06. 37 open rows._
 | TB-676 | Remove duplicate cloud inventory evidence step from Finish setup wizard — keep only Core Pilot walkthrough step 4; see `## TB-676` below | Adoption friction P3 — **V1**; found during First review guide redundancy audit 2026-07-06 |
 | TB-677 | Customer-safe platform health link on onboarding workspace setup — **Done** (2026-07-06) | Adoption friction P1 — **V1** |
 | TB-678 | Role-gate onboarding workspace setup block on `principalAdmin` — non-admins see admin-delegation one-liner only; see `## TB-678` below | Adoption friction P2 — **V1**; found during First review guide redundancy audit 2026-07-06 |
-| TB-679 | Onboarding trial and optional-setup copy drift — remove duplicate in-page Onboarding heading; fix Overview checklist reference; tighten optional-setup summary; see `## TB-679` below | Adoption friction P2 — **V1**; found during First review guide redundancy audit 2026-07-06 |
 | TB-680 | Hub-page do-not-duplicate IA contract + drift guard — document owning-page rule; forbid ungated system-admin links from hub surfaces; see `## TB-680` below | Maintainability P2 — **V1**; extends **TB-404** / `NAV_CONFIG_CONTRACT.md`; found during First review guide redundancy audit 2026-07-06 |
 
 ## Curated slices (manual — spot-check against table above)
@@ -78,7 +77,7 @@ _Regenerated 2026-07-06. 37 open rows._
 | TB-677 | Customer-safe platform health link — **Done** (2026-07-06) | P1 |
 | TB-674 | Rename Getting started → First review guide | P2 |
 | TB-678 | Role-gate workspace setup on `principalAdmin` | P2 |
-| TB-679 | Trial/optional-setup copy drift | P2 |
+| TB-679 | Trial/optional-setup copy drift — **Done** (2026-07-07) | P2 |
 | TB-680 | Hub-page do-not-duplicate contract + drift guard | P2 |
 | TB-676 | Dedupe cloud inventory from Finish setup wizard | P3 |
 
