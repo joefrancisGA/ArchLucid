@@ -70,6 +70,8 @@ const apiHoisted = vi.hoisted(() => ({
   listAdvisorySchedules: vi.fn(),
   listRunsByProjectPaged: vi.fn(),
   simulateAlertRule: vi.fn(),
+  getGovernanceDashboard: vi.fn(),
+  getGovernanceDecisionsNeededSummary: vi.fn(),
 }));
 
 /**
@@ -106,6 +108,8 @@ vi.mock("@/lib/api", async (importOriginal) => {
     listAdvisorySchedules: apiHoisted.listAdvisorySchedules,
     listRunsByProjectPaged: apiHoisted.listRunsByProjectPaged,
     simulateAlertRule: apiHoisted.simulateAlertRule,
+    getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
+    getGovernanceDecisionsNeededSummary: apiHoisted.getGovernanceDecisionsNeededSummary,
   };
 });
 
@@ -150,7 +154,6 @@ import {
   advisorySchedulesCreateScheduleButtonLabelReaderRank,
   compositeRulesCreateButtonLabelReaderRank,
   digestSubscriptionsCreateSubscriptionButtonLabelReaderRank,
-  governanceWorkflowApprovalRequestsCardTitleReader,
   governanceWorkflowPromotionsActivationsHeadingReader,
   governanceWorkflowSubmitCardTitleReader,
   policyPacksCreatePackButtonLabelReaderRank,
@@ -158,6 +161,7 @@ import {
   policyPacksCurrentPacksHeadingReader,
   policyPacksPackContentHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";
@@ -234,6 +238,21 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       page: 1,
       pageSize: 50,
       hasMore: false,
+    });
+    apiHoisted.getGovernanceDashboard.mockResolvedValue({
+      pendingApprovals: [],
+      recentDecisions: [],
+      recentChanges: [],
+      pendingCount: 0,
+    });
+    apiHoisted.getGovernanceDecisionsNeededSummary.mockResolvedValue({
+      pendingApprovals: 0,
+      staleRisks: 0,
+      unownedHighSeverityRisks: 0,
+      findingsAwaitingEvidence: 0,
+      waiversExpiringWithin14Days: 0,
+      deferredFindingsDue: 0,
+      totalDecisionItems: 0,
     });
     apiHoisted.simulateAlertRule.mockResolvedValue({
       ruleKind: "Simple",
@@ -547,37 +566,18 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       render(<GovernanceWorkflowPage />);
 
       await waitFor(() => {
-        const submitRunTrigger = document.getElementById("gov-submit-run-select") as HTMLButtonElement | null;
-
-        expect(submitRunTrigger).not.toBeNull();
-        expect(submitRunTrigger!.disabled).toBe(true);
+        expect(screen.getByRole("heading", { name: GOVERNANCE_OVERVIEW_PAGE_TITLE })).toBeInTheDocument();
       });
 
-      expect(screen.getAllByText(governanceWorkflowSubmitCardTitleReader).length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText(governanceWorkflowApprovalRequestsCardTitleReader)).toBeInTheDocument();
+      fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-ui-shape-run" } });
+      fireEvent.click(screen.getByTestId("governance-overview-load-review"));
 
-      // Promotions / activations `h3` is inside the default-closed `AdvancedOptionsAccordion`; Radix unmounts
-      // closed panel content, so open it before querying the heading.
-      const advancedToggle = screen.getByRole("button", { name: /^Environment releases and activations$/ });
+      await waitFor(() => {
+        expect(screen.getByTestId("governance-review-context-bar")).toBeInTheDocument();
+      });
 
-      fireEvent.click(advancedToggle);
-
-      await waitFor(
-        () => {
-          expect(advancedToggle).toHaveAttribute("aria-expanded", "true");
-        },
-        { timeout: 5000 },
-      );
-
-      expect(
-        screen.getByRole("heading", { level: 3, name: governanceWorkflowPromotionsActivationsHeadingReader }),
-      ).toBeInTheDocument();
-
-      const submitVersion = document.getElementById("gov-submit-version") as HTMLInputElement | null;
-
-      expect(submitVersion).not.toBeNull();
-      expect(submitVersion!.readOnly).toBe(true);
-      expect(screen.getByTestId("governance-submit-approval-button")).toBeDisabled();
+      expect(screen.getByText("No approval requests for this review")).toBeInTheDocument();
+      expect(screen.getByText("Governance submissions")).toBeInTheDocument();
     },
     15_000,
   );
@@ -585,6 +585,9 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
   it("Governance workflow: submit Review ID is editable when mutation capability is true", async () => {
     mutateCapability.current = true;
     render(<GovernanceWorkflowPage />);
+
+    fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-ui-shape-run" } });
+    fireEvent.click(screen.getByTestId("governance-overview-load-review"));
 
     await waitFor(() => {
       const submitRunTrigger = document.getElementById("gov-submit-run-select") as HTMLButtonElement | null;

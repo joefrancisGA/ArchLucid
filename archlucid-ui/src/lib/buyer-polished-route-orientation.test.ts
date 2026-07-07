@@ -98,4 +98,18 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(o?.label).toBe("Value report");
     expect(o?.line).toContain("sponsor-ready summaries");
   });
+
+  it("orients bare /governance as the workspace overview", () => {
+    const o = buyerPolishedRouteOrientation("/governance");
+
+    expect(o?.label).toBe("Governance");
+    expect(o?.line).toContain("Workspace governance status");
+  });
+
+  it("orients /governance with showcase runId as sample review context", () => {
+    const o = buyerPolishedRouteOrientation("/governance", { searchRunId: SHOWCASE_STATIC_DEMO_RUN_ID });
+
+    expect(o?.label).toBe("Sample review context");
+    expect(o?.line).toContain("Claims Intake sample review package");
+  });
 });

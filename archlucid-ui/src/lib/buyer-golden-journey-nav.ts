@@ -63,6 +63,10 @@ export type BuyerGoldenJourneyNavLink = {
   readonly href: string;
 };
 
+export type BuyerGoldenJourneyNavOptions = {
+  readonly searchRunId?: string;
+};
+
 export type ResolvedBuyerGoldenJourneyNav = {
   /** Line shown between prev/next, e.g. "Step 3 of 5 · View evidence trail" */
   readonly summaryLine: string;
@@ -79,7 +83,10 @@ function normalizedPath(pathname: string): string {
 /**
  * When the URL is on the curated Claims Intake spine, returns adjacent journey links for the layer strip stepper.
  */
-export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGoldenJourneyNav | null {
+export function resolveBuyerGoldenJourneyNav(
+  pathname: string,
+  options?: BuyerGoldenJourneyNavOptions,
+): ResolvedBuyerGoldenJourneyNav | null {
   const path = normalizedPath(pathname);
   const defs = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS;
 
@@ -120,8 +127,20 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
     return null;
   } else if (pathMatchesGovernanceAlerts(path)) {
     return null;
-  } else if (path.startsWith("/governance")) {
+  } else if (path === "/governance") {
+    const searchRunId = options?.searchRunId?.trim() ?? "";
+
+    if (searchRunId.length === 0) {
+      return null;
+    }
+
+    if (canonicalizeDemoRunId(searchRunId) !== canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
+      return null;
+    }
+
     stepIdx = 3;
+  } else if (path.startsWith("/governance")) {
+    return null;
   } else if (path.startsWith("/audit")) {
     stepIdx = 4;
   } else {

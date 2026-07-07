@@ -28,6 +28,15 @@ vi.mock("@/lib/api", () => ({
     recentChanges: [],
     pendingCount: 0,
   }),
+  getGovernanceDecisionsNeededSummary: vi.fn().mockResolvedValue({
+    pendingApprovals: 0,
+    staleRisks: 0,
+    unownedHighSeverityRisks: 0,
+    findingsAwaitingEvidence: 0,
+    waiversExpiringWithin14Days: 0,
+    deferredFindingsDue: 0,
+    totalDecisionItems: 0,
+  }),
   getComplianceDriftTrend: vi.fn().mockResolvedValue([]),
   getGovernanceResolution: vi.fn().mockResolvedValue({
     notes: [],

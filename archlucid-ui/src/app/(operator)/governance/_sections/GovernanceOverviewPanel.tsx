@@ -1,0 +1,292 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { RunIdPicker } from "@/components/RunIdPicker";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getGovernanceDashboard } from "@/lib/api";
+import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import {
+  GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_LABEL,
+  GOVERNANCE_OVERVIEW_BLOCKING_ALERTS_LABEL,
+  GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION,
+  GOVERNANCE_OVERVIEW_NO_PENDING,
+  GOVERNANCE_OVERVIEW_PENDING_ACTION,
+  GOVERNANCE_OVERVIEW_PENDING_APPROVALS_LABEL,
+  GOVERNANCE_OVERVIEW_PENDING_SECTION_TITLE,
+  GOVERNANCE_OVERVIEW_POLICY_ACTIVATIONS_LABEL,
+  GOVERNANCE_OVERVIEW_RECENT_DECISIONS_LABEL,
+  GOVERNANCE_OVERVIEW_RECENT_DECISIONS_SECTION_TITLE,
+  GOVERNANCE_OVERVIEW_RISK_REGISTER_ACTION,
+  GOVERNANCE_OVERVIEW_SUBMIT_ACTION,
+  GOVERNANCE_OVERVIEW_SUMMARY_HEADING,
+} from "@/lib/governance-overview-copy";
+import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { GovernanceDashboardSummary } from "@/types/governance-dashboard";
+import {
+  buildGovernanceOverviewSummaryMetrics,
+  type GovernanceOverviewSummaryMetrics,
+} from "./governance-overview-summary";
+
+type GovernanceOverviewPanelProps = {
+  readonly buyerPolishedShell: boolean;
+  readonly queryRunId: string;
+  readonly setQueryRunId: (value: string) => void;
+  readonly onLoadReview: () => void;
+  readonly onFocusSubmit: () => void;
+  readonly onFocusPending: () => void;
+  readonly listsLoading: boolean;
+};
+
+type OverviewLoadState =
+  | { readonly status: "loading" }
+  | {
+      readonly status: "ready";
+      readonly dashboard: GovernanceDashboardSummary;
+      readonly metrics: GovernanceOverviewSummaryMetrics;
+    }
+  | { readonly status: "error"; readonly failure: ApiLoadFailureState };
+
+function SummaryMetricCard(props: {
+  readonly label: string;
+  readonly value: number;
+  readonly href?: string;
+  readonly caution?: boolean;
+}): React.JSX.Element {
+  const content = (
+    <>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.label}</p>
+      <p
+        className={cn(
+          "m-0 mt-1 font-semibold tabular-nums text-al-text-primary",
+          OPERATOR_TYPOGRAPHY.pageTitle,
+          props.caution && props.value > 0 ? "text-amber-800 dark:text-amber-200" : null,
+        )}
+      >
+        {finiteIntegerCountDisplay(props.value)}
+      </p>
+    </>
+  );
+
+  if (props.href !== undefined) {
+    return (
+      <Link
+        className="rounded-md border border-neutral-200 bg-white px-3 py-3 transition hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-950/40 dark:hover:border-neutral-700"
+        href={props.href}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div className="rounded-md border border-neutral-200 bg-white px-3 py-3 dark:border-neutral-800 dark:bg-neutral-950/40">
+      {content}
+    </div>
+  );
+}
+
+/** `/governance` landing summary, actions, and review picker before a review is selected. */
+export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): React.JSX.Element {
+  const {
+    buyerPolishedShell,
+    queryRunId,
+    setQueryRunId,
+    onLoadReview,
+    onFocusSubmit,
+    onFocusPending,
+    listsLoading,
+  } = props;
+
+  const pendingSectionRef = useRef<HTMLElement | null>(null);
+  const [loadState, setLoadState] = useState<OverviewLoadState>({ status: "loading" });
+
+  const loadOverview = useCallback(async () => {
+    setLoadState({ status: "loading" });
+
+    try {
+      const [dashboard, decisionsNeeded] = await Promise.all([
+        getGovernanceDashboard(),
+        getGovernanceDecisionsNeededSummary(),
+      ]);
+      const metrics = buildGovernanceOverviewSummaryMetrics(dashboard, decisionsNeeded);
+
+      setLoadState({
+        status: "ready",
+        dashboard,
+        metrics,
+      });
+    } catch (error) {
+      setLoadState({ status: "error", failure: toApiLoadFailure(error) });
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadOverview();
+  }, [loadOverview]);
+
+  const scrollToPending = (): void => {
+    onFocusPending();
+    pendingSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  return (
+    <div className="mb-8 space-y-6" data-testid="governance-overview-panel">
+      <section aria-labelledby="governance-overview-summary-heading">
+        <h2 id="governance-overview-summary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {GOVERNANCE_OVERVIEW_SUMMARY_HEADING}
+        </h2>
+
+        {loadState.status === "loading" ? (
+          <div className="mt-3">
+            <OperatorLoadingNotice>Loading governance summary…</OperatorLoadingNotice>
+          </div>
+        ) : null}
+
+        {loadState.status === "error" ? (
+          <div className="mt-3" role="alert">
+            <OperatorApiProblem
+              problem={loadState.failure.problem}
+              fallbackMessage={loadState.failure.message}
+              correlationId={loadState.failure.correlationId}
+            />
+            <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => void loadOverview()}>
+              Retry summary
+            </Button>
+          </div>
+        ) : null}
+
+        {loadState.status === "ready" ? (
+          <>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+              <SummaryMetricCard
+                label={GOVERNANCE_OVERVIEW_PENDING_APPROVALS_LABEL}
+                value={loadState.metrics.pendingApprovalRequests}
+                href="#governance-overview-pending"
+              />
+              <SummaryMetricCard
+                label={GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_LABEL}
+                value={loadState.metrics.approvedReviewPackages}
+              />
+              <SummaryMetricCard
+                label={GOVERNANCE_OVERVIEW_BLOCKING_ALERTS_LABEL}
+                value={loadState.metrics.blockingGovernanceAlerts}
+                href="/governance/findings"
+                caution
+              />
+              <SummaryMetricCard
+                label={GOVERNANCE_OVERVIEW_RECENT_DECISIONS_LABEL}
+                value={loadState.metrics.recentDecisions}
+                href="/governance/decision-register"
+              />
+              <SummaryMetricCard
+                label={GOVERNANCE_OVERVIEW_POLICY_ACTIVATIONS_LABEL}
+                value={loadState.metrics.policyActivations}
+                href={GOVERNANCE_POLICY_PACKS_PATH}
+              />
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button type="button" variant="primary" size="sm" data-testid="governance-overview-submit-action" onClick={onFocusSubmit}>
+                {GOVERNANCE_OVERVIEW_SUBMIT_ACTION}
+              </Button>
+              <Button type="button" variant="secondary" size="sm" data-testid="governance-overview-pending-action" onClick={scrollToPending}>
+                {GOVERNANCE_OVERVIEW_PENDING_ACTION}
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/governance/findings">{GOVERNANCE_OVERVIEW_RISK_REGISTER_ACTION}</Link>
+              </Button>
+            </div>
+          </>
+        ) : null}
+      </section>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Load a review</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3">
+          <RunIdPicker
+            inputId="governance-overview-run"
+            label="Review"
+            placeholder="Select a review from the list"
+            value={queryRunId}
+            useBuyerFacingRunLabels={buyerPolishedShell}
+            onChange={setQueryRunId}
+          />
+          <div>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              data-testid="governance-overview-load-review"
+              disabled={listsLoading || queryRunId.trim().length === 0}
+              onClick={onLoadReview}
+            >
+              {listsLoading ? "Loading…" : GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {loadState.status === "ready" ? (
+        <section
+          ref={pendingSectionRef}
+          id="governance-overview-pending"
+          aria-labelledby="governance-overview-pending-heading"
+        >
+          <h2 id="governance-overview-pending-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {GOVERNANCE_OVERVIEW_PENDING_SECTION_TITLE}
+          </h2>
+          {loadState.dashboard.pendingApprovals.length === 0 ? (
+            <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_OVERVIEW_NO_PENDING}</p>
+          ) : (
+            <ul className="m-0 mt-3 list-none space-y-2 p-0">
+              {loadState.dashboard.pendingApprovals.slice(0, 5).map((row) => (
+                <li key={row.approvalRequestId}>
+                  <Link
+                    className={cn(OPERATOR_LINK.nav, "block rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800")}
+                    href={`/governance?runId=${encodeURIComponent(row.runId)}`}
+                  >
+                    <span className="font-medium">{row.manifestVersion}</span>
+                    <span className="text-al-text-secondary"> · {row.status}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : null}
+
+      {loadState.status === "ready" && loadState.dashboard.recentDecisions.length > 0 ? (
+        <section aria-labelledby="governance-overview-recent-decisions-heading">
+          <h2 id="governance-overview-recent-decisions-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {GOVERNANCE_OVERVIEW_RECENT_DECISIONS_SECTION_TITLE}
+          </h2>
+          <ul className="m-0 mt-3 list-none space-y-2 p-0">
+            {loadState.dashboard.recentDecisions.slice(0, 5).map((row) => (
+              <li key={row.approvalRequestId}>
+                <Link
+                  className={cn(OPERATOR_LINK.nav, "block rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800")}
+                  href={`/governance?runId=${encodeURIComponent(row.runId)}`}
+                >
+                  <span className="font-medium">{row.manifestVersion}</span>
+                  <span className="text-al-text-secondary"> · {row.status}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+    </div>
+  );
+}

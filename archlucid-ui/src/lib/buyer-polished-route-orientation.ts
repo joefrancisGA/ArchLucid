@@ -1,5 +1,6 @@
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { pathMatchesGovernanceAlerts } from "@/lib/governance-route-paths";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
   BUYER_SURFACE_VOCABULARY,
@@ -8,13 +9,21 @@ import {
 } from "@/lib/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
+  GOVERNANCE_OVERVIEW_PAGE_LEAD,
+  GOVERNANCE_OVERVIEW_PAGE_TITLE,
+  GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL,
+  GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE,
+  GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
+} from "@/lib/governance-overview-copy";
+
+import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 
 export type BuyerPolishedRouteOrientationOptions = {
-  /** When `/search` carries `runId`, header copy can reflect a scoped review package. */
+  /** When `/search` or `/governance` carries `runId`, header copy can reflect a scoped review package. */
   readonly searchRunId?: string;
 };
 
@@ -132,10 +141,41 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
+  if (path === "/governance/dashboard" || path.startsWith("/governance/dashboard/")) {
+    return null;
+  }
+
+  if (path === "/governance/decision-register" || path.startsWith("/governance/decision-register/")) {
+    return null;
+  }
+
+  if (path === "/governance") {
+    const searchRunId = options?.searchRunId?.trim() ?? "";
+
+    if (searchRunId.length === 0) {
+      return {
+        label: GOVERNANCE_OVERVIEW_PAGE_TITLE,
+        line: GOVERNANCE_OVERVIEW_PAGE_LEAD,
+      };
+    }
+
+    if (canonicalizeDemoRunId(searchRunId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
+      return {
+        label: GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL,
+        line: GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE,
+      };
+    }
+
+    return {
+      label: "Review governance",
+      line: GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
+    };
+  }
+
   if (path.startsWith("/governance")) {
     return {
-      label: "Governance approval record",
-      line: "Governance approval record — approved for governed use with monitored PHI minimization control. Approved as the governed architecture record for diligence, architecture review, and implementation planning. Production deployments remain governed by enterprise change management.",
+      label: "Governance",
+      line: GOVERNANCE_OVERVIEW_PAGE_LEAD,
     };
   }
 
