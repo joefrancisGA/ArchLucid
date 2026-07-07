@@ -696,7 +696,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             delayMs = Math.Min(delayMs * 2, 8000);
         }
 
-        throw new Xunit.Sdk.XunitException(
+        throw new GreenfieldCommitRetryBudgetExhaustedException(
             "POST /v1/architecture/run/{runId}/commit did not succeed after "
             + maxAttempts
             + " greenfield transient retries."

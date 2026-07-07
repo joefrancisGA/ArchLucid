@@ -13,11 +13,18 @@ public sealed class SqlTransientDetectorTests
     [InlineData(-2)]
     [InlineData(1205)]
     [InlineData(40613)]
+    [InlineData(40645)]
     [InlineData(40197)]
     [InlineData(49918)]
     [InlineData(49919)]
     [InlineData(49920)]
     [InlineData(40501)]
+    [InlineData(233)]
+    [InlineData(10053)]
+    [InlineData(10054)]
+    [InlineData(10060)]
+    [InlineData(10928)]
+    [InlineData(10929)]
     public void IsTransient_SqlException_ReturnsTrue_ForKnownNumbers(int number)
     {
         SqlException ex = SqlExceptionTestFactory.Create(number);

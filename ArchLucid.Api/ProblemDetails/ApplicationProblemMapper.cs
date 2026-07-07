@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 
 using Microsoft.AspNetCore.Mvc;
@@ -395,6 +396,20 @@ public static class ApplicationProblemMapper
                 StatusCodes.Status503ServiceUnavailable,
                 "Request Timeout",
                 "An operation timed out. The request may succeed on retry.",
+                ProblemTypes.DatabaseTimeout,
+                instance,
+                httpContext);
+            return true;
+        }
+
+        // Network-layer and Azure throttling codes that SqlTransientDetector already classifies for Polly retries
+        // but that can still surface at the HTTP boundary when the open/operation budget is exhausted.
+        if (SqlTransientDetector.IsTransient(ex))
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status503ServiceUnavailable,
+                "Database Timeout",
+                "The database query timed out or hit a transient fault. The request may succeed on retry.",
                 ProblemTypes.DatabaseTimeout,
                 instance,
                 httpContext);

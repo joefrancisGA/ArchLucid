@@ -8,8 +8,9 @@ namespace ArchLucid.Persistence.Connections;
 /// </summary>
 /// <remarks>
 ///     Error numbers: <c>-2</c> = timeout; <c>1205</c> = deadlock victim (safe to retry when the UoW rolled back);
-///     <c>40613</c> = Azure SQL DB unavailable; <c>40197</c> / <c>40501</c> = service / elastic pool capacity pressure;
-///     <c>49918–49920</c> = Azure throttling.
+///     <c>40613</c> / <c>40645</c> = Azure SQL DB unavailable; <c>40197</c> / <c>40501</c> = service / elastic pool capacity pressure;
+///     <c>49918–49920</c> = Azure throttling; <c>10928</c> / <c>10929</c> = resource throttling;
+///     <c>233</c> / <c>10053</c> / <c>10054</c> / <c>10060</c> = network-layer connection failures under CI SQL pressure.
 /// </remarks>
 public static class SqlTransientDetector
 {
@@ -22,7 +23,21 @@ public static class SqlTransientDetector
         if (ex is null)
             return false;
 
-        return ex.Number is -2 or 1205 or 40613 or 40197 or 40501 or 49918 or 49919 or 49920;
+        return ex.Number is -2
+            or 1205
+            or 233
+            or 40613
+            or 40645
+            or 40197
+            or 40501
+            or 10053
+            or 10054
+            or 10060
+            or 10928
+            or 10929
+            or 49918
+            or 49919
+            or 49920;
     }
 
     /// <summary>

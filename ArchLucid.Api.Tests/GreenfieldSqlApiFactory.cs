@@ -87,6 +87,10 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetim
         settings["AuthorityPipeline:PipelineTimeout"] = "00:05:00";
         // Keep lock wait below slow-shard hang guards; 3 min is enough for one winner + idempotent replays in CI.
         settings["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "180000";
+        // Parallel greenfield factories on CI SQL can surface network-layer connection faults; give open retries more
+        // headroom than production defaults without unbounded ADO connect-timeout stacking.
+        settings["Persistence:SqlOpenResilience:MaxRetryAttempts"] = "6";
+        settings["Persistence:SqlOpenResilience:BaseDelayMilliseconds"] = "500";
         settings["Demo:SeedOnStartup"] = "false";
         settings["Demo:SeedDepth"] = "quickstart";
     }

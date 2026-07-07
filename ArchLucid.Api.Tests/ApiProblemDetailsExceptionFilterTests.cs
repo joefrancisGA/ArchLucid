@@ -212,6 +212,25 @@ public sealed class ApiProblemDetailsExceptionFilterTests
     }
 
     [SkippableFact]
+    public void TryMapDatabaseException_NetworkTransientSqlException_Returns503DatabaseTimeout()
+    {
+        DefaultHttpContext http = CreateHttpContextForMapper("/v1/architecture/run/x/commit", "net-transient-cid");
+
+        bool mapped = ApplicationProblemMapper.TryMapDatabaseException(
+            SqlExceptionTestFactory.Create(10053),
+            "/v1/architecture/run/x/commit",
+            http,
+            out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result.Should().NotBeNull();
+        result.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
+        Microsoft.AspNetCore.Mvc.ProblemDetails p =
+            result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.DatabaseTimeout);
+    }
+
+    [SkippableFact]
     public void TryMapDatabaseException_DeadlockSqlException_Returns409Conflict()
     {
         DefaultHttpContext http = CreateHttpContextForMapper("/v1/architecture/run/x/commit", "deadlock-cid");
