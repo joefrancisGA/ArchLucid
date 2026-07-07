@@ -33,17 +33,38 @@ export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
 
 export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 
-export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Try a sample review";
-
-export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD =
-  "Not ready to use your own architecture yet? Run a sample review to see how ArchLucid turns architecture evidence into findings, governance decisions, and a completed review package.";
-
 /** Quiet label above the non-clickable sample finding preview rows — signals "content", not "actions". */
 export const OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL = "Sample includes:";
 
 export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Run sample review";
 
 export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = "Open completed sample";
+
+export const OPERATOR_HOME_COMMAND_CENTER_TAGLINE =
+  "Create, review, and govern architecture decisions with evidence-backed traceability.";
+
+export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Create architecture";
+
+export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
+  "Generate or refine an architecture from goals, constraints, and evidence.";
+
+export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review architecture";
+
+export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
+  "Evaluate an architecture package for findings, risks, evidence, and governance readiness.";
+
+export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA = "Start review";
+
+export const OPERATOR_HOME_EXPLORE_SAMPLE_HEADING = "Explore a sample workspace";
+
+export const OPERATOR_HOME_EXPLORE_SAMPLE_LEAD =
+  "See a completed package or run a guided sample review before using your own evidence.";
+
+/** @deprecated Prefer {@link OPERATOR_HOME_EXPLORE_SAMPLE_HEADING} — retained for legacy imports. */
+export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = OPERATOR_HOME_EXPLORE_SAMPLE_HEADING;
+
+/** @deprecated Prefer {@link OPERATOR_HOME_EXPLORE_SAMPLE_LEAD}. */
+export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD = OPERATOR_HOME_EXPLORE_SAMPLE_LEAD;
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER =
   "Example review — not your workspace data. Open the full package for findings, evidence, and the signed record.";
@@ -63,15 +84,16 @@ export const SAMPLE_REVIEW_PACKAGE_AHA_HEADING = "Your first-value moment";
 export const SAMPLE_REVIEW_PACKAGE_AHA_LEAD =
   "This sample review package leads with one decision-changing finding — expand evidence and exports below when ready.";
 
-export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No committed reviews yet";
+export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No review packages yet";
 
-export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY = "Your review packages will appear here.";
+export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
+  "Created architectures and review packages will appear here after you start.";
 
 export const OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE = "No archived reviews yet.";
 
 export const OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_BODY = "Archived review packages will appear here.";
 
-export const PILOT_COMMAND_CENTER_HEADING = "Start your first review";
+export const PILOT_COMMAND_CENTER_HEADING = "Create or review an architecture";
 
 export const OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING = "Recent activity";
 
@@ -140,7 +162,7 @@ export const OPERATOR_HOME_WORKSPACE_SETUP_SECTION_TITLE = "Workspace setup";
 export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Explore ArchLucid";
 
 export const OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY =
-  "Review walkthrough and example review package.";
+  "Review walkthrough and product concepts.";
 
 export const OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING = "Review walkthrough";
 
@@ -448,7 +470,7 @@ export const BUYER_ONBOARDING_PAGE_LEAD =
 
 export const BUYER_ONBOARDING_NAV_TOOLTIP = "First review guide — checklist and milestones";
 
-export const OPERATOR_HOME_OPEN_FIRST_REVIEW_GUIDE_CTA = "Open first review guide";
+export const OPERATOR_HOME_OPEN_FIRST_REVIEW_GUIDE_CTA = "Open guide";
 
 /** Shown on `/onboarding` when the caller is not a workspace admin (TB-678). */
 export const ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION =

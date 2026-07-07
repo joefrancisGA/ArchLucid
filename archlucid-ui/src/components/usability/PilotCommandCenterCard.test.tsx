@@ -3,13 +3,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
+  OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
+  OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
   PILOT_COMMAND_CENTER_HEADING,
-  PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK,
-  PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
-  PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
@@ -56,10 +56,13 @@ describe("PilotCommandCenterCard", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(emptyCommitContext);
   });
-  it("shows first-review hero copy before committed workspace activity", () => {
-    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
 
+  it("shows dual-path hero copy before committed workspace activity", () => {
     renderWithOperatorQuery(<PilotCommandCenterCard />);
+
+    expect(screen.getByTestId("pilot-command-center-tagline")).toHaveTextContent(
+      OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
+    );
 
     expect(
       screen.getByRole("heading", { level: 2, name: PILOT_COMMAND_CENTER_HEADING }),
@@ -68,11 +71,18 @@ describe("PilotCommandCenterCard", () => {
     const title = screen.getByRole("heading", { level: 2, name: PILOT_COMMAND_CENTER_HEADING });
     expect(title.className).toContain("text-[15px]");
     expect(title.className).not.toContain("text-lg");
+
     for (const token of OPERATOR_HOME_CARD_SECTION_HEADING.split(/\s+/)) {
       if (token.length > 0) {
         expect(title.className).toContain(token);
       }
     }
+
+    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-create-architecture-cta")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("operator-home-review-architecture-cta")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
   });
 
   it("shows workspace overview hero copy after committed workspace activity", () => {
@@ -86,33 +96,31 @@ describe("PilotCommandCenterCard", () => {
     ).toBeInTheDocument();
   });
 
-  it("uses dynamic next-best-action copy from Core Pilot commit context", async () => {
-    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
+  it("uses dynamic next-best-action copy from Core Pilot commit context after first commit", async () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
+    vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);
 
     renderWithOperatorQuery(<PilotCommandCenterCard />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
+      expect(screen.getByTestId("pilot-next-best-action")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("pilot-next-best-action")).toHaveAttribute(
+    expect(screen.getByTestId("pilot-command-center-lead")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
+  });
+
+  it("exposes open-completed-sample as the hero sample path before first commit", () => {
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
+
+    const openSample = screen.getByTestId("pilot-command-center-open-completed-sample");
+    expect(openSample).toHaveAttribute(
       "href",
       showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
     );
-    expect(screen.getByTestId("pilot-command-center-lead").textContent).toBe(PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY);
-    expect(screen.getByTestId("pilot-command-center-start-own-review")).toHaveAttribute("href", "/reviews/new");
-  });
-
-  it("shows workflow steps below the header row before first commit", () => {
-    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
-
-    renderWithOperatorQuery(<PilotCommandCenterCard />);
-
-    expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
-
-    for (const step of PILOT_PATH_PREVIEW_STEPS) {
-      expect(screen.getByText(step.label)).toBeInTheDocument();
-    }
+    expect(openSample).toHaveTextContent(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
+    expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
+    expect(screen.queryByTestId("pilot-path-preview-stepper")).toBeNull();
   });
 
   it("does not render optional setup links on the hero card", () => {
@@ -121,29 +129,5 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("pilot-command-center-optional-setup")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-connect-azure")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-invite-reviewer")).toBeNull();
-  });
-
-  it("renders first-hour hero CTAs as balanced primary and outline buttons", async () => {
-    renderWithOperatorQuery(<PilotCommandCenterCard />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent(
-        OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
-      );
-    });
-
-    const openSample = screen.getByRole("link", { name: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA });
-    const startOwnReview = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK });
-
-    expect(openSample).toHaveAttribute(
-      "href",
-      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
-    );
-    expect(startOwnReview).toHaveAttribute("href", "/reviews/new");
-    expect(openSample.className).toMatch(/bg-\[var\(--al-primary-action-bg\)\]/);
-    expect(openSample.className).not.toMatch(/underline/);
-    expect(startOwnReview.className).toMatch(/border-neutral-300/);
-    expect(startOwnReview.className).not.toMatch(/bg-\[var\(--al-primary-action-bg\)\]/);
-    expect(startOwnReview.className).not.toMatch(/underline/);
   });
 });
