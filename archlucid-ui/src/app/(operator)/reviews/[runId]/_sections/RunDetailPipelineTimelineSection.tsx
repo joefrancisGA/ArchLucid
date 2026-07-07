@@ -87,7 +87,12 @@ export function RunDetailPipelineTimelineSection(
   if (buyerPolishedArtifactTable) {
     return (
       <section id="pipeline-timeline" className="scroll-mt-24" aria-labelledby="pipeline-timeline-title">
-        <CollapsibleSection title="Recent lifecycle events" defaultOpen={false} sectionTestId="run-pipeline-timeline-collapsible">
+        <CollapsibleSection
+          title="Recent lifecycle events"
+          summaryId="pipeline-timeline-title"
+          defaultOpen={false}
+          sectionTestId="run-pipeline-timeline-collapsible"
+        >
           <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {pipelineTimelineDescription(runId, buyerPolishedArtifactTable)}
           </p>

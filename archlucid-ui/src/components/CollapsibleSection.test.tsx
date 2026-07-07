@@ -43,4 +43,14 @@ describe("CollapsibleSection", () => {
     expect(details.tagName).toBe("DETAILS");
     expect(details).toContainElement(screen.getByText("Tagged"));
   });
+
+  it("applies summaryId to the summary element", () => {
+    render(
+      <CollapsibleSection title="Labeled" summaryId="section-summary-id">
+        <p>Inner</p>
+      </CollapsibleSection>,
+    );
+
+    expect(screen.getByText("Labeled").closest("summary")).toHaveAttribute("id", "section-summary-id");
+  });
 });

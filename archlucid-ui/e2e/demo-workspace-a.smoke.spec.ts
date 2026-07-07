@@ -14,6 +14,7 @@ import { liveApiBase } from "./helpers/live-api-client";
 import {
   buyerPolishedReviewDetailSectionNav,
   ensureBuyerDeliverablesSectionExpanded,
+  expectBuyerPipelineTimelineSectionVisible,
   expectBuyerPolishedReviewDetailSectionNavCore,
 } from "./helpers/operator-journey";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
@@ -47,9 +48,7 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expectBuyerPolishedReviewDetailSectionNavCore(sectionNav, { timeoutMs: 15_000 });
 
-    await expect(page.getByRole("heading", { name: /Recent lifecycle events|Pipeline timeline/i }).first()).toBeVisible({
-      timeout: 60_000,
-    });
+    await expectBuyerPipelineTimelineSectionVisible(page, { timeoutMs: 60_000 });
 
     await page.locator("#trust-evidence").scrollIntoViewIfNeeded();
 

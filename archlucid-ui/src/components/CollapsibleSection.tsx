@@ -8,6 +8,8 @@ type CollapsibleSectionProps = {
   title: string;
   /** When true, section starts expanded. */
   defaultOpen?: boolean;
+  /** Optional id for the `<summary>` (pairs with parent `aria-labelledby`). */
+  summaryId?: string;
   /** Optional stable hook for E2E (placed on the root `<details>`). */
   sectionTestId?: string;
   /** Called when the native `<details>` open state changes. */
@@ -22,6 +24,7 @@ type CollapsibleSectionProps = {
 export function CollapsibleSection({
   title,
   defaultOpen = false,
+  summaryId,
   sectionTestId,
   onToggle,
   children,
@@ -37,7 +40,10 @@ export function CollapsibleSection({
         }
       }}
     >
-      <summary className={cn("cursor-pointer select-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+      <summary
+        id={summaryId}
+        className={cn("cursor-pointer select-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+      >
         {title}
       </summary>
       <div className="mt-3">{children}</div>

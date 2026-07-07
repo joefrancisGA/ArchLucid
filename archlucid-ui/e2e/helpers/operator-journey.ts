@@ -268,6 +268,35 @@ export function outcomeStripSignedRecordLink(outcomeStrip: Locator): Locator {
     .first();
 }
 
+/**
+ * Buyer-polished pipeline timeline uses `<summary>` inside {@link CollapsibleSection}, not an `<h3>` heading.
+ * Scroll via section nav, then assert the collapsible affordance is present (collapsed by default).
+ */
+export async function expectBuyerPipelineTimelineSectionVisible(
+  page: Page,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeout = options?.timeoutMs ?? 60_000;
+  const sectionNav = buyerPolishedReviewDetailSectionNav(page);
+
+  await sectionNav.getByRole("link", { name: "Activity" }).click();
+
+  const collapsible = page.getByTestId("run-pipeline-timeline-collapsible");
+
+  await expect(collapsible).toBeVisible({ timeout });
+  await expect(
+    collapsible.locator("summary", { hasText: /Recent lifecycle events|Pipeline timeline/i }),
+  ).toBeVisible({ timeout });
+
+  const heading = page.locator("#pipeline-timeline").getByRole("heading", {
+    name: /Recent lifecycle events|Pipeline timeline/i,
+  });
+
+  if ((await heading.count()) > 0) {
+    await expect(heading.first()).toBeVisible({ timeout });
+  }
+}
+
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */
 export async function ensureBuyerDeliverablesSectionExpanded(page: Page): Promise<void> {
   const deliverablesDetails = page.locator("#artifacts-exports details").first();
