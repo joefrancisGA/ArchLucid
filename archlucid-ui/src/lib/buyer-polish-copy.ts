@@ -441,6 +441,10 @@ export const BUYER_ONBOARDING_NAV_TOOLTIP = "First review guide — checklist an
 
 export const OPERATOR_HOME_OPEN_FIRST_REVIEW_GUIDE_CTA = "Open first review guide";
 
+/** Shown on `/onboarding` when the caller is not a workspace admin (TB-678). */
+export const ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION =
+  "Workspace identity and ROI setup requires a workspace admin. Ask your administrator to finish optional setup when you are ready.";
+
 export const BUYER_ONBOARDING_WALKTHROUGH_HELP_LINK = "Architecture review walkthrough";
 
 export const BUYER_MANIFEST_SUMMARY_LOAD_ERROR_HEADING = "Review record summary could not be loaded.";
