@@ -80,7 +80,7 @@ function ExecutiveRoiDashboardPortfolioSections({
         </>
       )}
 
-      <SponsorExportsSection surface={surface} />
+      <SponsorExportsSection surface={surface} hasCommittedReviews={hasCommittedReviews} />
 
       {hasCommittedReviews ? (
         <section aria-labelledby="executive-findings-heading" className="space-y-4">

@@ -47,6 +47,41 @@ export type ParsedInlineGuidanceLabel = {
   readonly body: string;
 };
 
+/** Label-style prefixes that introduce imperative UI guidance — capitalize the first word after the colon. */
+const LABEL_STYLE_INLINE_GUIDANCE_PREFIXES = new Set<string>([
+  "Before you continue:",
+  "Recommended action:",
+  "Optional setup:",
+  "Good to know:",
+  "Skip for now:",
+  "Blocked by:",
+  "Optional:",
+  "Recommended:",
+  "Important:",
+  "Warning:",
+  "Required:",
+  "Note:",
+  "Tip:",
+]);
+
+function normalizeInlineGuidanceLabel(label: string): string {
+  return label.endsWith(":") ? label : `${label}:`;
+}
+
+/** True when the prefix should render with a capitalized first word in the body. */
+export function shouldCapitalizeInlineGuidanceBody(label: string): boolean {
+  return LABEL_STYLE_INLINE_GUIDANCE_PREFIXES.has(normalizeInlineGuidanceLabel(label));
+}
+
+/** Capitalize the first character of inline guidance body copy when the label is label-style. */
+export function capitalizeInlineGuidanceBody(label: string, body: string): string {
+  if (!shouldCapitalizeInlineGuidanceBody(label) || body.length === 0) {
+    return body;
+  }
+
+  return body.charAt(0).toUpperCase() + body.slice(1);
+}
+
 /**
  * When copy starts with a known guidance label, split label from body for emphasized rendering.
  */

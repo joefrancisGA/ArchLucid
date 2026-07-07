@@ -1,5 +1,5 @@
 import { tryResolveInAppDocHref } from "@/lib/in-app-doc-href";
-import { parseLeadingInlineGuidanceLabel } from "@/lib/inline-guidance-labels";
+import { capitalizeInlineGuidanceBody, parseLeadingInlineGuidanceLabel } from "@/lib/inline-guidance-labels";
 import { applyHelpTopicProductLanguage } from "@/lib/help-product-language";
 
 const MARKDOWN_FILE_PATTERN = /\.md(?:#[^\s)]*)?$/i;
@@ -351,7 +351,9 @@ export function emphasizeInlineGuidanceLabels(markdown: string): string {
 
       const restLeadingWhitespace = rest.slice(0, rest.length - restTrimmed.length);
 
-      return `${prefix}${restLeadingWhitespace}**${parsed.label}** ${parsed.body}`;
+      const body = capitalizeInlineGuidanceBody(parsed.label, parsed.body);
+
+      return `${prefix}${restLeadingWhitespace}**${parsed.label}** ${body}`;
     })
     .join("\n");
 }

@@ -10,7 +10,7 @@ describe("buyer terminology vocabulary", () => {
   it("uses finalize vocabulary in executive dashboard empty states", () => {
     const vocabulary = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
-    expect(vocabulary.emptyStateDescription).toContain("finalize");
+    expect(vocabulary.emptyStateDescription).toMatch(/finalize/i);
     expect(vocabulary.emptyStateDescription).not.toMatch(/\bcommit\b/i);
     expect(vocabulary.portfolioMetricsUnavailableDescription).toContain("Finalize");
     expect(vocabulary.portfolioMetricsUnavailableDescription).not.toMatch(/\bcommit\b/i);

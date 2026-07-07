@@ -7,10 +7,12 @@ import { useEffect, useState } from "react";
 import { InlineGuidance } from "@/components/InlineGuidance";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { DismissControl } from "@/components/usability/DismissControl";
+import { Button } from "@/components/ui/button";
 import { useWorkspaceBaselineArtifactsPresence } from "@/hooks/use-workspace-baseline-artifacts";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Session-dismiss key — discarded when the browser tab ends. */
 
@@ -31,6 +33,7 @@ export type ExecutiveDashboardBaselineWarningBannerProps = {
 export function ExecutiveDashboardBaselineWarningBanner({
   variant = "banner",
 }: ExecutiveDashboardBaselineWarningBannerProps = {}) {
+  const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const { loading: artifactsLoading, hasBaselineArtifacts } = useWorkspaceBaselineArtifactsPresence();
   const [sessionDismissed, setSessionDismissed] = useState(false);
@@ -62,18 +65,19 @@ export function ExecutiveDashboardBaselineWarningBanner({
       >
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           <InlineGuidance label="Optional" labelTestId="inline-guidance-optional">
-            upload a baseline inventory to improve ROI estimates.
+            {v.baselineInventoryOptionalGuidance}
           </InlineGuidance>
         </p>
-        <p className="mt-2 mb-0">
-          <Link
-            href={EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF}
-            className={OPERATOR_LINK.inline}
-            data-testid="executive-baseline-upload-wizard-link"
-          >
-            Open baseline upload wizard
-          </Link>
-        </p>
+        <div className="mt-3">
+          <Button asChild size="sm" variant="outline" className="border-neutral-300 dark:border-neutral-600">
+            <Link
+              href={EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF}
+              data-testid="executive-baseline-upload-wizard-link"
+            >
+              {v.baselineInventoryUploadAction}
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -89,15 +93,16 @@ export function ExecutiveDashboardBaselineWarningBanner({
         <p className={cn("mb-0 mt-2 text-amber-900/95 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.body)}>
           {CLOUD_NEUTRAL_PRIMARY_COPY.executiveBaselineBannerBody}
         </p>
-        <p className="mt-2 mb-0">
-          <Link
-            href={EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF}
-            className={OPERATOR_LINK.inline}
-            data-testid="executive-baseline-upload-wizard-link"
-          >
-            Open baseline upload wizard
-          </Link>
-        </p>
+        <div className="mt-3">
+          <Button asChild size="sm" variant="outline" className="border-neutral-300 dark:border-neutral-600">
+            <Link
+              href={EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF}
+              data-testid="executive-baseline-upload-wizard-link"
+            >
+              {v.baselineInventoryUploadAction}
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <DismissControl

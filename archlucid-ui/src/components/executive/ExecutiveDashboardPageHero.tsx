@@ -5,7 +5,6 @@ import Link from "next/link";
 
 import { SeedSampleReviewButton } from "@/components/SeedSampleReviewButton";
 import { Button } from "@/components/ui/button";
-import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -34,39 +33,39 @@ export function ExecutiveDashboardPageHero({
         <p className={cn("m-0 max-w-2xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {v.portfolioPageLead}
         </p>
-
-        {dashboardEmpty ? (
-          <p className={cn("m-0 max-w-2xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {v.portfolioPageNextStep}
-          </p>
-        ) : null}
       </div>
 
       {dashboardEmpty ? (
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          <Button asChild size="sm" variant="primary">
-            <Link href="/reviews/new" data-testid="executive-dashboard-hero-start-review">
-              {v.emptyStatePrimaryAction}
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild size="sm" variant="primary">
+              <Link href="/reviews/new" data-testid="executive-dashboard-hero-start-review">
+                {v.emptyStatePrimaryAction}
+              </Link>
+            </Button>
+            <SeedSampleReviewButton label={v.emptyStateSecondaryAction} size="sm" />
+          </div>
+          <p className="m-0">
+            <Link
+              href={v.portfolioPageLearnMoreHref}
+              className={OPERATOR_LINK.inline}
+              data-testid="executive-dashboard-hero-learn-more"
+            >
+              {v.portfolioPageLearnMoreLabel}
             </Link>
-          </Button>
-          <Button asChild size="sm" variant="outline">
-            <Link href={getShowcaseExecutiveHref()} data-testid="executive-dashboard-hero-sample-dashboard">
-              {v.emptyStateTertiaryAction}
-            </Link>
-          </Button>
-          <SeedSampleReviewButton label={v.emptyStateSecondaryAction} size="sm" />
+          </p>
         </div>
-      ) : null}
-
-      <p className="m-0">
-        <Link
-          href={v.portfolioPageLearnMoreHref}
-          className={OPERATOR_LINK.inline}
-          data-testid="executive-dashboard-hero-learn-more"
-        >
-          {v.portfolioPageLearnMoreLabel}
-        </Link>
-      </p>
+      ) : (
+        <p className="m-0">
+          <Link
+            href={v.portfolioPageLearnMoreHref}
+            className={OPERATOR_LINK.inline}
+            data-testid="executive-dashboard-hero-learn-more"
+          >
+            {v.portfolioPageLearnMoreLabel}
+          </Link>
+        </p>
+      )}
     </header>
   );
 }

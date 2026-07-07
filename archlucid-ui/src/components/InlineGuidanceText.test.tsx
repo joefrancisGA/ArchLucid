@@ -28,6 +28,12 @@ describe("InlineGuidanceText", () => {
     expect(screen.getByText(/review title, attach evidence, and start analysis in one screen\./)).toBeInTheDocument();
   });
 
+  it("capitalizes label-style guidance bodies after the colon", () => {
+    render(<InlineGuidanceText text="Optional: use Routing to notify email or webhooks when a rule fires." />);
+
+    expect(screen.getByText(/Use Routing to notify email/i)).toBeInTheDocument();
+  });
+
   it("renders plain copy when no guidance label prefix is present", () => {
     render(<InlineGuidanceText text="Finish architecture reviews first." />);
 
