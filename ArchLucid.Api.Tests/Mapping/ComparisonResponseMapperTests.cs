@@ -31,7 +31,7 @@ public sealed class ComparisonResponseMapperTests
         AgentResultDiffResult diff = new() { LeftRunId = "left", RightRunId = "right" };
         const string summary = "## Summary";
 
-        AgentResultCompareSummaryResponse response =
+        ArchLucid.Api.Models.AgentResultCompareSummaryResponse response =
             ComparisonResponseMapper.ToAgentResultCompareSummaryResponse(summary, diff);
 
         response.Format.Should().Be("markdown");

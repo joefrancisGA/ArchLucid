@@ -162,7 +162,46 @@ Pure API contract types with auto-properties only (no methods or validation logi
 | `Services/Admin/DataConsistencyOrphanCounts.cs` | `DataConsistencyOrphanCounts` |
 | `Services/Admin/OrphanComparisonRemediationResult.cs` | `OrphanComparisonRemediationResult` |
 
-Additional auto-property-only API DTOs outside the TB-635 inventory (e.g. `TrialLocalRegisterRequest`, run/manifest response types under `ArchLucid.Api/Models/**` and `ArchLucid.Api/Contracts/**`) may carry the same attribute when triaged; they are not listed here until inventoried.
+| `Models/Auth/TrialLocalRegisterRequest.cs` | `TrialLocalRegisterRequest` |
+| `Models/Auth/TrialLocalRegisterResponse.cs` | `TrialLocalRegisterResponse` |
+| `Models/Auth/TrialLocalTokenRequest.cs` | `TrialLocalTokenRequest` |
+| `Models/Auth/TrialLocalTokenResponse.cs` | `TrialLocalTokenResponse` |
+| `Models/Auth/TrialLocalVerifyEmailRequest.cs` | `TrialLocalVerifyEmailRequest` |
+
+**TB-639 genuinely-untested bucket (32 types, closed 2026-07-07):** each row below is closed by **Category=Unit** tests, **Category=Integration** authorization smokes (`GenuinelyUntestedControllersIntegrationTests`), or Category 8 startup exclusion — not duplicate shallow controller unit tests.
+
+| Resolution | Class | Test / exclusion |
+|------------|-------|------------------|
+| Integration smoke | `TenantsAdminController` | `GenuinelyUntestedControllersIntegrationTests` |
+| Integration smoke | `RecommendationLearningController` | same |
+| Integration smoke | `AlertRoutingSubscriptionsController` | same |
+| Integration smoke | `AlertSimulationController` | same |
+| Integration smoke | `AlertTuningController` | same |
+| Integration smoke | `CompositeAlertRulesController` | same |
+| Integration smoke | `TrialLocalIdentityAuthController` | same |
+| Integration smoke | `AuthorityReplayController` | same |
+| Integration smoke | `AuthorityRunEventsController` | same |
+| Integration smoke | `RunAgentEvaluationController` | same |
+| Integration smoke | `E2EHarnessController` | same (disabled harness → 404) |
+| Category 2b DTO | `TrialLocalRegisterRequest` … `TrialLocalVerifyEmailRequest` | `[ExcludeFromCodeCoverage]` (TB-636 pattern) |
+| Unit | `PagingParameters` | `PagingParametersTests` |
+| Unit | `ReplayArtifactResponseFactory` | `ReplayArtifactResponseFactoryTests` |
+| Unit | `ApiFileResults` | `ApiFileResultsTests` |
+| Unit | `EvolutionOutcomeShadowReader` | `EvolutionOutcomeShadowReaderTests` |
+| Unit | `TrialLimitProblemResponse` | `TrialLimitFilterTests` (`Category=Unit`) |
+| Unit | `TrialLimitAuthorizationHandler` | `TrialLimitAuthorizationPipelineTests` |
+| Unit | `TrialLimitExceededAuditFilter` | same |
+| Unit | `TrialLimitAuthorizationResultHandler` | same |
+| Unit | `LearningPlanningReadService` | `LearningPlanningReadServiceTests` |
+| Unit | `OpenApiAuthDocumentMutator` | `OpenApiAuthDocumentMutatorTests` |
+| Unit | `ProblemDetailsResponsesOperationFilter` | `ProblemDetailsResponsesOperationFilterTests` |
+| Unit | `RateLimitingRolePartitionBuilder` | `RateLimitingRolePartitionBuilderTests` |
+| Unit | `EvolutionSimulationReportBuilder` | `EvolutionSimulationReportBuilderTests` (`Category=Unit`) |
+| Unit | `LocalTrialJwtIssuer` | `LocalTrialJwtIssuerTests` |
+| Category 8 startup | `PipelineExtensions` | ASP.NET pipeline registration; exercised via `WebApplicationFactory` integration hosts |
+| Category 8 startup | `InfrastructureExtensions` | DI/bootstrap wiring; exercised via integration hosts |
+
+Additional auto-property-only API DTOs outside the TB-635 inventory (e.g. run/manifest response types under `ArchLucid.Api/Models/**` and `ArchLucid.Api/Contracts/**`) may carry the same attribute when triaged; they are not listed here until inventoried.
 
 ## ArchLucid.Api measurement vs testing
 
@@ -179,7 +218,7 @@ Merged Cobertura **understates** `ArchLucid.Api` HTTP coverage:
 **Removing `--skip-package-line-gate ArchLucid.Api` (all required):**
 
 1. **TB-636** pure-DTO exclusions are applied so Cobertura denominators are honest (closed 2026-07-07).
-2. **TB-639** genuinely-untested logic is covered or carries a documented Category 1/4 exclusion — not duplicate unit tests for Integration-covered controllers.
+2. **TB-639** genuinely-untested logic is covered or carries a documented Category 1/4 exclusion — not duplicate unit tests for Integration-covered controllers (**Done** 2026-07-07).
 3. Either Integration shards collect Coverlet reliably on `test.runsettings` (separate collector-stability initiative), **or** merged Cobertura otherwise includes Integration-category hits.
 4. A full **`dotnet-full-regression`** merge shows **`ArchLucid.Api`** at or above the **63%** per-product line floor **without** the skip flag.
 

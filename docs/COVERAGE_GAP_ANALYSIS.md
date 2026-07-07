@@ -388,7 +388,7 @@ Prerequisite for **TB-636**–**TB-639**; regenerate with `python scripts/ci/api
 | pure-DTO | 21 | **TB-636** `[ExcludeFromCodeCoverage]` batch |
 | integration-covered | 33 | **TB-638** measurement-gap doc (**Done** 2026-07-07) |
 | small-logic | 34 | **TB-637** cheap unit tests |
-| genuinely-untested | 32 | **TB-639** post-triage tests |
+| genuinely-untested | 0 | **TB-639** closed 2026-07-07 |
 
 | Bucket | Class | Line % | Test references (sample) |
 |--------|-------|-------:|--------------------------|

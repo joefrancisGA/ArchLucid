@@ -5,9 +5,11 @@ using ArchLucid.Api.OpenApi;
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
 
 namespace ArchLucid.Api.Tests.OpenApi;
@@ -30,10 +32,9 @@ public sealed class MicrosoftOpenApiAnonymousSecurityOperationTransformerTests
 
         OpenApiOperationTransformerContext context = new()
         {
-            Description = new OpenApiOperationDescription
-            {
-                ActionDescriptor = CreateAnonymousDescriptor(),
-            },
+            DocumentName = "v1",
+            ApplicationServices = new ServiceCollection().BuildServiceProvider(),
+            Description = new ApiDescription { ActionDescriptor = CreateAnonymousDescriptor() },
         };
 
         await transformer.TransformAsync(operation, context, CancellationToken.None);
@@ -56,10 +57,9 @@ public sealed class MicrosoftOpenApiAnonymousSecurityOperationTransformerTests
 
         OpenApiOperationTransformerContext context = new()
         {
-            Description = new OpenApiOperationDescription
-            {
-                ActionDescriptor = CreateProtectedDescriptor(),
-            },
+            DocumentName = "v1",
+            ApplicationServices = new ServiceCollection().BuildServiceProvider(),
+            Description = new ApiDescription { ActionDescriptor = CreateProtectedDescriptor() },
         };
 
         await transformer.TransformAsync(operation, context, CancellationToken.None);
@@ -82,10 +82,9 @@ public sealed class MicrosoftOpenApiAnonymousSecurityOperationTransformerTests
 
         OpenApiOperationTransformerContext context = new()
         {
-            Description = new OpenApiOperationDescription
-            {
-                ActionDescriptor = CreateAnonymousDescriptor(),
-            },
+            DocumentName = "v1",
+            ApplicationServices = new ServiceCollection().BuildServiceProvider(),
+            Description = new ApiDescription { ActionDescriptor = CreateAnonymousDescriptor() },
         };
 
         await transformer.TransformAsync(operation, context, CancellationToken.None);
