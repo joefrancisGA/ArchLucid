@@ -20,6 +20,7 @@ docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
   -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'${DB_NAME}') CREATE DATABASE [${DB_NAME}];"
 
 echo "Starting ArchLucid.Api (background, port ${API_PORT})..."
+export API_URL="http://127.0.0.1:${API_PORT}"
 export ASPNETCORE_ENVIRONMENT=Development
 export ASPNETCORE_URLS="${API_URL}"
 export ConnectionStrings__ArchLucid="Server=127.0.0.1,1433;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;Initial Catalog=${DB_NAME}"
@@ -42,7 +43,7 @@ export ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds=300
 export ArchLucid__CreateRun__DistributedIdempotencyLockTimeoutMilliseconds=180000
 export AuthorityPipeline__PipelineTimeout=00:05:00
 
-nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${LOG_FILE}" 2>&1 &
+nohup dotnet run --no-build -c Release --no-launch-profile --project ArchLucid.Api/ArchLucid.Api.csproj > "${LOG_FILE}" 2>&1 &
 echo $! > "${PID_FILE}"
 
 export ARCHLUCID_API_READY_WAIT_ATTEMPTS="${ARCHLUCID_K6_READY_WAIT_ATTEMPTS:-180}"
