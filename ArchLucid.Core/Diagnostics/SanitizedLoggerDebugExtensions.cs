@@ -65,4 +65,20 @@ public static partial class SanitizedLoggerDebugExtensions
 
         EmitReferenceCaseEvaluationFailed(logger, safeCaseId, safeRunId, safeTraceId, safeReason);
     }
+
+    /// <summary>Logs an AWS Price List EC2 probe failure with region and instance type sanitized.</summary>
+    public static void LogDebugAwsPricingProbeFailed(
+        this ILogger logger,
+        Exception exception,
+        string regionCode,
+        string instanceType)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(exception);
+
+        string safeRegionCode = LogSanitizer.Sanitize(regionCode);
+        string safeInstanceType = LogSanitizer.Sanitize(instanceType);
+
+        EmitAwsPricingProbeFailed(logger, exception, safeRegionCode, safeInstanceType);
+    }
 }

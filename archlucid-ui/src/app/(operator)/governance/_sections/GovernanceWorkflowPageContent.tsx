@@ -92,7 +92,7 @@ export function GovernanceWorkflowPageContent() {
   const canMutateWorkflow = useOperateCapability();
   const [toast, setToast] = useState<GovernanceWorkflowToastState>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const submitSectionRef = useRef<HTMLElement | null>(null);
+  const submitSectionRef = useRef<HTMLDivElement | null>(null);
 
   const [submitRunId, setSubmitRunId] = useState("");
   const [submitManifestVersion, setSubmitManifestVersion] = useState("");

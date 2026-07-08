@@ -31,6 +31,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Validate CodeQL MaD model kinds
+        run: python3 scripts/ci/validate_codeql_mad_kinds.py
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
