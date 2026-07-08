@@ -808,7 +808,7 @@ This is **ledger-validation only** for v1. Do **not** parse agent JSON, golden-m
 
 ## Execution-order context (read before coding)
 
-- `PreCommitGovernanceGate` today loads findings from the persisted `FindingsSnapshot` (or preloaded data), then evaluates policy-pack assignments / global thresholds via `PreCommitGateEvaluator`. **Append** technology-consistency findings to that in-memory list **before** `PreCommitGateEvaluator` runs — same pattern as `SimulateSyntheticFindingsAsync`, but backed by real ledger rows instead of synthetic placeholders.
+- `PreCommitGovernanceGate` today loads findings from the persisted `FindingsSnapshot` (or preloaded data), then evaluates policy-pack assignments / global thresholds via `PreCommitGateEvaluator`. **Append** technology-consistency findings to that in-memory list **before** `PreCommitGateEvaluator` runs — same pattern as `SimulateSyntheticFindingsAsync`, but backed by real ledger rows instead of synthetic e7eca24395s.
 - The engine runs at **commit evaluation time**, not during the parallel agent batch. It therefore sees the ledger as it exists **after** execute (including Topology `AgentProposed` rows persisted at end of execute when Prompt 4's seeder ran). That is the intended validation boundary.
 - Default posture must remain **non-blocking**: warn-only findings use `FindingSeverity.Warning` and must not block commit unless the host explicitly configures enforcing mode **and** the pre-commit threshold/policy assignment would block that severity. Do **not** default to hard-blocking commits.
 
@@ -1170,7 +1170,7 @@ Stop and report:
 - **Ledger load sites:** `AuthorityPipelineStagesExecutor` (`authority.artifacts` stage) and `AuthorityReplayService` (`RebuildArtifacts`) call `ITechnologyLedgerRepository.GetByRunIdAsync` and pass rows into `IArtifactSynthesisService.SynthesizeAsync(manifest, ledgerEntries, ct)`. `ArchLucid.ArtifactSynthesis` references `ArchLucid.Contracts` only — no `Persistence` dependency (`ArtifactSynthesis_must_not_depend_on_Persistence` passes).
 - **Options / defaults:** `ArchLucid:TechnologyConsistency:ArtifactLint` — `Enabled: true`, `Mode: WarnOnly` in `ArchLucid.Api/appsettings.json`; reuses `TechnologyConsistencyFindingEngineMode`.
 - **Test results:** `TechnologyLedgerArtifactLintOptions` — **2/2 passed**; `TechnologyLedgerArtifactLinter` + `ArtifactSynthesisService` scoped tests — **7/7 passed**.
-- **Commit:** `PLACEHOLDER`.
+- **Commit:** `e7eca24395`.
 - **Scope confirmation:** system templates (Prompt 8), API/UI (Prompts 9–10), and `TechnologyConsistencyFindingEngine` / `PreCommitGovernanceGate` **not** touched (shared enum reuse only).
 
 ---
