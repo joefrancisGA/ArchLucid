@@ -12,7 +12,7 @@ Companion scripts:
 Release-candidate automation:
 
 - **`.github/workflows/agent-eval-corpus-rc.yml`** — runs on **`workflow_dispatch`**, tags **`v*-rc*`**, and branches **`release/**`**; asserts committed **`tests/eval-corpus/agent-results/*.real.json`** exemplars (four original agent families **plus six expanded topology/cost/compliance slices**) and **`scripts/ci/run_eval_agent_corpus_rc.sh`** (strict recall + simulator/real quality-gate enforcement + required real-mode evidence paths); uploads Markdown artifact **`eval-corpus-rc`**.
-- **`.github/workflows/golden-cohort-expanded-nightly.yml`** — weekly job that scores **all** real-mode rows by pinning every **`ARCHLUCID_EVAL_CORPUS_REAL_MODE_*`** env var to repo exemplars and running **`--enforce-quality-gate`** / **`--enforce-real-quality-gate`** (informational recall remains off unless you add **`--enforce`** manually), then **`scripts/ci/assert_hallucination_resistance.py`** (TB-257) which reuses **`eval_agent_corpus.py`** scoring and **fails** when any adversarial simulator row’s **`gate_outcome`** is **`accepted`**.
+- **`.github/workflows/golden-cohort-expanded-nightly.yml`** — **TB-683** daily job (when **`vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** is **`true`**) that scores **all** real-mode rows by pinning every **`ARCHLUCID_EVAL_CORPUS_REAL_MODE_*`** env var to repo exemplars, runs **`--enforce-quality-gate`** / **`--enforce-real-quality-gate`** / **`--enforce-llm-faithfulness`** / **`--baseline`**, writes **`artifacts/real-mode-eval-nightly/YYYY-MM-DD/trend.{json,md}`**, and uploads CI artifacts. Skips cleanly with a documented message when the variable is unset. Honors the golden-cohort budget probe kill-switch before scoring.
 
 ---
 

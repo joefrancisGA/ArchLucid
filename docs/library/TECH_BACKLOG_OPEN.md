@@ -83,6 +83,8 @@ _Regenerated 2026-07-07. 36 open rows._
 
 ### Real-mode / eval (owner or credentialed CI)
 
+**Nightly loop:** **TB-683** (Done 2026-07-08) — `golden-cohort-expanded-nightly.yml` scores committed `*.real.json` exemplars when `ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true`; trend artifacts under `artifacts/real-mode-eval-nightly/`.
+
 | ID | Title |
 | --- | --- |
 | TB-140 | Real-mode eval corpus (all `simulator` today) |
