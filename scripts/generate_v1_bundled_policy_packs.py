@@ -184,6 +184,8 @@ PACKS: list[dict] = [
     {
         "slug": "soc2-tsc-architecture",
         "prefix": "soc2",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "SOC 2 Type II (Architecture Themes)",
         "description": "Trust Services Criteria architecture slice for security, availability, and confidentiality. Not SOC 2 attestation.",
         "category": "Compliance",

@@ -4732,6 +4732,204 @@
       "severity": "Warning",
       "priority": "P2",
       "description": "Stub for gdpr-028; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-011",
+      "controlId": "SOC2-011",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for soc2-011; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-012",
+      "controlId": "SOC2-012",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for soc2-012; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-013",
+      "controlId": "SOC2-013",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for soc2-013; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-014",
+      "controlId": "SOC2-014",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for soc2-014; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-015",
+      "controlId": "SOC2-015",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for soc2-015; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-016",
+      "controlId": "SOC2-016",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for soc2-016; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-017",
+      "controlId": "SOC2-017",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for soc2-017; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-018",
+      "controlId": "SOC2-018",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for soc2-018; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-019",
+      "controlId": "SOC2-019",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for soc2-019; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-020",
+      "controlId": "SOC2-020",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for soc2-020; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-021",
+      "controlId": "SOC2-021",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for soc2-021; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-022",
+      "controlId": "SOC2-022",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for soc2-022; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-023",
+      "controlId": "SOC2-023",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for soc2-023; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-024",
+      "controlId": "SOC2-024",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for soc2-024; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-025",
+      "controlId": "SOC2-025",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for soc2-025; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-026",
+      "controlId": "SOC2-026",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for soc2-026; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-027",
+      "controlId": "SOC2-027",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for soc2-027; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-028",
+      "controlId": "SOC2-028",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for soc2-028; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
     }
   ]
 }
