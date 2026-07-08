@@ -26,7 +26,7 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             Description = description,
             SystemName = systemName,
             Environment = "prod",
-            CloudProvider = CloudProvider.None,
+            CloudProvider = ResolveCloudProvider(document),
             Assumptions = assumptions,
             RequestSource = "draft-intake",
             InlineRequirements = BuildInlineRequirements(document),
@@ -93,6 +93,26 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
         }
 
         return assumptions;
+    }
+
+    /// <summary>
+    ///     Maps the required target-cloud intake answer to <see cref="ArchitectureRequest.CloudProvider" />.
+    ///     <see cref="CloudProvider.None" /> means either the user explicitly chose cloud-neutral or the question was
+    ///     skipped — those cases are intentionally indistinguishable here; the transparency trail records skips.
+    ///     Ledger seeding records whatever value lands on the request, not a reconstructed answer-vs-skip flag.
+    /// </summary>
+    private static CloudProvider ResolveCloudProvider(DraftRequestDocument document)
+    {
+        if (!document.QuestionAnswers.TryGetValue(DraftIntakeQuestionKeys.CloudTarget, out string? answer)
+            || string.IsNullOrWhiteSpace(answer))
+        {
+            return CloudProvider.None;
+        }
+
+        if (Enum.TryParse(answer, ignoreCase: true, out CloudProvider provider))
+            return provider;
+
+        return CloudProvider.None;
     }
 
     private static TransparencyTrail CloneTransparencyTrail(TransparencyTrail trail)

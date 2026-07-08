@@ -54,12 +54,16 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IRunStateTransitionService runStateTransitionService,
     TimeProvider timeProvider,
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
+    TechnologyLedgerRequestSeeder technologyLedgerRequestSeeder,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
     private readonly IOptions<ArchitectureRunCreateOptions> _createRunOptions = createRunOptions ?? throw new ArgumentNullException(nameof(createRunOptions));
 
     private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
         requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
+
+    private readonly TechnologyLedgerRequestSeeder _technologyLedgerRequestSeeder =
+        technologyLedgerRequestSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerRequestSeeder));
 
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
@@ -345,6 +349,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
             _logger.LogInformation("Architecture run created: RunId={RunId}, TaskCount={TaskCount}", LogSanitizer.Sanitize(coordination.Run.RunId),
                 coordination.Tasks.Count);
         await TryRecordArchitectureRunMeteringAsync(_scopeContextProvider.GetCurrentScope(), coordination.Run.RunId, cancellationToken);
+        await TrySeedTechnologyLedgerFromRequestAsync(request, coordination.Run.RunId, cancellationToken);
         return new CreateRunResult { Run = coordination.Run, EvidenceBundle = coordination.EvidenceBundle, Tasks = coordination.Tasks };
     }
 
@@ -361,6 +366,27 @@ public sealed class ArchitectureRunCreateOrchestrator(
             throw new ArgumentException("Idempotency key hash must be non-empty.", nameof(idempotency));
         return string.Concat(idempotency.TenantId.ToString("N"), "|", idempotency.WorkspaceId.ToString("N"), "|", idempotency.ProjectId.ToString("N"), "|",
             Convert.ToHexString(hash));
+    }
+
+    private async Task TrySeedTechnologyLedgerFromRequestAsync(
+        ArchitectureRequest request,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _technologyLedgerRequestSeeder.SeedAsync(runId, request, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Technology ledger seeding failed for architecture run (RunId={RunId}).",
+                    LogSanitizer.Sanitize(runId));
+            }
+        }
     }
 
     private async Task TryRecordArchitectureRunMeteringAsync(ScopeContext scope, string runId, CancellationToken cancellationToken)

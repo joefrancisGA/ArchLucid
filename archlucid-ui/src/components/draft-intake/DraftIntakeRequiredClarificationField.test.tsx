@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  CLOUD_TARGET_QUESTION_KEY,
   DraftIntakeRequiredClarificationField,
   REQUIRED_CLARIFICATION_BASELINE_LABEL,
 } from "./DraftIntakeRequiredClarificationField";
@@ -118,5 +119,66 @@ describe("DraftIntakeRequiredClarificationField", () => {
     fireEvent.click(screen.getByRole("button", { name: "Skip this clarification" }));
 
     expect(onSkip).toHaveBeenCalledWith("l0.pillar.security");
+  });
+
+  it("renders cloud target question as a select instead of free text", () => {
+    const cloudTargetQuestion = {
+      ...sampleQuestion,
+      questionKey: CLOUD_TARGET_QUESTION_KEY,
+      prompt: "Which cloud provider is this architecture targeting — or is it intentionally cloud-neutral?",
+      answerKind: "Enum" as const,
+    };
+
+    render(
+      <DraftIntakeRequiredClarificationField
+        question={cloudTargetQuestion}
+        answer=""
+        busy={false}
+        clarificationIndex={1}
+        clarificationTotal={7}
+        onAnswerChange={vi.fn()}
+        onSaveAndContinue={vi.fn()}
+        onSkip={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.getByTestId("socratic-cloud-target-select")).toBeInTheDocument();
+    expect(screen.getByRole("combobox")).toHaveAttribute("aria-label", cloudTargetQuestion.prompt);
+
+    fireEvent.click(screen.getByTestId("socratic-cloud-target-select"));
+
+    expect(screen.getByTestId("socratic-cloud-target-option-Azure")).toBeInTheDocument();
+    expect(screen.getByTestId("socratic-cloud-target-option-Aws")).toBeInTheDocument();
+    expect(screen.getByTestId("socratic-cloud-target-option-Gcp")).toBeInTheDocument();
+    expect(screen.getByTestId("socratic-cloud-target-option-None")).toBeInTheDocument();
+  });
+
+  it("invokes onAnswerChange with enum name when cloud target option is selected", () => {
+    const onAnswerChange = vi.fn();
+    const cloudTargetQuestion = {
+      ...sampleQuestion,
+      questionKey: CLOUD_TARGET_QUESTION_KEY,
+      prompt: "Which cloud provider is this architecture targeting — or is it intentionally cloud-neutral?",
+      answerKind: "Enum" as const,
+    };
+
+    render(
+      <DraftIntakeRequiredClarificationField
+        question={cloudTargetQuestion}
+        answer=""
+        busy={false}
+        clarificationIndex={1}
+        clarificationTotal={7}
+        onAnswerChange={onAnswerChange}
+        onSaveAndContinue={vi.fn()}
+        onSkip={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("socratic-cloud-target-select"));
+    fireEvent.click(screen.getByTestId("socratic-cloud-target-option-Azure"));
+
+    expect(onAnswerChange).toHaveBeenCalledWith(CLOUD_TARGET_QUESTION_KEY, "Azure");
   });
 });

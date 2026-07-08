@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 1 **complete** — committed `daaa784505` and pushed to `origin/master` (2026-07-07, explicit push request). See "Prompt 1 — Report" below for the actual shape produced. Prompts 2+ are intentionally **not written yet** — this is backend/agent-behavior work with more branching risk than a UI cleanup, so later prompts are drafted only after the prior step's actual shape (table name, repository interface, enum values) is known. See "Planned sequence" below for the intended order.
+**Status:** Prompt 2 **complete** — see "Prompt 2 — Report" below. Prompt 1 was committed `daaa784505` and pushed to `origin/master` (2026-07-07). Prompt 3 is **not written yet** — draft after reviewing Prompt 2's report.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -18,7 +18,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | # | Fix (from assessment §D) | Scope | Status |
 | --- | --- | --- | --- |
 | **1** | D.1 | Technology Ledger data model — contracts, SQL table, repository (additive only; nothing reads or writes it yet) | **Done** (`daaa784505`) |
-| 2 | D.2 | Wire ledger into intake: required target-cloud/neutral question, fix `DraftRequestProjector`, seed `source: user` ledger entries from `ArchitectureRequest` | Not started |
+| 2 | D.2 | Wire ledger into intake: required target-cloud/neutral question, fix `DraftRequestProjector`, seed `source: user` ledger entries from `ArchitectureRequest` | **Done** (see Prompt 2 report) |
 | 3 | D.1 (cont.) | Seed `source: evidence` ledger entries from context connectors (IaC declarations, cloud inventory ZIP) | Not started |
 | 4 | D.3 | Inject ledger into `TopologyAgentHandler` / `RunStarterTaskFactory` objectives; agent proposals become `source: agent-proposed` ledger entries instead of untracked `ProposedChanges` free text | Not started |
 | 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | Not started |
@@ -29,7 +29,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | Not started |
 | 11 | D.9 | Golden-corpus consistency scenarios in CI | Not started |
 
-Only **Prompt 1** is written out below. Run it, review the result, then ask for Prompt 2 to be drafted against the ledger shape Prompt 1 actually produced.
+Prompts 1 and 2 are written out below. Run Prompt 2, review the result, then ask for Prompt 3 to be drafted against whatever ledger-population shape Prompt 2 actually produces.
 
 ---
 
@@ -170,6 +170,132 @@ Stop and report:
   - `ArchLucid.Persistence.Tests` (`InMemoryTechnologyLedgerRepositoryContractTests`): **4/4 passed**.
 - **Commit hash:** `daaa784505` — **and pushed to `origin/master`** (`00849cfb28..daaa784505`), because the owner explicitly asked to push when running this prompt. This is a one-time exception to this doc's stated default workflow ("local commits only ... do not push unless explicitly requested"); Prompt 2 onward reverts to local-commit-only unless push is requested again.
 - **Scope confirmation:** nothing outside the files listed in the commit was modified. No agent, prompt template, evidence builder, controller, or UI code was touched — this step remained additive-only as intended.
+
+---
+
+## Prompt 2 — Wire the Technology Ledger into intake (required target-cloud question, honest projection, seed user-source entries)
+
+```
+Read docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_ASSESSMENT_2026_07_07.md in full for context before starting, specifically §A root cause 1 (no canonical technology record) and root cause 2 (silent Azure/None default), §D fix 2, and §F (validation model). Also read "Prompt 1 — Report" in this same file (docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_IMPLEMENTATION_PROMPTS_2026_07_07.md) for the actual Technology Ledger shape this prompt builds on — do not re-derive it from the assessment's original (pre-implementation) description.
+
+Work directly on the current branch (master) — no feature branch. Confirm git status is clean of unrelated changes before starting; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
+
+## Goal
+
+Close the two intake-side root causes from the assessment: (1) `DraftRequestProjector.Project()` currently hardcodes `CloudProvider = CloudProvider.None` on every draft-sourced `ArchitectureRequest` regardless of what the user actually said, and (2) nothing in the Socratic intake flow ever asks the user to state a target cloud (or explicitly cloud-neutral) posture, so there is no honest signal to project in the first place. This prompt adds a required intake question, fixes the projector to read it instead of hardcoding a default, and seeds one Technology Ledger entry (source: User) from the resulting `ArchitectureRequest.CloudProvider` whenever a run is created — for every intake path (draft wizard, direct API, CLI), not just drafts.
+
+This does NOT wire the ledger into any agent, prompt template, or validation engine yet (that is Prompts 4 and 6). It also does NOT seed `source: evidence` entries from uploaded IaC/inventory documents (that is Prompt 3). Keep this prompt scoped to intake + seeding from the request's own `CloudProvider` field.
+
+## 1. Add a new MUST-tier intake question
+
+Read `ArchLucid.Application/Drafts/QuestionSelection/UniversalIntakeQuestions.cs` — it holds the canonical list of L0 MUST questions (`ElicitationQuestionSource.L0Universal`) that the Socratic wizard always asks. Add one more entry to `UniversalIntakeQuestions.MustQuestions`:
+
+- `QuestionKey = "l0.pillar.cloud-target"`
+- `Prompt = "Which cloud provider is this architecture targeting — or is it intentionally cloud-neutral?"` (adjust wording only if needed for consistency with the other five prompts' tone; keep it a single sentence)
+- `Tier = ElicitationQuestionTier.Must`
+- `AnswerKind = ElicitationAnswerKind.Enum` (this is the one existing `ElicitationAnswerKind` value not currently used anywhere in `UniversalIntakeQuestions` — confirm by reading `ArchLucid.Contracts/Governance/ElicitationAnswerKind.cs` that `Enum` means "one value from a bounded set; the allowed values are supplied out-of-band by the pack," which is exactly this case)
+- `Source = ElicitationQuestionSource.L0Universal`
+
+Do not add a `RuleKeys` value — the five sibling MUST questions don't set one either; check this before assuming.
+
+The **only valid answer strings** for this question, stored verbatim in `DraftRequestDocument.QuestionAnswers["l0.pillar.cloud-target"]`, are the exact C# member names of `ArchLucid.Contracts.Common.CloudProvider`: `"None"`, `"Azure"`, `"Aws"`, `"Gcp"`. This is deliberate — the answer string must round-trip through `Enum.Parse<CloudProvider>` with no fuzzy text matching, which is only possible because step 2 below replaces free-text entry with a fixed choice control for this one question. Document this constraint with an XML doc comment (or a code comment directly above the new list entry, matching whatever comment convention the file already uses, if any) so a future editor doesn't accidentally add this question elsewhere as free text.
+
+## 2. Render this one question as a bounded choice, not free text
+
+Currently every intake question — regardless of `AnswerKind` — renders as a free-text `<Textarea>` in `archlucid-ui/src/components/draft-intake/DraftIntakeRequiredClarificationField.tsx`. Read that file and its test file (`DraftIntakeRequiredClarificationField.test.tsx`) first.
+
+Add a narrowly-scoped branch: when `props.question.questionKey === "l0.pillar.cloud-target"` (define this as a named constant — check whether the codebase already has a shared constants file for well-known question keys under `archlucid-ui/src/lib` or similar; if not, a local exported const in this component file is fine), render a `<Select>` (from `archlucid-ui/src/components/ui/select.tsx` — read it first for its exact API/props) with exactly four options instead of the `<Textarea>`:
+
+- value `"None"`, label `"Cloud-neutral (no specific provider)"`
+- value `"Azure"`, label `"Microsoft Azure"`
+- value `"Aws"`, label `"Amazon Web Services (AWS)"`
+- value `"Gcp"`, label `"Google Cloud (GCP)"`
+
+Wire the `<Select>`'s `onChange`/`onValueChange` (check the component's actual prop name) to call `props.onAnswerChange(props.question.questionKey, value)` exactly like the existing `<Textarea>` does, so nothing else about the save/skip/continue flow needs to change. Do not build a generic `AnswerKind`-driven renderer for all question kinds — that is explicitly out of scope here; this is a single hardcoded branch for one well-known question key so the change stays small and reviewable. Give the control an accessible label (`aria-label={props.question.prompt}`, matching the existing `Textarea`) per `.cursor/rules/UI-Accessibility-Baseline.mdc`, and keep styling consistent with `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (neutral surfaces, no ad-hoc pastel fills — the existing `Select` component's default styling should already comply; do not add custom color classes).
+
+Update `canSaveAndContinue` computation in `SocraticIntakeWizard.tsx` if it currently relies on `.trim().length > 0` in a way that already works for a non-empty `Select` value (it likely does, since a selected enum value is a non-empty string) — verify rather than assume, and only change it if the existing check would actually reject a valid selection.
+
+Add/update tests in `DraftIntakeRequiredClarificationField.test.tsx` covering: the new question key renders a `Select` with the four options instead of a `Textarea`, and selecting an option calls `onAnswerChange` with the exact enum-name string. Add a similar assertion in whatever test file already covers `SocraticIntakeWizard.tsx` end-to-end if one exists and is easy to extend — check first.
+
+## 3. Fix `DraftRequestProjector` to read the real answer
+
+Read `ArchLucid.Application/Drafts/DraftRequestProjector.cs` in full — line `CloudProvider = CloudProvider.None,` inside `Project()` is the exact silent-default bug described in the assessment.
+
+Replace the hardcoded value with a small private static method, e.g. `ResolveCloudProvider(DraftRequestDocument document)`, that:
+- Looks up `document.QuestionAnswers["l0.pillar.cloud-target"]` (case-insensitive key lookup; `QuestionAnswers` is already declared `StringComparer.OrdinalIgnoreCase` so a plain indexer/`TryGetValue` is fine).
+- Returns `Enum.Parse<CloudProvider>(answer, ignoreCase: true)` when the answer is present and matches one of the four valid names.
+- Falls back to `CloudProvider.None` when the answer is missing (the question was skipped — see `TransparencyTrail.Skipped` handling in `DraftRequestService.EnsureMustQuestionsAnswered`, which already allows MUST questions to be explicitly skipped instead of answered) or fails to parse (defensive — should not happen once step 1/2 are in place, but do not throw here; a malformed historical draft should not crash submission).
+
+Add an XML doc comment on the new method explaining that `None` here can mean either "user explicitly chose cloud-neutral" or "question was skipped" — those two cases are intentionally indistinguishable at this layer (the transparency trail already records which one happened; this method only produces the pipeline-facing `CloudProvider` value) — and that this is why ledger seeding in step 4 always records what actually landed on the request, not a reconstructed "was this a real answer" flag.
+
+Add/update unit tests in whatever test file already covers `DraftRequestProjector` (search for one before assuming it doesn't exist) covering: answer `"Azure"` projects `CloudProvider.Azure`; answer `"Aws"` projects `CloudProvider.Aws`; answer `"Gcp"` projects `CloudProvider.Gcp`; answer `"None"` projects `CloudProvider.None`; missing/skipped answer projects `CloudProvider.None`; a garbage/legacy answer string projects `CloudProvider.None` without throwing.
+
+## 4. Seed a Technology Ledger entry when a run is created
+
+This is the "seed source: user ledger entries from ArchitectureRequest" half of fix D.2. It must run for **every** run-creation path, not just draft-sourced requests, because direct API/CLI callers set `ArchitectureRequest.CloudProvider` directly and never go through the Socratic wizard at all.
+
+Read `ArchLucid.Application/Runs/Orchestration/ArchitectureRunCreateOrchestrator.cs` in full. The method `TryRecordArchitectureRunMeteringAsync`, called near the end of `FinalizeSuccessfulCreateRunAsync` (after the early-return idempotency-race branch, so it only runs on genuine first-time creation, never on idempotent replay), is the pattern to follow: a best-effort, non-transactional, swallow-and-log-on-failure post-commit step that runs once the run row is durably committed.
+
+1. Create a small new class (its own file, per the workspace's one-class-per-file rule) — e.g. `ArchLucid.Application/Runs/Orchestration/TechnologyLedgerRequestSeeder.cs` with an interface `ITechnologyLedgerRequestSeeder` (or, if sibling steps like the metering call are not abstracted behind an interface and are just plain methods on the orchestrator, follow that simpler convention instead — check first; do not add an interface if nothing else in this file uses one for a similarly-sized post-commit step). Its single responsibility: given a `runId` and an `ArchitectureRequest`, build one `TechnologyLedgerEntry` with:
+   - `RunId = runId`
+   - `Role = TechnologyLedgerRole.CloudPlatform`
+   - `TechnologyName` = a human string for the provider (`"Microsoft Azure"`, `"Amazon Web Services"`, `"Google Cloud Platform"`, or `"Cloud-neutral (no specific provider)"` for `None`)
+   - `ProviderFamily = request.CloudProvider`
+   - `Status = TechnologyLedgerStatus.Chosen`
+   - `Source = TechnologyLedgerSource.User`
+   - `Rationale` = `"Explicit answer to the required target-cloud intake question."` when `request.RequestSource == "draft-intake"`, otherwise `"Directly specified on ArchitectureRequest.CloudProvider by the request source."`
+   - `IsLocked = false`
+   - `CreatedUtc` / `UpdatedUtc` = current time from whatever `TimeProvider`/clock convention `ArchitectureRunCreateOrchestrator` already uses (it has a `TimeProvider timeProvider` field — reuse it, do not call `DateTime.UtcNow` directly if the class already avoids that)
+   and persist it via `ITechnologyLedgerRepository.AddAsync`.
+
+2. Inject `ITechnologyLedgerRepository` (already DI-registered by Prompt 1) into `ArchitectureRunCreateOrchestrator`'s primary constructor, and call the new seeder from `FinalizeSuccessfulCreateRunAsync` in the same best-effort try/catch style as `TryRecordArchitectureRunMeteringAsync` (log a warning and continue on failure — a ledger-seeding failure must never fail run creation). Do not add a transactional overload to `ITechnologyLedgerRepository.AddAsync` for this — that scope is deliberately deferred; this seeding step is intentionally best-effort and outside the `PersistCreateRunRowsAsync` transaction, matching the audit-log and metering calls it sits next to.
+
+3. Seed exactly one ledger entry per run, unconditionally (including when `ProviderFamily` ends up `None`) — an explicit `None` entry is itself meaningful signal ("a run exists with no cloud platform recorded from intake"), and recording it consistently is what later prompts (6, the deterministic consistency-finding engine) will depend on to distinguish "checked, cloud-neutral" from "never checked."
+
+## 5. Tests
+
+- Unit tests for the new seeder class (or method) covering: builds the correct `TechnologyLedgerEntry` for each of the four `CloudProvider` values, and picks the correct `Rationale` string based on `RequestSource`.
+- An integration-style test on `ArchitectureRunCreateOrchestrator` (check for an existing test file first, e.g. `ArchLucid.Application.Tests/Orchestration/ArchitectureRunCreateOrchestrator*Tests.cs`, and add to the most relevant one rather than creating a parallel test file) asserting that after a successful `CreateRunAsync`, `ITechnologyLedgerRepository.GetByRunIdAsync` returns exactly one `CloudPlatform` entry matching the request's `CloudProvider`. Use the in-memory repository from Prompt 1 in this test's DI setup rather than mocking `ITechnologyLedgerRepository`, if the existing test class's DI/fixture pattern makes that easy; mock it only if that's how the sibling tests in the same file already handle comparable dependencies.
+- Confirm (with a test or by inspection, and state which in your report) that the idempotent-replay path (`RehydrateCreateRunResultAsync`) does **not** call the seeder and therefore does not duplicate ledger entries on replay.
+
+## 6. Verify
+
+Run, one at a time (do not chain into a single background process; report each result before moving to the next):
+
+```
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.Contracts/ArchLucid.Contracts.csproj
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.Application/ArchLucid.Application.csproj
+```
+
+Fix any compile errors before proceeding. Then run the new/updated .NET test classes specifically (`DraftRequestProjector` tests, the new seeder tests, the `ArchitectureRunCreateOrchestrator` ledger test). Separately, for the UI change, run the relevant Vitest file(s) for `DraftIntakeRequiredClarificationField` (and `SocraticIntakeWizard` if updated) from `archlucid-ui/` — check `package.json` for the exact test-runner script/invocation rather than assuming `npm test` takes a file-path filter the same way `dotnet test` does.
+
+## 7. Commit
+
+Once compile and the new/updated tests pass, stage only the files this prompt touched: `UniversalIntakeQuestions.cs`, `DraftIntakeRequiredClarificationField.tsx` (+ its test file), `SocraticIntakeWizard.tsx` only if actually changed, `DraftRequestProjector.cs` (+ its test file), the new seeder class file (+ its test file), `ArchitectureRunCreateOrchestrator.cs`, and any `ArchitectureRunCreateOrchestrator` test file you extended. Do not stage any other unrelated modified/untracked files already present in the working tree. Commit directly to `master` with a descriptive message (e.g. "Wire Technology Ledger into intake: required target-cloud question, honest CloudProvider projection, seed user-source ledger entries"). Do not push to origin unless explicitly asked again — Prompt 1's push was a one-time exception per this doc's stated workflow.
+
+## 8. Report
+
+Stop and report:
+- The exact wording used for the new question prompt and the four `<Select>` option labels, and where the well-known question-key constant lives.
+- The final signature/location of the ledger-seeding class or method, and whether you added an interface for it or followed a simpler existing convention — call out which sibling code you templated it from.
+- Confirmation of how `DraftRequestProjector.ResolveCloudProvider` (or whatever you named it) behaves for: explicit answer, skipped MUST question, and a malformed/legacy answer string.
+- Confirmation that the idempotent-replay path does not duplicate ledger entries, and how you verified that (test or inspection).
+- Any place where you deviated from an assumption in this prompt because the actual sibling code (the `Select` component API, the orchestrator's existing best-effort-step convention, the test file layout) looked different — call these out explicitly, the same way Prompt 1's report did.
+- Test results (pass/fail counts) for both compile checks, the .NET test classes, and the Vitest file(s).
+- The commit hash.
+- Confirm explicitly that no agent, prompt template, evidence builder, `TechnologyConsistencyFindingEngine`-style validation, or the Technology Baseline UI panel (Prompts 3–11) were touched — this step is scoped to intake + seeding only.
+```
+
+### Prompt 2 — Report (as actually run, 2026-07-07)
+
+- **Question prompt:** `"Which cloud provider is this architecture targeting — or is it intentionally cloud-neutral?"` (`l0.pillar.cloud-target`, `ElicitationAnswerKind.Enum`).
+- **Select option labels:** Cloud-neutral (no specific provider) → `None`; Microsoft Azure → `Azure`; Amazon Web Services (AWS) → `Aws`; Google Cloud (GCP) → `Gcp`. Question-key constant: `DraftIntakeQuestionKeys.CloudTarget` (C#) and exported `CLOUD_TARGET_QUESTION_KEY` (UI component).
+- **Ledger seeder:** `TechnologyLedgerRequestSeeder` in `ArchLucid.Application/Runs/Orchestration/TechnologyLedgerRequestSeeder.cs` — no interface (matches inline `TryRecordArchitectureRunMeteringAsync` pattern on the orchestrator). Static `BuildCloudPlatformEntry` for tests; instance `SeedAsync` persists via `ITechnologyLedgerRepository.AddAsync`. Registered in DI as `services.AddScoped<TechnologyLedgerRequestSeeder>()`.
+- **`ResolveCloudProvider` behavior:** explicit enum-name answers round-trip; missing/skipped/malformed answers fall back to `CloudProvider.None` without throwing.
+- **Idempotent replay:** `TryReplayFromIdempotencyAsync` returns before `FinalizeSuccessfulCreateRunAsync`; verified by `CreateRunAsync_when_idempotent_replay_does_not_seed_ledger_entries` (ledger repo empty after replay).
+- **Deviations:** Radix `<Select>` options are not in the DOM until the trigger is opened — UI test opens the combobox before asserting option `data-testid`s.
+- **Test results:** `DraftRequestProjectorTests` + `TechnologyLedgerRequestSeederTests` + `ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTests` — **15/15 passed**; `DraftIntakeRequiredClarificationField.test.tsx` — **7/7 passed**.
+- **Scope confirmation:** no agent, prompt template, evidence builder, validation engine, or Technology Baseline UI panel touched.
 
 ---
 

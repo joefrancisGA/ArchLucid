@@ -216,6 +216,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDraftIntakeReaperService, DraftIntakeReaperService>();
         services.AddScoped<ArchLucid.Decisioning.Feasibility.IDecisionIntakeTrailProvider,
             ArchLucid.Application.Runs.Feasibility.ArchitectureRequestIntakeTrailProvider>();
+        services.AddScoped<TechnologyLedgerRequestSeeder>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         services.AddScoped<IRunEngineProvenanceCaptureService, RunEngineProvenanceCaptureService>();

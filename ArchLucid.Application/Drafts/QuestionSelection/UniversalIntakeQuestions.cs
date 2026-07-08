@@ -1,3 +1,4 @@
+using ArchLucid.Application.Drafts;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Governance;
 
@@ -62,6 +63,16 @@ public static class UniversalIntakeQuestions
                 "What performance or scale expectations matter (users, throughput, latency)?",
             Tier = ElicitationQuestionTier.Must,
             AnswerKind = ElicitationAnswerKind.Text,
+            Source = ElicitationQuestionSource.L0Universal,
+        },
+        // Answers must be exact CloudProvider enum names (None, Azure, Aws, Gcp) — the UI renders a bounded Select.
+        new()
+        {
+            QuestionKey = DraftIntakeQuestionKeys.CloudTarget,
+            Prompt =
+                "Which cloud provider is this architecture targeting — or is it intentionally cloud-neutral?",
+            Tier = ElicitationQuestionTier.Must,
+            AnswerKind = ElicitationAnswerKind.Enum,
             Source = ElicitationQuestionSource.L0Universal,
         },
     ];

@@ -3,10 +3,27 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
 export const REQUIRED_CLARIFICATION_BASELINE_LABEL = "Required for baseline review";
+
+/** L0 MUST question key — answers are exact CloudProvider enum names. */
+export const CLOUD_TARGET_QUESTION_KEY = "l0.pillar.cloud-target";
+
+const CLOUD_TARGET_OPTIONS = [
+  { value: "None", label: "Cloud-neutral (no specific provider)" },
+  { value: "Azure", label: "Microsoft Azure" },
+  { value: "Aws", label: "Amazon Web Services (AWS)" },
+  { value: "Gcp", label: "Google Cloud (GCP)" },
+] as const;
 
 export type DraftIntakeRequiredClarificationFieldProps = {
   readonly question: DraftElicitationQuestion;
@@ -28,6 +45,7 @@ export function DraftIntakeRequiredClarificationField(
 ) {
   const actionSize = props.compactActions === true ? "sm" : "default";
   const isPrimary = props.isPrimary !== false;
+  const isCloudTargetQuestion = props.question.questionKey === CLOUD_TARGET_QUESTION_KEY;
 
   return (
     <div
@@ -56,15 +74,43 @@ export function DraftIntakeRequiredClarificationField(
       <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body, !isPrimary && "text-neutral-700 dark:text-neutral-300")}>
         {props.question.prompt}
       </p>
-      <Textarea
-        value={props.answer}
-        onChange={(event) => {
-          props.onAnswerChange(props.question.questionKey, event.target.value);
-        }}
-        rows={isPrimary ? 3 : 2}
-        disabled={props.busy}
-        aria-label={props.question.prompt}
-      />
+      {isCloudTargetQuestion ? (
+        <Select
+          value={props.answer.length > 0 ? props.answer : undefined}
+          onValueChange={(value) => {
+            props.onAnswerChange(props.question.questionKey, value);
+          }}
+          disabled={props.busy}
+        >
+          <SelectTrigger
+            aria-label={props.question.prompt}
+            data-testid="socratic-cloud-target-select"
+          >
+            <SelectValue placeholder="Select a cloud provider or cloud-neutral" />
+          </SelectTrigger>
+          <SelectContent>
+            {CLOUD_TARGET_OPTIONS.map((option) => (
+              <SelectItem
+                key={option.value}
+                value={option.value}
+                data-testid={`socratic-cloud-target-option-${option.value}`}
+              >
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : (
+        <Textarea
+          value={props.answer}
+          onChange={(event) => {
+            props.onAnswerChange(props.question.questionKey, event.target.value);
+          }}
+          rows={isPrimary ? 3 : 2}
+          disabled={props.busy}
+          aria-label={props.question.prompt}
+        />
+      )}
       <div className="flex flex-col items-start gap-2" data-testid="socratic-question-actions">
         <Button
           type="button"
