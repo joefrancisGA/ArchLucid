@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 7 **drafted** below (not yet run). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -23,7 +23,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 4 | D.3 | Inject ledger into `TopologyAgentHandler` / `RunStarterTaskFactory` objectives; agent proposals become `source: agent-proposed` ledger entries instead of untracked `ProposedChanges` free text | **Done** (`80ad003d60`) |
 | 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | **Done** (`e89ceffdfb`) |
 | 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | **Done** (see Prompt 6 report) |
-| 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | Not started |
+| 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | **Drafted, not run** |
 | 8 | D.6 | Prompt template updates — closed-world clause, neutral-mode clause, alternative-labeling clause across all four system prompt templates | Not started |
 | 9 | D.7 | **API endpoint** — `GET`/`PATCH` ledger routes on the run so the UI has something to call (missing piece between the repository and the UI panel; not called out as its own fix in the assessment but required before step 10 can work) | Not started |
 | 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | Not started |
@@ -972,7 +972,192 @@ Stop and report:
 - **Pre-commit wiring:** `PreCommitGovernanceGate.AppendTechnologyConsistencyFindingsAsync` loads ledger rows via `ITechnologyLedgerRepository.GetByRunIdAsync` after snapshot findings are loaded (empty list when snapshot missing) and appends engine findings before `PreCommitGateEvaluator`. Findings are **not** persisted to `FindingsSnapshot` in v1.
 - **Options / defaults:** `ArchLucid:TechnologyConsistency:FindingEngine` — `Enabled: true`, `Mode: WarnOnly` in `ArchLucid.Api/appsettings.json`.
 - **Test results:** `TechnologyConsistencyFindingEngineOptions` — **2/2 passed**; scoped governance tests (`TechnologyConsistencyFindingEngine`, `PreCommitGovernanceGate`) — **34/34 passed**.
+- **Commit:** `faf3500c6d`.
 - **Scope confirmation:** agent handlers (Prompt 5), artifact synthesis lint (Prompt 7), system templates (Prompt 8), API/UI (Prompts 9–10) **not** touched.
+
+---
+
+## Prompt 7 — Technology Ledger prose lint in `ArtifactSynthesisService` (structured-first export validation)
+
+```
+Read docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_ASSESSMENT_2026_07_07.md in full for context before starting, specifically §A root cause 5 (no validation between generation and buyer-facing export), §D fix 5 (structured-first artifact synthesis / prose lint against ledger), §E step 4 (synthesis lint before packaging), §F (closed-world generation constraint — technologies in output must be ledger-corroborated or explicitly alternative), and §I acceptance criteria #1 and #2. Also read "Prompt 1 — Report" through "Prompt 6 — Report" in this same file for the ledger shape, seeding conventions, pre-commit finding engine, and warn-only rollout posture already shipped — **build on those types**, do not fork a second ledger model or duplicate the pre-commit rule engine wholesale.
+
+Work directly on the current branch (master) — no feature branch. Confirm git status is clean of unrelated changes before starting; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
+
+## Goal
+
+Prompts 1–6 established the Technology Ledger, wired it through intake and agents, and added deterministic **pre-commit** ledger checks (`TechnologyConsistencyFindingEngine`). This prompt closes fix **D.5** — **buyer-facing export validation**:
+
+1. After generators produce the structured artifact bundle (manifest → markdown / diagram / inventory text), run a **pure, deterministic prose lint** against the ledger entries for the run.
+2. Wire ledger rows into `ArtifactSynthesisService` from the authority pipeline (and replay rebuild path) without violating the `ArtifactSynthesis` → `Persistence` boundary.
+3. Ship behind a **warn-only default** (`Mode = WarnOnly`) mirroring Prompt 6 / `AgentOutputQualityGateOptions` so existing sample/demo bundles keep synthesizing while drift is surfaced in the synthesis trace; allow **Enforcing** mode to fail synthesis when tuned.
+
+This is **export prose lint only** for v1. Do **not** change generator templates to pull from the ledger (generators remain manifest-structured). Do **not** edit system prompt templates (Prompt 8), add API routes (Prompt 9), or build the Technology Baseline UI (Prompt 10). Do **not** re-touch `TechnologyConsistencyFindingEngine` / `PreCommitGovernanceGate` except shared options enums if you deliberately reuse them. Do **not** add `ArchLucid.Persistence` references to `ArchLucid.ArtifactSynthesis` (boundary test `ArtifactSynthesis_must_not_depend_on_Persistence` must keep passing).
+
+## Execution-order context (read before coding)
+
+- `ArtifactSynthesisService` today: invoke generators in deterministic order → `IArtifactBundleValidator.Validate` → return bundle. **Append** ledger lint **after** structural validation, **before** return.
+- Synthesis runs in `AuthorityPipelineStagesExecutor` **after** manifest generation and **after** execute has persisted agent-proposed ledger rows — the lint therefore sees the same ledger snapshot the pre-commit gate will evaluate later.
+- `ArchLucid.ArtifactSynthesis` may reference `ArchLucid.Contracts` (`TechnologyLedgerEntry`, `CloudProvider`) but **must not** call `ITechnologyLedgerRepository` directly. The **Application** / **Persistence** callers load ledger rows and pass them into synthesis.
+- Default posture must remain **non-blocking**: warn-only lint records findings in `SynthesisTrace.Notes` and sets `ArtifactBundleStatus.Partial` (existing executor already audits partial bundles via `AuditEventTypes.ArtifactSynthesisPartial`). Enforcing mode throws and follows the existing `ArtifactSynthesisFailed` audit path.
+
+## 1. Options (mirror Prompt 6 posture)
+
+Read `TechnologyConsistencyFindingEngineOptions` / `TechnologyConsistencyFindingEngineMode` (Prompt 6).
+
+Create under `ArchLucid.Core/Configuration/` (one type per file):
+
+1. **Prefer reusing** `TechnologyConsistencyFindingEngineMode` (`WarnOnly`, `Enforcing`) for lint mode — do **not** add a third duplicate enum unless reuse creates awkward naming; if reused, document that both finding engine and artifact lint share the enum.
+
+2. `TechnologyLedgerArtifactLintOptions.cs` — sealed options class:
+   - `public const string SectionPath = "ArchLucid:TechnologyConsistency:ArtifactLint";`
+   - `bool Enabled` (default `true`)
+   - `TechnologyConsistencyFindingEngineMode Mode` (default `WarnOnly`)
+   - `void Normalize()` if needed (keep simple)
+
+Bind in host composition and add a documented default block to `ArchLucid.Api/appsettings.json` beside the existing `FindingEngine` block:
+
+```json
+"ArtifactLint": {
+  "Enabled": true,
+  "Mode": "WarnOnly"
+}
+```
+
+Add focused options tests under `ArchLucid.Core.Tests/Configuration/` (defaults are warn-only + enabled).
+
+## 2. Prose token catalog + linter (pure, in `ArchLucid.ArtifactSynthesis`)
+
+Create one class per file under `ArchLucid.ArtifactSynthesis/Validation/` (or `Services/` if that matches nearby validators):
+
+1. `TechnologyLedgerProseTokenCatalog.cs` — static, curated hyperscaler product / family phrases grouped by `CloudProvider` (`Azure`, `Aws`, `Gcp`). Keep the list **small but high-signal** for v1 (e.g. Azure: `Azure`, `App Service`, `Key Vault`, `Azure SQL`, `Cosmos DB`, `AKS`, `Entra ID`; AWS: `AWS`, `Amazon RDS`, `S3`, `Lambda`, `Cognito`, `DynamoDB`; GCP: `Google Cloud`, `GKE`, `Cloud Run`, `Firestore`, `Cloud SQL`, `Pub/Sub`). Use **word-boundary** matching (case-insensitive) to limit false positives.
+
+2. `TechnologyLedgerArtifactLintFinding.cs` — simple DTO:
+   - `string RuleId` (PascalCase, stable)
+   - `string ArtifactType`
+   - `string? ArtifactName`
+   - `string Message`
+   - `string? MatchedToken`
+
+3. `ITechnologyLedgerArtifactLinter.cs` + `TechnologyLedgerArtifactLinter.cs` — public surface (suggested):
+
+```csharp
+IReadOnlyList<TechnologyLedgerArtifactLintFinding> Lint(
+    ArtifactBundle bundle,
+    IReadOnlyList<TechnologyLedgerEntry> ledgerEntries,
+    TechnologyLedgerArtifactLintOptions options);
+```
+
+Implementation requirements:
+
+- **Pure / deterministic** — no LLM, no I/O.
+- **Empty ledger** → return empty list (no findings; lint is a no-op).
+- Resolve authoritative cloud **from ledger only** for lint: the `Chosen` `TechnologyLedgerRole.CloudPlatform` row's `ProviderFamily`, else `CloudProvider.None` (synthesis has no `ArchitectureRequest`; do not reference `TechnologyLedgerEffectiveCloudTarget` from Application).
+- Build a **ledger allowlist** of substrings from all ledger rows with `Status` in `{ Chosen, Assumed, Alternative }` using `TechnologyName` (case-insensitive contains checks are sufficient for v1).
+- **Lint target artifact types** (scan `SynthesizedArtifact.Content`):
+  - `ArtifactType.ArchitectureNarrative`
+  - `ArtifactType.ReferenceArchitectureMarkdown`
+  - `ArtifactType.MermaidDiagram`
+  - `ArtifactType.TerraformAdvisory`
+  - `ArtifactType.Inventory` (JSON text — scan string values)
+  Skip purely structural / tabular types in v1 (`CostSummary`, `ComplianceMatrix`, `CoverageSummary`, `DiagramAst`, `UnresolvedIssuesReport`) unless you find an obvious, tested seam.
+
+### v1 rules (implement all)
+
+1. **`ProseHyperscalerFamilyMismatch`** — when authoritative cloud is `Azure`, `Aws`, or `Gcp`, any catalog token belonging to a **different** hyperscaler family in a lint-target artifact → finding (cite artifact type + matched token + expected family).
+
+2. **`CloudNeutralProseProviderLeak`** — when authoritative cloud is `None`, any hyperscaler catalog token in a lint-target artifact → finding **unless** the token is a case-insensitive substring of some ledger `TechnologyName` on an `Assumed` or `Alternative` row with a matching `ProviderFamily`.
+
+3. **`UnledgeredHyperscalerToken`** — any hyperscaler catalog token in a lint-target artifact that is **not** a case-insensitive substring of any ledger `TechnologyName` (any status) → finding **unless** the surrounding text (±80 characters) contains one of: `alternative`, `assumed`, `proposed`, `under consideration` (case-insensitive). This implements the closed-world / alternative-labeling slice of §F at export time without NLP.
+
+Do **not** attempt manifest cross-equality checks (that is pre-commit's job). Do **not** mutate artifact content — detection + trace/throw only.
+
+Add `TechnologyLedgerArtifactLinterTests` under `ArchLucid.ArtifactSynthesis.Tests/` with table-driven cases per rule, empty ledger, warn vs enforce application (see §4), and at least one multi-artifact bundle.
+
+## 3. Wire into `ArtifactSynthesisService`
+
+Read `ArtifactSynthesisService`, `IArtifactSynthesisService`, and all call sites (`AuthorityPipelineStagesExecutor`, `AuthorityReplayService`, tests, `TestArtifactSynthesisFactory`).
+
+1. Extend `IArtifactSynthesisService` / implementation with an overload that accepts ledger rows, keeping the existing two-parameter method as a backward-compatible shim that passes an empty ledger list:
+
+```csharp
+Task<ArtifactBundle> SynthesizeAsync(
+    ManifestDocument manifest,
+    IReadOnlyList<TechnologyLedgerEntry> technologyLedgerEntries,
+    CancellationToken ct);
+```
+
+2. Inject into `ArtifactSynthesisService` primary constructor:
+   - `ITechnologyLedgerArtifactLinter`
+   - `IOptions<TechnologyLedgerArtifactLintOptions>` (or `IOptionsMonitor<>` if sibling services use monitor — match nearby artifact DI)
+
+3. After `validator.Validate(bundle)` and before return:
+   - If `options.Enabled` is false → skip.
+   - `IReadOnlyList<TechnologyLedgerArtifactLintFinding> lintFindings = _linter.Lint(bundle, technologyLedgerEntries, options.CurrentValue);`
+   - **WarnOnly:** for each finding, append `TechnologyLedgerArtifactLint[{RuleId}]: {Message} (artifact={ArtifactType}, token={MatchedToken})` to `bundle.Trace.Notes`; if any findings, set `bundle.Status = ArtifactBundleStatus.Partial`.
+   - **Enforcing:** if any findings, throw `InvalidOperationException` aggregating rule ids + artifact types (match `ArtifactBundleValidator` throw style so the executor's existing `ArtifactSynthesisFailed` path fires).
+
+4. Register linter + options in `ServiceCollectionExtensions.CoordinatorAndArtifacts.cs` (artifact DI lives there today).
+
+Update `ArtifactSynthesisServiceTests` to cover warn-only trace notes vs enforcing throw (mock linter or use real linter with fixture ledger).
+
+## 4. Load ledger at call sites (Application / Persistence only)
+
+1. **`AuthorityPipelineStagesExecutor`** — inject `ITechnologyLedgerRepository`. In the `authority.artifacts` stage, before `SynthesizeAsync`:
+   - `IReadOnlyList<TechnologyLedgerEntry> ledgerEntries = await _technologyLedgerRepository.GetByRunIdAsync(scope, run.RunId.ToString(), token);` (match repository signature from Prompt 1).
+   - Call `_artifactSynthesisService.SynthesizeAsync(ctx.Manifest!, ledgerEntries, token);`
+
+2. **`AuthorityReplayService`** (`RebuildArtifacts` mode) — inject `ITechnologyLedgerRepository`, load rows for `request.RunId`, pass into `SynthesizeAsync` overload.
+
+3. Update test doubles / mocks that implement or setup `IArtifactSynthesisService` for the new overload arity (`AuthorityPipelineStagesExecutorTests`, `AuthorityReplayServiceTests`, `TestArtifactSynthesisFactory`, any `ReturnsAsync` setups).
+
+Do **not** change demo seed bundles unless a test fails — demo rows may not have ledger entries yet (lint no-ops on empty ledger).
+
+## 5. Tests
+
+Add/update focused tests (do not run the full solution test suite):
+
+1. `TechnologyLedgerArtifactLintOptionsTests` — defaults.
+2. `TechnologyLedgerArtifactLinterTests` — each rule, alternative-label exception, empty ledger.
+3. `ArtifactSynthesisServiceTests` — lint wired: warn-only adds trace notes + `Partial` status; enforcing throws after validation.
+4. `ArchLucid.Architecture.Tests` — confirm `ArtifactSynthesis_must_not_depend_on_Persistence` still passes (no new Persistence references in the synthesis project).
+
+## 6. Verify
+
+Run, one at a time:
+
+```
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.Core/ArchLucid.Core.csproj
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.ArtifactSynthesis/ArchLucid.ArtifactSynthesis.csproj
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.Application/ArchLucid.Application.csproj
+```
+
+Then scoped tests only, e.g.:
+
+```
+dotnet test ArchLucid.Core.Tests --filter "FullyQualifiedName~TechnologyLedgerArtifactLintOptions"
+dotnet test ArchLucid.ArtifactSynthesis.Tests --filter "FullyQualifiedName~TechnologyLedgerArtifactLinter|FullyQualifiedName~ArtifactSynthesisService"
+dotnet test ArchLucid.Architecture.Tests --filter "FullyQualifiedName~ArtifactSynthesis_must_not_depend_on_Persistence"
+```
+
+Adjust filters to match the test classes you add or touch.
+
+## 7. Commit
+
+Stage only files this prompt touches. Do not stage unrelated dirty files. Commit directly to `master` with a descriptive message (e.g. "Add Technology Ledger prose lint to artifact synthesis (warn-only default)"). Push only if explicitly requested.
+
+## 8. Report
+
+Stop and report:
+
+- The exact v1 lint rules implemented and the machine-friendly `RuleId` for each.
+- How warn-only vs enforcing affects `ArtifactBundle.Status`, `SynthesisTrace.Notes`, and synthesis failure.
+- Where ledger rows are loaded (executor + replay) and confirmation `ArchLucid.ArtifactSynthesis` does **not** reference `Persistence`.
+- Default `appsettings.json` posture (must be warn-only).
+- Test pass/fail counts.
+- Commit hash.
+- Confirm system templates (Prompt 8), API/UI (Prompts 9–10), and pre-commit finding engine behavior were **not** changed except shared options enum reuse if applicable.
+```
 
 ---
 
