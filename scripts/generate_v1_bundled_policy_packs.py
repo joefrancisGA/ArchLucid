@@ -208,6 +208,8 @@ PACKS: list[dict] = [
     {
         "slug": "owasp-api-top10",
         "prefix": "owasp-api",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "OWASP API Security Top 10",
         "description": "API architecture security themes aligned to OWASP API Top 10 motifs. Not OWASP certification.",
         "category": "Application Security",
@@ -218,6 +220,8 @@ PACKS: list[dict] = [
     {
         "slug": "iso27001-architecture",
         "prefix": "iso27001",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "ISO/IEC 27001 ISMS (Architecture Slice)",
         "description": "ISMS control themes for architecture evidence. Not ISO 27001 certification.",
         "category": "Compliance",
@@ -228,6 +232,8 @@ PACKS: list[dict] = [
     {
         "slug": "cis-azure-foundations",
         "prefix": "cis-az",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "CIS Microsoft Azure Foundations Benchmark",
         "description": "CIS-aligned Azure hardening themes for architecture review. Not CIS benchmark pass/fail.",
         "category": "Security",
@@ -238,6 +244,8 @@ PACKS: list[dict] = [
     {
         "slug": "hipaa-architecture",
         "prefix": "hipaa",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "HIPAA / HITECH Safeguards",
         "description": "PHI handling, audit, and encryption themes for healthcare architectures. Not HIPAA certification.",
         "category": "Healthcare",
@@ -248,6 +256,8 @@ PACKS: list[dict] = [
     {
         "slug": "pci-dss-architecture",
         "prefix": "pci",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "PCI-DSS (Architecture / Segmentation)",
         "description": "CDE segmentation and payment-data handling themes. Not PCI-DSS QSA attestation.",
         "category": "Payments",
@@ -258,6 +268,8 @@ PACKS: list[dict] = [
     {
         "slug": "zero-trust-architecture",
         "prefix": "zta",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "Zero Trust Architecture",
         "description": "Continuous verification, identity perimeter, and micro-segmentation themes. Not a ZTA maturity certification.",
         "category": "Security",
@@ -268,6 +280,8 @@ PACKS: list[dict] = [
     {
         "slug": "azure-resiliency-dr",
         "prefix": "az-dr",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "Azure Resiliency & Disaster Recovery",
         "description": "Multi-region, availability zones, RTO/RPO, and backup themes for Azure workloads.",
         "category": "Reliability",
@@ -278,6 +292,8 @@ PACKS: list[dict] = [
     {
         "slug": "aks-production-baseline",
         "prefix": "aks",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "AKS Production Baseline",
         "description": "Kubernetes on Azure production hardening themes (private API, network policy, identity).",
         "category": "Platform",
@@ -288,6 +304,8 @@ PACKS: list[dict] = [
     {
         "slug": "data-classification-lineage",
         "prefix": "data-class",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "Data Classification & Lineage",
         "description": "Classification tiers and cross-boundary data-flow documentation themes.",
         "category": "Data Governance",
@@ -298,6 +316,8 @@ PACKS: list[dict] = [
     {
         "slug": "entra-iam-baseline",
         "prefix": "entra-iam",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "Entra ID / IAM Architecture Baseline",
         "description": "Entra ID, RBAC, managed identity, and conditional access themes for Azure architectures.",
         "category": "Identity",
@@ -308,6 +328,8 @@ PACKS: list[dict] = [
     {
         "slug": "azure-paas-security",
         "prefix": "az-paas",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "Serverless & PaaS Security (Azure)",
         "description": "Functions, Container Apps, and App Service private networking and identity themes.",
         "category": "Application Platform",
@@ -318,6 +340,8 @@ PACKS: list[dict] = [
     {
         "slug": "nist-csf-2-architecture",
         "prefix": "nist-csf",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "NIST Cybersecurity Framework 2.0",
         "description": "CSF 2.0 function themes for architecture evidence (Govern, Identify, Protect, Detect, Respond, Recover).",
         "category": "Compliance",
@@ -328,6 +352,8 @@ PACKS: list[dict] = [
     {
         "slug": "supply-chain-sbom",
         "prefix": "supply-chain",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "Software Supply Chain & SBOM",
         "description": "SBOM, artifact signing, and dependency scanning themes for delivery pipelines.",
         "category": "DevSecOps",
@@ -338,6 +364,8 @@ PACKS: list[dict] = [
     {
         "slug": "dora-devsecops",
         "prefix": "dora",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "DORA / DevSecOps Delivery Posture",
         "description": "Delivery automation, rollback, and change-lead-time themes for architecture gates.",
         "category": "Engineering",
@@ -348,6 +376,8 @@ PACKS: list[dict] = [
     {
         "slug": "observability-otel",
         "prefix": "otel",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "Observability & OpenTelemetry Baseline",
         "description": "Distributed tracing, metrics, and centralized logging themes before production approval.",
         "category": "Operations",
@@ -358,6 +388,8 @@ PACKS: list[dict] = [
     {
         "slug": "azure-data-layer-security",
         "prefix": "az-data",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "Azure SQL / Cosmos DB Data-Layer Security",
         "description": "RLS, TDE, auditing, and private endpoint themes for Azure data platforms.",
         "category": "Data Platform",
