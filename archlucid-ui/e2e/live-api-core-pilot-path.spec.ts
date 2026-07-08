@@ -4,6 +4,7 @@
  */
 import { expect, test } from "@playwright/test";
 
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN, SHOWCASE_DEMO_RUN_ID } from "./fixtures";
@@ -31,7 +32,7 @@ test.describe("live-api-core-pilot-path", () => {
     ).toBeVisible();
 
     await page.goto("/reviews/new");
-    await expect(page.getByRole("heading", { name: /new architecture review/i, level: 2 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: CREATE_ARCHITECTURE_LABEL, level: 2 })).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/reviews?projectId=default");

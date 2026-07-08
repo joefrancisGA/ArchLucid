@@ -15,17 +15,15 @@ export function useAlertsInboxEmptyFilteredProps(
   canMutateAlertInbox: boolean,
 ): EnterpriseCompactEmptyStateProps {
   return useMemo((): EnterpriseCompactEmptyStateProps => {
+    const secondaryAction =
+      !buyerPolishedShell && canMutateAlertInbox
+        ? [{ label: "Set up alert rules", href: governanceAlertsTabHref("rules"), variant: "outline" as const }]
+        : [];
+
     const actions: EnterpriseCompactEmptyStateProps["actions"] = [
       { label: ALERTS_EMPTY_STATE_PRIMARY_ACTION, href: ALERTS_EMPTY_STATE_PRIMARY_HREF, variant: "primary" },
+      ...secondaryAction,
     ];
-
-    if (!buyerPolishedShell && canMutateAlertInbox) {
-      actions.push({
-        label: "Set up alert rules",
-        href: governanceAlertsTabHref("rules"),
-        variant: "outline",
-      });
-    }
 
     return {
       testId: "alerts-inbox-empty-state",

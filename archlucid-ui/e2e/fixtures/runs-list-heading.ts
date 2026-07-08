@@ -1,4 +1,9 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import {
+  GOVERNANCE_OVERVIEW_PAGE_TITLE,
+  GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE,
+} from "@/lib/governance-overview-copy";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
 function escapeRegExpLiteral(value: string): string {
@@ -21,9 +26,18 @@ export const ASK_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(
   "i",
 );
 
-/** `/governance` page title — {@link OPERATOR_NAV_LINK_LABELS.governanceWorkflow} (TB-526). */
+/**
+ * `/governance` page title — overview ({@link GOVERNANCE_OVERVIEW_PAGE_TITLE}), review context
+ * ({@link GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE}), or legacy nav label {@link OPERATOR_NAV_LINK_LABELS.governanceWorkflow}.
+ */
 export const GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(
-  `^${escapeRegExpLiteral(OPERATOR_NAV_LINK_LABELS.governanceWorkflow)}$`,
+  `^(${escapeRegExpLiteral(OPERATOR_NAV_LINK_LABELS.governanceWorkflow)}|${escapeRegExpLiteral(GOVERNANCE_OVERVIEW_PAGE_TITLE)}|${escapeRegExpLiteral(GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE)})$`,
+  "i",
+);
+
+/** `/reviews/new` page H2 — {@link CREATE_ARCHITECTURE_LABEL} (replaces legacy "New architecture review"). */
+export const CREATE_ARCHITECTURE_PAGE_HEADING_PATTERN = new RegExp(
+  `^${escapeRegExpLiteral(CREATE_ARCHITECTURE_LABEL)}$`,
   "i",
 );
 

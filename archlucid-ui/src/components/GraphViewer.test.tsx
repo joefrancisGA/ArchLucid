@@ -35,7 +35,7 @@ describe("GraphViewer", () => {
     render(<GraphViewer graph={{ nodes: [], edges: [] }} />);
 
     expect(
-      screen.getByText(/The API returned a graph with no nodes/),
+      screen.getByText(/No graph data to display/),
     ).toBeInTheDocument();
   });
 

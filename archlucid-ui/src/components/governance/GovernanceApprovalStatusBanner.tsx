@@ -26,7 +26,7 @@ export function GovernanceApprovalStatusBanner(props: GovernanceApprovalStatusBa
   const { className, onRiskRegisterPage = false } = props;
 
   return (
-    <aside
+    <div
       className={cn(DESIGN_TOKENS.banner.governanceApproval, className)}
       data-testid="governance-approval-status-banner"
       role="status"
@@ -55,6 +55,6 @@ export function GovernanceApprovalStatusBanner(props: GovernanceApprovalStatusBa
           </Link>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

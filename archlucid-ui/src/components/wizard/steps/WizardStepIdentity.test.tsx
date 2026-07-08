@@ -46,17 +46,14 @@ describe("WizardStepIdentity", () => {
   it("shows None as the default cloud target and lists Azure, Aws, and Gcp options", () => {
     render(<IdentityHarness />);
 
-    const triggers = screen.getAllByRole("combobox");
-    expect(triggers.length).toBeGreaterThanOrEqual(2);
-
-    const cloudTrigger = triggers[1];
+    const cloudTrigger = screen.getByRole("combobox", { name: /cloud target/i });
     expect(cloudTrigger).toHaveTextContent("No cloud / evidence-only");
 
     fireEvent.click(cloudTrigger);
 
     expect(screen.getByRole("option", { name: /Microsoft Azure/i })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: /Amazon Web Services \(cloud inventory ZIP available\)/i })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: /Google Cloud Platform \(cloud inventory ZIP available\)/i })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Amazon Web Services/i })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Google Cloud Platform/i })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: /No cloud \/ evidence-only/i })).toBeInTheDocument();
     expect(screen.queryByText(/V1\.1/i)).not.toBeInTheDocument();
   });
@@ -65,7 +62,7 @@ describe("WizardStepIdentity", () => {
     render(<IdentityHarness />);
 
     expect(
-      screen.getByText(/cloud inventory ZIP \(Azure, AWS, or GCP\)/i),
+      screen.getByText(/Cloud inventory ZIPs for AWS, Azure, or GCP/i),
     ).toBeInTheDocument();
     expect(screen.queryByText(/Azure export accelerates/i)).not.toBeInTheDocument();
   });

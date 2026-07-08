@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import {
+  CREATE_ARCHITECTURE_PAGE_HEADING_PATTERN,
   MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
   RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN,
   SHOWCASE_DEMO_RUN_ID,
@@ -8,6 +9,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
 import { getAppMain } from "./helpers/app-main";
+import { reviewsHubFirstPackageRow } from "./helpers/reviews-hub";
 import { askPageMainHeading, comparePageMainHeading, expectGraphPageReadySurface, governancePageMainHeading } from "./helpers/operator-journey";
 test.describe("operator shell smoke", () => {
   test("home renders shell headings", async ({ page }) => {
@@ -32,7 +34,7 @@ test.describe("operator shell smoke", () => {
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
-    await expect(page.locator('[data-testid^="runs-row-"]').first()).toBeVisible();
+    await expect(reviewsHubFirstPackageRow(getAppMain(page))).toBeVisible();
   });
 
   test("runs list renders without generic error boundary", async ({ page }) => {
@@ -61,7 +63,9 @@ test.describe("operator shell smoke", () => {
   test("new request page renders without generic error boundary", async ({ page }) => {
     await page.goto("/reviews/new");
 
-    await expect(page.getByRole("heading", { name: /new architecture review/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: CREATE_ARCHITECTURE_PAGE_HEADING_PATTERN }),
+    ).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
   });
 });

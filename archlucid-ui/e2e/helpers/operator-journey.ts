@@ -58,6 +58,15 @@ export function comparePageIntroGuidance(page: Page): Locator {
   );
 }
 
+/** Assert operator `main` has no hard failure chrome (generic error banners, failed request alerts). */
+export async function expectMainHasNoHardFailureChrome(page: Page): Promise<void> {
+  const main = page.getByRole("main").first();
+
+  await expect(main.getByText(/Something went wrong/i)).toHaveCount(0);
+  await expect(main.getByRole("alert").filter({ hasText: /request failed/i })).toHaveCount(0);
+  await expect(main.getByText(/Aggregate explanation could not be loaded/i)).toHaveCount(0);
+}
+
 /** Primary `/ask` H2 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
 export function askPageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: ASK_PAGE_PRIMARY_HEADING_PATTERN });
@@ -85,6 +94,11 @@ export function graphPageReadySurfaceCandidates(page: Page): Locator[] {
     main.getByTestId("evidence-trail-trace-table"),
     main.getByTestId("evidence-trail-trace-empty"),
     main.getByTestId("graph-viewer-chunk-loading"),
+    main.getByTestId("graph-idle-placeholder-primary"),
+    main.getByTestId("graph-idle-placeholder"),
+    main.getByTestId("graph-page-controls-buyer"),
+    main.getByTestId("graph-presentation-tabs"),
+    main.getByTestId("graph-review-picker-status"),
     main.getByRole("button", { name: /^Load graph$/i }),
     main.getByRole("button", { name: /^Load evidence trail$/i }),
   ];
@@ -229,6 +243,20 @@ export function buyerPolishedReviewDetailSectionNav(page: Page): Locator {
   return page.getByRole("navigation", { name: "Review detail sections" });
 }
 
+/** Anchor ids from `buildRunDetailNavSections` buyer-polished strip (stable vs substring role names). */
+export function buyerPolishedReviewDetailSectionNavLink(sectionNav: Locator, sectionId: string): Locator {
+  return sectionNav.locator(`a[href="#${sectionId}"]`);
+}
+
+const BUYER_POLISHED_REVIEW_DETAIL_CORE_SECTION_IDS = [
+  "run-decision-summary",
+  "manifest-summary",
+  "trust-evidence",
+  "run-explanation",
+  "pipeline-timeline",
+  "artifacts-exports",
+] as const;
+
 /** Canonical buyer-polished section strip labels from `buildRunDetailNavSections`. */
 export async function expectBuyerPolishedReviewDetailSectionNavCore(
   sectionNav: Locator,
@@ -236,12 +264,9 @@ export async function expectBuyerPolishedReviewDetailSectionNavCore(
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 15_000;
 
-  await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible({ timeout });
-  await expect(sectionNav.getByRole("link", { name: "Outcome record" })).toBeVisible({ timeout });
-  await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible({ timeout });
-  await expect(sectionNav.getByRole("link", { name: "Assessment" })).toBeVisible({ timeout });
-  await expect(sectionNav.getByRole("link", { name: "Activity" })).toBeVisible({ timeout });
-  await expect(sectionNav.getByRole("link", { name: "Deliverables" })).toBeVisible({ timeout });
+  for (const sectionId of BUYER_POLISHED_REVIEW_DETAIL_CORE_SECTION_IDS) {
+    await expect(buyerPolishedReviewDetailSectionNavLink(sectionNav, sectionId)).toBeVisible({ timeout });
+  }
 }
 
 /** Severity metadata labels on quick-decision finding rows (`SeverityTag`). */
@@ -293,7 +318,7 @@ export async function expectBuyerPipelineTimelineSectionVisible(
   const timeout = options?.timeoutMs ?? 60_000;
   const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
-  await sectionNav.getByRole("link", { name: "Activity" }).click();
+  await buyerPolishedReviewDetailSectionNavLink(sectionNav, "pipeline-timeline").click();
 
   const collapsible = page.getByTestId("run-pipeline-timeline-collapsible");
 

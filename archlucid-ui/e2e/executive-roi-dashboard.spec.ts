@@ -29,7 +29,7 @@ import {
   expectNoExecutiveRoiDashboardErrorBoundary,
 
   prepareExecutiveRoiDashboardProxyWaits,
-
+  registerExecutiveRoiDashboardDeterministicProxyRoutes,
 } from "./helpers/executive-roi-dashboard";
 
 
@@ -48,6 +48,7 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
   }) => {
 
+    await registerExecutiveRoiDashboardDeterministicProxyRoutes(page);
     const roiWaits = prepareExecutiveRoiDashboardProxyWaits(page);
 
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.operator);
@@ -82,6 +83,7 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
   }) => {
 
+    await registerExecutiveRoiDashboardDeterministicProxyRoutes(page);
     const roiWaits = prepareExecutiveRoiDashboardProxyWaits(page);
 
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.operator);
@@ -112,6 +114,7 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
   }) => {
 
+    await registerExecutiveRoiDashboardDeterministicProxyRoutes(page);
     const roiWaits = prepareExecutiveRoiDashboardProxyWaits(page);
 
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.operator);
@@ -128,6 +131,7 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
   test("systemic issue rollup matches deduplicated export rows @executive-roi-dashboard", async ({ page }) => {
 
+    await registerExecutiveRoiDashboardDeterministicProxyRoutes(page);
     const roiWaits = prepareExecutiveRoiDashboardProxyWaits(page);
 
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.operator);

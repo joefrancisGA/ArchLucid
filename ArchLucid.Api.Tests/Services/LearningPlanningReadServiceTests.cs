@@ -39,7 +39,7 @@ public sealed class LearningPlanningReadServiceTests
                 DistinctRunCount = 1,
                 AverageTrustScore = 0.8,
                 DerivationRuleVersion = "v1",
-                Status = "open",
+                Status = ProductLearningImprovementThemeStatusValues.Proposed,
                 CreatedByUserId = "tester"
             },
             CancellationToken.None);

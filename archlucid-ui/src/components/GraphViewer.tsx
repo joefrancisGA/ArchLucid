@@ -467,6 +467,7 @@ export function GraphViewer({
       </div>
 
       <aside
+        aria-label="Graph settings and selection details"
         className={
           buyerTrailPanel
             ? "max-h-[min(88vh,960px)] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"

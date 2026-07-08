@@ -48,7 +48,7 @@ export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): 
         </div>
       ) : (
         <div className="mt-3 overflow-x-auto">
-          <EnterpriseTable data-testid="reviews-hub-packages-table">
+          <EnterpriseTable ariaLabel={REVIEWS_HUB_RECENT_SECTION_TITLE} data-testid="reviews-hub-packages-table">
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
                 <EnterpriseTableHeaderCell>Review package</EnterpriseTableHeaderCell>

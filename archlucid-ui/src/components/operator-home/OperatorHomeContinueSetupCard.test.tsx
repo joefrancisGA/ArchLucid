@@ -36,7 +36,7 @@ describe("OperatorHomeContinueSetupCard", () => {
     expect(screen.getByText(OPERATOR_HOME_CONTINUE_SETUP_BODY)).toBeInTheDocument();
     expect(screen.queryByText(/evidence checklist/i)).not.toBeInTheDocument();
 
-    const setupGuideLink = screen.getByRole("link", { name: "Open first review guide" });
+    const setupGuideLink = screen.getByRole("link", { name: "Open guide" });
 
     expect(setupGuideLink).toHaveAttribute("href", "/onboarding");
     expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toHaveAttribute(
@@ -62,9 +62,9 @@ describe("OperatorHomeContinueSetupCard", () => {
   it("keeps the setup CTA as a link (not a button) to the onboarding guide", () => {
     render(<OperatorHomeContinueSetupCard readyCount={1} totalCount={4} />);
 
-    const setupGuideLink = screen.getByRole("link", { name: "Open first review guide" });
+    const setupGuideLink = screen.getByRole("link", { name: "Open guide" });
 
     expect(setupGuideLink).toHaveAttribute("href", "/onboarding");
-    expect(screen.queryByRole("button", { name: "Open first review guide" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Open guide" })).not.toBeInTheDocument();
   });
 });

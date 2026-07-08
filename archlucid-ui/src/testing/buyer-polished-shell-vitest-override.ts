@@ -19,5 +19,12 @@ export async function extendBuyerPolishedShellVitestMock(
 
       return actual.isBuyerPolishedOperatorShellEnv();
     },
+    isBuyerVocabularyPassActive: () => {
+      if (buyerPolishedShellVitestOverride.value !== null) {
+        return buyerPolishedShellVitestOverride.value;
+      }
+
+      return actual.isBuyerVocabularyPassActive();
+    },
   };
 }

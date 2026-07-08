@@ -34,22 +34,23 @@ public sealed class RateLimitingRolePartitionBuilderTests
     [SkippableFact]
     public void CreateFixedWindow_admin_role_increases_permit_limit()
     {
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(
-            new ClaimsIdentity([new Claim(ClaimTypes.Role, ArchLucidRoles.Admin)], authenticationType: "Bearer"));
-        http.Connection.RemoteIpAddress = System.Net.IPAddress.Parse("127.0.0.1");
-
         ServiceCollection services = new();
         services.AddSingleton(
             Options.Create(
                 new RateLimitingRoleMultiplierOptions { Admin = 2.0, Reader = 1.0, Operator = 1.0, Anonymous = 1.0 }));
+
+        DefaultHttpContext http = new();
+        http.Connection.RemoteIpAddress = System.Net.IPAddress.Parse("127.0.0.1");
         http.RequestServices = services.BuildServiceProvider();
+
+        http.User = new ClaimsPrincipal(
+            new ClaimsIdentity([new Claim(ClaimTypes.Role, ArchLucidRoles.Reader)], authenticationType: "Bearer"));
 
         System.Threading.RateLimiting.RateLimitPartition<string> readerPartition =
             RateLimitingRolePartitionBuilder.CreateFixedWindow(http, 10, 1, 0, "fixed", 1.0);
 
         http.User = new ClaimsPrincipal(
-            new ClaimsIdentity([new Claim(ClaimTypes.Role, ArchLucidRoles.Reader)], authenticationType: "Bearer"));
+            new ClaimsIdentity([new Claim(ClaimTypes.Role, ArchLucidRoles.Admin)], authenticationType: "Bearer"));
 
         System.Threading.RateLimiting.RateLimitPartition<string> adminPartition =
             RateLimitingRolePartitionBuilder.CreateFixedWindow(http, 10, 1, 0, "fixed", 1.0);

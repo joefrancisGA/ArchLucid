@@ -20,7 +20,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AuditEvent, CursorPagedResponse } from "@/lib/api";
 import { downloadAuditExportCsv, getAuditEventTypes, searchAuditEvents } from "@/lib/api";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   auditSearchNoResultsBuyerPolishedLine,
   auditSearchNoResultsOperatorLine,
@@ -28,8 +28,6 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resolveOperatorShellAuditRunId } from "@/lib/resolve-operator-shell-audit-run-id";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import {
   CTO_DEMO_AUDIT_FILTER_QUERY_PARAM,

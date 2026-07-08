@@ -87,7 +87,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "first-pilot-operator-runbook",
-    title: "First-pilot operator runbook",
+    title: "First-pilot workspace runbook",
     summary:
       "Internal phase checklist — platform readiness, evidence ingest, proof collection, and pilot recovery for platform and release owners.",
     audience: "developer",

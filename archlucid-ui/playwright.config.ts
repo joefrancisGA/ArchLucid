@@ -13,6 +13,7 @@ const liveWebServerCommand = skipNextBuild
 
 export default defineConfig({
   testDir: "e2e",
+  globalSetup: require.resolve("./e2e/global-setup-live-api-infra.ts"),
   /**
    * `live-api-*.spec.ts` — journeys against real SQL + API.
    * `marketing-accessibility-public.spec.ts` — static marketing route (no API); still uses the live webServer bundle.

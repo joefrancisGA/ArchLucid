@@ -170,8 +170,6 @@ import {
   advisorySchedulesCreateScheduleButtonLabelReaderRank,
   compositeRulesCreateButtonLabelReaderRank,
   digestSubscriptionsCreateSubscriptionButtonLabelReaderRank,
-  governanceWorkflowPromotionsActivationsHeadingReader,
-  governanceWorkflowSubmitCardTitleReader,
   policyPacksCreatePackButtonLabelReaderRank,
   policyPacksCurrentPacksHeadingOperator,
   policyPacksCurrentPacksHeadingReader,
@@ -594,7 +592,12 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       });
 
       expect(screen.getByText("No approval requests for this review")).toBeInTheDocument();
-      expect(screen.getByText("Governance submissions")).toBeInTheDocument();
+      expect(screen.getAllByText("Submit for governance approval").length).toBeGreaterThan(0);
+
+      const submitVersion = document.getElementById("gov-submit-version") as HTMLInputElement | null;
+
+      expect(submitVersion).not.toBeNull();
+      expect(submitVersion!.readOnly).toBe(true);
     },
     15_000,
   );

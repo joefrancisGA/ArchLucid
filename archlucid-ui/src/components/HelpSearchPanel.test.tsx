@@ -51,7 +51,7 @@ describe("HelpSearchPanel", () => {
     expect(screen.getByTestId("help-search-group-start-here")).toBeInTheDocument();
     expect(screen.getByTestId("help-search-group-review-work")).toBeInTheDocument();
     expect(screen.getByTestId("help-search-recommended-group")).toBeInTheDocument();
-    expect(within(screen.getByTestId("help-search-recommended-group")).getByText("First-review guide")).toBeInTheDocument();
+    expect(within(screen.getByTestId("help-search-recommended-group")).getByText("Review guide")).toBeInTheDocument();
     expect(within(screen.getByTestId("help-search-group-start-here")).getByText("Run a sample review")).toBeInTheDocument();
     expect(screen.getByText("Upload architecture evidence")).toBeInTheDocument();
     expect(screen.queryByText(/engineering runbook/i)).not.toBeInTheDocument();
@@ -93,7 +93,7 @@ describe("HelpSearchPanel", () => {
     render(<HelpSearchPanel open onOpenChange={() => {}} />);
 
     const firstReviewButton = screen.getByRole("button", {
-      name: /First-review guide\./i,
+      name: /Review guide\./i,
     });
 
     expect(firstReviewButton).toBeInTheDocument();

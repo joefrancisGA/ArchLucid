@@ -11,8 +11,9 @@ import type { APIRequestContext, APIResponse } from "@playwright/test";
 
 import {
   continueInfrastructureMutationRetry,
+  getMaxCommitInfrastructureMutationAttempts,
+  getMaxInfrastructureMutationAttempts,
   InfraTransientError,
-  maxInfrastructureMutationAttempts,
 } from "./live-api-infra-retry";
 import { getLiveJwtTokenFromEnvSync, isLiveJwtTokenConfigured } from "./jwt-token-provider";
 
@@ -312,7 +313,9 @@ export async function postArchitectureRequestRaw(
 }
 
 /** Mutating architecture POSTs share one API with many live specs — retry transient infra before failing journeys. */
-const maxArchitectureMutationAttempts = maxInfrastructureMutationAttempts;
+function maxArchitectureMutationAttempts(): number {
+  return getMaxInfrastructureMutationAttempts();
+}
 
 /** Per-attempt HTTP timeout — prevents a wedged commit from burning the whole Playwright test timeout. */
 const commitAttemptHttpTimeoutMs = 90_000;
@@ -328,7 +331,9 @@ function isManifestNotLoadedYetConflict(status: number, body: string): boolean {
 }
 
 /** Dedicated infrastructure retry budget for commit (503 database warmup, gateway faults). */
-const maxCommitInfrastructureAttempts = maxInfrastructureMutationAttempts;
+function maxCommitInfrastructureAttempts(): number {
+  return getMaxCommitInfrastructureMutationAttempts();
+}
 
 function isTransientCommitConflict(status: number, body: string): boolean {
   if (status !== 409) {
@@ -376,11 +381,11 @@ export async function createRun(
   body: Record<string, unknown>,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<{ runId: string }> {
-  for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
+  for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
     const res = await postArchitectureRequestRaw(request, body, tenantScope);
     const status = res.status();
 
-    if (status === 429 && attempt < maxArchitectureMutationAttempts - 1) {
+    if (status === 429 && attempt < maxArchitectureMutationAttempts() - 1) {
       await delayAfterRateLimitedResponse(res);
 
       continue;
@@ -394,7 +399,7 @@ export async function createRun(
           status,
           responseBody,
           attempt,
-          maxArchitectureMutationAttempts,
+          maxArchitectureMutationAttempts(),
           "POST /v1/architecture/request",
         )
       ) {
@@ -430,13 +435,13 @@ export async function executeRun(
   runId: string,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<unknown> {
-  for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
+  for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
     const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/execute`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
     const status = res.status();
 
-    if (status === 429 && attempt < maxArchitectureMutationAttempts - 1) {
+    if (status === 429 && attempt < maxArchitectureMutationAttempts() - 1) {
       await delayAfterRateLimitedResponse(res);
 
       continue;
@@ -450,7 +455,7 @@ export async function executeRun(
           status,
           responseBody,
           attempt,
-          maxArchitectureMutationAttempts,
+          maxArchitectureMutationAttempts(),
           `POST /v1/architecture/run/${runId}/execute`,
         )
       ) {
@@ -517,8 +522,9 @@ export async function commitRun(
         status,
         body,
         infrastructureAttempt,
-        maxCommitInfrastructureAttempts,
+        maxCommitInfrastructureAttempts(),
         `POST /v1/architecture/run/${runId}/commit`,
+        { startedAtMs: retryStartedMs },
       )
     ) {
       infrastructureAttempt += 1;
@@ -559,14 +565,23 @@ export async function commitRunRaw(
   runId: string,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
-  for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
+  const retryStartedMs = Date.now();
+  let infrastructureAttempt = 0;
+
+  for (let attempt = 0; attempt < maxCommitTransient409Attempts; attempt++) {
+    if (Date.now() - retryStartedMs >= commitRetryWallClockBudgetMs) {
+      throw new InfraTransientError(
+        `commitRunRaw: wall-clock retry budget exhausted after ${commitRetryWallClockBudgetMs}ms for run ${runId}`,
+      );
+    }
+
     const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/commit`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
       timeout: commitAttemptHttpTimeoutMs,
     });
     const status = res.status();
 
-    if (status === 429 && attempt < maxArchitectureMutationAttempts - 1) {
+    if (status === 429 && attempt < maxCommitTransient409Attempts - 1) {
       await delayAfterRateLimitedResponse(res);
 
       continue;
@@ -579,11 +594,14 @@ export async function commitRunRaw(
         await continueInfrastructureMutationRetry(
           status,
           responseBody,
-          attempt,
-          maxArchitectureMutationAttempts,
+          infrastructureAttempt,
+          maxCommitInfrastructureAttempts(),
           `POST /v1/architecture/run/${runId}/commit`,
+          { startedAtMs: retryStartedMs },
         )
       ) {
+        infrastructureAttempt += 1;
+
         continue;
       }
 
