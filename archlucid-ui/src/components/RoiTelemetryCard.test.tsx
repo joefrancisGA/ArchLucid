@@ -3,77 +3,64 @@ import { describe, expect, it } from "vitest";
 
 import { RoiTelemetryCard } from "@/components/RoiTelemetryCard";
 
+const emptySeverity = { critical: 0, high: 0, medium: 0, low: 0, info: 0 };
+
+function periodInput(overrides?: {
+  severity?: { critical: number; high: number; medium: number };
+  blocks?: number;
+}) {
+  return {
+    report: {
+      fromUtc: "2026-06-08T00:00:00.000Z",
+      toUtc: "2026-07-08T00:00:00.000Z",
+      totalRunsCommitted: 1,
+      findingsBySeverity: {
+        ...emptySeverity,
+        critical: overrides?.severity?.critical ?? 0,
+        high: overrides?.severity?.high ?? 0,
+        medium: overrides?.severity?.medium ?? 0,
+      },
+    },
+    blocks: { count: overrides?.blocks ?? 0, exact: true },
+  };
+}
+
 describe("RoiTelemetryCard", () => {
-  it("hides USD controls for non-admin", () => {
+  it("uses sponsor-friendly window labels without UTC jargon", () => {
+    render(<RoiTelemetryCard window="rolling30" period={periodInput()} hourlyUsd={150} />);
+
+    expect(screen.getByText(/Rolling 30 days: Jun 8, 2026 – Jul 7, 2026/)).toBeInTheDocument();
+    expect(screen.queryByText(/toUtc/i)).toBeNull();
+    expect(screen.queryByText(/Model:/)).toBeNull();
+  });
+
+  it("shows findings, blocks, and confidence instead of implementation copy", () => {
     render(
       <RoiTelemetryCard
         window="rolling30"
-        severity={{ critical: 1, high: 0, medium: 0 }}
-        precommitBlocks={1}
-        precommitBlocksExact
-        isAdmin={false}
+        period={periodInput({ severity: { critical: 1, high: 0, medium: 0 }, blocks: 2 })}
+        hourlyUsd={150}
       />,
     );
 
-    expect(screen.queryByLabelText(/Loaded engineering cost per hour/i)).toBeNull();
-    expect(screen.getByText(/Model:/)).toBeInTheDocument();
+    expect(screen.getByText("Findings counted")).toBeInTheDocument();
+    expect(screen.getByText("Governance blocks")).toBeInTheDocument();
+    expect(screen.getByText(/Confidence:/)).toBeInTheDocument();
+    expect(screen.getByText("$1,800")).toBeInTheDocument();
   });
 
-  it("shows USD controls for admin after mount", async () => {
+  it("labels sampled governance blocks", () => {
     render(
       <RoiTelemetryCard
         window="rolling30"
-        severity={{ critical: 0, high: 0, medium: 0 }}
-        precommitBlocks={0}
-        precommitBlocksExact
-        isAdmin={true}
-      />,
-    );
-
-    expect(await screen.findByLabelText(/Loaded engineering cost per hour/i)).toBeInTheDocument();
-  });
-
-  it("labels sampled pre-commit blocks", () => {
-    render(
-      <RoiTelemetryCard
-        window="rolling30"
-        severity={{ critical: 0, high: 0, medium: 0 }}
-        precommitBlocks={400}
-        precommitBlocksExact={false}
-        isAdmin={false}
+        period={{
+          ...periodInput(),
+          blocks: { count: 400, exact: false },
+        }}
+        hourlyUsd={150}
       />,
     );
 
     expect(screen.getByText(/400 \(sampled\)/)).toBeInTheDocument();
-  });
-
-  it("shows Implied dollar total for admin only when rounding would not display as $0", async () => {
-    render(
-      <RoiTelemetryCard
-        window="rolling30"
-        severity={{ critical: 0, high: 0, medium: 10 }}
-        precommitBlocks={0}
-        precommitBlocksExact
-        isAdmin={true}
-      />,
-    );
-
-    expect(await screen.findByText(/Implied total:/)).toBeInTheDocument();
-  });
-
-  it("omits misleading $0 implied total when hours × rate rounds down", async () => {
-    render(
-      <RoiTelemetryCard
-        window="rolling30"
-        severity={{ critical: 0, high: 0, medium: 0.001 }}
-        precommitBlocks={0}
-        precommitBlocksExact
-        isAdmin={true}
-      />,
-    );
-
-    expect(await screen.findByLabelText(/Loaded engineering cost per hour/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Implied total:/)).toBeNull();
-    expect(screen.getByText(/Not enough surfaced hours yet for a sponsor-facing dollar estimate/i)).toBeInTheDocument();
   });
 });

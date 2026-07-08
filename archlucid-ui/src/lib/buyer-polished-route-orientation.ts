@@ -269,7 +269,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith("/value-report/roi")) {
     return {
       label: "Sponsor report",
-      line: "ROI summary — estimated hours saved from review findings.",
+      line: "ROI summary — estimated review-time savings from finalized findings and governance blocks.",
     };
   }
 
