@@ -580,12 +580,11 @@ export const digestsHistoryHeadingOperator = "History";
 
 export const digestsHistoryHeadingReader = "History (inspect)";
 
-/** Architecture digests — list **Refresh** (`GET`). */
-export const digestsListRefreshButtonTitleOperator = "Reload digest list from the API (GET).";
+/** Architecture digests — list **Refresh**. */
+export const digestsListRefreshButtonTitleOperator = "Reload digest list and health status.";
 
 export const digestsListRefreshButtonTitleReader =
-  "Reload digest list (GET). Email subscriptions are configured under Subscriptions (Execute+).";
-
+  "Reload digest list and health status. Email subscriptions are configured under Subscriptions (Execute+).";
 /** Digest subscriptions — subscription list **`h3`** (`components/digests/DigestSubscriptionsContent.tsx`). */
 export const digestSubscriptionsYourSubscriptionsHeadingOperator = "Your subscriptions";
 
