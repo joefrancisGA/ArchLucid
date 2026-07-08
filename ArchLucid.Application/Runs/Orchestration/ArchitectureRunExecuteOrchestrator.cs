@@ -57,6 +57,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
     IRunStateTransitionService runStateTransitionService,
     IRunEngineProvenanceCaptureService runEngineProvenanceCaptureService,
+    TechnologyLedgerTopologyProposalSeeder technologyLedgerTopologyProposalSeeder,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -113,6 +114,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private readonly IRunEngineProvenanceCaptureService _runEngineProvenanceCaptureService =
         runEngineProvenanceCaptureService ?? throw new ArgumentNullException(nameof(runEngineProvenanceCaptureService));
+
+    private readonly TechnologyLedgerTopologyProposalSeeder _technologyLedgerTopologyProposalSeeder =
+        technologyLedgerTopologyProposalSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerTopologyProposalSeeder));
 
     /// <inheritdoc/>
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -318,6 +322,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             await _agentResultPostExecutionEnricher
                 .EnrichAsync(runId, request, evidence, results, cancellationToken)
                 .ConfigureAwait(false);
+
+            await TrySeedTechnologyLedgerFromTopologyAsync(runId, request, results, cancellationToken);
 
             IReadOnlyList<AgentEvaluation> evaluations =
                 await agentEvaluationService.EvaluateAsync(runId, request, evidence, tasks, results, cancellationToken);
@@ -703,6 +709,35 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         await runRepository.UpdateAsync(header, cancellationToken);
         
         logger.LogError("Run execution failed for RunId={RunId}. CorrelationId={CorrelationId}", LogSanitizer.Sanitize(runId), System.Diagnostics.Activity.Current?.Id ?? "unknown");
+    }
+
+    private async Task TrySeedTechnologyLedgerFromTopologyAsync(
+        string runId,
+        ArchitectureRequest request,
+        IReadOnlyList<AgentResult> results,
+        CancellationToken cancellationToken)
+    {
+        AgentResult? topologyResult = results.FirstOrDefault(result => result.AgentType == AgentType.Topology);
+
+        if (topologyResult is null)
+            return;
+
+        try
+        {
+            await _technologyLedgerTopologyProposalSeeder
+                .SeedFromTopologyResultAsync(runId, request, topologyResult, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning(
+                    ex,
+                    "Technology Ledger topology proposal seeding failed for RunId={RunId}; execute outcome unchanged.",
+                    LogSanitizer.Sanitize(runId));
+            }
+        }
     }
 
     /// <summary>

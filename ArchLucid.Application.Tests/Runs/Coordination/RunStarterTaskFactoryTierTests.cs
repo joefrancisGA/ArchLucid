@@ -24,7 +24,7 @@ public sealed class RunStarterTaskFactoryTierTests
         };
 
         EvidenceBundle bundle = RunStarterTaskFactory.BuildEvidenceBundle(request);
-        List<AgentTask> tasks = RunStarterTaskFactory.BuildStarterTasks("run-1", bundle, request);
+        List<AgentTask> tasks = RunStarterTaskFactory.BuildStarterTasks("run-1", bundle, request, []);
 
         tasks.Should().HaveCount(4);
         tasks.Single(t => t.AgentType == AgentType.Topology).ModelTierOverride.Should().Be(LlmModelTier.Economy);

@@ -22,4 +22,9 @@ internal static class TechnologyLedgerSeederTestDoubles
             Mock.Of<ICloudInventoryExtractorPackageRepository>(),
             new InfrastructureDeclarationsPayloadNormalizer([]),
             TimeProvider.System);
+
+    internal static TechnologyLedgerTopologyProposalSeeder CreateTopologyProposalSeeder(
+        ITechnologyLedgerRepository repository,
+        IScopeContextProvider scopeContextProvider) =>
+        new(repository, scopeContextProvider, TimeProvider.System);
 }

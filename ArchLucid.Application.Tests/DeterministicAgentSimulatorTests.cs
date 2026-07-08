@@ -11,6 +11,7 @@ using ArchLucid.Decisioning.Validation;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Application.Tests.Runs.Coordination;
 
 using FluentAssertions;
 
@@ -61,13 +62,10 @@ public sealed class DeterministicAgentSimulatorTests
             TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         });
 
-        ArchitectureRunAuthorityCoordination coordinator = new(
+        ArchitectureRunAuthorityCoordination coordinator = ArchitectureRunAuthorityCoordinationTestFactory.Create(
             new FakeAuthorityRunOrchestrator(),
             runRepo.Object,
-            scopeProvider.Object,
-            new NoOpAzureExtractorPackageRepository(),
-            new RunStateTransitionService(),
-            NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
+            scopeProvider.Object);
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
         coordination.Success.Should().BeTrue();
@@ -123,13 +121,10 @@ public sealed class DeterministicAgentSimulatorTests
             TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         });
 
-        ArchitectureRunAuthorityCoordination coordinator = new(
+        ArchitectureRunAuthorityCoordination coordinator = ArchitectureRunAuthorityCoordinationTestFactory.Create(
             new FakeAuthorityRunOrchestrator(),
             runRepo.Object,
-            scopeProvider.Object,
-            new NoOpAzureExtractorPackageRepository(),
-            new RunStateTransitionService(),
-            NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
+            scopeProvider.Object);
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
         DeterministicAgentSimulator simulator = new();

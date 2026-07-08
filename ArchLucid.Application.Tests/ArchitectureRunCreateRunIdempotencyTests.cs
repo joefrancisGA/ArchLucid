@@ -230,6 +230,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
             Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
+            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }

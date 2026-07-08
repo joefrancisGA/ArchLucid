@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
@@ -28,6 +29,9 @@ public sealed class ArchitectureRunAuthorityCoordination(
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
     IAzureExtractorPackageRepository azureExtractorPackageRepository,
+    ITechnologyLedgerRepository technologyLedgerRepository,
+    TechnologyLedgerRequestSeeder technologyLedgerRequestSeeder,
+    TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
     IRunStateTransitionService runStateTransitionService,
     ILogger<ArchitectureRunAuthorityCoordination> logger) : IArchitectureRunAuthorityCoordination
 {
@@ -36,6 +40,15 @@ public sealed class ArchitectureRunAuthorityCoordination(
 
     private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository =
         azureExtractorPackageRepository ?? throw new ArgumentNullException(nameof(azureExtractorPackageRepository));
+
+    private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
+        technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
+
+    private readonly TechnologyLedgerRequestSeeder _technologyLedgerRequestSeeder =
+        technologyLedgerRequestSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerRequestSeeder));
+
+    private readonly TechnologyLedgerEvidenceSeeder _technologyLedgerEvidenceSeeder =
+        technologyLedgerEvidenceSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerEvidenceSeeder));
 
     private readonly ILogger<ArchitectureRunAuthorityCoordination> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -77,7 +90,24 @@ public sealed class ArchitectureRunAuthorityCoordination(
         bool deferred = authorityRun.ContextSnapshotId is null;
         string runId = authorityRun.RunId.ToString("N");
         ArchitectureRun run = BuildRunFromAuthority(authorityRun, request, deferred);
-        List<AgentTask> tasks = deferred ? [] : RunStarterTaskFactory.BuildStarterTasks(runId, evidenceBundle, request);
+        List<AgentTask> tasks = [];
+
+        if (!deferred)
+        {
+            await TechnologyLedgerRunCreateSeeding.TrySeedIntakeAsync(
+                runId,
+                request,
+                _technologyLedgerRequestSeeder,
+                _technologyLedgerEvidenceSeeder,
+                _logger,
+                cancellationToken);
+
+            IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
+                await _technologyLedgerRepository.GetByRunIdAsync(scopeForExtractor, runId, cancellationToken);
+
+            tasks = RunStarterTaskFactory.BuildStarterTasks(runId, evidenceBundle, request, ledgerEntries);
+        }
+
         run.TaskIds = [..tasks.Select(t => t.TaskId)];
         output.Run = run;
         output.EvidenceBundle = evidenceBundle;

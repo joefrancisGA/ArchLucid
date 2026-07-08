@@ -218,6 +218,7 @@ public static partial class ServiceCollectionExtensions
             ArchLucid.Application.Runs.Feasibility.ArchitectureRequestIntakeTrailProvider>();
         services.AddScoped<TechnologyLedgerRequestSeeder>();
         services.AddScoped<TechnologyLedgerEvidenceSeeder>();
+        services.AddScoped<TechnologyLedgerTopologyProposalSeeder>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         services.AddScoped<IRunEngineProvenanceCaptureService, RunEngineProvenanceCaptureService>();

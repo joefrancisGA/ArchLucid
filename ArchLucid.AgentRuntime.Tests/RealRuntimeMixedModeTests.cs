@@ -220,6 +220,7 @@ public sealed class RealRuntimeMixedModeTests
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
             ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             schemaRemediation,
@@ -300,13 +301,11 @@ public sealed class RealRuntimeMixedModeTests
         runRepo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
 
-        ArchitectureRunAuthorityCoordination coordinator = new(
+        ArchitectureRunAuthorityCoordination coordinator = AuthorityCoordinationTestFactory.Create(
             new FakeAuthorityRunOrchestratorForRuntimeTests(),
             runRepo.Object,
-            scopeProvider.Object,
-            new NoOpAzureExtractorPackageRepository(),
-            new RunStateTransitionService(),
-            NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
+            scopeProvider.Object);
+
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
         // Force known IDs used in stub payloads

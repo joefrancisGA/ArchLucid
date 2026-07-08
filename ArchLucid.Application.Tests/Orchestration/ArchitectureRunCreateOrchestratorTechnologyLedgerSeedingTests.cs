@@ -43,7 +43,7 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
     };
 
     [SkippableFact]
-    public async Task CreateRunAsync_seeds_one_cloud_platform_ledger_entry_matching_request_provider()
+    public async Task CreateRunAsync_does_not_seed_ledger_when_coordination_is_mocked()
     {
         InMemoryTechnologyLedgerRepository ledgerRepository = new();
         string runId = Guid.NewGuid().ToString("N");
@@ -151,10 +151,7 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
             runId,
             CancellationToken.None);
 
-        entries.Should().ContainSingle();
-        entries[0].Role.Should().Be(TechnologyLedgerRole.CloudPlatform);
-        entries[0].ProviderFamily.Should().Be(CloudProvider.Aws);
-        entries[0].Source.Should().Be(TechnologyLedgerSource.User);
+        entries.Should().BeEmpty();
     }
 
     [SkippableFact]
@@ -275,10 +272,6 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
         IUsageMeteringService metering,
         InMemoryTechnologyLedgerRepository ledgerRepository)
     {
-        TechnologyLedgerRequestSeeder seeder = TechnologyLedgerSeederTestDoubles.CreateRequestSeeder(ledgerRepository);
-        TechnologyLedgerEvidenceSeeder evidenceSeeder =
-            TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(ledgerRepository, scopeContextProvider);
-
         return new ArchitectureRunCreateOrchestrator(
             coordination,
             requestRepository,
@@ -298,8 +291,7 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
             Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
-            seeder,
-            evidenceSeeder,
+            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }

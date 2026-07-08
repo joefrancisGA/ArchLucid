@@ -64,6 +64,7 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
             ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             schemaRemediation,

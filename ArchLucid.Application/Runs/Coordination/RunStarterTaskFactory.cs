@@ -2,6 +2,7 @@ using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Requests;
 
@@ -59,14 +60,19 @@ public static class RunStarterTaskFactory
     }
 
     /// <summary>Creates topology, cost, compliance, and critic starter tasks for the run.</summary>
-    public static List<AgentTask> BuildStarterTasks(string runId, EvidenceBundle evidenceBundle, ArchitectureRequest request)
+    public static List<AgentTask> BuildStarterTasks(
+        string runId,
+        EvidenceBundle evidenceBundle,
+        ArchitectureRequest request,
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(evidenceBundle);
         ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(ledgerEntries);
         return
         [
-            CreateTopologyTask(runId, evidenceBundle, request), CreateCostTask(runId, evidenceBundle, request),
+            CreateTopologyTask(runId, evidenceBundle, request, ledgerEntries), CreateCostTask(runId, evidenceBundle, request),
             CreateComplianceTask(runId, evidenceBundle, request), CreateCriticTask(runId, evidenceBundle, request)
         ];
     }
@@ -93,14 +99,18 @@ public static class RunStarterTaskFactory
         return refs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
-    private static AgentTask CreateTopologyTask(string runId, EvidenceBundle evidenceBundle, ArchitectureRequest request)
+    private static AgentTask CreateTopologyTask(
+        string runId,
+        EvidenceBundle evidenceBundle,
+        ArchitectureRequest request,
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
     {
         return new AgentTask
         {
             TaskId = Guid.NewGuid().ToString("N"),
             RunId = runId,
             AgentType = AgentType.Topology,
-            Objective = BuildTopologyObjective(request),
+            Objective = TechnologyLedgerObjectiveComposer.BuildTopologyObjective(request, ledgerEntries),
             Status = AgentTaskStatus.Created,
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CompletedUtc = null,
@@ -174,12 +184,6 @@ public static class RunStarterTaskFactory
             AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest],
             ModelTierOverride = LlmModelTier.Premium
         };
-    }
-
-    private static string BuildTopologyObjective(ArchitectureRequest request)
-    {
-        return $"Design an initial Azure topology for system '{request.SystemName}' " + $"in environment '{request.Environment}'. " +
-               $"Description: {request.Description}";
     }
 
     private static string BuildCostObjective(ArchitectureRequest request, EvidenceBundle evidenceBundle)

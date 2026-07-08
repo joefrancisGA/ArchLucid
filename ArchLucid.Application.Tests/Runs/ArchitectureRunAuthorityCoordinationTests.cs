@@ -10,9 +10,8 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Application.Tests.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
-
-using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -46,13 +45,10 @@ public sealed class ArchitectureRunAuthorityCoordinationTests
             ProjectId = Guid.NewGuid()
         });
 
-        ArchitectureRunAuthorityCoordination service = new(
+        ArchitectureRunAuthorityCoordination service = ArchitectureRunAuthorityCoordinationTestFactory.Create(
             new FakeAuthorityRunOrchestrator(),
             runRepo.Object,
-            scopeProvider.Object,
-            new NoOpAzureExtractorPackageRepository(),
-            new RunStateTransitionService(),
-            NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
+            scopeProvider.Object);
 
         CoordinationResult result = await service.CreateRunAsync(request);
 
@@ -131,13 +127,11 @@ public sealed class ArchitectureRunAuthorityCoordinationTests
             ProjectId = Guid.NewGuid()
         });
 
-        ArchitectureRunAuthorityCoordination service = new(
+        ArchitectureRunAuthorityCoordination service = ArchitectureRunAuthorityCoordinationTestFactory.Create(
             orchestrator.Object,
             runRepo.Object,
             scopeProvider.Object,
-            extractorRepo.Object,
-            new RunStateTransitionService(),
-            NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
+            extractorRepo.Object);
 
         CoordinationResult result = await service.CreateRunAsync(request);
 

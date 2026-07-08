@@ -6,6 +6,7 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
@@ -15,6 +16,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Linq;
 
@@ -184,10 +186,29 @@ public sealed class AuthorityPipelineWorkProcessor(
 
         }
 
-        List<AgentTask> starterTasks =
-            RunStarterTaskFactory.BuildStarterTasks(runIdN, evidenceBundle, architectureRequest);
-
         ScopeContext materializedScope = AmbientScopeContext.CurrentOverride ?? jobScope;
+
+        TechnologyLedgerRequestSeeder requestSeeder =
+            scope.ServiceProvider.GetRequiredService<TechnologyLedgerRequestSeeder>();
+        TechnologyLedgerEvidenceSeeder evidenceSeeder =
+            scope.ServiceProvider.GetRequiredService<TechnologyLedgerEvidenceSeeder>();
+        ITechnologyLedgerRepository technologyLedgerRepository =
+            scope.ServiceProvider.GetRequiredService<ITechnologyLedgerRepository>();
+
+        await TechnologyLedgerRunCreateSeeding.TrySeedIntakeAsync(
+            runIdN,
+            architectureRequest,
+            requestSeeder,
+            evidenceSeeder,
+            _logger,
+            cancellationToken);
+
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
+            await technologyLedgerRepository.GetByRunIdAsync(materializedScope, runIdN, cancellationToken);
+
+        List<AgentTask> starterTasks =
+            RunStarterTaskFactory.BuildStarterTasks(runIdN, evidenceBundle, architectureRequest, ledgerEntries);
+
         IReadOnlyList<AgentTask> existingTasks =
             await taskRepository.GetByRunIdAsync(materializedScope, runIdN, cancellationToken);
 

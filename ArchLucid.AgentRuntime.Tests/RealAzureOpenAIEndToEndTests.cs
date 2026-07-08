@@ -101,6 +101,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
             ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             schemaRemediation,
@@ -177,13 +178,10 @@ public sealed class RealAzureOpenAIEndToEndTests
         runRepo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
 
-        ArchitectureRunAuthorityCoordination coordinator = new(
+        ArchitectureRunAuthorityCoordination coordinator = AuthorityCoordinationTestFactory.Create(
             new FakeAuthorityRunOrchestratorForLiveAoai(),
             runRepo.Object,
-            scopeProvider.Object,
-            new NoOpAzureExtractorPackageRepository(),
-            new RunStateTransitionService(),
-            NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
+            scopeProvider.Object);
 
         CoordinationResult coordination = await coordinator.CreateRunAsync(request, cancellationToken);
 
@@ -300,6 +298,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
             ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             schemaRemediation,

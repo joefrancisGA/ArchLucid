@@ -2,15 +2,18 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Retrieval.Topology;
 
 using Microsoft.Extensions.Logging;
@@ -30,6 +33,7 @@ public sealed class TopologyAgentHandler(
     IAgentSystemPromptCatalog systemPromptCatalog,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
+    ITechnologyLedgerRepository technologyLedgerRepository,
     IRetrievalQueryService retrievalQueryService,
     IRetrievalGroundingTraceWriter retrievalGroundingTraceWriter,
     IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions,
@@ -40,6 +44,12 @@ public sealed class TopologyAgentHandler(
     {
         WriteIndented = true
     };
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
+        technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
 
     private readonly IRetrievalQueryService _retrievalQueryService =
         retrievalQueryService ?? throw new ArgumentNullException(nameof(retrievalQueryService));
@@ -66,20 +76,25 @@ public sealed class TopologyAgentHandler(
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(task);
 
-        Guid tenantId = scopeContextProvider.GetCurrentScope().TenantId;
+        Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
 
         if (!AgentRunIdParser.TryParse(runId, out Guid runGuid))
             throw new InvalidOperationException($"Run id '{runId}' is not a valid GUID for prompt variant resolution.");
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
+            await _technologyLedgerRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        CloudProvider effectiveCloudTarget = TechnologyLedgerEffectiveCloudTarget.Resolve(request, ledgerEntries);
 
         ResolvedSystemPrompt systemResolved = await systemPromptCatalog
             .ResolveAsync(AgentType.Topology, tenantId, runGuid, cancellationToken);
         string systemPrompt = CloudProviderAgentPromptComposer.ApplySystemPromptAddendum(
             systemResolved.Text,
             AgentType.Topology,
-            request.CloudProvider);
+            effectiveCloudTarget);
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
-        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task);
+        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task, effectiveCloudTarget, ledgerEntries);
         baseUserPrompt = await AppendExemplarStylePriorAsync(runId, request, baseUserPrompt, cancellationToken)
             .ConfigureAwait(false);
         string lastCompletionJson = string.Empty;
@@ -125,7 +140,7 @@ public sealed class TopologyAgentHandler(
 
                 AgentResultSchemaViolationAudit.ScheduleLog(
                     auditService,
-                    scopeContextProvider,
+                    _scopeContextProvider,
                     sv,
                     runId,
                     task.TaskId,
@@ -162,7 +177,9 @@ public sealed class TopologyAgentHandler(
         string runId,
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
-        AgentTask task)
+        AgentTask task,
+        CloudProvider effectiveCloudTarget,
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
     {
         StringBuilder sb = new();
 
@@ -173,9 +190,9 @@ public sealed class TopologyAgentHandler(
         AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
         AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
 
-        CloudProviderAgentPromptComposer.AppendUserPromptCloudGuidance(sb, AgentType.Topology, request.CloudProvider);
+        CloudProviderAgentPromptComposer.AppendUserPromptCloudGuidance(sb, AgentType.Topology, effectiveCloudTarget);
 
-        if (request.CloudProvider is CloudProvider.Azure or CloudProvider.None)
+        if (effectiveCloudTarget == CloudProvider.Azure)
         {
             sb.AppendLine("Important guidance:");
             sb.AppendLine("- Produce a simple, coherent MVP-quality Azure topology.");
@@ -185,6 +202,16 @@ public sealed class TopologyAgentHandler(
             sb.AppendLine("- Use stable IDs such as svc-api, svc-search, ds-metadata where appropriate.");
             sb.AppendLine("- Return JSON only.");
         }
+        else if (effectiveCloudTarget == CloudProvider.None)
+        {
+            sb.AppendLine("Important guidance:");
+            sb.AppendLine("- Produce a simple, coherent MVP-quality cloud-neutral topology.");
+            sb.AppendLine("- Avoid naming a specific hyperscaler unless the request or ledger requires it.");
+            sb.AppendLine("- Use stable IDs such as svc-api, ds-metadata where appropriate.");
+            sb.AppendLine("- Return JSON only.");
+        }
+
+        TechnologyLedgerPromptFormatter.AppendTechnologyLedgerContext(sb, ledgerEntries);
 
         return sb.ToString();
     }
@@ -195,7 +222,7 @@ public sealed class TopologyAgentHandler(
         string baseUserPrompt,
         CancellationToken cancellationToken)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         try
         {
