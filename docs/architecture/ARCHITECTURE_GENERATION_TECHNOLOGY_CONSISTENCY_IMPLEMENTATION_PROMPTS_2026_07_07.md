@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 5 **drafted** below (not yet run). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -21,7 +21,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 2 | D.2 | Wire ledger into intake: required target-cloud/neutral question, fix `DraftRequestProjector`, seed `source: user` ledger entries from `ArchitectureRequest` | **Done** (see Prompt 2 report) |
 | 3 | D.1 (cont.) | Seed `source: evidence` ledger entries from context connectors (IaC declarations, cloud inventory ZIP) | **Done** (see Prompt 3 report) |
 | 4 | D.3 | Inject ledger into `TopologyAgentHandler` / `RunStarterTaskFactory` objectives; agent proposals become `source: agent-proposed` ledger entries instead of untracked `ProposedChanges` free text | **Done** (`80ad003d60`) |
-| 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | Not started |
+| 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | **Drafted, not run** |
 | 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | Not started |
 | 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | Not started |
 | 8 | D.6 | Prompt template updates — closed-world clause, neutral-mode clause, alternative-labeling clause across all four system prompt templates | Not started |
@@ -29,7 +29,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | Not started |
 | 11 | D.9 | Golden-corpus consistency scenarios in CI | Not started |
 
-Prompts 1–4 are written out below. Run Prompt 4, review the result, then ask for Prompt 5 to be drafted.
+Prompts 1–5 are written out below. Run Prompt 5, review the result, then ask for Prompt 6 to be drafted.
 
 ---
 
@@ -650,6 +650,129 @@ Stop and report:
 - Test pass/fail counts.
 - Commit hash.
 - Confirm Cost/Compliance/Critic handlers, system prompt templates (Prompt 8), validation engine (Prompt 6), API/UI (Prompts 9–10) were **not** touched.
+```
+
+---
+
+## Prompt 5 — Share Technology Ledger with Cost, Compliance, and Critic agents
+
+```
+Read docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_ASSESSMENT_2026_07_07.md in full for context before starting, specifically §A root cause 4 (agents do not share a canonical technology record), §D fix 3 (second half — downstream agents), §E step 2 (every agent reads the ledger before composing its prompt), and §F (closed-world / Chosen vs Assumed semantics). Also read "Prompt 4 — Report" in this same file for the ledger formatter, effective-cloud resolver, and Topology read-path already shipped — **reuse those helpers**, do not fork a second formatter or merge policy.
+
+Work directly on the current branch (master) — no feature branch. Confirm git status is clean of unrelated changes before starting; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
+
+## Goal
+
+Prompt 4 wired the Technology Ledger into **Topology** (read path: objectives + user prompt; write path: agent-proposed rows from `ProposedChanges`). This prompt closes the **downstream half** of fix D.3:
+
+1. **Read** the current ledger when composing **Cost**, **Compliance**, and **Critic** user prompts — same canonical baseline Topology already sees.
+2. **Extend** `StagedPriorAgentsSummary` so staged Critic execution carries a ledger snapshot alongside the bounded prior-agent digest (assessment D.3 explicitly names this evidence path).
+
+This is **read-path only** for downstream agents. Do **not** add agent-proposed ledger persistence from Cost/Compliance/Critic output (no new mappers/seeders). Do **not** change `RunStarterTaskFactory` objectives for Cost/Compliance/Critic (Prompt 4 deferred those). Do **not** edit system prompt templates (Prompt 8), `TechnologyConsistencyFindingEngine` (Prompt 6), API routes (Prompt 9), or the Technology Baseline UI (Prompt 10). Do **not** re-touch Topology handler/objective/mapper code except shared helpers you extract for reuse.
+
+## Execution-order context (read before coding)
+
+In the default quad-agent batch, Topology/Cost/Compliance/Critic run **in parallel**. At handler prompt time the ledger therefore contains **intake rows only** (`source: User`, `source: Evidence`) plus any rows persisted from a **prior** execute pass — not Topology `AgentProposed` rows from the same in-flight batch. That is expected; still inject whatever rows exist so Cost/Compliance do not invent a different provider family than the seeded baseline.
+
+When `StagedCriticAgentOptions.StagedCriticEnabled` is true, phase-1 agents finish before Critic runs. The ledger loaded for Critic (and for the staged summary note) may then include Topology `AgentProposed` rows persisted at the end of the **previous** execute pass, but still not same-batch Topology output unless execute orchestration is re-run between phases (it is not today). Document this limitation in tests/comments only if needed; do not redesign batch execution in this prompt.
+
+## 1. Reuse Prompt 4 ledger helpers (do not duplicate)
+
+Read `TechnologyLedgerPromptFormatter`, `TechnologyLedgerEffectiveCloudTarget`, and `TopologyAgentHandler` (Prompt 4 wiring).
+
+1. If helpful, add a small shared helper (one class per file), e.g. `ArchLucid.AgentRuntime/TechnologyLedgerUserPromptInjection.cs`, with a static method that:
+   - loads ledger rows via `ITechnologyLedgerRepository.GetByRunIdAsync`
+   - resolves `effectiveCloud` via `TechnologyLedgerEffectiveCloudTarget.Resolve(request, ledgerEntries)`
+   - appends `TechnologyLedgerPromptFormatter.AppendTechnologyLedgerContext` to a `StringBuilder`
+   - returns `(effectiveCloud, ledgerEntries)` for the caller
+   Keep it thin — prefer calling existing Application-layer formatters over copying strings.
+
+2. Optionally add `TechnologyLedgerPromptFormatter.FormatTechnologyLedgerContext(IReadOnlyList<TechnologyLedgerEntry> entries)` returning `string` (empty when no rows) so `StagedPriorAgentsSummaryBuilder` can embed the same block without duplicating `StringBuilder` glue. If you add it, unit-test it beside the existing formatter tests.
+
+## 2. Cost / Compliance / Critic handlers — direct ledger injection
+
+Read `CostAgentHandler`, `ComplianceAgentHandler`, and `CriticAgentHandler` (`BuildUserPrompt` / `ExecuteAsync`).
+
+For **each** handler:
+
+1. Inject `ITechnologyLedgerRepository` (primary constructor DI; handlers are already registered in `ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`).
+2. Before the LLM call, load ledger rows for the run (use `IScopeContextProvider` + `runId`, same as Topology).
+3. Resolve `effectiveCloud = TechnologyLedgerEffectiveCloudTarget.Resolve(request, ledgerEntries)`.
+4. Use `effectiveCloud` (not raw `request.CloudProvider`) when calling `CloudProviderAgentPromptComposer.ApplySystemPromptAddendum` for that handler's agent type.
+5. Append the Technology Ledger context block to the user prompt **after** architecture request/evidence and **before** agent-specific guidance blocks (match Topology ordering: run header → request/evidence → task objective/tools → **ledger block** → cloud guidance → static guidance).
+
+Handler-specific notes:
+
+- **Cost:** keep `CostRetailGroundingBuilder.Build(request, evidence, …)` as-is unless you find a trivial, tested way to pass `effectiveCloud` into retail grounding without broad refactors — ledger block in the prompt is the required change.
+- **Compliance:** do not rewrite the Azure-centric "Key Vault" static guidance list in this prompt (Prompt 8 owns template/guidance neutralization); only add ledger context + effective-cloud addendum.
+- **Critic:** preserve existing `StagedPriorAgentsSummary` evidence-note rendering; append the ledger block in the handler as well (see §3 for how staged summary complements this).
+
+Update handler unit tests (`CostAgentHandlerTests`, `ComplianceAgentHandlerTests`, `CriticAgentHandlerTests` or add focused tests) to mock `ITechnologyLedgerRepository` returning sample rows and assert the composed user prompt contains `Technology Ledger (canonical baseline for this run):`.
+
+## 3. Extend `StagedPriorAgentsSummary` with ledger snapshot
+
+Read `StagedPriorAgentsSummaryBuilder`, `RealAgentExecutorStagedCriticExecution`, and `EvidenceNoteTypes.StagedPriorAgentsSummary`.
+
+1. Extend `StagedPriorAgentsSummaryBuilder.CreateNote` with an **optional** `IReadOnlyList<TechnologyLedgerEntry>? ledgerEntries = null` parameter (or add an overload — pick one public surface, keep backward-compatible call sites compiling).
+2. When `ledgerEntries` is non-null and non-empty, prepend a section to the note body **before** the per-agent `## Topology` / `## Cost` sections:
+
+   ```
+   ## Technology Ledger (snapshot at staged Critic boundary)
+   <same formatter output as handlers, including truncation rules>
+   ```
+
+   The ledger section counts toward `StagedCriticAgentOptions.SummaryMaxTotalChars` — truncate the combined body using the existing budget logic (do not bypass the cap).
+
+3. Wire ledger loading into staged execution:
+   - Add `ITechnologyLedgerRepository` to `RealAgentExecutorExecutionDependencies` (constructor + `RealAgentExecutor` composition root).
+   - In `RealAgentExecutorStagedCriticExecution`, after phase 1 completes and before `StagedPriorAgentsSummaryBuilder.CreateNote`, load ledger rows for the run and pass them into `CreateNote`.
+
+4. Extend `StagedPriorAgentsSummaryBuilderTests` (and `RealAgentExecutorStagedCriticTests` if there is an existing seam) to assert the staged note includes the ledger header when entries are supplied.
+
+Do **not** introduce a new `EvidenceNoteTypes` value — the ledger block lives **inside** the existing `StagedPriorAgentsSummary` message body.
+
+## 4. Tests
+
+Add/update focused tests (do not run the full solution test suite):
+
+1. `TechnologyLedgerPromptFormatterTests` — if you add `FormatTechnologyLedgerContext`, cover empty vs non-empty.
+2. `CostAgentHandlerTests` / `ComplianceAgentHandlerTests` / `CriticAgentHandlerTests` — prompt contains ledger section when repository returns rows; effective cloud overrides `request.CloudProvider` for addendum when ledger `CloudPlatform` `Chosen` differs (mirror Topology test style).
+3. `StagedPriorAgentsSummaryBuilderTests` — ledger section prepended, respects total char budget.
+4. Update test constructor wiring anywhere handler arity changed (same pattern as Prompt 4 Topology tests).
+
+## 5. Verify
+
+Run, one at a time:
+
+```
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.Application/ArchLucid.Application.csproj
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.AgentRuntime/ArchLucid.AgentRuntime.csproj
+```
+
+Then scoped tests only, e.g.:
+
+```
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~TechnologyLedgerPromptFormatter"
+dotnet test ArchLucid.AgentRuntime.Tests --filter "FullyQualifiedName~StagedPriorAgentsSummary|FullyQualifiedName~CostAgentHandler|FullyQualifiedName~ComplianceAgentHandler|FullyQualifiedName~CriticAgentHandler"
+```
+
+Adjust filters to match the test classes you add or touch.
+
+## 6. Commit
+
+Stage only files this prompt touches. Do not stage unrelated dirty files. Commit directly to `master` with a descriptive message (e.g. "Share Technology Ledger with Cost/Compliance/Critic prompts and staged Critic summary"). Do not push unless explicitly requested.
+
+## 7. Report
+
+Stop and report:
+
+- Which handlers now load the ledger and where the formatter block is inserted in each user prompt.
+- How `effectiveCloud` is chosen for `CloudProviderAgentPromptComposer` on Cost/Compliance/Critic.
+- How `StagedPriorAgentsSummary` embeds the ledger snapshot and how char budgets apply.
+- Whether `RealAgentExecutorExecutionDependencies` gained `ITechnologyLedgerRepository` and where ledger rows are loaded in staged execution.
+- Test pass/fail counts.
+- Commit hash.
+- Confirm Topology write-path, consistency engine (Prompt 6), system templates (Prompt 8), API/UI (Prompts 9–10) were **not** touched.
 ```
 
 ---
