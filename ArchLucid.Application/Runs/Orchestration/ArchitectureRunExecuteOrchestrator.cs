@@ -583,8 +583,10 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 $"Cannot auto-retry quality gate rejection: no task for agent '{rejection.AgentLabel}' on run '{runId}'.");
         }
 
+        AgentTask retryTask = BuildQualityGateRetryTask(task, agentType);
+
         IReadOnlyList<AgentResult> retryBatch =
-            await _agentExecutor.ExecuteAsync(runId, request, evidence, [task], cancellationToken);
+            await _agentExecutor.ExecuteAsync(runId, request, evidence, [retryTask], cancellationToken);
 
         if (retryBatch.Count == 0)
         {
@@ -609,6 +611,35 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             updated.Add(replacement);
 
         return updated;
+    }
+
+    private AgentTask BuildQualityGateRetryTask(AgentTask task, AgentType agentType)
+    {
+        if (!_agentOutputQualityGateOptions.Value.EscalateTierOnRetry)
+            return task;
+
+        LlmModelTier currentTier = task.ModelTierOverride ?? AgentModelTierRetryDefaults.DefaultTierForAgent(agentType);
+
+        if (!AgentModelTierEscalation.CanEscalate(currentTier))
+            return task;
+
+        LlmModelTier escalatedTier = AgentModelTierEscalation.Escalate(currentTier);
+
+        return new AgentTask
+        {
+            TaskId = task.TaskId,
+            RunId = task.RunId,
+            AgentType = task.AgentType,
+            AgentTypeKey = task.AgentTypeKey,
+            Objective = task.Objective,
+            Status = task.Status,
+            CreatedUtc = task.CreatedUtc,
+            CompletedUtc = task.CompletedUtc,
+            EvidenceBundleRef = task.EvidenceBundleRef,
+            AllowedTools = task.AllowedTools,
+            AllowedSources = task.AllowedSources,
+            ModelTierOverride = escalatedTier,
+        };
     }
 
     private async Task TryMarkRunQualityGateRejectedAsync(

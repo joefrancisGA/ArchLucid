@@ -34,6 +34,7 @@ public sealed class AgentOutputQualityGateOptionsTests
         o.EnforceOnReject.Should().BeFalse();
         o.BlockRunOnReject.Should().BeFalse();
         o.MaxAutoRetries.Should().Be(1);
+        o.EscalateTierOnRetry.Should().BeTrue();
         o.PersistPartialOutputsOnBudgetExceeded.Should().BeTrue();
         o.MaxTokensPerRun.Should().BeNull();
         o.MaxCostPerRun.Should().BeNull();

@@ -181,6 +181,16 @@ public sealed class AgentOutputQualityGateOptions
     } = 1;
 
     /// <summary>
+    ///     When true, quality-gate auto-retry bumps <see cref="ArchLucid.Contracts.Agents.AgentTask.ModelTierOverride" />
+    ///     one step (Economy → Standard → Premium) before re-invoking the rejected agent (TB-682).
+    /// </summary>
+    public bool EscalateTierOnRetry
+    {
+        get;
+        set;
+    } = true;
+
+    /// <summary>
     ///     When a per-run token or USD cap (<see cref="MaxTokensPerRun" />, <see cref="MaxCostPerRun" />) is exceeded
     ///     after at least one agent handler returns, persist completed <see cref="ArchLucid.Contracts.Agents.AgentResult" />
     ///     rows plus evidence (orchestrator path). When false, the executor fails the batch without partial persistence.
