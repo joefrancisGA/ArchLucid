@@ -151,6 +151,9 @@ public static class AuditEventTypes
     /// <summary>Workspace curation: <c>PATCH /v1/architecture/run/{{runId}}/pin</c> set or toggled <c>dbo.Runs.IsPinned</c>.</summary>
     public const string RunPinStateChanged = "RunPinStateChanged";
 
+    /// <summary>Operator updated a Technology Ledger entry (<c>PATCH /v1/runs/{{runId}}/technology-ledger/{{entryId}}</c>).</summary>
+    public const string TechnologyLedgerEntryUpdated = "TechnologyLedgerEntryUpdated";
+
     /// <summary>Operator created a saved filter preset (<c>POST /v1/operator/saved-views</c>).</summary>
     public const string OperatorSavedViewCreated = "OperatorSavedView.Created";
 

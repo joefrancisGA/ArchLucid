@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 9 **drafted** below (not yet run). Prompt 8 **done** (see report below). Prompt 7 **done** (`e7eca24395`). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 9 **done** (see report below). Prompt 8 **done** (see report below). Prompt 7 **done** (`e7eca24395`). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -25,11 +25,11 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | **Done** (see Prompt 6 report) |
 | 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | **Done** (see Prompt 7 report) |
 | 8 | D.6 | Prompt template updates — closed-world clause, neutral-mode clause, alternative-labeling clause across all four system prompt templates | **Done** (see Prompt 8 report) |
-| 9 | D.7 | **API endpoint** — `GET`/`PATCH` ledger routes on the run so the UI has something to call (missing piece between the repository and the UI panel; not called out as its own fix in the assessment but required before step 10 can work) | **Drafted, not run** |
+| 9 | D.7 | **API endpoint** — `GET`/`PATCH` ledger routes on the run so the UI has something to call (missing piece between the repository and the UI panel; not called out as its own fix in the assessment but required before step 10 can work) | **Done** (see Prompt 9 report) |
 | 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | Not started |
 | 11 | D.9 | Golden-corpus consistency scenarios in CI | Not started |
 
-Prompts 1–9 are written out below. **Run Prompt 9** when ready, then ask for Prompt 10 to be drafted.
+Prompts 1–9 are written out below. **Run Prompt 10** when ready (ask to draft if not yet written).
 
 ---
 
@@ -1509,6 +1509,17 @@ Stop and report:
 - Commit hash.
 - Confirm agent/seed/finding-engine/artifact-lint/system-template/UI (Prompt 10) code was **not** touched.
 ```
+
+---
+
+## Prompt 9 — Report
+
+- **Routes:** `GET /v1/runs/{runId:guid}/technology-ledger` (`ReadAuthority`); `PATCH /v1/runs/{runId:guid}/technology-ledger/{entryId}` (`ExecuteAuthority`).
+- **PATCH validation:** locked rows reject `Status` / `TechnologyName` / `ProviderFamily` changes (unlock + rationale allowed); promoting to `Chosen` demotes other `Chosen` rows for the same role to `Alternative`; `Assumed` → `Chosen` sets `Source = User`; empty patch body rejected.
+- **Audit:** `AuditEventTypes.TechnologyLedgerEntryUpdated` with `entryId`, `role`, `status`, `isLocked` in `DataJson`.
+- **Test results:** `TechnologyLedgerRunCommandServiceTests` — **6/6 passed**; `TechnologyLedgerControllerTests` — compiled with `ArchLucid.Api` (Api.Tests solution build blocked by unrelated pre-existing `ArchitectureRunExecuteOrchestratorTestFactory` reference in another test file).
+- **Commit:** _(filled after push)_.
+- **Scope confirmation:** agent handlers, seeders, merge policies, `TechnologyConsistencyFindingEngine`, `PreCommitGovernanceGate`, artifact lint, system templates, and UI (Prompt 10) **not** touched.
 
 ---
 
