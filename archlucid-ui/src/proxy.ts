@@ -20,11 +20,7 @@ export function proxy(request: NextRequest) {
   }
 
   if (request.nextUrl.pathname === "/403") {
-    const response = NextResponse.next();
-
-    response.status = 403;
-
-    return response;
+    return NextResponse.next({ status: 403 });
   }
 
   return NextResponse.next();
