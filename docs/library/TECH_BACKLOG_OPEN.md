@@ -87,6 +87,7 @@ _Regenerated 2026-07-07. 36 open rows._
 
 | ID | Title |
 | --- | --- |
+| TB-683 | ~~Nightly real-mode eval loop~~ — **Done** (engineering automation; see `real-mode-eval-nightly.yml`) |
 | TB-140 | Real-mode eval corpus (all `simulator` today) |
 | TB-139 | Token usage in gate metrics (partial) |
 | TB-137 | Quad-agent live pipeline (owner re-run evidence) |

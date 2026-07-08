@@ -1,4 +1,4 @@
-"""TB-683 nightly real-mode eval trend artifact helpers."""
+"""TB-683 real-mode eval trend artifact and consecutive regression checks."""
 
 from __future__ import annotations
 
@@ -8,91 +8,64 @@ import sys
 from pathlib import Path
 
 
-def _load_eval_agent_corpus():
-    path = Path(__file__).resolve().parents[1] / "eval_agent_corpus.py"
-    spec = importlib.util.spec_from_file_location("eval_agent_corpus", path)
+def _load_module(name: str, relative_path: str):
+    path = Path(__file__).resolve().parents[1] / relative_path
+    spec = importlib.util.spec_from_file_location(name, path)
     mod = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
-    sys.modules["eval_agent_corpus"] = mod
+    sys.modules[name] = mod
     spec.loader.exec_module(mod)
     return mod
 
 
-def _load_assert_trend():
-    path = Path(__file__).resolve().parents[1] / "assert_real_mode_eval_regression_trend.py"
-    spec = importlib.util.spec_from_file_location("assert_real_mode_eval_regression_trend", path)
-    mod = importlib.util.module_from_spec(spec)
-    assert spec.loader is not None
-    sys.modules["assert_real_mode_eval_regression_trend"] = mod
-    spec.loader.exec_module(mod)
-    return mod
-
-
-def test_build_json_trend_report_includes_real_mode_agents(tmp_path):
-    mod = _load_eval_agent_corpus()
+def test_build_json_trend_report_includes_real_mode_agents():
+    eval_mod = _load_module("eval_agent_corpus", "eval_agent_corpus.py")
     rows = [
         {
-            "id": "scenario-real-mode-smoke",
+            "id": "corpus-real-mode-smoke",
             "quality": {
                 "mode": "real",
-                "agent_type": "Topology",
                 "gate_outcome": "accepted",
-                "structural_ratio": 0.9,
-                "overall_semantic": 0.8,
-                "aggregate_score": 0.85,
+                "structural_ratio": 0.95,
+                "overall_semantic": 0.88,
+                "faithfulness_support_ratio": 0.7,
             },
-        }
-    ]
-    gate_snapshot = {"would_fail_exit": False}
-
-    payload = mod.build_json_trend_report(rows, tmp_path, gate_snapshot=gate_snapshot)
-
-    assert payload["schema"] == "archlucid.real-mode-eval-nightly.v1"
-    assert len(payload["agents"]) == 1
-    assert payload["agents"][0]["agentType"] == "Topology"
-    assert payload["meanEvaluatedAggregateScore"] == 0.85
-
-
-def test_assert_regression_trend_warns_on_two_floor_breaches(tmp_path, capsys, monkeypatch):
-    trend_mod = _load_eval_agent_corpus()
-    assert_mod = _load_assert_trend()
-    history = tmp_path / "artifacts" / "real-mode-eval-nightly"
-    prior_dir = history / "2026-07-06"
-    previous_dir = history / "2026-07-07"
-    current_dir = history / "2026-07-08"
-    gate = {"would_fail_exit": True}
-    rows = [
+        },
         {
-            "id": "scenario-real-mode-smoke",
+            "id": "corpus-azure-web-app",
             "quality": {
-                "mode": "real",
-                "agent_type": "Topology",
-                "aggregate_score": 0.5,
+                "mode": "simulator",
+                "gate_outcome": "accepted",
             },
-        }
+        },
     ]
+    gate_snapshot = {"baseline_failed": False, "real_gate_failed": False}
 
-    for day_dir in (prior_dir, previous_dir, current_dir):
-        day_dir.mkdir(parents=True)
-        trend_mod.write_json_trend_report(
-            day_dir / "trend.json",
-            trend_mod.build_json_trend_report(rows, tmp_path, gate_snapshot=gate),
-        )
+    doc = eval_mod.build_json_trend_report(rows, gate_snapshot=gate_snapshot)
 
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        [
-            "assert_real_mode_eval_regression_trend.py",
-            "--current",
-            str(current_dir / "trend.json"),
-            "--history-root",
-            str(history),
-        ],
+    assert doc["realModeRollup"]["total"] == 1
+    assert len(doc["agents"]) == 1
+    assert doc["agents"][0]["scenarioId"] == "corpus-real-mode-smoke"
+    assert doc["agents"][0]["aggregateScore"] is not None
+
+
+def test_check_consecutive_regression_warns_on_two_nights(tmp_path: Path):
+    trend_mod = _load_module(
+        "assert_real_mode_eval_consecutive_regression",
+        "assert_real_mode_eval_consecutive_regression.py",
     )
-    exit_code = assert_mod.main()
+    payload = {
+        "gateSnapshot": {"baseline_failed": True},
+        "baselineComparisons": [{"failed": True}],
+    }
+    current = tmp_path / "current.json"
+    previous = tmp_path / "previous.json"
+    current.write_text(json.dumps(payload), encoding="utf-8")
+    previous.write_text(json.dumps(payload), encoding="utf-8")
 
-    captured = capsys.readouterr()
+    warnings = trend_mod.check_consecutive_regression(
+        trend_mod._load_trend(current),
+        trend_mod._load_trend(previous),
+    )
 
-    assert exit_code == 0
-    assert "Two consecutive nightly real-mode eval runs breached enforced floors" in captured.err
+    assert len(warnings) == 1

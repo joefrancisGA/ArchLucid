@@ -995,38 +995,14 @@ def _real_mode_quality_rollup(rows: Sequence[Mapping[str, Any]]) -> dict[str, An
     }
 
 
-def _mean_evaluated_aggregate_score(rows: Sequence[Mapping[str, Any]]) -> float | None:
-    scores: list[float] = []
-
-    for row in rows:
-        quality = row.get("quality")
-
-        if not isinstance(quality, dict):
-            continue
-
-        if quality.get("mode") != "real" or quality.get("skipped") or quality.get("error"):
-            continue
-
-        aggregate = quality.get("aggregate_score")
-
-        if aggregate is None:
-            continue
-
-        scores.append(float(aggregate))
-
-    if not scores:
-        return None
-
-    return sum(scores) / len(scores)
-
-
 def build_json_trend_report(
     rows: Sequence[Mapping[str, Any]],
-    corpus_root: Path,
     *,
     gate_snapshot: Mapping[str, Any],
+    baseline_comparisons: Sequence[Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    generated_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+    """TB-683 nightly artifact: agent-level real-mode scores + gate posture."""
+
     agents: list[dict[str, Any]] = []
 
     for row in rows:
@@ -1035,38 +1011,33 @@ def build_json_trend_report(
         if not isinstance(quality, dict) or quality.get("mode") != "real":
             continue
 
+        aggregate_score = quality.get("aggregate_score")
+
+        if aggregate_score is None and _is_baseline_eligible_quality(quality):
+            aggregate_score = quality_to_baseline_metrics(quality).get("aggregateScore")
+
         agents.append(
             {
                 "scenarioId": str(row.get("id") or ""),
-                "agentType": str(quality.get("agent_type") or "(unspecified)"),
                 "skipped": bool(quality.get("skipped")),
                 "error": quality.get("error"),
                 "gateOutcome": quality.get("gate_outcome"),
                 "structuralRatio": quality.get("structural_ratio"),
                 "overallSemantic": quality.get("overall_semantic"),
-                "aggregateScore": quality.get("aggregate_score"),
-                "llmFaithfulnessScore": (
-                    (quality.get("semanticScore") or {}).get("llmFaithfulnessScore")
-                    if isinstance(quality.get("semanticScore"), dict)
-                    else None
-                ),
+                "faithfulnessSupportRatio": quality.get("faithfulness_support_ratio"),
+                "llmFaithfulnessScore": quality.get("llm_faithfulness_score"),
+                "aggregateScore": aggregate_score,
             }
         )
 
     return {
-        "schema": "archlucid.real-mode-eval-nightly.v1",
-        "generatedAtUtc": generated_at,
-        "corpusRoot": corpus_root.as_posix(),
+        "capturedUtc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "rubricVersion": _BASELINE_RUBRIC_VERSION,
         "realModeRollup": _real_mode_quality_rollup(rows),
-        "meanEvaluatedAggregateScore": _mean_evaluated_aggregate_score(rows),
-        "gate": dict(gate_snapshot),
+        "gateSnapshot": dict(gate_snapshot),
         "agents": agents,
+        "baselineComparisons": list(baseline_comparisons or []),
     }
-
-
-def write_json_trend_report(path: Path, payload: Mapping[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(dict(payload), indent=2) + "\n", encoding="utf-8")
 
 
 def render_markdown_report(
@@ -1464,6 +1435,12 @@ def main() -> int:
         help="Write Markdown summary (simulator vs real paths, metrics, remediation).",
     )
     parser.add_argument(
+        "--json-report",
+        type=Path,
+        default=None,
+        help="Write TB-683 JSON trend artifact (real-mode agent scores + gate snapshot).",
+    )
+    parser.add_argument(
         "--enforce-quality-gate",
         action="store_true",
         help="Exit non-zero when any simulator-mode quality row gate_outcome is rejected (real mode excluded).",
@@ -1511,12 +1488,6 @@ def main() -> int:
             "Exit non-zero when Phase B LLM faithfulness floors fail "
             "(positive p50, absolute floor, adversarial ceiling)."
         ),
-    )
-    parser.add_argument(
-        "--json-report",
-        type=Path,
-        default=None,
-        help="Write structured JSON trend artifact for nightly real-mode eval (TB-683).",
     )
     args = parser.parse_args()
 
@@ -1792,10 +1763,13 @@ def main() -> int:
         args.markdown_report.write_text(md, encoding="utf-8")
 
     if args.json_report is not None:
-        write_json_trend_report(
-            args.json_report,
-            build_json_trend_report(rows, corpus_root, gate_snapshot=gate_snapshot),
+        trend_doc = build_json_trend_report(
+            rows,
+            gate_snapshot=gate_snapshot,
+            baseline_comparisons=baseline_comparisons if args.baseline else None,
         )
+        args.json_report.parent.mkdir(parents=True, exist_ok=True)
+        args.json_report.write_text(json.dumps(trend_doc, indent=2) + "\n", encoding="utf-8")
 
     if args.enforce and failed:
         print("::error::corpus enforce failed", file=sys.stderr)
