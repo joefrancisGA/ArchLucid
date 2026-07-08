@@ -4,9 +4,9 @@
 
 **Audience:** pilots, procurement, CS, and sellers explaining what governance content ships **in-tenant by default**.
 
-**Objective:** Declare **25** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / embedded manifest `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`).
+**Objective:** Declare **41** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / embedded manifest `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`).
 
-> **Note:** Pack **#25 — Snowflake Security** ships in the bundled manifest as `snowflake-security.json` ([`docs/samples/policy-packs/snowflake-security/README.md`](../samples/policy-packs/snowflake-security/README.md)). The manifest ships **25** content files aligned with tenant provisioning.
+> **Note:** Pack **#25 — Snowflake Security** ships in the bundled manifest as `snowflake-security.json` ([`docs/samples/policy-packs/snowflake-security/README.md`](../samples/policy-packs/snowflake-security/README.md)). The manifest ships **41** content files aligned with tenant provisioning (25 original V1 GA packs plus **16** AWS/GCP peer packs for multi-cloud parity).
 
 ## The "Brain" of the Governance Model
 
@@ -54,10 +54,26 @@ All rows below are seeded as **`PlatformDefault`** (Operator UI: **Bundled defau
 | 23 | Data platform | Azure SQL / Cosmos DB Data-Layer Security | `az-data-001` … | |
 | 24 | Compliance | ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) | `arc-ampe-pillar-*`, `arc-ampe-id-*`, … | Spec: [`POLICY_PACK_ARC_AMPE_DESIGN.md`](../library/POLICY_PACK_ARC_AMPE_DESIGN.md) |
 | **25** | **Data platform security** | **Snowflake Security** | `sf-id-001`, `sf-rbac-001`, `sf-prot-001`, `sf-stage-001`, … | **Full curated corpus (57 rules)** — [`snowflake-security/README.md`](../samples/policy-packs/snowflake-security/README.md) |
+| 26 | Architecture | AWS Well-Architected Framework | `waf-aws-001` … | AWS inventory + Terraform `aws_*` evidence |
+| 27 | Architecture | Google Cloud Architecture Framework | `waf-gcp-001` … | GCP inventory + Terraform `google_*` evidence |
+| 28 | Security | CIS AWS Foundations Benchmark | `cis-aws-001` … | Peer to CIS Azure pack |
+| 29 | Security | CIS Google Cloud Platform Foundation Benchmark | `cis-gcp-001` … | Peer to CIS Azure pack |
+| 30 | Identity | AWS IAM / Identity Center Architecture Baseline | `iam-aws-001` … | Peer to Entra IAM pack |
+| 31 | Identity | GCP Cloud IAM Architecture Baseline | `iam-gcp-001` … | Peer to Entra IAM pack |
+| 32 | Platform | AWS Landing Zone / Control Tower | `lz-aws-001` … | Peer to Azure CAF/LZ pack |
+| 33 | Platform | GCP Landing Zone / Resource Hierarchy | `lz-gcp-001` … | Peer to Azure CAF/LZ pack |
+| 34 | Reliability | AWS Resiliency & Disaster Recovery | `aws-dr-001` … | Peer to Azure resiliency pack |
+| 35 | Reliability | GCP Resiliency & Disaster Recovery | `gcp-dr-001` … | Peer to Azure resiliency pack |
+| 36 | Platform | EKS Production Baseline | `eks-001` … | Peer to AKS pack |
+| 37 | Platform | GKE Production Baseline | `gke-001` … | Peer to AKS pack |
+| 38 | Application platform | AWS Serverless & PaaS Security | `aws-paas-001` … | Peer to Azure PaaS pack |
+| 39 | Application platform | GCP Serverless & PaaS Security | `gcp-paas-001` … | Peer to Azure PaaS pack |
+| 40 | Data platform | AWS Data-Layer Security | `aws-data-001` … | Peer to Azure data-layer pack |
+| 41 | Data platform | GCP Data-Layer Security | `gcp-data-001` … | Peer to Azure data-layer pack |
 
 **Appendices (selected):** **[`POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](../library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md)** · **[`POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`](../library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md)**
 
-Assignments are seeded **enabled** (`PolicyPackAssignments.IsEnabled = true`); merges participate in **`PolicyPackResolver`** like any other activated assignment.
+Assignments seed **cloud-neutral + Azure baseline** packs **enabled** by default (`PolicyPackAssignments.IsEnabled = true` for `DefaultPolicyPackCatalog.ResolveStandardBaselineDisplayNames(CloudProvider.Azure)`); AWS/GCP-specific baselines auto-enable when a run targets `CloudProvider.Aws` or `CloudProvider.Gcp` via `DefaultPolicyPackCloudBaselineApplicator`. Merges participate in **`PolicyPackResolver`** like any other activated assignment.
 
 ---
 

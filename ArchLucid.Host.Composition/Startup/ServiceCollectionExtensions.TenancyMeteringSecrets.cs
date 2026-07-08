@@ -57,6 +57,7 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<ApiRequestUsageEventBatchFlushHostedService>();
         services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();
         services.AddScoped<IDefaultPolicyPackSeeder, DefaultPolicyPackSeeder>();
+        services.AddScoped<DefaultPolicyPackCloudBaselineApplicator>();
         services.AddScoped<ITrialTenantBootstrapService, TrialTenantBootstrapService>();
         services.AddScoped<IMarketingAttributionService, MarketingAttributionService>();
         services.AddScoped<TrialLimitGate>();

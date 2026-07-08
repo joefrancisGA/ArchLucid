@@ -1,0 +1,444 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "Google Cloud Architecture Framework",
+    "description": "Reviewer prompts mapped to Google Cloud Architecture Framework themes. Grounded in read-only GCP inventory ZIP output and Terraform google_* evidence. Not Google Cloud Ready or official GCP architecture certification.",
+    "version": "1.0.0",
+    "category": "Architecture",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/gcp-architecture-framework.json"
+  },
+  "rules": [
+    {
+      "id": "waf-gcp-001",
+      "title": "Reliability \u2014 regional and zone redundancy documented",
+      "description": "When resources.json lists workloads across multiple GCP regions or availability zones, the architecture narrative must explain failover, RTO/RPO, and traffic routing assumptions.",
+      "severity": "High",
+      "remediationGuidance": "Correlate location fields on google_Compute/virtualMachines, google_Sql/servers, and paired storage rows in resources.json; document active/active vs active/passive stance in governance.RequiredControls and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "gcpExtractor.manifest.manifest.RawJson",
+        "gcpExtractor.manifest.manifest.ScopeDescriptor",
+        "governance.RequiredControls",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Reliability \u2014 Design for failure and redundancy (pillar theme)"
+        }
+      ],
+      "priority": "P0"
+    },
+    {
+      "id": "waf-gcp-002",
+      "title": "Reliability \u2014 backup and recovery expectations for stateful services",
+      "description": "SQL, storage, and Firestore or Spanner-class data planes inventoried in resources.json must show documented backup retention and restore testing commitments.",
+      "severity": "High",
+      "remediationGuidance": "Align datastores[].DatastoreType and RuntimePlatform with governance.PolicyConstraints naming backup cadence; cite extractor CollectionTimestamp when comparing inventory freshness to DR drill records.",
+      "evidenceHints": [
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "governance.PolicyConstraints",
+        "gcpExtractor.manifest.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Reliability \u2014 Backup and disaster recovery (pillar theme)"
+        }
+      ],
+      "priority": "P0"
+    },
+    {
+      "id": "waf-gcp-003",
+      "title": "Reliability \u2014 health monitoring for compute and PaaS hosts",
+      "description": "Cloud Run, Cloud Run or GKE, GKE, and load-balanced VM tiers should declare health probe and autoscale expectations traceable to manifest services.",
+      "severity": "Medium",
+      "remediationGuidance": "Record probe and scaling policies on services[].Tags and RequiredControls; when diagnostic exports exist in RawJson, confirm Application Insights or platform health signals are enabled.",
+      "evidenceHints": [
+        "services[].Tags",
+        "services[].RequiredControls",
+        "services[].RuntimePlatform",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "gcpExtractor.manifest.manifest.SwitchesUsed",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Reliability \u2014 Monitoring and health models (pillar theme)"
+        }
+      ],
+      "priority": "P1"
+    },
+    {
+      "id": "waf-gcp-004",
+      "title": "Security \u2014 sensitive PaaS uses private connectivity",
+      "description": "High-sensitivity datastores must not rely on implicit public network paths when landing-zone standards expect Private Service Connect.",
+      "severity": "Critical",
+      "remediationGuidance": "Set PrivateEndpointRequired=true on regulated datastores[] and align governance.ComplianceTags; cross-check google_Network/privateEndpoints rows in resources.json when network inventory switches were enabled.",
+      "evidenceHints": [
+        "datastores[].PrivateEndpointRequired",
+        "governance.ComplianceTags",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "gcpExtractor.manifest.manifest.SwitchesUsed",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Security \u2014 Secure networking and private access (pillar theme)"
+        }
+      ],
+      "priority": "P1"
+    },
+    {
+      "id": "waf-gcp-005",
+      "title": "Security \u2014 encryption at rest for persisted data",
+      "description": "Manifest datastores carrying customer or regulated payloads must assert EncryptionAtRestRequired consistent with platform CMK or Microsoft-managed key posture.",
+      "severity": "High",
+      "remediationGuidance": "Ensure EncryptionAtRestRequired=true on sensitive datastores[]; document key custody (Cloud KMS, HSM) in governance.RequiredControls and relate to google_KeyVault/vaults inventory when present in resources.json.",
+      "evidenceHints": [
+        "datastores[].EncryptionAtRestRequired",
+        "governance.RequiredControls",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "relationships",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Security \u2014 Protect data at rest (pillar theme)"
+        }
+      ],
+      "priority": "P1"
+    },
+    {
+      "id": "waf-gcp-006",
+      "title": "Security \u2014 GCP Policy compliance states reviewed",
+      "description": "When org-policy compliance exports is included in the extractor ZIP, non-compliant assignments should be dispositioned or risk-accepted with traceable governance narrative.",
+      "severity": "High",
+      "remediationGuidance": "Summarize Policy Insights non-compliance themes from org-policy compliance exports in governance.PolicyConstraints; cite SubscriptionId and ScopeDescriptor for audit scope alignment.",
+      "evidenceHints": [
+        "gcpExtractor.manifest.manifest.SubscriptionId",
+        "gcpExtractor.manifest.manifest.ScopeDescriptor",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "governance.PolicyConstraints",
+        "governance.RiskClassification",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Security \u2014 Governance and regulatory compliance (pillar theme)"
+        }
+      ],
+      "priority": "P1"
+    },
+    {
+      "id": "waf-gcp-007",
+      "title": "Cost Optimization \u2014 compute SKUs justified against workload class",
+      "description": "google_Compute/virtualMachines rows in resources.json should map vmSize choices to documented workload tiers; optional GCP Billing Catalog grounding supports unit-cost reasoning when IncludeRetailPrices was collected.",
+      "severity": "Medium",
+      "remediationGuidance": "Correlate properties.vmSize in resources.json with governance.PolicyConstraints; when GCP Billing Catalog grounding is absent, note that only inventory counts\u2014not catalog estimates\u2014are available until re-collection.",
+      "evidenceHints": [
+        "gcpExtractor.manifest.manifest.SwitchesUsed",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Cost Optimization \u2014 Right-size resources (pillar theme)"
+        }
+      ],
+      "priority": "P2"
+    },
+    {
+      "id": "waf-gcp-008",
+      "title": "Cost Optimization \u2014 resource tagging supports allocation",
+      "description": "GCP API inventory tags on resources.json rows should support cost allocation, environment classification, and owner attribution expected by FinOps practices.",
+      "severity": "Low",
+      "remediationGuidance": "Audit tags on inventoried resources and mirror mandatory tag keys in services[].Tags and governance.ComplianceTags for manifest services not yet exported to GCP.",
+      "evidenceHints": [
+        "gcpExtractor.manifest.manifest.RawJson",
+        "services[].Tags",
+        "governance.ComplianceTags",
+        "gcpExtractor.manifest.manifest.SubscriptionId",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Cost Optimization \u2014 Improve cost visibility (pillar theme)"
+        }
+      ],
+      "priority": "P2"
+    },
+    {
+      "id": "waf-gcp-009",
+      "title": "Operational Excellence \u2014 centralized logging and diagnostics",
+      "description": "Platform diagnostics should converge to Log Analytics or equivalent sinks when GCP workloads emit audit and resource logs.",
+      "severity": "High",
+      "remediationGuidance": "Tag observability commitments on services[].Tags; cite extractor ScriptVersion and RawJson summaries when diagnostic settings exports accompany the package.",
+      "evidenceHints": [
+        "services[].Tags",
+        "gcpExtractor.manifest.manifest.ScriptVersion",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "governance.RequiredControls",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Operational Excellence \u2014 Observability (pillar theme)"
+        }
+      ],
+      "priority": "P2"
+    },
+    {
+      "id": "waf-gcp-010",
+      "title": "Operational Excellence \u2014 extractor evidence freshness documented",
+      "description": "Architecture reviews citing GCP inventory must record when evidence was collected and which extractor switches shaped the ZIP contents.",
+      "severity": "Medium",
+      "remediationGuidance": "Always cite gcpExtractor.manifest.CollectionTimestamp, SchemaVersion, and SwitchesUsed in metadata.ChangeDescription; upgrade AzModuleVersion when collector scripts change materially.",
+      "evidenceHints": [
+        "gcpExtractor.manifest.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.manifest.SchemaVersion",
+        "gcpExtractor.manifest.manifest.SwitchesUsed",
+        "gcpExtractor.manifest.manifest.AzModuleVersion",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Operational Excellence \u2014 Operational procedures and evidence hygiene (pillar theme)"
+        }
+      ],
+      "priority": "P2"
+    },
+    {
+      "id": "waf-gcp-011",
+      "title": "Performance Efficiency \u2014 autoscale and SKU tier choices explained",
+      "description": "Compute and PaaS SKUs (VM sizes, Cloud Run plans, SQL tiers) inventoried in resources.json require performance rationale when latency or throughput SLOs apply.",
+      "severity": "Medium",
+      "remediationGuidance": "Document scale rules and SKU decisions in governance.PolicyConstraints; relate google_Web/serverfarms and google_Sql/servers SKUs to services[].Purpose narratives.",
+      "evidenceHints": [
+        "gcpExtractor.manifest.manifest.RawJson",
+        "services[].Purpose",
+        "services[].RuntimePlatform",
+        "governance.PolicyConstraints",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Performance Efficiency \u2014 Select appropriate compute and data services (pillar theme)"
+        }
+      ],
+      "priority": "P2"
+    },
+    {
+      "id": "waf-gcp-012",
+      "title": "Performance Efficiency \u2014 edge delivery for internet-facing HTTP APIs",
+      "description": "Externally reachable APIs should describe CDN, GCP Front Door, or Application Gateway caching and TLS termination patterns that reduce origin load.",
+      "severity": "Medium",
+      "remediationGuidance": "Note edge attachment on ingress services[].Tags and relationships; when google_Cdn or google_Network/frontDoors rows appear in resources.json, tie caching policies to governance.RequiredControls.",
+      "evidenceHints": [
+        "services[].Tags",
+        "relationships[].relationshipType",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "governance.RequiredControls",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Performance Efficiency \u2014 Use caching and content delivery (pillar theme)"
+        }
+      ],
+      "priority": "P2"
+    },
+    {
+      "id": "waf-gcp-013",
+      "title": "Sovereign region pinning for regulated data planes",
+      "description": "When governance.ComplianceTags imply sovereignty or residency constraints, every inventoried data plane in resources.json must stay inside the declared geography; cross-region replication requires an explicit exception narrative.",
+      "severity": "Critical",
+      "remediationGuidance": "Map datastores[].Region and services[].Region against governance.ComplianceTags; flag paired-region DR only when metadata.ChangeDescription cites an approved residency exception.",
+      "evidenceHints": [
+        "datastores[].Region",
+        "services[].Region",
+        "governance.ComplianceTags",
+        "gcpExtractor.manifest.manifest.ScopeDescriptor",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Security \u2014 Data sovereignty and residency (pillar theme)"
+        }
+      ],
+      "priority": "P0"
+    },
+    {
+      "id": "waf-gcp-014",
+      "title": "Customer-managed key rotation cadence",
+      "description": "Stateful services using CMK encryption must document rotation ownership and maximum key age; silent long-lived keys are a review blocker for regulated tiers.",
+      "severity": "High",
+      "remediationGuidance": "Reference Cloud KMS key names in governance.RequiredControls and tie rotation cadence to governance.PolicyConstraints; cite resources.json Cloud KMS and storage encryption rows when present.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "governance.PolicyConstraints",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].RequiredControls",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Security \u2014 Protect data with encryption and key governance (pillar theme)"
+        }
+      ],
+      "priority": "P1"
+    },
+    {
+      "id": "waf-gcp-015",
+      "title": "Idle and orphaned spend retirement policy",
+      "description": "Advisor cost and orphan-candidate rows in the extractor ZIP must map to an explicit retirement or exemption decision \u2014 not linger as unnamed technical debt.",
+      "severity": "Medium",
+      "remediationGuidance": "Link orphan-candidates.json and advisor-cost.json entries to findings with owner and target retirement date; use governance.CostClassification to mark accepted carry cost.",
+      "evidenceHints": [
+        "gcpExtractor.manifest.manifest.SwitchesUsed",
+        "governance.CostClassification",
+        "metadata.ChangeDescription",
+        "findings[].Recommendation",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Cost Optimization \u2014 Eliminate waste and orphaned resources (pillar theme)"
+        }
+      ],
+      "priority": "P1"
+    },
+    {
+      "id": "waf-gcp-016",
+      "title": "Generative AI endpoint rate and quota guardrails",
+      "description": "Architecture narratives that expose LLM or embedding endpoints must document per-tenant throttling, budget cutoffs, and abuse detection \u2014 not unbounded inference surfaces.",
+      "severity": "High",
+      "remediationGuidance": "Record quota and budget policies on services[].Tags for GCP OpenAI / AI Search hosts; align with governance.PolicyConstraints for PilotStrict or production inference tiers.",
+      "evidenceHints": [
+        "services[].Tags",
+        "services[].Purpose",
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Reliability \u2014 Protect workloads with rate limits and capacity guardrails (pillar theme)"
+        }
+      ],
+      "priority": "P0"
+    },
+    {
+      "id": "waf-gcp-017",
+      "title": "Hub-spoke peering and firewall inspection path",
+      "description": "Multi-subscription or hub-spoke designs must show which traffic paths are inspected by GCP Firewall or NVA \u2014 peering alone is not a security control.",
+      "severity": "High",
+      "remediationGuidance": "Document inspection points in relationships[].relationshipType and governance.RequiredControls; correlate google_Network/virtualNetworks and firewall resources from resources.json.",
+      "evidenceHints": [
+        "relationships[].relationshipType",
+        "governance.RequiredControls",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "topology.Resources",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft GCP Well-Architected",
+          "requirement": "Security \u2014 Network segmentation and inspected east-west paths (pillar theme)"
+        }
+      ],
+      "priority": "P1"
+    }
+  ]
+}

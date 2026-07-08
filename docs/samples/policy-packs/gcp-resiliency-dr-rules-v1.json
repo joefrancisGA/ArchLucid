@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "GCP Resiliency & Disaster Recovery",
+    "description": "Multi-region GCE/Cloud SQL, Cloud DNS failover, and backup/DR themes for GCP workloads.",
+    "version": "1.0.0",
+    "category": "Reliability",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/gcp-resiliency-dr.json"
+  },
+  "rules": [
+    {
+      "id": "gcp-dr-001",
+      "title": "GCP Resiliency & Disaster Recovery \u2014 control theme 1",
+      "description": "Architecture manifest and GCP extractor evidence should support: gcp resiliency & disaster recovery \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Well-Architected",
+          "theme": "Reliability \u2014 DR"
+        }
+      ]
+    },
+    {
+      "id": "gcp-dr-002",
+      "title": "GCP Resiliency & Disaster Recovery \u2014 control theme 2",
+      "description": "Architecture manifest and GCP extractor evidence should support: gcp resiliency & disaster recovery \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Well-Architected",
+          "theme": "Backup"
+        }
+      ]
+    },
+    {
+      "id": "gcp-dr-003",
+      "title": "GCP Resiliency & Disaster Recovery \u2014 control theme 3",
+      "description": "Architecture manifest and GCP extractor evidence should support: gcp resiliency & disaster recovery \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Well-Architected",
+          "theme": "Failover"
+        }
+      ]
+    },
+    {
+      "id": "gcp-dr-004",
+      "title": "GCP Resiliency & Disaster Recovery \u2014 control theme 4",
+      "description": "Architecture manifest and GCP extractor evidence should support: gcp resiliency & disaster recovery \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Well-Architected",
+          "theme": "Reliability \u2014 DR"
+        }
+      ]
+    },
+    {
+      "id": "gcp-dr-005",
+      "title": "GCP Resiliency & Disaster Recovery \u2014 control theme 5",
+      "description": "Architecture manifest and GCP extractor evidence should support: gcp resiliency & disaster recovery \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Well-Architected",
+          "theme": "Backup"
+        }
+      ]
+    },
+    {
+      "id": "gcp-dr-006",
+      "title": "GCP Resiliency & Disaster Recovery \u2014 control theme 6",
+      "description": "Architecture manifest and GCP extractor evidence should support: gcp resiliency & disaster recovery \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Well-Architected",
+          "theme": "Failover"
+        }
+      ]
+    },
+    {
+      "id": "gcp-dr-007",
+      "title": "GCP Resiliency & Disaster Recovery \u2014 control theme 7",
+      "description": "Architecture manifest and GCP extractor evidence should support: gcp resiliency & disaster recovery \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Well-Architected",
+          "theme": "Reliability \u2014 DR"
+        }
+      ]
+    },
+    {
+      "id": "gcp-dr-008",
+      "title": "GCP Resiliency & Disaster Recovery \u2014 control theme 8",
+      "description": "Architecture manifest and GCP extractor evidence should support: gcp resiliency & disaster recovery \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Well-Architected",
+          "theme": "Backup"
+        }
+      ]
+    },
+    {
+      "id": "gcp-dr-009",
+      "title": "GCP Resiliency & Disaster Recovery \u2014 control theme 9",
+      "description": "Architecture manifest and GCP extractor evidence should support: gcp resiliency & disaster recovery \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Well-Architected",
+          "theme": "Failover"
+        }
+      ]
+    },
+    {
+      "id": "gcp-dr-010",
+      "title": "GCP Resiliency & Disaster Recovery \u2014 control theme 10",
+      "description": "Architecture manifest and GCP extractor evidence should support: gcp resiliency & disaster recovery \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Well-Architected",
+          "theme": "Reliability \u2014 DR"
+        }
+      ]
+    }
+  ]
+}

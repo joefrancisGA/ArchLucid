@@ -199,10 +199,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
-            new TechnologyLedgerRequestSeeder(new InMemoryTechnologyLedgerRepository(), TimeProvider.System),
-            TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
-                new InMemoryTechnologyLedgerRepository(),
-                scopeProvider.Object),
+            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         const int parallel = 64;
@@ -321,10 +318,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
-            new TechnologyLedgerRequestSeeder(new InMemoryTechnologyLedgerRepository(), TimeProvider.System),
-            TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
-                new InMemoryTechnologyLedgerRepository(),
-                scopeProvider.Object),
+            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         const int parallel = 64;

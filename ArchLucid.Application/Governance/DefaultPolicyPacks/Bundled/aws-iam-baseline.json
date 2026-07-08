@@ -1,0 +1,32 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "iam-aws-001",
+    "iam-aws-002",
+    "iam-aws-003",
+    "iam-aws-004",
+    "iam-aws-005",
+    "iam-aws-006",
+    "iam-aws-007",
+    "iam-aws-008",
+    "iam-aws-009",
+    "iam-aws-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "aws-iam-baseline-v1",
+    "pack.displayName": "AWS IAM / Identity Center Architecture Baseline",
+    "pack.category": "Identity",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "IAM, Organizations SCP, Identity Center, and workload identity themes for AWS architectures.",
+    "frameworkMappingDisclaimer": "Identity mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/aws-iam-baseline-rules-v1.json"
+  }
+}

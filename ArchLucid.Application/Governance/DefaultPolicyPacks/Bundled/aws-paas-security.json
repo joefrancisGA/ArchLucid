@@ -1,0 +1,32 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "aws-paas-001",
+    "aws-paas-002",
+    "aws-paas-003",
+    "aws-paas-004",
+    "aws-paas-005",
+    "aws-paas-006",
+    "aws-paas-007",
+    "aws-paas-008",
+    "aws-paas-009",
+    "aws-paas-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "aws-paas-security-v1",
+    "pack.displayName": "AWS Serverless & PaaS Security",
+    "pack.category": "Application Platform",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Lambda, API Gateway, App Runner, and ECS Fargate identity and network exposure themes.",
+    "frameworkMappingDisclaimer": "PaaS mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/aws-paas-security-rules-v1.json"
+  }
+}

@@ -12,7 +12,7 @@ public sealed class DefaultPolicyPackBundledManifestTests
     {
         IReadOnlyList<DefaultPolicyPackBundleDefinition> bundles = DefaultPolicyPackBundledManifest.LoadBundles();
 
-        bundles.Should().HaveCount(25);
+        bundles.Should().HaveCount(41);
         bundles.Should().OnlyContain(b => !string.IsNullOrWhiteSpace(b.DisplayName));
         bundles.Should().OnlyContain(b => !string.IsNullOrWhiteSpace(b.Description));
         bundles.Should().OnlyContain(b => b.ContentJson.Contains("complianceRuleKeys", StringComparison.Ordinal));

@@ -1,6 +1,6 @@
-using ArchLucid.Application.Tests.Orchestration;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Tests.Orchestration;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
@@ -230,10 +230,6 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
             Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
-            new TechnologyLedgerRequestSeeder(new InMemoryTechnologyLedgerRepository(), TimeProvider.System),
-            TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
-                new InMemoryTechnologyLedgerRepository(),
-                scopeContextProvider),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }

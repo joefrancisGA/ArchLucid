@@ -4,6 +4,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Metadata;
@@ -54,8 +55,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IRunStateTransitionService runStateTransitionService,
     TimeProvider timeProvider,
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
-    TechnologyLedgerRequestSeeder technologyLedgerRequestSeeder,
-    TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
+    DefaultPolicyPackCloudBaselineApplicator defaultPolicyPackCloudBaselineApplicator,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
     private readonly IOptions<ArchitectureRunCreateOptions> _createRunOptions = createRunOptions ?? throw new ArgumentNullException(nameof(createRunOptions));
@@ -63,11 +63,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
     private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
         requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
 
-    private readonly TechnologyLedgerRequestSeeder _technologyLedgerRequestSeeder =
-        technologyLedgerRequestSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerRequestSeeder));
-
-    private readonly TechnologyLedgerEvidenceSeeder _technologyLedgerEvidenceSeeder =
-        technologyLedgerEvidenceSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerEvidenceSeeder));
+    private readonly DefaultPolicyPackCloudBaselineApplicator _defaultPolicyPackCloudBaselineApplicator =
+        defaultPolicyPackCloudBaselineApplicator ?? throw new ArgumentNullException(nameof(defaultPolicyPackCloudBaselineApplicator));
 
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
@@ -353,8 +350,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
             _logger.LogInformation("Architecture run created: RunId={RunId}, TaskCount={TaskCount}", LogSanitizer.Sanitize(coordination.Run.RunId),
                 coordination.Tasks.Count);
         await TryRecordArchitectureRunMeteringAsync(_scopeContextProvider.GetCurrentScope(), coordination.Run.RunId, cancellationToken);
-        await TrySeedTechnologyLedgerFromRequestAsync(request, coordination.Run.RunId, cancellationToken);
-        await TrySeedTechnologyLedgerFromEvidenceAsync(request, coordination.Run.RunId, cancellationToken);
+        await TryApplyCloudPolicyPackBaselineAsync(request, cancellationToken);
         return new CreateRunResult { Run = coordination.Run, EvidenceBundle = coordination.EvidenceBundle, Tasks = coordination.Tasks };
     }
 
@@ -373,35 +369,26 @@ public sealed class ArchitectureRunCreateOrchestrator(
             Convert.ToHexString(hash));
     }
 
-    private async Task TrySeedTechnologyLedgerFromRequestAsync(
+    private async Task TryApplyCloudPolicyPackBaselineAsync(
         ArchitectureRequest request,
-        string runId,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            await _technologyLedgerRequestSeeder.SeedAsync(runId, request, cancellationToken);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning(
-                    ex,
-                    "Technology ledger seeding failed for architecture run (RunId={RunId}).",
-                    LogSanitizer.Sanitize(runId));
-            }
-        }
-    }
+        if (request.CloudProvider is not (CloudProvider.Aws or CloudProvider.Gcp))
+            return;
 
-    private async Task TrySeedTechnologyLedgerFromEvidenceAsync(
-        ArchitectureRequest request,
-        string runId,
-        CancellationToken cancellationToken)
-    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (scope.TenantId == Guid.Empty)
+            return;
+
         try
         {
-            await _technologyLedgerEvidenceSeeder.SeedAsync(runId, request, cancellationToken);
+            await _defaultPolicyPackCloudBaselineApplicator.TryApplyAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                request.CloudProvider,
+                cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -409,8 +396,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
             {
                 _logger.LogWarning(
                     ex,
-                    "Technology ledger evidence seeding failed for architecture run (RunId={RunId}).",
-                    LogSanitizer.Sanitize(runId));
+                    "Cloud policy pack baseline adjustment failed for architecture run (CloudProvider={CloudProvider}).",
+                    request.CloudProvider);
             }
         }
     }

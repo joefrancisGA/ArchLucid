@@ -22,7 +22,17 @@
         "azureExtractor.manifest.CollectionTimestamp",
         "azureExtractor.manifest.RawJson",
         "governance.PolicyConstraints",
-        "metadata.ChangeDescription"
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
       ],
       "frameworkMappings": [
         {
@@ -47,7 +57,17 @@
         "azureExtractor.manifest.ScopeDescriptor",
         "azureExtractor.manifest.RawJson",
         "governance.PolicyConstraints",
-        "services[].Tags"
+        "services[].Tags",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
       ],
       "frameworkMappings": [
         {
@@ -71,7 +91,17 @@
         "azureExtractor.manifest.SwitchesUsed",
         "azureExtractor.manifest.ScriptVersion",
         "azureExtractor.manifest.RawJson",
-        "metadata.ChangeDescription"
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
       ],
       "frameworkMappings": [
         {
@@ -95,7 +125,17 @@
         "azureExtractor.manifest.RawJson",
         "governance.RequiredControls",
         "relationships",
-        "services[].Purpose"
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
       ],
       "frameworkMappings": [
         {
@@ -119,7 +159,17 @@
         "azureExtractor.manifest.SwitchesUsed",
         "azureExtractor.manifest.CollectionTimestamp",
         "azureExtractor.manifest.RawJson",
-        "governance.PolicyConstraints"
+        "governance.PolicyConstraints",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
       ],
       "frameworkMappings": [
         {
@@ -142,7 +192,17 @@
       "evidenceHints": [
         "azureExtractor.manifest.RawJson",
         "governance.ComplianceTags",
-        "governance.PolicyConstraints"
+        "governance.PolicyConstraints",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
       ],
       "frameworkMappings": [
         {

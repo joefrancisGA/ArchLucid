@@ -139,10 +139,7 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
-            new TechnologyLedgerRequestSeeder(new InMemoryTechnologyLedgerRepository(), TimeProvider.System),
-            TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
-                new InMemoryTechnologyLedgerRepository(),
-                scopeProvider.Object),
+            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         CreateRunResult result = await sut.CreateRunAsync(request, null, CancellationToken.None);

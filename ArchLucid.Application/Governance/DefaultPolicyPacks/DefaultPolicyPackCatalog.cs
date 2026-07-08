@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Common;
+
 namespace ArchLucid.Application.Governance.DefaultPolicyPacks;
 
 /// <summary>Display metadata for first-party default policy packs seeded at tenant provisioning.</summary>
@@ -40,18 +42,100 @@ public static class DefaultPolicyPackCatalog
     /// <summary>Matches <c>pack.displayName</c> in bundled Zero Trust template.</summary>
     public const string ZeroTrustArchitectureDisplayName = "Zero Trust Architecture";
 
-    /// <summary>Platform default packs enabled on tenant provisioning before operator opt-in.</summary>
-    public static readonly IReadOnlySet<string> StandardBaselineDisplayNames =
+    /// <summary>Matches bundled AWS Well-Architected Framework template.</summary>
+    public const string AwsWellArchitectedDisplayName = "AWS Well-Architected Framework";
+
+    /// <summary>Matches bundled Google Cloud Architecture Framework template.</summary>
+    public const string GcpArchitectureFrameworkDisplayName = "Google Cloud Architecture Framework";
+
+    /// <summary>Matches bundled CIS AWS Foundations template.</summary>
+    public const string CisAwsFoundationsDisplayName = "CIS AWS Foundations Benchmark";
+
+    /// <summary>Matches bundled CIS GCP Foundations template.</summary>
+    public const string CisGcpFoundationsDisplayName = "CIS Google Cloud Platform Foundation Benchmark";
+
+    /// <summary>Matches bundled AWS IAM baseline template.</summary>
+    public const string AwsIamBaselineDisplayName = "AWS IAM / Identity Center Architecture Baseline";
+
+    /// <summary>Matches bundled GCP IAM baseline template.</summary>
+    public const string GcpIamBaselineDisplayName = "GCP Cloud IAM Architecture Baseline";
+
+    /// <summary>Matches bundled AWS landing zone template.</summary>
+    public const string AwsLandingZoneDisplayName = "AWS Landing Zone / Control Tower";
+
+    /// <summary>Matches bundled GCP landing zone template.</summary>
+    public const string GcpLandingZoneDisplayName = "GCP Landing Zone / Resource Hierarchy";
+
+    /// <summary>Cloud-neutral packs enabled for every target cloud provider baseline.</summary>
+    public static readonly IReadOnlySet<string> CloudNeutralStandardBaselineDisplayNames =
         new HashSet<string>(StringComparer.Ordinal)
         {
-            AzureWellArchitectedDisplayName,
+            SecurityBaselineDisplayName,
             FinOpsCostOptimizationDisplayName,
             AiGovernanceDisplayName,
-            CisAzureFoundationsDisplayName,
             ZeroTrustArchitectureDisplayName,
         };
 
-    /// <summary>Returns whether a bundled platform pack is part of the V1 standard baseline set.</summary>
+    /// <summary>Azure-specific packs enabled when the run or tenant baseline targets Azure.</summary>
+    public static readonly IReadOnlySet<string> AzureCloudSpecificStandardBaselineDisplayNames =
+        new HashSet<string>(StringComparer.Ordinal)
+        {
+            AzureWellArchitectedDisplayName,
+            CisAzureFoundationsDisplayName,
+        };
+
+    /// <summary>AWS-specific packs enabled when the run targets AWS.</summary>
+    public static readonly IReadOnlySet<string> AwsCloudSpecificStandardBaselineDisplayNames =
+        new HashSet<string>(StringComparer.Ordinal)
+        {
+            AwsWellArchitectedDisplayName,
+            CisAwsFoundationsDisplayName,
+            AwsIamBaselineDisplayName,
+            AwsLandingZoneDisplayName,
+        };
+
+    /// <summary>GCP-specific packs enabled when the run targets GCP.</summary>
+    public static readonly IReadOnlySet<string> GcpCloudSpecificStandardBaselineDisplayNames =
+        new HashSet<string>(StringComparer.Ordinal)
+        {
+            GcpArchitectureFrameworkDisplayName,
+            CisGcpFoundationsDisplayName,
+            GcpIamBaselineDisplayName,
+            GcpLandingZoneDisplayName,
+        };
+
+    /// <summary>Platform default packs enabled on tenant provisioning (Azure baseline) before operator opt-in.</summary>
+    public static readonly IReadOnlySet<string> StandardBaselineDisplayNames =
+        ResolveStandardBaselineDisplayNames(CloudProvider.Azure);
+
+    /// <summary>Resolves the standard baseline display names for a target cloud provider.</summary>
+    public static IReadOnlySet<string> ResolveStandardBaselineDisplayNames(CloudProvider cloudProvider)
+    {
+        HashSet<string> names = new(CloudNeutralStandardBaselineDisplayNames, StringComparer.Ordinal);
+
+        switch (cloudProvider)
+        {
+            case CloudProvider.Azure:
+                names.UnionWith(AzureCloudSpecificStandardBaselineDisplayNames);
+                break;
+            case CloudProvider.Aws:
+                names.UnionWith(AwsCloudSpecificStandardBaselineDisplayNames);
+                break;
+            case CloudProvider.Gcp:
+                names.UnionWith(GcpCloudSpecificStandardBaselineDisplayNames);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(cloudProvider), cloudProvider, "Unsupported cloud provider.");
+        }
+
+        return names;
+    }
+
+    /// <summary>Returns whether a bundled platform pack is part of the Azure V1 standard baseline set.</summary>
     public static bool IsStandardBaselineDisplayName(string displayName) =>
-        StandardBaselineDisplayNames.Contains(displayName);
+        IsStandardBaselineDisplayName(displayName, CloudProvider.Azure);
+
+    /// <summary>Returns whether a bundled platform pack is part of the standard baseline for a cloud provider.</summary>
+    public static bool IsStandardBaselineDisplayName(string displayName, CloudProvider cloudProvider) =>
+        ResolveStandardBaselineDisplayNames(cloudProvider).Contains(displayName);
 }

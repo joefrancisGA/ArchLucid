@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "AWS IAM / Identity Center Architecture Baseline",
+    "description": "IAM, Organizations SCP, Identity Center, and workload identity themes for AWS architectures. Thematic mapping only; not certification.",
+    "version": "1.0.0",
+    "category": "Identity",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/aws-iam-baseline.json"
+  },
+  "rules": [
+    {
+      "id": "iam-aws-001",
+      "title": "IAM Identity Center / IAM Architecture Baseline \u2014 control theme 1",
+      "description": "Architecture manifest and AWS extractor evidence should support: entra id / iam architecture baseline \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft IAM Identity Center",
+          "theme": "RBAC"
+        }
+      ]
+    },
+    {
+      "id": "iam-aws-002",
+      "title": "IAM Identity Center / IAM Architecture Baseline \u2014 control theme 2",
+      "description": "Architecture manifest and AWS extractor evidence should support: entra id / iam architecture baseline \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft IAM Identity Center",
+          "theme": "Managed identity"
+        }
+      ]
+    },
+    {
+      "id": "iam-aws-003",
+      "title": "IAM Identity Center / IAM Architecture Baseline \u2014 control theme 3",
+      "description": "Architecture manifest and AWS extractor evidence should support: entra id / iam architecture baseline \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft IAM Identity Center",
+          "theme": "Conditional access"
+        }
+      ]
+    },
+    {
+      "id": "iam-aws-004",
+      "title": "IAM Identity Center / IAM Architecture Baseline \u2014 control theme 4",
+      "description": "Architecture manifest and AWS extractor evidence should support: entra id / iam architecture baseline \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft IAM Identity Center",
+          "theme": "RBAC"
+        }
+      ]
+    },
+    {
+      "id": "iam-aws-005",
+      "title": "IAM Identity Center / IAM Architecture Baseline \u2014 control theme 5",
+      "description": "Architecture manifest and AWS extractor evidence should support: entra id / iam architecture baseline \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft IAM Identity Center",
+          "theme": "Managed identity"
+        }
+      ]
+    },
+    {
+      "id": "iam-aws-006",
+      "title": "IAM Identity Center / IAM Architecture Baseline \u2014 control theme 6",
+      "description": "Architecture manifest and AWS extractor evidence should support: entra id / iam architecture baseline \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft IAM Identity Center",
+          "theme": "Conditional access"
+        }
+      ]
+    },
+    {
+      "id": "iam-aws-007",
+      "title": "IAM Identity Center / IAM Architecture Baseline \u2014 control theme 7",
+      "description": "Architecture manifest and AWS extractor evidence should support: entra id / iam architecture baseline \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft IAM Identity Center",
+          "theme": "RBAC"
+        }
+      ]
+    },
+    {
+      "id": "iam-aws-008",
+      "title": "IAM Identity Center / IAM Architecture Baseline \u2014 control theme 8",
+      "description": "Architecture manifest and AWS extractor evidence should support: entra id / iam architecture baseline \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft IAM Identity Center",
+          "theme": "Managed identity"
+        }
+      ]
+    },
+    {
+      "id": "iam-aws-009",
+      "title": "IAM Identity Center / IAM Architecture Baseline \u2014 control theme 9",
+      "description": "Architecture manifest and AWS extractor evidence should support: entra id / iam architecture baseline \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft IAM Identity Center",
+          "theme": "Conditional access"
+        }
+      ]
+    },
+    {
+      "id": "iam-aws-010",
+      "title": "IAM Identity Center / IAM Architecture Baseline \u2014 control theme 10",
+      "description": "Architecture manifest and AWS extractor evidence should support: entra id / iam architecture baseline \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft IAM Identity Center",
+          "theme": "RBAC"
+        }
+      ]
+    }
+  ]
+}

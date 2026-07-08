@@ -72,10 +72,8 @@
     "pack.category": "Data Platform Security",
     "pack.version": "1.0.0",
     "pack.isDefault": "true",
-    "pack.description": "Snowflake-specific identity, RBAC, masking, network, sharing, logging, encryption, and compliance-readiness checks for architecture reviews. Not Snowflake certification or statutory compliance.",
-    "frameworkMappingDisclaimer": "Framework and regulation references are thematic mapping only \u2014 not certification, attestation, or legal compliance.",
-    "curatedRulesArtifact": "docs/samples/policy-packs/snowflake-security-rules-v1.json",
-    "pack.appliesTo": "Snowflake accounts; databases; schemas; tables and views; roles and grants; stages and storage integrations; data sharing; tasks; streams; functions; procedures; Snowpark workloads",
-    "pack.intendedUsers": "enterprise architects; cloud security architects; data platform owners; compliance reviewers; governance boards; audit stakeholders"
+    "pack.description": "Snowflake identity, RBAC, network policies, and data-protection themes for warehouse architectures.",
+    "frameworkMappingDisclaimer": "Snowflake mapping is thematic only; not Snowflake certification.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/snowflake-security-rules-v1.json"
   }
 }

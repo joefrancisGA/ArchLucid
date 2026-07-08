@@ -1,0 +1,32 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "cis-aws-001",
+    "cis-aws-002",
+    "cis-aws-003",
+    "cis-aws-004",
+    "cis-aws-005",
+    "cis-aws-006",
+    "cis-aws-007",
+    "cis-aws-008",
+    "cis-aws-009",
+    "cis-aws-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "cis-aws-foundations-v1",
+    "pack.displayName": "CIS AWS Foundations Benchmark",
+    "pack.category": "Security",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "CIS-aligned AWS hardening themes for architecture review. Not CIS benchmark pass/fail.",
+    "frameworkMappingDisclaimer": "CIS references are thematic alignment only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/cis-aws-foundations-rules-v1.json"
+  }
+}

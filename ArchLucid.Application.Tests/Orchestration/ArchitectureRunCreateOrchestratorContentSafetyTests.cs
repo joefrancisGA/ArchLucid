@@ -66,10 +66,7 @@ public sealed class ArchitectureRunCreateOrchestratorContentSafetyTests
             Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
-            new TechnologyLedgerRequestSeeder(new InMemoryTechnologyLedgerRepository(), TimeProvider.System),
-            TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
-                new InMemoryTechnologyLedgerRepository(),
-                Mock.Of<IScopeContextProvider>()),
+            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         ArchitectureRequest request = new()

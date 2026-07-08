@@ -1,0 +1,32 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "gke-001",
+    "gke-002",
+    "gke-003",
+    "gke-004",
+    "gke-005",
+    "gke-006",
+    "gke-007",
+    "gke-008",
+    "gke-009",
+    "gke-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "gke-production-baseline-v1",
+    "pack.displayName": "GKE Production Baseline",
+    "pack.category": "Platform",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Kubernetes on GKE production hardening themes (workload identity, Binary Authorization, private clusters).",
+    "frameworkMappingDisclaimer": "GKE mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/gke-production-baseline-rules-v1.json"
+  }
+}

@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "AWS Data-Layer Security",
+    "description": "RDS, DynamoDB, S3, and KMS encryption and private access themes for AWS data platforms.",
+    "version": "1.0.0",
+    "category": "Data Platform",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/aws-data-layer-security.json"
+  },
+  "rules": [
+    {
+      "id": "aws-data-001",
+      "title": "AWS SQL / DynamoDB DB Data-Layer Security \u2014 control theme 1",
+      "description": "Architecture manifest and AWS extractor evidence should support: aws sql / cosmos db data-layer security \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "Encryption"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-002",
+      "title": "AWS SQL / DynamoDB DB Data-Layer Security \u2014 control theme 2",
+      "description": "Architecture manifest and AWS extractor evidence should support: aws sql / cosmos db data-layer security \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "Private endpoints"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-003",
+      "title": "AWS SQL / DynamoDB DB Data-Layer Security \u2014 control theme 3",
+      "description": "Architecture manifest and AWS extractor evidence should support: aws sql / cosmos db data-layer security \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "Auditing"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-004",
+      "title": "AWS SQL / DynamoDB DB Data-Layer Security \u2014 control theme 4",
+      "description": "Architecture manifest and AWS extractor evidence should support: aws sql / cosmos db data-layer security \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "Encryption"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-005",
+      "title": "AWS SQL / DynamoDB DB Data-Layer Security \u2014 control theme 5",
+      "description": "Architecture manifest and AWS extractor evidence should support: aws sql / cosmos db data-layer security \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "Private endpoints"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-006",
+      "title": "AWS SQL / DynamoDB DB Data-Layer Security \u2014 control theme 6",
+      "description": "Architecture manifest and AWS extractor evidence should support: aws sql / cosmos db data-layer security \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "Auditing"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-007",
+      "title": "AWS SQL / DynamoDB DB Data-Layer Security \u2014 control theme 7",
+      "description": "Architecture manifest and AWS extractor evidence should support: aws sql / cosmos db data-layer security \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "Encryption"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-008",
+      "title": "AWS SQL / DynamoDB DB Data-Layer Security \u2014 control theme 8",
+      "description": "Architecture manifest and AWS extractor evidence should support: aws sql / cosmos db data-layer security \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "Private endpoints"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-009",
+      "title": "AWS SQL / DynamoDB DB Data-Layer Security \u2014 control theme 9",
+      "description": "Architecture manifest and AWS extractor evidence should support: aws sql / cosmos db data-layer security \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "Auditing"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-010",
+      "title": "AWS SQL / DynamoDB DB Data-Layer Security \u2014 control theme 10",
+      "description": "Architecture manifest and AWS extractor evidence should support: aws sql / cosmos db data-layer security \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "Encryption"
+        }
+      ]
+    }
+  ]
+}
