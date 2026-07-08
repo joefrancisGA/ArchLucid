@@ -28,9 +28,23 @@ function resolveMonorepoRootFromUiCwd(): string {
 }
 
 function readRepoRelativeMarkdown(relativePath: string): string | null {
+  const normalized = relativePath.replace(/^\//, "").trim();
+
+  if (!normalized.startsWith("docs/")) {
+    return null;
+  }
+
   const root = resolveMonorepoRootFromUiCwd();
-  const segments = relativePath.replace(/^\//, "").split("/").filter((segment) => segment.length > 0);
-  const absolute = join(root, ...segments);
+  const withinDocs = normalized
+    .slice("docs/".length)
+    .split("/")
+    .filter((segment) => segment.length > 0 && segment !== "." && segment !== "..");
+
+  if (withinDocs.length === 0) {
+    return null;
+  }
+
+  const absolute = join(root, "docs", ...withinDocs);
 
   if (!existsSync(absolute)) {
     return null;
