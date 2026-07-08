@@ -1518,7 +1518,7 @@ Stop and report:
 - **PATCH validation:** locked rows reject `Status` / `TechnologyName` / `ProviderFamily` changes (unlock + rationale allowed); promoting to `Chosen` demotes other `Chosen` rows for the same role to `Alternative`; `Assumed` → `Chosen` sets `Source = User`; empty patch body rejected.
 - **Audit:** `AuditEventTypes.TechnologyLedgerEntryUpdated` with `entryId`, `role`, `status`, `isLocked` in `DataJson`.
 - **Test results:** `TechnologyLedgerRunCommandServiceTests` — **6/6 passed**; `TechnologyLedgerControllerTests` — compiled with `ArchLucid.Api` (Api.Tests solution build blocked by unrelated pre-existing `ArchitectureRunExecuteOrchestratorTestFactory` reference in another test file).
-- **Commit:** _(filled after push)_.
+- **Commit:** `ec24cb0b42`.
 - **Scope confirmation:** agent handlers, seeders, merge policies, `TechnologyConsistencyFindingEngine`, `PreCommitGovernanceGate`, artifact lint, system templates, and UI (Prompt 10) **not** touched.
 
 ---
