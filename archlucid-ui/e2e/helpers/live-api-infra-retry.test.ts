@@ -1,19 +1,20 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  getMaxCommitInfrastructureMutationAttempts,
+  getMaxInfrastructureMutationAttempts,
   InfraTransientError,
   infrastructureRetryDelayMs,
   isDatabaseUnavailablePayload,
   isRetryableInfrastructureFailure,
-  maxCommitInfrastructureMutationAttempts,
-  maxInfrastructureMutationAttempts,
+  resolveInfrastructureMutationMaxAttempts,
 } from "./live-api-infra-retry";
 
 describe("live-api-infra-retry", () => {
   it("detects database-unavailable problem payloads", () => {
     expect(
       isDatabaseUnavailablePayload(
-        '{"title":"Database Unavailable","detail":"The database is currently unreachable."}',
+        '{"title":"Database Unavailable","type":"https://archlucid.example.org/errors#database-unavailable"}',
       ),
     ).toBe(true);
   });
@@ -27,12 +28,20 @@ describe("live-api-infra-retry", () => {
 
   it("caps exponential infrastructure backoff with jitter headroom", () => {
     expect(infrastructureRetryDelayMs(0)).toBeGreaterThanOrEqual(1000);
-    expect(infrastructureRetryDelayMs(0)).toBeLessThanOrEqual(1300);
-    expect(infrastructureRetryDelayMs(10)).toBeLessThanOrEqual(10_300);
+    expect(infrastructureRetryDelayMs(0)).toBeLessThanOrEqual(1400);
+    expect(infrastructureRetryDelayMs(10)).toBeLessThanOrEqual(10_400);
   });
 
   it("allocates a higher commit retry budget than create/execute mutations", () => {
-    expect(maxCommitInfrastructureMutationAttempts).toBeGreaterThan(maxInfrastructureMutationAttempts);
+    expect(getMaxCommitInfrastructureMutationAttempts()).toBeGreaterThan(getMaxInfrastructureMutationAttempts());
+  });
+
+  it("extends retry budget for database-unavailable payloads", () => {
+    const body = '{"type":"https://archlucid.example.org/errors#database-unavailable"}';
+
+    expect(resolveInfrastructureMutationMaxAttempts(503, body, getMaxInfrastructureMutationAttempts())).toBe(
+      getMaxCommitInfrastructureMutationAttempts(),
+    );
   });
 
   it("tags infra-transient errors for CI reporting", () => {

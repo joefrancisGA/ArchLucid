@@ -62,13 +62,13 @@ test.describe("live-api-error-states", () => {
   });
 
   test("audit search with non-existent run id shows no-results, not a crash", async ({ page }) => {
-    test.setTimeout(60_000);
+    test.setTimeout(120_000);
 
     const fakeRunId = crypto.randomUUID();
 
-    await page.goto("/governance/audit");
+    await page.goto("/governance/audit", { waitUntil: "domcontentloaded" });
 
-    await expect(auditPageMainHeading(page)).toBeVisible({ timeout: 30_000 });
+    await expect(auditPageMainHeading(page)).toBeVisible({ timeout: 60_000 });
 
     const auditFiltersTrigger = page.getByTestId("audit-filters-collapsible-trigger");
 
@@ -76,7 +76,10 @@ test.describe("live-api-error-states", () => {
       await auditFiltersTrigger.click();
     }
 
-    await page.getByTestId("audit-review-id-input").fill(fakeRunId);
+    const reviewIdInput = page.getByTestId("audit-review-id-input");
+
+    await expect(reviewIdInput).toBeVisible({ timeout: 120_000 });
+    await reviewIdInput.fill(fakeRunId);
     await page.getByTestId("audit-search-button").click();
 
     await expect(page.getByTestId("audit-search-no-results")).toBeVisible({ timeout: 60_000 });

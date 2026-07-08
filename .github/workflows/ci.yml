@@ -3598,6 +3598,10 @@ jobs:
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           NODE_OPTIONS: --max-old-space-size=6144
+          E2E_INFRA_MAX_ATTEMPTS: "12"
+          E2E_INFRA_DB_MAX_ATTEMPTS: "25"
+          E2E_INFRA_BASE_DELAY_MS: "1000"
+          E2E_INFRA_PROBE_ATTEMPTS: "45"
           # Api host is DevelopmentBypass — prevent inherited env from sending JWT/API key the server rejects (401).
           LIVE_JWT_TOKEN: ""
           LIVE_API_KEY: ""
@@ -3605,6 +3609,7 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"
+          bash ../scripts/ci/wait-for-db-backed-pilot-endpoint.sh
           echo "Playwright @release-gate live e2e start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           npx playwright test --workers=1 --grep @release-gate
           echo "Playwright @release-gate live e2e end: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -3777,9 +3782,14 @@ jobs:
           LIVE_JWT_TOKEN: ""
           LIVE_API_KEY: ""
           LIVE_API_KEY_READONLY: ""
+          E2E_INFRA_MAX_ATTEMPTS: "12"
+          E2E_INFRA_DB_MAX_ATTEMPTS: "25"
+          E2E_INFRA_BASE_DELAY_MS: "1000"
+          E2E_INFRA_PROBE_ATTEMPTS: "45"
         run: |
           npx playwright install --with-deps chromium
           bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"
+          bash ../scripts/ci/wait-for-db-backed-pilot-endpoint.sh
           echo "Playwright extended live e2e shard ${{ matrix.shard }}/${{ strategy.job-total }} start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           if [ "${ARCHLUCID_CI_FULL_LIVE_A11Y}" = "true" ]; then
             npx playwright test --workers=1 --grep-invert "@release-gate" --shard=${{ matrix.shard }}/${{ strategy.job-total }}
