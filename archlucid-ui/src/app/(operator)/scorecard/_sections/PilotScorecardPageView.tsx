@@ -3,11 +3,9 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { EmptyState } from "@/components/EmptyState";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { Button } from "@/components/ui/button";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEW_SCORECARD_PAGE_SUBTITLE,
@@ -18,6 +16,7 @@ import {
   hasCommittedReviews,
 } from "@/lib/pilot-scorecard-present";
 
+import { ReviewScorecardEmptyState } from "./ReviewScorecardEmptyState";
 import { ScorecardMetricCard, ScorecardSummaryTile } from "./ScorecardMetricCard";
 import type { UsePilotScorecardPageModel } from "./use-pilot-scorecard-page";
 
@@ -76,16 +75,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
         </p>
       ) : null}
 
-      {scorecardEmpty ? (
-        <section data-testid="review-scorecard-empty-state">
-          <EmptyState
-            title="No committed reviews yet"
-            description="Finalize a review package to populate throughput, governance outcomes, and ROI estimates on this scorecard."
-            actions={[{ href: "/reviews/new", label: CREATE_ARCHITECTURE_LABEL }]}
-            secondaryAction={{ href: "/reviews", label: "Open review packages" }}
-          />
-        </section>
-      ) : null}
+      {scorecardEmpty ? <ReviewScorecardEmptyState /> : null}
 
       {data !== null && !scorecardEmpty ? (
         <>

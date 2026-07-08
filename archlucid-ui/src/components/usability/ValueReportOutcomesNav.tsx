@@ -1,53 +1,53 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useMemo, type ReactElement } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import {
   isValueReportOutcomesSurface,
   resolveVisibleValueReportOutcomesTabs,
+  type ValueReportOutcomesTab,
 } from "@/lib/value-report-outcomes-nav-tabs";
 
 /** Single hub navigation for pilot value surfaces — reduces scattered outcomes routes in the sidebar. */
-export function ValueReportOutcomesNav(): React.JSX.Element | null {
+export function ValueReportOutcomesNav(): ReactElement | null {
   const pathname = usePathname() ?? "/";
+  const router = useRouter();
   const onOutcomesSurface = isValueReportOutcomesSurface(pathname);
+
+  const visibleTabs: readonly ValueReportOutcomesTab[] = useMemo(
+    () => resolveVisibleValueReportOutcomesTabs(isShowSystemAdministrationNavEnabled()),
+    [],
+  );
+
+  const activeHref: string = useMemo(() => {
+    const match = visibleTabs.find((tab) => tab.match(pathname));
+
+    return match?.href ?? visibleTabs[0]?.href ?? "/value-report";
+  }, [pathname, visibleTabs]);
 
   if (!onOutcomesSurface) {
     return null;
   }
 
-  const visibleTabs = resolveVisibleValueReportOutcomesTabs(isShowSystemAdministrationNavEnabled());
-
   return (
-    <nav
-      className="flex flex-wrap gap-2 border-b border-neutral-200 pb-3 dark:border-neutral-700"
-      aria-label="Pilot outcomes"
+    <Tabs
+      value={activeHref}
+      onValueChange={(href) => {
+        router.push(href);
+      }}
+      className="mb-2"
       data-testid="value-report-outcomes-nav"
     >
-      {visibleTabs.map((tab) => {
-        const active = tab.match(pathname);
-
-        return (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            className={cn(
-              "rounded-md px-3 py-1.5 no-underline",
-              OPERATOR_TYPOGRAPHY.helper,
-              active
-                ? "border border-neutral-300 bg-al-surface-raised font-semibold text-al-text-primary dark:border-neutral-600"
-                : "text-al-text-secondary hover:bg-al-layer-hover hover:text-al-text-primary",
-            )}
-            aria-current={active ? "page" : undefined}
-          >
+      <TabsList aria-label="Insights outcomes" data-testid="value-report-outcomes-tablist">
+        {visibleTabs.map((tab) => (
+          <TabsTrigger key={tab.href} value={tab.href} data-testid={`value-report-outcomes-tab-${tab.href.replace(/\//g, "-")}`}>
             {tab.label}
-          </Link>
-        );
-      })}
-    </nav>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }

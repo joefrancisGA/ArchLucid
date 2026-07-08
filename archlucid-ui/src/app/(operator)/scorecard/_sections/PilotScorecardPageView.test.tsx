@@ -3,6 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PilotScorecardPageView } from "@/app/(operator)/scorecard/_sections/PilotScorecardPageView";
 import type { UsePilotScorecardPageModel } from "@/app/(operator)/scorecard/_sections/use-pilot-scorecard-page";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import {
+  REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE,
+  REVIEW_SCORECARD_PREVIEW_SECTION_TITLE,
+  REVIEW_SCORECARD_VIEW_SAMPLE_ACTION,
+} from "@/lib/review-scorecard-empty-state";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
 vi.mock("@/components/usability/ValueReportOutcomesNav", () => ({
@@ -75,6 +81,10 @@ describe("PilotScorecardPageView", () => {
 
     expect(screen.getByTestId("review-scorecard-empty-state")).toBeInTheDocument();
     expect(screen.getByText("No committed reviews yet")).toBeInTheDocument();
+    expect(screen.getByText(REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: REVIEW_SCORECARD_PREVIEW_SECTION_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: REVIEW_SCORECARD_VIEW_SAMPLE_ACTION })).toBeInTheDocument();
     expect(screen.queryByTestId("review-scorecard-summary-row")).not.toBeInTheDocument();
   });
 });
