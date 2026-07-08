@@ -5,6 +5,8 @@ import {
   infrastructureRetryDelayMs,
   isDatabaseUnavailablePayload,
   isRetryableInfrastructureFailure,
+  maxCommitInfrastructureMutationAttempts,
+  maxInfrastructureMutationAttempts,
 } from "./live-api-infra-retry";
 
 describe("live-api-infra-retry", () => {
@@ -27,6 +29,10 @@ describe("live-api-infra-retry", () => {
     expect(infrastructureRetryDelayMs(0)).toBeGreaterThanOrEqual(1000);
     expect(infrastructureRetryDelayMs(0)).toBeLessThanOrEqual(1300);
     expect(infrastructureRetryDelayMs(10)).toBeLessThanOrEqual(10_300);
+  });
+
+  it("allocates a higher commit retry budget than create/execute mutations", () => {
+    expect(maxCommitInfrastructureMutationAttempts).toBeGreaterThan(maxInfrastructureMutationAttempts);
   });
 
   it("tags infra-transient errors for CI reporting", () => {

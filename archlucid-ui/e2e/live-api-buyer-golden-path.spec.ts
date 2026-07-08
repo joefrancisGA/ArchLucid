@@ -6,9 +6,11 @@ import { expect, test } from "@playwright/test";
 
 import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
+  expectBuyerExecutiveReviewPrimaryHeading,
   expectBuyerExecutiveSummarySurface,
   expectBuyerGoldenJourneyStepper,
   expectBuyerGoldenPageReady,
+  expectBuyerReviewPackagePrimaryHeading,
   expectNoGenericErrorBoundary,
 } from "./helpers/buyer-golden-path";
 import {
@@ -57,14 +59,14 @@ test.describe("live-api-buyer-golden-path", () => {
     await page.goto(liveBuyerGoldenPathHrefs.executive);
     await expectBuyerExecutiveSummarySurface(page);
     await expect(getAppMain(page)).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 60_000 });
+    await expectBuyerExecutiveReviewPrimaryHeading(page);
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(liveBuyerGoldenPathHrefs.reviewPackage);
     await expectBuyerGoldenPageReady(page);
     await expect(getAppMain(page)).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 60_000 });
+    await expectBuyerReviewPackagePrimaryHeading(page);
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 

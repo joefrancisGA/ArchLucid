@@ -69,6 +69,25 @@ export async function expectBuyerExecutiveSummarySurface(page: Page): Promise<vo
   ]);
 }
 
+/**
+ * Live API executive route: subnav can expose "Executive summary" before the page H1 hydrates ??? wait for the
+ * review shell and its primary heading (executive shell has no global H1 like the operator sidebar chrome).
+ */
+export async function expectBuyerExecutiveReviewPrimaryHeading(page: Page, options?: { timeout?: number }): Promise<void> {
+  const timeout = options?.timeout ?? 60_000;
+  const reviewPage = page.getByTestId("executive-review-page");
+
+  await expect(reviewPage).toBeVisible({ timeout });
+  await expect(reviewPage.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout });
+}
+
+/** Review package detail H1 after buyer-golden hydration (operator shell includes its own chrome H1). */
+export async function expectBuyerReviewPackagePrimaryHeading(page: Page, options?: { timeout?: number }): Promise<void> {
+  const timeout = options?.timeout ?? 60_000;
+
+  await expect(getAppMain(page).getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout });
+}
+
 /** Buyer golden path review package is hydrated with headline + manifest data. */
 export async function expectBuyerGoldenPageReady(page: Page): Promise<void> {
   await expect(page.getByTestId("buyer-golden-page-ready")).toBeVisible({ timeout: 60_000 });

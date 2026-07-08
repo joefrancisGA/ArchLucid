@@ -12,6 +12,7 @@ import type { APIRequestContext, APIResponse } from "@playwright/test";
 import {
   continueInfrastructureMutationRetry,
   InfraTransientError,
+  maxCommitInfrastructureMutationAttempts,
   maxInfrastructureMutationAttempts,
 } from "./live-api-infra-retry";
 import { getLiveJwtTokenFromEnvSync, isLiveJwtTokenConfigured } from "./jwt-token-provider";
@@ -328,7 +329,7 @@ function isManifestNotLoadedYetConflict(status: number, body: string): boolean {
 }
 
 /** Dedicated infrastructure retry budget for commit (503 database warmup, gateway faults). */
-const maxCommitInfrastructureAttempts = maxInfrastructureMutationAttempts;
+const maxCommitInfrastructureAttempts = maxCommitInfrastructureMutationAttempts;
 
 function isTransientCommitConflict(status: number, body: string): boolean {
   if (status !== 409) {
@@ -559,14 +560,16 @@ export async function commitRunRaw(
   runId: string,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
-  for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
+  let infrastructureAttempt = 0;
+
+  for (let attempt = 0; attempt < maxCommitTransient409Attempts; attempt++) {
     const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/commit`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
       timeout: commitAttemptHttpTimeoutMs,
     });
     const status = res.status();
 
-    if (status === 429 && attempt < maxArchitectureMutationAttempts - 1) {
+    if (status === 429 && attempt < maxCommitTransient409Attempts - 1) {
       await delayAfterRateLimitedResponse(res);
 
       continue;
@@ -579,11 +582,13 @@ export async function commitRunRaw(
         await continueInfrastructureMutationRetry(
           status,
           responseBody,
-          attempt,
-          maxArchitectureMutationAttempts,
+          infrastructureAttempt,
+          maxCommitInfrastructureAttempts,
           `POST /v1/architecture/run/${runId}/commit`,
         )
       ) {
+        infrastructureAttempt += 1;
+
         continue;
       }
 

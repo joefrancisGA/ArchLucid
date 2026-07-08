@@ -10,8 +10,14 @@ export class InfraTransientError extends Error {
 
 export const RETRYABLE_INFRASTRUCTURE_HTTP_STATUSES = new Set([429, 502, 503, 504]);
 
-/** Default infrastructure retry budget for architecture mutations (create / execute / commit). */
+/** Default infrastructure retry budget for architecture mutations (create / execute). */
 export const maxInfrastructureMutationAttempts = 6;
+
+/**
+ * Commit POSTs hit heavier SQL paths than create/execute; align closer to greenfield harness
+ * (`ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync`, 25 attempts).
+ */
+export const maxCommitInfrastructureMutationAttempts = 12;
 
 export function isDatabaseUnavailablePayload(body: string): boolean {
   return /database.*unreachable|database unavailable|database_unavailable/i.test(body);
