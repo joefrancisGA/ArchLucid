@@ -11,10 +11,10 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
 import { getAppMain } from "./helpers/app-main";
-import { showcaseSignedManifestBrowserUrlPattern } from "./helpers/buyer-golden-path";
+import { showcaseSignedManifestBrowserUrlPattern, BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN } from "./helpers/buyer-golden-path";
 import { outcomeStripSignedRecordLink } from "./helpers/operator-journey";
 
-const SHOWCASE_RUN_DETAIL_HEADING = /Claims Intake Modernization/i;
+const SHOWCASE_RUN_DETAIL_HEADING = BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN;
 
 test.describe("operator journey — run detail to manifest and back", () => {
   test("reviews showcase run, opens manifest, returns to run (mock API only)", async ({ page }) => {

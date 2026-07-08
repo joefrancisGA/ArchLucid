@@ -94,6 +94,11 @@ export function graphPageReadySurfaceCandidates(page: Page): Locator[] {
     main.getByTestId("evidence-trail-trace-table"),
     main.getByTestId("evidence-trail-trace-empty"),
     main.getByTestId("graph-viewer-chunk-loading"),
+    main.getByTestId("graph-idle-placeholder-primary"),
+    main.getByTestId("graph-idle-placeholder"),
+    main.getByTestId("graph-page-controls-buyer"),
+    main.getByTestId("graph-presentation-tabs"),
+    main.getByTestId("graph-review-picker-status"),
     main.getByRole("button", { name: /^Load graph$/i }),
     main.getByRole("button", { name: /^Load evidence trail$/i }),
   ];

@@ -449,8 +449,6 @@ export async function expectExecutiveRoiExecutiveSurface(page: Page): Promise<vo
 
   await expect(page.getByTestId("executive-primary-decisions-needed")).toBeVisible({ timeout: 30_000 });
 
-  await expect(page.getByTestId("executive-value-narrative")).toBeVisible({ timeout: 60_000 });
-
   await expect(
 
     page

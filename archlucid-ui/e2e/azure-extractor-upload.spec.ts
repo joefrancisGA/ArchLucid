@@ -14,9 +14,9 @@ test.describe("Azure extractor ZIP wizard field", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByLabel("System name")).not.toHaveValue("", { timeout: 15_000 });
+    await expect(page.getByRole("textbox", { name: "System name" })).not.toHaveValue("", { timeout: 15_000 });
 
-    const description = page.getByLabel("Description");
+    const description = page.getByRole("textbox", { name: "Description" });
     const descriptionText = (await description.inputValue()).trim();
 
     if (descriptionText.length < 10) {
