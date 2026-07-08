@@ -20,9 +20,11 @@ describe("sidebar-nav-group-expansion-storage", () => {
     writeSidebarNavGroupExpansionState({
       pilot: true,
       "operate-analysis": true,
+      "operate-architect-advanced": false,
       "operate-governance": false,
       "operate-reports": false,
       "operate-integrations": false,
+      "operate-platform-ops": false,
       "operator-admin": true,
       "operator-system-admin": false,
     });
@@ -30,9 +32,11 @@ describe("sidebar-nav-group-expansion-storage", () => {
     expect(readSidebarNavGroupExpansionState()).toEqual({
       pilot: true,
       "operate-analysis": true,
+      "operate-architect-advanced": true,
       "operate-governance": false,
       "operate-reports": false,
       "operate-integrations": false,
+      "operate-platform-ops": false,
       "operator-admin": true,
       "operator-system-admin": false,
     });

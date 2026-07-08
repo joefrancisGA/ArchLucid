@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -63,12 +63,20 @@ describe("SystemHealthPage", () => {
       expect(screen.getByTestId("system-health-dependencies-table")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("SQL Server")).toBeInTheDocument();
-    expect(screen.getByText("Azure OpenAI")).toBeInTheDocument();
-    expect(screen.getByText("Redis")).toBeInTheDocument();
-    expect(screen.getByText("9.9.9+test")).toBeInTheDocument();
-    expect(screen.getByTestId("system-health-uptime")).toHaveTextContent("1h 1m");
-    expect(screen.getByText(/GET \/health\/live/)).toBeInTheDocument();
+    const dependenciesTable = screen.getByTestId("system-health-dependencies-table");
+
+    expect(within(dependenciesTable).getByText("Primary database")).toBeInTheDocument();
+    expect(within(dependenciesTable).getByText("AI model service")).toBeInTheDocument();
+    expect(within(dependenciesTable).getByText("Distributed cache (Redis)")).toBeInTheDocument();
+
+    const buildDetails = screen.getByTestId("system-health-build-identity");
+
+    fireEvent.click(within(buildDetails).getByText("Build details"));
+
+    expect(within(buildDetails).getByText("9.9.9+test")).toBeInTheDocument();
+    expect(within(buildDetails).getByText("1h 1m")).toBeInTheDocument();
+    expect(screen.getByText("Application liveness")).toBeInTheDocument();
+    expect(screen.getByText("Responding")).toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });

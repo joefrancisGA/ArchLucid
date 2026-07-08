@@ -184,7 +184,7 @@ import SearchPage from "./search/page";
 describe("operator client pages — render gate", () => {
   it("Alerts inbox content renders primary heading", () => {
     render(<AlertsInboxContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Inbox" })).toBeInTheDocument();
+    expect(screen.getByTestId("alerts-inbox-count-label")).toBeInTheDocument();
   });
 
   it("Alert rules content renders primary heading", () => {

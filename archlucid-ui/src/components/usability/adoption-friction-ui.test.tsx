@@ -5,13 +5,13 @@ import { PilotCommandCenterCard } from "./PilotCommandCenterCard";
 import { OperatorHomeContinueSetupCard } from "@/components/operator-home/OperatorHomeContinueSetupCard";
 import { RunsListCompareSelectionBar } from "./RunsListCompareSelectionBar";
 import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
+  OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
-  PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK,
-  PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
 } from "@/lib/buyer-polish-copy";
 import { INLINE_GUIDANCE_LABEL_CLASS } from "@/lib/design-tokens";
 import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
@@ -25,27 +25,26 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 }));
 
 describe("PilotCommandCenterCard", () => {
-  it("renders completed-sample primary CTA, first-hour lead, and path preview without a duplicate sample link", () => {
+  it("renders dual-path hero cards and a single completed-sample CTA without duplicate sample links", () => {
     render(<PilotCommandCenterCard />);
 
-    expect(screen.getByTestId("pilot-next-best-action")).toHaveAttribute(
+    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-create-architecture-cta")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("operator-home-review-architecture-cta")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
+
+    const openSample = screen.getByTestId("pilot-command-center-open-completed-sample");
+    expect(openSample).toHaveAttribute(
       "href",
       showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
     );
-    expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
-    expect(screen.getByTestId("pilot-command-center-start-own-review")).toHaveAttribute("href", "/reviews/new");
-    const startOwnReview = screen.getByRole("link", { name: PILOT_COMMAND_CENTER_START_OWN_REVIEW_LINK });
-    expect(startOwnReview.className).toMatch(/border-neutral-300/);
-    expect(startOwnReview.className).not.toMatch(/underline/);
-    const openSample = screen.getByRole("link", { name: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA });
-    expect(openSample.className).toMatch(/bg-\[var\(--al-primary-action-bg\)\]/);
-    expect(openSample.className).not.toMatch(/border-neutral-300/);
+    expect(openSample).toHaveTextContent(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
+    expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-help")).toBeNull();
-    expect(screen.getByTestId("pilot-command-center-lead")).toHaveTextContent(PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY);
-    expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
-    expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
+    expect(screen.queryByTestId("pilot-path-preview-stepper")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-cta-row")).toBeInTheDocument();
   });
 

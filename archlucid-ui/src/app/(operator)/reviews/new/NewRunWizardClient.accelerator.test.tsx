@@ -1,14 +1,16 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const acceleratorSearchParams = new URLSearchParams("baseline=1&accelerator=ai-llm-workload");
+const acceleratorSearchParams = new URLSearchParams("accelerator=ai-llm-workload");
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useSearchParams: () => acceleratorSearchParams,
-  redirect: vi.fn(),
+    useSearchParams: () => acceleratorSearchParams,
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
+    usePathname: () => "",
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
@@ -48,7 +50,7 @@ const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
 describe("NewRunWizardClient (accelerator query)", { timeout: 60_000 }, () => {
   beforeEach(() => {
-    window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "quick");
+    window.localStorage.removeItem(WIZARD_MODE_STORAGE_KEY);
 
     vi.stubGlobal(
       "fetch",
@@ -76,13 +78,26 @@ describe("NewRunWizardClient (accelerator query)", { timeout: 60_000 }, () => {
     );
   });
 
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("pre-fills the AI LLM accelerator pack and skips the preset step", async () => {
     render(<NewRunWizardClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("wizard-baseline-zip-field")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Next" })).toBeInTheDocument();
     });
 
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("System name")).toBeInTheDocument();
+    });
+
+    const systemName = screen.getByLabelText("System name") as HTMLInputElement;
+
+    expect(systemName.value).toBe("Northwind.Copilot.RagPlatform");
     expect(screen.queryByTestId("wizard-preset-step")).not.toBeInTheDocument();
   });
 });

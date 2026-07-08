@@ -176,7 +176,7 @@ describe("RunsDashboardPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
-      expect(screen.getByText("No committed reviews yet")).toBeInTheDocument();
+      expect(screen.getByText("No review packages yet")).toBeInTheDocument();
       expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
     } finally {
       fallbackSpy.mockRestore();
@@ -392,7 +392,7 @@ describe("RunsDashboardPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
-      expect(screen.getByText("No committed reviews yet")).toBeInTheDocument();
+      expect(screen.getByText("No review packages yet")).toBeInTheDocument();
       expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: "View review package" })).toBeNull();
       expect(screen.queryByTestId("example-request-panel")).toBeNull();

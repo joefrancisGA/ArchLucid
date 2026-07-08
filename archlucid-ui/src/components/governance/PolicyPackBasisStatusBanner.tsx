@@ -27,7 +27,7 @@ export function PolicyPackBasisStatusBanner(props: PolicyPackBasisStatusBannerPr
   const { className } = props;
 
   return (
-    <aside
+    <div
       className={cn(DESIGN_TOKENS.banner.governanceApproval, className)}
       data-testid="policy-pack-basis-status-banner"
       role="status"
@@ -54,6 +54,6 @@ export function PolicyPackBasisStatusBanner(props: PolicyPackBasisStatusBannerPr
           </Link>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

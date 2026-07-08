@@ -9,10 +9,19 @@
  * `nav-shell-visibility.test.ts`, and `enterprise-authority-ui-shaping.test.tsx` (mutation → disabled/readOnly).
  * Rank-gated **note** lines live in `EnterpriseControlsContextHints.authority.test.tsx`.
  */
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  buyerPolishedShellVitestOverride,
+  extendBuyerPolishedShellVitestMock,
+} from "@/testing/buyer-polished-shell-vitest-override";
+
 const mutateCapability = vi.hoisted(() => ({ current: false }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
+  extendBuyerPolishedShellVitestMock(importOriginal),
+);
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: (): boolean => mutateCapability.current,
@@ -107,6 +116,7 @@ import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
 import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
 import GovernanceWorkflowPage from "./governance/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 
 const sampleAlert = {
   alertId: "alert-layout-1",
@@ -122,6 +132,7 @@ const sampleAlert = {
 
 describe("authority-shaped layout regression", () => {
   beforeEach(() => {
+    buyerPolishedShellVitestOverride.value = false;
     mutateCapability.current = false;
     apiHoisted.listPolicyPacks.mockResolvedValue([]);
     apiHoisted.getEffectivePolicyPacks.mockResolvedValue({
@@ -169,7 +180,17 @@ describe("authority-shaped layout regression", () => {
     const { container } = render(<GovernanceWorkflowPage />);
 
     await waitFor(() => {
-      expect(container.querySelector(".flex.flex-col-reverse")).not.toBeNull();
+      expect(screen.getByRole("heading", { name: GOVERNANCE_OVERVIEW_PAGE_TITLE })).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-layout-run" } });
+    fireEvent.click(screen.getByTestId("governance-overview-load-review"));
+
+    await waitFor(() => {
+      const stack = container.querySelector("[data-testid='governance-workflow-review-context-stack']");
+
+      expect(stack).not.toBeNull();
+      expect(stack?.className).toContain("flex-col-reverse");
     });
   });
 

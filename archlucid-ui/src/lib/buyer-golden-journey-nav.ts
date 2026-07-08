@@ -107,7 +107,16 @@ export function resolveBuyerGoldenJourneyNav(
   ) {
     stepIdx = 1;
   } else if (path.startsWith("/graph")) {
-    return null;
+    const graphRunId = new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ?? "";
+
+    if (
+      graphRunId.length > 0 &&
+      canonicalizeDemoRunId(graphRunId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
+    ) {
+      stepIdx = 2;
+    } else {
+      return null;
+    }
   } else if (path.startsWith("/ask")) {
     return null;
   } else if (path.startsWith("/compare")) {
@@ -128,13 +137,16 @@ export function resolveBuyerGoldenJourneyNav(
   } else if (pathMatchesGovernanceAlerts(path)) {
     return null;
   } else if (path === "/governance") {
-    const searchRunId = options?.searchRunId?.trim() ?? "";
+    const governanceRunId =
+      options?.searchRunId?.trim() ??
+      new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
+      "";
 
-    if (searchRunId.length === 0) {
+    if (governanceRunId.length === 0) {
       return null;
     }
 
-    if (canonicalizeDemoRunId(searchRunId) !== canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
+    if (canonicalizeDemoRunId(governanceRunId) !== canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
       return null;
     }
 

@@ -18,12 +18,6 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
     exceptionReason: "Validate review package tool duplicated under Internal Ops for employee diagnostics (also in Operate analysis history).",
   },
   {
-    navGroupId: "operator-system-admin",
-    href: "/health",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "Public-style API health page linked from Internal Ops for support bundle context.",
-  },
-  {
     navGroupId: "operate-reports",
     href: "/digests",
     canonicalPrefixes: ["/scorecard", "/value-report"],

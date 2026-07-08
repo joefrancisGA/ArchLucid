@@ -612,6 +612,10 @@ export function GovernanceWorkflowPageContent() {
             </p>
           ) : null}
 
+          <div
+            className={cn("flex flex-col gap-10", !canMutateWorkflow && "flex-col-reverse")}
+            data-testid="governance-workflow-review-context-stack"
+          >
           <div ref={submitSectionRef}>
             <GovernanceWorkflowSubmitSection
               buyerPolishedShell={buyerPolishedShell}
@@ -704,6 +708,7 @@ export function GovernanceWorkflowPageContent() {
               </div>
             </>
           )}
+          </div>
         </>
       ) : null}
 

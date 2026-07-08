@@ -1,5 +1,19 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const mockDerivedState = vi.hoisted(() => ({
+  current: {
+    isPending: false,
+    statuses: [] as readonly unknown[],
+    progress: { doneCount: 0, totalCount: 7, allDone: false },
+    nextStepIndex: 0 as number | null,
+  },
+}));
+
+vi.mock("@/lib/use-core-pilot-derived-step-status", () => ({
+  useCorePilotDerivedStepStatus: () => mockDerivedState.current,
+}));
+
 import { fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
 
 import { AfterCorePilotChecklistHint } from "./AfterCorePilotChecklistHint";
 
@@ -18,6 +32,12 @@ function markAllCoreStepsDone() {
 describe("AfterCorePilotChecklistHint", () => {
   afterEach(() => {
     localStorage.clear();
+    mockDerivedState.current = {
+      isPending: false,
+      statuses: [],
+      progress: { doneCount: 0, totalCount: 7, allDone: false },
+      nextStepIndex: 0,
+    };
   });
 
   it("does not render when core checklist steps are incomplete", () => {
@@ -28,6 +48,12 @@ describe("AfterCorePilotChecklistHint", () => {
   });
 
   it("renders suggested next steps when all core steps are done", async () => {
+    mockDerivedState.current = {
+      isPending: false,
+      statuses: [],
+      progress: { doneCount: 7, totalCount: 7, allDone: true },
+      nextStepIndex: null,
+    };
     markAllCoreStepsDone();
     render(<AfterCorePilotChecklistHint />);
 
@@ -42,6 +68,12 @@ describe("AfterCorePilotChecklistHint", () => {
   });
 
   it("persists dismiss to localStorage and hides the panel", async () => {
+    mockDerivedState.current = {
+      isPending: false,
+      statuses: [],
+      progress: { doneCount: 7, totalCount: 7, allDone: true },
+      nextStepIndex: null,
+    };
     markAllCoreStepsDone();
     const { unmount } = render(<AfterCorePilotChecklistHint />);
     expect(await screen.findByTestId("after-core-pilot-whats-next")).toBeInTheDocument();
