@@ -3,7 +3,7 @@
   "cases": [
     {
       "id": "valid-architecture-request",
-      "intent": "Design a multi-tenant Azure API platform with private SQL and Redis cache.",
+      "intent": "Design a multi-tenant Azure API platform with private SQL, Redis cache, and Entra ID authentication for enterprise tenants.",
       "outcome": "Reduce onboarding time for new enterprise tenants.",
       "actorCount": 1,
       "expectedDisposition": "admitted"
