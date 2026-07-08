@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 6 **drafted** below (not yet run). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 6 **done** (see report below). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -22,14 +22,14 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 3 | D.1 (cont.) | Seed `source: evidence` ledger entries from context connectors (IaC declarations, cloud inventory ZIP) | **Done** (see Prompt 3 report) |
 | 4 | D.3 | Inject ledger into `TopologyAgentHandler` / `RunStarterTaskFactory` objectives; agent proposals become `source: agent-proposed` ledger entries instead of untracked `ProposedChanges` free text | **Done** (`80ad003d60`) |
 | 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | **Done** (`e89ceffdfb`) |
-| 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | **Drafted, not run** |
+| 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | **Done** (see Prompt 6 report) |
 | 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | Not started |
 | 8 | D.6 | Prompt template updates — closed-world clause, neutral-mode clause, alternative-labeling clause across all four system prompt templates | Not started |
 | 9 | D.7 | **API endpoint** — `GET`/`PATCH` ledger routes on the run so the UI has something to call (missing piece between the repository and the UI panel; not called out as its own fix in the assessment but required before step 10 can work) | Not started |
 | 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | Not started |
 | 11 | D.9 | Golden-corpus consistency scenarios in CI | Not started |
 
-Prompts 1–6 are written out below. **Run Prompt 6**, review the result, then ask for Prompt 7 to be drafted.
+Prompts 1–7 are written out below. **Run Prompt 7**, review the result, then ask for Prompt 8 to be drafted.
 
 ---
 
@@ -962,6 +962,17 @@ Stop and report:
 - Commit hash.
 - Confirm agent handlers (Prompt 5), system templates (Prompt 8), artifact synthesis lint (Prompt 7), API/UI (Prompts 9–10) were **not** touched.
 ```
+
+---
+
+### Prompt 6 — Report (as actually run, 2026-07-08)
+
+- **v1 rules (machine-friendly `Title`):** `DuplicateChosenLedgerRole`, `ConflictingChosenProviderFamily`, `CloudNeutralProviderLeak`, `MissingChosenCloudPlatform`, `LockedChosenOverriddenByAssumed`.
+- **Severity mapping:** `TechnologyConsistencyFindingEngineMode.WarnOnly` → `FindingSeverity.Warning`; `Enforcing` → `FindingSeverity.Error`. Existing `PreCommitGateEvaluator` / `WarnOnlySeverities` / global threshold / policy-pack assignment logic applies unchanged — warn-only mode does not block unless a configured threshold includes Warning.
+- **Pre-commit wiring:** `PreCommitGovernanceGate.AppendTechnologyConsistencyFindingsAsync` loads ledger rows via `ITechnologyLedgerRepository.GetByRunIdAsync` after snapshot findings are loaded (empty list when snapshot missing) and appends engine findings before `PreCommitGateEvaluator`. Findings are **not** persisted to `FindingsSnapshot` in v1.
+- **Options / defaults:** `ArchLucid:TechnologyConsistency:FindingEngine` — `Enabled: true`, `Mode: WarnOnly` in `ArchLucid.Api/appsettings.json`.
+- **Test results:** `TechnologyConsistencyFindingEngineOptions` — **2/2 passed**; scoped governance tests (`TechnologyConsistencyFindingEngine`, `PreCommitGovernanceGate`) — **34/34 passed**.
+- **Scope confirmation:** agent handlers (Prompt 5), artifact synthesis lint (Prompt 7), system templates (Prompt 8), API/UI (Prompts 9–10) **not** touched.
 
 ---
 

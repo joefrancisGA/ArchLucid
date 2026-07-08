@@ -1,7 +1,11 @@
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
@@ -10,6 +14,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Repositories;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Persistence.Governance;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
@@ -1274,6 +1279,197 @@ public sealed class PreCommitGovernanceGateTests
             Times.Never);
     }
 
+    [SkippableFact]
+    public async Task EvaluateAsync_appends_ledger_consistency_findings_warn_only_without_blocking()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-tech",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findings = new();
+        await findings.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings = [],
+            },
+            CancellationToken.None);
+
+        InMemoryPolicyPackAssignmentRepository assignments = new();
+        await assignments.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ProjectId = TestScope.ProjectId,
+                ScopeLevel = GovernanceScopeLevel.Project,
+                PolicyPackId = Guid.NewGuid(),
+                PolicyPackVersion = "1.0.0",
+                IsEnabled = true,
+                BlockCommitOnCritical = false,
+                BlockCommitMinimumSeverity = (int)FindingSeverity.Error,
+            },
+            CancellationToken.None);
+
+        InMemoryTechnologyLedgerRepository ledgerRepository = new();
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = runId,
+                Role = TechnologyLedgerRole.CloudPlatform,
+                TechnologyName = "Microsoft Azure",
+                ProviderFamily = CloudProvider.Azure,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = runId,
+                Role = TechnologyLedgerRole.PrimaryDatastore,
+                TechnologyName = "Amazon RDS",
+                ProviderFamily = CloudProvider.Aws,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        PreCommitGovernanceGate sut = CreateGate(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            scopeProvider.Object,
+            runs,
+            findings,
+            assignments,
+            ledgerRepository: ledgerRepository,
+            consistencyOptions: Options.Create(new TechnologyConsistencyFindingEngineOptions
+            {
+                Enabled = true,
+                Mode = TechnologyConsistencyFindingEngineMode.WarnOnly,
+            }));
+
+        PreCommitGateResult result = await sut.EvaluateAsync(runId, CancellationToken.None);
+
+        result.Blocked.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_blocks_on_ledger_consistency_when_enforcing_and_global_threshold_error()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-tech-enforce",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findings = new();
+        await findings.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings = [],
+            },
+            CancellationToken.None);
+
+        InMemoryPolicyPackAssignmentRepository assignments = new();
+
+        InMemoryTechnologyLedgerRepository ledgerRepository = new();
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = runId,
+                Role = TechnologyLedgerRole.CloudPlatform,
+                TechnologyName = "Microsoft Azure",
+                ProviderFamily = CloudProvider.Azure,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = runId,
+                Role = TechnologyLedgerRole.PrimaryDatastore,
+                TechnologyName = "Amazon RDS",
+                ProviderFamily = CloudProvider.Aws,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        PreCommitGovernanceGate sut = CreateGate(
+            Options.Create(new PreCommitGovernanceGateOptions
+            {
+                PreCommitGateEnabled = true,
+                PreCommitGateThreshold = "Error",
+            }),
+            scopeProvider.Object,
+            runs,
+            findings,
+            assignments,
+            ledgerRepository: ledgerRepository,
+            consistencyOptions: Options.Create(new TechnologyConsistencyFindingEngineOptions
+            {
+                Enabled = true,
+                Mode = TechnologyConsistencyFindingEngineMode.Enforcing,
+            }));
+
+        PreCommitGateResult result = await sut.EvaluateAsync(runId, CancellationToken.None);
+
+        result.Blocked.Should().BeTrue();
+        result.BlockingFindingIds.Should().Contain(id => id.StartsWith("tech-consistency-ConflictingChosenProviderFamily", StringComparison.Ordinal));
+    }
+
     private static PreCommitGovernanceGate CreateGate(
         IOptions<PreCommitGovernanceGateOptions> gateOptions,
         IScopeContextProvider scopeProvider,
@@ -1281,7 +1477,10 @@ public sealed class PreCommitGovernanceGateTests
         IFindingsSnapshotRepository findings,
         IPolicyPackAssignmentRepository assignments,
         ISchemaValidationService? schemaValidationService = null,
-        IOptions<AuthorityCommitSchemaValidationOptions>? authoritySchemaOptions = null)
+        IOptions<AuthorityCommitSchemaValidationOptions>? authoritySchemaOptions = null,
+        ITechnologyLedgerRepository? ledgerRepository = null,
+        IOptions<TechnologyConsistencyFindingEngineOptions>? consistencyOptions = null,
+        ITechnologyConsistencyFindingEngine? consistencyEngine = null)
     {
         return new PreCommitGovernanceGate(
             gateOptions,
@@ -1291,6 +1490,9 @@ public sealed class PreCommitGovernanceGateTests
             assignments,
             schemaValidationService ?? new PassthroughSchemaValidationService(),
             authoritySchemaOptions
-            ?? Options.Create(new AuthorityCommitSchemaValidationOptions { ValidateGoldenManifestSchema = false }));
+            ?? Options.Create(new AuthorityCommitSchemaValidationOptions { ValidateGoldenManifestSchema = false }),
+            ledgerRepository ?? new InMemoryTechnologyLedgerRepository(),
+            consistencyEngine ?? new TechnologyConsistencyFindingEngine(),
+            consistencyOptions ?? Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }));
     }
 }

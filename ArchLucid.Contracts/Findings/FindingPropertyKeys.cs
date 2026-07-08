@@ -4,4 +4,10 @@ namespace ArchLucid.Contracts.Findings;
 public static class FindingPropertyKeys
 {
     public const string EnforcementTier = "enforcementTier";
+
+    public const string TechnologyLedgerRole = "technologyLedgerRole";
+
+    public const string ProviderFamily = "providerFamily";
+
+    public const string TechnologyLedgerEntryIds = "technologyLedgerEntryIds";
 }

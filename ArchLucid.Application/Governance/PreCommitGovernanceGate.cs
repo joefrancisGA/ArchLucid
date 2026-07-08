@@ -2,11 +2,14 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Validation;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -24,7 +27,11 @@ public sealed class PreCommitGovernanceGate(
     IFindingsSnapshotRepository findingsSnapshotRepository,
     IPolicyPackAssignmentRepository policyPackAssignmentRepository,
     ISchemaValidationService schemaValidationService,
-    IOptions<AuthorityCommitSchemaValidationOptions> authorityCommitSchemaValidationOptions) : IPreCommitGovernanceGate
+    IOptions<AuthorityCommitSchemaValidationOptions> authorityCommitSchemaValidationOptions,
+    ITechnologyLedgerRepository technologyLedgerRepository,
+    ITechnologyConsistencyFindingEngine technologyConsistencyFindingEngine,
+    IOptions<TechnologyConsistencyFindingEngineOptions> technologyConsistencyFindingEngineOptions)
+    : IPreCommitGovernanceGate
 {
     private readonly IOptions<AuthorityCommitSchemaValidationOptions> _authorityCommitSchemaValidationOptions =
         authorityCommitSchemaValidationOptions ?? throw new ArgumentNullException(nameof(authorityCommitSchemaValidationOptions));
@@ -43,6 +50,15 @@ public sealed class PreCommitGovernanceGate(
         schemaValidationService ?? throw new ArgumentNullException(nameof(schemaValidationService));
 
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
+        technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
+
+    private readonly ITechnologyConsistencyFindingEngine _technologyConsistencyFindingEngine =
+        technologyConsistencyFindingEngine ?? throw new ArgumentNullException(nameof(technologyConsistencyFindingEngine));
+
+    private readonly IOptions<TechnologyConsistencyFindingEngineOptions> _technologyConsistencyFindingEngineOptions =
+        technologyConsistencyFindingEngineOptions ?? throw new ArgumentNullException(nameof(technologyConsistencyFindingEngineOptions));
 
     /// <inheritdoc/>
     public Task<PreCommitGateResult> EvaluateAsync(string runId, CancellationToken cancellationToken = default)
@@ -118,11 +134,18 @@ public sealed class PreCommitGovernanceGate(
         {
             RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken);
 
-            if (run is null || !run.FindingsSnapshotId.HasValue)
+            if (run is null)
                 return PreCommitGateResult.Allowed();
 
-            FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(scope, run.FindingsSnapshotId.Value, cancellationToken);
-            findings = snapshot?.Findings is { Count: > 0 } ? snapshot.Findings.ToList() : [];
+            if (run.FindingsSnapshotId.HasValue)
+            {
+                FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(scope, run.FindingsSnapshotId.Value, cancellationToken);
+                findings = snapshot?.Findings is { Count: > 0 } ? snapshot.Findings.ToList() : [];
+            }
+            else
+            {
+                findings = [];
+            }
         }
 
         if (syntheticSeverity is { } sev && syntheticCount > 0)
@@ -130,6 +153,8 @@ public sealed class PreCommitGovernanceGate(
             for (int i = 0; i < syntheticCount; i++)
                 findings.Add(CreateSyntheticFinding(runId, i, sev));
         }
+
+        await AppendTechnologyConsistencyFindingsAsync(runId, scope, findings, cancellationToken);
 
         if (enforcing is not null)
             return PreCommitGateEvaluator.EvaluateForAssignment(findings, enforcing, _options.Value);
@@ -145,6 +170,30 @@ public sealed class PreCommitGovernanceGate(
             blockCommitMinimumSeverity: (int)globalThreshold.Value,
             policyPackIdLabel: "global-pre-commit-threshold",
             _options.Value.WarnOnlySeverities);
+    }
+
+    private async Task AppendTechnologyConsistencyFindingsAsync(
+        string runId,
+        ScopeContext scope,
+        List<Finding> findings,
+        CancellationToken cancellationToken)
+    {
+        TechnologyConsistencyFindingEngineOptions consistencyOptions = _technologyConsistencyFindingEngineOptions.Value;
+        consistencyOptions.Normalize();
+
+        if (!consistencyOptions.Enabled)
+            return;
+
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
+            await _technologyLedgerRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+        IReadOnlyList<Finding> consistencyFindings =
+            _technologyConsistencyFindingEngine.Evaluate(runId, ledgerEntries, consistencyOptions);
+
+        if (consistencyFindings.Count == 0)
+            return;
+
+        findings.AddRange(consistencyFindings);
     }
 
     private static Finding CreateSyntheticFinding(string runId, int index, FindingSeverity severity)

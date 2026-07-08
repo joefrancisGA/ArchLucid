@@ -189,11 +189,14 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IBaselineMutationAuditService, BaselineMutationAuditService>();
         services.Configure<PreCommitGovernanceGateOptions>(
             configuration.GetSection(PreCommitGovernanceGateOptions.SectionPath));
+        services.Configure<TechnologyConsistencyFindingEngineOptions>(
+            configuration.GetSection(TechnologyConsistencyFindingEngineOptions.SectionPath));
         services.Configure<AuthorityCommitSchemaValidationOptions>(
             configuration.GetSection(AuthorityCommitSchemaValidationOptions.SectionPath));
         services.Configure<ArchitectureRunCreateOptions>(
             configuration.GetSection(ArchitectureRunCreateOptions.SectionPath));
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
+        services.AddScoped<ITechnologyConsistencyFindingEngine, TechnologyConsistencyFindingEngine>();
         services.AddScoped<ICommittedEffectiveGovernanceSnapshotCapturer, CommittedEffectiveGovernanceSnapshotCapturer>();
         services.AddScoped<IManifestFinalizationService, ManifestFinalizationService>();
         services.AddSingleton<DefaultRequestContentSafetyPrecheck>();
