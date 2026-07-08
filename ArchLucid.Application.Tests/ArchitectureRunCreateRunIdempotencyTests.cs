@@ -1,3 +1,4 @@
+using ArchLucid.Application.Tests.Orchestration;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
@@ -230,6 +231,9 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             new TechnologyLedgerRequestSeeder(new InMemoryTechnologyLedgerRepository(), TimeProvider.System),
+            TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
+                new InMemoryTechnologyLedgerRepository(),
+                scopeContextProvider),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }

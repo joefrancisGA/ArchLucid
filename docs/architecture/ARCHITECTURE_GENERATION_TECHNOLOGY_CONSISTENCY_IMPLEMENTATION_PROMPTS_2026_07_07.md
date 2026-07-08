@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 3 **drafted** below (not yet run). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 3 **done** (see report below). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -19,7 +19,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | --- | --- | --- | --- |
 | **1** | D.1 | Technology Ledger data model — contracts, SQL table, repository (additive only; nothing reads or writes it yet) | **Done** (`daaa784505`) |
 | 2 | D.2 | Wire ledger into intake: required target-cloud/neutral question, fix `DraftRequestProjector`, seed `source: user` ledger entries from `ArchitectureRequest` | **Done** (see Prompt 2 report) |
-| 3 | D.1 (cont.) | Seed `source: evidence` ledger entries from context connectors (IaC declarations, cloud inventory ZIP) | **Drafted, not run** |
+| 3 | D.1 (cont.) | Seed `source: evidence` ledger entries from context connectors (IaC declarations, cloud inventory ZIP) | **Done** (see Prompt 3 report) |
 | 4 | D.3 | Inject ledger into `TopologyAgentHandler` / `RunStarterTaskFactory` objectives; agent proposals become `source: agent-proposed` ledger entries instead of untracked `ProposedChanges` free text | Not started |
 | 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | Not started |
 | 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | Not started |
@@ -29,7 +29,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | Not started |
 | 11 | D.9 | Golden-corpus consistency scenarios in CI | Not started |
 
-Prompts 1–3 are written out below. Run Prompt 3, review the result, then ask for Prompt 4 to be drafted.
+Prompts 1–3 are written out below. Run Prompt 4, review the result, then ask for Prompt 5 to be drafted.
 
 ---
 
@@ -471,6 +471,16 @@ Stop and report:
 - Commit hash.
 - Confirm no agent/prompt/validation/UI work was touched.
 ```
+
+### Prompt 3 — Report (as actually run, 2026-07-08)
+
+- **Evidence seeder:** `TechnologyLedgerEvidenceSeeder.SeedAsync(string runId, ArchitectureRequest request, CancellationToken cancellationToken = default)` in `ArchLucid.Application/Runs/Orchestration/TechnologyLedgerEvidenceSeeder.cs`. Registered in DI as `services.AddScoped<TechnologyLedgerEvidenceSeeder>()`. Orchestrator calls `TrySeedTechnologyLedgerFromEvidenceAsync` immediately after `TrySeedTechnologyLedgerFromRequestAsync` inside `FinalizeSuccessfulCreateRunAsync` (same best-effort try/catch; skipped on idempotent replay).
+- **Merge policy:** `TechnologyLedgerEvidenceMergePolicy.Resolve` — per role, at most one `Chosen` row; matching `ProviderFamily` on an existing `Chosen` row → skip; conflicting `ProviderFamily` → insert one `Alternative` evidence row with rationale `"Evidence suggests {candidate} while existing chosen entry is {existing}."`; empty role slot → insert candidate as `Chosen`. User `CloudPlatform` from Prompt 2 always wins as `Chosen`; conflicting inventory evidence becomes `Alternative`.
+- **Cloud inventory provenance API:** `CloudInventoryExtractorPackageProvenance` + `ICloudInventoryExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync(ScopeContext, Guid runId, CloudProvider cloudProvider, CancellationToken)` — mirrors `AzureExtractorPackageProvenance` / `IAzureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync`. SQL implementation selects latest row by tenant/workspace/project + `RunId` + provider ordered by `CreatedUtc` desc; `NoOp` returns null.
+- **IaC mapping (implemented):** `TechnologyLedgerCanonicalObjectMapper` maps `CanonicalObject` rows from `InfrastructureDeclarationsPayloadNormalizer` plus per-declaration `IacTarget` rows. Role detection from `terraformType` / `resourceType` prefixes (datastore → `PrimaryDatastore`, identity → `IdentityProvider`, messaging → `Messaging`, compute → `ComputeRuntime`; json subtype aliases supported). `ProviderFamily` from `azurerm_`/`aws_`/`google_`/`gcp_` prefixes or `providerName` fallback. `EvidenceRef` = `infrastructureDeclaration:{SourceId}` for canonical objects; `IacTarget` uses declaration id. Inventory `CloudPlatform` rows: Azure `EvidenceRef` = `azureExtractorPackage:{PackageId:N}`; AWS/GCP = `cloudInventoryPackage:{Provider}:{PackageId:N}`.
+- **AWS/GCP without `RunId`:** skipped — provenance query filters on `RunId`; packages ingested without a run link return no row (expected).
+- **Test results:** `TechnologyLedgerCanonicalObjectMapperTests` + `TechnologyLedgerEvidenceMergePolicyTests` + `TechnologyLedgerEvidenceSeederTests` + `ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTests` — **16/16 passed**.
+- **Scope confirmation:** no agent handlers, prompt templates, validation engine, or Technology Baseline UI touched.
 
 ---
 

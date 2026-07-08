@@ -200,6 +200,9 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             new TechnologyLedgerRequestSeeder(new InMemoryTechnologyLedgerRepository(), TimeProvider.System),
+            TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
+                new InMemoryTechnologyLedgerRepository(),
+                scopeProvider.Object),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         const int parallel = 64;
@@ -319,6 +322,9 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             new TechnologyLedgerRequestSeeder(new InMemoryTechnologyLedgerRepository(), TimeProvider.System),
+            TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
+                new InMemoryTechnologyLedgerRepository(),
+                scopeProvider.Object),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         const int parallel = 64;

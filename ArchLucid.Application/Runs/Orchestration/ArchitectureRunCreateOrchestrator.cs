@@ -55,6 +55,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     TimeProvider timeProvider,
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     TechnologyLedgerRequestSeeder technologyLedgerRequestSeeder,
+    TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
     private readonly IOptions<ArchitectureRunCreateOptions> _createRunOptions = createRunOptions ?? throw new ArgumentNullException(nameof(createRunOptions));
@@ -64,6 +65,9 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
     private readonly TechnologyLedgerRequestSeeder _technologyLedgerRequestSeeder =
         technologyLedgerRequestSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerRequestSeeder));
+
+    private readonly TechnologyLedgerEvidenceSeeder _technologyLedgerEvidenceSeeder =
+        technologyLedgerEvidenceSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerEvidenceSeeder));
 
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
@@ -350,6 +354,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 coordination.Tasks.Count);
         await TryRecordArchitectureRunMeteringAsync(_scopeContextProvider.GetCurrentScope(), coordination.Run.RunId, cancellationToken);
         await TrySeedTechnologyLedgerFromRequestAsync(request, coordination.Run.RunId, cancellationToken);
+        await TrySeedTechnologyLedgerFromEvidenceAsync(request, coordination.Run.RunId, cancellationToken);
         return new CreateRunResult { Run = coordination.Run, EvidenceBundle = coordination.EvidenceBundle, Tasks = coordination.Tasks };
     }
 
@@ -384,6 +389,27 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 _logger.LogWarning(
                     ex,
                     "Technology ledger seeding failed for architecture run (RunId={RunId}).",
+                    LogSanitizer.Sanitize(runId));
+            }
+        }
+    }
+
+    private async Task TrySeedTechnologyLedgerFromEvidenceAsync(
+        ArchitectureRequest request,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _technologyLedgerEvidenceSeeder.SeedAsync(runId, request, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Technology ledger evidence seeding failed for architecture run (RunId={RunId}).",
                     LogSanitizer.Sanitize(runId));
             }
         }

@@ -67,6 +67,9 @@ public sealed class ArchitectureRunCreateOrchestratorContentSafetyTests
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             new TechnologyLedgerRequestSeeder(new InMemoryTechnologyLedgerRepository(), TimeProvider.System),
+            TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
+                new InMemoryTechnologyLedgerRepository(),
+                Mock.Of<IScopeContextProvider>()),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         ArchitectureRequest request = new()

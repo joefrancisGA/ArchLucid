@@ -92,4 +92,110 @@ public sealed class SqlCloudInventoryExtractorPackageRepository(ISqlConnectionFa
                 commandTimeout: DapperCommandTimeoutSeconds.Report,
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<CloudInventoryExtractorPackageProvenance?> TryGetLatestProvenanceByRunIdAsync(
+        ScopeContext scope,
+        Guid runId,
+        CloudProvider cloudProvider,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (cloudProvider is not (CloudProvider.Aws or CloudProvider.Gcp))
+            return null;
+
+        const string sql = """
+                           SELECT TOP (1)
+                               PackageId,
+                               CloudProvider,
+                               SchemaVersion,
+                               ScopeId,
+                               CollectionTimestampUtc,
+                               CreatedUtc,
+                               OriginalFileName
+                           FROM dbo.CloudInventoryExtractorPackages
+                           WHERE TenantId = @TenantId
+                               AND WorkspaceId = @WorkspaceId
+                               AND ProjectId = @ProjectId
+                               AND RunId = @RunId
+                               AND CloudProvider = @CloudProvider
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        ProvenanceRow? row = await conn.QuerySingleOrDefaultAsync<ProvenanceRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    RunId = runId,
+                    CloudProvider = (int)cloudProvider,
+                },
+                commandTimeout: DapperCommandTimeoutSeconds.Report,
+                cancellationToken: cancellationToken));
+
+        if (row is null)
+            return null;
+
+        return new CloudInventoryExtractorPackageProvenance
+        {
+            PackageId = row.PackageId,
+            CloudProvider = (CloudProvider)row.CloudProvider,
+            SchemaVersion = row.SchemaVersion,
+            ScopeId = row.ScopeId ?? string.Empty,
+            CollectionTimestampUtc = row.CollectionTimestampUtc,
+            CreatedUtc = row.CreatedUtc,
+            OriginalFileName = row.OriginalFileName ?? string.Empty,
+        };
+    }
+
+    private sealed class ProvenanceRow
+    {
+        public Guid PackageId
+        {
+            get;
+            set;
+        }
+
+        public int CloudProvider
+        {
+            get;
+            set;
+        }
+
+        public int SchemaVersion
+        {
+            get;
+            set;
+        }
+
+        public string? ScopeId
+        {
+            get;
+            set;
+        }
+
+        public DateTime? CollectionTimestampUtc
+        {
+            get;
+            set;
+        }
+
+        public DateTime CreatedUtc
+        {
+            get;
+            set;
+        }
+
+        public string? OriginalFileName
+        {
+            get;
+            set;
+        }
+    }
 }

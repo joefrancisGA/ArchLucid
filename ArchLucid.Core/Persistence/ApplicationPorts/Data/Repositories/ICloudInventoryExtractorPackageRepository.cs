@@ -13,4 +13,11 @@ public interface ICloudInventoryExtractorPackageRepository
         CloudProvider cloudProvider,
         Guid packageId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Latest AWS/GCP inventory package provenance linked to a run (no ZIP bytes).</summary>
+    Task<CloudInventoryExtractorPackageProvenance?> TryGetLatestProvenanceByRunIdAsync(
+        ScopeContext scope,
+        Guid runId,
+        CloudProvider cloudProvider,
+        CancellationToken cancellationToken = default);
 }

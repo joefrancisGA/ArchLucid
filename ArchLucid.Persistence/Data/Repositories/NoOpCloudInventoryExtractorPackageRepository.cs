@@ -16,4 +16,11 @@ public sealed class NoOpCloudInventoryExtractorPackageRepository : ICloudInvento
         Guid packageId,
         CancellationToken cancellationToken = default)
         => Task.FromResult<CloudInventoryExtractorPackageDownloadRecord?>(null);
+
+    public Task<CloudInventoryExtractorPackageProvenance?> TryGetLatestProvenanceByRunIdAsync(
+        ScopeContext scope,
+        Guid runId,
+        CloudProvider cloudProvider,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<CloudInventoryExtractorPackageProvenance?>(null);
 }

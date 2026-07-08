@@ -140,6 +140,9 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             new TechnologyLedgerRequestSeeder(new InMemoryTechnologyLedgerRepository(), TimeProvider.System),
+            TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
+                new InMemoryTechnologyLedgerRepository(),
+                scopeProvider.Object),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         CreateRunResult result = await sut.CreateRunAsync(request, null, CancellationToken.None);

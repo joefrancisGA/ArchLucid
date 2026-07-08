@@ -275,7 +275,9 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
         IUsageMeteringService metering,
         InMemoryTechnologyLedgerRepository ledgerRepository)
     {
-        TechnologyLedgerRequestSeeder seeder = new(ledgerRepository, TimeProvider.System);
+        TechnologyLedgerRequestSeeder seeder = TechnologyLedgerSeederTestDoubles.CreateRequestSeeder(ledgerRepository);
+        TechnologyLedgerEvidenceSeeder evidenceSeeder =
+            TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(ledgerRepository, scopeContextProvider);
 
         return new ArchitectureRunCreateOrchestrator(
             coordination,
@@ -297,6 +299,7 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             seeder,
+            evidenceSeeder,
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }
