@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 4 **drafted** below (not yet run). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -20,7 +20,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | **1** | D.1 | Technology Ledger data model — contracts, SQL table, repository (additive only; nothing reads or writes it yet) | **Done** (`daaa784505`) |
 | 2 | D.2 | Wire ledger into intake: required target-cloud/neutral question, fix `DraftRequestProjector`, seed `source: user` ledger entries from `ArchitectureRequest` | **Done** (see Prompt 2 report) |
 | 3 | D.1 (cont.) | Seed `source: evidence` ledger entries from context connectors (IaC declarations, cloud inventory ZIP) | **Done** (see Prompt 3 report) |
-| 4 | D.3 | Inject ledger into `TopologyAgentHandler` / `RunStarterTaskFactory` objectives; agent proposals become `source: agent-proposed` ledger entries instead of untracked `ProposedChanges` free text | **Drafted, not run** |
+| 4 | D.3 | Inject ledger into `TopologyAgentHandler` / `RunStarterTaskFactory` objectives; agent proposals become `source: agent-proposed` ledger entries instead of untracked `ProposedChanges` free text | **Done** (`80ad003d60`) |
 | 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | Not started |
 | 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | Not started |
 | 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | Not started |
@@ -481,6 +481,17 @@ Stop and report:
 - **AWS/GCP without `RunId`:** skipped — provenance query filters on `RunId`; packages ingested without a run link return no row (expected).
 - **Test results:** `TechnologyLedgerCanonicalObjectMapperTests` + `TechnologyLedgerEvidenceMergePolicyTests` + `TechnologyLedgerEvidenceSeederTests` + `ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTests` — **16/16 passed**.
 - **Scope confirmation:** no agent handlers, prompt templates, validation engine, or Technology Baseline UI touched.
+
+### Prompt 4 — Report (as actually run, 2026-07-08)
+
+- **Intake seeding relocated to:** `ArchitectureRunAuthorityCoordination.CreateRunAsync` (after extractor merge, before `BuildStarterTasks`, skipped when deferred) and `AuthorityPipelineWorkProcessor` deferred materialization path (seed → load → build tasks). `ArchitectureRunCreateOrchestrator.FinalizeSuccessfulCreateRunAsync` does **not** seed the ledger (on master it never did; coordination now owns intake seeding).
+- **Topology objective:** `TechnologyLedgerObjectiveComposer.BuildTopologyObjective` uses `TechnologyLedgerEffectiveCloudTarget.Resolve` — prefers ledger `CloudPlatform` `Chosen` row, else `request.CloudProvider`. Labels: Azure / AWS / GCP / cloud-neutral (never emits "Azure" for Aws/Gcp/None).
+- **Topology user prompt:** `TopologyAgentHandler` loads ledger rows, appends `TechnologyLedgerPromptFormatter` (sorted by role + `CreatedUtc`, 32-line cap). Azure MVP guidance only when effective cloud is Azure; cloud-neutral block when `None`; Aws/Gcp rely on `CloudProviderAgentPromptComposer` only.
+- **Agent-proposed rows:** `TechnologyLedgerTopologyProposalMapper.MapCandidates` maps `AddedDatastores` → `PrimaryDatastore`, `AddedServices` → `ComputeRuntime`, first `AzureArmRegion` → `Region`, inferred `CloudPlatform` when absent. `Source=AgentProposed`, `Status=Assumed`, `EvidenceRef=agentTopologyProposal:{ProposalId}:{stableSubKey}`, `Rationale="Proposed by Topology agent in ProposedChanges."`
+- **Agent merge policy:** `TechnologyLedgerAgentProposalMergePolicy` — no updates/deletes; no second `Chosen`; skip when `Chosen` is locked or same `ProviderFamily`; insert one `Assumed` on provider conflict.
+- **Execute hook:** `ArchitectureRunExecuteOrchestrator.TrySeedTechnologyLedgerFromTopologyAsync` after `_agentResultPostExecutionEnricher.EnrichAsync`, before `PersistExecutePhaseAsync` (best-effort).
+- **Test results:** filtered `ArchLucid.Application.Tests` (`TechnologyLedger*`, coordination, create seeding, tier tests) — **36/36 passed**.
+- **Scope confirmation:** Cost/Compliance/Critic handlers, system prompt templates (Prompt 8), `TechnologyConsistencyFindingEngine` (Prompt 6), API/UI (Prompts 9–10) **not** touched.
 
 ---
 
