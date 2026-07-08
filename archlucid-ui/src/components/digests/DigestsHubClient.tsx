@@ -58,6 +58,7 @@ export function DigestsHubClient(): ReactElement {
   const [healthSnap, setHealthSnap] = useState<WeeklyDigestHealthDto | null>(null);
   const [healthRefreshToken, setHealthRefreshToken] = useState(0);
   const [browseRefreshToken, setBrowseRefreshToken] = useState(0);
+  const [scheduleRefreshToken, setScheduleRefreshToken] = useState(0);
   const [lastUpdatedUtc, setLastUpdatedUtc] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -94,7 +95,16 @@ export function DigestsHubClient(): ReactElement {
     setRefreshing(true);
     setHealthRefreshToken((n) => n + 1);
     setBrowseRefreshToken((n) => n + 1);
+    setScheduleRefreshToken((n) => n + 1);
   }, []);
+
+  const healthBannerVariant =
+    activeTab === "subscriptions" ? "subscriptions" : activeTab === "schedule" ? "schedule" : "full";
+
+  const previewActionTitle =
+    "Opens the most recently generated digest summary. Uses saved schedule and subscription settings for delivery.";
+  const sendTestActionTitle =
+    "Triggers an advisory scan to generate a test digest. Delivery uses saved subscriptions and schedule recipients.";
 
   const configured: boolean = healthSnap !== null && digestsHaveExistingConfiguration(healthSnap);
   const primaryHref: string = configured ? "/digests?tab=schedule" : "/digests?tab=subscriptions";
@@ -125,10 +135,22 @@ export function DigestsHubClient(): ReactElement {
             <Button asChild size="sm" variant="primary" data-testid="digests-primary-action">
               <Link href={primaryHref}>{primaryLabel}</Link>
             </Button>
-            <Button asChild size="sm" variant="outline" data-testid="digests-preview-action">
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+              data-testid="digests-preview-action"
+              title={previewActionTitle}
+            >
               <Link href={previewHref}>Preview digest</Link>
             </Button>
-            <Button asChild size="sm" variant="outline" data-testid="digests-send-test-action">
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+              data-testid="digests-send-test-action"
+              title={sendTestActionTitle}
+            >
               <Link href="/advisory?tab=schedules">Send test</Link>
             </Button>
             <div className="flex flex-wrap items-center gap-2">
@@ -161,7 +183,7 @@ export function DigestsHubClient(): ReactElement {
       <WeeklyDigestHealthBanner
         refreshToken={healthRefreshToken}
         onHealthLoaded={onHealthLoaded}
-        variant={activeTab === "subscriptions" ? "subscriptions" : "full"}
+        variant={healthBannerVariant}
       />
 
       {activeTab !== "subscriptions" ? (
@@ -212,7 +234,7 @@ export function DigestsHubClient(): ReactElement {
           <DigestSubscriptionsContent />
         </TabsContent>
         <TabsContent value="schedule" className="mt-4">
-          <ExecDigestScheduleContent />
+          <ExecDigestScheduleContent refreshToken={scheduleRefreshToken} />
         </TabsContent>
       </Tabs>
     </div>

@@ -17,6 +17,8 @@ import {
   resolveDigestOverallStatus,
   type DigestSetupGapAction,
 } from "@/lib/digest-setup-gap-actions";
+import { EXEC_DIGEST_DAY_NAMES, formatExecDigestSendTimeLabel } from "@/lib/exec-digest-schedule-form";
+import { formatIanaTimeZoneOptionLabel } from "@/lib/iana-time-zone-select";
 import { fetchWeeklyDigestHealth } from "@/lib/api";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
@@ -26,10 +28,11 @@ export type WeeklyDigestHealthBannerProps = {
   /** Notifies the hub when health loads so primary CTAs can adapt. */
   readonly onHealthLoaded?: (snap: WeeklyDigestHealthDto | null) => void;
   /**
-   * `full` — metrics + all setup gaps (Browse / Schedule).
+   * `full` — metrics + all setup gaps (Browse).
    * `subscriptions` — compact strip with subscription-relevant gaps only.
+   * `schedule` — compact strip with executive schedule gaps only.
    */
-  readonly variant?: "full" | "subscriptions";
+  readonly variant?: "full" | "subscriptions" | "schedule";
 };
 
 type HealthMetricProps = {
@@ -54,6 +57,26 @@ function isSubscriptionRelevantGap(gap: DigestSetupGapAction): boolean {
     /subscription|recipient/i.test(gap.title) ||
     /subscription|recipient/i.test(gap.impact)
   );
+}
+
+function isScheduleRelevantGap(gap: DigestSetupGapAction): boolean {
+  return (
+    gap.href.includes("tab=schedule") ||
+    /executive|schedule|recipient/i.test(gap.title) ||
+    /executive|schedule|recipient|rollup/i.test(gap.impact)
+  );
+}
+
+function formatExecutiveScheduleSummary(snap: WeeklyDigestHealthDto): string {
+  if (!snap.executiveEmailDigestEnabled) {
+    return "Executive digest disabled";
+  }
+
+  const dayName: string = EXEC_DIGEST_DAY_NAMES[snap.executiveDigestDayOfWeek] ?? "—";
+  const timeLabel: string = formatExecDigestSendTimeLabel(snap.executiveDigestHourOfDay);
+  const zoneLabel: string = formatIanaTimeZoneOptionLabel(snap.executiveDigestIanaTimeZoneId);
+
+  return `${dayName} at ${timeLabel} ${zoneLabel}`;
 }
 
 /** Compact digest status summary with actionable setup gaps for the Digests hub. */
@@ -106,7 +129,11 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
   const overall = resolveDigestOverallStatus(snap);
   const allGaps: DigestSetupGapAction[] = mapDigestSetupGaps(snap.setupGaps.slice(0, 4));
   const gaps: DigestSetupGapAction[] =
-    variant === "subscriptions" ? allGaps.filter(isSubscriptionRelevantGap).slice(0, 2) : allGaps;
+    variant === "subscriptions"
+      ? allGaps.filter(isSubscriptionRelevantGap).slice(0, 2)
+      : variant === "schedule"
+        ? allGaps.filter(isScheduleRelevantGap).slice(0, 2)
+        : allGaps;
   const configured: boolean = digestsHaveExistingConfiguration(snap);
   const executiveRecipients: string =
     snap.executiveDigestRecipientCount > 0
@@ -114,7 +141,13 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
       : configured
         ? "0"
         : "—";
-  const compact: boolean = variant === "subscriptions";
+  const compact: boolean = variant === "subscriptions" || variant === "schedule";
+  const compactTitle: string =
+    variant === "subscriptions"
+      ? "Subscription delivery"
+      : variant === "schedule"
+        ? "Executive schedule"
+        : "Digest status";
 
   return (
     <div
@@ -129,10 +162,10 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {compact ? "Subscription delivery" : "Digest status"}
+            {compactTitle}
           </h3>
           <StatusTag kind={overall.kind} label={overall.label} data-testid="digest-overall-status" />
-          {compact ? (
+          {variant === "subscriptions" ? (
             <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Active: {snap.enabledDigestSubscriptionCount}
               {" · "}
@@ -140,6 +173,13 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
               {formatDigestInstant(
                 snap.latestDigestSubscriptionDeliveryUtc ?? snap.latestArchitectureDigestGeneratedUtc,
               )}
+            </span>
+          ) : null}
+          {variant === "schedule" ? (
+            <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Recipients: {executiveRecipients}
+              {" · "}
+              Cadence: {formatExecutiveScheduleSummary(snap)}
             </span>
           ) : null}
         </div>
