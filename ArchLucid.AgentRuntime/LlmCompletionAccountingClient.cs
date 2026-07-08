@@ -206,7 +206,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
             // read the same ambient usage after this decorator returns.
             bool usageAvailable = AzureOpenAiCompletionClient.TryPeekLastCompletionTokenUsage(out int promptTok,
                 out int completionTok,
-                out int reasoningTok);
+                out int reasoningTok,
+                out int cachedPromptTok);
 
             if (!usageAvailable)
             {
@@ -287,7 +288,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                     labels.ProviderId,
                     labels.ModelDeploymentLabel,
                     invocationScope?.ResolveConsumeRoleLabel(),
-                    invocationScope?.ResolveInvokeKindLabel());
+                    invocationScope?.ResolveInvokeKindLabel(),
+                    cachedPromptTok);
 
                 LlmCompletionCostDeltaLogger.LogIfEnabled(
                     _logger,
@@ -380,7 +382,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
             // read the same ambient usage after this decorator returns.
             bool usageAvailable = AzureOpenAiCompletionClient.TryPeekLastCompletionTokenUsage(out int promptTok,
                 out int completionTok,
-                out int reasoningTok);
+                out int reasoningTok,
+                out int cachedPromptTok);
 
             if (!usageAvailable)
             {
@@ -437,7 +440,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                     labels.ProviderId,
                     labels.ModelDeploymentLabel,
                     invocationScope?.ResolveConsumeRoleLabel(),
-                    invocationScope?.ResolveInvokeKindLabel());
+                    invocationScope?.ResolveInvokeKindLabel(),
+                    cachedPromptTok);
 
                 LlmCompletionCostDeltaLogger.LogIfEnabled(
                     _logger,

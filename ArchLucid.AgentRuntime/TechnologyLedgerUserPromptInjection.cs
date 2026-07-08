@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
@@ -35,6 +36,23 @@ public static class TechnologyLedgerUserPromptInjection
 
     public static void AppendLedgerContext(StringBuilder sb, IReadOnlyList<TechnologyLedgerEntry> entries)
     {
-        TechnologyLedgerPromptFormatter.AppendTechnologyLedgerContext(sb, entries);
+        ArgumentNullException.ThrowIfNull(sb);
+        ArgumentNullException.ThrowIfNull(entries);
+
+        if (entries.Count == 0)
+            return;
+
+        StringBuilder ledgerBlock = new();
+        TechnologyLedgerPromptFormatter.AppendTechnologyLedgerContext(ledgerBlock, entries);
+        sb.Append(PromptFieldRedactor.RedactForPrompt(ledgerBlock.ToString()));
+    }
+
+    public static string AppendLedgerContext(string baseUserPrompt, IReadOnlyList<TechnologyLedgerEntry> entries)
+    {
+        StringBuilder sb = new(baseUserPrompt.TrimEnd());
+        sb.AppendLine();
+        AppendLedgerContext(sb, entries);
+
+        return sb.ToString();
     }
 }

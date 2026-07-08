@@ -96,8 +96,14 @@ public sealed class CostAgentHandler(
             effectiveCloudTarget);
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
-        CostRetailGroundingResult retailGrounding = CostRetailGroundingBuilder.Build(request, evidence, _retailGroundingLookups);
-        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task, retailGrounding, ledgerEntries);
+        CostRetailGroundingResult retailGrounding = CostRetailGroundingBuilder.Build(
+            request,
+            evidence,
+            _retailGroundingLookups,
+            effectiveCloudTarget);
+        string baseUserPrompt = TechnologyLedgerUserPromptInjection.AppendLedgerContext(
+            AgentUserPromptComposer.BuildCostUserPrompt(runId, request, evidence, task, retailGrounding),
+            ledgerEntries);
         await TryPersistRetailGroundingTraceAsync(runId, request, retailGrounding, cancellationToken);
         string lastCompletionJson = string.Empty;
 
@@ -181,32 +187,11 @@ public sealed class CostAgentHandler(
         AgentEvidencePackage evidence,
         AgentTask task,
         CostRetailGroundingResult grounding,
-        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
-    {
-        StringBuilder sb = new();
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries) =>
+        TechnologyLedgerUserPromptInjection.AppendLedgerContext(
+            AgentUserPromptComposer.BuildCostUserPrompt(runId, request, evidence, task, grounding),
+            ledgerEntries);
 
-        sb.AppendLine("Generate a cost AgentResult.");
-        sb.AppendLine();
-
-        AgentUserPromptBuilder.AppendRunHeader(sb, runId, task.TaskId, "Cost");
-        AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
-        AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
-        TechnologyLedgerUserPromptInjection.AppendLedgerContext(sb, ledgerEntries);
-
-        if (!grounding.SkippedRetailGrounding)
-        {
-            sb.AppendLine();
-            sb.AppendLine(grounding.PromptBlock);
-        }
-
-        sb.AppendLine();
-        sb.AppendLine("Important guidance:");
-        sb.AppendLine("- Prefer managed services with predictable operational cost for MVP workloads.");
-        sb.AppendLine("- Highlight token/search spend monitoring when AI services are in scope.");
-        sb.AppendLine("- Return JSON only.");
-
-        return sb.ToString();
-    }
 
     private async Task TryPersistRetailGroundingTraceAsync(
         string runId,

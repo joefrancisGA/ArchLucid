@@ -94,7 +94,9 @@ public sealed class TopologyAgentHandler(
             effectiveCloudTarget);
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
-        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task, effectiveCloudTarget, ledgerEntries);
+        string baseUserPrompt = TechnologyLedgerUserPromptInjection.AppendLedgerContext(
+            AgentUserPromptComposer.BuildTopologyUserPrompt(runId, request, evidence, task, effectiveCloudTarget),
+            ledgerEntries);
         baseUserPrompt = await AppendExemplarStylePriorAsync(runId, request, baseUserPrompt, cancellationToken)
             .ConfigureAwait(false);
         string lastCompletionJson = string.Empty;
@@ -171,49 +173,6 @@ public sealed class TopologyAgentHandler(
 
             throw;
         }
-    }
-
-    private static string BuildUserPrompt(
-        string runId,
-        ArchitectureRequest request,
-        AgentEvidencePackage evidence,
-        AgentTask task,
-        CloudProvider effectiveCloudTarget,
-        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
-    {
-        StringBuilder sb = new();
-
-        sb.AppendLine("Generate a topology AgentResult.");
-        sb.AppendLine();
-
-        AgentUserPromptBuilder.AppendRunHeader(sb, runId, task.TaskId, "Topology");
-        AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
-        AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
-
-        CloudProviderAgentPromptComposer.AppendUserPromptCloudGuidance(sb, AgentType.Topology, effectiveCloudTarget);
-
-        if (effectiveCloudTarget == CloudProvider.Azure)
-        {
-            sb.AppendLine("Important guidance:");
-            sb.AppendLine("- Produce a simple, coherent MVP-quality Azure topology.");
-            sb.AppendLine("- Prefer App Service over AKS unless AKS is truly necessary.");
-            sb.AppendLine("- If Azure AI Search is required, include it explicitly.");
-            sb.AppendLine("- If SQL metadata is implied, include a SQL datastore explicitly.");
-            sb.AppendLine("- Use stable IDs such as svc-api, svc-search, ds-metadata where appropriate.");
-            sb.AppendLine("- Return JSON only.");
-        }
-        else if (effectiveCloudTarget == CloudProvider.None)
-        {
-            sb.AppendLine("Important guidance:");
-            sb.AppendLine("- Produce a simple, coherent MVP-quality cloud-neutral topology.");
-            sb.AppendLine("- Avoid naming a specific hyperscaler unless the request or ledger requires it.");
-            sb.AppendLine("- Use stable IDs such as svc-api, ds-metadata where appropriate.");
-            sb.AppendLine("- Return JSON only.");
-        }
-
-        TechnologyLedgerPromptFormatter.AppendTechnologyLedgerContext(sb, ledgerEntries);
-
-        return sb.ToString();
     }
 
     private async Task<string> AppendExemplarStylePriorAsync(

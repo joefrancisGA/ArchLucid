@@ -103,7 +103,9 @@ public sealed class ComplianceAgentHandler(
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
 
-        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task, ledgerEntries);
+        string baseUserPrompt = TechnologyLedgerUserPromptInjection.AppendLedgerContext(
+            AgentUserPromptComposer.BuildComplianceUserPrompt(runId, request, evidence, task),
+            ledgerEntries);
         IReadOnlyList<RetrievalHit> policyPackHits = [];
         (baseUserPrompt, policyPackHits) = await AppendPolicyPackRetrievalAsync(
             request,
@@ -188,37 +190,6 @@ public sealed class ComplianceAgentHandler(
 
             throw;
         }
-    }
-
-    private static string BuildUserPrompt(
-        string runId,
-        ArchitectureRequest request,
-        AgentEvidencePackage evidence,
-        AgentTask task,
-        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
-    {
-        StringBuilder sb = new();
-
-        sb.AppendLine("Generate a compliance AgentResult.");
-        sb.AppendLine();
-
-        AgentUserPromptBuilder.AppendRunHeader(sb, runId, task.TaskId, "Compliance");
-        AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
-        AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
-        TechnologyLedgerUserPromptInjection.AppendLedgerContext(sb, ledgerEntries);
-
-        sb.AppendLine("Important guidance:");
-        sb.AppendLine("- Infer mandatory controls conservatively from constraints and required capabilities.");
-        sb.AppendLine("- If managed identity is explicitly required, include Managed Identity.");
-        sb.AppendLine(
-            "- If private endpoints or private networking are required, include Private Endpoints and/or Private Networking.");
-        sb.AppendLine("- If encryption is required, include Encryption At Rest.");
-        sb.AppendLine("- If secrets are likely present, include Key Vault.");
-        sb.AppendLine(
-            "- Prefer reusable machine-friendly findings such as ManagedIdentityRequired or PrivateNetworkingRequired.");
-        sb.AppendLine("- Return JSON only.");
-
-        return sb.ToString();
     }
 
     private async Task<(string Prompt, IReadOnlyList<RetrievalHit> Hits)> AppendPolicyPackRetrievalAsync(

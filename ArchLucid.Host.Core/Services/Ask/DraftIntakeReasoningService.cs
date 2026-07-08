@@ -23,6 +23,9 @@ public sealed class DraftIntakeReasoningService(
 {
     private const int HistoryTake = 20;
 
+    private const string IntakeUserPromptStaticPrefix =
+        "Use ONLY the draft context JSON, conversation history, and latest message sections below.\n\n";
+
     private const string IntakeSystemPrompt =
         "You are an enterprise architecture intake assistant helping an expert operator shape vague " +
         "business intent into a designable request before any architecture run exists. " +
@@ -117,6 +120,7 @@ public sealed class DraftIntakeReasoningService(
         string historyText = BuildHistoryText(history);
         string contextJson = DraftIntakeReasoningContextBuilder.BuildContextJson(draft.Document);
         string userPrompt =
+            IntakeUserPromptStaticPrefix +
             $"Draft context JSON:\n{contextJson}\n\nConversation history:\n{historyText}\n\nLatest message:\n{message}";
 
         string answer = await TryCompleteAnswerAsync(thread.ThreadId, userPrompt, cancellationToken);

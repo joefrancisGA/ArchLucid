@@ -427,13 +427,14 @@ public sealed class AskService(
             ? "\n\nRetrieval Warning:\nVector search was unavailable; retrieved evidence may be incomplete and was sourced from SQL findings/manifest text only.\n"
             : string.Empty;
 
-        return "Conversation History:\n" +
-               (string.IsNullOrWhiteSpace(prepared.HistoryText) ? "(none)\n" : prepared.HistoryText + "\n") +
-               "\nStructured Context:\n" +
+        return AskUserPromptStaticPrefix.ArchitectUserPrefix +
+               "Structured Context:\n" +
                prepared.ContextJson +
                "\n\nRetrieved Evidence:\n" +
                (string.IsNullOrWhiteSpace(prepared.RetrievalContext) ? "(none)\n" : prepared.RetrievalContext + "\n") +
                degradedNote +
+               "Conversation History:\n" +
+               (string.IsNullOrWhiteSpace(prepared.HistoryText) ? "(none)\n" : prepared.HistoryText + "\n") +
                "\nUser Question:\n" +
                prepared.Question;
     }

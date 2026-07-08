@@ -1119,6 +1119,12 @@ public static class ArchLucidInstrumentation
             "archlucid_llm_completion_tokens_total",
             description: "Cumulative completion tokens reported by Azure OpenAI completions.");
 
+    /// <summary>Azure OpenAI prompt-cache discounted input tokens (TB-681).</summary>
+    public static readonly Counter<long> LlmCachedPromptTokensTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_cached_prompt_tokens_total",
+            description: "Cumulative cached prompt tokens reported by Azure OpenAI prompt caching.");
+
     /// <summary>Completion token distribution tagged by agent consume role and invoke kind (TB-015).</summary>
     public static readonly Histogram<long> LlmCompletionTokensDimensional =
         AppMeter.CreateHistogram<long>(
@@ -2324,7 +2330,8 @@ public static class ArchLucidInstrumentation
         string? llmProviderId = null,
         string? llmDeploymentLabel = null,
         string? consumeRole = null,
-        string? invokeKind = null)
+        string? invokeKind = null,
+        long cachedPromptTokens = 0)
     {
         bool hasDimensionalTags = !string.IsNullOrEmpty(consumeRole) || !string.IsNullOrEmpty(invokeKind);
         bool hasTags = (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
@@ -2337,6 +2344,12 @@ public static class ArchLucidInstrumentation
                 LlmPromptTokensTotal.Add(promptTokens, BuildTags());
             else
                 LlmPromptTokensTotal.Add(promptTokens);
+
+        if (cachedPromptTokens > 0)
+            if (hasTags)
+                LlmCachedPromptTokensTotal.Add(cachedPromptTokens, BuildTags());
+            else
+                LlmCachedPromptTokensTotal.Add(cachedPromptTokens);
 
         if (completionTokens <= 0)
             return;

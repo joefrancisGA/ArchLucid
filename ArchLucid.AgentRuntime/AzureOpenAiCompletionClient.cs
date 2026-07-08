@@ -324,10 +324,11 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
                 int inTok = usage.InputTokenCount is var ip ? ip : 0;
                 int outTok = usage.OutputTokenCount is var op ? op : 0;
                 int reasoningTok = usage.OutputTokenDetails?.ReasoningTokenCount ?? 0;
+                int cachedTok = AzureOpenAiChatTokenUsageReader.ReadCachedInputTokens(usage);
 
-                if (inTok > 0 || outTok > 0 || reasoningTok > 0)
+                if (inTok > 0 || outTok > 0 || reasoningTok > 0 || cachedTok > 0)
                 {
-                    LlmCompletionTokenUsageAmbient.Record(inTok, outTok, reasoningTok);
+                    LlmCompletionTokenUsageAmbient.Record(inTok, outTok, reasoningTok, cachedTok);
                     CheckTokenEstimationDiscrepancy(systemPrompt, userPrompt, inTok);
                 }
             }
@@ -408,10 +409,11 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
                 int inTok = usage.InputTokenCount is var ip ? ip : 0;
                 int outTok = usage.OutputTokenCount is var op ? op : 0;
                 int reasoningTok = usage.OutputTokenDetails?.ReasoningTokenCount ?? 0;
+                int cachedTok = AzureOpenAiChatTokenUsageReader.ReadCachedInputTokens(usage);
 
-                if (inTok > 0 || outTok > 0 || reasoningTok > 0)
+                if (inTok > 0 || outTok > 0 || reasoningTok > 0 || cachedTok > 0)
                 {
-                    LlmCompletionTokenUsageAmbient.Record(inTok, outTok, reasoningTok);
+                    LlmCompletionTokenUsageAmbient.Record(inTok, outTok, reasoningTok, cachedTok);
                     CheckTokenEstimationDiscrepancy(systemPrompt, userPrompt, inTok);
                 }
 
@@ -424,6 +426,9 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
                     if (reasoningTok > 0)
 
                         llmActivity.SetTag("gen_ai.usage.reasoning_tokens", reasoningTok);
+
+                    if (cachedTok > 0)
+                        llmActivity.SetTag("gen_ai.usage.cached_input_tokens", cachedTok);
                 }
             }
 
@@ -661,7 +666,15 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
         out int promptTokens,
         out int completionTokens,
         out int reasoningTokens) =>
-        LlmCompletionTokenUsageAmbient.TryPeekRaw(out promptTokens, out completionTokens, out reasoningTokens);
+        LlmCompletionTokenUsageAmbient.TryPeekRaw(out promptTokens, out completionTokens, out reasoningTokens, out _);
+
+    /// <summary>Peeks token usage including cached prompt tokens without consuming ambient state.</summary>
+    public static bool TryPeekLastCompletionTokenUsage(
+        out int promptTokens,
+        out int completionTokens,
+        out int reasoningTokens,
+        out int cachedInputTokens) =>
+        LlmCompletionTokenUsageAmbient.TryPeekRaw(out promptTokens, out completionTokens, out reasoningTokens, out cachedInputTokens);
 
     /// <summary>
     ///     Test hook: sets metadata read by <see cref="TryConsumeLastModelMetadata" /> (internals visible to

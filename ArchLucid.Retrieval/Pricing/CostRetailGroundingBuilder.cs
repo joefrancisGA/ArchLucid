@@ -31,13 +31,14 @@ public static class CostRetailGroundingBuilder
     public static CostRetailGroundingResult Build(
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
-        CostRetailGroundingLookups lookups)
+        CostRetailGroundingLookups lookups,
+        CloudProvider? effectiveCloudTarget = null)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(lookups);
 
-        CloudProvider? provider = ResolveGroundingProvider(request, evidence);
+        CloudProvider? provider = ResolveGroundingProvider(request, evidence, effectiveCloudTarget);
 
         if (provider is null)
         {
@@ -53,8 +54,14 @@ public static class CostRetailGroundingBuilder
         };
     }
 
-    internal static CloudProvider? ResolveGroundingProvider(ArchitectureRequest request, AgentEvidencePackage evidence)
+    internal static CloudProvider? ResolveGroundingProvider(
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence,
+        CloudProvider? effectiveCloudTarget = null)
     {
+        if (effectiveCloudTarget is CloudProvider.Azure or CloudProvider.Aws or CloudProvider.Gcp)
+            return effectiveCloudTarget;
+
         if (!string.IsNullOrWhiteSpace(evidence.CloudProvider))
         {
             if (evidence.CloudProvider.Contains("aws", StringComparison.OrdinalIgnoreCase))

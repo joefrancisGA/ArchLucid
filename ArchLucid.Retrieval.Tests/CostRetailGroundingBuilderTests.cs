@@ -117,6 +117,33 @@ public sealed class CostRetailGroundingBuilderTests
     }
 
     [Fact]
+    public void Build_effective_cloud_target_overrides_request_and_evidence()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "0123456789 Azure footprint Standard_D2s_v5 in eastus",
+            SystemName = "sys",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            CloudProvider = "Azure",
+        };
+
+        CostRetailGroundingResult result = CostRetailGroundingBuilder.Build(
+            request,
+            evidence,
+            CreateLookups(),
+            CloudProvider.Aws);
+
+        result.SkippedRetailGrounding.Should().BeFalse();
+        result.GroundedProvider.Should().Be(CloudProvider.Aws);
+        result.PromptBlock.Should().Contain("AWS Price List grounding");
+        result.PromptBlock.Should().NotContain("Azure Retail Prices grounding");
+    }
+
+    [Fact]
     public void Build_gcp_request_uses_billing_catalog_grounding()
     {
         ArchitectureRequest request = new()

@@ -92,7 +92,9 @@ public sealed class CriticAgentHandler(
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
 
-        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task, ledgerEntries);
+        string baseUserPrompt = TechnologyLedgerUserPromptInjection.AppendLedgerContext(
+            AgentUserPromptComposer.BuildCriticUserPrompt(runId, request, evidence, task),
+            ledgerEntries);
 
         string lastCompletionJson = string.Empty;
 
@@ -173,56 +175,5 @@ public sealed class CriticAgentHandler(
 
             throw;
         }
-    }
-
-    private static string BuildUserPrompt(
-        string runId,
-        ArchitectureRequest request,
-        AgentEvidencePackage evidence,
-        AgentTask task,
-        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
-    {
-        StringBuilder sb = new();
-
-        sb.AppendLine("Generate a critic AgentResult.");
-        sb.AppendLine();
-
-        AgentUserPromptBuilder.AppendRunHeader(sb, runId, task.TaskId, "Critic");
-        AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
-
-        List<EvidenceNote> stagedNotes = evidence.Notes
-            .Where(static n => EvidenceNoteTypes.StagedPriorAgentsSummary.Equals(
-                n.NoteType,
-                StringComparison.Ordinal))
-            .ToList();
-
-        if (stagedNotes.Count > 0)
-        {
-            sb.AppendLine(
-                "Prior agent batch summary (bounded, redacted; execution sequencing only — not autonomous planning "
-                + "beyond product scope; see docs/library/V1_SCOPE.md):");
-            sb.AppendLine();
-
-            foreach (EvidenceNote staged in stagedNotes)
-            {
-                if (!string.IsNullOrWhiteSpace(staged.Message))
-                    sb.AppendLine(staged.Message);
-
-                sb.AppendLine();
-            }
-        }
-
-        AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
-        TechnologyLedgerUserPromptInjection.AppendLedgerContext(sb, ledgerEntries);
-
-        sb.AppendLine("Important guidance:");
-        sb.AppendLine("- Challenge prior agent claims; do not restate generic Azure well-architected checklist items.");
-        sb.AppendLine("- Every High/Error/Critical finding must name a specific uploaded element and state a concrete gap or dispute.");
-        sb.AppendLine("- Prefer machine-friendly UnderSpecified messages (for example ObservabilityUnderSpecified) only when tied to doc:… or azureExtractor:… evidence refs.");
-        sb.AppendLine("- Do NOT emit generic checklist advice (for example Enable MFA, Use HTTPS, encrypt data at rest) unless you tie it to a named element in this architecture.");
-        sb.AppendLine("- Omit obvious findings entirely; downgrade any borderline generic item to severity Info with Low confidenceLevel.");
-        sb.AppendLine("- Return at most 8 findings; return JSON only.");
-
-        return sb.ToString();
     }
 }
