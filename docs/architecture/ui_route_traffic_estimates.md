@@ -46,7 +46,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 3714.06
+**OVERALL WEIGHT SCORE:** 3781.06
 
 ## Master table (score 0: Hit% desc; scored: Weight desc; ties A→Z by path)
 
@@ -55,7 +55,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HOM | `/` | 3% | 0 | 0 | Core review | None |
 | GDX | `/governance/dashboard` | 1.5% | 0 | 0 | Alerts/gov | None |
 | SCX | `/scorecard` | 1.5% | 0 | 0 | Planning | None |
-| HEL | `/help` | 1% | 0 | 0 | Help hub | None |
 | PLA | `/planning` | 0.8% | 0 | 0 | Planning | None |
 | DI | `/digests` | 0.6% | 0 | 0 | Digests | None |
 | PPP | `/planning/plans/[planId]` | 0.6% | 0 | 0 | Planning | None |
@@ -215,6 +214,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ASI | `/auth/signin` | 5% | 54 | 270 | Auth | None |
 | AL | `/alerts` | 3% | 61 | 183 | Alerts/gov | None |
 | GFN | `/governance/findings` | 2% | 72 | 144 | Alerts/gov | None |
+| HEL | `/help` | 1% | 67 | 67 | Help hub | None |
 | GRA | `/graph` | 0.6% | 82 | 49.2 | Planning | None |
 | GOV | `/governance` | 1% | 49 | 49 | Alerts/gov | None |
 | SET | `/settings` | 0.8% | 55 | 44 | Settings | None |

@@ -1,0 +1,114 @@
+---
+description: Set an ArchLucid UI route Evidence score by table ID and re-sort the traffic estimates table
+---
+
+# Set UI route score (`/al-ui-score`)
+
+Update one row in the master table at `docs/architecture/ui_route_traffic_estimates.md`
+by **ID** shorthand, then **re-sort** the master table:
+- **Score 0** — Hit% **descending** (most hits first); ties **A→Z** by path
+- **Scored** — **Weight descending**; ties **A→Z** by path
+
+Also recomputes **OVERALL WEIGHT SCORE** (sum of all row Weight values) at the top of the report.
+
+## Arguments (required)
+
+The user invokes this command as:
+
+```text
+/al-ui-score <ID> <score>
+```
+
+Examples:
+
+```text
+/al-ui-score ASK 78
+/al-ui-score GFN 72
+/al-ui-score GRS 48
+```
+
+- **ID** — table shorthand in the first column (case-insensitive; e.g. `ASK`, `GFN`).
+- **score** — integer **0–100** (Evidence score, position 1 in the Scores series).
+
+If either argument is missing, **stop** and ask for both.
+
+## Workflow (strict order)
+
+### Step 1 — Validate inputs
+
+1. Parse **ID** and **score** from the user message (after `/al-ui-score`).
+2. Reject non-integer scores and values outside **0–100**.
+3. Normalize ID to uppercase for lookup.
+
+### Step 2 — Working-tree safety
+
+Before editing `docs/architecture/ui_route_traffic_estimates.md`, run:
+
+```powershell
+.\scripts\agent\check-working-tree-path.ps1 -Path 'docs/architecture/ui_route_traffic_estimates.md'
+```
+
+If exit code **2**, stop and tell the user the path is blocked (commit/stash or explicit override).
+
+### Step 3 — Apply update (preferred)
+
+From repo root, run **one** shell invocation:
+
+```powershell
+python .\scripts\ci\set-archlucid-ui-route-score.py <ID> <score>
+```
+
+Example:
+
+```powershell
+python .\scripts\ci\set-archlucid-ui-route-score.py ASK 78
+```
+
+The script:
+
+- Updates the **Scores** cell and recomputed **Weight** (Hit% × Scores) for the matching **ID**
+- Leaves **Notes** unchanged (still `None` unless the owner edited them)
+- Re-sorts the master table: score **0** rows by Hit% **descending**; scored rows by **Weight descending**; ties A→Z by path
+- Recomputes **OVERALL WEIGHT SCORE** (sum of all Weight values) near the top of the doc
+- Preserves the **ID** column and all other rows
+
+If the script fails (unknown ID), report the error and **do not** hand-edit unless fixing a script bug.
+
+### Step 4 — Report
+
+Print a short confirmation:
+
+```markdown
+## UI route score updated
+
+| Field | Value |
+|-------|-------|
+| ID | `<ID>` |
+| Path | `<path>` |
+| Previous score | `<old>` |
+| New score | `<score>` |
+| Weight (Hit% × score) | `<weight>` |
+| Rank | `<rank>` / `<total>` |
+```
+
+Use stdout from the script when available.
+
+## Guardrails
+
+- **Do not** change Hit%, Weight, Section, Notes, or ID codes unless the user explicitly asks.
+- **Do not** commit or push unless the user names a branch and asks to commit.
+- **Do not** invent scores for other rows.
+- **Do not** re-sort scored rows by Hit% × Scores ascending; they use **Weight descending**.
+
+## Canonical file
+
+- `docs/architecture/ui_route_traffic_estimates.md` — master table
+- `scripts/ci/set-archlucid-ui-route-score.py` — update + resort helper
+- `scripts/ci/archlucid_ui_route_traffic_table.py` — shared table parse/render
+- `scripts/ci/resort-archlucid-ui-route-traffic-table.py` — resort-only helper (no score change)
+- `scripts/ci/tests/test_archlucid_ui_route_traffic_table.py` — unit tests for the shared helpers
+
+## Related commands
+
+- `/al-ui-note` — add or replace Notes by ID
+- Route catalog (paths, demo tiers): `docs/architecture/ui_routes.md`
