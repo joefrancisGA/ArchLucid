@@ -1690,7 +1690,7 @@ Stop and report:
 - **Drift note:** header helper when `warningCountDisplay > 0`.
 - **Static demo:** `tryStaticDemoTechnologyLedger` in `src/lib/operator-static-demo-technology-ledger.ts`.
 - **Vitest:** `TechnologyBaselinePanel.test.tsx` — **5/5 passed**; `build-run-detail-nav-sections.test.ts` — **2/2 passed**.
-- **Commit:** _(filled after commit)_.
+- **Commit:** `edf778bf66`.
 - **Scope confirmation:** .NET API (Prompt 9), agents, finding engine, artifact lint, and CI golden scenarios (Prompt 11) **not** touched.
 
 ---
