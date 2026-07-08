@@ -10,6 +10,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
@@ -124,7 +125,10 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
+            new TechnologyLedgerTopologyProposalSeeder(
+                new InMemoryTechnologyLedgerRepository(),
+                scopeContextProvider,
+                TimeProvider.System),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

@@ -151,7 +151,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
         </div>
       ) : null}
 
-      {loading || form === null ? (
+      {loading || form === null || prefs === null ? (
         <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Loading schedule…</p>
       ) : (
         <>
