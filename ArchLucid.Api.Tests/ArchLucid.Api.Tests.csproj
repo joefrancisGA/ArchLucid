@@ -42,6 +42,8 @@
           CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\ArchLucid.Api\appsettings.Production.json" Link="appsettings.Production.json"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\ArchLucid.Api\appsettings.Advanced.json" Link="appsettings.Advanced.json"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
