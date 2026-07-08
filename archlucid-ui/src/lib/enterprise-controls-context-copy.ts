@@ -607,10 +607,11 @@ export const digestSubscriptionsDeliveryAttemptsButtonTitleReader =
   "Load delivery attempts (GET). Create and toggle need Execute+ on the API.";
 
 /** Digest subscriptions — empty list. */
-export const digestSubscriptionsEmptyListOperatorLine = "None yet.";
+export const digestSubscriptionsEmptyListOperatorLine =
+  "Create a subscription to deliver scheduled architecture digests to an email address, group mailbox, or webhook.";
 
 export const digestSubscriptionsEmptyListReaderLine =
-  "None yet. Inspect when rows exist; create and toggle need operator on the API.";
+  "No digest subscriptions yet. Inspect when rows exist; create and toggle need operator access.";
 
 /**
  * Advisory schedules — schedules list **`h3`** (`components/advisory/AdvisorySchedulesContent.tsx`).

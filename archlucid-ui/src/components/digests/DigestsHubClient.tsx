@@ -158,17 +158,23 @@ export function DigestsHubClient(): ReactElement {
         }
       />
 
-      <WeeklyDigestHealthBanner refreshToken={healthRefreshToken} onHealthLoaded={onHealthLoaded} />
+      <WeeklyDigestHealthBanner
+        refreshToken={healthRefreshToken}
+        onHealthLoaded={onHealthLoaded}
+        variant={activeTab === "subscriptions" ? "subscriptions" : "full"}
+      />
 
-      <p
-        className={cn(
-          "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
-          OPERATOR_TYPOGRAPHY.helper,
-        )}
-        data-testid="digests-privacy-note"
-      >
-        {DIGEST_PRIVACY_NOTE}
-      </p>
+      {activeTab !== "subscriptions" ? (
+        <p
+          className={cn(
+            "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+          data-testid="digests-privacy-note"
+        >
+          {DIGEST_PRIVACY_NOTE}
+        </p>
+      ) : null}
 
       <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-4">
         <TabsList aria-label="Digest hub sections" data-testid="digests-hub-tablist">
