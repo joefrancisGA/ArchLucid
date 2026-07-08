@@ -107,7 +107,10 @@ export function resolveBuyerGoldenJourneyNav(
   ) {
     stepIdx = 1;
   } else if (path.startsWith("/graph")) {
-    const graphRunId = new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ?? "";
+    const graphRunId =
+      options?.searchRunId?.trim() ??
+      new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
+      "";
 
     if (
       graphRunId.length > 0 &&

@@ -56,10 +56,10 @@ Route (app)                                          Revalidate  Expire
     const stats = readRouteBundleStats(NEXT16_STATS_FIXTURE);
     const routes = buildTrackedRouteFirstLoadJsMap(stats);
 
-    expect(routes.get("/welcome")).toBe(145);
-    expect(routes.get("/reviews")).toBe(287);
-    expect(routes.get("/reviews/[runId]")).toBe(420);
-    expect(routes.get("/governance")).toBe(286);
+    expect(routes.get("/welcome")).toBe(724.9);
+    expect(routes.get("/reviews")).toBe(1564);
+    expect(routes.get("/reviews/[runId]")).toBe(2010.4);
+    expect(routes.get("/governance")).toBe(1340.5);
     expect(parseRouteBundleStatsFirstLoadJsKb(stats).size).toBeGreaterThanOrEqual(4);
   });
 

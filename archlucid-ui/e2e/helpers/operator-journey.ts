@@ -58,6 +58,15 @@ export function comparePageIntroGuidance(page: Page): Locator {
   );
 }
 
+/** Assert operator `main` has no hard failure chrome (generic error banners, failed request alerts). */
+export async function expectMainHasNoHardFailureChrome(page: Page): Promise<void> {
+  const main = page.getByRole("main").first();
+
+  await expect(main.getByText(/Something went wrong/i)).toHaveCount(0);
+  await expect(main.getByRole("alert").filter({ hasText: /request failed/i })).toHaveCount(0);
+  await expect(main.getByText(/Aggregate explanation could not be loaded/i)).toHaveCount(0);
+}
+
 /** Primary `/ask` H2 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
 export function askPageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: ASK_PAGE_PRIMARY_HEADING_PATTERN });

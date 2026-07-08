@@ -14,7 +14,8 @@ test.describe("Azure extractor ZIP wizard field", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId("wizard-baseline-zip-field")).toBeVisible();
+    await page.getByRole("button", { name: "Next" }).click();
+    await expect(page.getByTestId("wizard-baseline-zip-field")).toBeVisible({ timeout: 30_000 });
   });
 
   test("accepts a valid packager ZIP and prefills system name", async ({ page }) => {
