@@ -40,7 +40,7 @@ public sealed class CostAgentHandlerRetailGroundingTests
         };
 
         CostRetailGroundingResult grounding = CostRetailGroundingBuilder.Build(request, evidence, CreateLookups());
-        string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, grounding);
+        string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, grounding, []);
 
         prompt.Should().Contain("Azure Retail row");
         prompt.Should().Contain("Standard_D2s_v5");
@@ -70,7 +70,7 @@ public sealed class CostAgentHandlerRetailGroundingTests
         };
 
         CostRetailGroundingResult grounding = CostRetailGroundingBuilder.Build(request, evidence, CreateLookups());
-        string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, grounding);
+        string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, grounding, []);
 
         prompt.Should().Contain("AWS Price List row");
         prompt.Should().Contain("groundingMissing: false");
@@ -96,7 +96,7 @@ public sealed class CostAgentHandlerRetailGroundingTests
         };
 
         CostRetailGroundingResult grounding = CostRetailGroundingBuilder.Build(request, evidence, CreateLookups());
-        string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, grounding);
+        string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, grounding, []);
 
         prompt.Should().NotContain("Azure Retail row");
         prompt.Should().NotContain("AWS Price List row");

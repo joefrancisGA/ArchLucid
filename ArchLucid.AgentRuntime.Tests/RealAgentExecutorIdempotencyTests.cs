@@ -115,7 +115,8 @@ public sealed class RealAgentExecutorIdempotencyTests
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             resultRepository,
-            new NoOpAgentExecutionTraceRecorder());
+            new NoOpAgentExecutionTraceRecorder(),
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
     }
 
     private static ArchitectureRequest MinimalRequest() =>

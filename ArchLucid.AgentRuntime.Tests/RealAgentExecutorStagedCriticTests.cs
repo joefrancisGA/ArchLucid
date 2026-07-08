@@ -8,6 +8,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -38,6 +39,7 @@ public sealed class RealAgentExecutorStagedCriticTests
 
     private static RealAgentExecutor CreateSut(
         IOptions<StagedCriticAgentOptions> stagedOptions,
+        ITechnologyLedgerRepository? technologyLedgerRepository,
         params IAgentHandler[] handlers)
     {
         IOptions<AgentExecutionResilienceOptions> ro = Options.Create(
@@ -55,8 +57,14 @@ public sealed class RealAgentExecutorStagedCriticTests
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
-            new NoOpAgentExecutionTraceRecorder());
+            new NoOpAgentExecutionTraceRecorder(),
+            technologyLedgerRepository ?? TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
     }
+
+    private static RealAgentExecutor CreateSut(
+        IOptions<StagedCriticAgentOptions> stagedOptions,
+        params IAgentHandler[] handlers) =>
+        CreateSut(stagedOptions, null, handlers);
 
     [SkippableFact]
     public async Task StagedCriticEnabled_true_delays_critic_until_phase1_complete()
@@ -280,6 +288,56 @@ public sealed class RealAgentExecutorStagedCriticTests
         note.Message.Should().Contain("Topology");
         note.Message.Should().Contain("Compliance");
         note.Message.Should().Contain("topo-claim");
+    }
+
+    [SkippableFact]
+    public async Task StagedCriticEnabled_true_includes_ledger_snapshot_in_summary_note_when_repository_returns_rows()
+    {
+        IAgentHandler topo = new SimpleReturnHandler(AgentType.Topology, "topo-claim", "rid-t");
+        IAgentHandler critic = new ObservingCriticHandler(() => 0);
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+        string runId = Guid.NewGuid().ToString("N");
+        ITechnologyLedgerRepository ledgerRepository = ComplianceAgentHandlerTestDependencies.CreateTechnologyLedgerRepository(
+            scope,
+            runId,
+            [
+                new TechnologyLedgerEntry
+                {
+                    RunId = runId,
+                    Role = TechnologyLedgerRole.CloudPlatform,
+                    TechnologyName = "Microsoft Azure",
+                    ProviderFamily = CloudProvider.Azure,
+                    Status = TechnologyLedgerStatus.Chosen,
+                    Source = TechnologyLedgerSource.User,
+                    CreatedUtc = DateTime.UtcNow,
+                    UpdatedUtc = DateTime.UtcNow,
+                },
+            ]);
+
+        RealAgentExecutor sut = CreateSut(
+            Options.Create(new StagedCriticAgentOptions { StagedCriticEnabled = true }),
+            ledgerRepository,
+            topo,
+            critic);
+
+        ArchitectureRequest request = MinimalRequest();
+        AgentEvidencePackage evidence = new();
+        AgentTask tTopo = new() { TaskId = "tz", RunId = runId, AgentType = AgentType.Topology };
+        AgentTask tCrit = new() { TaskId = "tk", RunId = runId, AgentType = AgentType.Critic };
+
+        await sut.ExecuteAsync(runId, request, evidence, [tTopo, tCrit], CancellationToken.None);
+
+        EvidenceNote? note = evidence.Notes.LastOrDefault(n =>
+            EvidenceNoteTypes.StagedPriorAgentsSummary.Equals(n.NoteType, StringComparison.Ordinal));
+
+        note.Should().NotBeNull();
+        note!.Message.Should().Contain("## Technology Ledger (snapshot at staged Critic boundary)");
+        note.Message.Should().Contain("CloudPlatform");
     }
 
     [SkippableFact]

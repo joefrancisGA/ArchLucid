@@ -18,7 +18,29 @@ public static class TechnologyLedgerPromptFormatter
 
         sb.AppendLine();
         sb.AppendLine("Technology Ledger (canonical baseline for this run):");
+        AppendEntryLines(sb, entries);
+    }
 
+    public static string FormatTechnologyLedgerContext(IReadOnlyList<TechnologyLedgerEntry> entries)
+    {
+        ArgumentNullException.ThrowIfNull(entries);
+
+        if (entries.Count == 0)
+            return string.Empty;
+
+        StringBuilder sb = new();
+        AppendTechnologyLedgerContext(sb, entries);
+
+        return sb.ToString().TrimEnd();
+    }
+
+    public static void AppendLedgerEntryLines(StringBuilder sb, IReadOnlyList<TechnologyLedgerEntry> entries)
+    {
+        AppendEntryLines(sb, entries);
+    }
+
+    private static void AppendEntryLines(StringBuilder sb, IReadOnlyList<TechnologyLedgerEntry> entries)
+    {
         List<TechnologyLedgerEntry> sorted = entries
             .OrderBy(entry => entry.Role)
             .ThenBy(entry => entry.CreatedUtc)

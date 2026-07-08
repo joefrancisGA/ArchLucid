@@ -2,15 +2,18 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Retrieval.Pricing;
 
 using Microsoft.Extensions.Logging;
@@ -29,6 +32,7 @@ public sealed class CostAgentHandler(
     IAgentSystemPromptCatalog systemPromptCatalog,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
+    ITechnologyLedgerRepository technologyLedgerRepository,
     CostRetailGroundingLookups retailGroundingLookups,
     IRetrievalGroundingTraceWriter retrievalGroundingTraceWriter,
     IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions,
@@ -39,6 +43,12 @@ public sealed class CostAgentHandler(
     {
         WriteIndented = true
     };
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
+        technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
 
     private readonly CostRetailGroundingLookups _retailGroundingLookups =
         retailGroundingLookups ?? throw new ArgumentNullException(nameof(retailGroundingLookups));
@@ -65,21 +75,29 @@ public sealed class CostAgentHandler(
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(task);
 
-        Guid tenantId = scopeContextProvider.GetCurrentScope().TenantId;
+        Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
 
         if (!AgentRunIdParser.TryParse(runId, out Guid runGuid))
             throw new InvalidOperationException($"Run id '{runId}' is not a valid GUID for prompt variant resolution.");
+
+        (CloudProvider effectiveCloudTarget, IReadOnlyList<TechnologyLedgerEntry> ledgerEntries) =
+            await TechnologyLedgerUserPromptInjection.LoadAsync(
+                _technologyLedgerRepository,
+                _scopeContextProvider,
+                runId,
+                request,
+                cancellationToken).ConfigureAwait(false);
 
         ResolvedSystemPrompt systemResolved = await systemPromptCatalog
             .ResolveAsync(AgentType.Cost, tenantId, runGuid, cancellationToken);
         string systemPrompt = CloudProviderAgentPromptComposer.ApplySystemPromptAddendum(
             systemResolved.Text,
             AgentType.Cost,
-            request.CloudProvider);
+            effectiveCloudTarget);
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
         CostRetailGroundingResult retailGrounding = CostRetailGroundingBuilder.Build(request, evidence, _retailGroundingLookups);
-        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task, retailGrounding);
+        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task, retailGrounding, ledgerEntries);
         await TryPersistRetailGroundingTraceAsync(runId, request, retailGrounding, cancellationToken);
         string lastCompletionJson = string.Empty;
 
@@ -124,7 +142,7 @@ public sealed class CostAgentHandler(
 
                 AgentResultSchemaViolationAudit.ScheduleLog(
                     auditService,
-                    scopeContextProvider,
+                    _scopeContextProvider,
                     schemaViolation,
                     runId,
                     task.TaskId,
@@ -162,7 +180,8 @@ public sealed class CostAgentHandler(
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
         AgentTask task,
-        CostRetailGroundingResult grounding)
+        CostRetailGroundingResult grounding,
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
     {
         StringBuilder sb = new();
 
@@ -172,6 +191,7 @@ public sealed class CostAgentHandler(
         AgentUserPromptBuilder.AppendRunHeader(sb, runId, task.TaskId, "Cost");
         AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
         AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
+        TechnologyLedgerUserPromptInjection.AppendLedgerContext(sb, ledgerEntries);
 
         if (!grounding.SkippedRetailGrounding)
         {
@@ -200,7 +220,7 @@ public sealed class CostAgentHandler(
         if (!AgentRunIdParser.TryParse(runId, out Guid runGuid))
             return;
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         RetrievalGroundingTraceInsert insert =
             RetailPriceRetrievalGroundingTraceMapper.BuildInsert(scope, runGuid, request, grounding);

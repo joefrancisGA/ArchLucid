@@ -71,7 +71,8 @@ public sealed class RealAgentExecutorTests
             promptRedactor,
             archLucidLlm,
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
-            new NoOpAgentExecutionTraceRecorder());
+            new NoOpAgentExecutionTraceRecorder(),
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
     }
 
     [SkippableFact]

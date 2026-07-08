@@ -1,3 +1,4 @@
+using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -9,7 +10,6 @@ using ArchLucid.Core.Scoping;
 using FluentAssertions;
 
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Moq;
@@ -173,7 +173,7 @@ public sealed class TopologyAgentHandlerTests
     public async Task ExecuteAsync_appends_technology_ledger_section_when_repository_returns_rows()
     {
         const string runId = AgentHandlerTestRunIds.Run001;
-        StubAgentCompletionClient completionClient = new("""{"resultId":"r1","taskId":"t1","runId":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","agentType":"Topology","claims":[],"evidenceRefs":[],"confidence":0.5,"findings":[],"proposedChanges":{"proposalId":"p1","sourceAgent":"Topology","addedServices":[],"addedDatastores":[],"addedRelationships":[],"requiredControls":[],"warnings":[]},"createdUtc":"2026-03-15T14:00:00Z"}""");
+        StubAgentCompletionClient completionClient = new("""{"resultId":"r1","taskId":"TASK-TOPO-LEDGER","runId":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","agentType":"Topology","claims":[],"evidenceRefs":[],"confidence":0.5,"findings":[],"proposedChanges":{"proposalId":"p1","sourceAgent":"Topology","addedServices":[],"addedDatastores":[],"addedRelationships":[],"requiredControls":[],"warnings":[]},"createdUtc":"2026-03-15T14:00:00Z"}""");
         ListCapturingAgentExecutionTraceRecorder traceRecorder = new();
         IAgentSystemPromptCatalog catalog = AgentPromptCatalogTestFactory.Create();
         Mock<IAuditService> audit = new();

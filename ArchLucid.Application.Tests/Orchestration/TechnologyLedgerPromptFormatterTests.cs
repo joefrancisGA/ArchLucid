@@ -14,6 +14,27 @@ namespace ArchLucid.Application.Tests.Orchestration;
 public sealed class TechnologyLedgerPromptFormatterTests
 {
     [Fact]
+    public void FormatTechnologyLedgerContext_returns_empty_when_no_entries()
+    {
+        TechnologyLedgerPromptFormatter.FormatTechnologyLedgerContext([]).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FormatTechnologyLedgerContext_returns_formatted_block_when_entries_exist()
+    {
+        DateTime utc = DateTime.SpecifyKind(new DateTime(2026, 1, 1, 0, 0, 0), DateTimeKind.Utc);
+        List<TechnologyLedgerEntry> entries =
+        [
+            CreateEntry(TechnologyLedgerRole.CloudPlatform, "Microsoft Azure", TechnologyLedgerStatus.Chosen, utc),
+        ];
+
+        string text = TechnologyLedgerPromptFormatter.FormatTechnologyLedgerContext(entries);
+
+        text.Should().Contain("Technology Ledger (canonical baseline for this run):");
+        text.Should().Contain("CloudPlatform");
+    }
+
+    [Fact]
     public void AppendTechnologyLedgerContext_sorts_by_role_then_created_utc()
     {
         DateTime earlier = DateTime.SpecifyKind(new DateTime(2026, 1, 1, 0, 0, 0), DateTimeKind.Utc);

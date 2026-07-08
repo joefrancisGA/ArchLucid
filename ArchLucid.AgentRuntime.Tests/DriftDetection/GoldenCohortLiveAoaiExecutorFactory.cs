@@ -78,6 +78,7 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
             ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
             ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
@@ -94,6 +95,7 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             schemaRemediation,
             DeterministicInsightDensityGate.CreateDefault(),
             NoOpInsightDensityLlmJudge.Instance);
@@ -113,7 +115,8 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
-            new NoOpAgentExecutionTraceRecorder());
+            new NoOpAgentExecutionTraceRecorder(),
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
 
         return (executor, recorder);
     }

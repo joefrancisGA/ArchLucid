@@ -1,4 +1,7 @@
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Retrieval.Citations;
 using ArchLucid.Retrieval.Indexing;
@@ -38,4 +41,28 @@ internal static class ComplianceAgentHandlerTestDependencies
 
     internal static ILogger<TopologyAgentHandler> CreateTopologyNullLogger() =>
         NullLogger<TopologyAgentHandler>.Instance;
+
+    internal static ITechnologyLedgerRepository CreateEmptyTechnologyLedgerRepository()
+    {
+        Mock<ITechnologyLedgerRepository> ledger = new();
+        ledger.Setup(r => r.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return ledger.Object;
+    }
+
+    internal static ITechnologyLedgerRepository CreateTechnologyLedgerRepository(
+        ScopeContext scope,
+        string runId,
+        IReadOnlyList<TechnologyLedgerEntry> entries)
+    {
+        Mock<ITechnologyLedgerRepository> ledger = new();
+        ledger.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(entries);
+
+        return ledger.Object;
+    }
 }

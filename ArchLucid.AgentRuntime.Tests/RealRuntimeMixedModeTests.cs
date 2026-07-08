@@ -234,6 +234,7 @@ public sealed class RealRuntimeMixedModeTests
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
             ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
             ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
@@ -250,6 +251,7 @@ public sealed class RealRuntimeMixedModeTests
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             schemaRemediation,
             DeterministicInsightDensityGate.CreateDefault(),
             NoOpInsightDensityLlmJudge.Instance);
@@ -274,7 +276,8 @@ public sealed class RealRuntimeMixedModeTests
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
-            new NoOpAgentExecutionTraceRecorder());
+            new NoOpAgentExecutionTraceRecorder(),
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
 
         ArchitectureRequest request = new()
         {

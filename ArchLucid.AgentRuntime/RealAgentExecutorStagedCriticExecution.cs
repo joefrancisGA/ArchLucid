@@ -3,9 +3,11 @@ using System.Diagnostics;
 using ArchLucid.Core.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 
@@ -54,7 +56,12 @@ internal static class RealAgentExecutorStagedCriticExecution
         }
 
         ReplaceStagedPriorSummaryNotes(evidence);
-        EvidenceNote note = StagedPriorAgentsSummaryBuilder.CreateNote(phase1Results, stagedOpts);
+        ScopeContext scope = dependencies.ScopeContextProvider.GetCurrentScope();
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
+            await dependencies.TechnologyLedgerRepository
+                .GetByRunIdAsync(scope, runId, linkedCancellation.Token)
+                .ConfigureAwait(false);
+        EvidenceNote note = StagedPriorAgentsSummaryBuilder.CreateNote(phase1Results, stagedOpts, ledgerEntries);
         evidence.Notes.Add(note);
 
         int summarizedClaimsCount = CountStagedPriorSummarizedClaimSlots(phase1Results, stagedOpts);

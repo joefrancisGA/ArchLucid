@@ -57,7 +57,8 @@ public sealed class AgentExecutionResilienceTests
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
-            new NoOpAgentExecutionTraceRecorder());
+            new NoOpAgentExecutionTraceRecorder(),
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -93,7 +94,8 @@ public sealed class AgentExecutionResilienceTests
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
-            new NoOpAgentExecutionTraceRecorder());
+            new NoOpAgentExecutionTraceRecorder(),
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -134,7 +136,8 @@ public sealed class AgentExecutionResilienceTests
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
-            traceRecorder);
+            traceRecorder,
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -184,7 +187,8 @@ public sealed class AgentExecutionResilienceTests
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
-            new NoOpAgentExecutionTraceRecorder());
+            new NoOpAgentExecutionTraceRecorder(),
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -227,7 +231,8 @@ public sealed class AgentExecutionResilienceTests
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
-            new NoOpAgentExecutionTraceRecorder());
+            new NoOpAgentExecutionTraceRecorder(),
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();

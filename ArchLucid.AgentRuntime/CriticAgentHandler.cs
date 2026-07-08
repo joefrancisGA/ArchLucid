@@ -2,15 +2,18 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Evidence;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Options;
 
@@ -28,11 +31,18 @@ public sealed class CriticAgentHandler(
     IAgentSystemPromptCatalog systemPromptCatalog,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
+    ITechnologyLedgerRepository technologyLedgerRepository,
     IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions,
     IInsightDensityGate insightDensityGate,
     IInsightDensityLlmJudge insightDensityLlmJudge)
     : IAgentHandler
 {
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
+        technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
+
     private readonly IInsightDensityGate _insightDensityGate =
         insightDensityGate ?? throw new ArgumentNullException(nameof(insightDensityGate));
 
@@ -60,21 +70,29 @@ public sealed class CriticAgentHandler(
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(task);
 
-        Guid tenantId = scopeContextProvider.GetCurrentScope().TenantId;
+        Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
 
         if (!AgentRunIdParser.TryParse(runId, out Guid runGuid))
             throw new InvalidOperationException($"Run id '{runId}' is not a valid GUID for prompt variant resolution.");
+
+        (CloudProvider effectiveCloudTarget, IReadOnlyList<TechnologyLedgerEntry> ledgerEntries) =
+            await TechnologyLedgerUserPromptInjection.LoadAsync(
+                _technologyLedgerRepository,
+                _scopeContextProvider,
+                runId,
+                request,
+                cancellationToken).ConfigureAwait(false);
 
         ResolvedSystemPrompt systemResolved = await systemPromptCatalog
             .ResolveAsync(AgentType.Critic, tenantId, runGuid, cancellationToken);
         string systemPrompt = CloudProviderAgentPromptComposer.ApplySystemPromptAddendum(
             systemResolved.Text,
             AgentType.Critic,
-            request.CloudProvider);
+            effectiveCloudTarget);
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
 
-        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task);
+        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task, ledgerEntries);
 
         string lastCompletionJson = string.Empty;
 
@@ -124,7 +142,7 @@ public sealed class CriticAgentHandler(
 
                 AgentResultSchemaViolationAudit.ScheduleLog(
                     auditService,
-                    scopeContextProvider,
+                    _scopeContextProvider,
                     sv,
                     runId,
                     task.TaskId,
@@ -161,7 +179,8 @@ public sealed class CriticAgentHandler(
         string runId,
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
-        AgentTask task)
+        AgentTask task,
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
     {
         StringBuilder sb = new();
 
@@ -194,6 +213,7 @@ public sealed class CriticAgentHandler(
         }
 
         AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
+        TechnologyLedgerUserPromptInjection.AppendLedgerContext(sb, ledgerEntries);
 
         sb.AppendLine("Important guidance:");
         sb.AppendLine("- Challenge prior agent claims; do not restate generic Azure well-architected checklist items.");

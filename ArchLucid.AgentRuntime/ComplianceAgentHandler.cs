@@ -2,15 +2,18 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Retrieval.Compliance;
 using ArchLucid.Retrieval.Evaluation;
 
@@ -31,6 +34,7 @@ public sealed class ComplianceAgentHandler(
     IAgentSystemPromptCatalog systemPromptCatalog,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
+    ITechnologyLedgerRepository technologyLedgerRepository,
     IRetrievalQueryService retrievalQueryService,
     IRetrievalCitationFormatter retrievalCitationFormatter,
     IRetrievalGroundingTraceWriter retrievalGroundingTraceWriter,
@@ -42,6 +46,12 @@ public sealed class ComplianceAgentHandler(
     {
         WriteIndented = true
     };
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
+        technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
 
     private readonly IRetrievalQueryService _retrievalQueryService =
         retrievalQueryService ?? throw new ArgumentNullException(nameof(retrievalQueryService));
@@ -71,21 +81,29 @@ public sealed class ComplianceAgentHandler(
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(task);
 
-        Guid tenantId = scopeContextProvider.GetCurrentScope().TenantId;
+        Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
 
         if (!AgentRunIdParser.TryParse(runId, out Guid runGuid))
             throw new InvalidOperationException($"Run id '{runId}' is not a valid GUID for prompt variant resolution.");
+
+        (CloudProvider effectiveCloudTarget, IReadOnlyList<TechnologyLedgerEntry> ledgerEntries) =
+            await TechnologyLedgerUserPromptInjection.LoadAsync(
+                _technologyLedgerRepository,
+                _scopeContextProvider,
+                runId,
+                request,
+                cancellationToken).ConfigureAwait(false);
 
         ResolvedSystemPrompt systemResolved = await systemPromptCatalog
             .ResolveAsync(AgentType.Compliance, tenantId, runGuid, cancellationToken);
         string systemPrompt = CloudProviderAgentPromptComposer.ApplySystemPromptAddendum(
             systemResolved.Text,
             AgentType.Compliance,
-            request.CloudProvider);
+            effectiveCloudTarget);
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
 
-        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task);
+        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task, ledgerEntries);
         IReadOnlyList<RetrievalHit> policyPackHits = [];
         (baseUserPrompt, policyPackHits) = await AppendPolicyPackRetrievalAsync(
             request,
@@ -139,7 +157,7 @@ public sealed class ComplianceAgentHandler(
 
                 AgentResultSchemaViolationAudit.ScheduleLog(
                     auditService,
-                    scopeContextProvider,
+                    _scopeContextProvider,
                     sv,
                     runId,
                     task.TaskId,
@@ -176,7 +194,8 @@ public sealed class ComplianceAgentHandler(
         string runId,
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
-        AgentTask task)
+        AgentTask task,
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
     {
         StringBuilder sb = new();
 
@@ -186,6 +205,7 @@ public sealed class ComplianceAgentHandler(
         AgentUserPromptBuilder.AppendRunHeader(sb, runId, task.TaskId, "Compliance");
         AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
         AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
+        TechnologyLedgerUserPromptInjection.AppendLedgerContext(sb, ledgerEntries);
 
         sb.AppendLine("Important guidance:");
         sb.AppendLine("- Infer mandatory controls conservatively from constraints and required capabilities.");
@@ -207,7 +227,7 @@ public sealed class ComplianceAgentHandler(
         string baseUserPrompt,
         CancellationToken cancellationToken)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         try
         {

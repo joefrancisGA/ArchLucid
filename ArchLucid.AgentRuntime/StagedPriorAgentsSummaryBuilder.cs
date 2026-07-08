@@ -2,11 +2,13 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Configuration;
 
 namespace ArchLucid.AgentRuntime;
@@ -17,14 +19,17 @@ namespace ArchLucid.AgentRuntime;
 public static class StagedPriorAgentsSummaryBuilder
 {
     /// <summary>Creates an <see cref="EvidenceNote" /> suitable for <see cref="EvidenceNoteTypes.StagedPriorAgentsSummary"/>.</summary>
-    public static EvidenceNote CreateNote(IReadOnlyList<AgentResult> priorResults, StagedCriticAgentOptions options)
+    public static EvidenceNote CreateNote(
+        IReadOnlyList<AgentResult> priorResults,
+        StagedCriticAgentOptions options,
+        IReadOnlyList<TechnologyLedgerEntry>? ledgerEntries = null)
     {
         ArgumentNullException.ThrowIfNull(priorResults);
         ArgumentNullException.ThrowIfNull(options);
 
         options.Normalize();
 
-        string body = BuildBody(priorResults, options);
+        string body = BuildBody(priorResults, options, ledgerEntries);
 
         return new EvidenceNote
         {
@@ -33,16 +38,46 @@ public static class StagedPriorAgentsSummaryBuilder
         };
     }
 
-    private static string BuildBody(IReadOnlyList<AgentResult> priorResults, StagedCriticAgentOptions options)
+    private static string BuildBody(
+        IReadOnlyList<AgentResult> priorResults,
+        StagedCriticAgentOptions options,
+        IReadOnlyList<TechnologyLedgerEntry>? ledgerEntries)
     {
-        if (priorResults.Count == 0)
-        {
-            return "No prior agent results were present in this batch (Critic ran without upstream completes). "
-                   + "Rely on the architecture request and evidence package only.";
-        }
-
         StringBuilder sb = new();
         int budget = options.SummaryMaxTotalChars;
+
+        if (ledgerEntries is { Count: > 0 })
+        {
+            string ledgerSection = BuildLedgerSection(ledgerEntries);
+            ledgerSection = RedactAndTruncateSection(ledgerSection, Math.Min(budget, options.SummaryMaxTotalChars));
+
+            if (ledgerSection.Length > budget)
+                ledgerSection = ledgerSection[..budget].TrimEnd() + "…";
+
+            if (!string.IsNullOrWhiteSpace(ledgerSection))
+            {
+                _ = sb.AppendLine(ledgerSection.TrimEnd());
+                _ = sb.AppendLine();
+                budget -= ledgerSection.Length;
+            }
+        }
+
+        if (priorResults.Count == 0)
+        {
+            string emptyMessage =
+                "No prior agent results were present in this batch (Critic ran without upstream completes). "
+                + "Rely on the architecture request and evidence package only.";
+
+            if (budget <= 0)
+                return sb.ToString().Trim();
+
+            if (emptyMessage.Length > budget)
+                emptyMessage = emptyMessage[..budget].TrimEnd() + "…";
+
+            _ = sb.AppendLine(emptyMessage.TrimEnd());
+
+            return TrimTotal(sb.ToString().Trim(), options.SummaryMaxTotalChars);
+        }
 
         foreach (AgentResult r in priorResults.OrderBy(static x => x.AgentType))
         {
@@ -56,9 +91,7 @@ public static class StagedPriorAgentsSummaryBuilder
             section = RedactAndTruncateSection(section, options.SummaryPerAgentMaxChars);
 
             if (section.Length > budget)
-            {
                 section = section[..budget] + "…";
-            }
 
             _ = sb.AppendLine(section.TrimEnd());
             _ = sb.AppendLine();
@@ -68,14 +101,24 @@ public static class StagedPriorAgentsSummaryBuilder
                 break;
         }
 
-        string total = sb.ToString().Trim();
+        return TrimTotal(sb.ToString().Trim(), options.SummaryMaxTotalChars);
+    }
 
-        if (total.Length > options.SummaryMaxTotalChars)
-        {
-            total = total[..options.SummaryMaxTotalChars].TrimEnd() + "…";
-        }
+    private static string BuildLedgerSection(IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
+    {
+        StringBuilder sb = new();
+        _ = sb.AppendLine("## Technology Ledger (snapshot at staged Critic boundary)");
+        TechnologyLedgerPromptFormatter.AppendLedgerEntryLines(sb, ledgerEntries);
 
-        return total;
+        return sb.ToString().TrimEnd();
+    }
+
+    private static string TrimTotal(string total, int maxChars)
+    {
+        if (total.Length <= maxChars)
+            return total;
+
+        return total[..maxChars].TrimEnd() + "…";
     }
 
     private static string BuildAgentSection(AgentResult r, StagedCriticAgentOptions options)
