@@ -1,4 +1,4 @@
-import type { GraphEdgeVm, GraphNodeVm, GraphViewModel } from "@/types/graph";
+import type { GraphNodeVm, GraphViewModel } from "@/types/graph";
 
 function buildAdjacency(graph: GraphViewModel): Map<string, string[]> {
   const adjacency = new Map<string, string[]>();

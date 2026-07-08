@@ -26,7 +26,7 @@ export function EvidenceGraphLifecycleStatusBanner(props: EvidenceGraphLifecycle
   const { className } = props;
 
   return (
-    <aside
+    <div
       className={cn(DESIGN_TOKENS.banner.governanceApproval, className)}
       data-testid="evidence-graph-lifecycle-status-banner"
       role="status"
@@ -53,6 +53,6 @@ export function EvidenceGraphLifecycleStatusBanner(props: EvidenceGraphLifecycle
           </Link>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

@@ -4,7 +4,7 @@
 
 import { cn } from "@/lib/utils";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 

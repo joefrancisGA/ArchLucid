@@ -1,4 +1,4 @@
-﻿# TB-094 — HotPathCache Redis secret + env on API and Worker.
+# TB-094 — HotPathCache Redis secret + env on API and Worker.
 # TB-580 — ExpectedApiReplicaCount env aligns Provider=Auto with Container Apps max_replicas for Redis L2.
 
 locals {

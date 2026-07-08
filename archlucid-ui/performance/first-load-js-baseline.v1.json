@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-07-07T19:35:00.000Z",
+  "updatedUtc": "2026-07-08T05:15:00.000Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/welcome": {
-      "firstLoadJsKb": 145
+      "firstLoadJsKb": 724.9
     },
     "/reviews": {
-      "firstLoadJsKb": 287
+      "firstLoadJsKb": 1564
     },
     "/reviews/[runId]": {
-      "firstLoadJsKb": 421
+      "firstLoadJsKb": 2010.4
     },
     "/governance": {
-      "firstLoadJsKb": 286
+      "firstLoadJsKb": 1340.5
     }
   },
-  "notes": "Captured from Next.js 16.2.10 `.next/diagnostics/route-bundle-stats.json` (`firstLoadUncompressedJsBytes` converted to kB). TB-691 restores the gate after Next 16 removed per-route First Load JS from CLI output. Refresh after intentional bundle changes: `npm run build && npm run write:first-load-js-baseline`."
+  "notes": "Captured from Next.js 16 production `npm run build` output (`.next/diagnostics/route-bundle-stats.json`, `firstLoadUncompressedJsBytes` converted to kB). CI #2538 refresh after TB-691 fixture understated real route budgets. Refresh after intentional bundle changes: `npm run build && npm run write:first-load-js-baseline`."
 }

@@ -27,7 +27,7 @@ export function StandardsRulesGovernanceStatusBanner(props: StandardsRulesGovern
   const { className } = props;
 
   return (
-    <aside
+    <div
       className={cn(DESIGN_TOKENS.banner.governanceApproval, className)}
       data-testid="standards-rules-governance-status-banner"
       role="status"
@@ -54,6 +54,6 @@ export function StandardsRulesGovernanceStatusBanner(props: StandardsRulesGovern
           </Link>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

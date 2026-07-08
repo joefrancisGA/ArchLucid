@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { strToU8, zipSync } from "fflate";
 
+import { expandWizardBaselineZipEvidence } from "./helpers/wizard-baseline-zip-evidence";
+
 function archLucidZipBuffer(manifest: Record<string, unknown>): Buffer {
   return Buffer.from(
     zipSync({
@@ -14,7 +16,22 @@ test.describe("Azure extractor ZIP wizard field", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId("wizard-baseline-zip-field")).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "System name" })).not.toHaveValue("", { timeout: 15_000 });
+
+    const description = page.getByRole("textbox", { name: "Description" });
+    const descriptionText = (await description.inputValue()).trim();
+
+    if (descriptionText.length < 10) {
+      await description.fill(
+        "Ten char min: assess this architecture for security, cost, and governance before production rollout.",
+      );
+    }
+
+    await page.getByRole("button", { name: "Next" }).click();
+    await expect(page.getByTestId("simplified-pilot-progress")).toContainText(/step 2 of 4/i, {
+      timeout: 30_000,
+    });
+    await expandWizardBaselineZipEvidence(page);
   });
 
   test("accepts a valid packager ZIP and prefills system name", async ({ page }) => {

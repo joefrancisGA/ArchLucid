@@ -64,6 +64,111 @@ export type LayerContextStripProps = {
   hideOperateBackLink?: boolean;
 };
 
+type BuyerGoldenJourneyStepperNavProps = {
+  readonly nav: ResolvedBuyerGoldenJourneyNav;
+  readonly demoDataSourceBadge?: ReactNode;
+};
+
+function BuyerGoldenJourneyStepperNav(props: BuyerGoldenJourneyStepperNavProps): React.JSX.Element {
+  const { nav, demoDataSourceBadge } = props;
+
+  return (
+    <nav
+      aria-label="Review journey steps"
+      className="flex flex-col gap-2 border-t border-neutral-200/70 pt-1.5 dark:border-neutral-700/80"
+      data-testid="buyer-golden-journey-stepper"
+    >
+      <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
+        {nav.prev !== null ? (
+          <Link
+            className="shrink-0 font-medium text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-950 dark:text-neutral-300 dark:decoration-neutral-600 dark:hover:text-neutral-50"
+            data-testid="buyer-journey-prev"
+            href={nav.prev.href}
+            prefetch
+          >
+            ← {nav.prev.label}
+          </Link>
+        ) : (
+          <span className="shrink-0 text-neutral-600 dark:text-neutral-400">← Start</span>
+        )}
+        <span className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-2 text-center font-medium text-neutral-700 dark:text-neutral-300">
+          <span>{nav.summaryLine}</span>
+          {demoDataSourceBadge}
+        </span>
+        {nav.next !== null ? (
+          <Link
+            className="shrink-0 font-medium text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-950 dark:text-neutral-300 dark:decoration-neutral-600 dark:hover:text-neutral-50"
+            data-testid="buyer-journey-next"
+            href={nav.next.href}
+            prefetch
+          >
+            {nav.next.label} →
+          </Link>
+        ) : (
+          <span className="shrink-0 text-neutral-600 dark:text-neutral-400">End →</span>
+        )}
+      </div>
+      {nav.currentStepIndex !== null ? (
+        <ol
+          className="m-0 flex list-none flex-wrap gap-1.5 p-0"
+          aria-label="Review journey step indicators"
+          data-testid="buyer-golden-journey-step-indicators"
+        >
+          {BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.map((def, idx) => {
+            const cur = nav.currentStepIndex;
+            const done = cur !== null && idx < cur;
+            const current = cur !== null && idx === cur;
+
+            const chipClass = done
+              ? operatorSemanticBadge("ready")
+              : current
+                ? cn(operatorSemanticBadge("current"), "font-semibold shadow-sm ring-2 ring-[var(--al-accent-border-focus)]/40")
+                : cn(OPERATOR_SURFACE_CARD_CLASS, "text-al-text-secondary");
+
+            const chipInner = (
+              <>
+                <span className="tabular-nums text-neutral-500 dark:text-neutral-400">{def.step}.</span>
+                <span>{def.label}</span>
+              </>
+            );
+
+            return (
+              <li key={`${def.step}-${def.href}`}>
+                {current ? (
+                  <span
+                    aria-current="step"
+                    title={def.chipTooltip}
+                    className={cn(
+                      "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium transition",
+                      OPERATOR_TYPOGRAPHY.badge,
+                      chipClass,
+                    )}
+                  >
+                    {chipInner}
+                  </span>
+                ) : (
+                  <Link
+                    href={def.href}
+                    title={def.chipTooltip}
+                    prefetch
+                    className={cn(
+                      "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium no-underline transition hover:opacity-95",
+                      OPERATOR_TYPOGRAPHY.badge,
+                      chipClass,
+                    )}
+                  >
+                    {chipInner}
+                  </Link>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      ) : null}
+    </nav>
+  );
+}
+
 /**
  * Persistent one-line product-layer cue under the app header: layer label, guiding question, optional
  * return link on Operate routes. Styling stays subtle (orientation, not a second hero).
@@ -126,96 +231,34 @@ export function LayerContextStrip({
             ) : null}
           </div>
           {buyerGoldenJourneyNav !== null && buyerGoldenJourneyNav !== undefined ? (
-            <nav
-              aria-label="Review journey steps"
-              className="flex flex-col gap-2 border-t border-neutral-200/70 pt-1.5 dark:border-neutral-700/80"
-              data-testid="buyer-golden-journey-stepper"
-            >
-              <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
-              {buyerGoldenJourneyNav.prev !== null ? (
-                <Link
-                  className="shrink-0 font-medium text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-950 dark:text-neutral-300 dark:decoration-neutral-600 dark:hover:text-neutral-50"
-                  data-testid="buyer-journey-prev"
-                  href={buyerGoldenJourneyNav.prev.href}
-                  prefetch
-                >
-                  ← {buyerGoldenJourneyNav.prev.label}
-                </Link>
-              ) : (
-                <span className="shrink-0 text-neutral-600 dark:text-neutral-400">← Start</span>
-              )}
-              <span className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-2 text-center font-medium text-neutral-700 dark:text-neutral-300">
-                <span>{buyerGoldenJourneyNav.summaryLine}</span>
-                {demoDataSourceBadge}
-              </span>
-              {buyerGoldenJourneyNav.next !== null ? (
-                <Link
-                  className="shrink-0 font-medium text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-950 dark:text-neutral-300 dark:decoration-neutral-600 dark:hover:text-neutral-50"
-                  data-testid="buyer-journey-next"
-                  href={buyerGoldenJourneyNav.next.href}
-                  prefetch
-                >
-                  {buyerGoldenJourneyNav.next.label} →
-                </Link>
-              ) : (
-                <span className="shrink-0 text-neutral-600 dark:text-neutral-400">End →</span>
-              )}
-              </div>
-              {buyerGoldenJourneyNav.currentStepIndex !== null ? (
-              <ol
-                className="m-0 flex list-none flex-wrap gap-1.5 p-0"
-                aria-label="Review journey step indicators"
-                data-testid="buyer-golden-journey-step-indicators"
-              >
-                {BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.map((def, idx) => {
-                  const cur = buyerGoldenJourneyNav.currentStepIndex;
-                  const done = cur !== null && idx < cur;
-                  const current = cur !== null && idx === cur;
-
-                  const chipClass = done
-                    ? operatorSemanticBadge("ready")
-                    : current
-                      ? cn(operatorSemanticBadge("current"), "font-semibold shadow-sm ring-2 ring-[var(--al-accent-border-focus)]/40")
-                      : cn(OPERATOR_SURFACE_CARD_CLASS, "text-al-text-secondary");
-
-                  const chipInner = (
-                    <>
-                      <span className="tabular-nums text-neutral-500 dark:text-neutral-400">{def.step}.</span>
-                      <span>{def.label}</span>
-                    </>
-                  );
-
-                  return (
-                    <li key={`${def.step}-${def.href}`}>
-                      {current ? (
-                        <span
-                          aria-current="step"
-                          title={def.chipTooltip}
-                          className={cn("inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium transition", OPERATOR_TYPOGRAPHY.badge,
-                            chipClass,
-                          )}
-                        >
-                          {chipInner}
-                        </span>
-                      ) : (
-                        <Link
-                          href={def.href}
-                          title={def.chipTooltip}
-                          prefetch
-                          className={cn("inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium no-underline transition hover:opacity-95", OPERATOR_TYPOGRAPHY.badge,
-                            chipClass,
-                          )}
-                        >
-                          {chipInner}
-                        </Link>
-                      )}
-                    </li>
-                  );
-                })}
-              </ol>
-              ) : null}
-            </nav>
+            <BuyerGoldenJourneyStepperNav nav={buyerGoldenJourneyNav} demoDataSourceBadge={demoDataSourceBadge} />
           ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  if (buyerGoldenJourneyNav !== null && buyerGoldenJourneyNav !== undefined) {
+    const baseStrip = LAYER_COPY[layerId];
+
+    return (
+      <div
+        aria-label="Review journey steps"
+        className={cn("min-h-9 w-full", baseStrip.strip, className)}
+        data-layer-context-strip=""
+        data-testid="layer-context-strip"
+        role="region"
+      >
+        <div
+          className={cn(
+            OPERATOR_SHELL_MAX_WIDTH_CLASS,
+            cn(
+              "flex min-h-9 w-full flex-col gap-1 px-4 py-1.5 font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6",
+              OPERATOR_TYPOGRAPHY.body,
+            ),
+          )}
+        >
+          <BuyerGoldenJourneyStepperNav nav={buyerGoldenJourneyNav} demoDataSourceBadge={demoDataSourceBadge} />
         </div>
       </div>
     );

@@ -1,4 +1,4 @@
-> **Scope:** Pointer — canonical first-session guide lives in [`docs/CORE_PILOT.md`](../CORE_PILOT.md).
+> **Scope:** Contributor-reference pointer — canonical **customer-facing** first-session guide lives in [`docs/CORE_PILOT.md`](../CORE_PILOT.md).
 
 # Your first architecture review (pointer)
 

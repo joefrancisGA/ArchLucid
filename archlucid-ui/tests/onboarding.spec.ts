@@ -39,7 +39,7 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
 
     await expect(page.getByRole("heading", { name: BUYER_ONBOARDING_PAGE_TITLE, level: 1 })).toBeVisible();
 
-    await expect(page.getByRole("heading", { name: "Onboarding", level: 2 })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("heading", { name: "Progress", level: 2 })).toBeVisible({ timeout: 30_000 });
 
     await expect(page.getByTestId("onboarding-open-sample-run")).toBeVisible();
     await expect(page.getByTestId("onboarding-open-sample-run")).toHaveAttribute(

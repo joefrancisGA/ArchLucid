@@ -21,14 +21,14 @@ export function BuyerGoldenJourneyLayerContextStrip(): React.JSX.Element | null 
   const buyerRouteOrientation = buyerPolishedRouteOrientation(pathname, { searchRunId });
   const buyerGoldenJourneyNav = resolveBuyerGoldenJourneyNav(pathname, { searchRunId });
 
-  if (buyerRouteOrientation === null) {
+  if (buyerRouteOrientation === null && buyerGoldenJourneyNav === null) {
     return null;
   }
 
   return (
     <LayerContextStrip
       layerId={getLayerForRoute(pathname)}
-      buyerRouteOrientation={buyerRouteOrientation}
+      buyerRouteOrientation={buyerRouteOrientation ?? undefined}
       buyerGoldenJourneyNav={buyerGoldenJourneyNav}
       hideOperateBackLink
     />

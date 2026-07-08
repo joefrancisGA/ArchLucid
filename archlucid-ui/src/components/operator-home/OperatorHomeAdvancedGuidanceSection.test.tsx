@@ -31,7 +31,7 @@ describe("OperatorHomeAdvancedGuidanceSection", () => {
       expect(screen.getByTestId("explore-archlucid-buyer-content")).toBeInTheDocument();
     });
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING })).toBeInTheDocument();
-    expect(screen.getByTestId("start-cto-demo-card")).toBeInTheDocument();
+    expect(screen.getByTestId("explore-archlucid-walkthrough-row")).toBeInTheDocument();
     expect(screen.queryByTestId("core-pilot-checklist")).toBeNull();
   });
 

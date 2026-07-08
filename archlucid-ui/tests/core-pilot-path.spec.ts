@@ -8,6 +8,7 @@
 import { expect, test } from "@playwright/test";
 
 import {
+  CREATE_ARCHITECTURE_PAGE_HEADING_PATTERN,
   MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
   SHOWCASE_DEMO_RUN_ID,
 } from "../e2e/fixtures";
@@ -17,6 +18,7 @@ import {
   BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN,
   showcaseSignedManifestBrowserUrlPattern,
 } from "../e2e/helpers/buyer-golden-path";
+import { reviewsHubFirstPackageRow } from "../e2e/helpers/reviews-hub";
 import { outcomeStripSignedRecordLink } from "../e2e/helpers/operator-journey";
 
 const SHOWCASE_RUN_URL_PATTERN = new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`);
@@ -41,13 +43,15 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
     await expect(page.getByTestId("sidebar-group-toggle-operate-governance")).toBeVisible();
 
     await page.goto("/reviews/new");
-    await expect(page.getByRole("heading", { name: /new architecture review/i, level: 2 })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: CREATE_ARCHITECTURE_PAGE_HEADING_PATTERN, level: 2 }),
+    ).toBeVisible();
 
     await page.goto("/reviews?projectId=default");
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
-    await expect(page.locator('[data-testid^="runs-row-"]').first()).toBeVisible();
+    await expect(reviewsHubFirstPackageRow(page.getByRole("main"))).toBeVisible();
 
     await page.goto(BUYER_GOLDEN_PATH_HREFS.reviewPackage);
 

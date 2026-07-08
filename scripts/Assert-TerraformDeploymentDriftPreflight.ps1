@@ -158,11 +158,11 @@ else {
     $checks.Add((Add-Check "terraform-keyvault: UAMI Key Vault RBAC wiring (TB-656)" "WARN" "workload_rbac.tf missing user_assigned_keyvault_principal_ids")) | Out-Null
 }
 
-if ($null -ne $caMain -and $caMain -match 'key_vault_reference_identity_id' -and $caMain -match 'api_keyvault_uami_enabled') {
-    $checks.Add((Add-Check "terraform-container-apps: Key Vault reference identity (TB-656)" "PASS" "main.tf wires key_vault_reference_identity_id for API/Worker")) | Out-Null
+if ($null -ne $caMain -and $caMain -match 'AZURE_CLIENT_ID' -and $caMain -match 'api_keyvault_uami_enabled') {
+    $checks.Add((Add-Check "terraform-container-apps: Key Vault workload identity env (TB-656)" "PASS" "main.tf wires AZURE_CLIENT_ID for API/Worker Key Vault UAMI")) | Out-Null
 }
 else {
-    $checks.Add((Add-Check "terraform-container-apps: Key Vault reference identity (TB-656)" "WARN" "expected key_vault_reference_identity_id wiring not found")) | Out-Null
+    $checks.Add((Add-Check "terraform-container-apps: Key Vault workload identity env (TB-656)" "WARN" "expected AZURE_CLIENT_ID Key Vault UAMI wiring not found")) | Out-Null
 }
 
 [string] $appsettingsProd = Read-RepoText "ArchLucid.Api/appsettings.Production.json"

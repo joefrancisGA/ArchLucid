@@ -6,6 +6,8 @@ using Microsoft.Extensions.Hosting;
 
 namespace ArchLucid.Application.Tests.Bootstrap;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class DemoSeedBootstrapPolicyTests
 {
     [Fact]

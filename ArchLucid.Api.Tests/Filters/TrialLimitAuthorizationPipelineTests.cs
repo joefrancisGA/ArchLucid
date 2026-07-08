@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 
 using ArchLucid.Api.Filters;
@@ -26,6 +27,14 @@ namespace ArchLucid.Api.Tests.Filters;
 [Trait("Suite", "Core")]
 public sealed class TrialLimitAuthorizationPipelineTests
 {
+    private sealed class FixedUtcTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
+    }
+
+    private static readonly TimeProvider FixedTime =
+        new FixedUtcTimeProvider(new DateTime(2026, 4, 17, 12, 0, 0, DateTimeKind.Utc));
+
     [SkippableFact]
     public async Task Authorization_handler_skips_gate_when_endpoint_has_skip_attribute()
     {
@@ -67,7 +76,9 @@ public sealed class TrialLimitAuthorizationPipelineTests
 
         TrialLimitAuthorizationResultHandler handler = new();
         RequestDelegate next = _ => Task.CompletedTask;
-        AuthorizationPolicy policy = new([], []);
+        AuthorizationPolicy policy = new AuthorizationPolicyBuilder()
+            .AddRequirements(new TrialActiveRequirement())
+            .Build();
         PolicyAuthorizationResult failed = PolicyAuthorizationResult.Forbid();
 
         await handler.HandleAsync(next, http, policy, failed);
@@ -101,10 +112,11 @@ public sealed class TrialLimitAuthorizationPipelineTests
     private static DefaultHttpContext BuildHttpContextWithServices(bool gateThrows)
     {
         ServiceCollection services = new();
-        Mock<TrialLimitGate> gate = new(MockBehavior.Strict, Mock.Of<ITenantRepository>(), TimeProvider.System);
+        Guid tenantId = Guid.NewGuid();
+        Mock<ITenantRepository> tenants = new();
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
+            TenantId = tenantId,
             WorkspaceId = Guid.NewGuid(),
             ProjectId = Guid.NewGuid()
         };
@@ -113,16 +125,43 @@ public sealed class TrialLimitAuthorizationPipelineTests
 
         if (gateThrows)
         {
-            gate.Setup(g => g.GuardWriteAsync(scope, It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new TrialLimitExceededException(TrialLimitReason.Expired, 0));
+            tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                    new TenantRecord
+                    {
+                        Id = tenantId,
+                        Name = "n",
+                        Slug = "s",
+                        Tier = TenantTier.Standard,
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                        TrialStatus = TrialLifecycleStatus.Active,
+                        TrialExpiresUtc = DateTimeOffset.Parse("2026-04-10T00:00:00Z", CultureInfo.InvariantCulture),
+                        TrialRunsLimit = 10,
+                        TrialRunsUsed = 0,
+                    });
         }
         else
         {
-            gate.Setup(g => g.GuardWriteAsync(scope, It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+            tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                    new TenantRecord
+                    {
+                        Id = tenantId,
+                        Name = "n",
+                        Slug = "s",
+                        Tier = TenantTier.Standard,
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                        TrialStatus = TrialLifecycleStatus.Active,
+                        TrialExpiresUtc = TimeProvider.System.GetUtcNow().AddDays(7),
+                        TrialRunsLimit = 10,
+                        TrialRunsUsed = 3,
+                        TrialSeatsLimit = 5,
+                        TrialSeatsUsed = 2,
+                    });
         }
 
-        services.AddSingleton(gate.Object);
+        services.AddSingleton<ITenantRepository>(tenants.Object);
+        services.AddSingleton(new TrialLimitGate(tenants.Object, FixedTime));
         services.AddSingleton(scopes.Object);
 
         DefaultHttpContext http = new();

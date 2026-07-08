@@ -8,6 +8,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
 import { getAppMain } from "./helpers/app-main";
+import { reviewsHubPackagePrimaryAction, reviewsHubPackageRow } from "./helpers/reviews-hub";
 import { escapeRegExpSource } from "./helpers/escape-reg-exp-source";
 import {
   isShowcaseSignedManifestBrowserPath,
@@ -147,13 +148,10 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     ).toBeVisible();
     // Buyer-polished table rows expose two Action links ("View review package", "View signed manifest");
     // target the primary explore link via stable test id (Playwright strict mode).
-    const claimsTableRow = getAppMain(page)
-      .getByTestId(`runs-row-${SHOWCASE_DEMO_RUN_ID}`)
-      .first();
+    const appMain = getAppMain(page);
+    const claimsTableRow = reviewsHubPackageRow(appMain, SHOWCASE_DEMO_RUN_ID).first();
     await expect(claimsTableRow).toBeVisible();
-    await claimsTableRow
-      .getByTestId(`runs-row-primary-explore-${SHOWCASE_DEMO_RUN_ID}`)
-      .click();
+    await reviewsHubPackagePrimaryAction(appMain, SHOWCASE_DEMO_RUN_ID).click();
     const afterListClickUrl = new RegExp(
       `(?:/signed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/(?:manifest|architecture)|/(?:reviews|runs)/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)})`,
     );

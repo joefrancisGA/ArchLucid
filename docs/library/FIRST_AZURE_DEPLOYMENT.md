@@ -16,7 +16,8 @@ Provide a **preflight checklist**, **backend configuration** for Terraform remot
 **TB-654 operator entry point:** after remote-state bootstrap, copy [`deploy/archlucid.stack.example.yaml`](../../deploy/archlucid.stack.example.yaml) to `archlucid.stack.yaml`, edit the ~15 operator-owned fields, then run:
 
 ```bash
-dotnet run --project ArchLucid.Cli -- stack init --answers archlucid.stack.yaml
+archlucid stack init --answers archlucid.stack.yaml
+# or: dotnet run --project ArchLucid.Cli -- stack init --answers archlucid.stack.yaml
 ```
 
 This emits per-root `terraform.tfvars` fragments, hosted `appsettings.Hosted.json`, a GitHub environment secret manifest, and a Key Vault secret checklist (names only) under `deploy/generated/<environment>/`. Use `archlucid stack diff` to detect drift before apply. Schema: [`deploy/archlucid.stack.schema.json`](../../deploy/archlucid.stack.schema.json).

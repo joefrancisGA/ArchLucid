@@ -424,16 +424,23 @@ jobs:
         working-directory: archlucid-ui
         env:
           CI: true
+          API_URL: http://127.0.0.1:5128
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-rc.log
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           NODE_OPTIONS: --max-old-space-size=6144
+          E2E_INFRA_MAX_ATTEMPTS: "12"
+          E2E_INFRA_DB_MAX_ATTEMPTS: "25"
+          E2E_INFRA_BASE_DELAY_MS: "1000"
+          E2E_INFRA_PROBE_ATTEMPTS: "45"
           LIVE_JWT_TOKEN: ""
           LIVE_API_KEY: ""
           LIVE_API_KEY_READONLY: ""
         run: |
           npx playwright install --with-deps chromium
-          curl -fsS http://127.0.0.1:5128/health/ready
+          bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"
+          bash ../scripts/ci/wait-for-db-backed-pilot-endpoint.sh
           npx playwright test --grep @release-gate
 
       - name: Upload Playwright test-results (traces)

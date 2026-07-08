@@ -92,6 +92,23 @@ describe("LayerContextStrip", () => {
     unmount();
   });
 
+  it("renders buyer journey stepper when only journey nav is provided", () => {
+    const { getByTestId, unmount } = render(
+      <LayerContextStrip
+        layerId="operate-analysis"
+        buyerGoldenJourneyNav={{
+          summaryLine: "Step 3 of 5 · View evidence trail",
+          prev: { label: "Signed review record", href: "/reviews/x/manifest" },
+          next: { label: "Governance approval", href: "/governance" },
+          currentStepIndex: 2,
+        }}
+      />,
+    );
+
+    expect(getByTestId("buyer-golden-journey-stepper")).toBeInTheDocument();
+    unmount();
+  });
+
   it("omits operate back link when hideOperateBackLink is true", () => {
     const { queryByTestId, unmount } = render(
       <LayerContextStrip

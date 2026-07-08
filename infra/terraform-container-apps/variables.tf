@@ -611,7 +611,7 @@ variable "enable_container_app_diagnostics" {
 }
 variable "api_keyvault_user_assigned_identity_id" {
   type        = string
-  description = "TB-656: Resource ID of the API user-assigned identity granted Key Vault Secrets User in terraform-keyvault. When set, attaches to the API Container App and sets key_vault_reference_identity_id."
+  description = "TB-656: Resource ID of the API user-assigned identity granted Key Vault Secrets User in terraform-keyvault. When set, attaches to the API Container App identity block and wires AZURE_CLIENT_ID for Key Vault secret access."
   default     = ""
 }
 
