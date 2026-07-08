@@ -160,15 +160,6 @@ resource "azurerm_container_app" "api" {
     identity_ids = local.api_has_user_assigned_identities ? local.api_user_assigned_identity_ids : null
   }
 
-  key_vault_reference_identity_id = local.api_keyvault_uami_enabled ? trimspace(var.api_keyvault_user_assigned_identity_id) : null
-
-  dynamic "env" {
-    for_each = local.api_keyvault_uami_enabled && length(trimspace(var.api_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
-    content {
-      name  = "AZURE_CLIENT_ID"
-      value = trimspace(var.api_keyvault_user_assigned_identity_client_id)
-    }
-  }
   dynamic "registry" {
     for_each = local.acr_pull_enabled ? [1] : []
     content {
@@ -205,6 +196,13 @@ resource "azurerm_container_app" "api" {
       env {
         name  = "Hosting__Role"
         value = "Api"
+      }
+      dynamic "env" {
+        for_each = local.api_keyvault_uami_enabled && length(trimspace(var.api_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
+        content {
+          name  = "AZURE_CLIENT_ID"
+          value = trimspace(var.api_keyvault_user_assigned_identity_client_id)
+        }
       }
 
       env {
@@ -417,15 +415,6 @@ resource "azurerm_container_app" "worker" {
     identity_ids = local.worker_has_user_assigned_identities ? local.worker_user_assigned_identity_ids : null
   }
 
-  key_vault_reference_identity_id = local.worker_keyvault_uami_enabled ? trimspace(var.worker_keyvault_user_assigned_identity_id) : null
-
-  dynamic "env" {
-    for_each = local.worker_keyvault_uami_enabled && length(trimspace(var.worker_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
-    content {
-      name  = "AZURE_CLIENT_ID"
-      value = trimspace(var.worker_keyvault_user_assigned_identity_client_id)
-    }
-  }
   dynamic "registry" {
     for_each = local.acr_pull_enabled ? [1] : []
     content {
@@ -463,6 +452,13 @@ resource "azurerm_container_app" "worker" {
       env {
         name  = "Hosting__Role"
         value = "Worker"
+      }
+      dynamic "env" {
+        for_each = local.worker_keyvault_uami_enabled && length(trimspace(var.worker_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
+        content {
+          name  = "AZURE_CLIENT_ID"
+          value = trimspace(var.worker_keyvault_user_assigned_identity_client_id)
+        }
       }
 
       env {

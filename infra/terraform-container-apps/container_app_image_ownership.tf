@@ -1,4 +1,4 @@
-﻿# TB-657 — Container App runtime image ownership
+# TB-657 — Container App runtime image ownership
 #
 # Routine CD (`.github/workflows/cd.yml`) rolls API, worker, and UI revisions via
 # `az containerapp update --image`. Terraform `api_container_image` / `worker_container_image` /

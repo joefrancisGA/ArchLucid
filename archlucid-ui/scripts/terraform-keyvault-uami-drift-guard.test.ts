@@ -39,7 +39,9 @@ describe("terraform keyvault user-assigned workload identity drift guard (TB-656
   it("attaches Key Vault user-assigned identities on API and Worker container apps", () => {
     expect(containerAppsMain).toContain("api_keyvault_uami_enabled");
     expect(containerAppsMain).toContain("worker_keyvault_uami_enabled");
-    expect(containerAppsMain).toContain("key_vault_reference_identity_id");
+    expect(containerAppsMain).toContain("AZURE_CLIENT_ID");
+    expect(containerAppsMain).toContain("api_keyvault_user_assigned_identity_client_id");
+    expect(containerAppsMain).toContain("worker_keyvault_user_assigned_identity_client_id");
   });
 
   it("skips TB-092 second pass when user-assigned identities are enabled", () => {
