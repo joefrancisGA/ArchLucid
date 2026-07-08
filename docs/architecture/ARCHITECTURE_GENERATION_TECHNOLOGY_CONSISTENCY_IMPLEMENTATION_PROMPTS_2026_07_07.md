@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 8 **done** (see report below). Prompt 7 **done** (`e7eca24395`). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 9 **drafted** below (not yet run). Prompt 8 **done** (see report below). Prompt 7 **done** (`e7eca24395`). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -25,11 +25,11 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | **Done** (see Prompt 6 report) |
 | 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | **Done** (see Prompt 7 report) |
 | 8 | D.6 | Prompt template updates — closed-world clause, neutral-mode clause, alternative-labeling clause across all four system prompt templates | **Done** (see Prompt 8 report) |
-| 9 | D.7 | **API endpoint** — `GET`/`PATCH` ledger routes on the run so the UI has something to call (missing piece between the repository and the UI panel; not called out as its own fix in the assessment but required before step 10 can work) | Not started |
+| 9 | D.7 | **API endpoint** — `GET`/`PATCH` ledger routes on the run so the UI has something to call (missing piece between the repository and the UI panel; not called out as its own fix in the assessment but required before step 10 can work) | **Drafted, not run** |
 | 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | Not started |
 | 11 | D.9 | Golden-corpus consistency scenarios in CI | Not started |
 
-Prompts 1–8 are written out below. **Run Prompt 9** when ready (ask to draft if not yet written).
+Prompts 1–9 are written out below. **Run Prompt 9** when ready, then ask for Prompt 10 to be drafted.
 
 ---
 
@@ -1331,6 +1331,184 @@ Stop and report:
 - **Test results:** scoped AgentRuntime tests — **28/28 passed**.
 - **Commit:** `bc56e5f5aa`.
 - **Scope confirmation:** ledger seeding, handler user-prompt wiring, `TechnologyConsistencyFindingEngine`, artifact lint (Prompt 7), API/UI (Prompts 9–10) **not** touched.
+
+---
+
+## Prompt 9 — Technology Ledger run API (`GET` / `PATCH` for baseline review)
+
+```
+Read docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_ASSESSMENT_2026_07_07.md in full for context before starting, specifically §D fix 7 (Technology Baseline UI / human approval of ledger facts), §E step 5 (operator reviews and locks baseline choices before downstream generation commits), and §F (ledger statuses: `Chosen` is authoritative, `Assumed` is agent-proposed pending approval). Also read "Prompt 1 — Report" through "Prompt 8 — Report" in this same file — the ledger model, seeding, agent merge policy, finding engine, artifact lint, and system prompt clauses are already shipped. **Build on `ITechnologyLedgerRepository` and existing contract types**; do not fork a second ledger store.
+
+Work directly on the current branch (master) — no feature branch. Confirm git status is clean of unrelated changes before starting; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
+
+## Goal
+
+Prompts 1–8 populated and consumed the Technology Ledger inside the generation pipeline, but there is **no HTTP surface** for operators to read or curate ledger rows before the Technology Baseline UI (Prompt 10). This prompt adds the **run-scoped API** required by fix **D.7**:
+
+1. **`GET`** — return all ledger entries for a run (ordered like the repository: `CreatedUtc` ascending).
+2. **`PATCH`** — allow an operator to update a single entry's approval fields (`Status`, `IsLocked`, `Rationale`, and optionally `TechnologyName` / `ProviderFamily` when promoting an `Assumed` row) with validation that preserves ledger invariants.
+
+This is **API + application command service only** for v1. Do **not** build `archlucid-ui` (Prompt 10). Do **not** change agent handlers, seeders, merge policies, `TechnologyConsistencyFindingEngine`, `PreCommitGovernanceGate`, or `ArtifactSynthesisService` lint. Do **not** add new SQL tables or migrations — reuse `ITechnologyLedgerRepository.GetByRunIdAsync` and `UpdateAsync` only.
+
+## Execution-order context (read before coding)
+
+- Mirror existing run-scoped authority controllers: `RunQueryController` (scope + run existence), `RunsController.PinRun` (scoped `PATCH` with audit), `ArtifactExportController` (read policy + rate limiting).
+- Route shape should align with other run APIs the UI already calls — prefer the canonical run prefix used by `RunQueryController`:
+
+  - `GET /v{version:apiVersion}/runs/{runId:guid}/technology-ledger`
+  - `PATCH /v{version:apiVersion}/runs/{runId:guid}/technology-ledger/{entryId}`
+
+- `GET` requires `ArchLucidPolicies.ReadAuthority`; `PATCH` requires `ArchLucidPolicies.ExecuteAuthority` (baseline curation is an operator action, not passive read).
+- Resolve `ScopeContext` via `IScopeContextProvider.GetCurrentScope()` and verify the run exists in scope before reading/updating ledger rows (404 when run missing; 404 when entry id not found for that run).
+- The repository already scopes reads by tenant/workspace/project — do not bypass it.
+
+## 1. API models (`ArchLucid.Api/Models/TechnologyLedger/`)
+
+Create one type per file. Use XML doc comments and nullable reference types consistent with sibling `ArchLucid.Api/Models/*` types.
+
+1. `TechnologyLedgerEntryResponse.cs` — outward DTO mirroring `TechnologyLedgerEntry` fields the UI needs:
+   - `EntryId`, `RunId`, `Role`, `TechnologyName`, `ProviderFamily`, `Status`, `Source`, `EvidenceRef`, `Rationale`, `IsLocked`, `CreatedUtc`, `UpdatedUtc`
+   - Use string enums in JSON (match existing API enum serialization — check a nearby model using `CloudProvider` or contract enums).
+
+2. `TechnologyLedgerListResponse.cs` — wrapper:
+   - `string RunId`
+   - `IReadOnlyList<TechnologyLedgerEntryResponse> Entries`
+
+3. `PatchTechnologyLedgerEntryRequest.cs` — partial update body (all properties optional except at least one must be present):
+   - `TechnologyLedgerStatus? Status`
+   - `bool? IsLocked`
+   - `string? Rationale`
+   - `string? TechnologyName` (optional correction when promoting an `Assumed` agent proposal)
+   - `CloudProvider? ProviderFamily` (optional correction paired with `TechnologyName`)
+
+4. `PatchTechnologyLedgerEntryResponse.cs` — returns the updated `TechnologyLedgerEntryResponse`.
+
+Add a static mapper `TechnologyLedgerEntryMapper` (own file under `ArchLucid.Api/Mapping/` or colocated with models if that matches nearby patterns) — `ToResponse(TechnologyLedgerEntry entry)`.
+
+## 2. Application command service (`ArchLucid.Application`)
+
+Create interface + implementation (one class per file) under `ArchLucid.Application/Runs/TechnologyLedger/`:
+
+```csharp
+public interface ITechnologyLedgerRunCommandService
+{
+    Task<IReadOnlyList<TechnologyLedgerEntry>> GetByRunIdAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken = default);
+
+    Task<TechnologyLedgerEntry> PatchEntryAsync(
+        ScopeContext scope,
+        Guid runId,
+        string entryId,
+        PatchTechnologyLedgerEntryCommand command,
+        CancellationToken cancellationToken = default);
+}
+```
+
+`PatchTechnologyLedgerEntryCommand` is an Application-layer command record (not the API request type) with the same optional fields as the HTTP body.
+
+### Validation rules (v1 — enforce in the service, not the controller)
+
+Load existing rows via `GetByRunIdAsync` before applying a patch:
+
+1. **Run + entry existence** — entry must belong to `runId`; otherwise throw a not-found exception the controller maps to 404.
+
+2. **Immutable identity fields** — do **not** allow changing `EntryId`, `RunId`, `Role`, `Source`, `EvidenceRef`, or `CreatedUtc` via PATCH.
+
+3. **Locked row guard** — when the stored row has `IsLocked == true`, reject patches that change `Status`, `TechnologyName`, or `ProviderFamily` (return a validation/business-rule failure the controller maps to 400). Allow `IsLocked: false` (unlock) and `Rationale` updates even when locked.
+
+4. **At most one `Chosen` per role** — when `Status` is being set to `Chosen`, demote any **other** `Chosen` row for the same `Role` on this run to `Alternative` (or `Assumed` if you prefer — pick one and document in the report; `Alternative` is suggested so the prior choice remains visible). Apply demotions in the same logical operation before persisting the target row (multiple `UpdateAsync` calls are fine for v1).
+
+5. **Promote `Assumed` → `Chosen`** — when the stored row's `Status` is `Assumed` and the patch sets `Status` to `Chosen`, set `Source = TechnologyLedgerSource.User` on the updated row (human approval supersedes agent-proposed origin). Do **not** rewrite `Source` for `Evidence` or already-`Chosen` rows unless you have an explicit test requirement — default: leave `Source` unchanged except for the Assumed→Chosen promotion case.
+
+6. **Field normalization** — trim `TechnologyName` / `Rationale`; reject empty `TechnologyName` when provided.
+
+7. **Timestamp** — set `UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime` on every successful patch.
+
+Inject dependencies:
+- `ITechnologyLedgerRepository`
+- `IRunRepository` (or the same run-existence guard `RunQueryController` uses — verify run exists in scope before ledger access)
+
+Register in DI next to other run services (`ServiceCollectionExtensions.ApplicationPipeline.cs` or the authority/run extension): `services.AddScoped<ITechnologyLedgerRunCommandService, TechnologyLedgerRunCommandService>()`.
+
+## 3. Controller (`ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs`)
+
+Primary-constructor controller:
+
+- `[ApiController]`, `[ApiVersion("1.0")]`, `[EnableRateLimiting("fixed")]`
+- Class-level `[Authorize(Policy = ReadAuthority)]` with method-level `[Authorize(Policy = ExecuteAuthority)]` on PATCH only.
+- Route base: `[Route("v{version:apiVersion}/runs")]`
+
+Endpoints:
+
+1. **`GET {runId:guid}/technology-ledger`**
+   - Returns `TechnologyLedgerListResponse`.
+   - 404 when run not found.
+
+2. **`PATCH {runId:guid}/technology-ledger/{entryId}`**
+   - Body: `PatchTechnologyLedgerEntryRequest`.
+   - 400 when body null/empty, validation fails, or locked-row guard trips.
+   - 404 when run or entry not found.
+   - On success, emit an audit event (mirror `RunsController.PinRun` style) e.g. `AuditEventTypes.TechnologyLedgerEntryUpdated` — add the constant if missing, with `DataJson` containing `entryId`, `role`, `status`, `isLocked` (no secrets).
+
+Use existing `ProblemDetails` helpers (`NotFoundProblem`, `BadRequestProblem`, etc.) and `ProblemTypes` entries consistent with sibling controllers.
+
+## 4. Tests
+
+Add focused tests — do **not** run the full solution test suite.
+
+### Application (`ArchLucid.Application.Tests/Runs/TechnologyLedger/`)
+
+`TechnologyLedgerRunCommandServiceTests` using in-memory `ITechnologyLedgerRepository` + test run repo/double:
+
+1. `GetByRunIdAsync` returns rows ordered by `CreatedUtc`.
+2. Patch `Assumed` → `Chosen` sets `Source = User`.
+3. Promoting a second row to `Chosen` for the same role demotes the prior `Chosen`.
+4. Locked row rejects `Status` / `TechnologyName` changes.
+5. Unlock + rationale update succeeds on locked row.
+6. Missing entry → not-found exception.
+
+### API (`ArchLucid.Api.Tests/`)
+
+`TechnologyLedgerControllerTests` (unit tests with mocked `ITechnologyLedgerRunCommandService`, `IScopeContextProvider`, `IAuditService` — follow `DraftRequestsControllerTests` style):
+
+1. GET happy path maps response DTOs.
+2. PATCH happy path returns 200 and audits.
+3. PATCH null body → 400, no audit.
+4. Service throws not-found → 404.
+
+## 5. Verify
+
+Run, one at a time:
+
+```
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.Application/ArchLucid.Application.csproj
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.Api/ArchLucid.Api.csproj
+```
+
+Then scoped tests only:
+
+```
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~TechnologyLedgerRunCommand"
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~TechnologyLedger"
+```
+
+## 6. Commit
+
+Stage only files this prompt touches. Do not stage unrelated dirty files. Commit directly to `master` with a descriptive message (e.g. "Add Technology Ledger GET/PATCH run API for baseline review"). Push only if explicitly requested.
+
+## 7. Report
+
+Stop and report:
+
+- Final route URLs and authorization policies (`ReadAuthority` vs `ExecuteAuthority`).
+- PATCH validation rules as implemented (especially demotion behavior for duplicate `Chosen` per role and `Assumed`→`Chosen` `Source` rewrite).
+- Audit event type and payload shape.
+- Test pass/fail counts.
+- Commit hash.
+- Confirm agent/seed/finding-engine/artifact-lint/system-template/UI (Prompt 10) code was **not** touched.
+```
 
 ---
 
