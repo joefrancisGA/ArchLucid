@@ -1,8 +1,12 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Validation;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Decisioning.Models;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.ArtifactSynthesis.Services;
 
@@ -17,16 +21,33 @@ namespace ArchLucid.ArtifactSynthesis.Services;
 public class ArtifactSynthesisService(
     IEnumerable<IArtifactGenerator> generators,
     IArtifactBundleValidator validator,
+    ITechnologyLedgerArtifactLinter technologyLedgerArtifactLinter,
+    IOptions<TechnologyLedgerArtifactLintOptions> artifactLintOptions,
     ILogger<ArtifactSynthesisService> logger)
     : IArtifactSynthesisService
 {
     private const string NoArtifactsNote = "No artifacts were generated.";
 
-    public async Task<ArtifactBundle> SynthesizeAsync(
+    private readonly ITechnologyLedgerArtifactLinter _technologyLedgerArtifactLinter =
+        technologyLedgerArtifactLinter ?? throw new ArgumentNullException(nameof(technologyLedgerArtifactLinter));
+
+    private readonly IOptions<TechnologyLedgerArtifactLintOptions> _artifactLintOptions =
+        artifactLintOptions ?? throw new ArgumentNullException(nameof(artifactLintOptions));
+
+    public Task<ArtifactBundle> SynthesizeAsync(
         ManifestDocument manifest,
         CancellationToken ct)
     {
+        return SynthesizeAsync(manifest, [], ct);
+    }
+
+    public async Task<ArtifactBundle> SynthesizeAsync(
+        ManifestDocument manifest,
+        IReadOnlyList<TechnologyLedgerEntry> technologyLedgerEntries,
+        CancellationToken ct)
+    {
         ArgumentNullException.ThrowIfNull(manifest);
+        ArgumentNullException.ThrowIfNull(technologyLedgerEntries);
 
         if (logger.IsEnabled(LogLevel.Information))
 
@@ -81,6 +102,7 @@ public class ArtifactSynthesisService(
         }
 
         validator.Validate(bundle);
+        ApplyTechnologyLedgerArtifactLint(bundle, technologyLedgerEntries);
 
         if (logger.IsEnabled(LogLevel.Information))
 
@@ -93,5 +115,40 @@ public class ArtifactSynthesisService(
                 string.Join(',', bundle.Trace.GeneratorsUsed));
 
         return bundle;
+    }
+
+    private void ApplyTechnologyLedgerArtifactLint(
+        ArtifactBundle bundle,
+        IReadOnlyList<TechnologyLedgerEntry> technologyLedgerEntries)
+    {
+        TechnologyLedgerArtifactLintOptions options = _artifactLintOptions.Value;
+        options.Normalize();
+
+        if (!options.Enabled)
+            return;
+
+        IReadOnlyList<TechnologyLedgerArtifactLintFinding> lintFindings =
+            _technologyLedgerArtifactLinter.Lint(bundle, technologyLedgerEntries, options);
+
+        if (lintFindings.Count == 0)
+            return;
+
+        if (options.Mode == TechnologyConsistencyFindingEngineMode.Enforcing)
+        {
+            string summary = string.Join(
+                "; ",
+                lintFindings.Select(static finding =>
+                    $"{finding.RuleId}@{finding.ArtifactType}:{finding.MatchedToken}"));
+
+            throw new InvalidOperationException($"Technology ledger artifact lint failed: {summary}");
+        }
+
+        foreach (TechnologyLedgerArtifactLintFinding finding in lintFindings)
+        {
+            bundle.Trace.Notes.Add(
+                $"TechnologyLedgerArtifactLint[{finding.RuleId}]: {finding.Message} (artifact={finding.ArtifactType}, token={finding.MatchedToken})");
+        }
+
+        bundle.Status = ArtifactBundleStatus.Partial;
     }
 }

@@ -1,5 +1,7 @@
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
@@ -21,9 +23,13 @@ public sealed class AuthorityReplayService(
     IManifestHashService manifestHashService,
     IDecisionTraceRepository decisionTraceRepository,
     IGoldenManifestRepository goldenManifestRepository,
-    IArtifactBundleRepository artifactBundleRepository)
+    IArtifactBundleRepository artifactBundleRepository,
+    ITechnologyLedgerRepository technologyLedgerRepository)
     : IAuthorityReplayService
 {
+    private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
+        technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
+
     /// <inheritdoc />
     public async Task<ReplayResult?> ReplayAsync(
         ReplayRequest request,
@@ -120,8 +126,15 @@ public sealed class AuthorityReplayService(
         if (!string.Equals(mode, ReplayMode.RebuildArtifacts, StringComparison.OrdinalIgnoreCase))
             return result;
 
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
+            await _technologyLedgerRepository.GetByRunIdAsync(
+                writeScope,
+                original.Run.RunId.ToString("D"),
+                ct);
+
         ArtifactBundle rebuiltArtifacts = await artifactSynthesisService.SynthesizeAsync(
             manifest,
+            ledgerEntries,
             ct);
 
         await artifactBundleRepository.SaveAsync(rebuiltArtifacts, ct);

@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -9,6 +10,7 @@ using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Coordination.Replay;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
@@ -98,10 +100,24 @@ public sealed class AuthorityReplayServiceTests
         artifactSvc
             .Setup(x => x.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArtifactBundle { BundleId = Guid.NewGuid() });
+        artifactSvc
+            .Setup(x => x.SynthesizeAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArtifactBundle { BundleId = Guid.NewGuid() });
 
         artifactRepo
             .Setup(x => x.SaveAsync(It.IsAny<ArtifactBundle>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+
+        Mock<ITechnologyLedgerRepository> ledgerRepo = new();
+        ledgerRepo
+            .Setup(x => x.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         AuthorityReplayService sut = new(
             query.Object,
@@ -111,7 +127,8 @@ public sealed class AuthorityReplayServiceTests
             hashSvc.Object,
             traceRepo.Object,
             manifestRepo.Object,
-            artifactRepo.Object);
+            artifactRepo.Object,
+            ledgerRepo.Object);
 
         return (sut, query, decisionEngine, artifactSvc, hashSvc);
     }
@@ -154,7 +171,10 @@ public sealed class AuthorityReplayServiceTests
             x => x.DecideAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GraphSnapshot>(), It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()),
             Times.Never);
         artifactSvc.Verify(
-            x => x.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()),
+            x => x.SynthesizeAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -180,7 +200,10 @@ public sealed class AuthorityReplayServiceTests
             x => x.DecideAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GraphSnapshot>(), It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()),
             Times.Once);
         artifactSvc.Verify(
-            x => x.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()),
+            x => x.SynthesizeAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -206,7 +229,10 @@ public sealed class AuthorityReplayServiceTests
             x => x.DecideAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GraphSnapshot>(), It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()),
             Times.Once);
         artifactSvc.Verify(
-            x => x.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()),
+            x => x.SynthesizeAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 }

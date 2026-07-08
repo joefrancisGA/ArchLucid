@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
@@ -20,6 +21,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Cosmos;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -534,8 +536,15 @@ public sealed class AuthorityPipelineStagesExecutorTests
         Guid runGuid = Guid.NewGuid();
         (AuthorityPipelineStagesExecutor sut, _, Mock<IAuditService> audit) = CreateExecutor(
             configureSynthesis: s =>
+            {
                 s.Setup(x => x.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
-                    .ThrowsAsync(new InvalidOperationException("synthesis failed")));
+                    .ThrowsAsync(new InvalidOperationException("synthesis failed"));
+                s.Setup(x => x.SynthesizeAsync(
+                        It.IsAny<ManifestDocument>(),
+                        It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
+                        It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(new InvalidOperationException("synthesis failed"));
+            });
 
         AuthorityPipelineContext ctx = CreateContext(runId: runGuid);
 
@@ -738,6 +747,21 @@ public sealed class AuthorityPipelineStagesExecutorTests
                     Artifacts = [oneArtifact],
                     Trace = new SynthesisTrace { TraceId = Guid.NewGuid() }
                 });
+        synth
+            .Setup(s => s.SynthesizeAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ArtifactBundle
+                {
+                    BundleId = bundleId,
+                    RunId = Guid.Empty,
+                    ManifestId = manifestId,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    Artifacts = [oneArtifact],
+                    Trace = new SynthesisTrace { TraceId = Guid.NewGuid() }
+                });
 
         configureSynthesis?.Invoke(synth);
 
@@ -802,6 +826,14 @@ public sealed class AuthorityPipelineStagesExecutorTests
         Mock<IOptionsMonitor<AuthorityPipelineOptions>> apPipeline = new();
         apPipeline.Setup(m => m.CurrentValue).Returns(authorityPipelineOptions ?? new AuthorityPipelineOptions());
 
+        Mock<ITechnologyLedgerRepository> ledgerRepo = new();
+        ledgerRepo
+            .Setup(r => r.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         return (new AuthorityPipelineStagesExecutor(
             runRepo.Object,
             ingest.Object,
@@ -817,6 +849,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             manifestRepo.Object,
             synth.Object,
             bundleRepo.Object,
+            ledgerRepo.Object,
             audit.Object,
             cosmosDb.Object,
             apPipeline.Object,

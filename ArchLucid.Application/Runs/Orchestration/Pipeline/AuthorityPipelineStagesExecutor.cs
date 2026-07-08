@@ -4,6 +4,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
@@ -14,6 +15,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Cosmos;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
@@ -42,6 +44,7 @@ public sealed class AuthorityPipelineStagesExecutor(
     IGoldenManifestRepository goldenManifestRepository,
     IArtifactSynthesisService artifactSynthesisService,
     IArtifactBundleRepository artifactBundleRepository,
+    ITechnologyLedgerRepository technologyLedgerRepository,
     IAuditService auditService,
     IOptionsMonitor<CosmosDbOptions> cosmosDbOptionsMonitor,
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
@@ -115,6 +118,9 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
+        technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
 
     private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
         runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
@@ -312,7 +318,13 @@ public sealed class AuthorityPipelineStagesExecutor(
             ArtifactBundle artifactBundle;
             try
             {
-                artifactBundle = await _artifactSynthesisService.SynthesizeAsync(ctx.Manifest!, token);
+                IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
+                    await _technologyLedgerRepository.GetByRunIdAsync(scope, run.RunId.ToString("D"), token);
+
+                artifactBundle = await _artifactSynthesisService.SynthesizeAsync(
+                    ctx.Manifest!,
+                    ledgerEntries,
+                    token);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {

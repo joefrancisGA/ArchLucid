@@ -1,11 +1,13 @@
 using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.ArtifactSynthesis.Validation;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Costing;
 using ArchLucid.ArtifactSynthesis.Renderers;
-using ArchLucid.ArtifactSynthesis.Services;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Tests.MigratedCoordinator;
 
@@ -30,6 +32,8 @@ internal static class TestArtifactSynthesisFactory
         return new ArtifactSynthesisService(
             generators,
             new ArtifactBundleValidator(),
+            new TechnologyLedgerArtifactLinter(),
+            Options.Create(new TechnologyLedgerArtifactLintOptions { Enabled = false }),
             NullLogger<ArtifactSynthesisService>.Instance);
     }
 }

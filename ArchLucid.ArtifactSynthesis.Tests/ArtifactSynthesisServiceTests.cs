@@ -1,12 +1,16 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.ArtifactSynthesis.Validation;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -48,6 +52,8 @@ public sealed class ArtifactSynthesisServiceTests
         ArtifactSynthesisService sut = new(
             [genZ.Object, genA.Object],
             new ArtifactBundleValidator(),
+            new TechnologyLedgerArtifactLinter(),
+            Options.Create(new TechnologyLedgerArtifactLintOptions { Enabled = false }),
             NullLogger<ArtifactSynthesisService>.Instance);
 
         ArtifactBundle bundle = await sut.SynthesizeAsync(manifest, CancellationToken.None);
@@ -64,12 +70,96 @@ public sealed class ArtifactSynthesisServiceTests
         ArtifactSynthesisService sut = new(
             [],
             new ArtifactBundleValidator(),
+            new TechnologyLedgerArtifactLinter(),
+            Options.Create(new TechnologyLedgerArtifactLintOptions { Enabled = false }),
             NullLogger<ArtifactSynthesisService>.Instance);
 
         Func<Task> act = async () => await sut.SynthesizeAsync(manifest, CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*artifact*");
+    }
+
+    [Fact]
+    public async Task SynthesizeAsync_warn_only_appends_trace_notes_and_sets_partial_status()
+    {
+        Mock<IArtifactGenerator> generator = new();
+        generator.Setup(x => x.ArtifactType).Returns("Alpha");
+        generator
+            .Setup(x => x.GenerateAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(NewArtifact("Alpha", "a.txt", "content"));
+
+        Mock<ITechnologyLedgerArtifactLinter> linter = new();
+        linter
+            .Setup(x => x.Lint(
+                It.IsAny<ArtifactBundle>(),
+                It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
+                It.IsAny<TechnologyLedgerArtifactLintOptions>()))
+            .Returns(
+            [
+                new TechnologyLedgerArtifactLintFinding
+                {
+                    RuleId = "UnledgeredHyperscalerToken",
+                    ArtifactType = "Alpha",
+                    Message = "token missing",
+                    MatchedToken = "Azure",
+                },
+            ]);
+
+        ArtifactSynthesisService sut = new(
+            [generator.Object],
+            new ArtifactBundleValidator(),
+            linter.Object,
+            Options.Create(new TechnologyLedgerArtifactLintOptions()),
+            NullLogger<ArtifactSynthesisService>.Instance);
+
+        ArtifactBundle bundle = await sut.SynthesizeAsync(NewManifest(), [], CancellationToken.None);
+
+        bundle.Status.Should().Be(ArtifactBundleStatus.Partial);
+        bundle.Trace.Notes.Should().Contain(note =>
+            note.Contains("TechnologyLedgerArtifactLint[UnledgeredHyperscalerToken]", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task SynthesizeAsync_enforcing_mode_throws_when_linter_finds_violations()
+    {
+        Mock<IArtifactGenerator> generator = new();
+        generator.Setup(x => x.ArtifactType).Returns("Alpha");
+        generator
+            .Setup(x => x.GenerateAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(NewArtifact("Alpha", "a.txt", "content"));
+
+        Mock<ITechnologyLedgerArtifactLinter> linter = new();
+        linter
+            .Setup(x => x.Lint(
+                It.IsAny<ArtifactBundle>(),
+                It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
+                It.IsAny<TechnologyLedgerArtifactLintOptions>()))
+            .Returns(
+            [
+                new TechnologyLedgerArtifactLintFinding
+                {
+                    RuleId = "ProseHyperscalerFamilyMismatch",
+                    ArtifactType = "Alpha",
+                    MatchedToken = "S3",
+                },
+            ]);
+
+        ArtifactSynthesisService sut = new(
+            [generator.Object],
+            new ArtifactBundleValidator(),
+            linter.Object,
+            Options.Create(
+                new TechnologyLedgerArtifactLintOptions
+                {
+                    Mode = TechnologyConsistencyFindingEngineMode.Enforcing,
+                }),
+            NullLogger<ArtifactSynthesisService>.Instance);
+
+        Func<Task> act = async () => await sut.SynthesizeAsync(NewManifest(), [], CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Technology ledger artifact lint failed*");
     }
 
     private static SynthesizedArtifact NewArtifact(string artifactType, string name, string content)

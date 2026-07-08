@@ -202,6 +202,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IArtifactContentTypeResolver, ArtifactContentTypeResolver>();
         services.AddSingleton<IArtifactPackagingService, ArtifactPackagingService>();
         services.AddSingleton<IArtifactBundleValidator, ArtifactBundleValidator>();
+        services.AddSingleton<ITechnologyLedgerArtifactLinter, TechnologyLedgerArtifactLinter>();
         services.AddSingleton<IDiagramRenderer, MermaidDiagramRenderer>();
         services.AddScoped<IArtifactGenerator, ReferenceArchitectureMarkdownGenerator>();
         services.AddScoped<IArtifactGenerator, ArchitectureNarrativeArtifactGenerator>();

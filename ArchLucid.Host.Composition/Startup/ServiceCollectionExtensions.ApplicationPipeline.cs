@@ -191,6 +191,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(PreCommitGovernanceGateOptions.SectionPath));
         services.Configure<TechnologyConsistencyFindingEngineOptions>(
             configuration.GetSection(TechnologyConsistencyFindingEngineOptions.SectionPath));
+        services.Configure<TechnologyLedgerArtifactLintOptions>(
+            configuration.GetSection(TechnologyLedgerArtifactLintOptions.SectionPath));
         services.Configure<AuthorityCommitSchemaValidationOptions>(
             configuration.GetSection(AuthorityCommitSchemaValidationOptions.SectionPath));
         services.Configure<ArchitectureRunCreateOptions>(
