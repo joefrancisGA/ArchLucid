@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 9 **done** (see report below). Prompt 8 **done** (see report below). Prompt 7 **done** (`e7eca24395`). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 10 **drafted** below (not yet run). Prompt 9 **done** (see report below). Prompt 8 **done** (see report below). Prompt 7 **done** (`e7eca24395`). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -26,10 +26,10 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | **Done** (see Prompt 7 report) |
 | 8 | D.6 | Prompt template updates — closed-world clause, neutral-mode clause, alternative-labeling clause across all four system prompt templates | **Done** (see Prompt 8 report) |
 | 9 | D.7 | **API endpoint** — `GET`/`PATCH` ledger routes on the run so the UI has something to call (missing piece between the repository and the UI panel; not called out as its own fix in the assessment but required before step 10 can work) | **Done** (see Prompt 9 report) |
-| 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | Not started |
+| 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | **Drafted, not run** |
 | 11 | D.9 | Golden-corpus consistency scenarios in CI | Not started |
 
-Prompts 1–9 are written out below. **Run Prompt 10** when ready (ask to draft if not yet written).
+Prompts 1–10 are written out below. **Run Prompt 10** when ready, then ask for Prompt 11 to be drafted.
 
 ---
 
@@ -1520,6 +1520,162 @@ Stop and report:
 - **Test results:** `TechnologyLedgerRunCommandServiceTests` — **6/6 passed**; `TechnologyLedgerControllerTests` — compiled with `ArchLucid.Api` (Api.Tests solution build blocked by unrelated pre-existing `ArchitectureRunExecuteOrchestratorTestFactory` reference in another test file).
 - **Commit:** `ec24cb0b42`.
 - **Scope confirmation:** agent handlers, seeders, merge policies, `TechnologyConsistencyFindingEngine`, `PreCommitGovernanceGate`, artifact lint, system templates, and UI (Prompt 10) **not** touched.
+
+---
+
+## Prompt 10 — Technology Baseline UI panel (`archlucid-ui`)
+
+```
+Read docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_ASSESSMENT_2026_07_07.md in full for context before starting, specifically §D fix 7 (Technology Baseline panel + human approval), §E step 5 (operator reviews and locks baseline choices before finalize), §G (UI changes — visible baseline, inline approve/correct, drift warnings), and §I acceptance criteria #2 (agent-proposed technologies distinguishable in the UI until approved). Also read "Prompt 9 — Report" in this same file for the shipped HTTP contract and PATCH semantics — **consume those routes as-is**; do not add backend changes in this prompt.
+
+Read `archlucid-ui/AGENTS.md` and `docs/library/UI_DESIGN_SYSTEM.md` before writing UI — Carbon-neutral surfaces, compact operator spacing, `StatusTag` / `SeverityTag`, product language (*review package*, *evidence trail*, not *run* / *job* in buyer-facing copy).
+
+Work directly on the current branch (`master`) — no feature branch. Confirm `git status` is clean of unrelated changes before starting; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
+
+## Goal
+
+Prompt 9 exposed the Technology Ledger over HTTP. This prompt closes fix **D.7 (UI half)** — a **Technology Baseline** panel on the review detail page where operators can:
+
+1. **Read** all ledger rows for the review (`GET /v1/runs/{runId}/technology-ledger`).
+2. **Approve** agent-proposed (`Assumed`) rows — PATCH `status: Chosen` (server sets `source: User` per Prompt 9).
+3. **Lock / unlock** authoritative rows — PATCH `isLocked`.
+4. **Optionally record rationale** on approve/lock — PATCH `rationale`.
+5. See a **pre-finalize nudge** when `Assumed` rows remain and the review is not yet finalized (informational for v1 — do **not** hard-block commit in the UI; pre-commit enforcement remains server-side via Prompt 6 options).
+
+This is **`archlucid-ui` only** for v1. Do **not** change .NET API/controllers/services, agent handlers, seeders, finding engine, artifact lint, or golden-corpus CI (Prompt 11). Do **not** add new SQL or migrations.
+
+## Execution-order context (read before coding)
+
+### Shipped API (Prompt 9 — do not re-specify)
+
+| Method | Route | Auth |
+| --- | --- | --- |
+| `GET` | `/v1/runs/{runId:guid}/technology-ledger` | `ReadAuthority` |
+| `PATCH` | `/v1/runs/{runId:guid}/technology-ledger/{entryId}` | `ExecuteAuthority` |
+
+Response entry fields: `entryId`, `runId`, `role`, `technologyName`, `providerFamily`, `status`, `source`, `evidenceRef`, `rationale`, `isLocked`, `createdUtc`, `updatedUtc` (string enums in JSON).
+
+PATCH body (partial): `status?`, `isLocked?`, `rationale?`, `technologyName?`, `providerFamily?` — at least one required.
+
+### Where to mount in the UI
+
+- Primary surface: **`/reviews/[runId]`** (`RunDetailPageView` and related `_sections/*`).
+- Add a new anchor section id **`technology-baseline`** (label **Technology baseline** in full-operator nav; buyer-polished label **Technology choices** or **Baseline technologies** — pick one and use consistently).
+- Register the section in `build-run-detail-nav-sections.ts` for **both** buyer-polished and full-operator layouts (`available: true` when the review exists; hide only when GET returns empty **and** you choose not to show an empty-state card — prefer showing empty-state copy for transparency on new reviews).
+- Place the panel **above** pipeline timeline / below first-screen summary chrome — operators should see baseline facts **before** scrolling to deliverables. Follow existing section spacing (`scroll-mt-24`, `OPERATOR_LAYOUT` / `OPERATOR_CARD` tokens).
+- Mirror fetch patterns from sibling client sections (e.g. governance CTA, capture evidence) — browser calls use `/api/proxy/v1/...` via `apiGet` / `apiPatchJson` in `src/lib/api/http.ts`.
+
+### OpenAPI / types
+
+1. From `archlucid-ui/`, run `npm run generate:api-types` so `src/lib/api-types.generated.ts` includes the Technology Ledger paths/schemas (master already ships the controller).
+2. Add UI types under `src/types/technology-ledger.ts` aliasing `components["schemas"]["TechnologyLedgerEntryResponse"]` (and list/patch response types) from `@/lib/openapi-schemas` — **do not** hand-maintain parallel DTO structs.
+3. Add API helpers in `src/lib/api/technology-ledger.ts` and re-export from `src/lib/api/index.ts`:
+   - `getTechnologyLedger(runId: string): Promise<TechnologyLedgerListResponse>`
+   - `patchTechnologyLedgerEntry(runId: string, entryId: string, body: PatchTechnologyLedgerEntryRequest): Promise<PatchTechnologyLedgerEntryResponse>`
+   - Use `encodeURIComponent(runId)`; pass canonical GUID string the review page already uses.
+
+## 1. Panel component(s)
+
+Create focused components under `archlucid-ui/src/components/reviews/technology-baseline/` (one component per file):
+
+### `TechnologyBaselinePanel.tsx` (client component)
+
+Props: `runId: string`, `manifestFinalized: boolean` (or equivalent from existing run detail model — `manifestId` present / manifest summary committed).
+
+Behavior:
+
+- On mount (and after each successful PATCH), `GET` ledger entries.
+- Loading / error / empty states with `data-testid` hooks (`technology-baseline-panel`, `technology-baseline-loading`, `technology-baseline-error`, `technology-baseline-empty`).
+- **Pre-finalize banner:** when `!manifestFinalized` and any row has `status === "Assumed"`, show a compact `Alert` (warning tone) explaining that agent-proposed technology choices need operator approval before the review package should be treated as authoritative. Link to table rows; do **not** disable unrelated page actions.
+- **Table** (prefer `EnterpriseTable` if nearby run-detail tables use it; otherwise a compact accessible `<table>` with the same visual tokens):
+  - Columns: Role, Technology, Provider, Status, Source, Locked, Actions.
+  - Status badges via `StatusTag` — map `Chosen` → success/positive, `Assumed` → warning, `Alternative` / `Future` → neutral.
+  - Source badges — `User`, `Evidence`, `AgentProposed` (humanize labels: "Intake", "Evidence", "Agent proposal").
+  - `evidenceRef` — show truncated monospace in a disclosure (`<CollapsibleSection>` or `details`) when present; never dominate the row.
+  - `isLocked` — lock icon + yes/no; unlocking allowed via action when operator has execute authority.
+
+### Row actions (operator / ExecuteAuthority)
+
+For each row, expose actions appropriate to state (hide/disable with tooltip when PATCH would 400):
+
+| Row state | Primary actions |
+| --- | --- |
+| `Assumed` | **Approve** → PATCH `{ status: "Chosen" }` (optional small modal/disclosure to add `rationale` before submit) |
+| `Chosen` (unlocked) | **Lock** → PATCH `{ isLocked: true }` |
+| `Chosen` (locked) | **Unlock** → PATCH `{ isLocked: false }`; allow **Edit rationale** → PATCH `{ rationale: "..." }` only |
+| `Alternative` / `Future` | Read-only in v1 (no promote action unless you add an explicit **Approve** that PATCHes to `Chosen` — allowed if covered by tests) |
+
+Use optimistic UI only if you also handle rollback on PATCH failure; otherwise disable action button until refresh completes.
+
+Surface API problems via existing toast / inline error helpers (`api-problem-copy`, `formatApiLoadFailureMessage` — match sibling panels).
+
+### `TechnologyBaselineSection.tsx` (server or thin wrapper)
+
+- Renders `<section id="technology-baseline" className="scroll-mt-24" …>` wrapping the client panel.
+- Pass `runId` and finalized flag from `RunDetailPageModel` / deferred context — read `run-detail-page-model.ts` and wire without widening unrelated props.
+
+## 2. Page integration
+
+1. Import and render `TechnologyBaselineSection` from `RunDetailPageView.tsx` (or `RunDetailMidDeferredSections` if that matches other client-heavy inserts) at the placement described above.
+2. Update `build-run-detail-nav-sections.ts` + `build-run-detail-nav-sections.test.ts` with the new `technology-baseline` entry for both layout branches.
+3. Update `run-detail-architect-section-order.ts` / its test if the repo tracks canonical section order strings.
+4. **Static demo runs:** if `tryStaticDemoRunDetail` / showcase flows must work offline, add a minimal `tryStaticDemoTechnologyLedger(runId)` beside other static demo helpers returning 2–3 representative rows (Azure `Chosen` intake row + `Assumed` agent proposal). Gate live GET when static demo is active — follow the same pattern as governance static seeding (do not break sandbox mocks).
+
+## 3. Drift warnings (v1 — lightweight)
+
+Full inline mapping from `TechnologyConsistencyFindingEngine` titles to rows is **not** required to ship v1, but the panel must not hide drift entirely:
+
+- When the review detail already exposes finding / warning counts or pre-commit banners (`CommitBlockingFindingsBanner`, finding coverage summary), add a short helper note in the Technology Baseline panel header when **any open warning** exists: "Technology consistency checks may flag unresolved assumptions — review Assumed rows below."
+- Do **not** add new API calls to the finding engine from the UI in this prompt.
+
+## 4. Tests
+
+Add Vitest coverage under `archlucid-ui/src/components/reviews/technology-baseline/`:
+
+1. `TechnologyBaselinePanel.test.tsx` — mocks `fetch` / API helpers:
+   - Renders rows with correct status badges.
+   - Approve on `Assumed` row calls PATCH with `{ status: "Chosen" }` and refreshes list.
+   - Lock / unlock calls PATCH with expected body.
+   - Pre-finalize banner appears when `Assumed` rows exist and manifest not finalized.
+   - PATCH 400 shows inline/toast error without corrupting row list.
+2. Update `build-run-detail-nav-sections.test.ts` for the new nav id.
+
+Do **not** run the full Playwright suite unless you touch e2e-critical flows; optional: add one stable `data-testid` assertion to an existing review-detail smoke test only if it is < ~30 lines.
+
+## 5. Verify
+
+From `archlucid-ui/`:
+
+```
+npm run lint
+npm run test -- --run TechnologyBaseline
+npm run test -- --run build-run-detail-nav-sections
+```
+
+Manual smoke (local):
+
+1. `.\scripts\start-local-api-and-ui.ps1` (or UI + API already running).
+2. Open a review with ledger rows (create a new review after Prompts 2–4 seeding — Simulator mode is fine).
+3. Confirm panel loads, Approve changes `Assumed` → `Chosen`, Lock toggles, section nav anchor works.
+
+## 6. Commit
+
+Stage only `archlucid-ui/**` and any doc touch this prompt requires. Do not stage unrelated dirty files. Commit directly to `master` with a descriptive message (e.g. "Add Technology Baseline panel to review detail (ledger GET/PATCH UI)"). Push only if explicitly requested.
+
+## 7. Report
+
+Stop and report:
+
+- Component file paths and where the section mounts on `/reviews/[runId]`.
+- Nav label + section id added to `build-run-detail-nav-sections`.
+- API helper paths and whether `npm run generate:api-types` was run.
+- Row action matrix as implemented (which statuses get Approve / Lock / Unlock).
+- Pre-finalize `Assumed` banner behavior.
+- Static demo fallback (if added).
+- Vitest pass/fail counts.
+- Commit hash.
+- Confirm .NET API (Prompt 9), agents, finding engine, artifact lint, and CI golden scenarios (Prompt 11) were **not** touched.
+```
 
 ---
 
