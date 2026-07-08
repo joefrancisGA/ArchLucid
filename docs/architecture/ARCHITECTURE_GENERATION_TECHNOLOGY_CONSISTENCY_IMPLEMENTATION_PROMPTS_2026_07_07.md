@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 2 **complete** — see "Prompt 2 — Report" below. Prompt 1 was committed `daaa784505` and pushed to `origin/master` (2026-07-07). Prompt 3 is **not written yet** — draft after reviewing Prompt 2's report.
+**Status:** Prompt 3 **drafted** below (not yet run). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -19,7 +19,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | --- | --- | --- | --- |
 | **1** | D.1 | Technology Ledger data model — contracts, SQL table, repository (additive only; nothing reads or writes it yet) | **Done** (`daaa784505`) |
 | 2 | D.2 | Wire ledger into intake: required target-cloud/neutral question, fix `DraftRequestProjector`, seed `source: user` ledger entries from `ArchitectureRequest` | **Done** (see Prompt 2 report) |
-| 3 | D.1 (cont.) | Seed `source: evidence` ledger entries from context connectors (IaC declarations, cloud inventory ZIP) | Not started |
+| 3 | D.1 (cont.) | Seed `source: evidence` ledger entries from context connectors (IaC declarations, cloud inventory ZIP) | **Drafted, not run** |
 | 4 | D.3 | Inject ledger into `TopologyAgentHandler` / `RunStarterTaskFactory` objectives; agent proposals become `source: agent-proposed` ledger entries instead of untracked `ProposedChanges` free text | Not started |
 | 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | Not started |
 | 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | Not started |
@@ -29,7 +29,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | Not started |
 | 11 | D.9 | Golden-corpus consistency scenarios in CI | Not started |
 
-Prompts 1 and 2 are written out below. Run Prompt 2, review the result, then ask for Prompt 3 to be drafted against whatever ledger-population shape Prompt 2 actually produces.
+Prompts 1–3 are written out below. Run Prompt 3, review the result, then ask for Prompt 4 to be drafted.
 
 ---
 
@@ -296,6 +296,181 @@ Stop and report:
 - **Deviations:** Radix `<Select>` options are not in the DOM until the trigger is opened — UI test opens the combobox before asserting option `data-testid`s.
 - **Test results:** `DraftRequestProjectorTests` + `TechnologyLedgerRequestSeederTests` + `ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTests` — **15/15 passed**; `DraftIntakeRequiredClarificationField.test.tsx` — **7/7 passed**.
 - **Scope confirmation:** no agent, prompt template, evidence builder, validation engine, or Technology Baseline UI panel touched.
+
+---
+
+## Prompt 3 — Seed evidence-sourced Technology Ledger entries (IaC declarations + cloud inventory packages)
+
+```
+Read docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_ASSESSMENT_2026_07_07.md in full for context before starting, specifically §D fix 1 (ledger), the workflow step 1 bullet ("IaC/inventory evidence uploads seed source: evidence rows"), and §F (evidence-or-provenance requirement). Also read "Prompt 1 — Report" and "Prompt 2 — Report" in this same file (docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_IMPLEMENTATION_PROMPTS_2026_07_07.md) for the actual ledger shape and seeding conventions already shipped — build on those, do not re-derive them.
+
+Work directly on the current branch (master) — no feature branch. Confirm git status is clean of unrelated changes before starting; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
+
+## Goal
+
+Prompt 2 seeds one `source: User` / `status: Chosen` `CloudPlatform` row from `ArchitectureRequest.CloudProvider` on every successful run create. This prompt adds the **evidence half** of fix D.1/D.2 intake seeding: derive additional `TechnologyLedgerEntry` rows with `Source = TechnologyLedgerSource.Evidence` from:
+
+1. **Infrastructure declarations** attached to the request (`ArchitectureRequest.InfrastructureDeclarations`) — the same payloads the `InfrastructureDeclarationConnector` already normalizes via `InfrastructureDeclarationsPayloadNormalizer` and the registered `IInfrastructureDeclarationParser` implementations (`json`, `terraform-show-json`, etc.).
+2. **Cloud inventory ZIP packages** already linked to the run — **Azure** via `IAzureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync` (pattern already used in `ArchitectureRunAuthorityCoordination` for evidence-bundle metadata merge), and **AWS/GCP** via `CloudInventoryExtractorPackageRecord.RunId` rows in `dbo.CloudInventoryExtractorPackages` (today the repository interface only supports insert/download-by-id — you will add a provenance read path mirroring Azure).
+
+This does NOT wire the ledger into agents, prompts, or validation (Prompts 4–6). It does NOT build the Technology Baseline UI (Prompt 10). It does NOT deeply parse every resource inside inventory ZIP bytes for Prompt 3 — manifest/provenance + IaC canonical objects are sufficient for v1 evidence seeding.
+
+## 1. Evidence seeder class
+
+Create `ArchLucid.Application/Runs/Orchestration/TechnologyLedgerEvidenceSeeder.cs` (one class per file). Follow the same conventions as `TechnologyLedgerRequestSeeder.cs` from Prompt 2:
+
+- Primary-constructor DI on its dependencies.
+- A public static builder method per evidence source shape (for unit tests), plus an instance `SeedAsync(...)` that persists via `ITechnologyLedgerRepository.AddAsync`.
+- No interface unless you find an existing sibling seeder interface (Prompt 2 did not add one — match that).
+
+Dependencies (read the real types before wiring):
+
+- `ITechnologyLedgerRepository`
+- `IScopeContextProvider`
+- `IAzureExtractorPackageRepository`
+- `ICloudInventoryExtractorPackageRepository` (after you extend it in step 2)
+- `InfrastructureDeclarationsPayloadNormalizer` (reuse the production normalizer from DI — do not re-register parsers ad hoc)
+- `TimeProvider`
+
+Public entry point signature (adjust only if a sibling pattern demands it):
+
+`Task SeedAsync(string runId, ArchitectureRequest request, CancellationToken cancellationToken = default)`
+
+## 2. Cloud inventory provenance read path (AWS/GCP gap)
+
+Read `IAzureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync` and `AzureExtractorPackageProvenance` — this is the template.
+
+`ICloudInventoryExtractorPackageRepository` currently has only `InsertAsync` and `TryGetDownloadByPackageIdAsync`. Add:
+
+- A lightweight provenance DTO in `ArchLucid.Persistence.Models` (e.g. `CloudInventoryExtractorPackageProvenance`) with at least: `PackageId`, `CloudProvider`, `SchemaVersion`, `ScopeId`, `OriginalFileName`, `CreatedUtc`, `CollectionTimestampUtc` (nullable), and a static `FromRecord(CloudInventoryExtractorPackageRecord)` factory mirroring Azure's style.
+- `Task<CloudInventoryExtractorPackageProvenance?> TryGetLatestProvenanceByRunIdAsync(ScopeContext scope, Guid runId, CloudProvider cloudProvider, CancellationToken cancellationToken = default)` on the interface.
+- SQL implementation in `SqlCloudInventoryExtractorPackageRepository` (latest row for tenant/workspace/project + `RunId` + provider, ordered by `CreatedUtc` desc).
+- `NoOpCloudInventoryExtractorPackageRepository` returns null (match `NoOpAzureExtractorPackageRepository` behavior).
+
+Do **not** add download-bytes to this provenance path — citations only need ids/metadata (same rationale as Azure provenance).
+
+## 3. IaC → ledger mapping
+
+Create a dedicated mapper class (its own file), e.g. `ArchLucid.Application/Runs/Orchestration/TechnologyLedgerCanonicalObjectMapper.cs`, with static methods that turn `CanonicalObject` rows (from `ArchLucid.Contracts.Persistence.Context`) into zero or more `TechnologyLedgerEntry` **candidates** (not yet persisted).
+
+Read the existing parsers/tests for real property keys:
+
+- `JsonInfrastructureDeclarationParser` sets `Properties["resourceType"]`, optional `region`, `subtype`.
+- `TerraformShowJsonInfrastructureDeclarationParser` sets `Properties["terraformType"]`, optional `providerName`, `tf.*` value copies.
+
+Mapping rules (v1 — keep deterministic and conservative):
+
+| Signal | Ledger role | TechnologyName | ProviderFamily inference |
+| --- | --- | --- | --- |
+| Terraform type or JSON `resourceType` matching primary datastore families (`azurerm_sql_*`, `azurerm_mssql_*`, `aws_db_instance`, `aws_rds_cluster`, `google_sql_database_instance`, json types `database`/`datastore`) | `PrimaryDatastore` | humanized resource type + object `Name` | prefix/`providerName` → `CloudProvider` (see below) |
+| Identity-ish types (`azurerm_key_vault`, `aws_iam_*`, `google_*_service_account` if present, json `identity`) | `IdentityProvider` | same pattern | same |
+| Messaging-ish types (`azurerm_servicebus_*`, `aws_sqs_*`, `aws_sns_*`, `google_pubsub_*`, json `messaging`) | `Messaging` | same pattern | same |
+| Compute-ish types (`azurerm_*_web_app`, `aws_lambda_*`, `aws_eks_cluster`, `google_container_cluster`, json `compute`) | `ComputeRuntime` | same pattern | same |
+| `Properties["region"]` or `tf.location` / `tf.region` when present | `Region` | region string | inferred provider |
+| Declaration `Format` | `IacTarget` | `terraform-show-json` → `"Terraform"`; `json` → `"ArchLucid JSON infrastructure declaration"`; other supported formats → format string | `CloudProvider.None` |
+
+`ProviderFamily` inference helper (single place, unit-tested):
+
+- `terraformType` or `resourceType` starting with `azurerm_` / `azure` → `Azure`
+- starting with `aws_` → `Aws`
+- starting with `google_` / `gcp_` → `Gcp`
+- `providerName` containing `azurerm` / `aws` / `google` as fallback
+- otherwise `CloudProvider.None`
+
+Each candidate entry must set:
+
+- `Source = TechnologyLedgerSource.Evidence`
+- `Status = TechnologyLedgerStatus.Chosen` (evidence is explicit for v1 seeding)
+- `EvidenceRef` = `infrastructureDeclaration:{SourceId}` (use `CanonicalObject.SourceId`)
+- `Rationale` = short fixed string citing declaration name/id
+- `IsLocked = false`
+- `RunId` + timestamps supplied by caller
+
+**IaC ingestion steps inside the seeder:**
+
+1. If `request.InfrastructureDeclarations` is empty, skip IaC mapping.
+2. Build `InfrastructureDeclarationsPayload` the same way `InfrastructureDeclarationsPayloadExtractor` does (read that class — do not guess field names).
+3. `await _normalizer.NormalizeAsync(payload, cancellationToken)` to get `CanonicalObject` rows (warnings are OK — do not fail seeding on parser warnings).
+4. Map each canonical object to candidates via the mapper; apply merge policy (step 5) before `AddAsync`.
+
+## 4. Inventory package → ledger mapping
+
+After IaC candidates, query inventory provenance for the run (parse `runId` to `Guid` the same way other run-child repositories do — check `RunChildRunScopeSql.ToSqlRunId` / `TechnologyLedgerRepository` for the string↔guid convention already used in this codebase):
+
+1. **Azure:** `TryGetLatestProvenanceByRunIdAsync(scope, runGuid, ct)` → when non-null, emit one `CloudPlatform` candidate:
+   - `TechnologyName = "Microsoft Azure"`
+   - `ProviderFamily = CloudProvider.Azure`
+   - `EvidenceRef = "azureExtractorPackage:{PackageId:N}"`
+   - `Rationale` referencing original file name when present
+2. **AWS:** `TryGetLatestProvenanceByRunIdAsync(scope, runGuid, CloudProvider.Aws, ct)` → `CloudPlatform` candidate with `ProviderFamily = Aws`, `EvidenceRef = "cloudInventoryPackage:Aws:{PackageId:N}"`
+3. **GCP:** same for `CloudProvider.Gcp`
+
+Do not read ZIP bytes in the seeder — provenance row is enough for Prompt 3.
+
+## 5. Merge policy with Prompt 2 user seeding
+
+Prompt 2 **always** inserts a `CloudPlatform` / `Source: User` row before this seeder runs. Load existing rows first:
+
+`IReadOnlyList<TechnologyLedgerEntry> existing = await _ledgerRepository.GetByRunIdAsync(scope, runId, cancellationToken);`
+
+Rules (v1):
+
+- **Per `TechnologyLedgerRole`, at most one `Chosen` entry** after seeding completes.
+- When a candidate targets a role that already has a `Chosen` entry:
+  - If `ProviderFamily` matches, **skip** (do not duplicate).
+  - If `ProviderFamily` differs, insert **one** `Alternative` entry (`Source: Evidence`, `EvidenceRef` preserved) with rationale `"Evidence suggests {candidateProvider} while existing chosen entry is {existingProvider}."` — do not overwrite or delete the existing row.
+- When the role slot is empty, insert the candidate as `Chosen`.
+- Never throw on conflicts — always prefer skip/alternative insertion.
+
+Call order in `ArchitectureRunCreateOrchestrator.FinalizeSuccessfulCreateRunAsync` (after idempotency early-return):
+
+1. Existing `TrySeedTechnologyLedgerFromRequestAsync` (user / Prompt 2) — **leave in place, run first**
+2. New `TrySeedTechnologyLedgerFromEvidenceAsync` — same best-effort try/catch/log pattern as metering and the user seeder; **must not run on idempotent replay** (same guard path as Prompt 2)
+
+Register `TechnologyLedgerEvidenceSeeder` in DI next to `TechnologyLedgerRequestSeeder` in `ServiceCollectionExtensions.ApplicationPipeline.cs`.
+
+## 6. Tests
+
+Add focused unit tests (new files under `ArchLucid.Application.Tests/Orchestration/`):
+
+1. `TechnologyLedgerCanonicalObjectMapperTests` — terraform + json canonical objects map to expected roles/provider families; unknown types produce no candidates.
+2. `TechnologyLedgerEvidenceSeederTests` — 
+   - IaC declarations on a request produce expected evidence rows (mock or inject real normalizer with real parser instances from tests, matching `InfrastructureDeclarationConnectorTests` style).
+   - Azure/AWS/GCP provenance produces `CloudPlatform` evidence rows with correct `EvidenceRef`.
+   - When a user `CloudPlatform` row already exists, conflicting evidence becomes `Alternative` not second `Chosen`.
+3. Optional but preferred: extend `ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTests` (from Prompt 2) with one case where `InfrastructureDeclarations` on the request yields an evidence ledger row after create (in-memory ledger repo).
+
+Update any `ArchitectureRunCreateOrchestrator` test constructors if you add a new orchestrator dependency (same pattern Prompt 2 used for `TechnologyLedgerRequestSeeder`).
+
+Repository contract tests: if you add SQL provenance read, a small unit test on query mapping is enough; do not build new SQL-container fixtures unless an existing pattern is copy-paste trivial.
+
+## 7. Verify
+
+Run, one at a time:
+
+```
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.Application/ArchLucid.Application.csproj
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.Persistence/ArchLucid.Persistence.csproj
+```
+
+Then run only the new/updated test classes via `dotnet test` filter (not the full solution).
+
+## 8. Commit
+
+Stage only files this prompt touches (new seeder/mapper, repository interface + SQL/NoOp changes, orchestrator + DI, tests, and any small DTO additions). Do not stage unrelated dirty files. Commit directly to `master` with a descriptive message (e.g. "Seed Technology Ledger evidence entries from IaC declarations and cloud inventory packages"). Do not push unless explicitly requested.
+
+## 9. Report
+
+Stop and report:
+
+- The final `TechnologyLedgerEvidenceSeeder` signature and merge-policy behavior for user-vs-evidence `CloudPlatform` conflicts.
+- The new cloud-inventory provenance API shape and which Azure type you mirrored.
+- The IaC mapping table as actually implemented (role detection rules and `EvidenceRef` format).
+- Whether AWS/GCP packages without `RunId` at ingest time are skipped (expected) — state explicitly.
+- Test pass/fail counts.
+- Commit hash.
+- Confirm no agent/prompt/validation/UI work was touched.
+```
 
 ---
 
