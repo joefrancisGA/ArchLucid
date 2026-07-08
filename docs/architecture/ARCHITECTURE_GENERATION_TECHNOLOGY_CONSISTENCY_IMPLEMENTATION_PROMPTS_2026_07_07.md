@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 6 **done** (see report below). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
