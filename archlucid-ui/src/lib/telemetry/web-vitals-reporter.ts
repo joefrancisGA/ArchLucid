@@ -1,5 +1,5 @@
 import type { ApplicationInsights } from "@microsoft/applicationinsights-web";
-import type { Metric } from "web-vitals";
+import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from "web-vitals";
 
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
@@ -68,9 +68,7 @@ function reportWebVitalMetric(ai: ApplicationInsights, metric: Metric): void {
 }
 
 /** Registers Core Web Vitals listeners once App Insights is ready (TB-692). */
-export async function startWebVitalsReporting(ai: ApplicationInsights): Promise<void> {
-  const { onCLS, onFCP, onINP, onLCP, onTTFB } = await import("web-vitals");
-
+export function startWebVitalsReporting(ai: ApplicationInsights): void {
   const report = (metric: Metric): void => {
     reportWebVitalMetric(ai, metric);
   };
