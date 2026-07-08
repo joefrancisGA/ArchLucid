@@ -29,7 +29,7 @@ export type GetBreadcrumbsOptions = {
   readonly reviewsListReturnHref?: string;
 };
 
-function newReviewWizardCrumbLabel(_buyerPolishedShell: boolean | undefined): string {
+function newReviewWizardCrumbLabel(): string {
   return resolveNewReviewWizardBreadcrumbLabel();
 }
 const BUYER_HUB_RUN_SCOPED_SEGMENTS = new Set<string>([
@@ -112,7 +112,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
 
   // Product path: wizard crumb only — sidebar nav covers workspace overview.
   if (normalized === "/reviews/new") {
-    return [{ label: newReviewWizardCrumbLabel(options?.buyerPolishedShell) }];
+    return [{ label: newReviewWizardCrumbLabel() }];
   }
 
   const executiveReviewTrail = tryBuildExecutiveReviewBreadcrumbs(normalized, options);

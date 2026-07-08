@@ -47,7 +47,7 @@ export function resolveNewReviewNavLinkLabel(buyerPolishedShell: boolean): strin
   return OPERATOR_NAV_LINK_LABELS.capture;
 }
 
-export function resolveNewReviewNavLinkTitle(_buyerPolishedShell: boolean): string {
+export function resolveNewReviewNavLinkTitle(): string {
   return NEW_REVIEW_NAV_TOOLTIP;
 }
 
@@ -76,7 +76,7 @@ export function resolveNavLinkPresentation(
     return applyBuyerNavVocabulary({
       href: link.href,
       label: resolveNewReviewNavLinkLabel(buyerPolishedShell || vocabularyPassActive),
-      title: resolveNewReviewNavLinkTitle(buyerPolishedShell || vocabularyPassActive),
+      title: resolveNewReviewNavLinkTitle(),
     });
   }
 

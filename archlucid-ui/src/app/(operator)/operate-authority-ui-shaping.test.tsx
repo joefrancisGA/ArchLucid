@@ -170,8 +170,6 @@ import {
   advisorySchedulesCreateScheduleButtonLabelReaderRank,
   compositeRulesCreateButtonLabelReaderRank,
   digestSubscriptionsCreateSubscriptionButtonLabelReaderRank,
-  governanceWorkflowPromotionsActivationsHeadingReader,
-  governanceWorkflowSubmitCardTitleReader,
   policyPacksCreatePackButtonLabelReaderRank,
   policyPacksCurrentPacksHeadingOperator,
   policyPacksCurrentPacksHeadingReader,

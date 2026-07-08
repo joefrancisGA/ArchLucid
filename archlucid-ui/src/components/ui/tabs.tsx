@@ -72,6 +72,8 @@ export type TabsProps = {
 export function Tabs(props: TabsProps): ReactElement {
   const baseId = useId().replace(/:/g, "");
   const orientation = props.orientation ?? "horizontal";
+  const onValueChange = props.onValueChange;
+  const syncUrlParam = props.syncUrlParam;
   const isControlled = props.value !== undefined;
   const urlDefault = props.syncUrlParam ? readUrlTabValue(props.syncUrlParam) : null;
   const initialValue = props.defaultValue ?? urlDefault ?? "";
@@ -89,13 +91,13 @@ export function Tabs(props: TabsProps): ReactElement {
         setUncontrolledValue(next);
       }
 
-      props.onValueChange?.(next);
+      onValueChange?.(next);
 
-      if (props.syncUrlParam) {
-        writeUrlTabValue(props.syncUrlParam, next);
+      if (syncUrlParam) {
+        writeUrlTabValue(syncUrlParam, next);
       }
     },
-    [isControlled, props.onValueChange, props.syncUrlParam],
+    [isControlled, onValueChange, syncUrlParam],
   );
 
   const registerTrigger = useCallback((tabValue: string, element: HTMLButtonElement) => {

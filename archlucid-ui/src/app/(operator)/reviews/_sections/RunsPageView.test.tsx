@@ -8,7 +8,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
-import { REVIEWS_HUB_PAGE_SUBTITLE, REVIEWS_HUB_PRIMARY_START_LABEL, REVIEWS_HUB_RECENT_EMPTY_TITLE } from "./reviews-hub-copy";
+import { REVIEWS_HUB_PAGE_SUBTITLE, REVIEWS_HUB_RECENT_EMPTY_TITLE } from "./reviews-hub-copy";
 import { RunsPageView } from "./RunsPageView";
 import type { RunsPageModel } from "./runs-page-model";
 
@@ -62,15 +62,20 @@ vi.mock("@/components/OperatorDemoStaticBanner", () => ({
   OperatorDemoStaticBanner: () => null,
 }));
 
-vi.mock("./ReviewsHubPrimaryActions", () => ({
-  ReviewsHubPrimaryActions: () => (
-    <div data-testid="reviews-hub-primary-actions">
-      <a href="/reviews/new" data-testid="runs-page-start-review">
-        {REVIEWS_HUB_PRIMARY_START_LABEL}
-      </a>
-    </div>
-  ),
-}));
+vi.mock("./ReviewsHubPrimaryActions", async () => {
+  const { default: Link } = await import("next/link");
+  const { REVIEWS_HUB_PRIMARY_START_LABEL } = await import("./reviews-hub-copy");
+
+  return {
+    ReviewsHubPrimaryActions: () => (
+      <div data-testid="reviews-hub-primary-actions">
+        <Link href="/reviews/new" data-testid="runs-page-start-review">
+          {REVIEWS_HUB_PRIMARY_START_LABEL}
+        </Link>
+      </div>
+    ),
+  };
+});
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();

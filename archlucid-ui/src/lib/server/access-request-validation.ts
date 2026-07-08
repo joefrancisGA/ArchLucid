@@ -37,7 +37,7 @@ export type AccessRequestValidationResult =
   | { readonly ok: true; readonly value: AccessRequestPayload }
   | { readonly ok: false; readonly message: string };
 
-function trimRequired(value: unknown, maxChars: number, fieldLabel: string): string | null {
+function trimRequired(value: unknown, maxChars: number): string | null {
   if (typeof value !== "string") {
     return null;
   }
@@ -99,13 +99,13 @@ export function parseAccessRequestBody(body: unknown): AccessRequestValidationRe
   }
 
   const record = body as Record<string, unknown>;
-  const name = trimRequired(record.name, MAX_NAME_CHARS, "Name");
+  const name = trimRequired(record.name, MAX_NAME_CHARS);
 
   if (name === null) {
     return { ok: false, message: "Name is required." };
   }
 
-  const workEmailRaw = trimRequired(record.workEmail, MAX_EMAIL_CHARS, "Work email");
+  const workEmailRaw = trimRequired(record.workEmail, MAX_EMAIL_CHARS);
 
   if (workEmailRaw === null) {
     return { ok: false, message: "Work email is required." };
@@ -117,13 +117,13 @@ export function parseAccessRequestBody(body: unknown): AccessRequestValidationRe
     return { ok: false, message: "Enter a valid work email address." };
   }
 
-  const company = trimRequired(record.company, MAX_COMPANY_CHARS, "Company");
+  const company = trimRequired(record.company, MAX_COMPANY_CHARS);
 
   if (company === null) {
     return { ok: false, message: "Company is required." };
   }
 
-  const roleTitle = trimRequired(record.roleTitle, MAX_ROLE_CHARS, "Role");
+  const roleTitle = trimRequired(record.roleTitle, MAX_ROLE_CHARS);
 
   if (roleTitle === null) {
     return { ok: false, message: "Role or title is required." };

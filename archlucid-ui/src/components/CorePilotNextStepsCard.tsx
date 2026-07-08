@@ -17,7 +17,6 @@ import {
 } from "@/lib/core-pilot-commit-progress";
 import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
 import { StatusTag } from "@/components/ui/status-tag";
 import { type EnterpriseStatusKind } from "@/lib/design-tokens";

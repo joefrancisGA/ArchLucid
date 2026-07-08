@@ -1,7 +1,7 @@
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { describe, expect, it } from "vitest";
 
-import { GRAPH_IDLE, GRAPH_IDLE_BUYER } from "@/lib/empty-state-presets";
+import { GRAPH_IDLE } from "@/lib/empty-state-presets";
 
 import { resolveGraphIdleEmptyPreset } from "./graph-page-helpers";
 

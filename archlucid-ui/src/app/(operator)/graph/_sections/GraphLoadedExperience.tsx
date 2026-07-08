@@ -72,7 +72,6 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
     onGraphInteractiveSurfaceReady,
     controls,
     defaultSelectedGraphNodeId,
-    presentationView = "trace",
     onPresentationViewChange,
     sampleGraphActive = false,
   } = props;
