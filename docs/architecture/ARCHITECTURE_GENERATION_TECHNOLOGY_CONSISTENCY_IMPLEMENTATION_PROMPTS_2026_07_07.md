@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 3 **done** (see report below). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 4 **drafted** below (not yet run). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -20,7 +20,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | **1** | D.1 | Technology Ledger data model — contracts, SQL table, repository (additive only; nothing reads or writes it yet) | **Done** (`daaa784505`) |
 | 2 | D.2 | Wire ledger into intake: required target-cloud/neutral question, fix `DraftRequestProjector`, seed `source: user` ledger entries from `ArchitectureRequest` | **Done** (see Prompt 2 report) |
 | 3 | D.1 (cont.) | Seed `source: evidence` ledger entries from context connectors (IaC declarations, cloud inventory ZIP) | **Done** (see Prompt 3 report) |
-| 4 | D.3 | Inject ledger into `TopologyAgentHandler` / `RunStarterTaskFactory` objectives; agent proposals become `source: agent-proposed` ledger entries instead of untracked `ProposedChanges` free text | Not started |
+| 4 | D.3 | Inject ledger into `TopologyAgentHandler` / `RunStarterTaskFactory` objectives; agent proposals become `source: agent-proposed` ledger entries instead of untracked `ProposedChanges` free text | **Drafted, not run** |
 | 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | Not started |
 | 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | Not started |
 | 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | Not started |
@@ -29,7 +29,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | Not started |
 | 11 | D.9 | Golden-corpus consistency scenarios in CI | Not started |
 
-Prompts 1–3 are written out below. Run Prompt 4, review the result, then ask for Prompt 5 to be drafted.
+Prompts 1–4 are written out below. Run Prompt 4, review the result, then ask for Prompt 5 to be drafted.
 
 ---
 
@@ -481,6 +481,165 @@ Stop and report:
 - **AWS/GCP without `RunId`:** skipped — provenance query filters on `RunId`; packages ingested without a run link return no row (expected).
 - **Test results:** `TechnologyLedgerCanonicalObjectMapperTests` + `TechnologyLedgerEvidenceMergePolicyTests` + `TechnologyLedgerEvidenceSeederTests` + `ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTests` — **16/16 passed**.
 - **Scope confirmation:** no agent handlers, prompt templates, validation engine, or Technology Baseline UI touched.
+
+---
+
+## Prompt 4 — Wire Technology Ledger into Topology agent (prompt injection + agent-proposed ledger rows)
+
+```
+Read docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_ASSESSMENT_2026_07_07.md in full for context before starting, specifically §A root cause 3 (Azure-first prompt default), root cause 4 (agents do not share a canonical technology record), §D fix 3 (first half — Topology only), §E step 2 (generation reads ledger; agent proposals become Assumed/AgentProposed), and §F (closed-world / lock semantics). Also read "Prompt 1 — Report", "Prompt 2 — Report", and "Prompt 3 — Report" in this same file for the actual ledger shape, seeding conventions, and merge policies already shipped — build on those, do not re-derive them.
+
+Work directly on the current branch (master) — no feature branch. Confirm git status is clean of unrelated changes before starting; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
+
+## Goal
+
+Prompts 2–3 populate the Technology Ledger at run create (`source: User` and `source: Evidence`, mostly `status: Chosen`). This prompt closes the **Topology half** of fix D.3:
+
+1. **Read** the ledger when composing the Topology agent prompt and starter task objective — replace the hard-coded "Design an initial **Azure** topology" default with ledger- and `CloudProvider`-aware wording.
+2. **Write** ledger rows from the Topology agent's structured `ProposedChanges` output (`AgentTopologyProposal`) as `source: AgentProposed`, `status: Assumed` — so technology choices introduced by the model are tracked in the ledger instead of living only as untracked manifest deltas.
+
+This does **NOT** share the ledger downstream to Cost/Compliance/Critic (Prompt 5). It does **NOT** add the closed-world / neutral-mode **system prompt template** clauses (Prompt 8). It does **NOT** build `TechnologyConsistencyFindingEngine` (Prompt 6), API routes (Prompt 9), or the Technology Baseline UI (Prompt 10). Keep scope to Topology read-path + Topology write-path only.
+
+**Important ordering note (read before coding):** today `ArchitectureRunAuthorityCoordination.CreateRunAsync` calls `RunStarterTaskFactory.BuildStarterTasks` **before** `ArchitectureRunCreateOrchestrator.FinalizeSuccessfulCreateRunAsync` seeds the ledger (Prompts 2–3). Starter tasks are therefore created with objectives that cannot yet see seeded ledger rows. Fix this as part of step 1 — do not leave objectives permanently Azure-hardcoded while only patching the handler.
+
+## 1. Relocate intake ledger seeding before starter-task construction
+
+Read `ArchitectureRunAuthorityCoordination.CreateRunAsync`, `ArchitectureRunCreateOrchestrator.FinalizeSuccessfulCreateRunAsync`, and `AuthorityPipelineWorkProcessor` (deferred path that also calls `RunStarterTaskFactory.BuildStarterTasks`).
+
+**Move** (not duplicate) the existing `TechnologyLedgerRequestSeeder` + `TechnologyLedgerEvidenceSeeder` invocations so they run **after the run id exists** and **before** `RunStarterTaskFactory.BuildStarterTasks`:
+
+- Inject both seeders into `ArchitectureRunAuthorityCoordination` (primary constructor DI, same as orchestrator today).
+- After `authorityRunOrchestrator.ExecuteAsync` returns and Azure extractor metadata is merged into the evidence bundle, but **before** `BuildStarterTasks`, call both seeders with the same best-effort try/catch/log pattern used in `TrySeedTechnologyLedgerFromRequestAsync` / `TrySeedTechnologyLedgerFromEvidenceAsync` on the orchestrator.
+- **Remove** those two calls from `FinalizeSuccessfulCreateRunAsync` so rows are not inserted twice.
+- For the **deferred** materialization path in `AuthorityPipelineWorkProcessor`, invoke the same two seeders (resolve from DI) before `BuildStarterTasks` there as well — deferred runs never went through the orchestrator finalize path at create time.
+
+Ledger seeding remains **best-effort and outside the create-run transaction** (match Prompt 2 behavior). A seeding failure must not fail run creation or deferred task materialization.
+
+## 2. Ledger-aware Topology task objective (`RunStarterTaskFactory`)
+
+Read `RunStarterTaskFactory.BuildTopologyObjective` — it currently hardcodes `"Design an initial Azure topology..."`.
+
+1. Add a small formatter class (its own file), e.g. `ArchLucid.Application/Runs/Coordination/TechnologyLedgerObjectiveComposer.cs`, with static methods:
+   - `string BuildTopologyObjective(ArchitectureRequest request, IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)` — provider-neutral / AWS / GCP / Azure branches keyed off **ledger `CloudPlatform` `Chosen` row when present**, else `request.CloudProvider`. Never emit the word "Azure" when the effective target is `Aws`, `Gcp`, or explicit cloud-neutral (`None`).
+   - Keep the system name, environment, and description suffixes from the current objective string.
+2. Change `RunStarterTaskFactory.BuildStarterTasks` (and `CreateTopologyTask`) to accept `IReadOnlyList<TechnologyLedgerEntry> ledgerEntries` and pass them into the composer.
+3. In `ArchitectureRunAuthorityCoordination`, after seeding, load ledger rows via `ITechnologyLedgerRepository.GetByRunIdAsync(scope, runId, ct)` and pass them into `BuildStarterTasks`.
+4. Update `AuthorityPipelineWorkProcessor` deferred path the same way (seed → load → build tasks).
+5. Update `RunStarterTaskFactoryTierTests` and any other direct callers.
+
+Do **not** change Cost/Compliance/Critic objectives in this prompt.
+
+## 3. Ledger context block in Topology user prompt
+
+Read `TopologyAgentHandler.ExecuteAsync`, `AgentUserPromptComposer.BuildTopologyUserPrompt`, and `AgentUserPromptStaticPrefix.AppendTopology` (note: `AppendTopology` still adds Azure-specific "Important guidance" when `cloudProvider is Azure or None` — that is a separate hard-coded default this prompt must neutralize for Topology only).
+
+1. Add `ArchLucid.Application/Runs/Orchestration/TechnologyLedgerPromptFormatter.cs` (one class per file) with a static method, e.g. `AppendTechnologyLedgerContext(StringBuilder sb, IReadOnlyList<TechnologyLedgerEntry> entries)`, that renders a bounded, deterministic text block:
+   - Section header, e.g. `"Technology Ledger (canonical baseline for this run):"`
+   - One line per entry: `Role`, `TechnologyName`, `ProviderFamily`, `Status`, `Source`, optional `EvidenceRef`.
+   - Sort by `Role` then `CreatedUtc` for stable output.
+   - Cap at **32 lines**; if more entries exist, append a truncation note (do not silently drop without saying so).
+   - Add a closing instruction line: agents must treat `Chosen` rows as authoritative, must label any **new** technology they introduce as an `Assumed` proposal, and must not substitute a different provider family's equivalent without explicitly proposing it.
+2. Inject `ITechnologyLedgerRepository` and `IScopeContextProvider` into `TopologyAgentHandler` (primary constructor). After `BuildTopologyUserPrompt` and before the LLM call, load ledger rows for the run and append the formatter block to the user prompt string.
+3. Adjust `AgentUserPromptStaticPrefix.AppendTopology` so Azure-specific "Important guidance" (App Service over AKS, etc.) is emitted **only when** the effective cloud target is `CloudProvider.Azure`. When `CloudProvider.None`, emit a short cloud-neutral MVP guidance block instead (no provider-specific service names). When `Aws` or `Gcp`, rely on the existing `CloudProviderAgentPromptComposer.AppendUserPromptCloudGuidance` branch and **do not** also append the Azure block. Read `CloudProviderAgentPromptComposer.cs` before editing — reuse its branching, do not fork a third copy of AWS/GCP wording.
+
+Register nothing new for the formatter (static class). `TopologyAgentHandler` is already registered in DI.
+
+## 4. Map Topology `ProposedChanges` → agent-proposed ledger rows
+
+`AgentResult.ProposedChanges` (`AgentTopologyProposal`) remains the manifest wire contract — **do not remove or stop populating it**. This step **adds parallel ledger persistence** so technology roles are tracked.
+
+### 4a. Mapper
+
+Create `ArchLucid.Application/Runs/Orchestration/TechnologyLedgerTopologyProposalMapper.cs` (static mapper, own file). Read `AgentTopologyProposal`, `ManifestService`, `ManifestDatastore`, and `RuntimePlatformCloudFamily.ResolveCloudFamily`.
+
+Mapping rules (v1 — conservative, deterministic):
+
+| `ProposedChanges` signal | Ledger `Role` | `TechnologyName` | `ProviderFamily` |
+| --- | --- | --- | --- |
+| Each `AddedDatastores` row | `PrimaryDatastore` | `DatastoreName` (fallback `RuntimePlatform.ToString()`) | `RuntimePlatformCloudFamily.ResolveCloudFamily(datastore.RuntimePlatform)` |
+| Each `AddedServices` row | `ComputeRuntime` | `ServiceName` (fallback `RuntimePlatform.ToString()`) | `RuntimePlatformCloudFamily.ResolveCloudFamily(service.RuntimePlatform)` |
+| First non-empty `AzureArmRegion` across added services/datastores (if any) | `Region` | region string | same family as the row it came from |
+| If proposal implies a cloud family and no `CloudPlatform` candidate yet | `CloudPlatform` | human label ("Microsoft Azure" / "Amazon Web Services" / "Google Cloud Platform") | inferred majority family from added nodes, else `request.CloudProvider` |
+
+Every mapped candidate must set:
+
+- `Source = TechnologyLedgerSource.AgentProposed`
+- `Status = TechnologyLedgerStatus.Assumed` (per §E/§F — not `Chosen`)
+- `EvidenceRef = "agentTopologyProposal:{ProposalId}:{stableSubKey}"` where `stableSubKey` disambiguates multiple services/datastores (e.g. service/datastore id or name slug)
+- `Rationale = "Proposed by Topology agent in ProposedChanges."`
+- `IsLocked = false`
+- `RunId` + timestamps from caller
+
+Skip `RequiredControls` / `Warnings` lists — those are not technology-role selections.
+
+### 4b. Agent merge policy
+
+Create `TechnologyLedgerAgentProposalMergePolicy.cs` (own file). Load existing rows first. Rules (v1):
+
+- **Never** `UpdateAsync` or delete an existing row.
+- **Never** insert a second `Chosen` for a role (agents cannot promote to `Chosen` in this prompt).
+- If the role has **no** entries yet → insert candidate as `Assumed`.
+- If the role already has a `Chosen` entry:
+  - Same `ProviderFamily` → skip duplicate `Assumed` (return null).
+  - Different `ProviderFamily` → still insert **one** `Assumed` row (multiple `Assumed` rows for conflicting proposals are OK for v1; do not downgrade the `Chosen` row).
+- If `IsLocked == true` on the `Chosen` row for that role → skip inserting any agent proposal for that role (locked entries win).
+- Reuse the style of `TechnologyLedgerEvidenceMergePolicy` but **do not** conflate evidence `Alternative` semantics with agent `Assumed` semantics — keep separate classes.
+
+### 4c. Seeder + execute hook
+
+Create `TechnologyLedgerTopologyProposalSeeder.cs` in `ArchLucid.Application/Runs/Orchestration/`:
+
+`Task SeedFromTopologyResultAsync(string runId, ArchitectureRequest request, AgentResult topologyResult, CancellationToken cancellationToken = default)`
+
+- No-op when `topologyResult.ProposedChanges` is null or all added-service/datastore lists are empty.
+- Map → merge → `ITechnologyLedgerRepository.AddAsync` for each non-null resolved row.
+- Register in DI: `services.AddScoped<TechnologyLedgerTopologyProposalSeeder>()` next to the other ledger seeders in `ServiceCollectionExtensions.ApplicationPipeline.cs`.
+
+Wire into `ArchitectureRunExecuteOrchestrator` **after** `_agentResultPostExecutionEnricher.EnrichAsync` and **before** `PersistExecutePhaseAsync`, in a new best-effort private method `TrySeedTechnologyLedgerFromTopologyAsync` (same swallow/log pattern as create-run seeding). Only call it when the results list contains a `AgentType.Topology` result. Do **not** block persistence or fail the run when seeding fails.
+
+## 5. Tests
+
+Add focused unit tests under `ArchLucid.Application.Tests/Orchestration/` (and update handler tests only where constructor signatures change):
+
+1. `TechnologyLedgerPromptFormatterTests` — stable ordering, truncation at 32 lines, includes `Chosen` vs `Assumed` labels.
+2. `TechnologyLedgerTopologyProposalMapperTests` — sample `AgentTopologyProposal` maps to expected roles/provider families; empty proposal yields no candidates.
+3. `TechnologyLedgerAgentProposalMergePolicyTests` — respects existing `Chosen`; skips duplicate same-family `Assumed`; skips when locked; inserts `Assumed` on provider conflict.
+4. `TechnologyLedgerTopologyProposalSeederTests` — persists expected rows from a topology result (in-memory ledger repo).
+5. `TechnologyLedgerObjectiveComposerTests` — Aws/Gcp/None/Azure objective strings; prefers ledger `CloudPlatform` `Chosen` over raw `request.CloudProvider` when they differ.
+6. Update `TopologyAgentHandlerTests` (or add one test) asserting the composed user prompt contains the ledger section when the repository returns rows (mock `ITechnologyLedgerRepository`).
+7. Extend `ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTests` or add a coordination test verifying ledger seeding happens **before** starter tasks are built and is **not** duplicated from finalize (inspect call order via existing mocks or a focused coordination unit test).
+
+Update any test constructors that need the relocated seeders on `ArchitectureRunAuthorityCoordination`.
+
+## 6. Verify
+
+Run, one at a time:
+
+```
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.Application/ArchLucid.Application.csproj
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.AgentRuntime/ArchLucid.AgentRuntime.csproj
+```
+
+Then run only the new/updated test classes via `dotnet test` filter (not the full solution). `TopologyAgentHandlerTests` may be included in the filter if updated.
+
+## 7. Commit
+
+Stage only files this prompt touches. Do not stage unrelated dirty files. Commit directly to `master` with a descriptive message (e.g. "Wire Technology Ledger into Topology agent: ledger-aware objectives/prompts and agent-proposed rows from ProposedChanges"). Do not push unless explicitly requested.
+
+## 8. Report
+
+Stop and report:
+
+- Where intake ledger seeding was relocated to (coordination vs orchestrator vs deferred processor) and confirmation that duplicate seeding was removed.
+- The final `BuildTopologyObjective` behavior for each `CloudProvider` and when a ledger `CloudPlatform` `Chosen` row overrides `request.CloudProvider`.
+- The Topology user-prompt injection point and whether Azure-specific static guidance is suppressed for non-Azure targets.
+- The mapper table as actually implemented and the `EvidenceRef` format for agent-proposed rows.
+- Agent merge-policy behavior for `Chosen` / `Locked` conflicts.
+- The execute-orchestrator hook timing (after enricher, before persist).
+- Test pass/fail counts.
+- Commit hash.
+- Confirm Cost/Compliance/Critic handlers, system prompt templates (Prompt 8), validation engine (Prompt 6), API/UI (Prompts 9–10) were **not** touched.
+```
 
 ---
 
