@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 5 **done** (see report below). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -21,7 +21,7 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 2 | D.2 | Wire ledger into intake: required target-cloud/neutral question, fix `DraftRequestProjector`, seed `source: user` ledger entries from `ArchitectureRequest` | **Done** (see Prompt 2 report) |
 | 3 | D.1 (cont.) | Seed `source: evidence` ledger entries from context connectors (IaC declarations, cloud inventory ZIP) | **Done** (see Prompt 3 report) |
 | 4 | D.3 | Inject ledger into `TopologyAgentHandler` / `RunStarterTaskFactory` objectives; agent proposals become `source: agent-proposed` ledger entries instead of untracked `ProposedChanges` free text | **Done** (`80ad003d60`) |
-| 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | **Done** (see Prompt 5 report) |
+| 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | **Done** (`e89ceffdfb`) |
 | 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | Not started |
 | 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | Not started |
 | 8 | D.6 | Prompt template updates — closed-world clause, neutral-mode clause, alternative-labeling clause across all four system prompt templates | Not started |
@@ -661,6 +661,7 @@ Stop and report:
 - **Staged Critic summary:** `StagedPriorAgentsSummaryBuilder.CreateNote` accepts optional `ledgerEntries`; prepends `## Technology Ledger (snapshot at staged Critic boundary)` before agent sections; ledger content counts toward `SummaryMaxTotalChars` (same truncation/redaction path).
 - **Staged execution wiring:** `ITechnologyLedgerRepository` added to `RealAgentExecutorExecutionDependencies` / `RealAgentExecutor` ctor; `RealAgentExecutorStagedCriticExecution` loads ledger after phase 1 and passes rows into `CreateNote`.
 - **Test results:** `TechnologyLedgerPromptFormatter` — **4/4 passed**; scoped `ArchLucid.AgentRuntime.Tests` (handlers, staged summary, staged executor) — **25/25 passed**.
+- **Commit:** `e89ceffdfb`
 - **Scope confirmation:** Topology write-path/objectives/mappers, `TechnologyConsistencyFindingEngine` (Prompt 6), system templates (Prompt 8), API/UI (Prompts 9–10) **not** touched.
 
 ---
