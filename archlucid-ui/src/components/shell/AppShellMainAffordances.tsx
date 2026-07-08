@@ -2,6 +2,8 @@
 
 import dynamic from "next/dynamic";
 
+import { BuyerGoldenJourneyLayerContextStrip } from "@/components/shell/BuyerGoldenJourneyLayerContextStrip";
+
 const Breadcrumbs = dynamic(
   () => import("@/components/Breadcrumbs").then((module) => module.Breadcrumbs),
   { loading: () => null },
@@ -43,14 +45,6 @@ const ContextualPageHintStrip = dynamic(
   () =>
     import("@/components/ContextualPageHintStrip").then(
       (module) => module.ContextualPageHintStrip,
-    ),
-  { loading: () => null },
-);
-
-const BuyerGoldenJourneyLayerContextStrip = dynamic(
-  () =>
-    import("@/components/shell/BuyerGoldenJourneyLayerContextStrip").then(
-      (module) => module.BuyerGoldenJourneyLayerContextStrip,
     ),
   { loading: () => null },
 );

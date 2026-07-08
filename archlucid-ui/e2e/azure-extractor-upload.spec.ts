@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { strToU8, zipSync } from "fflate";
 
+import { expandWizardBaselineZipEvidence } from "./helpers/wizard-baseline-zip-evidence";
+
 function archLucidZipBuffer(manifest: Record<string, unknown>): Buffer {
   return Buffer.from(
     zipSync({
@@ -29,7 +31,7 @@ test.describe("Azure extractor ZIP wizard field", () => {
     await expect(page.getByTestId("simplified-pilot-progress")).toContainText(/step 2 of 4/i, {
       timeout: 30_000,
     });
-    await expect(page.getByTestId("wizard-baseline-zip-field")).toBeVisible({ timeout: 30_000 });
+    await expandWizardBaselineZipEvidence(page);
   });
 
   test("accepts a valid packager ZIP and prefills system name", async ({ page }) => {
