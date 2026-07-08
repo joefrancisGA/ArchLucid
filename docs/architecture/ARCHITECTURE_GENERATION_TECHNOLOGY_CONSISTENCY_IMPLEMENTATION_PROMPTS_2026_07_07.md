@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 10 **drafted** below (not yet run). Prompt 9 **done** (see report below). Prompt 8 **done** (see report below). Prompt 7 **done** (`e7eca24395`). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 10 **done** (see report below). Prompt 9 **done** (see report below). Prompt 8 **done** (see report below). Prompt 7 **done** (`e7eca24395`). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -26,10 +26,10 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | **Done** (see Prompt 7 report) |
 | 8 | D.6 | Prompt template updates — closed-world clause, neutral-mode clause, alternative-labeling clause across all four system prompt templates | **Done** (see Prompt 8 report) |
 | 9 | D.7 | **API endpoint** — `GET`/`PATCH` ledger routes on the run so the UI has something to call (missing piece between the repository and the UI panel; not called out as its own fix in the assessment but required before step 10 can work) | **Done** (see Prompt 9 report) |
-| 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | **Drafted, not run** |
+| 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | **Done** (see Prompt 10 report) |
 | 11 | D.9 | Golden-corpus consistency scenarios in CI | Not started |
 
-Prompts 1–10 are written out below. **Run Prompt 10** when ready, then ask for Prompt 11 to be drafted.
+Prompts 1–10 are written out below. **Run Prompt 11** when ready (golden-corpus CI scenarios).
 
 ---
 
@@ -1676,6 +1676,22 @@ Stop and report:
 - Commit hash.
 - Confirm .NET API (Prompt 9), agents, finding engine, artifact lint, and CI golden scenarios (Prompt 11) were **not** touched.
 ```
+
+---
+
+## Prompt 10 — Report
+
+- **Components:** `archlucid-ui/src/components/reviews/technology-baseline/TechnologyBaselinePanel.tsx` (client GET/PATCH table + actions), `TechnologyBaselineSection.tsx` (section wrapper `id="technology-baseline"`).
+- **Mount:** `RunDetailPageView.tsx` — after `RunDetailFirstScreenProofStatusClient`, before capture-evidence / pipeline timeline.
+- **Nav:** `build-run-detail-nav-sections.ts` — `technology-baseline` in both layouts (**Technology choices** buyer-polished, **Technology baseline** full-operator); `run-detail-architect-section-order.ts` updated.
+- **API helpers:** `src/lib/api/technology-ledger.ts` (`getTechnologyLedger`, `patchTechnologyLedgerEntry`); types in `src/types/technology-ledger.ts` (manual DTOs — OpenAPI snapshot not regenerated in this prompt).
+- **Row actions:** `Assumed` → **Approve** (`status: Chosen`); `Chosen` unlocked → **Lock**; `Chosen` locked → **Unlock** + **Edit note** (`rationale`); `Alternative` / `Future` read-only.
+- **Pre-finalize banner:** warning callout when `!manifestFinalized` and any `Assumed` row exists (informational only).
+- **Drift note:** header helper when `warningCountDisplay > 0`.
+- **Static demo:** `tryStaticDemoTechnologyLedger` in `src/lib/operator-static-demo-technology-ledger.ts`.
+- **Vitest:** `TechnologyBaselinePanel.test.tsx` — **5/5 passed**; `build-run-detail-nav-sections.test.ts` — **2/2 passed**.
+- **Commit:** _(filled after commit)_.
+- **Scope confirmation:** .NET API (Prompt 9), agents, finding engine, artifact lint, and CI golden scenarios (Prompt 11) **not** touched.
 
 ---
 

@@ -35,3 +35,4 @@ export * from "./recommendation-replay-api";
 export * from "./comparison-replay-cost-api";
 export * from "./downloads-api";
 export * from "./reports-api";
+export * from "./technology-ledger";

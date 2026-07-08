@@ -49,6 +49,7 @@ import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySecti
 import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
+import { TechnologyBaselineSection } from "@/components/reviews/technology-baseline/TechnologyBaselineSection";
 import { RunDetailOperatorTechnicalDisclosure } from "./RunDetailOperatorTechnicalDisclosure";
 import { RunDetailRunMetadataSection } from "./RunDetailRunMetadataSection";
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
@@ -328,6 +329,14 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       />
 
       <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
+
+      <TechnologyBaselineSection
+        runId={m.resolvedDetail.run.runId}
+        manifestFinalized={Boolean(m.manifestId)}
+        buyerPolished={m.buyerPolishedArtifactTable ?? false}
+        usedStaticDemoRun={m.usedStaticDemoRun}
+        warningCountDisplay={m.warningCountDisplay ?? 0}
+      />
 
       {!m.manifestId ? (
         <RunDetailCaptureEvidenceSection

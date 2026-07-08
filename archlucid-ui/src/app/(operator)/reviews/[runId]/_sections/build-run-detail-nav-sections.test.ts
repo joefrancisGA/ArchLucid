@@ -19,6 +19,7 @@ describe("buildRunDetailNavSections", () => {
     expect(sections.find((s) => s.id === "run-decision-summary")?.label).toBe("Decision");
     expect(sections.find((s) => s.id === "manifest-summary")?.label).toBe("Finalized decision record");
     expect(sections.find((s) => s.id === "manifest-summary")?.available).toBe(true);
+    expect(sections.find((s) => s.id === "technology-baseline")?.label).toBe("Technology choices");
   });
 
   it("full operator includes review trail and diagnostics sections", () => {
@@ -46,5 +47,6 @@ describe("buildRunDetailNavSections", () => {
     expect(sections.some((s) => s.id === "authority-chain")).toBe(true);
     expect(sections.some((s) => s.id === "agent-forensics")).toBe(true);
     expect(sections.find((s) => s.id === "architecture-graph")?.label).toBe("Architecture graph");
+    expect(sections.find((s) => s.id === "technology-baseline")?.label).toBe("Technology baseline");
   });
 });
