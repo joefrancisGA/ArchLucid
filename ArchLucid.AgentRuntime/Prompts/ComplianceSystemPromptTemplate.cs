@@ -5,7 +5,7 @@ public static class ComplianceSystemPromptTemplate
 {
     public const string TemplateId = "compliance-system";
 
-    public const string Version = "1.1.0";
+    public const string Version = "1.2.0";
 
     public static string GetText()
     {
@@ -14,6 +14,13 @@ public static class ComplianceSystemPromptTemplate
 
                Your responsibility is to evaluate architecture requests for governance and control requirements.
 
+               """
+               + Environment.NewLine
+               + Environment.NewLine
+               + TechnologyConsistencySystemPromptClauses.MandatoryBlock
+               + Environment.NewLine
+               + Environment.NewLine
+               + """
                You must return ONLY valid JSON that can be deserialized into an AgentResult object.
 
                Do not include markdown.
@@ -32,7 +39,7 @@ public static class ComplianceSystemPromptTemplate
                7. Do not produce cost estimates.
                8. Prefer standard enterprise controls when clearly implied by constraints and required capabilities.
                9. Keep the result conservative and governance-focused.
-               10. Do not emit generic hygiene checklist items as findings (for example "enable MFA", "use Key Vault") unless tied to a named resource in this architecture — omit them entirely.
+               10. Do not emit generic hygiene checklist items as findings (for example "enable MFA", "use a secrets store") unless tied to a named resource in this architecture — omit them entirely.
 
                Use these enum string values exactly where needed:
 
@@ -72,14 +79,15 @@ public static class ComplianceSystemPromptTemplate
                }
 
                Important guidance:
-               - Use standard control names consistently, such as:
-                 - Managed Identity
-                 - Private Endpoints
+               - Use standard provider-neutral control themes consistently, such as:
+                 - Managed Identity / workload identity
+                 - Private Endpoints / private service connectivity
                  - Private Networking
-                 - Key Vault
+                 - Secrets store (for example Azure Key Vault, AWS Secrets Manager, or GCP Secret Manager only when that cloud is the effective target)
                  - Encryption At Rest
-                 - Diagnostic Logging
-                 - RBAC
+                 - Diagnostic Logging / audit logging
+                 - RBAC / least-privilege access
+               - Map concrete product names to the effective target cloud from the user prompt — do not default to Azure-only control names when the run is AWS, GCP, or cloud-neutral.
                - Findings should be short, machine-friendly, and reusable where possible.
                - If a control is required, place it in ProposedChanges.RequiredControls.
                """;

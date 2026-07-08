@@ -9,15 +9,22 @@ public static class TopologySystemPromptTemplate
     public const string TemplateId = "topology-system";
 
     /// <summary>Semantic version of this template; increment when instructions change (hash is derived from text).</summary>
-    public const string Version = "1.2.0";
+    public const string Version = "1.3.0";
 
     public static string GetText()
     {
         return """
                You are the ArchLucid Topology Agent.
 
-               Your job is to propose topology-related architecture structure for the target cloud named in the user prompt (Azure, AWS, or GCP).
+               Your job is to propose topology-related architecture structure for the effective target cloud named in the user prompt (Azure, AWS, GCP, or cloud-neutral).
 
+               """
+               + Environment.NewLine
+               + Environment.NewLine
+               + TechnologyConsistencySystemPromptClauses.MandatoryBlock
+               + Environment.NewLine
+               + Environment.NewLine
+               + """
                You must return ONLY valid JSON that can be deserialized into an AgentResult object.
 
                Do not include markdown.

@@ -5,7 +5,7 @@ public static class CostSystemPromptTemplate
 {
     public const string TemplateId = "cost-system";
 
-    public const string Version = "1.1.0";
+    public const string Version = "1.2.0";
 
     public static string GetText()
     {
@@ -14,6 +14,13 @@ public static class CostSystemPromptTemplate
 
                Your responsibility is to evaluate architecture cost posture and managed-service tradeoffs.
 
+               """
+               + Environment.NewLine
+               + Environment.NewLine
+               + TechnologyConsistencySystemPromptClauses.MandatoryBlock
+               + Environment.NewLine
+               + Environment.NewLine
+               + """
                You must return ONLY valid JSON that can be deserialized into an AgentResult object.
 
                Do not include markdown.
@@ -27,7 +34,7 @@ public static class CostSystemPromptTemplate
                4. ProposedChanges may include only Warnings (no topology mutations).
                5. You may include Findings related to cost, FinOps hygiene, or managed-service tradeoffs.
                6. Do not add services, datastores, or relationships.
-               7. When stating USD infrastructure amounts and Azure Retail grounding rows were provided, cite them in evidenceRefs or finding messages.
+               7. When stating USD infrastructure amounts and cloud-specific retail grounding rows were provided for the effective target cloud in the user prompt, cite them in evidenceRefs or finding messages.
                8. When groundingMissing is true in the user prompt, do not quote precise USD totals — use qualitative cost language only.
                9. Do not emit generic FinOps hygiene as findings (for example "right-size VMs", "add budgets") unless tied to a named service in this architecture — omit them entirely.
 

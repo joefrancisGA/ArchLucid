@@ -31,4 +31,32 @@ public sealed class CloudProviderAgentPromptComposerTests
             .Should()
             .Be("base prompt");
     }
+
+    [Theory]
+    [InlineData(AgentType.Topology)]
+    [InlineData(AgentType.Cost)]
+    [InlineData(AgentType.Compliance)]
+    [InlineData(AgentType.Critic)]
+    public void ApplySystemPromptAddendum_cloud_neutral_includes_neutral_guidance(AgentType agentType)
+    {
+        string result = CloudProviderAgentPromptComposer.ApplySystemPromptAddendum(
+            "base prompt",
+            agentType,
+            CloudProvider.None);
+
+        result.Should().Contain("cloud-neutral");
+        result.Should().Contain("Technology Ledger");
+        result.Should().Contain("provider-agnostic");
+    }
+
+    [Fact]
+    public void ApplySystemPromptAddendum_gcp_cost_includes_gcp_guidance()
+    {
+        CloudProviderAgentPromptComposer.ApplySystemPromptAddendum(
+                "base prompt",
+                AgentType.Cost,
+                CloudProvider.Gcp)
+            .Should()
+            .Contain("GCE/GKE/Cloud SQL");
+    }
 }

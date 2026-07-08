@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 8 **drafted** below (not yet run). Prompt 7 **done** (`e7eca24395`). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 8 **done** (see report below). Prompt 7 **done** (`e7eca24395`). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -24,12 +24,12 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | **Done** (`e89ceffdfb`) |
 | 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | **Done** (see Prompt 6 report) |
 | 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | **Done** (see Prompt 7 report) |
-| 8 | D.6 | Prompt template updates — closed-world clause, neutral-mode clause, alternative-labeling clause across all four system prompt templates | **Drafted, not run** |
+| 8 | D.6 | Prompt template updates — closed-world clause, neutral-mode clause, alternative-labeling clause across all four system prompt templates | **Done** (see Prompt 8 report) |
 | 9 | D.7 | **API endpoint** — `GET`/`PATCH` ledger routes on the run so the UI has something to call (missing piece between the repository and the UI panel; not called out as its own fix in the assessment but required before step 10 can work) | Not started |
 | 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | Not started |
 | 11 | D.9 | Golden-corpus consistency scenarios in CI | Not started |
 
-Prompts 1–8 are written out below. **Run Prompt 8**, review the result, then ask for Prompt 9 to be drafted.
+Prompts 1–8 are written out below. **Run Prompt 9** when ready (ask to draft if not yet written).
 
 ---
 
@@ -1318,6 +1318,19 @@ Stop and report:
 - Commit hash.
 - Confirm ledger seeding, handler user-prompt wiring (beyond shared constants), finding engine (Prompt 6), artifact lint (Prompt 7), API/UI (Prompts 9–10) were **not** touched.
 ```
+
+---
+
+## Prompt 8 — Report
+
+- **Clause helpers:** `TechnologyConsistencySystemPromptClauses` — `ClosedWorldClause`, `AlternativeLabelingClause`, `NeutralModeClause`, `TargetCloudAwarenessClause`, composed as `MandatoryBlock` and appended after each agent role intro in all four `*SystemPromptTemplate.GetText()` implementations.
+- **Template version bumps:** `topology-system@1.3.0`, `cost-system@1.2.0`, `compliance-system@1.2.0`, `critic-system@1.6.0`.
+- **Azure-only neutralization:** Compliance — provider-neutral control themes (secrets store examples per cloud); Critic — rule 17 uses "named architecture element" (not Azure-only); rule 14 / Compliance rule 10 use "secrets store" instead of Key Vault-only examples; Cost rule 7 cites cloud-specific retail grounding for the effective target.
+- **Cloud-neutral addendum:** `CloudProviderAgentPromptComposer` returns a shared `cloud-neutral` system addendum for `CloudProvider.None` on Topology, Cost, Compliance, and Critic; Azure still receives no addendum; AWS/GCP addenda unchanged.
+- **Baseline hash updates:** `topology`, `compliance`, `critic`, `cost` keys in `AgentPromptTemplateHashesBaseline.json`.
+- **Test results:** scoped AgentRuntime tests — **28/28 passed**.
+- **Commit:** `59e906e0ee`.
+- **Scope confirmation:** ledger seeding, handler user-prompt wiring, `TechnologyConsistencyFindingEngine`, artifact lint (Prompt 7), API/UI (Prompts 9–10) **not** touched.
 
 ---
 

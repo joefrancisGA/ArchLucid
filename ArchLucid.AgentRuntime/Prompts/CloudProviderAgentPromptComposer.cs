@@ -34,8 +34,11 @@ public static class CloudProviderAgentPromptComposer
 
     internal static string? TryGetSystemPromptAddendum(AgentType agentType, CloudProvider cloudProvider)
     {
-        if (cloudProvider == CloudProvider.Azure || cloudProvider == CloudProvider.None)
+        if (cloudProvider == CloudProvider.Azure)
             return null;
+
+        if (cloudProvider == CloudProvider.None)
+            return GetCloudNeutralSystemPromptAddendum(agentType);
 
         return agentType switch
         {
@@ -113,5 +116,16 @@ public static class CloudProviderAgentPromptComposer
         }
 
         return null;
+    }
+
+    private static string GetCloudNeutralSystemPromptAddendum(AgentType agentType)
+    {
+        _ = agentType;
+
+        return """
+               Target cloud override: cloud-neutral.
+               Do not inject Azure-, AWS-, or GCP-specific product names unless they appear in the Technology Ledger context supplied in the user prompt or are explicitly proposed as alternatives under consideration.
+               Prefer provider-agnostic architectural language; cite hyperscaler products only when ledger-corroborated.
+               """;
     }
 }
