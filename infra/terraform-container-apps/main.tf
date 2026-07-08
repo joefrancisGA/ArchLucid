@@ -1,6 +1,6 @@
-﻿# Container Apps (API / Worker / UI) ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Terraform resource labels use `archlucid` naming (greenfield IaC).
+# Container Apps (API / Worker / UI) Ã¢â‚¬â€ Terraform resource labels use `archlucid` naming (greenfield IaC).
 # Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/library/V1_DEFERRED.md Ãƒâ€šÃ‚Â§3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
+# Tracked in docs/library/V1_DEFERRED.md Ã‚Â§3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
 
 # count = local.enabled ? 1 : 0 creates exactly one Azure resource when enabled, zero when disabled.
 # data blocks read existing Azure objects; resource blocks declare infrastructure Terraform owns in state.
@@ -51,7 +51,7 @@ locals {
   acr_rg_for_pull   = length(local.acr_registry_id_parts) > 0 ? local.acr_registry_id_parts[0] : ""
   acr_name_for_pull = length(local.acr_registry_id_parts) > 1 ? local.acr_registry_id_parts[1] : ""
 
-  api_keyvault_uami_enabled = local.enabled && length(trimspace(var.api_keyvault_user_assigned_identity_id)) > 0
+  api_keyvault_uami_enabled    = local.enabled && length(trimspace(var.api_keyvault_user_assigned_identity_id)) > 0
   worker_keyvault_uami_enabled = local.enabled && length(trimspace(var.worker_keyvault_user_assigned_identity_id)) > 0
 
   api_user_assigned_identity_ids = compact(concat(
@@ -64,7 +64,7 @@ locals {
     local.worker_keyvault_uami_enabled ? [trimspace(var.worker_keyvault_user_assigned_identity_id)] : [],
   ))
 
-  api_has_user_assigned_identities = length(local.api_user_assigned_identity_ids) > 0
+  api_has_user_assigned_identities    = length(local.api_user_assigned_identity_ids) > 0
   worker_has_user_assigned_identities = length(local.worker_user_assigned_identity_ids) > 0
 }
 
@@ -184,13 +184,7 @@ resource "azurerm_container_app" "api" {
       name  = "hot-path-redis-connection"
       value = var.hot_path_cache_redis_connection_string
     }
-  }      dynamic "env" {
-        for_each = local.api_keyvault_uami_enabled && length(trimspace(var.api_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
-        content {
-          name  = "AZURE_CLIENT_ID"
-          value = trimspace(var.api_keyvault_user_assigned_identity_client_id)
-        }
-      }
+  }
 
 
   template {
@@ -447,13 +441,7 @@ resource "azurerm_container_app" "worker" {
       name  = "hot-path-redis-connection"
       value = var.hot_path_cache_redis_connection_string
     }
-  }          dynamic "env" {
-            for_each = local.worker_keyvault_uami_enabled && length(trimspace(var.worker_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
-            content {
-              name  = "AZURE_CLIENT_ID"
-              value = trimspace(var.worker_keyvault_user_assigned_identity_client_id)
-            }
-          }
+  }
 
 
   template {
