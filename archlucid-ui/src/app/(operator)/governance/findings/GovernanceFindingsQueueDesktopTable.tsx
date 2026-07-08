@@ -1,84 +1,32 @@
 "use client";
 
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { ReactElement } from "react";
+import type { CSSProperties, ReactElement } from "react";
+import { useEffect, useRef } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
-import { CopyIdButton } from "@/components/CopyIdButton";
-import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
-import { SeverityTag } from "@/components/ui/severity-tag";
-import { StatusTag } from "@/components/ui/status-tag";
-import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
-  EnterpriseTableCell,
   EnterpriseTableHead,
   EnterpriseTableHeadRow,
   EnterpriseTableHeaderCell,
-  EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import {
-  BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
-} from "@/lib/buyer-polish-copy";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
-import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
-import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evidence-citations";
-import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
-import { GovernanceFindingsQueueOperationalActions } from "@/components/governance/findings/governance-findings-queue-operational-actions";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   governanceFindingInspectHref,
-  governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { groupGovernanceFindingQueueRows } from "@/lib/group-governance-finding-queue-rows";
-import { governanceQueueDispositionLabel } from "@/lib/architecture-risk-register-page";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
 
+import type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
+import { GovernanceFindingsQueueTableRow } from "./GovernanceFindingsQueueTableRow";
 import {
-  formatGovernanceQueueRecordKind,
-  type GovernanceFindingQueueRow,
-} from "./governance-finding-queue-row";
-
-function formatRiskRegisterUtcLabel(utc: string | null | undefined): string {
-  const raw = (utc ?? "").trim();
-
-  if (raw.length === 0) {
-    return "—";
-  }
-
-  const parsed = Date.parse(raw);
-
-  if (Number.isNaN(parsed)) {
-    return raw;
-  }
-
-  return new Date(parsed).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buyerPolishedShell: boolean): ReactElement {
-  if (buyerPolishedShell && row.recordKind === "decision") {
-    return (
-      <span className="text-al-text-secondary">
-        <span aria-hidden="true">—</span>
-        <span className="sr-only">Severity does not apply to recorded decision rows.</span>
-      </span>
-    );
-  }
-
-  if (row.recordKind === "finding") {
-    return <SeverityTag severity={row.severity} />;
-  }
-
-  return <span className="text-al-text-primary">{row.severity}</span>;
-}
+  GOVERNANCE_FINDINGS_QUEUE_ROW_ESTIMATE_PX,
+  shouldVirtualizeGovernanceFindingsQueue,
+} from "./governance-findings-queue-virtualization";
 
 export type GovernanceFindingsQueueDesktopTableProps = {
   readonly rows: readonly GovernanceFindingQueueRow[];
@@ -95,7 +43,6 @@ type GovernanceFindingsQueueTableBodyProps = {
   readonly hasBulkSelect: boolean;
   readonly selectedFindingIds?: ReadonlySet<string>;
   readonly onToggleRow?: (findingId: string) => void;
-  readonly focusedRowIndex?: number;
   readonly isRowFocused?: (index: number) => boolean;
 };
 
@@ -105,11 +52,18 @@ function GovernanceFindingsQueueTableHead(props: {
   readonly allSelected: boolean;
   readonly someSelected: boolean;
   readonly onToggleAll: () => void;
+  readonly sticky?: boolean;
 }): ReactElement {
-  const { buyerPolishedShell, hasBulkSelect, allSelected, someSelected, onToggleAll } = props;
+  const { buyerPolishedShell, hasBulkSelect, allSelected, someSelected, onToggleAll, sticky } = props;
 
   return (
-    <EnterpriseTableHead>
+    <EnterpriseTableHead
+      className={
+        sticky
+          ? "sticky top-0 z-[1] bg-al-surface-raised shadow-[0_1px_0_0_rgb(229_229_229)] dark:shadow-[0_1px_0_0_rgb(38_38_38)]"
+          : undefined
+      }
+    >
       <EnterpriseTableHeadRow>
         {hasBulkSelect ? (
           <EnterpriseTableHeaderCell className="w-8">
@@ -156,95 +110,6 @@ function GovernanceFindingsQueueTableHead(props: {
   );
 }
 
-function GovernanceFindingsQueueOperationalRowCells(props: {
-  readonly row: GovernanceFindingQueueRow;
-}): ReactElement {
-  const { row } = props;
-  const graphHref = governanceQueueGraphEvidenceHref(row);
-  const evidenceChipHref =
-    graphHref ??
-    (row.evidenceHref !== undefined && row.evidenceHref.trim().length > 0 ? row.evidenceHref : null);
-
-  return (
-    <>
-      <EnterpriseTableCell className="font-medium text-al-text-primary">
-        <Link className={OPERATOR_LINK.inline} href={governanceFindingInspectHref(row.runId, row.findingId)}>
-          {row.title}
-        </Link>
-        {row.recordKind === "finding" && row.policyRuleId ? (
-          <div className="mt-1">
-            <FindingPolicyTraceabilityBadges
-              {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
-            />
-          </div>
-        ) : row.category && row.recordKind === "finding" ? (
-          <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-            Policy area: {row.category}
-          </div>
-        ) : null}
-        <div
-          className={cn(
-            "mt-0.5 flex flex-wrap items-center gap-1 font-mono font-normal text-al-text-secondary",
-            OPERATOR_TYPOGRAPHY.micro,
-          )}
-        >
-          <span>{row.findingId}</span>
-          <CopyIdButton value={row.findingId} aria-label="Copy finding ID" />
-        </div>
-        {evidenceChipHref !== null ? (
-          <div className="mt-1">
-            <FindingEvidenceLinkChip href={evidenceChipHref} evidenceRefCount={row.evidenceRefCount} />
-          </div>
-        ) : null}
-      </EnterpriseTableCell>
-      <EnterpriseTableCell>
-        <Link className={OPERATOR_LINK.inline} href={`/reviews/${encodeURIComponent(row.runId)}`}>
-          {row.runLabel}
-        </Link>
-      </EnterpriseTableCell>
-      <EnterpriseTableCell>{governanceQueueSeverityCell(row, false)}</EnterpriseTableCell>
-      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? row.ownerUserId ?? "—" : "—"}
-      </EnterpriseTableCell>
-      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {governanceQueueDispositionLabel(row)}
-      </EnterpriseTableCell>
-      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" && row.agingDays !== undefined ? `${row.agingDays}d` : "—"}
-      </EnterpriseTableCell>
-      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.waiverExpiresAtUtc) : "—"}
-      </EnterpriseTableCell>
-      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.lastReviewedUtc) : "—"}
-      </EnterpriseTableCell>
-      <EnterpriseTableCell>
-        <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
-        {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
-          <div className={cn("mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-            {row.humanReviewStatusLabel}
-          </div>
-        ) : null}
-        {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
-          <div className={cn("mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-            ITSM: {row.itsmLinkedTicketsSummary}
-          </div>
-        ) : null}
-        {row.isStale ? (
-          <span
-            className={cn(
-              "ml-1 rounded border border-amber-600/40 bg-al-surface-raised px-1.5 py-0.5 font-semibold uppercase text-al-text-primary dark:border-amber-700/50",
-              OPERATOR_TYPOGRAPHY.badge,
-            )}
-          >
-            Stale
-          </span>
-        ) : null}
-      </EnterpriseTableCell>
-    </>
-  );
-}
-
 function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBodyProps): ReactElement {
   const {
     rows,
@@ -257,138 +122,73 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
 
   return (
     <EnterpriseTableBody>
-      {rows.map((row, rowIndex) => {
-        const graphHref = governanceQueueGraphEvidenceHref(row);
-        const evidenceChipHref =
-          graphHref ??
-          (row.evidenceHref !== undefined && row.evidenceHref.trim().length > 0 ? row.evidenceHref : null);
+      {rows.map((row, rowIndex) => (
+        <GovernanceFindingsQueueTableRow
+          key={`${row.runId}:${row.findingId}:table`}
+          row={row}
+          buyerPolishedShell={buyerPolishedShell}
+          hasBulkSelect={hasBulkSelect}
+          selectedFindingIds={selectedFindingIds}
+          onToggleRow={onToggleRow}
+          isFocused={isRowFocused?.(rowIndex)}
+        />
+      ))}
+    </EnterpriseTableBody>
+  );
+}
+
+type GovernanceFindingsQueueVirtualizedTableBodyProps = GovernanceFindingsQueueTableBodyProps & {
+  readonly rowVirtualizer: ReturnType<typeof useVirtualizer<HTMLDivElement, Element>>;
+};
+
+function GovernanceFindingsQueueVirtualizedTableBody(
+  props: GovernanceFindingsQueueVirtualizedTableBodyProps,
+): ReactElement {
+  const {
+    rows,
+    buyerPolishedShell,
+    hasBulkSelect,
+    selectedFindingIds,
+    onToggleRow,
+    isRowFocused,
+    rowVirtualizer,
+  } = props;
+
+  return (
+    <EnterpriseTableBody
+      style={{
+        height: `${rowVirtualizer.getTotalSize()}px`,
+        position: "relative",
+      }}
+    >
+      {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+        const row = rows[virtualRow.index];
+
+        if (row === undefined) {
+          return null;
+        }
+
+        const rowStyle: CSSProperties = {
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          transform: `translateY(${virtualRow.start}px)`,
+          display: "table",
+          tableLayout: "fixed",
+        };
 
         return (
-          <EnterpriseTableRow
-            key={`${row.runId}:${row.findingId}:table`}
-            className={isRowFocused?.(rowIndex) ? "ring-2 ring-inset ring-teal-700/40 dark:ring-teal-400/40" : undefined}
-          >
-            {hasBulkSelect ? (
-              <EnterpriseTableCell className="w-8">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 cursor-pointer rounded border-neutral-300 accent-teal-700 dark:border-neutral-600"
-                  aria-label={`Select finding: ${row.title}`}
-                  checked={selectedFindingIds?.has(row.findingId) ?? false}
-                  onChange={() => { onToggleRow?.(row.findingId); }}
-                  onClick={(e) => { e.stopPropagation(); }}
-                />
-              </EnterpriseTableCell>
-            ) : null}
-            {buyerPolishedShell ? (
-              <>
-                <EnterpriseTableCell>{governanceQueueSeverityCell(row, buyerPolishedShell)}</EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  {row.recordKind === "decision" ? (
-                    <span className="text-al-text-secondary">—</span>
-                  ) : row.traceConfidenceLevel === "High" ||
-                    row.traceConfidenceLevel === "Medium" ||
-                    row.traceConfidenceLevel === "Low" ? (
-                    <FindingConfidenceBadge level={row.traceConfidenceLevel} />
-                  ) : (
-                    <span className="text-al-text-secondary">—</span>
-                  )}
-                </EnterpriseTableCell>
-                <EnterpriseTableCell className="text-al-text-primary">
-                  {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
-                </EnterpriseTableCell>
-                <EnterpriseTableCell className="font-medium text-al-text-primary">
-                  <Link
-                    className={OPERATOR_LINK.inline}
-                    href={governanceFindingInspectHref(row.runId, row.findingId)}
-                  >
-                    {row.title}
-                  </Link>
-                  {row.recordKind === "finding" && row.policyRuleId ? (
-                    <div className="mt-1">
-                      <FindingPolicyTraceabilityBadges
-                        {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
-                      />
-                    </div>
-                  ) : row.category && row.recordKind === "finding" ? (
-                    <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                      Policy area: {row.category}
-                    </div>
-                  ) : null}
-                  {evidenceChipHref !== null ? (
-                    <div className="mt-1">
-                      <FindingEvidenceLinkChip
-                        href={evidenceChipHref}
-                        evidenceRefCount={row.evidenceRefCount}
-                      />
-                    </div>
-                  ) : null}
-                </EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  <Link
-                    className={OPERATOR_LINK.inline}
-                    href={`/reviews/${encodeURIComponent(row.runId)}`}
-                  >
-                    {row.runLabel}
-                  </Link>
-                </EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
-                  {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
-                    <div className={cn("mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                      {row.humanReviewStatusLabel}
-                    </div>
-                  ) : null}
-                  {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
-                    <div className={cn("mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                      ITSM: {row.itsmLinkedTicketsSummary}
-                    </div>
-                  ) : null}
-                  {row.isStale ? (
-                    <span
-                      className={cn(
-                        "ml-1 rounded border border-amber-600/40 bg-al-surface-raised px-1.5 py-0.5 font-semibold uppercase text-al-text-primary dark:border-amber-700/50",
-                        OPERATOR_TYPOGRAPHY.badge,
-                      )}
-                    >
-                      Stale
-                    </span>
-                  ) : null}
-                </EnterpriseTableCell>
-                <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-                  {row.recommended}
-                </EnterpriseTableCell>
-              </>
-            ) : (
-              <GovernanceFindingsQueueOperationalRowCells row={row} />
-            )}
-            <EnterpriseTableCell>
-              {buyerPolishedShell ? (
-                <div className="flex flex-col gap-2">
-                  <Button asChild variant="primary" size="sm" className="h-8">
-                    <Link href={governanceFindingInspectHref(row.runId, row.findingId)}>
-                      {row.recordKind === "decision"
-                        ? "View decision"
-                        : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA}
-                    </Link>
-                  </Button>
-                  {row.recordKind === "finding" ? (
-                    <CopyGovernanceQueueWorkItemButton
-                      runId={row.runId}
-                      findingId={row.findingId}
-                      findingTitle={row.title}
-                      severityLabel={row.severity}
-                      recommendedAction={row.recommended}
-                      statusLabel={row.status}
-                      compact
-                    />
-                  ) : null}
-                </div>
-              ) : (
-                <GovernanceFindingsQueueOperationalActions row={row} />
-              )}
-            </EnterpriseTableCell>
-          </EnterpriseTableRow>
+          <GovernanceFindingsQueueTableRow
+            key={`${row.runId}:${row.findingId}:virtual`}
+            row={row}
+            buyerPolishedShell={buyerPolishedShell}
+            hasBulkSelect={hasBulkSelect}
+            selectedFindingIds={selectedFindingIds}
+            onToggleRow={onToggleRow}
+            isFocused={isRowFocused?.(virtualRow.index)}
+            style={rowStyle}
+          />
         );
       })}
     </EnterpriseTableBody>
@@ -407,9 +207,11 @@ export function GovernanceFindingsQueueDesktopTable(
     onSelectionChange,
   } = props;
   const router = useRouter();
+  const scrollParentRef = useRef<HTMLDivElement>(null);
   const hasBulkSelect = selectedFindingIds !== undefined && onSelectionChange !== undefined;
   const allSelected = hasBulkSelect && rows.length > 0 && rows.every((r) => selectedFindingIds.has(r.findingId));
   const someSelected = hasBulkSelect && rows.some((r) => selectedFindingIds.has(r.findingId));
+  const useVirtualization = !groupByResource && shouldVirtualizeGovernanceFindingsQueue(rows.length);
 
   const keyboardNav = useEnterpriseTableKeyboardNav({
     rowCount: groupByResource ? 0 : rows.length,
@@ -424,8 +226,26 @@ export function GovernanceFindingsQueueDesktopTable(
     },
   });
 
+  const rowVirtualizer = useVirtualizer({
+    count: useVirtualization ? rows.length : 0,
+    getScrollElement: () => scrollParentRef.current,
+    estimateSize: () => GOVERNANCE_FINDINGS_QUEUE_ROW_ESTIMATE_PX,
+    overscan: 8,
+  });
+
+  useEffect(() => {
+    if (!useVirtualization) {
+      return;
+    }
+
+    rowVirtualizer.scrollToIndex(keyboardNav.focusedRowIndex, { align: "auto" });
+  }, [keyboardNav.focusedRowIndex, rowVirtualizer, useVirtualization]);
+
   function toggleRow(findingId: string) {
-    if (!hasBulkSelect) return;
+    if (!hasBulkSelect) {
+      return;
+    }
+
     const next = new Set(selectedFindingIds);
 
     if (next.has(findingId)) {
@@ -438,7 +258,9 @@ export function GovernanceFindingsQueueDesktopTable(
   }
 
   function toggleAll(scopeRows: readonly GovernanceFindingQueueRow[] = rows) {
-    if (!hasBulkSelect) return;
+    if (!hasBulkSelect) {
+      return;
+    }
 
     const scopeIds = new Set(scopeRows.map((row) => row.findingId));
     const allScopeSelected =
@@ -466,6 +288,28 @@ export function GovernanceFindingsQueueDesktopTable(
 
   const ariaLabel = buyerPolishedShell ? "Risk register" : "Architecture risk register";
   const resourceGroups = groupByResource ? groupGovernanceFindingQueueRows(rows) : [];
+
+  const tableHead = (
+    <GovernanceFindingsQueueTableHead
+      buyerPolishedShell={buyerPolishedShell}
+      hasBulkSelect={hasBulkSelect}
+      allSelected={allSelected}
+      someSelected={someSelected}
+      onToggleAll={() => {
+        toggleAll();
+      }}
+      sticky={useVirtualization}
+    />
+  );
+
+  const tableBodyProps: GovernanceFindingsQueueTableBodyProps = {
+    rows,
+    buyerPolishedShell,
+    hasBulkSelect,
+    selectedFindingIds,
+    onToggleRow: toggleRow,
+    isRowFocused: keyboardNav.isRowFocused,
+  };
 
   return (
     <div
@@ -520,7 +364,9 @@ export function GovernanceFindingsQueueDesktopTable(
                     hasBulkSelect={hasBulkSelect}
                     allSelected={groupAllSelected}
                     someSelected={groupSomeSelected}
-                    onToggleAll={() => { toggleAll(group.rows); }}
+                    onToggleAll={() => {
+                      toggleAll(group.rows);
+                    }}
                   />
                   <GovernanceFindingsQueueTableBody
                     rows={group.rows}
@@ -534,23 +380,24 @@ export function GovernanceFindingsQueueDesktopTable(
             );
           })}
         </div>
+      ) : useVirtualization ? (
+        <div
+          ref={scrollParentRef}
+          className="max-h-[min(32rem,70vh)] overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
+          data-testid="governance-findings-queue-virtual-scroll"
+        >
+          <EnterpriseTable ariaLabel={ariaLabel} className="border-0">
+            {tableHead}
+            <GovernanceFindingsQueueVirtualizedTableBody
+              {...tableBodyProps}
+              rowVirtualizer={rowVirtualizer}
+            />
+          </EnterpriseTable>
+        </div>
       ) : (
         <EnterpriseTable ariaLabel={ariaLabel}>
-          <GovernanceFindingsQueueTableHead
-            buyerPolishedShell={buyerPolishedShell}
-            hasBulkSelect={hasBulkSelect}
-            allSelected={allSelected}
-            someSelected={someSelected}
-            onToggleAll={() => { toggleAll(); }}
-          />
-          <GovernanceFindingsQueueTableBody
-            rows={rows}
-            buyerPolishedShell={buyerPolishedShell}
-            hasBulkSelect={hasBulkSelect}
-            selectedFindingIds={selectedFindingIds}
-            onToggleRow={toggleRow}
-            isRowFocused={keyboardNav.isRowFocused}
-          />
+          {tableHead}
+          <GovernanceFindingsQueueTableBody {...tableBodyProps} />
         </EnterpriseTable>
       )}
     </div>
