@@ -4534,6 +4534,204 @@
       "severity": "Warning",
       "description": "Stub for sf-task-001; see docs/samples/policy-packs/snowflake-security-rules-v1.json for narrative.",
       "priority": "P1"
+    },
+    {
+      "ruleId": "gdpr-011",
+      "controlId": "GDPR-011",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gdpr-011; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-012",
+      "controlId": "GDPR-012",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gdpr-012; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-013",
+      "controlId": "GDPR-013",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gdpr-013; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-014",
+      "controlId": "GDPR-014",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gdpr-014; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-015",
+      "controlId": "GDPR-015",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gdpr-015; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-016",
+      "controlId": "GDPR-016",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gdpr-016; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-017",
+      "controlId": "GDPR-017",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gdpr-017; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-018",
+      "controlId": "GDPR-018",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gdpr-018; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-019",
+      "controlId": "GDPR-019",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gdpr-019; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-020",
+      "controlId": "GDPR-020",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gdpr-020; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-021",
+      "controlId": "GDPR-021",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gdpr-021; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-022",
+      "controlId": "GDPR-022",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gdpr-022; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-023",
+      "controlId": "GDPR-023",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gdpr-023; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-024",
+      "controlId": "GDPR-024",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gdpr-024; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-025",
+      "controlId": "GDPR-025",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gdpr-025; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-026",
+      "controlId": "GDPR-026",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gdpr-026; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-027",
+      "controlId": "GDPR-027",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gdpr-027; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-028",
+      "controlId": "GDPR-028",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gdpr-028; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
     }
   ]
 }

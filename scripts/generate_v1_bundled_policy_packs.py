@@ -172,6 +172,8 @@ PACKS: list[dict] = [
     {
         "slug": "gdpr-baseline",
         "prefix": "gdpr",
+        "count": 28,
+        "existing_rules": True,
         "displayName": "GDPR Compliance Baseline",
         "description": "Privacy and data-protection architecture themes (encryption, minimization, region constraints). Not legal GDPR certification.",
         "category": "Privacy",
@@ -360,6 +362,18 @@ PACKS: list[dict] = [
         "disclaimer": "Data-layer mapping is thematic only.",
         "framework": "Azure data services",
         "themes": ["Encryption", "Private endpoints", "Auditing"],
+    },
+    {
+        "slug": "snowflake-security",
+        "prefix": "sf",
+        "count": 57,
+        "existing_rules": True,
+        "displayName": "Snowflake Security",
+        "description": "Snowflake-specific identity, RBAC, masking, network, sharing, logging, encryption, and compliance-readiness checks for architecture reviews. Not Snowflake certification or statutory compliance.",
+        "category": "Data Platform Security",
+        "disclaimer": "Framework and regulation references are thematic mapping only — not certification, attestation, or legal compliance.",
+        "framework": "Snowflake Security",
+        "themes": ["Identity", "RBAC", "Data protection", "Network", "Sharing"],
     },
 ]
 
