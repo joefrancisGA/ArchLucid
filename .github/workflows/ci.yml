@@ -1496,6 +1496,39 @@ jobs:
           python3 scripts/ci/eval_agent_corpus.py --markdown-report "$REP" --baseline --enforce-quality-gate
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "$REP" >> "$GITHUB_STEP_SUMMARY"; fi
 
+      - name: Setup .NET (technology consistency golden corpus)
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Technology consistency golden corpus (manifest drift guard)
+        run: python3 scripts/ci/assert_technology_consistency_corpus.py
+
+      - name: Restore + build technology consistency golden corpus test projects
+        run: |
+          set -euo pipefail
+          dotnet restore ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj
+          dotnet restore ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj
+          dotnet build ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --no-restore -c Release
+          dotnet build ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --no-restore -c Release
+
+      - name: Technology consistency finding engine golden corpus
+        run: |
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj \
+            -c Release --no-build \
+            --filter "FullyQualifiedName~TechnologyConsistencyGoldenCorpus"
+
+      - name: Technology consistency artifact lint golden corpus
+        run: |
+          dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj \
+            -c Release --no-build \
+            --filter "FullyQualifiedName~TechnologyConsistencyArtifactGoldenCorpus"
+
       - name: Upload agent eval scorecard
         if: always() && steps.eval_corpus.outcome != 'skipped'
         uses: actions/upload-artifact@v4

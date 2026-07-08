@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <None Include="..\tests\golden-corpus\synthesis\**\*" Link="golden-corpus\synthesis\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\tests\technology-consistency-corpus\**\*" Link="technology-consistency-corpus\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
