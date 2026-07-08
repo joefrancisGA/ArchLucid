@@ -1329,7 +1329,7 @@ Stop and report:
 - **Cloud-neutral addendum:** `CloudProviderAgentPromptComposer` returns a shared `cloud-neutral` system addendum for `CloudProvider.None` on Topology, Cost, Compliance, and Critic; Azure still receives no addendum; AWS/GCP addenda unchanged.
 - **Baseline hash updates:** `topology`, `compliance`, `critic`, `cost` keys in `AgentPromptTemplateHashesBaseline.json`.
 - **Test results:** scoped AgentRuntime tests — **28/28 passed**.
-- **Commit:** `59e906e0ee`.
+- **Commit:** `bc56e5f5aa`.
 - **Scope confirmation:** ledger seeding, handler user-prompt wiring, `TechnologyConsistencyFindingEngine`, artifact lint (Prompt 7), API/UI (Prompts 9–10) **not** touched.
 
 ---
