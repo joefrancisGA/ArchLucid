@@ -85,26 +85,32 @@ def build_curated(pack: dict, rules: list[dict]) -> dict:
 
 def build_content(pack: dict, rule_ids: list[str]) -> dict:
     slug = pack["slug"]
+    advisory_defaults = pack.get(
+        "advisoryDefaults",
+        {
+            "severityFloor": "warning",
+            "priorityFloor": "P0",
+            "scanDepth": "standard",
+        },
+    )
+    metadata = {
+        "templateId": f"{slug}-v1",
+        "pack.displayName": pack["displayName"],
+        "pack.category": pack["category"],
+        "pack.version": pack.get("contentVersion", "1.0.0"),
+        "pack.isDefault": "true",
+        "pack.description": pack["description"],
+        "frameworkMappingDisclaimer": pack["disclaimer"],
+        "curatedRulesArtifact": f"docs/samples/policy-packs/{slug}-rules-v1.json",
+    }
+    metadata.update(pack.get("metadataExtras", {}))
     return {
         "complianceRuleIds": [],
         "complianceRuleKeys": rule_ids,
         "alertRuleIds": [],
         "compositeAlertRuleIds": [],
-        "advisoryDefaults": {
-            "severityFloor": "warning",
-            "priorityFloor": "P0",
-            "scanDepth": "standard",
-        },
-        "metadata": {
-            "templateId": f"{slug}-v1",
-            "pack.displayName": pack["displayName"],
-            "pack.category": pack["category"],
-            "pack.version": "1.0.0",
-            "pack.isDefault": "true",
-            "pack.description": pack["description"],
-            "frameworkMappingDisclaimer": pack["disclaimer"],
-            "curatedRulesArtifact": f"docs/samples/policy-packs/{slug}-rules-v1.json",
-        },
+        "advisoryDefaults": advisory_defaults,
+        "metadata": metadata,
     }
 
 
@@ -161,13 +167,49 @@ PACKS: list[dict] = [
         "slug": "arc-ampe-architecture-themes",
         "prefix": "arc-ampe",
         "count": 80,
-        "existing_rules": False,
+        "existing_rules": True,
         "displayName": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities)",
-        "description": "Architecture-review themes mapped to ARC-AMPE Volumes I and II. Not CMS conformity assessment or SSPP authoring.",
+        "description": (
+            "Architecture-review themes aligned to CMS ARC-AMPE Volume I v1.02 (Pillars, ACA AE CSF Profile, "
+            "Privacy Framework profile) with NIST SP 800-53 R5 control citations. Thematic mapping only; "
+            "not CMS conformity, SSPP authoring, or attestation."
+        ),
         "category": "Compliance",
-        "disclaimer": "ARC-AMPE references are thematic mapping only; not legal advice on ACA/Medicaid scope.",
+        "disclaimer": (
+            "Thematic architecture-review mapping toward ARC-AMPE Volumes I and II (CMS, v1.02). "
+            "Not CMS conformity assessment, not SSPP authoring, not third-party attestation, not legal advice. "
+            "ArchLucid does not classify customers as ACA Administering Entities or Partner Entities; "
+            "those determinations rest with customer counsel."
+        ),
+        "contentVersion": "1.1.0",
+        "advisoryDefaults": {
+            "severityFloor": "warning",
+            "priorityFloor": "P0",
+            "scanDepth": "extended",
+            "verticalScope": "us-healthcare-exchange",
+            "dataResidency": "us-only",
+            "arcAmpeVolumes": "I-and-II-architecture-themes",
+        },
+        "metadataExtras": {
+            "sourceCitation": (
+                "Centers for Medicare & Medicaid Services, ARC-AMPE Volume I, Version 1.02, 2025-04-10"
+            ),
+            "verticalRecommendation": "us-healthcare-exchange",
+            "seedScopeRecommendation": "opt-in-vertical",
+            "authoringMode": "llm-critic-human",
+        },
         "framework": "CMS ARC-AMPE Volume I v1.02",
-        "themes": ["Pillars", "Enterprise Risk Management", "US Data Residency", "NIST CSF Identify", "NIST CSF Protect", "NIST CSF Detect", "NIST CSF Respond", "NIST CSF Recover", "NIST Privacy Framework"],
+        "themes": [
+            "Pillars",
+            "Enterprise Risk Management",
+            "US Data Residency",
+            "NIST CSF Identify",
+            "NIST CSF Protect",
+            "NIST CSF Detect",
+            "NIST CSF Respond",
+            "NIST CSF Recover",
+            "NIST Privacy Framework",
+        ],
     },
     {
         "slug": "gdpr-baseline",
