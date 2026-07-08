@@ -7,7 +7,7 @@
 
 # Architecture generation technology consistency — implementation prompts
 
-**Status:** Prompt 7 **done** (see report below). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
+**Status:** Prompt 8 **drafted** below (not yet run). Prompt 7 **done** (`e7eca24395`). Prompt 6 **done** (`faf3500c6d`). Prompt 5 **done** (`e89ceffdfb`). Prompt 4 **done** (`80ad003d60`). Prompt 3 **done** (`c23ec43b4d`). Prompt 1 **done** (`daaa784505`). Prompt 2 **done** (`599b51c74a`) — see reports below.
 
 Work directly on `master` for every prompt below. Confirm `git status` is clean of unrelated changes before starting each prompt; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
 
@@ -24,12 +24,12 @@ Work directly on `master` for every prompt below. Confirm `git status` is clean 
 | 5 | D.3 | Share ledger downstream to Cost/Compliance/Critic prompts (extend `StagedPriorAgentsSummary`) | **Done** (`e89ceffdfb`) |
 | 6 | D.4 | `TechnologyConsistencyFindingEngine` — deterministic provider/database/identity/messaging/runtime mismatch detection, wired into `PreCommitGovernanceGate` **behind a warn-only/enforcing options toggle** (mirroring the existing `AgentOutputQualityGateOptions` enable/severity pattern) so it ships surfacing findings without blocking commits on existing sample/demo runs until explicitly flipped to enforcing | **Done** (see Prompt 6 report) |
 | 7 | D.5 | Structured-first artifact synthesis — prose lint against ledger in `ArtifactSynthesisService` | **Done** (see Prompt 7 report) |
-| 8 | D.6 | Prompt template updates — closed-world clause, neutral-mode clause, alternative-labeling clause across all four system prompt templates | Not started |
+| 8 | D.6 | Prompt template updates — closed-world clause, neutral-mode clause, alternative-labeling clause across all four system prompt templates | **Drafted, not run** |
 | 9 | D.7 | **API endpoint** — `GET`/`PATCH` ledger routes on the run so the UI has something to call (missing piece between the repository and the UI panel; not called out as its own fix in the assessment but required before step 10 can work) | Not started |
 | 10 | D.7 | Technology Baseline UI panel + approval step (`archlucid-ui`), consuming the endpoint from step 9 | Not started |
 | 11 | D.9 | Golden-corpus consistency scenarios in CI | Not started |
 
-Prompts 1–7 are written out below. **Run Prompt 8** when ready (ask to draft if not yet written).
+Prompts 1–8 are written out below. **Run Prompt 8**, review the result, then ask for Prompt 9 to be drafted.
 
 ---
 
@@ -1172,6 +1172,152 @@ Stop and report:
 - **Test results:** `TechnologyLedgerArtifactLintOptions` — **2/2 passed**; `TechnologyLedgerArtifactLinter` + `ArtifactSynthesisService` scoped tests — **7/7 passed**.
 - **Commit:** `e7eca24395`.
 - **Scope confirmation:** system templates (Prompt 8), API/UI (Prompts 9–10), and `TechnologyConsistencyFindingEngine` / `PreCommitGovernanceGate` **not** touched (shared enum reuse only).
+
+---
+
+## Prompt 8 — System prompt template updates (closed-world, neutral-mode, alternative-labeling)
+
+```
+Read docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_ASSESSMENT_2026_07_07.md in full for context before starting, specifically §A root causes #3 (Azure-first prompt default) and #4 (agents lack a shared canonical technology record at generation time), §D fix 6 (prompt template updates), §F (closed-world generation constraint, lock semantics, evidence posture), §G (the three required template clauses — closed-world, neutral-mode, alternative-labeling), and §I acceptance criteria #1 and #4. Also read "Prompt 1 — Report" through "Prompt 7 — Report" in this same file for the ledger shape, agent read-path wiring, pre-commit finding engine, and export prose lint already shipped — **build on that posture**, do not fork parallel prompt-injection helpers or duplicate validation engines in templates.
+
+Work directly on the current branch (master) — no feature branch. Confirm `git status` is clean of unrelated changes before starting; if pre-existing unrelated unstaged changes are present in the working tree, leave them untouched and do not stage or commit them alongside this task's changes.
+
+## Goal
+
+Prompts 1–7 established the Technology Ledger, wired it into intake and all four agent **user** prompts, added deterministic pre-commit and export-time validation, and shipped warn-only enforcement toggles. This prompt closes fix **D.6** — **generation-source prevention**:
+
+1. Add the assessment §G **closed-world**, **neutral-mode**, and **alternative-labeling** clauses to all four built-in **system** prompt templates (Topology, Cost, Compliance, Critic).
+2. Remove or neutralize remaining **Azure-first / Azure-only static guidance** embedded in those templates (especially Compliance control examples and Critic finding-format rules that assume Azure naming).
+3. Add a **cloud-neutral system-prompt addendum** in `CloudProviderAgentPromptComposer` when `CloudProvider.None` is the effective target, complementing the AWS/GCP addenda already present — so neutral runs get an explicit system-level counterweight, not only user-prompt branches.
+
+This is **system-template + composer-addendum text only** for v1. Do **not** change agent handler orchestration, ledger seeding, merge policies, `TechnologyConsistencyFindingEngine`, `PreCommitGovernanceGate`, artifact synthesis lint (Prompt 7), API routes (Prompt 9), or the Technology Baseline UI (Prompt 10). Do **not** add new agent-proposed ledger persistence. Do **not** re-touch `RunStarterTaskFactory` objectives or `TechnologyLedgerUserPromptInjection` except shared prompt text constants you deliberately centralize in this prompt.
+
+## Execution-order context (read before coding)
+
+- Built-in templates live under `ArchLucid.AgentRuntime/Prompts/`:
+  - `TopologySystemPromptTemplate.cs` (`TemplateId = "topology-system"`, currently `Version = "1.2.0"`)
+  - `CostSystemPromptTemplate.cs` (`cost-system`, `1.1.0`)
+  - `ComplianceSystemPromptTemplate.cs` (`compliance-system`, `1.1.0`)
+  - `CriticSystemPromptTemplate.cs` (`critic-system`, `1.5.0`)
+- `CachedAgentSystemPromptCatalog` hashes template text at startup; **bump each edited template's `Version` const** (semver patch minimum) whenever `GetText()` changes — this invalidates stale prompt-repro traces and forces baseline review.
+- Handlers call `CloudProviderAgentPromptComposer.ApplySystemPromptAddendum(baseTemplate, agentType, effectiveCloudTarget)` **after** resolving `effectiveCloudTarget` via `TechnologyLedgerEffectiveCloudTarget.Resolve(request, ledgerEntries)` (Prompts 4–5). Templates must state that the **user prompt** carries the authoritative Technology Ledger context and effective cloud target; system prompts must not assume Azure when the user prompt says otherwise.
+- `AgentPromptRegressionTests` + `AgentPromptTemplateHashesBaseline.json` guard template drift — expect to update all four baseline SHA-256 entries after intentional text changes.
+- Prompt 5 explicitly deferred Compliance's Azure-centric "Key Vault" static guidance list to **this** prompt — neutralize it here.
+
+## 1. Shared clause block (DRY, one class per file)
+
+Create `ArchLucid.AgentRuntime/Prompts/TechnologyConsistencySystemPromptClauses.cs` — `public static` helpers returning verbatim clause text (raw string literals). Suggested surface:
+
+```csharp
+public static string ClosedWorldClause { get; }
+public static string AlternativeLabelingClause { get; }
+public static string NeutralModeClause { get; }          // cloud-neutral effective target
+public static string TargetCloudAwarenessClause { get; } // defers to user prompt / ledger
+```
+
+### Clause content requirements (assessment §G — implement all)
+
+1. **Closed-world (`ClosedWorldClause`):** instruct the model to reference only technologies already present in the **Technology Ledger context supplied in the user prompt**, or to introduce a new technology only as an explicit **agent-proposed / Assumed** change via the normal `ProposedChanges` shape — never silently substitute a different hyperscaler's equivalent service. Align wording with §F closed-world constraint and Prompt 7's `UnledgeredHyperscalerToken` alternative-label exception phrases (`alternative`, `assumed`, `proposed`, `under consideration`).
+
+2. **Alternative-labeling (`AlternativeLabelingClause`):** any technology mentioned that is **not** the active ledger choice for its role must be explicitly labeled as an **alternative under consideration** (in claims, warnings, or finding messages) — never presented as already chosen.
+
+3. **Neutral-mode (`NeutralModeClause`):** when the user prompt indicates **cloud-neutral** posture (`CloudProvider.None` / no chosen hyperscaler cloud-platform row), do **not** default to Azure (or any hyperscaler) service names, control idioms, or topology patterns unless the ledger or request explicitly requires them. Prefer provider-agnostic role names (API tier, relational datastore, secrets store, identity provider) and generic architectural relationships.
+
+4. **Target-cloud awareness (`TargetCloudAwarenessClause`):** the effective target cloud (Azure, AWS, GCP, or neutral) is determined by the user prompt's ledger context — system instructions must follow that target; do not contradict AWS/GCP user-prompt addenda from `CloudProviderAgentPromptComposer`.
+
+Append all four clauses (or a single composed block that includes them) to **each** of the four templates' `GetText()` bodies in a clearly labeled section, e.g. `Technology Ledger consistency (mandatory):`, placed after the agent role intro and before JSON-shape rules. Keep clauses **identical across agents** where possible; agent-specific nuance belongs in one optional helper parameter only if truly necessary (default: shared text).
+
+Add focused unit tests under `ArchLucid.AgentRuntime.Tests/` (e.g. `TechnologyConsistencySystemPromptClausesTests`) asserting the clause strings are non-empty and contain the key phrases (closed-world, alternative, cloud-neutral, Technology Ledger).
+
+## 2. Update the four system prompt templates
+
+Read each template file in full before editing. For every file you touch:
+
+1. **Bump `Version`** (patch increment).
+2. **Append** the shared Technology Ledger consistency block from §1.
+3. **Neutralize Azure-only static examples** where they teach the wrong default:
+
+### Topology (`TopologySystemPromptTemplate`)
+
+- Keep per-cloud `RuntimePlatform` enum lists — they are reference material, not an Azure default.
+- Ensure opening role text does **not** imply Azure when the user prompt names another cloud or neutral posture (the current "target cloud named in the user prompt" line is good — strengthen with `TargetCloudAwarenessClause` rather than replacing).
+- Do not remove JSON structural rules or enum value lists.
+
+### Cost (`CostSystemPromptTemplate`)
+
+- Add clauses; ensure cost guidance does not instruct Azure Retail citation when the user prompt indicates AWS/GCP/neutral (cross-check with existing `CloudProviderAgentPromptComposer` Cost addenda).
+- No topology mutation rules change.
+
+### Compliance (`ComplianceSystemPromptTemplate`)
+
+- **Replace** the Azure-skewed "Important guidance" control name list (`Key Vault`, etc.) with a **provider-neutral core set** plus explicit note that concrete control product names must match the effective target cloud from the user prompt (Azure Key Vault vs AWS Secrets Manager vs GCP Secret Manager only when that cloud is active).
+- Keep `RequiredControls` / findings JSON shape unchanged.
+- Rule 10 currently says "unless tied to a named resource" with Key Vault as the inline example — generalize the example to "secrets store" or "named resource".
+
+### Critic (`CriticSystemPromptTemplate`)
+
+- **Generalize rule 17** ("named Azure element from the uploaded package") to **named architecture element** from the uploaded package for the **effective target cloud** (or cloud-neutral element IDs when neutral). Do not weaken Novelty Check, adversarial stance, 8-finding cap, or confidenceLevel rules.
+- Rule 14's Key Vault parenthetical — generalize like Compliance.
+- Add the shared ledger clauses without diluting "You MUST challenge the other agents' implied decisions".
+
+## 3. Cloud-neutral system addendum (`CloudProviderAgentPromptComposer`)
+
+Read `CloudProviderAgentPromptComposer.TryGetSystemPromptAddendum` — today it returns `null` for `CloudProvider.Azure` **and** `CloudProvider.None`.
+
+Add a **neutral-mode system addendum** when `cloudProvider == CloudProvider.None` for all four agent types (`Topology`, `Cost`, `Compliance`, `Critic`). Suggested content (tune wording, keep concise):
+
+- Effective target is **cloud-neutral** — do not inject Azure-, AWS-, or GCP-specific product names unless they appear in the Technology Ledger context or are explicitly proposed as alternatives.
+- Prefer provider-agnostic architectural language; cite hyperscaler products only when ledger-corroborated.
+
+Do **not** remove existing AWS/GCP addenda. Do **not** add a None addendum when `cloudProvider == CloudProvider.Azure` (Azure base templates already allow Azure idioms; user prompt + ledger carry the rest).
+
+Add/extend tests in `ArchLucid.AgentRuntime.Tests` (new file or existing composer tests) asserting:
+- `None` → non-null addendum containing cloud-neutral language for each agent type.
+- `Aws`/`Gcp` → existing addenda still returned.
+- `Azure` → still null addendum (base template only).
+
+## 4. Tests and baselines
+
+1. **`TechnologyConsistencySystemPromptClausesTests`** — clause presence / key phrases.
+2. **`TechnologyConsistencySystemPromptTemplateTests`** (or extend an existing template test class) — each of the four `*SystemPromptTemplate.GetText()` results contain `ClosedWorldClause` key phrases (or the composed block), alternative-labeling language, and neutral-mode language; Compliance/Critic do **not** contain unconditional "named Azure element" or Azure-only control guidance as the **only** example.
+3. **`CriticAgentHandlerTests.SystemPromptTemplate_RequiresAdversarialChallengeOfOtherAgents`** — update assertions if template text shifts; must still require adversarial challenge, Novelty Check, 8-finding cap, etc.
+4. **`AgentPromptRegressionTests`** — update `AgentPromptTemplateHashesBaseline.json` for all four agents after version bumps. Run the hash tests locally; update baseline values only after human-readable review of the new prompt text (the test failure message prints the new SHA-256).
+
+Do **not** run the full solution test suite.
+
+## 5. Verify
+
+Run, one at a time:
+
+```
+.\scripts\ci\agent-compile-check.ps1 -ProjectPath ArchLucid.AgentRuntime/ArchLucid.AgentRuntime.csproj
+```
+
+Then scoped tests only, e.g.:
+
+```
+dotnet test ArchLucid.AgentRuntime.Tests --filter "FullyQualifiedName~TechnologyConsistencySystemPrompt|FullyQualifiedName~CloudProviderAgentPromptComposer|FullyQualifiedName~SystemPromptTemplate|FullyQualifiedName~AgentPromptRegression"
+```
+
+Adjust filters to match the test classes you add or touch.
+
+## 6. Commit
+
+Stage only files this prompt touches. Do not stage unrelated dirty files. Commit directly to `master` with a descriptive message (e.g. "Add Technology Ledger consistency clauses to agent system prompt templates"). Push only if explicitly requested.
+
+## 7. Report
+
+Stop and report:
+
+- The exact clause helpers added and where they are appended in each template.
+- Template version bumps (`topology-system@…`, etc.).
+- Compliance/Critic Azure-only examples neutralized (before/after summary).
+- `CloudProviderAgentPromptComposer` neutral (`None`) addendum behavior per agent type.
+- `AgentPromptTemplateHashesBaseline.json` updates (list which keys changed).
+- Test pass/fail counts.
+- Commit hash.
+- Confirm ledger seeding, handler user-prompt wiring (beyond shared constants), finding engine (Prompt 6), artifact lint (Prompt 7), API/UI (Prompts 9–10) were **not** touched.
+```
 
 ---
 
