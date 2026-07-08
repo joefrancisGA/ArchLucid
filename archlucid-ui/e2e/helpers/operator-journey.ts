@@ -243,6 +243,20 @@ export function buyerPolishedReviewDetailSectionNav(page: Page): Locator {
   return page.getByRole("navigation", { name: "Review detail sections" });
 }
 
+/** Anchor ids from `buildRunDetailNavSections` buyer-polished strip (stable vs substring role names). */
+export function buyerPolishedReviewDetailSectionNavLink(sectionNav: Locator, sectionId: string): Locator {
+  return sectionNav.locator(`a[href="#${sectionId}"]`);
+}
+
+const BUYER_POLISHED_REVIEW_DETAIL_CORE_SECTION_IDS = [
+  "run-decision-summary",
+  "manifest-summary",
+  "trust-evidence",
+  "run-explanation",
+  "pipeline-timeline",
+  "artifacts-exports",
+] as const;
+
 /** Canonical buyer-polished section strip labels from `buildRunDetailNavSections`. */
 export async function expectBuyerPolishedReviewDetailSectionNavCore(
   sectionNav: Locator,
@@ -250,12 +264,9 @@ export async function expectBuyerPolishedReviewDetailSectionNavCore(
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 15_000;
 
-  await expect(sectionNav.getByRole("link", { name: "Decision" })).toBeVisible({ timeout });
-  await expect(sectionNav.getByRole("link", { name: "Outcome record" })).toBeVisible({ timeout });
-  await expect(sectionNav.getByRole("link", { name: "Evidence" })).toBeVisible({ timeout });
-  await expect(sectionNav.getByRole("link", { name: "Assessment" })).toBeVisible({ timeout });
-  await expect(sectionNav.getByRole("link", { name: "Activity" })).toBeVisible({ timeout });
-  await expect(sectionNav.getByRole("link", { name: "Deliverables" })).toBeVisible({ timeout });
+  for (const sectionId of BUYER_POLISHED_REVIEW_DETAIL_CORE_SECTION_IDS) {
+    await expect(buyerPolishedReviewDetailSectionNavLink(sectionNav, sectionId)).toBeVisible({ timeout });
+  }
 }
 
 /** Severity metadata labels on quick-decision finding rows (`SeverityTag`). */
@@ -307,7 +318,7 @@ export async function expectBuyerPipelineTimelineSectionVisible(
   const timeout = options?.timeoutMs ?? 60_000;
   const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
-  await sectionNav.getByRole("link", { name: "Activity" }).click();
+  await buyerPolishedReviewDetailSectionNavLink(sectionNav, "pipeline-timeline").click();
 
   const collapsible = page.getByTestId("run-pipeline-timeline-collapsible");
 

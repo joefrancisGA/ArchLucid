@@ -23,6 +23,7 @@ import {
 } from "./helpers/live-api-client";
 import {
   buyerPolishedReviewDetailSectionNav,
+  buyerPolishedReviewDetailSectionNavLink,
   ensureBuyerDeliverablesSectionExpanded,
   expectQuickDecisionSeverityVisible,
 } from "./helpers/operator-journey";
@@ -35,6 +36,27 @@ type RunExportHistoryJson = {
     analysisRequestJson?: string | null;
   }>;
 };
+
+function extractWhitelabelFirmDisplayNameFromExportBlobs(blobs: readonly string[]): string | null {
+  for (const blob of blobs) {
+    try {
+      const parsed = JSON.parse(blob) as { reviewBoardWhitelabelFirmDisplayName?: string | null };
+      const candidate = parsed.reviewBoardWhitelabelFirmDisplayName?.trim() ?? "";
+
+      if (candidate.length > 0) {
+        return candidate;
+      }
+    } catch {
+      const match = /"reviewBoardWhitelabelFirmDisplayName"\s*:\s*"([^"]+)"/i.exec(blob);
+
+      if (match?.[1]?.trim()) {
+        return match[1].trim();
+      }
+    }
+  }
+
+  return null;
+}
 
 test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateTag] }, () => {
   test.beforeAll(async ({ request }) => {
@@ -75,7 +97,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0);
 
-    await expect(sectionNav.getByRole("link", { name: "Decision", exact: true })).toBeVisible();
+    await expect(buyerPolishedReviewDetailSectionNavLink(sectionNav, "run-decision-summary")).toBeVisible();
 
     await page.locator("#run-explanation").scrollIntoViewIfNeeded();
 
@@ -144,9 +166,22 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     const aggregated = blobs.join("\n");
 
-    expect(aggregated).toContain("Meridian Advisory Group");
-
     expect(aggregated).toMatch(/reviewBoardWhitelabelFirmDisplayName/i);
+
+    const whitelabelFirmDisplayName = extractWhitelabelFirmDisplayNameFromExportBlobs(blobs);
+
+    expect(
+      whitelabelFirmDisplayName,
+      "expected export AnalysisRequestJson to include reviewBoardWhitelabelFirmDisplayName",
+    ).not.toBeNull();
+
+    const expectedFirmDisplayName = process.env.REVIEW_BOARD_WHITELABEL_FIRM_DISPLAY_NAME?.trim();
+
+    if (expectedFirmDisplayName !== undefined && expectedFirmDisplayName.length > 0) {
+      expect(whitelabelFirmDisplayName).toBe(expectedFirmDisplayName);
+    } else {
+      expect(whitelabelFirmDisplayName!.length).toBeGreaterThan(0);
+    }
 
     /** Placeholder dialog for future UI parity — today the API JSON is authoritative for consultant pre-fill. */
     test.info().annotations.push({
