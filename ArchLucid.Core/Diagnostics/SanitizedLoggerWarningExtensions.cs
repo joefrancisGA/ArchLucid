@@ -11,7 +11,7 @@ namespace ArchLucid.Core.Diagnostics;
 ///     through <see cref="LoggerExtensions.LogWarning(ILogger, string?, params object?[])" /> <c>params</c>
 ///     boxing at call sites. Sanitizing in this helper keeps barrier and sink adjacent (see <c>docs/CODEQL_TRIAGE.md</c>).
 /// </remarks>
-public static class SanitizedLoggerWarningExtensions
+public static partial class SanitizedLoggerWarningExtensions
 {
     /// <summary>
     ///     Logs a warning with one placeholder filled from an externally influenced string after sanitization (CWE-117).
@@ -289,11 +289,7 @@ public static class SanitizedLoggerWarningExtensions
 
         string safeEventType = LogSanitizer.Sanitize(eventType);
 
-        // codeql[cs/log-forging]: event type sanitized immediately above; exception + params boxing breaks barrier at downstream call sites.
-        logger.LogWarning(
-            ex,
-            "Failed to publish integration event type {EventType} to Service Bus.",
-            safeEventType); // codeql[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
+        EmitIntegrationEventServiceBusPublishFailed(logger, ex, safeEventType);
     }
 
     /// <summary>
@@ -313,11 +309,7 @@ public static class SanitizedLoggerWarningExtensions
 
         string safeEventType = LogSanitizer.Sanitize(eventType);
 
-        // codeql[cs/log-forging]: event type sanitized immediately above; exception + params boxing breaks barrier at downstream call sites.
-        logger.LogWarning(
-            ex,
-            "Integration event serialization failed for {EventType}",
-            safeEventType); // codeql[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
+        EmitIntegrationEventSerializationFailed(logger, ex, safeEventType);
     }
 
     /// <summary>
@@ -333,11 +325,7 @@ public static class SanitizedLoggerWarningExtensions
 
         string safeEventType = LogSanitizer.Sanitize(eventType);
 
-        // codeql[cs/log-forging]: event type sanitized immediately above; exception + params boxing breaks barrier at downstream call sites.
-        logger.LogWarning(
-            ex,
-            "Integration event outbox enqueue failed for {EventType}",
-            safeEventType); // codeql[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
+        EmitIntegrationEventOutboxEnqueueFailed(logger, ex, safeEventType);
     }
 
     /// <summary>
@@ -353,10 +341,6 @@ public static class SanitizedLoggerWarningExtensions
 
         string safeEventType = LogSanitizer.Sanitize(eventType);
 
-        // codeql[cs/log-forging]: event type sanitized immediately above; exception + params boxing breaks barrier at downstream call sites.
-        logger.LogWarning(
-            ex,
-            "Integration event publish failed for {EventType}",
-            safeEventType); // codeql[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
+        EmitIntegrationEventBestEffortPublishFailed(logger, ex, safeEventType);
     }
 }

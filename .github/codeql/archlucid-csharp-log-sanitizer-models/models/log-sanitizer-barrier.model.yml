@@ -7,3 +7,5 @@ extensions:
     data:
       - ["ArchLucid.Core.Diagnostics", "LogSanitizer", false, "Sanitize", "(System.String)", "", "ReturnValue", "log-injection", "manual"]
       - ["ArchLucid.Core.Diagnostics", "LogSanitizer", false, "Sanitize", "(System.String)", "", "ReturnValue", "file-content-store", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "LogSanitizer", false, "EmailDomainForLogs", "(System.String)", "", "ReturnValue", "log-injection", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "LogSanitizer", false, "EmailDomainForLogs", "(System.String)", "", "ReturnValue", "file-content-store", "manual"]

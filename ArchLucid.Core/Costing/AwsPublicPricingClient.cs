@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Http;
 
 using Microsoft.Extensions.Logging;
@@ -112,7 +113,7 @@ public sealed class AwsPublicPricingClient
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogDebug(ex, "AWS Price List EC2 probe failed for {Region}/{InstanceType}.", regionCode, instanceType);
+            _logger.LogDebugAwsPricingProbeFailed(ex, regionCode, instanceType);
             return null;
         }
     }

@@ -44,4 +44,14 @@ public static partial class SanitizedLoggerDebugExtensions
         string runId,
         string traceId,
         string reason);
+
+    [LoggerMessage(
+        EventId = 3104,
+        Level = LogLevel.Debug,
+        Message = "AWS Price List EC2 probe failed for {Region}/{InstanceType}.")]
+    private static partial void EmitAwsPricingProbeFailed(
+        ILogger logger,
+        Exception exception,
+        string regionCode,
+        string instanceType);
 }
