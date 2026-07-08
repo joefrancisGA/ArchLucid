@@ -61,7 +61,7 @@ function inAppHrefForFinding(name: string, runId: string | null | undefined): st
     case "committed-review-trace-chain-summary":
       return reviewDetailHref(runId);
     case "roi-basis-labels":
-      return "/scorecard#roi-baselines";
+      return "/scorecard#roi-assumptions";
     case "demo-workspace-validation":
       return "/see-it";
     case "procurement-deal-ready":

@@ -24,7 +24,7 @@ export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [
   },
   {
     href: "/scorecard",
-    label: "Executive scorecard",
+    label: "Review scorecard",
     match: (path: string) => path.startsWith("/scorecard"),
   },
 ] as const;

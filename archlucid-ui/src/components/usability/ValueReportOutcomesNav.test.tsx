@@ -32,7 +32,7 @@ describe("ValueReportOutcomesNav", () => {
     expect(screen.getByRole("link", { name: "Sponsor report" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "Pilot outcomes" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ROI summary" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Executive scorecard" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review scorecard" })).toBeInTheDocument();
   });
 
   it("shows pilot outcomes and ROI tabs for all visitors (TB-643 nav placement)", () => {
@@ -41,7 +41,7 @@ describe("ValueReportOutcomesNav", () => {
     render(<ValueReportOutcomesNav />);
 
     expect(screen.getByRole("link", { name: "Sponsor report" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Executive scorecard" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review scorecard" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Pilot outcomes" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ROI summary" })).toBeInTheDocument();
   });

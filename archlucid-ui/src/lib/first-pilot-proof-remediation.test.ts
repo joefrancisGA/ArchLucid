@@ -6,7 +6,7 @@ describe("resolveFirstPilotProofRemediation", () => {
   it("links roi basis to scorecard anchor", () => {
     const remediation = resolveFirstPilotProofRemediation("roi-basis-labels");
 
-    expect(remediation.inAppHref).toBe("/scorecard#roi-baselines");
+    expect(remediation.inAppHref).toBe("/scorecard#roi-assumptions");
     expect(remediation.docPath).toContain("roi-baseline");
   });
 

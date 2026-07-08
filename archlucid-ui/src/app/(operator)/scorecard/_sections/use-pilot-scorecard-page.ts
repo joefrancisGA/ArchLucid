@@ -23,6 +23,7 @@ export type UsePilotScorecardPageModel = {
   setRate: (next: string) => void;
   setReviews: (next: string) => void;
   resolvedAnnualSavingsLabel: string | null;
+  resolvedQuarterlySavingsLabel: string | null;
   resolvedStatusQuoCostLabel: string | null;
 };
 
@@ -79,15 +80,21 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
   }, [load]);
 
   useEffect(() => {
-    if (typeof window === "undefined" || window.location.hash !== "#roi-baselines") {
+    if (typeof window === "undefined") {
       return;
     }
 
-    const scrollToBaselines = (): void => {
-      document.getElementById("roi-baselines")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const hash = window.location.hash;
+
+    if (hash !== "#roi-assumptions" && hash !== "#roi-baselines") {
+      return;
+    }
+
+    const scrollToAssumptions = (): void => {
+      document.getElementById("roi-assumptions")?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
 
-    const frame = window.requestAnimationFrame(scrollToBaselines);
+    const frame = window.requestAnimationFrame(scrollToAssumptions);
 
     return () => {
       window.cancelAnimationFrame(frame);
@@ -126,6 +133,20 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
     }
   }, [canExecute, hours, load, rate, reviews]);
 
+  const resolvedQuarterlySavingsLabel = useMemo(() => {
+    if (data?.roiEstimate === null || data?.roiEstimate === undefined) {
+      return null;
+    }
+
+    const annual = data.roiEstimate.annualReviewSavingsFromReviewTimeLeverUsd;
+
+    if (typeof annual !== "number" || !Number.isFinite(annual)) {
+      return null;
+    }
+
+    return formatUsd(annual / 4);
+  }, [data?.roiEstimate]);
+
   const resolvedAnnualSavingsLabel = useMemo(() => {
     if (data?.roiEstimate === null || data?.roiEstimate === undefined) {
       return null;
@@ -162,6 +183,7 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
     rate,
     reviews,
     resolvedAnnualSavingsLabel,
+    resolvedQuarterlySavingsLabel,
     resolvedStatusQuoCostLabel,
     saving,
     setHours,
