@@ -275,7 +275,7 @@ export function buyerPolishedRouteOrientation(
 
   if (path.startsWith("/scorecard")) {
     return {
-      label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle,
+      label: "Insights",
       line: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardLayerContextLine,
     };
   }

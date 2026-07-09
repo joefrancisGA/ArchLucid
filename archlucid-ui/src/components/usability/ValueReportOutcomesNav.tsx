@@ -24,30 +24,37 @@ export function ValueReportOutcomesNav(): React.JSX.Element | null {
 
   return (
     <nav
-      className="flex flex-wrap gap-2 border-b border-neutral-200 pb-3 dark:border-neutral-700"
-      aria-label="Pilot outcomes"
+      className="border-b border-neutral-200 dark:border-neutral-700"
       data-testid="value-report-outcomes-nav"
     >
-      {visibleTabs.map((tab) => {
-        const active = tab.match(pathname);
+      <div
+        className="-mb-px flex flex-wrap gap-1"
+        role="tablist"
+        aria-label="Insights report sections"
+      >
+        {visibleTabs.map((tab) => {
+          const active = tab.match(pathname);
 
-        return (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            className={cn(
-              "rounded-md px-3 py-1.5 no-underline",
-              OPERATOR_TYPOGRAPHY.helper,
-              active
-                ? "border border-neutral-300 bg-al-surface-raised font-semibold text-al-text-primary dark:border-neutral-600"
-                : "text-al-text-secondary hover:bg-al-layer-hover hover:text-al-text-primary",
-            )}
-            aria-current={active ? "page" : undefined}
-          >
-            {tab.label}
-          </Link>
-        );
-      })}
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              role="tab"
+              aria-selected={active}
+              className={cn(
+                "rounded-t-md border border-b-0 px-3 py-2 no-underline",
+                OPERATOR_TYPOGRAPHY.body,
+                "font-medium",
+                active
+                  ? "border-neutral-200 bg-white text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950"
+                  : "border-transparent bg-transparent text-al-text-secondary hover:bg-neutral-100 hover:text-al-text-primary dark:hover:bg-neutral-900",
+              )}
+            >
+              {tab.label}
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 }

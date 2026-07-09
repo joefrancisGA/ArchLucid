@@ -44,6 +44,13 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(o?.line).toBe("Value metrics and recommended actions.");
   });
 
+  it("orients the operator review scorecard route without repeating scorecard in the layer label", () => {
+    const o = buyerPolishedRouteOrientation("/scorecard");
+
+    expect(o?.label).toBe("Insights");
+    expect(o?.line).toBe("Value metrics and recommended actions.");
+  });
+
   it("returns null for ask — the page carries its own hero copy", () => {
     expect(buyerPolishedRouteOrientation("/ask")).toBeNull();
   });

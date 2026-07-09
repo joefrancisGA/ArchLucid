@@ -1,13 +1,28 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { useSearchParams } from "next/navigation";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PilotScorecardPageView } from "@/app/(operator)/scorecard/_sections/PilotScorecardPageView";
 import type { UsePilotScorecardPageModel } from "@/app/(operator)/scorecard/_sections/use-pilot-scorecard-page";
+import {
+  REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE,
+  REVIEW_SCORECARD_EMPTY_PRIMARY_CTA,
+  REVIEW_SCORECARD_EMPTY_SECONDARY_CTA,
+  REVIEW_SCORECARD_EMPTY_PREVIEW_SECTION_TITLE,
+  REVIEW_SCORECARD_EMPTY_TERTIARY_CTA,
+  REVIEW_SCORECARD_SAMPLE_HREF,
+} from "@/lib/review-scorecard-empty-state";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: vi.fn(() => new URLSearchParams()),
+}));
 
 vi.mock("@/components/usability/ValueReportOutcomesNav", () => ({
   ValueReportOutcomesNav: () => <nav data-testid="value-report-outcomes-nav" />,
 }));
+
+const mockUseSearchParams = vi.mocked(useSearchParams);
 
 const scorecardData: PilotScorecardJson = {
   tenantId: "00000000-0000-0000-0000-000000000001",
@@ -45,6 +60,10 @@ function buildModel(overrides: Partial<UsePilotScorecardPageModel> = {}): UsePil
 }
 
 describe("PilotScorecardPageView", () => {
+  beforeEach(() => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams());
+  });
+
   it("uses consistent Review scorecard labeling and customer-safe subtitle", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
@@ -64,7 +83,7 @@ describe("PilotScorecardPageView", () => {
     expect(screen.getByText("Complete ROI assumptions to calculate estimated savings.")).toBeInTheDocument();
   });
 
-  it("shows an intentional empty state when no reviews are committed", () => {
+  it("shows an executive-ready empty state when no reviews are committed", () => {
     render(
       <PilotScorecardPageView
         model={buildModel({
@@ -75,6 +94,38 @@ describe("PilotScorecardPageView", () => {
 
     expect(screen.getByTestId("review-scorecard-empty-state")).toBeInTheDocument();
     expect(screen.getByText("No committed reviews yet")).toBeInTheDocument();
+    expect(screen.getByText(REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: REVIEW_SCORECARD_EMPTY_PREVIEW_SECTION_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: REVIEW_SCORECARD_EMPTY_PRIMARY_CTA })).toHaveAttribute(
+      "href",
+      "/reviews/new",
+    );
+    expect(screen.getByRole("link", { name: REVIEW_SCORECARD_EMPTY_SECONDARY_CTA })).toHaveAttribute(
+      "href",
+      "/reviews",
+    );
+    expect(screen.getByRole("link", { name: REVIEW_SCORECARD_EMPTY_TERTIARY_CTA })).toHaveAttribute(
+      "href",
+      REVIEW_SCORECARD_SAMPLE_HREF,
+    );
+    expect(screen.getByTestId("review-scorecard-empty-preview")).toBeInTheDocument();
     expect(screen.queryByTestId("review-scorecard-summary-row")).not.toBeInTheDocument();
+  });
+
+  it("renders the sample scorecard when sample=1 is present", () => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams("sample=1"));
+
+    render(
+      <PilotScorecardPageView
+        model={buildModel({
+          data: { ...scorecardData, totalRunsCommitted: 0, totalManifestsCreated: 0 },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("review-scorecard-sample-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("review-scorecard-summary-row")).toBeInTheDocument();
+    expect(screen.queryByTestId("review-scorecard-empty-state")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save ROI assumptions" })).toBeDisabled();
   });
 });
