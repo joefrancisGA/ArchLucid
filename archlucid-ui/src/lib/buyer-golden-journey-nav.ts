@@ -123,12 +123,7 @@ export function resolveBuyerGoldenJourneyNav(
   } else if (path.startsWith("/ask")) {
     return null;
   } else if (path.startsWith("/compare")) {
-    return {
-      summaryLine: "Optional review change comparison — secondary diligence view",
-      prev: { label: defs[1].label, href: defs[1].href },
-      next: { label: defs[2].label, href: defs[2].href },
-      currentStepIndex: null,
-    };
+    return null;
   } else if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
     return null;
   } else if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {

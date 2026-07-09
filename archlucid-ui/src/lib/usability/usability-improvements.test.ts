@@ -69,11 +69,11 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
   });
 
-  it("routeViewExplanationForPathname keeps compare and audit orientation strips", () => {
-    const compare = routeViewExplanationForPathname("/compare");
-    expect(compare?.title).toBe("Compare two reviews");
-    expect(compare?.nextAction).toContain("baseline");
+  it("routeViewExplanationForPathname returns null for compare — header and contextual help own orientation", () => {
+    expect(routeViewExplanationForPathname("/compare")).toBeNull();
+  });
 
+  it("routeViewExplanationForPathname keeps audit orientation strips", () => {
     const audit = routeViewExplanationForPathname("/audit");
     expect(audit?.title).toBe("Audit trail");
     expect(audit?.nextAction).toContain("Search");

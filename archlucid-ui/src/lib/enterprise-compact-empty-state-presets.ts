@@ -1,5 +1,6 @@
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE,
@@ -75,7 +76,7 @@ export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = 
   description:
     "You need at least two finalized review packages before ArchLucid can compare changes over time.",
   actions: [
-    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "primary" },
+    { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/reviews/new", variant: "primary" },
     { label: "Open review packages", href: "/reviews?projectId=default", variant: "outline" },
   ],
 };
@@ -87,7 +88,7 @@ export const COMPARE_INSUFFICIENT_FINALIZED_COMPACT: EnterpriseCompactEmptyState
   description: "Finalize one more review package to compare changes over time.",
   actions: [
     { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
-    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "outline" },
+    { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/reviews/new", variant: "outline" },
   ],
 };
 

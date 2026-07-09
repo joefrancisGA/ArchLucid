@@ -77,6 +77,10 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/alerts")).toBeNull();
   });
 
+  it("returns null for compare — the page carries its own workspace header", () => {
+    expect(buyerPolishedRouteOrientation("/compare")).toBeNull();
+  });
+
   it("orients the advisory route with recommendation copy", () => {
     const o = buyerPolishedRouteOrientation("/advisory");
 

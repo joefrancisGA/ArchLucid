@@ -1,5 +1,5 @@
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { SeedSampleReviewButton } from "@/components/SeedSampleReviewButton";
+import { CompareSampleComparisonAction } from "@/app/(operator)/compare/_sections/CompareSampleComparisonAction";
 import {
   COMPARE_INSUFFICIENT_FINALIZED_COMPACT,
   COMPARE_ZERO_FINALIZED_COMPACT,
@@ -7,17 +7,18 @@ import {
 
 export type CompareInsufficientFinalizedEmptyStateProps = {
   readonly finalizedCount: number;
+  readonly onLoadSampleComparison?: () => void;
 };
 
 /** Compare page when fewer than two finalized review packages exist in the workspace. */
 export function CompareInsufficientFinalizedEmptyState(props: CompareInsufficientFinalizedEmptyStateProps) {
-  const { finalizedCount } = props;
+  const { finalizedCount, onLoadSampleComparison } = props;
   const preset = finalizedCount === 0 ? COMPARE_ZERO_FINALIZED_COMPACT : COMPARE_INSUFFICIENT_FINALIZED_COMPACT;
 
   return (
     <EnterpriseCompactEmptyState
       {...preset}
-      footer={<SeedSampleReviewButton />}
+      footer={<CompareSampleComparisonAction onLoadSampleComparison={onLoadSampleComparison} />}
     />
   );
 }

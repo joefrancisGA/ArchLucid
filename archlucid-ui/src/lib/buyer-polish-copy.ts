@@ -13,6 +13,14 @@ export const BUYER_EXAMPLE_WORKSPACE_TOOLTIP =
 
 export const BUYER_COMPARE_PAGE_TITLE = "Compare reviews";
 
+export const BUYER_COMPARE_PRIMARY_ACTION_LABEL = "Compare reviews";
+
+export const BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA = "Open signed review record";
+
+export const BUYER_COMPARE_OPEN_EVIDENCE_TRAIL_CTA = "Open evidence trail";
+
+export const BUYER_COMPARE_OPEN_SAMPLE_COMPARISON_CTA = "Open sample comparison";
+
 export const BUYER_COMPARE_STRUCTURED_HEADING = "Review comparison";
 
 export const BUYER_COMPARE_STRUCTURED_LEAD =

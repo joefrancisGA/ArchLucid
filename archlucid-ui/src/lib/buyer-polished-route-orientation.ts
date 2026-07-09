@@ -232,10 +232,7 @@ export function buyerPolishedRouteOrientation(
   }
 
   if (path.startsWith("/compare")) {
-    return {
-      label: "Compare two reviews",
-      line: "See what changed between finalized review packages.",
-    };
+    return null;
   }
 
   if (path.startsWith("/advisory")) {
