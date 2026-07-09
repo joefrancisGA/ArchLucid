@@ -459,6 +459,9 @@ docs/assessments/LATEST.md
 docs/assessments/latest_*.md
 docs/assessments/latest_X.md
 
+# Local UI route traffic/evidence scoring workbook (/al-ui-score; owner-maintained)
+docs/architecture/ui_route_traffic_estimates.md
+
 # Local Azure OpenAI credentials for real-mode / golden-cohort runs (never commit)
 secrets/
 !secrets/local-real-aoai.env.example
