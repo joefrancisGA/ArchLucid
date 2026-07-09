@@ -574,7 +574,7 @@ export const BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE = "Monitored risks";
 export const BUYER_GOVERNANCE_DECISION_REGISTER_TITLE = "Decision register";
 
 export const BUYER_GOVERNANCE_DECISION_REGISTER_LEAD =
-  "Signed decisions across reviews — category, supporting findings, and lineage.";
+  "Browse signed architecture decisions across review packages, including category, supporting findings, confidence, and lineage.";
 
 export const BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA = "View finding and evidence";
 

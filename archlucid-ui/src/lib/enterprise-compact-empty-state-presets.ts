@@ -119,9 +119,10 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   testId: "decision-register-empty-state",
   title: "No signed decisions yet",
   description:
-    "Finalize a review package to record architecture decisions here. Each entry links to the signed review record and supporting findings.",
+    "Finalize a review package to create signed architecture decisions with supporting findings and evidence lineage.",
   actions: [
     { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
+    { label: "Start architecture review", href: "/reviews/new", variant: "outline" },
     { label: "Open governance workflow", href: "/governance", variant: "outline" },
   ],
 };
