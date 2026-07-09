@@ -10,9 +10,13 @@ import {
 
   Fingerprint,
 
+  HeartPulse,
+
   KeyRound,
 
   LifeBuoy,
+
+  Plug,
 
   ShieldCheck,
 
@@ -48,7 +52,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
       surface: "platform-admin",
 
-      caption: "Settings, billing, users, and support.",
+      caption: "Settings, billing, users, connector health, and support.",
 
       links: [
 
@@ -212,6 +216,38 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           tier: "extended",
 
           requiredAuthority: "ReadAuthority",
+
+        },
+
+        {
+
+          href: "/integrations/readiness",
+
+          label: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
+
+          title: "Connector health and integration status",
+
+          icon: Plug,
+
+          tier: "advanced",
+
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
+          href: "/health",
+
+          label: OPERATOR_NAV_LINK_LABELS.systemHealth,
+
+          title: "System health — API liveness, readiness, and critical dependencies",
+
+          icon: HeartPulse,
+
+          tier: "extended",
+
+          requiredAuthority: "AdminAuthority",
 
         },
 

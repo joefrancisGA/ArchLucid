@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { flattenNavLinks, NAV_GROUPS } from "@/lib/nav-config";
+import { NAV_ROUTE_NAMESPACE_EXCEPTIONS } from "@/lib/nav-route-namespace-exceptions";
 
 describe("nav-config structure", () => {
   it("does not duplicate hrefs in flattened nav (palette and other consumers key on href)", () => {
@@ -74,7 +75,7 @@ describe("nav-config structure", () => {
             expect(["/integrations/jira", "/integrations/servicenow"], link.href).toContain(link.href);
             expect(group.surface).toBe("review-workflow");
           } else {
-            expect(["operator-admin", "operator-system-admin", "operate-platform-ops"], group.id).toContain(group.id);
+            expect(["operator-admin", "operator-system-admin"], group.id).toContain(group.id);
             expect(["platform-admin", "system-admin"]).toContain(group.surface);
           }
         }
@@ -208,11 +209,6 @@ describe("nav-config structure", () => {
       "/integrations/slack",
       "/integrations/webhooks",
     ]);
-    const platformOpsHrefs = NAV_GROUPS.find((group) => group.id === "operate-platform-ops")!.links.map(
-      (link) => link.href,
-    );
-
-    expect(platformOpsHrefs).toEqual(["/integrations/readiness", "/health"]);
     expect(systemAdminHrefs).toContain("/admin/rag-health");
     expect(systemAdminHrefs).toContain("/replay");
     expect(systemAdminHrefs).not.toContain("/health");
@@ -239,6 +235,8 @@ describe("nav-config structure", () => {
     expect(adminHrefs).not.toContain("/settings/roles");
     expect(adminHrefs).toContain("/settings/support");
     expect(adminHrefs).toContain("/settings/ai-usage");
+    expect(adminHrefs).toContain("/integrations/readiness");
+    expect(adminHrefs).toContain("/health");
     expect(adminHrefs).toContain("/settings/identity-providers");
     expect(adminHrefs).toContain("/settings/identity/sso-wizard");
     expect(adminHrefs).toContain("/settings/api-keys");
@@ -264,8 +262,16 @@ describe("nav-config structure", () => {
 
     expect(admin).toBeDefined();
 
+    const adminNamespaceExceptions = new Set(
+      NAV_ROUTE_NAMESPACE_EXCEPTIONS
+        .filter((row) => row.navGroupId === "operator-admin")
+        .map((row) => row.href),
+    );
+
     for (const link of admin!.links) {
-      expect(link.href.startsWith("/settings/") || link.href === "/settings", link.href).toBe(true);
+      const isSettingsHref = link.href.startsWith("/settings/") || link.href === "/settings";
+
+      expect(isSettingsHref || adminNamespaceExceptions.has(link.href), link.href).toBe(true);
     }
   });
 

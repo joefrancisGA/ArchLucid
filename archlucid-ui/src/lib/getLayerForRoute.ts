@@ -50,7 +50,6 @@ const NAV_GROUP_TO_LAYER: Readonly<Record<string, LayerId>> = {
   "operate-architect-advanced": "operate-analysis",
   "operate-reports": "operate-analysis",
   "operate-integrations": "operate-analysis",
-  "operate-platform-ops": "operator-admin",
   "operate-governance": "operate-governance",
   "operator-admin": "operator-admin",
   "operator-system-admin": "operator-admin",
