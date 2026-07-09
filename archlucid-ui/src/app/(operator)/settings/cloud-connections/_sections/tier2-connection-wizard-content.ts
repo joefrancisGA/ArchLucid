@@ -1,7 +1,13 @@
 import type { WizardStepDefinition } from "@/components/wizard/WizardStepper";
 
 export const TIER2_CONNECTION_WIZARD_STEPS: WizardStepDefinition[] = [
-  { label: "Security review", description: "RBAC and trust checklist" },
+  { label: "Security preflight", description: "Confirm access posture" },
+  { label: "Create Azure identity", description: "Azure CLI or IaC" },
+  { label: "Connection IDs", description: "Tenant, app, subscriptions" },
+  { label: "Save & validate", description: "Persist and test pull" },
+];
+
+export const TIER2_CONNECTION_DETAIL_WIZARD_STEPS: WizardStepDefinition[] = [
   { label: "Create Azure identity", description: "Azure CLI or IaC" },
   { label: "Connection IDs", description: "Tenant, app, subscriptions" },
   { label: "Save & validate", description: "Persist and test pull" },

@@ -31,18 +31,20 @@ import {
 } from "./tier2-connection-field-validation";
 import {
   buildTier2AzureSetupScript,
+  TIER2_CONNECTION_DETAIL_WIZARD_STEPS,
   TIER2_CONNECTION_WIZARD_STEPS,
-  TIER2_RBAC_CHECKLIST_ITEMS,
   TIER2_WIZARD_HELP_HREFS,
 } from "./tier2-connection-wizard-content";
+import {
+  CloudSecurityPreflightPanel,
+} from "./CloudSecurityPreflightPanel";
+import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
 export type Tier2ConnectionWizardProps = {
   onSaved: (connections: Tier2ConnectionResponse[]) => void | Promise<void>;
+  /** When true, security preflight is shown on the provider detail page instead of step 0. */
+  skipSecurityStep?: boolean;
 };
-
-function createInitialChecklistState(): Record<string, boolean> {
-  return Object.fromEntries(TIER2_RBAC_CHECKLIST_ITEMS.map((item) => [item.id, false]));
-}
 
 function resolveApiErrorMessage(error: unknown, fallback: string): string {
   if (isApiRequestError(error)) {
@@ -56,14 +58,15 @@ function resolveApiErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
+export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tier2ConnectionWizardProps) {
+  const wizardSteps = skipSecurityStep ? TIER2_CONNECTION_DETAIL_WIZARD_STEPS : TIER2_CONNECTION_WIZARD_STEPS;
+  const securityStepOffset = skipSecurityStep ? 1 : 0;
   const canMutate = useOperateCapability();
   // The hosted validation-run endpoint (/v1/admin/azure-extractor/hosted/run) is AdminAuthority-gated, stricter than
   // the ExecuteAuthority "save connection" step — checked separately so non-Admin Execute-tier callers don't hit a
   // dead-end 403 on a live-looking button.
   const canRunValidation = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const [step, setStep] = useState(0);
-  const [checklist, setChecklist] = useState<Record<string, boolean>>(() => createInitialChecklistState());
   const [tenantId, setTenantId] = useState("");
   const [clientId, setClientId] = useState("");
   const [subscriptionIds, setSubscriptionIds] = useState("");
@@ -75,33 +78,33 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
   const [validationSucceeded, setValidationSucceeded] = useState(false);
 
   const setupScript = useMemo(() => buildTier2AzureSetupScript(), []);
-  const allChecklistChecked = TIER2_RBAC_CHECKLIST_ITEMS.every((item) => checklist[item.id] === true);
 
   const completedSteps = useMemo(() => {
     const done: number[] = [];
 
-    if (allChecklistChecked) {
+    if (!skipSecurityStep && step > 0) {
       done.push(0);
     }
 
-    if (step > 0) {
-      done.push(1);
+    if (step > 0 - securityStepOffset) {
+      done.push(1 - securityStepOffset);
     }
 
-    if (step > 1 && !hasTier2FieldValidationErrors(validateTier2ConnectionFields(tenantId, clientId, subscriptionIds))) {
-      done.push(2);
+    if (
+      step > 1 - securityStepOffset
+      && !hasTier2FieldValidationErrors(validateTier2ConnectionFields(tenantId, clientId, subscriptionIds))
+    ) {
+      done.push(2 - securityStepOffset);
     }
 
     if (savedConnection !== null) {
-      done.push(3);
+      done.push(3 - securityStepOffset);
     }
 
     return done;
-  }, [allChecklistChecked, clientId, savedConnection, step, subscriptionIds, tenantId]);
+  }, [clientId, savedConnection, securityStepOffset, skipSecurityStep, step, subscriptionIds, tenantId]);
 
-  const canProceedStep0 = allChecklistChecked;
-
-  const canProceed = step === 0 ? canProceedStep0 : true;
+  const canProceed = true;
 
   const validateFields = useCallback((): boolean => {
     const errors = validateTier2ConnectionFields(tenantId, clientId, subscriptionIds);
@@ -110,13 +113,15 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
     return !hasTier2FieldValidationErrors(errors);
   }, [clientId, subscriptionIds, tenantId]);
 
+  const logicalStep = step + securityStepOffset;
+
   const handleNext = useCallback(() => {
-    if (step === 2 && !validateFields()) {
+    if (logicalStep === 2 && !validateFields()) {
       return;
     }
 
-    setStep((current) => Math.min(current + 1, TIER2_CONNECTION_WIZARD_STEPS.length - 1));
-  }, [step, validateFields]);
+    setStep((current) => Math.min(current + 1, wizardSteps.length - 1));
+  }, [logicalStep, validateFields, wizardSteps.length]);
 
   const handleBack = useCallback(() => {
     setStep((current) => Math.max(current - 1, 0));
@@ -128,7 +133,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
     }
 
     if (!validateFields()) {
-      setStep(2);
+      setStep(2 - securityStepOffset);
 
       return;
     }
@@ -201,76 +206,18 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
   return (
     <div className="space-y-6" data-testid="tier2-connection-wizard">
       <WizardStepper
-        steps={TIER2_CONNECTION_WIZARD_STEPS}
+        steps={wizardSteps}
         currentStep={step}
         completedSteps={completedSteps}
       />
 
-      {step === 0 ? (
+      {!skipSecurityStep && step === 0 ? (
         <section className="space-y-4" aria-labelledby="tier2-wizard-security-heading">
-          <div>
-            <h3 id="tier2-wizard-security-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-              Security review checklist
-            </h3>
-            <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-              Confirm read-only scope and federation posture before provisioning credentials in your Azure tenant.
-              Cross-check{" "}
-              <Link
-                href={TIER2_WIZARD_HELP_HREFS.connectAzureSecurely}
-                className="text-teal-700 underline dark:text-teal-400"
-              >
-                Connect Azure securely
-              </Link>
-              ,{" "}
-              <Link
-                href={TIER2_WIZARD_HELP_HREFS.procurementFaq}
-                className="text-teal-700 underline dark:text-teal-400"
-              >
-                procurement FAQ
-              </Link>
-              , and{" "}
-              <Link
-                href={TIER2_WIZARD_HELP_HREFS.trustCenter}
-                className="text-teal-700 underline dark:text-teal-400"
-              >
-                trust center
-              </Link>
-              . For the full enterprise tenant onboarding checklist, see{" "}
-              <Link
-                href={TIER2_WIZARD_HELP_HREFS.hostedEnterpriseOnboarding}
-                className="text-teal-700 underline dark:text-teal-400"
-              >
-                Enterprise onboarding checklist
-              </Link>
-              .
-            </p>
-          </div>
-
-          <ul className="space-y-3">
-            {TIER2_RBAC_CHECKLIST_ITEMS.map((item) => (
-              <li key={item.id} className={cn("flex items-start gap-3", OPERATOR_TYPOGRAPHY.body)}>
-                <input
-                  id={`tier2-check-${item.id}`}
-                  type="checkbox"
-                  className="mt-1 h-4 w-4 shrink-0"
-                  checked={checklist[item.id] === true}
-                  onChange={(event) => {
-                    setChecklist((current) => ({
-                      ...current,
-                      [item.id]: event.target.checked,
-                    }));
-                  }}
-                />
-                <label htmlFor={`tier2-check-${item.id}`} className="leading-snug text-neutral-800 dark:text-neutral-200">
-                  {item.label}
-                </label>
-              </li>
-            ))}
-          </ul>
+          <CloudSecurityPreflightPanel topics={cloudSecurityPreflightTopics("azure")} providerLabel="Azure" />
         </section>
       ) : null}
 
-      {step === 1 ? (
+      {logicalStep === 1 ? (
         <section className="space-y-4" aria-labelledby="tier2-wizard-script-heading">
           <div>
             <h3 id="tier2-wizard-script-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
@@ -309,7 +256,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
         </section>
       ) : null}
 
-      {step === 2 ? (
+      {logicalStep === 2 ? (
         <section className="space-y-4" aria-labelledby="tier2-wizard-ids-heading">
           <div>
             <h3 id="tier2-wizard-ids-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
@@ -388,7 +335,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
         </section>
       ) : null}
 
-      {step === 3 ? (
+      {logicalStep === 3 ? (
         <section className="space-y-4" aria-labelledby="tier2-wizard-save-heading">
           <div>
             <h3 id="tier2-wizard-save-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
@@ -468,13 +415,13 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
 
       <WizardNavButtons
         isFirstStep={step === 0}
-        isLastInputStep={step === TIER2_CONNECTION_WIZARD_STEPS.length - 1}
+        isLastInputStep={step === wizardSteps.length - 1}
         canProceed={canProceed}
         canSubmit={savedConnection === null && canMutate}
         submitting={isSaving}
         onBack={step > 0 ? handleBack : undefined}
-        onNext={step < TIER2_CONNECTION_WIZARD_STEPS.length - 1 ? handleNext : undefined}
-        onSubmit={step === TIER2_CONNECTION_WIZARD_STEPS.length - 1 ? () => void handleSave() : undefined}
+        onNext={step < wizardSteps.length - 1 ? handleNext : undefined}
+        onSubmit={step === wizardSteps.length - 1 ? () => void handleSave() : undefined}
         submitLabel="Save connection"
         submittingLabel="Saving…"
       />

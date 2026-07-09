@@ -1,145 +1,173 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { listTier2Connections, Tier2ConnectionResponse } from "@/lib/api/cloud-connections-api";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { CLOUD_CONNECTIONS_PAGE_COPY, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { listAwsTier2Connections } from "@/lib/api/aws-cloud-connections-api";
+import { listTier2Connections } from "@/lib/api/cloud-connections-api";
+import { listGcpTier2Connections } from "@/lib/api/gcp-cloud-connections-api";
+import {
+  CLOUD_CONNECTIONS_OPTIONAL_NOTE,
+  CLOUD_CONNECTIONS_PAGE_SUBTITLE,
+  CLOUD_CONNECTIONS_PAGE_TITLE,
+} from "@/lib/cloud-connections-copy";
+import {
+  readCloudPlatformScopeFromStorage,
+  subscribeCloudPlatformScopeChanges,
+  visibleLandingPlatformCards,
+  type CloudPlatformId,
+  type CloudProviderId,
+} from "@/lib/cloud-platform-scope-storage";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { AwsConnectionSection } from "./AwsConnectionSection";
-import { GcpConnectionSection } from "./GcpConnectionSection";
-import { Tier2ConnectionWizard } from "./Tier2ConnectionWizard";
+import { CloudPlatformScopePanel } from "./CloudPlatformScopePanel";
+import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
+import { EvidenceOnlyConnectionCard } from "./EvidenceOnlyConnectionCard";
+
+function formatTimestamp(value: string | null | undefined): string {
+  if (value === null || value === undefined || value.trim().length === 0) {
+    return "Not validated yet";
+  }
+
+  const parsed = Date.parse(value);
+
+  if (Number.isNaN(parsed)) {
+    return value;
+  }
+
+  return new Date(parsed).toLocaleString();
+}
+
+type ProviderSummaryState = {
+  readonly status: string;
+  readonly lastValidation: string;
+  readonly evidenceCollected: string;
+};
+
+const DEFAULT_PROVIDER_SUMMARY: ProviderSummaryState = {
+  status: "Not configured",
+  lastValidation: "Not validated yet",
+  evidenceCollected: "No packages collected",
+};
 
 export function CloudConnectionsPageClient() {
-  const [connections, setConnections] = useState<Tier2ConnectionResponse[]>([]);
+  const [platformScope, setPlatformScope] = useState(() => readCloudPlatformScopeFromStorage());
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const loadStartedRef = useRef(false);
+  const [providerSummaries, setProviderSummaries] = useState<Record<CloudProviderId, ProviderSummaryState>>({
+    azure: DEFAULT_PROVIDER_SUMMARY,
+    aws: DEFAULT_PROVIDER_SUMMARY,
+    gcp: DEFAULT_PROVIDER_SUMMARY,
+  });
 
-  const refreshConnections = useCallback(async () => {
-    const data = await listTier2Connections();
-    setConnections(data);
+  const refreshSummaries = useCallback(async () => {
+    const [azureConnections, awsConnections, gcpConnections] = await Promise.all([
+      listTier2Connections(),
+      listAwsTier2Connections(),
+      listGcpTier2Connections(),
+    ]);
+
+    setProviderSummaries({
+      azure:
+        azureConnections.length > 0
+          ? {
+              status: "Configured",
+              lastValidation: formatTimestamp(azureConnections[0]?.updatedUtc),
+              evidenceCollected: `${azureConnections.length} connection${azureConnections.length === 1 ? "" : "s"}`,
+            }
+          : DEFAULT_PROVIDER_SUMMARY,
+      aws:
+        awsConnections.length > 0
+          ? {
+              status: awsConnections[0]?.status ?? "Configured",
+              lastValidation: formatTimestamp(awsConnections[0]?.lastPolledUtc ?? awsConnections[0]?.updatedUtc),
+              evidenceCollected: "Resource inventory packages",
+            }
+          : DEFAULT_PROVIDER_SUMMARY,
+      gcp:
+        gcpConnections.length > 0
+          ? {
+              status: gcpConnections[0]?.status ?? "Configured",
+              lastValidation: formatTimestamp(gcpConnections[0]?.lastPolledUtc ?? gcpConnections[0]?.updatedUtc),
+              evidenceCollected: "Cloud Asset Inventory packages",
+            }
+          : DEFAULT_PROVIDER_SUMMARY,
+    });
     setLoadError(null);
   }, []);
 
   useEffect(() => {
-    if (loadStartedRef.current) {
-      return;
-    }
-
-    loadStartedRef.current = true;
-
-    async function load() {
+    void (async () => {
       try {
-        await refreshConnections();
-      } catch (err) {
-        console.error(err);
-        setLoadError("Could not load saved connections. Check your permissions and try refreshing the page.");
+        await refreshSummaries();
+      } catch (error) {
+        console.error(error);
+        setLoadError("Could not load cloud connection status. Check your permissions and try refreshing the page.");
       } finally {
         setIsLoading(false);
       }
-    }
+    })();
+  }, [refreshSummaries]);
 
-    void load();
-  }, [refreshConnections]);
+  useEffect(() => subscribeCloudPlatformScopeChanges(() => setPlatformScope(readCloudPlatformScopeFromStorage())), []);
 
-  const handleSaved = useCallback(async () => {
-    try {
-      await refreshConnections();
-    } catch (err) {
-      console.error(err);
-      setLoadError("Connection saved, but the list could not be refreshed.");
-    }
-  }, [refreshConnections]);
+  const visibleCards = useMemo(() => visibleLandingPlatformCards(platformScope), [platformScope]);
 
   return (
-    <div className="w-full max-w-3xl space-y-6" data-testid="cloud-connections-page">
-      <div>
-        <div className="flex items-start gap-2">
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{OPERATOR_NAV_LINK_LABELS.cloudConnections}</h1>
-        </div>
-        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          {CLOUD_CONNECTIONS_PAGE_COPY.lead}
-        </p>
-      </div>
+    <div className="w-full max-w-5xl space-y-6" data-testid="cloud-connections-page">
+      <header className="space-y-2">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{CLOUD_CONNECTIONS_PAGE_TITLE}</h1>
+        <p className={cn("max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_PAGE_SUBTITLE}</p>
+        <p className={cn("max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_OPTIONAL_NOTE}</p>
+      </header>
 
-      <div className={cn(DESIGN_TOKENS.callout.info, "space-y-2")}>
-        <p className={cn(OPERATOR_TYPOGRAPHY.body, "font-semibold")}>How evidence collection works</p>
-        <p className={OPERATOR_TYPOGRAPHY.body}>
-          <strong>Manual upload (default).</strong> No vendor access required. You run an open-source PowerShell script locally and upload the resulting ZIP file when creating an architecture review.
-        </p>
-        <p className={OPERATOR_TYPOGRAPHY.body}>
-          <strong>Automated Azure connection (optional).</strong> ArchLucid pulls architecture and cost data on a schedule using a read-only Service Principal you provision in Azure. Requires workload identity federation — no client secrets are stored.
-        </p>
-        <p className={OPERATOR_TYPOGRAPHY.body}>
-          <strong>Automated AWS connection (optional).</strong> ArchLucid polls AWS Resource Explorer on a schedule using a read-only IAM role that trusts ArchLucid&apos;s Azure managed identity via OIDC — no long-lived access keys are stored.
-        </p>
-        <p className={OPERATOR_TYPOGRAPHY.body}>
-          <strong>Automated GCP connection (optional).</strong> ArchLucid polls Cloud Asset Inventory on a schedule using GCP Workload Identity Federation bound to ArchLucid&apos;s Azure managed identity — no service-account JSON keys are stored.
-        </p>
-      </div>
+      <CloudPlatformScopePanel />
 
-      <section className="space-y-4" aria-labelledby="cloud-connections-available-heading">
-        <h2
-          id="cloud-connections-available-heading"
-          className={OPERATOR_TYPOGRAPHY.sectionTitle}
-        >
-          {CLOUD_CONNECTIONS_PAGE_COPY.azureSectionHeading}
+      <section className="space-y-4" aria-labelledby="cloud-connections-options-heading">
+        <h2 id="cloud-connections-options-heading" className={OPERATOR_NAV_GROUP_LABEL}>
+          Connection options
         </h2>
 
-        <Card data-testid="cloud-connections-available-azure">
-          <CardHeader>
-            <CardTitle>Connect Azure</CardTitle>
-            <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-              Use workload identity federation to connect selected Azure subscriptions with read-only access. ArchLucid
-              stores connection metadata only; no client secrets are stored.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <Tier2ConnectionWizard onSaved={handleSaved} />
-          </CardContent>
-        </Card>
+        {loadError ? (
+          <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
+            {loadError}
+          </p>
+        ) : null}
 
-        <AwsConnectionSection />
+        {isLoading ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading connection status…</p> : null}
 
-        <GcpConnectionSection />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
+          {visibleCards.map((platformId: CloudPlatformId) => {
+            if (platformId === "evidence-only") {
+              return <EvidenceOnlyConnectionCard key={platformId} />;
+            }
+
+            const summary = providerSummaries[platformId];
+
+            return (
+              <CloudProviderSummaryCard
+                key={platformId}
+                provider={platformId}
+                status={summary.status}
+                lastValidation={summary.lastValidation}
+                evidenceCollected={summary.evidenceCollected}
+                maturityLabel={platformId === "gcp" ? "Preview" : null}
+              />
+            );
+          })}
+        </div>
+
+        {visibleCards.length === 0 ? (
+          <p className={OPERATOR_TYPOGRAPHY.helper}>
+            No platforms are selected. Enable at least one option above, or use{" "}
+            <Link href="/reviews/new" className={OPERATOR_LINK.nav}>
+              evidence-only review
+            </Link>
+            .
+          </p>
+        ) : null}
       </section>
-
-      {loadError ? (
-        <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
-          {loadError}
-        </p>
-      ) : null}
-
-      {isLoading ? (
-        <p className={OPERATOR_TYPOGRAPHY.helper}>Loading saved connections…</p>
-      ) : null}
-
-      {!isLoading && connections.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Configured Connections</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {connections.map((conn) => (
-                <div key={conn.connectionId} className="rounded-md border p-4">
-                  <div className={cn("grid grid-cols-2 gap-2", OPERATOR_TYPOGRAPHY.body)}>
-                    <div className="text-muted-foreground">Tenant ID:</div>
-                    <div>{conn.tenantId}</div>
-                    <div className="text-muted-foreground">Client ID:</div>
-                    <div>{conn.clientId}</div>
-                    <div className="text-muted-foreground">Scopes:</div>
-                    <div>{conn.subscriptionIds}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      ) : null}
     </div>
   );
 }

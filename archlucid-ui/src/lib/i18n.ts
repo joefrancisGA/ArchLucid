@@ -173,9 +173,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
 
 /** Customer-facing copy for `/integrations/cloud-connections`. */
 export const CLOUD_CONNECTIONS_PAGE_COPY = {
-  lead:
-    "Cloud connections are optional. Connect Azure, AWS, or GCP for scheduled read-only evidence collection, or create reviews from briefs, diagrams, documents, and uploaded ZIPs alone.",
-  automatedConnectionsSectionHeading: "Automated connections",
+  lead: "Connect cloud providers for read-only evidence collection, or run evidence-only reviews from briefs, diagrams, documents, and IaC exports.",
+  automatedConnectionsSectionHeading: "Connection options",
   azureSectionHeading: "Azure",
   awsSectionHeading: "AWS",
   gcpSectionHeading: "GCP",

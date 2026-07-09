@@ -24,8 +24,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/alerts", topic: { slug: "alerts", label: "Alerts" } },
   { prefix: "/policy-packs", topic: { slug: "governance-approval", label: "Governance approval" } },
   { prefix: "/value-report", topic: { slug: "executive-summary", label: "Executive summary" } },
-  { prefix: "/integrations/cloud-connections", topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" } },
-  { prefix: "/settings/cloud-connections", topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" } },
+  { prefix: "/integrations/cloud-connections/azure", topic: { slug: "cloud-connections-azure", label: "Azure cloud connection" } },
+  { prefix: "/settings/cloud-connections/azure", topic: { slug: "cloud-connections-azure", label: "Azure cloud connection" } },
+  { prefix: "/integrations/cloud-connections/aws", topic: { slug: "cloud-connections", label: "Cloud connections" } },
+  { prefix: "/integrations/cloud-connections/gcp", topic: { slug: "cloud-connections", label: "Cloud connections" } },
+  { prefix: "/integrations/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
+  { prefix: "/settings/cloud-connections/aws", topic: { slug: "cloud-connections", label: "Cloud connections" } },
+  { prefix: "/settings/cloud-connections/gcp", topic: { slug: "cloud-connections", label: "Cloud connections" } },
+  { prefix: "/settings/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
 ];
 

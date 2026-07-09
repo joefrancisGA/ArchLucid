@@ -7,15 +7,13 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 const listTier2Connections = vi.fn(async () => []);
-const configureTier2Connection = vi.fn();
-const validateTier2ConnectionHostedRun = vi.fn();
 const listAwsTier2Connections = vi.fn(async () => []);
 const listGcpTier2Connections = vi.fn(async () => []);
 
 vi.mock("@/lib/api/cloud-connections-api", () => ({
   listTier2Connections: (...args: unknown[]) => listTier2Connections(...args),
-  configureTier2Connection: (...args: unknown[]) => configureTier2Connection(...args),
-  validateTier2ConnectionHostedRun: (...args: unknown[]) => validateTier2ConnectionHostedRun(...args),
+  configureTier2Connection: vi.fn(),
+  validateTier2ConnectionHostedRun: vi.fn(),
 }));
 
 vi.mock("@/lib/api/aws-cloud-connections-api", () => ({
@@ -34,103 +32,54 @@ vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
 
 import { CloudConnectionsPageClient } from "./CloudConnectionsPageClient";
 
-const VALID_GUID = "00000000-0000-0000-0000-000000000001";
-
-function checkAllRbacItems(): void {
-  for (const checkbox of screen.getAllByRole("checkbox")) {
-    fireEvent.click(checkbox);
-  }
-}
-
-function advanceToConnectionIdsStep(): void {
-  checkAllRbacItems();
-  fireEvent.click(screen.getByRole("button", { name: "Next" }));
-  fireEvent.click(screen.getByRole("button", { name: "Next" }));
-}
-
 describe("CloudConnectionsPageClient", () => {
   afterEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
   });
 
-  it("renders the Tier 2 wizard with security review step", async () => {
+  it("renders cloud-neutral landing cards without inline provider setup forms", async () => {
     render(<CloudConnectionsPageClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("tier2-connection-wizard")).toBeInTheDocument();
+      expect(screen.getByTestId("cloud-connection-card-evidence-only")).toBeInTheDocument();
     });
 
     expect(screen.getByRole("heading", { level: 1, name: "Cloud connections" })).toBeInTheDocument();
-    expect(screen.getByText("Security review checklist")).toBeInTheDocument();
-    expect(screen.getByText("Connect Azure")).toBeInTheDocument();
-    expect(screen.getByText("Connect AWS")).toBeInTheDocument();
-    expect(screen.getByText("Connect GCP")).toBeInTheDocument();
-    expect(screen.getByText(/Automated Azure connection \(optional\)/i)).toBeInTheDocument();
-    expect(screen.getByText("Create Azure identity")).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-connections-available-azure")).toBeInTheDocument();
-    expect(screen.getByLabelText(/Only Reader and Cost Management Reader/i)).toBeInTheDocument();
-
-    expect(screen.getByRole("link", { name: "Connect Azure securely" })).toHaveAttribute(
-      "href",
-      "/help/cloud-connections/azure",
-    );
-    expect(screen.getByRole("link", { name: "Enterprise onboarding checklist" })).toHaveAttribute(
-      "href",
-      "/help/enterprise-onboarding",
-    );
-    expect(screen.getByRole("link", { name: "procurement FAQ" })).toHaveAttribute("href", "/help/procurement");
-    expect(screen.getByRole("link", { name: "trust center" })).toHaveAttribute("href", "/settings/security-trust");
-
-    const intro = screen.getByTestId("cloud-connections-page").textContent ?? "";
-    expect(intro).toMatch(/Connect Azure, AWS, or GCP/i);
-    expect(intro).toMatch(/scheduled read-only evidence collection/i);
-    expect(intro).not.toMatch(/More providers/i);
-    expect(intro).not.toMatch(/planned for V1\.1/i);
-    expect(intro).not.toMatch(/Azure-only/i);
+    expect(screen.getByText(/Cloud connectors are optional/i)).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-platform-scope-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-gcp")).toBeInTheDocument();
+    expect(screen.queryByTestId("tier2-connection-wizard")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("aws-account-id")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("gcp-project-id")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-aws").querySelector('a[href="/integrations/cloud-connections/aws"]')).toBeTruthy();
   });
 
-  it("surfaces misconfigured tenant and client GUID validation on the connection step", async () => {
+  it("hides provider cards when platform scope is narrowed", async () => {
+    window.localStorage.setItem(
+      "archlucid_operator_scope_v1",
+      JSON.stringify({
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        workspaceLabel: "Pilot workspace",
+        projectLabel: "Default",
+      }),
+    );
+
     render(<CloudConnectionsPageClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("tier2-connection-wizard")).toBeInTheDocument();
+      expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
     });
 
-    advanceToConnectionIdsStep();
+    fireEvent.click(screen.getByTestId("cloud-platform-scope-azure"));
+    fireEvent.click(screen.getByTestId("cloud-platform-scope-gcp"));
 
-    fireEvent.change(screen.getByTestId("tier2-tenant-id"), { target: { value: "not-a-guid" } });
-    fireEvent.change(screen.getByTestId("tier2-client-id"), { target: { value: "also-invalid" } });
-    fireEvent.change(screen.getByTestId("tier2-subscription-ids"), {
-      target: { value: "still-not-a-guid" },
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
-
-    await waitFor(() => {
-      expect(screen.getByText("Enter a valid Azure AD tenant GUID.")).toBeInTheDocument();
-    });
-
-    expect(screen.getByText("Enter a valid application (client) ID GUID.")).toBeInTheDocument();
-    expect(screen.getByText("Subscription ID 'still-not-a-guid' must be a GUID.")).toBeInTheDocument();
-  });
-
-  it("advances to save step when connection identifiers are valid", async () => {
-    render(<CloudConnectionsPageClient />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("tier2-connection-wizard")).toBeInTheDocument();
-    });
-
-    advanceToConnectionIdsStep();
-
-    fireEvent.change(screen.getByTestId("tier2-tenant-id"), { target: { value: VALID_GUID } });
-    fireEvent.change(screen.getByTestId("tier2-client-id"), { target: { value: VALID_GUID } });
-    fireEvent.change(screen.getByTestId("tier2-subscription-ids"), { target: { value: VALID_GUID } });
-
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
-
-    expect(screen.getByText("Save and validate")).toBeInTheDocument();
-    expect(screen.getByTestId("tier2-summary-tenant")).toHaveTextContent(VALID_GUID);
-    expect(screen.getByRole("button", { name: "Save connection" })).toBeInTheDocument();
+    expect(screen.queryByTestId("cloud-connection-card-azure")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("cloud-connection-card-gcp")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
   });
 });

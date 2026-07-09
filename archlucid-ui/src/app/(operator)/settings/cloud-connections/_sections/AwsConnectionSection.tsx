@@ -48,7 +48,8 @@ function statusTagKind(status: string): EnterpriseStatusKind {
   }
 }
 
-export function AwsConnectionSection() {
+export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
+  const embedded = props.embedded === true;
   const canMutate = useOperateCapability();
   const [connections, setConnections] = useState<AwsTier2ConnectionResponse[]>([]);
   const [accountId, setAccountId] = useState("");
@@ -184,17 +185,9 @@ export function AwsConnectionSection() {
     [canMutate, refreshConnections],
   );
 
-  return (
-    <Card data-testid="cloud-connections-available-aws">
-      <CardHeader>
-        <CardTitle>Connect AWS</CardTitle>
-        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-          Use IAM role ARN + OIDC federation (Azure managed identity trust). ArchLucid stores connection metadata
-          only; no long-lived access keys are stored.
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2">
+  const body = (
+    <>
+      <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="awsAccountId">AWS account ID</Label>
             <Input
@@ -233,6 +226,7 @@ export function AwsConnectionSection() {
         <Button
           type="button"
           data-testid="aws-connect-submit"
+          variant="primary"
           disabled={isSaving || !canMutate}
           title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
           onClick={() => void handleConnect()}
@@ -298,7 +292,23 @@ export function AwsConnectionSection() {
             ))}
           </div>
         ) : null}
-      </CardContent>
+    </>
+  );
+
+  if (embedded) {
+    return <div data-testid="cloud-connections-available-aws">{body}</div>;
+  }
+
+  return (
+    <Card data-testid="cloud-connections-available-aws">
+      <CardHeader>
+        <CardTitle>Connect AWS</CardTitle>
+        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
+          Use IAM role ARN + OIDC federation for read-only inventory collection. ArchLucid stores connection metadata
+          only; no long-lived access keys are stored.
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-6">{body}</CardContent>
     </Card>
   );
 }

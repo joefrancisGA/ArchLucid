@@ -45,7 +45,8 @@ function statusBadgeClass(status: string): string {
   }
 }
 
-export function GcpConnectionSection() {
+export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
+  const embedded = props.embedded === true;
   const canMutate = useOperateCapability();
   const [connections, setConnections] = useState<GcpTier2ConnectionResponse[]>([]);
   const [projectId, setProjectId] = useState("");
@@ -182,17 +183,9 @@ export function GcpConnectionSection() {
     [canMutate, refreshConnections],
   );
 
-  return (
-    <Card data-testid="cloud-connections-available-gcp">
-      <CardHeader>
-        <CardTitle>Connect GCP</CardTitle>
-        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-          Use Workload Identity Federation (Azure managed identity trust) to impersonate a read-only service account.
-          ArchLucid stores connection metadata only; no service-account JSON keys are stored.
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid gap-4">
+  const body = (
+    <>
+      <div className="grid gap-4">
           <div className="space-y-2">
             <Label htmlFor="gcpProjectId">GCP project ID</Label>
             <Input
@@ -231,6 +224,7 @@ export function GcpConnectionSection() {
         <Button
           type="button"
           data-testid="gcp-connect-submit"
+          variant="primary"
           disabled={isSaving || !canMutate}
           title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
           onClick={() => void handleConnect()}
@@ -303,7 +297,23 @@ export function GcpConnectionSection() {
             ))}
           </div>
         ) : null}
-      </CardContent>
+    </>
+  );
+
+  if (embedded) {
+    return <div data-testid="cloud-connections-available-gcp">{body}</div>;
+  }
+
+  return (
+    <Card data-testid="cloud-connections-available-gcp">
+      <CardHeader>
+        <CardTitle>Connect GCP</CardTitle>
+        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
+          Use Workload Identity Federation to impersonate a read-only service account. ArchLucid stores connection
+          metadata only; no service-account JSON keys are stored.
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-6">{body}</CardContent>
     </Card>
   );
 }
