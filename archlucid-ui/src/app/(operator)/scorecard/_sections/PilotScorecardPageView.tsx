@@ -2,11 +2,13 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { Button } from "@/components/ui/button";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEW_SCORECARD_PAGE_SUBTITLE,
   REVIEW_SCORECARD_PAGE_TITLE,
@@ -15,6 +17,12 @@ import {
   buildReviewScorecardSummaryRow,
   hasCommittedReviews,
 } from "@/lib/pilot-scorecard-present";
+import { formatUsd } from "@/lib/roi-assumptions";
+import {
+  REVIEW_SCORECARD_SAMPLE_BANNER_COPY,
+  isReviewScorecardSampleMode,
+} from "@/lib/review-scorecard-empty-state";
+import { resolveReviewScorecardDisplayData } from "@/lib/review-scorecard-sample-data";
 
 import { ReviewScorecardEmptyState } from "./ReviewScorecardEmptyState";
 import { ScorecardMetricCard, ScorecardSummaryTile } from "./ScorecardMetricCard";
@@ -24,7 +32,28 @@ type PilotScorecardPageViewProps = {
   model: UsePilotScorecardPageModel;
 };
 
+function resolveSampleSavingsLabels(data: NonNullable<ReturnType<typeof resolveReviewScorecardDisplayData>>): {
+  annual: string | null;
+  quarterly: string | null;
+  statusQuo: string | null;
+} {
+  const roiEstimate = data.roiEstimate;
+
+  if (roiEstimate === null || roiEstimate === undefined) {
+    return { annual: null, quarterly: null, statusQuo: null };
+  }
+
+  return {
+    annual: formatUsd(roiEstimate.annualReviewSavingsFromReviewTimeLeverUsd),
+    quarterly: formatUsd(roiEstimate.annualReviewSavingsFromReviewTimeLeverUsd / 4),
+    statusQuo: formatUsd(roiEstimate.annualReviewCostStatusQuoUsd),
+  };
+}
+
 export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
+  const searchParams = useSearchParams();
+  const sampleMode = isReviewScorecardSampleMode(searchParams);
+
   const {
     canExecute,
     data,
@@ -42,11 +71,23 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
     setReviews,
   } = model;
 
-  const scorecardEmpty = data !== null && !hasCommittedReviews(data);
-  const summaryRow = data !== null ? buildReviewScorecardSummaryRow(data, resolvedAnnualSavingsLabel) : null;
-  const operationalMetrics = data !== null ? buildReviewScorecardOperationalMetrics(data) : [];
+  const displayData = useMemo(() => resolveReviewScorecardDisplayData(data, sampleMode), [data, sampleMode]);
+  const scorecardEmpty = data !== null && !hasCommittedReviews(data) && !sampleMode;
+  const sampleLabels = sampleMode && displayData !== null ? resolveSampleSavingsLabels(displayData) : null;
+  const annualSavingsLabel = sampleLabels?.annual ?? resolvedAnnualSavingsLabel;
+  const quarterlySavingsLabel = sampleLabels?.quarterly ?? resolvedQuarterlySavingsLabel;
+  const statusQuoCostLabel = sampleLabels?.statusQuo ?? resolvedStatusQuoCostLabel;
+  const summaryRow =
+    displayData !== null ? buildReviewScorecardSummaryRow(displayData, annualSavingsLabel) : null;
+  const operationalMetrics = displayData !== null ? buildReviewScorecardOperationalMetrics(displayData) : [];
   const methodologyLines =
-    data !== null ? buildReviewScorecardMethodologyLines(data.metricSources) : [];
+    displayData !== null ? buildReviewScorecardMethodologyLines(displayData.metricSources) : [];
+  const displayHours = sampleMode && displayData?.baselines ? String(displayData.baselines.baselineHoursPerReview ?? "") : hours;
+  const displayReviews =
+    sampleMode && displayData?.baselines ? String(displayData.baselines.baselineReviewsPerQuarter ?? "") : reviews;
+  const displayRate =
+    sampleMode && displayData?.baselines ? String(displayData.baselines.baselineArchitectHourlyCost ?? "") : rate;
+  const assumptionsReadOnly = sampleMode || !canExecute || saving;
 
   return (
     <div className="w-full max-w-[1440px] space-y-8 px-4 py-8" data-testid="review-scorecard-page">
@@ -55,6 +96,19 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
         <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{REVIEW_SCORECARD_PAGE_TITLE}</h1>
         <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{REVIEW_SCORECARD_PAGE_SUBTITLE}</p>
       </header>
+
+      {sampleMode ? (
+        <div
+          role="status"
+          className={cn(
+            "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-neutral-700",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+          data-testid="review-scorecard-sample-banner"
+        >
+          {REVIEW_SCORECARD_SAMPLE_BANNER_COPY}
+        </div>
+      ) : null}
 
       {error ? (
         <div
@@ -77,7 +131,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
 
       {scorecardEmpty ? <ReviewScorecardEmptyState /> : null}
 
-      {data !== null && !scorecardEmpty ? (
+      {displayData !== null && !scorecardEmpty ? (
         <>
           {summaryRow !== null ? (
             <section
@@ -145,7 +199,9 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
               ROI assumptions
             </h2>
             <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-              Enter baseline assumptions to estimate review-time savings.
+              {sampleMode
+                ? "Illustrative assumptions shown for evaluation — edit your workspace data to model real savings."
+                : "Enter baseline assumptions to estimate review-time savings."}
             </p>
             <div className="mt-4 grid max-w-lg gap-3">
               <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
@@ -155,10 +211,10 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                     "mt-1 w-full rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-950",
                     OPERATOR_TYPOGRAPHY.body,
                   )}
-                  value={hours}
+                  value={displayHours}
                   onChange={(e) => setHours(e.target.value)}
                   inputMode="decimal"
-                  disabled={!canExecute || saving}
+                  disabled={assumptionsReadOnly}
                 />
               </label>
               <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
@@ -168,10 +224,10 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                     "mt-1 w-full rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-950",
                     OPERATOR_TYPOGRAPHY.body,
                   )}
-                  value={reviews}
+                  value={displayReviews}
                   onChange={(e) => setReviews(e.target.value)}
                   inputMode="numeric"
-                  disabled={!canExecute || saving}
+                  disabled={assumptionsReadOnly}
                 />
               </label>
               <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
@@ -181,22 +237,22 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                     "mt-1 w-full rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-950",
                     OPERATOR_TYPOGRAPHY.body,
                   )}
-                  value={rate}
+                  value={displayRate}
                   onChange={(e) => setRate(e.target.value)}
                   inputMode="decimal"
-                  disabled={!canExecute || saving}
+                  disabled={assumptionsReadOnly}
                 />
               </label>
               <Button
                 type="button"
                 variant="primary"
                 onClick={() => void onSaveBaselines()}
-                disabled={!canExecute || saving}
+                disabled={assumptionsReadOnly}
                 data-testid="review-scorecard-save-assumptions"
               >
                 {saving ? "Saving…" : "Save ROI assumptions"}
               </Button>
-              {!canExecute ? (
+              {!canExecute && !sampleMode ? (
                 <p className={OPERATOR_TYPOGRAPHY.helper}>
                   Sign in with an account that can update workspace assumptions to save ROI inputs.
                 </p>
@@ -208,21 +264,21 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             <h2 id="roi-estimate" className={cn("mb-3", OPERATOR_NAV_GROUP_LABEL)}>
               ROI estimate
             </h2>
-            {data.roiEstimate ? (
+            {displayData.roiEstimate ? (
               <div className="grid gap-3 sm:grid-cols-2">
                 <ScorecardMetricCard
                   title="Quarterly estimated savings"
-                  value={resolvedQuarterlySavingsLabel ?? "—"}
+                  value={quarterlySavingsLabel ?? "—"}
                   detail="Estimated review-time savings per quarter from saved assumptions."
                 />
                 <ScorecardMetricCard
                   title="Annual estimated savings"
-                  value={resolvedAnnualSavingsLabel ?? "—"}
+                  value={annualSavingsLabel ?? "—"}
                   detail="Estimated review-time savings per year from saved assumptions."
                 />
                 <ScorecardMetricCard
                   title="Status quo annual review labor"
-                  value={resolvedStatusQuoCostLabel ?? "—"}
+                  value={statusQuoCostLabel ?? "—"}
                   detail="Modeled annual review labor before estimated savings."
                 />
               </div>

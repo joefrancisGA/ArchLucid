@@ -1,53 +1,60 @@
 "use client";
 
-import { useMemo, type ReactElement } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import {
   isValueReportOutcomesSurface,
   resolveVisibleValueReportOutcomesTabs,
-  type ValueReportOutcomesTab,
 } from "@/lib/value-report-outcomes-nav-tabs";
 
 /** Single hub navigation for pilot value surfaces — reduces scattered outcomes routes in the sidebar. */
-export function ValueReportOutcomesNav(): ReactElement | null {
+export function ValueReportOutcomesNav(): React.JSX.Element | null {
   const pathname = usePathname() ?? "/";
-  const router = useRouter();
   const onOutcomesSurface = isValueReportOutcomesSurface(pathname);
-
-  const visibleTabs: readonly ValueReportOutcomesTab[] = useMemo(
-    () => resolveVisibleValueReportOutcomesTabs(isShowSystemAdministrationNavEnabled()),
-    [],
-  );
-
-  const activeHref: string = useMemo(() => {
-    const match = visibleTabs.find((tab) => tab.match(pathname));
-
-    return match?.href ?? visibleTabs[0]?.href ?? "/value-report";
-  }, [pathname, visibleTabs]);
 
   if (!onOutcomesSurface) {
     return null;
   }
 
+  const visibleTabs = resolveVisibleValueReportOutcomesTabs(isShowSystemAdministrationNavEnabled());
+
   return (
-    <Tabs
-      value={activeHref}
-      onValueChange={(href) => {
-        router.push(href);
-      }}
-      className="mb-2"
+    <nav
+      className="border-b border-neutral-200 dark:border-neutral-700"
       data-testid="value-report-outcomes-nav"
     >
-      <TabsList aria-label="Insights outcomes" data-testid="value-report-outcomes-tablist">
-        {visibleTabs.map((tab) => (
-          <TabsTrigger key={tab.href} value={tab.href} data-testid={`value-report-outcomes-tab-${tab.href.replace(/\//g, "-")}`}>
-            {tab.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-    </Tabs>
+      <div
+        className="-mb-px flex flex-wrap gap-1"
+        role="tablist"
+        aria-label="Insights report sections"
+      >
+        {visibleTabs.map((tab) => {
+          const active = tab.match(pathname);
+
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              role="tab"
+              aria-selected={active}
+              className={cn(
+                "rounded-t-md border border-b-0 px-3 py-2 no-underline",
+                OPERATOR_TYPOGRAPHY.body,
+                "font-medium",
+                active
+                  ? "border-neutral-200 bg-white text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950"
+                  : "border-transparent bg-transparent text-al-text-secondary hover:bg-neutral-100 hover:text-al-text-primary dark:hover:bg-neutral-900",
+              )}
+            >
+              {tab.label}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
   );
 }
