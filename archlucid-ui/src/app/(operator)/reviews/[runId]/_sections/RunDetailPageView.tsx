@@ -7,13 +7,10 @@ import { GovernanceModePresentationGate } from "@/components/GovernanceModePrese
 import { WhatIfBranchCompareBanner } from "@/components/draft-intake/WhatIfBranchCompareBanner";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
-import { CompareToBaselineCta } from "@/components/CompareToBaselineCta";
-import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import { CommitBlockingFindingsBanner } from "@/components/usability/CommitBlockingFindingsBanner";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { StalledReviewGuidanceCallout } from "@/components/usability/StalledReviewGuidanceCallout";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
-import { ExportDeliverableDialog } from "@/components/usability/ExportDeliverableDialog";
 import { PersistentSponsorEmailStrip } from "@/components/usability/PersistentSponsorEmailStrip";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
 import { RunExplanationConfidenceBanner } from "@/components/RunExplanationConfidenceBanner";
@@ -49,7 +46,6 @@ import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySecti
 import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
-import { TechnologyBaselineSection } from "@/components/reviews/technology-baseline/TechnologyBaselineSection";
 import { RunDetailOperatorTechnicalDisclosure } from "./RunDetailOperatorTechnicalDisclosure";
 import { RunDetailRunMetadataSection } from "./RunDetailRunMetadataSection";
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
@@ -58,8 +54,14 @@ import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConve
 import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
 import { RunDetailGovernanceCta } from "./RunDetailGovernanceCta";
 import { RunDetailExecutiveBottomLine } from "./RunDetailExecutiveBottomLine";
-import { RunDetailHolisticCriticPanel } from "./RunDetailHolisticCriticPanel";
 import { CtoDemoReviewRouteGuard } from "@/components/cto-demo/CtoDemoReviewRouteGuard";
+import {
+  RunDetailCompareToBaselineCta,
+  RunDetailExportDeliverableDialog,
+  RunDetailGenerateAdrFromRunModal,
+  RunDetailHolisticCriticPanelDeferred,
+  RunDetailTechnologyBaselineSection,
+} from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import {
@@ -330,7 +332,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
 
-      <TechnologyBaselineSection
+      <RunDetailTechnologyBaselineSection
         runId={m.resolvedDetail.run.runId}
         manifestFinalized={Boolean(m.manifestId)}
         buyerPolished={m.buyerPolishedArtifactTable ?? false}
@@ -404,7 +406,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {m.manifestId ? (
         <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
-          <ExportDeliverableDialog runId={m.resolvedDetail.run.runId} manifestId={m.manifestId} />
+          <RunDetailExportDeliverableDialog runId={m.resolvedDetail.run.runId} manifestId={m.manifestId} />
           <ShareableReviewLinkButton runId={m.resolvedDetail.run.runId} isCommitted />
           {m.resolvedDetail.run.completedUtc ? (
             <ReviewSealedIndicatorChip sealedUtc={m.resolvedDetail.run.completedUtc} />
@@ -437,7 +439,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         </Suspense>
       ) : null}
 
-      <RunDetailHolisticCriticPanel
+      <RunDetailHolisticCriticPanelDeferred
         runId={m.resolvedDetail.run.runId}
         hasGoldenManifest={Boolean(m.manifestId)}
       />
@@ -456,12 +458,12 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {!m.buyerPolishedArtifactTable ? (
         <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
-          <GenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
+          <RunDetailGenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
         </div>
       ) : null}
 
       {!m.buyerPolishedArtifactTable ? (
-        <CompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
+        <RunDetailCompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
       ) : null}
 
       {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
