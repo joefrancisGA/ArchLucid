@@ -104,7 +104,8 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   {
     slug: "getting-started",
     title: "Getting started",
-    summary: "Concepts, scope, and the fastest path to a governed review package.",
+    summary:
+      "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md"],
   },

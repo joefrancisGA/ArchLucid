@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
+import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
   HELP_TOPIC_SLUG_ALIASES,
@@ -50,6 +51,10 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
 
   if (loaded.entry.slug === "core-pilot") {
     return <HelpCorePilotGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "getting-started") {
+    return <HelpGettingStartedGuideView entry={loaded.entry} />;
   }
 
   return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;
