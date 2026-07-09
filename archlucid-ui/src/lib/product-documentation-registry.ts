@@ -240,7 +240,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     slug: "core-pilot",
     title: "Your first architecture review",
     summary:
-      "Guided first-session path — evidence intake, optional cloud connectors for Azure/AWS/GCP, finalize, and sponsor exports.",
+      "Guided first-review checklist — evidence, optional cloud connectors, finalize, and sponsor exports.",
     audience: "buyer",
     sourcePaths: ["docs/CORE_PILOT.md"],
   },

@@ -1,0 +1,163 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
+export const CORE_PILOT_HELP_SUMMARY_TITLE = "First review path";
+
+export const CORE_PILOT_HELP_SUMMARY_COPY =
+  "Start with evidence, run the review, finalize the package, then share sponsor-ready outputs.";
+
+export type CorePilotHelpWorkflowStep = {
+  readonly stepNumber: number;
+  readonly title: string;
+  readonly description: string;
+  readonly expectedOutput: string;
+  readonly href: string;
+  readonly ctaLabel: string;
+};
+
+export type CorePilotHelpActionCard = {
+  readonly title: string;
+  readonly description: string;
+  readonly href: string;
+  readonly ctaLabel: string;
+};
+
+export type CorePilotHelpDeferredItem = {
+  readonly title: string;
+  readonly description: string;
+};
+
+const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+
+export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[] = [
+  {
+    stepNumber: 1,
+    title: "Start review",
+    description: `Open ${CREATE_ARCHITECTURE_LABEL} and name what you want reviewed — goals, constraints, and scope.`,
+    expectedOutput: "A new review package on your reviews list.",
+    href: "/reviews/new",
+    ctaLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
+  },
+  {
+    stepNumber: 2,
+    title: "Add evidence",
+    description:
+      "Attach briefs, diagrams, documents, IaC, or exports. Cloud connectors are optional for this step.",
+    expectedOutput: "Evidence linked to the review before analysis runs.",
+    href: "/reviews/new",
+    ctaLabel: "Add evidence",
+  },
+  {
+    stepNumber: 3,
+    title: "Run analysis",
+    description: "Execute the assessment and watch progress on review detail until it is ready to finalize.",
+    expectedOutput: "Findings and evidence labels ready for your review.",
+    href: "/reviews?projectId=default",
+    ctaLabel: "Open review detail",
+  },
+  {
+    stepNumber: 4,
+    title: "Finalize package",
+    description: "Commit when ready — this locks the signed review record, findings, and export surfaces.",
+    expectedOutput: "A finalized review package with artifacts and audit trail.",
+    href: "/reviews?projectId=default",
+    ctaLabel: "Finalize on review detail",
+  },
+  {
+    stepNumber: 5,
+    title: "Share outputs",
+    description: "Download sponsor exports and share proof with stakeholders when your internal review is complete.",
+    expectedOutput: "Sponsor packet, board materials, or markdown exports.",
+    href: "/reviews?projectId=default",
+    ctaLabel: "Open exports",
+  },
+];
+
+export const CORE_PILOT_HELP_CLOUD_ACTIONS: readonly CorePilotHelpActionCard[] = [
+  {
+    title: "Connect cloud provider",
+    description: "Optional read-only connections for Azure, AWS, or GCP when live inventory is needed.",
+    href: "/integrations/cloud-connections",
+    ctaLabel: "Cloud connections",
+  },
+  {
+    title: "Security intake checklist",
+    description: "Share with InfoSec before enabling connectors in regulated environments.",
+    href: inAppHelpHref("cloud-connections"),
+    ctaLabel: "Cloud connections guide",
+  },
+  {
+    title: "Evidence-only upload",
+    description: "Upload inventory ZIPs or exports from your laptop when connector access is not approved yet.",
+    href: EXTRACT_UPLOAD_SETTINGS_PATH,
+    ctaLabel: "Open upload settings",
+  },
+];
+
+export const CORE_PILOT_HELP_DEFERRED_ITEMS: readonly CorePilotHelpDeferredItem[] = [
+  {
+    title: "Compare, replay, and portfolio graph at scale",
+    description: "Use after your first finalized review when you need change analysis across packages.",
+  },
+  {
+    title: "Advanced policy packs",
+    description: "Add when governance templates are in scope for the pilot — not required for first value.",
+  },
+  {
+    title: "ITSM and chat connectors",
+    description: "Jira, ServiceNow, Confluence, Slack, and Teams — configure when workflow automation is needed.",
+  },
+];
+
+export const CORE_PILOT_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
+  { level: 2, id: "first-review-path", title: CORE_PILOT_HELP_SUMMARY_TITLE },
+  { level: 2, id: "run-the-first-review", title: "Run the first review" },
+  { level: 2, id: "cloud-connectors-optional", title: "Cloud connectors are optional for your first review" },
+  { level: 2, id: "fast-path-evidence-only", title: "Fast path: evidence-only review" },
+  { level: 2, id: "what-can-wait", title: "What can wait" },
+  { level: 2, id: "ready-to-begin", title: "Ready to begin?" },
+];
+
+export const CORE_PILOT_HELP_PRIMARY_ACTIONS = {
+  startReview: { href: "/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
+  sampleReview: { href: sampleReviewHref, label: "Open sample review" },
+  pilotGuide: { href: inAppHelpHref("pilot-guide"), label: "View pilot guide" },
+  troubleshooting: { href: inAppHelpHref("troubleshooting"), label: "Troubleshooting" },
+} as const;
+
+export const CORE_PILOT_HELP_DISCLOSURE = {
+  whatThisGuideCovers: {
+    title: "What this guide covers",
+    body:
+      "This page is your guided path from an empty workspace to a finalized architecture review package. " +
+      "It focuses on evidence intake, running the assessment, finalizing findings, and sharing sponsor-ready exports. " +
+      "Template-specific walkthroughs and deeper configuration live in related guides below.",
+  },
+  whenToUseCloudConnectors: {
+    title: "When to use cloud connectors",
+    body:
+      "Connect Azure, AWS, or GCP when the review needs live inventory, configuration, identity, policy, cost, or operational signals. " +
+      "You can run an evidence-only review first, then connect a provider later when source-system evidence is required. " +
+      "Share the cloud connections guide with your security team before enabling read-only access.",
+  },
+  whatCanWaitUntilLater: {
+    title: "What can wait until later",
+    body:
+      "Compare, replay, portfolio graph, advanced policy packs, and ITSM or chat connectors are available in the product — " +
+      "they are not prerequisites for proving first review value. Export handoff covers sponsor sharing until connectors are configured.",
+  },
+} as const;
+
+export const CORE_PILOT_HELP_DEPTH_GUIDES: readonly { readonly label: string; readonly href: string }[] = [
+  { label: "Complete review workflow", href: inAppHelpHref("first-pilot-path") },
+  { label: "Review templates", href: inAppHelpHref("specialty-walkthroughs") },
+  { label: "Evaluator workbook", href: inAppHelpHref("evaluator-workbook") },
+  { label: "First review guide in the product", href: "/onboarding" },
+];
+
+export const CORE_PILOT_HELP_HOME_STATUS_NOTE =
+  "The home page shows your next recommended action after each review step.";

@@ -4,69 +4,88 @@
 
 Use this guide with the [Pilot guide](/help/pilot-guide) to prepare for a pilot, interpret outputs, and get support contacts.
 
-This page focuses on the **core first-session workflow** — from “new review” to a committed review package. **Specialty review templates** (SaaS readiness, AI governance, healthcare policy) are optional accelerators when your review goal clearly matches that pattern.
+The home page shows your next recommended action after each review step.
 
-**Input:** architecture evidence (brief, diagrams, documents, IaC, exports) or an explicitly accepted sample workspace.  
-**Output:** one defensible architecture review package with committed findings, evidence labels, artifacts, and sponsor handoff material.
+## First review path
 
-> **Status on Home:** **READY / WARN / HOLD / DEFERRED / NEXT ACTION** label the next best action on your workspace dashboard.
+Start with evidence, run the review, finalize the package, then share sponsor-ready outputs.
+
+- [Start architecture review](/reviews/new)
+- [Open sample review](/reviews/claims-intake-modernization)
+- [View pilot guide](/help/pilot-guide)
 
 ## Run the first review
 
-**In-product:** **Home** shows the guided review workflow (readiness → evidence → create → execute → finalize → sponsor packet).
+1. **Start review** — open Create architecture and name what you want reviewed.
+2. **Add evidence** — attach briefs, diagrams, documents, IaC, or exports. Cloud connectors are optional.
+3. **Run analysis** — execute the assessment on review detail until ready to finalize.
+4. **Finalize package** — commit the governed review record, findings, and export surfaces.
+5. **Share outputs** — download sponsor exports and share proof with stakeholders.
 
-**Four steps — sponsor-facing sequence:**
+## Cloud connectors are optional for your first review
 
-1. **Create** an architecture review. Next: open the new review detail page.
-2. **Execute** the review. Next: watch progress until the review is ready to finalize.
-3. **Finalize** the review package. Next: confirm the signed review record and artifacts table appear.
-4. **Open exports** — download the sponsor packet and collect proof for stakeholders.
+You can run an evidence-only review first, then connect Azure, AWS, or GCP later when source-system evidence is needed.
 
-**Good to know:** After finalize, use **Email this review to your sponsor** on review detail when sponsor handoff is enabled.
+Cloud connectors are available for **Azure, AWS, and GCP** when live inventory, configuration, identity, policy, cost, or operational signals are required.
 
-## Cloud connectors (Azure, AWS, and GCP)
+| Action | Where to go |
+|--------|-------------|
+| Connect cloud provider | [Cloud connections](/integrations/cloud-connections) |
+| Security intake checklist | [Cloud connections guide](/help/cloud-connections) |
+| Evidence-only upload | [Upload evidence](/settings/extract-upload) |
 
-Cloud connectors are available for **Azure, AWS, and GCP**. Use them when the review needs source-system evidence such as cloud inventory, configuration, identity, policy, cost, or operational signals.
+## Fast path: evidence-only review
 
-| Need | Where to go |
-|------|-------------|
-| Connect a cloud provider | **Settings → Cloud connections** · [Cloud connections](/help/cloud-connections) |
-| Security intake checklist | Share with InfoSec before enabling connectors — see [Cloud connections](/help/cloud-connections) |
-| Laptop-side inventory upload | [Start a review](/help/evidence-intake) |
+Recommended when connector access has not yet been approved, or when your first session only has briefs, diagrams, IaC, screenshots, exports, or policy documents.
 
-## Evidence-only review path
+1. Start a review with no cloud target selected (evidence-only).
+2. Upload files or paste your architecture brief — a cloud connector is not required.
+3. Run analysis, finalize the package, and export the sponsor packet.
 
-Use this path when **connector access has not yet been approved**, or when the first session only has briefs, diagrams, IaC, screenshots, exports, or policy documents.
-
-| Step | Action |
-|------|--------|
-| 1 | Start a review with **No cloud / evidence-only** as the cloud target. |
-| 2 | Upload evidence files or paste the architecture brief — a cloud connector is **not** required. |
-| 3 | Execute → finalize → export the sponsor packet. |
-
-**When to add a cloud connector later:** live cloud inventory, cost lines, or configuration-backed findings. Share the cloud connector intake checklist with your security team before enabling read-only connector access.
-
-## Optional until after your first finalized review
+## What can wait
 
 | Defer until later | Why |
 |-------------------|-----|
-| **Compare, replay, and portfolio graph** at scale | Not required to prove first review value |
-| **Advanced policy packs** beyond one optional dry-run | Add when governance is in pilot scope |
-| **ITSM and chat connectors** (Jira, ServiceNow, Confluence, Slack, Teams) | Export handoff covers first value; configure connectors when your workflow needs them |
+| Compare, replay, and portfolio graph at scale | Not required to prove first review value |
+| Advanced policy packs | Add when governance templates are in pilot scope |
+| ITSM and chat connectors | Export handoff covers first value until workflow automation is needed |
 
-**Stuck?** [Troubleshooting](/help/troubleshooting) · [Pilot guide — Report an issue](/help/pilot-guide#report-an-issue)
+## Ready to begin?
+
+- [Start architecture review](/reviews/new)
+- [Open sample review](/reviews/claims-intake-modernization)
 
 <details>
-<summary>Additional depth guides and specialty templates</summary>
+<summary>What this guide covers</summary>
+
+Guided path from an empty workspace to a finalized architecture review package — evidence intake, running the assessment, finalizing findings, and sharing sponsor-ready exports.
+
+</details>
+
+<details>
+<summary>When to use cloud connectors</summary>
+
+Connect Azure, AWS, or GCP when the review needs live inventory or configuration-backed findings. Evidence-only reviews can proceed without connectors.
+
+</details>
+
+<details>
+<summary>What can wait until later</summary>
+
+Compare, replay, portfolio graph, advanced policy packs, and ITSM or chat connectors are available after your first finalized review.
+
+</details>
+
+<details>
+<summary>Related guides</summary>
 
 | Need | Doc |
 |------|-----|
-| **Single first-session path** (evidence → finalize → export) | [Complete review workflow](/help/first-pilot-path) |
-| **Specialty review templates** | [Specialty walkthroughs](/help/specialty-walkthroughs) |
-| Step-by-step UI + “what good looks like” | [Evaluator workbook](/help/evaluator-workbook) |
-| SaaS readiness | [Specialty walkthroughs](/help/specialty-walkthroughs) |
-| AI governance | [Specialty walkthroughs](/help/specialty-walkthroughs) |
-| Healthcare claims policy | [Specialty walkthroughs](/help/specialty-walkthroughs) |
-| First-session checklist in the product | **Onboarding** in the workspace |
+| End-to-end review lifecycle | [Complete review workflow](/help/first-pilot-path) |
+| Review templates | [Specialty walkthroughs](/help/specialty-walkthroughs) |
+| Step-by-step evaluator orientation | [Evaluator workbook](/help/evaluator-workbook) |
+| First-session checklist in the product | [First review guide](/onboarding) |
 
 </details>
+
+**Stuck?** [Troubleshooting](/help/troubleshooting) · [Pilot guide](/help/pilot-guide)
