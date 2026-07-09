@@ -18,7 +18,7 @@ export const BILLING_TIER_FEATURE_BULLETS: Readonly<Record<string, readonly stri
     "Self-service start — no procurement call required",
   ],
   professional: [
-    "10–20 users · multiple workspaces",
+    "15 users · multiple workspaces",
     "Policy packs, audit exports, and review comparison",
     "Scorecards and guided trial onboarding",
     "Expanded AI allowance with clear overage options",

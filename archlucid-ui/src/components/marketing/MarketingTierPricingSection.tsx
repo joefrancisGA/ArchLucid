@@ -12,25 +12,16 @@ import {
   BUYER_MARKETING_PRICING_AI_USAGE_NOTE,
   MARKETING_PRICING_RECOMMENDED_TIER,
   MARKETING_PRICING_TIER_CTAS,
-  MARKETING_PRICING_TIER_ORDER,
   type MarketingPricingTierId,
 } from "@/lib/marketing/marketing-public-pricing";
 import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
+import {
+  formatIncludedUsersAndWorkspaces,
+  formatMonthlyAiCredits,
+  formatPlanPrice,
+  pricingTierSortIndex,
+} from "@/lib/pricing-catalog-display";
 import { looksStripeHostedTestCheckoutUrl, resolveTeamStripeCheckoutHref } from "@/lib/team-stripe-checkout-url";
-
-function formatMoney(amount: number, currency: string): string {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-function pricingTierSortIndex(id: string): number {
-  const index = MARKETING_PRICING_TIER_ORDER.indexOf(id as MarketingPricingTierId);
-
-  return index >= 0 ? index : 99;
-}
 
 function resolveStripeCheckoutHref(pricing: PricingDoc, tierId: MarketingPricingTierId): string | null {
   if (!isPublicStripeTeamCheckoutEnabled()) {
@@ -50,57 +41,6 @@ function resolveStripeCheckoutHref(pricing: PricingDoc, tierId: MarketingPricing
 
 function stripeSubscribeLabel(checkoutHref: string): string {
   return looksStripeHostedTestCheckoutUrl(checkoutHref) ? "Subscribe (Stripe test)" : "Subscribe with Stripe";
-}
-
-function formatPlanPrice(pkg: PricingPackage, currency: string): string {
-  if (pkg.pricingDisplay === "custom") {
-    return "Custom";
-  }
-
-  if (typeof pkg.planMonthlyUsd === "number") {
-    return `${formatMoney(pkg.planMonthlyUsd, currency)} / mo`;
-  }
-
-  return "Contact us";
-}
-
-function formatIncludedUsersAndWorkspaces(pkg: PricingPackage): string | null {
-  const users = pkg.includedUsers ?? pkg.includedArchitectSeats;
-  const workspaces = pkg.includedWorkspaces ?? (pkg.maxWorkspaces !== undefined && pkg.maxWorkspaces > 0 ? pkg.maxWorkspaces : undefined);
-
-  if (users === undefined && workspaces === undefined) {
-    return null;
-  }
-
-  const userLabel = users === 1 ? "1 user" : users !== undefined ? `${users} users` : null;
-  const workspaceLabel =
-    workspaces === 1 ? "1 workspace" : workspaces !== undefined && workspaces > 0 ? `${workspaces} workspaces` : null;
-
-  if (userLabel !== null && workspaceLabel !== null) {
-    return `${userLabel} · ${workspaceLabel}`;
-  }
-
-  if (userLabel !== null) {
-    return userLabel;
-  }
-
-  if (workspaceLabel !== null) {
-    return workspaceLabel;
-  }
-
-  return null;
-}
-
-function formatMonthlyAiCredits(pkg: PricingPackage): string | null {
-  if (pkg.pricingDisplay === "custom") {
-    return "Custom AI allowance";
-  }
-
-  if (typeof pkg.monthlyAiCredits === "number" && pkg.monthlyAiCredits > 0) {
-    return `${pkg.monthlyAiCredits.toLocaleString()} AI credits / month`;
-  }
-
-  return null;
 }
 
 export type MarketingTierPricingSectionProps = {

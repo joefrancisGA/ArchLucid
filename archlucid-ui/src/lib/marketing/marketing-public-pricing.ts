@@ -36,6 +36,25 @@ export const MARKETING_PRICING_TIER_CTAS: Readonly<Record<MarketingPricingTierId
 
 export const MARKETING_PRICING_RECOMMENDED_TIER: MarketingPricingTierId = "professional";
 
+export const OPERATOR_BILLING_PAGE_LEAD =
+  "Manage your plan, AI usage credits, payment method, and billing settings.";
+
+export const OPERATOR_BILLING_PUBLIC_PRICING_LINK_LABEL = "View public pricing";
+
+export const OPERATOR_BILLING_CATALOG_NOTE = "Plan details are generated from the current pricing catalog.";
+
+export const OPERATOR_BILLING_AI_OVERAGE_NOTE =
+  "Additional AI usage uses prepaid credits after your included allowance is consumed.";
+
+export const OPERATOR_BILLING_TIER_CTAS: Readonly<
+  Record<MarketingPricingTierId, { readonly primaryLabel: string }>
+> = {
+  architect: { primaryLabel: "Start Architect plan" },
+  team: { primaryLabel: "Upgrade to Team" },
+  professional: { primaryLabel: "Request guided trial" },
+  enterprise: { primaryLabel: "Request enterprise discussion" },
+};
+
 export const BUYER_MARKETING_PRICING_AI_USAGE_NOTE =
   "Plans include monthly AI credits. Larger workloads can use prepaid credits or an approved customer AI provider.";
 

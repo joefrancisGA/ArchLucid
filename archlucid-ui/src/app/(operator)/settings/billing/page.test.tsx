@@ -17,8 +17,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
   return {
     ...actual,
-  isNextPublicDemoMode: () => false,
-};
+    isNextPublicDemoMode: () => false,
+  };
 });
 
 vi.mock("@/lib/frictionless-trial-session", () => ({
@@ -60,35 +60,52 @@ import BillingSettingsPage from "./page";
 
 const pricingFixture = {
   schemaVersion: 1,
-  effectiveDate: "2026-04-17",
+  effectiveDate: "2026-07-09",
   currency: "USD",
   packages: [
     {
+      id: "architect",
+      title: "Architect",
+      summary: "For one architect creating and reviewing architecture packages.",
+      planMonthlyUsd: 99,
+      pricingDisplay: "monthly",
+      includedUsers: 1,
+      includedWorkspaces: 1,
+      monthlyAiCredits: 500,
+      includedReviewsPerMonth: 5,
+      overageReviewUsd: 12,
+    },
+    {
       id: "team",
       title: "Team",
-      summary: "Small architecture team exploring AI-assisted review",
-      workspaceMonthlyUsd: 199,
-      includedArchitectSeats: 5,
-      seatMonthlyUsd: 79,
+      summary: "Small architecture team with basic governance",
+      planMonthlyUsd: 249,
+      pricingDisplay: "monthly",
+      includedUsers: 5,
+      includedWorkspaces: 1,
+      monthlyAiCredits: 2500,
       includedReviewsPerMonth: 20,
       overageReviewUsd: 10,
+      seatMonthlyUsd: 79,
     },
     {
       id: "professional",
       title: "Professional",
-      summary: "Established practice with governance and audit needs",
-      workspaceMonthlyUsd: 899,
-      maxWorkspaces: 5,
-      includedArchitectSeats: 20,
-      seatMonthlyUsd: 179,
+      summary: "Governed architecture review practice with policy packs and audit exports",
+      planMonthlyUsd: 1799,
+      pricingDisplay: "monthly",
+      includedUsers: 15,
+      includedWorkspaces: 5,
+      monthlyAiCredits: 10000,
       includedReviewsPerMonth: 100,
       overageReviewUsd: 8,
+      seatMonthlyUsd: 179,
     },
     {
       id: "enterprise",
       title: "Enterprise",
-      summary: "Large organization — annual contract",
-      annualFloorUsd: 60000,
+      summary: "Large organization — SSO, procurement, and private deployment",
+      pricingDisplay: "custom",
       annualCeilingUsd: 250000,
     },
   ],
@@ -111,7 +128,7 @@ describe("BillingSettingsPage", () => {
     showInfo.mockClear();
   });
 
-  it("loads tiers from pricing.json, shows current plan summary, and hides Stripe ids by default", async () => {
+  it("loads canonical tiers, shows subscription management layout, and hides Stripe ids", async () => {
     const fetchMock = vi.fn(async (input: string | URL) => {
       const url = String(input);
 
@@ -136,56 +153,26 @@ describe("BillingSettingsPage", () => {
     render(<BillingSettingsPage />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("billing-tier-team")).toBeInTheDocument();
+      expect(screen.getByTestId("billing-tier-architect")).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("billing-tier-team")).toBeInTheDocument();
+    expect(screen.getByTestId("billing-tier-enterprise")).toBeInTheDocument();
     expect(screen.getByTestId("operator-billing-current-plan")).toBeInTheDocument();
     expect(screen.getByText(/does not have an active paid plan/i)).toBeInTheDocument();
+    expect(screen.getByText(/Manage your plan, AI usage credits/i)).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /View public pricing/i })[0]).toHaveAttribute("href", "/pricing");
     expect(screen.getByTestId("operator-billing-usage-section")).toBeInTheDocument();
     expect(screen.getByTestId("operator-billing-payment-method")).toBeInTheDocument();
-    const stripeCustomerField = screen.queryByLabelText(/Stripe customer id/i);
-    expect(stripeCustomerField).toBeInTheDocument();
-    expect(stripeCustomerField).not.toBeVisible();
+    expect(screen.getByTestId("billing-tier-price-enterprise")).toHaveTextContent("Custom");
+    expect(screen.queryByText(/Workspace platform/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Starting at \$60,000/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Stripe customer id/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Advanced billing details/i)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Upgrade to Team/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Start Architect plan/i }));
 
-    expect(showInfo).toHaveBeenCalledWith("Stripe Checkout Integration Pending");
-
-    vi.unstubAllGlobals();
-  });
-
-  it("reveals Stripe ids inside advanced billing details", async () => {
-    const fetchMock = vi.fn(async (input: string | URL) => {
-      const url = String(input);
-
-      if (url.includes("/pricing.json")) {
-        return new Response(JSON.stringify(pricingFixture), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      if (url.includes("/api/proxy/v1/billing/wallet")) {
-        return new Response(JSON.stringify(walletFixture), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      return new Response("not found", { status: 404 });
-    });
-    vi.stubGlobal("fetch", fetchMock);
-
-    render(<BillingSettingsPage />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("operator-billing-advanced-details")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByText("Advanced billing details"));
-
-    expect(await screen.findByLabelText(/Stripe customer id/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Typical land range/i)).not.toBeInTheDocument();
+    expect(showInfo).toHaveBeenCalled();
 
     vi.unstubAllGlobals();
   });

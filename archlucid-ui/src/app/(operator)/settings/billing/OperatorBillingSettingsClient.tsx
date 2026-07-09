@@ -1,10 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+
 import { OperatorBillingCurrentPlanSummary } from "./OperatorBillingCurrentPlanSummary";
 import { OperatorBillingPlansClient } from "./OperatorBillingPlansClient";
 import { OperatorBillingUsageSection } from "./OperatorBillingUsageSection";
 import { OperatorBillingWalletPanel } from "./OperatorBillingWalletPanel";
+import { OPERATOR_BILLING_PAGE_LEAD } from "@/lib/marketing/marketing-public-pricing";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export function OperatorBillingSettingsClient() {
@@ -12,22 +15,27 @@ export function OperatorBillingSettingsClient() {
     <div className="w-full max-w-[1440px] space-y-8 px-4 py-8" data-testid="operator-billing-plans-page">
       <header className="space-y-2">
         <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Billing &amp; plans</h1>
-        <p className={cn("max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
-          Review your current plan, compare Team, Professional, and Enterprise packaging, and manage usage credits and
-          payment settings.
-        </p>
+        <p className={cn("max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{OPERATOR_BILLING_PAGE_LEAD}</p>
       </header>
 
       <OperatorBillingCurrentPlanSummary />
 
       <section id="billing-plans" className="scroll-mt-24 space-y-4">
-        <h2 className={OPERATOR_NAV_GROUP_LABEL}>Plans</h2>
+        <h2 className={OPERATOR_NAV_GROUP_LABEL}>Available plans</h2>
         <OperatorBillingPlansClient />
       </section>
 
       <OperatorBillingUsageSection />
 
       <OperatorBillingWalletPanel />
+
+      <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
+        Need procurement or deployment details?{" "}
+        <Link href="/pricing" className="text-teal-800 underline decoration-teal-600/40 underline-offset-2 dark:text-teal-200">
+          View public pricing
+        </Link>{" "}
+        or contact sales for Enterprise packaging.
+      </p>
     </div>
   );
 }

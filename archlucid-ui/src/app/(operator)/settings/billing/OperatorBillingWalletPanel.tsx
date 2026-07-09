@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,19 +22,14 @@ type WalletResponse = {
   autoRefillsThisUtcMonthCount: number;
   lastRefillUtc?: string | null;
   hasPaymentMethod: boolean;
-  stripePublishableKey?: string | null;
   rowVersionBase64: string;
 };
 
 export function OperatorBillingWalletPanel() {
-  // Wallet mutations (cap, auto-replenish, Stripe identifiers) stay AdminAuthority on the backend even though
-  // viewing the wallet is ReadAuthority — see WalletController.PutAsync.
   const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const [wallet, setWallet] = useState<WalletResponse | null>(null);
   const [monthlyCapUsd, setMonthlyCapUsd] = useState(0);
   const [autoReplenish, setAutoReplenish] = useState(false);
-  const [stripeCustomerId, setStripeCustomerId] = useState("");
-  const [stripePaymentMethodId, setStripePaymentMethodId] = useState("");
   const [loading, setLoading] = useState(true);
 
   const loadWallet = useCallback(async () => {
@@ -73,8 +67,6 @@ export function OperatorBillingWalletPanel() {
       body: JSON.stringify({
         autoReplenishEnabled: autoReplenish,
         monthlyCapUsd,
-        stripeCustomerId: stripeCustomerId.trim() || undefined,
-        stripePaymentMethodId: stripePaymentMethodId.trim() || undefined,
         rowVersionBase64: wallet.rowVersionBase64,
       }),
     });
@@ -86,7 +78,7 @@ export function OperatorBillingWalletPanel() {
 
     const data = (await res.json()) as WalletResponse;
     setWallet(data);
-    showInfo("AI usage credit settings saved.");
+    showInfo("AI credit settings saved.");
   };
 
   const onAddPaymentMethod = () => {
@@ -98,7 +90,7 @@ export function OperatorBillingWalletPanel() {
   };
 
   if (loading) {
-    return <p className={OPERATOR_TYPOGRAPHY.helper}>Loading AI usage credits…</p>;
+    return <p className={OPERATOR_TYPOGRAPHY.helper}>Loading prepaid credits…</p>;
   }
 
   if (!wallet) {
@@ -107,27 +99,17 @@ export function OperatorBillingWalletPanel() {
 
   return (
     <div id="billing-ai-credits" className="scroll-mt-24 space-y-4" data-testid="operator-billing-wallet-panel">
-      <div>
-        <h2 className={OPERATOR_NAV_GROUP_LABEL}>
-          AI usage credits
-        </h2>
-        <p className={cn("mt-1 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
-          Credits cover AI usage beyond your plan&apos;s included monthly allocation.
-        </p>
-      </div>
-
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Credit balance</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Prepaid AI credits</CardTitle>
           <CardDescription>
-            Non-expiring credits for review overages. Auto-replenish adds ${wallet.refillIncrementUsd} when balance
-            drops below ${wallet.refillTriggerThresholdUsd}.
+            Credit balance covers AI usage after your plan&apos;s included monthly allowance is consumed.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <dl className={cn("grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
             <div>
-              <dt className="text-neutral-500 dark:text-neutral-400">Balance</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">Credit balance</dt>
               <dd className="font-medium tabular-nums">${wallet.balanceUsd.toFixed(2)}</dd>
             </div>
             <div>
@@ -171,77 +153,45 @@ export function OperatorBillingWalletPanel() {
 
           <Button
             type="button"
+            variant="outline"
             onClick={() => void saveWallet()}
             disabled={!canMutate}
             title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
           >
-            Save credit settings
+            Save AI credit settings
           </Button>
 
           {!canMutate ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              Administrator access required to change AI usage credit settings.
+              Administrator access required to change AI credit settings.
             </p>
           ) : null}
         </CardContent>
       </Card>
 
-      <Card data-testid="operator-billing-payment-method">
-        <CardHeader className="pb-2">
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Payment method</CardTitle>
-          <CardDescription>Used for plan checkout and AI usage credit auto-replenish.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 pt-0">
-          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {wallet.hasPaymentMethod ? "Payment method on file." : "No payment method on file."}
-          </p>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onAddPaymentMethod}
-            disabled={!canMutate}
-            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-          >
-            Add payment method
-          </Button>
-        </CardContent>
-      </Card>
-
-      <CollapsibleSection title="Advanced billing details" sectionTestId="operator-billing-advanced-details">
-        <div className="space-y-4">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-            Integration identifiers for staging and support. These fields are not shown in normal buyer-facing flows once
-            Stripe Elements checkout ships.
-          </p>
-          <div className="space-y-2">
-            <Label htmlFor="stripe-customer">Stripe customer id</Label>
-            <Input
-              id="stripe-customer"
-              value={stripeCustomerId}
-              onChange={(e) => setStripeCustomerId(e.target.value)}
-              placeholder="cus_…"
+      <section className="space-y-3">
+        <h2 className={OPERATOR_NAV_GROUP_LABEL}>Payment method</h2>
+        <Card data-testid="operator-billing-payment-method">
+          <CardHeader className="pb-2">
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Payment method</CardTitle>
+            <CardDescription>Used for plan checkout and AI credit auto-replenish.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 pt-0">
+            <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {wallet.hasPaymentMethod ? "Payment method on file." : "No payment method on file."}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onAddPaymentMethod}
               disabled={!canMutate}
               title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="stripe-pm">Stripe payment method id</Label>
-            <Input
-              id="stripe-pm"
-              value={stripePaymentMethodId}
-              onChange={(e) => setStripePaymentMethodId(e.target.value)}
-              placeholder="pm_…"
-              disabled={!canMutate}
-              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-            />
-            {wallet.stripePublishableKey ? (
-              <p className={OPERATOR_TYPOGRAPHY.helper}>
-                Publishable key configured for this environment.
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </CollapsibleSection>
+            >
+              {wallet.hasPaymentMethod ? "Update payment method" : "Add payment method"}
+            </Button>
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }

@@ -1,0 +1,85 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  buildOperatorBillingAddonLines,
+  buildOperatorBillingPlanSummaryLines,
+  formatPlanPrice,
+} from "@/lib/pricing-catalog-display";
+import type { PricingDoc } from "@/lib/pricing-types";
+
+const pricing: PricingDoc = {
+  schemaVersion: 1,
+  effectiveDate: "2026-07-09",
+  currency: "USD",
+  packages: [],
+};
+
+describe("pricing-catalog-display", () => {
+  it("formats bundled monthly plan price for billing and marketing", () => {
+    expect(
+      formatPlanPrice(
+        {
+          id: "team",
+          title: "Team",
+          summary: "Team",
+          planMonthlyUsd: 249,
+          pricingDisplay: "monthly",
+        },
+        "USD",
+      ),
+    ).toBe("$249 / mo");
+  });
+
+  it("shows custom enterprise pricing without annual floor copy", () => {
+    const lines = buildOperatorBillingPlanSummaryLines(pricing, {
+      id: "enterprise",
+      title: "Enterprise",
+      summary: "Custom contract",
+      pricingDisplay: "custom",
+      annualCeilingUsd: 250000,
+    });
+
+    expect(lines).toEqual([
+      { label: "Plan price", value: "Custom" },
+      { label: "Included AI usage", value: "Custom AI allowance" },
+    ]);
+    expect(lines.some((line) => line.value.includes("60,000"))).toBe(false);
+  });
+
+  it("builds plan summary from catalog fields instead of workspace SKUs", () => {
+    const lines = buildOperatorBillingPlanSummaryLines(pricing, {
+      id: "architect",
+      title: "Architect",
+      summary: "Solo architect",
+      planMonthlyUsd: 99,
+      pricingDisplay: "monthly",
+      includedUsers: 1,
+      includedWorkspaces: 1,
+      monthlyAiCredits: 500,
+      includedReviewsPerMonth: 5,
+      workspaceMonthlyUsd: 199,
+      seatMonthlyUsd: 79,
+    });
+
+    expect(lines.map((line) => line.label)).toEqual([
+      "Plan price",
+      "Included",
+      "Included AI usage",
+      "Included reviews",
+    ]);
+    expect(lines[0]?.value).toBe("$99 / mo");
+    expect(lines.some((line) => line.label === "Workspace platform")).toBe(false);
+  });
+
+  it("keeps add-on charges in a separate collapsed-friendly list", () => {
+    const addonLines = buildOperatorBillingAddonLines(pricing, {
+      id: "team",
+      title: "Team",
+      summary: "Team",
+      overageReviewUsd: 10,
+      seatMonthlyUsd: 79,
+    });
+
+    expect(addonLines.map((line) => line.label)).toEqual(["Additional reviews", "Additional users"]);
+  });
+});
