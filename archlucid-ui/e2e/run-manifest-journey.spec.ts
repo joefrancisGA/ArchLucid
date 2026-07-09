@@ -62,10 +62,13 @@ test.describe("operator journey — run detail to manifest and back", () => {
       .first();
 
     await expect(reviewLink).toBeVisible({ timeout: 60_000 });
-    await reviewLink.click();
-    await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`), {
-      timeout: 60_000,
-    });
+    await Promise.all([
+      page.waitForURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`), {
+        waitUntil: "commit",
+        timeout: 60_000,
+      }),
+      reviewLink.click(),
+    ]);
 
     await expectBuyerGoldenPageReady(page);
 

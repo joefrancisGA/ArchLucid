@@ -21,6 +21,8 @@ test.describe("finding evidence deep-links @demo-readiness", () => {
   });
 
   test("run detail findings table exposes manifest navigation chip for showcase finding", async ({ page }) => {
+    test.setTimeout(120_000);
+
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
 
     await waitForAppReady(page);

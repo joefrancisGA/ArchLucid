@@ -93,11 +93,14 @@ export async function expectBuyerReviewPackagePrimaryHeading(page: Page, options
 export async function expectBuyerGoldenPageReady(page: Page): Promise<void> {
   await waitForAppReady(page);
 
-  const reviewDetailRoot = getAppMain(page).getByTestId("review-detail-root").first();
+  // `reviews/[runId]/loading.tsx` renders RunDetailSkeleton without review-detail-root until RSC completes.
+  await expect(page.getByLabel("Loading review detail")).toHaveCount(0, { timeout: 60_000 });
+
+  const reviewDetailRoot = page.getByTestId("review-detail-root").first();
 
   await expect(reviewDetailRoot).toBeVisible({ timeout: 60_000 });
   await expect(reviewDetailRoot).toHaveAttribute("data-buyer-golden-ready", "true", { timeout: 60_000 });
-  await expect(getAppMain(page).locator('section[aria-label="Review outcome summary"]')).toBeVisible({
+  await expect(reviewDetailRoot.locator('section[aria-label="Review outcome summary"]')).toBeVisible({
     timeout: 60_000,
   });
 }

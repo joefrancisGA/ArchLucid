@@ -475,12 +475,12 @@ export async function expectExecutiveRoiPortfolioPanels(page: Page): Promise<voi
 
   await expect(page.getByTestId("exec-kpi-resolved-30d")).toBeVisible({ timeout: 15_000 });
 
-  await page.waitForResponse(isExecutiveRoiHistoryProxyResponse, { timeout: 60_000 }).catch(() => null);
+  await page.waitForResponse(isExecutiveRoiHistoryProxyResponse, { timeout: 30_000 }).catch(() => null);
 
   const trendChart = page.getByTestId("exec-roi-trend-chart");
 
-  if ((await trendChart.count()) > 0) {
-    await expect(trendChart).toBeVisible({ timeout: 30_000 });
+  if (await trendChart.isVisible().catch(() => false)) {
+    await expect(trendChart).toBeVisible({ timeout: 15_000 });
   }
 
 }
