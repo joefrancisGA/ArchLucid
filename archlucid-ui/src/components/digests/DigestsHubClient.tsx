@@ -107,9 +107,8 @@ export function DigestsHubClient(): ReactElement {
   const healthBannerVariant =
     activeTab === "subscriptions" ? "subscriptions" : activeTab === "schedule" ? "schedule" : "full";
 
-  const latestDigestId: string | null | undefined = healthSnap?.latestArchitectureDigestId;
-  const hasPreviewDigest: boolean =
-    latestDigestId !== null && latestDigestId !== undefined && latestDigestId.trim() !== "";
+  const previewDigestId = latestDigestId?.trim() ?? "";
+  const hasPreviewDigest: boolean = previewDigestId !== "";
   const previewActionTitle = hasPreviewDigest
     ? "Opens the most recently generated digest summary."
     : DIGESTS_BROWSE_PREVIEW_DISABLED_TITLE;
@@ -120,7 +119,7 @@ export function DigestsHubClient(): ReactElement {
   const primaryHref: string = nextBestAction?.href ?? (configured ? "/digests?tab=schedule" : "/digests?tab=subscriptions");
   const primaryLabel: string = nextBestAction?.actionLabel ?? (configured ? "Configure weekly digest" : "Create digest");
   const previewHref: string = hasPreviewDigest
-    ? `/digests?tab=browse#digest-${encodeURIComponent(latestDigestId)}`
+    ? `/digests?tab=browse#digest-${encodeURIComponent(previewDigestId)}`
     : "/digests";
 
   const lastUpdatedLabel: string =
