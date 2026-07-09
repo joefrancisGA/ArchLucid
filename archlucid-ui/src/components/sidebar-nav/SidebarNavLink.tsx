@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 
 import type { NavLinkItem } from "@/lib/nav-config.types";
+import { Badge } from "@/components/ui/badge";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { pilotNavLinkTestId } from "@/lib/pilot-nav-link-test-ids";
@@ -80,6 +81,11 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
     >
       {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
       <SidebarNavLinkLabel presented={presented} showQuestionSubtitle={props.showQuestionSubtitle} />
+      {presented.navBadge ? (
+        <Badge variant="outline" className={cn("ml-auto shrink-0", OPERATOR_TYPOGRAPHY.badge)}>
+          {presented.navBadge}
+        </Badge>
+      ) : null}
       {props.afterLabel}
     </Link>
   );

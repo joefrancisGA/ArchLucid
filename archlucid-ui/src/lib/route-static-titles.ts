@@ -5,6 +5,7 @@ import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { PATTERN_LIBRARY_PAGE_TITLE } from "@/lib/pattern-library-copy";
 
 /** Static pathname → announcement title mappings for documented top-level routes. */
 export const ROUTE_TITLES: Record<string, string> = {
@@ -15,6 +16,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/alert-rules": "Alert rules",
   "/compare": "Compare",
   "/graph": "Graph",
+  "/patterns": PATTERN_LIBRARY_PAGE_TITLE,
   "/governance": GOVERNANCE_OVERVIEW_PAGE_TITLE,
   "/governance/dashboard": "Executive Workspace Health",
   "/governance/findings": "Architecture risk register",

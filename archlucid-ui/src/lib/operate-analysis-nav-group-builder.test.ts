@@ -20,16 +20,24 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     expect(graphLink?.keyShortcut).toBe("alt+y");
   });
 
-  it("lists Review scorecard last in Insights nav", () => {
+  it("lists Pattern library second in Insights nav when preview is enabled", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.href)).toEqual([
       "/graph",
+      "/patterns",
       "/ask",
       "/search",
       "/compare",
       "/scorecard",
     ]);
+    expect(group.links[1]?.label).toBe("Pattern library");
+    expect(group.links[1]?.navBadge).toBe("Preview");
+  });
+
+  it("lists Review scorecard last in Insights nav", () => {
+    const group = new OperateAnalysisNavGroupBuilder().build();
+
     expect(group.links.at(-1)?.label).toBe("Review scorecard");
   });
 });
