@@ -30294,6 +30294,190 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/runs/{runId}/technology-ledger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TechnologyLedgerListResponse"];
+                        "text/json": components["schemas"]["TechnologyLedgerListResponse"];
+                        "text/plain": components["schemas"]["TechnologyLedgerListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/runs/{runId}/technology-ledger/{entryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                    entryId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["PatchTechnologyLedgerEntryRequest"];
+                    "application/json": null | components["schemas"]["PatchTechnologyLedgerEntryRequest"];
+                    "text/json": null | components["schemas"]["PatchTechnologyLedgerEntryRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PatchTechnologyLedgerEntryResponse"];
+                        "text/json": components["schemas"]["PatchTechnologyLedgerEntryResponse"];
+                        "text/plain": components["schemas"]["PatchTechnologyLedgerEntryResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/v1/scope": {
         parameters: {
             query?: never;
@@ -36647,6 +36831,16 @@ export interface components {
             freeTextIntent?: null | string;
             systemName?: null | string;
         };
+        PatchTechnologyLedgerEntryRequest: {
+            isLocked?: null | boolean;
+            providerFamily?: null | components["schemas"]["CloudProvider"];
+            rationale?: null | string;
+            status?: null | components["schemas"]["TechnologyLedgerStatus"];
+            technologyName?: null | string;
+        };
+        PatchTechnologyLedgerEntryResponse: {
+            entry?: components["schemas"]["TechnologyLedgerEntryResponse"];
+        };
         PatternEvidence: {
             applicableCapabilities?: string[];
             name?: string;
@@ -38738,6 +38932,29 @@ export interface components {
             keyVaultSecretName: string;
             label?: null | string;
         };
+        TechnologyLedgerEntryResponse: {
+            /** Format: date-time */
+            createdUtc?: string;
+            entryId?: string;
+            evidenceRef?: null | string;
+            isLocked?: boolean;
+            providerFamily?: components["schemas"]["CloudProvider"];
+            rationale?: null | string;
+            role?: components["schemas"]["TechnologyLedgerRole"];
+            runId?: string;
+            source?: components["schemas"]["TechnologyLedgerSource"];
+            status?: components["schemas"]["TechnologyLedgerStatus"];
+            technologyName?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        TechnologyLedgerListResponse: {
+            entries?: components["schemas"]["TechnologyLedgerEntryResponse"][];
+            runId?: string;
+        };
+        TechnologyLedgerRole: number;
+        TechnologyLedgerSource: number;
+        TechnologyLedgerStatus: number;
         TenantAgentOutputQualityGateModeResponse: {
             effectiveMode?: string;
             hostDefaultMode?: string;

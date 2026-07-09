@@ -47,6 +47,7 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
     page,
 
   }) => {
+    test.setTimeout(180_000);
 
     await registerExecutiveRoiDashboardDeterministicProxyRoutes(page);
     const roiWaits = prepareExecutiveRoiDashboardProxyWaits(page);

@@ -105,6 +105,9 @@ export async function expectBuyerGoldenPageReady(page: Page): Promise<void> {
 /** Layer strip stepper is present on curated spine routes in buyer-polished mock E2E. */
 export async function expectBuyerGoldenJourneyStepper(page: Page): Promise<void> {
   await waitForAppReady(page);
-  await expect(page.getByTestId("layer-context-strip")).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByTestId("buyer-golden-journey-stepper")).toBeVisible({ timeout: 60_000 });
+
+  const journeyNav = page.getByRole("navigation", { name: "Review journey steps" });
+
+  await expect(journeyNav).toBeVisible({ timeout: 60_000 });
+  await expect(journeyNav.getByTestId("buyer-golden-journey-stepper")).toBeVisible({ timeout: 60_000 });
 }

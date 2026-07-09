@@ -67,6 +67,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
 
     // Step 5 — Audit trail
     await page.goto(BUYER_GOLDEN_PATH_HREFS.auditTrail);
+    await expect(page).toHaveURL(/\/audit\?runId=/);
     await expect(
       page.getByRole("heading", { level: 2, name: BUYER_SHOWCASE_AUDIT_TRAIL_HEADING }),
     ).toBeVisible();
