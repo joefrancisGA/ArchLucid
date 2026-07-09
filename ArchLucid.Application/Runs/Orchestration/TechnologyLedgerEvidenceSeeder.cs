@@ -1,4 +1,4 @@
-using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 using ArchLucid.Contracts.Common;
@@ -20,7 +20,7 @@ public sealed class TechnologyLedgerEvidenceSeeder(
     IScopeContextProvider scopeContextProvider,
     IAzureExtractorPackageRepository azureExtractorPackageRepository,
     ICloudInventoryExtractorPackageRepository cloudInventoryExtractorPackageRepository,
-    InfrastructureDeclarationsPayloadNormalizer infrastructureDeclarationsNormalizer,
+    IConnectorNormalizer<InfrastructureDeclarationsPayload> infrastructureDeclarationsNormalizer,
     TimeProvider timeProvider)
 {
     private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository =
@@ -30,7 +30,7 @@ public sealed class TechnologyLedgerEvidenceSeeder(
         cloudInventoryExtractorPackageRepository
         ?? throw new ArgumentNullException(nameof(cloudInventoryExtractorPackageRepository));
 
-    private readonly InfrastructureDeclarationsPayloadNormalizer _infrastructureDeclarationsNormalizer =
+    private readonly IConnectorNormalizer<InfrastructureDeclarationsPayload> _infrastructureDeclarationsNormalizer =
         infrastructureDeclarationsNormalizer ?? throw new ArgumentNullException(nameof(infrastructureDeclarationsNormalizer));
 
     private readonly IScopeContextProvider _scopeContextProvider =
