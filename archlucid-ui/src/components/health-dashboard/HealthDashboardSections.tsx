@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { HealthDisplaySeverity } from "@/lib/health-readiness-presentation";
-import type { HealthSummaryTile } from "@/lib/health-dashboard-summary";
 
 export const HEALTH_DASHBOARD_PAGE_CLASS = cn(OPERATOR_PAGE_CONTAINER.variant.workflow, "max-w-[1120px]");
 
@@ -71,7 +70,12 @@ export function HealthOverallStatusHeader(props: HealthOverallStatusHeaderProps)
 }
 
 type HealthSummaryTileGridProps = {
-  readonly tiles: readonly HealthSummaryTile[];
+  readonly tiles: ReadonlyArray<{
+    readonly id: string;
+    readonly label: string;
+    readonly value: string;
+    readonly severity: HealthDisplaySeverity | "neutral";
+  }>;
   readonly testId: string;
 };
 

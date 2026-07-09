@@ -6,7 +6,6 @@ import Link from "next/link";
 import { StatusPill } from "@/components/StatusPill";
 import { DeploymentBuildFingerprintStrip } from "@/components/shell/DeploymentBuildFingerprintStrip";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   HEALTH_DASHBOARD_PAGE_CLASS,
@@ -22,6 +21,7 @@ import { buildHealthSummaryTiles } from "@/lib/health-dashboard-summary";
 import { groupReadinessRows, presentReadinessRow, resolveOverallHealthHeadline } from "@/lib/health-readiness-presentation";
 
 import type { SystemHealthPageViewModel } from "./system-health-page-view-model";
+import { SystemHealthDemoPageView } from "./SystemHealthDemoPageView";
 
 type Props = {
   readonly model: SystemHealthPageViewModel;
@@ -29,6 +29,20 @@ type Props = {
 
 export function SystemHealthPageView(props: Props) {
   const m = props.model;
+
+  if (m.showDemoWorkspaceDashboard) {
+    return (
+      <SystemHealthDemoPageView
+        loading={m.loading}
+        lastRefreshedAt={m.lastRefreshedAt}
+        onRefresh={() => {
+          void m.refresh();
+        }}
+        showTechnicalDetails={m.showTechnicalDetails}
+      />
+    );
+  }
+
   const overall = m.ready?.status ?? "Unknown";
   const headline = resolveOverallHealthHeadline(overall);
   const readinessGroups = groupReadinessRows(m.ready?.entries ?? []);
@@ -41,21 +55,6 @@ export function SystemHealthPageView(props: Props) {
     lastRefreshedAt: m.lastRefreshedAt,
     loading: m.loading,
   });
-
-  if (isBuyerPolishedOperatorShellEnv()) {
-    return (
-      <div
-        className={cn(
-          "rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-al-text-secondary dark:border-neutral-800 dark:bg-neutral-900",
-          OPERATOR_TYPOGRAPHY.body,
-        )}
-      >
-        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          System health is not part of the sample review shell.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, "space-y-6")} data-testid="system-health-page">
