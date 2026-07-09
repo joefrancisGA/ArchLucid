@@ -19,11 +19,11 @@ export function AdminAiUsageGovernanceCard() {
 
   if (isLoading) {
     return (
-      <Card className={OPERATOR_CARD}>
-        <CardHeader>
+      <Card>
+        <CardHeader className={OPERATOR_CARD.header}>
           <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>AI usage governance</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className={OPERATOR_CARD.content}>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading…</p>
         </CardContent>
       </Card>
@@ -39,11 +39,11 @@ export function AdminAiUsageGovernanceCard() {
   const exhaustionEvents = data.recentEvents.filter((e) => e.budgetBlocked);
 
   return (
-    <Card className={OPERATOR_CARD} data-testid="admin-ai-usage-governance-card">
-      <CardHeader>
+    <Card data-testid="admin-ai-usage-governance-card">
+      <CardHeader className={OPERATOR_CARD.header}>
         <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>AI usage governance</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className={cn(OPERATOR_CARD.content, "space-y-4")}>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           Workspace kind: <strong>{data.workspaceKind}</strong> · Budget remaining:{" "}
           <strong>${data.remainingAmountUsd.toFixed(2)}</strong> of ${data.budgetAmountUsd.toFixed(2)} ({data.resetPeriod})
