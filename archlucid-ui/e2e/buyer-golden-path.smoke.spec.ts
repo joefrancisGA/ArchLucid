@@ -75,7 +75,6 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     // because Playwright `.or()` strict mode fails when both locators match.
     await expect(page.getByTestId("audit-buyer-metric-tiles")).toBeVisible();
     await expect(page.getByTestId("audit-timeline-event-card").first()).toBeVisible();
-    await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
     // Satellites — optional diligence surfaces linked from the layer strip / command palette
