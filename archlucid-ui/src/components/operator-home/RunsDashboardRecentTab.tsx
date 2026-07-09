@@ -50,6 +50,8 @@ export type RunsDashboardRecentTabProps = {
   readonly showArchived: boolean;
   readonly archivedFieldSupported: boolean;
   readonly restoreBusyRequestId: string | null;
+  readonly contentTestId?: string;
+  readonly statusFilterEmptyMessage?: string | null;
   readonly onRestoreArchivedRequest: (requestId: string) => void;
 };
 
@@ -68,8 +70,20 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
     !props.runListError &&
     (props.phase === "ready" || props.phase === "error");
 
+  const showStatusFilterEmptyState =
+    !props.showArchived &&
+    props.filteredItems.length === 0 &&
+    props.effectiveItems.length > 0 &&
+    props.statusFilterEmptyMessage !== undefined &&
+    props.statusFilterEmptyMessage !== null &&
+    props.statusFilterEmptyMessage.length > 0 &&
+    !props.runListError &&
+    (props.phase === "ready" || props.phase === "error");
+
+  const panelTestId = props.contentTestId ?? "runs-dashboard-tab-all";
+
   return (
-    <div data-testid="runs-dashboard-tab-recent">
+    <div data-testid={panelTestId}>
       {props.phase === "loading" ? (
         <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {RUNS_DASHBOARD_LABELS.loadingReviews}
@@ -150,6 +164,12 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
       {showArchivedEmptyState ? <OperatorHomeWorkspaceArchivedEmptyState /> : null}
 
       {showWorkspaceEmptyState ? <OperatorHomeWorkspaceEmptyState /> : null}
+
+      {showStatusFilterEmptyState ? (
+        <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {props.statusFilterEmptyMessage}
+        </p>
+      ) : null}
 
       {(props.phase === "ready" || props.phase === "error") && props.showcaseDemoRun !== undefined && props.buyerPolishedShell ? (
         <section

@@ -349,14 +349,8 @@ describe("RunsDashboardPanel", () => {
     renderRunsDashboardPanel();
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "All" })).toHaveAttribute(
-        "data-testid",
-        "runs-dashboard-filter-all",
-      );
-      expect(screen.getByRole("tab", { name: "Approved" })).toHaveAttribute(
-        "data-testid",
-        "runs-dashboard-tab-recent",
-      );
+      expect(screen.getByRole("tab", { name: "All" })).toHaveAttribute("data-testid", "runs-dashboard-tab-all");
+      expect(screen.getByRole("tab", { name: "Approved" })).toHaveAttribute("data-testid", "runs-dashboard-tab-approved");
       expect(screen.getByRole("tab", { name: "Action needed" })).toHaveAttribute(
         "data-testid",
         "runs-dashboard-tab-attention",
@@ -365,8 +359,13 @@ describe("RunsDashboardPanel", () => {
         "data-testid",
         "runs-dashboard-tab-outcomes",
       );
+      expect(screen.getByRole("link", { name: "View all review packages" })).toHaveAttribute(
+        "data-testid",
+        "runs-dashboard-view-all-reviews",
+      );
       expect(screen.queryByTestId("runs-dashboard-show-archived")).toBeNull();
       expect(screen.queryByTestId("runs-dashboard-open-all-reviews")).toBeNull();
+      expect(screen.queryByRole("link", { name: "All" })).toBeNull();
     });
     expect(screen.queryByTestId("runs-dashboard-filters")).toBeNull();
     expect(screen.queryByTestId("runs-dashboard-governance-warnings-only")).toBeNull();

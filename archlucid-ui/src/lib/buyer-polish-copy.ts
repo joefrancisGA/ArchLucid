@@ -808,6 +808,11 @@ export const BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION = "Action needed";
 
 export const BUYER_RUNS_DASHBOARD_FILTER_ALL = "All";
 
+export const BUYER_RUNS_DASHBOARD_VIEW_ALL_REVIEW_PACKAGES_CTA = "View all review packages";
+
+export const BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES =
+  "No approved review packages match this filter yet.";
+
 export const BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA = "Open all reviews";
 
 export const BUYER_ASK_INPUT_PLACEHOLDER =

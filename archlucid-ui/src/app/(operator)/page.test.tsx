@@ -196,7 +196,7 @@ describe("HomePage — buyer-polished shell", () => {
     expect(screen.queryByText(/AI co-architect/i)).toBeNull();
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "All" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "All" })).toBeInTheDocument();
     });
   });
 });

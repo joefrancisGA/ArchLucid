@@ -4,6 +4,7 @@ import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { StatusTag } from "@/components/ui/status-tag";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import {
+  BUYER_RUNS_DASHBOARD_FILTER_ALL,
   BUYER_RUNS_DASHBOARD_TAB_APPROVED,
   BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION,
   BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING,
@@ -37,9 +38,21 @@ export function isRunNeedingAttention(run: RunSummary): boolean {
   return run.hasFindingsSnapshot === true && run.hasGoldenManifest !== true;
 }
 
+export function isRunApprovedPackage(run: RunSummary): boolean {
+  return run.hasGoldenManifest === true && run.hasGovernanceWarnings !== true;
+}
+
+export function isRunApprovedWithMonitoringPackage(run: RunSummary): boolean {
+  return run.hasGoldenManifest === true && run.hasGovernanceWarnings === true;
+}
+
 export function runsDashboardTabLabel(tabId: RunsDashboardTabId, buyerPolishedShell: boolean): string {
   if (buyerPolishedShell) {
-    if (tabId === "recent") {
+    if (tabId === "all") {
+      return BUYER_RUNS_DASHBOARD_FILTER_ALL;
+    }
+
+    if (tabId === "approved") {
       return BUYER_RUNS_DASHBOARD_TAB_APPROVED;
     }
 
@@ -50,8 +63,12 @@ export function runsDashboardTabLabel(tabId: RunsDashboardTabId, buyerPolishedSh
     return BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING;
   }
 
-  if (tabId === "recent") {
+  if (tabId === "all") {
     return RUNS_DASHBOARD_LABELS.tabRecent;
+  }
+
+  if (tabId === "approved") {
+    return BUYER_RUNS_DASHBOARD_TAB_APPROVED;
   }
 
   if (tabId === "attention") {
