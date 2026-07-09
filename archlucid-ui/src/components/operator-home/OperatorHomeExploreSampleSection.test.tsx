@@ -5,8 +5,10 @@ import { OperatorHomeExploreSampleSection } from "@/components/operator-home/Ope
 import {
   OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
   OPERATOR_HOME_EXPLORE_SAMPLE_LEAD,
+  OPERATOR_HOME_OPEN_COMPLETED_SAMPLE_HINT,
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
+  OPERATOR_HOME_RUN_SAMPLE_REVIEW_HINT,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import {
@@ -56,6 +58,8 @@ describe("OperatorHomeExploreSampleSection", () => {
       reviewIntakeExampleTemplateHref(OPERATOR_HOME_EXAMPLE_TEMPLATE_ID),
     );
     expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA })).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_OPEN_COMPLETED_SAMPLE_HINT)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_RUN_SAMPLE_REVIEW_HINT)).toBeInTheDocument();
   });
 
   it("hides once the tenant has a committed architecture review", () => {

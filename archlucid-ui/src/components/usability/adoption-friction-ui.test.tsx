@@ -7,7 +7,6 @@ import { RunsListCompareSelectionBar } from "./RunsListCompareSelectionBar";
 import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
-  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
@@ -15,17 +14,13 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { INLINE_GUIDANCE_LABEL_CLASS } from "@/lib/design-tokens";
 import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
-import {
-  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
-  showcaseSampleReviewPackageHref,
-} from "@/lib/showcase-sample-review-registry";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
 }));
 
 describe("PilotCommandCenterCard", () => {
-  it("renders dual-path hero cards and a single completed-sample CTA without duplicate sample links", () => {
+  it("renders dual-path hero cards without a duplicate completed-sample CTA", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
@@ -34,18 +29,13 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
 
-    const openSample = screen.getByTestId("pilot-command-center-open-completed-sample");
-    expect(openSample).toHaveAttribute(
-      "href",
-      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
-    );
-    expect(openSample).toHaveTextContent(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
+    expect(screen.queryByTestId("pilot-command-center-open-completed-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-help")).toBeNull();
     expect(screen.queryByTestId("pilot-path-preview-stepper")).toBeNull();
-    expect(screen.getByTestId("pilot-command-center-cta-row")).toBeInTheDocument();
+    expect(screen.queryByTestId("pilot-command-center-cta-row")).toBeNull();
   });
 
   it("shows optional setup links on the Continue setup card instead of the hero (TB-346)", () => {

@@ -60,6 +60,12 @@ export const OPERATOR_HOME_EXPLORE_SAMPLE_HEADING = "Explore a sample workspace"
 export const OPERATOR_HOME_EXPLORE_SAMPLE_LEAD =
   "See a completed package or run a guided sample review before using your own evidence.";
 
+export const OPERATOR_HOME_OPEN_COMPLETED_SAMPLE_HINT =
+  "View a finished review package with findings, evidence, and the signed record.";
+
+export const OPERATOR_HOME_RUN_SAMPLE_REVIEW_HINT =
+  "Watch ArchLucid generate the review flow from sample inputs.";
+
 /** @deprecated Prefer {@link OPERATOR_HOME_EXPLORE_SAMPLE_HEADING} — retained for legacy imports. */
 export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = OPERATOR_HOME_EXPLORE_SAMPLE_HEADING;
 

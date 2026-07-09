@@ -6,17 +6,12 @@ import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
   PILOT_COMMAND_CENTER_HEADING,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
-import {
-  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
-  showcaseSampleReviewPackageHref,
-} from "@/lib/showcase-sample-review-registry";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
@@ -110,15 +105,12 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
   });
 
-  it("exposes open-completed-sample as the hero sample path before first commit", () => {
+  it("shows dual-path hero cards without a duplicate sample CTA before first commit", () => {
     renderWithOperatorQuery(<PilotCommandCenterCard />);
 
-    const openSample = screen.getByTestId("pilot-command-center-open-completed-sample");
-    expect(openSample).toHaveAttribute(
-      "href",
-      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
-    );
-    expect(openSample).toHaveTextContent(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
+    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
+    expect(screen.queryByTestId("pilot-command-center-open-completed-sample")).toBeNull();
+    expect(screen.queryByTestId("pilot-command-center-cta-row")).toBeNull();
     expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
     expect(screen.queryByTestId("pilot-path-preview-stepper")).toBeNull();
   });

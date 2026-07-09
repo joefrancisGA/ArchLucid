@@ -92,7 +92,6 @@ vi.mock("./_sections/load-operator-home-runs-dashboard-model", () => ({
   loadOperatorHomeRunsDashboardModel: vi.fn(),
 }));
 
-import { SHOWCASE_SAMPLE_REVIEW_REGISTRY, showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import HomePage from "./page";
 import { loadOperatorHomeRunsDashboardModel } from "./_sections/load-operator-home-runs-dashboard-model";
 import type { OperatorHomeRunsDashboardModel } from "./_sections/operator-home-runs-dashboard-model";
@@ -212,10 +211,7 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.queryByTestId("operator-home-example-request-panel")).toBeNull();
     expect(screen.queryByTestId("operator-home-sample-review-preview")).toBeNull();
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-command-center-open-completed-sample")).toHaveAttribute(
-      "href",
-      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
-    );
+    expect(screen.queryByTestId("pilot-command-center-open-completed-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
@@ -224,14 +220,11 @@ describe("HomePage (55R smoke — landing)", () => {
       "/reviews/new?template=claims-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "Run sample review" })).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-command-center-open-completed-sample")).toHaveAttribute(
-      "href",
-      "/reviews/claims-intake-modernization",
-    );
     expect(screen.getByTestId("operator-home-explore-open-completed-sample")).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
     );
+    expect(screen.getAllByRole("link", { name: "Open completed sample" })).toHaveLength(1);
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     });
