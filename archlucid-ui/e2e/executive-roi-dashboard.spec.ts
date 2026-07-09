@@ -26,6 +26,8 @@ import {
 
   expectExecutiveRoiPortfolioPanels,
 
+  expectExecutiveRoiEnvironmentPieVisible,
+
   expectNoExecutiveRoiDashboardErrorBoundary,
 
   prepareExecutiveRoiDashboardProxyWaits,
@@ -65,7 +67,7 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
     await expectExecutiveRoiPortfolioPanels(page);
 
-    await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible();
+    await expectExecutiveRoiEnvironmentPieVisible(page);
 
     await expect(page.getByRole("heading", { level: 2, name: "Business impact summary" })).toBeVisible();
 
@@ -102,7 +104,7 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
     await expect(page.getByTestId("exec-roi-identified-vs-realized-panel")).toBeVisible({ timeout: 30_000 });
 
-    await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible();
+    await expectExecutiveRoiEnvironmentPieVisible(page);
 
   });
 

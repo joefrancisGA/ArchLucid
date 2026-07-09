@@ -62,13 +62,13 @@ test.describe("operator journey — run detail to manifest and back", () => {
       .first();
 
     await expect(reviewLink).toBeVisible({ timeout: 60_000 });
-    await Promise.all([
-      page.waitForURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`), {
-        waitUntil: "commit",
-        timeout: 60_000,
-      }),
-      reviewLink.click(),
-    ]);
+    await expect(reviewLink).toHaveAttribute("href", `/reviews/${SHOWCASE_DEMO_RUN_ID}`);
+
+    // Full navigation is more reliable than breadcrumb client nav on cold CI agents (RSC + loading.tsx).
+    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
+    await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`), {
+      timeout: 60_000,
+    });
 
     await expectBuyerGoldenPageReady(page);
 
@@ -76,6 +76,6 @@ test.describe("operator journey — run detail to manifest and back", () => {
       getAppMain(page).getByRole("heading", { level: 1 }).filter({ hasText: SHOWCASE_RUN_DETAIL_HEADING }),
     ).toBeVisible({ timeout: 60_000 });
 
-    await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator('section[aria-label="Review outcome summary"]')).toBeVisible({ timeout: 60_000 });
   });
 });

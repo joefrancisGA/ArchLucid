@@ -431,7 +431,7 @@ export async function expectExecutiveRoiFindingDeduplication(
 
 
 
-  await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible({ timeout: 30_000 });
+  await expectExecutiveRoiEnvironmentPieVisible(page);
 
   await expect(
 
@@ -483,6 +483,13 @@ export async function expectExecutiveRoiPortfolioPanels(page: Page): Promise<voi
     await expect(trendChart).toBeVisible({ timeout: 15_000 });
   }
 
+}
+
+
+
+export async function expectExecutiveRoiEnvironmentPieVisible(page: Page): Promise<void> {
+  await expect(page.getByText("Loading environment breakdown…")).toHaveCount(0, { timeout: 60_000 });
+  await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible({ timeout: 30_000 });
 }
 
 
