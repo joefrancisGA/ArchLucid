@@ -487,7 +487,6 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Planning** | `/planning` | [ ] |
 | **Planning plan detail** | `/planning/plans/{planId}` | [ ] |
 | **Evolution candidates** | `/evolution-review` | [ ] |
-| **Portfolio dashboard** | `/portfolio` | [ ] |
 | **Pilot value report** | `/value-report/pilot` | [ ] |
 | **ROI summary** | `/value-report/roi` | [ ] |
 | **Connector operations** | `/integrations/operations` | [ ] |
@@ -700,7 +699,7 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 | Planning | `/planning` | **Analysis → Planning** (Execute authority). |
 | Planning plan detail | `/planning/plans/{planId}` | **Planning** → open a plan row. |
 | Evolution candidates | `/evolution-review` | **Analysis → Evolution candidates** (Execute authority). |
-| Portfolio dashboard | `/portfolio` | **Analysis → Portfolio Dashboard**. |
+| Executive dashboard (portfolio overview) | `/dashboard` | **Analysis → Executive dashboard** (legacy `/portfolio` redirects here). |
 | Pilot value report | `/value-report/pilot` | **Analysis → Pilot value report**. |
 | ROI summary | `/value-report/roi` | **Analysis → ROI report**. |
 | Connector operations | `/integrations/operations` | **Analysis → Connector operations**. |

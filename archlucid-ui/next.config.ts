@@ -156,6 +156,8 @@ const nextConfig: NextConfig = {
       // Executive dashboard consolidation (TB-608) — same ExecutiveRoiDashboardPageView content as
       // the operator-shell /dashboard nav item; the standalone executive-chrome page is retired.
       { source: "/executive/dashboard", destination: "/dashboard", permanent: true },
+      // Cross-tenant portfolio page retired — portfolio overview nav already targets /dashboard.
+      { source: "/portfolio", destination: "/dashboard", permanent: true },
     ];
   },
   async rewrites() {

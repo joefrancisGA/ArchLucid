@@ -15,11 +15,11 @@ class TestAdoptionBatch5BB(unittest.TestCase):
         self.assertIn("Portfolio directory key not configured", text)
         self.assertIn("portfolio-key-not-configured", text)
 
-    def test_tb_249_ui_card(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "portfolio" / "_sections" / "PortfolioPageView.tsx"
+    def test_tb_249_ui_redirect(self) -> None:
+        path = REPO_ROOT / "archlucid-ui" / "next.config.ts"
         text = path.read_text(encoding="utf-8")
-        self.assertIn("portfolio-directory-key-not-configured", text)
-        self.assertIn("tryParseApiProblemDetails", text)
+        self.assertIn('source: "/portfolio"', text)
+        self.assertIn('destination: "/dashboard"', text)
 
     def test_tb_249_doc(self) -> None:
         path = REPO_ROOT / "docs" / "library" / "MULTI_TENANT_PORTFOLIO.md"

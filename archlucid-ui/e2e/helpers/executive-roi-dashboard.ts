@@ -29,6 +29,10 @@ export const EXECUTIVE_ROI_DASHBOARD_PATHS = {
 
   legacyExecutive: "/executive/dashboard",
 
+  // Retired cross-tenant portfolio page — redirects to `operator`.
+
+  legacyPortfolio: "/portfolio",
+
 } as const;
 
 

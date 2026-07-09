@@ -1,10 +1,12 @@
-> **Scope:** Operator cookbook — multi-tenant portfolio rollup (`GET /v1/roi/cross-tenant-portfolio`), Entra directory-key prerequisites, k-anonymity, and Portfolio Dashboard (`/portfolio`) troubleshooting for platform administrators.
+> **Scope:** Operator cookbook — multi-tenant portfolio rollup (`GET /v1/roi/cross-tenant-portfolio`), Entra directory-key prerequisites, and k-anonymity for platform administrators.
 
 # Multi-tenant portfolio (cross-tenant ROI)
 
 ## What it is
 
-`GET /v1/roi/cross-tenant-portfolio` aggregates ROI and risk metrics across every tenant an identity can access, subject to **k-anonymity** (at least five active tenants). The operator UI surfaces this on **Portfolio Dashboard** (`/portfolio`).
+`GET /v1/roi/cross-tenant-portfolio` aggregates ROI and risk metrics across every tenant an identity can access, subject to **k-anonymity** (at least five active tenants).
+
+The standalone **Portfolio Dashboard** route (`/portfolio`) is **retired**; it permanently redirects to **Executive dashboard** (`/dashboard`), which is the canonical portfolio-overview surface in the operator shell.
 
 ## Prerequisites
 
@@ -34,7 +36,7 @@ When `oid` / objectidentifier is missing, the API returns **403** with RFC 9457 
 | `type` | `https://archlucid.net/errors/portfolio-key-not-configured` |
 | `detail` | Explains that the directory object key is missing and to contact an administrator |
 
-The Portfolio Dashboard shows this `detail` in an inline info card (not a transient toast) with a link back to this document.
+API clients and integrators should surface this `detail` to operators; the retired `/portfolio` UI no longer renders a dedicated card.
 
 ## Security and cost notes
 

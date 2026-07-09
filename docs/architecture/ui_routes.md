@@ -252,7 +252,7 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/digest-subscriptions` | Digest subscriptions | T3 mock |
 | `/patterns` | Architecture pattern library | T3 mock or API if seeded |
 | `/reports/resource-coverage` | Resource coverage report | T2 ops data |
-| `/portfolio` | Cross-tenant portfolio | Fleet/admin scope + T2 API |
+| `/portfolio` | Retired — redirects to `/dashboard` | Legacy bookmark only |
 | `/operate/architecture-graph` | Tenant graph entry | Redirects to `/graph` |
 | `/operate/integration-events/dlq` | Integration event DLQ | Full operator + Admin + T2 API |
 
