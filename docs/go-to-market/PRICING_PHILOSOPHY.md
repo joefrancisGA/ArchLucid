@@ -201,15 +201,34 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
 ```locked-prices
 {
   "schemaVersion": 1,
-  "effectiveDate": "2026-04-17",
+  "effectiveDate": "2026-07-09",
   "currency": "USD",
+  "architectStripeCheckoutUrl": "https://checkout.stripe.com/placeholder-replace-before-launch",
+  "architectStripeCheckoutUrlSalesLedPlaceholder": true,
   "teamStripeCheckoutUrl": "https://checkout.stripe.com/placeholder-replace-before-launch",
   "teamStripeCheckoutUrlSalesLedPlaceholder": true,
   "packages": [
     {
+      "id": "architect",
+      "title": "Architect",
+      "summary": "For one architect creating and reviewing architecture packages.",
+      "planMonthlyUsd": 99,
+      "pricingDisplay": "monthly",
+      "includedUsers": 1,
+      "includedWorkspaces": 1,
+      "monthlyAiCredits": 500,
+      "includedReviewsPerMonth": 5,
+      "overageReviewUsd": 12
+    },
+    {
       "id": "team",
       "title": "Team",
-      "summary": "Small architecture team exploring AI-assisted review",
+      "summary": "Small architecture team with basic governance",
+      "planMonthlyUsd": 249,
+      "pricingDisplay": "monthly",
+      "includedUsers": 5,
+      "includedWorkspaces": 1,
+      "monthlyAiCredits": 2500,
       "workspaceMonthlyUsd": 199,
       "includedArchitectSeats": 5,
       "seatMonthlyUsd": 79,
@@ -219,7 +238,12 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
     {
       "id": "professional",
       "title": "Professional",
-      "summary": "Established practice with governance and audit needs",
+      "summary": "Governed architecture review practice with policy packs and audit exports",
+      "planMonthlyUsd": 1799,
+      "pricingDisplay": "monthly",
+      "includedUsers": 15,
+      "includedWorkspaces": 5,
+      "monthlyAiCredits": 10000,
       "workspaceMonthlyUsd": 899,
       "maxWorkspaces": 5,
       "includedArchitectSeats": 20,
@@ -230,8 +254,11 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
     {
       "id": "enterprise",
       "title": "Enterprise",
-      "summary": "Large organization — annual contract",
-      "annualFloorUsd": 60000,
+      "summary": "Large organization — SSO, procurement, and private deployment",
+      "pricingDisplay": "custom",
+      "includedUsers": 0,
+      "includedWorkspaces": 0,
+      "monthlyAiCredits": 0,
       "annualCeilingUsd": 250000
     }
   ]

@@ -7,9 +7,15 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
-import { BUYER_EARLY_ADOPTER_PRICING_NOTE, BUYER_PRICING_FAIR_USE_OVERAGE_NOTE } from "@/lib/buyer-polish-copy";
 import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
-import type { PricingDoc } from "@/lib/pricing-types";
+import {
+  BUYER_MARKETING_PRICING_AI_USAGE_NOTE,
+  MARKETING_PRICING_RECOMMENDED_TIER,
+  MARKETING_PRICING_TIER_CTAS,
+  MARKETING_PRICING_TIER_ORDER,
+  type MarketingPricingTierId,
+} from "@/lib/marketing/marketing-public-pricing";
+import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
 import { looksStripeHostedTestCheckoutUrl, resolveTeamStripeCheckoutHref } from "@/lib/team-stripe-checkout-url";
 
 function formatMoney(amount: number, currency: string): string {
@@ -20,20 +26,81 @@ function formatMoney(amount: number, currency: string): string {
   }).format(amount);
 }
 
-function pricingPackageGridOrder(id: string): number {
-  if (id === "professional") {
-    return 0;
+function pricingTierSortIndex(id: string): number {
+  const index = MARKETING_PRICING_TIER_ORDER.indexOf(id as MarketingPricingTierId);
+
+  return index >= 0 ? index : 99;
+}
+
+function resolveStripeCheckoutHref(pricing: PricingDoc, tierId: MarketingPricingTierId): string | null {
+  if (!isPublicStripeTeamCheckoutEnabled()) {
+    return null;
   }
 
-  if (id === "enterprise") {
-    return 1;
+  if (tierId === "architect") {
+    return resolveTeamStripeCheckoutHref(pricing.architectStripeCheckoutUrl);
   }
 
-  if (id === "team") {
-    return 2;
+  if (tierId === "team") {
+    return resolveTeamStripeCheckoutHref(pricing.teamStripeCheckoutUrl);
   }
 
-  return 99;
+  return null;
+}
+
+function stripeSubscribeLabel(checkoutHref: string): string {
+  return looksStripeHostedTestCheckoutUrl(checkoutHref) ? "Subscribe (Stripe test)" : "Subscribe with Stripe";
+}
+
+function formatPlanPrice(pkg: PricingPackage, currency: string): string {
+  if (pkg.pricingDisplay === "custom") {
+    return "Custom";
+  }
+
+  if (typeof pkg.planMonthlyUsd === "number") {
+    return `${formatMoney(pkg.planMonthlyUsd, currency)} / mo`;
+  }
+
+  return "Contact us";
+}
+
+function formatIncludedUsersAndWorkspaces(pkg: PricingPackage): string | null {
+  const users = pkg.includedUsers ?? pkg.includedArchitectSeats;
+  const workspaces = pkg.includedWorkspaces ?? (pkg.maxWorkspaces !== undefined && pkg.maxWorkspaces > 0 ? pkg.maxWorkspaces : undefined);
+
+  if (users === undefined && workspaces === undefined) {
+    return null;
+  }
+
+  const userLabel = users === 1 ? "1 user" : users !== undefined ? `${users} users` : null;
+  const workspaceLabel =
+    workspaces === 1 ? "1 workspace" : workspaces !== undefined && workspaces > 0 ? `${workspaces} workspaces` : null;
+
+  if (userLabel !== null && workspaceLabel !== null) {
+    return `${userLabel} · ${workspaceLabel}`;
+  }
+
+  if (userLabel !== null) {
+    return userLabel;
+  }
+
+  if (workspaceLabel !== null) {
+    return workspaceLabel;
+  }
+
+  return null;
+}
+
+function formatMonthlyAiCredits(pkg: PricingPackage): string | null {
+  if (pkg.pricingDisplay === "custom") {
+    return "Custom AI allowance";
+  }
+
+  if (typeof pkg.monthlyAiCredits === "number" && pkg.monthlyAiCredits > 0) {
+    return `${pkg.monthlyAiCredits.toLocaleString()} AI credits / month`;
+  }
+
+  return null;
 }
 
 export type MarketingTierPricingSectionProps = {
@@ -47,23 +114,27 @@ export type MarketingTierPricingSectionProps = {
   signupHref: string;
   /** Visible label for the primary signup CTA button. */
   signupCallToActionLabel?: string;
-  /** When false, omit the trailing “Start an evaluation” button (e.g. welcome page already has a hero CTA). */
+  /** When false, omit the trailing signup button (e.g. welcome page already has a hero CTA). */
   showSignupCallToAction?: boolean;
-  /** DOM id of the quote panel on the same page (Pro / Enterprise “Talk to sales” scroll target). */
+  /** DOM id of the quote panel on the same page (Pro / Enterprise scroll target). */
   quoteSectionDomId?: string;
-  /** When true, Team tier leads with “Request quote” even if Stripe test checkout is enabled (trial nudge flow). */
+  /** When true, Team tier leads with quote even if Stripe test checkout is enabled (trial nudge flow). */
   preferSalesLedQuoteCta?: boolean;
+  /** When true, show the monthly AI credits explainer under the tier grid. */
+  showAiUsageNote?: boolean;
 };
 
 /** Loads `/pricing.json` and renders tier cards — shared by welcome and `/pricing`. */
-export function MarketingTierPricingSection(props: MarketingTierPricingSectionProps) {
+export function MarketingTierPricingSection(props: MarketingTierPricingSectionProps): React.JSX.Element {
   const quoteSectionDomId = props.quoteSectionDomId ?? "pricing-quote-request";
   const [pricing, setPricing] = useState<PricingDoc | null>(null);
   const [pricingError, setPricingError] = useState(false);
   const [pricingLoading, setPricingLoading] = useState(true);
 
   const scrollToQuote = useCallback(() => {
-    if (typeof document === "undefined") return;
+    if (typeof document === "undefined") {
+      return;
+    }
 
     document.getElementById(quoteSectionDomId)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [quoteSectionDomId]);
@@ -98,16 +169,6 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
     };
   }, []);
 
-  const teamStripeCheckoutHref =
-    pricing !== null && !pricingError && isPublicStripeTeamCheckoutEnabled()
-      ? resolveTeamStripeCheckoutHref(pricing.teamStripeCheckoutUrl)
-      : null;
-
-  const teamStripeSubscribeLabel =
-    teamStripeCheckoutHref !== null && looksStripeHostedTestCheckoutUrl(teamStripeCheckoutHref)
-      ? "Subscribe (Stripe test)"
-      : "Subscribe with Stripe";
-
   return (
     <section aria-labelledby={props.sectionHeadingId} className="mb-10">
       <h2 id={props.sectionHeadingId} className={cn("mb-2 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
@@ -124,8 +185,8 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
       ) : null}
 
       {pricingLoading && !pricingError ? (
-        <ul className="grid gap-6 md:grid-cols-3" aria-busy="true" aria-label="Loading pricing tiers">
-          {[0, 1, 2].map((slot) => (
+        <ul className="grid gap-6 md:grid-cols-2 xl:grid-cols-4" aria-busy="true" aria-label="Loading pricing tiers">
+          {[0, 1, 2, 3].map((slot) => (
             <li
               key={slot}
               className="flex min-h-[22rem] animate-pulse flex-col rounded-lg border border-neutral-200 bg-neutral-100/80 p-5 dark:border-neutral-800 dark:bg-neutral-900/60"
@@ -147,141 +208,124 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
 
       {pricing && !pricingError ? (
         <>
-          <ul className="grid gap-6 md:grid-cols-3">
+          <ul className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {[...pricing.packages]
-              .sort((a, b) => pricingPackageGridOrder(a.id) - pricingPackageGridOrder(b.id))
-              .map((pkg) => (
-              <li
-                key={pkg.id}
-                data-testid={pkg.id === "team" ? "pricing-tier-team" : undefined}
-                className={
-                  pkg.id === "professional"
-                    ? "flex flex-col rounded-lg border-2 border-teal-600 bg-white p-5 shadow-md ring-1 ring-teal-600/20 dark:border-teal-500 dark:bg-neutral-900 dark:ring-teal-500/25"
-                    : pkg.id === "enterprise"
-                      ? "flex flex-col rounded-lg border border-teal-700/80 bg-white p-5 shadow-sm dark:border-teal-800 dark:bg-neutral-900"
-                      : "flex flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm opacity-[0.97] dark:border-neutral-800 dark:bg-neutral-900"
-                }
-              >
-                <h3 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                  {pkg.title}
-                  {pkg.id === "professional" ? (
-                    <span className={cn("ms-2 align-middle font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}>
-                      Recommended
-                    </span>
-                  ) : null}
-                </h3>
-                {pkg.id === "team" ? (
-                  <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                    <span className="font-medium text-neutral-700 dark:text-neutral-300">
-                      Evaluation and small-team workspace
-                    </span>
-                    {" — "}pilot and evaluation tier (not the primary procurement path).
-                  </p>
-                ) : null}
-                <p className={cn("mt-2 flex-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{pkg.summary}</p>
-                {BILLING_TIER_FEATURE_BULLETS[pkg.id] !== undefined ? (
-                  <ul className={cn("mt-3 list-disc space-y-1 pl-5 leading-snug text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-                    {BILLING_TIER_FEATURE_BULLETS[pkg.id]!.slice(0, 5).map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ul>
-                ) : null}
-                <dl className={cn("mt-4 space-y-1 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-                  {typeof pkg.workspaceMonthlyUsd === "number" ? (
-                    <div className="flex justify-between gap-2">
-                      <dt>Workspace</dt>
-                      <dd>{formatMoney(pkg.workspaceMonthlyUsd, pricing.currency)} / mo</dd>
-                    </div>
-                  ) : null}
-                  {typeof pkg.seatMonthlyUsd === "number" ? (
-                    <div className="flex justify-between gap-2">
-                      <dt>Seat</dt>
-                      <dd>{formatMoney(pkg.seatMonthlyUsd, pricing.currency)} / mo</dd>
-                    </div>
-                  ) : null}
-                  {typeof pkg.annualFloorUsd === "number" ? (
-                    <div className="flex justify-between gap-2">
-                      <dt>Annual from</dt>
-                      <dd>{formatMoney(pkg.annualFloorUsd, pricing.currency)}</dd>
-                    </div>
-                  ) : null}
-                </dl>
-                {pkg.id === "enterprise" ? (
-                  <>
-                    <p className={cn("mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      Deployment model and terms are finalized through procurement.
+              .sort((a, b) => pricingTierSortIndex(a.id) - pricingTierSortIndex(b.id))
+              .map((pkg) => {
+                const tierId = pkg.id as MarketingPricingTierId;
+                const cta = MARKETING_PRICING_TIER_CTAS[tierId];
+                const isRecommended = tierId === MARKETING_PRICING_RECOMMENDED_TIER;
+                const includedLine = formatIncludedUsersAndWorkspaces(pkg);
+                const aiCreditsLine = formatMonthlyAiCredits(pkg);
+                const stripeHref = resolveStripeCheckoutHref(pricing, tierId);
+                const bullets = BILLING_TIER_FEATURE_BULLETS[pkg.id] ?? [];
+
+                return (
+                  <li
+                    key={pkg.id}
+                    data-testid={pkg.id === "team" ? "pricing-tier-team" : pkg.id === "architect" ? "pricing-tier-architect" : undefined}
+                    className={
+                      isRecommended
+                        ? "flex flex-col rounded-lg border-2 border-teal-600 bg-white p-5 shadow-md ring-1 ring-teal-600/20 dark:border-teal-500 dark:bg-neutral-900 dark:ring-teal-500/25"
+                        : pkg.id === "enterprise"
+                          ? "flex flex-col rounded-lg border border-teal-700/80 bg-white p-5 shadow-sm dark:border-teal-800 dark:bg-neutral-900"
+                          : "flex flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+                    }
+                  >
+                    <h3 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                      {pkg.title}
+                      {isRecommended ? (
+                        <span
+                          className={cn(
+                            "ms-2 align-middle font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200",
+                            OPERATOR_TYPOGRAPHY.helper,
+                          )}
+                        >
+                          Recommended
+                        </span>
+                      ) : null}
+                    </h3>
+                    <p className={cn("mt-3 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)} data-testid={`pricing-tier-price-${pkg.id}`}>
+                      {formatPlanPrice(pkg, pricing.currency)}
                     </p>
-                    <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_PRICING_FAIR_USE_OVERAGE_NOTE}</p>
-                  </>
-                ) : null}
-                <div className="mt-4 flex flex-col gap-2">
-                  {pkg.id === "team" ? (
-                    <>
-                      {teamStripeCheckoutHref !== null && !props.preferSalesLedQuoteCta ? (
+                    <p className={cn("mt-2 flex-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{pkg.summary}</p>
+                    {includedLine !== null ? (
+                      <p className={cn("mt-2 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{includedLine}</p>
+                    ) : null}
+                    {aiCreditsLine !== null ? (
+                      <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{aiCreditsLine}</p>
+                    ) : null}
+                    {bullets.length > 0 ? (
+                      <ul className={cn("mt-3 list-disc space-y-1 pl-5 leading-snug text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+                        {bullets.slice(0, 5).map((line) => (
+                          <li key={line}>{line}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    <div className="mt-4 flex flex-col gap-2">
+                      {cta.primaryKind === "quote" ? (
+                        <Button type="button" variant={isRecommended ? "primary" : "outline"} className="w-full" onClick={() => scrollToQuote()}>
+                          {cta.primaryLabel}
+                        </Button>
+                      ) : null}
+
+                      {cta.primaryKind === "stripe" && props.preferSalesLedQuoteCta ? (
+                        <Button type="button" variant="primary" className="w-full" onClick={() => scrollToQuote()}>
+                          {cta.primaryLabel}
+                        </Button>
+                      ) : null}
+
+                      {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && stripeHref !== null ? (
                         <Button asChild variant="primary" className="w-full">
                           <a
-                            data-testid="pricing-team-subscribe-stripe"
-                            href={teamStripeCheckoutHref.trim()}
+                            data-testid={pkg.id === "team" ? "pricing-team-subscribe-stripe" : `pricing-${pkg.id}-subscribe-stripe`}
+                            href={stripeHref.trim()}
                             rel="noopener noreferrer"
                             target="_blank"
                           >
-                            {teamStripeSubscribeLabel}
+                            {stripeSubscribeLabel(stripeHref)}
                           </a>
                         </Button>
-                      ) : (
-                        <Button type="button" variant="primary" className="w-full" onClick={() => scrollToQuote()}>
-                          Request quote
-                        </Button>
-                      )}
-                      {teamStripeCheckoutHref !== null ? (
-                        props.preferSalesLedQuoteCta ? (
-                          <Button asChild variant="outline" className="w-full">
-                            <a
-                              data-testid="pricing-team-subscribe-stripe"
-                              href={teamStripeCheckoutHref.trim()}
-                              rel="noopener noreferrer"
-                              target="_blank"
-                            >
-                              {teamStripeSubscribeLabel}
-                            </a>
-                          </Button>
-                        ) : (
-                          <Button type="button" variant="outline" className="w-full" onClick={() => scrollToQuote()}>
-                            Request quote
-                          </Button>
-                        )
                       ) : null}
-                      <Button asChild variant="outline" className="w-full">
-                        <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start an evaluation"}</Link>
-                      </Button>
-                    </>
-                  ) : null}
-                  {pkg.id === "professional" || pkg.id === "enterprise" ? (
-                    <Button type="button" className="w-full" variant="outline" onClick={() => scrollToQuote()}>
-                      Talk to sales
-                    </Button>
-                  ) : null}
-                </div>
-              </li>
-            ))}
+
+                      {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && stripeHref === null ? (
+                        <Button asChild variant="primary" className="w-full">
+                          <Link href={props.signupHref}>{cta.primaryLabel}</Link>
+                        </Button>
+                      ) : null}
+
+                      {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && stripeHref !== null ? (
+                        <Button asChild variant="outline" className="w-full">
+                          <Link href={props.signupHref}>{cta.secondaryLabel ?? "Start now"}</Link>
+                        </Button>
+                      ) : null}
+
+                      {cta.primaryKind === "stripe" && props.preferSalesLedQuoteCta && stripeHref !== null ? (
+                        <Button asChild variant="outline" className="w-full">
+                          <a
+                            data-testid="pricing-team-subscribe-stripe"
+                            href={stripeHref.trim()}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                          >
+                            {stripeSubscribeLabel(stripeHref)}
+                          </a>
+                        </Button>
+                      ) : null}
+                    </div>
+                  </li>
+                );
+              })}
           </ul>
-          <p
-            className={cn("mt-6 max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="pricing-early-adopter-framing"
-          >
-            {BUYER_EARLY_ADOPTER_PRICING_NOTE}
-          </p>
-          <p className={cn("mt-8 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            Roadmap-oriented diligence topics (for example enterprise directory lifecycle) are summarized in the{" "}
-            <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/faq#pricing-roadmap-notes">
-              product FAQ
-            </Link>
-            .
-          </p>
+          {props.showAiUsageNote === true ? (
+            <p className={cn("mt-6 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="pricing-ai-usage-note">
+              {BUYER_MARKETING_PRICING_AI_USAGE_NOTE}
+            </p>
+          ) : null}
           {props.showSignupCallToAction !== false ? (
             <div className="mt-8 flex justify-center">
               <Button asChild variant="primary" size="lg">
-                <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start an evaluation"}</Link>
+                <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start now"}</Link>
               </Button>
             </div>
           ) : null}

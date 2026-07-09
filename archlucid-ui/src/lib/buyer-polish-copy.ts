@@ -611,7 +611,7 @@ export const BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK = (findingCount: number, w
 export const BUYER_COMPARE_OPEN_FULL_LINK_LABEL = "View review change comparison";
 
 export const BUYER_MARKETING_PRICING_PAGE_INTRO =
-  "Compare Team, Professional, and Enterprise packaging. Professional is the typical procurement path; detailed terms and diligence artifacts are finalized through your vendor review process.";
+  "Start with one architect, grow into a governed review practice, and use Enterprise when procurement, SSO, or private deployment is required.";
 
 /** Sales-led V1: no self-serve checkout; quote and order form finalize commercial terms. */
 export const BUYER_SALES_LED_V1_PRICING_NOTE =

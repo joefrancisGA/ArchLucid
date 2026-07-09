@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
@@ -16,12 +16,40 @@ describe("PricingPage brand category", () => {
             currency: "USD",
             packages: [
               {
-                id: "pilot",
-                title: "Pilot",
-                summary: "Pilot summary",
-                workspaceMonthlyUsd: 100,
-                seatMonthlyUsd: 10,
-                annualFloorUsd: 1200,
+                id: "architect",
+                title: "Architect",
+                summary: "For one architect",
+                planMonthlyUsd: 99,
+                pricingDisplay: "monthly",
+                includedUsers: 1,
+                includedWorkspaces: 1,
+                monthlyAiCredits: 500,
+              },
+              {
+                id: "team",
+                title: "Team",
+                summary: "Team summary",
+                planMonthlyUsd: 249,
+                pricingDisplay: "monthly",
+                includedUsers: 5,
+                includedWorkspaces: 1,
+                monthlyAiCredits: 2500,
+              },
+              {
+                id: "professional",
+                title: "Professional",
+                summary: "Professional summary",
+                planMonthlyUsd: 1799,
+                pricingDisplay: "monthly",
+                includedUsers: 15,
+                includedWorkspaces: 5,
+                monthlyAiCredits: 10000,
+              },
+              {
+                id: "enterprise",
+                title: "Enterprise",
+                summary: "Enterprise summary",
+                pricingDisplay: "custom",
               },
             ],
           }),
@@ -45,21 +73,9 @@ describe("PricingPage brand category", () => {
 
     expect(text).toContain(BRAND_CATEGORY);
     expect(text).not.toContain(BRAND_CATEGORY_LEGACY);
-    expect(text).toContain("request a quote");
   });
 
-  it("renders a single consolidated pricing caveat above the quote form", async () => {
-    const element = await PricingPage({ searchParams: Promise.resolve({}) });
-    const { getByTestId } = render(element);
-
-    const footnote = getByTestId("pricing-single-footnote");
-    expect(footnote.textContent ?? "").toContain("Final pricing depends on deployment scope");
-
-    const caveats = screen.queryAllByText(/Final pricing depends/s);
-    expect(caveats.length).toBe(1);
-  });
-
-  it("renders custom policy pack authoring GTM section before the quote form", async () => {
+  it("renders custom policy pack professional services before the quote form", async () => {
     const element = await PricingPage({ searchParams: Promise.resolve({}) });
     const { getByTestId } = render(element);
 
@@ -85,5 +101,17 @@ describe("PricingPage brand category", () => {
 
     const position = quoteSection.compareDocumentPosition(pricingHeading);
     expect(position & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+  });
+
+  it("renders usage FAQ and AI usage note on the pricing page", async () => {
+    const element = await PricingPage({ searchParams: Promise.resolve({}) });
+    render(element);
+
+    expect(screen.getByTestId("pricing-usage-faq-section")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("pricing-ai-usage-note")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("pricing-sales-led-v1-note")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("pricing-single-footnote")).not.toBeInTheDocument();
   });
 });
