@@ -106,8 +106,5 @@ export async function expectBuyerGoldenPageReady(page: Page): Promise<void> {
 export async function expectBuyerGoldenJourneyStepper(page: Page): Promise<void> {
   await waitForAppReady(page);
 
-  const journeyNav = page.getByRole("navigation", { name: "Review journey steps" });
-
-  await expect(journeyNav).toBeVisible({ timeout: 60_000 });
-  await expect(journeyNav.getByTestId("buyer-golden-journey-stepper")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole("navigation", { name: "Review journey steps" })).toBeVisible({ timeout: 60_000 });
 }

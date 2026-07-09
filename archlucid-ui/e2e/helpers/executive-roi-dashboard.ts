@@ -477,7 +477,9 @@ export async function expectExecutiveRoiPortfolioPanels(page: Page): Promise<voi
 
   await page.waitForResponse(isExecutiveRoiHistoryProxyResponse, { timeout: 60_000 }).catch(() => null);
 
-  await expect(page.getByTestId("exec-roi-trend-chart")).toBeVisible({ timeout: 45_000 });
+  await page.getByRole("heading", { name: /ROI trend/i }).scrollIntoViewIfNeeded();
+  await expect(page.getByText("Loading ROI trend…")).toHaveCount(0, { timeout: 60_000 });
+  await expect(page.getByTestId("exec-roi-trend-chart")).toBeVisible({ timeout: 30_000 });
 
 }
 
