@@ -82,6 +82,14 @@ function isExecutiveRoiExportProxyResponse(candidate: Response): boolean {
 
 }
 
+function isExecutiveRoiHistoryProxyResponse(candidate: Response): boolean {
+  return (
+    candidate.url().includes("/v1/roi/executive-summary/history") &&
+    candidate.request().method() === "GET" &&
+    isSuccessfulProxyResponse(candidate)
+  );
+}
+
 
 
 async function expandExecutiveSupportingMetricsIfPresent(page: Page): Promise<void> {
@@ -467,7 +475,9 @@ export async function expectExecutiveRoiPortfolioPanels(page: Page): Promise<voi
 
   await expect(page.getByTestId("exec-kpi-resolved-30d")).toBeVisible({ timeout: 15_000 });
 
-  await expect(page.getByTestId("exec-roi-trend-chart")).toBeVisible({ timeout: 30_000 });
+  await page.waitForResponse(isExecutiveRoiHistoryProxyResponse, { timeout: 60_000 }).catch(() => null);
+
+  await expect(page.getByTestId("exec-roi-trend-chart")).toBeVisible({ timeout: 60_000 });
 
 }
 

@@ -16,10 +16,13 @@ import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "../e2e/fixtures/runs-lis
 import {
   BUYER_GOLDEN_PATH_HREFS,
   BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN,
+  expectBuyerGoldenPageReady,
   showcaseSignedManifestBrowserUrlPattern,
 } from "../e2e/helpers/buyer-golden-path";
+import { getAppMain } from "../e2e/helpers/app-main";
 import { reviewsHubFirstPackageRow } from "../e2e/helpers/reviews-hub";
 import { outcomeStripSignedRecordLink } from "../e2e/helpers/operator-journey";
+import { waitForAppReady } from "../e2e/helpers/waits";
 
 const SHOWCASE_RUN_URL_PATTERN = new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`);
 
@@ -56,11 +59,13 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
     await page.goto(BUYER_GOLDEN_PATH_HREFS.reviewPackage);
 
     await expect(page).toHaveURL(SHOWCASE_RUN_URL_PATTERN);
+    await waitForAppReady(page);
+    await expectBuyerGoldenPageReady(page);
     await expect(
-      page.getByRole("heading", { level: 1 }).filter({ hasText: BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN }),
+      getAppMain(page).getByRole("heading", { level: 1 }).filter({ hasText: BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN }),
     ).toBeVisible({ timeout: 60_000 });
 
-    const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
+    const outcomeStrip = getAppMain(page).locator('section[aria-label="Review outcome summary"]');
     const manifestLink = outcomeStripSignedRecordLink(outcomeStrip);
 
     await expect(manifestLink).toBeVisible({ timeout: 60_000 });

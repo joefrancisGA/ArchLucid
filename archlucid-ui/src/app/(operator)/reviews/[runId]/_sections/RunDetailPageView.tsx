@@ -503,14 +503,11 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
   );
 
   return (
-    <div data-testid="review-detail-root">
-      {buyerGoldenPageReady ? (
-        <div data-testid="buyer-golden-page-ready" className="contents">
-          {runDetailBody}
-        </div>
-      ) : (
-        runDetailBody
-      )}
+    <div
+      data-testid="review-detail-root"
+      data-buyer-golden-ready={buyerGoldenPageReady ? "true" : "false"}
+    >
+      {runDetailBody}
     </div>
   );
 }

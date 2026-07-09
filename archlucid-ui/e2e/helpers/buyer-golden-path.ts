@@ -92,7 +92,14 @@ export async function expectBuyerReviewPackagePrimaryHeading(page: Page, options
 /** Buyer golden path review package is hydrated with headline + manifest data. */
 export async function expectBuyerGoldenPageReady(page: Page): Promise<void> {
   await waitForAppReady(page);
-  await expect(page.getByTestId("buyer-golden-page-ready")).toBeVisible({ timeout: 60_000 });
+
+  const reviewDetailRoot = page.getByTestId("review-detail-root");
+
+  await expect(reviewDetailRoot).toBeVisible({ timeout: 60_000 });
+  await expect(reviewDetailRoot).toHaveAttribute("data-buyer-golden-ready", "true", { timeout: 60_000 });
+  await expect(getAppMain(page).locator('section[aria-label="Review outcome summary"]')).toBeVisible({
+    timeout: 60_000,
+  });
 }
 
 /** Layer strip stepper is present on curated spine routes in buyer-polished mock E2E. */
