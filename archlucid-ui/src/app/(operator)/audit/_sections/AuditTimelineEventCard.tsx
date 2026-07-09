@@ -4,6 +4,7 @@ import type { AuditEvent } from "@/lib/api";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { pipelineEventTypeBuyerMilestoneSubtitle, pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { auditBuyerEventIsSystemRecordedActor } from "@/app/(operator)/audit/audit-ui-helpers";
+import { auditTrailGovernanceEventLabel } from "@/lib/audit-trail-page-helpers";
 import { buyerSafeActorDisplayName } from "@/lib/buyer-demo-persona-labels";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { auditBuyerActorRoleLine, formatUtc, tryFormatDataJson } from "./audit-page-helpers";
@@ -63,7 +64,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
                 OPERATOR_TYPOGRAPHY.badge,
               )}
             >
-              {pipelineEventTypeFriendlyLabel(ev.eventType)}
+              {auditTrailGovernanceEventLabel(ev.eventType)}
             </span>
           </div>
         </>
@@ -168,6 +169,31 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
           >
             {tryFormatDataJson(ev.dataJson)}
           </pre>
+        </details>
+      ) : null}
+      {buyerPolishedShell ? (
+        <details className="mt-2.5" data-testid="audit-timeline-technical-details">
+          <summary className={cn("cursor-pointer", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>Technical details</summary>
+          <div className={cn("mt-2 space-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+            <p className="m-0">
+              Event id: <code>{ev.eventId}</code>
+            </p>
+            {ev.runId ? (
+              <p className="m-0">
+                Review package id: <code>{ev.runId}</code>
+              </p>
+            ) : null}
+            {ev.correlationId ? (
+              <p className="m-0">
+                Correlation id: <code>{ev.correlationId}</code>
+              </p>
+            ) : null}
+            {ev.otelTraceId ? (
+              <p className="m-0">
+                Trace id: <code>{ev.otelTraceId}</code>
+              </p>
+            ) : null}
+          </div>
         </details>
       ) : null}
     </article>

@@ -45,8 +45,7 @@ export const BUYER_GOLDEN_PATH_HREFS = {
 } as const;
 
 /** Buyer audit page title when scoped to the showcase run (`AuditPageView`). */
-export const BUYER_SHOWCASE_AUDIT_TRAIL_HEADING =
-  "Audit trail for Claims Intake Modernization Review Package";
+export const BUYER_SHOWCASE_AUDIT_TRAIL_HEADING = "Audit trail for Claims Intake Modernization";
 
 /** Executive route H1 uses run `description` from showcase static payload. */
 export const BUYER_SHOWCASE_EXECUTIVE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;

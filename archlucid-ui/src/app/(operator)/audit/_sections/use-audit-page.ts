@@ -6,12 +6,12 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   auditEventLifecycleSortKey,
   auditEventsAreLifecycleOnlyForGrouping,
-  buyerAuditTrailMetricCounts,
   canExportAuditCsv,
   formatBuyerAuditTrailSummaryLine,
   groupAuditEventsByLifecycleStage,
   principalRolesAllowAuditCsvExport,
 } from "@/app/(operator)/audit/audit-ui-helpers";
+import { buyerAuditTrailGovernanceSummaryCounts } from "@/lib/audit-trail-page-helpers";
 import { useNavCallerAuthorityRank, useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -546,11 +546,11 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
   }, [buyerPolishedShell, displayEvents, uniformRunIdForDisplay, runId]);
 
   const buyerAuditTrailMetrics = useMemo(() => {
-    if (!buyerPolishedShell || displayEvents.length === 0) {
+    if (!buyerPolishedShell) {
       return null;
     }
 
-    return buyerAuditTrailMetricCounts(displayEvents);
+    return buyerAuditTrailGovernanceSummaryCounts(displayEvents);
   }, [buyerPolishedShell, displayEvents]);
 
   return {

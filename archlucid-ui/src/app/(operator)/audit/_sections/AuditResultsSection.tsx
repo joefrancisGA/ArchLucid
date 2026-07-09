@@ -5,6 +5,7 @@ import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Button } from "@/components/ui/button";
 import type { AuditEvent } from "@/lib/api";
 import { formatAuditSummaryHeading } from "@/app/(operator)/audit/audit-ui-helpers";
+import { formatBuyerAuditResultsStatusLine } from "@/lib/audit-trail-page-helpers";
 import {
   auditBuyerUtilitiesDetailsSummary,
   auditExportControlDisabledTitle,
@@ -31,6 +32,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { AuditBuyerEmptyState } from "./AuditBuyerEmptyState";
 import { AuditEventsOperatorTable } from "./AuditEventsOperatorTable";
 import { AuditTimelineEventCard } from "./AuditTimelineEventCard";
 import { BuyerAuditEventsTechnicalAppendix } from "./BuyerAuditEventsTechnicalAppendix";
@@ -51,6 +53,9 @@ type AuditResultsSectionProps = {
   searching: boolean;
   uniformRunIdForDisplay: string | null;
   auditSearchEmptyLine: string;
+  reviewPackageHref: string;
+  onClearFilters: () => void;
+  onChooseAnotherReview: () => void;
   loadMore: () => void | Promise<void>;
   csvExportUiAllowed: boolean;
   exporting: boolean;
@@ -71,6 +76,9 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
     searching,
     uniformRunIdForDisplay,
     auditSearchEmptyLine,
+    reviewPackageHref,
+    onClearFilters,
+    onChooseAnotherReview,
     loadMore,
     csvExportUiAllowed,
     exporting,
@@ -111,8 +119,9 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
         data-testid="audit-search-summary"
         className={cn("mt-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
       >
-        {formatAuditSummaryHeading(events.length, hasMoreResults)}.
-        {buyerPolishedShell ? null : " Newest first; use Load more for older entries."}
+        {buyerPolishedShell
+          ? formatBuyerAuditResultsStatusLine(events.length, hasMoreResults, searching)
+          : `${formatAuditSummaryHeading(events.length, hasMoreResults)}.${" Newest first; use Load more for older entries."}`}
       </p>
       {buyerPolishedShell && uniformRunIdForDisplay !== null ? (
         <p className={cn("mb-2 mt-1 max-w-2xl text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
@@ -127,12 +136,21 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
 
       <div className="mt-3">
         {events.length === 0 ? (
-          <p
-            className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="audit-search-no-results"
-          >
-            {auditSearchEmptyLine}
-          </p>
+          buyerPolishedShell ? (
+            <AuditBuyerEmptyState
+              reviewPackageHref={reviewPackageHref}
+              onClearFilters={onClearFilters}
+              onChooseAnotherReview={onChooseAnotherReview}
+              clearingFilters={searching}
+            />
+          ) : (
+            <p
+              className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="audit-search-no-results"
+            >
+              {auditSearchEmptyLine}
+            </p>
+          )
         ) : (
           <>
             {displayEventGroups !== null ? (

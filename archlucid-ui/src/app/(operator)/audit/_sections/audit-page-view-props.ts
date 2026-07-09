@@ -9,18 +9,14 @@ export type AuditPageEventGroup = {
   readonly events: AuditEvent[];
 };
 
-export type AuditBuyerTrailMetrics = {
-  readonly eventCount: number;
-  readonly humanActorCount: number;
-  readonly systemRecordedCount: number;
-};
+import type { BuyerAuditGovernanceSummary } from "@/lib/audit-trail-page-helpers";
 
 /** Props for the presentational audit layout; produced by `useAuditPage(serverLoad)`. */
 export type AuditPageViewProps = {
   readonly buyerPolishedShell: boolean;
   readonly runId: string;
   readonly buyerAuditTrailSummaryLine: string | null;
-  readonly buyerAuditTrailMetrics: AuditBuyerTrailMetrics | null;
+  readonly buyerAuditTrailMetrics: BuyerAuditGovernanceSummary | null;
   readonly displayEvents: AuditEvent[];
   readonly callerAuthorityRank: number;
   readonly exportRoleOk: boolean;
