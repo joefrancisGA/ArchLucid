@@ -13,7 +13,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   digestsHaveExistingConfiguration,
+  resolveDigestNextBestAction,
 } from "@/lib/digest-setup-gap-actions";
+import {
+  DIGESTS_BROWSE_PREVIEW_DISABLED_TITLE,
+  DIGESTS_BROWSE_SEND_TEST_LABEL,
+  DIGESTS_BROWSE_SEND_TEST_TITLE,
+} from "@/lib/digests-browse-copy";
 import { DIGESTS_HUB_TAB_IDS, digestsHubTabFromSearchParam, type DigestsHubTabId } from "@/lib/digests-hub-tab";
 import {
   digestsListRefreshButtonTitleOperator,
@@ -101,19 +107,21 @@ export function DigestsHubClient(): ReactElement {
   const healthBannerVariant =
     activeTab === "subscriptions" ? "subscriptions" : activeTab === "schedule" ? "schedule" : "full";
 
-  const previewActionTitle =
-    "Opens the most recently generated digest summary. Uses saved schedule and subscription settings for delivery.";
-  const sendTestActionTitle =
-    "Triggers an advisory scan to generate a test digest. Delivery uses saved subscriptions and schedule recipients.";
+  const latestDigestId: string | null | undefined = healthSnap?.latestArchitectureDigestId;
+  const hasPreviewDigest: boolean =
+    latestDigestId !== null && latestDigestId !== undefined && latestDigestId.trim() !== "";
+  const previewActionTitle = hasPreviewDigest
+    ? "Opens the most recently generated digest summary."
+    : DIGESTS_BROWSE_PREVIEW_DISABLED_TITLE;
+  const sendTestActionTitle = DIGESTS_BROWSE_SEND_TEST_TITLE;
 
   const configured: boolean = healthSnap !== null && digestsHaveExistingConfiguration(healthSnap);
-  const primaryHref: string = configured ? "/digests?tab=schedule" : "/digests?tab=subscriptions";
-  const primaryLabel: string = configured ? "Configure weekly digest" : "Create digest";
-  const latestDigestId: string | null | undefined = healthSnap?.latestArchitectureDigestId;
-  const previewHref: string =
-    latestDigestId !== null && latestDigestId !== undefined && latestDigestId.trim() !== ""
-      ? `/digests?tab=browse#digest-${encodeURIComponent(latestDigestId)}`
-      : "/digests";
+  const nextBestAction = healthSnap !== null ? resolveDigestNextBestAction(healthSnap) : null;
+  const primaryHref: string = nextBestAction?.href ?? (configured ? "/digests?tab=schedule" : "/digests?tab=subscriptions");
+  const primaryLabel: string = nextBestAction?.actionLabel ?? (configured ? "Configure weekly digest" : "Create digest");
+  const previewHref: string = hasPreviewDigest
+    ? `/digests?tab=browse#digest-${encodeURIComponent(latestDigestId)}`
+    : "/digests";
 
   const lastUpdatedLabel: string =
     lastUpdatedUtc === null
@@ -136,13 +144,14 @@ export function DigestsHubClient(): ReactElement {
               <Link href={primaryHref}>{primaryLabel}</Link>
             </Button>
             <Button
-              asChild
+              asChild={hasPreviewDigest}
               size="sm"
               variant="outline"
               data-testid="digests-preview-action"
               title={previewActionTitle}
+              disabled={!hasPreviewDigest}
             >
-              <Link href={previewHref}>Preview digest</Link>
+              {hasPreviewDigest ? <Link href={previewHref}>Preview digest</Link> : <span>Preview digest</span>}
             </Button>
             <Button
               asChild
@@ -151,7 +160,7 @@ export function DigestsHubClient(): ReactElement {
               data-testid="digests-send-test-action"
               title={sendTestActionTitle}
             >
-              <Link href="/advisory?tab=schedules">Send test</Link>
+              <Link href="/advisory?tab=schedules">{DIGESTS_BROWSE_SEND_TEST_LABEL}</Link>
             </Button>
             <div className="flex flex-wrap items-center gap-2">
               <Button
@@ -228,6 +237,7 @@ export function DigestsHubClient(): ReactElement {
             refreshToken={browseRefreshToken}
             onLoaded={onBrowseLoaded}
             hidePageHeader
+            healthSnap={healthSnap}
           />
         </TabsContent>
         <TabsContent value="subscriptions" className="mt-4">

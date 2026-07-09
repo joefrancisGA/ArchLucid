@@ -1,7 +1,12 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
+import {
+  DIGESTS_BROWSE_EMPTY_TITLE,
+  DIGESTS_BROWSE_INCLUDES_SECTION_TITLE,
+} from "@/lib/digests-browse-copy";
+import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
@@ -18,31 +23,44 @@ import {
   listDigestDeliveryAttempts,
 } from "@/lib/api";
 
+const healthSnap: WeeklyDigestHealthDto = {
+  enabledAdvisoryScheduleCount: 0,
+  digestSubscriptionCount: 0,
+  enabledDigestSubscriptionCount: 0,
+  digestSubscriptionsByEmailChannel: 0,
+  digestSubscriptionsBySlackChannel: 0,
+  digestSubscriptionsByTeamsChannel: 0,
+  executiveEmailDigestIsConfigured: false,
+  executiveEmailDigestEnabled: false,
+  executiveDigestRecipientCount: 0,
+  executiveDigestIanaTimeZoneId: "UTC",
+  executiveDigestDayOfWeek: 1,
+  executiveDigestHourOfDay: 8,
+  setupGaps: [
+    "No enabled advisory scan schedule — weekly architecture digests will not be generated on a cadence.",
+    "No digest subscriptions — generated digests have no outbound recipients in this scope.",
+  ],
+};
+
 describe("DigestsBrowseContent", () => {
   beforeEach(() => {
     vi.mocked(listArchitectureDigests).mockReset();
     vi.mocked(listDigestDeliveryAttempts).mockReset();
   });
 
-  it("renders intentional empty state without implementation jargon", async () => {
+  it("renders setup checklist, includes preview, and summary empty state without duplicate CTAs", async () => {
     vi.mocked(listArchitectureDigests).mockResolvedValue([]);
 
-    render(<DigestsBrowseContent hidePageHeader />);
+    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
     expect(await screen.findByTestId("digests-empty-state")).toBeInTheDocument();
-    expect(screen.getByText("No digests generated yet")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Configure schedule" })).toHaveAttribute(
-      "href",
-      "/digests?tab=schedule",
-    );
-    expect(screen.getByRole("link", { name: "Create subscription" })).toHaveAttribute(
-      "href",
-      "/digests?tab=subscriptions",
-    );
-    expect(screen.getByRole("link", { name: "Send test digest" })).toHaveAttribute(
-      "href",
-      "/advisory?tab=schedules",
-    );
+    expect(screen.getByText(DIGESTS_BROWSE_EMPTY_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("digests-browse-setup-checklist")).toBeInTheDocument();
+    expect(screen.getByText("Configure schedule")).toBeInTheDocument();
+    expect(screen.getByText("Add recipients or subscriptions")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-browse-includes-preview")).toBeInTheDocument();
+    expect(screen.getByText(DIGESTS_BROWSE_INCLUDES_SECTION_TITLE)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Create subscription" })).not.toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/Markdown|v1|preformatted/i);
   });
 
@@ -72,11 +90,9 @@ describe("DigestsBrowseContent", () => {
       },
     ]);
 
-    render(<DigestsBrowseContent hidePageHeader />);
+    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
-    await waitFor(() => {
-      expect(screen.getByRole("table", { name: "Architecture digest history" })).toBeInTheDocument();
-    });
+    expect(await screen.findByRole("table", { name: "Architecture digest history" })).toBeInTheDocument();
     expect(screen.getByText("Weekly architecture digest")).toBeInTheDocument();
     expect(screen.getByText("ops@example.com")).toBeInTheDocument();
   });

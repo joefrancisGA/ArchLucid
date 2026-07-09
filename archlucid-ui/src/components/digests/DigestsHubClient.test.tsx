@@ -63,7 +63,15 @@ describe("DigestsHubClient", () => {
     expect(screen.getByTestId("digests-refresh-button")).toBeEnabled();
     expect(screen.getByTestId("digests-last-updated")).toBeInTheDocument();
     expect(screen.getByTestId("digests-privacy-note")).toBeInTheDocument();
-    expect(screen.getByTestId("digests-primary-action")).toHaveTextContent("Create digest");
+    expect(screen.getByTestId("digests-primary-action")).toHaveTextContent("Configure schedule");
+    expect(screen.getByTestId("digests-preview-action")).toBeDisabled();
+    expect(screen.getByRole("link", { name: "Send test digest" })).toHaveAttribute(
+      "href",
+      "/advisory?tab=schedules",
+    );
+    expect(screen.getByRole("link", { name: "Open advisory schedules" })).toBeInTheDocument();
+    expect(screen.getByTestId("digests-browse-setup-message")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-browse-next-best-action")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("digest-setup-gaps")).toBeInTheDocument();

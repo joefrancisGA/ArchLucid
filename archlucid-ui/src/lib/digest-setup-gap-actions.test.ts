@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildDigestSetupChecklistItems,
   digestsHaveExistingConfiguration,
   formatDigestInstant,
   mapDigestSetupGap,
   mapDigestSetupGaps,
+  resolveDigestNextBestAction,
   resolveDigestOverallStatus,
 } from "@/lib/digest-setup-gap-actions";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
@@ -53,7 +55,8 @@ describe("digest-setup-gap-actions", () => {
   });
 
   it("resolves overall status kinds", () => {
-    expect(resolveDigestOverallStatus(baseSnap()).kind).toBe("blocked");
+    expect(resolveDigestOverallStatus(baseSnap()).kind).toBe("draft");
+    expect(resolveDigestOverallStatus(baseSnap()).label).toBe("Setup needed");
     expect(
       resolveDigestOverallStatus(
         baseSnap({
@@ -71,6 +74,29 @@ describe("digest-setup-gap-actions", () => {
         }),
       ).kind,
     ).toBe("needs-attention");
+  });
+
+  it("suggests configure schedule as the first next best action", () => {
+    const action = resolveDigestNextBestAction(baseSnap());
+
+    expect(action?.actionLabel).toBe("Configure schedule");
+    expect(action?.href).toBe("/advisory?tab=schedules");
+  });
+
+  it("builds checklist completion from health and history", () => {
+    const items = buildDigestSetupChecklistItems(
+      baseSnap({
+        enabledAdvisoryScheduleCount: 1,
+        enabledDigestSubscriptionCount: 2,
+        latestArchitectureDigestGeneratedUtc: "2026-07-08T12:00:00Z",
+      }),
+      true,
+    );
+
+    expect(items.find((item) => item.id === "schedule")?.complete).toBe(true);
+    expect(items.find((item) => item.id === "recipients")?.complete).toBe(true);
+    expect(items.find((item) => item.id === "test")?.complete).toBe(true);
+    expect(items.find((item) => item.id === "history")?.complete).toBe(true);
   });
 
   it("detects existing configuration", () => {
