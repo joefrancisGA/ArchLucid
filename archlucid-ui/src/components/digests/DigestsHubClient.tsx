@@ -107,6 +107,7 @@ export function DigestsHubClient(): ReactElement {
   const healthBannerVariant =
     activeTab === "subscriptions" ? "subscriptions" : activeTab === "schedule" ? "schedule" : "full";
 
+  const latestDigestId: string | null | undefined = healthSnap?.latestArchitectureDigestId;
   const previewDigestId = latestDigestId?.trim() ?? "";
   const hasPreviewDigest: boolean = previewDigestId !== "";
   const previewActionTitle = hasPreviewDigest
