@@ -20,6 +20,7 @@ public static class BatchReplayZipPathSanitizer
             return true;
 
         // ':' is valid on Linux file names but breaks Windows paths and zip folder segments cross-platform.
+
         if (c is ':' or '*' or '?' or '"' or '<' or '>' or '|')
             return true;
 
