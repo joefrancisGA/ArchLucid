@@ -11,6 +11,7 @@ import {
 import { getAppMain } from "./app-main";
 import { escapeRegExpSource } from "./escape-reg-exp-source";
 import { expectAnyLocatorVisible } from "./locator-readiness";
+import { waitForAppReady } from "./waits";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_DEMO_RUN_ID);
 
@@ -90,10 +91,12 @@ export async function expectBuyerReviewPackagePrimaryHeading(page: Page, options
 
 /** Buyer golden path review package is hydrated with headline + manifest data. */
 export async function expectBuyerGoldenPageReady(page: Page): Promise<void> {
+  await waitForAppReady(page);
   await expect(page.getByTestId("buyer-golden-page-ready")).toBeVisible({ timeout: 60_000 });
 }
 
 /** Layer strip stepper is present on curated spine routes in buyer-polished mock E2E. */
 export async function expectBuyerGoldenJourneyStepper(page: Page): Promise<void> {
+  await waitForAppReady(page);
   await expect(page.getByTestId("buyer-golden-journey-stepper")).toBeVisible({ timeout: 60_000 });
 }

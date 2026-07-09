@@ -1,0 +1,46 @@
+import { expect, type Page } from "@playwright/test";
+
+import { expectAnyLocatorVisible } from "./locator-readiness";
+import { waitForAppReady } from "./waits";
+
+/** `/reviews/new?baseline=1` now routes through the path switcher into `NewRunWizardClient` (detailed tab). */
+export async function waitForReviewsNewBaselineSimplifiedWizard(page: Page): Promise<void> {
+  await waitForAppReady(page);
+  await expect(page.getByTestId("reviews-new-path-toggle")).toBeVisible({ timeout: 60_000 });
+
+  const detailedTab = page.getByTestId("reviews-new-path-detailed");
+  await expect(detailedTab).toBeVisible({ timeout: 30_000 });
+
+  if ((await detailedTab.getAttribute("data-state")) !== "active") {
+    await detailedTab.click();
+  }
+
+  const simplifiedWizard = page.getByTestId("simplified-pilot-wizard");
+  const wizardReady = page.locator("[data-wizard-ready='true']");
+
+  await expectAnyLocatorVisible([simplifiedWizard, wizardReady], 60_000);
+
+  if (!(await simplifiedWizard.isVisible().catch(() => false))) {
+    const quickModeButton = page.getByRole("button", { name: /Pilot baseline|Quick start/i }).first();
+
+    if ((await quickModeButton.count()) > 0) {
+      await quickModeButton.click();
+    }
+  }
+
+  await expect(simplifiedWizard).toBeVisible({ timeout: 60_000 });
+}
+
+/** ZIP upload prefills identity fields while the wizard stays on the evidence step — go back to verify. */
+export async function expectBaselineWizardSystemNamePrefilled(page: Page, expected: string): Promise<void> {
+  const systemName = page.getByRole("textbox", { name: "System name" });
+
+  if (!(await systemName.isVisible().catch(() => false))) {
+    const backButton = page.getByRole("button", { name: /Back/i });
+    await expect(backButton).toBeVisible({ timeout: 15_000 });
+    await backButton.click();
+  }
+
+  await expect(systemName).toBeVisible({ timeout: 15_000 });
+  await expect(systemName).toHaveValue(expected, { timeout: 15_000 });
+}

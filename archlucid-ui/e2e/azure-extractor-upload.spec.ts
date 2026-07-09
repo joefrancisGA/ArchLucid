@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 import { strToU8, zipSync } from "fflate";
 
+import {
+  expectBaselineWizardSystemNamePrefilled,
+  waitForReviewsNewBaselineSimplifiedWizard,
+} from "./helpers/reviews-new-baseline-wizard";
 import { expandWizardBaselineZipEvidence } from "./helpers/wizard-baseline-zip-evidence";
 
 function archLucidZipBuffer(manifest: Record<string, unknown>): Buffer {
@@ -15,7 +19,7 @@ function archLucidZipBuffer(manifest: Record<string, unknown>): Buffer {
 test.describe("Azure extractor ZIP wizard field", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
-    await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });
+    await waitForReviewsNewBaselineSimplifiedWizard(page);
     await expect(page.getByRole("textbox", { name: "System name" })).not.toHaveValue("", { timeout: 15_000 });
 
     const description = page.getByRole("textbox", { name: "Description" });
@@ -54,10 +58,7 @@ test.describe("Azure extractor ZIP wizard field", () => {
     await expect(page.getByTestId("wizard-azure-zip-schema-warning")).toHaveCount(0);
     await expect(page.getByTestId("wizard-azure-zip-ready")).toBeVisible({ timeout: 15_000 });
 
-    await page.getByRole("button", { name: /^(Continue|Next)$/ }).click();
-    await expect(page.getByRole("textbox", { name: "System name" })).toHaveValue("E2eMockRg", {
-      timeout: 15_000,
-    });
+    await expectBaselineWizardSystemNamePrefilled(page, "E2eMockRg");
   });
 
   test("rejects non-zip file types", async ({ page }) => {
@@ -113,9 +114,6 @@ test.describe("Azure extractor ZIP wizard field", () => {
     await expect(page.getByTestId("wizard-azure-zip-error")).toHaveCount(0, { timeout: 15_000 });
     await expect(page.getByTestId("wizard-azure-zip-schema-warning")).toHaveCount(0);
 
-    await page.getByRole("button", { name: /^(Continue|Next)$/ }).click();
-    await expect(page.getByRole("textbox", { name: "System name" })).toHaveValue("ClaimsIntakeRg", {
-      timeout: 15_000,
-    });
+    await expectBaselineWizardSystemNamePrefilled(page, "ClaimsIntakeRg");
   });
 });
