@@ -182,9 +182,9 @@ import SearchPage from "./search/page";
  * Alert surfaces: bodies live in `@/components/alerts/*Content`; the `/alerts` route is the tabbed hub.
  */
 describe("operator client pages — render gate", () => {
-  it("Alerts inbox content renders primary heading", () => {
+  it("Alerts inbox content renders summary row", () => {
     render(<AlertsInboxContent />);
-    expect(screen.getByTestId("alerts-inbox-count-label")).toBeInTheDocument();
+    expect(screen.getByTestId("alerts-inbox-summary-row")).toBeInTheDocument();
   });
 
   it("Alert rules content renders primary heading", () => {

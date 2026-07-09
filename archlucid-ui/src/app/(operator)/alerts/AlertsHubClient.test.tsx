@@ -75,10 +75,11 @@ describe("AlertsHubClient", () => {
     expect(screen.queryByText("Alerts — where to start")).not.toBeInTheDocument();
   });
 
-  it("shows rules when ?tab=rules", () => {
+  it("shows rules when ?tab=rules and labels the tab Standards and rules", () => {
     tabValue.current = "rules";
     render(<AlertsHubClient />);
     expect(screen.getByTestId("stub-rules")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-hub-tab-rules")).toHaveTextContent("Standards and rules");
     expect(screen.queryByTestId("alerts-governance-context-panel")).not.toBeInTheDocument();
   });
 

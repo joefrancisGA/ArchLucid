@@ -36,7 +36,7 @@ import {
 
 } from "@/lib/alerts-hub-tab";
 
-import { ALERTS_PAGE_SUBTITLE } from "@/lib/alerts-page-copy";
+import { ALERTS_PAGE_SUBTITLE, ALERTS_HUB_TAB_STANDARDS_AND_RULES } from "@/lib/alerts-page-copy";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
@@ -60,7 +60,7 @@ const TAB_LABEL: Record<AlertHubTabId, string> = {
 
   inbox: "Inbox",
 
-  rules: "Rules",
+  rules: ALERTS_HUB_TAB_STANDARDS_AND_RULES,
 
   routing: "Routing",
 

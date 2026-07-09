@@ -11,9 +11,11 @@ import {
   alertsTriageSuppressButtonLabelReaderInbox,
 } from "@/lib/enterprise-controls-context-copy";
 import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
+import { buyerSafeReviewDetailHref } from "@/lib/buyer-safe-review-navigation";
 import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
 import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatRelativeTime } from "@/lib/relative-time";
 import type { AlertRecord } from "@/types/alerts";
 
 export type AlertActionKind = "Acknowledge" | "Resolve" | "Suppress";
@@ -32,6 +34,16 @@ export type AlertsInboxAlertCardProps = {
 
 export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
   const findingDetailHref = alertPrimaryFindingDetailHref(props.alert);
+  const reviewPackageHref =
+    props.alert.runId !== null && props.alert.runId !== undefined && props.alert.runId.trim().length > 0
+      ? buyerSafeReviewDetailHref(props.alert.runId)
+      : null;
+  const lastUpdatedLabel =
+    props.alert.lastUpdatedUtc !== null
+    && props.alert.lastUpdatedUtc !== undefined
+    && props.alert.lastUpdatedUtc.trim().length > 0
+      ? formatRelativeTime(props.alert.lastUpdatedUtc)
+      : formatRelativeTime(props.alert.createdUtc);
   const hideDemoTriageActions = props.buyerPolishedShell && props.alert.alertId === "demo-alert-phi-intake";
 
   return (
@@ -73,6 +85,27 @@ export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
         <div className={cn("mb-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           <span className="text-neutral-500 dark:text-neutral-500">Status:</span> {props.alert.status}
         </div>
+        <div className={cn("mb-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          <span className="text-neutral-500 dark:text-neutral-500">Rule:</span>{" "}
+          {props.alert.ruleId.trim().length > 0 ? (
+            <Link href={policyPacksRuleHref(props.alert.ruleId)} className={cn(OPERATOR_LINK.inline, "font-medium")}>
+              {props.alert.ruleId}
+            </Link>
+          ) : (
+            "—"
+          )}
+        </div>
+        {reviewPackageHref !== null ? (
+          <div className={cn("mb-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            <span className="text-neutral-500 dark:text-neutral-500">Review package:</span>{" "}
+            <Link href={reviewPackageHref} className={cn(OPERATOR_LINK.inline, "font-medium")}>
+              Open package
+            </Link>
+          </div>
+        ) : null}
+        <div className={cn("mb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          <span className="text-neutral-500 dark:text-neutral-500">Last updated:</span> {lastUpdatedLabel}
+        </div>
         <div className={cn("mb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           <span className="text-neutral-500 dark:text-neutral-500">Trigger:</span> {props.alert.triggerValue}
         </div>
@@ -80,18 +113,9 @@ export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
           {props.alert.description}
         </p>
         {findingDetailHref !== null ? (
-          <div className="mt-3">
+          <div className="mt-3 flex flex-wrap gap-2">
             <Button asChild variant="default" size="sm" className="h-9">
-              <Link href={findingDetailHref}>Open linked finding</Link>
-            </Button>
-          </div>
-        ) : null}
-        {props.alert.ruleId.trim().length > 0 ? (
-          <div className={findingDetailHref !== null ? "mt-2" : "mt-3"}>
-            <Button asChild variant="outline" size="sm" className="h-9">
-              <Link href={policyPacksRuleHref(props.alert.ruleId)} data-testid="alert-policy-rule-link">
-                Open policy rule
-              </Link>
+              <Link href={findingDetailHref}>Open finding</Link>
             </Button>
           </div>
         ) : null}

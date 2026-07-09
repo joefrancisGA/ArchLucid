@@ -4,6 +4,7 @@ import { AlertsInboxActionLoopDialog, AlertsInboxTriageActionDialog } from "@/co
 import { AlertsInboxAlertListSection } from "@/components/alerts/AlertsInboxAlertListSection";
 import { AlertsInboxControls } from "@/components/alerts/AlertsInboxControls";
 import { AlertsInboxPageIntro } from "@/components/alerts/AlertsInboxPageIntro";
+import { AlertsInboxSummaryRow } from "@/components/alerts/AlertsInboxSummaryRow";
 import { useAlertsInboxController } from "@/components/alerts/use-alerts-inbox-controller";
 import type { AlertsInboxPageModel } from "@/app/(operator)/alerts/_sections/alerts-inbox-page-model";
 
@@ -23,11 +24,12 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
         failure={controller.failure}
       />
 
+      <AlertsInboxSummaryRow summary={controller.summaryCounts} loading={controller.summaryLoading} />
+
       <AlertsInboxControls
         status={controller.status}
         page={controller.page}
         totalPages={controller.totalPages}
-        totalCount={controller.totalCount}
         loading={controller.loading}
         buyerPolishedShell={controller.buyerPolishedShell}
         canMutateAlertInbox={controller.canMutateAlertInbox}
@@ -37,6 +39,7 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
         allVisibleSelected={controller.allVisibleSelected}
         pageMixSummary={controller.pageMixSummary}
         hasLoadFailure={controller.failure !== null}
+        lastRefreshedUtc={controller.lastRefreshedUtc}
         onStatusChange={controller.changeStatusFilter}
         onRefresh={() => {
           void controller.load();
