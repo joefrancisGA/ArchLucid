@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
+import { AdminAiUsageGovernanceCard } from "@/components/AdminAiUsageGovernanceCard";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EstimatedLlmCostBarChart } from "@/components/EstimatedLlmCostBarChart";
 import { LlmBudgetUtilizationMeter } from "@/components/LlmBudgetUtilizationMeter";
@@ -78,6 +79,8 @@ export function CostReportingSettingsPageView(props: Props) {
       ) : null}
 
       <LlmCostCommandCenterSummaryCard dashboard={data} />
+
+      <AdminAiUsageGovernanceCard />
 
       <Card>
         <CardHeader className={OPERATOR_CARD.header}>

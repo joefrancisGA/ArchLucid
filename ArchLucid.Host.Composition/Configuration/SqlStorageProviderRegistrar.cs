@@ -12,6 +12,7 @@ using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Core.AdminNotifications;
+using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.AzureExtractor;
@@ -489,6 +490,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
         services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();
         services.AddScoped<ILlmTenantBudgetRepository, SqlLlmTenantBudgetRepository>();
+        services.AddScoped<IAiUsageEventRepository, Persistence.AiUsage.SqlAiUsageEventRepository>();
+        services.AddScoped<ITenantAiBudgetPolicyRepository, Persistence.AiUsage.SqlTenantAiBudgetPolicyRepository>();
         services.AddScoped<ILlmTenantWalletRepository, SqlLlmTenantWalletRepository>();
         services.AddScoped<IReferenceEvidenceRunLookup, SqlReferenceEvidenceRunLookup>();
     }

@@ -93,6 +93,7 @@ public static partial class ServiceCollectionExtensions
                 sp.GetRequiredService<SimulatorExecutionTraceRecordingExecutor>()));
         services.AddArchLucidFeatureManagement(configuration);
         services.AddArchLucidStorage(configuration);
+        services.AddArchLucidAiUsageControls(configuration);
         RegisterTenancyMeteringAndSecrets(services, configuration);
         services.RegisterBilling(configuration);
         RegisterAdvisoryScheduling(services, configuration, hostingRole);

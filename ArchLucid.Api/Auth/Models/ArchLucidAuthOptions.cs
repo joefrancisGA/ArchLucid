@@ -10,6 +10,8 @@ public class ArchLucidAuthOptions
 
     public const string TestActorIdHeader = "X-ArchLucid-Test-Actor-Id";
 
+    public const string TestActorRoleHeader = "X-ArchLucid-Test-Actor-Role";
+
     /// <summary>DevelopmentBypass | JwtBearer | ApiKey</summary>
     public string Mode
     {

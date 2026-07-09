@@ -1,5 +1,6 @@
 using System.Globalization;
 
+using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -14,7 +15,8 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusService(
     IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> optionsMonitor,
     ILlmCostEstimator costEstimator,
     ILlmTenantBudgetRepository budgetRepository,
-    IScopeContextProvider scopeContextProvider) : ILlmMonthlyTenantDollarBudgetStatusService
+    IScopeContextProvider scopeContextProvider,
+    ITenantAiBudgetPolicyResolver aiBudgetPolicyResolver) : ILlmMonthlyTenantDollarBudgetStatusService
 {
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
@@ -31,6 +33,9 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusService(
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
+    private readonly ITenantAiBudgetPolicyResolver _aiBudgetPolicyResolver =
+        aiBudgetPolicyResolver ?? throw new ArgumentNullException(nameof(aiBudgetPolicyResolver));
+
     /// <inheritdoc />
     public async Task<LlmMonthlyTenantDollarBudgetStatusResult> GetStatusAsync(
         CancellationToken cancellationToken = default)
@@ -46,7 +51,15 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusService(
             return InactiveResult(utcMonth);
         }
 
+        TenantAiBudgetPolicySnapshot policy =
+            await _aiBudgetPolicyResolver.ResolveAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
         LlmMonthlyTenantDollarBudgetOptions opts = _optionsMonitor.CurrentValue;
+
+        if (policy.WorkspaceKind is AiUsageWorkspaceKind.Trial or AiUsageWorkspaceKind.PublicDemo)
+        {
+            return BuildWorkspacePolicyStatus(utcMonth, policy, opts);
+        }
 
         if (!opts.Enabled || opts.HardCutoffUsdPerUtcMonth < 0.01m)
         {
@@ -71,7 +84,6 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusService(
             opts.HardCutoffUsdPerUtcMonth,
             state.PurchasedCapBumpUsd);
 
-        // Match LlmMonthlyTenantDollarBudgetTracker: no positive reservation → gate does not run.
         if (assumedUsd <= 0m)
         {
             return new LlmMonthlyTenantDollarBudgetStatusResult
@@ -85,24 +97,64 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusService(
                 EstimatedUsdPressure = pressure,
                 AssumedNextCallReservationUsd = null,
                 HardCapUtilizationFraction = utilizationFraction,
-                WarnFraction = warnFraction
+                WarnFraction = warnFraction,
+                RemainingBudgetUsd = policy.RemainingAmountUsd,
+                WorkspaceKind = policy.WorkspaceKind.ToString(),
+                CustomerAiProviderConfigured = policy.CustomerAiProviderConfigured,
             };
         }
 
         bool blocks = pressure + assumedUsd > effectiveMax;
+
+        if (policy.HardStopEnabled)
+        {
+            blocks = policy.BlocksAdditionalLlmExecution || blocks;
+            effectiveMax = policy.BudgetAmountUsd + state.PurchasedCapBumpUsd;
+        }
 
         return new LlmMonthlyTenantDollarBudgetStatusResult
         {
             MonthlyBudgetMonitoringActive = true,
             BlocksAdditionalLlmExecution = blocks,
             UtcMonth = utcMonth,
-            HardCutoffUsdPerUtcMonth = opts.HardCutoffUsdPerUtcMonth,
+            HardCutoffUsdPerUtcMonth = policy.BudgetAmountUsd > 0m ? policy.BudgetAmountUsd : opts.HardCutoffUsdPerUtcMonth,
             EffectiveHardCapUsd = effectiveMax,
             PurchasedCapBumpUsd = state.PurchasedCapBumpUsd,
             EstimatedUsdPressure = pressure,
             AssumedNextCallReservationUsd = assumedUsd,
             HardCapUtilizationFraction = utilizationFraction,
-            WarnFraction = warnFraction
+            WarnFraction = warnFraction,
+            RemainingBudgetUsd = policy.RemainingAmountUsd,
+            WorkspaceKind = policy.WorkspaceKind.ToString(),
+            CustomerAiProviderConfigured = policy.CustomerAiProviderConfigured,
+        };
+    }
+
+    private static LlmMonthlyTenantDollarBudgetStatusResult BuildWorkspacePolicyStatus(
+        string utcMonth,
+        TenantAiBudgetPolicySnapshot policy,
+        LlmMonthlyTenantDollarBudgetOptions opts)
+    {
+        decimal effectiveMax = policy.BudgetAmountUsd;
+        decimal pressure = policy.UsedAmountUsd;
+        decimal warnFraction = decimal.Clamp(opts.WarnFraction, 0.01m, 0.99m);
+        double utilizationFraction = effectiveMax > 0m ? (double)(pressure / effectiveMax) : 0d;
+
+        return new LlmMonthlyTenantDollarBudgetStatusResult
+        {
+            MonthlyBudgetMonitoringActive = true,
+            BlocksAdditionalLlmExecution = policy.BlocksAdditionalLlmExecution,
+            UtcMonth = utcMonth,
+            HardCutoffUsdPerUtcMonth = policy.BudgetAmountUsd,
+            EffectiveHardCapUsd = effectiveMax,
+            PurchasedCapBumpUsd = 0m,
+            EstimatedUsdPressure = pressure,
+            AssumedNextCallReservationUsd = null,
+            HardCapUtilizationFraction = utilizationFraction,
+            WarnFraction = warnFraction,
+            RemainingBudgetUsd = policy.RemainingAmountUsd,
+            WorkspaceKind = policy.WorkspaceKind.ToString(),
+            CustomerAiProviderConfigured = policy.CustomerAiProviderConfigured,
         };
     }
 
@@ -118,7 +170,7 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusService(
             EstimatedUsdPressure = null,
             AssumedNextCallReservationUsd = null,
             HardCapUtilizationFraction = null,
-            WarnFraction = null
+            WarnFraction = null,
         };
 
     private static string FormatUtcMonthKey(DateTime utc) =>

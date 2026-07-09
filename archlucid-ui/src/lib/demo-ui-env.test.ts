@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   isBuyerPolishedOperatorShellEnv,
@@ -76,5 +76,19 @@ describe("demo-ui-env — TB-643 buyer-default shell", () => {
     delete process.env.NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES;
 
     expect(isCompareRouteBlockedUnderDemoStrictShell()).toBe(false);
+  });
+
+  it("honors dev shell override cookie over build env in development", () => {
+    vi.stubEnv("NODE_ENV", "development");
+    process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
+    document.cookie = "archlucid_dev_shell_experience_v1=buyer-polished; Path=/";
+
+    expect(isOperatorExperienceFullShellEnv()).toBe(false);
+
+    document.cookie = "archlucid_dev_shell_experience_v1=full-operator; Path=/";
+
+    expect(isOperatorExperienceFullShellEnv()).toBe(true);
+
+    document.cookie = "archlucid_dev_shell_experience_v1=; Max-Age=0; Path=/";
   });
 });

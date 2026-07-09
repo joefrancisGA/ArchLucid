@@ -57,7 +57,25 @@ public sealed class DevelopmentBypassAuthenticationHandlerTests
         result.Principal?.FindFirst("project_id")?.Value.Should().Be(projectId.ToString("D"));
     }
 
-    private static DevelopmentBypassAuthHandlerTestDouble CreateHandler(ArchLucidAuthOptions authOptions)
+    [SkippableFact]
+    public async Task Authenticate_honors_test_actor_role_header_when_allow_test_actor_headers_enabled()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers[ArchLucidAuthOptions.TestActorRoleHeader] = "Reader";
+
+        DevelopmentBypassAuthHandlerTestDouble handler = CreateHandler(
+            new ArchLucidAuthOptions { AllowTestActorHeaders = true },
+            http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Role)?.Value.Should().Be("Reader");
+    }
+
+    private static DevelopmentBypassAuthHandlerTestDouble CreateHandler(
+        ArchLucidAuthOptions authOptions,
+        DefaultHttpContext? httpContext = null)
     {
         Mock<IOptionsMonitor<AuthenticationSchemeOptions>> monitor = new();
         AuthenticationSchemeOptions schemeOptions = new();
@@ -77,7 +95,7 @@ public sealed class DevelopmentBypassAuthenticationHandlerTests
             options.Object,
             environment.Object);
 
-        DefaultHttpContext http = new();
+        DefaultHttpContext http = httpContext ?? new();
         AuthenticationScheme scheme = new(
             DevelopmentBypassAuthenticationHandler.SchemeName,
             "DevelopmentBypass",

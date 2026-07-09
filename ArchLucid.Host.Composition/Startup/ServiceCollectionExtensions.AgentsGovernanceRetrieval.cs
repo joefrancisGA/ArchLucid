@@ -30,6 +30,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Agents;
+using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -731,6 +732,9 @@ public static partial class ServiceCollectionExtensions
                 monthlyDollarOpts,
                 monthlyDollarTracker,
                 sp.GetRequiredService<ILlmCostEstimator>(),
+                sp.GetRequiredService<IAiBudgetPreCallGuard>(),
+                sp.GetRequiredService<IDemoAiPromptCache>(),
+                sp.GetRequiredService<IOptionsMonitor<AiUsageControlsOptions>>(),
                 auditService,
                 accountingLogger);
 
@@ -1316,6 +1320,9 @@ public static partial class ServiceCollectionExtensions
             monthlyDollarOpts,
             monthlyDollarTracker,
             sp.GetRequiredService<ILlmCostEstimator>(),
+            sp.GetRequiredService<IAiBudgetPreCallGuard>(),
+            sp.GetRequiredService<IDemoAiPromptCache>(),
+            sp.GetRequiredService<IOptionsMonitor<AiUsageControlsOptions>>(),
             auditService,
             accountingLogger,
             useJudgeDailyCapOnly: true,
@@ -1442,6 +1449,9 @@ public static partial class ServiceCollectionExtensions
             monthlyDollarOpts,
             monthlyDollarTracker,
             sp.GetRequiredService<ILlmCostEstimator>(),
+            sp.GetRequiredService<IAiBudgetPreCallGuard>(),
+            sp.GetRequiredService<IDemoAiPromptCache>(),
+            sp.GetRequiredService<IOptionsMonitor<AiUsageControlsOptions>>(),
             auditService,
             accountingLogger);
 

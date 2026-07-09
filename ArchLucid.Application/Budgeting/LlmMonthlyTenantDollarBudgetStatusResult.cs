@@ -73,4 +73,22 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusResult
         get;
         init;
     }
+
+    public decimal? RemainingBudgetUsd
+    {
+        get;
+        init;
+    }
+
+    public string? WorkspaceKind
+    {
+        get;
+        init;
+    }
+
+    public bool CustomerAiProviderConfigured
+    {
+        get;
+        init;
+    }
 }

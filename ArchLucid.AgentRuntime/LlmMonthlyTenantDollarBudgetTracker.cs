@@ -22,6 +22,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
     ILlmCostEstimator costEstimator,
     ILlmTenantBudgetRepository budgetRepository,
     ILlmTenantWalletService walletService,
+    ITenantLlmMonthlyBudgetCapResolver budgetCapResolver,
     IConfiguration configuration,
     IHostEnvironment hostEnvironment,
     TimeProvider timeProvider)
@@ -35,6 +36,9 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
     private readonly ILlmTenantWalletService _walletService =
         walletService ?? throw new ArgumentNullException(nameof(walletService));
+
+    private readonly ITenantLlmMonthlyBudgetCapResolver _budgetCapResolver =
+        budgetCapResolver ?? throw new ArgumentNullException(nameof(budgetCapResolver));
 
     private readonly ILlmCostEstimator _costEstimator = costEstimator ?? throw new ArgumentNullException(nameof(costEstimator));
 
@@ -77,7 +81,8 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
             return (null, false);
 
         string periodKey = MonthlyPeriodKey(GetUtcYearMonth());
-        decimal max = opts.HardCutoffUsdPerUtcMonth;
+        decimal? resolvedCap = await _budgetCapResolver.ResolveHardCapUsdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+        decimal max = resolvedCap ?? opts.HardCutoffUsdPerUtcMonth;
 
         LlmTenantBudgetStateReadModel state =
             await _budgetRepository.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, cancellationToken)
@@ -87,7 +92,11 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
         if (state.TotalUsdPressure + assumed > effectiveMax)
         {
-            if (await _walletService.TryAuthorizeOverageSpendAsync(tenantId, assumed, cancellationToken).ConfigureAwait(false))
+            bool walletAllowed = await _budgetCapResolver.IsWalletOverageAllowedAsync(tenantId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (walletAllowed &&
+                await _walletService.TryAuthorizeOverageSpendAsync(tenantId, assumed, cancellationToken).ConfigureAwait(false))
                 return (null, true);
 
             (int year, int month) = GetUtcYearMonth();
@@ -133,7 +142,11 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
             if (reserved.HardCapBlocked)
             {
-                if (await _walletService.TryAuthorizeOverageSpendAsync(tenantId, assumed, cancellationToken).ConfigureAwait(false))
+                bool walletAllowed = await _budgetCapResolver.IsWalletOverageAllowedAsync(tenantId, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (walletAllowed &&
+                    await _walletService.TryAuthorizeOverageSpendAsync(tenantId, assumed, cancellationToken).ConfigureAwait(false))
                     return (null, true);
 
                 LlmTenantBudgetStateReadModel blocked = reserved.NewState ?? state;

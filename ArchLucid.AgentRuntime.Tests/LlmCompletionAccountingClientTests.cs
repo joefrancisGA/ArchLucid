@@ -322,6 +322,7 @@ public sealed class LlmCompletionAccountingClientTests
             costEstimator.Object,
             monthlyRepoBinding,
             new NoOpLlmTenantWalletService(),
+            new PassthroughTenantLlmMonthlyBudgetCapResolver(),
             new ConfigurationBuilder().Build(),
             CreateNonProductionHostEnvironment(),
             TimeProvider.System);
@@ -344,6 +345,9 @@ public sealed class LlmCompletionAccountingClientTests
             new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOptsBinding),
             monthlyTracker,
             costEstimator.Object,
+            new NoOpAiBudgetPreCallGuard(),
+            new NoOpDemoAiPromptCache(),
+            new FixedValueOptionsMonitor<AiUsageControlsOptions>(new AiUsageControlsOptions()),
             audit.Object,
             NullLogger<LlmCompletionAccountingClient>.Instance);
     }
