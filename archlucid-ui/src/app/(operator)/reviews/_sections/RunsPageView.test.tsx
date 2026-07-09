@@ -8,7 +8,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
-import { REVIEWS_HUB_PAGE_SUBTITLE, REVIEWS_HUB_RECENT_EMPTY_TITLE } from "./reviews-hub-copy";
+import { REVIEWS_HUB_PAGE_SUBTITLE, REVIEWS_HUB_PRIMARY_START_LABEL, REVIEWS_HUB_RECENT_EMPTY_TITLE } from "./reviews-hub-copy";
 import { RunsPageView } from "./RunsPageView";
 import type { RunsPageModel } from "./runs-page-model";
 
@@ -75,18 +75,9 @@ vi.mock("@/components/OperatorDemoStaticBanner", () => ({
 }));
 
 vi.mock("./ReviewsHubPrimaryActions", async () => {
-  const { default: Link } = await import("next/link");
-  const { REVIEWS_HUB_PRIMARY_START_LABEL } = await import("./reviews-hub-copy");
+  const actual = await vi.importActual<typeof import("./ReviewsHubPrimaryActions")>("./ReviewsHubPrimaryActions");
 
-  return {
-    ReviewsHubPrimaryActions: () => (
-      <div data-testid="reviews-hub-primary-actions">
-        <Link href="/reviews/new" data-testid="runs-page-start-review">
-          {REVIEWS_HUB_PRIMARY_START_LABEL}
-        </Link>
-      </div>
-    ),
-  };
+  return actual;
 });
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -145,11 +136,16 @@ describe("RunsPageView page chrome", () => {
     render(<RunsPageView model={baseModel({ totalCount: 0 })} />);
 
     expect(screen.getByTestId("reviews-hub-summary-row")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-summary-empty-hint")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-primary-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-explore-samples")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-package-includes")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-recent-empty")).toBeInTheDocument();
     expect(screen.getByText(REVIEWS_HUB_RECENT_EMPTY_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("runs-page-start-review")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("runs-page-start-review")).toHaveTextContent(REVIEWS_HUB_PRIMARY_START_LABEL);
+    expect(screen.getByTestId("reviews-hub-recent-empty-start-review")).toHaveTextContent(REVIEWS_HUB_PRIMARY_START_LABEL);
+    expect(screen.getByRole("link", { name: "Create architecture" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.queryByTestId("runs-list-advanced")).toBeNull();
   });
 

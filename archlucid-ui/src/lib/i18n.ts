@@ -47,7 +47,7 @@ export const RUNS_LIST_PAGE_TITLES = {
 
 /** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). @deprecated Use `REVIEWS_HUB_PAGE_SUBTITLE`. */
 export const RUNS_LIST_PAGE_SUBTITLE =
-  "Create, resume, and inspect evidence-backed architecture review packages.";
+  "Start, resume, and inspect evidence-backed architecture review packages.";
 
 export const PIPELINE_STATUS_TOOLTIPS = {
   finalized: `The ${DOMAIN_TERMS.goldenManifest} is finalized and the architecture review is complete.`,
