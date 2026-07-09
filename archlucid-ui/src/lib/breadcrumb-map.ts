@@ -1,5 +1,6 @@
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
+import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { pathMatchesCloudConnections } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -187,8 +188,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
       return [...items, { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH }];
     }
 
-    const allSegments = ["governance", "policy-packs", idSegment];
-    const lastLabel = labelForSegment(idSegment, allSegments, 2, options);
+    const lastLabel = resolvePolicyPackDetailBreadcrumbLabel(idSegment, null);
 
     return [
       ...items,
@@ -436,6 +436,10 @@ function labelForSegment(
 
   if (prev === "policy-packs" && isInvalidDynamicRouteToken(segment)) {
     return "Policy pack detail";
+  }
+
+  if (prev === "policy-packs") {
+    return resolvePolicyPackDetailBreadcrumbLabel(segment, null);
   }
 
   const demoTitle = buyer ? BUYER_DEMO_PATH_SEGMENT_TITLES[segment] ?? DEMO_PATH_SEGMENT_TITLES[segment] : DEMO_PATH_SEGMENT_TITLES[segment];

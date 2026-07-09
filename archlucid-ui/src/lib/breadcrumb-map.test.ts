@@ -125,6 +125,13 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("labels Responsible AI policy pack id 1 with a human-readable breadcrumb", () => {
+    expect(getBreadcrumbs("/governance/policy-packs/1")).toEqual([
+      { label: "Policy packs", href: "/governance/policy-packs" },
+      { label: "Responsible AI" },
+    ]);
+  });
+
   it("labels showcase demo slug before uuid-style titles", () => {
     expect(getBreadcrumbs("/showcase/claims-intake-modernization")).toEqual([
       { label: "Showcase", href: "/showcase" },

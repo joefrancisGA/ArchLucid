@@ -29,6 +29,10 @@ describe("policyPackBuyerGovernanceDetailHref", () => {
     );
   });
 
+  it("resolves responsible AI sample id to governance detail route", () => {
+    expect(policyPackBuyerGovernanceDetailHref("1")).toBe("/governance/policy-packs/1");
+  });
+
   it("returns null for unknown packs", () => {
     expect(policyPackBuyerGovernanceDetailHref("other-pack")).toBeNull();
   });
