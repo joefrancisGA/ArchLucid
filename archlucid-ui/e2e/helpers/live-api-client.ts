@@ -165,6 +165,42 @@ export function liveE2eArchitectureDescription(testIntent: string): string {
   return `${intent} Secure Azure API service architecture with SQL database, managed identity auth, and cloud compliance constraints.`;
 }
 
+function resolveArchitectureDescriptionField(description: unknown, fallbackIntent: string): string {
+  if (typeof description === "function") {
+    return (description as (intent: string) => string)(fallbackIntent);
+  }
+
+  if (typeof description === "string") {
+    return description.trim();
+  }
+
+  return "";
+}
+
+/**
+ * Enriches POST `/v1/architecture/request` bodies so thin descriptions or specs that pass
+ * {@link liveE2eArchitectureDescription} by reference pass semantic admission in ApiKey/JWT lanes.
+ */
+export function enrichArchitectureRequestBody(body: Record<string, unknown>): Record<string, unknown> {
+  const intent =
+    typeof body.systemName === "string" && body.systemName.trim().length > 0
+      ? body.systemName.trim()
+      : "Live E2E architecture request";
+
+  const description = resolveArchitectureDescriptionField(body.description, intent);
+
+  if (liveE2eArchitectureAdmissionRegex.test(description)) {
+    return { ...body, description };
+  }
+
+  const suffix = description.length > 0 ? ` Context: ${description}` : "";
+
+  return {
+    ...body,
+    description: liveE2eArchitectureDescription(intent) + suffix,
+  };
+}
+
 function pickApiKey(explicitApiKey?: string | null): string | undefined {
   if (explicitApiKey !== undefined && explicitApiKey !== null) {
     const t = explicitApiKey.trim();
