@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:291 -->
+<!-- audit-core-const-count:292 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -105,6 +105,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Operator saved view create | `OperatorSavedViewsController` (`POST /v1/operator/saved-views`) | `AuditEventTypes.OperatorSavedViewCreated` | Tenant/Workspace/Project from ambient scope | `{ viewId, surface, name, isShared }` — filter JSON not duplicated (may contain operator query terms) |
 | Operator saved view delete | `OperatorSavedViewsController` (`DELETE /v1/operator/saved-views/{viewId}`) | `AuditEventTypes.OperatorSavedViewDeleted` | Tenant/Workspace/Project from ambient scope | `{ viewId }` |
 | Run operator governance disposition (approve / defer / reject) | `AuthorityQueryController` (`POST /v1/authority/runs/{runId}/disposition`); `RunOperatorGovernanceDispositionService` | `AuditEventTypes.RunOperatorGovernanceDispositionRecorded` | RunId | `{ decision, rationale?, actorUserId, occurredUtc }` |
+| Technology Ledger entry approval patch | `TechnologyLedgerController` (`PATCH /v1/runs/{runId}/technology-ledger/{entryId}`) | `AuditEventTypes.TechnologyLedgerEntryUpdated` | RunId | `{ entryId, role, status, isLocked }` |
 | Operator one-click demo review | `ReviewsDemoController` (`POST /v1/reviews/demo`); `OperatorDemoReviewService` | `RunSubmitted`, `RunCompleted` (via service pipeline) | Tenant/Workspace/Project from ambient scope | Built-in flawed brief → committed review package; controller `[MutatingAuditExcluded]` because service emits pipeline audit events |
 | Architecture request soft-delete (DELETE alias of archive) | `RunsController` (`DELETE /v1/architecture/request/{requestId}`) | `ArchitectureRequestDeleted` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
 | Architecture request restore (un-archive) | `RunsController` (`POST /v1/architecture/request/{requestId}/restore`) | `ArchitectureRequestRestored` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
@@ -553,6 +554,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TrialUpgradeNudgeClicked` | `TrialUpgradeNudgeClicked` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/clicked`) |
 | `TeamExpansionNudgeShown` | `TeamExpansionNudgeShown` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/team-expansion-nudge/shown`) |
 | `TeamExpansionNudgeClicked` | `TeamExpansionNudgeClicked` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/team-expansion-nudge/clicked`) |
+| `TechnologyLedgerEntryUpdated` | `TechnologyLedgerEntryUpdated` | `TechnologyLedgerController` (`PATCH /v1/runs/{runId}/technology-ledger/{entryId}`) |
 | `LlmTenantDailyBudgetApproaching` | `LlmTenantDailyBudgetApproaching` | `LlmDailyTenantBudgetTracker` (fire-and-forget; one row per tenant per UTC day) |
 | `LlmTenantMonthlyDollarBudgetApproaching` | `LlmTenantMonthlyDollarBudgetApproaching` | `LlmMonthlyTenantDollarBudgetTracker` (fire-and-forget; one row per tenant per UTC month) |
 | `LlmWalletRefillSucceeded` | `LlmWalletRefillSucceeded` | `LlmTenantWalletService` (Stripe auto-refill; actor `system`) |

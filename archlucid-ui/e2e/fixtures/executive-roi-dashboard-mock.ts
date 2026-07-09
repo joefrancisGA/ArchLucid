@@ -20,6 +20,15 @@ export const EXECUTIVE_ROI_DEDUP_SCENARIO = {
 
 const iso = "2026-04-15T12:00:00.000Z";
 
+function executiveRoiHistorySnapshotIso(daysAgo: number): string {
+  const snapshot = new Date();
+
+  snapshot.setUTCDate(snapshot.getUTCDate() - daysAgo);
+  snapshot.setUTCHours(0, 0, 0, 0);
+
+  return snapshot.toISOString();
+}
+
 /** GET /v1/roi/executive-summary */
 export function getExecutiveRoiSummaryMockJson(): unknown {
   return {
@@ -147,7 +156,7 @@ export function getExecutiveRoiHistoryMockJson(): unknown {
   return {
     points: [
       {
-        snapshotUtc: "2026-03-15T00:00:00.000Z",
+        snapshotUtc: executiveRoiHistorySnapshotIso(45),
         totalEstimatedUsdSavings: 90_000,
         criticalSecurityFindings: 1,
         realRunCount: 1,
@@ -156,7 +165,7 @@ export function getExecutiveRoiHistoryMockJson(): unknown {
         isMixedMode: false,
       },
       {
-        snapshotUtc: "2026-04-15T00:00:00.000Z",
+        snapshotUtc: executiveRoiHistorySnapshotIso(15),
         totalEstimatedUsdSavings: 145_000,
         criticalSecurityFindings: 2,
         realRunCount: 2,

@@ -477,7 +477,11 @@ export async function expectExecutiveRoiPortfolioPanels(page: Page): Promise<voi
 
   await page.waitForResponse(isExecutiveRoiHistoryProxyResponse, { timeout: 60_000 }).catch(() => null);
 
-  await expect(page.getByTestId("exec-roi-trend-chart")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("executive-roi-dashboard-ready")).toHaveAttribute("data-ready", "true", {
+    timeout: 30_000,
+  });
+
+  await expect(page.getByTestId("exec-roi-trend-chart")).toBeVisible({ timeout: 30_000 });
 
 }
 

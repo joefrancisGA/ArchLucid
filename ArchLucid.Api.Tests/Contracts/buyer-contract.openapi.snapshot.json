@@ -15249,6 +15249,57 @@
         },
         "type": "object"
       },
+      "PatchTechnologyLedgerEntryRequest": {
+        "properties": {
+          "isLocked": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "providerFamily": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CloudProvider"
+              }
+            ]
+          },
+          "rationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TechnologyLedgerStatus"
+              }
+            ]
+          },
+          "technologyName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "PatchTechnologyLedgerEntryResponse": {
+        "properties": {
+          "entry": {
+            "$ref": "#/components/schemas/TechnologyLedgerEntryResponse"
+          }
+        },
+        "type": "object"
+      },
       "PatternEvidence": {
         "properties": {
           "applicableCapabilities": {
@@ -22275,6 +22326,78 @@
         ],
         "type": "object"
       },
+      "TechnologyLedgerEntryResponse": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "entryId": {
+            "type": "string"
+          },
+          "evidenceRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isLocked": {
+            "type": "boolean"
+          },
+          "providerFamily": {
+            "$ref": "#/components/schemas/CloudProvider"
+          },
+          "rationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "role": {
+            "$ref": "#/components/schemas/TechnologyLedgerRole"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/TechnologyLedgerSource"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TechnologyLedgerStatus"
+          },
+          "technologyName": {
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TechnologyLedgerListResponse": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/TechnologyLedgerEntryResponse"
+            },
+            "type": "array"
+          },
+          "runId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TechnologyLedgerRole": {
+        "type": "integer"
+      },
+      "TechnologyLedgerSource": {
+        "type": "integer"
+      },
+      "TechnologyLedgerStatus": {
+        "type": "integer"
+      },
       "TenantAgentOutputQualityGateModeResponse": {
         "properties": {
           "effectiveMode": {
@@ -26865,6 +26988,9 @@
     },
     {
       "name": "TeamsIncomingWebhookConnections"
+    },
+    {
+      "name": "TechnologyLedger"
     },
     {
       "name": "Templates"
