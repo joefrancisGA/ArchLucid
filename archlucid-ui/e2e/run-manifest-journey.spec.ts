@@ -67,10 +67,12 @@ test.describe("operator journey — run detail to manifest and back", () => {
       timeout: 60_000,
     });
 
+    await expectBuyerGoldenPageReady(page);
+
     await expect(
       getAppMain(page).getByRole("heading", { level: 1 }).filter({ hasText: SHOWCASE_RUN_DETAIL_HEADING }),
     ).toBeVisible({ timeout: 60_000 });
 
-    await expect(outcomeStrip).toBeVisible();
+    await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
   });
 });

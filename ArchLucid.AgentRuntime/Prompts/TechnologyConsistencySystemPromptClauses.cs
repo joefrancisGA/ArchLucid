@@ -25,7 +25,7 @@ public static class TechnologyConsistencySystemPromptClauses
         Target-cloud awareness: the effective target cloud (Azure, AWS, GCP, or cloud-neutral) is determined by the user prompt's Technology Ledger context — follow that target and do not contradict cloud-specific addenda appended to this system prompt.
         """;
 
-    public static string MandatoryBlock { get; } = BuildMandatoryBlock();
+    public static string MandatoryBlock => BuildMandatoryBlock();
 
     private static string BuildMandatoryBlock()
     {

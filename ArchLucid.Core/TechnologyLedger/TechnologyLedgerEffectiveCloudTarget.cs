@@ -2,7 +2,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 
-namespace ArchLucid.Application.Runs.Orchestration;
+namespace ArchLucid.Core.TechnologyLedger;
 
 public static class TechnologyLedgerEffectiveCloudTarget
 {

@@ -2,7 +2,7 @@ using System.Text;
 
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 
-namespace ArchLucid.Application.Runs.Orchestration;
+namespace ArchLucid.Core.TechnologyLedger;
 
 public static class TechnologyLedgerPromptFormatter
 {
