@@ -13,6 +13,7 @@ import {
   EXECUTIVE_ROI_DEDUP_SCENARIO,
 
   getExecutiveRoiExportMockJson,
+  getExecutiveRoiHistoryMockJson,
   getExecutiveRoiSummaryMockJson,
   getGovernanceDecisionsNeededSummaryMockJson,
 
@@ -181,7 +182,18 @@ export async function waitForExecutiveRoiDashboardHydrated(page: Page): Promise<
 export async function registerExecutiveRoiDashboardDeterministicProxyRoutes(page: Page): Promise<void> {
   const summaryBody = JSON.stringify(getExecutiveRoiSummaryMockJson());
   const exportBody = JSON.stringify(getExecutiveRoiExportMockJson());
+  const historyBody = JSON.stringify(getExecutiveRoiHistoryMockJson());
   const decisionsBody = JSON.stringify(getGovernanceDecisionsNeededSummaryMockJson());
+
+  await page.route("**/api/proxy/v1/roi/executive-summary/history**", async (route) => {
+    if (route.request().method() !== "GET") {
+      await route.continue();
+
+      return;
+    }
+
+    await route.fulfill({ status: 200, contentType: "application/json", body: historyBody });
+  });
 
   await page.route("**/api/proxy/v1/roi/executive-summary/export**", async (route) => {
     await route.fulfill({ status: 200, contentType: "application/json", body: exportBody });
@@ -189,6 +201,14 @@ export async function registerExecutiveRoiDashboardDeterministicProxyRoutes(page
 
   await page.route("**/api/proxy/v1/roi/executive-summary**", async (route) => {
     if (route.request().method() !== "GET") {
+      await route.continue();
+
+      return;
+    }
+
+    const url = route.request().url();
+
+    if (url.includes("/history") || url.includes("/export")) {
       await route.continue();
 
       return;

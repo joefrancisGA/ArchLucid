@@ -11,7 +11,12 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
 import { getAppMain } from "./helpers/app-main";
-import { showcaseSignedManifestBrowserUrlPattern, BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN } from "./helpers/buyer-golden-path";
+import {
+  showcaseSignedManifestBrowserUrlPattern,
+  BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN,
+  expectBuyerGoldenPageReady,
+} from "./helpers/buyer-golden-path";
+import { waitForAppReady } from "./helpers/waits";
 import { outcomeStripSignedRecordLink } from "./helpers/operator-journey";
 
 const SHOWCASE_RUN_DETAIL_HEADING = BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN;
@@ -24,8 +29,11 @@ test.describe("operator journey — run detail to manifest and back", () => {
 
     await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`));
 
+    await waitForAppReady(page);
+    await expectBuyerGoldenPageReady(page);
+
     await expect(
-      page.getByRole("heading", { level: 1, name: SHOWCASE_RUN_DETAIL_HEADING }),
+      getAppMain(page).getByRole("heading", { level: 1 }).filter({ hasText: SHOWCASE_RUN_DETAIL_HEADING }),
     ).toBeVisible({ timeout: 60_000 });
 
     const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
@@ -60,7 +68,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
     });
 
     await expect(
-      page.getByRole("heading", { level: 1, name: SHOWCASE_RUN_DETAIL_HEADING }),
+      getAppMain(page).getByRole("heading", { level: 1 }).filter({ hasText: SHOWCASE_RUN_DETAIL_HEADING }),
     ).toBeVisible({ timeout: 60_000 });
 
     await expect(outcomeStrip).toBeVisible();
