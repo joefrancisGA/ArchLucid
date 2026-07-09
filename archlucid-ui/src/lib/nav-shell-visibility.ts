@@ -5,6 +5,7 @@ import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-commi
 import { applyCommittedArchitectureReviewNavPromotions } from "@/lib/nav-committed-architecture-review-promotion";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
+import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
@@ -21,7 +22,7 @@ import {
  * Buyer-polished shell nav omissions. Empty: Compare (and other advanced destinations) stay reachable
  * inside their collapsed groups so buyers keep full product depth (route-level demo gating is separate).
  */
-const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>([]);
+const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/settings/api-keys"]);
 
 /** In buyer-polished operator builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
 const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
@@ -117,6 +118,14 @@ function omitBuyerPolishedShellNonGoldenNavLinks(links: NavLinkItem[]): NavLinkI
   return links.filter((l) => !BUYER_POLISHED_SHELL_OMIT_NAV_HREFS.has(l.href));
 }
 
+function omitApiKeysSettingsWhenSurfaceDisabled(links: NavLinkItem[]): NavLinkItem[] {
+  if (isApiKeysSettingsSurfaceEnabled()) {
+    return links;
+  }
+
+  return links.filter((l) => l.href !== "/settings/api-keys");
+}
+
 /** One nav group after **tier → authority** filtering, only emitted when at least one link remains. */
 export type NavGroupWithVisibleLinks = {
   group: NavGroupConfig;
@@ -185,6 +194,7 @@ export function filterNavLinksForOperatorShell(
 
   tiered = omitThinRoutesInPublicDemoMode(tiered);
   tiered = omitBuyerPolishedShellNonGoldenNavLinks(tiered);
+  tiered = omitApiKeysSettingsWhenSurfaceDisabled(tiered);
 
   if (!applyCollapsedSidebarPilotFilter)
     return tiered;

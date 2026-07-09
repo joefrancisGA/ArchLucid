@@ -1,4 +1,5 @@
 import { AUTHORITY_RANK, requiredAuthorityRank, type RequiredAuthority } from "@/lib/nav-authority";
+import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 
 import type { SettingsMasterDestination, SettingsMasterSection, SettingsMasterTier } from "./settings-master-types";
 
@@ -93,6 +94,10 @@ export function buildSettingsMasterVisibleSections(
         }
 
         if (!destinationVisibleForRank(destination, input.callerAuthorityRank)) {
+          return false;
+        }
+
+        if (destination.id === "api-keys" && !isApiKeysSettingsSurfaceEnabled()) {
           return false;
         }
 

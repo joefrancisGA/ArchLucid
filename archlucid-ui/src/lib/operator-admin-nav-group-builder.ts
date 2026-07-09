@@ -126,7 +126,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           label: "API keys",
 
-          title: "API keys — host Authentication:ApiKey status and rotation material",
+          title: "API keys — manage approved automation and integration access",
 
           icon: KeyRound,
 

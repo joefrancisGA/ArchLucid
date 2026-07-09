@@ -320,7 +320,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
       {
         id: "api-keys",
         title: "API keys",
-        description: "Host API key status and rotation material.",
+        description: "Manage approved automation keys for enterprise configurations.",
         href: "/settings/api-keys",
         cta: "Manage API keys",
         keywords: ["api", "key", "rotation"],
