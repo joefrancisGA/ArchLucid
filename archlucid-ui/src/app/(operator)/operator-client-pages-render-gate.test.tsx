@@ -237,7 +237,7 @@ describe("operator client pages — render gate", () => {
   it("PlanningPage renders primary heading", async () => {
     const page = await PlanningPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Planning" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Improvement planning" })).toBeInTheDocument();
   });
 
   it("PlanningPage does not render internal codename '59R' in user-visible output", async () => {

@@ -149,7 +149,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   architectureAdvisory: "Advisory scans",
   recommendationTuning: "Recommendation tuning",
   pilotFeedback: BUYER_TERMINOLOGY.evaluationFeedback,
-  planning: "Planning",
+  planning: "Improvement planning",
   evolutionCandidates: "Impact preview",
   pilotValueReport: BUYER_TERMINOLOGY.evaluationValueReport,
   roiReport: "ROI report",

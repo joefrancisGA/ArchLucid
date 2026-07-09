@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 
 import { sortPlansForPlanningDisplay, sortThemesForPlanningDisplay } from "@/lib/planning-display-order";
 
@@ -17,6 +17,7 @@ export function PlanningPageClient(props: PlanningPageClientProps) {
   const router = useRouter();
   const loaded = props.loaded;
   const [selectedThemeId, setSelectedThemeId] = useState<string | null>(null);
+  const [isRefreshing, startRefreshTransition] = useTransition();
 
   useEffect(() => {
     if (loaded.kind !== "data") {
@@ -35,7 +36,11 @@ export function PlanningPageClient(props: PlanningPageClientProps) {
   }, [loaded]);
 
   const model: PlanningPageViewModel = useMemo(() => {
-    const load = (): Promise<void> => Promise.resolve(router.refresh());
+    const load = async (): Promise<void> => {
+      startRefreshTransition(() => {
+        router.refresh();
+      });
+    };
 
     if (loaded.kind === "demo") {
       return {
@@ -50,6 +55,7 @@ export function PlanningPageClient(props: PlanningPageClientProps) {
         selectedThemeTitle: null,
         generatedUtc: null,
         loading: false,
+        refreshing: false,
         failure: null,
         usedPlanningDemoFallback: false,
         load,
@@ -93,12 +99,13 @@ export function PlanningPageClient(props: PlanningPageClientProps) {
       selectedThemeTitle,
       generatedUtc,
       loading: false,
+      refreshing: isRefreshing,
       failure,
       usedPlanningDemoFallback,
       load,
       empty,
     };
-  }, [loaded, router, selectedThemeId]);
+  }, [isRefreshing, loaded, router, selectedThemeId]);
 
   return <PlanningPageView model={model} />;
 }

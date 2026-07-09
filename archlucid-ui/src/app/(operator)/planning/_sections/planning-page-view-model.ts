@@ -17,6 +17,7 @@ export type PlanningPageViewModel = {
   readonly selectedThemeTitle: string | null;
   readonly generatedUtc: string | null;
   readonly loading: boolean;
+  readonly refreshing: boolean;
   readonly failure: ApiLoadFailureState | null;
   readonly usedPlanningDemoFallback: boolean;
   readonly load: () => Promise<void>;

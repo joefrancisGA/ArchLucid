@@ -48,12 +48,13 @@ export const SEARCH_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
 /** Planning themes/plans empty for current scope. */
 export const PLANNING_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "planning-empty-state",
-  title: "No themes or plans in this scope yet",
+  title: "No improvement plans yet",
   description:
-    "Feedback themes and improvement plans show here when persisted for the current tenant / workspace / project. Scope follows workspace defaults unless you set proxy overrides. Run a committed review first if this tenant is new.",
+    "Capture review feedback or run pilot feedback analysis to generate themes and prioritized plans.",
   actions: [
-    { label: "View reviews", href: "/reviews?projectId=default", variant: "primary" },
-    { label: "Pilot feedback", href: "/product-learning", variant: "outline" },
+    { label: "Capture review feedback", href: "/product-learning", variant: "primary" },
+    { label: "Run pilot feedback", href: "/product-learning", variant: "outline" },
+    { label: "View reviews", href: "/reviews", variant: "outline" },
   ],
 };
 

@@ -1,10 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
-import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorLoadingNotice, OperatorTryNext } from "@/components/OperatorShellMessage";
@@ -13,10 +12,24 @@ import { PlanningExportReadinessNote } from "@/components/planning/PlanningExpor
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
 import { PlanningThemesTable } from "@/components/planning/PlanningThemesTable";
-import { PLANNING_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import {
+  IMPROVEMENT_PLANNING_DEMO_DESCRIPTION,
+  IMPROVEMENT_PLANNING_FAILURE_TRY_NEXT,
+  IMPROVEMENT_PLANNING_LAST_UPDATED_PREFIX,
+  IMPROVEMENT_PLANNING_PAGE_SUBTITLE,
+  IMPROVEMENT_PLANNING_PAGE_TITLE,
+  IMPROVEMENT_PLANNING_PRODUCT_SAFE_INTRO,
+  IMPROVEMENT_PLANNING_REFRESH_LABEL,
+  IMPROVEMENT_PLANNING_REFRESHING_LABEL,
+  IMPROVEMENT_PLANNING_SCOPE_LINE,
+  IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_BODY,
+  IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_TITLE,
+} from "@/lib/planning-page-copy";
 
+import { PlanningPageEmptyState } from "./PlanningPageEmptyState";
 import type { PlanningPageViewModel } from "./planning-page-view-model";
 
 type Props = {
@@ -29,22 +42,29 @@ export function PlanningPageView(props: Props) {
   if (m.isDemo) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
-        capability="Planning"
-        description="In a connected tenant, operators browse improvement themes and prioritized plans derived from adoption feedback."
+        capability={IMPROVEMENT_PLANNING_PAGE_TITLE}
+        description={IMPROVEMENT_PLANNING_DEMO_DESCRIPTION}
       />
     );
   }
 
   return (
     <div className="max-w-5xl">
-      <OperatorPageHeader title="Planning" />
+      <OperatorPageHeader title={IMPROVEMENT_PLANNING_PAGE_TITLE} subtitle={IMPROVEMENT_PLANNING_PAGE_SUBTITLE} />
+
       <p className={cn("max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        Improvement themes and prioritized plans derived from evaluation feedback. This is a <strong>read-only</strong> browse view — use{" "}
-        <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
-          {OPERATOR_NAV_LINK_LABELS.pilotFeedback}
-        </Link>{" "}
-        for rollups and triage export.
+        {IMPROVEMENT_PLANNING_PRODUCT_SAFE_INTRO}
       </p>
+
+      <p className={cn("mt-3 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{IMPROVEMENT_PLANNING_SCOPE_LINE}</p>
+
+      <CollapsibleSection
+        title={IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_TITLE}
+        defaultOpen={false}
+        sectionTestId="planning-technical-scope-details"
+      >
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_BODY}</p>
+      </CollapsibleSection>
 
       {m.usedPlanningDemoFallback ? (
         <div className="mt-4 max-w-3xl">
@@ -52,23 +72,33 @@ export function PlanningPageView(props: Props) {
         </div>
       ) : null}
 
-      <div className="flex flex-wrap gap-3 items-center mt-4 mb-5">
-        <button type="button" onClick={() => void m.load()} disabled={m.loading}>
-          Refresh
-        </button>
+      <div className="mt-4 mb-5 flex flex-wrap items-center gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => void m.load()}
+          disabled={m.refreshing}
+          data-testid="planning-refresh-button"
+        >
+          {m.refreshing ? IMPROVEMENT_PLANNING_REFRESHING_LABEL : IMPROVEMENT_PLANNING_REFRESH_LABEL}
+        </Button>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="planning-last-updated">
+          {IMPROVEMENT_PLANNING_LAST_UPDATED_PREFIX}{" "}
+          {m.generatedUtc ? formatIsoUtcForDisplay(m.generatedUtc) : "—"}
+        </p>
       </div>
 
       {m.loading && m.summary === null ? (
         <OperatorLoadingNotice>
-          <strong>Loading planning data.</strong>
-          <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Fetching summary, themes, and plans from the API…</p>
+          <strong>Loading planning insights.</strong>
+          <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Fetching themes, plans, and summary metrics…</p>
         </OperatorLoadingNotice>
       ) : null}
 
-      {m.loading && m.summary !== null ? (
+      {m.refreshing && m.summary !== null ? (
         <OperatorLoadingNotice>
-          <strong>Refreshing planning data.</strong>
-          <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Re-fetching summary, themes, and plans from the API…</p>
+          <strong>Refreshing planning insights.</strong>
+          <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Updating themes, plans, and summary metrics…</p>
         </OperatorLoadingNotice>
       ) : null}
 
@@ -79,28 +109,11 @@ export function PlanningPageView(props: Props) {
             fallbackMessage={m.failure.message}
             correlationId={m.failure.correlationId}
           />
-          <OperatorTryNext>
-            Confirm learning/planning API routes are enabled for this environment, then click <strong>Refresh</strong>. For data entry and triage, use{" "}
-            <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
-              {OPERATOR_NAV_LINK_LABELS.pilotFeedback}
-            </Link>
-            —this page is read-only aggregation.
-          </OperatorTryNext>
+          <OperatorTryNext>{IMPROVEMENT_PLANNING_FAILURE_TRY_NEXT}</OperatorTryNext>
         </div>
       ) : null}
 
-      {m.empty && !m.loading ? (
-        <>
-          <EnterpriseCompactEmptyState {...PLANNING_EMPTY_COMPACT} />
-          <OperatorTryNext>
-            Capture or import evaluation feedback on{" "}
-            <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
-              {OPERATOR_NAV_LINK_LABELS.pilotFeedback}
-            </Link>
-            , then return here after processing jobs have run.
-          </OperatorTryNext>
-        </>
-      ) : null}
+      {m.empty && !m.loading && !m.refreshing ? <PlanningPageEmptyState /> : null}
 
       {m.summary !== null ? (
         <>
@@ -111,7 +124,7 @@ export function PlanningPageView(props: Props) {
               Top improvement themes
             </h3>
             <p className={cn("mt-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Ordered by evidence signal count, then distinct runs. Use <strong>Plans</strong> to narrow the plan list to one theme.
+              Recurring feedback patterns ranked by captured signals. Select a theme to focus the plan list below.
             </p>
             <PlanningThemesTable
               themes={m.sortedThemes}
@@ -126,7 +139,7 @@ export function PlanningPageView(props: Props) {
               Prioritized improvement plans
             </h3>
             <p className={cn("mt-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Ordered by priority score (highest first). Open a row for action steps and link-level evidence counts.
+              Action plans ranked by priority score. Open a plan for steps, owners, and supporting evidence.
             </p>
 
             {m.selectedThemeId !== null ? (
@@ -138,11 +151,12 @@ export function PlanningPageView(props: Props) {
                 role="status"
               >
                 <span>
-                  Showing plans for theme: <strong>{m.selectedThemeTitle}</strong> ({m.visiblePlans.length} of {m.sortedPlans.length})
+                  Showing plans for theme: <strong>{m.selectedThemeTitle}</strong> ({m.visiblePlans.length} of{" "}
+                  {m.sortedPlans.length})
                 </span>
-                <button type="button" onClick={() => m.setSelectedThemeId(null)}>
+                <Button type="button" variant="outline" size="sm" onClick={() => m.setSelectedThemeId(null)}>
                   Show all plans
-                </button>
+                </Button>
               </div>
             ) : null}
 
