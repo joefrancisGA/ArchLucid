@@ -4,9 +4,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { PRODUCT_DOCUMENTATION_REGISTRY } from "@/lib/product-documentation-registry";
-
-const GITHUB_BLOB_PATTERN =
-  /github\.com\/[^/]+\/[^/]+\/(blob|tree)\//i; // codeql[js/regex/missing-regexp-anchor] intentional substring scan in guard test.
+import { textContainsGitHubBlobOrTreeUrl } from "@/lib/github-blob-url-contains";
 
 /** Paths scanned for customer-facing GitHub blob links (operator + marketing surfaces). */
 const CUSTOMER_SURFACE_DIRS = [
@@ -96,14 +94,14 @@ describe("customer-facing GitHub blob link guard", () => {
 
         const content = readFileSync(file, "utf8");
 
-        if (!GITHUB_BLOB_PATTERN.test(content)) {
+        if (!textContainsGitHubBlobOrTreeUrl(content)) {
           continue;
         }
 
         const lines = content.split(/\r?\n/);
 
         lines.forEach((line, index) => {
-          if (GITHUB_BLOB_PATTERN.test(line)) {
+          if (textContainsGitHubBlobOrTreeUrl(line)) {
             violations.push(`${normalized}:${index + 1}: ${line.trim()}`);
           }
         });

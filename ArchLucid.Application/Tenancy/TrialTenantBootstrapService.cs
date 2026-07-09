@@ -61,10 +61,13 @@ public sealed class TrialTenantBootstrapService(
             if (!await _emailVerificationPolicy.CanProvisionTrialForRegisteredEmailAsync(auditActorEmail, cancellationToken))
             {
                 if (_logger.IsEnabled(LogLevel.Information))
+                {
+                    // codeql[cs/exposure-of-sensitive-information]: email domain only via LogSanitizer.EmailDomainForLogs; not mailbox local-part (docs/library/CODEQL_TRIAGE.md).
                     _logger.LogInformation(
                         "Skipping trial bootstrap for tenant {TenantId}: email verification policy blocked provisioning for domain {EmailDomain}.",
                         result.TenantId,
                         LogSanitizer.EmailDomainForLogs(auditActorEmail));
+                }
                 ArchLucidInstrumentation.RecordTrialSignupFailure("email_verification", "policy_blocked");
                 await _auditService.LogAsync(
                     new AuditEvent

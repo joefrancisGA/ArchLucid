@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { OperatorSecurityTrustPageView } from "./OperatorSecurityTrustPageView";
+import { textContainsGitHubBlobOrTreeUrl } from "@/lib/github-blob-url-contains";
 
 describe("OperatorSecurityTrustPageView", () => {
   it("renders procurement-facing sections without GitHub blob links", () => {
@@ -16,7 +17,7 @@ describe("OperatorSecurityTrustPageView", () => {
     );
     expect(screen.getByText(/SOC 2 Type II readiness and audit engagement planning/i)).toBeInTheDocument();
     expect(screen.queryByText(/Formal SOC 2 Type II audit engagement/i)).not.toBeInTheDocument();
-    expect(document.body.textContent ?? "").not.toMatch(/github\.com\/.*\/blob\//i); // codeql[js/regex/missing-regexp-anchor] intentional substring scan in guard test.
+    expect(textContainsGitHubBlobOrTreeUrl(document.body.textContent ?? "")).toBe(false);
   });
 
   it("renders tenant isolation model with CAIQ technical detail link", () => {

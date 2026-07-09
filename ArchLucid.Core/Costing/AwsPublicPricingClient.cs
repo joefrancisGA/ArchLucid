@@ -113,6 +113,7 @@ public sealed class AwsPublicPricingClient
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            // codeql[cs/cleartext-storage-of-sensitive-information]: public AWS Price List JSON probe; region/instance sanitized; exception for structured telemetry only (docs/library/CODEQL_TRIAGE.md).
             _logger.LogDebugAwsPricingProbeFailed(ex, regionCode, instanceType);
             return null;
         }
