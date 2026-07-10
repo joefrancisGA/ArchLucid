@@ -110,6 +110,12 @@ export function RoiSummaryPageView(props: Props) {
             <Link href="/value-report/pilot" className={OPERATOR_LINK.inline}>
               Pilot value report
             </Link>
+            <Link href="/settings/baseline" className={OPERATOR_LINK.inline}>
+
+              Baseline settings
+
+            </Link>
+
             <Link href="/governance/dashboard" className={OPERATOR_LINK.inline}>
               Workspace health
             </Link>

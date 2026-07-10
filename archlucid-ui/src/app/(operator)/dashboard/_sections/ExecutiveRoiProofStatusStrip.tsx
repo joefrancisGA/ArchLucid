@@ -87,6 +87,14 @@ export function ExecutiveRoiProofStatusStrip(props: ExecutiveRoiProofStatusStrip
         >
           ROI methodology
         </Link>
+        {" · "}
+        <Link
+          href="/settings/baseline"
+          className="font-medium text-teal-800 underline dark:text-teal-300"
+          data-testid="exec-roi-proof-baseline-settings-link"
+        >
+          Baseline settings
+        </Link>
       </p>
 
       {costFreshness.footnote ? (

@@ -35,6 +35,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/settings/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
   { prefix: "/settings/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
   { prefix: "/settings/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
+  { prefix: "/settings/baseline", topic: { slug: "pilot-roi-model", label: "View ROI methodology" } },
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
 ];
 
