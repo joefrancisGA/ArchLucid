@@ -3686,7 +3686,7 @@ BEGIN
         CreatedUtc  DATETIME2(7)     NOT NULL CONSTRAINT DF_ProjectRoleAssignments_CreatedUtc DEFAULT SYSUTCDATETIME(),
         CONSTRAINT PK_ProjectRoleAssignments PRIMARY KEY (TenantId, ProjectId, UserId),
         -- FK_ProjectRoleAssignments_Tenants is added below after dbo.Tenants is created (ordering fix).
-        CONSTRAINT FK_ProjectRoleAssignments_ScimUsers FOREIGN KEY (UserId) REFERENCES dbo.ScimUsers (Id),
+        -- FK_ProjectRoleAssignments_ScimUsers is added below after dbo.ScimUsers is created (ordering fix).
         CONSTRAINT CK_ProjectRoleAssignments_Role CHECK (Role IN (N'Reader', N'Operator', N'ProjectAdmin'))
     );
 END;
@@ -6619,6 +6619,13 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_ScimUsers_TenantId_UserName ON dbo.ScimUsers (TenantId, UserName);
 END;
 
+GO
+
+IF OBJECT_ID(N'dbo.ScimUsers', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.ProjectRoleAssignments', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ProjectRoleAssignments_ScimUsers')
+    ALTER TABLE dbo.ProjectRoleAssignments
+        ADD CONSTRAINT FK_ProjectRoleAssignments_ScimUsers FOREIGN KEY (UserId) REFERENCES dbo.ScimUsers (Id);
 GO
 
 IF OBJECT_ID(N'dbo.ScimGroups', N'U') IS NULL
