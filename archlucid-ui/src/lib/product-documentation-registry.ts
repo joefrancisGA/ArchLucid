@@ -4,6 +4,9 @@
  */
 export type ProductDocumentationAudience = "operator" | "buyer" | "marketing" | "developer";
 
+/** PDF pipeline eligibility — `null` means not PDF-eligible (TB-722). */
+export type ProductDocumentationPdfStatus = "public" | "customer" | "internal";
+
 export type ProductDocumentationEntry = {
   slug: string;
   title: string;
@@ -15,6 +18,11 @@ export type ProductDocumentationEntry = {
   sectionAnchors?: readonly string[];
   /** Include markdown before the first `##` when `sectionAnchors` is set. */
   includeIntroWithSections?: boolean;
+  pdfStatus: ProductDocumentationPdfStatus | null;
+};
+
+type ProductDocumentationRegistryInput = Omit<ProductDocumentationEntry, "pdfStatus"> & {
+  pdfStatus?: ProductDocumentationPdfStatus | null;
 };
 
 /** Slug aliases for contextual deep links (`/help/{slug}`). */
@@ -37,7 +45,7 @@ export function normalizeHelpTopicSlug(slug: string): string {
   return HELP_TOPIC_SLUG_ALIASES[trimmed] ?? trimmed;
 }
 
-export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[] = [
+const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistryInput[] = [
   {
     slug: "first-review",
     title: "First review in 90 minutes",
@@ -70,6 +78,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
       "Complete one review package before opening deeper governance, reporting, or integration workflows.",
     audience: "buyer",
     sourcePaths: ["docs/library/FIRST_HOUR_OPERATOR_PATH.md"],
+    pdfStatus: "public",
   },
   {
     slug: "review-guide",
@@ -163,6 +172,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
       "docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md",
       "docs/library/GOVERNANCE_WORKFLOW_UI.md",
     ],
+    pdfStatus: "customer",
   },
   {
     slug: "audit-trail",
@@ -170,6 +180,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     summary: "Immutable audit events, correlation identifiers, and buyer-safe export posture.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/FAQ.md", "docs/library/AUDIT_COVERAGE_MATRIX.md"],
+    pdfStatus: "customer",
   },
   {
     slug: "how-it-works",
@@ -178,6 +189,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
       "From architecture evidence to findings, decisions, governance records, and sponsor-ready outputs.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/HOW_ARCHLUCID_WORKS.md"],
+    pdfStatus: "public",
   },
   {
     slug: "data-handling",
@@ -186,6 +198,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
       "Data flow, tenant isolation, audit trail, and portability for architecture review evidence.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/DATA_HANDLING.md"],
+    pdfStatus: "public",
   },
   {
     slug: "security-trust",
@@ -193,6 +206,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     summary: "Assurance ladder, data handling, subprocessors, and diligence materials for procurement reviewers.",
     audience: "buyer",
     sourcePaths: ["docs/go-to-market/trust-center.md", "docs/library/customer-facing/DATA_HANDLING.md"],
+    pdfStatus: "public",
   },
   {
     slug: "cloud-connections",
@@ -212,6 +226,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["connect-azure-securely"],
+    pdfStatus: "customer",
   },
   {
     slug: "cloud-connections-aws",
@@ -221,6 +236,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["connect-aws-securely"],
+    pdfStatus: "customer",
   },
   {
     slug: "cloud-connections-gcp",
@@ -230,6 +246,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["connect-gcp-securely"],
+    pdfStatus: "customer",
   },
   {
     slug: "workload-identity-federation",
@@ -276,6 +293,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
       "Guided first-review checklist — evidence, optional cloud connectors, finalize, and sponsor exports.",
     audience: "buyer",
     sourcePaths: ["docs/CORE_PILOT.md"],
+    pdfStatus: "public",
   },
   {
     slug: "first-value-20-minutes",
@@ -480,6 +498,12 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     sourcePaths: ["docs/library/PRODUCT_LEARNING.md"],
   },
 ] as const;
+
+export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[] =
+  PRODUCT_DOCUMENTATION_REGISTRY_INPUT.map((entry) => ({
+    ...entry,
+    pdfStatus: entry.pdfStatus ?? null,
+  }));
 
 const bySlug = new Map(PRODUCT_DOCUMENTATION_REGISTRY.map((entry) => [entry.slug, entry]));
 

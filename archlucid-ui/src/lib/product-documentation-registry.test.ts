@@ -9,6 +9,7 @@ import {
   listProductDocumentationEntries,
   type ProductDocumentationEntry,
 } from "@/lib/product-documentation-registry";
+import { getHelpCenterTier } from "@/lib/help-center-catalog";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 const REDIRECT_STUB_MARKERS = [/moved\s+—/i, /^#\s*moved\b/i];
@@ -89,6 +90,53 @@ describe("product-documentation-registry", () => {
       }
 
       assertNotRedirectStub(entry);
+    }
+  });
+
+  it("declares pdfStatus on every registry entry with null default (TB-722)", () => {
+    for (const entry of listProductDocumentationEntries()) {
+      expect(entry).toHaveProperty("pdfStatus");
+      expect(entry.pdfStatus === null || typeof entry.pdfStatus === "string").toBe(true);
+    }
+  });
+
+  it("keeps pdfStatus internal entries aligned with help-center internal tier (TB-722)", () => {
+    for (const entry of listProductDocumentationEntries()) {
+      if (entry.pdfStatus !== "internal") {
+        continue;
+      }
+
+      expect(getHelpCenterTier(entry)).toBe("internal");
+    }
+  });
+
+  it("does not mark internal-tier help topics as public PDFs (TB-722)", () => {
+    for (const entry of listProductDocumentationEntries()) {
+      if (entry.pdfStatus !== "public") {
+        continue;
+      }
+
+      expect(getHelpCenterTier(entry)).not.toBe("internal");
+    }
+  });
+
+  it("maps initial PDF strategy slugs to expected pdfStatus (TB-722)", () => {
+    const expected: Readonly<Record<string, ProductDocumentationEntry["pdfStatus"]>> = {
+      "core-pilot": "public",
+      "first-hour-operator-path": "public",
+      "how-it-works": "public",
+      "data-handling": "public",
+      "security-trust": "public",
+      "cloud-connections-azure": "customer",
+      "cloud-connections-aws": "customer",
+      "cloud-connections-gcp": "customer",
+      "governance-approval": "customer",
+      "audit-trail": "customer",
+      "pilot-roi-model": null,
+    };
+
+    for (const [slug, pdfStatus] of Object.entries(expected)) {
+      expect(getProductDocumentationEntry(slug)?.pdfStatus).toBe(pdfStatus);
     }
   });
 });
