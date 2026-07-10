@@ -6,9 +6,15 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import { CronExpressionBuilder } from "@/components/advisory/CronExpressionBuilder";
 import { DocumentLayout } from "@/components/DocumentLayout";
+import Link from "next/link";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import {
+  ADVISORY_SCANS_SCHEDULES_INTRO,
+  ADVISORY_SCANS_SCHEDULES_RECURRENCE_HREF,
+  ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_LABEL,
+} from "@/lib/advisory-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -128,10 +134,17 @@ export function AdvisorySchedulesContent() {
           <h2 className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>Schedules</h2>
         </div>
         <p className="doc-meta m-0">
-          Advisory scans evaluate your architecture against configurable advisory rules. Background worker polls every
-          ~5 minutes for due schedules. Use the <strong>project slug</strong> (same as the architecture reviews list,
-          often <code className={cn("rounded bg-neutral-200 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>default</code>) so recent
-          reviews are discovered.
+          {ADVISORY_SCANS_SCHEDULES_INTRO} Background worker polls every ~5 minutes for due schedules. Use the{" "}
+          <strong>project slug</strong> (same as the architecture reviews list, often{" "}
+          <code className={cn("rounded bg-neutral-200 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>default</code>) so
+          recent reviews are discovered. For architecture review recurrence, use{" "}
+          <Link
+            href={ADVISORY_SCANS_SCHEDULES_RECURRENCE_HREF}
+            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+          >
+            {ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_LABEL}
+          </Link>
+          .
         </p>
 
         {failure !== null ? (

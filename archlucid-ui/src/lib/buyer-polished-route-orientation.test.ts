@@ -85,7 +85,7 @@ describe("buyerPolishedRouteOrientation", () => {
     const o = buyerPolishedRouteOrientation("/advisory");
 
     expect(o?.label).toBe("Advisory scans");
-    expect(o?.line).toContain("Recommended changes");
+    expect(o?.line).toContain("Prioritized follow-up");
   });
 
   it("orients advisory sub-routes (e.g. ?tab=schedules) consistently", () => {

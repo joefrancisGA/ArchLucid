@@ -238,7 +238,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith("/advisory")) {
     return {
       label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
-      line: "Recommended changes based on committed review packages.",
+      line: "Prioritized follow-up recommendations from finalized review packages.",
     };
   }
 

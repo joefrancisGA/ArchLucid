@@ -1,0 +1,131 @@
+/** Advisory scans hub — page chrome, form labels, empty states, and governance disposition copy. */
+
+export const ADVISORY_SCANS_PAGE_SUBTITLE =
+  "Generate prioritized follow-up recommendations from finalized review packages.";
+
+export const ADVISORY_SCANS_PAGE_VALUE_STATEMENT =
+  "Use advisory scans after a review is finalized to identify changes, risks, tradeoffs, and implementation follow-up actions.";
+
+export const ADVISORY_SCANS_TRUST_COPY =
+  "Recommendations are generated from review findings, evidence, governance rules, and optional comparison signals.";
+
+export const ADVISORY_SCANS_FORM_SECTION_TITLE = "Generate advisory scan";
+
+export const ADVISORY_SCANS_FINALIZED_REVIEW_LABEL = "Finalized review package";
+
+export const ADVISORY_SCANS_FINALIZED_REVIEW_PLACEHOLDER = "Choose a finalized review package";
+
+export const ADVISORY_SCANS_BASELINE_REVIEW_LABEL = "Baseline review for comparison";
+
+export const ADVISORY_SCANS_BASELINE_REVIEW_PLACEHOLDER = "Choose baseline review for comparison";
+
+export const ADVISORY_SCANS_BASELINE_REVIEW_HELPER =
+  "Choose a baseline review to highlight changes and drift since the earlier review.";
+
+export const ADVISORY_SCANS_CANT_FIND_REVIEW_SUMMARY = "Can't find a review?";
+
+export const ADVISORY_SCANS_CANT_FIND_REVIEW_BODY =
+  "Search recent finalized review packages below, or open the review packages list to locate the review you need.";
+
+export const ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL = "Open review packages";
+
+export const ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF = "/reviews?projectId=default";
+
+export const ADVISORY_SCANS_GENERATE_BUTTON_LABEL = "Generate advisory scan";
+
+export const ADVISORY_SCANS_GENERATE_BUTTON_WORKING_LABEL = "Generating advisory scan…";
+
+export const ADVISORY_SCANS_GENERATE_DISABLED_HINT =
+  "Select a finalized review package to generate an advisory scan.";
+
+export const ADVISORY_SCANS_GENERATE_OUTPUT_HINT =
+  "The scan will produce prioritized recommendations with suggested dispositions.";
+
+export const ADVISORY_SCANS_REFRESH_SAVED_LABEL = "Refresh saved recommendations";
+
+export const ADVISORY_SCANS_EMPTY_TITLE = "No advisory scan generated yet";
+
+export const ADVISORY_SCANS_EMPTY_BODY =
+  "Select a finalized review package to generate recommendations, or view a sample advisory scan.";
+
+export const ADVISORY_SCANS_VIEW_SAMPLE_LABEL = "View sample advisory scan";
+
+export const ADVISORY_SCANS_SAMPLE_SECTION_TITLE = "Sample advisory recommendation";
+
+export const ADVISORY_SCANS_SAMPLE_BADGE_LABEL = "Sample recommendation";
+
+export const ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE = "Advisory recommendations";
+
+export const ADVISORY_SCANS_RECOMMENDATIONS_SECTION_BODY =
+  "Record governance disposition for each recommendation to feed follow-up workflows.";
+
+export const ADVISORY_SCANS_SUMMARY_SECTION_TITLE = "Scan summary";
+
+export const ADVISORY_SCANS_SUMMARY_RECOMMENDATIONS_GENERATED = "Recommendations generated";
+
+export const ADVISORY_SCANS_SUMMARY_HIGH_IMPACT = "High-impact recommendations";
+
+export const ADVISORY_SCANS_SUMMARY_ACCEPTED = "Accepted";
+
+export const ADVISORY_SCANS_SUMMARY_DEFERRED = "Deferred";
+
+export const ADVISORY_SCANS_SUMMARY_REJECTED = "Rejected";
+
+export const ADVISORY_SCANS_SUMMARY_IMPLEMENTED = "Implemented";
+
+export const ADVISORY_SCANS_SUMMARY_LAST_SCAN = "Last scan time";
+
+export const ADVISORY_SCANS_SUMMARY_COMPARED_TO = "Compared to baseline";
+
+export const ADVISORY_SCANS_DISPOSITION_ACCEPT = "Accept";
+
+export const ADVISORY_SCANS_DISPOSITION_DEFER = "Defer";
+
+export const ADVISORY_SCANS_DISPOSITION_REJECT = "Reject";
+
+export const ADVISORY_SCANS_DISPOSITION_IMPLEMENTED = "Mark implemented";
+
+export const ADVISORY_SCANS_DISPOSITION_ACCEPT_HINT = "Adds to governance follow-up";
+
+export const ADVISORY_SCANS_DISPOSITION_DEFER_HINT = "Keeps recommendation visible for later";
+
+export const ADVISORY_SCANS_DISPOSITION_REJECT_HINT = "Records why it will not be pursued";
+
+export const ADVISORY_SCANS_DISPOSITION_IMPLEMENTED_HINT = "Records completion";
+
+export const ADVISORY_SCANS_CARD_IMPACT_LABEL = "Impact level";
+
+export const ADVISORY_SCANS_CARD_RELATED_FINDING_LABEL = "Related finding or risk";
+
+export const ADVISORY_SCANS_CARD_EVIDENCE_LABEL = "Evidence basis";
+
+export const ADVISORY_SCANS_CARD_SUGGESTED_ACTION_LABEL = "Suggested action";
+
+export const ADVISORY_SCANS_CARD_OWNER_LABEL = "Owner or role";
+
+export const ADVISORY_SCANS_CARD_DISPOSITION_LABEL = "Governance disposition";
+
+export const ADVISORY_SCANS_SCHEDULES_INTRO =
+  "Run advisory scans on a schedule after review packages are committed.";
+
+export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_LABEL = "Open recurrence schedules";
+
+export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_HREF = "/governance/recurrence-schedules";
+
+export const ADVISORY_SCANS_MANUAL_ID_ADMIN_SUMMARY = "Technical details (admin)";
+
+export const ADVISORY_SCANS_MANUAL_ID_TARGET_PLACEHOLDER = "Architecture review ID (target review)";
+
+export const ADVISORY_SCANS_MANUAL_ID_BASELINE_PLACEHOLDER = "Optional baseline architecture review ID";
+
+/** Static sample recommendation shown when no scan has been generated. */
+export const ADVISORY_SCANS_SAMPLE_RECOMMENDATION = {
+  impactLevel: "High impact",
+  title: "API tier lacks a circuit breaker around legacy claims service",
+  relatedFinding: "Resilience — dependency timeout cascade risk",
+  evidenceBasis: "Finalized review findings and dependency health evidence",
+  suggestedAction: "Add timeout + bulkhead; capture health metrics for the dependency.",
+  body:
+    "Under load, repeated timeouts could cascade. Harden the integration and add a documented fallback path before the next production promotion.",
+  ownerRole: "Platform engineering lead",
+} as const;

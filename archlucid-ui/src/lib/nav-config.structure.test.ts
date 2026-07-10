@@ -167,6 +167,7 @@ describe("nav-config structure", () => {
 
     expect(analysisHrefs).toEqual([
       "/graph",
+      "/patterns",
       "/ask",
       "/search",
       "/compare",
@@ -178,7 +179,6 @@ describe("nav-config structure", () => {
 
     expect(architectAdvancedHrefs).toEqual([
       "/evolution-review",
-      "/advisory",
       "/recommendation-learning",
       "/product-learning",
       "/planning",
@@ -190,6 +190,7 @@ describe("nav-config structure", () => {
       "/governance/policy-packs",
       "/governance/resolution",
       "/governance/decision-register",
+      "/advisory",
       "/governance/audit",
       "/governance/alerts",
       "/governance/recurrence-schedules",
@@ -277,12 +278,15 @@ describe("nav-config structure", () => {
 
   it("keeps governance nav hrefs under /governance/* (TB-405)", () => {
     const governance = NAV_GROUPS.find((group) => group.id === "operate-governance");
+    const governanceNamespaceExceptions = new Set(["/advisory"]);
 
     expect(governance).toBeDefined();
 
     for (const link of governance!.links) {
       expect(
-        link.href === "/governance" || link.href.startsWith("/governance/"),
+        link.href === "/governance"
+          || link.href.startsWith("/governance/")
+          || governanceNamespaceExceptions.has(link.href),
         link.href,
       ).toBe(true);
     }

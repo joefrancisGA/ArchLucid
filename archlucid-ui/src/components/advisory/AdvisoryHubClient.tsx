@@ -1,13 +1,19 @@
 "use client";
+
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import {
+  ADVISORY_SCANS_PAGE_SUBTITLE,
+  ADVISORY_SCANS_PAGE_VALUE_STATEMENT,
+  ADVISORY_SCANS_TRUST_COPY,
+} from "@/lib/advisory-copy";
 import { ADVISORY_HUB_TAB_IDS, advisoryHubTabFromSearchParam, type AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { AdvisoryScansContent } from "./AdvisoryScansContent";
@@ -15,8 +21,6 @@ import { AdvisorySchedulesContent } from "./AdvisorySchedulesContent";
 
 const TAB_PARAM = "tab";
 
-// TB-529 renamed the nav item to "Advisory scans" (2026-06-30) but left the tab labels and per-tab content
-// headings on their older, more fragmented wording — unified here (nav / hub heading / tabs / content all agree).
 const TAB_LABEL: Record<AdvisoryHubTabId, string> = {
   scans: "Scans",
   schedules: "Schedules",
@@ -33,7 +37,7 @@ export type AdvisoryHubClientProps = {
  * Single `/advisory` ("Advisory scans") surface: **Scans** and **Schedules** tabs. Tab state in `?tab=` for deep links.
  * `initialTab` comes from the server so this tree does not depend on `useSearchParams` (avoids long Suspense fallbacks).
  */
-export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps) {
+export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps): React.JSX.Element {
   const router: ReturnType<typeof useRouter> = useRouter();
   const pathname: string = usePathname();
   const canMutate: boolean = useOperateCapability();
@@ -73,13 +77,20 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps) {
 
   return (
     <div className="px-0" data-testid="advisory-hub">
-      <OperatorPageHeader title={OPERATOR_NAV_LINK_LABELS.architectureAdvisory} />
+      <OperatorPageHeader title={OPERATOR_NAV_LINK_LABELS.architectureAdvisory} subtitle={ADVISORY_SCANS_PAGE_SUBTITLE}>
+        <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          {ADVISORY_SCANS_PAGE_VALUE_STATEMENT}
+        </p>
+        <p className={cn("m-0 mt-2 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {ADVISORY_SCANS_TRUST_COPY}
+        </p>
+      </OperatorPageHeader>
 
-      <nav
-        className="mb-6 border-b border-neutral-200 dark:border-neutral-800"
-        aria-label="Advisory hub sections"
-      >
-        <div className="-mb-px flex flex-wrap gap-1" role="tablist">
+      <nav className="mb-6" aria-label="Advisory hub sections">
+        <div
+          className="inline-flex rounded-md border border-neutral-200 bg-neutral-50 p-0.5 dark:border-neutral-700 dark:bg-neutral-900"
+          role="tablist"
+        >
           {ADVISORY_HUB_TAB_IDS.map((id) => {
             const selected: boolean = activeTab === id;
             const softMuted: boolean = !canMutate && id === "schedules";
@@ -95,13 +106,16 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps) {
                 aria-selected={selected}
                 data-testid={`advisory-hub-tab-${id}`}
                 title={tabTitle}
-                onClick={() => onSelectTab(id)}
-                className={cn("rounded-t-md border border-b-0 px-3 py-2 font-medium", OPERATOR_TYPOGRAPHY.body,
+                onClick={() => {
+                  onSelectTab(id);
+                }}
+                className={cn(
+                  "rounded px-3 py-1.5 font-medium transition-colors",
+                  OPERATOR_TYPOGRAPHY.body,
                   selected
-                    ? "border-neutral-200 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
-                    : "border-transparent bg-transparent text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900",
-                  /* text-neutral-800 keeps the muted-but-inactive tab at >=4.5:1 on bg-neutral-50 once opacity-70 blends it lighter (text-neutral-600 alone drops below AA under the same blend). */
-                  softMuted && !selected && "text-neutral-800 opacity-70",
+                    ? "bg-white text-al-text-primary shadow-sm dark:bg-neutral-950"
+                    : "bg-transparent text-al-text-secondary hover:text-al-text-primary",
+                  softMuted && !selected && "opacity-80",
                 )}
               >
                 {TAB_LABEL[id]}

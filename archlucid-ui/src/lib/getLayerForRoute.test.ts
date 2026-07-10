@@ -57,7 +57,7 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/scorecard")).toBe("operate-analysis");
     expect(getLayerForRoute("/integrations/teams")).toBe("operate-analysis");
     expect(getLayerForRoute("/product-learning")).toBe("operate-analysis");
-    expect(getLayerForRoute("/advisory")).toBe("operate-analysis");
+    expect(getLayerForRoute("/advisory")).toBe("operate-governance");
   });
 
   it("returns pilot for paths not in NAV_GROUPS", () => {
