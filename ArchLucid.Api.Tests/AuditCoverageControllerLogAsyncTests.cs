@@ -17,6 +17,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
@@ -73,6 +74,7 @@ public sealed class AnalysisReportsControllerAuditTests
             Mock.Of<IConsultingDocxTemplateRecommendationService>(),
             Mock.Of<IConsultingDocxExportProfileSelector>(),
             Mock.Of<IRunExportAuditService>(),
+            Mock.Of<IRunExportRecordRepository>(),
             Mock.Of<IBackgroundJobQueue>(),
             audit.Object,
             NullLogger<AnalysisReportsController>.Instance) { ControllerContext = CreateControllerContext() };
