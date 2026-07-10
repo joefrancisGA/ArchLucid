@@ -8274,6 +8274,204 @@
       "severity": "Warning",
       "priority": "P2",
       "description": "Stub for aws-paas-028; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-011",
+      "controlId": "GCP-PAAS-011",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gcp-paas-011; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-012",
+      "controlId": "GCP-PAAS-012",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gcp-paas-012; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-013",
+      "controlId": "GCP-PAAS-013",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gcp-paas-013; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-014",
+      "controlId": "GCP-PAAS-014",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gcp-paas-014; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-015",
+      "controlId": "GCP-PAAS-015",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gcp-paas-015; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-016",
+      "controlId": "GCP-PAAS-016",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gcp-paas-016; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-017",
+      "controlId": "GCP-PAAS-017",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-paas-017; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-018",
+      "controlId": "GCP-PAAS-018",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-paas-018; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-019",
+      "controlId": "GCP-PAAS-019",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-paas-019; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-020",
+      "controlId": "GCP-PAAS-020",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-paas-020; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-021",
+      "controlId": "GCP-PAAS-021",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-paas-021; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-022",
+      "controlId": "GCP-PAAS-022",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-paas-022; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-023",
+      "controlId": "GCP-PAAS-023",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-paas-023; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-024",
+      "controlId": "GCP-PAAS-024",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-paas-024; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-025",
+      "controlId": "GCP-PAAS-025",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-paas-025; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-026",
+      "controlId": "GCP-PAAS-026",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-paas-026; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-027",
+      "controlId": "GCP-PAAS-027",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-paas-027; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-paas-028",
+      "controlId": "GCP-PAAS-028",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-paas-028; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
     }
   ]
 }
