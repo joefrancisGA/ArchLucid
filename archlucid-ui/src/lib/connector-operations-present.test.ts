@@ -11,6 +11,7 @@ import {
 } from "@/lib/connector-operations-present";
 import {
   buildIntegrationReadinessSummaryTiles,
+  buildIntegrationRecommendedFirstSetup,
   buildIntegrationRecommendedNextSteps,
   resolveIntegrationReadinessHeadline,
 } from "@/lib/connector-readiness-summary";
@@ -121,23 +122,44 @@ describe("connector-readiness-summary", () => {
     ]);
 
     expect(resolveIntegrationReadinessHeadline(data.connectors, data.integrationEventBus)).toMatch(
-      /Core review workflows are ready/i,
+      /Core review workflows are ready\. Integrations are optional\./i,
     );
 
     const tiles = buildIntegrationReadinessSummaryTiles(data);
     expect(tiles.find((tile) => tile.id === "recommended")?.value).toBe("1");
     expect(tiles.find((tile) => tile.id === "optional")?.value).toBe("1");
+    expect(tiles.find((tile) => tile.id === "background")?.value).toBe("Not required");
   });
 
-  it("prioritizes recommended next steps without scrolling", () => {
+  it("surfaces a single recommended first setup for notification connectors", () => {
     const data = operationsData([
       connector({ connectorKey: "teams", smokeReadiness: "NotConfigured", configurationHref: "/integrations/teams" }),
       connector({ connectorKey: "jira", smokeReadiness: "NotConfigured", configurationHref: "/integrations/jira" }),
     ]);
 
+    const setup = buildIntegrationRecommendedFirstSetup(data);
+
+    expect(setup?.title).toMatch(/Configure Teams or Slack/i);
+    expect(setup?.href).toBe("/integrations/teams");
+  });
+
+  it("omits recommended first setup when Teams or Slack is ready", () => {
+    const data = operationsData([
+      connector({ connectorKey: "teams", smokeReadiness: "LocallyValid", isConfigured: true, configurationHref: "/integrations/teams" }),
+      connector({ connectorKey: "slack", smokeReadiness: "NotConfigured", configurationHref: "/integrations/slack" }),
+    ]);
+
+    expect(buildIntegrationRecommendedFirstSetup(data)).toBeNull();
+  });
+
+  it("deprecated next-steps helper returns at most one item", () => {
+    const data = operationsData([
+      connector({ connectorKey: "teams", smokeReadiness: "NotConfigured", configurationHref: "/integrations/teams" }),
+    ]);
+
     const steps = buildIntegrationRecommendedNextSteps(data);
 
-    expect(steps.map((step) => step.id)).toEqual(["notify-team", "create-tickets", "event-bus"]);
+    expect(steps).toHaveLength(1);
     expect(steps[0]?.href).toBe("/integrations/teams");
   });
 });

@@ -64,6 +64,10 @@ describe("product-documentation-registry", () => {
     }
   });
 
+  it("registers integration readiness help for contextual page guidance", () => {
+    expect(getProductDocumentationEntry("integration-readiness")?.title).toBe("Integration readiness");
+  });
+
   it("keeps AWS and GCP cloud-connection help free of Azure-only copy", () => {
     const awsLoaded = tryLoadProductDocumentation("cloud-connections-aws");
     const gcpLoaded = tryLoadProductDocumentation("cloud-connections-gcp");

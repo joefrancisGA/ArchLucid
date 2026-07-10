@@ -138,6 +138,13 @@ const GOVERNANCE_TOPICS: readonly HelpSearchPanelTopic[] = [
 
 const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
+    id: "integration-readiness",
+    title: "Integration readiness",
+    description: "See which notification, ticketing, publishing, and delivery integrations are ready or optional.",
+    keywords: ["integration", "readiness", "teams", "slack", "jira", "servicenow", "webhooks", "setup"],
+    action: { kind: "route", href: "/integrations/readiness", helpSlug: "integration-readiness" },
+  },
+  {
     id: "cloud-connections",
     title: "Cloud connections",
     description: "Connect Azure, AWS, or GCP for scheduled read-only evidence collection.",
@@ -279,6 +286,14 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
   {
     prefix: "/integrations/cloud-connections",
     topicIds: ["cloud-connections", "connect-azure", "connect-aws", "connect-gcp", "troubleshoot"],
+  },
+  {
+    prefix: "/integrations/readiness",
+    topicIds: ["integration-readiness", "cloud-connections", "troubleshoot"],
+  },
+  {
+    prefix: "/integrations/operations",
+    topicIds: ["integration-readiness", "cloud-connections", "troubleshoot"],
   },
   {
     prefix: "/settings/cloud-connections",

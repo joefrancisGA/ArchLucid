@@ -273,6 +273,14 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"],
   },
   {
+    slug: "integration-readiness",
+    title: "Integration readiness",
+    summary:
+      "Understand ready, recommended, and optional notification, ticketing, publishing, and delivery integrations for your workspace.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/INTEGRATION_READINESS.md"],
+  },
+  {
     slug: "procurement",
     title: "Procurement FAQ",
     summary: "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.",
