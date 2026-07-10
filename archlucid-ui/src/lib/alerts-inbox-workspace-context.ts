@@ -15,7 +15,7 @@ import {
   ALERTS_EMPTY_NO_RULES_BODY,
   ALERTS_EMPTY_NO_RULES_TITLE,
 } from "@/lib/alerts-page-copy";
-import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
+import type { EnterpriseCompactEmptyStateProps, EnterpriseCompactEmptyStateAction } from "@/components/EnterpriseCompactEmptyState";
 import { governanceAlertsTabHref } from "@/lib/governance-route-paths";
 
 export const ALERTS_INBOX_DEFAULT_PROJECT_ID = "default";
@@ -99,7 +99,7 @@ export function buildAlertsInboxEmptyStateProps(
     };
   }
 
-  const actions: EnterpriseCompactEmptyStateProps["actions"] = [
+  const actions: EnterpriseCompactEmptyStateAction[] = [
     { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF, variant: "primary" },
     governanceSecondary,
   ];

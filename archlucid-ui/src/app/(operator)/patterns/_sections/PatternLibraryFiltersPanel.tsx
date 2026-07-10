@@ -197,7 +197,7 @@ export function PatternLibrarySignalBadges(props: {
     <div className="flex flex-wrap gap-1.5">
       <BadgeChip>{props.adoption}</BadgeChip>
       <BadgeChip className="border-amber-300/80 text-amber-900 dark:border-amber-800 dark:text-amber-200">
-        {props.risk} risk
+        {`${props.risk} risk`}
       </BadgeChip>
       <BadgeChip>{props.governance}</BadgeChip>
     </div>
