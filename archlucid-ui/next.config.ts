@@ -158,6 +158,9 @@ const nextConfig: NextConfig = {
       { source: "/executive/dashboard", destination: "/dashboard", permanent: true },
       // Cross-tenant portfolio page retired — portfolio overview nav already targets /dashboard.
       { source: "/portfolio", destination: "/dashboard", permanent: true },
+      // Executive reviews retired — operator /reviews tree is canonical (TB-608 follow-on).
+      { source: "/executive/reviews", destination: "/reviews", permanent: true },
+      { source: "/executive/reviews/:path*", destination: "/reviews/:path*", permanent: true },
     ];
   },
   async rewrites() {

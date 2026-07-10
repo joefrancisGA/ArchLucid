@@ -15,7 +15,7 @@ export default async function SnapshotPage(props: SnapshotPageProps): Promise<ne
   const executiveHref =
     normalized === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
       ? getShowcaseExecutiveHref()
-      : `/executive/reviews/${encodeURIComponent(runId)}`;
+      : `/reviews/${encodeURIComponent(runId)}`;
 
   redirect(`${executiveHref}?readOnly=1`);
 }

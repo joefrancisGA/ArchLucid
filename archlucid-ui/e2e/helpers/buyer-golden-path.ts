@@ -28,7 +28,7 @@ export function isShowcaseSignedManifestBrowserPath(pathname: string): boolean {
 }
 
 export const BUYER_GOLDEN_PATH_HREFS = {
-  executive: `/executive/reviews/${showcaseRunEnc}`,
+  executive: `/reviews/${showcaseRunEnc}`,
   reviewPackage: `/reviews/${showcaseRunEnc}`,
   signedManifestFriendly: `/reviews/${showcaseRunEnc}/signed-record`,
   signedManifestCanonical: `/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
@@ -74,11 +74,7 @@ export async function expectBuyerExecutiveSummarySurface(page: Page): Promise<vo
  * review shell and its primary heading (executive shell has no global H1 like the operator sidebar chrome).
  */
 export async function expectBuyerExecutiveReviewPrimaryHeading(page: Page, options?: { timeout?: number }): Promise<void> {
-  const timeout = options?.timeout ?? 60_000;
-  const reviewPage = page.getByTestId("executive-review-page");
-
-  await expect(reviewPage).toBeVisible({ timeout });
-  await expect(reviewPage.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout });
+  await expectBuyerReviewPackagePrimaryHeading(page, options);
 }
 
 /** Review package detail H1 after buyer-golden hydration (operator shell includes its own chrome H1). */

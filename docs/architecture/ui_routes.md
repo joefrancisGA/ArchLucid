@@ -84,7 +84,7 @@ To browse interactively, run `e2e/start-e2e-with-mock.ts` (see `playwright.mock.
 | Compare | `/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2` |
 | Graph | `/graph?runId=claims-intake-modernization` (then click **Load graph**) |
 | Ask | `/ask` or `/ask?runId=claims-intake-modernization` |
-| Executive review | `/executive/reviews/claims-intake-modernization` |
+| Executive review | `/reviews/claims-intake-modernization` |
 | Policy pack detail | `/governance/policy-packs/healthcare-claims-v3-pack` |
 | Approval lineage | `/governance/approval-requests/claims-intake-approval-001/lineage` |
 | Planning plan | `/planning/plans/claims-intake-modernization-plan` |
@@ -124,7 +124,8 @@ Configured in `archlucid-ui/next.config.ts`:
 | `/login` | `/auth/signin` (page redirect; query preserved) |
 | `/onboard`, `/getting-started` | `/onboarding` (page redirect) |
 | `/settings/alerts` | `/alerts?tab=rules` (page redirect) |
-| `/operate/architecture-graph` | `/graph` (page redirect) |
+| `/portfolio` | `/dashboard` (301) |
+| `/executive/reviews`, `/executive/reviews/*` | `/reviews`, `/reviews/*` (301) |
 
 **Note:** README and older docs may reference `/manifests/[manifestId]/artifacts/[artifactId]`; that route no longer has a `page.tsx`. Artifact review is reached from review or manifest detail.
 
@@ -262,10 +263,8 @@ Lighter chrome than the full operator shell; `(executive)` route group does not 
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/executive/dashboard` | Executive ROI dashboard | T1 static; same panels as `/dashboard` |
-| `/executive/reviews` | Executive review list | T1 list fallback |
-| `/executive/reviews/[runId]` | Executive review summary | T1: `/executive/reviews/claims-intake-modernization` |
-| `/executive/reviews/[runId]/findings/[findingId]` | Executive finding detail | T1: `…/findings/phi-minimization-risk` |
+| `/executive/dashboard` | Retired — redirects to `/dashboard` | Legacy bookmark only |
+| `/executive/reviews`, `/executive/reviews/*` | Retired — redirect to `/reviews` | Legacy bookmark only |
 | `/executive/scorecard` | Executive scorecard | T1/T3 with showcase run |
 
 ### Settings

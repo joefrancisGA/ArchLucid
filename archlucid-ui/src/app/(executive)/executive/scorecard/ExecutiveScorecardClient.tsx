@@ -289,7 +289,7 @@ export function ExecutiveScorecardClient() {
           </p>
         </div>
         <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
-          <Link href="/executive/reviews">{BUYER_EXECUTIVE_SCORECARD_LINK_REVIEW_PACKAGES}</Link>
+          <Link href="/reviews">{BUYER_EXECUTIVE_SCORECARD_LINK_REVIEW_PACKAGES}</Link>
         </Button>
       </div>
 

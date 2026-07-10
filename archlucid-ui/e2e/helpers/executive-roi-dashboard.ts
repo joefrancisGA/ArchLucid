@@ -33,6 +33,8 @@ export const EXECUTIVE_ROI_DASHBOARD_PATHS = {
 
   legacyPortfolio: "/portfolio",
 
+  legacyExecutiveReviews: "/executive/reviews",
+
 } as const;
 
 

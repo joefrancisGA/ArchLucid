@@ -32,7 +32,7 @@ const productTourRunId = DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID;
 const productTourRunEnc = encodeURIComponent(productTourRunId);
 
 const liveBuyerGoldenPathHrefs = {
-  executive: `/executive/reviews/${productTourRunEnc}`,
+  executive: `/reviews/${productTourRunEnc}`,
   reviewPackage: `/reviews/${productTourRunEnc}`,
   signedManifestFriendly: `/reviews/${productTourRunEnc}/signed-record`,
   evidenceGraph: `/graph?runId=${productTourRunEnc}`,

@@ -55,21 +55,18 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
             <div className="flex min-w-0 flex-wrap items-center gap-2">
               <Button variant="ghost" className="h-auto shrink-0 p-0" asChild>
                 <ArchLucidWordmarkLink
-                  href="/executive/reviews"
-                  aria-label="ArchLucid — executive reviews"
+                  href="/executive/scorecard"
+                  aria-label="ArchLucid — executive scorecard"
                   variant="operator"
                 />
-              </Button>
-              <Button asChild variant="ghost" size="sm" className="shrink-0 text-neutral-700 dark:text-neutral-300">
-                <Link href="/executive/reviews">Risk reviews</Link>
               </Button>
               <Button
                 asChild
                 variant="ghost"
                 size="sm"
-                className={executiveNavLinkClassName(pathname === "/executive/dashboard")}
+                className={executiveNavLinkClassName(pathname === "/dashboard")}
               >
-                <Link href="/executive/dashboard" data-testid="executive-shell-nav-dashboard">
+                <Link href="/dashboard" data-testid="executive-shell-nav-dashboard">
                   Dashboard
                 </Link>
               </Button>

@@ -20,12 +20,12 @@ describe("isSponsorOnlyPrincipal", () => {
 });
 
 describe("resolveSponsorExecutiveRedirectTarget", () => {
-  it("maps operator review routes to executive equivalents", () => {
+  it("returns null for operator review routes", () => {
     expect(
       resolveSponsorExecutiveRedirectTarget({
         pathname: "/reviews/run-1",
       }),
-    ).toBe("/executive/reviews/run-1");
+    ).toBeNull();
   });
 
   it("preserves query strings on review list routes", () => {
@@ -34,13 +34,13 @@ describe("resolveSponsorExecutiveRedirectTarget", () => {
         pathname: "/reviews",
         search: "?projectId=default",
       }),
-    ).toBe("/executive/reviews?projectId=default");
+    ).toBeNull();
   });
 
-  it("returns null for executive routes", () => {
+  it("returns null for executive scorecard routes", () => {
     expect(
       resolveSponsorExecutiveRedirectTarget({
-        pathname: "/executive/reviews",
+        pathname: "/executive/scorecard",
       }),
     ).toBeNull();
   });
@@ -53,7 +53,7 @@ describe("resolveSponsorExecutiveRedirectTarget", () => {
     ).toBeNull();
   });
 
-  it("returns null for the operator home route (executive shell's architect-workspace handoff link)", () => {
+  it("returns null for the operator home route", () => {
     expect(
       resolveSponsorExecutiveRedirectTarget({
         pathname: "/",
@@ -61,11 +61,11 @@ describe("resolveSponsorExecutiveRedirectTarget", () => {
     ).toBeNull();
   });
 
-  it("redirects other operator paths to executive reviews index", () => {
+  it("redirects other operator paths to the dashboard", () => {
     expect(
       resolveSponsorExecutiveRedirectTarget({
         pathname: "/policy-packs",
       }),
-    ).toBe("/executive/reviews");
+    ).toBe("/dashboard");
   });
 });

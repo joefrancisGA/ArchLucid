@@ -37,7 +37,6 @@ import {
 
 import { ReviewAgentExecutionLogSection } from "@/components/reviews/ReviewAgentExecutionLogSection";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
-import { RunDetailPackageSubnav } from "@/components/RunDetailPackageSubnav";
 import { ReviewPackageSummaryHeader } from "./ReviewPackageSummaryHeader";
 import { resolveReviewPackageSummaryMode } from "./resolve-review-package-summary-mode";
 import { resolveReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
@@ -208,10 +207,6 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
     >
       <CtoDemoReviewRouteGuard runId={m.resolvedDetail.run.runId} />
       <RunDetailBreadcrumb headline={m.headline} />
-
-      {m.manifestId ? (
-        <RunDetailPackageSubnav runId={m.resolvedDetail.run.runId} active="review-package" />
-      ) : null}
 
       {showDemoMarketingChrome ? <OperatorDemoStaticBanner /> : null}
       {m.usedStaticDemoRun ? <DemoDataBadge variant="banner" className="mb-2" /> : null}

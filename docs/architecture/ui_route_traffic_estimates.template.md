@@ -100,8 +100,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AHX | `/admin/health` | 0.15% | 0 | 0 | Admin | None |
 | AUX | `/admin/users` | 0.15% | 0 | 0 | Admin | None |
 | ADV | `/advisory` | 0.15% | 0 | 0 | Advisory | None |
-| EDX | `/executive/dashboard` | 0.15% | 0 | 0 | Executive | None |
-| ERX | `/executive/reviews` | 0.15% | 0 | 0 | Executive | None |
 | GRS | `/governance-resolution` | 0.15% | 0 | 0 | Alerts/gov | None |
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 0 | 0 | Alerts/gov | None |
 | HCE | `/help/cloud-connections` | 0.15% | 0 | 0 | Help topic | None |
@@ -111,7 +109,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | STX | `/settings/tenant` | 0.15% | 0 | 0 | Settings | None |
 | ASX | `/admin/support` | 0.12% | 0 | 0 | Admin | None |
 | ATX | `/admin/tenant-health` | 0.12% | 0 | 0 | Admin | None |
-| ERR | `/executive/reviews/[runId]` | 0.12% | 0 | 0 | Executive | None |
 | FXX | `/faq` | 0.12% | 0 | 0 | Marketing | None |
 | HHX | `/help/how-it-works` | 0.12% | 0 | 0 | Help topic | None |
 | HTX | `/help/troubleshooting` | 0.12% | 0 | 0 | Help topic | None |
@@ -168,7 +165,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ATD | `/admin/trial-funnel` | 0.05% | 0 | 0 | Admin | None |
 | AD | `/advisory-scheduling` | 0.05% | 0 | 0 | Advisory | None |
 | DIG | `/digest-subscriptions` | 0.05% | 0 | 0 | Digests | None |
-| ER | `/executive/reviews/[runId]/findings/[findingId]` | 0.05% | 0 | 0 | Executive | None |
 | GXX | `/get-started` | 0.05% | 0 | 0 | Marketing | None |
 | PRI | `/help/privacy-policy` | 0.05% | 0 | 0 | Help topic | None |
 | HSX | `/help/scope` | 0.05% | 0 | 0 | Help topic | None |

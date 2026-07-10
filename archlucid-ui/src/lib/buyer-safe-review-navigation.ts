@@ -35,7 +35,7 @@ export function getShowcaseEvidenceTrailHref(): string {
 
 /** Executive view (concise risk summary and outcomes) for the Claims Intake static spine. */
 export function getShowcaseExecutiveHref(): string {
-  return `/executive/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+  return getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID);
 }
 
 /** Baseline vs updated Claims Intake comparison for the static buyer spine. */

@@ -57,7 +57,7 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
             )}
             {manifestId && !buyerPolishedShell ? (
               <Button variant="outline" size="sm" asChild>
-                <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>Open Executive Summary</Link>
+                <Link href={`/reviews/${encodeURIComponent(runId)}`}>Open Executive Summary</Link>
               </Button>
             ) : null}
           </div>

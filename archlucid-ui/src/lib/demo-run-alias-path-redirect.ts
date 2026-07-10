@@ -36,19 +36,6 @@ export function demoRunAliasRedirectDestinationPath(pathname: string): string | 
     }
   }
 
-  const executive = /^\/executive\/reviews\/([^/]+)(\/.*)?$/.exec(pathname);
-
-  if (executive !== null) {
-    const runIdSegment = safeDecodePathSegment(executive[1]);
-    const tail = executive[2] ?? "";
-
-    if (demoRunUrlRequiresCanonicalRedirect(runIdSegment)) {
-      const canon = canonicalizeDemoRunId(runIdSegment);
-
-      return `/executive/reviews/${encodeURIComponent(canon)}${tail}`;
-    }
-  }
-
   return null;
 }
 

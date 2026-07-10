@@ -92,13 +92,7 @@ const PAGES = [
   { name: "Settings support", path: "/settings/support" },
   { name: "Admin health", path: "/admin/health" },
   { name: "Admin configuration", path: "/admin/configuration" },
-  { name: "Executive reviews list", path: "/executive/reviews" },
   { name: "Executive scorecard", path: "/executive/scorecard" },
-  { name: "Executive run detail (showcase)", path: `/executive/reviews/${SHOWCASE_DEMO_RUN_ID}` },
-  {
-    name: "Executive finding detail (showcase)",
-    path: `/executive/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}`,
-  },
   { name: "Create architecture (canonical /reviews)", path: "/reviews/new" },
   { name: "Reviews list (canonical /reviews)", path: "/reviews?projectId=default" },
   { name: "Run detail (canonical /reviews)", path: `/reviews/${FIXTURE_RUN_ID}` },

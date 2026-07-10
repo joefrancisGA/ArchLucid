@@ -9,13 +9,13 @@ describe("executive-shell-handoff", () => {
     expect(isOperatorShellHandoffHref("/value-report/pilot")).toBe(true);
   });
 
-  it("treats executive and auth routes as in-shell", () => {
-    expect(isOperatorShellHandoffHref("/executive/reviews")).toBe(false);
+  it("treats executive scorecard and auth routes as in-shell", () => {
+    expect(isOperatorShellHandoffHref("/executive/scorecard")).toBe(false);
     expect(isOperatorShellHandoffHref("/auth/signin")).toBe(false);
   });
 
   it("labels operator handoffs explicitly", () => {
     expect(executiveShellHandoffLinkLabel("/governance/dashboard")).toBe("Open in Operator →");
-    expect(executiveShellHandoffLinkLabel("/executive/reviews")).toBe("View →");
+    expect(executiveShellHandoffLinkLabel("/executive/scorecard")).toBe("View →");
   });
 });

@@ -178,4 +178,14 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
   });
 
+  test("retired /executive/reviews route redirects to /reviews @executive-roi-dashboard", async ({ page }) => {
+
+    await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.legacyExecutiveReviews);
+
+
+
+    await expect(page).toHaveURL(/\/reviews$/);
+
+  });
+
 });

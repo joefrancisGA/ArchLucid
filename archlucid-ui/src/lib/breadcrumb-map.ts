@@ -1,4 +1,4 @@
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
@@ -114,12 +114,6 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   // Product path: wizard crumb only — sidebar nav covers workspace overview.
   if (normalized === "/reviews/new") {
     return [{ label: newReviewWizardCrumbLabel() }];
-  }
-
-  const executiveReviewTrail = tryBuildExecutiveReviewBreadcrumbs(normalized, options);
-
-  if (executiveReviewTrail !== null) {
-    return executiveReviewTrail;
   }
 
   const governanceRunTrail = tryBuildGovernanceRunScopedBreadcrumbs(normalized, options);
@@ -559,49 +553,4 @@ function tryBuildGovernanceRunScopedBreadcrumbs(
     { label: packageTitle, href: reviewHref },
     { label: "Governance" },
   ];
-}
-
-function tryBuildExecutiveReviewBreadcrumbs(
-  normalizedPath: string,
-  options?: GetBreadcrumbsOptions,
-): BreadcrumbItem[] | null {
-  const segments = normalizedPath.split("/").filter(Boolean);
-
-  if (segments.length < 3 || segments[0] !== "executive" || segments[1] !== "reviews") {
-    return null;
-  }
-
-  const runId = segments[2] ?? "";
-
-  if (runId.length === 0) {
-    return null;
-  }
-
-  const reviewsListHref = resolveReviewsListBreadcrumbHref(options);
-  const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review package";
-  const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
-  const executiveHref = `/executive/reviews/${encodeURIComponent(runId)}`;
-
-  const items: BreadcrumbItem[] = [
-    { label: "Review packages", href: reviewsListHref },
-    { label: packageTitle, href: reviewHref },
-  ];
-
-  if (segments.length >= 5 && segments[3] === "findings") {
-    const findingId = segments[4] ?? "";
-    const findingLabel = DEMO_PATH_SEGMENT_TITLES[findingId] ?? "Finding";
-
-    items.push({ label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle, href: executiveHref });
-    items.push({ label: findingLabel });
-
-    return items;
-  }
-
-  if (segments.length === 3) {
-    items.push({ label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle });
-
-    return items;
-  }
-
-  return null;
 }

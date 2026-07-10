@@ -276,31 +276,4 @@ describe("getBreadcrumbs", () => {
       { label: "Audit trail" },
     ]);
   });
-
-  it("TB-523: maps executive summary to Review packages · title · Executive summary", () => {
-    expect(getBreadcrumbs(`/executive/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)).toEqual([
-      { label: "Review packages", href: "/reviews" },
-      {
-        label: SHOWCASE_BUYER_REVIEW_TITLE,
-        href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
-      },
-      { label: "Executive summary" },
-    ]);
-  });
-
-  it("TB-523: maps executive finding detail under the executive summary crumb", () => {
-    expect(
-      getBreadcrumbs(
-        `/executive/reviews/e2e-fixture-run-001/findings/e2e-finding-001`,
-      ),
-    ).toEqual([
-      { label: "Review packages", href: "/reviews" },
-      {
-        label: "Claims Intake Modernization",
-        href: "/reviews/e2e-fixture-run-001",
-      },
-      { label: "Executive summary", href: "/executive/reviews/e2e-fixture-run-001" },
-      { label: "Demonstration finding" },
-    ]);
-  });
 });

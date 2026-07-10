@@ -19,7 +19,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("keeps executive summary orientation for the showcase run", () => {
-    const base = `/executive/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`;
+    const base = `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`;
     const o = buyerPolishedRouteOrientation(base);
 
     expect(o?.label).toBe("Executive summary");
