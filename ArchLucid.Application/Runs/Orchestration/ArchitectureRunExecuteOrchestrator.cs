@@ -535,6 +535,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit);
 
         // TB-310: request-time authority pipeline may have sealed anchors; StructuralExecutionMode is immutable then.
+
         if (header.GoldenManifestId is null)
         {
             header.StructuralExecutionMode = StructuralExecutionModeResolver.FromAgentExecutionOptionsAndFallback(
