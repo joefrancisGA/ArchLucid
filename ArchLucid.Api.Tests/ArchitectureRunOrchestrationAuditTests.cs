@@ -7,6 +7,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -130,7 +131,28 @@ public sealed class ArchitectureRunOrchestrationAuditTests
                 new InMemoryTechnologyLedgerRepository(),
                 scopeContextProvider,
                 TimeProvider.System),
+            new DemoExpensiveActionGate(
+                BuildPermissiveAiBudgetPolicyResolver(),
+                BuildDemoModeOffOptionsMonitor()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
+    }
+
+    private static ITenantAiBudgetPolicyResolver BuildPermissiveAiBudgetPolicyResolver()
+    {
+        Mock<ITenantAiBudgetPolicyResolver> policyResolver = new();
+        policyResolver
+            .Setup(p => p.ResolveWorkspaceKindAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(AiUsageWorkspaceKind.Paid);
+
+        return policyResolver.Object;
+    }
+
+    private static IOptionsMonitor<AiUsageControlsOptions> BuildDemoModeOffOptionsMonitor()
+    {
+        Mock<IOptionsMonitor<AiUsageControlsOptions>> optionsMonitor = new();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(new AiUsageControlsOptions { DemoMode = false });
+
+        return optionsMonitor.Object;
     }
 
     private static IRequestContentSafetyPrecheck BuildAllowAllPrecheck()
