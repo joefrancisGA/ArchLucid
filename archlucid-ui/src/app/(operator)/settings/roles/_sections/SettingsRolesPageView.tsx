@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { ArchLucidAppRole } from "@/lib/current-principal";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
@@ -26,11 +28,18 @@ import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-mode
 
 type TabId = "users" | "roles" | "keys";
 
-const TABS: readonly { id: TabId; label: string }[] = [
+const ALL_TABS: readonly { id: TabId; label: string }[] = [
   { id: "users", label: "Users and invitations" },
   { id: "roles", label: "Roles and permissions" },
   { id: "keys", label: "API keys" },
 ] as const;
+
+function visibleTabs(canManageApiKeys: boolean): readonly { id: TabId; label: string }[] {
+  if (canManageApiKeys)
+    return ALL_TABS;
+
+  return ALL_TABS.filter((tab) => tab.id !== "keys");
+}
 
 type Props = {
   readonly model: SettingsRolesPageViewModel;
@@ -51,9 +60,11 @@ function useInitialTab(): TabId {
 function TabBar({
   active,
   onChange,
+  tabs,
 }: {
   active: TabId;
   onChange: (tab: TabId) => void;
+  tabs: readonly { id: TabId; label: string }[];
 }) {
   return (
     <div
@@ -61,7 +72,7 @@ function TabBar({
       aria-label="Users and roles sections"
       className="flex gap-1 border-b border-neutral-200 pb-0 dark:border-neutral-800"
     >
-      {TABS.map((tab) => (
+      {tabs.map((tab) => (
         <button
           key={tab.id}
           role="tab"
@@ -90,7 +101,15 @@ function TabBar({
 export function SettingsRolesPageView(props: Props) {
   const m = props.model;
   const initialTab = useInitialTab();
-  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+  const callerAuthorityRank = useNavCallerAuthorityRank();
+  const canManageApiKeys = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const tabs = visibleTabs(canManageApiKeys);
+  const [activeTab, setActiveTab] = useState<TabId>(() => {
+    if (initialTab === "keys" && !canManageApiKeys)
+      return "users";
+
+    return initialTab;
+  });
 
   if (m.surface === "demo") {
     return (
@@ -132,7 +151,7 @@ export function SettingsRolesPageView(props: Props) {
         </p>
       </div>
 
-      <TabBar active={activeTab} onChange={setActiveTab} />
+      <TabBar active={activeTab} onChange={setActiveTab} tabs={tabs} />
 
       {activeTab === "users" ? (
         <div
@@ -196,7 +215,7 @@ export function SettingsRolesPageView(props: Props) {
         >
           <Card>
             <CardHeader>
-              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Custom role matrix</CardTitle>
+              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Roles and permissions</CardTitle>
             </CardHeader>
             <CardContent>
               <SettingsRolesMatrixSection />
@@ -205,7 +224,7 @@ export function SettingsRolesPageView(props: Props) {
         </div>
       ) : null}
 
-      {activeTab === "keys" ? (
+      {activeTab === "keys" && canManageApiKeys ? (
         <div
           id="settings-roles-tabpanel-keys"
           role="tabpanel"
@@ -216,7 +235,15 @@ export function SettingsRolesPageView(props: Props) {
             <CardHeader>
               <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>API keys</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                Assign built-in roles to approved automation principals. Credential rotation and lifecycle management
+                live under{" "}
+                <a href="/settings/api-keys" className="text-teal-700 underline underline-offset-2 dark:text-teal-300">
+                  API keys
+                </a>
+                .
+              </p>
               {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
               {!m.loading && m.note !== null ? (
                 <div data-testid="settings-roles-api-keys-note">

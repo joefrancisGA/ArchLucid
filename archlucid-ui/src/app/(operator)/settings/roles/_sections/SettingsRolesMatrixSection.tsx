@@ -5,11 +5,38 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ALL_MATRIX_PERMISSION_IDS, CUSTOM_ROLE_PERMISSION_GROUPS } from "./custom-role-permission-groups";
+import {
+  BUILTIN_ROLE_SUMMARIES,
+  CUSTOM_ROLE_START_FROM_OPTIONS,
+  type BuiltinRoleName,
+  hasHighRiskPermissions,
+  highRiskPermissionLabels,
+  ROLES_MATRIX_HELPER_COPY,
+  sortMatrixRoles,
+} from "./roles-matrix-constants";
 
 type CustomRoleDto = {
   id: string;
@@ -27,6 +54,14 @@ type DraftRole = {
   isSystem: boolean;
 };
 
+type PendingHighRiskAction =
+  | { kind: "create"; name: string; permissions: string[] }
+  | { kind: "save"; role: DraftRole }
+  | { kind: "clone"; source: DraftRole };
+
+const ROLE_COLUMN_WIDTH = "7.5rem";
+const PERMISSION_COLUMN_WIDTH = "14rem";
+
 async function fetchRoles(): Promise<CustomRoleDto[]> {
   const res = await fetch("/api/proxy/v1/admin/roles", mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }));
 
@@ -36,11 +71,70 @@ async function fetchRoles(): Promise<CustomRoleDto[]> {
   return (await res.json()) as CustomRoleDto[];
 }
 
+function PermissionValue({
+  allowed,
+  roleName,
+  permissionLabel,
+  editable,
+  checked,
+  onToggle,
+}: {
+  allowed: boolean;
+  roleName: string;
+  permissionLabel: string;
+  editable: boolean;
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  if (editable) {
+    return (
+      <div className="flex h-10 items-center justify-center px-2">
+        <input
+          type="checkbox"
+          checked={checked}
+          aria-label={`${permissionLabel} for ${roleName}`}
+          className="h-4 w-4"
+          onChange={onToggle}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-10 items-center justify-center px-2">
+      <span
+        className={cn(
+          "inline-flex min-w-[2rem] items-center justify-center rounded-sm px-1 text-base font-semibold leading-none",
+          allowed ? "text-teal-700 dark:text-teal-300" : "text-neutral-400 dark:text-neutral-500",
+        )}
+        aria-label={`${permissionLabel} for ${roleName}: ${allowed ? "Allowed" : "Not allowed"}`}
+      >
+        <span aria-hidden="true">{allowed ? "✓" : "—"}</span>
+        <span className="sr-only">{allowed ? "Allowed" : "Not allowed"}</span>
+      </span>
+    </div>
+  );
+}
+
 export function SettingsRolesMatrixSection() {
   const [roles, setRoles] = useState<DraftRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
   const [newRoleName, setNewRoleName] = useState("");
+  const [startFromRole, setStartFromRole] = useState<BuiltinRoleName | "Empty">("Operator");
+  const [collapsedGroups, setCollapsedGroups] = useState<ReadonlySet<string>>(() => new Set());
+  const [pendingHighRisk, setPendingHighRisk] = useState<PendingHighRiskAction | null>(null);
+
+  const permissionLabelsById = useMemo(() => {
+    const labels = new Map<string, string>();
+
+    for (const group of CUSTOM_ROLE_PERMISSION_GROUPS) {
+      for (const permission of group.permissions)
+        labels.set(permission.id, permission.label);
+    }
+
+    return labels;
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -66,12 +160,14 @@ export function SettingsRolesMatrixSection() {
     void load();
   }, [load]);
 
-  const columns = useMemo(() => roles, [roles]);
+  const columns = useMemo(() => sortMatrixRoles(roles), [roles]);
 
-  function togglePermission(roleIndex: number, permissionId: string) {
+  function togglePermission(roleKey: string, permissionId: string) {
     setRoles((prev) =>
-      prev.map((role, index) => {
-        if (index !== roleIndex || role.isSystem)
+      prev.map((role) => {
+        const currentKey = role.id ?? role.name;
+
+        if (currentKey !== roleKey || role.isSystem)
           return role;
 
         const nextPermissions = new Set(role.permissions);
@@ -86,7 +182,20 @@ export function SettingsRolesMatrixSection() {
     );
   }
 
-  async function saveRole(role: DraftRole) {
+  function toggleGroupCollapsed(area: string) {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+
+      if (next.has(area))
+        next.delete(area);
+      else
+        next.add(area);
+
+      return next;
+    });
+  }
+
+  async function persistRole(role: DraftRole) {
     if (role.isSystem || !role.id)
       return;
 
@@ -117,24 +226,14 @@ export function SettingsRolesMatrixSection() {
     }
   }
 
-  async function createCustomRole(source?: DraftRole) {
-    const name = source?.name ?? newRoleName.trim();
-
-    if (!name)
-      return;
-
+  async function persistCreate(name: string, permissions: string[]) {
     try {
       const res = await fetch(
         "/api/proxy/v1/admin/roles",
         mergeRegistrationScopeForProxy({
           method: "POST",
           headers: { Accept: "application/json", "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: source ? `${name} (custom)` : name,
-            permissions: source
-              ? ALL_MATRIX_PERMISSION_IDS.filter((permission) => source.permissions.has(permission))
-              : [],
-          }),
+          body: JSON.stringify({ name, permissions }),
         }),
       );
 
@@ -143,95 +242,327 @@ export function SettingsRolesMatrixSection() {
 
       showSuccess(`Created custom role "${name}".`);
       setNewRoleName("");
+      setStartFromRole("Operator");
       await load();
     } catch (error) {
       showError(error instanceof Error ? error.message : "Could not create role.");
     }
   }
 
+  function requestSaveRole(role: DraftRole) {
+    if (hasHighRiskPermissions(role.permissions)) {
+      setPendingHighRisk({ kind: "save", role });
+      return;
+    }
+
+    void persistRole(role);
+  }
+
+  function permissionsForStartFrom(startFrom: BuiltinRoleName | "Empty"): string[] {
+    if (startFrom === "Empty")
+      return [];
+
+    const source = roles.find((role) => role.isSystem && role.name === startFrom);
+
+    if (!source)
+      return [];
+
+    return ALL_MATRIX_PERMISSION_IDS.filter((permission) => source.permissions.has(permission));
+  }
+
+  function requestCreateCustomRole(name: string, permissions: string[]) {
+    const trimmed = name.trim();
+
+    if (!trimmed)
+      return;
+
+    if (hasHighRiskPermissions(new Set(permissions))) {
+      setPendingHighRisk({ kind: "create", name: trimmed, permissions });
+      return;
+    }
+
+    void persistCreate(trimmed, permissions);
+  }
+
+  function requestCloneRole(source: DraftRole) {
+    const cloneName = `${source.name} (custom)`;
+    const permissions = ALL_MATRIX_PERMISSION_IDS.filter((permission) => source.permissions.has(permission));
+
+    if (hasHighRiskPermissions(new Set(permissions))) {
+      setPendingHighRisk({ kind: "clone", source });
+      return;
+    }
+
+    void persistCreate(cloneName, permissions);
+  }
+
+  async function confirmHighRiskAction() {
+    if (!pendingHighRisk)
+      return;
+
+    const action = pendingHighRisk;
+    setPendingHighRisk(null);
+
+    if (action.kind === "save") {
+      await persistRole(action.role);
+      return;
+    }
+
+    if (action.kind === "create") {
+      await persistCreate(action.name, action.permissions);
+      return;
+    }
+
+    const permissions = ALL_MATRIX_PERMISSION_IDS.filter((permission) => action.source.permissions.has(permission));
+    await persistCreate(`${action.source.name} (custom)`, permissions);
+  }
+
+  const pendingHighRiskLabels = useMemo(() => {
+    if (!pendingHighRisk)
+      return [];
+
+    if (pendingHighRisk.kind === "save")
+      return highRiskPermissionLabels(pendingHighRisk.role.permissions, permissionLabelsById);
+
+    if (pendingHighRisk.kind === "create")
+      return highRiskPermissionLabels(new Set(pendingHighRisk.permissions), permissionLabelsById);
+
+    return highRiskPermissionLabels(actionSourcePermissions(pendingHighRisk.source), permissionLabelsById);
+  }, [pendingHighRisk, permissionLabelsById]);
+
   if (loading)
     return <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading role matrix…</p>;
 
   return (
-    <section data-testid="settings-roles-matrix" className="space-y-4">
-      <div className="flex flex-wrap items-end gap-2">
-        <div className="min-w-[14rem] flex-1">
-          <label htmlFor="new-custom-role-name" className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
-            New custom role name
-          </label>
-          <Input
-            id="new-custom-role-name"
-            value={newRoleName}
-            onChange={(event) => setNewRoleName(event.target.value)}
-            placeholder="Operator without Billing"
-            className="mt-1"
-          />
-        </div>
-        <Button type="button" size="sm" onClick={() => void createCustomRole()}>
-          Add custom role
-        </Button>
-      </div>
+    <TooltipProvider>
+      <section data-testid="settings-roles-matrix" className="space-y-6">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{ROLES_MATRIX_HELPER_COPY}</p>
 
-      <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
-        <table className={cn("min-w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
-          <thead className="bg-neutral-50 dark:bg-neutral-900/60">
-            <tr>
-              <th className={cn("px-3 py-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Permission</th>
-              {columns.map((role) => (
-                <th key={role.id ?? role.name} className={cn("px-3 py-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  <div className="flex flex-col gap-1">
-                    <span>{role.name}</span>
-                    {role.isSystem ? (
-                      <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>system</span>
-                    ) : (
-                      <div className="flex flex-wrap gap-1">
-                        <Button type="button" size="sm" variant="secondary" disabled={savingRoleId === role.id} onClick={() => void saveRole(role)}>
-                          Save
-                        </Button>
-                      </div>
+        <div
+          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+          data-testid="settings-roles-builtin-summary"
+          aria-label="Built-in role summaries"
+        >
+          {BUILTIN_ROLE_SUMMARIES.map((summary) => (
+            <div
+              key={summary.name}
+              className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40"
+            >
+              <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{summary.name}</p>
+              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{summary.description}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+          <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Create custom role</h3>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Start from a built-in role or an empty permission set, then refine permissions in the matrix below.
+          </p>
+          <div className="mt-4 grid gap-3 md:grid-cols-[minmax(12rem,1fr)_minmax(12rem,1fr)_auto] md:items-end">
+            <div>
+              <label htmlFor="new-custom-role-name" className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
+                Role name
+              </label>
+              <Input
+                id="new-custom-role-name"
+                value={newRoleName}
+                onChange={(event) => setNewRoleName(event.target.value)}
+                placeholder="Operator without Billing"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label htmlFor="start-from-role" className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
+                Start from role
+              </label>
+              <Select value={startFromRole} onValueChange={(value) => setStartFromRole(value as BuiltinRoleName | "Empty")}>
+                <SelectTrigger id="start-from-role" className="mt-1" aria-label="Start from role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CUSTOM_ROLE_START_FROM_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              type="button"
+              onClick={() => requestCreateCustomRole(newRoleName, permissionsForStartFrom(startFromRole))}
+              disabled={!newRoleName.trim()}
+            >
+              Create custom role
+            </Button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
+          <div className="max-h-[70vh] overflow-auto">
+            <table className={cn("w-full min-w-[48rem] table-fixed border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
+              <colgroup>
+                <col style={{ width: PERMISSION_COLUMN_WIDTH }} />
+                {columns.map((role) => (
+                  <col key={role.id ?? role.name} style={{ width: ROLE_COLUMN_WIDTH }} />
+                ))}
+              </colgroup>
+              <thead className="sticky top-0 z-30 bg-neutral-50 shadow-sm dark:bg-neutral-900/95">
+                <tr>
+                  <th
+                    scope="col"
+                    className={cn(
+                      "sticky left-0 z-40 border-b border-neutral-200 bg-neutral-50 px-3 py-3 text-left font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/95",
+                      OPERATOR_TYPOGRAPHY.body,
                     )}
-                    {role.isSystem ? (
-                      <Button type="button" size="sm" variant="ghost" onClick={() => void createCustomRole(role)}>
-                        Clone to custom role
-                      </Button>
-                    ) : null}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {CUSTOM_ROLE_PERMISSION_GROUPS.flatMap((group) => [
-              <tr key={`group-${group.area}`} className="bg-neutral-50/70 dark:bg-neutral-900/30">
-                <td colSpan={columns.length + 1} className={cn("px-3 py-2", OPERATOR_NAV_GROUP_LABEL)}>
-                  {group.area}
-                </td>
-              </tr>,
-              ...group.permissions.map((permission) => (
-                <tr key={permission.id} className="border-t border-neutral-100 dark:border-neutral-800">
-                  <td className="px-3 py-2">{permission.label}</td>
-                  {columns.map((role, roleIndex) => (
-                    <td key={`${role.id ?? role.name}:${permission.id}`} className="px-3 py-2 text-center">
-                      {role.isSystem ? (
-                        <span aria-label={role.permissions.has(permission.id) ? "included" : "excluded"}>
-                          {role.permissions.has(permission.id) ? "✓" : "—"}
-                        </span>
-                      ) : (
-                        <input
-                          type="checkbox"
-                          checked={role.permissions.has(permission.id)}
-                          aria-label={`${permission.label} for ${role.name}`}
-                          onChange={() => togglePermission(roleIndex, permission.id)}
-                        />
+                  >
+                    Permission
+                  </th>
+                  {columns.map((role) => (
+                    <th
+                      key={role.id ?? role.name}
+                      scope="col"
+                      className={cn(
+                        "border-b border-neutral-200 px-2 py-3 text-center align-top font-semibold text-al-text-primary dark:border-neutral-800",
+                        OPERATOR_TYPOGRAPHY.body,
                       )}
-                    </td>
+                    >
+                      <div className="flex min-h-[4.5rem] flex-col items-center justify-start gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="line-clamp-2 text-center">{role.name}</span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {BUILTIN_ROLE_SUMMARIES.find((summary) => summary.name === role.name)?.description ??
+                              (role.isSystem ? "Built-in role" : "Custom role")}
+                          </TooltipContent>
+                        </Tooltip>
+                        {role.isSystem ? (
+                          <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>Built-in role</span>
+                        ) : (
+                          <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>Custom role</span>
+                        )}
+                        {role.isSystem ? (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => requestCloneRole(role)}
+                            aria-label={`Clone ${role.name} role`}
+                          >
+                            Clone
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            className="h-7 px-2 text-xs"
+                            disabled={savingRoleId === role.id}
+                            onClick={() => requestSaveRole(role)}
+                          >
+                            Save
+                          </Button>
+                        )}
+                      </div>
+                    </th>
                   ))}
                 </tr>
-              )),
-            ])}
-          </tbody>
-        </table>
-      </div>
-    </section>
+              </thead>
+              <tbody>
+                {CUSTOM_ROLE_PERMISSION_GROUPS.map((group) => {
+                  const isCollapsed = collapsedGroups.has(group.area);
+
+                  return [
+                    <tr key={`group-${group.area}`} className="bg-neutral-100/90 dark:bg-neutral-900/60">
+                      <td
+                        colSpan={columns.length + 1}
+                        className="sticky left-0 z-10 border-y border-neutral-200 bg-neutral-100/95 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/80"
+                      >
+                        <button
+                          type="button"
+                          className={cn(
+                            "flex w-full items-center justify-between gap-2 text-left font-semibold uppercase tracking-wide text-al-text-primary",
+                            OPERATOR_NAV_GROUP_LABEL,
+                          )}
+                          aria-expanded={!isCollapsed}
+                          aria-label={`${group.area} permissions`}
+                          onClick={() => toggleGroupCollapsed(group.area)}
+                        >
+                          <span>{group.area}</span>
+                          <span aria-hidden="true" className="text-al-text-secondary">
+                            {isCollapsed ? "Show" : "Hide"}
+                          </span>
+                        </button>
+                      </td>
+                    </tr>,
+                    ...(!isCollapsed
+                      ? group.permissions.map((permission) => (
+                          <tr key={permission.id} className="border-b border-neutral-100 dark:border-neutral-800">
+                            <th
+                              scope="row"
+                              className={cn(
+                                "sticky left-0 z-10 border-r border-neutral-100 bg-white px-3 py-0 text-left font-normal text-al-text-primary dark:border-neutral-800 dark:bg-neutral-950",
+                                OPERATOR_TYPOGRAPHY.body,
+                              )}
+                            >
+                              <div className="py-2 pr-2">{permission.label}</div>
+                            </th>
+                            {columns.map((role) => (
+                              <td key={`${role.id ?? role.name}:${permission.id}`} className="p-0 text-center align-middle">
+                                <PermissionValue
+                                  allowed={role.permissions.has(permission.id)}
+                                  roleName={role.name}
+                                  permissionLabel={permission.label}
+                                  editable={!role.isSystem}
+                                  checked={role.permissions.has(permission.id)}
+                                  onToggle={() => togglePermission(role.id ?? role.name, permission.id)}
+                                />
+                              </td>
+                            ))}
+                          </tr>
+                        ))
+                      : []),
+                  ];
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <AlertDialog open={pendingHighRisk !== null} onOpenChange={(open) => !open && setPendingHighRisk(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Grant high-risk permissions?</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-2">
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                    This role includes sensitive workspace controls. Confirm only if the assignee should manage billing,
+                    tenants, identity providers, or the admin console.
+                  </p>
+                  {pendingHighRiskLabels.length > 0 ? (
+                    <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                      {pendingHighRiskLabels.map((label) => (
+                        <li key={label}>{label}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => void confirmHighRiskAction()}>Confirm custom role</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </section>
+    </TooltipProvider>
   );
+}
+
+function actionSourcePermissions(source: DraftRole): ReadonlySet<string> {
+  return new Set(ALL_MATRIX_PERMISSION_IDS.filter((permission) => source.permissions.has(permission)));
 }
