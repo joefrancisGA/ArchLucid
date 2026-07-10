@@ -367,6 +367,12 @@ jobs:
       API_IMAGE_DIGEST: ${{ needs.build-push-images.outputs.api_image_digest }}
       UI_IMAGE_DIGEST: ${{ needs.build-push-images.outputs.ui_image_digest }}
     steps:
+      # Required before the RAG auto-heal step below: it invokes scripts/deploy/*.ps1 from
+      # this job's workspace, which is otherwise empty (deploy-container-apps has no other
+      # step that checks out the repo).
+      - name: Checkout
+        uses: actions/checkout@v5
+
       - name: Azure login (OIDC)
         uses: azure/login@v2
         with:
