@@ -5,7 +5,7 @@
 resolve_demo_workspaces_manifest_path() {
   local lib_dir repo_root configured candidate default alt
   lib_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  repo_root="$(cd "${lib_dir}/../.." && pwd)"
+  repo_root="$(cd "${lib_dir}/../../.." && pwd)"
   configured="${ARCHLUCID_DEMO_WORKSPACES_MANIFEST:-${DEMO_WORKSPACES_MANIFEST:-fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json}}"
 
   if [[ "${configured}" = /* ]]; then
