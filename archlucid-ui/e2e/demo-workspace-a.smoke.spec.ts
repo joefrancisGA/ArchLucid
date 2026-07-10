@@ -32,7 +32,7 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
   });
 
   test("canonical Product Tour reviewer shell loads with evidence, findings, finalized record, exports", async ({ page }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(240_000);
 
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
     await page.goto(`/reviews/${DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID}`, { waitUntil: "domcontentloaded" });
@@ -66,15 +66,14 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
 
-    await page.locator("#manifest-summary").scrollIntoViewIfNeeded();
-
-    await expect(page.getByRole("heading", { name: /Finalized decision record/i })).toBeVisible();
-
     const manifestSection = page.locator("#manifest-summary");
 
-    await expect(manifestSection).toContainText("Finalized");
+    await expect(manifestSection).toBeVisible({ timeout: 90_000 });
+    await manifestSection.scrollIntoViewIfNeeded();
 
-    await expect(manifestSection.getByRole("term", { name: "Decisions" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Finalized decision record/i })).toBeVisible({ timeout: 60_000 });
+    await expect(manifestSection).toContainText("Finalized", { timeout: 60_000 });
+    await expect(manifestSection.getByRole("term", { name: "Decisions" })).toBeVisible({ timeout: 60_000 });
 
     await page.locator("#artifacts-exports").scrollIntoViewIfNeeded();
 

@@ -39,19 +39,47 @@ type RunExportHistoryJson = {
 
 function extractWhitelabelFirmDisplayNameFromExportBlobs(blobs: readonly string[]): string | null {
   for (const blob of blobs) {
+    // 1) normal JSON object
     try {
-      const parsed = JSON.parse(blob) as { reviewBoardWhitelabelFirmDisplayName?: string | null };
-      const candidate = parsed.reviewBoardWhitelabelFirmDisplayName?.trim() ?? "";
+      const parsed = JSON.parse(blob) as { reviewBoardWhitelabelFirmDisplayName?: string | null } | string;
 
-      if (candidate.length > 0) {
-        return candidate;
+      if (typeof parsed === "object" && parsed) {
+        const candidate = parsed.reviewBoardWhitelabelFirmDisplayName?.trim() ?? "";
+
+        if (candidate.length > 0) {
+          return candidate;
+        }
+      }
+
+      // 2) double-encoded JSON string payload
+      if (typeof parsed === "string") {
+        try {
+          const reparsed = JSON.parse(parsed) as { reviewBoardWhitelabelFirmDisplayName?: string | null };
+          const candidate = reparsed.reviewBoardWhitelabelFirmDisplayName?.trim() ?? "";
+
+          if (candidate.length > 0) {
+            return candidate;
+          }
+        } catch {
+          // fall through to regex
+        }
       }
     } catch {
-      const match = /"reviewBoardWhitelabelFirmDisplayName"\s*:\s*"([^"]+)"/i.exec(blob);
+      // fall through to regex
+    }
 
-      if (match?.[1]?.trim()) {
-        return match[1].trim();
-      }
+    // 3) raw JSON text
+    const rawMatch = /"reviewBoardWhitelabelFirmDisplayName"\s*:\s*"([^"]+)"/i.exec(blob);
+
+    if (rawMatch?.[1]?.trim()) {
+      return rawMatch[1].trim();
+    }
+
+    // 4) escaped JSON text (e.g. \"reviewBoardWhitelabelFirmDisplayName\":\"Acme\")
+    const escapedMatch = /\\"reviewBoardWhitelabelFirmDisplayName\\"\s*:\s*\\"([^\\"]+)\\"/i.exec(blob);
+
+    if (escapedMatch?.[1]?.trim()) {
+      return escapedMatch[1].trim();
     }
   }
 
