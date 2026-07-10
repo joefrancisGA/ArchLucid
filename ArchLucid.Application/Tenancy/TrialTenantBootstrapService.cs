@@ -62,11 +62,10 @@ public sealed class TrialTenantBootstrapService(
             {
                 if (_logger.IsEnabled(LogLevel.Information))
                 {
-                    string emailDomainForLogs = LogSanitizer.EmailDomainForLogs(auditActorEmail);
-                    _logger.LogInformation(
-                        "Skipping trial bootstrap for tenant {TenantId}: email verification policy blocked provisioning for domain {EmailDomain}.",
+                    SanitizedLoggerTrialBootstrapExtensions.LogInformationTrialBootstrapEmailVerificationBlocked(
+                        _logger,
                         result.TenantId,
-                        emailDomainForLogs);
+                        auditActorEmail);
                 }
                 ArchLucidInstrumentation.RecordTrialSignupFailure("email_verification", "policy_blocked");
                 await _auditService.LogAsync(
