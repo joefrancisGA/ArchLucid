@@ -126,7 +126,7 @@ test.describe("live-api-trial-signup", () => {
     await page.getByLabel(/^Work email$/i).fill(adminEmail);
     await page.getByLabel(/^Full name$/i).fill("Trial UI User");
     await page.getByLabel(/^Organization name$/i).fill(orgName);
-    await page.getByRole("button", { name: /Create your workspace/i }).click();
+    await page.getByRole("button", { name: /Create evaluation workspace/i }).click();
 
     await page.waitForURL(/\/signup\/verify/i, { timeout: 60_000 });
 

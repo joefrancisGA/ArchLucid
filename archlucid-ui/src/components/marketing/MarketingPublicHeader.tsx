@@ -16,7 +16,12 @@ type MarketingPublicHeaderProps = {
 };
 
 function shouldHideThemeToggleOnMarketingRoute(pathname: string): boolean {
-  return pathname === "/pricing" || pathname.startsWith("/pricing/");
+  return (
+    pathname === "/pricing" ||
+    pathname.startsWith("/pricing/") ||
+    pathname === "/signup" ||
+    pathname.startsWith("/signup/")
+  );
 }
 
 export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.JSX.Element {

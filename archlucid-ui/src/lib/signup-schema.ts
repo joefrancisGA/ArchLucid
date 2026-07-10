@@ -7,7 +7,7 @@ export const companySizeOptions = [
   "201-1000",
   "1001-5000",
   "5001-50000",
-  "50001+"
+  "50001+",
 ] as const;
 
 export const industryVerticalOptions = [
@@ -21,14 +21,8 @@ export const industryVerticalOptions = [
   "Energy / Utilities",
   "Education",
   "Telecommunications",
-  "Other"
+  "Other",
 ] as const;
-
-export const BASELINE_REVIEW_CYCLE_HOURS_MAX = 10_000;
-export const BASELINE_REVIEW_CYCLE_SOURCE_MAX = 256;
-
-export const baselineSignupChoiceValues = ["model_default", "custom"] as const;
-export type BaselineSignupChoice = (typeof baselineSignupChoiceValues)[number];
 
 export const signupFormSchema = z
   .object({
@@ -47,26 +41,24 @@ export const signupFormSchema = z
     architectureTeamSize: z.string().optional(),
     industryVertical: z.enum(industryVerticalOptions).optional(),
     industryVerticalOther: z.string().max(200, "At most 200 characters.").optional(),
-    baselineChoice: z.enum(baselineSignupChoiceValues),
-    // String form values keep `z.infer` stable for `zodResolver` + react-hook-form (avoid `z.preprocess` → `unknown`).
-    baselineReviewCycleHours: z.string().optional(),
-    baselineReviewCycleSource: z.string().optional()
   })
   .superRefine((v, ctx) => {
     const arch = v.architectureTeamSize?.trim() ?? "";
+
     if (arch.length > 0) {
       const n = Number(arch);
+
       if (!Number.isFinite(n)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Enter a valid number for architecture team size.",
-          path: ["architectureTeamSize"]
+          path: ["architectureTeamSize"],
         });
       } else if (n <= 0 || n > 10_000) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Architecture team size must be between 1 and 10,000 when provided.",
-          path: ["architectureTeamSize"]
+          path: ["architectureTeamSize"],
         });
       }
     }
@@ -75,65 +67,7 @@ export const signupFormSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Please specify your industry when you select “Other.”",
-        path: ["industryVerticalOther"]
-      });
-    }
-
-    if (v.baselineChoice !== "custom") {
-      return;
-    }
-
-    const hoursRaw = v.baselineReviewCycleHours?.trim() ?? "";
-
-    if (hoursRaw.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Enter your team's median review-cycle hours, or switch back to the model default.",
-        path: ["baselineReviewCycleHours"]
-      });
-
-      return;
-    }
-
-    const parsed = Number(hoursRaw);
-
-    if (!Number.isFinite(parsed)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Enter a numeric value (hours).",
-        path: ["baselineReviewCycleHours"]
-      });
-
-      return;
-    }
-
-    if (parsed <= 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Enter a number greater than 0.",
-        path: ["baselineReviewCycleHours"]
-      });
-
-      return;
-    }
-
-    if (parsed > BASELINE_REVIEW_CYCLE_HOURS_MAX) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `Enter a number at most ${BASELINE_REVIEW_CYCLE_HOURS_MAX}.`,
-        path: ["baselineReviewCycleHours"]
-      });
-
-      return;
-    }
-
-    const sourceTrimmed = v.baselineReviewCycleSource?.trim() ?? "";
-
-    if (sourceTrimmed.length > BASELINE_REVIEW_CYCLE_SOURCE_MAX) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `At most ${BASELINE_REVIEW_CYCLE_SOURCE_MAX} characters.`,
-        path: ["baselineReviewCycleSource"]
+        path: ["industryVerticalOther"],
       });
     }
   });

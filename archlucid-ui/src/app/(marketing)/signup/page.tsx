@@ -4,25 +4,29 @@ import Link from "next/link";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { SignupForm } from "@/components/marketing/SignupForm";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Start an evaluation",
-  description: "Create a self-service ArchLucid workspace and start your evaluation — no sales call required.",
+  title: "Start your evaluation",
+  description:
+    "Create an evaluation workspace with sample architecture review data. No sales call required.",
 };
 
 export default function SignupPage() {
   return (
-    <MarketingPageShell variant="reading">
-      <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Start your evaluation</h1>
-      <p className={`mt-2 max-w-2xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
-        Tell us who you are and which organization you represent. We will create a dedicated workspace and add a
-        sample architecture review you can inspect before you start your own. No sales call required. Already have an
-        account?{" "}
-        <Link href="/auth/signin" className={MARKETING_SURFACES.inlineLink}>
-          Sign in
-        </Link>
-        .
-      </p>
+    <MarketingPageShell className={cn("mx-auto w-full max-w-[640px] px-4 py-10 sm:py-12")}>
+      <header className="text-center">
+        <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Start your evaluation</h1>
+        <p className={cn("mt-3 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
+          Create an evaluation workspace with sample architecture review data. No sales call required.
+        </p>
+        <p className={cn("mt-4 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
+          Already have an account?{" "}
+          <Link href="/auth/signin" className={MARKETING_SURFACES.inlineLink}>
+            Sign in
+          </Link>
+        </p>
+      </header>
       <div className="mt-8">
         <SignupForm />
       </div>

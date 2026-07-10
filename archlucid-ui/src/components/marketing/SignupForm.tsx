@@ -1,6 +1,4 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -18,19 +16,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { InlineInfoTooltip } from "@/components/InlineInfoTooltip";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import { MARKETING_SURFACES, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readFirstTouchCookie, serializeFirstTouchHeader } from "@/lib/marketing-first-touch";
 import {
-  BASELINE_REVIEW_CYCLE_HOURS_MAX,
   companySizeOptions,
   industryVerticalOptions,
   signupFormSchema,
-  type BaselineSignupChoice,
   type SignupFormValues,
 } from "@/lib/signup-schema";
 import { showError, showSuccess } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 type TenantProvisioningResult = {
   tenantId?: string;
@@ -38,6 +34,8 @@ type TenantProvisioningResult = {
   defaultProjectId?: string;
   wasAlreadyProvisioned?: boolean;
 };
+
+const optionalFieldLabelClass = cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.body);
 
 /** Self-service signup: posts to `POST /v1/register` via same-origin API proxy. */
 export function SignupForm() {
@@ -53,9 +51,6 @@ export function SignupForm() {
       architectureTeamSize: "",
       industryVertical: undefined,
       industryVerticalOther: "",
-      baselineChoice: "model_default",
-      baselineReviewCycleHours: "",
-      baselineReviewCycleSource: "",
     },
     mode: "onBlur",
   });
@@ -63,16 +58,6 @@ export function SignupForm() {
   const { register, handleSubmit, setValue, watch, formState } = form;
   const companySize = watch("companySize");
   const industryVertical = watch("industryVertical");
-  const baselineChoice = watch("baselineChoice");
-
-  function setBaselineChoice(next: BaselineSignupChoice): void {
-    setValue("baselineChoice", next, { shouldValidate: true });
-
-    if (next === "model_default") {
-      setValue("baselineReviewCycleHours", "", { shouldValidate: true });
-      setValue("baselineReviewCycleSource", "", { shouldValidate: true });
-    }
-  }
 
   const onSubmit = handleSubmit(async (values) => {
     setSubmitting(true);
@@ -84,27 +69,15 @@ export function SignupForm() {
         adminDisplayName: values.adminDisplayName,
       };
 
-      if (values.baselineChoice === "custom") {
-        const hoursTrim = values.baselineReviewCycleHours?.trim() ?? "";
-
-        if (hoursTrim.length > 0) {
-          const hoursParsed = Number(hoursTrim);
-
-          if (Number.isFinite(hoursParsed)) payload.baselineReviewCycleHours = hoursParsed;
-        }
-
-        const sourceTrim = values.baselineReviewCycleSource?.trim() ?? "";
-
-        if (sourceTrim.length > 0) payload.baselineReviewCycleSource = sourceTrim;
-      }
-
       if (values.companySize) {
         payload.companySize = values.companySize;
       }
 
       const teamTrim = values.architectureTeamSize?.trim() ?? "";
+
       if (teamTrim.length > 0) {
         const t = Number(teamTrim);
+
         if (Number.isFinite(t)) {
           payload.architectureTeamSize = t;
         }
@@ -113,8 +86,10 @@ export function SignupForm() {
       if (values.industryVertical) {
         payload.industryVertical = values.industryVertical;
       }
+
       if (values.industryVertical === "Other") {
         const o = values.industryVerticalOther?.trim() ?? "";
+
         if (o.length > 0) {
           payload.industryVerticalOther = o;
         }
@@ -195,242 +170,187 @@ export function SignupForm() {
   });
 
   return (
-    <TooltipProvider delayDuration={200}>
     <FormProvider {...form}>
-      <form className="mx-auto max-w-lg space-y-5" onSubmit={onSubmit} noValidate>
-        <div>
-          <Label htmlFor="signup-email">Work email</Label>
-          <Input id="signup-email" type="email" autoComplete="email" {...register("adminEmail")} className="mt-1" />
-          {formState.errors.adminEmail ? (
-            <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
-              {formState.errors.adminEmail.message}
-            </p>
-          ) : null}
-        </div>
-
-        <div>
-          <Label htmlFor="signup-name">Full name</Label>
-          <Input id="signup-name" autoComplete="name" {...register("adminDisplayName")} className="mt-1" />
-          {formState.errors.adminDisplayName ? (
-            <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
-              {formState.errors.adminDisplayName.message}
-            </p>
-          ) : null}
-        </div>
-
-        <div>
-          <Label htmlFor="signup-org">Organization name</Label>
-          <Input id="signup-org" autoComplete="organization" {...register("organizationName")} className="mt-1" />
-          {formState.errors.organizationName ? (
-            <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
-              {formState.errors.organizationName.message}
-            </p>
-          ) : null}
-        </div>
-
-        <div>
-          <Label htmlFor="signup-size">Company size (optional)</Label>
-          <Select
-            value={companySize ?? "__none__"}
-            onValueChange={(v) => {
-              setValue("companySize", v === "__none__" ? undefined : (v as SignupFormValues["companySize"]), {
-                shouldValidate: true,
-              });
-            }}
-          >
-            <SelectTrigger id="signup-size" className="mt-1">
-              <SelectValue placeholder="Select range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">Prefer not to say</SelectItem>
-              {companySizeOptions.map((opt) => (
-                <SelectItem key={opt} value={opt}>
-                  {opt} employees
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label htmlFor="signup-team-size">Architecture team size (optional)</Label>
-          <Input
-            id="signup-team-size"
-            type="number"
-            min={1}
-            max={10_000}
-            data-testid="signup-architecture-team-size"
-            {...register("architectureTeamSize")}
-            className="mt-1"
-          />
-          {formState.errors.architectureTeamSize ? (
-            <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
-              {formState.errors.architectureTeamSize.message}
-            </p>
-          ) : null}
-        </div>
-
-        <div>
-          <Label htmlFor="signup-industry">Industry (optional)</Label>
-          <Select
-            value={industryVertical ?? "__ind_none__"}
-            onValueChange={(v) => {
-              setValue(
-                "industryVertical",
-                v === "__ind_none__" ? undefined : (v as SignupFormValues["industryVertical"]),
-                { shouldValidate: true }
-              );
-            }}
-          >
-            <SelectTrigger id="signup-industry" className="mt-1" data-testid="signup-industry">
-              <SelectValue placeholder="Select industry" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__ind_none__">Prefer not to say</SelectItem>
-              {industryVerticalOptions.map((opt) => (
-                <SelectItem key={opt} value={opt} data-testid={`signup-industry-${opt}`}>
-                  {opt}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {industryVertical === "Other" ? (
+      <section className={cn(MARKETING_SURFACES.cardComfort, "shadow-sm")} aria-labelledby="signup-form-heading">
+        <h2 id="signup-form-heading" className="sr-only">
+          Evaluation signup
+        </h2>
+        <form className="space-y-5" onSubmit={onSubmit} noValidate>
           <div>
-            <Label htmlFor="signup-industry-specify">Industry (specify)</Label>
-            <Input
-              id="signup-industry-specify"
-              data-testid="signup-industry-specify"
-              {...register("industryVerticalOther")}
-              className="mt-1"
-            />
-            {formState.errors.industryVerticalOther ? (
+            <Label htmlFor="signup-email" className={OPERATOR_TYPOGRAPHY.body}>
+              Work email
+            </Label>
+            <Input id="signup-email" type="email" autoComplete="email" {...register("adminEmail")} className="mt-1.5 h-10" />
+            {formState.errors.adminEmail ? (
               <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
-                {formState.errors.industryVerticalOther.message}
+                {formState.errors.adminEmail.message}
               </p>
             ) : null}
           </div>
-        ) : null}
 
-        <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
-          <p id="signup-baseline-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Baseline review hours (recommended)
-          </p>
-          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Supplying <strong className="font-semibold text-neutral-800 dark:text-neutral-200">baseline review hours</strong> tightens your
-            ROI &quot;before&quot; anchors. Default signup stays fast; pick <em>I will enter our median review-cycle hours</em>{" "}
-            to unlock the baseline review hours field. We still compute a measured-vs-baseline curve after your first
-            finalized review using the conservative model from{" "}
-            <code className="text-[0.85em]">docs/PILOT_ROI_MODEL.md</code>{" "}
-            when you leave the modeled default — see also the{" "}
-            <Link
-              className="text-teal-800 underline dark:text-teal-300"
-              href="/help/executive-summary"
-            >
-              trial baseline privacy note
-            </Link>
-            .
-          </p>
-
-          <fieldset className="mt-3 space-y-3" aria-labelledby="signup-baseline-heading">
-            <legend className="sr-only">Baseline review-cycle</legend>
-            <div className="flex items-start gap-2">
-              <input
-                id="signup-baseline-model"
-                type="radio"
-                className="mt-1"
-                checked={baselineChoice === "model_default"}
-                onChange={() => setBaselineChoice("model_default")}
-                data-testid="signup-baseline-choice-model"
-              />
-              <div className="flex items-center gap-1">
-                <label htmlFor="signup-baseline-model" className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                  Use model default (modeled estimate)
-                </label>
-                <InlineInfoTooltip
-                  label="Use model default (modeled estimate)"
-                  hint="No tenant-specific hours recorded. The operator dashboard shows measured time to finalization; the 'before' baseline uses the conservative default from the ROI model until you supply hours."
-                />
-              </div>
-            </div>
-
-            <div className="flex items-start gap-2">
-              <input
-                id="signup-baseline-custom"
-                type="radio"
-                className="mt-1"
-                checked={baselineChoice === "custom"}
-                onChange={() => setBaselineChoice("custom")}
-                data-testid="signup-baseline-choice-custom"
-              />
-              <label htmlFor="signup-baseline-custom" className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                I will enter our median review-cycle hours
-              </label>
-            </div>
-          </fieldset>
-
-          {baselineChoice === "custom" ? (
-            <div className="mt-3 space-y-3 border-t border-neutral-200 pt-3 dark:border-neutral-600">
-              <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Overriding produces a measured-vs-baseline curve on the operator dashboard once a review finalizes.
+          <div>
+            <Label htmlFor="signup-name" className={OPERATOR_TYPOGRAPHY.body}>
+              Full name
+            </Label>
+            <Input id="signup-name" autoComplete="name" {...register("adminDisplayName")} className="mt-1.5 h-10" />
+            {formState.errors.adminDisplayName ? (
+              <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
+                {formState.errors.adminDisplayName.message}
               </p>
+            ) : null}
+          </div>
+
+          <div>
+            <Label htmlFor="signup-org" className={OPERATOR_TYPOGRAPHY.body}>
+              Organization name
+            </Label>
+            <Input id="signup-org" autoComplete="organization" {...register("organizationName")} className="mt-1.5 h-10" />
+            {formState.errors.organizationName ? (
+              <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
+                {formState.errors.organizationName.message}
+              </p>
+            ) : null}
+          </div>
+
+          <details
+            className="rounded-md border border-neutral-200/90 bg-al-surface-muted/40 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="signup-optional-details"
+          >
+            <summary
+              className={cn(
+                "cursor-pointer select-none px-4 py-3 font-medium text-al-text-primary [&::-webkit-details-marker]:hidden",
+                OPERATOR_TYPOGRAPHY.cardTitle,
+              )}
+            >
+              Tell us a little more
+            </summary>
+            <div className="space-y-4 border-t border-neutral-200/90 px-4 py-4 dark:border-neutral-700">
               <div>
-                <Label htmlFor="signup-baseline-hours">Baseline review hours (median hours per cycle)</Label>
+                <Label htmlFor="signup-size" className={optionalFieldLabelClass}>
+                  Company size <span className="text-neutral-500 dark:text-neutral-400">(optional)</span>
+                </Label>
+                <Select
+                  value={companySize ?? "__none__"}
+                  onValueChange={(v) => {
+                    setValue("companySize", v === "__none__" ? undefined : (v as SignupFormValues["companySize"]), {
+                      shouldValidate: true,
+                    });
+                  }}
+                >
+                  <SelectTrigger id="signup-size" className="mt-1.5 h-10">
+                    <SelectValue placeholder="Select range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Prefer not to say</SelectItem>
+                    {companySizeOptions.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt} employees
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="signup-team-size" className={optionalFieldLabelClass}>
+                  Architecture team size <span className="text-neutral-500 dark:text-neutral-400">(optional)</span>
+                </Label>
                 <Input
-                  id="signup-baseline-hours"
+                  id="signup-team-size"
                   type="number"
-                  inputMode="decimal"
-                  min={0}
-                  max={BASELINE_REVIEW_CYCLE_HOURS_MAX}
-                  step="any"
-                  data-testid="signup-baseline-hours"
-                  {...register("baselineReviewCycleHours")}
-                  className="mt-1"
+                  min={1}
+                  max={10_000}
+                  data-testid="signup-architecture-team-size"
+                  {...register("architectureTeamSize")}
+                  className="mt-1.5 h-10"
                 />
-                {formState.errors.baselineReviewCycleHours ? (
+                {formState.errors.architectureTeamSize ? (
                   <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
-                    {formState.errors.baselineReviewCycleHours.message}
+                    {formState.errors.architectureTeamSize.message}
                   </p>
                 ) : null}
               </div>
+
               <div>
-                <Label htmlFor="signup-baseline-source">Source note (optional)</Label>
-                <Input
-                  id="signup-baseline-source"
-                  data-testid="signup-baseline-source"
-                  placeholder="e.g. team estimate; last 5 reviews"
-                  {...register("baselineReviewCycleSource")}
-                  className="mt-1"
-                />
-                {formState.errors.baselineReviewCycleSource ? (
-                  <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
-                    {formState.errors.baselineReviewCycleSource.message}
-                  </p>
-                ) : null}
+                <Label htmlFor="signup-industry" className={optionalFieldLabelClass}>
+                  Industry <span className="text-neutral-500 dark:text-neutral-400">(optional)</span>
+                </Label>
+                <Select
+                  value={industryVertical ?? "__ind_none__"}
+                  onValueChange={(v) => {
+                    setValue(
+                      "industryVertical",
+                      v === "__ind_none__" ? undefined : (v as SignupFormValues["industryVertical"]),
+                      { shouldValidate: true },
+                    );
+                  }}
+                >
+                  <SelectTrigger id="signup-industry" className="mt-1.5 h-10" data-testid="signup-industry">
+                    <SelectValue placeholder="Select industry" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__ind_none__">Prefer not to say</SelectItem>
+                    {industryVerticalOptions.map((opt) => (
+                      <SelectItem key={opt} value={opt} data-testid={`signup-industry-${opt}`}>
+                        {opt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
+              {industryVertical === "Other" ? (
+                <div>
+                  <Label htmlFor="signup-industry-specify" className={optionalFieldLabelClass}>
+                    Industry (specify)
+                  </Label>
+                  <Input
+                    id="signup-industry-specify"
+                    data-testid="signup-industry-specify"
+                    {...register("industryVerticalOther")}
+                    className="mt-1.5 h-10"
+                  />
+                  {formState.errors.industryVerticalOther ? (
+                    <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
+                      {formState.errors.industryVerticalOther.message}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
-          ) : null}
-        </div>
+          </details>
 
-        <div className="flex flex-wrap gap-3 pt-2">
-          <Button type="submit" disabled={submitting} variant="primary">
-            {submitting ? "Creating…" : "Create your workspace"}
-          </Button>
-          <Button asChild type="button" variant="ghost">
-            <Link href="/welcome">Back</Link>
-          </Button>
-        </div>
+          <div className="space-y-3 pt-1">
+            <Button type="submit" disabled={submitting} variant="primary" className="w-full sm:w-auto">
+              {submitting ? "Creating…" : "Create evaluation workspace"}
+            </Button>
+            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              You can inspect the sample review before adding your own evidence.
+            </p>
+            <p>
+              <Link href="/pricing" className={cn("text-al-text-secondary underline-offset-2 hover:underline", OPERATOR_TYPOGRAPHY.helper)}>
+                Return to pricing
+              </Link>
+            </p>
+          </div>
 
-        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          By continuing you agree to use ArchLucid in accordance with your organization&apos;s policies and our{" "}
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/privacy">
-            privacy policy
-          </Link>
-          . The API applies rate limits on registration to protect shared infrastructure.
-        </p>
-      </form>
+          <p className={cn("border-t border-neutral-200 pt-4 text-al-text-secondary dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)}>
+            We use this information to create your evaluation workspace and prevent abuse. We do not show tenant-identifying
+            data in sample or aggregate views. See our{" "}
+            <Link className="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]" href="/privacy">
+              privacy policy
+            </Link>{" "}
+            and{" "}
+            <Link
+              className="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+              href="/security-trust"
+            >
+              security and trust
+            </Link>
+            . To protect the demo environment, evaluation workspaces may have usage limits.
+          </p>
+        </form>
+      </section>
     </FormProvider>
-    </TooltipProvider>
   );
 }

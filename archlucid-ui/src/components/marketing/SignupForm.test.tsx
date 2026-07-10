@@ -7,8 +7,8 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useRouter: () => ({ push: pushMock }),
-  redirect: vi.fn(),
+    useRouter: () => ({ push: pushMock }),
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
@@ -25,7 +25,7 @@ describe("SignupForm", () => {
   it("blocks submit when validation fails", async () => {
     render(<SignupForm />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Create your workspace/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
 
     expect(await screen.findByText(/Enter a valid email/i)).toBeInTheDocument();
     expect(pushMock).not.toHaveBeenCalled();
@@ -51,7 +51,7 @@ describe("SignupForm", () => {
     fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "ops@example.com" } });
     fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
     fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
-    fireEvent.click(screen.getByRole("button", { name: /Create your workspace/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled();
@@ -74,43 +74,16 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
-  it("forwards baseline hours when custom path is selected", async () => {
-    const fetchMock = vi.fn(async () => {
-      return new Response(
-        JSON.stringify({
-          tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-          defaultWorkspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-          defaultProjectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
-          wasAlreadyProvisioned: false,
-        }),
-        { status: 201, headers: { "Content-Type": "application/json" } },
-      );
-    });
-
-    vi.stubGlobal("fetch", fetchMock);
-
+  it("keeps optional fields behind Tell us a little more", () => {
     render(<SignupForm />);
 
-    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "ops@example.com" } });
-    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
-    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
+    expect(screen.getByText("Tell us a little more")).toBeInTheDocument();
+    expect(screen.queryByText(/docs\/PILOT_ROI_MODEL/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^Back$/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Return to pricing/i })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId("signup-baseline-choice-custom"));
+    fireEvent.click(screen.getByText("Tell us a little more"));
 
-    fireEvent.change(screen.getByTestId("signup-baseline-hours"), { target: { value: "16" } });
-    fireEvent.change(screen.getByTestId("signup-baseline-source"), { target: { value: "team estimate" } });
-
-    fireEvent.click(screen.getByRole("button", { name: /Create your workspace/i }));
-
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalled();
-    });
-
-    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
-    expect(body.baselineReviewCycleHours).toBe(16);
-    expect(body.baselineReviewCycleSource).toBe("team estimate");
-
-    vi.unstubAllGlobals();
+    expect(screen.getByLabelText(/Company size/i)).toBeInTheDocument();
   });
 });
