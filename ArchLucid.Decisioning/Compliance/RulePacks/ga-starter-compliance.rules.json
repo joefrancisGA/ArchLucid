@@ -6888,6 +6888,204 @@
       "severity": "Warning",
       "priority": "P2",
       "description": "Stub for cis-gcp-028; see docs/samples/policy-packs/cis-gcp-foundations-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-011",
+      "controlId": "IAM-AWS-011",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for iam-aws-011; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-012",
+      "controlId": "IAM-AWS-012",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for iam-aws-012; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-013",
+      "controlId": "IAM-AWS-013",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for iam-aws-013; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-014",
+      "controlId": "IAM-AWS-014",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for iam-aws-014; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-015",
+      "controlId": "IAM-AWS-015",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for iam-aws-015; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-016",
+      "controlId": "IAM-AWS-016",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for iam-aws-016; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-017",
+      "controlId": "IAM-AWS-017",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-aws-017; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-018",
+      "controlId": "IAM-AWS-018",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-aws-018; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-019",
+      "controlId": "IAM-AWS-019",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-aws-019; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-020",
+      "controlId": "IAM-AWS-020",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-aws-020; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-021",
+      "controlId": "IAM-AWS-021",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-aws-021; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-022",
+      "controlId": "IAM-AWS-022",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-aws-022; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-023",
+      "controlId": "IAM-AWS-023",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-aws-023; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-024",
+      "controlId": "IAM-AWS-024",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-aws-024; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-025",
+      "controlId": "IAM-AWS-025",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-aws-025; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-026",
+      "controlId": "IAM-AWS-026",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-aws-026; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-027",
+      "controlId": "IAM-AWS-027",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-aws-027; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-aws-028",
+      "controlId": "IAM-AWS-028",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-aws-028; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
     }
   ]
 }
