@@ -8076,6 +8076,204 @@
       "severity": "Warning",
       "priority": "P2",
       "description": "Stub for gke-028; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-011",
+      "controlId": "AWS-PAAS-011",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-paas-011; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-012",
+      "controlId": "AWS-PAAS-012",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-paas-012; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-013",
+      "controlId": "AWS-PAAS-013",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-paas-013; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-014",
+      "controlId": "AWS-PAAS-014",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-paas-014; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-015",
+      "controlId": "AWS-PAAS-015",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-paas-015; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-016",
+      "controlId": "AWS-PAAS-016",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-paas-016; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-017",
+      "controlId": "AWS-PAAS-017",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-paas-017; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-018",
+      "controlId": "AWS-PAAS-018",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-paas-018; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-019",
+      "controlId": "AWS-PAAS-019",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-paas-019; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-020",
+      "controlId": "AWS-PAAS-020",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-paas-020; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-021",
+      "controlId": "AWS-PAAS-021",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-paas-021; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-022",
+      "controlId": "AWS-PAAS-022",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-paas-022; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-023",
+      "controlId": "AWS-PAAS-023",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-paas-023; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-024",
+      "controlId": "AWS-PAAS-024",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-paas-024; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-025",
+      "controlId": "AWS-PAAS-025",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-paas-025; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-026",
+      "controlId": "AWS-PAAS-026",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-paas-026; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-027",
+      "controlId": "AWS-PAAS-027",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-paas-027; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-paas-028",
+      "controlId": "AWS-PAAS-028",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-paas-028; see docs/samples/policy-packs/aws-paas-security-rules-v1.json for narrative."
     }
   ]
 }
