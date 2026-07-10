@@ -1,4 +1,4 @@
-import { AzureCloudConnectionDetailClient } from "./_sections/AzureCloudConnectionDetailClient";
+import { AzureCloudConnectionDetailClient } from "../_sections/AzureCloudConnectionDetailClient";
 
 export default function AzureCloudConnectionsPage() {
   return <AzureCloudConnectionDetailClient />;
