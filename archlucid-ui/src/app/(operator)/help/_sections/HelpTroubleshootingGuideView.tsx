@@ -64,8 +64,8 @@ function TroubleshootingIssueCard(props: { readonly issue: TroubleshootingIssue 
         <span className="font-medium text-al-text-primary">{issue.title}</span>
         <span
           className={cn(
-            "rounded-full border border-neutral-200 px-2 py-0.5 text-xs font-medium text-al-text-secondary dark:border-neutral-700",
-            OPERATOR_TYPOGRAPHY.meta,
+            "rounded-full border border-neutral-200 px-2 py-0.5 text-al-text-secondary dark:border-neutral-700",
+            OPERATOR_TYPOGRAPHY.badge,
           )}
         >
           {TROUBLESHOOTING_ISSUE_KIND_LABELS[issue.kind]}

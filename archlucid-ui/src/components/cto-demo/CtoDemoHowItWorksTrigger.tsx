@@ -74,6 +74,7 @@ export function CtoDemoHowItWorksTrigger(props: CtoDemoHowItWorksTriggerProps): 
               summary: "",
               audience: "buyer",
               sourcePaths: [],
+              pdfStatus: "public",
             }
           }
           markdown={DATA_HANDLING_MARKDOWN}
