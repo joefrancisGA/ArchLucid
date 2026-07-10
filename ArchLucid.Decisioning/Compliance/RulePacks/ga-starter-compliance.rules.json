@@ -7680,6 +7680,204 @@
       "severity": "Warning",
       "priority": "P2",
       "description": "Stub for gcp-dr-028; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-011",
+      "controlId": "EKS-011",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for eks-011; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-012",
+      "controlId": "EKS-012",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for eks-012; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-013",
+      "controlId": "EKS-013",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for eks-013; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-014",
+      "controlId": "EKS-014",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for eks-014; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-015",
+      "controlId": "EKS-015",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for eks-015; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-016",
+      "controlId": "EKS-016",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for eks-016; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-017",
+      "controlId": "EKS-017",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for eks-017; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-018",
+      "controlId": "EKS-018",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for eks-018; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-019",
+      "controlId": "EKS-019",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for eks-019; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-020",
+      "controlId": "EKS-020",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for eks-020; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-021",
+      "controlId": "EKS-021",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for eks-021; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-022",
+      "controlId": "EKS-022",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for eks-022; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-023",
+      "controlId": "EKS-023",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for eks-023; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-024",
+      "controlId": "EKS-024",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for eks-024; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-025",
+      "controlId": "EKS-025",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for eks-025; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-026",
+      "controlId": "EKS-026",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for eks-026; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-027",
+      "controlId": "EKS-027",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for eks-027; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "eks-028",
+      "controlId": "EKS-028",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for eks-028; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
     }
   ]
 }
