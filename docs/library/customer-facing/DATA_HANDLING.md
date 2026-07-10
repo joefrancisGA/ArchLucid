@@ -1,9 +1,12 @@
-/** In-app copy for the CTO data-handling dialog (mirrors docs/library/customer-facing/DATA_HANDLING.md). */
-export const DATA_HANDLING_MARKDOWN = `# What ArchLucid does with your data
+# What ArchLucid does with your data
+
+Data flow, tenant isolation, audit trail, and portability for architecture review evidence.
 
 ## What ArchLucid does
 
 ArchLucid takes your architecture brief and optional evidence context, applies policy packs, and produces a **signed review package** with findings, decisions, and an audit record. ArchLucid does not execute code in your environment and does not require write access to your systems.
+
+For the end-to-end product workflow, see [How ArchLucid works](/help/how-it-works).
 
 ## What leaves your tenant
 
@@ -45,7 +48,9 @@ Download a signed export bundle from any finalized review package at any time. Y
 
 ## Export and deletion posture
 
-Finalized review packages support exportable governance artifacts for sponsors and audit. Tenant data lifecycle, retention, and deletion requests are handled according to your agreement and the security review process — contact your administrator or ArchLucid support for workspace-specific posture.`;
+Finalized review packages support exportable governance artifacts for sponsors and audit. Tenant data lifecycle, retention, and deletion requests are handled according to your agreement and the security review process — contact your administrator or ArchLucid support for workspace-specific posture.
 
-/** @deprecated Use DATA_HANDLING_MARKDOWN — retained for imports migrating from the combined how-it-works topic. */
-export const HOW_IT_WORKS_MARKDOWN = DATA_HANDLING_MARKDOWN;
+## Related topics
+
+- [How ArchLucid works](/help/how-it-works) — product workflow from evidence to exports
+- [Security and trust](/help/security-trust) — assurance materials and diligence support

@@ -76,7 +76,11 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
         <Link className={MARKETING_SURFACES.inlineLink} href="/faq">
           Product FAQ
         </Link>{" "}
-        for security and evaluation answers. Consolidated questionnaires and public evidence summaries are available in the{" "}
+        for security and evaluation answers, and{" "}
+        <Link className={MARKETING_SURFACES.inlineLink} href="/help/data-handling">
+          data handling
+        </Link>{" "}
+        for tenant isolation and AI provider posture. Consolidated questionnaires and public evidence summaries are available in the{" "}
         <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
           Trust Center
         </Link>

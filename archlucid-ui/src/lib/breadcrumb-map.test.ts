@@ -120,6 +120,17 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("maps how-it-works and data-handling breadcrumbs to page titles", () => {
+    expect(getBreadcrumbs("/help/how-it-works")).toEqual([
+      { label: "Help", href: "/help" },
+      { label: "How ArchLucid works" },
+    ]);
+    expect(getBreadcrumbs("/help/data-handling")).toEqual([
+      { label: "Help", href: "/help" },
+      { label: "What ArchLucid does with your data" },
+    ]);
+  });
+
   it("uses policy-pack registry trail for governance-scoped pack routes (no workflow parent link)", () => {
     expect(getBreadcrumbs("/governance/policy-packs/undefined")).toEqual([
       { label: "Policy packs", href: "/governance/policy-packs" },

@@ -94,6 +94,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   slack: "Slack",
   webhooks: "Webhooks",
   scope: "Workspace and scope",
+  "how-it-works": "How ArchLucid works",
+  "data-handling": "What ArchLucid does with your data",
 };
 
 /**

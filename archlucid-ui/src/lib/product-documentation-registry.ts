@@ -173,17 +173,26 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "how-it-works",
-    title: "What ArchLucid does with your data",
-    summary: "Data flow, tenant isolation, audit trail, and portability — factual security posture for CTO diligence.",
+    title: "How ArchLucid works",
+    summary:
+      "From architecture evidence to findings, decisions, governance records, and sponsor-ready outputs.",
     audience: "buyer",
-    sourcePaths: ["docs/library/customer-facing/HOW_IT_WORKS.md"],
+    sourcePaths: ["docs/library/customer-facing/HOW_ARCHLUCID_WORKS.md"],
+  },
+  {
+    slug: "data-handling",
+    title: "What ArchLucid does with your data",
+    summary:
+      "Data flow, tenant isolation, audit trail, and portability for architecture review evidence.",
+    audience: "buyer",
+    sourcePaths: ["docs/library/customer-facing/DATA_HANDLING.md"],
   },
   {
     slug: "security-trust",
     title: "Security and trust",
     summary: "Assurance ladder, data handling, subprocessors, and diligence materials for procurement reviewers.",
     audience: "buyer",
-    sourcePaths: ["docs/go-to-market/trust-center.md", "docs/library/customer-facing/HOW_IT_WORKS.md"],
+    sourcePaths: ["docs/go-to-market/trust-center.md", "docs/library/customer-facing/DATA_HANDLING.md"],
   },
   {
     slug: "cloud-connections",

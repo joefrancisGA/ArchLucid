@@ -14,6 +14,7 @@ export type HelpCenterDisplay = {
 /** Default landing grid — 8–12 intent-based topics (not the full registry). */
 export const HELP_CENTER_FEATURED_SLUGS: readonly string[] = [
   "getting-started",
+  "how-it-works",
   "evidence-intake",
   "review-packages",
   "findings",
@@ -22,6 +23,7 @@ export const HELP_CENTER_FEATURED_SLUGS: readonly string[] = [
   "executive-summary",
   "cloud-connections",
   "security-trust",
+  "data-handling",
   "operator-auth-roles",
   "billing-and-plans",
   "troubleshooting",
@@ -37,6 +39,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "executive-summary": "product",
   "audit-trail": "product",
   "how-it-works": "product",
+  "data-handling": "product",
   "cloud-connections": "product",
   "cloud-connections-azure": "product",
   "cloud-connections-aws": "product",

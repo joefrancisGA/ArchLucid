@@ -11,6 +11,7 @@ describe("help-search-panel-catalog", () => {
   it("recommends first-review topics on overview", () => {
     expect(recommendedHelpSearchPanelTopicIds("/")).toEqual([
       "getting-started-help",
+      "how-archlucid-works",
       "first-review-guide",
       "product-faq",
       "create-first-review",

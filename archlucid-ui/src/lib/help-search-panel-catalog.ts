@@ -45,6 +45,13 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/getting-started", helpSlug: "getting-started" },
   },
   {
+    id: "how-archlucid-works",
+    title: "How ArchLucid works",
+    description: "Product workflow from architecture evidence through findings, decisions, governance, and exports.",
+    keywords: ["how it works", "workflow", "review flow", "evidence", "exports", "governance"],
+    action: { kind: "route", href: "/help/how-it-works", helpSlug: "how-it-works" },
+  },
+  {
     id: "first-review-guide",
     title: "First review guide",
     description: "Step-by-step: name the review, upload evidence, add context, and finalize the package.",
@@ -161,9 +168,16 @@ const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "security-trust-help",
     title: "Security and trust",
-    description: "Data handling, tenant isolation, assurance materials, and diligence support.",
+    description: "Assurance materials, diligence support, and links to data-handling posture.",
     keywords: ["security", "trust", "soc", "assurance", "compliance", "privacy"],
     action: { kind: "route", href: "/help/security-trust", helpSlug: "security-trust" },
+  },
+  {
+    id: "data-handling-help",
+    title: "What ArchLucid does with your data",
+    description: "Data flow, tenant isolation, audit trail, AI provider handling, and portability.",
+    keywords: ["data handling", "privacy", "isolation", "tenant", "ai provider", "portability", "deletion"],
+    action: { kind: "route", href: "/help/data-handling", helpSlug: "data-handling" },
   },
   {
     id: "users-and-roles",
@@ -251,12 +265,15 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   evaluation: ["product-faq", "first-review-guide"],
   pricing: ["product-faq"],
   shortcuts: ["keyboard-shortcuts"],
+  isolation: ["data-handling-help"],
+  "data handling": ["data-handling-help", "security-trust-help"],
+  privacy: ["data-handling-help", "security-trust-help"],
 };
 
 const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly topicIds: readonly string[] }[] = [
-  { prefix: "/", topicIds: ["getting-started-help", "first-review-guide", "product-faq", "create-first-review"] },
-  { prefix: "/onboarding", topicIds: ["first-review-guide", "product-faq", "create-first-review", "sample-review"] },
-  { prefix: "/help", topicIds: ["getting-started-help", "first-review-guide", "product-faq", "cloud-connections", "security-trust-help", "troubleshoot"] },
+  { prefix: "/", topicIds: ["getting-started-help", "how-archlucid-works", "first-review-guide", "product-faq", "create-first-review"] },
+  { prefix: "/onboarding", topicIds: ["how-archlucid-works", "first-review-guide", "product-faq", "create-first-review", "sample-review"] },
+  { prefix: "/help", topicIds: ["getting-started-help", "how-archlucid-works", "first-review-guide", "product-faq", "cloud-connections", "data-handling-help", "security-trust-help", "troubleshoot"] },
   { prefix: "/pricing", topicIds: ["product-faq", "first-review-guide"] },
   { prefix: "/signup", topicIds: ["product-faq", "first-review-guide"] },
   {
