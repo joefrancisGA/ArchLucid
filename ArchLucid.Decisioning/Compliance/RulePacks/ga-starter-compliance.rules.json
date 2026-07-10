@@ -7284,6 +7284,204 @@
       "severity": "Warning",
       "priority": "P2",
       "description": "Stub for iam-gcp-028; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-011",
+      "controlId": "AWS-DR-011",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-dr-011; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-012",
+      "controlId": "AWS-DR-012",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-dr-012; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-013",
+      "controlId": "AWS-DR-013",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-dr-013; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-014",
+      "controlId": "AWS-DR-014",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-dr-014; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-015",
+      "controlId": "AWS-DR-015",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-dr-015; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-016",
+      "controlId": "AWS-DR-016",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-dr-016; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-017",
+      "controlId": "AWS-DR-017",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-dr-017; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-018",
+      "controlId": "AWS-DR-018",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-dr-018; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-019",
+      "controlId": "AWS-DR-019",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-dr-019; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-020",
+      "controlId": "AWS-DR-020",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-dr-020; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-021",
+      "controlId": "AWS-DR-021",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-dr-021; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-022",
+      "controlId": "AWS-DR-022",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-dr-022; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-023",
+      "controlId": "AWS-DR-023",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-dr-023; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-024",
+      "controlId": "AWS-DR-024",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-dr-024; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-025",
+      "controlId": "AWS-DR-025",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-dr-025; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-026",
+      "controlId": "AWS-DR-026",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-dr-026; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-027",
+      "controlId": "AWS-DR-027",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-dr-027; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-dr-028",
+      "controlId": "AWS-DR-028",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-dr-028; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
     }
   ]
 }
