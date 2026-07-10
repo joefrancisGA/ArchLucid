@@ -7,6 +7,7 @@ import {
   resolveOperatorHomeContinueSetupPlacement,
   type OperatorHomeContinueSetupPlacement,
 } from "@/lib/resolve-operator-home-continue-setup-placement";
+import { resolveOperatorHomeSetupNextActionId } from "@/lib/resolve-operator-home-setup-next-action";
 
 type OperatorHomeContinueSetupSlotProps = {
   readonly placement: OperatorHomeContinueSetupPlacement;
@@ -33,6 +34,7 @@ export function OperatorHomeContinueSetupSlot(props: OperatorHomeContinueSetupSl
       readyCount={readiness.readyCount}
       totalCount={readiness.totalCount}
       loading={readiness.phase === "loading"}
+      setupNextActionId={resolveOperatorHomeSetupNextActionId(readiness.readyCount, readiness.totalCount)}
     />
   );
 }

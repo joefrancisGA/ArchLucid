@@ -63,16 +63,19 @@ export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA = "Start review";
 
+export const OPERATOR_HOME_DUAL_PATH_CHOOSER_GUIDANCE =
+  "Create architecture when you need a draft. Start review when you already have evidence or an architecture package.";
+
 export const OPERATOR_HOME_EXPLORE_SAMPLE_HEADING = "Explore a sample workspace";
 
 export const OPERATOR_HOME_EXPLORE_SAMPLE_LEAD =
   "See a completed package or run a guided sample review before using your own evidence.";
 
 export const OPERATOR_HOME_OPEN_COMPLETED_SAMPLE_HINT =
-  "View a finished review package with findings, evidence, and the signed record.";
+  "Inspect finished findings, evidence, and the signed decision record.";
 
 export const OPERATOR_HOME_RUN_SAMPLE_REVIEW_HINT =
-  "Watch ArchLucid generate the review flow from sample inputs.";
+  "Watch ArchLucid generate a review flow from sample inputs.";
 
 /** @deprecated Prefer {@link OPERATOR_HOME_EXPLORE_SAMPLE_HEADING} — retained for legacy imports. */
 export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = OPERATOR_HOME_EXPLORE_SAMPLE_HEADING;
@@ -101,7 +104,7 @@ export const SAMPLE_REVIEW_PACKAGE_AHA_LEAD =
 export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No review packages yet";
 
 export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
-  "Created architectures and review packages will appear here after you start.";
+  "Start a review or open a sample package to see review activity here.";
 
 export const OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE = "No archived reviews yet.";
 
@@ -145,7 +148,13 @@ export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional setup:";
 
 /** Setup readiness card body — paired with {@link PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL} on Overview. */
 export const OPERATOR_HOME_CONTINUE_SETUP_BODY =
-  "Open the first review guide for the checklist, then add reviewer access or cloud connections when you are ready.";
+  "You can start a review before connecting cloud or inviting reviewers.";
+
+export const OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE = "Open the first review guide.";
+
+export const OPERATOR_HOME_SETUP_NEXT_CONNECT_CLOUD = "Connect cloud";
+
+export const OPERATOR_HOME_SETUP_NEXT_INVITE_REVIEWER = "Invite reviewer";
 
 /** Collapsed summary on `/onboarding` optional setup disclosure (TB-679). */
 export const ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY =
@@ -173,10 +182,10 @@ export const PILOT_PATH_PREVIEW_STEPS = [
 /** Section B on operator home — optional setup, walkthroughs, and workspace context. */
 export const OPERATOR_HOME_WORKSPACE_SETUP_SECTION_TITLE = "Workspace setup";
 
-export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Explore ArchLucid";
+export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Learn the review flow";
 
 export const OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY =
-  "Review walkthrough and product concepts.";
+  "Compact review walkthrough from evidence to decision record.";
 
 export const OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING = "Review walkthrough";
 
@@ -837,7 +846,11 @@ export const BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION = "Action needed";
 
 export const BUYER_RUNS_DASHBOARD_FILTER_ALL = "All";
 
-export const BUYER_RUNS_DASHBOARD_VIEW_ALL_REVIEW_PACKAGES_CTA = "View all review packages";
+/** Footer navigation on home review packages card — distinct from the All status filter pill. */
+export const BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA = "Open review packages";
+
+/** @deprecated Use {@link BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA}. */
+export const BUYER_RUNS_DASHBOARD_VIEW_ALL_REVIEW_PACKAGES_CTA = BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA;
 
 export const BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES =
   "No approved review packages match this filter yet.";

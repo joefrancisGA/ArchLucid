@@ -1,12 +1,18 @@
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import {
+  BUYER_START_ARCHITECTURE_REVIEW_CTA,
+  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
+  OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE,
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
 } from "@/lib/buyer-polish-copy";
+import {
+  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
+  showcaseSampleReviewPackageHref,
+} from "@/lib/showcase-sample-review-registry";
 
 /** Reviews list when the project has zero review packages. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -20,11 +26,19 @@ export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   ],
 };
 
-/** Operator home reviews zone — hero CTAs above; demo seed below when the live list is empty. */
+/** Operator home reviews zone — compact empty state with review-first actions. */
 export const OPERATOR_HOME_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "operator-home-workspace-empty-state",
   title: OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
   description: OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
+  actions: [
+    { label: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA, href: "/reviews/new", variant: "primary" },
+    {
+      label: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
+      href: showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
+      variant: "outline",
+    },
+  ],
 };
 
 /** Workspace Activity archived filter — no archived review packages in scope. */

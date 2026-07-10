@@ -5,6 +5,7 @@ import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCente
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
+  OPERATOR_HOME_DUAL_PATH_CHOOSER_GUIDANCE,
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
@@ -74,6 +75,9 @@ describe("PilotCommandCenterCard", () => {
     }
 
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-dual-path-chooser-guidance")).toHaveTextContent(
+      OPERATOR_HOME_DUAL_PATH_CHOOSER_GUIDANCE,
+    );
     expect(screen.getByTestId("operator-home-create-architecture-cta")).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByTestId("operator-home-review-architecture-cta")).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();

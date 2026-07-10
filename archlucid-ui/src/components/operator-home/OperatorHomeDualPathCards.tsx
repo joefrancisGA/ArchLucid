@@ -5,6 +5,7 @@ import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
+  OPERATOR_HOME_DUAL_PATH_CHOOSER_GUIDANCE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
@@ -15,10 +16,14 @@ import { cn } from "@/lib/utils";
 /** Side-by-side create vs review entry points on Overview. */
 export function OperatorHomeDualPathCards(): React.JSX.Element {
   return (
-    <div
-      className={cn("grid gap-3 sm:grid-cols-2", OPERATOR_LAYOUT.inlineGap)}
-      data-testid="operator-home-dual-path-cards"
-    >
+    <div className={cn("space-y-3", OPERATOR_LAYOUT.inlineGap)} data-testid="operator-home-dual-path-cards">
+      <p
+        className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+        data-testid="operator-home-dual-path-chooser-guidance"
+      >
+        {OPERATOR_HOME_DUAL_PATH_CHOOSER_GUIDANCE}
+      </p>
+      <div className={cn("grid gap-3 sm:grid-cols-2", OPERATOR_LAYOUT.inlineGap)}>
       <article
         className={cn(OPERATOR_SURFACE_CARD_CLASS, "flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800")}
         data-testid="operator-home-create-architecture-card"
@@ -52,6 +57,7 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
           </Link>
         </Button>
       </article>
+      </div>
     </div>
   );
 }

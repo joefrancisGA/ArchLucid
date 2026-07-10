@@ -11,6 +11,10 @@ import {
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
 } from "@/lib/buyer-polish-copy";
 import { formatSetupReadinessCompleteLabel } from "@/lib/operator-home-workspace-metrics";
+import {
+  resolveOperatorHomeSetupNextAction,
+  type OperatorHomeSetupNextActionId,
+} from "@/lib/resolve-operator-home-setup-next-action";
 import { OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_CARD, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
@@ -20,6 +24,7 @@ export type OperatorHomeContinueSetupCardProps = {
   readonly readyCount?: number;
   readonly totalCount?: number;
   readonly loading?: boolean;
+  readonly setupNextActionId?: OperatorHomeSetupNextActionId;
 };
 
 const setupActionLinkClass = cn(
@@ -37,6 +42,7 @@ export function OperatorHomeContinueSetupCard(props: OperatorHomeContinueSetupCa
     && typeof props.readyCount === "number"
     && typeof props.totalCount === "number"
     && props.totalCount > 0;
+  const setupNextAction = resolveOperatorHomeSetupNextAction(props.setupNextActionId ?? "guide");
 
   return (
     <section
@@ -51,6 +57,11 @@ export function OperatorHomeContinueSetupCard(props: OperatorHomeContinueSetupCa
         <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
           <InlineGuidance label={PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL} labelTestId="inline-guidance-optional-setup">
             {OPERATOR_HOME_CONTINUE_SETUP_BODY}
+          </InlineGuidance>
+        </p>
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+          <InlineGuidance label="Next:" labelTestId="inline-guidance-setup-next-action">
+            {setupNextAction}
           </InlineGuidance>
         </p>
         {showReadinessStatus ? (

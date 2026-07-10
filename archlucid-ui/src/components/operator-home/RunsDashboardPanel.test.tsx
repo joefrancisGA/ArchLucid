@@ -31,7 +31,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { listRunsByProjectPaged } from "@/lib/api";
-import { OPERATOR_HOME_WORKSPACE_EMPTY_BODY } from "@/lib/buyer-polish-copy";
+import { BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA, OPERATOR_HOME_WORKSPACE_EMPTY_BODY } from "@/lib/buyer-polish-copy";
 import * as operatorStaticDemo from "@/lib/operator-static-demo";
 
 import { RunsDashboardPanel } from "./RunsDashboardPanel";
@@ -359,10 +359,7 @@ describe("RunsDashboardPanel", () => {
         "data-testid",
         "runs-dashboard-tab-outcomes",
       );
-      expect(screen.getByRole("link", { name: "View all review packages" })).toHaveAttribute(
-        "data-testid",
-        "runs-dashboard-view-all-reviews",
-      );
+      expect(screen.queryByTestId("runs-dashboard-view-all-reviews")).toBeNull();
       expect(screen.queryByTestId("runs-dashboard-show-archived")).toBeNull();
       expect(screen.queryByTestId("runs-dashboard-open-all-reviews")).toBeNull();
       expect(screen.queryByRole("link", { name: "All" })).toBeNull();
@@ -427,6 +424,10 @@ describe("RunsDashboardPanel", () => {
     const archivedFilter = await screen.findByTestId("runs-dashboard-show-archived");
     expect(archivedFilter).toHaveTextContent("Archived 0");
     expect(archivedFilter).toBeDisabled();
+    expect(screen.getByRole("link", { name: BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA })).toHaveAttribute(
+      "data-testid",
+      "runs-dashboard-open-review-packages",
+    );
     expect(screen.queryByTestId("runs-dashboard-archived-unsupported")).toBeNull();
     expect(screen.queryByText(/contact your administrator/i)).toBeNull();
 

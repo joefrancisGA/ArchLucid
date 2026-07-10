@@ -29,10 +29,10 @@ import {
 } from "@/lib/buyer-safe-review-navigation";
 import {
   BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES,
+  BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY,
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_DASHBOARD_SECTION_HEADING,
-  BUYER_RUNS_DASHBOARD_VIEW_ALL_REVIEW_PACKAGES_CTA,
 } from "@/lib/buyer-polish-copy";
 import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
 import {
@@ -233,12 +233,6 @@ export function RunsDashboardPanelClient({
     [filteredItems],
   );
 
-  const onlyShowcaseRunInBuyerPolishedWorkspace =
-    buyerPolishedShell &&
-    filteredItems.length === 1 &&
-    filteredItems[0] !== undefined &&
-    runIsShowcaseHomeExampleStory(filteredItems[0]);
-
   const runListError = phase === "error" && failure !== null && effectiveItems.length === 0;
 
   async function restoreArchivedRequest(requestId: string): Promise<void> {
@@ -301,15 +295,6 @@ export function RunsDashboardPanelClient({
                 {!buyerPolishedShell && tab === "attention" ? RUNS_DASHBOARD_LABELS.reviewsNeedingAttention : null}
                 {!buyerPolishedShell && tab === "outcomes" ? RUNS_DASHBOARD_LABELS.reviewOutcomes : null}
               </CardTitle>
-              {buyerPolishedShell && !onlyShowcaseRunInBuyerPolishedWorkspace ? (
-                <Link
-                  href={openAllReviewsHref}
-                  data-testid="runs-dashboard-view-all-reviews"
-                  className={cn("inline-block shrink-0 font-semibold sm:ml-auto", OPERATOR_LINK.nav)}
-                >
-                  {BUYER_RUNS_DASHBOARD_VIEW_ALL_REVIEW_PACKAGES_CTA}
-                </Link>
-              ) : null}
               {!buyerPolishedShell ? (
                 <Link
                   href={openAllReviewsHref}
@@ -449,6 +434,17 @@ export function RunsDashboardPanelClient({
             <TabsContent value="outcomes" className="pt-0" data-testid="runs-dashboard-panel-outcomes">
               <RunsDashboardOutcomesTab buyerPolishedShell={buyerPolishedShell} showcaseDemoRun={showcaseDemoRun} />
             </TabsContent>
+            {buyerPolishedShell && effectiveItems.length > 0 ? (
+              <div className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
+                <Link
+                  href={openAllReviewsHref}
+                  data-testid="runs-dashboard-open-review-packages"
+                  className={cn("inline-block font-semibold", OPERATOR_LINK.nav)}
+                >
+                  {BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA}
+                </Link>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       </Tabs>

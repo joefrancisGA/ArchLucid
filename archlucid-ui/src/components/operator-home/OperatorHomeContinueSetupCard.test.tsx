@@ -8,6 +8,7 @@ vi.mock("next/link", () => ({
 import { OPERATOR_HOME_CARD_SECTION_HEADING, INLINE_GUIDANCE_LABEL_CLASS } from "@/lib/design-tokens";
 import {
   OPERATOR_HOME_CONTINUE_SETUP_BODY,
+  OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE,
   OPERATOR_HOME_SETUP_READINESS_TITLE,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
@@ -34,6 +35,8 @@ describe("OperatorHomeContinueSetupCard", () => {
     );
     expect(screen.getByTestId("inline-guidance-optional-setup")).toHaveClass(INLINE_GUIDANCE_LABEL_CLASS.split(" ")[0]);
     expect(screen.getByText(OPERATOR_HOME_CONTINUE_SETUP_BODY)).toBeInTheDocument();
+    expect(screen.getByTestId("inline-guidance-setup-next-action")).toHaveTextContent("Next:");
+    expect(screen.getByText(OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE)).toBeInTheDocument();
     expect(screen.queryByText(/evidence checklist/i)).not.toBeInTheDocument();
 
     const setupGuideLink = screen.getByRole("link", { name: "Open guide" });
