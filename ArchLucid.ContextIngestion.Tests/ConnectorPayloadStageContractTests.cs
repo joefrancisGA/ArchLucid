@@ -84,4 +84,51 @@ public sealed class ConnectorPayloadStageContractTests
         typed.PolicyReferences.Should().Equal("p1");
         typed.TopologyHints.Should().Equal("t1");
     }
+
+    [Fact]
+    public async Task InlineRequirementsConnector_FetchNormalize_RoundTripsTypedStages()
+    {
+        ContextIngestionRequest request = new()
+        {
+            InlineRequirements = ["must encrypt data at rest"],
+            ProjectId = "p",
+            RunId = Guid.NewGuid()
+        };
+
+        InlineRequirementsConnector facade = new(
+            new InlineRequirementsPayloadExtractor(),
+            new InlineRequirementsPayloadNormalizer(),
+            new Moq.Mock<IConnectorDeltaComputer>().Object);
+
+        RawContextPayload raw = await facade.FetchAsync(request, CancellationToken.None);
+        NormalizedContextBatch batch = await facade.NormalizeAsync(raw, CancellationToken.None);
+
+        batch.CanonicalObjects.Should().ContainSingle();
+        batch.CanonicalObjects[0].Properties["text"].Should().Be("must encrypt data at rest");
+        batch.CanonicalObjects[0].SourceType.Should().Be("InlineRequirement");
+    }
+
+    [Fact]
+    public async Task SecurityBaselineHintsConnector_FetchNormalize_RoundTripsTypedStages()
+    {
+        ContextIngestionRequest request = new()
+        {
+            SecurityBaselineHints = ["require private endpoints"],
+            ProjectId = "p",
+            RunId = Guid.NewGuid()
+        };
+
+        SecurityBaselineHintsConnector facade = new(
+            new SecurityBaselineHintsPayloadExtractor(),
+            new SecurityBaselineHintsPayloadNormalizer(),
+            new Moq.Mock<IConnectorDeltaComputer>().Object);
+
+        RawContextPayload raw = await facade.FetchAsync(request, CancellationToken.None);
+        NormalizedContextBatch batch = await facade.NormalizeAsync(raw, CancellationToken.None);
+
+        batch.CanonicalObjects.Should().ContainSingle();
+        batch.CanonicalObjects[0].Properties["text"].Should().Be("require private endpoints");
+        batch.CanonicalObjects[0].Properties["status"].Should().Be("declared");
+        batch.CanonicalObjects[0].SourceType.Should().Be("SecurityBaselineHint");
+    }
 }
