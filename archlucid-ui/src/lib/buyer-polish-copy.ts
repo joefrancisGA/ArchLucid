@@ -756,19 +756,42 @@ export const BUYER_GRAPH_WHAT_THIS_PROVES =
 export const BUYER_VALUE_REPORT_PAGE_TITLE = "Executive value report";
 
 export const BUYER_VALUE_REPORT_PAGE_SUBTITLE =
-  "Create an executive-ready report summarizing finalized reviews, findings, governance activity, and estimated ROI.";
+  "Generate sponsor-ready summaries of finalized reviews, findings, governance activity, and estimated ROI.";
 
-export const BUYER_VALUE_REPORT_OUTCOME_LEAD = BUYER_VALUE_REPORT_PAGE_SUBTITLE;
+export const BUYER_VALUE_REPORT_OUTCOME_LEAD =
+  "Choose a reporting period, preview what the sponsor report will include, and export when finalized reviews exist in that window.";
 
-export const BUYER_VALUE_REPORT_OUTCOME_DETAILS =
-  "Use this report for sponsor updates and procurement diligence — choose the report period and download formats below.";
+export const BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE = "How value reports work";
+
+export const BUYER_VALUE_REPORT_HOW_IT_WORKS_DETAILS =
+  "Value reports aggregate finalized review packages, governance activity, and ROI estimates for the selected UTC period. Exports unlock after at least one finalized review falls in the window. Use Pilot outcomes, ROI summary, or Review scorecard for deeper drill-downs.";
 
 export const BUYER_VALUE_REPORT_PERIOD_UTC_HELP = "Times are in UTC for consistent reporting.";
 
-export const BUYER_VALUE_REPORT_EMPTY_TITLE = "No report data for this period";
+export const BUYER_VALUE_REPORT_PERIOD_EXPORTS_TITLE = "Report period and exports";
+
+export const BUYER_VALUE_REPORT_EXPORT_DISABLED_HELP =
+  "Exports are available after at least one finalized review exists in this period.";
+
+export const BUYER_VALUE_REPORT_INCLUDES_TITLE = "Sponsor report includes";
+
+export const BUYER_VALUE_REPORT_INCLUDES_ITEMS = [
+  "Finalized review packages",
+  "Key findings",
+  "Governance activity",
+  "Decision summary",
+  "ROI estimate",
+  "Recommended next actions",
+] as const;
+
+export const BUYER_VALUE_REPORT_EMPTY_TITLE = "No finalized reviews in this report period";
 
 export const BUYER_VALUE_REPORT_EMPTY_DESCRIPTION =
-  "Finalize at least one review package to generate a meaningful sponsor value report.";
+  "Finalize at least one review package in the selected period to generate a sponsor value report.";
+
+export const BUYER_VIEW_SAMPLE_VALUE_REPORT_CTA = "View sample value report";
+
+export const BUYER_VALUE_REPORT_DEMO_SAMPLE_NOTE = "Demo workspace: sample report output is available.";
 
 export const BUYER_VALUE_REPORT_PREVIEW_TITLE = "Report preview";
 
@@ -777,8 +800,6 @@ export const BUYER_FINDING_SUMMARY_DECISION_IMPACT_LABEL = "Decision impact";
 export const BUYER_FINDING_SUMMARY_NEXT_STEP_LABEL = "What to do next";
 
 export const BUYER_GRAPH_TECHNICAL_CONTROLS_DISCLOSURE = "Graph options and filters";
-
-export const BUYER_VALUE_REPORT_EXPORT_DISCLOSURE = "Report window and export";
 
 export const BUYER_EXECUTIVE_DATA_SOURCE_NOTE = "Source: committed reviews in this workspace.";
 

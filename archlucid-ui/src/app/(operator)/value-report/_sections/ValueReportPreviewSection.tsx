@@ -14,6 +14,7 @@ type ValueReportPreviewSectionProps = {
 export function ValueReportPreviewSection({ metrics }: ValueReportPreviewSectionProps): React.JSX.Element {
   return (
     <section
+      id="value-report-preview"
       className={cn("space-y-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800", DESIGN_TOKENS.surface.card)}
       data-testid="value-report-preview"
     >

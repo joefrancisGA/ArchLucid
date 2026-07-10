@@ -1,6 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useCallback } from "react";
+
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
@@ -9,22 +11,40 @@ import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcom
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import {
-  BUYER_VALUE_REPORT_EXPORT_DISCLOSURE,
+  BUYER_VALUE_REPORT_DEMO_SAMPLE_NOTE,
+  BUYER_VALUE_REPORT_EXPORT_DISABLED_HELP,
+  BUYER_VALUE_REPORT_HOW_IT_WORKS_DETAILS,
+  BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE,
   BUYER_VALUE_REPORT_OUTCOME_LEAD,
   BUYER_VALUE_REPORT_PAGE_SUBTITLE,
   BUYER_VALUE_REPORT_PAGE_TITLE,
+  BUYER_VALUE_REPORT_PERIOD_EXPORTS_TITLE,
   BUYER_VALUE_REPORT_PERIOD_UTC_HELP,
 } from "@/lib/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { UseValueReportPageModel } from "./use-value-report-page";
 import { ValueReportEmptyState } from "./ValueReportEmptyState";
+import { ValueReportIncludesSection } from "./ValueReportIncludesSection";
 import { ValueReportPreviewSection } from "./ValueReportPreviewSection";
 
 type ValueReportPageViewProps = {
   model: UseValueReportPageModel;
 };
+
+function exportDisabledReason(canMutate: boolean, hasReportData: boolean, previewBusy: boolean): string | undefined {
+  if (!canMutate)
+    return "Elevated workspace permissions required to generate sponsor reports.";
+
+  if (!hasReportData && !previewBusy)
+    return BUYER_VALUE_REPORT_EXPORT_DISABLED_HELP;
+
+  if (previewBusy)
+    return "Refresh the preview after updating the report period.";
+
+  return undefined;
+}
 
 export function ValueReportPageView({ model }: ValueReportPageViewProps) {
   const {
@@ -37,6 +57,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
     hasReportData,
     onBoardPack,
     onGenerate,
+    onRefreshPreview,
     previewBusy,
     previewMetrics,
     setFromUtc,
@@ -44,94 +65,133 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
     toUtc,
   } = model;
 
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const disabledReason = exportDisabledReason(canMutate, hasReportData, previewBusy);
+  const showDemoSampleNote = isNextPublicDemoMode();
 
-  const exportControls = (
-    <div className="space-y-3">
-      <fieldset className="m-0 space-y-2 border-0 p-0">
-        <legend className={OPERATOR_TYPOGRAPHY.navLabel}>Report period</legend>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_VALUE_REPORT_PERIOD_UTC_HELP}</p>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-          <label className={cn("flex flex-1 flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
-            <span>From</span>
-            <input
-              className={cn(
-                "rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-              type="datetime-local"
-              value={fromUtc}
-              onChange={(e) => setFromUtc(e.target.value)}
-            />
-          </label>
-          <label className={cn("flex flex-1 flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
-            <span>To</span>
-            <input
-              className={cn(
-                "rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-              type="datetime-local"
-              value={toUtc}
-              onChange={(e) => setToUtc(e.target.value)}
-            />
-          </label>
-          <Button type="button" disabled={!canDownload || busy} onClick={() => void onGenerate()}>
-            {busy ? "Generating…" : "Sponsor report (.docx)"}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={!canDownload || boardBusy}
-            onClick={() => void onBoardPack()}
-            title="Uses the current calendar quarter"
-          >
-            {boardBusy ? "Generating…" : "Board pack (.pdf)"}
-          </Button>
-        </div>
-      </fieldset>
-      {!canMutate ? (
-        <p className={OPERATOR_TYPOGRAPHY.helper}>
-          Elevated workspace permissions required to generate sponsor reports.
-        </p>
-      ) : null}
-      {canMutate && !hasReportData && !previewBusy ? (
-        <p className={OPERATOR_TYPOGRAPHY.helper}>
-          Finalize at least one review package in this period before downloading a sponsor report.
-        </p>
-      ) : null}
-    </div>
-  );
+  const scrollToPreview = useCallback(() => {
+    document.getElementById("value-report-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4 print:w-full">
       <LayerHeader pageKey="value-report" />
       <ValueReportOutcomesNav />
       <DocumentLayout>
-        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{BUYER_VALUE_REPORT_PAGE_TITLE}</h1>
-        {buyerPolishedShell ? (
-          <div className={cn("space-y-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800", DESIGN_TOKENS.surface.card)}>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{BUYER_VALUE_REPORT_OUTCOME_LEAD}</p>
+        <header className="space-y-2">
+          <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{BUYER_VALUE_REPORT_PAGE_TITLE}</h1>
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {BUYER_VALUE_REPORT_PAGE_SUBTITLE}
+          </p>
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {BUYER_VALUE_REPORT_OUTCOME_LEAD}
+          </p>
+        </header>
+
+        <CollapsibleSection title={BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE} defaultOpen={false} sectionTestId="value-report-how-it-works">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{BUYER_VALUE_REPORT_HOW_IT_WORKS_DETAILS}</p>
+        </CollapsibleSection>
+
+        <section
+          className={cn("space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800", DESIGN_TOKENS.surface.card)}
+          data-testid="value-report-export-panel"
+          aria-labelledby="value-report-export-heading"
+        >
+          <div className="space-y-1">
+            <h2 id="value-report-export-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+              {BUYER_VALUE_REPORT_PERIOD_EXPORTS_TITLE}
+            </h2>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_VALUE_REPORT_PERIOD_UTC_HELP}</p>
           </div>
-        ) : (
-          <p className={cn("doc-meta m-0", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_VALUE_REPORT_PAGE_SUBTITLE}</p>
-        )}
+
+          <fieldset className="m-0 space-y-3 border-0 p-0">
+            <legend className="sr-only">Report period</legend>
+            <div className="grid gap-3 md:grid-cols-2">
+              <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
+                <span className="font-medium text-al-text-primary">From</span>
+                <input
+                  className={cn(
+                    "rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900",
+                    OPERATOR_TYPOGRAPHY.body,
+                  )}
+                  type="datetime-local"
+                  value={fromUtc}
+                  onChange={(e) => setFromUtc(e.target.value)}
+                />
+              </label>
+              <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
+                <span className="font-medium text-al-text-primary">To</span>
+                <input
+                  className={cn(
+                    "rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900",
+                    OPERATOR_TYPOGRAPHY.body,
+                  )}
+                  type="datetime-local"
+                  value={toUtc}
+                  onChange={(e) => setToUtc(e.target.value)}
+                />
+              </label>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" variant="secondary" disabled={previewBusy} onClick={() => void onRefreshPreview()}>
+                {previewBusy ? "Refreshing…" : "Refresh preview"}
+              </Button>
+              {hasReportData && !previewBusy ? (
+                <Button type="button" variant="outline" onClick={scrollToPreview}>
+                  Preview report
+                </Button>
+              ) : null}
+              <Button
+                type="button"
+                disabled={!canDownload || busy}
+                title={!canDownload ? disabledReason : undefined}
+                onClick={() => void onGenerate()}
+              >
+                {busy ? "Generating…" : "Export sponsor report (.docx)"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={!canDownload || boardBusy}
+                title={!canDownload ? disabledReason : "Uses the current calendar quarter"}
+                onClick={() => void onBoardPack()}
+              >
+                {boardBusy ? "Generating…" : "Export board pack (.pdf)"}
+              </Button>
+            </div>
+          </fieldset>
+
+          {disabledReason ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+              {disabledReason}
+            </p>
+          ) : null}
+        </section>
+
+        {showDemoSampleNote ? (
+          <p className={cn("m-0 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-al-text-secondary dark:border-neutral-800 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.helper)} data-testid="value-report-demo-note">
+            {BUYER_VALUE_REPORT_DEMO_SAMPLE_NOTE}{" "}
+            <a href="/value-report/pilot" className="text-teal-700 underline underline-offset-2 dark:text-teal-300">
+              View sample value report
+            </a>
+            .
+          </p>
+        ) : null}
+
+        <ValueReportIncludesSection />
+
         {previewBusy ? (
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="status">
             Loading report preview…
           </p>
         ) : null}
+
         {!previewBusy && !hasReportData ? <ValueReportEmptyState /> : null}
+
         {!previewBusy && hasReportData && previewMetrics !== null ? (
           <ValueReportPreviewSection metrics={previewMetrics} />
         ) : null}
-        {buyerPolishedShell ? (
-          <CollapsibleSection title={BUYER_VALUE_REPORT_EXPORT_DISCLOSURE} defaultOpen={false}>
-            {exportControls}
-          </CollapsibleSection>
-        ) : (
-          exportControls
-        )}
+
         {error ? (
           <OperatorApiProblem
             problem={error.problem}

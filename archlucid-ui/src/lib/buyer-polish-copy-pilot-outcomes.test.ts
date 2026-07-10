@@ -79,11 +79,10 @@ describe("buyer-polish-copy optional setup CTA (TB-466)", () => {
 });
 
 describe("buyer-polish-copy value report page (TB-468)", () => {
-  it("uses executive value report title and executive-ready subtitle", () => {
+  it("uses executive value report title and sponsor-ready subtitle", () => {
     expect(BUYER_VALUE_REPORT_PAGE_TITLE).toBe("Executive value report");
-    expect(BUYER_VALUE_REPORT_PAGE_SUBTITLE).toContain("executive-ready report");
+    expect(BUYER_VALUE_REPORT_PAGE_SUBTITLE).toContain("sponsor-ready");
     expect(BUYER_VALUE_REPORT_PAGE_TITLE.toLowerCase()).not.toContain("sponsor");
-    expect(BUYER_VALUE_REPORT_PAGE_SUBTITLE.toLowerCase()).not.toContain("sponsor-ready");
   });
 });
 

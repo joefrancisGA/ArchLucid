@@ -26,6 +26,7 @@ export type UseValueReportPageModel = {
   hasReportData: boolean;
   onBoardPack: () => Promise<void>;
   onGenerate: () => Promise<void>;
+  onRefreshPreview: () => Promise<void>;
   previewBusy: boolean;
   previewMetrics: ValueReportPreviewMetrics | null;
   setFromUtc: (next: string) => void;
@@ -125,6 +126,7 @@ export function useValueReportPage(loaded: ValueReportPageServerLoad): UseValueR
     hasReportData,
     onBoardPack,
     onGenerate,
+    onRefreshPreview: loadPreview,
     previewBusy,
     previewMetrics,
     setFromUtc,
