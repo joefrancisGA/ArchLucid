@@ -9,6 +9,7 @@ from pathlib import Path
 
 from archlucid_ui_route_traffic_table import (
     DOC,
+    ensure_owner_workbook,
     find_row,
     parse_rows,
     sort_rows,
@@ -36,8 +37,9 @@ def main() -> int:
         return 1
 
     row_id = args.id.strip().upper()
-    text = args.doc.read_text(encoding="utf-8")
-    before, table_body, after = split_document(text, args.doc)
+    doc_path = ensure_owner_workbook() if args.doc == DOC else args.doc
+    text = doc_path.read_text(encoding="utf-8")
+    before, table_body, after = split_document(text, doc_path)
     rows = parse_rows(table_body)
 
     if not rows:
@@ -54,7 +56,7 @@ def main() -> int:
     match["score"] = str(args.score)
     rows = sort_rows(rows)
     before = update_method_line(before)
-    write_table(args.doc, before, rows, after)
+    write_table(doc_path, before, rows, after)
 
     updated = find_row(rows, row_id)
     if updated is None:
