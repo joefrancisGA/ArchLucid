@@ -74,6 +74,7 @@ using ArchLucid.Retrieval.FineTuning.Export;
 using ArchLucid.Retrieval.FineTuning.Orchestration;
 using ArchLucid.Retrieval.FineTuning.Redaction;
 using ArchLucid.Retrieval.FineTuning.Registry;
+using ArchLucid.AgentRuntime.FineTuning;
 
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Caching.Memory;
@@ -1083,7 +1084,16 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IFineTuningJobOrchestrator, DisabledFineTuningJobOrchestrator>();
         }
 
-        services.AddSingleton<IFineTunedModelRegistry, InMemoryFineTunedModelRegistry>();
+        services.AddSingleton<InMemoryFineTunedModelRegistry>();
+        services.AddSingleton<IFineTunedModelRegistry>(static sp =>
+        {
+            InMemoryFineTunedModelRegistry inner = sp.GetRequiredService<InMemoryFineTunedModelRegistry>();
+            AzureOpenAiCompletionClientCache completionClientCache =
+                sp.GetRequiredService<AzureOpenAiCompletionClientCache>();
+
+            return new CacheInvalidatingFineTunedModelRegistry(inner, completionClientCache);
+        });
+        services.AddScoped<IAgentCompletionDeploymentResolver, FineTunedAgentCompletionDeploymentResolver>();
     }
 
     private static void RegisterAzureOpenAiCircuitBreakerOptions(IServiceCollection services, IConfiguration configuration)
@@ -1495,9 +1505,17 @@ public static partial class ServiceCollectionExtensions
                 IAgentModelTierResolver resolver = sp.GetRequiredService<IAgentModelTierResolver>();
                 string deployment = resolver.ResolveDeploymentName(LlmModelTier.Economy);
                 AzureOpenAiCompletionClientCache clientCache = sp.GetRequiredService<AzureOpenAiCompletionClientCache>();
-                AzureOpenAiCompletionClient azureInner = clientCache.GetOrAdd(deployment);
+                IAgentCompletionDeploymentResolver deploymentResolver =
+                    sp.GetRequiredService<IAgentCompletionDeploymentResolver>();
+                Guid tenantId = sp.GetRequiredService<IScopeContextProvider>().GetCurrentScope().TenantId;
+                string effectiveDeployment = deploymentResolver
+                    .ResolveDeploymentNameAsync(tenantId, deployment, CancellationToken.None)
+                    .ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
+                AzureOpenAiCompletionClient azureInner = clientCache.GetOrAdd(effectiveDeployment);
                 IAgentCompletionClient client =
-                    BuildAzureOpenAiScopedCompletionChainWithoutPollyRetry(sp, azureInner, deployment);
+                    BuildAzureOpenAiScopedCompletionChainWithoutPollyRetry(sp, azureInner, effectiveDeployment);
 
                 return new SchemaRemediationAgentCompletionClientAdapter(client);
             }
@@ -1572,7 +1590,7 @@ public static partial class ServiceCollectionExtensions
 
     private static void RegisterTieredAzureCompletionRouter(IServiceCollection services)
     {
-        services.AddScoped<IAgentTierCompletionRouter>(static sp =>
+        services.AddScoped<IAgentTierCompletionRouter>(sp =>
         {
             IAgentModelTierResolver resolver = sp.GetRequiredService<IAgentModelTierResolver>();
             ScopedInnerAgentCompletionClient primaryHolder = sp.GetRequiredService<ScopedInnerAgentCompletionClient>();
@@ -1582,19 +1600,42 @@ public static partial class ServiceCollectionExtensions
             IConfiguration config = sp.GetRequiredService<IConfiguration>();
             string primaryDeployment = config["AzureOpenAI:DeploymentName"]?.Trim()
                                        ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
+            IAgentCompletionDeploymentResolver deploymentResolver =
+                sp.GetRequiredService<IAgentCompletionDeploymentResolver>();
+            Guid tenantId = sp.GetRequiredService<IScopeContextProvider>().GetCurrentScope().TenantId;
+
+            string ResolveEffectiveDeployment(string tierDeployment)
+            {
+                return deploymentResolver
+                    .ResolveDeploymentNameAsync(tenantId, tierDeployment, CancellationToken.None)
+                    .ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
+            }
 
             return new TieredAgentCompletionRouter(
                 resolver,
                 tier =>
                 {
-                    string deployment = resolver.ResolveDeploymentName(tier);
+                    string tierDeployment = resolver.ResolveDeploymentName(tier);
+                    string effectiveDeployment = ResolveEffectiveDeployment(tierDeployment);
+                    bool isPrimaryTierDeployment = string.Equals(
+                        tierDeployment,
+                        primaryDeployment,
+                        StringComparison.OrdinalIgnoreCase);
+                    bool fineTunedOverride = !string.Equals(
+                        effectiveDeployment,
+                        tierDeployment,
+                        StringComparison.OrdinalIgnoreCase);
 
-                    if (string.Equals(deployment, primaryDeployment, StringComparison.OrdinalIgnoreCase))
+                    if (isPrimaryTierDeployment && !fineTunedOverride)
+                    {
                         return primaryHolder.Inner;
+                    }
 
-                    AzureOpenAiCompletionClient azureInner = clientCache.GetOrAdd(deployment);
+                    AzureOpenAiCompletionClient azureInner = clientCache.GetOrAdd(effectiveDeployment);
 
-                    return BuildAzureOpenAiScopedCompletionChain(sp, azureInner, primaryGate, deployment);
+                    return BuildAzureOpenAiScopedCompletionChain(sp, azureInner, primaryGate, effectiveDeployment);
                 },
                 primaryHolder.Inner);
         });

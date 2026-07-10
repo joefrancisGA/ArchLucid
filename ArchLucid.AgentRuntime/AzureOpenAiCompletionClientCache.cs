@@ -34,6 +34,23 @@ public sealed class AzureOpenAiCompletionClientCache : IDisposable
         return _clients.GetOrAdd(key, _clientFactory);
     }
 
+    /// <summary>Removes and disposes a cached client for <paramref name="deploymentName" />, if present.</summary>
+    public bool TryRemove(string deploymentName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(deploymentName);
+
+        string key = deploymentName.Trim();
+
+        if (!_clients.TryRemove(key, out AzureOpenAiCompletionClient? client))
+        {
+            return false;
+        }
+
+        client.Dispose();
+
+        return true;
+    }
+
     /// <inheritdoc />
     public void Dispose()
     {
