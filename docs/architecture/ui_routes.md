@@ -126,6 +126,7 @@ Configured in `archlucid-ui/next.config.ts`:
 | `/settings/alerts` | `/alerts?tab=rules` (page redirect) |
 | `/portfolio` | `/dashboard` (301) |
 | `/executive/reviews`, `/executive/reviews/*` | `/reviews`, `/reviews/*` (301) |
+| `/reports/resource-coverage` | `/integrations/cloud-connections` (301) |
 
 **Note:** README and older docs may reference `/manifests/[manifestId]/artifacts/[artifactId]`; that route no longer has a `page.tsx`. Artifact review is reached from review or manifest detail.
 
@@ -252,7 +253,6 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/digests` | Digests | T3 mock |
 | `/digest-subscriptions` | Digest subscriptions | T3 mock |
 | `/patterns` | Architecture pattern library | T3 mock or API if seeded |
-| `/reports/resource-coverage` | Resource coverage report | T2 ops data |
 | `/portfolio` | Retired — redirects to `/dashboard` | Legacy bookmark only |
 | `/operate/architecture-graph` | Tenant graph entry | Redirects to `/graph` |
 | `/operate/integration-events/dlq` | Integration event DLQ | Full operator + Admin + T2 API |

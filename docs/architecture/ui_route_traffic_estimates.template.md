@@ -104,7 +104,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 0 | 0 | Alerts/gov | None |
 | HCE | `/help/cloud-connections` | 0.15% | 0 | 0 | Help topic | None |
 | MMX | `/manifests/[manifestId]` | 0.15% | 0 | 0 | Planning | None |
-| RRX | `/reports/resource-coverage` | 0.15% | 0 | 0 | Planning | None |
 | SAX | `/settings/alerts` | 0.15% | 0 | 0 | Settings | None |
 | STX | `/settings/tenant` | 0.15% | 0 | 0 | Settings | None |
 | ASX | `/admin/support` | 0.12% | 0 | 0 | Admin | None |

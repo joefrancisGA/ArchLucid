@@ -188,4 +188,14 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
   });
 
+  test("retired /reports/resource-coverage route redirects to cloud connections @executive-roi-dashboard", async ({ page }) => {
+
+    await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.legacyResourceCoverage);
+
+
+
+    await expect(page).toHaveURL(/\/integrations\/cloud-connections$/);
+
+  });
+
 });

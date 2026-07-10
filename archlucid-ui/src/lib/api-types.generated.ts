@@ -572,6 +572,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/ai-usage-dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminAiUsageDashboardResponse"];
+                        "text/json": components["schemas"]["AdminAiUsageDashboardResponse"];
+                        "text/plain": components["schemas"]["AdminAiUsageDashboardResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/analytics/cross-tenant-summary": {
         parameters: {
             query?: never;
@@ -28726,41 +28763,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/reports/resource-coverage": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ResourceCoverageReportResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/requests": {
         parameters: {
             query?: never;
@@ -30292,6 +30294,190 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/v1/runs/{runId}/technology-ledger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TechnologyLedgerListResponse"];
+                        "text/json": components["schemas"]["TechnologyLedgerListResponse"];
+                        "text/plain": components["schemas"]["TechnologyLedgerListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/runs/{runId}/technology-ledger/{entryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                    entryId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["PatchTechnologyLedgerEntryRequest"];
+                    "application/json": null | components["schemas"]["PatchTechnologyLedgerEntryRequest"];
+                    "text/json": null | components["schemas"]["PatchTechnologyLedgerEntryRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PatchTechnologyLedgerEntryResponse"];
+                        "text/json": components["schemas"]["PatchTechnologyLedgerEntryResponse"];
+                        "text/plain": components["schemas"]["PatchTechnologyLedgerEntryResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/v1/scope": {
@@ -32286,6 +32472,35 @@ export interface components {
             assertedActors?: null | components["schemas"]["ActorDescriptor"][];
             inferredActors?: null | components["schemas"]["ActorDescriptor"][];
             meetsAdmissionMinimum?: boolean;
+        };
+        AdminAiUsageDashboardResponse: {
+            /** Format: double */
+            budgetAmountUsd?: number | string;
+            customerAiProviderConfigured?: boolean;
+            hardStopEnabled?: boolean;
+            recentEvents?: components["schemas"]["AdminAiUsageEventRow"][];
+            /** Format: double */
+            remainingAmountUsd?: number | string;
+            resetPeriod?: string;
+            /** Format: date-time */
+            trialExpirationUtc?: null | string;
+            usageByFeatureUsd?: {
+                [key: string]: number | string;
+            };
+            /** Format: double */
+            usedAmountUsd?: number | string;
+            workspaceKind?: string;
+        };
+        AdminAiUsageEventRow: {
+            budgetBlocked?: boolean;
+            /** Format: double */
+            estimatedCostUsd?: number | string;
+            feature?: string;
+            /** Format: date-time */
+            occurredUtc?: string;
+            providerKind?: string;
+            servedFromDemoCache?: boolean;
+            userId?: null | string;
         };
         AdminApiKeyRotateRequest: {
             invalidatePrevious?: boolean;
@@ -36232,6 +36447,7 @@ export interface components {
             /** Format: double */
             assumedNextCallReservationUsd?: null | number | string;
             blocksAdditionalLlmExecution?: boolean;
+            customerAiProviderConfigured?: boolean;
             /** Format: double */
             effectiveHardCapUsd?: null | number | string;
             /** Format: double */
@@ -36243,9 +36459,12 @@ export interface components {
             monthlyBudgetMonitoringActive?: boolean;
             /** Format: double */
             purchasedCapBumpUsd?: null | number | string;
+            /** Format: double */
+            remainingBudgetUsd?: null | number | string;
             utcMonth?: string;
             /** Format: double */
             warnFraction?: null | number | string;
+            workspaceKind?: null | string;
         };
         LlmTenantWalletGetResponse: {
             /** Format: int32 */
@@ -36646,6 +36865,16 @@ export interface components {
             focusedPilotModeEnabled?: null | boolean;
             freeTextIntent?: null | string;
             systemName?: null | string;
+        };
+        PatchTechnologyLedgerEntryRequest: {
+            isLocked?: null | boolean;
+            providerFamily?: null | components["schemas"]["CloudProvider"];
+            rationale?: null | string;
+            status?: null | components["schemas"]["TechnologyLedgerStatus"];
+            technologyName?: null | string;
+        };
+        PatchTechnologyLedgerEntryResponse: {
+            entry?: components["schemas"]["TechnologyLedgerEntryResponse"];
         };
         PatternEvidence: {
             applicableCapabilities?: string[];
@@ -37826,14 +38055,6 @@ export interface components {
             policyPackId?: string;
             version?: string;
         };
-        ResourceCoverageReportResponse: {
-            rows?: components["schemas"]["ResourceCoverageRow"][];
-        };
-        ResourceCoverageRow: {
-            /** Format: int32 */
-            count?: number;
-            resourceType: string;
-        };
         RetrievalHit: {
             chunkId?: string;
             corpusKind?: string;
@@ -38738,6 +38959,29 @@ export interface components {
             keyVaultSecretName: string;
             label?: null | string;
         };
+        TechnologyLedgerEntryResponse: {
+            /** Format: date-time */
+            createdUtc?: string;
+            entryId?: string;
+            evidenceRef?: null | string;
+            isLocked?: boolean;
+            providerFamily?: components["schemas"]["CloudProvider"];
+            rationale?: null | string;
+            role?: components["schemas"]["TechnologyLedgerRole"];
+            runId?: string;
+            source?: components["schemas"]["TechnologyLedgerSource"];
+            status?: components["schemas"]["TechnologyLedgerStatus"];
+            technologyName?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        TechnologyLedgerListResponse: {
+            entries?: components["schemas"]["TechnologyLedgerEntryResponse"][];
+            runId?: string;
+        };
+        TechnologyLedgerRole: number;
+        TechnologyLedgerSource: number;
+        TechnologyLedgerStatus: number;
         TenantAgentOutputQualityGateModeResponse: {
             effectiveMode?: string;
             hostDefaultMode?: string;

@@ -19221,32 +19221,6 @@
         },
         "type": "object"
       },
-      "ResourceCoverageReportResponse": {
-        "properties": {
-          "rows": {
-            "items": {
-              "$ref": "#/components/schemas/ResourceCoverageRow"
-            },
-            "type": "array"
-          }
-        },
-        "type": "object"
-      },
-      "ResourceCoverageRow": {
-        "properties": {
-          "count": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "resourceType": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "resourceType"
-        ],
-        "type": "object"
-      },
       "RetrievalHit": {
         "properties": {
           "chunkId": {
@@ -65062,26 +65036,6 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/reports/resource-coverage": {
-      "get": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResourceCoverageReportResponse"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "tags": [
-          "Reports"
-        ],
-        "x-archlucid-audience": "operator"
-      }
-    },
     "/v1/requests": {
       "post": {
         "requestBody": {
@@ -70329,9 +70283,6 @@
     },
     {
       "name": "Registration"
-    },
-    {
-      "name": "Reports"
     },
     {
       "name": "Retrieval"

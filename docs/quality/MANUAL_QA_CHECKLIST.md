@@ -537,7 +537,6 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Admin — pricing quote aging** | `/admin/pricing-quote-aging` | [ ] |
 | **Admin — evidence proposals** | `/admin/evidence-proposals` | [ ] |
 | **Integration DLQ** | `/operate/integration-events/dlq` | [ ] |
-| **Resource coverage report** | `/reports/resource-coverage` | [ ] |
 | **Architecture patterns** | `/patterns` | [ ] |
 | **Demo explain** | `/demo/explain` | [ ] |
 | **Why ArchLucid (internal proof)** | `/why-archlucid` | [ ] |
@@ -777,7 +776,6 @@ Requires **Admin** or **Execute** authority per link. Expand **Admin** group.
 
 | Page | Route | Click-through from `/` |
 |------|-------|------------------------|
-| Resource coverage | `/reports/resource-coverage` | **Ctrl+K** → “Resource coverage”, or direct URL. |
 | Architecture patterns | `/patterns` | **Ctrl+K** → “Patterns”, or direct URL. |
 | Demo explain | `/demo/explain` | **Ctrl+K** → “Demo explain”. |
 | Why ArchLucid | `/why-archlucid` | Engineer shell only — **Ctrl+K** or direct URL; buyer shell redirects to executive summary. |

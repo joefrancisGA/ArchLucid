@@ -292,7 +292,6 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ExecutiveRoiSavingsGaugeOptions.SectionPath));
         services.Configure<RoiCostEvidenceFreshnessOptions>(
             configuration.GetSection(RoiCostEvidenceFreshnessOptions.SectionPath));
-        services.AddScoped<ResourceCoverageReportService>();
         services.AddScoped<IExecutiveReportsSummaryService, ExecutiveReportsSummaryService>();
         services.Configure<RecurrenceCompletionNotificationOptions>(
             configuration.GetSection(RecurrenceCompletionNotificationOptions.SectionName));
