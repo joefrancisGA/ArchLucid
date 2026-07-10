@@ -32,7 +32,7 @@ public sealed class HostCoreStartupValidationRulesBatch2Tests
     {
         IConfiguration configuration = Config(
             ("ArchLucid:E2eHarness:Enabled", "true"),
-            ("ArchLucid:E2eHarness:SharedSecret", "0123456789abcdef"));
+            ("ArchLucid:E2eHarness:SharedSecret", "1234567890123456"));
         List<string> errors = [];
 
         E2EHarnessRules.Collect(
