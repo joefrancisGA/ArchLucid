@@ -8472,6 +8472,204 @@
       "severity": "Warning",
       "priority": "P2",
       "description": "Stub for gcp-paas-028; see docs/samples/policy-packs/gcp-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-011",
+      "controlId": "AWS-DATA-011",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-data-011; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-012",
+      "controlId": "AWS-DATA-012",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-data-012; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-013",
+      "controlId": "AWS-DATA-013",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-data-013; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-014",
+      "controlId": "AWS-DATA-014",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-data-014; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-015",
+      "controlId": "AWS-DATA-015",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-data-015; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-016",
+      "controlId": "AWS-DATA-016",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for aws-data-016; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-017",
+      "controlId": "AWS-DATA-017",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-data-017; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-018",
+      "controlId": "AWS-DATA-018",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-data-018; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-019",
+      "controlId": "AWS-DATA-019",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-data-019; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-020",
+      "controlId": "AWS-DATA-020",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-data-020; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-021",
+      "controlId": "AWS-DATA-021",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-data-021; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-022",
+      "controlId": "AWS-DATA-022",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-data-022; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-023",
+      "controlId": "AWS-DATA-023",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-data-023; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-024",
+      "controlId": "AWS-DATA-024",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-data-024; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-025",
+      "controlId": "AWS-DATA-025",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-data-025; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-026",
+      "controlId": "AWS-DATA-026",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-data-026; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-027",
+      "controlId": "AWS-DATA-027",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-data-027; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aws-data-028",
+      "controlId": "AWS-DATA-028",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for aws-data-028; see docs/samples/policy-packs/aws-data-layer-security-rules-v1.json for narrative."
     }
   ]
 }
