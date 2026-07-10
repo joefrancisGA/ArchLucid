@@ -5,10 +5,11 @@
 > executable Composer prompt) share one source of truth for the categorization and target
 > sitemap. **Base branch for all six phases: `master`.** None of these six files have been run.
 >
-> **Backlog:** **TB-732 – TB-737** — see
-> [`docs/library/IA_TAXONOMY_TECHNICAL_BACKLOG.md`](../../docs/library/IA_TAXONOMY_TECHNICAL_BACKLOG.md)
-> (kept as a satellite file rather than merged into `TECH_BACKLOG.md`, which had unrelated
-> uncommitted changes at the time this was written — see that file's status note).
+> **Backlog:** **TB-732 – TB-737** — merged into
+> [`docs/library/TECH_BACKLOG.md`](../../docs/library/TECH_BACKLOG.md) (see `## TB-732` there).
+> The former satellite file,
+> [`docs/library/IA_TAXONOMY_TECHNICAL_BACKLOG.md`](../../docs/library/IA_TAXONOMY_TECHNICAL_BACKLOG.md),
+> now just points here.
 
 ## Why this exists
 
