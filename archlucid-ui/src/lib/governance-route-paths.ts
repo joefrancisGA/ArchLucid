@@ -7,6 +7,8 @@ export const GOVERNANCE_AUDIT_PATH = "/governance/audit";
 
 export const GOVERNANCE_ALERTS_PATH = "/governance/alerts";
 
+export const GOVERNANCE_ALERT_RULES_PATH = "/governance/alert-rules";
+
 /** Legacy browser paths — permanent redirects to canonical (TB-405). */
 export const LEGACY_POLICY_PACKS_PATH = "/policy-packs";
 
@@ -52,13 +54,34 @@ export function pathMatchesGovernanceAlerts(pathname: string): boolean {
   );
 }
 
+export function pathMatchesGovernanceAlertRules(pathname: string): boolean {
+  return pathMatchesRoutePrefix(pathname, GOVERNANCE_ALERT_RULES_PATH);
+}
+
 export function governancePolicyPackDetailPath(policyPackId: string): string {
   return `${GOVERNANCE_POLICY_PACKS_PATH}/${encodeURIComponent(policyPackId.trim())}`;
 }
 
-export function governanceAlertsTabHref(tab: string): string {
-  const params = new URLSearchParams();
-  params.set("tab", tab.trim());
+export function governanceAlertRulesTabHref(tab: string): string {
+  const trimmed = tab.trim();
 
-  return `${GOVERNANCE_ALERTS_PATH}?${params.toString()}`;
+  if (trimmed.length === 0 || trimmed === "rules") {
+    return GOVERNANCE_ALERT_RULES_PATH;
+  }
+
+  const params = new URLSearchParams();
+  params.set("tab", trimmed);
+
+  return `${GOVERNANCE_ALERT_RULES_PATH}?${params.toString()}`;
+}
+
+/** Legacy deep links on the Alerts inbox URL — prefer {@link governanceAlertRulesTabHref}. */
+export function governanceAlertsTabHref(tab: string): string {
+  const trimmed = tab.trim();
+
+  if (trimmed.length === 0 || trimmed === "inbox") {
+    return GOVERNANCE_ALERTS_PATH;
+  }
+
+  return governanceAlertRulesTabHref(trimmed);
 }

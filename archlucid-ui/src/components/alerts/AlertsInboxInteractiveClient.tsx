@@ -24,7 +24,12 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
         failure={controller.failure}
       />
 
-      <AlertsInboxSummaryRow summary={controller.summaryCounts} loading={controller.summaryLoading} />
+      <AlertsInboxSummaryRow
+        summary={controller.summaryCounts}
+        loading={controller.summaryLoading}
+        hasAlertRules={controller.workspaceContext.hasAlertRules}
+        workspaceContextLoading={controller.workspaceContext.loading}
+      />
 
       <AlertsInboxControls
         status={controller.status}

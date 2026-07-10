@@ -30,7 +30,7 @@ export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
   description:
     "Try another status or time range. Alerts appear when rules evaluate against findings from completed reviews — finish a review package first if you are in an empty tenant.",
   actions: [
-    { label: "Set up alert rules", href: "/alerts?tab=rules" },
+    { label: "Set up alert rules", href: "/governance/alert-rules" },
     { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
   ],
   helpTopicPath: "alerts",

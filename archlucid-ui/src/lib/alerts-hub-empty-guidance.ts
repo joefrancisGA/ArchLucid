@@ -5,8 +5,8 @@ export const alertsInboxGettingStartedOperator: EmptyStateGettingStarted = {
   heading: "How alerts land here",
   steps: [
     "Finish architecture reviews so findings exist for rules to evaluate.",
-    "Open Standards and rules and create at least one enabled rule (thresholds use those findings).",
-    "Optional: use Routing to notify email or webhooks when a rule fires.",
+    "Open Alert rules and create at least one enabled rule (thresholds use those findings).",
+    "Optional: use Routing on the Alert rules workspace to notify email or webhooks when a rule fires.",
     "Pick All statuses or refresh — rows appear after evaluations run and dedupe allows them.",
   ],
 };
@@ -16,7 +16,7 @@ export const alertsInboxGettingStartedReader: EmptyStateGettingStarted = {
   heading: "How alerts land here",
   steps: [
     "Alerts appear when automated checks evaluate findings from completed reviews.",
-    "Operators configure rules and routing on Standards and rules and Routing tabs (writes need Execute+ on the API).",
+    "Operators configure rules and routing on the Alert rules workspace (`/governance/alert-rules`).",
     "Try All statuses or another filter — triage actions stay API-gated at your rank.",
   ],
 };
@@ -26,7 +26,7 @@ export const alertRulesEmptyGettingStartedOperator: EmptyStateGettingStarted = {
   steps: [
     "Pick a rule type and severity that matches the risk you care about (threshold uses recent findings).",
     "Set a threshold value — start conservative; tune after you see traffic in the inbox.",
-    "Click Create rule, then open the Inbox tab after runs complete to confirm firings.",
+    "Click Create rule, then open Alerts after runs complete to confirm firings.",
   ],
 };
 

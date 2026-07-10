@@ -409,9 +409,9 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   {
     slug: "alerts",
     title: "Alerts",
-    summary: "Inbox, rules, routing, composite alerts, and simulation tuning.",
+    summary: "Triage governance alerts and configure alert rules, routing, and simulation.",
     audience: "operator",
-    sourcePaths: ["docs/library/ALERTS.md"],
+    sourcePaths: ["docs/library/customer-facing/ALERTS_OPERATOR_GUIDE.md"],
   },
   {
     slug: "governance-api-contracts",

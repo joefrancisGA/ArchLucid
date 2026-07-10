@@ -193,6 +193,7 @@ describe("nav-config structure", () => {
       "/advisory",
       "/governance/audit",
       "/governance/alerts",
+      "/governance/alert-rules",
       "/governance/recurrence-schedules",
       "/governance/first-30-days",
     ]);

@@ -47,11 +47,13 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/governance/policy-packs": "advanced-only",
   "/governance/audit": "advanced-only",
   "/governance/alerts": "advanced-only",
+  "/governance/alert-rules": "advanced-only",
   "/governance-resolution": "advanced-only",
   "/policy-packs": "advanced-only",
   "/audit": "advanced-only",
   "/health": "demo-ready",
   "/alerts": "advanced-only",
+  "/alert-rules": "advanced-only",
   "/demo/explain": "hidden",
 
   "/product-learning": "advanced-only",
@@ -77,7 +79,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/settings/roles": "admin-only",
   "/settings/api-keys": "admin-only",
   "/admin/ai-usage-cost": "admin-only",
-  /** Alias to Alert rules hub (`/alerts?tab=rules`) for settings-style bookmarks. */
+  /** Alias to Alert rules hub for settings-style bookmarks. */
   "/settings/alerts": "advanced-only",
 };
 
@@ -119,9 +121,11 @@ const DEMO_MODE_ADVANCED_NAV_ALLOWLIST = new Set<string>([
   "/governance/audit",
   "/governance/policy-packs",
   "/governance/alerts",
+  "/governance/alert-rules",
   "/audit",
   "/policy-packs",
   "/alerts",
+  "/alert-rules",
 ]);
 
 import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";

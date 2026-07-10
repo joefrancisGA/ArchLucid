@@ -45,10 +45,12 @@ describe("buildAlertsInboxEmptyStateProps", () => {
     expect(props.actions?.[0]?.label).toBe("Open review packages");
   });
 
-  it("maps no_rules to standards and rules CTA", () => {
+  it("maps no_rules to configure alert rules CTA", () => {
     const props = buildAlertsInboxEmptyStateProps("no_rules", true);
     expect(props.title).toBe(ALERTS_EMPTY_NO_RULES_TITLE);
-    expect(props.actions?.[0]?.label).toBe("Open standards and rules");
+    expect(props.actions?.[0]?.label).toBe("Configure alert rules");
+    expect(props.actions?.[0]?.href).toBe("/governance/alert-rules");
+    expect(props.actions?.[1]?.label).toBe("Open governance setup guide");
   });
 
   it("maps no_reviews to start architecture review CTA", () => {

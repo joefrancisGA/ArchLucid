@@ -22,6 +22,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/governance", topic: { slug: "governance-approval", label: "Governance approval" } },
   { prefix: "/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   { prefix: "/alerts", topic: { slug: "alerts", label: "Alerts" } },
+  { prefix: "/alert-rules", topic: { slug: "alerts", label: "Alert rules" } },
   { prefix: "/policy-packs", topic: { slug: "governance-approval", label: "Governance approval" } },
   { prefix: "/value-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/integrations/cloud-connections/azure", topic: { slug: "cloud-connections-azure", label: "Azure cloud connection" } },

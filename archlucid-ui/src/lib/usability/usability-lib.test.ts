@@ -55,6 +55,8 @@ describe("usability lib", () => {
 
   it("pageHelpTopicForPathname maps review routes", () => {
     expect(pageHelpTopicForPathname("/reviews/new")?.slug).toBe("evidence-intake");
+    expect(pageHelpTopicForPathname("/alerts")?.slug).toBe("alerts");
+    expect(pageHelpTopicForPathname("/alert-rules")?.slug).toBe("alerts");
   });
 
   it("searchHelpTopics finds pilot guide", () => {

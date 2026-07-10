@@ -129,6 +129,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   pilotBaselines: "ROI baselines",
   scorecard: BUYER_TERMINOLOGY.reviewScorecard,
   alerts: "Alerts",
+  alertRules: "Alert rules",
   policyPacks: "Policy packs",
   governanceResolution: "Standards & rules",
   governanceWorkflow: "Approval queue",

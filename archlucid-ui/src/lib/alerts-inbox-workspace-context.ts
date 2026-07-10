@@ -1,9 +1,11 @@
 import {
+  ALERTS_ACTION_CONFIGURE_ALERT_RULES,
+  ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
+  ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
   ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
   ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF,
   ALERTS_ACTION_OPEN_REVIEW_PACKAGES,
   ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF,
-  ALERTS_ACTION_OPEN_STANDARDS_AND_RULES,
   ALERTS_ACTION_START_ARCHITECTURE_REVIEW,
   ALERTS_ACTION_START_ARCHITECTURE_REVIEW_HREF,
   ALERTS_EMPTY_FILTERED_BODY,
@@ -16,7 +18,7 @@ import {
   ALERTS_EMPTY_NO_RULES_TITLE,
 } from "@/lib/alerts-page-copy";
 import type { EnterpriseCompactEmptyStateProps, EnterpriseCompactEmptyStateAction } from "@/components/EnterpriseCompactEmptyState";
-import { governanceAlertsTabHref } from "@/lib/governance-route-paths";
+import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
 export const ALERTS_INBOX_DEFAULT_PROJECT_ID = "default";
 
@@ -52,9 +54,9 @@ export function buildAlertsInboxEmptyStateProps(
   variant: AlertsInboxEmptyVariant,
   canMutateAlertInbox: boolean,
 ): Pick<EnterpriseCompactEmptyStateProps, "title" | "description" | "actions"> {
-  const governanceSecondary = {
-    label: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
-    href: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF,
+  const governanceSetupSecondary = {
+    label: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
+    href: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
     variant: "outline" as const,
   };
 
@@ -64,7 +66,11 @@ export function buildAlertsInboxEmptyStateProps(
       description: ALERTS_EMPTY_FILTERED_BODY,
       actions: [
         { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF, variant: "primary" },
-        governanceSecondary,
+        {
+          label: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
+          href: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF,
+          variant: "outline",
+        },
       ],
     };
   }
@@ -75,11 +81,11 @@ export function buildAlertsInboxEmptyStateProps(
       description: ALERTS_EMPTY_NO_RULES_BODY,
       actions: [
         {
-          label: ALERTS_ACTION_OPEN_STANDARDS_AND_RULES,
-          href: governanceAlertsTabHref("rules"),
+          label: ALERTS_ACTION_CONFIGURE_ALERT_RULES,
+          href: governanceAlertRulesTabHref("rules"),
           variant: "primary",
         },
-        governanceSecondary,
+        governanceSetupSecondary,
       ],
     };
   }
@@ -94,20 +100,24 @@ export function buildAlertsInboxEmptyStateProps(
           href: ALERTS_ACTION_START_ARCHITECTURE_REVIEW_HREF,
           variant: "primary",
         },
-        governanceSecondary,
+        governanceSetupSecondary,
       ],
     };
   }
 
   const actions: EnterpriseCompactEmptyStateAction[] = [
     { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF, variant: "primary" },
-    governanceSecondary,
+    {
+      label: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
+      href: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF,
+      variant: "outline",
+    },
   ];
 
   if (canMutateAlertInbox) {
     actions.push({
-      label: ALERTS_ACTION_OPEN_STANDARDS_AND_RULES,
-      href: governanceAlertsTabHref("rules"),
+      label: ALERTS_ACTION_CONFIGURE_ALERT_RULES,
+      href: governanceAlertRulesTabHref("rules"),
       variant: "outline",
     });
   }

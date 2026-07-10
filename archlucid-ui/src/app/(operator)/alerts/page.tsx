@@ -1,7 +1,7 @@
-import { cn } from "@/lib/utils";
-import { Suspense } from "react";
+import { redirect } from "next/navigation";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isAlertConfigurationTabParam } from "@/lib/alerts-hub-tab";
+import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
 import { loadAlertsInboxPageModel } from "./_sections/load-alerts-inbox-page-model";
 import { AlertsHubClient } from "./AlertsHubClient";
@@ -25,27 +25,16 @@ function readSearchParam(
 
 export default async function AlertsPage(props: AlertsPageProps) {
   const resolved = await props.searchParams;
-  const tab = readSearchParam(resolved, "tab") ?? "inbox";
-  const initialInboxModel =
-    tab === "inbox"
-      ? await loadAlertsInboxPageModel({
-          status: readSearchParam(resolved, "status"),
-          page: readSearchParam(resolved, "page"),
-        })
-      : null;
+  const tab = readSearchParam(resolved, "tab");
 
-  return (
-    <Suspense
-      fallback={
-        <p
-          className={cn("p-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="alerts-hub-suspense-fallback"
-        >
-          Loading alerts…
-        </p>
-      }
-    >
-      <AlertsHubClient initialInboxModel={initialInboxModel} />
-    </Suspense>
-  );
+  if (isAlertConfigurationTabParam(tab)) {
+    redirect(governanceAlertRulesTabHref(tab ?? "rules"));
+  }
+
+  const initialInboxModel = await loadAlertsInboxPageModel({
+    status: readSearchParam(resolved, "status"),
+    page: readSearchParam(resolved, "page"),
+  });
+
+  return <AlertsHubClient initialInboxModel={initialInboxModel} />;
 }

@@ -10,6 +10,7 @@ import {
   Scale,
   Shield,
   ShieldX,
+  SlidersHorizontal,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
@@ -101,6 +102,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           title: this.shortcutTitle("Review items needing attention", "alt+l"),
           keyShortcut: "alt+l",
           icon: Bell,
+          tier: "advanced",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/governance/alert-rules",
+          label: OPERATOR_NAV_LINK_LABELS.alertRules,
+          title: "Configure alert rules, routing, and simulation",
+          icon: SlidersHorizontal,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",
         },

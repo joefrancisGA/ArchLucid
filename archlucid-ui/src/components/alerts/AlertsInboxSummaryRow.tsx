@@ -4,6 +4,8 @@ import {
   ALERTS_SUMMARY_ACKNOWLEDGED_LABEL,
   ALERTS_SUMMARY_BLOCKING_LABEL,
   ALERTS_SUMMARY_LAST_EVALUATED_LABEL,
+  ALERTS_SUMMARY_LAST_EVALUATED_NEVER,
+  ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED,
   ALERTS_SUMMARY_OPEN_LABEL,
   ALERTS_SUMMARY_RESOLVED_LABEL,
 } from "@/lib/alerts-page-copy";
@@ -15,6 +17,8 @@ import { formatRelativeTime } from "@/lib/relative-time";
 export type AlertsInboxSummaryRowProps = {
   readonly summary: AlertsInboxSummaryCounts;
   readonly loading: boolean;
+  readonly hasAlertRules: boolean;
+  readonly workspaceContextLoading: boolean;
 };
 
 function SummaryMetric(props: { readonly label: string; readonly value: string }): React.JSX.Element {
@@ -28,20 +32,29 @@ function SummaryMetric(props: { readonly label: string; readonly value: string }
   );
 }
 
-function formatLastEvaluatedLabel(lastEvaluatedUtc: string | null, loading: boolean): string {
-  if (loading) {
+function formatLastEvaluatedLabel(
+  lastEvaluatedUtc: string | null,
+  loading: boolean,
+  hasAlertRules: boolean,
+  workspaceContextLoading: boolean,
+): string {
+  if (loading || workspaceContextLoading) {
     return "…";
   }
 
+  if (!hasAlertRules) {
+    return ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED;
+  }
+
   if (lastEvaluatedUtc === null) {
-    return "—";
+    return ALERTS_SUMMARY_LAST_EVALUATED_NEVER;
   }
 
   return formatRelativeTime(lastEvaluatedUtc);
 }
 
 export function AlertsInboxSummaryRow(props: AlertsInboxSummaryRowProps): React.JSX.Element {
-  const { summary, loading } = props;
+  const { summary, loading, hasAlertRules, workspaceContextLoading } = props;
   const countValue = (value: number): string => (loading ? "…" : finiteIntegerCountDisplay(value));
 
   return (
@@ -56,7 +69,12 @@ export function AlertsInboxSummaryRow(props: AlertsInboxSummaryRowProps): React.
       <SummaryMetric label={ALERTS_SUMMARY_BLOCKING_LABEL} value={countValue(summary.blocking)} />
       <SummaryMetric
         label={ALERTS_SUMMARY_LAST_EVALUATED_LABEL}
-        value={formatLastEvaluatedLabel(summary.lastEvaluatedUtc, loading)}
+        value={formatLastEvaluatedLabel(
+          summary.lastEvaluatedUtc,
+          loading,
+          hasAlertRules,
+          workspaceContextLoading,
+        )}
       />
     </section>
   );

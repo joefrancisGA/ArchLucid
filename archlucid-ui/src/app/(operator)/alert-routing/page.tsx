@@ -1,9 +1,8 @@
-import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
+import { redirect } from "next/navigation";
 
-/**
- * Dedicated alert routing page (also available on `/alerts?tab=routing`).
- * Create via `POST /v1/alert-routing-subscriptions`.
- */
-export default function AlertRoutingPage() {
-  return <AlertRoutingContent />;
+import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
+
+/** Legacy standalone route — routing lives on the Alert rules workspace. */
+export default function AlertRoutingRedirectPage() {
+  redirect(governanceAlertRulesTabHref("routing"));
 }
