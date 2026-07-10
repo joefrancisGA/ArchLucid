@@ -118,7 +118,7 @@ public sealed class DataConsistencyCommandTests
             {
                 try
                 {
-                    await _loop.ConfigureAwait(false);
+                    await _loop;
                 }
                 catch (OperationCanceledException)
                 {
@@ -141,7 +141,7 @@ public sealed class DataConsistencyCommandTests
 
                 try
                 {
-                    context = await _listener.GetContextAsync().WaitAsync(cancellationToken).ConfigureAwait(false);
+                    context = await _listener.GetContextAsync().WaitAsync(cancellationToken);
                 }
                 catch (OperationCanceledException)
                 {
@@ -152,7 +152,7 @@ public sealed class DataConsistencyCommandTests
                     break;
                 }
 
-                await HandleAsync(context, expectedPathSuffix, responseBody, expectedMethod).ConfigureAwait(false);
+                await HandleAsync(context, expectedPathSuffix, responseBody, expectedMethod);
             }
         }
 
@@ -181,7 +181,7 @@ public sealed class DataConsistencyCommandTests
             response.StatusCode = (int)HttpStatusCode.OK;
             response.ContentType = "application/json";
             response.ContentLength64 = body.Length;
-            await response.OutputStream.WriteAsync(body).ConfigureAwait(false);
+            await response.OutputStream.WriteAsync(body);
             response.Close();
         }
 
