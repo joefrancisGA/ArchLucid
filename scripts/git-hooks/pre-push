@@ -2,11 +2,37 @@
 # Runs the same OpenAPI v1 snapshot check as CI (scripts/ci/check_openapi_contract_*)
 # before refs leave this clone. Opt out: ARCHLUCID_SKIP_OPENAPI_PRE_PUSH=1
 #
+# RC9 is exempt (owner decision, 2026-07-10): the snapshot check remains required
+# on master and other branches, but RC9 pushes skip it unconditionally so
+# fast-moving RC iteration isn't blocked by a full local build+test.
+#
 # Install once per clone: .\scripts\git-hooks\Install-GitHooks.ps1 or bash scripts/git-hooks/install-git-hooks.sh
 
 set -eu
 
 if [ "${ARCHLUCID_SKIP_OPENAPI_PRE_PUSH:-}" = "1" ]; then
+    exit 0
+fi
+
+# Buffer stdin so it can be scanned twice: once for the RC9 exemption, once
+# (below) for the normal path-filtered check.
+stdin_lines="$(cat)"
+
+only_rc9=1
+while read -r local_ref local_sha remote_ref remote_sha; do
+    if [ -z "${local_sha:-}" ]; then
+        continue
+    fi
+
+    case "$local_ref" in
+        refs/heads/RC9) ;;
+        *) only_rc9=0 ;;
+    esac
+done <<EOF
+$stdin_lines
+EOF
+
+if [ "$only_rc9" -eq 1 ] && [ -n "$stdin_lines" ]; then
     exit 0
 fi
 
@@ -65,7 +91,9 @@ if [ "${ARCHLUCID_OPENAPI_PRE_PUSH:-}" != "all" ]; then
         if [ "$needs_check" -eq 1 ]; then
             break
         fi
-    done
+    done <<EOF
+$stdin_lines
+EOF
 
     if [ "$needs_check" -eq 0 ]; then
         exit 0

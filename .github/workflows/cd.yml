@@ -390,7 +390,9 @@ jobs:
             exit 0
           }
           $workerApp = if ($env:CONTAINER_APP_WORKER_NAME) { $env:CONTAINER_APP_WORKER_NAME } else { 'archlucid-worker' }
-          ./scripts/deploy/Ensure-RC6AzureSearchRetrieval.ps1 `
+          # Call operator (&), not a bare path: the runner checks out this file without the
+          # executable bit, and pwsh on Linux refuses to exec a non-executable file via ./path.
+          & ./scripts/deploy/Ensure-RC6AzureSearchRetrieval.ps1 `
             -ResourceGroup $env:AZURE_RESOURCE_GROUP `
             -ApiAppName $env:CONTAINER_APP_API_NAME `
             -WorkerAppName $workerApp
@@ -775,7 +777,14 @@ jobs:
   smoke-test:
     name: Post-deploy validation (${{ github.event.inputs.target }})
     needs: deploy-container-apps
-    if: github.event.inputs.action == 'deploy' && needs.deploy-container-apps.result == 'success'
+    # always() is required here: without it, GitHub's implicit success() check walks the
+    # entire transitive needs graph (including terraform-apply, which is intentionally
+    # 'skipped' when run_terraform_apply=false) and silently skips this job even though
+    # deploy-container-apps itself succeeded.
+    if: |
+      always() &&
+      github.event.inputs.action == 'deploy' &&
+      needs.deploy-container-apps.result == 'success'
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target }}
     steps:
@@ -1032,7 +1041,11 @@ jobs:
   nuget-push:
     name: Pack and push API client (NuGet)
     needs: smoke-test
+    # always() is required here for the same reason as smoke-test's condition above:
+    # otherwise GitHub's implicit success() check walks the transitive needs graph and
+    # silently skips this job whenever an upstream job (e.g. terraform-apply) was 'skipped'.
     if: |
+      always() &&
       github.event.inputs.action == 'deploy' &&
       github.event.inputs.target == 'production' &&
       needs.smoke-test.result == 'success'

@@ -51,4 +51,6 @@ jobs:
         shell: pwsh
         run: |
           $forceFlag = '${{ github.event.inputs.force }}' -eq 'true'
-          ./scripts/deploy/Stash-RC6AzureSearchRetrieval.ps1 -Force:$forceFlag
+          # Call operator (&), not a bare path: the runner checks out this file without the
+          # executable bit, and pwsh on Linux refuses to exec a non-executable file via ./path.
+          & ./scripts/deploy/Stash-RC6AzureSearchRetrieval.ps1 -Force:$forceFlag
