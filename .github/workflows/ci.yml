@@ -3580,12 +3580,14 @@ jobs:
         env:
           ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api.log
           ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS: "90"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
         run: bash scripts/ci/wait-for-demo-preview.sh
 
       - name: Wait for DB-backed pilot-run-deltas (release-gate smokes)
         env:
           ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api.log
           ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS: "60"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
         run: bash scripts/ci/wait-for-db-backed-pilot-endpoint.sh
 
       - name: Install Playwright browsers & run live e2e (@release-gate — aligns with rc-release-gate ui-e2e-live-rc)
@@ -3606,6 +3608,7 @@ jobs:
           LIVE_JWT_TOKEN: ""
           LIVE_API_KEY: ""
           LIVE_API_KEY_READONLY: ""
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
         run: |
           npx playwright install --with-deps chromium
           bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"
@@ -3754,12 +3757,14 @@ jobs:
         env:
           ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-extended.log
           ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS: "90"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
         run: bash scripts/ci/wait-for-demo-preview.sh
 
       - name: Wait for DB-backed pilot-run-deltas (extended live smokes)
         env:
           ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-extended.log
           ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS: "60"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
         run: bash scripts/ci/wait-for-db-backed-pilot-endpoint.sh
 
       - name: Wait for demo screenshot preflight endpoints (extended live smokes)
@@ -3786,6 +3791,7 @@ jobs:
           E2E_INFRA_DB_MAX_ATTEMPTS: "25"
           E2E_INFRA_BASE_DELAY_MS: "1000"
           E2E_INFRA_PROBE_ATTEMPTS: "45"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
         run: |
           npx playwright install --with-deps chromium
           bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"

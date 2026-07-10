@@ -4,20 +4,22 @@
 # Env: API_URL (default http://127.0.0.1:5128)
 #      ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS (default 60)
 #      ARCHLUCID_DB_PILOT_WAIT_SLEEP_SECONDS (default 2)
-#      ARCHLUCID_DEMO_WORKSPACES_MANIFEST (default fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json)
+#      ARCHLUCID_DEMO_WORKSPACES_MANIFEST or DEMO_WORKSPACES_MANIFEST
+#        (default fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json; resolved from repo root)
 #      ARCHLUCID_API_LOG_FILE (optional — tail on failure)
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/resolve-demo-workspaces-manifest.sh
+source "${SCRIPT_DIR}/lib/resolve-demo-workspaces-manifest.sh"
 
 API_URL="${API_URL:-http://127.0.0.1:5128}"
 MAX_ATTEMPTS="${ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS:-60}"
 SLEEP_SECONDS="${ARCHLUCID_DB_PILOT_WAIT_SLEEP_SECONDS:-2}"
-MANIFEST="${ARCHLUCID_DEMO_WORKSPACES_MANIFEST:-fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json}"
 API_LOG_FILE="${ARCHLUCID_API_LOG_FILE:-}"
 
-if [ ! -f "${MANIFEST}" ]; then
-  echo "::error::Demo workspaces manifest not found: ${MANIFEST}"
-  exit 1
-fi
+MANIFEST="$(resolve_demo_workspaces_manifest_path)" || exit 1
+echo "Using demo workspaces manifest: ${MANIFEST}"
 
 TENANT_ID="$(jq -r '.defaultTenantId' "${MANIFEST}")"
 RUN_A="$(jq -r '.workspaceA.runId' "${MANIFEST}")"

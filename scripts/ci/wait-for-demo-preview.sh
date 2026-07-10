@@ -6,13 +6,22 @@
 #      ARCHLUCID_DEMO_PREVIEW_WAIT_SLEEP_SECONDS (default 2)
 #      ARCHLUCID_DEMO_SEED_CURL_MAX_TIME_SECONDS (default 300)
 #      ARCHLUCID_API_LOG_FILE (optional — tail on failure)
+#      ARCHLUCID_DEMO_WORKSPACES_MANIFEST or DEMO_WORKSPACES_MANIFEST
+#        (default fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json; resolved from repo root)
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/resolve-demo-workspaces-manifest.sh
+source "${SCRIPT_DIR}/lib/resolve-demo-workspaces-manifest.sh"
 
 API_URL="${API_URL:-http://127.0.0.1:5128}"
 MAX_ATTEMPTS="${ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS:-90}"
 SLEEP_SECONDS="${ARCHLUCID_DEMO_PREVIEW_WAIT_SLEEP_SECONDS:-2}"
 SEED_CURL_MAX_TIME_SECONDS="${ARCHLUCID_DEMO_SEED_CURL_MAX_TIME_SECONDS:-300}"
 API_LOG_FILE="${ARCHLUCID_API_LOG_FILE:-}"
+
+MANIFEST_PATH="$(resolve_demo_workspaces_manifest_path)" || exit 1
+echo "Using demo workspaces manifest: ${MANIFEST_PATH}"
 
 last_seed_code=""
 last_preview_code=""

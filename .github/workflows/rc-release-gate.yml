@@ -412,12 +412,14 @@ jobs:
         env:
           ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-rc.log
           ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS: "90"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
         run: bash scripts/ci/wait-for-demo-preview.sh
 
       - name: Wait for DB-backed pilot-run-deltas (release-gate smokes)
         env:
           ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-rc.log
           ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS: "60"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
         run: bash scripts/ci/wait-for-db-backed-pilot-endpoint.sh
 
       - name: Run blocking live UI/API/SQL release-gate Playwright subset
@@ -437,6 +439,7 @@ jobs:
           LIVE_JWT_TOKEN: ""
           LIVE_API_KEY: ""
           LIVE_API_KEY_READONLY: ""
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
         run: |
           npx playwright install --with-deps chromium
           bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"
