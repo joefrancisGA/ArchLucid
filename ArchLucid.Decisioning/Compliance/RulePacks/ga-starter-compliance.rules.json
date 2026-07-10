@@ -7878,6 +7878,204 @@
       "severity": "Warning",
       "priority": "P2",
       "description": "Stub for eks-028; see docs/samples/policy-packs/eks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-011",
+      "controlId": "GKE-011",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gke-011; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-012",
+      "controlId": "GKE-012",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gke-012; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-013",
+      "controlId": "GKE-013",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gke-013; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-014",
+      "controlId": "GKE-014",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gke-014; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-015",
+      "controlId": "GKE-015",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gke-015; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-016",
+      "controlId": "GKE-016",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gke-016; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-017",
+      "controlId": "GKE-017",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gke-017; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-018",
+      "controlId": "GKE-018",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gke-018; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-019",
+      "controlId": "GKE-019",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gke-019; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-020",
+      "controlId": "GKE-020",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gke-020; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-021",
+      "controlId": "GKE-021",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gke-021; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-022",
+      "controlId": "GKE-022",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gke-022; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-023",
+      "controlId": "GKE-023",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gke-023; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-024",
+      "controlId": "GKE-024",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gke-024; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-025",
+      "controlId": "GKE-025",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gke-025; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-026",
+      "controlId": "GKE-026",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gke-026; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-027",
+      "controlId": "GKE-027",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gke-027; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gke-028",
+      "controlId": "GKE-028",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gke-028; see docs/samples/policy-packs/gke-production-baseline-rules-v1.json for narrative."
     }
   ]
 }
