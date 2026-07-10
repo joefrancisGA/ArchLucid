@@ -74,6 +74,50 @@ class PolicyPackContentQualityTests(unittest.TestCase):
             violations = policy_pack_content_quality_violations(root)
             self.assertTrue(any("duplicate complianceRuleKey" in item for item in violations))
 
+    def test_cloud_neutral_pack_requires_multi_cloud_extractor_grounding(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            bundled = root / "ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled"
+            samples = root / "docs/samples/policy-packs"
+            bundled.mkdir(parents=True)
+            samples.mkdir(parents=True)
+
+            manifest = {"version": 1, "contentFiles": ["security-architecture-baseline.json"]}
+            (bundled / "bundled-policy-packs-v1.manifest.json").write_text(
+                json.dumps(manifest),
+                encoding="utf-8",
+            )
+
+            curated = {
+                "pack": {"name": "Security Architecture Baseline", "description": "Themes only; not certification."},
+                "rules": [
+                    {
+                        "id": "sec-base-001",
+                        "description": "MFA for privileged access.",
+                        "evidenceHints": ["azureExtractor.manifest.RawJson"],
+                    }
+                ],
+            }
+            curated_rel = "docs/samples/policy-packs/security-architecture-baseline-rules-v1.json"
+            (samples / "security-architecture-baseline-rules-v1.json").write_text(
+                json.dumps(curated),
+                encoding="utf-8",
+            )
+
+            pack = {
+                "complianceRuleKeys": ["sec-base-001"],
+                "metadata": {
+                    "pack.displayName": "Security Architecture Baseline",
+                    "pack.description": "Themes only; not certification.",
+                    "frameworkMappingDisclaimer": "Informative mapping only.",
+                    "curatedRulesArtifact": curated_rel,
+                },
+            }
+            (bundled / "security-architecture-baseline.json").write_text(json.dumps(pack), encoding="utf-8")
+
+            violations = policy_pack_content_quality_violations(root)
+            self.assertTrue(any("cloud-neutral pack must ground" in item for item in violations))
+
 
 if __name__ == "__main__":
     unittest.main()

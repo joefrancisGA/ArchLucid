@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "kind": "archlucid.policyPack.curatedRules.v1",
   "pack": {
-    "name": "Azure Cost Optimization (extractor-aligned)",
-    "description": "FinOps-oriented review prompts grounded in read-only Azure extractor inventory (ARM resources, optional retail estimates, Policy Insights compliance states). Highlights common waste vectors such as orphaned addressing, oversized compute SKUs, and unattached disks where the ZIP supports reasoning. Does not replace Azure Cost Management actuals.",
-    "version": "1.0.0",
+    "name": "Cost optimization (extractor-aligned)",
+    "description": "FinOps-oriented review prompts grounded in read-only cloud inventory ZIP output (resource manifests, optional catalog pricing overlays, policy compliance exports). Highlights common waste vectors such as orphaned addressing, oversized compute SKUs, and unattached disks. Does not replace live cost management actuals.",
+    "version": "1.0.1",
     "category": "Cost",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",
@@ -86,7 +86,7 @@
       "title": "Retail price overlay captured when cost estimates matter",
       "description": "When reviewers rely on extractor-backed unit pricing, manifests should show IncludeRetailPrices in switchesUsed so retail-prices.json exists for VMs, Storage Accounts, SQL resources, and App Service plans surfaced in inventory.",
       "severity": "Low",
-      "remediationGuidance": "Confirm azureExtractor.manifest.SwitchesUsed mentions IncludeRetailPrices for runs where financial narrative is required; if absent, flag that only inventory counts\u2014not catalog-priced estimates\u2014are available until re-collection.",
+      "remediationGuidance": "Confirm extractor manifest SwitchesUsed includes retail or catalog pricing when financial narrative is required (IncludeRetailPrices on Azure inventory; equivalent pricing switches on AWS and GCP ZIP collections). If absent, flag that only inventory counts \u2014 not catalog-priced estimates \u2014 are available until re-collection.",
       "evidenceHints": [
         "azureExtractor.manifest.SwitchesUsed",
         "azureExtractor.manifest.ScriptVersion",
