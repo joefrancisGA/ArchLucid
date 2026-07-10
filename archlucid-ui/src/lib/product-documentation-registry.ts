@@ -338,7 +338,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     slug: "troubleshooting",
     title: "Troubleshooting",
     summary:
-      "If something fails: refresh, check session and workspace, download a support bundle, then contact your tenant admin or ArchLucid support.",
+      "Find common issues, try the first fix, and collect support details when needed.",
     audience: "operator",
     sourcePaths: [
       "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",

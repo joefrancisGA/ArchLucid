@@ -22,10 +22,7 @@ function findingInspectHref(runId: string, findingId: string): string {
 export function PreCommitGovernanceBlockPanel(props: PreCommitGovernanceBlockPanelProps): React.JSX.Element {
   const { runId, block } = props;
 
-  const troubleshootingHref = inAppHelpHref(
-    "troubleshooting",
-    "7-commit-409-governance-pre-commit-blocked",
-  );
+  const troubleshootingHref = inAppHelpHref("troubleshooting", "governance-pre-commit-blocked");
 
   return (
     <div

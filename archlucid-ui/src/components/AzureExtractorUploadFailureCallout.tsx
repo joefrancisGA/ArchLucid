@@ -10,7 +10,7 @@ import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { parseAzureExtractorUploadFailure } from "@/lib/azure-extractor-upload-failure";
-import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 type AzureExtractorUploadFailureCalloutProps = {
   fallbackMessage: string;
@@ -75,13 +75,11 @@ export function AzureExtractorUploadFailureCallout(props: AzureExtractorUploadFa
       ) : null}
       <p className={cn("mt-2.5", OPERATOR_TYPOGRAPHY.body)}>
         <Link
-          href={toDocsBlobUrl(presentation.docPath)}
+          href={inAppHelpHref("troubleshooting", "evidence-upload-failed")}
           className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-          target="_blank"
-          rel="noopener noreferrer"
           data-testid="extract-upload-troubleshooting-link"
         >
-          Open troubleshooting guide
+          Open evidence upload troubleshooting
         </Link>
       </p>
       {props.correlationId ? (

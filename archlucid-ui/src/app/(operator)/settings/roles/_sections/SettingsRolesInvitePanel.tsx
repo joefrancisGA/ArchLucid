@@ -88,7 +88,7 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry }: Prop
             <a href="/admin/health">System health</a>
           </Button>
           <Button type="button" variant="ghost" size="sm" asChild>
-            <Link href="/help/troubleshooting">Open troubleshooting</Link>
+            <Link href="/help/troubleshooting#permissions-or-sign-in-issue">Open troubleshooting</Link>
           </Button>
         </div>
       </div>
