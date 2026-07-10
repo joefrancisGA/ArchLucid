@@ -7086,6 +7086,204 @@
       "severity": "Warning",
       "priority": "P2",
       "description": "Stub for iam-aws-028; see docs/samples/policy-packs/aws-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-011",
+      "controlId": "IAM-GCP-011",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for iam-gcp-011; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-012",
+      "controlId": "IAM-GCP-012",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for iam-gcp-012; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-013",
+      "controlId": "IAM-GCP-013",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for iam-gcp-013; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-014",
+      "controlId": "IAM-GCP-014",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for iam-gcp-014; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-015",
+      "controlId": "IAM-GCP-015",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for iam-gcp-015; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-016",
+      "controlId": "IAM-GCP-016",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for iam-gcp-016; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-017",
+      "controlId": "IAM-GCP-017",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-gcp-017; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-018",
+      "controlId": "IAM-GCP-018",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-gcp-018; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-019",
+      "controlId": "IAM-GCP-019",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-gcp-019; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-020",
+      "controlId": "IAM-GCP-020",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-gcp-020; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-021",
+      "controlId": "IAM-GCP-021",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-gcp-021; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-022",
+      "controlId": "IAM-GCP-022",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-gcp-022; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-023",
+      "controlId": "IAM-GCP-023",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-gcp-023; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-024",
+      "controlId": "IAM-GCP-024",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-gcp-024; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-025",
+      "controlId": "IAM-GCP-025",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-gcp-025; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-026",
+      "controlId": "IAM-GCP-026",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-gcp-026; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-027",
+      "controlId": "IAM-GCP-027",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-gcp-027; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iam-gcp-028",
+      "controlId": "IAM-GCP-028",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for iam-gcp-028; see docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json for narrative."
     }
   ]
 }
