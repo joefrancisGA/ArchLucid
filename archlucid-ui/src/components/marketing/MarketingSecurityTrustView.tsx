@@ -72,8 +72,11 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
     <MarketingPageShell variant="reading">
       <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Security &amp; trust</h1>
       <p className={`mt-3 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
-        This public page summarizes assurance status. Detailed reports are shared during diligence. Consolidated questionnaires
-        and public evidence summaries are available in the{" "}
+        This public page summarizes assurance status. Detailed reports are shared during diligence. Read the{" "}
+        <Link className={MARKETING_SURFACES.inlineLink} href="/faq">
+          Product FAQ
+        </Link>{" "}
+        for security and evaluation answers. Consolidated questionnaires and public evidence summaries are available in the{" "}
         <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
           Trust Center
         </Link>

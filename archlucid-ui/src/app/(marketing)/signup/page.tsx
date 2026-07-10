@@ -21,6 +21,13 @@ export default function SignupPage() {
           Create an evaluation workspace with sample architecture review data. No sales call required.
         </p>
         <p className={cn("mt-4 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
+          Questions before you start? Read the{" "}
+          <Link href="/faq" className={MARKETING_SURFACES.inlineLink}>
+            Product FAQ
+          </Link>{" "}
+          for evaluation, pricing, and security answers.
+        </p>
+        <p className={cn("mt-4 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
           Already have an account?{" "}
           <Link href="/auth/signin" className={MARKETING_SURFACES.inlineLink}>
             Sign in

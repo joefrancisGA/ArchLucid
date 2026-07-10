@@ -63,6 +63,12 @@ export function HelpProductGuide() {
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Getting started</CardTitle>
         </CardHeader>
         <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
+          <p className="m-0">
+            <Link className={OPERATOR_LINK.inline} href="/faq">
+              Product FAQ
+            </Link>{" "}
+            — evaluation, pricing, evidence, and security answers for architects and sponsors.
+          </p>
           <ol className="m-0 list-decimal space-y-2 pl-5">
             <li>
               <Link className={OPERATOR_LINK.inline} href="/reviews/new">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { MarketingCustomPolicyPackAuthoringSection } from "@/components/marketing/MarketingCustomPolicyPackAuthoringSection";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
@@ -14,6 +15,7 @@ import {
 } from "@/lib/marketing-custom-policy-pack-authoring";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   MARKETING_PRICING_OG_DESCRIPTION,
   buildMarketingSocialMetadata,
@@ -60,6 +62,13 @@ export default async function PricingPage(props: PricingPageProps) {
         showAiUsageNote
       />
       <MarketingPricingUsageFaqSection />
+      <p className={cn("mb-10 max-w-3xl", MARKETING_TYPOGRAPHY.body, "text-al-text-secondary")}>
+        More evaluation and security answers in the{" "}
+        <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/faq">
+          Product FAQ
+        </Link>
+        .
+      </p>
       <MarketingCustomPolicyPackAuthoringSection quoteSectionDomId="pricing-quote-request" />
       <p
         className={`mb-6 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}

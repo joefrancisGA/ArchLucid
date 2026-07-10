@@ -20,7 +20,9 @@ function shouldHideThemeToggleOnMarketingRoute(pathname: string): boolean {
     pathname === "/pricing" ||
     pathname.startsWith("/pricing/") ||
     pathname === "/signup" ||
-    pathname.startsWith("/signup/")
+    pathname.startsWith("/signup/") ||
+    pathname === "/faq" ||
+    pathname.startsWith("/faq/")
   );
 }
 

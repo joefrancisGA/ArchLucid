@@ -10,9 +10,10 @@ import {
 describe("help-search-panel-catalog", () => {
   it("recommends first-review topics on overview", () => {
     expect(recommendedHelpSearchPanelTopicIds("/")).toEqual([
+      "getting-started-help",
       "first-review-guide",
+      "product-faq",
       "create-first-review",
-      "sample-review",
     ]);
   });
 

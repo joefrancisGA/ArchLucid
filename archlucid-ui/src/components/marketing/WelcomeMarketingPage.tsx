@@ -151,13 +151,17 @@ export function WelcomeMarketingPage(props: { readonly serverStaticSections?: Re
               <span className="font-medium text-neutral-700 dark:text-neutral-300">FAQ:</span>{" "}
               <Link
                 className={MARKETING_SURFACES.inlineLink}
-                href="/faq#bulk-upload-30-files"
+                href="/faq#how-many-files-upload"
               >
-                Bulk upload limit (30 files)
+                How many files can I upload?
               </Link>
               {" · "}
               <Link className={MARKETING_SURFACES.inlineLink} href="/faq#demo-workspaces">
                 Demo workspaces
+              </Link>
+              {" · "}
+              <Link className={MARKETING_SURFACES.inlineLink} href="/faq">
+                Product FAQ
               </Link>
               .
             </p>

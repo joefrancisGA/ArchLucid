@@ -89,6 +89,14 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
           className="absolute end-0 top-full z-50 mt-1 min-w-[14rem] rounded-md border border-neutral-200 bg-white py-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-950"
         >
           <Link
+            href="/faq"
+            role="menuitem"
+            className={cn("block px-3 py-2 font-medium text-neutral-900 hover:bg-neutral-50 dark:text-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
+            onClick={closeMenu}
+          >
+            Product FAQ
+          </Link>
+          <Link
             href="/compliance-journey"
             role="menuitem"
             className={cn("block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
