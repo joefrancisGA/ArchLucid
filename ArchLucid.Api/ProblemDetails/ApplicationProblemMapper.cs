@@ -7,6 +7,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
@@ -65,6 +66,18 @@ public static class ApplicationProblemMapper
                 StatusCodes.Status409Conflict,
                 "Conflict",
                 cex.Message,
+                ProblemTypes.Conflict,
+                instance,
+                httpContext);
+            return true;
+        }
+
+        if (ex is RunEvidenceAnchorImmutableException anchorImmutable)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status409Conflict,
+                "Conflict",
+                anchorImmutable.Message,
                 ProblemTypes.Conflict,
                 instance,
                 httpContext);

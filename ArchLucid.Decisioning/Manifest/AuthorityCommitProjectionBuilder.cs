@@ -79,16 +79,9 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
     {
         DmSec.ManifestMetadata meta = source.Metadata;
 
-        string manifestVersion = "v1";
-
-        if (!string.IsNullOrWhiteSpace(meta.Version))
-            manifestVersion = meta.Version.StartsWith("v", StringComparison.OrdinalIgnoreCase)
-                ? meta.Version
-                : $"v{meta.Version}";
-
         return new Cm.ManifestMetadata
         {
-            ManifestVersion = manifestVersion,
+            ManifestVersion = AuthorityCommitManifestVersionRules.ResolveContractManifestVersion(meta),
             ParentManifestVersion = null,
             ChangeDescription = meta.Summary,
             DecisionTraceIds = [source.DecisionTraceId.ToString("N")],

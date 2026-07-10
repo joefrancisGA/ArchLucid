@@ -378,7 +378,8 @@ function isTransientCommitConflict(status: number, body: string): boolean {
 
   return (
     body.includes("manifest could not be loaded yet") ||
-    body.includes("transient database condition")
+    body.includes("transient database condition") ||
+    body.includes("stale run row version")
   );
 }
 

@@ -18,6 +18,7 @@ using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Decisioning.Manifest;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -403,8 +404,8 @@ public sealed class AuthorityPipelineStagesExecutor(
             run.DecisionTraceId = ruleAuditTrace.RuleAudit.DecisionTraceId;
             run.GoldenManifestId = ctx.Manifest!.ManifestId;
             run.ArtifactBundleId = artifactBundle.BundleId;
-            // Seal manifest version with anchors so TB-310 commit finalization does not mutate CurrentManifestVersion.
-            run.CurrentManifestVersion = ctx.Manifest.Metadata.Version;
+            // Seal coordinator-shaped manifest version with anchors so sp_FinalizeManifest pre-sealed path matches commit.
+            run.CurrentManifestVersion = AuthorityCommitManifestVersionRules.ResolveContractManifestVersion(ctx.Manifest!);
             await UpdateRunAsync(run, uow, token);
         }, ct);
     }

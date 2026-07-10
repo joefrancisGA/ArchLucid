@@ -254,6 +254,22 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                         attempt, CommitRunTransientMaxAttempts, LogSanitizer.Sanitize(runId));
                 await Task.Delay(TimeSpan.FromMilliseconds(CommitRunTransientBackoffMillisecondsPerAttempt * attempt), cancellationToken);
             }
+            catch (ConflictException cex) when (cex.Message.Contains("stale run row version", StringComparison.OrdinalIgnoreCase))
+            {
+                CommitRunResult? reconciled = await TryReconcileAfterConcurrentCommitAsync(runId, cancellationToken);
+
+                if (reconciled is not null)
+                    return reconciled;
+
+                if (IsCommitRetryBudgetExhausted(attempt, commitRetryStopwatch))
+                    throw;
+
+                if (_logger.IsEnabled(LogLevel.Warning))
+                    _logger.LogWarning(cex,
+                        "CommitRunAsync (authority) stale run row version (attempt {Attempt}/{Max}) for RunId={RunId}; retrying.",
+                        attempt, CommitRunTransientMaxAttempts, LogSanitizer.Sanitize(runId));
+                await Task.Delay(TimeSpan.FromMilliseconds(CommitRunTransientBackoffMillisecondsPerAttempt * attempt), cancellationToken);
+            }
 
         throw new InvalidOperationException("CommitRunAsync (authority) exhausted transient retries without returning.");
     }
