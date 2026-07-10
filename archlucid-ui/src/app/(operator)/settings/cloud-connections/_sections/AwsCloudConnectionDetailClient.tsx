@@ -55,7 +55,7 @@ export function AwsCloudConnectionDetailClient() {
               does not require you to run workloads on Azure.
             </p>
             <p>
-              <Link href={inAppHelpHref("cloud-connections")} className="text-teal-700 underline dark:text-teal-400">
+              <Link href={inAppHelpHref("cloud-connections-aws")} className="text-teal-700 underline dark:text-teal-400">
                 View setup guide
               </Link>
             </p>

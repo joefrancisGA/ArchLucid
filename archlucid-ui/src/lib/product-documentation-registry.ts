@@ -20,6 +20,8 @@ export type ProductDocumentationEntry = {
 /** Slug aliases for contextual deep links (`/help/{slug}`). */
 export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "cloud-connections/azure": "cloud-connections-azure",
+  "cloud-connections/aws": "cloud-connections-aws",
+  "cloud-connections/gcp": "cloud-connections-gcp",
   "security/workload-identity-federation": "workload-identity-federation",
   "security/azure-permissions": "azure-permissions",
   "users-and-roles": "operator-auth-roles",
@@ -186,9 +188,12 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   {
     slug: "cloud-connections",
     title: "Cloud connections",
-    summary: "Optional Azure connections for production-faithful evidence — scope, federation, and validation.",
+    summary:
+      "Optional Azure, AWS, and GCP connections for read-only evidence — or evidence-only reviews without any connector.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
+    sectionAnchors: ["choose-your-cloud-platform", "related-topics"],
+    includeIntroWithSections: true,
   },
   {
     slug: "cloud-connections-azure",
@@ -198,6 +203,24 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["connect-azure-securely"],
+  },
+  {
+    slug: "cloud-connections-aws",
+    title: "Connect AWS securely",
+    summary:
+      "OIDC-federated read-only IAM role, Resource Explorer inventory, and connection validation — without long-lived access keys.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
+    sectionAnchors: ["connect-aws-securely"],
+  },
+  {
+    slug: "cloud-connections-gcp",
+    title: "Connect GCP securely",
+    summary:
+      "Workload Identity Federation, Cloud Asset Viewer, project scope, and connection validation — without service-account JSON keys.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
+    sectionAnchors: ["connect-gcp-securely"],
   },
   {
     slug: "workload-identity-federation",

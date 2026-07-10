@@ -133,8 +133,15 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     }
   }
 
-  // Azure cloud connection help — avoid generic multi-cloud breadcrumb segments.
-  if (normalized === "/help/cloud-connections/azure" || normalized === "/help/cloud-connections-azure") {
+  // Cloud connection help — avoid generic multi-cloud breadcrumb segments.
+  if (
+    normalized === "/help/cloud-connections/azure" ||
+    normalized === "/help/cloud-connections-azure" ||
+    normalized === "/help/cloud-connections/aws" ||
+    normalized === "/help/cloud-connections-aws" ||
+    normalized === "/help/cloud-connections/gcp" ||
+    normalized === "/help/cloud-connections-gcp"
+  ) {
     return [
       { label: "Help", href: "/help" },
       { label: OPERATOR_NAV_LINK_LABELS.cloudConnections },

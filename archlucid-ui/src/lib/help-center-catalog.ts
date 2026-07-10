@@ -39,6 +39,8 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "how-it-works": "product",
   "cloud-connections": "product",
   "cloud-connections-azure": "product",
+  "cloud-connections-aws": "product",
+  "cloud-connections-gcp": "product",
   "security-trust": "product",
   "workload-identity-federation": "product",
   "azure-permissions": "product",

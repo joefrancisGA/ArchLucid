@@ -131,6 +131,20 @@ const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/cloud-connections-azure", helpSlug: "cloud-connections-azure" },
   },
   {
+    id: "connect-aws",
+    title: "Connect AWS securely",
+    description: "OIDC-federated read-only IAM role, Resource Explorer inventory, and validation.",
+    keywords: ["aws", "iam", "oidc", "resource explorer", "federation"],
+    action: { kind: "route", href: "/help/cloud-connections-aws", helpSlug: "cloud-connections-aws" },
+  },
+  {
+    id: "connect-gcp",
+    title: "Connect GCP securely",
+    description: "Workload Identity Federation, Cloud Asset Viewer, and connection validation.",
+    keywords: ["gcp", "google cloud", "workload identity", "cloud asset"],
+    action: { kind: "route", href: "/help/cloud-connections-gcp", helpSlug: "cloud-connections-gcp" },
+  },
+  {
     id: "users-and-roles",
     title: "Users and roles",
     description: "Invite reviewers, approvers, and administrators.",
@@ -207,6 +221,8 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   governance: ["governance-workflow", "risk-register", "policy-packs"],
   sso: ["sso-identity"],
   azure: ["cloud-connections", "connect-azure"],
+  aws: ["cloud-connections", "connect-aws"],
+  gcp: ["cloud-connections", "connect-gcp"],
   audit: ["review-artifacts", "governance-workflow"],
   scim: ["sso-identity"],
   support: ["contact-support", "troubleshoot"],
@@ -218,11 +234,11 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
   { prefix: "/onboarding", topicIds: ["first-review-guide", "create-first-review", "sample-review"] },
   {
     prefix: "/integrations/cloud-connections",
-    topicIds: ["cloud-connections", "connect-azure", "troubleshoot"],
+    topicIds: ["cloud-connections", "connect-azure", "connect-aws", "connect-gcp", "troubleshoot"],
   },
   {
     prefix: "/settings/cloud-connections",
-    topicIds: ["cloud-connections", "connect-azure", "troubleshoot"],
+    topicIds: ["cloud-connections", "connect-azure", "connect-aws", "connect-gcp", "troubleshoot"],
   },
   { prefix: "/governance", topicIds: ["governance-workflow", "risk-register", "policy-packs"] },
   { prefix: "/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },

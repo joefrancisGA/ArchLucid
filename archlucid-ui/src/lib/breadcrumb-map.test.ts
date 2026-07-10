@@ -103,6 +103,14 @@ describe("getBreadcrumbs", () => {
       { label: "Help", href: "/help" },
       { label: "Cloud connections" },
     ]);
+    expect(getBreadcrumbs("/help/cloud-connections/aws")).toEqual([
+      { label: "Help", href: "/help" },
+      { label: "Cloud connections" },
+    ]);
+    expect(getBreadcrumbs("/help/cloud-connections/gcp")).toEqual([
+      { label: "Help", href: "/help" },
+      { label: "Cloud connections" },
+    ]);
   });
 
   it("maps the workspace and scope guide breadcrumb to match its page title", () => {

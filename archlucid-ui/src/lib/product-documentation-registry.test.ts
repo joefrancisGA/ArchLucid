@@ -48,6 +48,8 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("pilot-guide")).toBe("/help/pilot-guide");
     expect(getProductDocumentationEntry("troubleshooting")?.title).toBe("Troubleshooting");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
+    expect(getProductDocumentationEntry("cloud-connections/aws")?.title).toBe("Connect AWS securely");
+    expect(getProductDocumentationEntry("cloud-connections/gcp")?.title).toBe("Connect GCP securely");
     expect(getProductDocumentationEntry("enterprise-onboarding")?.title).toBe("Enterprise onboarding checklist");
     expect(inAppHelpHref("enterprise-onboarding")).toBe("/help/enterprise-onboarding");
   });
@@ -59,6 +61,25 @@ describe("product-documentation-registry", () => {
       expect(loaded, `missing markdown for ${entry.slug}`).not.toBeNull();
       expect(loaded!.markdown.trim().length).toBeGreaterThan(40);
     }
+  });
+
+  it("keeps AWS and GCP cloud-connection help free of Azure-only copy", () => {
+    const awsLoaded = tryLoadProductDocumentation("cloud-connections-aws");
+    const gcpLoaded = tryLoadProductDocumentation("cloud-connections-gcp");
+
+    expect(awsLoaded).not.toBeNull();
+    expect(gcpLoaded).not.toBeNull();
+
+    const awsMarkdown = awsLoaded!.markdown;
+    const gcpMarkdown = gcpLoaded!.markdown;
+
+    expect(awsMarkdown).toContain("Connect AWS securely");
+    expect(awsMarkdown).not.toContain("Cost Management Reader");
+    expect(awsMarkdown).not.toContain("connect-azure-securely");
+
+    expect(gcpMarkdown).toContain("Connect GCP securely");
+    expect(gcpMarkdown).not.toContain("Cost Management Reader");
+    expect(gcpMarkdown).not.toContain("connect-azure-securely");
   });
 
   it("does not register redirect-only stub paths for buyer or operator audiences (TB-146)", () => {
