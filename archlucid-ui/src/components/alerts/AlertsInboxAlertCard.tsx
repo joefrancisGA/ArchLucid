@@ -11,7 +11,7 @@ import {
   alertsTriageSuppressButtonLabelReaderInbox,
 } from "@/lib/enterprise-controls-context-copy";
 import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
-import { buyerSafeReviewDetailHref } from "@/lib/buyer-safe-review-navigation";
+import { getCanonicalReviewWorkspaceHref } from "@/lib/buyer-safe-review-navigation";
 import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
 import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -36,7 +36,7 @@ export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
   const findingDetailHref = alertPrimaryFindingDetailHref(props.alert);
   const reviewPackageHref =
     props.alert.runId !== null && props.alert.runId !== undefined && props.alert.runId.trim().length > 0
-      ? buyerSafeReviewDetailHref(props.alert.runId)
+      ? getCanonicalReviewWorkspaceHref(props.alert.runId)
       : null;
   const lastUpdatedLabel =
     props.alert.lastUpdatedUtc !== null
