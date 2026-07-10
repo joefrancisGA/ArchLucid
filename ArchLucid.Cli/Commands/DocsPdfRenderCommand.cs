@@ -40,7 +40,8 @@ internal static class DocsPdfRenderCommand
         }
 
         ProductDocumentationPdfBuilder builder = new();
-        byte[] pdf = builder.Build(markdown, metadata);
+        byte[]? logoBytes = TryLoadLogoBytes(metadata.LogoPath);
+        byte[] pdf = builder.Build(markdown, metadata, logoBytes);
 
         string? outputDirectory = Path.GetDirectoryName(outputPath);
 
@@ -154,6 +155,19 @@ internal static class DocsPdfRenderCommand
         }
 
         return true;
+    }
+
+    private static byte[]? TryLoadLogoBytes(string? logoPath)
+    {
+        if (string.IsNullOrWhiteSpace(logoPath))
+            return null;
+
+        string resolved = Path.GetFullPath(logoPath.Trim());
+
+        if (!File.Exists(resolved))
+            return null;
+
+        return File.ReadAllBytes(resolved);
     }
 
     private static bool TryReadNext(string[] args, ref int index, out string? value)

@@ -10,4 +10,7 @@ public sealed class ProductDocumentationPdfRenderMetadata
     public string? AudienceLabel { get; init; }
 
     public string? StatusLabel { get; init; }
+
+    /// <summary>Optional raster logo path (PNG/JPEG) resolved at CLI build time.</summary>
+    public string? LogoPath { get; init; }
 }

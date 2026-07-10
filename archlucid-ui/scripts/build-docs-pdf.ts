@@ -3,7 +3,7 @@
  */
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -62,6 +62,16 @@ function statusLabel(pdfStatus: ProductDocumentationPdfStatus): string {
   }
 }
 
+const LOGO_PNG = join(REPO_ROOT, "archlucid-ui", "public", "logo", "archlucid-dark.png");
+
+function ensureBrandLogoRaster(): void {
+  if (existsSync(LOGO_PNG)) {
+    return;
+  }
+
+  execFileSync("npm", ["run", "generate:brand-raster"], { cwd: UI_ROOT, stdio: "inherit" });
+}
+
 function resolveVersionDateLabel(sourcePaths: readonly string[]): string | null {
   const primary = sourcePaths[0];
 
@@ -108,6 +118,7 @@ function renderPdf(markdownPath: string, metadataPath: string, outputPath: strin
 }
 
 function main(): void {
+  ensureBrandLogoRaster();
   rmSync(WORK_DIR, { recursive: true, force: true });
   mkdirSync(WORK_DIR, { recursive: true });
   mkdirSync(PUBLIC_OUT_DIR, { recursive: true });
@@ -144,6 +155,7 @@ function main(): void {
           versionDateLabel: resolveVersionDateLabel(entry.sourcePaths),
           audienceLabel: audienceLabel(entry.audience),
           statusLabel: statusLabel(entry.pdfStatus),
+          logoPath: LOGO_PNG,
         },
         null,
         2,
