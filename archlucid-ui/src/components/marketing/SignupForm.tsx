@@ -213,7 +213,7 @@ export function SignupForm() {
           </div>
 
           <details
-            className="rounded-md border border-neutral-200/90 bg-al-surface-muted/40 dark:border-neutral-700 dark:bg-neutral-900/40"
+            className="rounded-md border border-neutral-200/90 bg-neutral-100/80 dark:border-neutral-700 dark:bg-neutral-900/50"
             data-testid="signup-optional-details"
           >
             <summary
