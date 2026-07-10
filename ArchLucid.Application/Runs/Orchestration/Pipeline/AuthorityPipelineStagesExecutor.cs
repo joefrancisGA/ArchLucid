@@ -403,6 +403,8 @@ public sealed class AuthorityPipelineStagesExecutor(
             run.DecisionTraceId = ruleAuditTrace.RuleAudit.DecisionTraceId;
             run.GoldenManifestId = ctx.Manifest!.ManifestId;
             run.ArtifactBundleId = artifactBundle.BundleId;
+            // Seal manifest version with anchors so TB-310 commit finalization does not mutate CurrentManifestVersion.
+            run.CurrentManifestVersion = ctx.Manifest.Metadata.Version;
             await UpdateRunAsync(run, uow, token);
         }, ct);
     }

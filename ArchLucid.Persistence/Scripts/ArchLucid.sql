@@ -7822,7 +7822,7 @@ BEGIN
 END;
 GO
 
-/* ---- Manifest finalization: one active golden manifest per run + dbo.sp_FinalizeManifest (DbUp 120 + 132 outbox Priority). ---- */
+/* ---- Manifest finalization: one active golden manifest per run + dbo.sp_FinalizeManifest (DbUp 120 + 132 outbox Priority + 270 pre-sealed anchors). ---- */
 IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
@@ -7867,7 +7867,7 @@ BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
 
-    DECLARE @RowsUpdated INT;
+    DECLARE @RowsUpdated INT = 0;
 
     UPDATE dbo.Runs
     SET LegacyRunStatus = N'Committed',
@@ -7880,6 +7880,7 @@ BEGIN
       AND WorkspaceId = @WorkspaceId
       AND ScopeProjectId = @ScopeProjectId
       AND LegacyRunStatus IN (N'ReadyForCommit', N'TasksGenerated')
+      AND GoldenManifestId IS NULL
       AND (FindingsSnapshotId IS NOT NULL AND FindingsSnapshotId = @ExpectedFindingsSnapshotId)
       AND (
             @ExpectedArtifactBundleId IS NULL
@@ -7889,6 +7890,34 @@ BEGIN
       AND ArchivedUtc IS NULL;
 
     SET @RowsUpdated = @@ROWCOUNT;
+
+    IF @RowsUpdated = 0
+    BEGIN
+        UPDATE dbo.Runs
+        SET LegacyRunStatus = N'Committed',
+            CompletedUtc = COALESCE(CompletedUtc, SYSUTCDATETIME())
+        WHERE RunId = @RunId
+          AND TenantId = @TenantId
+          AND WorkspaceId = @WorkspaceId
+          AND ScopeProjectId = @ScopeProjectId
+          AND LegacyRunStatus IN (N'ReadyForCommit', N'TasksGenerated')
+          AND GoldenManifestId IS NOT NULL
+          AND GoldenManifestId = @ManifestId
+          AND DecisionTraceId = @DecisionTraceId
+          AND (FindingsSnapshotId IS NOT NULL AND FindingsSnapshotId = @ExpectedFindingsSnapshotId)
+          AND (
+                @ExpectedArtifactBundleId IS NULL
+                OR (ArtifactBundleId IS NOT NULL AND ArtifactBundleId = @ExpectedArtifactBundleId)
+              )
+          AND (
+                CurrentManifestVersion IS NULL
+                OR CurrentManifestVersion = @ManifestVersion
+              )
+          AND RowVersionStamp = @ExpectedRowVersion
+          AND ArchivedUtc IS NULL;
+
+        SET @RowsUpdated = @@ROWCOUNT;
+    END;
 
     IF @RowsUpdated = 1
     BEGIN

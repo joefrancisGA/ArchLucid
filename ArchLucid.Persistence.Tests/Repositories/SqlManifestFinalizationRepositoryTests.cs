@@ -1,5 +1,6 @@
 using System.Reflection;
 
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Runs.Finalization;
 using ArchLucid.TestSupport;
 
@@ -99,6 +100,20 @@ public sealed class SqlManifestFinalizationRepositoryTests
 
         ManifestFinalizationFaultException fault = mapped.Should().BeOfType<ManifestFinalizationFaultException>().Subject;
         fault.Kind.Should().Be(ManifestFinalizationFaultKind.ArtifactMismatch);
+    }
+
+    /// <summary>
+    ///     TB-310 trigger error <b>50310</b> maps to <see cref="RunEvidenceAnchorImmutableException" /> (not HTTP 503).
+    /// </summary>
+    [Fact]
+    public void MapSqlException_50310_maps_to_RunEvidenceAnchorImmutableException()
+    {
+        Guid runId = Guid.NewGuid();
+
+        Exception mapped = InvokeMapSqlException(CommittedRunHeaderAnchorRegistry.TriggerErrorNumber, runId);
+
+        RunEvidenceAnchorImmutableException immutability = mapped.Should().BeOfType<RunEvidenceAnchorImmutableException>().Subject;
+        immutability.Message.Should().Contain(runId.ToString("D"));
     }
 
     /// <summary>

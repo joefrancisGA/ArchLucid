@@ -533,9 +533,15 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (!_runStateTransitionService.ShouldPromoteLegacyStatusToReadyForCommit(previousLegacyRunStatus))
             return;
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit);
-        header.StructuralExecutionMode = StructuralExecutionModeResolver.FromAgentExecutionOptionsAndFallback(
-            _agentExecutionOptions.Value,
-            header.RealModeFellBackToSimulator);
+
+        // TB-310: request-time authority pipeline may have sealed anchors; StructuralExecutionMode is immutable then.
+        if (header.GoldenManifestId is null)
+        {
+            header.StructuralExecutionMode = StructuralExecutionModeResolver.FromAgentExecutionOptionsAndFallback(
+                _agentExecutionOptions.Value,
+                header.RealModeFellBackToSimulator);
+        }
+
         await runRepository.UpdateAsync(header, cancellationToken);
         string actor = actorContext.GetActor();
         AuditEvent legacyReadyForCommitPromoted = new()

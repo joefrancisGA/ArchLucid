@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Runs.Finalization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -120,6 +121,9 @@ public sealed class SqlManifestFinalizationRepository : IManifestFinalizationSql
 
     internal static Exception MapSqlException(SqlException ex, Guid runId)
     {
+        if (ex.Number == CommittedRunHeaderAnchorRegistry.TriggerErrorNumber)
+            return new RunEvidenceAnchorImmutableException(runId);
+
         if (!Enum.IsDefined(typeof(ManifestFinalizationFaultKind), ex.Number))
             return ex;
 
