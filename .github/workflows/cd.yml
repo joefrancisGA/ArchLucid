@@ -383,8 +383,13 @@ jobs:
       # RAG retrieval (Azure AI Search) is ephemeral by design (owner 2026-07-05): dev auto-heals it
       # here on every deploy; a nightly job may stash + tear it back down (see rag-nightly-stash.yml).
       # No-op when the search service + index + Container App wiring already exist.
+      # continue-on-error: a transient Azure capacity error (or any other auto-heal failure) here
+      # must not block deploying the actual API/UI/worker images — RAG falls back to an InMemory
+      # vector index when Retrieval__AzureSearch__Endpoint is unset (see the config completeness
+      # check step below, which only warns, never fails CD, for this same reason).
       - name: Ensure RAG retrieval infra is awake (dev only, auto-heal)
         if: github.event.inputs.target == 'dev'
+        continue-on-error: true
         env:
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
