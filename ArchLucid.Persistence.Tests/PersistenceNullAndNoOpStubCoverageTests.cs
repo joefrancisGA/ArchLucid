@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Tenancy;
@@ -60,5 +61,29 @@ public sealed class PersistenceNullAndNoOpStubCoverageTests
             CancellationToken.None);
 
         result.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task UnusedSystemSqlConnectionFactory_throws_when_opening_connection()
+    {
+        UnusedSystemSqlConnectionFactory sut = new();
+
+        sut.SystemConnectionString.Should().BeEmpty();
+
+        Func<Task> act = () => sut.CreateOpenConnectionAsync(CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*InMemory*");
+    }
+
+    [Fact]
+    public async Task UnusedTenantSqlConnectionFactory_throws_when_opening_connection()
+    {
+        UnusedTenantSqlConnectionFactory sut = new();
+
+        Func<Task> act = () => sut.CreateOpenConnectionAsync(CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*InMemory*");
     }
 }
