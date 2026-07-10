@@ -73,6 +73,106 @@
         },
         "type": "object"
       },
+      "AdminAiUsageDashboardResponse": {
+        "properties": {
+          "budgetAmountUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "customerAiProviderConfigured": {
+            "type": "boolean"
+          },
+          "hardStopEnabled": {
+            "type": "boolean"
+          },
+          "recentEvents": {
+            "items": {
+              "$ref": "#/components/schemas/AdminAiUsageEventRow"
+            },
+            "type": "array"
+          },
+          "remainingAmountUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "resetPeriod": {
+            "type": "string"
+          },
+          "trialExpirationUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "usageByFeatureUsd": {
+            "additionalProperties": {
+              "format": "double",
+              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+              "type": [
+                "number",
+                "string"
+              ]
+            },
+            "type": "object"
+          },
+          "usedAmountUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "workspaceKind": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AdminAiUsageEventRow": {
+        "properties": {
+          "budgetBlocked": {
+            "type": "boolean"
+          },
+          "estimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "feature": {
+            "type": "string"
+          },
+          "occurredUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "providerKind": {
+            "type": "string"
+          },
+          "servedFromDemoCache": {
+            "type": "boolean"
+          },
+          "userId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "AdminApiKeyRotateRequest": {
         "properties": {
           "invalidatePrevious": {
@@ -13802,6 +13902,9 @@
           "blocksAdditionalLlmExecution": {
             "type": "boolean"
           },
+          "customerAiProviderConfigured": {
+            "type": "boolean"
+          },
           "effectiveHardCapUsd": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
@@ -13850,6 +13953,15 @@
               "string"
             ]
           },
+          "remainingBudgetUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
           "utcMonth": {
             "type": "string"
           },
@@ -13859,6 +13971,12 @@
             "type": [
               "null",
               "number",
+              "string"
+            ]
+          },
+          "workspaceKind": {
+            "type": [
+              "null",
               "string"
             ]
           }
@@ -24994,6 +25112,36 @@
         },
         "tags": [
           "ArchLucid.Api"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/admin/ai-usage-dashboard": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAiUsageDashboardResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAiUsageDashboardResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAiUsageDashboardResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "AdminAiUsageDashboard"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -69824,6 +69972,9 @@
   "tags": [
     {
       "name": "Admin"
+    },
+    {
+      "name": "AdminAiUsageDashboard"
     },
     {
       "name": "AdminApiKeySettings"
