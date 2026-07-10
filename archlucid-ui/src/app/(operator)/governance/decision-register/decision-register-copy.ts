@@ -46,6 +46,12 @@ export const DECISION_REGISTER_VIEW_CARDS_LABEL = "Cards";
 
 export const DECISION_REGISTER_VIEW_TIMELINE_LABEL = "Timeline";
 
+export const DECISION_REGISTER_VIEW_SWITCHER_GROUP_LABEL = "Decision register view";
+
+export const DECISION_REGISTER_VIEW_CARDS_PANEL_LABEL = "Decision register cards view";
+
+export const DECISION_REGISTER_VIEW_TIMELINE_PANEL_LABEL = "Decision register timeline view";
+
 export const DECISION_REGISTER_FILTER_NO_MATCH_TITLE = "No decisions match these filters";
 
 export const DECISION_REGISTER_FILTER_NO_MATCH_BODY =

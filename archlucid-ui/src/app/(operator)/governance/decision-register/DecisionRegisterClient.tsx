@@ -30,6 +30,8 @@ import {
   DECISION_REGISTER_FILTER_NO_MATCH_BODY,
   DECISION_REGISTER_FILTER_NO_MATCH_TITLE,
   DECISION_REGISTER_PAGE_SUBTITLE,
+  DECISION_REGISTER_VIEW_CARDS_PANEL_LABEL,
+  DECISION_REGISTER_VIEW_TIMELINE_PANEL_LABEL,
 } from "./decision-register-copy";
 import {
   DEFAULT_DECISION_REGISTER_DATE_PRESET,
@@ -242,11 +244,17 @@ export default function DecisionRegisterClient() {
       ) : null}
 
       {!loading && !loadError && hasFilteredResults && viewMode === "timeline" ? (
-        <DecisionRegisterTimeline decisions={filteredDecisions} />
+        <div aria-label={DECISION_REGISTER_VIEW_TIMELINE_PANEL_LABEL} data-testid="decision-register-timeline-panel">
+          <DecisionRegisterTimeline decisions={filteredDecisions} />
+        </div>
       ) : null}
 
       {!loading && !loadError && hasFilteredResults && viewMode === "cards" ? (
-        <div className="grid gap-4" data-testid="decision-register-cards">
+        <div
+          className="grid gap-4"
+          aria-label={DECISION_REGISTER_VIEW_CARDS_PANEL_LABEL}
+          data-testid="decision-register-cards"
+        >
           {filteredDecisions.map((decision) => (
             <DecisionRegisterDecisionCard key={`${decision.manifestId}-${decision.decisionId}`} decision={decision} />
           ))}
