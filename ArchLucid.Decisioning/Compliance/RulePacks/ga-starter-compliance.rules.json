@@ -7482,6 +7482,204 @@
       "severity": "Warning",
       "priority": "P2",
       "description": "Stub for aws-dr-028; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-011",
+      "controlId": "GCP-DR-011",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gcp-dr-011; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-012",
+      "controlId": "GCP-DR-012",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gcp-dr-012; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-013",
+      "controlId": "GCP-DR-013",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gcp-dr-013; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-014",
+      "controlId": "GCP-DR-014",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gcp-dr-014; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-015",
+      "controlId": "GCP-DR-015",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gcp-dr-015; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-016",
+      "controlId": "GCP-DR-016",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for gcp-dr-016; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-017",
+      "controlId": "GCP-DR-017",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-dr-017; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-018",
+      "controlId": "GCP-DR-018",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-dr-018; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-019",
+      "controlId": "GCP-DR-019",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-dr-019; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-020",
+      "controlId": "GCP-DR-020",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-dr-020; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-021",
+      "controlId": "GCP-DR-021",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-dr-021; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-022",
+      "controlId": "GCP-DR-022",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-dr-022; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-023",
+      "controlId": "GCP-DR-023",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-dr-023; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-024",
+      "controlId": "GCP-DR-024",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-dr-024; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-025",
+      "controlId": "GCP-DR-025",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-dr-025; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-026",
+      "controlId": "GCP-DR-026",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-dr-026; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-027",
+      "controlId": "GCP-DR-027",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-dr-027; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gcp-dr-028",
+      "controlId": "GCP-DR-028",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for gcp-dr-028; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
     }
   ]
 }
