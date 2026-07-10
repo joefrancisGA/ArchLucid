@@ -62,6 +62,7 @@ public sealed class ArtifactExportController(
     ///     sorted by name then id; <c>404</c> when the manifest is missing in the current scope.
     /// </summary>
     [HttpGet("manifests/{manifestId:guid}")]
+    [HttpGet("signed-records/{manifestId:guid}")]
     [ProducesResponseType(typeof(IReadOnlyList<ArtifactDescriptorResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -152,6 +153,7 @@ public sealed class ArtifactExportController(
     ///     not in that manifest�s bundle.
     /// </summary>
     [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}/descriptor")]
+    [HttpGet("signed-records/{manifestId:guid}/artifact/{artifactId:guid}/descriptor")]
     [ProducesResponseType(typeof(ArtifactDescriptorResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -182,6 +184,7 @@ public sealed class ArtifactExportController(
     ///     endpoint.
     /// </summary>
     [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}")]
+    [HttpGet("signed-records/{manifestId:guid}/artifact/{artifactId:guid}")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -222,6 +225,7 @@ public sealed class ArtifactExportController(
     ///     artifacts.
     /// </summary>
     [HttpGet("manifests/{manifestId:guid}/bundle")]
+    [HttpGet("signed-records/{manifestId:guid}/bundle")]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]

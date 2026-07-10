@@ -37,16 +37,31 @@ type RunExportHistoryJson = {
   }>;
 };
 
+function readWhitelabelFirmDisplayNameFromParsedObject(
+  parsed: Record<string, unknown> | null,
+): string | null {
+  if (parsed === null) {
+    return null;
+  }
+
+  const camel = parsed.reviewBoardWhitelabelFirmDisplayName;
+  const pascal = parsed.ReviewBoardWhitelabelFirmDisplayName;
+  const candidate =
+    (typeof camel === "string" ? camel : typeof pascal === "string" ? pascal : "").trim();
+
+  return candidate.length > 0 ? candidate : null;
+}
+
 function extractWhitelabelFirmDisplayNameFromExportBlobs(blobs: readonly string[]): string | null {
   for (const blob of blobs) {
     // 1) normal JSON object
     try {
-      const parsed = JSON.parse(blob) as { reviewBoardWhitelabelFirmDisplayName?: string | null } | string;
+      const parsed = JSON.parse(blob) as Record<string, unknown> | string;
 
-      if (typeof parsed === "object" && parsed) {
-        const candidate = parsed.reviewBoardWhitelabelFirmDisplayName?.trim() ?? "";
+      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+        const candidate = readWhitelabelFirmDisplayNameFromParsedObject(parsed);
 
-        if (candidate.length > 0) {
+        if (candidate !== null) {
           return candidate;
         }
       }
@@ -54,10 +69,10 @@ function extractWhitelabelFirmDisplayNameFromExportBlobs(blobs: readonly string[
       // 2) double-encoded JSON string payload
       if (typeof parsed === "string") {
         try {
-          const reparsed = JSON.parse(parsed) as { reviewBoardWhitelabelFirmDisplayName?: string | null };
-          const candidate = reparsed.reviewBoardWhitelabelFirmDisplayName?.trim() ?? "";
+          const reparsed = JSON.parse(parsed) as Record<string, unknown>;
+          const candidate = readWhitelabelFirmDisplayNameFromParsedObject(reparsed);
 
-          if (candidate.length > 0) {
+          if (candidate !== null) {
             return candidate;
           }
         } catch {
@@ -69,14 +84,15 @@ function extractWhitelabelFirmDisplayNameFromExportBlobs(blobs: readonly string[
     }
 
     // 3) raw JSON text
-    const rawMatch = /"reviewBoardWhitelabelFirmDisplayName"\s*:\s*"([^"]+)"/i.exec(blob);
+    const rawMatch = /"(?:reviewBoardWhitelabelFirmDisplayName|ReviewBoardWhitelabelFirmDisplayName)"\s*:\s*"([^"]+)"/i.exec(blob);
 
     if (rawMatch?.[1]?.trim()) {
       return rawMatch[1].trim();
     }
 
     // 4) escaped JSON text (e.g. \"reviewBoardWhitelabelFirmDisplayName\":\"Acme\")
-    const escapedMatch = /\\"reviewBoardWhitelabelFirmDisplayName\\"\s*:\s*\\"([^\\"]+)\\"/i.exec(blob);
+    const escapedMatch =
+      /\\"(?:reviewBoardWhitelabelFirmDisplayName|ReviewBoardWhitelabelFirmDisplayName)\\"\s*:\s*\\"([^\\"]+)\\"/i.exec(blob);
 
     if (escapedMatch?.[1]?.trim()) {
       return escapedMatch[1].trim();
@@ -145,31 +161,6 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
 
-    const docxExport = await postConsultingAnalysisDocxRaw(request, DEMO_WORKSPACE_B_REGULATED_RUN_ID, {
-      tenantId: DEMO_WORKSPACE_B_LIVE_IDS.tenantId,
-      workspaceId: DEMO_WORKSPACE_B_LIVE_IDS.workspaceId,
-      projectId: DEMO_WORKSPACE_B_LIVE_IDS.projectId,
-    });
-
-    expect(
-      docxExport.status(),
-      `Consulting DOCX export expected 200 — body starts: ${(await docxExport.text()).slice(0, 200)}`,
-    ).toBe(200);
-
-    const contentTypeRaw = docxExport.headers()["content-type"] ?? "";
-
-    const contentType = contentTypeRaw.toLowerCase();
-
-    expect(contentType, contentTypeRaw).toContain(
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    );
-
-    const bytes = Buffer.from(await docxExport.body());
-
-    // DOCX is a ZIP container; seeded Meridian consulting export is ~3.9KB — 4096 was flaky in CI.
-    expect(bytes.subarray(0, 2).toString("ascii")).toBe("PK");
-    expect(bytes.byteLength).toBeGreaterThan(2048);
-
     const historyRaw = await getRunArchitectureExportHistoryRaw(
       request,
       DEMO_WORKSPACE_B_REGULATED_RUN_ID,
@@ -210,6 +201,31 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     } else {
       expect(whitelabelFirmDisplayName!.length).toBeGreaterThan(0);
     }
+
+    const docxExport = await postConsultingAnalysisDocxRaw(request, DEMO_WORKSPACE_B_REGULATED_RUN_ID, {
+      tenantId: DEMO_WORKSPACE_B_LIVE_IDS.tenantId,
+      workspaceId: DEMO_WORKSPACE_B_LIVE_IDS.workspaceId,
+      projectId: DEMO_WORKSPACE_B_LIVE_IDS.projectId,
+    });
+
+    expect(
+      docxExport.status(),
+      `Consulting DOCX export expected 200 — body starts: ${(await docxExport.text()).slice(0, 200)}`,
+    ).toBe(200);
+
+    const contentTypeRaw = docxExport.headers()["content-type"] ?? "";
+
+    const contentType = contentTypeRaw.toLowerCase();
+
+    expect(contentType, contentTypeRaw).toContain(
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    );
+
+    const bytes = Buffer.from(await docxExport.body());
+
+    // DOCX is a ZIP container; seeded Meridian consulting export is ~3.9KB — 4096 was flaky in CI.
+    expect(bytes.subarray(0, 2).toString("ascii")).toBe("PK");
+    expect(bytes.byteLength).toBeGreaterThan(2048);
 
     /** Placeholder dialog for future UI parity — today the API JSON is authoritative for consultant pre-fill. */
     test.info().annotations.push({

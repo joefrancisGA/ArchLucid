@@ -13,6 +13,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
@@ -56,6 +57,7 @@ public sealed class AnalysisReportsController(
     IConsultingDocxTemplateRecommendationService consultingDocxTemplateRecommendationService,
     AppConsultingDocxExportProfileSelector consultingDocxExportProfileSelector,
     IRunExportAuditService runExportAuditService,
+    IRunExportRecordRepository runExportRecordRepository,
     IBackgroundJobQueue jobs,
     IAuditService auditService,
     ILogger<AnalysisReportsController> logger)
@@ -296,6 +298,8 @@ public sealed class AnalysisReportsController(
     {
         request ??= new ConsultingDocxExportRequest();
 
+        await ApplyConsultingWhitelabelPrefillAsync(runId, request, cancellationToken);
+
         RunDetailLookup loaded = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
         if (loaded.Error is not null)
             return loaded.Error;
@@ -387,6 +391,8 @@ public sealed class AnalysisReportsController(
     {
         request ??= new ConsultingDocxExportRequest();
 
+        await ApplyConsultingWhitelabelPrefillAsync(runId, request, cancellationToken);
+
         RunDetailLookup loaded = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
         if (loaded.Error is not null)
             return loaded.Error;
@@ -426,7 +432,35 @@ public sealed class AnalysisReportsController(
         return Ok(new ConsultingDocxProfileRecommendationResponse { Recommendation = recommendation });
     }
 
-    // â”€â”€ Private helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Private helpers ───────────────────────────────────────────────────────────────
+
+    private async Task ApplyConsultingWhitelabelPrefillAsync(
+        string runId,
+        ConsultingDocxExportRequest request,
+        CancellationToken cancellationToken)
+    {
+        ConsultingDocxWhitelabelHints hints = new()
+        {
+            FirmDisplayName = request.ReviewBoardWhitelabelFirmDisplayName,
+            ClientEngagementTitle = request.ReviewBoardWhitelabelClientEngagementTitle,
+        };
+
+        await ConsultingDocxExportWhitelabelPrefill.ApplyMissingFromPriorExportsAsync(
+            runId,
+            hints,
+            runExportRecordRepository,
+            cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(hints.FirmDisplayName))
+        {
+            request.ReviewBoardWhitelabelFirmDisplayName = hints.FirmDisplayName;
+        }
+
+        if (!string.IsNullOrWhiteSpace(hints.ClientEngagementTitle))
+        {
+            request.ReviewBoardWhitelabelClientEngagementTitle = hints.ClientEngagementTitle;
+        }
+    }
 
     /// <summary>
     ///     Loads the canonical run detail for <paramref name="runId" />.

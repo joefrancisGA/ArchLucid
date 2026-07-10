@@ -1165,8 +1165,11 @@ public sealed class DemoSeedService(
         Guid runGuid = DemoRegulatedScenarioWorkspaceIds.AuthorityRunId(scope.TenantId);
 
         if (await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken) is not null)
+        {
+            await EnsureMeridianAlpineRegulatedExportStubAsync(runGuid, scope.TenantId, cancellationToken);
 
             return;
+        }
 
         string requestId = DemoRegulatedScenarioWorkspaceIds.ArchitectureRequestId(scope.TenantId);
         await EnsureArchitectureRequestAlpineRegulatedDemoAsync(requestId, cancellationToken);
