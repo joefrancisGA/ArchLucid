@@ -126,7 +126,6 @@ Configured in `archlucid-ui/next.config.ts`:
 | `/settings/alerts` | `/alerts?tab=rules` (page redirect) |
 | `/portfolio` | `/dashboard` (301) |
 | `/executive/reviews`, `/executive/reviews/*` | `/reviews`, `/reviews/*` (301) |
-| `/reports/resource-coverage` | `/integrations/cloud-connections` (301) |
 
 **Note:** README and older docs may reference `/manifests/[manifestId]/artifacts/[artifactId]`; that route no longer has a `page.tsx`. Artifact review is reached from review or manifest detail.
 

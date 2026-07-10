@@ -161,8 +161,6 @@ const nextConfig: NextConfig = {
       // Executive reviews retired — operator /reviews tree is canonical (TB-608 follow-on).
       { source: "/executive/reviews", destination: "/reviews", permanent: true },
       { source: "/executive/reviews/:path*", destination: "/reviews/:path*", permanent: true },
-      // Resource coverage report retired — inventory diagnostics belong on cloud connections.
-      { source: "/reports/resource-coverage", destination: "/integrations/cloud-connections", permanent: true },
     ];
   },
   async rewrites() {

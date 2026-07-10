@@ -35,8 +35,6 @@ export const EXECUTIVE_ROI_DASHBOARD_PATHS = {
 
   legacyExecutiveReviews: "/executive/reviews",
 
-  legacyResourceCoverage: "/reports/resource-coverage",
-
 } as const;
 
 
