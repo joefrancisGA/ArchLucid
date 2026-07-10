@@ -26,6 +26,8 @@ public sealed class ManifestFinalizationPreSealedAnchorsSqlIntegrationTests(SqlS
         Guid runId = Guid.NewGuid();
         Guid manifestId = Guid.NewGuid();
         Guid decisionTraceId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
         Guid findingsSnapshotId = Guid.NewGuid();
         Guid artifactBundleId = Guid.NewGuid();
         string requestId = "pre-sealed-" + Guid.NewGuid().ToString("N");
@@ -35,6 +37,54 @@ public sealed class ManifestFinalizationPreSealedAnchorsSqlIntegrationTests(SqlS
         await using SqlConnection connection = new(fixture.ConnectionString);
         await connection.OpenAsync();
         await ArchitectureCommitTestSeed.InsertRequestAndRunAsync(connection, requestId, runId.ToString("N"), scope, CancellationToken.None);
+
+        await AuthorityRunChainTestSeed.SeedSnapshotChainForExistingRunAsync(
+            connection,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            runId,
+            contextSnapshotId,
+            graphSnapshotId,
+            findingsSnapshotId,
+            decisionTraceId,
+            "PreSealedFinalizeSeed",
+            CancellationToken.None);
+
+        await connection.ExecuteAsync(
+            """
+            INSERT INTO dbo.GoldenManifests
+            (
+                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson, WarningsJson, ProvenanceJson,
+                TenantId, WorkspaceId, ProjectId
+            )
+            VALUES
+            (
+                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                SYSUTCDATETIME(), N'h', N'rs', N'1', N'rh', N'{}', N'{}', N'{}', N'{}', N'{}', N'{}',
+                N'{}', N'{}', N'{}', N'{}', N'{}', N'{}',
+                @TenantId, @WorkspaceId, @ScopeProjectId
+            );
+
+            INSERT INTO dbo.ArtifactBundles (BundleId, RunId, ManifestId, CreatedUtc, TenantId, WorkspaceId, ProjectId)
+            VALUES (@ArtifactBundleId, @RunId, @ManifestId, SYSUTCDATETIME(), @TenantId, @WorkspaceId, @ScopeProjectId);
+            """,
+            new
+            {
+                ManifestId = manifestId,
+                RunId = runId,
+                ContextSnapshotId = contextSnapshotId,
+                GraphSnapshotId = graphSnapshotId,
+                FindingsSnapshotId = findingsSnapshotId,
+                DecisionTraceId = decisionTraceId,
+                ArtifactBundleId = artifactBundleId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
+            });
 
         int seeded = await connection.ExecuteAsync(
             """
