@@ -3,7 +3,9 @@
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { ExecutiveDashboardDataProvider, useExecutiveDashboardData } from "@/components/executive/ExecutiveDashboardDataContext";
 import { ExecutiveDashboardEmptyState } from "@/components/executive/ExecutiveDashboardEmptyState";
+import { ExecutiveDashboardHowItWorks } from "@/components/executive/ExecutiveDashboardHowItWorks";
 import { ExecutiveDashboardPageHero } from "@/components/executive/ExecutiveDashboardPageHero";
+import { ExecutiveDashboardPreviewMetricCards } from "@/components/executive/ExecutiveDashboardPreviewMetricCards";
 import { ExecutiveDashboardSampleWorkspaceBanner } from "@/components/executive/ExecutiveDashboardSampleWorkspaceBanner";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
@@ -68,7 +70,11 @@ function ExecutiveRoiDashboardPortfolioSections({
       <ExecutiveDashboardPageHero dashboardEmpty={dashboardEmpty} />
 
       {dashboardEmpty ? (
-        <ExecutiveDashboardEmptyState />
+        <>
+          <ExecutiveDashboardPreviewMetricCards />
+          <ExecutiveDashboardEmptyState />
+          <ExecutiveDashboardHowItWorks />
+        </>
       ) : (
         <>
           <ExecutiveDashboardNextActionSection

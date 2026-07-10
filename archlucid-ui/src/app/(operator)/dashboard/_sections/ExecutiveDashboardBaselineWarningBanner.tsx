@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { InlineGuidance } from "@/components/InlineGuidance";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { Button } from "@/components/ui/button";
@@ -63,11 +62,8 @@ export function ExecutiveDashboardBaselineWarningBanner({
         className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-3 text-al-text-primary dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}
         data-testid="executive-baseline-upload-setup-card"
       >
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <InlineGuidance label="Optional" labelTestId="inline-guidance-optional">
-            {v.baselineInventoryOptionalGuidance}
-          </InlineGuidance>
-        </p>
+        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{v.baselineInventorySectionTitle}</p>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{v.baselineInventorySectionDescription}</p>
         <div className="mt-3">
           <Button asChild size="sm" variant="outline" className="border-neutral-300 dark:border-neutral-600">
             <Link

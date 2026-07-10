@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getArtifactDownloadUrl } from "@/lib/api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
@@ -19,48 +19,70 @@ type SponsorDocxTarget = {
   readonly manifestId: string;
 };
 
-type SponsorExportRowProps = {
+type SponsorExportOutputCardProps = {
   readonly title: string;
   readonly description: string;
-  readonly actionLabel: string;
-  readonly href?: string;
+  readonly locked: boolean;
+  readonly primaryActionLabel?: string;
+  readonly primaryHref?: string;
+  readonly previewActionLabel?: string;
+  readonly previewHref?: string;
   readonly externalHref?: string;
-  readonly disabled?: boolean;
-  readonly unavailableFootnote?: string;
   readonly testId?: string;
 };
 
-function SponsorExportRow(props: SponsorExportRowProps): React.JSX.Element {
-  const disabled = props.disabled === true || (props.href === undefined && props.externalHref === undefined);
+function SponsorExportOutputCard(props: SponsorExportOutputCardProps): React.JSX.Element {
+  const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+  const locked = props.locked;
+  const showPreview = locked && props.previewHref !== undefined && props.previewActionLabel !== undefined;
+  const showPrimary = !locked && (props.primaryHref !== undefined || props.externalHref !== undefined);
 
   return (
-    <li
-      className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
+    <Card
+      className={cn(locked ? "border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-950/30" : undefined)}
       data-testid={props.testId}
     >
-      <div className="min-w-0 flex-1">
-        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{props.title}</p>
-        <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.description}</p>
-
-        {disabled && props.unavailableFootnote !== undefined ? (
-          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{props.unavailableFootnote}</p>
+      <CardHeader className="pb-2">
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{props.title}</CardTitle>
+        <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>{props.description}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {locked ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{v.sponsorExportsUnavailableFootnote}</p>
         ) : null}
-      </div>
-
-      {!disabled ? (
-        <Button asChild size="sm" variant="outline" className="shrink-0 border-neutral-300 dark:border-neutral-600">
-          {props.externalHref !== undefined ? (
-            <a href={props.externalHref} data-testid={props.testId !== undefined ? `${props.testId}-action` : undefined}>
-              {props.actionLabel}
-            </a>
-          ) : (
-            <Link href={props.href ?? "#"} data-testid={props.testId !== undefined ? `${props.testId}-action` : undefined}>
-              {props.actionLabel}
-            </Link>
-          )}
-        </Button>
-      ) : null}
-    </li>
+        <div className="flex flex-wrap gap-2">
+          {showPreview ? (
+            <Button asChild size="sm" variant="outline" className="border-neutral-300 dark:border-neutral-600">
+              <Link
+                href={props.previewHref ?? "#"}
+                data-testid={props.testId !== undefined ? `${props.testId}-preview-action` : undefined}
+              >
+                {props.previewActionLabel}
+              </Link>
+            </Button>
+          ) : null}
+          {showPrimary ? (
+            <Button asChild size="sm" variant="outline" className="border-neutral-300 dark:border-neutral-600">
+              {props.externalHref !== undefined ? (
+                <a
+                  href={props.externalHref}
+                  data-testid={props.testId !== undefined ? `${props.testId}-action` : undefined}
+                >
+                  {props.primaryActionLabel}
+                </a>
+              ) : (
+                <Link
+                  href={props.primaryHref ?? "#"}
+                  data-testid={props.testId !== undefined ? `${props.testId}-action` : undefined}
+                >
+                  {props.primaryActionLabel}
+                </Link>
+              )}
+            </Button>
+          ) : null}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -127,53 +149,55 @@ export function SponsorExportsSection({
   }, []);
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle} data-testid="executive-exports-heading">
+    <section aria-labelledby="executive-exports-heading" className="space-y-3">
+      <div>
+        <h2 id="executive-exports-heading" className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`} data-testid="executive-exports-heading">
           {executiveSurface ? v.executiveExportsTitle : "Sponsor exports"}
-        </CardTitle>
+        </h2>
         {executiveSurface ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{v.executiveExportsDescription}</p>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{v.executiveExportsDescription}</p>
         ) : null}
-      </CardHeader>
-      <CardContent>
-        <ul className={cn("m-0 list-none divide-y divide-neutral-200 dark:divide-neutral-800", OPERATOR_TYPOGRAPHY.body)}>
-          {sponsorDocx !== null ? (
-            <SponsorExportRow
-              title={v.sponsorExportsDocxTitle}
-              description={v.sponsorExportsDocxDescription}
-              actionLabel={v.sponsorExportsDocxAction}
-              externalHref={getArtifactDownloadUrl(sponsorDocx.manifestId, "architecture-review-board")}
-              testId="sponsor-exports-docx-download"
-            />
-          ) : null}
-          <SponsorExportRow
-            title={v.sponsorExportsScorecardTitle}
-            description={v.sponsorExportsScorecardDescription}
-            actionLabel={v.sponsorExportsScorecardAction}
-            href="/executive/scorecard"
-            disabled={exportsLocked}
-            unavailableFootnote={v.sponsorExportsUnavailableFootnote}
-            testId="sponsor-exports-scorecard"
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {sponsorDocx !== null ? (
+          <SponsorExportOutputCard
+            title={v.sponsorExportsDocxTitle}
+            description={v.sponsorExportsDocxDescription}
+            locked={false}
+            primaryActionLabel={v.sponsorExportsDocxAction}
+            externalHref={getArtifactDownloadUrl(sponsorDocx.manifestId, "architecture-review-board")}
+            testId="sponsor-exports-docx-download"
           />
-          <SponsorExportRow
-            title={v.sponsorExportsPilotValueTitle}
-            description={v.sponsorExportsPilotValueDescription}
-            actionLabel={v.sponsorExportsPilotValueAction}
-            href="/value-report/pilot"
-            disabled={exportsLocked}
-            unavailableFootnote={v.sponsorExportsUnavailableFootnote}
-            testId="sponsor-exports-pilot-value"
-          />
-          <SponsorExportRow
-            title={v.sponsorExportsRoiTitle}
-            description={v.sponsorExportsRoiDescription}
-            actionLabel={v.sponsorExportsRoiAction}
-            href="/value-report/roi"
-            testId="sponsor-exports-roi-methodology"
-          />
-        </ul>
-      </CardContent>
-    </Card>
+        ) : null}
+        <SponsorExportOutputCard
+          title={v.sponsorExportsScorecardTitle}
+          description={v.sponsorExportsScorecardDescription}
+          locked={exportsLocked}
+          primaryActionLabel={v.sponsorExportsScorecardAction}
+          primaryHref="/executive/scorecard"
+          previewActionLabel={v.sponsorExportsPreviewSampleAction}
+          previewHref={v.sponsorExportsScorecardSampleHref}
+          testId="sponsor-exports-scorecard"
+        />
+        <SponsorExportOutputCard
+          title={v.sponsorExportsPilotValueTitle}
+          description={v.sponsorExportsPilotValueDescription}
+          locked={exportsLocked}
+          primaryActionLabel={v.sponsorExportsPilotValueAction}
+          primaryHref="/value-report/pilot"
+          previewActionLabel={v.sponsorExportsPreviewSampleAction}
+          previewHref={v.sponsorExportsPilotValueSampleHref}
+          testId="sponsor-exports-pilot-value"
+        />
+        <SponsorExportOutputCard
+          title={v.sponsorExportsRoiTitle}
+          description={v.sponsorExportsRoiDescription}
+          locked={false}
+          primaryActionLabel={v.sponsorExportsRoiAction}
+          primaryHref="/value-report/roi"
+          testId="sponsor-exports-roi-methodology"
+        />
+      </div>
+    </section>
   );
 }

@@ -7,13 +7,14 @@ import {
 } from "@/lib/buyer-surface-vocabulary";
 
 describe("buyer terminology vocabulary", () => {
-  it("uses finalize vocabulary in executive dashboard empty states", () => {
+  it("uses committed-review vocabulary in executive dashboard empty states", () => {
     const vocabulary = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
-    expect(vocabulary.emptyStateDescription).toMatch(/finalize/i);
-    expect(vocabulary.emptyStateDescription).not.toMatch(/\bcommit\b/i);
-    expect(vocabulary.portfolioMetricsUnavailableDescription).toContain("Finalize");
-    expect(vocabulary.portfolioMetricsUnavailableDescription).not.toMatch(/\bcommit\b/i);
+    expect(vocabulary.emptyStateDescription).toMatch(/commit/i);
+    expect(vocabulary.emptyStatePrimaryAction).toBe("Start architecture review");
+    expect(vocabulary.emptyStateSecondaryAction).toBe("Load sample dashboard");
+    expect(vocabulary.portfolioMetricsUnavailableDescription).toContain("Commit");
+    expect(vocabulary.metricsPreviewUnavailableFootnote).toBe("Available after first committed review");
   });
 
   it("maps nav labels to evaluation-first buyer copy", () => {

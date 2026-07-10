@@ -3,6 +3,8 @@
  * and “approval path” consistent across Review, Manifest, Graph, Governance, and Audit.
  */
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { REVIEW_SCORECARD_SAMPLE_HREF } from "@/lib/review-scorecard-empty-state";
 
 export const BUYER_SURFACE_VOCABULARY = {
   /** Graph surface / citations — matches graph page title in buyer shell. */
@@ -75,17 +77,50 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   portfolioPageTitle: "Executive dashboard",
   portfolioPageLead:
     "Track governance posture, remediation progress, estimated ROI, and sponsor-ready proof across committed review packages.",
-  portfolioPageNextStep: "Finalize at least one review package to populate dashboard metrics.",
+  portfolioPageNextStep: "Commit at least one review package to populate dashboard metrics.",
   portfolioPageLearnMoreHref: "/help/executive-summary",
   portfolioPageLearnMoreLabel: "View dashboard guide",
+  howItWorksSectionTitle: "How this dashboard works",
+  howItWorksDescription:
+    "Create a review package from your architecture evidence, then commit it when findings are ready for executive reporting. Metrics and sponsor exports populate after the first committed review.",
   pageLead:
     "Status, risk, ROI impact, and governance readiness for your current workspace — decision-first, with operator detail one click away.",
   roiMetricsSrOnly: "Executive ROI metrics",
   emptyStateTitle: "No committed reviews yet",
   emptyStateDescription:
-    "Finalize a review package to populate executive metrics, remediation progress, ROI estimates, and sponsor-ready exports.",
-  emptyStatePrimaryAction: CREATE_ARCHITECTURE_LABEL,
-  emptyStateSecondaryAction: "Load sample workspace",
+    "Commit a review package to populate executive metrics, remediation progress, ROI estimates, and sponsor-ready exports.",
+  emptyStatePrimaryAction: BUYER_START_ARCHITECTURE_REVIEW_CTA,
+  emptyStateSecondaryAction: "Load sample dashboard",
+  emptyStateSecondaryHelper: "Populate this workspace with sample review data.",
+  emptyStateTertiaryAction: "Open review packages",
+  metricsPreviewSectionTitle: "At a glance",
+  metricsPreviewUnavailableFootnote: "Available after first committed review",
+  metricsPreviewCards: [
+    {
+      title: "Findings resolved",
+      description: "Accepted, remediated, or approved findings from committed reviews",
+    },
+    {
+      title: "Open architecture risks",
+      description: "Stale risks and expiring waivers needing executive attention",
+    },
+    {
+      title: "Decisions recorded",
+      description: "Approvals, deferrals, and governance outcomes",
+    },
+    {
+      title: "Estimated savings",
+      description: "Directional portfolio impact from committed review evidence",
+    },
+    {
+      title: "Compliance drift",
+      description: "Policy pack change activity across committed reviews",
+    },
+    {
+      title: "Sponsor exports",
+      description: "Scorecard, value report, and board-ready narratives",
+    },
+  ] as const,
   emptyStatePreviewSectionTitle: "What this dashboard will show",
   emptyStatePreviewBullets: [
     "Findings discovered and resolved",
@@ -112,7 +147,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   ] as const,
   portfolioMetricsUnavailableTitle: "Portfolio metrics unavailable",
   portfolioMetricsUnavailableDescription:
-    "Finalize a review package to populate findings, decisions, waivers, risks, and remediation trends.",
+    "Commit a review package to populate findings, decisions, waivers, risks, and remediation trends.",
   estimatedSavingsNotAvailableYet: "Not available yet",
   estimatedSavingsNotAvailableFootnote:
     "Commit reviews or add cost evidence to estimate savings.",
@@ -130,13 +165,16 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   executiveExportsTitle: "Executive exports",
   executiveExportsDescription:
     "Sponsor-ready reports and board views from committed review packages.",
-  sponsorExportsUnavailableFootnote: "Available after at least one review package is committed.",
+  sponsorExportsUnavailableFootnote: "Available after first committed review",
+  sponsorExportsPreviewSampleAction: "Preview sample",
   sponsorExportsScorecardTitle: "Executive scorecard",
   sponsorExportsScorecardDescription: "KPI summary and recommended actions for sponsor briefings.",
   sponsorExportsScorecardAction: "Open scorecard",
+  sponsorExportsScorecardSampleHref: REVIEW_SCORECARD_SAMPLE_HREF,
   sponsorExportsPilotValueTitle: "Pilot value report",
   sponsorExportsPilotValueDescription: "Quantified outcomes and improvement themes from committed reviews.",
   sponsorExportsPilotValueAction: "Open value report",
+  sponsorExportsPilotValueSampleHref: "/value-report/pilot",
   sponsorExportsRoiTitle: "ROI methodology",
   sponsorExportsRoiDescription: "How savings and ROI estimates are derived from review evidence.",
   sponsorExportsRoiAction: "View methodology",
@@ -144,7 +182,9 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   sponsorExportsDocxDescription: "Board-ready narrative export from a committed review package.",
   sponsorExportsDocxAction: "Download DOCX",
   baselineInventoryUploadAction: "Upload baseline inventory",
-  baselineInventoryOptionalGuidance: "Upload a baseline inventory to improve ROI estimates.",
+  baselineInventorySectionTitle: "Improve ROI estimates",
+  baselineInventorySectionDescription:
+    "Upload a baseline inventory when you want ROI estimates to reflect your current environment.",
   orphanCandidatesMetric: {
     title: "Unattached resources",
     description: "Resources flagged for cleanup from the latest committed review",
