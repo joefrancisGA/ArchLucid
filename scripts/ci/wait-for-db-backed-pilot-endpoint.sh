@@ -4,14 +4,26 @@
 # Env: API_URL (default http://127.0.0.1:5128)
 #      ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS (default 60)
 #      ARCHLUCID_DB_PILOT_WAIT_SLEEP_SECONDS (default 2)
-#      ARCHLUCID_DEMO_WORKSPACES_MANIFEST (default fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json)
+#      ARCHLUCID_DEMO_WORKSPACES_MANIFEST (default fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json;
+#        relative paths resolve from repo root so Playwright steps can run from archlucid-ui/)
 #      ARCHLUCID_API_LOG_FILE (optional — tail on failure)
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 API_URL="${API_URL:-http://127.0.0.1:5128}"
 MAX_ATTEMPTS="${ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS:-60}"
 SLEEP_SECONDS="${ARCHLUCID_DB_PILOT_WAIT_SLEEP_SECONDS:-2}"
-MANIFEST="${ARCHLUCID_DEMO_WORKSPACES_MANIFEST:-fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json}"
+DEFAULT_MANIFEST="fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json"
+MANIFEST_INPUT="${ARCHLUCID_DEMO_WORKSPACES_MANIFEST:-${DEFAULT_MANIFEST}}"
+
+if [[ "${MANIFEST_INPUT}" = /* ]]; then
+  MANIFEST="${MANIFEST_INPUT}"
+else
+  MANIFEST="${REPO_ROOT}/${MANIFEST_INPUT}"
+fi
+
 API_LOG_FILE="${ARCHLUCID_API_LOG_FILE:-}"
 
 if [ ! -f "${MANIFEST}" ]; then
