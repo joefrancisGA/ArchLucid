@@ -16,6 +16,7 @@ export type IdentityProviderSetupChecklistProps = {
   readonly configDiagnostics: AdminAuthConfigurationDiagnosticsResponse | null;
   readonly configDiagnosticsNote: string | null;
   readonly samlOperationalHealth: AdminSamlOperationalHealthResponse | null;
+  readonly showTechnicalDetails?: boolean;
 };
 
 type SetupStep = {
@@ -48,7 +49,7 @@ function booleanStep(
   value: boolean | null | undefined,
   ready: string,
   missing: string,
-  configKey: string,
+  configKey: string | null,
   docHref: string,
 ): SetupStep {
   if (value === true) {
@@ -68,13 +69,13 @@ function booleanStep(
   };
 }
 
-function discoveryStep(config: AdminAuthConfigurationDiagnosticsResponse): SetupStep {
+function discoveryStep(config: AdminAuthConfigurationDiagnosticsResponse, showTechnicalDetails: boolean): SetupStep {
   if (config.authMode === "ApiKey") {
     return {
       label: "Discovery",
       status: "Not applicable",
-      detail: "API key mode does not use OIDC discovery; configure JwtBearer before enterprise SSO.",
-      configKey: "ArchLucidAuth:Mode",
+      detail: "API key mode does not use OIDC discovery.",
+      configKey: showTechnicalDetails ? "ArchLucidAuth:Mode" : null,
       docHref: PRODUCTION_LIKE_AUTH_DOC,
     };
   }
@@ -84,7 +85,7 @@ function discoveryStep(config: AdminAuthConfigurationDiagnosticsResponse): Setup
       label: "Discovery",
       status: "Ready",
       detail: "OIDC discovery metadata is reachable.",
-      configKey: "ArchLucidAuth:Authority",
+      configKey: showTechnicalDetails ? "ArchLucidAuth:Authority" : null,
       docHref: OIDC_DOC,
     };
   }
@@ -93,8 +94,8 @@ function discoveryStep(config: AdminAuthConfigurationDiagnosticsResponse): Setup
     return {
       label: "Discovery",
       status: "Action needed",
-      detail: "OIDC metadata is unreachable or invalid. Verify ArchLucidAuth:Authority and outbound network access.",
-      configKey: "ArchLucidAuth:Authority",
+      detail: "OIDC metadata is unreachable or invalid. Verify the provider authority and outbound network access.",
+      configKey: showTechnicalDetails ? "ArchLucidAuth:Authority" : null,
       docHref: OIDC_DOC,
     };
   }
@@ -103,7 +104,7 @@ function discoveryStep(config: AdminAuthConfigurationDiagnosticsResponse): Setup
     label: "Discovery",
     status: "Unknown",
     detail: "Discovery was not attempted for this configuration.",
-    configKey: "ArchLucidAuth:Authority",
+    configKey: showTechnicalDetails ? "ArchLucidAuth:Authority" : null,
     docHref: OIDC_DOC,
   };
 }
@@ -111,13 +112,14 @@ function discoveryStep(config: AdminAuthConfigurationDiagnosticsResponse): Setup
 function certificateStep(
   config: AdminAuthConfigurationDiagnosticsResponse,
   saml: AdminSamlOperationalHealthResponse | null,
+  showTechnicalDetails: boolean,
 ): SetupStep {
   if (config.saml2Enabled !== true) {
     return {
       label: "Certificate health",
       status: "Not applicable",
       detail: "SAML is disabled, so SP signing certificate health is not required.",
-      configKey: "Authentication:Saml2:Enabled",
+      configKey: showTechnicalDetails ? "Authentication:Saml2:Enabled" : null,
       docHref: SAML_DOC,
     };
   }
@@ -127,7 +129,7 @@ function certificateStep(
       label: "Certificate health",
       status: "Action needed",
       detail: saml.spSigningCertificateDiagnosticSummary,
-      configKey: "Authentication:Saml2:SigningCertificate",
+      configKey: showTechnicalDetails ? "Authentication:Saml2:SigningCertificate" : null,
       docHref: SAML_DOC,
     };
   }
@@ -137,7 +139,7 @@ function certificateStep(
       label: "Certificate health",
       status: "Ready",
       detail: "SAML SP signing certificate expiry is known.",
-      configKey: "Authentication:Saml2:SigningCertificate",
+      configKey: showTechnicalDetails ? "Authentication:Saml2:SigningCertificate" : null,
       docHref: SAML_DOC,
     };
   }
@@ -146,7 +148,7 @@ function certificateStep(
     label: "Certificate health",
     status: "Unknown",
     detail: "SAML is enabled but certificate expiry was not returned. Upload signing certificate metadata.",
-    configKey: "Authentication:Saml2:SigningCertificate",
+    configKey: showTechnicalDetails ? "Authentication:Saml2:SigningCertificate" : null,
     docHref: SAML_DOC,
   };
 }
@@ -154,35 +156,62 @@ function certificateStep(
 function buildSteps(
   config: AdminAuthConfigurationDiagnosticsResponse,
   saml: AdminSamlOperationalHealthResponse | null,
+  showTechnicalDetails: boolean,
 ): SetupStep[] {
   return [
-    booleanStep(
-      "Auth mode",
-      config.authMode === "DevelopmentBypass" ? false : true,
-      `Auth mode is ${config.authMode}.`,
-      "DevelopmentBypass is local-only; set ArchLucidAuth:Mode to JwtBearer or ApiKey for shared environments.",
-      "ArchLucidAuth:Mode",
-      PRODUCTION_LIKE_AUTH_DOC,
-    ),
-    discoveryStep(config),
+    authModeStep(config, showTechnicalDetails),
+    discoveryStep(config, showTechnicalDetails),
     booleanStep(
       "Scope / audience claim",
       config.audienceConfigured,
       "Audience validation is configured.",
-      "Configure ArchLucidAuth:Audience or the local JWT audience.",
-      "ArchLucidAuth:Audience",
+      "Configure the OIDC audience or client identifier.",
+      showTechnicalDetails ? "ArchLucidAuth:Audience" : null,
       OIDC_DOC,
     ),
     booleanStep(
       "Role claim mapping",
       config.roleClaimNameConfigured,
       "Role claim mapping is configured.",
-      "Configure SAML role claim sources or tenant SSO RoleClaimName mapping.",
-      "ArchLucidAuth:RoleClaimName",
+      "Configure SAML role claim sources or tenant SSO role mapping.",
+      showTechnicalDetails ? "ArchLucidAuth:RoleClaimName" : null,
       SAML_DOC,
     ),
-    certificateStep(config, saml),
+    certificateStep(config, saml, showTechnicalDetails),
   ];
+}
+
+function authModeStep(config: AdminAuthConfigurationDiagnosticsResponse, showTechnicalDetails: boolean): SetupStep {
+  if (config.authMode === "DevelopmentBypass") {
+    return {
+      label: "Authentication mode",
+      status: "Action needed",
+      detail: "Local development sign-in is enabled. Configure production sign-in before shared workspace use.",
+      configKey: showTechnicalDetails ? "ArchLucidAuth:Mode" : null,
+      docHref: PRODUCTION_LIKE_AUTH_DOC,
+    };
+  }
+
+  return {
+    label: "Authentication mode",
+    status: "Ready",
+    detail: `Authentication mode is configured for ${formatAuthModeLabel(config.authMode)}.`,
+    configKey: showTechnicalDetails ? "ArchLucidAuth:Mode" : null,
+    docHref: PRODUCTION_LIKE_AUTH_DOC,
+  };
+}
+
+function formatAuthModeLabel(authMode: string | null | undefined): string {
+  switch (authMode) {
+    case "DevelopmentBypass":
+      return "local development sign-in";
+    case "JwtBearer":
+      return "OIDC / JWT";
+    case "ApiKey":
+      return "API key";
+    default:
+      return authMode ?? "the current mode";
+  }
 }
 
 export function IdentityProviderSetupChecklist(props: IdentityProviderSetupChecklistProps) {
@@ -192,7 +221,7 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
     return null;
   }
 
-  const steps = configDiagnostics ? buildSteps(configDiagnostics, samlOperationalHealth) : [];
+  const steps = configDiagnostics ? buildSteps(configDiagnostics, samlOperationalHealth, props.showTechnicalDetails === true) : [];
   const nextStep = steps.find((step) => step.status === "Action needed" || step.status === "Unknown");
 
   return (
@@ -200,11 +229,9 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
       <CardHeader>
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Identity setup checklist</CardTitle>
         <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          One-screen setup status from{" "}
-          <span className={cn("font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.micro)}>
-            GET /v1/admin/auth/configuration-diagnostics
-          </span>
-          . Values are booleans and labels only; no secrets are returned.
+          {props.showTechnicalDetails === true
+            ? "Setup status from identity configuration diagnostics. Values are booleans and labels only; no secrets are returned."
+            : "One-screen setup status for authentication, discovery, role mapping, and certificate health."}
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -221,7 +248,7 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
             )}
           >
             <strong>Next setup step:</strong> {nextStep.detail}
-            {nextStep.configKey ? (
+            {nextStep.configKey && props.showTechnicalDetails === true ? (
               <>
                 {" "}
                 Config key: <code>{nextStep.configKey}</code>
@@ -248,7 +275,7 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
                   </span>
                 </div>
                 <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{step.detail}</p>
-                {step.configKey ? (
+                {step.configKey && props.showTechnicalDetails === true ? (
                   <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
                     Config key: <code>{step.configKey}</code>
                   </p>

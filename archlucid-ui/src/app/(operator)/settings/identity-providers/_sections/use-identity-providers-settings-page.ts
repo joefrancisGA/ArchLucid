@@ -1,9 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import {
+  IDENTITY_PROVIDERS_FORBIDDEN_NOTE,
+  IDENTITY_PROVIDERS_LOAD_ERROR_NOTE,
+} from "@/lib/identity-providers-settings-copy";
+import type { IdentityProvidersOverviewModel } from "@/lib/identity-providers-settings-types";
 import type { components } from "@/lib/openapi-schemas";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { resolveIdentityProvidersOverview } from "@/lib/resolve-identity-providers-overview";
 
 import { filterArchLucidAuthConfigRows } from "./filter-arch-lucid-auth-config-rows";
 import type { IdentityProvidersSettingsPageServerLoad } from "./load-identity-providers-settings-page-data";
@@ -18,21 +24,28 @@ type AdminSamlOperationalHealthResponse = components["schemas"]["AdminSamlOperat
 type ConfigSummaryKeyRow = components["schemas"]["ConfigSummaryKeyRow"];
 
 export type UseIdentityProvidersSettingsPageModel = {
-  note: string | null;
-  rows: ConfigSummaryKeyRow[] | null;
-  identityProviderDiagnostics: AdminIdentityProviderDiagnosticsResponse | null;
-  identityProviderDiagnosticsNote: string | null;
-  identityProviderDiagnosticsLoaded: boolean;
-  authConfigurationDiagnostics: AdminAuthConfigurationDiagnosticsResponse | null;
-  authConfigurationDiagnosticsNote: string | null;
-  authConfigurationDiagnosticsLoaded: boolean;
-  oidcDiagnostics: AdminOidcDiagnosticsResponse | null;
-  oidcDiagnosticsNote: string | null;
-  oidcDiagnosticsLoaded: boolean;
-  samlOperationalHealth: AdminSamlOperationalHealthResponse | null;
-  samlOperationalHealthNote: string | null;
-  samlOperationalHealthLoaded: boolean;
+  readonly note: string | null;
+  readonly rows: ConfigSummaryKeyRow[] | null;
+  readonly identityProviderDiagnostics: AdminIdentityProviderDiagnosticsResponse | null;
+  readonly identityProviderDiagnosticsNote: string | null;
+  readonly identityProviderDiagnosticsLoaded: boolean;
+  readonly authConfigurationDiagnostics: AdminAuthConfigurationDiagnosticsResponse | null;
+  readonly authConfigurationDiagnosticsNote: string | null;
+  readonly authConfigurationDiagnosticsLoaded: boolean;
+  readonly oidcDiagnostics: AdminOidcDiagnosticsResponse | null;
+  readonly oidcDiagnosticsNote: string | null;
+  readonly oidcDiagnosticsLoaded: boolean;
+  readonly samlOperationalHealth: AdminSamlOperationalHealthResponse | null;
+  readonly samlOperationalHealthNote: string | null;
+  readonly samlOperationalHealthLoaded: boolean;
+  readonly dataLoaded: boolean;
+  readonly accessDenied: boolean;
+  readonly overview: IdentityProvidersOverviewModel;
 };
+
+function isForbiddenStatus(status: number): boolean {
+  return status === 401 || status === 403;
+}
 
 export function useIdentityProvidersSettingsPage(
   loaded: IdentityProvidersSettingsPageServerLoad,
@@ -41,6 +54,7 @@ export function useIdentityProvidersSettingsPage(
 
   const [rows, setRows] = useState<ConfigSummaryKeyRow[] | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   const [identityProviderDiagnostics, setIdentityProviderDiagnostics] =
     useState<AdminIdentityProviderDiagnosticsResponse | null>(null);
@@ -62,6 +76,7 @@ export function useIdentityProvidersSettingsPage(
   const load = useCallback(async () => {
     setNote(null);
     setRows(null);
+    setAccessDenied(false);
     setIdentityProviderDiagnostics(null);
     setIdentityProviderDiagnosticsNote(null);
     setIdentityProviderDiagnosticsLoaded(false);
@@ -88,11 +103,13 @@ export function useIdentityProvidersSettingsPage(
 
       if (!summaryRes.ok) {
         setRows(null);
-        setNote(
-          summaryRes.status === 401 || summaryRes.status === 403
-            ? "This page requires an Admin session to read identity settings from the configuration catalog."
-            : `Configuration summary unavailable (HTTP ${summaryRes.status}).`,
-        );
+
+        if (isForbiddenStatus(summaryRes.status)) {
+          setAccessDenied(true);
+          setNote(IDENTITY_PROVIDERS_FORBIDDEN_NOTE);
+        } else {
+          setNote(`${IDENTITY_PROVIDERS_LOAD_ERROR_NOTE} (HTTP ${summaryRes.status}).`);
+        }
       } else {
         const body = (await summaryRes.json()) as AdminConfigSummaryResponse;
         const keys: ConfigSummaryKeyRow[] = body.keys ?? [];
@@ -104,8 +121,8 @@ export function useIdentityProvidersSettingsPage(
       if (!diagnosticsRes.ok) {
         setIdentityProviderDiagnostics(null);
         setIdentityProviderDiagnosticsNote(
-          diagnosticsRes.status === 401 || diagnosticsRes.status === 403
-            ? "Admin session required to read identity provider health probes."
+          isForbiddenStatus(diagnosticsRes.status)
+            ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
             : `Identity provider diagnostics unavailable (HTTP ${diagnosticsRes.status}).`,
         );
       } else {
@@ -118,8 +135,8 @@ export function useIdentityProvidersSettingsPage(
       if (!authConfigRes.ok) {
         setAuthConfigurationDiagnostics(null);
         setAuthConfigurationDiagnosticsNote(
-          authConfigRes.status === 401 || authConfigRes.status === 403
-            ? "Admin session required to read auth configuration diagnostics."
+          isForbiddenStatus(authConfigRes.status)
+            ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
             : `Auth configuration diagnostics unavailable (HTTP ${authConfigRes.status}).`,
         );
       } else {
@@ -132,8 +149,8 @@ export function useIdentityProvidersSettingsPage(
       if (!oidcRes.ok) {
         setOidcDiagnostics(null);
         setOidcDiagnosticsNote(
-          oidcRes.status === 401 || oidcRes.status === 403
-            ? "Admin session required to read OIDC discovery diagnostics."
+          isForbiddenStatus(oidcRes.status)
+            ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
             : `OIDC diagnostics unavailable (HTTP ${oidcRes.status}).`,
         );
       } else {
@@ -146,8 +163,8 @@ export function useIdentityProvidersSettingsPage(
       if (!samlRes.ok) {
         setSamlOperationalHealth(null);
         setSamlOperationalHealthNote(
-          samlRes.status === 401 || samlRes.status === 403
-            ? "Admin session required to read SAML operational health signals."
+          isForbiddenStatus(samlRes.status)
+            ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
             : `SAML operational health unavailable (HTTP ${samlRes.status}).`,
         );
       } else {
@@ -158,15 +175,15 @@ export function useIdentityProvidersSettingsPage(
       }
     } catch (e: unknown) {
       setRows(null);
-      setNote(e instanceof Error ? e.message : String(e));
+      setNote(e instanceof Error ? e.message : IDENTITY_PROVIDERS_LOAD_ERROR_NOTE);
       setIdentityProviderDiagnostics(null);
-      setIdentityProviderDiagnosticsNote("Identity provider diagnostics could not be loaded.");
+      setIdentityProviderDiagnosticsNote(IDENTITY_PROVIDERS_LOAD_ERROR_NOTE);
       setAuthConfigurationDiagnostics(null);
-      setAuthConfigurationDiagnosticsNote("Auth configuration diagnostics could not be loaded.");
+      setAuthConfigurationDiagnosticsNote(IDENTITY_PROVIDERS_LOAD_ERROR_NOTE);
       setOidcDiagnostics(null);
-      setOidcDiagnosticsNote("OIDC discovery diagnostics could not be loaded.");
+      setOidcDiagnosticsNote(IDENTITY_PROVIDERS_LOAD_ERROR_NOTE);
       setSamlOperationalHealth(null);
-      setSamlOperationalHealthNote("SAML operational health could not be loaded.");
+      setSamlOperationalHealthNote(IDENTITY_PROVIDERS_LOAD_ERROR_NOTE);
     } finally {
       setIdentityProviderDiagnosticsLoaded(true);
       setAuthConfigurationDiagnosticsLoaded(true);
@@ -178,6 +195,22 @@ export function useIdentityProvidersSettingsPage(
   useEffect(() => {
     void load();
   }, [load]);
+
+  const dataLoaded =
+    identityProviderDiagnosticsLoaded
+    && authConfigurationDiagnosticsLoaded
+    && oidcDiagnosticsLoaded
+    && samlOperationalHealthLoaded;
+
+  const overview = useMemo(
+    () =>
+      resolveIdentityProvidersOverview({
+        authConfigurationDiagnostics: dataLoaded ? authConfigurationDiagnostics : null,
+        identityProviderDiagnostics: dataLoaded ? identityProviderDiagnostics : null,
+        oidcDiagnostics: dataLoaded ? oidcDiagnostics : null,
+      }),
+    [authConfigurationDiagnostics, dataLoaded, identityProviderDiagnostics, oidcDiagnostics],
+  );
 
   return {
     note,
@@ -194,5 +227,8 @@ export function useIdentityProvidersSettingsPage(
     samlOperationalHealth,
     samlOperationalHealthNote,
     samlOperationalHealthLoaded,
+    dataLoaded,
+    accessDenied,
+    overview,
   };
 }

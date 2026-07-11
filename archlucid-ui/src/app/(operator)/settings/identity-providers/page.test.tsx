@@ -3,6 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const hoistedIdentityProvidersLoad = vi.hoisted(() => ({ demo: false }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/settings/identity-providers",
+}));
+
 vi.mock("./_sections/load-identity-providers-settings-page-data", () => ({
   loadIdentityProvidersSettingsPageData: () => Promise.resolve(hoistedIdentityProvidersLoad),
 }));
@@ -11,7 +15,13 @@ vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
   mergeRegistrationScopeForProxy: (init: RequestInit) => init,
 }));
 
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCallerAuthorityRank: () => 100,
+  useNavCommittedArchitectureReview: () => false,
+}));
+
 import IdentityProvidersSettingsPage from "./page";
+import { IDENTITY_PROVIDERS_PAGE_TITLE } from "@/lib/identity-providers-settings-copy";
 
 afterEach(() => {
   hoistedIdentityProvidersLoad.demo = false;
@@ -27,13 +37,10 @@ function stubIdentityProvidersFetch(keys: unknown[], oidcDiagnostics?: unknown):
       if (url.includes("/diagnostics/identity-providers")) {
         return new Response(
           JSON.stringify({
-            oidc: { status: "NotApplicable", summary: "ArchLucidAuth:Mode is not JwtBearer." },
-            saml: { status: "NotApplicable", summary: "SAML 2.0 SP integration is disabled." },
+            oidc: { status: "Healthy", summary: "OIDC configured." },
+            saml: { status: "NotApplicable", summary: "SAML disabled." },
           }),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          },
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
 
@@ -47,18 +54,15 @@ function stubIdentityProvidersFetch(keys: unknown[], oidcDiagnostics?: unknown):
             saml2Enabled: false,
             spEntityIdConfigured: null,
             samlRoleClaimSourcesConfigured: null,
-            tenantClaimMappingConfigured: null,
+            tenantClaimMappingConfigured: false,
             tenantIdentityProviderProtocol: null,
             jwksConfigured: true,
             scimProvisioningConfigured: null,
             scimBearerTokenActive: null,
-            roleClaimNameConfigured: true,
+            roleClaimNameConfigured: false,
             misconfigurationHints: [],
           }),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          },
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
 
@@ -74,10 +78,7 @@ function stubIdentityProvidersFetch(keys: unknown[], oidcDiagnostics?: unknown):
               openIdConfigurationUrl: "https://login.example.com/.well-known/openid-configuration",
             },
           ),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          },
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
 
@@ -101,9 +102,7 @@ function stubIdentityProvidersFetch(keys: unknown[], oidcDiagnostics?: unknown):
 }
 
 describe("IdentityProvidersSettingsPage", () => {
-  it("renders ArchLucidAuth rows when demo build flags are set (still fetches catalog client-side)", async () => {
-    hoistedIdentityProvidersLoad.demo = true;
-
+  it("renders the buyer-safe overview with summary cards and section navigation", async () => {
     stubIdentityProvidersFetch([
       {
         section: "ArchLucidAuth",
@@ -117,100 +116,72 @@ describe("IdentityProvidersSettingsPage", () => {
 
     render(page);
 
-    const table = await screen.findByTestId("identity-providers-table");
-
-    expect(table).toHaveTextContent("ArchLucidAuth:Authority");
-
-    const healthCard = await screen.findByTestId("identity-provider-health-card");
-
-    expect(healthCard).toHaveTextContent("Identity provider health");
-    expect(healthCard).toHaveTextContent("NotApplicable");
-
-    const setupChecklist = await screen.findByTestId("identity-provider-setup-checklist");
-
-    expect(setupChecklist).toHaveTextContent("Identity setup checklist");
-    expect(setupChecklist).toHaveTextContent("Core identity setup checks are ready");
-    expect(setupChecklist).toHaveTextContent("Role claim mapping");
-
-    expect(await screen.findByTestId("saml-sp-configuration-form")).toBeInTheDocument();
-
-    const samlCard = await screen.findByTestId("saml-operational-health-card");
-
-    expect(samlCard).toHaveTextContent("SAML 2.0 SP operational signals");
-
-    const oidcCard = await screen.findByTestId("oidc-diagnostics-card");
-
-    expect(oidcCard).toHaveTextContent("OIDC discovery diagnostics");
-    expect(oidcCard).toHaveTextContent("Healthy");
+    expect(await screen.findByRole("heading", { name: IDENTITY_PROVIDERS_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("identity-providers-settings-nav")).toBeInTheDocument();
+    expect(screen.getByTestId("identity-providers-overview-summary")).toBeInTheDocument();
+    expect(screen.getByTestId("identity-providers-recommended-next-card")).toBeInTheDocument();
+    expect(screen.getByTestId("identity-providers-overview-links")).toBeInTheDocument();
+    expect(screen.queryByTestId("identity-providers-table")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("saml-sp-configuration-form")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("identity-provider-health-card")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("auth-token-test-mapping-card")).not.toBeInTheDocument();
   });
 
-  it("renders unhealthy OIDC discovery diagnostics", async () => {
-    stubIdentityProvidersFetch(
-      [
-        {
-          section: "ArchLucidAuth",
-          configPath: "ArchLucidAuth:Authority",
-          isSet: true,
-          effectiveValue: "https://login.example.com",
-        },
-      ],
-      {
-        authMode: "JwtBearer",
-        configuredAuthority: "https://login.example.com/",
-        configuredAudience: "api://demo",
-        discoveryAttempted: true,
-        discoverySucceeded: false,
-        discoveryError: "HTTP 404 Not Found",
-        openIdConfigurationUrl: "https://login.example.com/.well-known/openid-configuration",
-      },
+  it("does not expose DevelopmentBypass on the overview", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
+
+        if (url.includes("/auth/configuration-diagnostics")) {
+          return new Response(
+            JSON.stringify({
+              authMode: "DevelopmentBypass",
+              audienceConfigured: false,
+              issuerOrAuthorityConfigured: false,
+              openIdDiscoverySucceeded: null,
+              saml2Enabled: false,
+              roleClaimNameConfigured: false,
+              tenantClaimMappingConfigured: false,
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          );
+        }
+
+        if (url.includes("/diagnostics/identity-providers")) {
+          return new Response(JSON.stringify({ oidc: { status: "NotApplicable" }, saml: { status: "NotApplicable" } }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        if (url.includes("/auth/oidc-diagnostics")) {
+          return new Response(JSON.stringify({ authMode: "DevelopmentBypass" }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        if (url.includes("/auth/saml-operational-health")) {
+          return new Response(JSON.stringify({ saml2Enabled: false }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        return new Response(JSON.stringify({ keys: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }),
     );
 
     const page = await IdentityProvidersSettingsPage();
 
     render(page);
 
-    const oidcCard = await screen.findByTestId("oidc-diagnostics-card");
-
-    expect(oidcCard).toHaveTextContent("OIDC discovery diagnostics");
-    expect(screen.getByTestId("oidc-diagnostics-discovery-status")).toHaveTextContent("Unreachable");
-    expect(screen.getByTestId("oidc-diagnostics-discovery-error")).toHaveTextContent("HTTP 404 Not Found");
-  });
-
-  it("renders ArchLucidAuth rows from configuration summary", async () => {
-    stubIdentityProvidersFetch([
-      {
-        section: "ArchLucidAuth",
-        configPath: "ArchLucidAuth:Authority",
-        isSet: true,
-        effectiveValue: "https://login.example.com",
-      },
-      {
-        section: "ArchLucidAuth",
-        configPath: "ArchLucidAuth:Audience",
-        isSet: true,
-        effectiveValue: "api://demo",
-      },
-    ]);
-
-    const page = await IdentityProvidersSettingsPage();
-
-    render(page);
-
-    const table = await screen.findByTestId("identity-providers-table");
-
-    expect(table).toHaveTextContent("ArchLucidAuth:Authority");
-    expect(table).toHaveTextContent("ArchLucidAuth:Audience");
-
-    const healthCard = await screen.findByTestId("identity-provider-health-card");
-
-    expect(healthCard).toHaveTextContent("Identity provider health");
-
-    const samlCard = await screen.findByTestId("saml-operational-health-card");
-
-    expect(samlCard).toHaveTextContent("SAML 2.0 SP operational signals");
-
-    const oidcCard = await screen.findByTestId("oidc-diagnostics-card");
-
-    expect(oidcCard).toHaveTextContent("OIDC discovery diagnostics");
+    expect(await screen.findByTestId("identity-providers-local-dev-notice")).toBeInTheDocument();
+    expect(screen.getAllByText(/Local development sign-in/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/DevelopmentBypass/i)).not.toBeInTheDocument();
   });
 });

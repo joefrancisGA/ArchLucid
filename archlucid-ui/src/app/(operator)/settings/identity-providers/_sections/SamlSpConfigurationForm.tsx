@@ -20,8 +20,21 @@ import {
   createDefaultSamlSpConfigurationFormValues,
   hydrateSamlSpConfigurationFormValues,
   isSamlSpConfigurationFormValid,
+  resolveSamlSpConfigurationValidationError,
   type SamlSpConfigurationFormValues,
 } from "@/lib/saml-sp-configuration-form-state";
+import {
+  IDENTITY_PROVIDERS_ACTION_SAVE,
+  IDENTITY_PROVIDERS_ACTION_VALIDATE,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
+  IDENTITY_PROVIDERS_SAML_GROUP_REGEX_LABEL,
+  IDENTITY_PROVIDERS_SAML_ISSUER_LABEL,
+  IDENTITY_PROVIDERS_SAML_METADATA_URL_LABEL,
+  IDENTITY_PROVIDERS_SAML_ROLE_CLAIM_LABEL,
+  IDENTITY_PROVIDERS_SAVE_CONFIRM_DESCRIPTION,
+  IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE,
+  IDENTITY_PROVIDERS_TEST_BEFORE_ENABLE_NOTICE,
+} from "@/lib/identity-providers-settings-copy";
 import { showSuccess } from "@/lib/toast";
 
 const ARCHLUCID_ROLES = ["Admin", "Operator", "Reader", "Auditor"] as const;
@@ -89,9 +102,15 @@ export function SamlSpConfigurationForm() {
   }, [values.idpMetadataUrl]);
 
   const saveConfiguration = useCallback(async () => {
-    if (!isSamlSpConfigurationFormValid(values)) {
-      setError("Issuer, role claim name, and at least one IdP value mapping are required.");
+    const validationError = resolveSamlSpConfigurationValidationError(values);
 
+    if (validationError !== null) {
+      setError(validationError);
+
+      return;
+    }
+
+    if (!globalThis.confirm(`${IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE}\n\n${IDENTITY_PROVIDERS_SAVE_CONFIRM_DESCRIPTION}`)) {
       return;
     }
 
@@ -102,7 +121,7 @@ export function SamlSpConfigurationForm() {
       const response = await activateTenantSamlIdentityProvider(buildSamlSpActivateRequest(values));
 
       setSavedUtc(response.updatedUtc ?? new Date().toISOString());
-      showSuccess("SAML 2.0 SP configuration saved for this tenant.");
+      showSuccess("SAML configuration saved for this workspace.");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -115,24 +134,9 @@ export function SamlSpConfigurationForm() {
   return (
     <Card data-testid="saml-sp-configuration-form">
       <CardHeader>
-        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>SAML 2.0 SP configuration</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>SAML configuration</CardTitle>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Configure workforce SSO for this tenant. Saves to{" "}
-          <code className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
-            dbo.TenantIdentityProviderConfigurations
-          </code>{" "}
-          via{" "}
-          <code className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
-            POST /v1/admin/identity/activate
-          </code>
-          . Host{" "}
-          <code className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>ArchLucidAuth:Saml2</code>{" "}
-          startup wiring is unchanged — mirror SP entity ID and signing cert in your deployment environment. For OIDC or
-          step-by-step discovery, use the{" "}
-          <Link href="/settings/identity/sso-wizard" className={OPERATOR_LINK.inline}>
-            SSO configuration wizard
-          </Link>
-          .
+          {IDENTITY_PROVIDERS_TEST_BEFORE_ENABLE_NOTICE}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -149,7 +153,7 @@ export function SamlSpConfigurationForm() {
         ) : (
           <>
             <div className="space-y-2">
-              <Label htmlFor="saml-idp-metadata-url">IdP metadata URL</Label>
+              <Label htmlFor="saml-idp-metadata-url">{IDENTITY_PROVIDERS_SAML_METADATA_URL_LABEL}</Label>
               <Input
                 id="saml-idp-metadata-url"
                 data-testid="saml-idp-metadata-url"
@@ -168,13 +172,13 @@ export function SamlSpConfigurationForm() {
                   onClick={() => void runDiscover()}
                   data-testid="saml-fetch-metadata-button"
                 >
-                  Fetch IdP issuer
+                  {IDENTITY_PROVIDERS_ACTION_VALIDATE}
                 </Button>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="saml-sp-issuer">Issuer (IdP entity ID)</Label>
+              <Label htmlFor="saml-sp-issuer">{IDENTITY_PROVIDERS_SAML_ISSUER_LABEL}</Label>
               <Input
                 id="saml-sp-issuer"
                 data-testid="saml-sp-issuer"
@@ -185,14 +189,12 @@ export function SamlSpConfigurationForm() {
                 placeholder="https://sts.example.com/"
               />
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Issuer from IdP federation metadata. Align host{" "}
-                <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>ArchLucidAuth:Saml2:IdPMetadata</code> with
-                the metadata URL above.
+                Issuer from identity provider federation metadata.
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="saml-role-claim">SAML attribute for roles / groups</Label>
+              <Label htmlFor="saml-role-claim">{IDENTITY_PROVIDERS_SAML_ROLE_CLAIM_LABEL}</Label>
               <Input
                 id="saml-role-claim"
                 list="saml-discovered-claim-names"
@@ -209,6 +211,8 @@ export function SamlSpConfigurationForm() {
                 ))}
               </datalist>
             </div>
+
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER}</p>
 
             <div className="overflow-x-auto">
               <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)} data-testid="saml-claim-mapping-table">
@@ -270,7 +274,7 @@ export function SamlSpConfigurationForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="saml-group-regex">Optional custom group claim regex</Label>
+              <Label htmlFor="saml-group-regex">{IDENTITY_PROVIDERS_SAML_GROUP_REGEX_LABEL}</Label>
               <Input
                 id="saml-group-regex"
                 data-testid="saml-group-regex"
@@ -289,7 +293,7 @@ export function SamlSpConfigurationForm() {
                 onClick={() => void saveConfiguration()}
                 data-testid="saml-save-configuration-button"
               >
-                {busy ? "Saving…" : "Save SAML configuration"}
+                {busy ? "Saving…" : IDENTITY_PROVIDERS_ACTION_SAVE}
               </Button>
               {savedUtc !== null ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">

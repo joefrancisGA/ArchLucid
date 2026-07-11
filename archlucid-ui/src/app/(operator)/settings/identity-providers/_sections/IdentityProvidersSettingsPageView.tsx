@@ -1,135 +1,100 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import {
+  IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE,
+  IDENTITY_PROVIDERS_NAV_DIAGNOSTICS,
+  IDENTITY_PROVIDERS_NAV_OIDC,
+  IDENTITY_PROVIDERS_NAV_ROLE_MAPPING,
+  IDENTITY_PROVIDERS_NAV_SAML,
+  IDENTITY_PROVIDERS_OVERVIEW_CONFIGURE_LINKS_TITLE,
+  IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN,
+} from "@/lib/identity-providers-settings-copy";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";
-import { IdentityProviderHealthStrip } from "./IdentityProviderHealthStrip";
-import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
-import { OidcDiagnosticsStrip } from "./OidcDiagnosticsStrip";
-import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
-import { SamlSpConfigurationForm } from "./SamlSpConfigurationForm";
+import { IdentityProvidersOverviewSummaryRow } from "./IdentityProvidersOverviewSummaryRow";
+import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
 type IdentityProvidersSettingsPageViewProps = {
-  model: UseIdentityProvidersSettingsPageModel;
+  readonly model: UseIdentityProvidersSettingsPageModel;
 };
 
-export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSettingsPageViewProps) {
-  const {
-    note,
-    rows,
-    identityProviderDiagnostics,
-    identityProviderDiagnosticsNote,
-    identityProviderDiagnosticsLoaded,
-    authConfigurationDiagnostics,
-    authConfigurationDiagnosticsNote,
-    authConfigurationDiagnosticsLoaded,
-    oidcDiagnostics,
-    oidcDiagnosticsNote,
-    oidcDiagnosticsLoaded,
-    samlOperationalHealth,
-    samlOperationalHealthNote,
-    samlOperationalHealthLoaded,
-  } = model;
+const CONFIGURATION_AREAS = [
+  {
+    href: "/settings/identity-providers/saml",
+    label: IDENTITY_PROVIDERS_NAV_SAML,
+    description: "Configure SAML metadata, issuer, and group-to-role mapping.",
+  },
+  {
+    href: "/settings/identity-providers/oidc",
+    label: IDENTITY_PROVIDERS_NAV_OIDC,
+    description: "Review OIDC authority, audience, and discovery status.",
+  },
+  {
+    href: "/settings/identity-providers/role-mapping",
+    label: IDENTITY_PROVIDERS_NAV_ROLE_MAPPING,
+    description: "Validate how identity provider groups map to workspace roles.",
+  },
+  {
+    href: "/settings/identity-providers/diagnostics",
+    label: IDENTITY_PROVIDERS_NAV_DIAGNOSTICS,
+    description: "Run health checks and technical validation when troubleshooting sign-in.",
+  },
+] as const;
+
+export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettingsPageViewProps): React.JSX.Element {
+  const { model } = props;
 
   return (
-    <div className="w-full max-w-3xl space-y-6">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Identity providers</h1>
-        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-          Read-only view of <strong className="font-medium text-al-text-primary">ArchLucidAuth</strong>{" "}
-          catalog rows (authority, audience, mode). Effective values are masked server-side — configure secrets only in
-          your hosting environment or Key Vault, not in this UI. For guided tenant SSO setup, use the{" "}
-          <a href="/settings/identity/sso-wizard" className={OPERATOR_LINK.inline}>
-            SSO configuration wizard
-          </a>
-          . For SAML claim-mapping tables (Entra, Okta, Ping) and offline validation with{" "}
-          <code className={OPERATOR_TYPOGRAPHY.micro}>archlucid auth validate-saml</code>, see the{" "}
-          <Link
-            href={inAppHelpHref("enterprise-onboarding", "saml-claim-mapping-reference")}
-            className={OPERATOR_LINK.inline}
-          >
-            SAML claim-mapping reference in the enterprise onboarding checklist
-          </Link>
-          .
+    <IdentityProvidersSettingsShell>
+      {model.note !== null ? (
+        <p
+          className={cn("m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="identity-providers-note"
+          role="alert"
+        >
+          {model.note}
         </p>
-      </div>
+      ) : null}
 
-      <Card>
+      {model.overview.usesLocalDevelopmentSignIn ? (
+        <Card data-testid="identity-providers-local-dev-notice">
+          <CardContent className={cn("py-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className="m-0">
+              <strong className="font-medium text-al-text-primary">Local development sign-in</strong> is enabled for this
+              workspace. {IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN} before inviting shared users.
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <IdentityProvidersOverviewSummaryRow overview={model.overview} loading={!model.dataLoaded} />
+
+      <Card data-testid="identity-providers-overview-links">
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>OIDC catalog alignment</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{IDENTITY_PROVIDERS_OVERVIEW_CONFIGURE_LINKS_TITLE}</CardTitle>
         </CardHeader>
         <CardContent>
-          {note !== null ? (
-            <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-providers-note">
-              {note}
-            </p>
-          ) : null}
-          {rows !== null && rows.length === 0 && note === null ? (
-            <EnterpriseCompactEmptyState {...IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT} />
-          ) : null}
-          {rows !== null && rows.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-providers-table">
-                <thead>
-                  <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
-                    <th className="py-2 pr-3">Config path</th>
-                    <th className="py-2 pr-3">Set</th>
-                    <th className="py-2 pr-3">Effective value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((r) => (
-                    <tr key={r.configPath} className="border-b border-neutral-100 dark:border-neutral-800">
-                      <td className={cn("py-2 pr-3 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
-                        {r.configPath}
-                      </td>
-                      <td className="py-2 pr-3 text-al-text-secondary">{r.isSet ? "yes" : "no"}</td>
-                      <td className="break-all py-2 pr-3 text-al-text-secondary">
-                        {r.effectiveValue ?? "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : null}
+          <ul className="m-0 list-none space-y-3 p-0">
+            {CONFIGURATION_AREAS.map((area) => (
+              <li key={area.href}>
+                <Link href={area.href} className={cn("block rounded-md border border-neutral-200 p-3 dark:border-neutral-800", OPERATOR_LINK.nav)}>
+                  <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{area.label}</span>
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{area.description}</p>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </CardContent>
       </Card>
 
-      <SamlSpConfigurationForm />
-
-      {identityProviderDiagnosticsLoaded ? (
-        <IdentityProviderHealthStrip
-          payload={identityProviderDiagnostics}
-          fetchNote={identityProviderDiagnosticsNote}
-        />
-      ) : null}
-
-      {authConfigurationDiagnosticsLoaded ? (
-        <IdentityProviderSetupChecklist
-          configDiagnostics={authConfigurationDiagnostics}
-          configDiagnosticsNote={authConfigurationDiagnosticsNote}
-          samlOperationalHealth={samlOperationalHealth}
-        />
-      ) : null}
-
-      {oidcDiagnosticsLoaded ? (
-        <OidcDiagnosticsStrip payload={oidcDiagnostics} fetchNote={oidcDiagnosticsNote} />
-      ) : null}
-
-      {samlOperationalHealthLoaded ? (
-        <SamlOperationalHealthStrip payload={samlOperationalHealth} fetchNote={samlOperationalHealthNote} />
-      ) : null}
-
-      <AuthTokenTestMappingCard />
-    </div>
+      <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE}
+      </p>
+    </IdentityProvidersSettingsShell>
   );
 }
