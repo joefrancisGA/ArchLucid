@@ -28,6 +28,7 @@ import {
   buyerHeaderStatusTwinPillCaption,
 } from "@/lib/review-buyer-disposition-line";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
+import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer-golden-spine-run-id";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { shouldShowRunDetailGovernanceCta } from "@/lib/run-detail-governance-cta-visibility";
@@ -196,11 +197,12 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
   const showGovernanceCtaCard =
     governanceCtaEl !== null && reviewPackagePrimaryAction.kind !== "open-governance-decision";
 
-  const buyerGoldenPageReady =
-    m.buyerPolishedArtifactTable === true &&
-    isShowcaseStaticDemoRunId(m.resolvedDetail.run.runId) &&
-    m.headline.trim().length > 0 &&
-    Boolean(m.manifestId);
+  const buyerGoldenPageReady = isBuyerGoldenReviewPackagePageReady({
+    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
+    runId: m.resolvedDetail.run.runId,
+    headline: m.headline,
+    manifestId: m.manifestId,
+  });
 
   const runDetailBody = (
     <div

@@ -2,8 +2,7 @@ import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-s
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { comparePageHref } from "@/lib/compare-url-query-params";
-import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
+import { isBuyerGoldenSpineRunId } from "@/lib/buyer-golden-spine-run-id";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
 import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
@@ -81,19 +80,6 @@ function normalizedPath(pathname: string): string {
   return (pathname.split("?")[0] ?? "").trim().replace(/\/$/, "") || "/";
 }
 
-function isGoldenJourneySpineRunId(runId: string): boolean {
-  const trimmed = runId.trim();
-
-  if (trimmed.length === 0) {
-    return false;
-  }
-
-  return (
-    canonicalizeDemoRunId(trimmed) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID) ||
-    isPinnedDemoWorkspaceRunId(trimmed)
-  );
-}
-
 /**
  * When the URL is on the curated Claims Intake spine, returns adjacent journey links for the layer strip stepper.
  */
@@ -116,7 +102,7 @@ export function resolveBuyerGoldenJourneyNav(
   } else {
     const executivePinnedRun = /^\/executive\/reviews\/([^/]+)$/.exec(path);
 
-    if (executivePinnedRun !== null && isGoldenJourneySpineRunId(executivePinnedRun[1])) {
+    if (executivePinnedRun !== null && isBuyerGoldenSpineRunId(executivePinnedRun[1])) {
       stepIdx = 0;
     }
   }
@@ -132,7 +118,7 @@ export function resolveBuyerGoldenJourneyNav(
     } else {
       const signedRecordFriendly = /^\/reviews\/([^/]+)\/signed-record$/.exec(path);
 
-      if (signedRecordFriendly !== null && isGoldenJourneySpineRunId(signedRecordFriendly[1])) {
+      if (signedRecordFriendly !== null && isBuyerGoldenSpineRunId(signedRecordFriendly[1])) {
         stepIdx = 1;
       }
     }
@@ -145,7 +131,7 @@ export function resolveBuyerGoldenJourneyNav(
         new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
         "";
 
-      if (graphRunId.length > 0 && isGoldenJourneySpineRunId(graphRunId)) {
+      if (graphRunId.length > 0 && isBuyerGoldenSpineRunId(graphRunId)) {
         stepIdx = 2;
       } else {
         return null;
@@ -179,7 +165,7 @@ export function resolveBuyerGoldenJourneyNav(
         return null;
       }
 
-      if (!isGoldenJourneySpineRunId(governanceRunId)) {
+      if (!isBuyerGoldenSpineRunId(governanceRunId)) {
         return null;
       }
 
@@ -191,7 +177,7 @@ export function resolveBuyerGoldenJourneyNav(
     } else {
       const workspace = /^\/reviews\/([^/]+)$/.exec(path);
 
-      if (workspace !== null && isGoldenJourneySpineRunId(workspace[1])) {
+      if (workspace !== null && isBuyerGoldenSpineRunId(workspace[1])) {
         return {
           summaryLine: `Review package overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle} and ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
           prev: { label: defs[0].label, href: defs[0].href },
