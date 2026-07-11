@@ -82,6 +82,56 @@ export function resolveLiveAuthActorName(): string {
 /** Distinct `reviewedBy` body value vs {@link resolveLiveAuthActorName} for approve/reject paths. */
 export const livePeerReviewerActorName = "e2e-peer-reviewer";
 
+/** Dev bypass default (`ArchLucidAuth:DevUserId` in appsettings). */
+export const liveBypassDefaultActorId = "dev-user";
+
+/** Stable peer reviewer actor key for segregation-of-duties E2E (distinct from {@link liveBypassDefaultActorId}). */
+export const livePeerReviewerActorId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+const LIVE_E2E_GOVERNANCE_REVIEWER_ACTOR_IDS: Readonly<Record<string, string>> = {
+  [livePeerReviewerActorName]: livePeerReviewerActorId,
+  "e2e-concurrent-approver-a": "cccccccc-cccc-cccc-cccc-ccccccccccca",
+  "e2e-concurrent-approver-b": "cccccccc-cccc-cccc-cccc-cccccccccccb",
+  "e2e-rejector": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+};
+
+/**
+ * `X-ArchLucid-Test-Actor-*` headers for DevelopmentBypass (`AllowTestActorHeaders`).
+ * Governance approve/reject resolves the actor from auth — body `reviewedBy` alone does not change the actor.
+ */
+export function liveTestActorHeaders(
+  actorName: string,
+  actorId?: string | null,
+): Record<string, string> {
+  if (resolveLiveAuthMode() !== "bypass") {
+    return {};
+  }
+
+  const name = actorName.trim();
+
+  if (name.length === 0) {
+    return {};
+  }
+
+  const explicitId = actorId?.trim() ?? "";
+  const resolvedId =
+    explicitId.length > 0
+      ? explicitId
+      : LIVE_E2E_GOVERNANCE_REVIEWER_ACTOR_IDS[name] ??
+        (name === resolveLiveAuthActorName() ? liveBypassDefaultActorId : "");
+
+  if (resolvedId.length === 0) {
+    throw new Error(
+      `liveTestActorHeaders: unknown reviewer "${name}" in bypass mode — pass actorId or add a stable mapping.`,
+    );
+  }
+
+  return {
+    "X-ArchLucid-Test-Actor-Name": name,
+    "X-ArchLucid-Test-Actor-Id": resolvedId,
+  };
+}
+
 /** Scope headers for mutating/reading architecture + tenant routes in a specific tenant (self-service registration E2E). */
 export type LiveTenantScopeHeaders = {
   tenantId: string;
@@ -1236,12 +1286,18 @@ export async function listArchitectureRuns(
   return rows;
 }
 
+export type LiveGovernanceReviewRequestOptions = {
+  readonly apiKey?: string | null;
+  /** DevelopmentBypass only — maps to `X-ArchLucid-Test-Actor-Id` when set. */
+  readonly testActorId?: string | null;
+};
+
 /** POST approve without throwing — use for negative-path assertions (`expect.soft` + status/body). */
 export async function postGovernanceApproveRaw(
   request: APIRequestContext,
   approvalRequestId: string,
   body: { reviewedBy: string; reviewComment?: string | null },
-  options?: { apiKey?: string | null },
+  options?: LiveGovernanceReviewRequestOptions,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   return request.post(`${resolveLiveApiBase()}/v1/governance/approval-requests/${approvalRequestId}/approve`, {
@@ -1249,7 +1305,13 @@ export async function postGovernanceApproveRaw(
       reviewedBy: body.reviewedBy,
       reviewComment: body.reviewComment ?? null,
     },
-    headers: mergeTenantScope(liveJsonHeaders(options?.apiKey), tenantScope),
+    headers: mergeTenantScope(
+      {
+        ...liveJsonHeaders(options?.apiKey),
+        ...liveTestActorHeaders(body.reviewedBy, options?.testActorId),
+      },
+      tenantScope,
+    ),
   });
 }
 
@@ -1337,7 +1399,7 @@ export async function approveGovernanceRequest(
   request: APIRequestContext,
   approvalRequestId: string,
   body: { reviewedBy: string; reviewComment?: string },
-  options?: { apiKey?: string | null },
+  options?: LiveGovernanceReviewRequestOptions,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<GovernanceApprovalRequestJson> {
   const res = await request.post(
@@ -1347,7 +1409,13 @@ export async function approveGovernanceRequest(
         reviewedBy: body.reviewedBy,
         reviewComment: body.reviewComment ?? null,
       },
-      headers: mergeTenantScope(liveJsonHeaders(options?.apiKey), tenantScope),
+      headers: mergeTenantScope(
+        {
+          ...liveJsonHeaders(options?.apiKey),
+          ...liveTestActorHeaders(body.reviewedBy, options?.testActorId),
+        },
+        tenantScope,
+      ),
     },
   );
 
@@ -1361,7 +1429,7 @@ export async function rejectGovernanceRequest(
   request: APIRequestContext,
   approvalRequestId: string,
   body: { reviewedBy: string; reviewComment?: string },
-  options?: { apiKey?: string | null },
+  options?: LiveGovernanceReviewRequestOptions,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<GovernanceApprovalRequestJson> {
   const res = await request.post(
@@ -1371,7 +1439,13 @@ export async function rejectGovernanceRequest(
         reviewedBy: body.reviewedBy,
         reviewComment: body.reviewComment ?? null,
       },
-      headers: mergeTenantScope(liveJsonHeaders(options?.apiKey), tenantScope),
+      headers: mergeTenantScope(
+        {
+          ...liveJsonHeaders(options?.apiKey),
+          ...liveTestActorHeaders(body.reviewedBy, options?.testActorId),
+        },
+        tenantScope,
+      ),
     },
   );
 
@@ -1385,7 +1459,7 @@ export async function postGovernanceRejectRaw(
   request: APIRequestContext,
   approvalRequestId: string,
   body: { reviewedBy: string; reviewComment?: string | null },
-  options?: { apiKey?: string | null },
+  options?: LiveGovernanceReviewRequestOptions,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   return request.post(`${resolveLiveApiBase()}/v1/governance/approval-requests/${approvalRequestId}/reject`, {
@@ -1393,7 +1467,13 @@ export async function postGovernanceRejectRaw(
       reviewedBy: body.reviewedBy,
       reviewComment: body.reviewComment ?? null,
     },
-    headers: mergeTenantScope(liveJsonHeaders(options?.apiKey), tenantScope),
+    headers: mergeTenantScope(
+      {
+        ...liveJsonHeaders(options?.apiKey),
+        ...liveTestActorHeaders(body.reviewedBy, options?.testActorId),
+      },
+      tenantScope,
+    ),
   });
 }
 
