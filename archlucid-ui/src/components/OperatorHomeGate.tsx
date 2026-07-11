@@ -5,19 +5,11 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
+import { OperatorShellAccessGateLoading } from "@/components/OperatorShellAccessGateLoading";
 import { AUTH_MODE } from "@/lib/auth-config";
+import { operatorHomeGateAllowsInitialPaint } from "@/lib/operator-shell-access-gate";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
-
-function gateAllowsInitialPaint(): boolean {
-  if (AUTH_MODE === "development-bypass" || !isJwtAuthMode())
-    return true;
-
-  if (typeof window === "undefined")
-    return false;
-
-  return isLikelySignedIn();
-}
 
 /**
  * When OIDC JWT mode is enabled and the browser has no session, the operator home (`/`)
@@ -25,7 +17,7 @@ function gateAllowsInitialPaint(): boolean {
  */
 export function OperatorHomeGate({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const [allow, setAllow] = useState(gateAllowsInitialPaint);
+  const [allow, setAllow] = useState(operatorHomeGateAllowsInitialPaint);
 
   useEffect(() => {
     if (AUTH_MODE === "development-bypass" || !isJwtAuthMode()) {
@@ -44,11 +36,7 @@ export function OperatorHomeGate({ children }: { children: ReactNode }) {
   }, [router]);
 
   if (!allow) {
-    return (
-      <div aria-busy="true">
-        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
-      </div>
-    );
+    return <OperatorShellAccessGateLoading />;
   }
 
   return <>{children}</>;

@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
-import { Suspense, useEffect, useLayoutEffect, useRef, useState, useCallback, type ReactNode } from "react";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState, useCallback, type ReactNode, type RefObject } from "react";
 
 import { usePathname } from "next/navigation";
 
@@ -27,6 +27,7 @@ import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
 import { DeploymentBuildFingerprintStrip } from "@/components/shell/DeploymentBuildFingerprintStrip";
 import { OperatorShellProviders } from "@/components/OperatorShellProviders";
 import { OperatorRoleGate } from "@/components/OperatorRoleGate";
+import { OperatorShellDeferredChrome } from "@/components/OperatorShellDeferredChrome";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
@@ -53,6 +54,7 @@ import {
 } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { useAppShellStickyOffsetSync } from "@/hooks/useAppShellStickyOffsetSync";
+import { useOperatorShellChromeDeferred } from "@/hooks/useOperatorShellChromeDeferred";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 import type { HelpTabId } from "@/components/HelpPanel";
 
@@ -217,6 +219,22 @@ type AppShellClientProps = {
   children: ReactNode;
 };
 
+function AppShellDeferChromeBoundary({
+  shellRootRef,
+  children,
+}: {
+  shellRootRef: RefObject<HTMLDivElement | null>;
+  children: ReactNode;
+}) {
+  const deferChrome = useOperatorShellChromeDeferred();
+
+  if (deferChrome) {
+    return <OperatorShellDeferredChrome shellRootRef={shellRootRef} />;
+  }
+
+  return <>{children}</>;
+}
+
 /**
  * Operator shell: sticky header rail (logo, auth/environment, scope, global search, help, theme),
  * collapsible sidebar nav landmark (lg+), mobile drawer, keyboard shortcuts, and primary <main> landmark.
@@ -302,6 +320,7 @@ function AppShellInner({ children }: AppShellClientProps) {
   if (chromeMode === "minimal") {
     return (
       <OperatorShellProviders>
+        <AppShellDeferChromeBoundary shellRootRef={shellRootRef}>
           <AppInsightsTelemetryInit />
           <SessionIdleTimeoutGuard />
           <UserAppearancePreferenceSync />
@@ -395,12 +414,14 @@ function AppShellInner({ children }: AppShellClientProps) {
               onOpenGuidesPanel={openHelpGuidesPanel}
             />
           </TooltipProvider>
+        </AppShellDeferChromeBoundary>
       </OperatorShellProviders>
     );
   }
 
   return (
     <OperatorShellProviders>
+      <AppShellDeferChromeBoundary shellRootRef={shellRootRef}>
       <AppInsightsTelemetryInit />
       <SessionIdleTimeoutGuard />
       <UserAppearancePreferenceSync />
@@ -490,6 +511,7 @@ function AppShellInner({ children }: AppShellClientProps) {
           <BuyerCtoDemoTourOverlay />
         </Suspense>
       </TooltipProvider>
+      </AppShellDeferChromeBoundary>
     </OperatorShellProviders>
   );
 }

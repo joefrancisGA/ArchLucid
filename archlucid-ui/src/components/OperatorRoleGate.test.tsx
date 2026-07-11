@@ -47,6 +47,8 @@ import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 
 describe("OperatorRoleGate", () => {
   it("redirects signed-in principals without ArchLucid roles to /403", () => {
+    principalState.loading = false;
+
     render(
       <OperatorRoleGate>
         <div>protected</div>
@@ -54,5 +56,20 @@ describe("OperatorRoleGate", () => {
     );
 
     expect(replace).toHaveBeenCalledWith("/403");
+  });
+
+  it("renders neutral loading without page content while authority resolves", () => {
+    principalState.loading = true;
+    replace.mockClear();
+
+    const view = render(
+      <OperatorRoleGate>
+        <div data-testid="protected-page">protected</div>
+      </OperatorRoleGate>,
+    );
+
+    expect(view.getByTestId("operator-shell-access-gate-loading")).toBeInTheDocument();
+    expect(view.queryByTestId("protected-page")).not.toBeInTheDocument();
+    expect(replace).not.toHaveBeenCalled();
   });
 });

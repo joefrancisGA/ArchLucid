@@ -225,4 +225,19 @@ describe("AppShellClient — shell chrome labels", () => {
     expect(sidebarRow?.className).not.toMatch(/mx-auto/);
     expect(sidebarNav).toHaveClass(OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS);
   });
+
+  it("defers sidebar and top bar while operator authority is loading", () => {
+    navAuthMock.isAuthorityLoading = true;
+
+    renderWithOperatorQuery(
+      <AppShellClient>
+        <div data-testid="protected-child">child</div>
+      </AppShellClient>,
+    );
+
+    expect(screen.getByTestId("operator-shell-access-gate-loading")).toBeInTheDocument();
+    expect(screen.queryByTestId("sidebar-nav")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("app-shell-topbar")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("protected-child")).not.toBeInTheDocument();
+  });
 });
