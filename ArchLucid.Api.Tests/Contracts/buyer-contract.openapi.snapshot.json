@@ -6314,7 +6314,10 @@
             "type": "string"
           },
           "isEnabled": {
-            "type": "boolean"
+            "type": [
+              "null",
+              "boolean"
+            ]
           },
           "name": {
             "type": "string"
