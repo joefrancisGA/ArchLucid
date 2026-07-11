@@ -368,6 +368,7 @@ jobs:
         working-directory: archlucid-ui
         env:
           NODE_OPTIONS: --max-old-space-size=6144
+          NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
         run: |
           npm ci
           npm run build

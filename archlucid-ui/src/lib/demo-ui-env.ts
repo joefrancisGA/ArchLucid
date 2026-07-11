@@ -73,8 +73,9 @@ export function isDemoStrictNavigationRedirectsActive(): boolean {
 }
 
 /**
- * Mock / Playwright screenshot crawls intentionally visit operator routes blocked in packaged demo navigation gates.
- * **Build-time:** set only in harness env (see `playwright.mock.config.ts`); never enable in sponsor-facing demo builds.
+ * Mock / Playwright screenshot crawls intentionally visit operator routes blocked in packaged demo navigation gates
+ * (including `/why-archlucid`, which buyer-polished shells redirect to the executive summary).
+ * **Build-time:** set only in harness env (see `playwright.mock.config.ts` and live E2E CI builds); never enable in sponsor-facing demo builds.
  */
 export function isDemoStrictNavigationRedirectsBypassedForE2E(): boolean {
   const raw = (process.env.NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES ?? "").trim().toLowerCase();

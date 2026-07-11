@@ -78,6 +78,8 @@ test.describe("live-api-why-archlucid", () => {
 
     await page.goto("/why-archlucid");
 
+    await expect(page.getByTestId("why-archlucid-page")).toBeVisible({ timeout: 60_000 });
+
     await expect(page.getByRole("heading", { name: "Why ArchLucid", level: 1 })).toBeVisible({
       timeout: 60_000,
     });
