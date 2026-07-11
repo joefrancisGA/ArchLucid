@@ -8,6 +8,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.Logging;
@@ -61,28 +62,9 @@ public sealed class TenantProvisioningService(
             throw new ArgumentException("Admin email is required.", nameof(request));
         string slug = TenantSlugNormalizer.FromName(request.Name);
         TenantRecord? existing = await _tenantRepository.GetBySlugAsync(slug, ct);
+
         if (existing is not null)
-        {
-            string requestedRegion = TenantProvisioningDataRegionPolicy.NormalizeRequest(request.DataRegion);
-
-            TenantProvisioningDataRegionPolicy.Validate(requestedRegion, _tenantProvisioningOptions.CurrentValue);
-
-            if (!string.Equals(requestedRegion, TenantDataRegions.NormalizeOptional(existing.DataRegion),
-                    StringComparison.Ordinal))
-                throw new ArgumentException(
-                    $"Tenant slug '{slug}' already exists under data region '{existing.DataRegion}'.",
-                    nameof(TenantProvisioningRequest.DataRegion));
-
-            TenantWorkspaceLink? link = await _tenantRepository.GetFirstWorkspaceAsync(existing.Id, ct);
-
-            if (link is null)
-                throw new InvalidOperationException($"Tenant '{existing.Id:D}' exists without a workspace row; data is inconsistent.");
-
-            return new TenantProvisioningResult
-            {
-                TenantId = existing.Id, DefaultWorkspaceId = link.WorkspaceId, DefaultProjectId = link.DefaultProjectId, WasAlreadyProvisioned = true,
-            };
-        }
+            return await BuildAlreadyProvisionedResultAsync(existing, request, slug, ct);
 
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
@@ -91,8 +73,21 @@ public sealed class TenantProvisioningService(
 
         TenantProvisioningDataRegionPolicy.Validate(dataRegionKey, _tenantProvisioningOptions.CurrentValue);
 
-        await _tenantRepository.InsertTenantAsync(
-            tenantId, request.Name.Trim(), slug, request.Tier, request.EntraTenantId, dataRegionKey, ct);
+        try
+        {
+            await _tenantRepository.InsertTenantAsync(
+                tenantId, request.Name.Trim(), slug, request.Tier, request.EntraTenantId, dataRegionKey, ct);
+        }
+        catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
+        {
+            TenantRecord? raced = await _tenantRepository.GetBySlugAsync(slug, ct);
+
+            if (raced is null)
+                throw;
+
+            return await BuildAlreadyProvisionedResultAsync(raced, request, slug, ct);
+        }
+
         ScopeContext provisionScope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, };
         using (AmbientScopeContext.Push(provisionScope))
             try
@@ -137,5 +132,47 @@ public sealed class TenantProvisioningService(
         {
             TenantId = tenantId, DefaultWorkspaceId = workspaceId, DefaultProjectId = projectId, WasAlreadyProvisioned = false,
         };
+    }
+
+    private async Task<TenantProvisioningResult> BuildAlreadyProvisionedResultAsync(
+        TenantRecord existing,
+        TenantProvisioningRequest request,
+        string slug,
+        CancellationToken ct)
+    {
+        string requestedRegion = TenantProvisioningDataRegionPolicy.NormalizeRequest(request.DataRegion);
+
+        TenantProvisioningDataRegionPolicy.Validate(requestedRegion, _tenantProvisioningOptions.CurrentValue);
+
+        if (!string.Equals(requestedRegion, TenantDataRegions.NormalizeOptional(existing.DataRegion),
+                StringComparison.Ordinal))
+            throw new ArgumentException(
+                $"Tenant slug '{slug}' already exists under data region '{existing.DataRegion}'.",
+                nameof(TenantProvisioningRequest.DataRegion));
+
+        TenantWorkspaceLink? link = await GetFirstWorkspaceForProvisionedTenantAsync(existing.Id, ct);
+
+        if (link is null)
+            throw new InvalidOperationException($"Tenant '{existing.Id:D}' exists without a workspace row; data is inconsistent.");
+
+        return new TenantProvisioningResult
+        {
+            TenantId = existing.Id,
+            DefaultWorkspaceId = link.WorkspaceId,
+            DefaultProjectId = link.DefaultProjectId,
+            WasAlreadyProvisioned = true,
+        };
+    }
+
+    private async Task<TenantWorkspaceLink?> GetFirstWorkspaceForProvisionedTenantAsync(Guid tenantId, CancellationToken ct)
+    {
+        TenantWorkspaceLink? link = await _tenantRepository.GetFirstWorkspaceAsync(tenantId, ct);
+
+        if (link is not null)
+            return link;
+
+        ScopeContext tenantScope = new() { TenantId = tenantId };
+        using (AmbientScopeContext.Push(tenantScope))
+            return await _tenantRepository.GetFirstWorkspaceAsync(tenantId, ct);
     }
 }

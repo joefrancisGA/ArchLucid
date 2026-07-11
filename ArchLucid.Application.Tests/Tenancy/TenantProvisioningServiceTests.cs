@@ -6,6 +6,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Application.Marketing;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -85,6 +86,69 @@ public sealed class TenantProvisioningServiceTests
             s => s.EnsureDefaultPolicyPacksAsync(first.TenantId, first.DefaultWorkspaceId, first.DefaultProjectId,
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task ProvisionAsync_treats_unique_slug_violation_as_already_provisioned()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid projectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        const string slug = "race-co";
+
+        TenantRecord existing = new()
+        {
+            Id = tenantId,
+            Name = "Race Co",
+            Slug = slug,
+            Tier = TenantTier.Free,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = DateTimeOffset.UtcNow,
+        };
+
+        Mock<ITenantRepository> repo = new();
+        repo.SetupSequence(r => r.GetBySlugAsync(slug, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null)
+            .ReturnsAsync(existing);
+        repo.Setup(r => r.InsertTenantAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                slug,
+                It.IsAny<TenantTier>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<int?>()))
+            .ThrowsAsync(SqlExceptionTestFactory.Create(2627));
+        repo.Setup(r => r.GetFirstWorkspaceAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantWorkspaceLink { WorkspaceId = workspaceId, DefaultProjectId = projectId });
+
+        TenantProvisioningService sut = new(
+            repo.Object,
+            Mock.Of<IArchitectureProjectRepository>(),
+            Mock.Of<IActorContext>(),
+            Mock.Of<IAuditService>(),
+            NullLogger<TenantProvisioningService>.Instance,
+            DefaultProvisioningMonitor(),
+            Mock.Of<ITenantSqlCatalogProvisioner>(),
+            Mock.Of<IDefaultPolicyPackSeeder>(),
+            new Mock<IMarketingAttributionService>().Object,
+            new Mock<ITenantSettingsRepository>().Object);
+
+        TenantProvisioningRequest req = new()
+        {
+            Name = "Race Co",
+            AdminEmail = "ops@race.example",
+            Tier = TenantTier.Free,
+        };
+
+        TenantProvisioningResult result = await sut.ProvisionAsync(req, CancellationToken.None);
+
+        result.WasAlreadyProvisioned.Should().BeTrue();
+        result.TenantId.Should().Be(tenantId);
+        result.DefaultWorkspaceId.Should().Be(workspaceId);
+        result.DefaultProjectId.Should().Be(projectId);
+        repo.Verify(r => r.InsertWorkspaceAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [SkippableFact]
@@ -188,6 +252,69 @@ public sealed class TenantProvisioningServiceTests
                 CancellationToken.None);
 
         second.WasAlreadyProvisioned.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task ProvisionAsync_treats_unique_slug_violation_as_already_provisioned()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid projectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        const string slug = "race-co";
+
+        TenantRecord existing = new()
+        {
+            Id = tenantId,
+            Name = "Race Co",
+            Slug = slug,
+            Tier = TenantTier.Free,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = DateTimeOffset.UtcNow,
+        };
+
+        Mock<ITenantRepository> repo = new();
+        repo.SetupSequence(r => r.GetBySlugAsync(slug, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null)
+            .ReturnsAsync(existing);
+        repo.Setup(r => r.InsertTenantAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                slug,
+                It.IsAny<TenantTier>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<int?>()))
+            .ThrowsAsync(SqlExceptionTestFactory.Create(2627));
+        repo.Setup(r => r.GetFirstWorkspaceAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantWorkspaceLink { WorkspaceId = workspaceId, DefaultProjectId = projectId });
+
+        TenantProvisioningService sut = new(
+            repo.Object,
+            Mock.Of<IArchitectureProjectRepository>(),
+            Mock.Of<IActorContext>(),
+            Mock.Of<IAuditService>(),
+            NullLogger<TenantProvisioningService>.Instance,
+            DefaultProvisioningMonitor(),
+            Mock.Of<ITenantSqlCatalogProvisioner>(),
+            Mock.Of<IDefaultPolicyPackSeeder>(),
+            new Mock<IMarketingAttributionService>().Object,
+            new Mock<ITenantSettingsRepository>().Object);
+
+        TenantProvisioningRequest req = new()
+        {
+            Name = "Race Co",
+            AdminEmail = "ops@race.example",
+            Tier = TenantTier.Free,
+        };
+
+        TenantProvisioningResult result = await sut.ProvisionAsync(req, CancellationToken.None);
+
+        result.WasAlreadyProvisioned.Should().BeTrue();
+        result.TenantId.Should().Be(tenantId);
+        result.DefaultWorkspaceId.Should().Be(workspaceId);
+        result.DefaultProjectId.Should().Be(projectId);
+        repo.Verify(r => r.InsertWorkspaceAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [SkippableFact]

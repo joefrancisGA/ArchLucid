@@ -69,32 +69,20 @@ public sealed class DapperTenantRepository(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
 
-        await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct).ConfigureAwait(false);
+        string normalizedSlug = slug.Trim().ToLowerInvariant();
 
-        const string sql = """
-                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
-                                  TenantErasureRequestedUtc,
-                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
-                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                  TrialStatus, TrialSampleRunId,
-                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
-                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
-                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
-                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
-                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
-                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
-                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
-                           FROM dbo.Tenants
-                           WHERE Slug = @Slug;
-                           """;
+        await using SqlConnection catalogConnection =
+            await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
-        TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
-            new CommandDefinition(sql, new
-            {
-                Slug = slug.Trim().ToLowerInvariant()
-            }, cancellationToken: ct)).ConfigureAwait(false);
+        TenantRecord? fromCatalog = await QueryTenantBySlugAsync(catalogConnection, normalizedSlug, ct).ConfigureAwait(false);
 
-        return row?.ToRecord();
+        if (fromCatalog is not null)
+            return fromCatalog;
+
+        await using SqlConnection tenantConnection =
+            await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await QueryTenantBySlugAsync(tenantConnection, normalizedSlug, ct).ConfigureAwait(false);
     }
 
     public async Task<TenantRecord?> GetByEntraTenantIdAsync(Guid entraTenantId, CancellationToken ct)
@@ -351,7 +339,10 @@ public sealed class DapperTenantRepository(
         CancellationToken ct,
         int? enterpriseScimSeatsLimit = null)
     {
-        await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection =
+            await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        string normalizedSlug = slug.Trim().ToLowerInvariant();
 
         string sql = enterpriseScimSeatsLimit is null
             ? """
@@ -370,7 +361,7 @@ public sealed class DapperTenantRepository(
                 {
                     Id = tenantId,
                     Name = name,
-                    Slug = slug,
+                    Slug = normalizedSlug,
                     Tier = TenantTierSql.ToTierString(tier),
                     EntraTenantId = entraTenantId,
                     EnterpriseSeatsLimit = enterpriseScimSeatsLimit,
@@ -1193,6 +1184,37 @@ public sealed class DapperTenantRepository(
             return await _catalogConnectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         return await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task<TenantRecord?> QueryTenantBySlugAsync(
+        SqlConnection connection,
+        string normalizedSlug,
+        CancellationToken ct)
+    {
+        const string sql = """
+                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                  TenantErasureRequestedUtc,
+                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
+                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
+                                  TrialStatus, TrialSampleRunId,
+                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
+                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
+                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
+                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
+                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
+                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
+                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
+                           FROM dbo.Tenants
+                           WHERE Slug = @Slug;
+                           """;
+
+        TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
+            new CommandDefinition(sql, new
+            {
+                Slug = normalizedSlug
+            }, cancellationToken: ct)).ConfigureAwait(false);
+
+        return row?.ToRecord();
     }
     private static async Task ApplyTrialRunIncrementAsync(
         IDbConnection connection,
