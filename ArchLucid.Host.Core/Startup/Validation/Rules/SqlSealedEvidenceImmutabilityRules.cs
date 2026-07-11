@@ -48,51 +48,23 @@ internal static class SqlSealedEvidenceImmutabilityRules
             }
             else
             {
-                foreach (string tableName in SealedEvidenceTableRegistry.SealedTableNames)
+                foreach ((string tableName, string permissionName) in SqlDatabaseImmutabilityProbeHelpers.CollectMissingDenyPermissions(
+                             connection,
+                             SealedEvidenceTableRegistry.SealedTableNames,
+                             SqlDatabaseImmutabilityProbeHelpers.ApplicationDatabaseRoleName))
                 {
-                    if (!SqlDatabaseImmutabilityProbeHelpers.ObjectExists(connection, tableName))
-                        continue;
-
-                    if (!SqlDatabaseImmutabilityProbeHelpers.HasDenyPermission(
-                            connection,
-                            tableName,
-                            SqlDatabaseImmutabilityProbeHelpers.ApplicationDatabaseRoleName,
-                            "UPDATE"))
-                    {
-                        errors.Add(
-                            $"Sealed evidence immutability: DENY UPDATE on {tableName} for [ArchLucidApp] is missing (migration 247).");
-                    }
-
-                    if (!SqlDatabaseImmutabilityProbeHelpers.HasDenyPermission(
-                            connection,
-                            tableName,
-                            SqlDatabaseImmutabilityProbeHelpers.ApplicationDatabaseRoleName,
-                            "DELETE"))
-                    {
-                        errors.Add(
-                            $"Sealed evidence immutability: DENY DELETE on {tableName} for [ArchLucidApp] is missing (migration 247).");
-                    }
+                    errors.Add(
+                        $"Sealed evidence immutability: DENY {permissionName} on {tableName} for [ArchLucidApp] is missing (migration 247).");
                 }
             }
 
-            foreach (string tableName in SealedEvidenceTableRegistry.SealedTableNames)
+            foreach ((string tableName, string permissionName) in SqlDatabaseImmutabilityProbeHelpers.CollectEffectivePermissionViolations(
+                         connection,
+                         SealedEvidenceTableRegistry.SealedTableNames))
             {
-                if (!SqlDatabaseImmutabilityProbeHelpers.ObjectExists(connection, tableName))
-                    continue;
-
-                if (SqlDatabaseImmutabilityProbeHelpers.HasEffectivePermission(connection, tableName, "UPDATE"))
-                {
-                    errors.Add(
-                        $"Sealed evidence immutability: the connected SQL principal has UPDATE on {tableName}; "
-                        + "connect as [ArchLucidApp] (not db_owner/dbo) in production-like hosts.");
-                }
-
-                if (SqlDatabaseImmutabilityProbeHelpers.HasEffectivePermission(connection, tableName, "DELETE"))
-                {
-                    errors.Add(
-                        $"Sealed evidence immutability: the connected SQL principal has DELETE on {tableName}; "
-                        + "connect as [ArchLucidApp] (not db_owner/dbo) in production-like hosts.");
-                }
+                errors.Add(
+                    $"Sealed evidence immutability: the connected SQL principal has {permissionName} on {tableName}; "
+                    + "connect as [ArchLucidApp] (not db_owner/dbo) in production-like hosts.");
             }
         }
         catch (Exception ex)

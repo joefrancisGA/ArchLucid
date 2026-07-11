@@ -1,4 +1,5 @@
 using System.Data;
+using System.Text;
 
 using Microsoft.Data.SqlClient;
 
@@ -77,5 +78,119 @@ internal static class SqlDatabaseImmutabilityProbeHelpers
         command.Parameters.Add(new SqlParameter("@PermissionName", SqlDbType.NVarChar, 128) { Value = permissionName });
 
         return Convert.ToInt32(command.ExecuteScalar()) == 1;
+    }
+
+    /// <summary>
+    ///     One round-trip DENY probe for many tables (avoids serial latency during sealed-evidence startup validation).
+    /// </summary>
+    internal static IReadOnlyList<(string TableName, string PermissionName)> CollectMissingDenyPermissions(
+        SqlConnection connection,
+        IReadOnlyList<string> tableTwoPartNames,
+        string granteeName)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentNullException.ThrowIfNull(tableTwoPartNames);
+        ArgumentNullException.ThrowIfNull(granteeName);
+
+        if (tableTwoPartNames.Count == 0)
+            return [];
+
+        string valuesClause = BuildTableValuesClause(tableTwoPartNames, out List<SqlParameter> tableParameters);
+
+        string sql = $"""
+                      SELECT t.TableName, req.PermissionName
+                      FROM (VALUES {valuesClause}) AS t(TableName)
+                      CROSS JOIN (
+                          SELECT N'UPDATE' AS PermissionName
+                          UNION ALL
+                          SELECT N'DELETE') AS req
+                      WHERE OBJECT_ID(t.TableName, N'U') IS NOT NULL
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM sys.database_permissions AS dp
+                            INNER JOIN sys.database_principals AS gp ON dp.grantee_principal_id = gp.principal_id
+                            WHERE dp.class_desc = N'OBJECT_OR_COLUMN'
+                              AND dp.major_id = OBJECT_ID(t.TableName)
+                              AND dp.permission_name = req.PermissionName
+                              AND dp.state_desc = N'DENY'
+                              AND gp.name = @GranteeName);
+                      """;
+
+        using SqlCommand command = new(sql, connection);
+        command.Parameters.Add(new SqlParameter("@GranteeName", SqlDbType.NVarChar, 128) { Value = granteeName });
+
+        foreach (SqlParameter parameter in tableParameters)
+            command.Parameters.Add(parameter);
+
+        return ReadTablePermissionRows(command);
+    }
+
+    /// <summary>
+    ///     One round-trip effective-permission probe for many tables (connected principal must not UPDATE/DELETE sealed rows).
+    /// </summary>
+    internal static IReadOnlyList<(string TableName, string PermissionName)> CollectEffectivePermissionViolations(
+        SqlConnection connection,
+        IReadOnlyList<string> tableTwoPartNames)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentNullException.ThrowIfNull(tableTwoPartNames);
+
+        if (tableTwoPartNames.Count == 0)
+            return [];
+
+        string valuesClause = BuildTableValuesClause(tableTwoPartNames, out List<SqlParameter> tableParameters);
+
+        string sql = $"""
+                      SELECT t.TableName, req.PermissionName
+                      FROM (VALUES {valuesClause}) AS t(TableName)
+                      CROSS JOIN (
+                          SELECT N'UPDATE' AS PermissionName
+                          UNION ALL
+                          SELECT N'DELETE') AS req
+                      WHERE OBJECT_ID(t.TableName, N'U') IS NOT NULL
+                        AND HAS_PERMS_BY_NAME(t.TableName, N'OBJECT', req.PermissionName) = 1;
+                      """;
+
+        using SqlCommand command = new(sql, connection);
+
+        foreach (SqlParameter parameter in tableParameters)
+            command.Parameters.Add(parameter);
+
+        return ReadTablePermissionRows(command);
+    }
+
+    private static string BuildTableValuesClause(IReadOnlyList<string> tableTwoPartNames, out List<SqlParameter> tableParameters)
+    {
+        StringBuilder valuesClause = new();
+        tableParameters = [];
+
+        for (int index = 0; index < tableTwoPartNames.Count; index++)
+        {
+            if (index > 0)
+                valuesClause.Append(',');
+
+            string parameterName = $"@Table{index}";
+            valuesClause.Append('(').Append(parameterName).Append(')');
+            tableParameters.Add(
+                new SqlParameter(parameterName, SqlDbType.NVarChar, 256) { Value = tableTwoPartNames[index] });
+        }
+
+        return valuesClause.ToString();
+    }
+
+    private static List<(string TableName, string PermissionName)> ReadTablePermissionRows(SqlCommand command)
+    {
+        List<(string TableName, string PermissionName)> rows = [];
+
+        using SqlDataReader reader = command.ExecuteReader();
+
+        while (reader.Read())
+        {
+            string tableName = reader.GetString(0);
+            string permissionName = reader.GetString(1);
+            rows.Add((tableName, permissionName));
+        }
+
+        return rows;
     }
 }
