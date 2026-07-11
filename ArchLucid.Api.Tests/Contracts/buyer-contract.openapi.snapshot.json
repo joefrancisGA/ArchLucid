@@ -17366,6 +17366,46 @@
         ],
         "type": "object"
       },
+      "PreviewRecurrenceScheduleRunsRequest": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "cronExpression": {
+            "type": "string"
+          },
+          "fromUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "PreviewRecurrenceScheduleRunsResponse": {
+        "properties": {
+          "isValid": {
+            "type": "boolean"
+          },
+          "nextRunUtc": {
+            "items": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "validationError": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "PriorManifestEvidence": {
         "properties": {
           "existingDatastores": {

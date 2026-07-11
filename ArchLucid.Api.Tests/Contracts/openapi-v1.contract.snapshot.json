@@ -17366,6 +17366,46 @@
         ],
         "type": "object"
       },
+      "PreviewRecurrenceScheduleRunsRequest": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "cronExpression": {
+            "type": "string"
+          },
+          "fromUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "PreviewRecurrenceScheduleRunsResponse": {
+        "properties": {
+          "isValid": {
+            "type": "boolean"
+          },
+          "nextRunUtc": {
+            "items": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "validationError": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "PriorManifestEvidence": {
         "properties": {
           "existingDatastores": {
@@ -55476,6 +55516,96 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ArchitectureReviewRecurrenceSchedule"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/governance/recurrence-schedules/preview-next-runs": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PreviewRecurrenceScheduleRunsRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PreviewRecurrenceScheduleRunsRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PreviewRecurrenceScheduleRunsRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreviewRecurrenceScheduleRunsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreviewRecurrenceScheduleRunsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreviewRecurrenceScheduleRunsResponse"
                 }
               }
             },
