@@ -9,7 +9,9 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Provenance;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 

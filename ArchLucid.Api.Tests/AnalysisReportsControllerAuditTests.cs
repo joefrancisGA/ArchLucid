@@ -2,7 +2,9 @@ using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Data.Repositories;

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
