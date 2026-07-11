@@ -27,11 +27,11 @@ public sealed class RetrievalIndexFreshnessHealthCheck(
 
         if (summaries.Count == 0)
         {
-            if (IsStartupCorpusIndexingDisabled())
+            if (IsStartupCorpusIndexingDisabled() || IsInMemoryVectorIndex())
             {
                 return Task.FromResult(
                     HealthCheckResult.Healthy(
-                        "Startup corpus indexing disabled; empty in-process retrieval index is expected."));
+                        "Startup corpus indexing disabled or in-memory retrieval index; empty catalog is expected."));
             }
 
             return Task.FromResult(
@@ -56,5 +56,12 @@ public sealed class RetrievalIndexFreshnessHealthCheck(
     private bool ReadIndexOnStartup(string sectionPath)
     {
         return _configuration.GetValue($"{sectionPath}:IndexOnStartup", true);
+    }
+
+    private bool IsInMemoryVectorIndex()
+    {
+        string? mode = _configuration["Retrieval:VectorIndex"];
+
+        return string.Equals(mode, "InMemory", StringComparison.OrdinalIgnoreCase);
     }
 }

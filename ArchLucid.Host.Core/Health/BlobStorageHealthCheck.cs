@@ -1,6 +1,8 @@
 using ArchLucid.Persistence.BlobStore;
 
+using Azure;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
@@ -9,7 +11,8 @@ namespace ArchLucid.Host.Core.Health;
 
 /// <summary>
 /// When <see cref="ArtifactLargePayloadOptions"/> uses Azure Blob, probes the storage account via
-/// <see cref="BlobServiceClient.GetPropertiesAsync"/>. Otherwise reports healthy (degraded scope).
+/// a single-page container list (data-plane read compatible with <c>Storage Blob Data Contributor</c>).
+/// Otherwise reports healthy (degraded scope).
 /// </summary>
 public sealed class BlobStorageHealthCheck(
     IOptionsMonitor<ArtifactLargePayloadOptions> payloadOptions,
@@ -35,8 +38,16 @@ public sealed class BlobStorageHealthCheck(
 
         try
         {
-            await client.GetPropertiesAsync(cancellationToken);
-            return HealthCheckResult.Healthy("Azure Blob service endpoint responded.");
+            // GetProperties requires blob service metadata read; Storage Blob Data Contributor does not include it.
+            await foreach (Page<BlobContainerItem> _ in client
+                               .GetBlobContainersAsync(cancellationToken: cancellationToken)
+                               .AsPages(pageSizeHint: 1)
+                               .ConfigureAwait(false))
+            {
+                break;
+            }
+
+            return HealthCheckResult.Healthy("Azure Blob data plane responded (container list).");
         }
         catch (Exception ex)
         {
