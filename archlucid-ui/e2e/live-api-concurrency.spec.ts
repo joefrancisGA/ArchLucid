@@ -13,13 +13,15 @@ import {
   liveE2eArchitectureDescription,
   postGovernanceApproveRaw,
   searchAudit,
+  waitForAuthorityRunSummaryReady,
   waitForLiveApiReady,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
 
 test.describe("live-api-concurrency", () => {
-  const tenantScope = freshIsolatedTenantScope();
+  // One tenant per test — shared scope let parallel commit + governance races collide on audit/run state.
+  test.describe.configure({ mode: "serial" });
 
   test.beforeAll(async ({ request }) => {
     await waitForLiveApiReady(request);
@@ -27,6 +29,8 @@ test.describe("live-api-concurrency", () => {
 
   test("parallel first commit: both responses succeed without 5xx; run ends Committed", async ({ request }) => {
     test.setTimeout(180_000);
+
+    const tenantScope = freshIsolatedTenantScope();
 
     const createBody = {
       requestId: `E2E-CONC-COMMIT-${Date.now()}`,
@@ -75,6 +79,8 @@ test.describe("live-api-concurrency", () => {
   }) => {
     test.setTimeout(240_000);
 
+    const tenantScope = freshIsolatedTenantScope();
+
     const createBody = {
       requestId: `E2E-CONC-GOV-${Date.now()}`,
       description: liveE2eArchitectureDescription("Live E2E: parallel governance approve."),
@@ -99,6 +105,7 @@ test.describe("live-api-concurrency", () => {
     }
 
     await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
+    await waitForAuthorityRunSummaryReady(request, runId, 60_000, tenantScope);
 
     const submitted = await createApprovalRequest(
       request,
