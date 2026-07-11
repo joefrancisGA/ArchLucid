@@ -138,6 +138,7 @@ python3 scripts/ci/check_doc_source_of_truth_headers.py
 python3 scripts/ci/audit_new_operator_dry_run_docs.py
 python3 scripts/ci/check_azure_ai_search_release_evidence.py
 python3 scripts/ci/validate_outbox_retrieval_slo_thresholds.py
+python3 scripts/ci/check_public_pdf_safety.py
 
 python3 -m pip install --quiet pytest
 cd scripts/ci && python3 -m pytest tests/ -v

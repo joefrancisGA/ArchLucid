@@ -78,6 +78,25 @@ jobs:
           version: "8.30.1"
           config-path: .gitleaks.toml
 
+  public-pdf-buyer-safety:
+    name: "Docs: public PDF buyer-safety"
+    needs:
+      - gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Public PDF buyer-safety guard (TB-725)
+        run: python scripts/ci/check_public_pdf_safety.py
+
+      - name: Public PDF buyer-safety guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_public_pdf_safety.py"
+
   docs-root-size:
     name: "Docs: root markdown count guard (â‰¤32)"
     # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
@@ -773,6 +792,9 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/assert_high_risk_doc_coherence.py
 
+      - name: Public PDF buyer-safety guard (pdfStatus public markdown)
+        run: python scripts/ci/check_public_pdf_safety.py
+
       - name: Public pricing placeholder hard guard (sales-led posture)
         continue-on-error: true
         run: python scripts/ci/assert_public_pricing_placeholder_guard.py
@@ -782,6 +804,7 @@ jobs:
         run: |
           python -m unittest discover -s scripts/ci/tests -p "test_assert_v1_connector_catalog_alignment.py"
           python -m unittest discover -s scripts/ci/tests -p "test_assert_high_risk_doc_coherence.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_check_public_pdf_safety.py"
           python -m unittest discover -s scripts/ci/tests -p "test_assert_public_pricing_placeholder_guard.py"
           python -m unittest discover -s scripts/ci/tests -p "test_pricing_json_checkout_guard.py"
           python -m unittest discover -s scripts/ci/tests -p "test_data_consistency_mode_readiness_report.py"
