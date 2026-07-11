@@ -473,6 +473,14 @@ export function RunDetailPageView(props: {
                     ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
                     : null
                 }
+                useStructuredPresentation={showArchitectureCreatedHome}
+                runId={m.resolvedDetail.run.runId}
+                sectionTitle={showArchitectureCreatedHome ? "Generated architecture" : undefined}
+                helperText={
+                  showArchitectureCreatedHome
+                    ? "Structured sections below summarize what ArchLucid understood from your brief — raw model output stays behind View generated source."
+                    : undefined
+                }
               />
 
               <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure open={false}>

@@ -1,10 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
+import { ArchitectureStructuredContentPanel } from "@/components/architecture/ArchitectureStructuredContentPanel";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { readArchitectureCreationHandoff } from "@/lib/architecture-creation-handoff";
+import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const PREVIEW_LINE_COUNT = 4;
@@ -50,24 +53,63 @@ function renderArchitectureBody(text: string): React.ReactNode {
   );
 }
 
+function resolveUserAssertions(
+  runId: string | null,
+  explicitAssertions: ArchitectureCreationUserAssertions | null,
+): ArchitectureCreationUserAssertions | null {
+  if (explicitAssertions !== null) {
+    return explicitAssertions;
+  }
+
+  if (runId === null || runId.trim().length === 0) {
+    return null;
+  }
+
+  const snapshot = readArchitectureCreationHandoff(runId);
+
+  if (snapshot === null) {
+    return null;
+  }
+
+  return {
+    architectureName: snapshot.architectureName,
+    architectureOverview: snapshot.architectureOverview,
+    businessOutcome: snapshot.businessOutcome,
+    peopleAndSystems: snapshot.peopleAndSystems,
+  };
+}
+
 export type RunDetailSubmittedArchitectureSectionProps = {
   readonly architectureText: string | null;
   readonly canEditSource: boolean;
   readonly editHref: string | null;
+  readonly useStructuredPresentation?: boolean;
+  readonly runId?: string | null;
+  readonly userAssertions?: ArchitectureCreationUserAssertions | null;
+  readonly sectionTitle?: string;
+  readonly helperText?: string;
 };
 
-/** Collapsed submitted architecture — never dominates the findings-first workspace. */
+/** Collapsed submitted architecture — structured on post-creation handoff, legacy prose otherwise. */
 export function RunDetailSubmittedArchitectureSection(
   props: RunDetailSubmittedArchitectureSectionProps,
 ): React.ReactElement | null {
   const [copied, setCopied] = useState(false);
   const text = props.architectureText?.trim() ?? "";
+  const sectionTitle = props.sectionTitle ?? "Architecture submitted for review";
+  const helperText =
+    props.helperText ??
+    "ArchLucid review findings and evidence appear above — this is the source material you submitted.";
+  const userAssertions = useMemo(
+    () => resolveUserAssertions(props.runId ?? null, props.userAssertions ?? null),
+    [props.runId, props.userAssertions],
+  );
 
   if (text.length === 0) {
     return (
       <section id="submitted-architecture" className="scroll-mt-24" data-testid="submitted-architecture-empty">
         <CollapsibleSection
-          title="Architecture submitted for review"
+          title={sectionTitle}
           defaultOpen={false}
           sectionTestId="submitted-architecture-collapsible"
         >
@@ -76,6 +118,43 @@ export function RunDetailSubmittedArchitectureSection(
             available in the evidence sections.
           </p>
         </CollapsibleSection>
+      </section>
+    );
+  }
+
+  if (props.useStructuredPresentation === true) {
+    return (
+      <section id="submitted-architecture" className="scroll-mt-24" data-testid="submitted-architecture-section">
+        <details
+          className="mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+          data-testid="submitted-architecture-collapsible"
+          data-workspace-disclosure
+          open
+        >
+          <summary
+            className={cn("cursor-pointer select-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+          >
+            {sectionTitle}
+          </summary>
+          <div className="mt-3 space-y-3">
+            <ArchitectureStructuredContentPanel
+              sourceText={text}
+              userAssertions={userAssertions}
+              correctionHref={props.canEditSource ? props.editHref : null}
+              runId={props.runId ?? null}
+            />
+            <div className="flex flex-wrap items-center gap-2">
+              {props.canEditSource && props.editHref !== null ? (
+                <Button variant="outline" size="sm" asChild>
+                  <a href={props.editHref}>Edit source</a>
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        </details>
+        <p className={cn("m-0 -mt-4 mb-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {helperText}
+        </p>
       </section>
     );
   }
@@ -105,7 +184,7 @@ export function RunDetailSubmittedArchitectureSection(
         <summary
           className={cn("cursor-pointer select-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
         >
-          Architecture submitted for review
+          {sectionTitle}
         </summary>
         <div className="mt-3 space-y-3">
           <p className={cn("m-0 font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -146,7 +225,7 @@ export function RunDetailSubmittedArchitectureSection(
         </div>
       </details>
       <p className={cn("m-0 -mt-4 mb-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        ArchLucid review findings and evidence appear above — this is the source material you submitted.
+        {helperText}
       </p>
     </section>
   );

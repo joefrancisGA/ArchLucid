@@ -158,16 +158,7 @@ function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput): Arch
     });
   }
 
-  const constraintHint = truncateSummary(input.architectureOverview, 220);
-
-  if (constraintHint.length > 0 && constraintHint !== businessPurpose) {
-    fields.push({
-      label: ARCHITECTURE_SUMMARY_LABELS.constraints,
-      value: constraintHint,
-    });
-  }
-
-  return fields.slice(0, 5);
+  return fields.slice(0, 4);
 }
 
 function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): ArchitectureMissingItem[] {
