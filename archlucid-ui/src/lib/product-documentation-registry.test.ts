@@ -129,6 +129,10 @@ describe("product-documentation-registry", () => {
     }
   });
 
+  it("does not register contributor-only pre-commit CI runbook in the in-app registry (TB-735)", () => {
+    expect(getProductDocumentationEntry("pre-commit-ci-gate")).toBeNull();
+  });
+
   it("maps initial PDF strategy slugs to expected pdfStatus (TB-722)", () => {
     const expected: Readonly<Record<string, ProductDocumentationEntry["pdfStatus"]>> = {
       "core-pilot": "public",
@@ -173,7 +177,6 @@ describe("product-documentation-registry", () => {
     const internalRunbookSlugs = [
       "first-pilot-operator-runbook",
       "first-value-20-minutes",
-      "pre-commit-ci-gate",
     ] as const;
 
     for (const slug of internalRunbookSlugs) {

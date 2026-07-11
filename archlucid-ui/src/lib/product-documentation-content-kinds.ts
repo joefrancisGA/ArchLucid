@@ -7,7 +7,6 @@ export type ProductDocumentationContentKind =
 const INTERNAL_RUNBOOK_SLUGS = new Set<string>([
   "first-pilot-operator-runbook",
   "first-value-20-minutes",
-  "pre-commit-ci-gate",
 ]);
 
 /** Canonical `contentKind` for every `product-documentation-registry.ts` slug. */
@@ -57,7 +56,6 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "pilot-nav-profile": "product-help",
   "pilot-roi-model": "product-help",
   "policy-pack-delta-demo": "product-help",
-  "pre-commit-ci-gate": "internal-runbook",
   "privacy-policy": "product-help",
   procurement: "product-help",
   "projection-cache-replicas": "technical-documentation",

@@ -63,14 +63,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md"],
   },
   {
-    slug: "pre-commit-ci-gate",
-    title: "Pre-commit gate in CI",
-    summary:
-      "Copy-paste GitHub Actions and Azure DevOps starters that call pre-commit simulate or commit on a tagged review using API key secrets.",
-    audience: "developer",
-    sourcePaths: ["docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md"],
-  },
-  {
     slug: "pilot-nav-profile",
     title: "Workspace navigation profile",
     summary:

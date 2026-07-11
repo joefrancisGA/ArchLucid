@@ -1,16 +1,25 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
 import { HelpHowArchLucidWorksGuideView } from "../_sections/HelpHowArchLucidWorksGuideView";
+import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
+import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
+import { HelpTopicNotFoundView } from "../_sections/HelpTopicNotFoundView";
 import { HelpTroubleshootingGuideView } from "../_sections/HelpTroubleshootingGuideView";
+import { principalCanAccessHelpTopic } from "@/lib/product-documentation-access";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
+  getProductDocumentationEntry,
   HELP_TOPIC_SLUG_ALIASES,
   listProductDocumentationEntries,
 } from "@/lib/product-documentation-registry";
+import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
+
+export const dynamic = "force-dynamic";
 
 type HelpTopicPageProps = {
   params: Promise<{ topic: string[] }>;
@@ -21,7 +30,9 @@ function helpSlugFromTopicSegments(topic: string[]): string {
 }
 
 export async function generateStaticParams(): Promise<Array<{ topic: string[] }>> {
-  const registryParams = listProductDocumentationEntries().map((entry) => ({ topic: [entry.slug] }));
+  const registryParams = listProductDocumentationEntries()
+    .filter((entry) => entry.contentKind !== "internal-runbook")
+    .map((entry) => ({ topic: [entry.slug] }));
   const aliasParams = Object.keys(HELP_TOPIC_SLUG_ALIASES).map((alias) => ({
     topic: alias.split("/"),
   }));
@@ -29,28 +40,7 @@ export async function generateStaticParams(): Promise<Array<{ topic: string[] }>
   return [...registryParams, ...aliasParams];
 }
 
-export async function generateMetadata(props: HelpTopicPageProps): Promise<Metadata> {
-  const { topic } = await props.params;
-  const loaded = tryLoadProductDocumentation(helpSlugFromTopicSegments(topic));
-
-  if (loaded === null) {
-    return { title: "Help topic not found" };
-  }
-
-  return {
-    title: loaded.entry.title,
-    description: loaded.entry.summary,
-  };
-}
-
-export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<React.ReactElement> {
-  const { topic } = await props.params;
-  const loaded = tryLoadProductDocumentation(helpSlugFromTopicSegments(topic));
-
-  if (loaded === null) {
-    notFound();
-  }
-
+function renderHelpTopicView(loaded: NonNullable<ReturnType<typeof tryLoadProductDocumentation>>): React.ReactElement {
   if (loaded.entry.slug === "core-pilot") {
     return <HelpCorePilotGuideView entry={loaded.entry} />;
   }
@@ -68,4 +58,70 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
   }
 
   return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;
+}
+
+export async function generateMetadata(props: HelpTopicPageProps): Promise<Metadata> {
+  const { topic } = await props.params;
+  const entry = getProductDocumentationEntry(helpSlugFromTopicSegments(topic));
+
+  if (entry === null) {
+    return { title: "Help topic not found" };
+  }
+
+  if (entry.contentKind === "internal-runbook") {
+    return { title: "Help topic not found" };
+  }
+
+  return {
+    title: entry.title,
+    description: entry.summary,
+  };
+}
+
+export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<React.ReactElement> {
+  const { topic } = await props.params;
+  const slug = helpSlugFromTopicSegments(topic);
+  const entry = getProductDocumentationEntry(slug);
+
+  if (entry === null) {
+    notFound();
+  }
+
+  if (entry.contentKind === "internal-runbook") {
+    const inboundAuthorization = (await headers()).get("authorization")?.trim() ?? "";
+
+    if (inboundAuthorization.length > 0) {
+      const principal = await getInboundAuthenticatedServerPrincipal();
+
+      if (!principalCanAccessHelpTopic(entry, principal)) {
+        notFound();
+      }
+
+      const loaded = tryLoadProductDocumentation(slug);
+
+      if (loaded === null) {
+        notFound();
+      }
+
+      return (
+        <HelpTopicAuthorityGate entry={entry} denied={<HelpTopicNotFoundView />}>
+          {renderHelpTopicView(loaded)}
+        </HelpTopicAuthorityGate>
+      );
+    }
+
+    return (
+      <HelpTopicAuthorityGate entry={entry} denied={<HelpTopicNotFoundView />}>
+        <HelpTopicMarkdownClient entry={entry} />
+      </HelpTopicAuthorityGate>
+    );
+  }
+
+  const loaded = tryLoadProductDocumentation(slug);
+
+  if (loaded === null) {
+    notFound();
+  }
+
+  return renderHelpTopicView(loaded);
 }
