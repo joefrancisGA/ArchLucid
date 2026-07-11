@@ -7,6 +7,11 @@ public interface ITenantRepository
 {
     Task<TenantRecord?> GetByIdAsync(Guid tenantId, CancellationToken ct);
 
+    /// <summary>
+    ///     Reads <c>dbo.Tenants</c> from the control-plane catalog (system SQL) when tenant-plane routing returns no row.
+    /// </summary>
+    Task<TenantRecord?> GetByIdFromControlPlaneCatalogAsync(Guid tenantId, CancellationToken ct);
+
     Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct);
 
     /// <summary>Lookup by Entra directory tenant id (<c>tid</c> claim) when linked.</summary>

@@ -109,6 +109,8 @@ public sealed class CommercialTenantTierFilterTests
         Mock<ITenantRepository> tenants = new();
         tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantRecord?)null);
+        tenants.Setup(t => t.GetByIdFromControlPlaneCatalogAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope())
@@ -144,6 +146,8 @@ public sealed class CommercialTenantTierFilterTests
 
         Mock<ITenantRepository> tenants = new();
         tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+        tenants.Setup(t => t.GetByIdFromControlPlaneCatalogAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantRecord?)null);
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -224,6 +228,102 @@ public sealed class CommercialTenantTierFilterTests
                 minimumTier: TenantTier.Standard)
             .Should()
             .BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_active_trial_standard_tier_minimum_standard_returns_403_packaging_problem()
+    {
+        Guid tenantId = Guid.Parse("11111111-2222-3333-4444-555555555555");
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "t",
+                    Slug = "t",
+                    Tier = TenantTier.Standard,
+                    TrialStatus = TrialLifecycleStatus.Active,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    TrialRunsUsed = 0,
+                    TrialSeatsUsed = 0
+                });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(
+                new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        CommercialTenantTierFilter sut = BuildFilter(TenantTier.Standard, tenants.Object, scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        ObjectResult? obj = executing.Result.Should().BeOfType<ObjectResult>().Subject;
+        obj.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            obj.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.PackagingTierInsufficient);
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_missing_tenant_plane_row_control_plane_free_tier_returns_403()
+    {
+        Guid tenantId = Guid.Parse("22222222-3333-4444-5555-666666666666");
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+        tenants.Setup(t => t.GetByIdFromControlPlaneCatalogAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "t",
+                    Slug = "t",
+                    Tier = TenantTier.Free,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    TrialRunsUsed = 0,
+                    TrialSeatsUsed = 0
+                });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(
+                new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        CommercialTenantTierFilter sut = BuildFilter(
+            TenantTier.Standard,
+            tenants.Object,
+            scopeProvider.Object,
+            isDevelopmentHost: false,
+            authMode: "DevelopmentBypass",
+            e2eHarnessSharedSecret: "sixteen-char-secret");
+        ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        ObjectResult? obj = executing.Result.Should().BeOfType<ObjectResult>().Subject;
+        obj.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
     }
 
     [SkippableFact]

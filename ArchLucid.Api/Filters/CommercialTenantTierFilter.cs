@@ -51,7 +51,13 @@ public sealed class CommercialTenantTierFilter(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, context.HttpContext.RequestAborted);
+        CancellationToken cancellationToken = context.HttpContext.RequestAborted;
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+        {
+            tenant = await _tenantRepository.GetByIdFromControlPlaneCatalogAsync(scope.TenantId, cancellationToken);
+        }
 
         if (tenant is null)
         {
@@ -87,7 +93,7 @@ public sealed class CommercialTenantTierFilter(
             return;
         }
 
-        if ((int)tenant.Tier < (int)minimumTier)
+        if (!CommercialTenantEligibility.MeetsCommercialTenantTierGate(tenant, minimumTier))
         {
             string? instancePath = context.HttpContext.Request.Path.Value;
 

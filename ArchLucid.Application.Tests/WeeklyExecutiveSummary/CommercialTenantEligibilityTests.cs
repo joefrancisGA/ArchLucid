@@ -45,4 +45,43 @@ public sealed class CommercialTenantEligibilityTests
 
         CommercialTenantEligibility.IsEligibleForWeeklyExecutiveSummary(tenant).Should().BeFalse();
     }
+
+    [Fact]
+    public void Active_trial_does_not_meet_standard_commercial_gate()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Guid.NewGuid(),
+            Tier = TenantTier.Free,
+            TrialStatus = TrialLifecycleStatus.Active
+        };
+
+        CommercialTenantEligibility.MeetsCommercialTenantTierGate(tenant, TenantTier.Standard).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Active_trial_with_standard_tier_still_blocked_from_standard_commercial_gate()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Guid.NewGuid(),
+            Tier = TenantTier.Standard,
+            TrialStatus = TrialLifecycleStatus.Active
+        };
+
+        CommercialTenantEligibility.MeetsCommercialTenantTierGate(tenant, TenantTier.Standard).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Converted_standard_tier_meets_standard_commercial_gate()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Guid.NewGuid(),
+            Tier = TenantTier.Standard,
+            TrialStatus = TrialLifecycleStatus.Converted
+        };
+
+        CommercialTenantEligibility.MeetsCommercialTenantTierGate(tenant, TenantTier.Standard).Should().BeTrue();
+    }
 }

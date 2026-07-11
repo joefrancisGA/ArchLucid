@@ -39,30 +39,14 @@ public sealed class DapperTenantRepository(
     {
         await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
-        const string sql = """
-                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
-                                  TenantErasureRequestedUtc,
-                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
-                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                  TrialStatus, TrialSampleRunId,
-                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
-                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
-                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
-                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
-                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
-                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
-                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
-                           FROM dbo.Tenants
-                           WHERE Id = @Id;
-                           """;
+        return await QueryTenantByIdAsync(connection, tenantId, ct).ConfigureAwait(false);
+    }
 
-        TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
-            new CommandDefinition(sql, new
-            {
-                Id = tenantId
-            }, cancellationToken: ct)).ConfigureAwait(false);
+    public async Task<TenantRecord?> GetByIdFromControlPlaneCatalogAsync(Guid tenantId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
-        return row?.ToRecord();
+        return await QueryTenantByIdAsync(connection, tenantId, ct).ConfigureAwait(false);
     }
 
     public async Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct)
@@ -1184,6 +1168,37 @@ public sealed class DapperTenantRepository(
             return await _catalogConnectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         return await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task<TenantRecord?> QueryTenantByIdAsync(
+        SqlConnection connection,
+        Guid tenantId,
+        CancellationToken ct)
+    {
+        const string sql = """
+                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                  TenantErasureRequestedUtc,
+                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
+                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
+                                  TrialStatus, TrialSampleRunId,
+                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
+                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
+                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
+                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
+                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
+                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
+                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
+                           FROM dbo.Tenants
+                           WHERE Id = @Id;
+                           """;
+
+        TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
+            new CommandDefinition(sql, new
+            {
+                Id = tenantId
+            }, cancellationToken: ct)).ConfigureAwait(false);
+
+        return row?.ToRecord();
     }
 
     private static async Task<TenantRecord?> QueryTenantBySlugAsync(

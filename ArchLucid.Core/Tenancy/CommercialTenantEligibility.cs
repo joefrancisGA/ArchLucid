@@ -3,6 +3,23 @@ namespace ArchLucid.Core.Tenancy;
 /// <summary>Shared rules for paid-tier automation that should not target active self-service trials.</summary>
 public static class CommercialTenantEligibility
 {
+    /// <summary>
+    ///     Returns whether the tenant may access HTTP surfaces gated by <paramref name="minimumTier" />.
+    ///     Active self-service trials stay on <see cref="TenantTier.Free" /> and must not receive Standard commercial catalogs.
+    /// </summary>
+    public static bool MeetsCommercialTenantTierGate(TenantRecord tenant, TenantTier minimumTier)
+    {
+        ArgumentNullException.ThrowIfNull(tenant);
+
+        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal)
+            && (int)minimumTier >= (int)TenantTier.Standard)
+        {
+            return false;
+        }
+
+        return (int)tenant.Tier >= (int)minimumTier;
+    }
+
     public static bool IsEligibleForWeeklyExecutiveSummary(TenantRecord tenant)
     {
         ArgumentNullException.ThrowIfNull(tenant);
