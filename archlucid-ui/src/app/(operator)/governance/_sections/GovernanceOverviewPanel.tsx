@@ -9,8 +9,7 @@ import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getGovernanceDashboard } from "@/lib/api";
-import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
+import { getGovernanceDashboard, getGovernanceDecisionsNeededSummary } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
@@ -110,8 +109,12 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
   const pendingSectionRef = useRef<HTMLElement | null>(null);
   const [loadState, setLoadState] = useState<OverviewLoadState>({ status: "loading" });
 
-  const loadOverview = useCallback(async () => {
-    setLoadState({ status: "loading" });
+  const loadOverview = useCallback(async (options?: { readonly isCancelled?: () => boolean }): Promise<void> => {
+    const isCancelled = options?.isCancelled ?? (() => false);
+
+    if (!isCancelled()) {
+      setLoadState({ status: "loading" });
+    }
 
     try {
       const [dashboard, decisionsNeeded] = await Promise.all([
@@ -120,18 +123,32 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
       ]);
       const metrics = buildGovernanceOverviewSummaryMetrics(dashboard, decisionsNeeded);
 
+      if (isCancelled()) {
+        return;
+      }
+
       setLoadState({
         status: "ready",
         dashboard,
         metrics,
       });
     } catch (error) {
+      if (isCancelled()) {
+        return;
+      }
+
       setLoadState({ status: "error", failure: toApiLoadFailure(error) });
     }
   }, []);
 
   useEffect(() => {
-    void loadOverview();
+    let cancelled = false;
+
+    void loadOverview({ isCancelled: () => cancelled });
+
+    return () => {
+      cancelled = true;
+    };
   }, [loadOverview]);
 
   const scrollToPending = (): void => {

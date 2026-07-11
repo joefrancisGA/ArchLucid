@@ -66,6 +66,9 @@ const apiHoisted = vi.hoisted(() => ({
   listPromotions: vi.fn(),
   listActivations: vi.fn(),
   listAlertRoutingSubscriptions: vi.fn(),
+  getGovernanceDashboard: vi.fn(),
+  getGovernanceDecisionsNeededSummary: vi.fn(),
+  listRunsByProjectPaged: vi.fn(),
 }));
 
 vi.mock("@/lib/api", async (importOriginal) => {
@@ -82,6 +85,9 @@ vi.mock("@/lib/api", async (importOriginal) => {
     listPromotions: apiHoisted.listPromotions,
     listActivations: apiHoisted.listActivations,
     listAlertRoutingSubscriptions: apiHoisted.listAlertRoutingSubscriptions,
+    getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
+    getGovernanceDecisionsNeededSummary: apiHoisted.getGovernanceDecisionsNeededSummary,
+    listRunsByProjectPaged: apiHoisted.listRunsByProjectPaged,
   };
 });
 
@@ -154,6 +160,28 @@ describe("authority-shaped layout regression", () => {
     apiHoisted.listApprovalRequests.mockResolvedValue([]);
     apiHoisted.listPromotions.mockResolvedValue([]);
     apiHoisted.listActivations.mockResolvedValue([]);
+    apiHoisted.getGovernanceDashboard.mockResolvedValue({
+      pendingApprovals: [],
+      recentDecisions: [],
+      recentChanges: [],
+      pendingCount: 0,
+    });
+    apiHoisted.getGovernanceDecisionsNeededSummary.mockResolvedValue({
+      pendingApprovals: 0,
+      staleRisks: 0,
+      unownedHighSeverityRisks: 0,
+      findingsAwaitingEvidence: 0,
+      waiversExpiringWithin14Days: 0,
+      deferredFindingsDue: 0,
+      totalDecisionItems: 0,
+    });
+    apiHoisted.listRunsByProjectPaged.mockResolvedValue({
+      items: [{ runId: "gov-layout-run", projectId: "default", description: "Layout fixture", createdUtc: "" }],
+      totalCount: 1,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
     apiHoisted.listAlertRoutingSubscriptions.mockResolvedValue([
       {
         routingSubscriptionId: "rs-layout-1",
