@@ -109,7 +109,7 @@ export function FirstReviewGuideNextActionCard({
       : null;
   const action =
     finalizeAction ??
-    (step?.actionLabel !== null && step?.actionHref !== null
+    (step !== null && step.actionLabel !== null && step.actionHref !== null
       ? { label: step.actionLabel, href: step.actionHref }
       : null);
 
