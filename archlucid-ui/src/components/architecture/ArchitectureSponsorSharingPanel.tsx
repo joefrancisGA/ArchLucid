@@ -45,7 +45,7 @@ import {
 } from "@/lib/architecture-sponsor-readiness";
 import { buildArchitectureSponsorShareMarkdown } from "@/lib/architecture-sponsor-preliminary-draft";
 import { writeWorkItemBodyToClipboard } from "@/lib/copy-finding-as-work-item";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
@@ -58,16 +58,23 @@ export type ArchitectureSponsorSharingPanelProps = {
   readonly findings: readonly QuickDecisionFinding[];
 };
 
-function readinessStatusTagKind(status: SponsorReadinessStatus): "success" | "warning" | "neutral" {
-  if (status === "ready") {
-    return "success";
-  }
+function readinessStatusTagKind(status: SponsorReadinessStatus): EnterpriseStatusKind {
+  switch (status) {
+    case "ready":
+      return "ready";
 
-  if (status === "needs-attention") {
-    return "warning";
-  }
+    case "needs-attention":
+      return "needs-attention";
 
-  return "neutral";
+    case "preliminary-only":
+      return "neutral";
+
+    default: {
+      const exhaustive: never = status;
+
+      return exhaustive;
+    }
+  }
 }
 
 /** Collapsed sponsor-readiness and controlled preliminary sharing for architecture-creation review detail. */
