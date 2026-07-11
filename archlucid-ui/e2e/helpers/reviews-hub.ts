@@ -2,6 +2,11 @@ import { type Locator } from "@playwright/test";
 
 import { SHOWCASE_DEMO_RUN_ID } from "../fixtures";
 
+/** Recent packages section on the buyer-polished `/reviews` hub. */
+export function reviewsHubRecentPackagesSection(main: Locator): Locator {
+  return main.getByTestId("reviews-hub-recent-packages").first();
+}
+
 /**
  * Buyer-polished `/reviews` hub table row for a package (sample packages use `reviews-hub-sample-row`).
  */

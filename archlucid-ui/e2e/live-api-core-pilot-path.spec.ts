@@ -16,7 +16,7 @@ import {
 } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import { resolveLiveAuthMode, waitForLiveApiReady } from "./helpers/live-api-client";
-import { reviewsHubFirstPackageRow } from "./helpers/reviews-hub";
+import { reviewsHubFirstPackageRow, reviewsHubRecentPackagesSection } from "./helpers/reviews-hub";
 
 test.describe("live-api-core-pilot-path", () => {
   test.beforeAll(async ({ request }) => {
@@ -51,7 +51,7 @@ test.describe("live-api-core-pilot-path", () => {
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
-    await expect(page.getByTestId("reviews-hub-recent-packages")).toBeVisible({ timeout: 60_000 });
+    await expect(reviewsHubRecentPackagesSection(getAppMain(page))).toBeVisible({ timeout: 60_000 });
     await expect(reviewsHubFirstPackageRow(getAppMain(page))).toBeVisible({ timeout: 60_000 });
 
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
