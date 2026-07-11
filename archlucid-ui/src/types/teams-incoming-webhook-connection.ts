@@ -22,3 +22,13 @@ export type TeamsIncomingWebhookConnectionUpsertRequest = {
    */
   enabledTriggers?: string[];
 };
+
+export type TeamsIncomingWebhookSecretValidationResponse = {
+  outcome: "Found" | "InvalidName" | "NotFound" | "PermissionDenied" | "InvalidValue";
+  message: string;
+};
+
+export type TeamsIncomingWebhookConnectionTestResponse = {
+  delivered: boolean;
+  message?: string | null;
+};

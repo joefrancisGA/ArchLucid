@@ -11,7 +11,9 @@ import type {
 } from "@/types/exec-digest-preferences";
 import type {
   TeamsIncomingWebhookConnectionResponse,
+  TeamsIncomingWebhookConnectionTestResponse,
   TeamsIncomingWebhookConnectionUpsertRequest,
+  TeamsIncomingWebhookSecretValidationResponse,
 } from "@/types/teams-incoming-webhook-connection";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 import { apiDelete, apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
@@ -113,6 +115,28 @@ export async function deleteTeamsIncomingWebhookConnection(): Promise<void> {
 /** Loads the canonical v1 Teams notification trigger catalog (canonical event-type strings). */
 export async function getTeamsNotificationTriggerCatalog(): Promise<string[]> {
   return apiGet<string[]>(`/${ApiV1Routes.teamsNotificationTriggerCatalog}`);
+}
+
+/** Validates a Key Vault secret reference for Teams webhook delivery (Execute+). */
+export async function validateTeamsIncomingWebhookSecret(
+  keyVaultSecretName: string,
+): Promise<TeamsIncomingWebhookSecretValidationResponse> {
+  return apiPostJson<TeamsIncomingWebhookSecretValidationResponse>(
+    `/${ApiV1Routes.teamsIncomingWebhookConnections}/validate-secret`,
+    { keyVaultSecretName: keyVaultSecretName.trim() },
+  );
+}
+
+/** Sends a synthetic Teams test notification (Execute+). */
+export async function testTeamsIncomingWebhookConnection(
+  keyVaultSecretName?: string | null,
+): Promise<TeamsIncomingWebhookConnectionTestResponse> {
+  const trimmed = keyVaultSecretName?.trim() ?? "";
+
+  return apiPostJson<TeamsIncomingWebhookConnectionTestResponse>(
+    `/${ApiV1Routes.teamsIncomingWebhookConnections}/test`,
+    trimmed.length > 0 ? { keyVaultSecretName: trimmed } : {},
+  );
 }
 
 /** Creates a new digest delivery subscription. */

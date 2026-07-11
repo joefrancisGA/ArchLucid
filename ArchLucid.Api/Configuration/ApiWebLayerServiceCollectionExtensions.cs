@@ -100,6 +100,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         });
 
         services.AddScoped<IWebhookSubscriptionTestService, WebhookSubscriptionTestService>();
+        services.AddScoped<ITeamsIncomingWebhookConnectionProbeService, TeamsIncomingWebhookConnectionProbeService>();
         services.AddScoped<MarketplaceWebhookConnectivityService>();
 
         services.AddHealthChecks().AddCheck<AzureServiceBusNamespaceHealthCheck>(

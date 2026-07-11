@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Services;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -28,10 +29,14 @@ namespace ArchLucid.Api.Controllers.Integrations;
 public sealed class TeamsIncomingWebhookConnectionsController(
     IScopeContextProvider scopeProvider,
     ITenantTeamsIncomingWebhookConnectionRepository connectionRepository,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    ITeamsIncomingWebhookConnectionProbeService probeService) : ControllerBase
 {
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly ITeamsIncomingWebhookConnectionProbeService _probeService =
+        probeService ?? throw new ArgumentNullException(nameof(probeService));
 
     private readonly ITenantTeamsIncomingWebhookConnectionRepository _connectionRepository =
         connectionRepository ?? throw new ArgumentNullException(nameof(connectionRepository));
@@ -186,5 +191,45 @@ public sealed class TeamsIncomingWebhookConnectionsController(
         }
 
         return NoContent();
+    }
+
+    /// <summary>Validates that a Key Vault secret exists, is accessible, and contains a Teams webhook URL.</summary>
+    [HttpPost("connections/validate-secret")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Audit: read-only Key Vault probe; no connection persisted.")]
+    [ProducesResponseType(typeof(TeamsIncomingWebhookSecretValidationResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ValidateSecret(
+        [FromBody] TeamsIncomingWebhookSecretValidationRequest? body,
+        CancellationToken cancellationToken)
+    {
+        TeamsIncomingWebhookSecretValidationResponse result =
+            await _probeService.ValidateSecretAsync(body?.KeyVaultSecretName, cancellationToken);
+
+        return Ok(result);
+    }
+
+    /// <summary>Sends a synthetic Teams test notification using a Key Vault secret reference.</summary>
+    [HttpPost("connections/test")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Audit: synthetic Teams probe; no governance event created.")]
+    [ProducesResponseType(typeof(TeamsIncomingWebhookConnectionTestResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> TestConnection(
+        [FromBody] TeamsIncomingWebhookConnectionTestRequest? body,
+        CancellationToken cancellationToken)
+    {
+        string? secretName = body?.KeyVaultSecretName;
+
+        if (string.IsNullOrWhiteSpace(secretName))
+        {
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
+            TeamsIncomingWebhookConnectionResponse? row =
+                await _connectionRepository.GetAsync(scope.TenantId, cancellationToken);
+            secretName = row?.KeyVaultSecretName;
+        }
+
+        TeamsIncomingWebhookConnectionTestResponse result =
+            await _probeService.SendTestAsync(secretName, cancellationToken);
+
+        return Ok(result);
     }
 }
