@@ -6,6 +6,7 @@ import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { labelForSlackIntegrationEventId } from "@/lib/slack-integration-form-schema";
 import {
