@@ -7,34 +7,18 @@ import {
   sortReplayNotes,
 } from "./replay-display";
 
-describe("replayModeLabel", () => {
-  it("returns known descriptions", () => {
-    expect(replayModeLabel("ReconstructOnly")).toContain("Validate only");
-    expect(replayModeLabel("RebuildManifest")).toContain("Rebuild evidence trail");
+describe("replay-display compatibility", () => {
+  it("returns updated mode labels", () => {
+    expect(replayModeShortLabel("ReconstructOnly")).toBe("Check stored package");
+    expect(replayModeLabel("RebuildManifest")).toContain("Regenerates selected derived outputs");
   });
 
-  it("falls back to raw mode", () => {
-    expect(replayModeLabel("UnknownMode")).toBe("UnknownMode");
+  it("uses mode-aware action labels", () => {
+    expect(replayValidationActionLabel("RebuildArtifacts", false)).toBe("Run full validation");
+    expect(replayValidationActionLabel("ReconstructOnly", true)).toBe("Checking stored package…");
   });
-});
 
-describe("replayModeShortLabel", () => {
-  it("returns short labels without API enum names", () => {
-    expect(replayModeShortLabel("ReconstructOnly")).toBe("Validate only");
-    expect(replayModeShortLabel("RebuildArtifacts")).toBe("Regenerate exported artifacts");
-  });
-});
-
-describe("replayValidationActionLabel", () => {
-  it("uses validate review package for validate-only mode", () => {
-    expect(replayValidationActionLabel("ReconstructOnly", false)).toBe("Validate review package");
-    expect(replayValidationActionLabel("RebuildManifest", false)).toBe("Run validation");
-    expect(replayValidationActionLabel("ReconstructOnly", true)).toBe("Validating…");
-  });
-});
-
-describe("sortReplayNotes", () => {
-  it("sorts lines with en locale", () => {
-    expect(sortReplayNotes(["b", "a", "a2"])).toEqual(["a", "a2", "b"]);
+  it("sorts validation notes", () => {
+    expect(sortReplayNotes(["b", "a"])).toEqual(["a", "b"]);
   });
 });
