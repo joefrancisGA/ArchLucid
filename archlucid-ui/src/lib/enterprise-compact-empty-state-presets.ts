@@ -3,7 +3,6 @@ import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
   BUYER_START_ARCHITECTURE_REVIEW_CTA,
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
-  OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE,
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
@@ -33,7 +32,6 @@ export const OPERATOR_HOME_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStatePro
   description: OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   actions: [
     { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "primary" },
-    { label: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA, href: "/reviews/new", variant: "outline" },
     {
       label: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
       href: showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
@@ -69,7 +67,6 @@ export const PLANNING_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
     "Capture review feedback or run pilot feedback analysis to generate themes and prioritized plans.",
   actions: [
     { label: "Capture review feedback", href: "/product-learning", variant: "primary" },
-    { label: "Run pilot feedback", href: "/product-learning", variant: "outline" },
     { label: "View reviews", href: "/reviews", variant: "outline" },
   ],
 };
