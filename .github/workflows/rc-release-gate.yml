@@ -387,6 +387,7 @@ jobs:
           ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eRc"
           ArchLucid__StorageProvider: Sql
           ArchLucidAuth__Mode: DevelopmentBypass
+          ArchLucidAuth__AllowTestActorHeaders: "true"
           Authentication__ApiKey__DevelopmentBypassAll: "true"
           AgentExecution__Mode: Simulator
           Observability__Prometheus__Enabled: "true"
