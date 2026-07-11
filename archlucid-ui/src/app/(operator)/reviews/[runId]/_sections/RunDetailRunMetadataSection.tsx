@@ -32,10 +32,10 @@ export function RunDetailRunMetadataSection(props: RunDetailRunMetadataSectionPr
         <CardContent className={cn("space-y-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           <RunTraceViewerLink traceId={runDetailTraceId} />
           {run.otelTraceId ? (
-            <p className="m-0">
+            <div className="m-0">
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Creation trace:</span>{" "}
               <RunTraceViewerLink traceId={run.otelTraceId} />
-            </p>
+            </div>
           ) : null}
           <p className="m-0">
             <span className="font-medium text-neutral-800 dark:text-neutral-200">Description:</span>{" "}
