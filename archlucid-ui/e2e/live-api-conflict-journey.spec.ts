@@ -14,6 +14,7 @@ import {
   freshIsolatedTenantScope,
   getRunDetailsWithTransientRetries,
   liveApiBase,
+  resolveLiveAuthMode,
   searchAudit,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -127,10 +128,13 @@ test.describe("live-api-conflict-journey", () => {
 
     expect(countAuditByType(auditAfterSecond, "ManifestGenerated")).toBe(manifestGenCountAfterFirst);
 
-    await injectDemoWorkspaceOperatorScope(page, tenantScope);
-    await page.goto(`/runs/${runId}`);
+    if (resolveLiveAuthMode() === "bypass") {
+      await injectDemoWorkspaceOperatorScope(page, tenantScope);
+    }
 
-    await expectLiveRunDetailPageReady(page, 60_000);
+    await page.goto(`/reviews/${runId}`);
+
+    await expectLiveRunDetailPageReady(page, 120_000);
 
     const detail = await getRunDetailsWithTransientRetries(request, runId, tenantScope);
     const st = detail.run?.status;

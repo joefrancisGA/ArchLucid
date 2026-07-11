@@ -4,9 +4,17 @@
  */
 import type { Page } from "@playwright/test";
 
+import {
+  OPERATOR_SCOPE_COOKIE_NAME,
+  serializeOperatorScopeCookiePayload,
+} from "@/lib/operator-scope-cookie";
+
 import { demoWorkspacesFixtureManifest } from "./demo-workspaces-fixture-manifest";
 
 const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
+
+/** Playwright `baseURL` / live E2E webServer origin — cookie must match for SSR scope on first navigation. */
+const LIVE_E2E_OPERATOR_ORIGIN = "http://127.0.0.1:3000";
 
 export const DEMO_SCOPE_DEFAULT_TENANT_ID = demoWorkspacesFixtureManifest.defaultTenantId;
 
@@ -36,11 +44,28 @@ export type DemoWorkspaceScopeIds = {
 
 /**
  * Mirrors `OperatorScopeRecord` minimal shape so `/api/proxy` forwards tenant/workspace/project on run detail hydration.
+ * Also mirrors the scope cookie (`TB-075`) so RSC run-detail SSR (`getServerResolvedScopeHeaders`) matches
+ * `freshIsolatedTenantScope` API calls — localStorage alone is invisible to the server on first paint.
  */
 export async function injectDemoWorkspaceOperatorScope(
   page: Page,
   scope: DemoWorkspaceScopeIds,
 ): Promise<void> {
+  const scopeCookieValue = serializeOperatorScopeCookiePayload({
+    tenantId: scope.tenantId,
+    workspaceId: scope.workspaceId,
+    projectId: scope.projectId,
+  });
+
+  await page.context().addCookies([
+    {
+      name: OPERATOR_SCOPE_COOKIE_NAME,
+      value: scopeCookieValue,
+      url: LIVE_E2E_OPERATOR_ORIGIN,
+      sameSite: "Lax",
+    },
+  ]);
+
   await page.addInitScript(
     (
       payload: {
@@ -48,6 +73,8 @@ export async function injectDemoWorkspaceOperatorScope(
         readonly tenantId: string;
         readonly workspaceId: string;
         readonly projectId: string;
+        readonly cookieName: string;
+        readonly cookieValue: string;
       },
     ) => {
       const record = {
@@ -59,12 +86,15 @@ export async function injectDemoWorkspaceOperatorScope(
       };
 
       window.localStorage.setItem(payload.key, JSON.stringify(record));
+      document.cookie = `${payload.cookieName}=${payload.cookieValue}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
     },
     {
       key: OPERATOR_SCOPE_STORAGE_KEY,
       tenantId: scope.tenantId,
       workspaceId: scope.workspaceId,
       projectId: scope.projectId,
+      cookieName: OPERATOR_SCOPE_COOKIE_NAME,
+      cookieValue: scopeCookieValue,
     },
   );
 }
