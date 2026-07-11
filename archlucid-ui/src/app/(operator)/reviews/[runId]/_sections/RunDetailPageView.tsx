@@ -91,7 +91,9 @@ import {
   RunDetailTechnologyBaselineSection,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
-import { RunDetailArchitectureCreatedFirstViewport } from "./RunDetailArchitectureCreatedFirstViewport";
+import { ArchitectureCreatedWorkspace } from "@/components/architecture/ArchitectureCreatedWorkspace";
+import { ArchitectureCreateWorkItemSection } from "@/components/architecture/ArchitectureCreateWorkItemSection";
+import { ArchitectureSponsorSharingPanel } from "@/components/architecture/ArchitectureSponsorSharingPanel";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import {
   RunDetailBelowFoldDeferredSkeleton,
@@ -333,12 +335,119 @@ export function RunDetailPageView(props: {
           main={
             <>
               {showArchitectureCreatedHome ? (
-                <RunDetailArchitectureCreatedFirstViewport
-                  baseline={architectureCreatedBaseline}
-                  architectureSourceText={submittedArchitectureText ?? ""}
-                  canEditDiagram={!m.manifestId}
-                  findings={quickDecisionFindings}
-                />
+                <Suspense fallback={<RunDetailExplanationSkeleton />}>
+                  <ArchitectureCreatedWorkspace
+                    baseline={architectureCreatedBaseline}
+                    architectureSourceText={submittedArchitectureText ?? ""}
+                    canEditDiagram={!m.manifestId}
+                    findings={quickDecisionFindings}
+                    correctionHref={
+                      !m.manifestId
+                        ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
+                        : null
+                    }
+                    panels={{
+                      findings: (
+                        <RunDetailExplanationDeferred
+                          runId={m.routeRunId}
+                          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+                          resolvedDetail={m.resolvedDetail}
+                          explanationSummary={m.explanationSummary}
+                          explanationFailure={m.explanationFailure}
+                          findingCountDisplay={m.findingCountDisplay}
+                          warningCountDisplay={m.warningCountDisplay}
+                          goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+                          manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+                          manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
+                          providerNeutralWorkItems
+                          architectureWorkItemContext={{
+                            architectureName: architectureCreatedBaseline.architectureName,
+                            architectureOverview: architectureCreatedBaseline.architectureOverview,
+                            ownerLabel: architectureCreatedBaseline.ownerLabel,
+                          }}
+                        />
+                      ),
+                      evidence: (
+                        <RunDetailCaptureEvidenceSection
+                          runId={m.resolvedDetail.run.runId}
+                          buyerPolished={m.buyerPolishedArtifactTable ?? false}
+                        />
+                      ),
+                      governance: (
+                        <>
+                          <RunDetailGovernanceDecisionSection
+                            runId={m.resolvedDetail.run.runId}
+                            manifestId={m.manifestId}
+                            buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+                            operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
+                            operatorGovernanceDecisionRationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale}
+                            operatorGovernanceDecisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc}
+                            operatorGovernanceDecisionByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId}
+                            manifestStatus={m.manifestSummary?.status ?? null}
+                            governanceGateLabel={m.governanceGateLabel}
+                            blockingFindingCount={blockingApprovalCount}
+                            hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+                          />
+                          <ArchitectureCreateWorkItemSection
+                            runId={m.resolvedDetail.run.runId}
+                            architectureName={architectureCreatedBaseline.architectureName}
+                            architectureOverview={architectureCreatedBaseline.architectureOverview}
+                            ownerLabel={architectureCreatedBaseline.ownerLabel}
+                            findings={quickDecisionFindings}
+                          />
+                          <ArchitectureSponsorSharingPanel
+                            runId={m.resolvedDetail.run.runId}
+                            architecture={architectureCreatedBaseline}
+                            architectureSourceText={submittedArchitectureText ?? ""}
+                            findings={quickDecisionFindings}
+                          />
+                        </>
+                      ),
+                      activity: (
+                        <>
+                          {!m.manifestId && m.showProgressTracker ? (
+                            <div id="architecture-assessment-progress" className="scroll-mt-24">
+                              <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+                            </div>
+                          ) : null}
+                          <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
+                            <summary className="cursor-pointer font-semibold">Technology baseline</summary>
+                            <div className="mt-3">
+                              <RunDetailTechnologyBaselineSection
+                                runId={m.resolvedDetail.run.runId}
+                                manifestFinalized={Boolean(m.manifestId)}
+                                buyerPolished={m.buyerPolishedArtifactTable ?? false}
+                                usedStaticDemoRun={m.usedStaticDemoRun}
+                                warningCountDisplay={m.warningCountDisplay ?? 0}
+                              />
+                            </div>
+                          </details>
+                          <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
+                            <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
+                            <div className="mt-3">{outcomeCardsEl}</div>
+                          </details>
+                          <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
+                            <RunDetailMidDeferredSections context={deferredContext} />
+                          </Suspense>
+                        </>
+                      ),
+                      submittedArchitecture: (
+                        <RunDetailSubmittedArchitectureSection
+                          architectureText={submittedArchitectureText}
+                          canEditSource={!m.manifestId}
+                          editHref={
+                            !m.manifestId
+                              ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
+                              : null
+                          }
+                          useStructuredPresentation={false}
+                          runId={m.resolvedDetail.run.runId}
+                          sectionTitle="Submitted brief"
+                        />
+                      ),
+                    }}
+                  />
+                </Suspense>
               ) : (
                 <>
                   <RunDetailWorkspaceHeader
@@ -376,7 +485,7 @@ export function RunDetailPageView(props: {
                 />
               ) : null}
 
-              <div className="lg:hidden">{sectionNavEl}</div>
+              {!showArchitectureCreatedHome ? <div className="lg:hidden">{sectionNavEl}</div> : null}
 
               {!m.manifestId ? (
                 (() => {
@@ -412,10 +521,10 @@ export function RunDetailPageView(props: {
                 />
               ) : null}
 
-              {!m.manifestId && m.showProgressTracker ? (
+              {!showArchitectureCreatedHome && !m.manifestId && m.showProgressTracker ? (
                 <div
-                  id={showArchitectureCreatedHome ? "architecture-assessment-progress" : undefined}
-                  className={showArchitectureCreatedHome ? "scroll-mt-24" : undefined}
+                  id="architecture-assessment-progress"
+                  className="scroll-mt-24"
                 >
                   <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
                 </div>
@@ -425,30 +534,22 @@ export function RunDetailPageView(props: {
                 <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
               ) : null}
 
-              <Suspense fallback={<RunDetailExplanationSkeleton />}>
-                <RunDetailExplanationDeferred
-                  runId={m.routeRunId}
-                  buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-                  resolvedDetail={m.resolvedDetail}
-                  explanationSummary={m.explanationSummary}
-                  explanationFailure={m.explanationFailure}
-                  findingCountDisplay={m.findingCountDisplay}
-                  warningCountDisplay={m.warningCountDisplay}
-                  goldenManifestJsonForExport={m.goldenManifestJsonForExport}
-                  manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
-                  manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
-                  providerNeutralWorkItems={showArchitectureCreatedHome}
-                  architectureWorkItemContext={
-                    showArchitectureCreatedHome
-                      ? {
-                          architectureName: architectureCreatedBaseline.architectureName,
-                          architectureOverview: architectureCreatedBaseline.architectureOverview,
-                          ownerLabel: architectureCreatedBaseline.ownerLabel,
-                        }
-                      : null
-                  }
-                />
-              </Suspense>
+              {!showArchitectureCreatedHome ? (
+                <Suspense fallback={<RunDetailExplanationSkeleton />}>
+                  <RunDetailExplanationDeferred
+                    runId={m.routeRunId}
+                    buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+                    resolvedDetail={m.resolvedDetail}
+                    explanationSummary={m.explanationSummary}
+                    explanationFailure={m.explanationFailure}
+                    findingCountDisplay={m.findingCountDisplay}
+                    warningCountDisplay={m.warningCountDisplay}
+                    goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+                    manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+                    manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
+                  />
+                </Suspense>
+              ) : null}
 
               {!showArchitectureCreatedHome ? (
                 <RunDetailRecommendedActionsPanel actions={recommendedActions} />
@@ -480,34 +581,29 @@ export function RunDetailPageView(props: {
                 />
               ) : null}
 
-              <RunDetailSubmittedArchitectureSection
-                architectureText={submittedArchitectureText}
-                canEditSource={!m.manifestId}
-                editHref={
-                  !m.manifestId
-                    ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
-                    : null
-                }
-                useStructuredPresentation={showArchitectureCreatedHome}
-                runId={m.resolvedDetail.run.runId}
-                sectionTitle={showArchitectureCreatedHome ? "Generated architecture" : undefined}
-                helperText={
-                  showArchitectureCreatedHome
-                    ? "Structured sections below summarize what ArchLucid understood from your brief — raw model output stays behind View generated source."
-                    : undefined
-                }
-              />
+              {!showArchitectureCreatedHome ? (
+                <RunDetailSubmittedArchitectureSection
+                  architectureText={submittedArchitectureText}
+                  canEditSource={!m.manifestId}
+                  editHref={
+                    !m.manifestId
+                      ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
+                      : null
+                  }
+                  runId={m.resolvedDetail.run.runId}
+                />
+              ) : null}
 
-              <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure open={false}>
-                <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
-                <div className="mt-3">{outcomeCardsEl}</div>
-              </details>
+              {!showArchitectureCreatedHome ? (
+                <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure open={false}>
+                  <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
+                  <div className="mt-3">{outcomeCardsEl}</div>
+                </details>
+              ) : null}
             </>
           }
           rail={
-            showArchitectureCreatedHome ? (
-              <>{sectionNavEl}</>
-            ) : (
+            showArchitectureCreatedHome ? null : (
               <>
                 <ReviewPackagePrimaryAction
                   action={reviewPackagePrimaryAction}
@@ -541,15 +637,17 @@ export function RunDetailPageView(props: {
         variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
       />
 
-      <RunDetailTechnologyBaselineSection
-        runId={m.resolvedDetail.run.runId}
-        manifestFinalized={Boolean(m.manifestId)}
-        buyerPolished={m.buyerPolishedArtifactTable ?? false}
-        usedStaticDemoRun={m.usedStaticDemoRun}
-        warningCountDisplay={m.warningCountDisplay ?? 0}
-      />
+      {!showArchitectureCreatedHome ? (
+        <RunDetailTechnologyBaselineSection
+          runId={m.resolvedDetail.run.runId}
+          manifestFinalized={Boolean(m.manifestId)}
+          buyerPolished={m.buyerPolishedArtifactTable ?? false}
+          usedStaticDemoRun={m.usedStaticDemoRun}
+          warningCountDisplay={m.warningCountDisplay ?? 0}
+        />
+      ) : null}
 
-      {!m.manifestId ? (
+      {!m.manifestId && !showArchitectureCreatedHome ? (
         <RunDetailCaptureEvidenceSection
           runId={m.resolvedDetail.run.runId}
           buyerPolished={m.buyerPolishedArtifactTable ?? false}
@@ -606,9 +704,11 @@ export function RunDetailPageView(props: {
         <RunExplanationConfidenceBanner summary={m.explanationSummary} />
       ) : null}
 
-      <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
-        <RunDetailMidDeferredSections context={deferredContext} />
-      </Suspense>
+      {!showArchitectureCreatedHome ? (
+        <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
+          <RunDetailMidDeferredSections context={deferredContext} />
+        </Suspense>
+      ) : null}
 
       {!m.buyerPolishedArtifactTable ? (
         <Suspense

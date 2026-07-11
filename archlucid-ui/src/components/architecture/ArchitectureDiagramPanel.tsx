@@ -45,6 +45,8 @@ export type ArchitectureDiagramPanelProps = {
   readonly userAssertions: ArchitectureCreationUserAssertions | null;
   readonly canEdit: boolean;
   readonly clarifyHref?: string;
+  readonly variant?: "full" | "preview";
+  readonly onOpenFull?: () => void;
 };
 
 type PanelPhase = "idle" | "loading" | "ready" | "insufficient" | "invalid";
@@ -52,6 +54,7 @@ type PanelPhase = "idle" | "loading" | "ready" | "insufficient" | "invalid";
 /** Post-creation architecture diagram with async generation, caching, and edit controls. */
 export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): React.JSX.Element {
   const clarifyHref = props.clarifyHref ?? REVIEWS_NEW_CREATE_ARCHITECTURE_HREF;
+  const variant = props.variant ?? "full";
   const [phase, setPhase] = useState<PanelPhase>("idle");
   const [mermaidSource, setMermaidSource] = useState<string | null>(null);
   const [textAlternative, setTextAlternative] = useState("");
@@ -158,6 +161,60 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
       "text/plain;charset=utf-8",
     );
   }, [mermaidSource, props.runId]);
+
+  if (variant === "preview") {
+    return (
+      <div
+        className="space-y-3 rounded-lg border border-dashed border-neutral-300 p-3 dark:border-neutral-700"
+        data-testid="architecture-diagram-preview"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className={cn("m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100")}>
+            {ARCHITECTURE_DIAGRAM_SECTION_HEADING}
+          </h3>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            data-testid="architecture-diagram-open-full"
+            onClick={() => {
+              props.onOpenFull?.();
+            }}
+          >
+            Open diagram tab
+          </Button>
+        </div>
+
+        {phase === "loading" ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} aria-live="polite">
+            {ARCHITECTURE_DIAGRAM_LOADING_LABEL}
+          </p>
+        ) : null}
+
+        {phase === "insufficient" ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            {missingExplanation || ARCHITECTURE_DIAGRAM_INSUFFICIENT_HEADING}
+          </p>
+        ) : null}
+
+        {phase === "ready" && mermaidSource !== null ? (
+          <div className="max-h-48 overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-800">
+            <ArchitectureDiagramViewer
+              mermaidSource={mermaidSource}
+              textAlternative={textAlternative}
+              onRetry={() => void runGeneration(false)}
+            />
+          </div>
+        ) : null}
+
+        {phase === "idle" ? (
+          <Button type="button" variant="outline" size="sm" onClick={() => void runGeneration(false)}>
+            {ARCHITECTURE_DIAGRAM_GENERATE_ACTION}
+          </Button>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <section

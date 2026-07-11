@@ -6,6 +6,7 @@ import {
 import type { ArchitectureCreationHandoffSnapshot } from "@/lib/architecture-creation-handoff";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
 
 export type ArchitectureDefinitionStatusKind =
   | "strong-foundation"
@@ -37,6 +38,7 @@ export type ArchitectureCreatedPrimaryAction = {
 };
 
 export type ArchitectureCreatedHomeModel = {
+  readonly runId: string;
   readonly architectureName: string;
   readonly lifecycleLabel: string;
   readonly lifecycleStatusTagKind: RunDetailWorkspaceStatus["statusTagKind"];
@@ -197,7 +199,7 @@ function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): Archi
     items.push({
       id: "diagram",
       label: "Architecture diagram or supporting evidence not uploaded",
-      href: "#capture-evidence",
+      href: buildArchitectureWorkspaceTabHref(input.runId, "evidence"),
     });
   }
 
@@ -205,7 +207,7 @@ function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): Archi
     items.push({
       id: "assessment-progress",
       label: "Initial assessment is still running",
-      href: "#architecture-assessment-progress",
+      href: buildArchitectureWorkspaceTabHref(input.runId, "activity"),
     });
   }
 
@@ -216,8 +218,8 @@ function buildPrimaryActions(
   input: BuildArchitectureCreatedHomeModelInput,
 ): ArchitectureCreatedPrimaryAction[] {
   const clarifyHref = REVIEWS_NEW_CREATE_ARCHITECTURE_HREF;
-  const diagramHref = "#architecture-diagram";
-  const assessmentHref = "#architecture-assessment-progress";
+  const diagramHref = buildArchitectureWorkspaceTabHref(input.runId, "diagram");
+  const assessmentHref = buildArchitectureWorkspaceTabHref(input.runId, "activity");
   const hasClarificationGaps = buildMissingItems(input).some(
     (item) => item.id === "business-outcome" || item.id === "architecture-overview" || item.id === "people-systems",
   );
@@ -298,6 +300,7 @@ export function buildArchitectureCreatedHomeModel(
   const definitionStatus = deriveDefinitionStatus(input);
 
   return {
+    runId: input.runId,
     architectureName: input.architectureName.trim().length > 0 ? input.architectureName.trim() : "Untitled architecture",
     lifecycleLabel: input.workspaceStatus.label === "Analysis in progress" ? "Assessment in progress" : input.workspaceStatus.label,
     lifecycleStatusTagKind: input.workspaceStatus.statusTagKind,
@@ -309,10 +312,10 @@ export function buildArchitectureCreatedHomeModel(
     missingItems: buildMissingItems(input),
     primaryActions: buildPrimaryActions(input),
     overflowActions: [
-      { label: "View assessment details", href: "#run-explanation" },
-      { label: "Architecture diagram", href: "#architecture-diagram" },
-      { label: "Add evidence", href: "#capture-evidence" },
-      { label: "Submitted architecture", href: "#submitted-architecture" },
+      { label: "View assessment details", href: buildArchitectureWorkspaceTabHref(input.runId, "findings") },
+      { label: "Architecture diagram", href: buildArchitectureWorkspaceTabHref(input.runId, "diagram") },
+      { label: "Add evidence", href: buildArchitectureWorkspaceTabHref(input.runId, "evidence") },
+      { label: "Submitted architecture", href: buildArchitectureWorkspaceTabHref(input.runId, "overview") },
     ],
   };
 }

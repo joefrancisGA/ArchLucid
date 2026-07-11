@@ -25,7 +25,7 @@ describe("RunDetailPageView progressive disclosure", () => {
   it("prioritizes workspace header and summary before findings", () => {
     const headerIndex = source.indexOf("<RunDetailWorkspaceHeader");
     const summaryIndex = source.indexOf("<RunDetailWorkspaceSummaryStrip");
-    const findingsIndex = source.indexOf("<RunDetailExplanationDeferred");
+    const findingsIndex = source.lastIndexOf("<RunDetailExplanationDeferred");
 
     expect(headerIndex).toBeGreaterThan(-1);
     expect(summaryIndex).toBeGreaterThan(-1);
@@ -36,7 +36,7 @@ describe("RunDetailPageView progressive disclosure", () => {
 
   it("places proof status before findings in workspace layout", () => {
     const proofIndex = source.indexOf("<RunDetailFirstScreenProofStatusClient");
-    const findingsIndex = source.indexOf("<RunDetailExplanationDeferred");
+    const findingsIndex = source.lastIndexOf("<RunDetailExplanationDeferred");
 
     expect(proofIndex).toBeGreaterThan(-1);
     expect(findingsIndex).toBeGreaterThan(-1);
@@ -90,9 +90,10 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(submittedSource).toContain("Architecture submitted for review");
   });
 
-  it("uses architecture-created home viewport for create-architecture handoff", () => {
-    expect(source).toContain("RunDetailArchitectureCreatedFirstViewport");
+  it("uses tabbed architecture workspace for create-architecture handoff", () => {
+    expect(source).toContain("ArchitectureCreatedWorkspace");
     expect(source).toContain("showArchitectureCreatedHome");
     expect(source).toContain("fromArchitectureCreation");
+    expect(source).toContain("panels={{");
   });
 });
