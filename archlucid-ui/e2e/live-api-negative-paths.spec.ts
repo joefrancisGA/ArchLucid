@@ -7,6 +7,7 @@ import { expect, test } from "@playwright/test";
 import {
   commitRun,
   commitRunRaw,
+  type CommitRunResponseJson,
   createApprovalRequest,
   createRun,
   executeRun,
@@ -177,13 +178,13 @@ test.describe("live-api-negative-paths", () => {
     expect([400, 404]).toContain(res.status());
   });
 
-  test("second commit on already-committed run returns 409 conflict", async ({ request }) => {
+  test("second commit on already-committed run is idempotent (200)", async ({ request }) => {
     test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     const createBody = {
       requestId: `E2E-LIVE-DBL-COMMIT-${Date.now()}`,
       description: liveE2eArchitectureDescription(
-        "Live E2E: double commit must fail after successful commit.",
+        "Live E2E: repeat commit after successful commit returns 200 with the same manifest (API_CONTRACTS idempotent commit).",
       ),
       systemName: "DoubleCommitNegative",
       environment: "prod",
@@ -201,18 +202,21 @@ test.describe("live-api-negative-paths", () => {
     await executeRun(request, runId, tenantScope);
     await waitForReadyForCommit(request, runId, 120_000, tenantScope);
 
-    await commitRun(request, runId, tenantScope);
+    const firstCommit = await commitRun(request, runId, tenantScope);
 
     await waitForRunDetailCommitted(request, runId, 90_000, tenantScope);
 
+    const firstManifestVersion = firstCommit.manifest?.metadata?.manifestVersion;
+
+    expect(firstManifestVersion, "first commit should include manifest.metadata.manifestVersion").toBeTruthy();
+
     const second = await commitRunRaw(request, runId, tenantScope);
 
-    expect(second.status()).toBe(409);
+    expect(second.ok(), `second commit expected 200 (idempotent), got ${second.status()}`).toBe(true);
 
-    const problemBody: unknown = await second.json();
-    const typeUri = readProblemType(problemBody);
+    const secondBody = (await second.json()) as CommitRunResponseJson;
 
-    expect(typeUri).toContain("#conflict");
+    expect(secondBody.manifest?.metadata?.manifestVersion).toBe(firstManifestVersion);
   });
 
   test("health ready with 1ms client timeout rejects (negative)", async ({ request }) => {
