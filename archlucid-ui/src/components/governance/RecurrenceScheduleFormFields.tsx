@@ -7,13 +7,11 @@ import { cn } from "@/lib/utils";
 export type RecurrenceScheduleFormFieldsProps = {
   readonly name: string;
   readonly cronExpression: string;
-  readonly isEnabled: boolean;
   readonly showSourceRunId?: boolean;
   readonly sourceRunId?: string;
   readonly disabled?: boolean;
   readonly onNameChange: (value: string) => void;
   readonly onCronExpressionChange: (value: string) => void;
-  readonly onIsEnabledChange: (value: boolean) => void;
   readonly onSourceRunIdChange?: (value: string) => void;
 };
 
@@ -22,13 +20,11 @@ export function RecurrenceScheduleFormFields(props: RecurrenceScheduleFormFields
   const {
     name,
     cronExpression,
-    isEnabled,
     showSourceRunId = false,
     sourceRunId = "",
     disabled = false,
     onNameChange,
     onCronExpressionChange,
-    onIsEnabledChange,
     onSourceRunIdChange,
   } = props;
 
@@ -87,21 +83,6 @@ export function RecurrenceScheduleFormFields(props: RecurrenceScheduleFormFields
           OPERATOR_TYPOGRAPHY.body,
         )}
       />
-
-      <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
-        <input
-          type="checkbox"
-          checked={isEnabled}
-          disabled={disabled}
-          onChange={(event) => onIsEnabledChange(event.target.checked)}
-          data-testid="recurrence-schedule-enabled"
-        />
-        <span>
-          {isEnabled
-            ? "Enabled — scheduled follow-up reviews will run automatically"
-            : "Disabled — schedule is saved but will not trigger follow-up reviews"}
-        </span>
-      </label>
 
       <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         All cadence times are evaluated in UTC. The server calculates the next run when you save.

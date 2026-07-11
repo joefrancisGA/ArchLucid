@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { CronExpressionBuilder } from "@/components/advisory/CronExpressionBuilder";
 import { normalizeRunIdForRecurrenceApi } from "@/components/RunDetailRecurrenceScheduleCard";
-import { Button } from "@/components/ui/button";
+import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -35,7 +35,6 @@ export function RecurrenceSchedulePostCommitCard({
   const [schedules, setSchedules] = useState<ArchitectureReviewRecurrenceSchedule[]>([]);
   const [name, setName] = useState(DEFAULT_NAME);
   const [cronExpression, setCronExpression] = useState(DEFAULT_CRON);
-  const [isEnabled, setIsEnabled] = useState(true);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -69,7 +68,7 @@ export function RecurrenceSchedulePostCommitCard({
     };
   }, [reload]);
 
-  async function submitSchedule(): Promise<void> {
+  async function submitSchedule(isEnabled: boolean): Promise<void> {
     if (normalizedRunId === null) {
       setErrorMessage("Run id is not a valid GUID for recurrence scheduling.");
 
@@ -88,7 +87,7 @@ export function RecurrenceSchedulePostCommitCard({
         isEnabled,
       });
 
-      setStatusMessage("Recurrence scheduled.");
+      setStatusMessage(isEnabled ? "Recurring assessments enabled." : "Recurrence schedule saved (paused).");
       await reload();
     } catch (error: unknown) {
       setErrorMessage(error instanceof Error ? error.message : "Failed to create recurrence schedule.");
@@ -136,13 +135,7 @@ export function RecurrenceSchedulePostCommitCard({
             </Link>
           </div>
         ) : (
-          <form
-            className="space-y-3"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void submitSchedule();
-            }}
-          >
+          <div className="space-y-3">
             <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
               <span className={OPERATOR_TYPOGRAPHY.label}>
                 Schedule name <span className="text-red-700 dark:text-red-400">*</span>
@@ -167,35 +160,22 @@ export function RecurrenceSchedulePostCommitCard({
                 OPERATOR_TYPOGRAPHY.body,
               )}
             />
-            <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
-              <input
-                type="checkbox"
-                checked={isEnabled}
-                disabled={busy}
-                onChange={(event) => setIsEnabled(event.target.checked)}
-                data-testid="recurrence-schedule-enabled"
-              />
-              <span>
-                {isEnabled
-                  ? "Enabled — scheduled follow-up reviews will run automatically"
-                  : "Disabled — schedule is saved but will not trigger follow-up reviews"}
-              </span>
-            </label>
+            <RecurrenceScheduleActivationActions
+              mode="create"
+              cronExpression={cronExpression}
+              pendingIsEnabled={false}
+              disabled={normalizedRunId === null}
+              busy={busy}
+              onSavePaused={() => void submitSchedule(false)}
+              onEnableRecurring={() => void submitSchedule(true)}
+            />
             {statusMessage ? (
               <p className={cn("m-0 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>{statusMessage}</p>
             ) : null}
             {errorMessage ? (
               <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{errorMessage}</p>
             ) : null}
-            <Button
-              type="submit"
-              size="sm"
-              disabled={busy || normalizedRunId === null}
-              data-testid="recurrence-schedule-submit"
-            >
-              {busy ? "Scheduling…" : "Schedule recurrence"}
-            </Button>
-          </form>
+          </div>
         )}
       </CollapsibleContent>
     </Collapsible>

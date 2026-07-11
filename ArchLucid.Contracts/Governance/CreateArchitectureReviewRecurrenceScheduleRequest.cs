@@ -21,9 +21,9 @@ public sealed class CreateArchitectureReviewRecurrenceScheduleRequest
         init;
     } = "0 8 * * 1";
 
-    public bool IsEnabled
+    public bool? IsEnabled
     {
         get;
         init;
-    } = true;
+    }
 }

@@ -338,6 +338,13 @@ public sealed class GovernanceStickinessController(
         if (request.SourceRunId == Guid.Empty)
             return this.BadRequestProblem("Source run id is required.", ProblemTypes.ValidationFailed);
 
+        if (!request.IsEnabled.HasValue)
+        {
+            return this.BadRequestProblem(
+                "isEnabled is required. Set true to activate recurring assessments or false to save paused.",
+                ProblemTypes.ValidationFailed);
+        }
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         DateTime now = TimeProvider.System.UtcNowDateTime();
         string cronExpression = string.IsNullOrWhiteSpace(request.CronExpression) ? "0 8 * * 1" : request.CronExpression.Trim();
@@ -367,7 +374,7 @@ public sealed class GovernanceStickinessController(
             SourceRunId = request.SourceRunId,
             Name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim(),
             CronExpression = cronExpression,
-            IsEnabled = request.IsEnabled,
+            IsEnabled = request.IsEnabled.Value,
             CreatedUtc = now,
             CreatedByUserId = actorContext.GetActorId(),
             NextRunUtc = nextRunUtc,

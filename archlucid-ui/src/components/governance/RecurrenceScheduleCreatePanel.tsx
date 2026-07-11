@@ -3,12 +3,12 @@
 import { useState } from "react";
 
 import { normalizeRunIdForRecurrenceApi } from "@/components/RunDetailRecurrenceScheduleCard";
+import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceScheduleFormFields } from "@/components/governance/RecurrenceScheduleFormFields";
 import { Button } from "@/components/ui/button";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { createArchitectureReviewRecurrenceSchedule } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_CRON = "0 8 * * 1";
@@ -26,11 +26,10 @@ export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePan
   const [sourceRunId, setSourceRunId] = useState("");
   const [name, setName] = useState(DEFAULT_NAME);
   const [cronExpression, setCronExpression] = useState(DEFAULT_CRON);
-  const [isEnabled, setIsEnabled] = useState(true);
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  async function submitCreate(): Promise<void> {
+  async function submitCreate(isEnabled: boolean): Promise<void> {
     if (!canMutate) {
       return;
     }
@@ -63,7 +62,6 @@ export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePan
       setSourceRunId("");
       setName(DEFAULT_NAME);
       setCronExpression(DEFAULT_CRON);
-      setIsEnabled(true);
       await onCreated();
     } catch (error: unknown) {
       setErrorMessage(error instanceof Error ? error.message : "Failed to create recurrence schedule.");
@@ -85,47 +83,38 @@ export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePan
         Choose a committed review package, then define the cadence for automated follow-up reviews.
       </p>
 
-      <form
-        className="mt-4 space-y-4"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void submitCreate();
-        }}
-      >
+      <div className="mt-4 space-y-4">
         <RecurrenceScheduleFormFields
           showSourceRunId
           name={name}
           cronExpression={cronExpression}
-          isEnabled={isEnabled}
           sourceRunId={sourceRunId}
           disabled={busy}
           onNameChange={setName}
           onCronExpressionChange={setCronExpression}
-          onIsEnabledChange={setIsEnabled}
           onSourceRunIdChange={setSourceRunId}
+        />
+
+        <RecurrenceScheduleActivationActions
+          mode="create"
+          cronExpression={cronExpression}
+          pendingIsEnabled={false}
+          disabled={!canMutate}
+          busy={busy}
+          onSavePaused={() => void submitCreate(false)}
+          onEnableRecurring={() => void submitCreate(true)}
         />
 
         {errorMessage ? (
           <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{errorMessage}</p>
         ) : null}
 
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="submit"
-            size="sm"
-            disabled={busy || !canMutate}
-            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-            data-testid="recurrence-schedule-create-submit"
-          >
-            {busy ? "Creating…" : "Create recurrence schedule"}
+        {onCancel !== undefined ? (
+          <Button type="button" size="sm" variant="outline" disabled={busy} onClick={onCancel}>
+            Cancel
           </Button>
-          {onCancel !== undefined ? (
-            <Button type="button" size="sm" variant="outline" disabled={busy} onClick={onCancel}>
-              Cancel
-            </Button>
-          ) : null}
-        </div>
-      </form>
+        ) : null}
+      </div>
     </section>
   );
 }

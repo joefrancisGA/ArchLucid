@@ -5,6 +5,7 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
   createArchitectureReviewRecurrenceSchedule: vi.fn(),
   listArchitectureReviewRecurrenceSchedules: vi.fn(),
   updateArchitectureReviewRecurrenceSchedule: vi.fn(),
+  previewRecurrenceScheduleRuns: vi.fn(),
 }));
 
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
@@ -36,6 +37,10 @@ describe("RecurrenceSchedulesClient", () => {
   beforeEach(() => {
     vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([]);
     vi.mocked(governanceApi.updateArchitectureReviewRecurrenceSchedule).mockResolvedValue(sampleSchedule);
+    vi.mocked(governanceApi.previewRecurrenceScheduleRuns).mockResolvedValue({
+      isValid: true,
+      nextRunUtc: ["2026-06-23T08:00:00.000Z"],
+    });
   });
 
   it("renders page subtitle and recurrence-specific layer guidance", async () => {
@@ -125,5 +130,32 @@ describe("RecurrenceSchedulesClient", () => {
     fireEvent.click(screen.getByTestId("recurrence-schedules-create-action"));
 
     expect(screen.getByTestId("recurrence-schedule-create-panel")).toBeInTheDocument();
+  });
+
+  it("keeps an active schedule enabled when saving metadata changes", async () => {
+    vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([sampleSchedule]);
+
+    render(<RecurrenceSchedulesClient />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    fireEvent.change(screen.getByTestId("recurrence-schedule-name"), {
+      target: { value: "Updated weekly review" },
+    });
+    fireEvent.click(screen.getByTestId("recurrence-save-changes"));
+
+    await waitFor(() => {
+      expect(governanceApi.updateArchitectureReviewRecurrenceSchedule).toHaveBeenCalledWith(
+        sampleSchedule.scheduleId,
+        {
+          name: "Updated weekly review",
+          cronExpression: sampleSchedule.cronExpression,
+          isEnabled: true,
+        },
+      );
+    });
   });
 });

@@ -222,6 +222,55 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRecurrenceSchedule_returns_bad_request_when_is_enabled_omitted()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            Name = "weekly review",
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceSchedule_persists_inactive_schedule()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        ArchitectureReviewRecurrenceSchedule? captured = null;
+
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new();
+        recurrenceRepo
+            .Setup(r => r.CreateAsync(It.IsAny<ArchitectureReviewRecurrenceSchedule>(), It.IsAny<CancellationToken>()))
+            .Callback<ArchitectureReviewRecurrenceSchedule, CancellationToken>((schedule, _) => captured = schedule)
+            .Returns(Task.CompletedTask);
+
+        GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo);
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = sourceRunId,
+            Name = "paused review",
+            CronExpression = "0 9 * * 1",
+            IsEnabled = false,
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ArchitectureReviewRecurrenceSchedule body =
+            ok.Value.Should().BeOfType<ArchitectureReviewRecurrenceSchedule>().Subject;
+        body.IsEnabled.Should().BeFalse();
+        captured.Should().NotBeNull();
+        captured!.IsEnabled.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task CreateRecurrenceSchedule_persists_schedule_and_audits()
     {
         Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -286,6 +335,7 @@ public sealed class GovernanceStickinessControllerTests
             SourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
             Name = "bad cron",
             CronExpression = "not-a-real-cron",
+            IsEnabled = true,
         };
 
         IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);

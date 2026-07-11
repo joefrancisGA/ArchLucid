@@ -238,7 +238,7 @@ export async function createArchitectureReviewRecurrenceSchedule(body: {
   sourceRunId: string;
   name?: string;
   cronExpression?: string;
-  isEnabled?: boolean;
+  isEnabled: boolean;
 }): Promise<ArchitectureReviewRecurrenceSchedule> {
   return apiPostJson<ArchitectureReviewRecurrenceSchedule>(`${governanceBase()}/recurrence-schedules`, body);
 }
