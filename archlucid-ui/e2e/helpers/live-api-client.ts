@@ -1568,11 +1568,55 @@ export async function postReplayRunRaw(
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   const encoded = encodeURIComponent(runId);
+  const label = `POST /v1/architecture/run/${encoded}/replay`;
+  const retryStartedMs = Date.now();
+  let infrastructureAttempt = 0;
 
-  return request.post(`${resolveLiveApiBase()}/v1/architecture/run/${encoded}/replay`, {
-    data: {},
-    headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
-  });
+  for (let attempt = 0; attempt < maxCommitTransient409Attempts; attempt++) {
+    if (Date.now() - retryStartedMs >= commitRetryWallClockBudgetMs) {
+      throw new InfraTransientError(
+        `postReplayRunRaw: wall-clock retry budget exhausted after ${commitRetryWallClockBudgetMs}ms for run ${runId}`,
+      );
+    }
+
+    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${encoded}/replay`, {
+      data: {},
+      headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
+      timeout: commitAttemptHttpTimeoutMs,
+    });
+    const status = res.status();
+
+    if (status === 429 && attempt < maxCommitTransient409Attempts - 1) {
+      await delayAfterRateLimitedResponse(res);
+
+      continue;
+    }
+
+    if (res.ok()) {
+      return res;
+    }
+
+    const responseBody = await res.text();
+
+    if (
+      await continueInfrastructureMutationRetry(
+        status,
+        responseBody,
+        infrastructureAttempt,
+        maxCommitInfrastructureAttempts(),
+        label,
+        { startedAtMs: retryStartedMs },
+      )
+    ) {
+      infrastructureAttempt += 1;
+
+      continue;
+    }
+
+    return replayBufferedApiResponse(status, responseBody, res);
+  }
+
+  throw new InfraTransientError("postReplayRunRaw: retry loop exhausted");
 }
 
 /** POST `/v1/reports/analysis` — analysis report for a run. */

@@ -10,12 +10,14 @@ import {
   commitRun,
   createRun,
   executeRun,
+  freshIsolatedTenantScope,
   getRunExportZip,
   liveApiBase,
   liveE2eArchitectureDescription,
   liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   postReplayRunRaw,
   searchAudit,
+  waitForAuthorityRunSummaryReady,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
@@ -46,15 +48,18 @@ test.describe("live-api-replay-export", () => {
       priorManifestVersion: null as string | null,
     };
 
-    const { runId } = await createRun(request, createBody);
+    const tenantScope = freshIsolatedTenantScope();
+
+    const { runId } = await createRun(request, createBody, tenantScope);
     test.info().annotations.push({ type: "e2e-run-id", description: runId });
 
-    await executeRun(request, runId);
-    await waitForReadyForCommit(request, runId, 90_000);
-    await commitRun(request, runId);
-    await waitForRunDetailCommitted(request, runId, 60_000);
+    await executeRun(request, runId, tenantScope);
+    await waitForReadyForCommit(request, runId, 90_000, tenantScope);
+    await commitRun(request, runId, tenantScope);
+    await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
+    await waitForAuthorityRunSummaryReady(request, runId, 60_000, tenantScope);
 
-    const replayRes = await postReplayRunRaw(request, runId);
+    const replayRes = await postReplayRunRaw(request, runId, tenantScope);
 
     if (replayRes.status() === 404) {
       test.skip(true, "Replay endpoint not available in this build");
@@ -63,7 +68,7 @@ test.describe("live-api-replay-export", () => {
 
     expect(replayRes.ok(), `replay POST expected 2xx, got ${replayRes.status()}`).toBe(true);
 
-    const exportRes = await getRunExportZip(request, runId);
+    const exportRes = await getRunExportZip(request, runId, tenantScope);
 
     expect(exportRes.ok(), `export GET expected 2xx, got ${exportRes.status()}`).toBe(true);
 
@@ -76,7 +81,13 @@ test.describe("live-api-replay-export", () => {
       )
       .toBe(true);
 
-    const auditEvents = await searchAudit(request, { runId, take: "200" });
+    const auditEvents = await searchAudit(request, {
+      runId,
+      take: "200",
+      tenantId: tenantScope.tenantId,
+      workspaceId: tenantScope.workspaceId,
+      projectId: tenantScope.projectId,
+    });
     const types = new Set(auditEvents.map((e) => e.eventType).filter(Boolean) as string[]);
 
     expect.soft(types.has("ReplayExecuted"), "Expected ReplayExecuted audit event").toBe(true);
