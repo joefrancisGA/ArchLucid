@@ -3,7 +3,7 @@ import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 
 export const REVIEWS_HUB_PAGE_SUBTITLE =
-  "Start, resume, and inspect evidence-backed architecture review packages.";
+  "Start, resume, and inspect evidence-backed architecture packages.";
 
 export const REVIEWS_HUB_SUMMARY_IN_PROGRESS_LABEL = "In progress";
 
@@ -16,7 +16,7 @@ export const REVIEWS_HUB_SUMMARY_OPEN_RISKS_LABEL = "Open risks";
 export const REVIEWS_HUB_SUMMARY_READY_FOR_GOVERNANCE_LABEL = "Ready for governance";
 
 export const REVIEWS_HUB_SUMMARY_EMPTY_HINT =
-  "Metrics populate after review packages are created or finalized.";
+  "Metrics populate after architecture packages are created or finalized.";
 
 export const REVIEWS_HUB_PRIMARY_START_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 
@@ -32,18 +32,18 @@ export const REVIEWS_HUB_LOAD_SAMPLE_HINT = "Populate the workspace with demo da
 
 export const REVIEWS_HUB_PRIMARY_VIEW_SAMPLE_LABEL = "View Sample Package";
 
-export const REVIEWS_HUB_VIEW_SAMPLE_HINT = "Inspect a completed review package.";
+export const REVIEWS_HUB_VIEW_SAMPLE_HINT = "Inspect a completed architecture package.";
 
 export const REVIEWS_HUB_COMPARE_LABEL = "Compare two reviews";
 
-export const REVIEWS_HUB_COMPARE_HINT = "Compare changes between review packages.";
+export const REVIEWS_HUB_COMPARE_HINT = "Compare changes between architecture packages.";
 
-export const REVIEWS_HUB_RECENT_SECTION_TITLE = "Recent review packages";
+export const REVIEWS_HUB_RECENT_SECTION_TITLE = "Recent architecture packages";
 
-export const REVIEWS_HUB_RECENT_EMPTY_TITLE = "No review packages yet";
+export const REVIEWS_HUB_RECENT_EMPTY_TITLE = "No architecture packages yet";
 
 export const REVIEWS_HUB_RECENT_EMPTY_BODY =
-  "Start an architecture review from a brief, diagram, IaC export, or evidence bundle.";
+  "Create or review an architecture, or open a sample package to explore findings, evidence, and exports.";
 
 export const REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 

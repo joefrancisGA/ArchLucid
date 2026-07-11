@@ -14,9 +14,9 @@ export { SEARCH_EMPTY } from "./search-empty-preset";
 
 export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
-  title: "No review packages yet",
+  title: "No architecture packages yet",
   description:
-    "Start an architecture review to generate a review package with findings, evidence, signed review record, and exports. Or open the sample package to see the completed flow.",
+    "Create or review an architecture to generate a package with findings, evidence, signed review record, and exports. Or open the sample package to see the completed flow.",
   actions: [
     { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new" },
     { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },

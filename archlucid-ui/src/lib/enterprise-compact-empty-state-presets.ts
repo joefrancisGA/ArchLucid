@@ -14,12 +14,12 @@ import {
   showcaseSampleReviewPackageHref,
 } from "@/lib/showcase-sample-review-registry";
 
-/** Reviews list when the project has zero review packages. */
+/** Reviews list when the project has zero architecture packages. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "runs-list-empty-state",
-  title: "No review packages yet",
+  title: "No architecture packages yet",
   description:
-    "Start an architecture review to generate a package with findings, evidence, and exports. Or explore a completed sample package.",
+    "Create or review an architecture to generate a package with findings, evidence, and exports. Or explore a completed sample package.",
   actions: [
     { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "primary" },
     { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },

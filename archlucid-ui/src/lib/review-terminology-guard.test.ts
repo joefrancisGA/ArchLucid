@@ -4,13 +4,23 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
-import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
-import { PILOT_PATH_PREVIEW_STEPS } from "@/lib/buyer-polish-copy";
 import {
+  OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
+  OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
+  PILOT_PATH_PREVIEW_STEPS,
+} from "@/lib/buyer-polish-copy";
+import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
+import { RUNS_EMPTY } from "@/lib/empty-state-presets";
+import { RUNS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
+import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
+import {
+  REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_OPERATOR_PERSONA_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
+  REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS,
   REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS,
@@ -103,6 +113,25 @@ describe("review terminology guard", () => {
         expect(source, `${relativePath} should not contain "${pattern}"`).not.toContain(pattern);
       }
     }
+  });
+
+  it("TB-738: nav and hub/home list empty surfaces avoid review-only package list nouns", () => {
+    for (const relativePath of REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS) {
+      const source = readFileSync(path.join(process.cwd(), relativePath), "utf8").toLowerCase();
+
+      for (const pattern of REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS) {
+        expect(source, `${relativePath} should not contain "${pattern}"`).not.toContain(pattern);
+      }
+    }
+
+    expect(OPERATOR_NAV_LINK_LABELS.reviewPackage).toBe("Architecture packages");
+    expect(RUNS_LIST_PAGE_TITLES.buyerPolished).toBe("Architecture Packages");
+    expect(governanceModeVocabulary(false).reviewPlural).toBe("Architecture packages");
+    expect(governanceModeVocabulary(true).reviewPlural).toBe("Reviews");
+    expect(RUNS_EMPTY.title).toBe("No architecture packages yet");
+    expect(RUNS_EMPTY_COMPACT.title).toBe("No architecture packages yet");
+    expect(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE).toBe("No architecture packages yet");
+    expect(OPERATOR_HOME_WORKSPACE_EMPTY_BODY.toLowerCase()).toContain("create or review an architecture");
   });
 
   it("architect workspace copy files avoid legacy operator persona labels", () => {

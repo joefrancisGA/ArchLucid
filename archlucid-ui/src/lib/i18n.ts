@@ -41,8 +41,8 @@ export const ARCHITECTURE_REVIEW_LABELS = {
 
 /** `/reviews` index {@link OperatorPageHeader} title by shell mode (`RunsPageView`). */
 export const RUNS_LIST_PAGE_TITLES = {
-  buyerPolished: "Review Packages",
-  fullOperator: "Review Packages",
+  buyerPolished: "Architecture Packages",
+  fullOperator: "Architecture Packages",
 } as const;
 
 /** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). @deprecated Use `REVIEWS_HUB_PAGE_SUBTITLE`. */
@@ -116,7 +116,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator-shell ROI dashboard (`/dashboard`); the standalone executive-chrome duplicate was retired (TB-608). */
   portfolioOverview: "Executive dashboard",
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
-  reviewPackage: "Review packages",
+  reviewPackage: "Architecture packages",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   /** Left nav destination for `/reviews/new` — creation intake (brief, diagram, document, optional cloud). */
   capture: CREATE_ARCHITECTURE_LABEL,

@@ -116,13 +116,13 @@ export const SAMPLE_REVIEW_PACKAGE_AHA_HEADING = "Your first-value moment";
 export const SAMPLE_REVIEW_PACKAGE_AHA_LEAD =
   "This sample review package leads with one decision-changing finding — expand evidence and exports below when ready.";
 
-export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No architecture or review packages yet";
+export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No architecture packages yet";
 
 export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
-  "Create an architecture, start a review, or open a sample package to see activity here.";
+  "Create or review an architecture, or open a sample package to see activity here.";
 
 export const OPERATOR_HOME_WORKSPACE_ACTIVITY_LEAD =
-  "Created architectures and review packages appear here after you start.";
+  "Architecture packages appear here after you create or review an architecture.";
 
 export const OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE = "No archived reviews yet.";
 
