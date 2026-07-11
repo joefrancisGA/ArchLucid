@@ -20,26 +20,26 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     expect(graphLink?.keyShortcut).toBe("alt+y");
   });
 
-  it("lists Pattern library second in Insights nav when preview is enabled", () => {
+  it("lists Pattern library last in Insights nav when preview is enabled", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.href)).toEqual([
       "/graph",
-      "/patterns",
       "/ask",
       "/search",
       "/compare",
       "/evolution-review",
       "/scorecard",
+      "/patterns",
     ]);
-    expect(group.links[1]?.label).toBe("Pattern library");
-    expect(group.links[1]?.navBadge).toBe("Preview");
+    expect(group.links.at(-1)?.label).toBe("Pattern library");
+    expect(group.links.at(-1)?.navBadge).toBe("Preview");
   });
 
-  it("lists Review scorecard last in Insights nav", () => {
+  it("lists Review scorecard before Pattern library in Insights nav", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
-    expect(group.links.at(-1)?.label).toBe("Review scorecard");
+    expect(group.links.at(-2)?.label).toBe("Review scorecard");
   });
 });
 

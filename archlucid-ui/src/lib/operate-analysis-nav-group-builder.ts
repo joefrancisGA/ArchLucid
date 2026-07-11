@@ -29,21 +29,6 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         tier: "essential",
         requiredAuthority: "ReadAuthority",
       },
-    ];
-
-    if (isPatternLibraryNavVisible()) {
-      links.push({
-        href: "/patterns",
-        label: PATTERN_LIBRARY_NAV_LINK_LABEL,
-        title: "Explore anonymized architecture patterns and adoption signals",
-        icon: Layers,
-        tier: "extended",
-        requiredAuthority: "ReadAuthority",
-        navBadge: PATTERN_LIBRARY_NAV_BADGE,
-      });
-    }
-
-    links.push(
       {
         href: "/ask",
         label: OPERATOR_NAV_LINK_LABELS.askReview,
@@ -86,7 +71,19 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         tier: "extended",
         requiredAuthority: "ReadAuthority",
       },
-    );
+    ];
+
+    if (isPatternLibraryNavVisible()) {
+      links.push({
+        href: "/patterns",
+        label: PATTERN_LIBRARY_NAV_LINK_LABEL,
+        title: "Explore anonymized architecture patterns and adoption signals",
+        icon: Layers,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+        navBadge: PATTERN_LIBRARY_NAV_BADGE,
+      });
+    }
 
     return {
       id: "operate-analysis",
