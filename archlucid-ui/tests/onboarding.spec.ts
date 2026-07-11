@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_ONBOARDING_PAGE_TITLE,
+  FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
+} from "@/lib/buyer-polish-copy";
 
 import { SHOWCASE_DEMO_RUN_ID } from "../e2e/fixtures/ids";
 import { registerFreshTenantOnboardingMocks } from "../e2e/helpers/register-onboarding-mocks";
@@ -40,15 +43,16 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
 
     await expect(page.getByRole("heading", { name: BUYER_ONBOARDING_PAGE_TITLE, level: 1 })).toBeVisible();
 
-    await expect(page.getByRole("heading", { name: "Progress", level: 2 })).toBeVisible({ timeout: 30_000 });
+    await expect(
+      page.getByRole("heading", { name: FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE, level: 2 }),
+    ).toBeVisible({ timeout: 30_000 });
 
-    await expect(page.getByTestId("onboarding-open-sample-run")).toBeVisible();
-    await expect(page.getByTestId("onboarding-open-sample-run")).toHaveAttribute(
+    await expect(page.getByRole("link", { name: "Explore sample review" })).toHaveAttribute(
       "href",
       `/reviews/${SHOWCASE_DEMO_RUN_ID}`,
     );
 
-    await expect(page.getByTestId("core-pilot-checklist")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("first-review-guide-walkthrough")).toBeVisible({ timeout: 30_000 });
 
     await page.goto("/settings/identity-providers");
 

@@ -1,8 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -10,6 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
+import {
+  ONBOARDING_OPTIONAL_SETUP_DISMISS_DETAIL,
+  ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL,
+} from "@/lib/buyer-polish-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   areFinishSetupRequiredStepsComplete,
   resolveFinishSetupWizardSteps,
@@ -22,15 +25,14 @@ export type FinishSetupWizardPanelProps = {
   readonly variant?: "default" | "optional";
 };
 
-function readSetupCompleted(): boolean {
+function readSetupDismissed(): boolean {
   if (typeof window === "undefined") {
     return false;
   }
 
   try {
     return window.localStorage.getItem(FINISH_SETUP_STORAGE_KEY) === "1";
-  }
-  catch {
+  } catch {
     return false;
   }
 }
@@ -42,14 +44,13 @@ export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps 
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    setDismissed(readSetupCompleted());
+    setDismissed(readSetupDismissed());
   }, []);
 
-  const onMarkComplete = useCallback(() => {
+  const onDismiss = useCallback(() => {
     try {
       window.localStorage.setItem(FINISH_SETUP_STORAGE_KEY, "1");
-    }
-    catch {
+    } catch {
       /* ignore */
     }
 
@@ -72,7 +73,11 @@ export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps 
             <CardTitle id="finish-setup-heading" className={OPERATOR_TYPOGRAPHY.body}>
               {panelVariant === "optional" ? "Optional workspace setup" : "Finish workspace setup"}
             </CardTitle>
-            {allRequiredDone ? <StatusTag kind="ready" label="Required steps complete" /> : <StatusTag kind="needs-attention" label="Setup in progress" />}
+            {allRequiredDone ? (
+              <StatusTag kind="ready" label="Ready" />
+            ) : (
+              <StatusTag kind="neutral" label="Optional" />
+            )}
           </div>
           <CardDescription>
             {panelVariant === "optional"
@@ -89,7 +94,13 @@ export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps 
                 <li key={step.id} className={OPERATOR_TYPOGRAPHY.body}>
                   <div className="flex flex-wrap items-baseline gap-2">
                     <span className="font-medium text-neutral-900 dark:text-neutral-100">{step.label}</span>
-                    {done ? <StatusTag kind="ready" label="Done" /> : <StatusTag kind="needs-attention" label="Needs attention" />}
+                    {done ? (
+                      <StatusTag kind="ready" label="Complete" />
+                    ) : step.id === "identity" ? (
+                      <StatusTag kind="neutral" label="Optional" />
+                    ) : (
+                      <StatusTag kind="draft" label="Not configured" />
+                    )}
                   </div>
                   <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">{step.description}</p>
                   <Link href={step.href} className={cn("mt-1 inline-block font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
@@ -99,10 +110,11 @@ export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps 
               );
             })}
           </ol>
-          <div className="flex flex-wrap gap-2 pt-1">
-            <Button type="button" variant="outline" size="sm" onClick={onMarkComplete}>
-              Mark setup complete
+          <div className="space-y-1 pt-1">
+            <Button type="button" variant="outline" size="sm" onClick={onDismiss}>
+              {ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL}
             </Button>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{ONBOARDING_OPTIONAL_SETUP_DISMISS_DETAIL}</p>
           </div>
         </CardContent>
       </Card>

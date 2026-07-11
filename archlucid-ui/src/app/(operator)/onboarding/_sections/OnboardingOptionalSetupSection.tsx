@@ -2,24 +2,60 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 
-import { FinishSetupWizardPanel } from "@/components/FinishSetupWizardPanel";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
-import { Button } from "@/components/ui/button";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import {
   ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
+  ONBOARDING_OPTIONAL_SETUP_DISMISS_DETAIL,
+  ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL,
   ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
+  FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_LEAD,
+  FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-const ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY = "archlucid_onboarding_disclosure_optional_setup_v1";
+import {
+  OptionalWorkspaceSetupDismissButton,
+  OptionalWorkspaceSetupList,
+} from "./OptionalWorkspaceSetupList";
 
-/** Collapsed-by-default ROI and workspace setup — not required for the first review package. */
+const ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY = "archlucid_onboarding_disclosure_optional_setup_v1";
+const ONBOARDING_OPTIONAL_SETUP_DISMISS_KEY = "archlucid.finishSetupWizard.completed.v1";
+
+function readOptionalSetupDismissed(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.localStorage.getItem(ONBOARDING_OPTIONAL_SETUP_DISMISS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Collapsed-by-default optional workspace setup — secondary to the first-review walkthrough. */
 export function OnboardingOptionalSetupSection() {
   const { phase, context } = useFinishSetupReadinessContext();
+  const [dismissed, setDismissed] = useState(false);
 
-  if (phase === "loading") {
+  useEffect(() => {
+    setDismissed(readOptionalSetupDismissed());
+  }, []);
+
+  const onDismiss = useCallback(() => {
+    try {
+      window.localStorage.setItem(ONBOARDING_OPTIONAL_SETUP_DISMISS_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+
+    setDismissed(true);
+  }, []);
+
+  if (phase === "loading" || dismissed) {
     return null;
   }
 
@@ -30,8 +66,8 @@ export function OnboardingOptionalSetupSection() {
         className="rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800"
         data-testid="onboarding-optional-setup-delegation"
       >
-        <h2 id="onboarding-optional-setup-delegation-heading" className={`m-0 ${OPERATOR_TYPOGRAPHY.cardTitle}`}>
-          Optional setup
+        <h2 id="onboarding-optional-setup-delegation-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE}
         </h2>
         <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
           {ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION}
@@ -42,29 +78,20 @@ export function OnboardingOptionalSetupSection() {
 
   return (
     <OperatorHomeDisclosureSection
-      title="Optional setup"
+      title={FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE}
       titleId="onboarding-optional-setup-heading"
       sectionTestId="onboarding-optional-setup"
       storageKey={ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY}
       defaultExpanded={false}
       collapsedSummary={ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY}
     >
-      <div className="space-y-6">
-        <section aria-labelledby="onboarding-roi-baseline-setup-heading" data-testid="onboarding-roi-baseline-setup">
-          <h3 id="onboarding-roi-baseline-setup-heading" className={`m-0 ${OPERATOR_TYPOGRAPHY.cardTitle}`}>
-            ROI baseline
-          </h3>
-          <p className={cn("m-0 mt-1 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
-            Add baseline assumptions so Portfolio overview can show estimated savings and sponsor ROI.
-          </p>
-          <div className="mt-2">
-            <Button asChild size="sm" variant="outline">
-              <Link href="/settings/baseline">Configure ROI baseline</Link>
-            </Button>
-          </div>
-        </section>
-
-        <FinishSetupWizardPanel variant="optional" />
+      <div className="space-y-4">
+        <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_LEAD}</p>
+        <OptionalWorkspaceSetupList />
+        <div className="space-y-1">
+          <OptionalWorkspaceSetupDismissButton onDismiss={onDismiss} />
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{ONBOARDING_OPTIONAL_SETUP_DISMISS_DETAIL}</p>
+        </div>
       </div>
     </OperatorHomeDisclosureSection>
   );
