@@ -69,6 +69,7 @@ public static class ArchLucidPersistenceStartup
         // creates objects that migration 001 also creates; DbUp then sees an empty journal and fails with
         // "already an object named …". Integration tests use DbUp-only on a fresh catalog; API startup should match.
         // After migrations, ArchLucid.sql is idempotent (IF OBJECT_ID …) and aligns greenfield with the reference DDL.
+
         if (storageIsSql)
         {
             SqlTopologyOptions sqlTopology =
