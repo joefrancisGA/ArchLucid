@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Filters;
 ///     Returns <c>404 Not Found</c> for Enterprise-only entitlement gates (enumeration suppression); <c>403 Forbidden</c>
 ///     with Problem Details when the minimum tier is Standard (tenant-visible commercial capabilities).
 ///     In DevelopmentBypass live E2E, arbitrary scope ids may have no <c>dbo.Tenants</c> row — Standard gates still
-///     allow the request when <see cref="ArchLucidAuthOptions.AllowTestActorHeaders" /> is enabled.
+///     allow the request on Development hosts (see <c>freshIsolatedTenantScope</c> in live Playwright helpers).
 /// </summary>
 public sealed class CommercialTenantTierFilter(
     TenantTier minimumTier,
@@ -53,7 +53,6 @@ public sealed class CommercialTenantTierFilter(
             if (ShouldTreatMissingTenantAsStandardDevelopmentBypass(
                     _hostEnvironment.IsDevelopment(),
                     _authOptions.Mode,
-                    _authOptions.AllowTestActorHeaders,
                     minimumTier))
             {
                 await next();
@@ -111,7 +110,6 @@ public sealed class CommercialTenantTierFilter(
     internal static bool ShouldTreatMissingTenantAsStandardDevelopmentBypass(
         bool isDevelopmentHost,
         string? authMode,
-        bool allowTestActorHeaders,
         TenantTier minimumTier)
     {
         if (minimumTier != TenantTier.Standard)
@@ -124,11 +122,6 @@ public sealed class CommercialTenantTierFilter(
             return false;
         }
 
-        if (!string.Equals(authMode?.Trim(), "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        return allowTestActorHeaders;
+        return string.Equals(authMode?.Trim(), "DevelopmentBypass", StringComparison.OrdinalIgnoreCase);
     }
 }

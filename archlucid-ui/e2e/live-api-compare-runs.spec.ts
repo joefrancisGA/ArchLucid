@@ -12,6 +12,7 @@ import {
   executeRun,
   freshIsolatedTenantScope,
   liveApiBase,
+  waitForAuthorityRunSummaryReady,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
@@ -60,6 +61,9 @@ test.describe("live-api-compare-runs", () => {
     await waitForReadyForCommit(request, runIdB, 90_000, tenantScope);
     await commitRun(request, runIdB, tenantScope);
     await waitForRunDetailCommitted(request, runIdB, 60_000, tenantScope);
+
+    await waitForAuthorityRunSummaryReady(request, runIdA, 60_000, tenantScope);
+    await waitForAuthorityRunSummaryReady(request, runIdB, 60_000, tenantScope);
 
     test.info().annotations.push(
       { type: "run-id-a", description: runIdA },

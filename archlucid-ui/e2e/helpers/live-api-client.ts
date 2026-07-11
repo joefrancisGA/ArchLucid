@@ -1107,6 +1107,37 @@ export async function waitForRunDetailCommitted(
   );
 }
 
+/** Polls authority run summary until visible in scope (compare reads dbo.Runs via the same projection). */
+export async function waitForAuthorityRunSummaryReady(
+  request: APIRequestContext,
+  runId: string,
+  timeoutMs = 90_000,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<void> {
+  const deadline = Date.now() + liveE2eCommitWaitMs(timeoutMs);
+  const encoded = encodeURIComponent(runId);
+
+  while (Date.now() < deadline) {
+    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}/summary`, {
+      headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
+    });
+
+    if (res.ok()) {
+      return;
+    }
+
+    if (res.status() !== 404) {
+      await throwIfNotOk(res, `GET /v1/authority/runs/${encoded}/summary`);
+    }
+
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+
+  throw new Error(
+    `Authority run summary for ${runId} not ready (GET /v1/authority/runs/{id}/summary) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
+  );
+}
+
 /** Polls GET /v1/architecture/runs until the row shows Committed or timeout (dashboard list consistency). */
 export async function waitForArchitectureRunListCommitted(
   request: APIRequestContext,

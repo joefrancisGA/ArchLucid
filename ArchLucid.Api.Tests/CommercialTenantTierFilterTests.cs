@@ -119,8 +119,7 @@ public sealed class CommercialTenantTierFilterTests
             tenants.Object,
             scopeProvider.Object,
             isDevelopmentHost: true,
-            authMode: "DevelopmentBypass",
-            allowTestActorHeaders: true);
+            authMode: "DevelopmentBypass");
         ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
         bool next = false;
 
@@ -156,8 +155,7 @@ public sealed class CommercialTenantTierFilterTests
             tenants.Object,
             scopeProvider.Object,
             isDevelopmentHost: true,
-            authMode: "DevelopmentBypass",
-            allowTestActorHeaders: true);
+            authMode: "DevelopmentBypass");
         ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
         bool next = false;
 
@@ -181,10 +179,20 @@ public sealed class CommercialTenantTierFilterTests
         CommercialTenantTierFilter.ShouldTreatMissingTenantAsStandardDevelopmentBypass(
                 isDevelopmentHost: true,
                 authMode: "DevelopmentBypass",
-                allowTestActorHeaders: true,
                 minimumTier: TenantTier.Enterprise)
             .Should()
             .BeFalse();
+    }
+
+    [SkippableFact]
+    public void ShouldTreatMissingTenantAsStandardDevelopmentBypass_allows_development_bypass_without_test_actor_headers()
+    {
+        CommercialTenantTierFilter.ShouldTreatMissingTenantAsStandardDevelopmentBypass(
+                isDevelopmentHost: true,
+                authMode: "DevelopmentBypass",
+                minimumTier: TenantTier.Standard)
+            .Should()
+            .BeTrue();
     }
 
     [SkippableFact]
