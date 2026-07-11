@@ -2,6 +2,7 @@ using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -22,10 +23,14 @@ public sealed class CommercialTenantTierFilter(
     ITenantRepository tenantRepository,
     IScopeContextProvider scopeContextProvider,
     IWebHostEnvironment hostEnvironment,
-    IOptions<ArchLucidAuthOptions> authOptions) : IAsyncActionFilter
+    IOptions<ArchLucidAuthOptions> authOptions,
+    IOptions<E2EHarnessOptions> e2eHarnessOptions) : IAsyncActionFilter
 {
     private readonly ArchLucidAuthOptions _authOptions =
         authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
+
+    private readonly E2EHarnessOptions _e2eHarnessOptions =
+        e2eHarnessOptions?.Value ?? throw new ArgumentNullException(nameof(e2eHarnessOptions));
 
     private readonly IWebHostEnvironment _hostEnvironment =
         hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
@@ -52,7 +57,9 @@ public sealed class CommercialTenantTierFilter(
         {
             if (ShouldTreatMissingTenantAsStandardDevelopmentBypass(
                     _hostEnvironment.IsDevelopment(),
+                    !_hostEnvironment.IsProduction(),
                     _authOptions.Mode,
+                    IsLiveE2eHarnessConfigured(_e2eHarnessOptions),
                     minimumTier))
             {
                 await next();
@@ -109,7 +116,9 @@ public sealed class CommercialTenantTierFilter(
     /// </summary>
     internal static bool ShouldTreatMissingTenantAsStandardDevelopmentBypass(
         bool isDevelopmentHost,
+        bool isNonProductionHost,
         string? authMode,
+        bool liveE2eHarnessConfigured,
         TenantTier minimumTier)
     {
         if (minimumTier != TenantTier.Standard)
@@ -117,11 +126,23 @@ public sealed class CommercialTenantTierFilter(
             return false;
         }
 
-        if (!isDevelopmentHost)
+        if (!string.Equals(authMode?.Trim(), "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
 
-        return string.Equals(authMode?.Trim(), "DevelopmentBypass", StringComparison.OrdinalIgnoreCase);
+        if (isDevelopmentHost)
+        {
+            return true;
+        }
+
+        return isNonProductionHost && liveE2eHarnessConfigured;
+    }
+
+    private static bool IsLiveE2eHarnessConfigured(E2EHarnessOptions options)
+    {
+        string secret = options.SharedSecret?.Trim() ?? string.Empty;
+
+        return secret.Length >= 16;
     }
 }

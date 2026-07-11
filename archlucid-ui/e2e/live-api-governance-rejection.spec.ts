@@ -16,7 +16,9 @@ import {
   postGovernanceApproveRaw,
   postGovernanceRejectRaw,
   rejectGovernanceRequest,
+  resolveLiveAuthMode,
   searchAudit,
+  waitForAuthorityRunSummaryReady,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
@@ -83,6 +85,7 @@ test.describe("live-api-governance-rejection", () => {
     }
 
     await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
+    await waitForAuthorityRunSummaryReady(request, runId, 60_000, tenantScope);
 
     const submitted = await createApprovalRequest(
       request,
@@ -172,7 +175,10 @@ test.describe("live-api-governance-rejection", () => {
         .toBe(true);
     }
 
-    await injectDemoWorkspaceOperatorScope(page, tenantScope);
+    if (resolveLiveAuthMode() === "bypass") {
+      await injectDemoWorkspaceOperatorScope(page, tenantScope);
+    }
+
     await page.goto(`/governance?runId=${encodeURIComponent(runId)}`);
 
     await expect(page.getByRole("heading", { name: /governance workflow/i })).toBeVisible({

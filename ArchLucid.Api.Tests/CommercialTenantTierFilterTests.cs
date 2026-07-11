@@ -4,6 +4,7 @@ using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Filters;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Host.Core.Configuration;
 
 using FluentAssertions;
 
@@ -178,7 +179,9 @@ public sealed class CommercialTenantTierFilterTests
     {
         CommercialTenantTierFilter.ShouldTreatMissingTenantAsStandardDevelopmentBypass(
                 isDevelopmentHost: true,
+                isNonProductionHost: true,
                 authMode: "DevelopmentBypass",
+                liveE2eHarnessConfigured: false,
                 minimumTier: TenantTier.Enterprise)
             .Should()
             .BeFalse();
@@ -189,7 +192,22 @@ public sealed class CommercialTenantTierFilterTests
     {
         CommercialTenantTierFilter.ShouldTreatMissingTenantAsStandardDevelopmentBypass(
                 isDevelopmentHost: true,
+                isNonProductionHost: true,
                 authMode: "DevelopmentBypass",
+                liveE2eHarnessConfigured: false,
+                minimumTier: TenantTier.Standard)
+            .Should()
+            .BeTrue();
+    }
+
+    [SkippableFact]
+    public void ShouldTreatMissingTenantAsStandardDevelopmentBypass_allows_ci_harness_on_non_production_host()
+    {
+        CommercialTenantTierFilter.ShouldTreatMissingTenantAsStandardDevelopmentBypass(
+                isDevelopmentHost: false,
+                isNonProductionHost: true,
+                authMode: "DevelopmentBypass",
+                liveE2eHarnessConfigured: true,
                 minimumTier: TenantTier.Standard)
             .Should()
             .BeTrue();
@@ -287,7 +305,8 @@ public sealed class CommercialTenantTierFilterTests
         IScopeContextProvider scopeContextProvider,
         bool isDevelopmentHost = false,
         string authMode = "ApiKey",
-        bool allowTestActorHeaders = false)
+        bool allowTestActorHeaders = false,
+        string? e2eHarnessSharedSecret = null)
     {
         Mock<IWebHostEnvironment> hostEnvironment = new();
         hostEnvironment.Setup(h => h.EnvironmentName).Returns(isDevelopmentHost ? "Development" : "Production");
@@ -295,12 +314,20 @@ public sealed class CommercialTenantTierFilterTests
         IOptions<ArchLucidAuthOptions> authOptions = Options.Create(
             new ArchLucidAuthOptions { Mode = authMode, AllowTestActorHeaders = allowTestActorHeaders });
 
+        IOptions<E2EHarnessOptions> harnessOptions = Options.Create(
+            new E2EHarnessOptions
+            {
+                Enabled = (e2eHarnessSharedSecret?.Trim().Length ?? 0) >= 16,
+                SharedSecret = e2eHarnessSharedSecret ?? string.Empty,
+            });
+
         return new CommercialTenantTierFilter(
             minimumTier,
             tenantRepository,
             scopeContextProvider,
             hostEnvironment.Object,
-            authOptions);
+            authOptions,
+            harnessOptions);
     }
 
     private static ActionExecutingContext BuildExecutingContext(bool authenticated)
