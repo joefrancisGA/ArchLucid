@@ -1,4 +1,5 @@
 using ArchLucid.Application.Drafts;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 
@@ -34,6 +35,25 @@ public sealed class DraftRequestProjectorTests
         Contracts.Requests.ArchitectureRequest request = _projector.Project(document, Guid.NewGuid());
 
         request.CloudProvider.Should().Be(CloudProvider.None);
+    }
+
+    [Fact]
+    public void Project_SetsDraftIntakeRequestSourceAndPreservesTransparencyTrail()
+    {
+        DraftRequestDocument document = CreateDocument();
+        document.TransparencyTrail.Inferred.Add(new InferredTrailEntry
+        {
+            Key = "scale.requestsPerSecond",
+            Value = "1200",
+            Confidence = 45,
+        });
+
+        Contracts.Requests.ArchitectureRequest request = _projector.Project(document, Guid.NewGuid());
+
+        request.RequestSource.Should().Be("draft-intake");
+        request.IntakeTransparencyTrail.Should().NotBeNull();
+        request.IntakeTransparencyTrail!.Inferred.Should().ContainSingle(i => i.Key == "scale.requestsPerSecond");
+        request.Assumptions.Should().Contain(a => a.Contains("inferred:45", StringComparison.Ordinal));
     }
 
     [Fact]

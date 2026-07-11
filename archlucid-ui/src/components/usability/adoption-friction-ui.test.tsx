@@ -14,6 +14,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { INLINE_GUIDANCE_LABEL_CLASS } from "@/lib/design-tokens";
 import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
+import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
@@ -24,7 +25,10 @@ describe("PilotCommandCenterCard", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-create-architecture-cta")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("operator-home-create-architecture-cta")).toHaveAttribute(
+      "href",
+      REVIEWS_NEW_GUIDED_INTAKE_HREF,
+    );
     expect(screen.getByTestId("operator-home-review-architecture-cta")).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();

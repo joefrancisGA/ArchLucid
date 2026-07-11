@@ -1,5 +1,8 @@
 export type ReviewsNewPathMode = "quick-review" | "guided-intake" | "detailed";
 
+/** Deep link for born-governed creation intake (guided clarifying questions). */
+export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/reviews/new?path=guided-intake" as const;
+
 /** Single-line example — sample brief button supplies the full narrative. */
 export const REVIEWS_NEW_BRIEF_PLACEHOLDER =
   "Example: Customer-facing retail API on Azure using App Service, Azure SQL, Redis, and private networking. Goals include PCI-sensitive payment isolation, 99.9% availability, EU data residency, and phased migration from an on-prem monolith.";

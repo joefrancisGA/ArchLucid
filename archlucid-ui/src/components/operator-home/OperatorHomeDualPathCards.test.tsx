@@ -9,6 +9,7 @@ import {
   OPERATOR_HOME_RECOMMENDED_FIRST_BADGE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
 } from "@/lib/buyer-polish-copy";
+import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
 
 describe("OperatorHomeDualPathCards", () => {
   it("promises born-governed creation output and marks the review path recommended first", () => {
@@ -26,7 +27,10 @@ describe("OperatorHomeDualPathCards", () => {
     expect(screen.getByTestId("operator-home-review-recommended-first")).toHaveTextContent(
       OPERATOR_HOME_RECOMMENDED_FIRST_BADGE,
     );
-    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute(
+      "href",
+      REVIEWS_NEW_GUIDED_INTAKE_HREF,
+    );
     expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
   });
 });

@@ -20,6 +20,7 @@ import {
 } from "@/lib/showcase-sample-review-registry";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
+import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
@@ -95,7 +96,10 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByTestId("operator-home-review-recommended-first")).toHaveTextContent(
       OPERATOR_HOME_RECOMMENDED_FIRST_BADGE,
     );
-    expect(screen.getByTestId("operator-home-create-architecture-cta")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("operator-home-create-architecture-cta")).toHaveAttribute(
+      "href",
+      REVIEWS_NEW_GUIDED_INTAKE_HREF,
+    );
     expect(screen.getByTestId("operator-home-review-architecture-cta")).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();

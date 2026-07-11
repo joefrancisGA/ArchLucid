@@ -13,6 +13,7 @@ import {
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
 import { cn } from "@/lib/utils";
 
 /** Side-by-side create vs review entry points on Overview. */
@@ -40,7 +41,7 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
           </p>
         </div>
         <Button asChild variant="primary" size="sm" className="h-8 w-fit">
-          <Link href="/reviews/new" data-testid="operator-home-create-architecture-cta">
+          <Link href={REVIEWS_NEW_GUIDED_INTAKE_HREF} data-testid="operator-home-create-architecture-cta">
             {CREATE_ARCHITECTURE_LABEL}
           </Link>
         </Button>
