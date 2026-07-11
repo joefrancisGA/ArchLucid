@@ -49,12 +49,12 @@ export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Run sample review";
 export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = "Open completed sample";
 
 export const OPERATOR_HOME_COMMAND_CENTER_TAGLINE =
-  "Create, review, and govern architecture decisions with evidence-backed traceability.";
+  "Either way, you end with an evidence-backed architecture package — findings traced to proof, explicit limits where we don't conclude, and a decision record your ARB can sign.";
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Create architecture";
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
-  "Generate or refine a draft architecture from goals, constraints, platforms, and evidence.";
+  "Draft an architecture from goals, constraints, and evidence. It arrives already reviewed: findings, risks, and evidence links included.";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review architecture";
 
@@ -63,15 +63,17 @@ export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA = "Start review";
 
+export const OPERATOR_HOME_RECOMMENDED_FIRST_BADGE = "Recommended first";
+
 export const OPERATOR_HOME_DUAL_PATH_CHOOSER_GUIDANCE =
-  "Start by creating a draft architecture from goals and constraints, or review an existing architecture package using evidence, policy, and governance checks.";
+  "Start with the completed sample to see a defensible package, then review your architecture or create one from goals and constraints.";
 
 export const OPERATOR_HOME_RECOMMENDED_NEXT_LABEL = "Recommended next:";
 
 export const OPERATOR_HOME_RECOMMENDED_NEXT_STATIC =
-  "create a draft architecture, start a review, or open the completed sample.";
+  "Open the completed sample to see a defensible architecture package before your first review.";
 
-export const OPERATOR_HOME_RECOMMENDED_NEXT_CREATE_OR_REVIEW = "Create architecture or start review";
+export const OPERATOR_HOME_RECOMMENDED_NEXT_CREATE_OR_REVIEW = OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA;
 
 export const OPERATOR_HOME_RECOMMENDED_NEXT_START_REVIEW = "Start review";
 

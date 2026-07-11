@@ -1,9 +1,7 @@
 import {
-  OPERATOR_HOME_RECOMMENDED_NEXT_CREATE_OR_REVIEW,
   OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
   OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE,
   OPERATOR_HOME_RECOMMENDED_NEXT_START_REVIEW,
-  OPERATOR_HOME_RECOMMENDED_NEXT_STATIC,
 } from "@/lib/buyer-polish-copy";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import {
@@ -15,6 +13,13 @@ export type OperatorHomeRecommendedNextAction = {
   readonly message: string;
   readonly href: string | null;
 };
+
+function resolveOperatorHomeSampleFirstAction(): OperatorHomeRecommendedNextAction {
+  return {
+    message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE,
+    href: showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
+  };
+}
 
 /** Resolves compact recommended-next copy for the Overview hero from workspace signals. */
 export function resolveOperatorHomeRecommendedNextAction(
@@ -29,10 +34,7 @@ export function resolveOperatorHomeRecommendedNextAction(
   }
 
   if (ctx === undefined) {
-    return {
-      message: OPERATOR_HOME_RECOMMENDED_NEXT_STATIC,
-      href: null,
-    };
+    return resolveOperatorHomeSampleFirstAction();
   }
 
   if (ctx.latestRunId !== null) {
@@ -57,10 +59,7 @@ export function resolveOperatorHomeRecommendedNextAction(
   }
 
   if (ctx.committedReviewCount === 0) {
-    return {
-      message: OPERATOR_HOME_RECOMMENDED_NEXT_CREATE_OR_REVIEW,
-      href: null,
-    };
+    return resolveOperatorHomeSampleFirstAction();
   }
 
   return {
@@ -71,8 +70,5 @@ export function resolveOperatorHomeRecommendedNextAction(
 
 /** Static fallback when commit context is still loading on first-run Overview. */
 export function resolveOperatorHomeRecommendedNextFallback(): OperatorHomeRecommendedNextAction {
-  return {
-    message: OPERATOR_HOME_RECOMMENDED_NEXT_STATIC,
-    href: null,
-  };
+  return resolveOperatorHomeSampleFirstAction();
 }

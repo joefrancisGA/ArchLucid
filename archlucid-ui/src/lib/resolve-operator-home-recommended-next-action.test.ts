@@ -2,9 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import {
-  OPERATOR_HOME_RECOMMENDED_NEXT_CREATE_OR_REVIEW,
+  OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE,
   OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
-  OPERATOR_HOME_RECOMMENDED_NEXT_STATIC,
 } from "@/lib/buyer-polish-copy";
 import {
   resolveOperatorHomeRecommendedNextAction,
@@ -25,17 +24,17 @@ const emptyContext: CorePilotCommitContext = {
 };
 
 describe("resolveOperatorHomeRecommendedNextAction", () => {
-  it("returns static fallback when context is undefined", () => {
+  it("returns sample-first guidance when context is undefined", () => {
     expect(resolveOperatorHomeRecommendedNextAction(undefined, false)).toEqual({
-      message: OPERATOR_HOME_RECOMMENDED_NEXT_STATIC,
-      href: null,
+      message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE,
+      href: showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
     });
   });
 
-  it("suggests create or review when the workspace has no packages", () => {
+  it("suggests the completed sample when the workspace has no packages", () => {
     expect(resolveOperatorHomeRecommendedNextAction(emptyContext, false)).toEqual({
-      message: OPERATOR_HOME_RECOMMENDED_NEXT_CREATE_OR_REVIEW,
-      href: null,
+      message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE,
+      href: showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
     });
   });
 
@@ -80,10 +79,10 @@ describe("resolveOperatorHomeRecommendedNextAction", () => {
     });
   });
 
-  it("exposes a static loading fallback", () => {
+  it("exposes a sample-first loading fallback", () => {
     expect(resolveOperatorHomeRecommendedNextFallback()).toEqual({
-      message: OPERATOR_HOME_RECOMMENDED_NEXT_STATIC,
-      href: null,
+      message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE,
+      href: showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
     });
   });
 

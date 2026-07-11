@@ -3,9 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeRecommendedNextAction } from "@/components/operator-home/OperatorHomeRecommendedNextAction";
 import {
-  OPERATOR_HOME_RECOMMENDED_NEXT_CREATE_OR_REVIEW,
   OPERATOR_HOME_RECOMMENDED_NEXT_LABEL,
-} from "@/lib/buyer-polish-copy";import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+  OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE,
+} from "@/lib/buyer-polish-copy";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+import {
+  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
+  showcaseSampleReviewPackageHref,
+} from "@/lib/showcase-sample-review-registry";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
@@ -51,6 +56,9 @@ describe("OperatorHomeRecommendedNextAction", () => {
     expect(screen.getByTestId("inline-guidance-recommended-next")).toHaveTextContent(
       OPERATOR_HOME_RECOMMENDED_NEXT_LABEL,
     );
-    expect(await screen.findByText(OPERATOR_HOME_RECOMMENDED_NEXT_CREATE_OR_REVIEW)).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE })).toHaveAttribute(
+      "href",
+      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
+    );
   });
 });
