@@ -4549,7 +4549,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Billing_AppendStateHistory
     @NewProvider nvarchar(64),
     @PrevProviderSubscriptionId nvarchar(256),
     @NewProviderSubscriptionId nvarchar(256)
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -4600,7 +4600,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Billing_UpsertPending
     @Tier nvarchar(32),
     @SeatsPurchased int,
     @WorkspacesPurchased int
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -4676,7 +4676,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Billing_Activate
     @SeatsPurchased int,
     @WorkspacesPurchased int,
     @RawWebhookJson nvarchar(max)
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -4745,7 +4745,7 @@ GO
 
 CREATE OR ALTER PROCEDURE dbo.sp_Billing_Suspend
     @TenantId uniqueidentifier
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -4799,7 +4799,7 @@ GO
 
 CREATE OR ALTER PROCEDURE dbo.sp_Billing_Reinstate
     @TenantId uniqueidentifier
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -4853,7 +4853,7 @@ GO
 
 CREATE OR ALTER PROCEDURE dbo.sp_Billing_Cancel
     @TenantId uniqueidentifier
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -4909,7 +4909,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Billing_ChangePlan
     @TenantId uniqueidentifier,
     @Tier nvarchar(32),
     @RawWebhookJson nvarchar(max)
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -4967,7 +4967,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Billing_ChangeQuantity
     @TenantId uniqueidentifier,
     @SeatsPurchased int,
     @RawWebhookJson nvarchar(max)
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -5597,7 +5597,7 @@ CREATE PROCEDURE dbo.sp_TenantHealthScores_Upsert
     @GovernanceScore decimal(5, 2),
     @SupportScore decimal(5, 2),
     @CompositeScore decimal(5, 2)
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -5985,7 +5985,7 @@ IF OBJECT_ID(N'dbo.sp_TenantHealthScores_BatchRefresh', N'P') IS NOT NULL
 GO
 
 CREATE PROCEDURE dbo.sp_TenantHealthScores_BatchRefresh
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;

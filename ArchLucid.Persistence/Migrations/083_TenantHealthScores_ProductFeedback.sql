@@ -69,7 +69,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_TenantHealthScores_Upsert
     @GovernanceScore decimal(5, 2),
     @SupportScore decimal(5, 2),
     @CompositeScore decimal(5, 2)
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;

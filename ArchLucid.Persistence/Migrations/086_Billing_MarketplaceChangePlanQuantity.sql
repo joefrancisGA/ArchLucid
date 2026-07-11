@@ -8,7 +8,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Billing_ChangePlan
     @TenantId uniqueidentifier,
     @Tier nvarchar(32),
     @RawWebhookJson nvarchar(max)
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -25,7 +25,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Billing_ChangeQuantity
     @TenantId uniqueidentifier,
     @SeatsPurchased int,
     @RawWebhookJson nvarchar(max)
-WITH EXECUTE AS OWNER
+WITH EXECUTE AS CALLER
 AS
 BEGIN
     SET NOCOUNT ON;
