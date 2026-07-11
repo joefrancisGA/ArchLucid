@@ -5,7 +5,7 @@ import { MARKETING_LAYOUT } from "@/lib/design-tokens";
 
 type MarketingPageShellProps = {
   readonly children: ReactNode;
-  readonly variant?: "default" | "reading";
+  readonly variant?: "default" | "reading" | "trust";
   readonly className?: string;
   readonly id?: string;
 };
@@ -13,7 +13,12 @@ type MarketingPageShellProps = {
 /** Shared marketing page rail — aligns public routes with operator shell tokens and density. */
 export function MarketingPageShell(props: MarketingPageShellProps) {
   const { children, variant = "default", className, id = "main-content" } = props;
-  const widthClass = variant === "reading" ? MARKETING_LAYOUT.mainReading : MARKETING_LAYOUT.main;
+  const widthClass =
+    variant === "trust"
+      ? MARKETING_LAYOUT.mainTrust
+      : variant === "reading"
+        ? MARKETING_LAYOUT.mainReading
+        : MARKETING_LAYOUT.main;
 
   return (
     <main id={id} className={cn(widthClass, className)} tabIndex={-1}>
