@@ -32,7 +32,8 @@ export const OPERATOR_HOME_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStatePro
   title: OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
   description: OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   actions: [
-    { label: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA, href: "/reviews/new", variant: "primary" },
+    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "primary" },
+    { label: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA, href: "/reviews/new", variant: "outline" },
     {
       label: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
       href: showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),

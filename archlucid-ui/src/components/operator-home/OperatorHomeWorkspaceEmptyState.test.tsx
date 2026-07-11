@@ -5,6 +5,7 @@ vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
 
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { OperatorHomeWorkspaceEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceEmptyState";
 import {
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
@@ -14,12 +15,13 @@ import {
 } from "@/lib/buyer-polish-copy";
 
 describe("OperatorHomeWorkspaceEmptyState (TB-352)", () => {
-  it("uses the compact enterprise empty pattern with review-first actions", () => {
+  it("uses the compact enterprise empty pattern with create-and-review actions", () => {
     render(<OperatorHomeWorkspaceEmptyState />);
 
     expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toHaveAttribute(
       "href",
       "/reviews/new",

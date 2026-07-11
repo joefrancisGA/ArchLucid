@@ -7,6 +7,8 @@ import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
   OPERATOR_HOME_DUAL_PATH_CHOOSER_GUIDANCE,
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
+  OPERATOR_HOME_RECOMMENDED_NEXT_CREATE_OR_REVIEW,
+  OPERATOR_HOME_RECOMMENDED_NEXT_LABEL,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
   PILOT_COMMAND_CENTER_HEADING,
@@ -75,6 +77,10 @@ describe("PilotCommandCenterCard", () => {
     }
 
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
+    expect(screen.getByTestId("inline-guidance-recommended-next")).toHaveTextContent(
+      OPERATOR_HOME_RECOMMENDED_NEXT_LABEL,
+    );
+    expect(screen.getByText(OPERATOR_HOME_RECOMMENDED_NEXT_CREATE_OR_REVIEW)).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-dual-path-chooser-guidance")).toHaveTextContent(
       OPERATOR_HOME_DUAL_PATH_CHOOSER_GUIDANCE,
     );

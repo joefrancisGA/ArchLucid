@@ -51,7 +51,7 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
             {OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY}
           </p>
         </div>
-        <Button asChild variant="outline" size="sm" className="h-8 w-fit">
+        <Button asChild variant="primary" size="sm" className="h-8 w-fit">
           <Link href="/reviews/new" data-testid="operator-home-review-architecture-cta">
             {OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA}
           </Link>

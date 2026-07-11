@@ -33,15 +33,11 @@ import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 
-import { OPERATOR_HOME_PRIMARY_SECTION_HEADING, OPERATOR_LAYOUT } from "@/lib/design-tokens";
-
+import { OPERATOR_HOME_PRIMARY_SECTION_HEADING, OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-
+import { OPERATOR_HOME_WORKSPACE_ACTIVITY_LEAD } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
-
-
-
-import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
+import { cn } from "@/lib/utils";
 
 
 
@@ -86,6 +82,10 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
 
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
+
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+          {OPERATOR_HOME_WORKSPACE_ACTIVITY_LEAD}
+        </p>
 
         <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
 
@@ -143,6 +143,10 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
 
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
+
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+          {OPERATOR_HOME_WORKSPACE_ACTIVITY_LEAD}
+        </p>
 
         <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
 

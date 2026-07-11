@@ -9,6 +9,7 @@ import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-co
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
+import { OperatorHomeRecommendedNextAction } from "@/components/operator-home/OperatorHomeRecommendedNextAction";
 import { Button } from "@/components/ui/button";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
@@ -77,7 +78,10 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
       </div>
 
       {!hasCommittedArchitectureReview ? (
-        <OperatorHomeDualPathCards />
+        <>
+          <OperatorHomeRecommendedNextAction />
+          <OperatorHomeDualPathCards />
+        </>
       ) : (
         <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", OPERATOR_LAYOUT.inlineGap)}>
           <p

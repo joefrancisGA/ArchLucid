@@ -24,7 +24,7 @@ describe("OperatorHomeAdvancedGuidanceSection", () => {
     expect(screen.queryByTestId("buyer-cto-demo-readiness-panel")).toBeNull();
     expect(screen.queryByText("Demo readiness")).toBeNull();
 
-    const expand = screen.getByRole("button", { name: /expand explore archlucid/i });
+    const expand = screen.getByRole("button", { name: new RegExp(`expand ${OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE}`, "i") });
     expand.click();
 
     await waitFor(() => {
@@ -40,7 +40,7 @@ describe("OperatorHomeAdvancedGuidanceSection", () => {
 
     expect(screen.queryByTestId("explore-archlucid-buyer-content")).toBeNull();
 
-    const expand = screen.getByRole("button", { name: /expand explore archlucid/i });
+    const expand = screen.getByRole("button", { name: new RegExp(`expand ${OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE}`, "i") });
     expand.click();
 
     await waitFor(() => {

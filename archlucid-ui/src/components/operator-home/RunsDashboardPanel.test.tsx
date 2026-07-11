@@ -31,7 +31,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { listRunsByProjectPaged } from "@/lib/api";
-import { BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA, OPERATOR_HOME_WORKSPACE_EMPTY_BODY } from "@/lib/buyer-polish-copy";
+import { BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA, OPERATOR_HOME_WORKSPACE_EMPTY_BODY, OPERATOR_HOME_WORKSPACE_EMPTY_TITLE } from "@/lib/buyer-polish-copy";
 import * as operatorStaticDemo from "@/lib/operator-static-demo";
 
 import { RunsDashboardPanel } from "./RunsDashboardPanel";
@@ -176,7 +176,7 @@ describe("RunsDashboardPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
-      expect(screen.getByText("No review packages yet")).toBeInTheDocument();
+      expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
       expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
     } finally {
       fallbackSpy.mockRestore();
@@ -388,7 +388,7 @@ describe("RunsDashboardPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
-      expect(screen.getByText("No review packages yet")).toBeInTheDocument();
+      expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
       expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: "View review package" })).toBeNull();
       expect(screen.queryByTestId("example-request-panel")).toBeNull();

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH,
   OPERATOR_HOME_SETUP_NEXT_CONNECT_CLOUD,
   OPERATOR_HOME_SETUP_NEXT_INVITE_REVIEWER,
   OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE,
@@ -16,15 +17,19 @@ describe("resolveOperatorHomeSetupNextAction", () => {
     expect(resolveOperatorHomeSetupNextAction("guide")).toBe(OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE);
   });
 
-  it("returns cloud and reviewer copy for optional setup paths", () => {
+  it("returns path, guide, cloud, and reviewer copy", () => {
+    expect(resolveOperatorHomeSetupNextAction("path")).toBe(OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH);
     expect(resolveOperatorHomeSetupNextAction("cloud")).toBe(OPERATOR_HOME_SETUP_NEXT_CONNECT_CLOUD);
     expect(resolveOperatorHomeSetupNextAction("reviewer")).toBe(OPERATOR_HOME_SETUP_NEXT_INVITE_REVIEWER);
   });
 });
 
 describe("resolveOperatorHomeSetupNextActionId", () => {
-  it("suggests the first review guide until finish-setup steps are complete", () => {
-    expect(resolveOperatorHomeSetupNextActionId(0, 3)).toBe("guide");
+  it("suggests choosing a create or review path before setup progress begins", () => {
+    expect(resolveOperatorHomeSetupNextActionId(0, 3)).toBe("path");
+  });
+
+  it("suggests the first review guide while finish-setup steps remain incomplete", () => {
     expect(resolveOperatorHomeSetupNextActionId(2, 3)).toBe("guide");
   });
 
