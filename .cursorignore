@@ -16,7 +16,6 @@
 # ── Local coverage report trees (multi-GB; not searchable source) ─────────────
 coverage/
 trx-download/
-infra/
 
 # ── .NET coverage scratch folders ────────────────────────────────────────────
 _cov_merge/

@@ -14,6 +14,17 @@ public static class ArchLucidPersistenceStartup
 {
     private const int DefaultSchemaBootstrapTimeoutSeconds = 30;
 
+    /// <summary>
+    ///     Prefers the elevated bootstrap connection (DDL + self-granting DENY/GRANT rights); falls back to the
+    ///     runtime connection for hosts that have not split identities (pre-existing dev/CI behavior).
+    /// </summary>
+    private static string? ResolveDevelopmentTenantBootstrapConnectionString(SqlTopologyOptions sqlTopology)
+    {
+        return string.IsNullOrWhiteSpace(sqlTopology.DevelopmentTenantBootstrapConnectionString)
+            ? sqlTopology.DevelopmentTenantConnectionString
+            : sqlTopology.DevelopmentTenantBootstrapConnectionString;
+    }
+
     private static void RunSystemSchemaBootstrapIfAvailable(
         WebApplication app,
         string systemConnectionString,
@@ -103,14 +114,17 @@ public static class ArchLucidPersistenceStartup
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(sqlTopology.DevelopmentTenantConnectionString))
+                string? tenantBootstrapConnectionString =
+                    ResolveDevelopmentTenantBootstrapConnectionString(sqlTopology);
+
+                if (!string.IsNullOrWhiteSpace(tenantBootstrapConnectionString))
                 {
                     app.Logger.LogInformation(
-                        "Startup: running tenant-plane DbUp migrations (ArchLucid:SqlTopology:DevelopmentTenantConnectionString).");
+                        "Startup: running tenant-plane DbUp migrations (ArchLucid:SqlTopology:DevelopmentTenantBootstrapConnectionString).");
 
                     try
                     {
-                        DatabaseMigrator.RunTenant(sqlTopology.DevelopmentTenantConnectionString);
+                        DatabaseMigrator.RunTenant(tenantBootstrapConnectionString);
 
                         app.Logger.LogInformation("Startup: tenant-plane DbUp migrations completed successfully.");
                     }

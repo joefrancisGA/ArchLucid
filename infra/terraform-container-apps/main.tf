@@ -370,9 +370,14 @@ resource "azurerm_container_app" "api" {
     }
   }
   # TB-657: CD owns runtime image tags (cd.yml `az containerapp update`). Terraform seeds warm-start pins only.
+  # env/secret also drift from ad-hoc `az containerapp update --set-env-vars` / `secret set` calls (deployment
+  # metadata, auth mode toggles, ConnectionStrings overrides) made outside this module; ignore to avoid apply
+  # deleting operator/CD-managed values that Terraform's config does not declare.
   lifecycle {
     ignore_changes = [
       template[0].container[0].image,
+      template[0].container[0].env,
+      secret,
     ]
   }
 }
@@ -656,9 +661,14 @@ resource "azurerm_container_app" "worker" {
   }
 
   # TB-657: CD owns runtime image tags (cd.yml `az containerapp update`). Terraform seeds warm-start pins only.
+  # env/secret also drift from ad-hoc `az containerapp update --set-env-vars` / `secret set` calls (deployment
+  # metadata, auth mode toggles, ConnectionStrings overrides) made outside this module; ignore to avoid apply
+  # deleting operator/CD-managed values that Terraform's config does not declare.
   lifecycle {
     ignore_changes = [
       template[0].container[0].image,
+      template[0].container[0].env,
+      secret,
     ]
   }
 }
@@ -759,9 +769,14 @@ resource "azurerm_container_app" "ui" {
   }
 
   # TB-657: CD owns runtime image tags (cd.yml `az containerapp update`). Terraform seeds warm-start pins only.
+  # env/secret also drift from ad-hoc `az containerapp update --set-env-vars` / `secret set` calls (deployment
+  # metadata, auth mode toggles, ConnectionStrings overrides) made outside this module; ignore to avoid apply
+  # deleting operator/CD-managed values that Terraform's config does not declare.
   lifecycle {
     ignore_changes = [
       template[0].container[0].image,
+      template[0].container[0].env,
+      secret,
     ]
   }
 }

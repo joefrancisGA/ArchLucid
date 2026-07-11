@@ -19,6 +19,16 @@ public sealed class SqlTopologyOptions
 
     /// <summary>
     ///     Optional: migrate/schema-bootstrap this catalog at API startup (local integration / single-tenant dev hosts).
+    ///     Least-privilege hosts should point this at the runtime app role (e.g. <c>[ArchLucidApp]</c>) so the audit/
+    ///     sealed-evidence immutability probes validate the principal actually used at runtime; DDL that self-grants
+    ///     permissions to that role must run under <see cref="DevelopmentTenantBootstrapConnectionString" /> instead.
     /// </summary>
     public string? DevelopmentTenantConnectionString { get; set; }
+
+    /// <summary>
+    ///     Optional: elevated connection used only to run schema DDL and the self-granting DENY/GRANT statements that
+    ///     migrations issue against the least-privilege app role (e.g. migration 051/078/247). Falls back to
+    ///     <see cref="DevelopmentTenantConnectionString" /> when unset, matching pre-split single-identity dev/CI hosts.
+    /// </summary>
+    public string? DevelopmentTenantBootstrapConnectionString { get; set; }
 }
