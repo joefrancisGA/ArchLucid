@@ -283,6 +283,23 @@ export function liveJsonHeaders(explicitApiKey?: string | null): Record<string, 
   };
 }
 
+/** JSON headers for persisted governance POST routes (`Idempotency-Key` required when `dryRun=false`). */
+export function liveGovernanceMutationJsonHeaders(options?: {
+  readonly apiKey?: string | null;
+  readonly idempotencyKey?: string;
+}): Record<string, string> {
+  const idempotencyKey = options?.idempotencyKey?.trim() || freshLiveE2eIdempotencyKey();
+
+  if (idempotencyKey.length === 0) {
+    throw new Error("Governance mutation requires a non-empty Idempotency-Key header.");
+  }
+
+  return {
+    ...liveJsonHeaders(options?.apiKey),
+    "Idempotency-Key": idempotencyKey,
+  };
+}
+
 /** GET JSON headers. Pass `""` to omit auth. */
 export function liveAcceptHeaders(explicitApiKey?: string | null): Record<string, string> {
   return {
@@ -1251,7 +1268,6 @@ export async function createApprovalRequest(
   tenantScope?: LiveTenantScopeHeaders | null,
   options?: { readonly idempotencyKey?: string },
 ): Promise<GovernanceApprovalRequestJson> {
-  const idempotencyKey = options?.idempotencyKey?.trim() || freshLiveE2eIdempotencyKey();
   const res = await request.post(`${resolveLiveApiBase()}/v1/governance/approval-requests`, {
     data: {
       runId: body.runId,
@@ -1261,10 +1277,7 @@ export async function createApprovalRequest(
       requestComment: body.requestComment ?? null,
     },
     headers: mergeTenantScope(
-      {
-        ...liveJsonHeaders(),
-        "Idempotency-Key": idempotencyKey,
-      },
+      liveGovernanceMutationJsonHeaders({ idempotencyKey: options?.idempotencyKey }),
       tenantScope,
     ),
   });
