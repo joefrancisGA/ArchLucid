@@ -47,12 +47,27 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+
+        IReadOnlyList<string> lookupKeys = RunExportRecordRunIdSql.LookupKeys(runId);
+
         lock (_gate)
         {
-            if (!_byRunId.TryGetValue(runId, out List<RunExportRecord>? list))
+            List<RunExportRecord> merged = [];
+
+            foreach (string key in lookupKeys)
+            {
+                if (!_byRunId.TryGetValue(key, out List<RunExportRecord>? list))
+                    continue;
+
+                merged.AddRange(list);
+            }
+
+            if (merged.Count == 0)
                 return Task.FromResult<IReadOnlyList<RunExportRecord>>([]);
 
-            List<RunExportRecord> ordered = list
+            List<RunExportRecord> ordered = merged
+                .GroupBy(r => r.ExportRecordId, StringComparer.Ordinal)
+                .Select(g => g.First())
                 .OrderByDescending(r => r.CreatedUtc)
                 .Select(Clone)
                 .ToList();

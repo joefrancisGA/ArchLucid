@@ -123,19 +123,21 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         string runId,
         CancellationToken cancellationToken = default)
     {
+        IReadOnlyList<string> lookupKeys = RunExportRecordRunIdSql.LookupKeys(runId);
+
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
                       SELECT RecordJson
                       FROM RunExportRecords
-                      WHERE RunId = @RunId
+                      WHERE RunId IN @RunIds
                       ORDER BY CreatedUtc DESC
                       {SqlPagingSyntax.FirstRowsOnly(500)};
                       """;
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new { RunIds = lookupKeys },
             cancellationToken: cancellationToken));
 
         List<RunExportRecord> records = [];
