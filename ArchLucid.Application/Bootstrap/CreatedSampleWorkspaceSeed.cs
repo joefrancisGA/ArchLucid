@@ -152,64 +152,21 @@ internal static class CreatedSampleWorkspaceSeed
 
         return new GoldenManifest
         {
-            ManifestId = Guid.Empty,
             RunId = legacyRunIdN,
-            CreatedUtc = SeedUtc,
             SystemName = SystemName,
-            ManifestVersion = ManifestVersion,
-            Governance = gov,
             Services = services,
             Datastores = datastores,
             Relationships = relationships,
-            Decisions =
-            [
-                new ManifestDecision
-                {
-                    DecisionId = "decision-apim-edge",
-                    Title = "APIM terminates TLS and enforces content-safety hooks",
-                    Category = "Integration",
-                    Rationale = "Central gateway for rate limits, JWT validation, and abuse monitoring before orchestration.",
-                },
-                new ManifestDecision
-                {
-                    DecisionId = "decision-private-ai-plane",
-                    Title = "Azure OpenAI and AI Search use private endpoints only",
-                    Category = "Security",
-                    Rationale = "No public keys in clients; inference traffic stays on private egress paths.",
-                },
-                new ManifestDecision
-                {
-                    DecisionId = "decision-prompt-governance",
-                    Title = "System prompts change through approved pipeline only",
-                    Category = "Responsible AI",
-                    Rationale = "Emergency rollback path documented; prompt manifests versioned alongside deployments.",
-                },
-                new ManifestDecision
-                {
-                    DecisionId = "decision-redaction-ingest",
-                    Title = "Ingestion pipeline enforces PII redaction before indexing",
-                    Category = "Data handling",
-                    Rationale = "Vector index must not store secrets or unredacted PII — design intent for workforce docs.",
-                },
-                new ManifestDecision
-                {
-                    DecisionId = "decision-human-in-loop",
-                    Title = "High-impact tool calls require human confirm gates",
-                    Category = "Responsible AI",
-                    Rationale = "Grounding asserted for retrieval; speculative answers labeled when evidence is thin.",
-                },
-                new ManifestDecision
-                {
-                    DecisionId = "decision-audit-logging",
-                    Title = "Redacted session audit logs retained per enterprise policy",
-                    Category = "Auditability",
-                    Rationale = "Prompt/response pairs stored with correlation IDs; no raw document payloads in logs.",
-                },
-            ],
-            Warnings =
-            [
-                "Embedding batch jobs need budget alerts before full corpus refresh — illustrative FinOps hook only.",
-            ],
+            Governance = gov,
+            Metadata = new ManifestMetadata
+            {
+                ManifestVersion = ManifestVersion,
+                ParentManifestVersion = null,
+                ChangeDescription =
+                    "Synthetic Northwind Copilot RAG platform — born-governed created architecture package from guided intake.",
+                DecisionTraceIds = [],
+                CreatedUtc = SeedUtc,
+            },
         };
     }
 
@@ -225,7 +182,7 @@ internal static class CreatedSampleWorkspaceSeed
                 FindingType = "SecurityReview",
                 Category = "Network",
                 EngineType = "SecurityBaselineSeed",
-                Severity = FindingSeverity.High,
+                Severity = FindingSeverity.Error,
                 Title = "Inference path may traverse public egress before private link cutover completes",
                 Rationale =
                     "Draft intake targets private Azure OpenAI and AI Search endpoints; interim dev subscriptions still allow managed public endpoints for playground refreshes.",
