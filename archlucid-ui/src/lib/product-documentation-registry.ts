@@ -145,9 +145,10 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "findings",
     title: "Findings",
-    summary: "Severity, business impact, evidence citations, and recommended monitoring or remediation actions.",
+    summary:
+      "Understand architecture risks, inspect supporting evidence, and decide how each finding should be addressed.",
     audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md"],
+    sourcePaths: ["docs/library/customer-facing/FINDINGS_OPERATOR_GUIDE.md"],
   },
   {
     slug: "executive-summary",
