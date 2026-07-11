@@ -133,11 +133,17 @@ test.describe("live-api-journey", () => {
       `Golden manifest link missing for run ${runId}. Server run detail may lack goldenManifestId or UI/API mismatch.`,
     ).toBeVisible({ timeout: 60_000 });
 
-    await manifestLink.click();
+    await Promise.all([
+      page.waitForURL(/\/(?:signed-records|manifests)\/.+/i, { waitUntil: "commit" }),
+      manifestLink.click(),
+    ]);
 
     const manifestMain = getAppMain(page);
 
-    await expect(manifestMain.getByText(/Fetching manifest summary/i)).toHaveCount(0, {
+    await expect(manifestMain.getByTestId("manifest-detail-loading-shell")).toHaveCount(0, {
+      timeout: 60_000,
+    });
+    await expect(manifestMain.getByText(/Loading review record/i)).toHaveCount(0, {
       timeout: 60_000,
     });
 

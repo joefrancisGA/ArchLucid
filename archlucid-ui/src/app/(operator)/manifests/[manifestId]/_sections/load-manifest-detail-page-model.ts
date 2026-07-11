@@ -1,7 +1,12 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { getManifestSummary, listArtifacts } from "@/lib/api";
+import { isBrowser } from "@/lib/api/http";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  resolveServerScopeHeadersForManifest,
+  resolveServerScopeHeadersForRun,
+} from "@/lib/server-run-scope";
 import {
   coerceArtifactDescriptorList,
   coerceManifestSummary,
@@ -31,8 +36,12 @@ export async function loadManifestDetailPageModel(manifestId: string): Promise<L
   let artifactsMalformed: string | null = null;
   let usedStaticDemoManifest = false;
 
+  const serverManifestScopeHeaders = isBrowser() ? null : await resolveServerScopeHeadersForManifest(manifestId);
+  const manifestScopeOptions =
+    serverManifestScopeHeaders !== null ? { scopeHeaders: serverManifestScopeHeaders } : undefined;
+
   try {
-    const rawSummary: unknown = await getManifestSummary(manifestId);
+    const rawSummary: unknown = await getManifestSummary(manifestId, manifestScopeOptions);
     const coercedSummary = coerceManifestSummary(rawSummary);
 
     if (!coercedSummary.ok) {
@@ -58,8 +67,13 @@ export async function loadManifestDetailPageModel(manifestId: string): Promise<L
     return { kind: "not-found" };
   }
 
+  const artifactScopeOptions =
+    isBrowser() || summary === null
+      ? manifestScopeOptions
+      : { scopeHeaders: await resolveServerScopeHeadersForRun(summary.runId.trim()) };
+
   try {
-    const rawArtifacts: unknown = await listArtifacts(manifestId);
+    const rawArtifacts: unknown = await listArtifacts(manifestId, artifactScopeOptions);
     const coercedArtifacts = coerceArtifactDescriptorList(rawArtifacts);
 
     if (!coercedArtifacts.ok) {
