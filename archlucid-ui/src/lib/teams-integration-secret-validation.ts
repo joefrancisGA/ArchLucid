@@ -1,3 +1,5 @@
+import { isTeamsWebhookHostname } from "@/lib/integration-webhook-hostname";
+
 export type TeamsSecretValidationOutcome =
   | "valid"
   | "invalid-name"
@@ -68,9 +70,7 @@ function looksLikeTeamsWebhookUrl(value: string): boolean {
       return false;
     }
 
-    const host = parsed.hostname.toLowerCase();
-
-    return host.includes("webhook.office.com") || host.includes("office.com");
+    return isTeamsWebhookHostname(parsed.hostname);
   } catch {
     return false;
   }

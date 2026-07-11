@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { isSlackIncomingWebhookHostname } from "@/lib/integration-webhook-hostname";
 /** Slack alert-routing event types stored in subscription metadata (matches backend catalog). */
 export const slackIntegrationEventCatalog = [
   {
@@ -47,8 +48,7 @@ const slackWebhookUrlSchema = z
       return;
     }
 
-    if (!parsed.hostname.endsWith("slack.com") || !parsed.pathname.startsWith("/services/")) {
-      ctx.addIssue({
+    if (!isSlackIncomingWebhookHostname(parsed.hostname) || !parsed.pathname.startsWith("/services/")) {      ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Use a Slack incoming webhook URL from hooks.slack.com.",
       });
