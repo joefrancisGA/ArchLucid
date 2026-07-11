@@ -1,4 +1,4 @@
-import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { canonicalizeDemoRunId, isShowcaseCreatedStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_HOME_AHA_MOMENT } from "@/lib/showcase-home-aha-moment";
@@ -16,6 +16,14 @@ import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
 } from "@/lib/showcase-static-demo";
+import {
+  getShowcaseCreatedStaticDemoPayload,
+  SHOWCASE_CREATED_STATIC_DEMO_DECISION_SYNOPSES,
+  SHOWCASE_CREATED_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID,
+  SHOWCASE_CREATED_STATIC_DEMO_RUN_ID,
+  SHOWCASE_CREATED_STATIC_DEMO_WARNING_SYNOPSES,
+} from "@/lib/showcase-created-static-demo";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { AlertRecord } from "@/types/alerts";
 import type {
@@ -36,6 +44,7 @@ import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 const DEMO_RUN_IDS_FOR_STATIC_FALLBACK = new Set<string>([
   SHOWCASE_STATIC_DEMO_RUN_ID,
+  SHOWCASE_CREATED_STATIC_DEMO_RUN_ID,
   "claims-intake-modernization-run",
   "claims-intake-run-v1",
   "claims-intake-run-v2",
@@ -190,7 +199,13 @@ export function isShowcaseSpineStaticPayloadActiveForRun(runId: string): boolean
 
 /** Same trust model as {@link isShowcaseSpineStaticPayloadActiveForRun} for the known showcase manifest UUID. */
 export function isShowcaseSpineStaticPayloadActiveForManifest(manifestId: string): boolean {
-  if (manifestId.trim() !== SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
+  const trimmed = manifestId.trim();
+
+  if (trimmed === SHOWCASE_CREATED_STATIC_DEMO_MANIFEST_ID) {
+    return isShowcaseSpineStaticPayloadActiveForRun(SHOWCASE_CREATED_STATIC_DEMO_RUN_ID);
+  }
+
+  if (trimmed !== SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
     return false;
   }
 
@@ -508,6 +523,57 @@ export function tryStaticDemoGoldenManifestJsonForExport(runId: string): Record<
     return null;
   }
 
+  if (isShowcaseCreatedStaticDemoRunId(effectiveRunId)) {
+    const d = getShowcaseCreatedStaticDemoPayload(effectiveRunId);
+    const manifest = d.manifest;
+
+    return {
+      manifestId: manifest.manifestId,
+      runId: manifest.runId,
+      createdUtc: manifest.createdUtc,
+      manifestHash: manifest.manifestHash,
+      ruleSetId: manifest.ruleSetId,
+      ruleSetVersion: manifest.ruleSetVersion,
+      metadata: {
+        manifestVersion: `demo-${manifest.ruleSetVersion}`,
+        changeDescription: manifest.operatorSummary,
+      },
+      assumptions: [],
+      constraints: {
+        mandatoryConstraints: [],
+        preferences: [],
+      },
+      decisions: SHOWCASE_CREATED_STATIC_DEMO_DECISION_SYNOPSES.map((rationale: string, index: number) => ({
+        decisionId: `northwind-copilot-decision-${index + 1}`,
+        title: `Architecture decision ${index + 1}`,
+        category: "Architecture",
+        rationale,
+      })),
+      topology: {
+        selectedPatterns: [
+          "Private AI plane",
+          "RAG retrieval with grounding",
+          "Gateway content-safety hooks",
+        ],
+        resources: ["Azure API Management", "Azure OpenAI", "Azure AI Search"],
+        services: [
+          {
+            serviceId: "svc-copilot-orchestrator",
+            serviceName: "Chat orchestration worker",
+            serviceType: 0,
+            runtimePlatform: 0,
+            purpose: "RAG retrieval and tool routing for workforce copilot sessions.",
+          },
+        ],
+      },
+      security: {
+        controls: [],
+        gaps: [...SHOWCASE_CREATED_STATIC_DEMO_WARNING_SYNOPSES],
+      },
+      warnings: [...SHOWCASE_CREATED_STATIC_DEMO_WARNING_SYNOPSES],
+    };
+  }
+
   const d = getShowcaseStaticDemoPayload(effectiveRunId);
   const manifest = d.manifest;
 
@@ -579,6 +645,27 @@ export function buildStaticDemoManifestSummaryFromShowcase(urlRunId: string): Ma
   };
 }
 
+export function buildStaticDemoManifestSummaryFromCreatedShowcase(urlRunId: string): ManifestSummary {
+  const d = getShowcaseCreatedStaticDemoPayload(urlRunId);
+  const m = d.manifest;
+
+  return {
+    manifestId: m.manifestId,
+    runId: m.runId,
+    createdUtc: m.createdUtc,
+    manifestHash: m.manifestHash,
+    ruleSetId: m.ruleSetId,
+    ruleSetVersion: m.ruleSetVersion,
+    decisionCount: m.decisionCount,
+    warningCount: m.warningCount,
+    unresolvedIssueCount: m.unresolvedIssueCount,
+    status: m.status,
+    hasWarnings: m.warningCount > 0,
+    hasUnresolvedIssues: m.unresolvedIssueCount > 0,
+    operatorSummary: m.operatorSummary,
+  };
+}
+
 export function buildStaticDemoPipelineTimelineFromShowcase(urlRunId: string): PipelineTimelineItem[] {
   const d = getShowcaseStaticDemoPayload(urlRunId);
 
@@ -608,6 +695,23 @@ export function buildStaticDemoArtifactsFromShowcase(urlRunId: string): Artifact
   }));
 }
 
+export function buildStaticDemoArtifactsFromCreatedShowcase(urlRunId: string): ArtifactDescriptor[] {
+  const d = getShowcaseCreatedStaticDemoPayload(urlRunId);
+  const manifestId = d.manifest.manifestId;
+  const runId = d.run.runId;
+
+  return d.artifacts.map((a) => ({
+    artifactId: a.artifactId,
+    artifactType: a.artifactType,
+    name: a.name,
+    format: a.format,
+    createdUtc: a.createdUtc,
+    contentHash: a.contentHash,
+    manifestId,
+    runId,
+  }));
+}
+
 export function tryStaticDemoRunDetail(runId: string): RunDetail | null {
   if (!isShowcaseSpineStaticPayloadActiveForRun(runId)) {
     return null;
@@ -619,7 +723,78 @@ export function tryStaticDemoRunDetail(runId: string): RunDetail | null {
     return null;
   }
 
+  if (isShowcaseCreatedStaticDemoRunId(effectiveRunId)) {
+    return buildStaticDemoRunDetailFromCreatedShowcase(effectiveRunId);
+  }
+
   return buildStaticDemoRunDetailFromShowcase(effectiveRunId);
+}
+
+function buildStaticDemoRunDetailFromCreatedShowcase(urlRunId: string): RunDetail {
+  const d = getShowcaseCreatedStaticDemoPayload(urlRunId);
+  const manifest = d.manifest;
+  const chain = d.authorityChain;
+
+  const quickDecisionFindings: NonNullable<RunDetailAgentResult["findings"]> = [
+    {
+      findingId: SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID,
+      message: "Private inference egress gap",
+      category: "Security",
+      severity: 2,
+      reasoningTrace:
+        "Deny public network access on Azure OpenAI and AI Search before workforce pilot; validate private DNS from orchestration spoke.",
+    },
+    ...SHOWCASE_CREATED_STATIC_DEMO_DECISION_SYNOPSES.slice(0, 3).map((synopsis, index) => ({
+      findingId: `${SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID}-${index + 2}`,
+      message: synopsis,
+      category: "Architecture",
+      severity: 1,
+      reasoningTrace: "See finding detail for the decision context and evidence pointers.",
+    })),
+  ];
+
+  return {
+    executionFlavorBuyerSummary:
+      "Born-governed created package — findings, manifest, and export produced from guided intake without a separate review pass.",
+    agentExecutionLlmCostEstimate: {
+      estimatedCostUsd: null,
+      tokenCounts: { prompt: 0, completion: 0 },
+      model: "AgentExecution:Simulator",
+    },
+    run: {
+      runId: d.run.runId,
+      projectId: d.run.projectId,
+      description: d.run.description,
+      createdUtc: d.run.createdUtc,
+      contextSnapshotId: chain.contextSnapshotId ?? undefined,
+      graphSnapshotId: chain.graphSnapshotId ?? undefined,
+      findingsSnapshotId: chain.findingsSnapshotId ?? undefined,
+      goldenManifestId: manifest.manifestId,
+      decisionTraceId: chain.decisionTraceId ?? undefined,
+      artifactBundleId: chain.artifactBundleId ?? undefined,
+      structuralExecutionMode: 0,
+    },
+    contextSnapshot: { demo: true },
+    graphSnapshot: { demo: true },
+    findingsSnapshot: { demo: true },
+    decisionTrace: { demo: true },
+    goldenManifest: { demo: true },
+    artifactBundle: { demo: true },
+    results: [
+      {
+        resultId: `${d.run.runId}-compliance-quick-decision`,
+        taskId: `${d.run.runId}-compliance`,
+        runId: d.run.runId,
+        agentType: 3,
+        claims: [
+          "Private-link cutover and APIM content-safety attachment are tracked before internal pilot.",
+        ],
+        evidenceRefs: [SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID],
+        findings: quickDecisionFindings,
+        confidence: 0.86,
+      },
+    ],
+  };
 }
 
 /** Curated PHI finding for static demo when inspect API is unavailable (matches manifest deep links). */
@@ -681,6 +856,62 @@ export function tryStaticDemoFindingInspect(runId: string, findingId: string): F
   const effectiveRunId = canonicalizeDemoRunId(runId);
   const fid = findingId.trim();
 
+  if (isShowcaseCreatedStaticDemoRunId(effectiveRunId)) {
+    const isKnownCreatedFinding =
+      fid === SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID ||
+      fid.startsWith(`${SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID}-`);
+
+    if (!isKnownCreatedFinding) {
+      return null;
+    }
+
+    if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
+      return null;
+    }
+
+    const d = getShowcaseCreatedStaticDemoPayload(effectiveRunId);
+
+    return {
+      findingId: fid,
+      typedPayload: {
+        title: "Private inference egress gap",
+        description:
+          "Interim dev subscriptions still allow managed public endpoints for playground refreshes before private link cutover.",
+        whyThisMatters:
+          "Workforce copilot traffic must not traverse public egress once pilot cohorts connect to production-classified corpora.",
+        severity: "High",
+        category: "Security",
+        status: "Pending remediation",
+        impactedArea: "Azure OpenAI, AI Search, orchestration spoke private DNS, and APIM egress policies",
+      },
+      decisionRuleId: "ai.private-link.inference",
+      decisionRuleName: "Private inference plane",
+      evidence: [
+        {
+          artifactId: "private-endpoint-diagram",
+          lineRange: "12-28",
+          excerpt: "Hub-spoke layout with private Azure OpenAI and AI Search endpoints from orchestration spoke.",
+        },
+        {
+          artifactId: "copilot-architecture-brief",
+          lineRange: "4-11",
+          excerpt: "Guided intake requires private connectivity for inference and retrieval data planes.",
+        },
+      ],
+      reasoningSummary:
+        "This finding was recorded because the created package promises a private AI plane while interim dev paths may still expose managed public endpoints.",
+      recommendedActions: [
+        "Deny public network access on Azure OpenAI and AI Search resources.",
+        "Validate private DNS zones resolve from orchestration spoke before workforce pilot.",
+      ],
+      auditRowId: "audit-northwind-copilot-private-link-001",
+      runId: d.run.runId,
+      manifestVersion: "AI LLM workload policy pack v1.2.0",
+      confidenceLevel: "High",
+      evaluationConfidenceScore: 0.92,
+    };
+  }
+
   // Accept exact match or slug-prefixed IDs (e.g. "phi-minimization-risk-<guid>") so that
   // real finding IDs with appended GUIDs still resolve to the curated demo payload.
   const isKnownFinding =
@@ -707,6 +938,10 @@ export function tryStaticDemoManifestSummary(manifestId: string): ManifestSummar
     return null;
   }
 
+  if (manifestId === SHOWCASE_CREATED_STATIC_DEMO_MANIFEST_ID) {
+    return buildStaticDemoManifestSummaryFromCreatedShowcase(SHOWCASE_CREATED_STATIC_DEMO_RUN_ID);
+  }
+
   if (manifestId !== SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
     return null;
   }
@@ -725,6 +960,18 @@ export function tryStaticDemoPipelineTimeline(runId: string): PipelineTimelineIt
     return null;
   }
 
+  if (isShowcaseCreatedStaticDemoRunId(effectiveRunId)) {
+    const d = getShowcaseCreatedStaticDemoPayload(effectiveRunId);
+
+    return d.pipelineTimeline.map((row) => ({
+      eventId: row.eventId,
+      occurredUtc: row.occurredUtc,
+      eventType: row.eventType,
+      actorUserName: row.actorUserName,
+      correlationId: row.correlationId ?? undefined,
+    }));
+  }
+
   return buildStaticDemoPipelineTimelineFromShowcase(effectiveRunId);
 }
 
@@ -733,11 +980,15 @@ export function tryStaticDemoArtifacts(runIdForPayload: string, manifestId: stri
     return null;
   }
 
+  const effectiveRunId = canonicalizeDemoRunId(runIdForPayload);
+
+  if (manifestId === SHOWCASE_CREATED_STATIC_DEMO_MANIFEST_ID) {
+    return buildStaticDemoArtifactsFromCreatedShowcase(effectiveRunId);
+  }
+
   if (manifestId !== SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
     return null;
   }
-
-  const effectiveRunId = canonicalizeDemoRunId(runIdForPayload);
 
   return buildStaticDemoArtifactsFromShowcase(effectiveRunId);
 }
@@ -752,6 +1003,10 @@ export function tryStaticDemoExplanationSummary(runId: string): RunExplanationSu
 
   if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
     return null;
+  }
+
+  if (isShowcaseCreatedStaticDemoRunId(effectiveRunId)) {
+    return getShowcaseCreatedStaticDemoPayload(effectiveRunId).runExplanation;
   }
 
   return getShowcaseStaticDemoPayload(effectiveRunId).runExplanation;

@@ -46,7 +46,12 @@ export const OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL = "Sample includes:";
 
 export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Run sample review";
 
-export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = "Open completed sample";
+export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = "Open reviewed sample";
+
+export const OPERATOR_HOME_OPEN_CREATED_SAMPLE_CTA = "Open created sample";
+
+export const OPERATOR_HOME_OPEN_CREATED_SAMPLE_HINT =
+  "Inspect a born-governed package produced from guided intake — findings, manifest, and export included.";
 
 export const OPERATOR_HOME_COMMAND_CENTER_TAGLINE =
   "Either way, you end with an evidence-backed architecture package — findings traced to proof, explicit limits where we don't conclude, and a decision record your ARB can sign.";
@@ -86,7 +91,7 @@ export const OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST = "Open latest package";
 export const OPERATOR_HOME_EXPLORE_SAMPLE_HEADING = "Explore a sample workspace";
 
 export const OPERATOR_HOME_EXPLORE_SAMPLE_LEAD =
-  "Use sample data to inspect a completed package or watch ArchLucid generate a review flow before using your own evidence.";
+  "Compare a reviewed package and a created package, or watch ArchLucid generate a review flow before using your own evidence.";
 
 export const OPERATOR_HOME_OPEN_COMPLETED_SAMPLE_HINT =
   "Inspect finished findings, evidence, and the signed decision record.";

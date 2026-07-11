@@ -6,6 +6,8 @@ import {
   OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
   OPERATOR_HOME_EXPLORE_SAMPLE_LEAD,
   OPERATOR_HOME_OPEN_COMPLETED_SAMPLE_HINT,
+  OPERATOR_HOME_OPEN_CREATED_SAMPLE_CTA,
+  OPERATOR_HOME_OPEN_CREATED_SAMPLE_HINT,
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
   OPERATOR_HOME_RUN_SAMPLE_REVIEW_HINT,
@@ -15,6 +17,10 @@ import {
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
   reviewIntakeExampleTemplateHref,
 } from "@/lib/operator-home-example-request";
+import {
+  SHOWCASE_SAMPLE_CREATED_REGISTRY,
+  showcaseSampleCreatedPackageHref,
+} from "@/lib/showcase-sample-created-registry";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
   showcaseSampleReviewPackageHref,
@@ -52,6 +58,13 @@ describe("OperatorHomeExploreSampleSection", () => {
       showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
     );
     expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA })).toBeInTheDocument();
+
+    expect(screen.getByTestId("operator-home-explore-open-created-sample")).toHaveAttribute(
+      "href",
+      showcaseSampleCreatedPackageHref(SHOWCASE_SAMPLE_CREATED_REGISTRY.runId),
+    );
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_CREATED_SAMPLE_CTA })).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_OPEN_CREATED_SAMPLE_HINT)).toBeInTheDocument();
 
     expect(screen.getByTestId("operator-home-explore-run-sample-review")).toHaveAttribute(
       "href",

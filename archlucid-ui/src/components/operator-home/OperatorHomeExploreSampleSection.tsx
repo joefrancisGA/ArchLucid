@@ -9,6 +9,8 @@ import {
   OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
   OPERATOR_HOME_EXPLORE_SAMPLE_LEAD,
   OPERATOR_HOME_OPEN_COMPLETED_SAMPLE_HINT,
+  OPERATOR_HOME_OPEN_CREATED_SAMPLE_CTA,
+  OPERATOR_HOME_OPEN_CREATED_SAMPLE_HINT,
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
   OPERATOR_HOME_RUN_SAMPLE_REVIEW_HINT,
@@ -18,6 +20,10 @@ import {
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
   reviewIntakeExampleTemplateHref,
 } from "@/lib/operator-home-example-request";
+import {
+  SHOWCASE_SAMPLE_CREATED_REGISTRY,
+  showcaseSampleCreatedPackageHref,
+} from "@/lib/showcase-sample-created-registry";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
   showcaseSampleReviewPackageHref,
@@ -48,7 +54,7 @@ export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
           {OPERATOR_HOME_EXPLORE_SAMPLE_LEAD}
         </p>
       </div>
-      <div className={cn("mt-4 grid gap-3 sm:grid-cols-2", OPERATOR_LAYOUT.inlineGap)}>
+      <div className={cn("mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3", OPERATOR_LAYOUT.inlineGap)}>
         <article className="flex flex-col gap-2">
           <Button asChild variant="outline" size="sm" className="h-8 w-fit">
             <Link
@@ -63,6 +69,19 @@ export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
           </p>
         </article>
         <article className="flex flex-col gap-2">
+          <Button asChild variant="outline" size="sm" className="h-8 w-fit">
+            <Link
+              href={showcaseSampleCreatedPackageHref(SHOWCASE_SAMPLE_CREATED_REGISTRY.runId)}
+              data-testid="operator-home-explore-open-created-sample"
+            >
+              {OPERATOR_HOME_OPEN_CREATED_SAMPLE_CTA}
+            </Link>
+          </Button>
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+            {OPERATOR_HOME_OPEN_CREATED_SAMPLE_HINT}
+          </p>
+        </article>
+        <article className="flex flex-col gap-2 sm:col-span-2 lg:col-span-1">
           <Button asChild variant="outline" size="sm" className="h-8 w-fit">
             <Link href={runSampleReviewHref} data-testid="operator-home-explore-run-sample-review">
               {OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}

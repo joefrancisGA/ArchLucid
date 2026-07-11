@@ -5,7 +5,9 @@ using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -257,6 +259,43 @@ public sealed class DemoSeedServiceTests
         hints.ReviewBoardWhitelabelFirmDisplayName.Should().Be("Meridian Advisory Group");
         hints.ReviewBoardWhitelabelClientEngagementTitle.Should().Be("Alpine Health — AI Governance Engagement");
         hints.ReviewBoardWhitelabelLogoBlobReference.Should().ContainEquivalentOf("meridian");
+    }
+
+    [SkippableFact]
+    public async Task SeedAsync_seeds_created_architecture_package_sample_with_draft_intake_request_source()
+    {
+        await using ArchLucidApiFactory factory = new();
+        using IServiceScope scope = factory.Services.CreateScope();
+        IScopeContextProvider scopeProvider = scope.ServiceProvider.GetRequiredService<IScopeContextProvider>();
+        Guid tenantId = scopeProvider.GetCurrentScope().TenantId;
+        Guid runGuid = DemoCreatedSampleWorkspaceIds.AuthorityRunId(tenantId);
+
+        await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
+
+        ScopeContext ctx = scopeProvider.GetCurrentScope();
+        IAuthorityQueryService authority = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
+
+        IReadOnlyList<RunSummaryDto> rows =
+            await authority.ListRunsByProjectAsync(ctx, "Northwind.Copilot.RagPlatform", 50, CancellationToken.None);
+
+        rows.Should().Contain(r => r.RunId == runGuid);
+
+        IRunDetailQueryService detail = scope.ServiceProvider.GetRequiredService<IRunDetailQueryService>();
+        ArchitectureRunDetail? created = await detail.GetRunDetailAsync(runGuid.ToString("D"));
+        created.Should().NotBeNull();
+        created!.Manifest.Should().NotBeNull();
+        created.Run.CurrentManifestVersion.Should().Be(CreatedSampleWorkspaceSeed.ManifestVersionLiteral);
+        created.Results.Should().HaveCountGreaterOrEqualTo(4);
+
+        IArchitectureRequestRepository requests =
+            scope.ServiceProvider.GetRequiredService<IArchitectureRequestRepository>();
+        ArchitectureRequest? request = await requests.GetByIdAsync(
+            DemoCreatedSampleWorkspaceIds.ArchitectureRequestId(tenantId),
+            CancellationToken.None);
+        request.Should().NotBeNull();
+        request!.RequestSource.Should().Be("draft-intake");
+
+        AssertCommittedDemoManifestSnapshotChain(created, runGuid);
     }
 
     /// <summary>

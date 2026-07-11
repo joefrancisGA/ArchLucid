@@ -1,6 +1,7 @@
 import type { RunSummary } from "@/types/authority";
 
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_CREATED_STATIC_DEMO_RUN_ID } from "@/lib/showcase-created-static-demo";
 
 /**
  * Maps legacy bookmark/demo URLs to the canonical showcase run id so list pickers, run detail, and static
@@ -19,6 +20,7 @@ const DEMO_RUN_ID_ALIASES: Readonly<Record<string, string>> = {
  */
 export const SHOWCASE_DEMO_RUN_SLUG_KEYS: ReadonlySet<string> = new Set<string>([
   SHOWCASE_STATIC_DEMO_RUN_ID,
+  SHOWCASE_CREATED_STATIC_DEMO_RUN_ID,
   ...Object.keys(DEMO_RUN_ID_ALIASES),
 ]);
 
@@ -41,11 +43,20 @@ export function isShowcaseStaticDemoRunId(runId: string): boolean {
     return false;
   }
 
+  if (trimmed === SHOWCASE_CREATED_STATIC_DEMO_RUN_ID) {
+    return false;
+  }
+
   if (SHOWCASE_DEMO_RUN_SLUG_KEYS.has(trimmed)) {
     return true;
   }
 
   return canonicalizeDemoRunId(trimmed) === SHOWCASE_STATIC_DEMO_RUN_ID;
+}
+
+/** True when `runId` is the canonical created-package showcase slug. */
+export function isShowcaseCreatedStaticDemoRunId(runId: string): boolean {
+  return runId.trim() === SHOWCASE_CREATED_STATIC_DEMO_RUN_ID;
 }
 
 /** True when visiting `/runs/{runId}` (or executive `/reviews/{runId}`) should 308 to the canonical id. */
