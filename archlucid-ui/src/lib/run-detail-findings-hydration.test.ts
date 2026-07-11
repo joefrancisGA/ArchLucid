@@ -57,8 +57,14 @@ describe("mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings", () => {
     getRunDetailMock.mockReset();
   });
 
-  it("returns buyer summary unchanged when findings are already present", async () => {
-    const detail = operatorDetailWithFindings();
+  it("returns buyer summary unchanged when findings and goldenManifestId are already present", async () => {
+    const detail: RunDetail = {
+      ...operatorDetailWithFindings(),
+      run: {
+        ...operatorDetailWithFindings().run,
+        goldenManifestId: "f0000001-0000-4000-8000-000000000001",
+      },
+    };
 
     const merged = await mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings(
       "operator-demo-review-e2e",
@@ -67,6 +73,30 @@ describe("mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings", () => {
 
     expect(merged).toBe(detail);
     expect(getRunDetailMock).not.toHaveBeenCalled();
+  });
+
+  it("merges goldenManifestId when buyer summary has findings but omits it", async () => {
+    getRunDetailMock.mockResolvedValue({
+      data: {
+        ...operatorDetailWithFindings(),
+        run: {
+          ...operatorDetailWithFindings().run,
+          goldenManifestId: "f0000001-0000-4000-8000-000000000001",
+        },
+      },
+      traceId: "trace-1",
+    });
+
+    const buyerSummary = operatorDetailWithFindings();
+
+    const merged = await mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings(
+      "operator-demo-review-e2e",
+      buyerSummary,
+    );
+
+    expect(getRunDetailMock).toHaveBeenCalledWith("operator-demo-review-e2e", undefined);
+    expect(merged.run.goldenManifestId).toBe("f0000001-0000-4000-8000-000000000001");
+    expect(merged.results).toBe(buyerSummary.results);
   });
 
   it("merges operator results when buyer summary omits findings", async () => {

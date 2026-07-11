@@ -5,7 +5,7 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
+import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import { getAppMain } from "./helpers/app-main";
 import {
   approveGovernanceRequest,
@@ -23,6 +23,7 @@ import {
   resolveLiveAuthMode,
   livePeerReviewerActorName,
   waitForArchitectureRunListCommitted,
+  waitForAuthorityRunSummaryReady,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
   postGovernanceApproveRaw,
@@ -103,6 +104,8 @@ test.describe("live-api-journey", () => {
       throw new Error("Run detail after commit missing run.goldenManifestId");
     }
 
+    await waitForAuthorityRunSummaryReady(request, runId, 60_000, tenantScope);
+
     // `live-api-journey.spec.ts` also runs under the ApiKey and JWT CI jobs (see
     // `.github/workflows/ci.yml`), which don't support `x-tenant-id`-header scope overrides (ApiKey CI
     // keys carry no bound `tenant_id` claim → 403 via `ScopeIdentityBindingMiddleware`; JWT resolves
@@ -113,12 +116,6 @@ test.describe("live-api-journey", () => {
     if (resolveLiveAuthMode() === "bypass") {
       await injectDemoWorkspaceOperatorScope(page, tenantScope);
     }
-
-    await page.goto("/reviews");
-
-    await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
-    ).toBeVisible({ timeout: 60_000 });
 
     await page.goto(`/reviews/${runId}`);
 
@@ -167,6 +164,8 @@ test.describe("live-api-journey", () => {
     const exportBody = await exportRes.body();
 
     expect(exportBody.length).toBeGreaterThan(0);
+
+    await waitForAuthorityRunSummaryReady(request, runId, 60_000, tenantScope);
 
     const submitted = await createApprovalRequest(
       request,
