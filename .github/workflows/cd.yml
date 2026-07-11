@@ -702,9 +702,19 @@ jobs:
           echo "API revision ${A_LATEST} is Running."
           # Verify 100% traffic weight when not in canary mode.
           if [ "${CD_CANARY_ENABLED:-}" != "true" ]; then
-            WEIGHT=$(az containerapp ingress traffic show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
-              --query "[?revisionName=='${A_LATEST}'].weight | [0]" -o tsv 2>/dev/null || echo "0")
-            echo "API revision ${A_LATEST} traffic weight: ${WEIGHT}%"
+            TRAFFIC_MAX_WAIT=120
+            TRAFFIC_ELAPSED=0
+            WEIGHT="0"
+            echo "Waiting for API revision ${A_LATEST} to receive 100% ingress traffic (max ${TRAFFIC_MAX_WAIT}s)..."
+            while [ "$TRAFFIC_ELAPSED" -lt "$TRAFFIC_MAX_WAIT" ]; do
+              # Ingress may route via latestRevision=true without an explicit revisionName field.
+              WEIGHT=$(az containerapp ingress traffic show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
+                --query "[?revisionName=='${A_LATEST}' || latestRevision==\`true\`].weight | [0]" -o tsv 2>/dev/null || echo "0")
+              echo "  [${TRAFFIC_ELAPSED}s] trafficWeight=${WEIGHT}%"
+              if [ "${WEIGHT}" = "100" ]; then break; fi
+              sleep "$INTERVAL"
+              TRAFFIC_ELAPSED=$((TRAFFIC_ELAPSED + INTERVAL))
+            done
             if [ "${WEIGHT}" != "100" ]; then
               echo "::error::API revision ${A_LATEST} does not have 100% traffic (weight=${WEIGHT}). Ingress may still point to an older revision."
               exit 1
