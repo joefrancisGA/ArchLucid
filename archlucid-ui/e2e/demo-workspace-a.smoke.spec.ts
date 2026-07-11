@@ -73,7 +73,12 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expect(page.getByRole("heading", { name: /Finalized decision record/i })).toBeVisible({ timeout: 60_000 });
     await expect(manifestSection).toContainText("Finalized", { timeout: 60_000 });
-    await expect(manifestSection.getByRole("term", { name: "Decisions" })).toBeVisible({ timeout: 60_000 });
+
+    const manifestDecisionCount = manifestSection.getByTestId("run-detail-manifest-decision-count");
+
+    await manifestDecisionCount.scrollIntoViewIfNeeded();
+    await expect(manifestDecisionCount).toBeVisible({ timeout: 60_000 });
+    await expect(manifestDecisionCount).not.toHaveText("—", { timeout: 60_000 });
 
     await page.locator("#artifacts-exports").scrollIntoViewIfNeeded();
 

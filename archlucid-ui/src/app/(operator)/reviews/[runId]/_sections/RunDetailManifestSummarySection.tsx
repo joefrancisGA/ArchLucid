@@ -11,6 +11,7 @@ import {
 } from "@/components/OperatorEvidenceLimitsFooter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { BUYER_RUN_DETAIL_MANIFEST_DECISIONS_LABEL } from "@/lib/buyer-polish-copy";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/core-pilot-path-vocabulary";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
@@ -104,8 +105,13 @@ export function RunDetailManifestSummarySection(
                 </dd>
               </>
             ) : null}
-            <dt className={definitionLabelClass}>Decisions</dt>
-            <dd className={cn("m-0 tabular-nums", definitionValueClass)}>
+            <dt className={definitionLabelClass}>
+              {buyerPolishedShell ? BUYER_RUN_DETAIL_MANIFEST_DECISIONS_LABEL : "Decisions"}
+            </dt>
+            <dd
+              className={cn("m-0 tabular-nums", definitionValueClass)}
+              data-testid="run-detail-manifest-decision-count"
+            >
               {finiteIntegerCountDisplay(manifestSummary.decisionCount)}
             </dd>
             <dt className={definitionLabelClass}>

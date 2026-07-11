@@ -813,6 +813,9 @@ export const BUYER_SIGNED_DECISION_RECORD_LABEL = "Signed decision record";
 
 export const BUYER_MANIFEST_SECTION_DECISION = "Decision";
 
+/** Run detail manifest summary definition list — buyer-polished reviewer shell. */
+export const BUYER_RUN_DETAIL_MANIFEST_DECISIONS_LABEL = "Decisions recorded";
+
 export const BUYER_MANIFEST_SECTION_EVIDENCE = "Evidence";
 
 export const BUYER_MANIFEST_SECTION_DOWNLOADS = "Downloads";
