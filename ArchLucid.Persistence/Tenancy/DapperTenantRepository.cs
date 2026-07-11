@@ -49,7 +49,7 @@ public sealed class DapperTenantRepository(
         return await QueryTenantByIdAsync(connection, tenantId, ct).ConfigureAwait(false);
     }
 
-    public async Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct)
+    public async Task<TenantRecord?> GetBySlugFromControlPlaneCatalogAsync(string slug, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
 
@@ -58,7 +58,16 @@ public sealed class DapperTenantRepository(
         await using SqlConnection catalogConnection =
             await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
-        TenantRecord? fromCatalog = await QueryTenantBySlugAsync(catalogConnection, normalizedSlug, ct).ConfigureAwait(false);
+        return await QueryTenantBySlugAsync(catalogConnection, normalizedSlug, ct).ConfigureAwait(false);
+    }
+
+    public async Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(slug);
+
+        string normalizedSlug = slug.Trim().ToLowerInvariant();
+
+        TenantRecord? fromCatalog = await GetBySlugFromControlPlaneCatalogAsync(slug, ct).ConfigureAwait(false);
 
         if (fromCatalog is not null)
             return fromCatalog;

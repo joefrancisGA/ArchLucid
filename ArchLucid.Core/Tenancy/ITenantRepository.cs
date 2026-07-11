@@ -12,6 +12,11 @@ public interface ITenantRepository
     /// </summary>
     Task<TenantRecord?> GetByIdFromControlPlaneCatalogAsync(Guid tenantId, CancellationToken ct);
 
+    /// <summary>
+    ///     Reads <c>dbo.Tenants</c> by slug from the control-plane catalog (system SQL) for registration duplicate gates.
+    /// </summary>
+    Task<TenantRecord?> GetBySlugFromControlPlaneCatalogAsync(string slug, CancellationToken ct);
+
     Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct);
 
     /// <summary>Lookup by Entra directory tenant id (<c>tid</c> claim) when linked.</summary>

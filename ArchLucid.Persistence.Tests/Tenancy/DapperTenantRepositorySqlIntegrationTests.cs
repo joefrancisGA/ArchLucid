@@ -29,6 +29,40 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
     }
 
     [SkippableFact]
+    public async Task Insert_duplicate_slug_is_visible_to_control_plane_slug_lookup()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
+        Guid firstTenantId = Guid.NewGuid();
+        Guid secondTenantId = Guid.NewGuid();
+        string slug = "dup-" + Guid.NewGuid().ToString("N")[..8];
+
+        await sut.InsertTenantAsync(
+            firstTenantId,
+            "Duplicate Slug Org",
+            slug,
+            TenantTier.Free,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        (await sut.GetBySlugFromControlPlaneCatalogAsync(slug, CancellationToken.None))!.Id.Should().Be(firstTenantId);
+
+        Func<Task> duplicateInsert = () => sut.InsertTenantAsync(
+            secondTenantId,
+            "Duplicate Slug Org",
+            slug,
+            TenantTier.Free,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        await duplicateInsert.Should().ThrowAsync<SqlException>();
+    }
+
+    [SkippableFact]
     public async Task Insert_get_by_id_slug_entra_list_and_workspace_round_trips()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
@@ -59,6 +93,9 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
 
         TenantRecord? bySlug = await sut.GetBySlugAsync(slug, CancellationToken.None);
         bySlug!.Id.Should().Be(tenantId);
+
+        TenantRecord? bySlugFromCatalog = await sut.GetBySlugFromControlPlaneCatalogAsync(slug, CancellationToken.None);
+        bySlugFromCatalog!.Id.Should().Be(tenantId);
 
         (await sut.GetByEntraTenantIdAsync(entra, CancellationToken.None))!.Id.Should().Be(tenantId);
 

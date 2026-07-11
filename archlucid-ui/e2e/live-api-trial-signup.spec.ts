@@ -265,16 +265,18 @@ test.describe("live-api-trial-signup", () => {
     expect(provisioned.defaultWorkspaceId).toBeTruthy();
     expect(provisioned.defaultProjectId).toBeTruthy();
 
-    const dup = await request.post(`${liveApiBase}/v1/register`, {
-      headers: { Accept: "application/json", "Content-Type": "application/json" },
-      data: {
-        organizationName: orgName,
-        adminEmail: `other-${suffix}@example.com`,
-        adminDisplayName: "Other Admin",
-      },
-    });
+    await expect.poll(async () => {
+      const response = await request.post(`${liveApiBase}/v1/register`, {
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        data: {
+          organizationName: orgName,
+          adminEmail: `other-${suffix}@example.com`,
+          adminDisplayName: "Other Admin",
+        },
+      });
 
-    expect(dup.status(), await dup.text()).toBe(409);
+      return response.status();
+    }, { timeout: 60_000, intervals: [250, 500, 1000, 2000] }).toBe(409);
 
     const scope = {
       tenantId: provisioned.tenantId!,

@@ -43,6 +43,11 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         return GetByIdAsync(tenantId, ct);
     }
 
+    public Task<TenantRecord?> GetBySlugFromControlPlaneCatalogAsync(string slug, CancellationToken ct)
+    {
+        return GetBySlugAsync(slug, ct);
+    }
+
     public Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
