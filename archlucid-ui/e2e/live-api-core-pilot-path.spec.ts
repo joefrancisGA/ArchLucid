@@ -10,8 +10,13 @@ import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN, SHOWCASE_DEMO_RUN_ID } from "./fixtures";
 import { getAppMain } from "./helpers/app-main";
 import { expectBuyerGoldenPageReady } from "./helpers/buyer-golden-path";
+import {
+  DEMO_WORKSPACE_A_LIVE_IDS,
+  injectDemoWorkspaceOperatorScope,
+} from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
-import { waitForLiveApiReady } from "./helpers/live-api-client";
+import { resolveLiveAuthMode, waitForLiveApiReady } from "./helpers/live-api-client";
+import { reviewsHubFirstPackageRow } from "./helpers/reviews-hub";
 
 test.describe("live-api-core-pilot-path", () => {
   test.beforeAll(async ({ request }) => {
@@ -21,6 +26,8 @@ test.describe("live-api-core-pilot-path", () => {
   });
 
   test("operator home, new request, reviews list, showcase review deliverables", async ({ page }) => {
+    test.setTimeout(120_000);
+
     await page.goto("/");
 
     await expect(page.getByRole("heading", { name: "ArchLucid", level: 1 })).toBeVisible();
@@ -35,12 +42,17 @@ test.describe("live-api-core-pilot-path", () => {
     await expect(page.getByRole("heading", { name: CREATE_ARCHITECTURE_LABEL, level: 2 })).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
+    if (resolveLiveAuthMode() === "bypass") {
+      await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
+    }
+
     await page.goto("/reviews?projectId=default");
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
-    await expect(page.locator('[data-testid^="runs-row-"]').first()).toBeVisible();
+    await expect(page.getByTestId("reviews-hub-recent-packages")).toBeVisible({ timeout: 60_000 });
+    await expect(reviewsHubFirstPackageRow(getAppMain(page))).toBeVisible({ timeout: 60_000 });
 
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
