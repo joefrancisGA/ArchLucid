@@ -1,17 +1,20 @@
 using System.Security.Claims;
 
+using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Filters;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -31,7 +34,7 @@ public sealed class CommercialTenantTierFilterTests
     {
         Mock<ITenantRepository> tenants = new();
         Mock<IScopeContextProvider> scopeProvider = new();
-        CommercialTenantTierFilter sut = new(TenantTier.Standard, tenants.Object, scopeProvider.Object);
+        CommercialTenantTierFilter sut = BuildFilter(TenantTier.Standard, tenants.Object, scopeProvider.Object);
 
         ActionExecutingContext executing = BuildExecutingContext(authenticated: false);
         bool next = false;
@@ -76,7 +79,7 @@ public sealed class CommercialTenantTierFilterTests
             .Returns(
                 new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
-        CommercialTenantTierFilter sut = new(TenantTier.Standard, tenants.Object, scopeProvider.Object);
+        CommercialTenantTierFilter sut = BuildFilter(TenantTier.Standard, tenants.Object, scopeProvider.Object);
         ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
         bool next = false;
 
@@ -95,6 +98,93 @@ public sealed class CommercialTenantTierFilterTests
         Microsoft.AspNetCore.Mvc.ProblemDetails problem =
             obj.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         problem.Type.Should().Be(ProblemTypes.PackagingTierInsufficient);
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_missing_tenant_development_bypass_standard_gate_invokes_next()
+    {
+        Guid tenantId = Guid.Parse("dddddddd-eeee-ffff-1111-222222222222");
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(
+                new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        CommercialTenantTierFilter sut = BuildFilter(
+            TenantTier.Standard,
+            tenants.Object,
+            scopeProvider.Object,
+            isDevelopmentHost: true,
+            authMode: "DevelopmentBypass",
+            allowTestActorHeaders: true);
+        ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeTrue();
+        executing.Result.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_missing_tenant_development_bypass_enterprise_gate_returns_404()
+    {
+        Guid tenantId = Guid.Parse("eeeeeeee-ffff-1111-2222-333333333333");
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(
+                new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        CommercialTenantTierFilter sut = BuildFilter(
+            TenantTier.Enterprise,
+            tenants.Object,
+            scopeProvider.Object,
+            isDevelopmentHost: true,
+            authMode: "DevelopmentBypass",
+            allowTestActorHeaders: true);
+        ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        ObjectResult? obj = executing.Result.Should().BeOfType<ObjectResult>().Subject;
+        obj.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [SkippableFact]
+    public void ShouldTreatMissingTenantAsStandardDevelopmentBypass_requires_standard_minimum_tier()
+    {
+        CommercialTenantTierFilter.ShouldTreatMissingTenantAsStandardDevelopmentBypass(
+                isDevelopmentHost: true,
+                authMode: "DevelopmentBypass",
+                allowTestActorHeaders: true,
+                minimumTier: TenantTier.Enterprise)
+            .Should()
+            .BeFalse();
     }
 
     [SkippableFact]
@@ -121,7 +211,7 @@ public sealed class CommercialTenantTierFilterTests
             .Returns(
                 new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
-        CommercialTenantTierFilter sut = new(TenantTier.Enterprise, tenants.Object, scopeProvider.Object);
+        CommercialTenantTierFilter sut = BuildFilter(TenantTier.Enterprise, tenants.Object, scopeProvider.Object);
         ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
         bool next = false;
 
@@ -166,7 +256,7 @@ public sealed class CommercialTenantTierFilterTests
             .Returns(
                 new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
-        CommercialTenantTierFilter sut = new(TenantTier.Standard, tenants.Object, scopeProvider.Object);
+        CommercialTenantTierFilter sut = BuildFilter(TenantTier.Standard, tenants.Object, scopeProvider.Object);
         ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
         bool next = false;
 
@@ -181,6 +271,28 @@ public sealed class CommercialTenantTierFilterTests
 
         next.Should().BeTrue();
         executing.Result.Should().BeNull();
+    }
+
+    private static CommercialTenantTierFilter BuildFilter(
+        TenantTier minimumTier,
+        ITenantRepository tenantRepository,
+        IScopeContextProvider scopeContextProvider,
+        bool isDevelopmentHost = false,
+        string authMode = "ApiKey",
+        bool allowTestActorHeaders = false)
+    {
+        Mock<IWebHostEnvironment> hostEnvironment = new();
+        hostEnvironment.Setup(h => h.EnvironmentName).Returns(isDevelopmentHost ? "Development" : "Production");
+
+        IOptions<ArchLucidAuthOptions> authOptions = Options.Create(
+            new ArchLucidAuthOptions { Mode = authMode, AllowTestActorHeaders = allowTestActorHeaders });
+
+        return new CommercialTenantTierFilter(
+            minimumTier,
+            tenantRepository,
+            scopeContextProvider,
+            hostEnvironment.Object,
+            authOptions);
     }
 
     private static ActionExecutingContext BuildExecutingContext(bool authenticated)
