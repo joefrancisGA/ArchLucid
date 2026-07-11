@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import { expect, type Locator, type Page, type Response } from "@playwright/test";
 
 import { expectAnyLocatorVisible } from "./locator-readiness";
 import { getAppMain } from "./app-main";
@@ -105,6 +105,69 @@ export async function expectAuditSearchNoResults(page: Page, options?: { timeout
 
   await expect(page.getByTestId("audit-search-summary")).toContainText(/Showing 0 events/i, { timeout });
   await expect(page.getByTestId("audit-search-no-results")).toBeVisible({ timeout });
+}
+
+function matchesAuditSearchGet(response: Response, runId?: string): boolean {
+  if (response.request().method() !== "GET") {
+    return false;
+  }
+
+  if (!response.url().includes("/v1/audit/search")) {
+    return false;
+  }
+
+  if (runId !== undefined && runId.length > 0 && !response.url().includes(`runId=${encodeURIComponent(runId)}`)) {
+    return false;
+  }
+
+  return true;
+}
+
+async function delayAfterPlaywrightRateLimit(response: Response): Promise<void> {
+  const headers = response.headers();
+  const retryAfterRaw = headers["retry-after"] ?? headers["Retry-After"];
+  const seconds = retryAfterRaw ? Number.parseInt(String(retryAfterRaw).trim(), 10) : Number.NaN;
+  const ms = Number.isFinite(seconds) && seconds > 0 ? Math.min(seconds * 1000, 60_000) : 2500;
+
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Clicks audit Search and waits for a successful `/v1/audit/search` response.
+ * Retries on HTTP 429 when many live specs share one API process (matches `searchAudit` in live-api-client).
+ */
+export async function clickAuditSearchAndWaitForSuccessfulResponse(
+  page: Page,
+  options?: { runId?: string; timeoutMs?: number; maxAttempts?: number },
+): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? 90_000;
+  const maxAttempts = options?.maxAttempts ?? 8;
+  const runId = options?.runId;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const responsePromise = page.waitForResponse((response) => matchesAuditSearchGet(response, runId), {
+      timeout: timeoutMs,
+    });
+
+    await page.getByTestId("audit-search-button").click();
+
+    const response = await responsePromise;
+
+    if (response.ok()) {
+      return;
+    }
+
+    if (response.status() === 429 && attempt < maxAttempts - 1) {
+      await delayAfterPlaywrightRateLimit(response);
+
+      continue;
+    }
+
+    expect(
+      response.ok(),
+      `audit search expected 2xx, got ${response.status()} after ${attempt + 1} attempt(s)`,
+    ).toBe(true);
+  }
 }
 
 /**

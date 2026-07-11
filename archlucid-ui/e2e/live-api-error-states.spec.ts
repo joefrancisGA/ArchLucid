@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import { liveApiBase } from "./helpers/live-api-client";
-import { auditPageMainHeading, expandAuditBuyerFiltersIfPresent, expectAuditSearchNoResults } from "./helpers/operator-journey";
+import { auditPageMainHeading, clickAuditSearchAndWaitForSuccessfulResponse, expandAuditBuyerFiltersIfPresent, expectAuditSearchNoResults } from "./helpers/operator-journey";
 
 test.describe("live-api-error-states", () => {
   test.beforeAll(async ({ request }) => {
@@ -79,19 +79,7 @@ test.describe("live-api-error-states", () => {
     await reviewIdInput.fill("");
     await reviewIdInput.fill(fakeRunId);
 
-    const searchResponsePromise = page.waitForResponse(
-      (response) =>
-        response.request().method() === "GET" &&
-        response.url().includes("/v1/audit/search") &&
-        response.url().includes(`runId=${encodeURIComponent(fakeRunId)}`),
-      { timeout: 90_000 },
-    );
-
-    await page.getByTestId("audit-search-button").click();
-
-    const searchResponse = await searchResponsePromise;
-
-    expect(searchResponse.ok(), `audit search expected 2xx, got ${searchResponse.status()}`).toBe(true);
+    await clickAuditSearchAndWaitForSuccessfulResponse(page, { runId: fakeRunId, timeoutMs: 90_000 });
 
     await expectAuditSearchNoResults(page, { timeoutMs: 60_000 });
 
