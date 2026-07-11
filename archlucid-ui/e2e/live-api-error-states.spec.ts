@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import { liveApiBase } from "./helpers/live-api-client";
-import { auditPageMainHeading } from "./helpers/operator-journey";
+import { auditPageMainHeading, expandAuditBuyerFiltersIfPresent, expectAuditSearchNoResults } from "./helpers/operator-journey";
 
 test.describe("live-api-error-states", () => {
   test.beforeAll(async ({ request }) => {
@@ -66,23 +66,34 @@ test.describe("live-api-error-states", () => {
 
     const fakeRunId = crypto.randomUUID();
 
-    await page.goto("/governance/audit", { waitUntil: "domcontentloaded" });
+    // Pin scope in the URL so buyer-polished auto-prime does not replace the review id with the showcase run.
+    await page.goto(`/governance/audit?runId=${encodeURIComponent(fakeRunId)}`, { waitUntil: "domcontentloaded" });
 
     await expect(auditPageMainHeading(page)).toBeVisible({ timeout: 60_000 });
 
-    const auditFiltersTrigger = page.getByTestId("audit-filters-collapsible-trigger");
-
-    if ((await auditFiltersTrigger.count()) > 0) {
-      await auditFiltersTrigger.click();
-    }
+    await expandAuditBuyerFiltersIfPresent(page);
 
     const reviewIdInput = page.getByTestId("audit-review-id-input");
 
     await expect(reviewIdInput).toBeVisible({ timeout: 120_000 });
+    await reviewIdInput.fill("");
     await reviewIdInput.fill(fakeRunId);
+
+    const searchResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "GET" &&
+        response.url().includes("/v1/audit/search") &&
+        response.url().includes(`runId=${encodeURIComponent(fakeRunId)}`),
+      { timeout: 90_000 },
+    );
+
     await page.getByTestId("audit-search-button").click();
 
-    await expect(page.getByTestId("audit-search-no-results")).toBeVisible({ timeout: 60_000 });
+    const searchResponse = await searchResponsePromise;
+
+    expect(searchResponse.ok(), `audit search expected 2xx, got ${searchResponse.status()}`).toBe(true);
+
+    await expectAuditSearchNoResults(page, { timeoutMs: 60_000 });
 
     await expect(page.locator('[role="alert"]').filter({ hasText: /problem|error|failed/i })).toHaveCount(0, {
       timeout: 15_000,

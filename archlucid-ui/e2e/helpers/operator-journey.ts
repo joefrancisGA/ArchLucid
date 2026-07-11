@@ -82,6 +82,28 @@ export function auditPageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: AUDIT_PAGE_PRIMARY_HEADING_PATTERN });
 }
 
+/** Expands buyer-polished audit optional filters (`audit-filters-collapsible-trigger`). */
+export async function expandAuditBuyerFiltersIfPresent(page: Page): Promise<void> {
+  const trigger = page.getByTestId("audit-filters-collapsible-trigger");
+
+  if ((await trigger.count()) === 0) {
+    return;
+  }
+
+  if ((await trigger.getAttribute("aria-expanded")) !== "true") {
+    await trigger.click();
+    await expect(trigger).toHaveAttribute("aria-expanded", "true", { timeout: 10_000 });
+  }
+}
+
+/** Asserts audit search completed with an empty result set (summary + empty-state line). */
+export async function expectAuditSearchNoResults(page: Page, options?: { timeoutMs?: number }): Promise<void> {
+  const timeout = options?.timeoutMs ?? 60_000;
+
+  await expect(page.getByTestId("audit-search-summary")).toContainText(/Showing 0 events/i, { timeout });
+  await expect(page.getByTestId("audit-search-no-results")).toBeVisible({ timeout });
+}
+
 /**
  * `/graph` readiness: interactive canvas, explicit load affordance, or buyer-polished trace-table default.
  * Buyer-polished demo builds default to the trace table before graph view — older specs only matched canvas / Load graph.
