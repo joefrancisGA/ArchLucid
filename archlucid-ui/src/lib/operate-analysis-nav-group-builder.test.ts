@@ -29,6 +29,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/ask",
       "/search",
       "/compare",
+      "/evolution-review",
       "/scorecard",
     ]);
     expect(group.links[1]?.label).toBe("Pattern library");

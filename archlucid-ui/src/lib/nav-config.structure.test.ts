@@ -171,6 +171,7 @@ describe("nav-config structure", () => {
       "/ask",
       "/search",
       "/compare",
+      "/evolution-review",
       "/scorecard",
     ]);
     const architectAdvancedHrefs = NAV_GROUPS.find((group) => group.id === "operate-architect-advanced")!.links.map(
@@ -178,7 +179,6 @@ describe("nav-config structure", () => {
     );
 
     expect(architectAdvancedHrefs).toEqual([
-      "/evolution-review",
       "/recommendation-learning",
       "/product-learning",
       "/planning",

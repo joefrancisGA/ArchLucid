@@ -4,6 +4,7 @@ import {
   GitGraph,
   Layers,
   MessageSquare,
+  RefreshCw,
   Search,
 } from "lucide-react";
 
@@ -66,6 +67,14 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         title: this.shortcutTitle("See what changed between reviews", "alt+c"),
         keyShortcut: "alt+c",
         icon: GitCompare,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/evolution-review",
+        label: OPERATOR_NAV_LINK_LABELS.evolutionCandidates,
+        title: "Impact preview — estimate before-and-after effects of proposed architecture changes",
+        icon: RefreshCw,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
       },
