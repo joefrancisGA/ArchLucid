@@ -323,13 +323,6 @@ public sealed class DapperAuditRepository(
 
     private static void ValidateFilteredExportFilter(AuditEventFilter filter)
     {
-        if (!filter.FromUtc.HasValue || !filter.ToUtc.HasValue)
-        {
-            throw new ArgumentException(
-                "FromUtc and ToUtc are required for filtered export.",
-                nameof(filter));
-        }
-
         if (filter.BeforeUtc.HasValue || filter.BeforeEventId.HasValue)
         {
             throw new ArgumentException(

@@ -82,8 +82,7 @@ public interface IAuditRepository
 
     /// <summary>
     ///     Filtered bulk export using the same predicates as <see cref="GetFilteredAsync" /> (inclusive
-    ///     <see cref="AuditEventFilter.ToUtc" />), ordered oldest-first. Requires
-    ///     <see cref="AuditEventFilter.FromUtc" /> and <see cref="AuditEventFilter.ToUtc" />; keyset fields
+    ///     <see cref="AuditEventFilter.ToUtc" /> when set), ordered oldest-first. Keyset fields
     ///     (<see cref="AuditEventFilter.BeforeUtc" />) must not be set.
     /// </summary>
     Task<IReadOnlyList<AuditEvent>> GetFilteredExportAsync(
