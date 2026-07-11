@@ -1168,6 +1168,32 @@ export async function waitForArchitectureRunListCommitted(
   );
 }
 
+/** Polls GET /v1/architecture/runs until the run id appears (any pipeline status). */
+export async function waitForArchitectureRunListIncludesRun(
+  request: APIRequestContext,
+  runId: string,
+  timeoutMs = 90_000,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<void> {
+  const deadline = Date.now() + liveE2eCommitWaitMs(timeoutMs);
+  const normalized = normalizeRunIdForCompare(runId);
+
+  while (Date.now() < deadline) {
+    const rows = await listArchitectureRuns(request, tenantScope);
+    const found = rows.some((row) => normalizeRunIdForCompare(String(row.runId ?? "")) === normalized);
+
+    if (found) {
+      return;
+    }
+
+    await new Promise((r) => setTimeout(r, 1500));
+  }
+
+  throw new Error(
+    `Run ${runId} did not appear in GET /v1/architecture/runs within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
+  );
+}
+
 /** GET `/v1/architecture/runs` — recent runs in scope (dashboard / picker). */
 export async function listArchitectureRuns(
   request: APIRequestContext,
@@ -1180,8 +1206,15 @@ export async function listArchitectureRuns(
   await throwIfNotOk(res, "GET /v1/architecture/runs");
 
   const body: unknown = await res.json();
+  const rows = unwrapCursorPagedResponseItems<ArchitectureRunListItemJson>(body);
 
-  return unwrapCursorPagedResponseItems<ArchitectureRunListItemJson>(body);
+  if (!Array.isArray(rows)) {
+    throw new Error(
+      "GET /v1/architecture/runs returned unexpected JSON (expected array or CursorPagedResponse.items).",
+    );
+  }
+
+  return rows;
 }
 
 /** POST approve without throwing — use for negative-path assertions (`expect.soft` + status/body). */

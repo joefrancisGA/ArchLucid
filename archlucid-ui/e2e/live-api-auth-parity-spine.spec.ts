@@ -2,17 +2,16 @@
  * Auth-parity spine: API-only create → execute → list journey shared by ApiKey/JWT lanes.
  * Keeps runtime bounded vs full UI core-pilot-path while proving ExecuteAuthority + read parity.
  */
-import { expect, test } from "@playwright/test";
+import { test } from "@playwright/test";
 
 import {
   createRun,
   enrichArchitectureRequestBody,
   executeRun,
   liveE2eArchitectureDescription,
-  listArchitectureRuns,
   liveApiBase,
-  normalizeRunIdForCompare,
   resolveLiveAuthMode,
+  waitForArchitectureRunListIncludesRun,
   waitForReadyForCommit,
 } from "./helpers/live-api-client";
 
@@ -47,10 +46,6 @@ test.describe("live-api-auth-parity-spine", () => {
     await executeRun(request, runId);
     await waitForReadyForCommit(request, runId, 90_000);
 
-    const listed = await listArchitectureRuns(request);
-    const normalized = normalizeRunIdForCompare(runId);
-    const found = listed.some((row) => normalizeRunIdForCompare(String(row.runId ?? "")) === normalized);
-
-    expect(found, `run ${runId} should appear in GET /v1/architecture/runs`).toBe(true);
+    await waitForArchitectureRunListIncludesRun(request, runId, 90_000);
   });
 });
