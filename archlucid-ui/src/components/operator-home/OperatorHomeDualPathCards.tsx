@@ -7,6 +7,7 @@ import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartIn
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useCreateArchitectureNavigation } from "@/hooks/use-create-architecture-navigation";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
@@ -26,11 +27,9 @@ import {
 import { OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import {
   OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL,
-  OPERATOR_HOME_PREPARING_ARCHITECTURE_WORKSPACE_LABEL,
   REVIEW_START_LOADING_LABEL,
   REVIEW_START_PREPARING_LABEL,
 } from "@/lib/review-start-progress-copy";
-import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
   showcaseSampleReviewPackageHref,
@@ -43,25 +42,26 @@ const completedReviewHref = showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVI
 
 /** Three intent cards on Overview — explore, review, or create without implying sequence. */
 export function OperatorHomeDualPathCards(): React.JSX.Element {
-  const navigation = useReviewIntakeNavigation();
+  const reviewNavigation = useReviewIntakeNavigation();
+  const createArchitectureNavigation = useCreateArchitectureNavigation();
   const canExecute = useOperateCapability();
   const [selectedPath, setSelectedPath] = useState<SelectedHomePath>(null);
 
   const startCreateArchitecture = () => {
     setSelectedPath("create-architecture");
-    navigation.navigate({ href: REVIEWS_NEW_GUIDED_INTAKE_HREF });
+    createArchitectureNavigation.navigate();
   };
 
   const startReviewArchitecture = () => {
     setSelectedPath("review-architecture");
-    navigation.navigate({ href: "/reviews/new" });
+    reviewNavigation.navigate({ href: "/reviews/new" });
   };
 
   return (
     <div
       className={cn("space-y-3", OPERATOR_LAYOUT.inlineGap)}
       data-testid="operator-home-dual-path-cards"
-      aria-busy={navigation.isNavigating}
+      aria-busy={reviewNavigation.isNavigating || createArchitectureNavigation.isNavigating}
     >
       <div
         className={cn("grid gap-3 md:grid-cols-3 sm:grid-cols-2", OPERATOR_LAYOUT.inlineGap)}
@@ -138,7 +138,7 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
               className="h-8 w-fit"
               idleLabel={OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA}
               loadingLabel={REVIEW_START_LOADING_LABEL}
-              isLoading={navigation.isNavigating && selectedPath === "review-architecture"}
+              isLoading={reviewNavigation.isNavigating && selectedPath === "review-architecture"}
               onClick={startReviewArchitecture}
               data-testid="operator-home-review-architecture-cta"
             />
@@ -176,8 +176,8 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
               size="sm"
               className="h-8 w-fit"
               idleLabel={CREATE_ARCHITECTURE_LABEL}
-              loadingLabel={OPERATOR_HOME_PREPARING_ARCHITECTURE_WORKSPACE_LABEL}
-              isLoading={navigation.isNavigating && selectedPath === "create-architecture"}
+              loadingLabel={createArchitectureNavigation.loadingLabel}
+              isLoading={createArchitectureNavigation.isNavigating && selectedPath === "create-architecture"}
               onClick={startCreateArchitecture}
               data-testid="operator-home-create-architecture-cta"
             />
@@ -189,16 +189,19 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
         </article>
       </div>
 
-      {navigation.showStagedPanel && navigation.activeStageId !== null ? (
+      {reviewNavigation.showStagedPanel && reviewNavigation.activeStageId !== null ? (
         <ReviewStartStagedProgress
-          stages={navigation.stages}
-          activeStageId={navigation.activeStageId}
+          stages={reviewNavigation.stages}
+          activeStageId={reviewNavigation.activeStageId}
           headline={REVIEW_START_PREPARING_LABEL}
           testId="operator-home-review-start-progress"
         />
       ) : null}
 
-      {navigation.error !== null ? <ReviewStartInlineError message={navigation.error} /> : null}
+      {reviewNavigation.error !== null ? <ReviewStartInlineError message={reviewNavigation.error} /> : null}
+      {createArchitectureNavigation.error !== null ? (
+        <ReviewStartInlineError message={createArchitectureNavigation.error} />
+      ) : null}
     </div>
   );
 }

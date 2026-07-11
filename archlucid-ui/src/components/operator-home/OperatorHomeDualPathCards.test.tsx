@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 const push = vi.fn();
 const prefetch = vi.fn();
+const createNavigate = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -15,6 +16,33 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+vi.mock("@/hooks/use-review-intake-navigation", () => ({
+  useReviewIntakeNavigation: () => ({
+    navigate: (input: { href: string }) => {
+      void prefetch(input.href);
+      push(input.href);
+    },
+    reset: vi.fn(),
+    isNavigating: true,
+    isPending: true,
+    activeStageId: "opening-review",
+    showStagedPanel: false,
+    stages: [],
+    loadingLabel: "Starting review…",
+    error: null,
+  }),
+}));
+
+vi.mock("@/hooks/use-create-architecture-navigation", () => ({
+  useCreateArchitectureNavigation: () => ({
+    navigate: createNavigate,
+    reset: vi.fn(),
+    isNavigating: false,
+    loadingLabel: "Starting architecture…",
+    error: null,
+  }),
+}));
+
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
 import {
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
@@ -25,7 +53,6 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { REVIEW_START_LOADING_LABEL } from "@/lib/review-start-progress-copy";
-import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
   showcaseSampleReviewPackageHref,
@@ -72,12 +99,12 @@ describe("OperatorHomeDualPathCards", () => {
     );
   });
 
-  it("routes create architecture to guided intake", () => {
+  it("delegates create architecture to the dedicated navigation hook", () => {
     render(<OperatorHomeDualPathCards />);
 
     fireEvent.click(screen.getByTestId("operator-home-create-architecture-cta"));
 
-    expect(prefetch).toHaveBeenCalledWith(REVIEWS_NEW_GUIDED_INTAKE_HREF);
-    expect(push).toHaveBeenCalledWith(REVIEWS_NEW_GUIDED_INTAKE_HREF);
+    expect(createNavigate).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("operator-home-review-start-progress")).toBeNull();
   });
 });

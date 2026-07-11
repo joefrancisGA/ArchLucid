@@ -50,5 +50,13 @@ export const GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON = "Confirm actor";
 
 export const GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS = "Continue to clarifications";
 
+export const GUIDED_INTAKE_CONTINUE_TO_DISCOVERY = "Continue to architecture discovery";
+
+export const GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION =
+  "Answer the predefined architecture discovery questions for reliability, security, cost, operations, performance, and deployment context.";
+
+export const GUIDED_INTAKE_CREATION_DRAFT_GUIDANCE_CALLOUT =
+  "Architecture draft only. Nothing is submitted for review until you explicitly create a review package.";
+
 export const GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT =
   "Draft guidance only. Nothing is added to review evidence until you submit.";

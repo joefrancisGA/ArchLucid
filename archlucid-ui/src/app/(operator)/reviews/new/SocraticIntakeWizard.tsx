@@ -27,7 +27,17 @@ import {
   skipDraftQuestion,
   submitDraftRequest,
 } from "@/lib/api/draft-intake-api";
+import {
+  applyArchitectureCreationDraftToFormState,
+  initializeArchitectureCreation,
+} from "@/lib/architecture-creation-init";
+import {
+  isCreateArchitectureIntent,
+  resolveArchitectureWorkflowIntent,
+} from "@/lib/architecture-workflow-intent";
+import { writeArchitectureCreationDraftId } from "@/lib/architecture-creation-session";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { CREATE_ARCHITECTURE_STARTING_LABEL } from "@/lib/review-start-progress-copy";
 import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigation";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -43,6 +53,8 @@ import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
+  GUIDED_INTAKE_CONTINUE_TO_DISCOVERY,
+  GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP0_CARD_TITLE,
   GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
@@ -89,6 +101,13 @@ export function SocraticIntakeWizard() {
       resolveReviewIntakeExampleTemplateFromSearchParams((key) => searchParams?.get(key) ?? null).template,
     [searchParams],
   );
+
+  const workflowIntent = useMemo(
+    () => resolveArchitectureWorkflowIntent((key) => searchParams?.get(key) ?? null),
+    [searchParams],
+  );
+  const isCreateArchitectureFlow = isCreateArchitectureIntent(workflowIntent);
+  const creationInitStartedRef = useRef(false);
 
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -150,6 +169,28 @@ export function SocraticIntakeWizard() {
     setSystemName(exampleTemplate.systemName);
   }, [exampleTemplate]);
 
+  useEffect(() => {
+    if (!isCreateArchitectureFlow || creationInitStartedRef.current) {
+      return;
+    }
+
+    creationInitStartedRef.current = true;
+
+    void initializeArchitectureCreation().then((result) => {
+      if (result.draftId !== null) {
+        setDraftId(result.draftId);
+      }
+
+      const formState = applyArchitectureCreationDraftToFormState(result.draft);
+      setFreeTextIntent(formState.freeTextIntent);
+      setBusinessOutcome(formState.businessOutcome);
+      setSystemName(formState.systemName);
+      setAllQuestions([...result.questionSelection.allQuestions]);
+      setRequiredMustQuestionKeys([...result.questionSelection.requiredMustQuestionKeys]);
+      setPendingQuestions([...result.questionSelection.pendingMustQuestions]);
+    });
+  }, [isCreateArchitectureFlow]);
+
   const refreshQuestions = useCallback(async (id: string) => {
     const questions = await getDraftQuestions(id);
     setAllQuestions(questions.selection.allQuestions);
@@ -178,6 +219,46 @@ export function SocraticIntakeWizard() {
     },
     [refreshQuestions],
   );
+
+  const runCreateArchitectureContinuation = useCallback(async () => {
+    setBusy(true);
+    setSubmitError(null);
+
+    try {
+      let id = draftId;
+
+      if (id === null) {
+        const created = await createDraftRequest(freeTextIntent.trim());
+        id = created.draftId;
+        setDraftId(id);
+        writeArchitectureCreationDraftId(id);
+      }
+
+      await patchDraftRequest(id, {
+        freeTextIntent: freeTextIntent.trim(),
+        businessOutcome: businessOutcome.trim(),
+        systemName: systemName.trim() || undefined,
+        actorSet: normalizeActorSetForAdmission(actorSet),
+        focusedPilotModeEnabled,
+      });
+
+      const questions = await getDraftQuestions(id);
+      setAllQuestions(questions.selection.allQuestions);
+      setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
+      setPendingQuestions(questions.selection.pendingMustQuestions);
+      setSavedLocallyQuestionKeys(new Set());
+      setViewAllClarifications(false);
+      setStep(1);
+      showSuccess("Continue with the architecture discovery questions.");
+    } catch (error) {
+      setSubmitError(error);
+      if (isApiRequestError(error)) {
+        showError("Architecture creation", error.message);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [actorSet, businessOutcome, draftId, focusedPilotModeEnabled, freeTextIntent, systemName]);
 
   const runAdmission = useCallback(async () => {
     setBusy(true);
@@ -337,7 +418,9 @@ export function SocraticIntakeWizard() {
       <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")} data-testid="socratic-intake-progress">
         {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}
       </p>
-      <DraftIntakeClaimLabel surface="structural-admission" />
+      <DraftIntakeClaimLabel
+        surface={isCreateArchitectureFlow ? "architecture-creation-draft" : "structural-admission"}
+      />
 
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
@@ -452,11 +535,22 @@ export function SocraticIntakeWizard() {
               type="button"
               disabled={!canAdvanceIntent}
               onClick={() => {
+                if (isCreateArchitectureFlow) {
+                  void runCreateArchitectureContinuation();
+                  return;
+                }
+
                 void runAdmission();
               }}
               data-testid="socratic-admit"
             >
-              {busy ? "Checking admission…" : GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS}
+              {busy
+                ? isCreateArchitectureFlow
+                  ? CREATE_ARCHITECTURE_STARTING_LABEL
+                  : "Checking admission…"
+                : isCreateArchitectureFlow
+                  ? GUIDED_INTAKE_CONTINUE_TO_DISCOVERY
+                  : GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS}
             </Button>
           </CardContent>
         </Card>
@@ -467,10 +561,14 @@ export function SocraticIntakeWizard() {
           <CardHeader>
             <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
             <CardDescription>
-              {activePendingQuestions.length === 0
-                ? "All required clarifications are answered or skipped. You can continue."
-                : `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`}{" "}
-              Your answers will be included when you review and submit.
+              {isCreateArchitectureFlow
+                ? GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION
+                : activePendingQuestions.length === 0
+                  ? "All required clarifications are answered or skipped. You can continue."
+                  : `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`}{" "}
+              {isCreateArchitectureFlow
+                ? "Your answers stay with the architecture draft until you choose to start a review."
+                : "Your answers will be included when you review and submit."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
