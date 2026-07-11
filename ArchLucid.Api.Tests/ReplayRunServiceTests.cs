@@ -16,6 +16,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
@@ -70,6 +71,7 @@ public sealed class ReplayRunServiceTests
     private readonly Mock<IRunRepository> _authorityRunRepository = new();
     private readonly Mock<IDecisionEngineService> _decisionEngine = new();
     private readonly Mock<IAgentEvidencePackageRepository> _evidenceRepository = new();
+    private readonly Mock<IAgentTaskRepository> _taskRepository = new();
     private readonly Mock<IAgentExecutorResolver> _executorResolver = new();
     private readonly Mock<IArchitectureRequestRepository> _requestRepository = new();
 
@@ -91,6 +93,13 @@ public sealed class ReplayRunServiceTests
         _authorityRunRepository.Setup(r =>
                 r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
+        _taskRepository
+            .Setup(r => r.CreateManyAsync(
+                It.IsAny<IEnumerable<AgentTask>>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()))
+            .Returns(Task.CompletedTask);
 
         // ADR 0030 PR A3 (2026-04-24): ICoordinatorDecisionTraceRepository was removed from
         // ReplayRunService â€” decision traces are persisted via IAuthorityCommittedManifestChainWriter only.
@@ -105,6 +114,7 @@ public sealed class ReplayRunServiceTests
             _scopeContextProvider.Object,
             CreateAuthorityChainWriterMock().Object,
             _evidenceRepository.Object,
+            _taskRepository.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),

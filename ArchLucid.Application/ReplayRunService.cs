@@ -49,6 +49,7 @@ public sealed class ReplayRunService(
     IScopeContextProvider scopeContextProvider,
     IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IAgentTaskRepository taskRepository,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IAuditService auditService,
     IActorContext actorContext,
@@ -61,6 +62,9 @@ public sealed class ReplayRunService(
 
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
         agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+
+    private readonly IAgentTaskRepository _taskRepository =
+        taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
 
     private readonly IRunRepository _authorityRunRepository = authorityRunRepository ?? throw new ArgumentNullException(nameof(authorityRunRepository));
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
@@ -127,6 +131,10 @@ public sealed class ReplayRunService(
             AllowedTools = t.AllowedTools.ToList(),
             AllowedSources = t.AllowedSources.ToList()
         }).ToList();
+
+        // SimulatorExecutionTraceRecordingExecutor persists dbo.AgentExecutionTraces with FK_AgentExecutionTraces_Task.
+        await _taskRepository.CreateManyAsync(replayTasks, cancellationToken);
+
         AgentEvidencePackage replayEvidence = CloneEvidenceForReplay(evidence, replayRunId);
         IAgentExecutor executor = agentExecutorResolver.Resolve(executionMode);
         IReadOnlyList<AgentResult> results = await executor.ExecuteAsync(replayRunId, request, replayEvidence, replayTasks, cancellationToken);

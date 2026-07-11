@@ -76,6 +76,19 @@ public sealed class ReplayRunServiceTests
         return actor.Object;
     }
 
+    private static IAgentTaskRepository NoOpTaskRepository()
+    {
+        Mock<IAgentTaskRepository> tasks = new();
+        tasks.Setup(x => x.CreateManyAsync(
+                It.IsAny<IEnumerable<AgentTask>>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()))
+            .Returns(Task.CompletedTask);
+
+        return tasks.Object;
+    }
+
     private static Mock<IAuthorityCommittedManifestChainWriter> CreateAuthorityChainWriterMock()
     {
         Mock<IAuthorityCommittedManifestChainWriter> mock = new();
@@ -138,6 +151,7 @@ public sealed class ReplayRunServiceTests
             scopeProvider.Object,
             CreateAuthorityChainWriterMock().Object,
             evidenceRepo.Object,
+            NoOpTaskRepository(),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
@@ -252,6 +266,7 @@ public sealed class ReplayRunServiceTests
             scopeProvider.Object,
             CreateAuthorityChainWriterMock().Object,
             evidenceRepo.Object,
+            NoOpTaskRepository(),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
@@ -437,6 +452,7 @@ public sealed class ReplayRunServiceTests
             scopeProvider.Object,
             chainWriter.Object,
             evidenceRepo.Object,
+            NoOpTaskRepository(),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
@@ -491,5 +507,133 @@ public sealed class ReplayRunServiceTests
         authorityRuns.Verify(
             r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null),
             Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task ReplayAsync_persists_cloned_replay_tasks_before_executor()
+    {
+        string originalRunId = Guid.NewGuid().ToString("N");
+        string requestId = "req-rep-tasks-" + Guid.NewGuid().ToString("N");
+
+        ArchitectureRun originalRun = new()
+        {
+            RunId = originalRunId,
+            RequestId = requestId,
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            CurrentManifestVersion = "v1",
+        };
+
+        AgentTask task = new()
+        {
+            TaskId = "t1",
+            RunId = originalRunId,
+            AgentType = AgentType.Topology,
+            Objective = "o",
+            Status = AgentTaskStatus.Completed,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            EvidenceBundleRef = "eb",
+        };
+
+        ArchitectureRunDetail detailDto = new() { Run = originalRun, Tasks = [task], };
+
+        Mock<IRunDetailQueryService> detail = new();
+        detail.Setup(x => x.GetRunDetailAsync(originalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detailDto);
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = requestId,
+            SystemName = "S",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Description = "d",
+        };
+
+        Mock<IArchitectureRequestRepository> requestRepo = new();
+        requestRepo.Setup(x => x.GetByIdAsync(requestId, It.IsAny<CancellationToken>())).ReturnsAsync(request);
+
+        AgentEvidencePackage evidence = new()
+        {
+            RunId = originalRunId,
+            RequestId = requestId,
+            SystemName = "S",
+            Environment = "prod",
+            CloudProvider = "Azure",
+            Request = new RequestEvidence { Description = "d" },
+        };
+
+        Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
+        evidenceRepo.Setup(x => x.GetByRunIdAsync(originalRunId, It.IsAny<CancellationToken>())).ReturnsAsync(evidence);
+
+        Mock<IAgentExecutor> executor = new();
+        executor.Setup(x => x.ExecuteAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyList<AgentTask>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAgentExecutorResolver> resolver = new();
+        resolver.Setup(x => x.Resolve(ExecutionModes.Current)).Returns(executor.Object);
+
+        Mock<IDecisionEngineService> decision = new();
+
+        Mock<IRunRepository> authorityRuns = new();
+        authorityRuns.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(Task.CompletedTask);
+        authorityRuns.Setup(x => x.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo.Setup(x => x.CreateManyAsync(
+                It.IsAny<IEnumerable<AgentTask>>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()))
+            .Returns(Task.CompletedTask);
+
+        ReplayRunService sut = new(
+            resolver.Object,
+            decision.Object,
+            EmptyEvaluationService(),
+            EmptyDecisionEngineV2(),
+            requestRepo.Object,
+            detail.Object,
+            authorityRuns.Object,
+            scopeProvider.Object,
+            CreateAuthorityChainWriterMock().Object,
+            evidenceRepo.Object,
+            taskRepo.Object,
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            Mock.Of<IAuditService>(),
+            UnitTestActor(),
+            NullLogger<ReplayRunService>.Instance);
+
+        ReplayRunResult output = await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: false, null, CancellationToken.None);
+
+        output.ReplayRunId.Should().NotBe(originalRunId);
+        taskRepo.Verify(
+            x => x.CreateManyAsync(
+                It.Is<IEnumerable<AgentTask>>(tasks =>
+                    tasks.Count() == 1
+                    && tasks.Single().RunId == output.ReplayRunId
+                    && tasks.Single().TaskId != task.TaskId),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()),
+            Times.Once);
+        executor.Verify(
+            x => x.ExecuteAsync(
+                output.ReplayRunId,
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyList<AgentTask>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }
