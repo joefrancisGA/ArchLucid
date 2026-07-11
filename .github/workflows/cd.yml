@@ -218,11 +218,23 @@ jobs:
         if: github.event.inputs.target == 'dev'
         env:
           DEV_TFVARS: ${{ secrets.DEV_TFVARS }}
+          # Additive overlay: lets an agent/operator append new flags (e.g. enable_api_sql_runtime_identity)
+          # without needing to read back and re-merge the primary DEV_TFVARS secret (write-only in GitHub).
+          DEV_TFVARS_EXTRA: ${{ secrets.DEV_TFVARS_EXTRA }}
         run: |
-          if [ -z "${DEV_TFVARS:-}" ] || [ -z "${TF_DIR:-}" ]; then
+          if [ -z "${TF_DIR:-}" ]; then
             exit 0
           fi
-          printf '%s\n' "$DEV_TFVARS" > "${TF_DIR}/dev.tfvars"
+          if [ -z "${DEV_TFVARS:-}" ] && [ -z "${DEV_TFVARS_EXTRA:-}" ]; then
+            exit 0
+          fi
+          : > "${TF_DIR}/dev.tfvars"
+          if [ -n "${DEV_TFVARS:-}" ]; then
+            printf '%s\n' "$DEV_TFVARS" >> "${TF_DIR}/dev.tfvars"
+          fi
+          if [ -n "${DEV_TFVARS_EXTRA:-}" ]; then
+            printf '%s\n' "$DEV_TFVARS_EXTRA" >> "${TF_DIR}/dev.tfvars"
+          fi
 
       - name: Azure login (OIDC)
         uses: azure/login@v2
