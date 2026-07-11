@@ -112,6 +112,11 @@ export function freshIsolatedTenantScope(): LiveTenantScopeHeaders {
   return { tenantId: id, workspaceId: id, projectId: id };
 }
 
+/** Fresh idempotency key for persisted governance mutations (`Guid.NewGuid().ToString("N")` parity). */
+export function freshLiveE2eIdempotencyKey(): string {
+  return crypto.randomUUID().replace(/-/g, "");
+}
+
 /**
  * `x-tenant-id` overrides are only safe under `DevelopmentBypass` (`AllowTestActorHeaders`). Under
  * `ApiKey` mode the CI keys carry no `Authentication:ApiKey:TenantId` claim, so
@@ -1211,7 +1216,9 @@ export async function createApprovalRequest(
   request: APIRequestContext,
   body: CreateGovernanceApprovalRequestBody,
   tenantScope?: LiveTenantScopeHeaders | null,
+  options?: { readonly idempotencyKey?: string },
 ): Promise<GovernanceApprovalRequestJson> {
+  const idempotencyKey = options?.idempotencyKey?.trim() || freshLiveE2eIdempotencyKey();
   const res = await request.post(`${resolveLiveApiBase()}/v1/governance/approval-requests`, {
     data: {
       runId: body.runId,
@@ -1220,7 +1227,13 @@ export async function createApprovalRequest(
       targetEnvironment: body.targetEnvironment,
       requestComment: body.requestComment ?? null,
     },
-    headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
+    headers: mergeTenantScope(
+      {
+        ...liveJsonHeaders(),
+        "Idempotency-Key": idempotencyKey,
+      },
+      tenantScope,
+    ),
   });
 
   await throwIfNotOk(res, "POST /v1/governance/approval-requests");
