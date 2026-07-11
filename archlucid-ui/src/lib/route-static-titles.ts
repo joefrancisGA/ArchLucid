@@ -49,4 +49,5 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/dashboard": BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   "/digests": "Digests",
   "/value-report/roi": "ROI summary",
+  "/admin/demo-readiness": "Demo readiness",
 };

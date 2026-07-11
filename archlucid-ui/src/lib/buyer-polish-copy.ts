@@ -338,6 +338,28 @@ export const BUYER_CTO_DEMO_READINESS_NOT_READY_LABEL = "Demo not ready";
 
 export const BUYER_CTO_DEMO_READINESS_CHECKING_LABEL = "Checking demo readiness…";
 
+export const BUYER_CTO_DEMO_PREPARING_LABEL = "Preparing demo…";
+
+export const BUYER_CTO_DEMO_START_FAILED_MESSAGE = "We could not start the demo right now. Please try again.";
+
+export const BUYER_CTO_DEMO_ENVIRONMENT_UNAVAILABLE_MESSAGE =
+  "The demo environment is temporarily unavailable.";
+
+export const BUYER_CTO_DEMO_SAMPLE_MODE_NOTICE =
+  "Showing a saved example review for this walkthrough.";
+
+export const BUYER_CTO_DEMO_TRY_AGAIN_CTA = "Try again";
+
+export const BUYER_CTO_DEMO_CONTACT_SUPPORT_CTA = "Contact support";
+
+export const INTERNAL_DEMO_READINESS_PAGE_LEAD =
+  "Internal demo diagnostics, showcase controls, and readiness rechecks for ArchLucid operators.";
+
+export const INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK = "Open diagnostics dashboard";
+
+export const INTERNAL_DEMO_READINESS_TOOLING_DISABLED =
+  "Demo operator tooling is not enabled in this environment.";
+
 export const BUYER_CTO_DEMO_READINESS_REFRESH_CTA = "Recheck readiness";
 
 /** Buyer-facing readiness copy — never mention demo seed, static operator mode, or env flags. */

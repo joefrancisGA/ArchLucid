@@ -22,6 +22,7 @@ describe("OperatorHomePageView progressive disclosure", () => {
     expect(exploreSampleIndex).toBeGreaterThan(reviewsIndex);
     expect(source).not.toContain("<OperatorHomeContinueSetupCard");
     expect(source).not.toContain("<OperatorHomeSampleReviewPreview />");
+    expect(source).not.toContain("OperatorHomeDemoOperations");
   });
 
   it("keeps workspace metrics behind default-closed disclosure below recent reviews", () => {

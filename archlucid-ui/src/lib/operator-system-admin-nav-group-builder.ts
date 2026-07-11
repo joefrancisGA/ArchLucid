@@ -5,6 +5,7 @@ import {
   FilePlus,
   Gauge,
   Inbox,
+  Layers,
   LineChart,
   PackageCheck,
   Settings2,
@@ -12,18 +13,16 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { BUYER_CTO_DEMO_READINESS_HEADING } from "@/lib/buyer-polish-copy";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
 /** Internal cross-tenant, diagnostic, and employee-only surfaces — gated by `features.showSystemAdministrationNav`. */
 export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
-    return {
-      id: "operator-system-admin",
-      label: "Internal Operations",
-      surface: "system-admin",
-      links: [
+    const links: NavGroupConfig["links"] = [
         {
           href: "/admin/pricing-quote-aging",
           label: "Pricing quote follow-up",
@@ -105,7 +104,24 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
         },
-      ],
+      ];
+
+    if (isCtoDemoOperatorToolingEnv()) {
+      links.push({
+        href: "/admin/demo-readiness",
+        label: BUYER_CTO_DEMO_READINESS_HEADING,
+        title: "Demo readiness — showcase seed, authentication, and execution-budget diagnostics",
+        icon: Layers,
+        tier: "advanced",
+        requiredAuthority: "AdminAuthority",
+      });
+    }
+
+    return {
+      id: "operator-system-admin",
+      label: "Internal Operations",
+      surface: "system-admin",
+      links,
     };
   }
 }

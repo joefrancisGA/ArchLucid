@@ -1,8 +1,6 @@
 import { DevTestingQuickSwitchPanel } from "@/components/dev-testing/DevTestingQuickSwitchPanel";
 import { OperatorHomeAdvancedGuidancePanel } from "@/components/operator-home/OperatorHomeAdvancedGuidancePanel";
 
-import { OperatorHomeDemoOperationsPanel } from "@/components/operator-home/OperatorHomeDemoOperationsPanel";
-
 import {
 
   OperatorHomeDeferredOnboarding,
@@ -106,9 +104,6 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 
 
       <OperatorHomeAdvancedGuidancePanel buyerPolishedShell checklistVariant="compact" />
-
-      <OperatorHomeDemoOperationsPanel />
-
       <DevTestingQuickSwitchPanel />
     </>
 

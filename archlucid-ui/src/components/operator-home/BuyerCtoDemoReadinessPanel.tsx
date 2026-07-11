@@ -19,16 +19,21 @@ import {
 import {
   buyerCtoDemoReadinessStatusKind,
   evaluateBuyerCtoDemoReadiness,
+  type BuyerCtoDemoReadinessCheck,
   type BuyerCtoDemoReadinessResult,
 } from "@/lib/buyer-cto-demo-readiness";
 import { buildCtoDemoRunOfShowMarkdown } from "@/lib/buyer-cto-demo-tour";
+import { groupDemoReadinessChecksBySection } from "@/lib/demo-readiness-check-sections";
+import { emitDemoReadinessInternalSignal } from "@/lib/demo-readiness-internal-telemetry";
 import { EXPLORE_ARCHLUCID_ROW_CLASS } from "@/components/operator-home/explore-archlucid-row-class";
 import { isCtoDemoInternalOperatorControlsEnv, isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
 export type BuyerCtoDemoReadinessPanelProps = {
-  /** When true, renders inside Demo operations without a duplicate card shell. */
+  /** When true, renders inside a parent disclosure without a duplicate card shell. */
   readonly embedded?: boolean;
+  /** Internal admin page uses grouped sections and always shows operator diagnostics. */
+  readonly layout?: "embedded" | "internal-page";
 };
 
 function readinessBadgeLabel(result: BuyerCtoDemoReadinessResult | null): string {
@@ -58,10 +63,37 @@ function downloadCtoDemoRunOfShow(): void {
   URL.revokeObjectURL(url);
 }
 
+function DemoReadinessCheckRow(props: { readonly check: BuyerCtoDemoReadinessCheck }): React.JSX.Element {
+  return (
+    <li
+      data-testid={`buyer-cto-demo-readiness-check-${props.check.id}`}
+      className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700"
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusTag
+          kind={
+            props.check.status === "pass"
+              ? "ready"
+              : props.check.status === "warn"
+                ? "needs-attention"
+                : props.check.status === "fail"
+                  ? "blocked"
+                  : "needs-attention"
+          }
+          label={props.check.label}
+        />
+      </div>
+      <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">{props.check.detail}</p>
+    </li>
+  );
+}
+
 /** Internal demo-operator preflight — showcase seed and golden journey checks. */
 export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProps = {}): React.JSX.Element | null {
   const [result, setResult] = useState<BuyerCtoDemoReadinessResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastCheckedAt, setLastCheckedAt] = useState<string | null>(null);
+  const layout = props.layout ?? (props.embedded === true ? "embedded" : "internal-page");
 
   const runChecks = useCallback(async () => {
     setLoading(true);
@@ -69,6 +101,8 @@ export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProp
     try {
       const next = await evaluateBuyerCtoDemoReadiness();
       setResult(next);
+      setLastCheckedAt(new Date().toISOString());
+      emitDemoReadinessInternalSignal(next.verdict);
     } finally {
       setLoading(false);
     }
@@ -87,9 +121,10 @@ export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProp
   }
 
   const statusKind = result === null ? "needs-attention" : buyerCtoDemoReadinessStatusKind(result.verdict);
-  const embedded = props.embedded === true;
+  const embedded = layout === "embedded";
   const shellClassName = embedded ? "space-y-3" : cn(EXPLORE_ARCHLUCID_ROW_CLASS, "p-4");
   const showInternalDemoControls = isCtoDemoInternalOperatorControlsEnv();
+  const groupedChecks = result === null ? [] : groupDemoReadinessChecksBySection(result.checks);
 
   return (
     <section
@@ -109,6 +144,11 @@ export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProp
             label={readinessBadgeLabel(result)}
             data-testid="buyer-cto-demo-readiness-badge"
           />
+          {lastCheckedAt !== null ? (
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")} data-testid="demo-readiness-last-checked">
+              Last checked {new Date(lastCheckedAt).toLocaleString()}
+            </p>
+          ) : null}
         </div>
         <div
           role="toolbar"
@@ -128,7 +168,6 @@ export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProp
           </Button>
           {showInternalDemoControls ? (
             <>
-              {/* Run-of-show is internal presenter scaffolding — never show in buyer-facing mode. */}
               <Button
                 type="button"
                 variant="outline"
@@ -149,31 +188,31 @@ export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProp
       </div>
 
       {result !== null ? (
-        <ul className={cn("m-0 list-none space-y-2 p-0", embedded ? "" : "mt-3", OPERATOR_TYPE_SCALE.body)}>
-          {result.checks.map((check) => (
-            <li
-              key={check.id}
-              data-testid={`buyer-cto-demo-readiness-check-${check.id}`}
-              className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700"
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusTag
-                  kind={
-                    check.status === "pass"
-                      ? "ready"
-                      : check.status === "warn"
-                        ? "needs-attention"
-                        : check.status === "fail"
-                          ? "blocked"
-                          : "needs-attention"
-                  }
-                  label={check.label}
-                />
-              </div>
-              <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">{check.detail}</p>
-            </li>
-          ))}
-        </ul>
+        layout === "internal-page" ? (
+          <div className={cn("space-y-4", embedded ? "" : "mt-3")}>
+            {groupedChecks.map((entry) => (
+              <section key={entry.section.id} aria-labelledby={`demo-readiness-section-${entry.section.id}`}>
+                <h3
+                  id={`demo-readiness-section-${entry.section.id}`}
+                  className={cn("m-0 mb-2", OPERATOR_TYPE_SCALE.sectionTitle)}
+                >
+                  {entry.section.title}
+                </h3>
+                <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPE_SCALE.body)}>
+                  {entry.checks.map((check) => (
+                    <DemoReadinessCheckRow key={check.id} check={check} />
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        ) : (
+          <ul className={cn("m-0 list-none space-y-2 p-0", embedded ? "" : "mt-3", OPERATOR_TYPE_SCALE.body)}>
+            {result.checks.map((check) => (
+              <DemoReadinessCheckRow key={check.id} check={check} />
+            ))}
+          </ul>
+        )
       ) : null}
     </section>
   );
