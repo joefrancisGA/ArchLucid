@@ -6,5 +6,9 @@ namespace ArchLucid.Application.Governance;
 /// </summary>
 public interface IArchitectureReviewRecurrenceNextRunCalculator
 {
+    bool IsSupportedCronExpression(string cronExpression);
+
     DateTime? ComputeNextRunUtc(string cronExpression, DateTime fromUtc);
+
+    IReadOnlyList<DateTime> ComputeNextRunsUtc(string cronExpression, DateTime fromUtc, int count);
 }

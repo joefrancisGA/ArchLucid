@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   Select,
@@ -15,9 +15,10 @@ import {
   CRON_SCHEDULE_PRESETS,
   resolveCronSchedulePresetId,
 } from "@/lib/cron-schedule-presets";
-import { computeNextScheduledRunTimes } from "@/lib/simple-scan-schedule-calculator";
+import { previewRecurrenceScheduleRuns } from "@/lib/api/governance-stickiness-api";
 
 const PREVIEW_COUNT = 5;
+const PREVIEW_DEBOUNCE_MS = 250;
 
 export type CronExpressionBuilderProps = {
   value: string;
@@ -33,7 +34,7 @@ function formatPreviewUtc(instant: Date): string {
 }
 
 /**
- * Preset + custom cron editor with next-run preview (matches server {@link SimpleScanScheduleCalculator}).
+ * Preset + custom cron editor with server-authoritative next-run preview (UTC).
  */
 export function CronExpressionBuilder({
   value,
@@ -43,10 +44,69 @@ export function CronExpressionBuilder({
 }: CronExpressionBuilderProps) {
   const presetId = resolveCronSchedulePresetId(value);
   const activePreset = CRON_SCHEDULE_PRESETS.find((preset) => preset.id === presetId);
+  const [previewRuns, setPreviewRuns] = useState<readonly Date[]>([]);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
-  const previewRuns = useMemo(
-    () => computeNextScheduledRunTimes(value, PREVIEW_COUNT),
-    [value],
+  const trimmedValue = value.trim();
+
+  useEffect(() => {
+    if (trimmedValue.length === 0) {
+      setPreviewRuns([]);
+      setValidationError(null);
+      setPreviewLoading(false);
+
+      return;
+    }
+
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      setPreviewLoading(true);
+
+      void previewRecurrenceScheduleRuns({
+        cronExpression: trimmedValue,
+        count: PREVIEW_COUNT,
+      })
+        .then((response) => {
+          if (cancelled) {
+            return;
+          }
+
+          if (!response.isValid) {
+            setValidationError(response.validationError ?? "Unsupported or invalid cron expression.");
+            setPreviewRuns([]);
+
+            return;
+          }
+
+          setValidationError(null);
+          setPreviewRuns(response.nextRunUtc.map((instant) => new Date(instant)));
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setValidationError("Could not load schedule preview from the server.");
+            setPreviewRuns([]);
+          }
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setPreviewLoading(false);
+          }
+        });
+    }, PREVIEW_DEBOUNCE_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [trimmedValue]);
+
+  const previewList = useMemo(
+    () =>
+      previewRuns.map((instant) => (
+        <li key={instant.toISOString()}>{formatPreviewUtc(instant)}</li>
+      )),
+    [previewRuns],
   );
 
   function onPresetChange(nextPresetId: string): void {
@@ -91,13 +151,14 @@ export function CronExpressionBuilder({
       ) : null}
 
       <label className={cn("block text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Cron expression
+        Cron expression (UTC)
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
           readOnly={disabled}
           className={cn(inputClassName, "mt-1 font-mono")}
           aria-describedby="cron-expression-hint cron-next-runs-preview"
+          aria-invalid={validationError !== null}
           data-testid="cron-expression-input"
         />
       </label>
@@ -106,9 +167,16 @@ export function CronExpressionBuilder({
         Supported presets: <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">@hourly</code>,{" "}
         <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">@daily</code>,{" "}
         <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">@weekly</code>,{" "}
-        <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">0 7 * * *</code>. Other values default to
-        +1 day between runs (same as the API worker).
+        <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">0 7 * * *</code>,{" "}
+        <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">0 8 * * 1</code>, or another valid five-field UTC cron.
+        Invalid expressions are rejected when you save.
       </p>
+
+      {validationError !== null ? (
+        <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)} role="alert">
+          {validationError}
+        </p>
+      ) : null}
 
       <div
         id="cron-next-runs-preview"
@@ -118,14 +186,18 @@ export function CronExpressionBuilder({
         <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Next {PREVIEW_COUNT} scheduled runs (UTC)
         </p>
-        {previewRuns.length > 0 ? (
+        {previewLoading ? (
+          <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} aria-live="polite">
+            Loading server preview…
+          </p>
+        ) : previewRuns.length > 0 ? (
           <ol className={cn("m-0 mt-2 list-decimal space-y-1 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-            {previewRuns.map((instant) => (
-              <li key={instant.toISOString()}>{formatPreviewUtc(instant)}</li>
-            ))}
+            {previewList}
           </ol>
         ) : (
-          <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Enter an expression to preview runs.</p>
+          <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            Enter a supported expression to preview runs.
+          </p>
         )}
       </div>
     </fieldset>

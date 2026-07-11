@@ -88,6 +88,9 @@ public sealed class GovernanceStickinessControllerTests
         Mock<IArchitectureReviewRecurrenceNextRunCalculator> nextRun =
             recurrenceCalculator ?? new Mock<IArchitectureReviewRecurrenceNextRunCalculator>();
         nextRun
+            .Setup(c => c.IsSupportedCronExpression(It.IsAny<string>()))
+            .Returns(true);
+        nextRun
             .Setup(c => c.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>()))
             .Returns(DateTime.UtcNow.AddDays(7));
 
@@ -270,5 +273,79 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceSchedule_returns_bad_request_for_invalid_cron()
+    {
+        GovernanceStickinessController controller = BuildSut(
+            recurrenceCalculator: BuildRealRecurrenceCalculator());
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            Name = "bad cron",
+            CronExpression = "not-a-real-cron",
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public void PreviewRecurrenceScheduleRuns_returns_weekly_monday_runs_for_default_expression()
+    {
+        GovernanceStickinessController controller = BuildSut(recurrenceCalculator: BuildRealRecurrenceCalculator());
+        PreviewRecurrenceScheduleRunsRequest request = new()
+        {
+            CronExpression = "0 8 * * 1",
+            Count = 5,
+            FromUtc = new DateTime(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc),
+        };
+
+        IActionResult action = controller.PreviewRecurrenceScheduleRuns(request);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        PreviewRecurrenceScheduleRunsResponse body =
+            ok.Value.Should().BeOfType<PreviewRecurrenceScheduleRunsResponse>().Subject;
+        body.IsValid.Should().BeTrue();
+        body.NextRunUtc.Should().HaveCount(5);
+        body.NextRunUtc[0].Should().Be(new DateTime(2026, 3, 30, 8, 0, 0, DateTimeKind.Utc));
+    }
+
+    [Fact]
+    public void PreviewRecurrenceScheduleRuns_marks_invalid_cron_without_daily_fallback()
+    {
+        GovernanceStickinessController controller = BuildSut(recurrenceCalculator: BuildRealRecurrenceCalculator());
+
+        IActionResult action = controller.PreviewRecurrenceScheduleRuns(new PreviewRecurrenceScheduleRunsRequest
+        {
+            CronExpression = "not-a-real-cron",
+            Count = 5,
+        });
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        PreviewRecurrenceScheduleRunsResponse body =
+            ok.Value.Should().BeOfType<PreviewRecurrenceScheduleRunsResponse>().Subject;
+        body.IsValid.Should().BeFalse();
+        body.NextRunUtc.Should().BeEmpty();
+        body.ValidationError.Should().NotBeNullOrWhiteSpace();
+    }
+
+    private static Mock<IArchitectureReviewRecurrenceNextRunCalculator> BuildRealRecurrenceCalculator()
+    {
+        ArchitectureReviewRecurrenceNextRunCalculator real =
+            new(new ArchLucid.Decisioning.Advisory.Scheduling.SimpleScanScheduleCalculator());
+        Mock<IArchitectureReviewRecurrenceNextRunCalculator> mock = new();
+        mock.Setup(c => c.IsSupportedCronExpression(It.IsAny<string>()))
+            .Returns((string cron) => real.IsSupportedCronExpression(cron));
+        mock.Setup(c => c.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>()))
+            .Returns((string cron, DateTime from) => real.ComputeNextRunUtc(cron, from));
+        mock.Setup(c => c.ComputeNextRunsUtc(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+            .Returns((string cron, DateTime from, int count) => real.ComputeNextRunsUtc(cron, from, count));
+
+        return mock;
     }
 }
