@@ -24,3 +24,23 @@ import {
   to = azurerm_user_assigned_identity.api_sql_runtime[0]
   id = "/subscriptions/${local.brownfield_import_subscription_id}/resourceGroups/${local.brownfield_import_rg}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-archlucid-api-sql-runtime"
 }
+
+import {
+  to = azurerm_container_app_environment.main[0]
+  id = "/subscriptions/${local.brownfield_import_subscription_id}/resourceGroups/${local.brownfield_import_rg}/providers/Microsoft.App/managedEnvironments/${var.container_app_environment_name}"
+}
+
+import {
+  to = azurerm_container_app.api[0]
+  id = "/subscriptions/${local.brownfield_import_subscription_id}/resourceGroups/${local.brownfield_import_rg}/providers/Microsoft.App/containerApps/${var.api_container_app_name}"
+}
+
+import {
+  to = azurerm_container_app.worker[0]
+  id = "/subscriptions/${local.brownfield_import_subscription_id}/resourceGroups/${local.brownfield_import_rg}/providers/Microsoft.App/containerApps/${var.worker_container_app_name}"
+}
+
+import {
+  to = azurerm_container_app.ui[0]
+  id = "/subscriptions/${local.brownfield_import_subscription_id}/resourceGroups/${local.brownfield_import_rg}/providers/Microsoft.App/containerApps/${var.ui_container_app_name}"
+}
