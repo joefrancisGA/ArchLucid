@@ -166,13 +166,11 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "governance-approval",
-    title: "Governance workflow",
-    summary: "Submit, review, approve, and promote signed review records when governance workflows are enabled.",
+    title: "Governance approval",
+    summary:
+      "Learn how architecture work moves from submission to approval, revision, or rejection.",
     audience: "operator",
-    sourcePaths: [
-      "docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md",
-      "docs/library/GOVERNANCE_WORKFLOW_UI.md",
-    ],
+    sourcePaths: ["docs/library/customer-facing/GOVERNANCE_APPROVAL_OPERATOR_GUIDE.md"],
     pdfStatus: "customer",
   },
   {

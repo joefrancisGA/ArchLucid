@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
 import { HelpFindingsGuideView } from "../_sections/HelpFindingsGuideView";
+import { HelpGovernanceApprovalGuideView } from "../_sections/HelpGovernanceApprovalGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
 import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialtyWalkthroughTemplatesView";
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
@@ -66,6 +67,10 @@ function renderHelpTopicView(loaded: NonNullable<ReturnType<typeof tryLoadProduc
 
   if (loaded.entry.slug === "findings") {
     return <HelpFindingsGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "governance-approval") {
+    return <HelpGovernanceApprovalGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "specialty-walkthroughs") {
