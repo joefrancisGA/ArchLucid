@@ -8,11 +8,12 @@ type MarketingPageShellProps = {
   readonly variant?: "default" | "reading" | "trust";
   readonly className?: string;
   readonly id?: string;
+  readonly "data-testid"?: string;
 };
 
 /** Shared marketing page rail — aligns public routes with operator shell tokens and density. */
 export function MarketingPageShell(props: MarketingPageShellProps) {
-  const { children, variant = "default", className, id = "main-content" } = props;
+  const { children, variant = "default", className, id = "main-content", "data-testid": dataTestId } = props;
   const widthClass =
     variant === "trust"
       ? MARKETING_LAYOUT.mainTrust
@@ -21,7 +22,7 @@ export function MarketingPageShell(props: MarketingPageShellProps) {
         : MARKETING_LAYOUT.main;
 
   return (
-    <main id={id} className={cn(widthClass, className)} tabIndex={-1}>
+    <main id={id} className={cn(widthClass, className)} tabIndex={-1} data-testid={dataTestId}>
       {children}
     </main>
   );
