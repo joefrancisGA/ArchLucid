@@ -4,7 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { cn } from "@/lib/utils";
 
-import { CreateWorkItemButton } from "./CreateWorkItemButton";
+import { CreateWorkItemButton } from "@/components/work-items/CreateWorkItemButton";
 import {
   CREATE_WORK_ITEM_SECTION_HELPER,
   CREATE_WORK_ITEM_SECTION_TITLE,
