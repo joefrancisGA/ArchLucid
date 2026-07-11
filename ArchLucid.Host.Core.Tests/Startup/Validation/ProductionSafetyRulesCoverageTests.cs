@@ -79,7 +79,8 @@ public sealed class ProductionSafetyRulesCoverageTests
     {
         Dictionary<string, string?> settings = new()
         {
-            ["Auth:Trial:Modes"] = TrialAuthModeConstants.MsaExternalId,
+            ["Auth:Trial:Modes:0"] = TrialAuthModeConstants.MsaExternalId,
+            ["Auth:Trial:ExternalIdTenantId"] = "",
         };
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(settings!).Build();
         List<string> errors = [];

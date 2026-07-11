@@ -53,7 +53,7 @@ public sealed class SqlAuditImmutabilityRulesCoverageTests
     [Fact]
     public void ResolveAuditCatalogConnectionString_falls_back_to_archlucid_connection_string()
     {
-        const string archLucidConnection = "Server=.;Database=ArchLucid;";
+        const string archLucidConnection = "Server=.;Database=ArchLucid;Encrypt=True";
         Dictionary<string, string?> settings = new()
         {
             ["ConnectionStrings:ArchLucid"] = archLucidConnection,
@@ -62,7 +62,7 @@ public sealed class SqlAuditImmutabilityRulesCoverageTests
 
         string? resolved = SqlAuditImmutabilityRules.ResolveAuditCatalogConnectionString(configuration);
 
-        resolved.Should().Be(archLucidConnection);
+        resolved.Should().Be(ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration));
     }
 
     private sealed class TestHostEnvironment : IHostEnvironment
