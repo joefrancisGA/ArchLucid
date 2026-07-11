@@ -74,7 +74,7 @@ export const slackIntegrationFormSchema = z.object({
       }
     }),
   minimumSeverity: z.enum(["Info", "Warning", "High", "Critical"], {
-    errorMap: () => ({ message: "Select a minimum alert severity." }),
+    message: "Select a minimum alert severity.",
   }),
   eventTypes: z.array(z.string()).min(1, "Select at least one notification type."),
 });
