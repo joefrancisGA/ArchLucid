@@ -38,8 +38,8 @@ check "grafana_dashboards_require_real_auth" {
 
 check "prometheus_slo_requires_workspace" {
   assert {
-    condition     = !var.enable_prometheus_slo_rule_group || length(trimspace(local.azure_monitor_workspace_id_effective)) > 0
-    error_message = "enable_prometheus_slo_rule_group = true requires azure_monitor_workspace_id."
+    condition     = !var.enable_prometheus_slo_rule_group || local.prometheus_workspace_requested
+    error_message = "enable_prometheus_slo_rule_group = true requires azure_monitor_workspace_id or enable_managed_monitor_workspace = true."
   }
 }
 

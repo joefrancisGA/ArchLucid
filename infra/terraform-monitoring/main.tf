@@ -8,7 +8,7 @@
 locals {
   enabled = var.enable_monitoring_stack
 
-  cpu_alerts_enabled = local.enabled && var.container_cpu_nanos_threshold > 0
+  cpu_alerts_enabled = local.enabled && var.container_cpu_percent_threshold > 0
 
   api_cpu_alert = local.cpu_alerts_enabled && length(trimspace(var.api_container_app_resource_id)) > 0
 
@@ -46,7 +46,7 @@ resource "azurerm_monitor_metric_alert" "api_container_cpu_high" {
   name                = "${var.name_prefix}-api-cpu-high"
   resource_group_name = var.resource_group_name
   scopes              = [var.api_container_app_resource_id]
-  description         = "ArchLucid API Container App average CPU (nano cores) exceeded threshold over 5 minutes."
+  description         = "ArchLucid API Container App average CPU percent exceeded threshold over 5 minutes."
   severity            = 2
   frequency           = "PT1M"
   window_size         = "PT5M"
@@ -55,10 +55,10 @@ resource "azurerm_monitor_metric_alert" "api_container_cpu_high" {
 
   criteria {
     metric_namespace = "Microsoft.App/containerApps"
-    metric_name      = "CpuUsageNanoCores"
+    metric_name      = "CpuPercentage"
     aggregation      = "Average"
     operator         = "GreaterThan"
-    threshold        = var.container_cpu_nanos_threshold
+    threshold        = var.container_cpu_percent_threshold
   }
 
   action {
@@ -74,7 +74,7 @@ resource "azurerm_monitor_metric_alert" "worker_container_cpu_high" {
   name                = "${var.name_prefix}-worker-cpu-high"
   resource_group_name = var.resource_group_name
   scopes              = [var.worker_container_app_resource_id]
-  description         = "ArchLucid Worker Container App average CPU (nano cores) exceeded threshold over 5 minutes."
+  description         = "ArchLucid Worker Container App average CPU percent exceeded threshold over 5 minutes."
   severity            = 2
   frequency           = "PT1M"
   window_size         = "PT5M"
@@ -83,10 +83,10 @@ resource "azurerm_monitor_metric_alert" "worker_container_cpu_high" {
 
   criteria {
     metric_namespace = "Microsoft.App/containerApps"
-    metric_name      = "CpuUsageNanoCores"
+    metric_name      = "CpuPercentage"
     aggregation      = "Average"
     operator         = "GreaterThan"
-    threshold        = var.container_cpu_nanos_threshold
+    threshold        = var.container_cpu_percent_threshold
   }
 
   action {

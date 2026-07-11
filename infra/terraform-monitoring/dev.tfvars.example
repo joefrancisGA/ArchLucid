@@ -22,7 +22,7 @@ alert_voice_country_code     = "1"
 # Wire after container apps exist:
 # api_container_app_resource_id   = "/subscriptions/.../Microsoft.App/containerApps/archlucid-api"
 # worker_container_app_resource_id = "/subscriptions/.../Microsoft.App/containerApps/archlucid-worker"
-container_cpu_nanos_threshold = 500000000
+container_cpu_percent_threshold = 80
 
 tags = {
   workload = "archlucid"

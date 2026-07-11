@@ -5,7 +5,12 @@
 # Requires an Azure Monitor workspace (scopes) scraped with the same metric names as self-hosted Prometheus.
 
 locals {
-  prometheus_slo_rule_group_enabled = var.enable_monitoring_stack && var.enable_prometheus_slo_rule_group && length(trimspace(local.azure_monitor_workspace_id_effective)) > 0
+  # Plan-time gate: do not depend on azurerm_monitor_workspace id (unknown until apply).
+  prometheus_workspace_requested = var.enable_monitoring_stack && var.enable_prometheus_slo_rule_group && (
+    length(trimspace(var.azure_monitor_workspace_id)) > 0 || var.enable_managed_monitor_workspace
+  )
+
+  prometheus_slo_rule_group_enabled = local.prometheus_workspace_requested
 
   archlucid_authority_observability_runbook_url = "https://github.com/ArchLucid/ArchLucid/blob/main/docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md"
 }

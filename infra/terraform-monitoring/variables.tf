@@ -41,10 +41,15 @@ variable "worker_container_app_resource_id" {
   default     = ""
 }
 
-variable "container_cpu_nanos_threshold" {
+variable "container_cpu_percent_threshold" {
   type        = number
-  description = "CpuUsageNanoCores average threshold (5m window). Example: 0.5 vCPU ≈ 500000000. Set 0 to skip CPU metric alerts even when resource IDs are set."
+  description = "Average CPU percent (0-100) over 5m for API/worker Container App metric alerts. Set 0 to skip CPU alerts."
   default     = 0
+
+  validation {
+    condition     = var.container_cpu_percent_threshold >= 0 && var.container_cpu_percent_threshold <= 100
+    error_message = "container_cpu_percent_threshold must be between 0 and 100."
+  }
 }
 
 variable "tags" {

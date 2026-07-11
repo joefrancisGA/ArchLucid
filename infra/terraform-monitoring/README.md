@@ -39,7 +39,7 @@ Set **`read_alert_secrets_from_key_vault = true`** and point **`alert_secrets_ke
 ## Wiring after `terraform-container-apps`
 
 1. Apply **`infra/terraform-container-apps`** (or note Container App **resource IDs** from Azure Portal).
-2. Set **`api_container_app_resource_id`** / **`worker_container_app_resource_id`** and a non-zero **`container_cpu_nanos_threshold`** to create CPU alerts.
+2. Set **`api_container_app_resource_id`** / **`worker_container_app_resource_id`** and a non-zero **`container_cpu_percent_threshold`** to create CPU alerts.
 3. Run `terraform plan` / `apply` in this directory.
 
 ### Provisioning dashboards with Terraform (optional)
