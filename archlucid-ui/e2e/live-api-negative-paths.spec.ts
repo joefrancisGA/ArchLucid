@@ -212,7 +212,10 @@ test.describe("live-api-negative-paths", () => {
 
     const second = await commitRunRaw(request, runId, tenantScope);
 
-    expect(second.ok(), `second commit expected 200 (idempotent), got ${second.status()}`).toBe(true);
+    expect(
+      second.status(),
+      "repeat POST commit on an already-committed run is idempotent (200) per docs/library/API_CONTRACTS.md",
+    ).toBe(200);
 
     const secondBody = (await second.json()) as CommitRunResponseJson;
 
