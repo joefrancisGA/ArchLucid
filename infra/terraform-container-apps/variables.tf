@@ -615,6 +615,12 @@ variable "api_keyvault_user_assigned_identity_id" {
   default     = ""
 }
 
+variable "enable_api_sql_runtime_identity" {
+  type        = bool
+  description = "Least-privilege SQL runtime identity: creates a dedicated user-assigned identity (separate from the API's system-assigned identity used for schema bootstrap) and attaches it to the API Container App. Operators must still create a matching SQL user (CREATE USER ... FROM EXTERNAL PROVIDER) and add it to the [ArchLucidApp] database role (see docs/security/MANAGED_IDENTITY_SQL_BLOB.md, migration 051). Use the api_sql_runtime_identity_client_id / api_sql_runtime_identity_name outputs to build ConnectionStrings:ArchLucidRuntime and the CREATE USER statement."
+  default     = false
+}
+
 variable "api_keyvault_user_assigned_identity_client_id" {
   type        = string
   description = "TB-656: Client ID of the API Key Vault user-assigned identity (AZURE_CLIENT_ID for secret resolution)."

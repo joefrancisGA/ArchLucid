@@ -54,9 +54,14 @@ locals {
   api_keyvault_uami_enabled    = local.enabled && length(trimspace(var.api_keyvault_user_assigned_identity_id)) > 0
   worker_keyvault_uami_enabled = local.enabled && length(trimspace(var.worker_keyvault_user_assigned_identity_id)) > 0
 
+  # Least-privilege SQL runtime identity: separate from the API's system-assigned identity, which keeps
+  # db_owner-equivalent rights for schema bootstrap. See variable enable_api_sql_runtime_identity.
+  api_sql_runtime_identity_enabled = local.enabled && var.enable_api_sql_runtime_identity
+
   api_user_assigned_identity_ids = compact(concat(
     local.acr_pull_enabled ? [azurerm_user_assigned_identity.acr_pull[0].id] : [],
     local.api_keyvault_uami_enabled ? [trimspace(var.api_keyvault_user_assigned_identity_id)] : [],
+    local.api_sql_runtime_identity_enabled ? [azurerm_user_assigned_identity.api_sql_runtime[0].id] : [],
   ))
 
   worker_user_assigned_identity_ids = compact(concat(
@@ -141,6 +146,19 @@ resource "azurerm_role_assignment" "acr_pull_identity" {
   scope                = var.acr_resource_id
   role_definition_name = "AcrPull"
   principal_id         = azurerm_user_assigned_identity.acr_pull[0].principal_id
+}
+
+# Least-privilege SQL runtime identity (see variable enable_api_sql_runtime_identity). Not granted any
+# Azure RBAC role here: SQL-side authorization is a database role membership ([ArchLucidApp]), created
+# out of band per docs/security/MANAGED_IDENTITY_SQL_BLOB.md. The API's system-assigned identity keeps
+# db_owner-equivalent rights for schema bootstrap; this identity is for tenant-data/query connections only.
+resource "azurerm_user_assigned_identity" "api_sql_runtime" {
+  count = local.api_sql_runtime_identity_enabled ? 1 : 0
+
+  location            = local.azure_location
+  resource_group_name = local.resource_group_name
+  name                = "id-archlucid-api-sql-runtime"
+  tags                = local.merged_tags
 }
 
 resource "azurerm_container_app" "api" {

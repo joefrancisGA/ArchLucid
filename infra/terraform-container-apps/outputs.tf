@@ -33,6 +33,21 @@ output "worker_system_assigned_principal_id" {
   value       = try(azurerm_container_app.worker[0].identity[0].principal_id, null)
 }
 
+output "api_sql_runtime_identity_name" {
+  description = "Name of the least-privilege SQL runtime user-assigned identity (null unless enable_api_sql_runtime_identity is true). Use as the login name in CREATE USER [name] FROM EXTERNAL PROVIDER."
+  value       = try(azurerm_user_assigned_identity.api_sql_runtime[0].name, null)
+}
+
+output "api_sql_runtime_identity_client_id" {
+  description = "Client (application) ID of the least-privilege SQL runtime identity. Use as User Id=<client-id> in the ConnectionStrings:ArchLucidRuntime connection string (Authentication=Active Directory Managed Identity)."
+  value       = try(azurerm_user_assigned_identity.api_sql_runtime[0].client_id, null)
+}
+
+output "api_sql_runtime_identity_principal_id" {
+  description = "Object (principal) ID of the least-privilege SQL runtime identity, for any additional Azure RBAC assignments."
+  value       = try(azurerm_user_assigned_identity.api_sql_runtime[0].principal_id, null)
+}
+
 output "worker_container_app_fqdn" {
   description = "FQDN of the latest worker revision when ingress is enabled (null if internal-only without public hostname)."
   value       = try(azurerm_container_app.worker[0].latest_revision_fqdn, null)
