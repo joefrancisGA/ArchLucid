@@ -519,6 +519,7 @@ BEGIN
         IsPublicShowcase BIT NOT NULL CONSTRAINT DF_Runs_IsPublicShowcase_Greenfield DEFAULT (0),
         IsDemoWelcomeRun BIT NOT NULL CONSTRAINT DF_Runs_IsDemoWelcomeRun_Greenfield DEFAULT (0),
         IsPinned BIT NOT NULL CONSTRAINT DF_Runs_IsPinned_Greenfield DEFAULT (0),
+        IsSample BIT NOT NULL CONSTRAINT DF_Runs_IsSample_Greenfield DEFAULT (0),
         StructuralExecutionMode NVARCHAR(32) NOT NULL CONSTRAINT DF_Runs_StructuralExecutionMode_Greenfield DEFAULT (N'Simulator'),
         CONSTRAINT CK_Runs_StructuralExecutionMode_Greenfield CHECK (StructuralExecutionMode IN (N'Simulator', N'Real', N'Fallback', N'Mixed')),
         RowVersionStamp ROWVERSION,
@@ -569,6 +570,13 @@ GO
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'IsPinned') IS NULL
     ALTER TABLE dbo.Runs ADD IsPinned BIT NOT NULL CONSTRAINT DF_Runs_IsPinned DEFAULT (0);
+GO
+
+-- IsSample marks demo/trial seeded runs eligible for the sample-run TTL purge (OS-1b);
+-- referenced by the covering index below and by SqlRunRepository/DemoRunSqlPredicates.
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'IsSample') IS NULL
+    ALTER TABLE dbo.Runs ADD IsSample BIT NOT NULL CONSTRAINT DF_Runs_IsSample DEFAULT (0);
 GO
 
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
