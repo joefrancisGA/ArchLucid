@@ -6,6 +6,7 @@ import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
 import { HelpFindingsGuideView } from "../_sections/HelpFindingsGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
+import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialtyWalkthroughTemplatesView";
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
 import { HelpHowArchLucidWorksGuideView } from "../_sections/HelpHowArchLucidWorksGuideView";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
@@ -65,6 +66,10 @@ function renderHelpTopicView(loaded: NonNullable<ReturnType<typeof tryLoadProduc
 
   if (loaded.entry.slug === "findings") {
     return <HelpFindingsGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "specialty-walkthroughs") {
+    return <HelpSpecialtyWalkthroughTemplatesView entry={loaded.entry} />;
   }
 
   return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;

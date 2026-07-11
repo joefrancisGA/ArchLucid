@@ -53,6 +53,7 @@ import {
   resolveReviewIntakeExampleTemplateFromSearchParams,
   type ReviewIntakeExampleTemplate,
 } from "@/lib/operator-home-example-request";
+import { resolveSpecialtyReviewCloudFromSearchParam } from "@/lib/specialty-review-templates";
 import {
   buildDefaultWizardValues,
   wizardFormSchema,
@@ -218,6 +219,10 @@ export function NewRunWizardClient() {
     [searchParams],
   );
   const exampleTemplate: ReviewIntakeExampleTemplate | null = exampleTemplateResolution.template;
+  const reviewIntakeCloudProvider = useMemo(
+    () => resolveSpecialtyReviewCloudFromSearchParam(searchParams?.get("cloud")),
+    [searchParams],
+  );
   const zeroConfigAppliedRef = useRef(false);
   const exampleTemplatePrefillAppliedRef = useRef(false);
   const stepDefinitions = baselineFirst ? WIZARD_STEP_DEFINITIONS_BASELINE : WIZARD_STEP_DEFINITIONS_FULL;
@@ -436,7 +441,11 @@ export function NewRunWizardClient() {
     exampleTemplatePrefillAppliedRef.current = true;
     setValue("systemName", exampleTemplate.systemName, { shouldValidate: true, shouldDirty: true });
     setValue("description", exampleTemplate.briefText, { shouldValidate: true, shouldDirty: true });
-  }, [exampleTemplate, setValue, stepIndex, wizardMode]);
+
+    if (reviewIntakeCloudProvider !== null) {
+      setValue("cloudProvider", reviewIntakeCloudProvider, { shouldValidate: true, shouldDirty: true });
+    }
+  }, [exampleTemplate, reviewIntakeCloudProvider, setValue, stepIndex, wizardMode]);
 
   useEffect(() => {
     if (stepIndex !== reviewStepIndex) {

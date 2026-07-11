@@ -349,8 +349,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "specialty-walkthroughs",
-    title: "Specialty walkthrough templates",
-    summary: "Optional Azure SaaS, AI governance, and healthcare templates after first commit — not required for core pilot.",
+    title: "Specialty review templates",
+    summary:
+      "Start with focused guidance for a specific architecture, governance, or industry scenario.",
     audience: "operator",
     sourcePaths: ["docs/library/walkthroughs/README.md"],
   },

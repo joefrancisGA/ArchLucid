@@ -13,6 +13,25 @@ export type ReviewIntakeExampleTemplate = {
 
 export const REVIEW_INTAKE_EXAMPLE_TEMPLATES: readonly ReviewIntakeExampleTemplate[] = [
   {
+    id: "saas-readiness",
+    title: "SaaS readiness",
+    briefText:
+      "Evaluate a multi-tenant SaaS architecture for enterprise readiness — identity and access, tenant isolation, resilience, data protection, and operational monitoring. Include your cloud context, evidence uploads, and any policy packs you plan to apply.",
+    businessOutcome:
+      "An evidence-backed SaaS readiness review with prioritized findings and recommendations for secure, reliable enterprise use.",
+    systemName: "SaaS Platform",
+  },
+  {
+    id: "ai-governance",
+    title: "AI governance",
+    briefText:
+      "Evaluate an AI or ML solution against responsible-AI expectations — model and data risk, transparency, human oversight, privacy, monitoring, and approval readiness. Describe inference, training boundaries, and governance controls you need reviewed.",
+    businessOutcome:
+      "An AI governance review with evidence-backed findings and clear governance decisions for stakeholders.",
+    systemName: "AI Solution",
+    quickReviewSampleBriefId: "ai",
+  },
+  {
     id: "claims-intake-modernization",
     legacyExampleQueryValue: "healthcare-claims-intake",
     title: "Claims Intake Modernization",
@@ -25,7 +44,9 @@ export const REVIEW_INTAKE_EXAMPLE_TEMPLATES: readonly ReviewIntakeExampleTempla
   },
 ] as const;
 
-const CLAIMS_INTAKE_MODERNIZATION_TEMPLATE = REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
+const CLAIMS_INTAKE_MODERNIZATION_TEMPLATE =
+  REVIEW_INTAKE_EXAMPLE_TEMPLATES.find((row) => row.id === "claims-intake-modernization") ??
+  REVIEW_INTAKE_EXAMPLE_TEMPLATES[REVIEW_INTAKE_EXAMPLE_TEMPLATES.length - 1]!;
 
 /** Primary template id for the operator home Example request panel. */
 export const OPERATOR_HOME_EXAMPLE_TEMPLATE_ID = CLAIMS_INTAKE_MODERNIZATION_TEMPLATE.id;
