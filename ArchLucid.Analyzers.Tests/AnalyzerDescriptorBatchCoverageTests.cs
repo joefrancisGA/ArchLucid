@@ -1,5 +1,7 @@
 using ArchLucid.Analyzers;
 
+using Microsoft.CodeAnalysis;
+
 namespace ArchLucid.Analyzers.Tests;
 
 [Trait("Category", "Unit")]
@@ -67,5 +69,33 @@ public sealed class AnalyzerDescriptorBatchCoverageTests
         Assert.Equal(2, Enum.GetNames(typeof(ForeachToLinqKind)).Length);
         Assert.True(Enum.IsDefined(typeof(ForeachToLinqKind), ForeachToLinqKind.SelectAddRange));
         Assert.True(Enum.IsDefined(typeof(ForeachToLinqKind), ForeachToLinqKind.WhereAddRange));
+    }
+
+    [Fact]
+    public void Al0001_descriptor_exposes_security_category()
+    {
+        Assert.Equal("AL0001", Al0001Descriptor.Rule.Id);
+        Assert.Contains("Security", Al0001Descriptor.Rule.Category, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Arch003_descriptor_default_severity_is_warning()
+    {
+        Assert.Equal("ARCH003", Arch003Descriptor.Rule.Id);
+        Assert.Equal(DiagnosticSeverity.Warning, Arch003Descriptor.Rule.DefaultSeverity);
+    }
+
+    [Fact]
+    public void Arch004_descriptor_has_non_empty_title()
+    {
+        Assert.Equal("ARCH004", Arch004Descriptor.Rule.Id);
+        Assert.False(string.IsNullOrWhiteSpace(Arch004Descriptor.Rule.Title.ToString()));
+    }
+
+    [Fact]
+    public void Arch005_descriptor_is_enabled_by_default()
+    {
+        Assert.Equal("ARCH005", Arch005Descriptor.Rule.Id);
+        Assert.True(Arch005Descriptor.Rule.IsEnabledByDefault);
     }
 }
