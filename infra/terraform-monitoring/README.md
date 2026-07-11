@@ -54,11 +54,44 @@ Set **`read_alert_secrets_from_key_vault = true`** and point **`alert_secrets_ke
 
 ```bash
 cd infra/terraform-monitoring
-terraform init
+terraform init -backend-config=backend.dev.hcl.example   # or copy to backend.dev.hcl (gitignored)
 cp terraform.tfvars.example terraform.tfvars   # edit
-terraform plan
-terraform apply
+terraform plan -var-file=dev.tfvars
+terraform apply -var-file=dev.tfvars
 ```
+
+### Remote state (dev)
+
+Copy **`backend.dev.hcl.example`** to **`backend.dev.hcl`** (gitignored) or pass it to **`terraform init -backend-config=...`**. State key **`monitoring.tfstate`** in storage account **`starchlucidtfdev001`** / container **`tfstate`**.
+
+Migrate local state once:
+
+```bash
+terraform init -backend-config=backend.dev.hcl.example -migrate-state -reconfigure
+```
+
+### OpenTelemetry → Azure Monitor workspace
+
+When **`enable_application_insights`**, **`enable_container_app_environment_otel`**, and **`wire_container_app_observability_env`** are true:
+
+1. Creates workspace-linked **Application Insights** (connection string for in-process Azure Monitor exporters).
+2. Patches the **Container Apps Environment** OpenTelemetry agent (AzAPI) to route traces/logs to App Insights and metrics to the AMW default DCE OTLP endpoint.
+3. Sets **`APPLICATIONINSIGHTS_CONNECTION_STRING`** on API and worker via **`scripts/ops/wire-application-insights-env.ps1`** after apply (brownfield Container Apps cannot be safely merged with AzAPI without invalidating Key Vault secret refs).
+
+P0 **`archlucid_*` PromQL** rules require those metrics in the AMW; verify scrape/export after apply with the **`azure_monitor_prometheus_query_endpoint`** output.
+
+### Verify metrics reached AMW
+
+```powershell
+$q = terraform output -raw azure_monitor_prometheus_query_endpoint
+$token = az account get-access-token --resource https://prometheus.monitor.azure.com --query accessToken -o tsv
+$headers = @{ Authorization = "Bearer $token" }
+Invoke-RestMethod -Uri "$q/api/v1/query?query=archlucid_circuit_breaker_state" -Headers $headers
+```
+
+Expect non-empty `data.result` once API/worker `/metrics` export reaches the workspace (may take several minutes after revision restart). If empty while CAE `openTelemetryConfiguration` is set, confirm apps have **`APPLICATIONINSIGHTS_CONNECTION_STRING`** (`scripts/ops/wire-application-insights-env.ps1`) and open an Azure support path for DCE→AMW DCR association.
+
+PagerDuty webhook: set Key Vault secret **`alert-pagerduty-webhook-uri`**, then **`read_alert_pagerduty_secret_from_key_vault = true`** in tfvars.
 
 ## Security & cost
 

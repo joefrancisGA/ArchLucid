@@ -66,3 +66,28 @@ check "critical_action_group_key_vault_names" {
     error_message = "read_alert_secrets_from_key_vault = true requires alert_secrets_key_vault_name and alert_secrets_key_vault_resource_group_name."
   }
 }
+
+check "container_app_otel_requires_environment_id" {
+  assert {
+    condition     = !var.enable_container_app_environment_otel || length(trimspace(var.container_app_environment_resource_id)) > 0
+    error_message = "enable_container_app_environment_otel = true requires container_app_environment_resource_id."
+  }
+}
+
+check "container_app_otel_requires_application_insights" {
+  assert {
+    condition     = !var.enable_container_app_environment_otel || var.enable_application_insights
+    error_message = "enable_container_app_environment_otel = true requires enable_application_insights = true."
+  }
+}
+
+check "wire_container_app_observability_env_requires_apps" {
+  assert {
+    condition = !var.wire_container_app_observability_env || (
+      (length(trimspace(var.api_container_app_resource_id)) > 0 || length(trimspace(var.api_container_app_name)) > 0) &&
+      (length(trimspace(var.worker_container_app_resource_id)) > 0 || length(trimspace(var.worker_container_app_name)) > 0) &&
+      var.enable_application_insights
+    )
+    error_message = "wire_container_app_observability_env = true requires api/worker app identifiers and enable_application_insights = true. Env injection is applied via scripts/ops/wire-application-insights-env.ps1 (AzAPI full-container PUT breaks secret refs)."
+  }
+}

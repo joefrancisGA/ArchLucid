@@ -2,7 +2,7 @@ locals {
   critical_action_group_enabled = local.enabled && var.enable_critical_action_group
 
   alert_pagerduty_webhook_uri_effective = length(trimspace(var.alert_pagerduty_webhook_uri)) > 0 ? trimspace(var.alert_pagerduty_webhook_uri) : (
-    local.critical_action_group_enabled && var.read_alert_secrets_from_key_vault ? trimspace(data.azurerm_key_vault_secret.alert_pagerduty_webhook_uri[0].value) : ""
+    local.critical_action_group_enabled && var.read_alert_secrets_from_key_vault && var.read_alert_pagerduty_secret_from_key_vault ? trimspace(data.azurerm_key_vault_secret.alert_pagerduty_webhook_uri[0].value) : ""
   )
 
   alert_sms_phone_number_effective = length(trimspace(var.alert_sms_phone_number)) > 0 ? trimspace(var.alert_sms_phone_number) : (

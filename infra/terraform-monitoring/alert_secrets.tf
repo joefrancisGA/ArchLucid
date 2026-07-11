@@ -26,7 +26,7 @@ data "azurerm_key_vault_secret" "alert_voice_phone_number" {
 }
 
 data "azurerm_key_vault_secret" "alert_pagerduty_webhook_uri" {
-  count = local.critical_action_group_enabled && var.read_alert_secrets_from_key_vault ? 1 : 0
+  count = local.critical_action_group_enabled && var.read_alert_secrets_from_key_vault && var.read_alert_pagerduty_secret_from_key_vault ? 1 : 0
 
   name         = var.alert_pagerduty_webhook_uri_secret_name
   key_vault_id = data.azurerm_key_vault.alert_secrets[0].id

@@ -1,0 +1,5 @@
+# Copy to backend.dev.hcl (gitignored) or pass via: terraform init -backend-config=backend.dev.hcl
+resource_group_name  = "rg-ArchLucid-dev"
+storage_account_name = "starchlucidtfdev001"
+container_name       = "tfstate"
+key                  = "monitoring.tfstate"

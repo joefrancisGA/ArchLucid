@@ -7,7 +7,11 @@ resource_group_name     = "rg-ArchLucid-dev"
 name_prefix             = "archlucid-dev"
 alert_email_address     = "security@archlucid.net"
 
-# P0 path: SMS + voice to owner cell (digits only; country code 1 for US).
+# Prerequisite (once per subscription): register Azure resource providers before first apply:
+#   az provider register --namespace Microsoft.Monitor --wait
+#   az provider register --namespace Microsoft.AlertsManagement --wait
+#
+# P0 path: SMS + voice (Azure-native, instant) + PagerDuty receivers.
 enable_critical_action_group = true
 alert_sms_country_code       = "1"
 alert_voice_country_code     = "1"
@@ -15,9 +19,19 @@ alert_voice_country_code     = "1"
 # alert_voice_phone_number = "<digits-only, set via TF_VAR or Key Vault>"
 
 # Optional: read phones from Key Vault instead of tfvars (production pattern).
-# read_alert_secrets_from_key_vault            = true
-# alert_secrets_key_vault_name                 = "kvrgarchluciddev8aa56f"
-# alert_secrets_key_vault_resource_group_name  = "rg-ArchLucid-dev"
+read_alert_secrets_from_key_vault            = true
+alert_secrets_key_vault_name                 = "kvrgarchluciddev8aa56f"
+alert_secrets_key_vault_resource_group_name  = "rg-ArchLucid-dev"
+
+# Application Insights + CAE OpenTelemetry agent → AMW (P0 PromQL needs archlucid_* in workspace).
+# enable_application_insights = true
+# application_insights_name   = "archlucid-dev-appinsights"
+# application_insights_workspace_resource_id = "/subscriptions/.../Microsoft.OperationalInsights/workspaces/law-archlucid-ca"
+# enable_container_app_environment_otel = true
+# container_app_environment_resource_id = "/subscriptions/.../Microsoft.App/managedEnvironments/cae-archlucid"
+# wire_container_app_observability_env = true
+# api_container_app_name    = "archlucid-api"
+# worker_container_app_name = "archlucid-worker"
 
 # Wire after container apps exist:
 # api_container_app_resource_id   = "/subscriptions/.../Microsoft.App/containerApps/archlucid-api"

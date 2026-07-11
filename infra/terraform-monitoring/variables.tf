@@ -225,6 +225,12 @@ variable "alert_pagerduty_webhook_uri_secret_name" {
   default     = "alert-pagerduty-webhook-uri"
 }
 
+variable "read_alert_pagerduty_secret_from_key_vault" {
+  type        = bool
+  description = "When true with read_alert_secrets_from_key_vault, also load alert-pagerduty-webhook-uri from Key Vault. Leave false until that secret exists."
+  default     = false
+}
+
 variable "application_insights_sampling_percentage" {
   type        = number
   description = "TB-102: Application Insights ingestion sampling (0-100). Lower to 10-20 for high-volume production to control Log Analytics cost."
@@ -234,4 +240,64 @@ variable "application_insights_sampling_percentage" {
     condition     = var.application_insights_sampling_percentage >= 0 && var.application_insights_sampling_percentage <= 100
     error_message = "application_insights_sampling_percentage must be between 0 and 100."
   }
+}
+
+variable "write_alert_secrets_to_key_vault" {
+  type        = bool
+  description = "When true, Terraform writes alert phone secrets (and Application Insights connection string when enabled) into Key Vault. Use once to bootstrap; prefer read_alert_secrets_from_key_vault for steady state."
+  default     = false
+}
+
+variable "application_insights_connection_string_secret_name" {
+  type        = string
+  description = "Key Vault secret name for the Application Insights connection string when write_alert_secrets_to_key_vault is true."
+  default     = "application-insights-connection-string"
+}
+
+variable "enable_container_app_environment_otel" {
+  type        = bool
+  description = "When true with enable_application_insights, patch the Container Apps Environment OpenTelemetry agent (AzAPI) for App Insights traces/logs and AMW OTLP metrics."
+  default     = false
+}
+
+variable "container_app_environment_resource_id" {
+  type        = string
+  description = "Full resource ID of the Container Apps Environment (Microsoft.App/managedEnvironments/...). Required when enable_container_app_environment_otel is true."
+  default     = ""
+}
+
+variable "amw_otlp_destination_name" {
+  type        = string
+  description = "OTLP destination name referenced by the CAE OpenTelemetry metricsConfiguration.destinations list."
+  default     = "azure-monitor-metrics"
+}
+
+variable "amw_otlp_metrics_ingestion_endpoint" {
+  type        = string
+  description = "Optional override for the AMW default DCE OTLP ingestion endpoint. Empty resolves the workspace-managed data collection endpoint at apply time."
+  default     = ""
+}
+
+variable "azure_monitor_prometheus_query_endpoint" {
+  type        = string
+  description = "Optional override for the AMW Prometheus query endpoint (for Grafana / ad-hoc PromQL). Empty uses the workspace query_endpoint output."
+  default     = ""
+}
+
+variable "wire_container_app_observability_env" {
+  type        = bool
+  description = "When true with Application Insights enabled, set APPLICATIONINSIGHTS_CONNECTION_STRING on API and worker Container Apps via AzAPI after the connection string exists."
+  default     = false
+}
+
+variable "api_container_app_name" {
+  type        = string
+  description = "API Container App name when wire_container_app_observability_env is true."
+  default     = ""
+}
+
+variable "worker_container_app_name" {
+  type        = string
+  description = "Worker Container App name when wire_container_app_observability_env is true."
+  default     = ""
 }

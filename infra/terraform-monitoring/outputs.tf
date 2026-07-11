@@ -49,3 +49,18 @@ output "azure_monitor_workspace_id" {
   value       = length(trimspace(local.azure_monitor_workspace_id_effective)) > 0 ? local.azure_monitor_workspace_id_effective : null
   description = "TB-098: Managed or BYO Azure Monitor workspace for Prometheus rule scopes."
 }
+
+output "azure_monitor_prometheus_query_endpoint" {
+  value       = length(trimspace(local.amw_prometheus_query_endpoint_effective)) > 0 ? local.amw_prometheus_query_endpoint_effective : null
+  description = "AMW Prometheus query endpoint for Grafana or ad-hoc PromQL (null when workspace disabled)."
+}
+
+output "amw_otlp_metrics_ingestion_endpoint" {
+  value       = length(trimspace(local.amw_otlp_metrics_endpoint_effective)) > 0 ? local.amw_otlp_metrics_endpoint_effective : null
+  description = "Default DCE OTLP ingestion endpoint wired to the CAE OpenTelemetry agent when enabled."
+}
+
+output "container_app_environment_otel_patch_id" {
+  value       = try(azapi_update_resource.container_app_environment_otel[0].id, null)
+  description = "AzAPI resource id when CAE OpenTelemetry configuration was patched."
+}
