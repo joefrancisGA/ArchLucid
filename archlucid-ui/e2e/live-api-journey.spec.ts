@@ -5,8 +5,6 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
-import { getAppMain } from "./helpers/app-main";
 import {
   approveGovernanceRequest,
   commitRun,
@@ -32,6 +30,7 @@ import {
 import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
 import {
   auditPageMainHeading,
+  expectLiveManifestDetailPageReady,
   expectLiveRunDetailPageReady,
   runDetailFinalizedPackageLink,
 } from "./helpers/operator-journey";
@@ -135,20 +134,7 @@ test.describe("live-api-journey", () => {
       manifestLink.click(),
     ]);
 
-    const manifestMain = getAppMain(page);
-
-    await expect(manifestMain.getByTestId("manifest-detail-loading-shell")).toHaveCount(0, {
-      timeout: 60_000,
-    });
-    await expect(manifestMain.getByText(/Loading review record/i)).toHaveCount(0, {
-      timeout: 60_000,
-    });
-
-    await expect(
-      manifestMain.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
-    ).toBeVisible({ timeout: 60_000 });
-
-    await expect(manifestMain.getByText(goldenManifestId)).toBeVisible({ timeout: 60_000 });
+    await expectLiveManifestDetailPageReady(page, goldenManifestId, { timeoutMs: 60_000 });
 
     const exportRes = await getRunExportZip(request, runId, tenantScope);
 

@@ -1,6 +1,8 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
 import { expectAnyLocatorVisible } from "./locator-readiness";
+import { getAppMain } from "./app-main";
+import { normalizeRunIdForCompare } from "./live-api-client";
 
 import {
   ASK_PAGE_PRIMARY_HEADING_PATTERN,
@@ -10,6 +12,7 @@ import {
   FIXTURE_RIGHT_RUN_ID,
   FIXTURE_RUN_ID,
   GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN,
+  MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
 } from "../fixtures";
 
 // --- Navigation (deterministic operator paths; defaults match shared fixtures) ---
@@ -467,4 +470,37 @@ export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_0
   await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: timeoutMs });
   await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
   await expect(page.locator("main h1").first()).toBeVisible({ timeout: timeoutMs });
+}
+
+/** Live manifest detail after navigation — buyer-polished shell hides raw manifest UUID in the DOM. */
+export async function expectLiveManifestDetailPageReady(
+  page: Page,
+  manifestId: string,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? 60_000;
+  const manifestMain = getAppMain(page);
+  const normalizedManifestId = normalizeRunIdForCompare(manifestId);
+
+  await expect(manifestMain.getByTestId("manifest-detail-loading-shell")).toHaveCount(0, {
+    timeout: timeoutMs,
+  });
+  await expect(manifestMain.getByText(/Loading review record/i)).toHaveCount(0, {
+    timeout: timeoutMs,
+  });
+  await expect(manifestMain.getByText(/Fetching manifest summary/i)).toHaveCount(0, {
+    timeout: timeoutMs,
+  });
+
+  await expect(
+    manifestMain.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
+  ).toBeVisible({ timeout: timeoutMs });
+
+  await expect
+    .poll(() => normalizeRunIdForCompare(new URL(page.url()).pathname).includes(normalizedManifestId), {
+      timeout: timeoutMs,
+    })
+    .toBe(true);
+
+  await expect(manifestMain.locator("#manifest-overview")).toBeVisible({ timeout: timeoutMs });
 }
