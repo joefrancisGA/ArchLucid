@@ -205,6 +205,7 @@ test.describe("live-api-negative-paths", () => {
     const firstCommit = await commitRun(request, runId, tenantScope);
 
     await waitForRunDetailCommitted(request, runId, 90_000, tenantScope);
+    await waitForAuthorityRunSummaryReady(request, runId, 60_000, tenantScope);
 
     const firstManifestVersion = firstCommit.manifest?.metadata?.manifestVersion;
 
