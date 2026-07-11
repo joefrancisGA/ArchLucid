@@ -15,19 +15,19 @@ const THEME_OPTIONS: ReadonlyArray<{
   {
     value: "system",
     label: "System",
-    description: "Match your device light or dark setting.",
+    description: "Follow this device's appearance setting.",
     previewClassName: "bg-gradient-to-r from-white via-neutral-200 to-neutral-800",
   },
   {
     value: "light",
     label: "Light",
-    description: "Bright backgrounds with dark text.",
+    description: "Always use the light appearance.",
     previewClassName: "bg-white border border-neutral-300",
   },
   {
     value: "dark",
     label: "Dark",
-    description: "Dark backgrounds with light text.",
+    description: "Always use the dark appearance.",
     previewClassName: "bg-neutral-900",
   },
 ];

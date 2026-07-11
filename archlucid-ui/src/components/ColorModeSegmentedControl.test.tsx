@@ -1,14 +1,23 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { ColorModePreferenceProvider } from "@/components/ColorModePreferenceProvider";
 import { COLOR_MODE_STORAGE_KEY } from "@/lib/color-mode-preference";
 
 import { ColorModeSegmentedControl } from "./ColorModeSegmentedControl";
 
 vi.mock("@/lib/api/user-preferences", () => ({
-  getUserPreferences: vi.fn(),
+  getUserPreferences: vi.fn().mockRejectedValue(new Error("anonymous")),
   setUserAppearancePreference: vi.fn(),
 }));
+
+function renderSegmentedControl() {
+  return render(
+    <ColorModePreferenceProvider>
+      <ColorModeSegmentedControl />
+    </ColorModePreferenceProvider>,
+  );
+}
 
 describe("ColorModeSegmentedControl", () => {
   afterEach(() => {
@@ -23,7 +32,7 @@ describe("ColorModeSegmentedControl", () => {
   });
 
   it("renders theme preference options", async () => {
-    render(<ColorModeSegmentedControl />);
+    renderSegmentedControl();
 
     await waitFor(() => {
       expect(screen.getByTestId("theme-preference-option-system")).toBeInTheDocument();
@@ -36,7 +45,7 @@ describe("ColorModeSegmentedControl", () => {
   it("persists dark selection", async () => {
     const setItem = vi.spyOn(Storage.prototype, "setItem");
 
-    render(<ColorModeSegmentedControl />);
+    renderSegmentedControl();
 
     const darkOption = await waitFor(() => document.getElementById("theme-preference-dark") as HTMLInputElement);
 

@@ -34,7 +34,6 @@ import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealth
 import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
-import { UserAppearancePreferenceSync } from "@/components/UserAppearancePreferenceSync";
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
 import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
@@ -323,7 +322,6 @@ function AppShellInner({ children }: AppShellClientProps) {
         <AppShellDeferChromeBoundary shellRootRef={shellRootRef}>
           <AppInsightsTelemetryInit />
           <SessionIdleTimeoutGuard />
-          <UserAppearancePreferenceSync />
           <TooltipProvider delayDuration={200}>
             <a href="#main-content" className="skip-to-main">
               Skip to main content
@@ -424,7 +422,6 @@ function AppShellInner({ children }: AppShellClientProps) {
       <AppShellDeferChromeBoundary shellRootRef={shellRootRef}>
       <AppInsightsTelemetryInit />
       <SessionIdleTimeoutGuard />
-      <UserAppearancePreferenceSync />
       <TooltipProvider delayDuration={200}>
         <a href="#main-content" className="skip-to-main">
           Skip to main content
