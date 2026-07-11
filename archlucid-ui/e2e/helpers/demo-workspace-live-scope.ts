@@ -62,6 +62,7 @@ export async function injectDemoWorkspaceOperatorScope(
       name: OPERATOR_SCOPE_COOKIE_NAME,
       value: scopeCookieValue,
       url: LIVE_E2E_OPERATOR_ORIGIN,
+      path: "/",
       sameSite: "Lax",
     },
   ]);

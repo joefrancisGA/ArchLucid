@@ -17,11 +17,14 @@ import {
   createRun,
   executeRun,
   freshIsolatedTenantScope,
+  getRunDetailsWithTransientRetries,
   liveAcceptHeaders,
   liveApiBase,
   liveTenantScopeHeaders,
   liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   liveE2eArchitectureDescription,
+  resolveLiveAuthMode,
+  waitForAuthorityRunSummaryReady,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
@@ -69,7 +72,18 @@ test.describe("live-api-email-run-to-sponsor", () => {
     await commitRun(request, runId, tenantScope);
     await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
 
-    await injectDemoWorkspaceOperatorScope(page, tenantScope);
+    const afterCommit = await getRunDetailsWithTransientRetries(request, runId, tenantScope);
+
+    if (!afterCommit.run?.goldenManifestId) {
+      throw new Error("Run detail after commit missing run.goldenManifestId — sponsor banner requires a committed package.");
+    }
+
+    await waitForAuthorityRunSummaryReady(request, runId, 60_000, tenantScope);
+
+    if (resolveLiveAuthMode() === "bypass") {
+      await injectDemoWorkspaceOperatorScope(page, tenantScope);
+    }
+
     await page.goto(`/reviews/${runId}`);
 
     await expectLiveRunDetailPageReady(page, 120_000);
