@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
 import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import {
   isFromGenerationSearchParam,
   REVIEW_PACKAGE_OPEN_FAILURE_HEADING,
@@ -21,11 +22,16 @@ export default async function RunDetailPage({
   searchParams,
 }: {
   params: Promise<{ runId: string }>;
-  searchParams: Promise<{ fromGeneration?: string | string[] }>;
+  searchParams: Promise<{ fromGeneration?: string | string[]; intent?: string | string[] }>;
 }) {
   const { runId } = await params;
   const resolvedSearchParams = await searchParams;
   const fromGeneration = isFromGenerationSearchParam(resolvedSearchParams.fromGeneration);
+  const intentParam = Array.isArray(resolvedSearchParams.intent)
+    ? resolvedSearchParams.intent[0]
+    : resolvedSearchParams.intent;
+  const fromArchitectureCreation =
+    fromGeneration && intentParam?.trim() === CREATE_ARCHITECTURE_INTENT;
   const attemptedRoute = `/reviews/${encodeURIComponent(runId)}`;
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
@@ -74,5 +80,5 @@ export default async function RunDetailPage({
     return <RunDetailPageMalformedResponseView message={result.message} />;
   }
 
-  return <RunDetailPageView model={result.model} />;
+  return <RunDetailPageView model={result.model} fromArchitectureCreation={fromArchitectureCreation} />;
 }

@@ -40,6 +40,7 @@ import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { CREATE_ARCHITECTURE_STARTING_LABEL } from "@/lib/review-start-progress-copy";
 import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigation";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { recordArchitectureCreationHandoff } from "@/lib/architecture-creation-handoff";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -458,8 +459,32 @@ export function SocraticIntakeWizard() {
         return;
       }
 
-      showSuccess("Architecture review started from guided intake.");
-      router.push(buildReviewGenerationRedirect(result.runId, "socratic-intake"));
+      showSuccess(
+        isCreateArchitectureFlow
+          ? "Architecture draft created — opening your architecture workspace."
+          : "Architecture review started from guided intake.",
+      );
+
+      if (isCreateArchitectureFlow) {
+        recordArchitectureCreationHandoff({
+          runId: result.runId,
+          architectureName: systemName.trim(),
+          architectureOverview: freeTextIntent.trim(),
+          businessOutcome: businessOutcome.trim(),
+          peopleAndSystems: actorSet.actors.map((actor) => ({
+            label: actor.label?.trim() || actor.kind,
+            kind: actor.kind,
+          })),
+        });
+      }
+
+      router.push(
+        buildReviewGenerationRedirect(
+          result.runId,
+          isCreateArchitectureFlow ? "create-architecture" : "socratic-intake",
+          { architectureCreation: isCreateArchitectureFlow },
+        ),
+      );
     } catch (error) {
       setSubmitError(error);
       if (isApiRequestError(error)) {
@@ -468,7 +493,7 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [draftId, parentSpawnedRunId, router]);
+  }, [actorSet.actors, businessOutcome, draftId, freeTextIntent, isCreateArchitectureFlow, parentSpawnedRunId, router, systemName]);
 
   return (
     <div className="space-y-4" data-testid="socratic-intake-wizard">

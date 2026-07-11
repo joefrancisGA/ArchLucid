@@ -35,6 +35,8 @@ import {
 import { ReviewAgentExecutionLogSection } from "@/components/reviews/ReviewAgentExecutionLogSection";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
 import { ReviewGenerationCreatedNotice } from "@/components/review-intake/ReviewGenerationCreatedNotice";
+import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { resolveQuickDecisionFindingsForRunDetail } from "@/lib/quick-decision-summary-derive";
 import {
   countFindingsAwaitingAction,
@@ -89,6 +91,7 @@ import {
   RunDetailTechnologyBaselineSection,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
+import { RunDetailArchitectureCreatedFirstViewport } from "./RunDetailArchitectureCreatedFirstViewport";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import {
   RunDetailBelowFoldDeferredSkeleton,
@@ -112,7 +115,10 @@ function toDeferredSectionContext(model: RunDetailPageModel): RunDetailDeferredS
 }
 
 /** Server component: renders the main run detail chrome from a preloaded `RunDetailPageModel`. */
-export function RunDetailPageView(props: { readonly model: RunDetailPageModel }): React.JSX.Element {
+export function RunDetailPageView(props: {
+  readonly model: RunDetailPageModel;
+  readonly fromArchitectureCreation?: boolean;
+}): React.JSX.Element {
   const m = props.model;
   const deferredContext = toDeferredSectionContext(m);
   const runSummaryForBadge = m.progressForPipelineUi;
@@ -277,6 +283,23 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       ? `${m.artifacts.length} evidence artifact${m.artifacts.length === 1 ? "" : "s"}`
       : null;
 
+  const showArchitectureCreatedHome =
+    props.fromArchitectureCreation === true && (m.manifestId ?? "").trim().length === 0;
+  const lastEvaluatedUtc = deriveLastEvaluatedLabel(m.resolvedDetail.run, m.manifestSummary);
+  const architectureCreatedBaseline: BuildArchitectureCreatedHomeModelInput = {
+    runId: m.resolvedDetail.run.runId,
+    architectureName: systemName ?? reviewDisplayTitle,
+    architectureOverview: submittedArchitectureText ?? "",
+    businessOutcome: "",
+    peopleAndSystems: [],
+    ownerLabel: deriveReviewOwnerLabel(m.resolvedDetail.run),
+    lastUpdatedLabel:
+      lastEvaluatedUtc !== null ? formatInstantForLocale(lastEvaluatedUtc) : "just now",
+    workspaceStatus,
+    assessmentInProgress: m.showProgressTracker,
+    hasArtifacts: m.artifacts.length > 0,
+  };
+
   const runDetailBody = (
     <div
       className={`w-full ${OPERATOR_LAYOUT.sectionStack} px-1 py-2 sm:px-0 max-w-[1160px]`}
@@ -284,9 +307,11 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       <CtoDemoReviewRouteGuard runId={m.resolvedDetail.run.runId} />
       <RunDetailBreadcrumb headline={m.headline} />
 
-      <Suspense fallback={null}>
-        <ReviewGenerationCreatedNotice analysisInProgress={m.showProgressTracker} />
-      </Suspense>
+      {!showArchitectureCreatedHome ? (
+        <Suspense fallback={null}>
+          <ReviewGenerationCreatedNotice analysisInProgress={m.showProgressTracker} />
+        </Suspense>
+      ) : null}
 
       {showDemoMarketingChrome ? <OperatorDemoStaticBanner /> : null}
       {m.usedStaticDemoRun ? <DemoDataBadge variant="banner" className="mb-2" /> : null}
@@ -294,45 +319,57 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       <RunDetailWorkspaceDisclosureProvider>
         <RunDetailWorkspaceLayout
           stickyActions={
-            <RunDetailWorkspaceStickyActions
-              runId={m.resolvedDetail.run.runId}
-              primaryAction={reviewPackagePrimaryAction}
-              hasGoldenManifest={Boolean(m.manifestId)}
-              commitBlockedReason={commitBlockedReason}
-              showProgressTracker={m.showProgressTracker}
-              manifestId={m.manifestId}
-            />
+            showArchitectureCreatedHome ? null : (
+              <RunDetailWorkspaceStickyActions
+                runId={m.resolvedDetail.run.runId}
+                primaryAction={reviewPackagePrimaryAction}
+                hasGoldenManifest={Boolean(m.manifestId)}
+                commitBlockedReason={commitBlockedReason}
+                showProgressTracker={m.showProgressTracker}
+                manifestId={m.manifestId}
+              />
+            )
           }
           main={
             <>
-              <RunDetailWorkspaceHeader
-                reviewTitle={reviewDisplayTitle}
-                systemName={systemName}
-                workspaceStatus={workspaceStatus}
-                overallPosture={overallPosture}
-                highestSeverity={highestSeverity}
-                lastEvaluatedUtc={deriveLastEvaluatedLabel(m.resolvedDetail.run, m.manifestSummary)}
-                reviewOwner={deriveReviewOwnerLabel(m.resolvedDetail.run)}
-                templateLabel={deriveReviewTemplateLabel(m.manifestSummaryForUi)}
-              />
+              {showArchitectureCreatedHome ? (
+                <RunDetailArchitectureCreatedFirstViewport baseline={architectureCreatedBaseline} />
+              ) : (
+                <>
+                  <RunDetailWorkspaceHeader
+                    reviewTitle={reviewDisplayTitle}
+                    systemName={systemName}
+                    workspaceStatus={workspaceStatus}
+                    overallPosture={overallPosture}
+                    highestSeverity={highestSeverity}
+                    lastEvaluatedUtc={lastEvaluatedUtc}
+                    reviewOwner={deriveReviewOwnerLabel(m.resolvedDetail.run)}
+                    templateLabel={deriveReviewTemplateLabel(m.manifestSummaryForUi)}
+                  />
 
-              <RunDetailWorkspaceSummaryStrip
-                overallPosture={overallPosture}
-                criticalCount={severityCounts.critical}
-                highCount={severityCounts.high}
-                awaitingActionCount={countFindingsAwaitingAction(quickDecisionFindings)}
-                governanceDecisionLabel={governanceDecisionLabel}
-                evidenceCoverageLabel={evidenceCoverageLabel}
-              />
+                  <RunDetailWorkspaceSummaryStrip
+                    overallPosture={overallPosture}
+                    criticalCount={severityCounts.critical}
+                    highCount={severityCounts.high}
+                    awaitingActionCount={countFindingsAwaitingAction(quickDecisionFindings)}
+                    governanceDecisionLabel={governanceDecisionLabel}
+                    evidenceCoverageLabel={evidenceCoverageLabel}
+                  />
+                </>
+              )}
 
-              <RunDetailWorkspaceBlockingBanner blockingCount={blockingApprovalCount} />
+              {!showArchitectureCreatedHome ? (
+                <RunDetailWorkspaceBlockingBanner blockingCount={blockingApprovalCount} />
+              ) : null}
 
-              <ReviewPackagePrimaryAction
-                action={reviewPackagePrimaryAction}
-                runId={m.resolvedDetail.run.runId}
-                hasGoldenManifest={Boolean(m.manifestId)}
-                commitBlockedReason={commitBlockedReason}
-              />
+              {!showArchitectureCreatedHome ? (
+                <ReviewPackagePrimaryAction
+                  action={reviewPackagePrimaryAction}
+                  runId={m.resolvedDetail.run.runId}
+                  hasGoldenManifest={Boolean(m.manifestId)}
+                  commitBlockedReason={commitBlockedReason}
+                />
+              ) : null}
 
               <div className="lg:hidden">{sectionNavEl}</div>
 
@@ -358,7 +395,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
                 })()
               ) : null}
 
-              {findingCoverageSummary?.hasCommitBlockingFailures === true ? (
+              {findingCoverageSummary?.hasCommitBlockingFailures === true && !showArchitectureCreatedHome ? (
                 <CommitBlockingFindingsBanner
                   runId={m.resolvedDetail.run.runId}
                   blockingFindings={[
@@ -370,10 +407,17 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
                 />
               ) : null}
 
-              <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
-
               {!m.manifestId && m.showProgressTracker ? (
-                <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+                <div
+                  id={showArchitectureCreatedHome ? "architecture-assessment-progress" : undefined}
+                  className={showArchitectureCreatedHome ? "scroll-mt-24" : undefined}
+                >
+                  <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+                </div>
+              ) : null}
+
+              {!showArchitectureCreatedHome ? (
+                <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
               ) : null}
 
               <Suspense fallback={<RunDetailExplanationSkeleton />}>
@@ -391,29 +435,35 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
                 />
               </Suspense>
 
-              <RunDetailRecommendedActionsPanel actions={recommendedActions} />
+              {!showArchitectureCreatedHome ? (
+                <RunDetailRecommendedActionsPanel actions={recommendedActions} />
+              ) : null}
 
-              <RunDetailGovernanceDecisionSection
-                runId={m.resolvedDetail.run.runId}
-                manifestId={m.manifestId}
-                buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-                operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
-                operatorGovernanceDecisionRationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale}
-                operatorGovernanceDecisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc}
-                operatorGovernanceDecisionByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId}
-                manifestStatus={m.manifestSummary?.status ?? null}
-                governanceGateLabel={m.governanceGateLabel}
-                blockingFindingCount={blockingApprovalCount}
-                hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
-              />
+              {!showArchitectureCreatedHome ? (
+                <RunDetailGovernanceDecisionSection
+                  runId={m.resolvedDetail.run.runId}
+                  manifestId={m.manifestId}
+                  buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+                  operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
+                  operatorGovernanceDecisionRationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale}
+                  operatorGovernanceDecisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc}
+                  operatorGovernanceDecisionByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId}
+                  manifestStatus={m.manifestSummary?.status ?? null}
+                  governanceGateLabel={m.governanceGateLabel}
+                  blockingFindingCount={blockingApprovalCount}
+                  hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+                />
+              ) : null}
 
-              <RunDetailReviewPackageSection
-                manifestId={m.manifestId}
-                runId={m.resolvedDetail.run.runId}
-                artifactCount={m.artifacts.length}
-                findingCount={m.findingCountDisplay}
-                showExportActions={Boolean(m.manifestId) && !m.usedStaticDemoRun}
-              />
+              {!showArchitectureCreatedHome ? (
+                <RunDetailReviewPackageSection
+                  manifestId={m.manifestId}
+                  runId={m.resolvedDetail.run.runId}
+                  artifactCount={m.artifacts.length}
+                  findingCount={m.findingCountDisplay}
+                  showExportActions={Boolean(m.manifestId) && !m.usedStaticDemoRun}
+                />
+              ) : null}
 
               <RunDetailSubmittedArchitectureSection
                 architectureText={submittedArchitectureText}
@@ -432,21 +482,25 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
             </>
           }
           rail={
-            <>
-              <ReviewPackagePrimaryAction
-                action={reviewPackagePrimaryAction}
-                runId={m.resolvedDetail.run.runId}
-                hasGoldenManifest={Boolean(m.manifestId)}
-                commitBlockedReason={commitBlockedReason}
-              />
-              <RunDetailWorkspaceSeverityRail
-                criticalCount={severityCounts.critical}
-                highCount={severityCounts.high}
-                mediumCount={severityCounts.medium}
-                lowCount={severityCounts.low}
-              />
-              {sectionNavEl}
-            </>
+            showArchitectureCreatedHome ? (
+              <>{sectionNavEl}</>
+            ) : (
+              <>
+                <ReviewPackagePrimaryAction
+                  action={reviewPackagePrimaryAction}
+                  runId={m.resolvedDetail.run.runId}
+                  hasGoldenManifest={Boolean(m.manifestId)}
+                  commitBlockedReason={commitBlockedReason}
+                />
+                <RunDetailWorkspaceSeverityRail
+                  criticalCount={severityCounts.critical}
+                  highCount={severityCounts.high}
+                  mediumCount={severityCounts.medium}
+                  lowCount={severityCounts.low}
+                />
+                {sectionNavEl}
+              </>
+            )
           }
         />
       </RunDetailWorkspaceDisclosureProvider>

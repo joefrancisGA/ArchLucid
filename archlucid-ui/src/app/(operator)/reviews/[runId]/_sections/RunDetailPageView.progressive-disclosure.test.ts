@@ -89,4 +89,10 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(submittedSource).toContain('data-testid="submitted-architecture-collapsible"');
     expect(submittedSource).toContain("Architecture submitted for review");
   });
+
+  it("uses architecture-created home viewport for create-architecture handoff", () => {
+    expect(source).toContain("RunDetailArchitectureCreatedFirstViewport");
+    expect(source).toContain("showArchitectureCreatedHome");
+    expect(source).toContain("fromArchitectureCreation");
+  });
 });
