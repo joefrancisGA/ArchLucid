@@ -126,17 +126,26 @@ public sealed class CommercialTenantTierFilter(
             return false;
         }
 
-        if (!string.Equals(authMode?.Trim(), "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(authMode?.Trim(), "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
         {
-            return false;
+            if (isDevelopmentHost)
+            {
+                return true;
+            }
+
+            if (isNonProductionHost && liveE2eHarnessConfigured)
+            {
+                return true;
+            }
         }
 
-        if (isDevelopmentHost)
+        // ApiKey/JWT live E2E jobs share the same greenfield SQL catalog without dbo.Tenants rows for default scope.
+        if (isDevelopmentHost && liveE2eHarnessConfigured)
         {
             return true;
         }
 
-        return isNonProductionHost && liveE2eHarnessConfigured;
+        return false;
     }
 
     private static bool IsLiveE2eHarnessConfigured(E2EHarnessOptions options)

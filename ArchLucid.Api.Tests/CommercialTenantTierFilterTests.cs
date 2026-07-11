@@ -214,6 +214,19 @@ public sealed class CommercialTenantTierFilterTests
     }
 
     [SkippableFact]
+    public void ShouldTreatMissingTenantAsStandardDevelopmentBypass_allows_ci_harness_on_development_host_for_api_key()
+    {
+        CommercialTenantTierFilter.ShouldTreatMissingTenantAsStandardDevelopmentBypass(
+                isDevelopmentHost: true,
+                isNonProductionHost: true,
+                authMode: "ApiKey",
+                liveE2eHarnessConfigured: true,
+                minimumTier: TenantTier.Standard)
+            .Should()
+            .BeTrue();
+    }
+
+    [SkippableFact]
     public async Task OnActionExecutionAsync_standard_tier_minimum_enterprise_denial_returns_404()
     {
         Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-999999999999");

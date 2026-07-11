@@ -21,6 +21,7 @@ import {
   liveE2eArchitectureDescription,
   liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   searchAudit,
+  waitForAuthorityRunSummaryReady,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
@@ -81,6 +82,7 @@ test.describe("live-api-negative-paths", () => {
     }
 
     await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
+    await waitForAuthorityRunSummaryReady(request, runId, 60_000, tenantScope);
 
     const submitted = await createApprovalRequest(
       request,
