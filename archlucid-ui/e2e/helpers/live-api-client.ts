@@ -104,7 +104,9 @@ export function liveTenantScopeHeaders(scope: LiveTenantScopeHeaders): Record<st
  * (`ScopeIds.DefaultTenant`) that pinned Workspace A/B fixtures live in — see
  * `.cursor/prompts/fix-ci-run-2526-live-api-extended-shard2-sample-purge.md`. `DevelopmentBypass`
  * honors these headers (`ArchLucidAuth:AllowTestActorHeaders`) and dev/CI defaults to
- * `SqlTopologyMode.SingleCatalog`, so an arbitrary never-seen tenant id needs no pre-provisioning.
+ * `SqlTopologyMode.SingleCatalog`. Architecture run lifecycles do not require a pre-existing
+ * `dbo.Tenants` row; governance approval submit (and other `FK_*_Tenants` tables) does — the API
+ * idempotently primes the parent row on submit. Isolation still avoids sample-purge contamination.
  */
 export function freshIsolatedTenantScope(): LiveTenantScopeHeaders {
   const id = crypto.randomUUID();
@@ -1268,23 +1270,52 @@ export async function createApprovalRequest(
   tenantScope?: LiveTenantScopeHeaders | null,
   options?: { readonly idempotencyKey?: string },
 ): Promise<GovernanceApprovalRequestJson> {
-  const res = await request.post(`${resolveLiveApiBase()}/v1/governance/approval-requests`, {
-    data: {
-      runId: body.runId,
-      manifestVersion: body.manifestVersion,
-      sourceEnvironment: body.sourceEnvironment,
-      targetEnvironment: body.targetEnvironment,
-      requestComment: body.requestComment ?? null,
-    },
-    headers: mergeTenantScope(
-      liveGovernanceMutationJsonHeaders({ idempotencyKey: options?.idempotencyKey }),
-      tenantScope,
-    ),
-  });
+  for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
+    const res = await request.post(`${resolveLiveApiBase()}/v1/governance/approval-requests`, {
+      data: {
+        runId: body.runId,
+        manifestVersion: body.manifestVersion,
+        sourceEnvironment: body.sourceEnvironment,
+        targetEnvironment: body.targetEnvironment,
+        requestComment: body.requestComment ?? null,
+      },
+      headers: mergeTenantScope(
+        liveGovernanceMutationJsonHeaders({ idempotencyKey: options?.idempotencyKey }),
+        tenantScope,
+      ),
+    });
+    const status = res.status();
 
-  await throwIfNotOk(res, "POST /v1/governance/approval-requests");
+    if (status === 429 && attempt < maxArchitectureMutationAttempts() - 1) {
+      await delayAfterRateLimitedResponse(res);
 
-  return res.json() as Promise<GovernanceApprovalRequestJson>;
+      continue;
+    }
+
+    if (!res.ok()) {
+      const responseBody = await res.text();
+
+      if (
+        await continueInfrastructureMutationRetry(
+          status,
+          responseBody,
+          attempt,
+          maxArchitectureMutationAttempts(),
+          "POST /v1/governance/approval-requests",
+        )
+      ) {
+        continue;
+      }
+
+      throw new Error(
+        `POST /v1/governance/approval-requests failed ${status}: ${responseBody.slice(0, 500)}`,
+      );
+    }
+
+    return res.json() as Promise<GovernanceApprovalRequestJson>;
+  }
+
+  throw new InfraTransientError("createApprovalRequest: retry loop exhausted");
 }
 
 export type CreateGovernanceApprovalRequestBody = {

@@ -7,6 +7,8 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Validation;
 
+using ArchLucid.TestSupport;
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
@@ -254,6 +256,25 @@ public sealed class ApplicationProblemMapperTests
 
         mapped.Should().BeFalse();
         result.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public void TryMapDatabaseException_SqlForeignKeyViolation547_Returns500InternalServerError()
+    {
+        DefaultHttpContext http = CreateHttpContext("/v1/governance/approval-requests", "sql-fk-547");
+
+        bool mapped = ApplicationProblemMapper.TryMapDatabaseException(
+            SqlExceptionTestFactory.Create(547),
+            "/v1/governance/approval-requests",
+            http,
+            out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result.Should().NotBeNull();
+        result!.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.InternalError);
+        p.Title.Should().Be("Database Query Failed");
     }
 
     [SkippableFact]

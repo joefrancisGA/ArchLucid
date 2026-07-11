@@ -512,7 +512,7 @@ public static class ApplicationProblemMapper
     }
 
     private static bool IsSqlProgrammingFaultNumber(int number) =>
-        number is 102 or 156 or 207 or 208 or 2812 or 319 or 4104;
+        number is 102 or 156 or 207 or 208 or 547 or 2812 or 319 or 4104;
 
     public static ObjectResult CreateProblemResult(
         int statusCode,

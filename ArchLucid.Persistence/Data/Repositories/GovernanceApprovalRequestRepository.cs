@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Governance;
 
 using Dapper;
 
@@ -78,6 +79,15 @@ public sealed class GovernanceApprovalRequestRepository(
 
         try
         {
+            if (item.TenantId != Guid.Empty)
+            {
+                await GovernanceTenantScopePriming.MergeTenantForScopeAsync(
+                    conn,
+                    transaction,
+                    item.TenantId,
+                    cancellationToken);
+            }
+
             // Columns are DATETIME2; default SqlClient mapping uses legacy datetime and overflows near DateTime.MaxValue
             // (contract tests use ceiling ticks for stable ORDER BY).
             DynamicParameters parameters = new();
