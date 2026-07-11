@@ -58,13 +58,34 @@ export function parseExecDigestRecipientEmails(input: string): string[] {
 export function validateExecDigestRecipientEmails(input: string): {
   readonly valid: boolean;
   readonly invalidAddresses: readonly string[];
+  readonly duplicateAddresses: readonly string[];
+  readonly unsupportedGroupMailboxes: readonly string[];
 } {
   const addresses: string[] = parseExecDigestRecipientEmails(input);
   const invalidAddresses: string[] = addresses.filter((address) => !EMAIL_PATTERN.test(address));
+  const duplicateAddresses: string[] = [];
+  const seen = new Set<string>();
+
+  for (const address of addresses) {
+    const key = address.toLowerCase();
+
+    if (seen.has(key)) {
+      duplicateAddresses.push(address);
+    }
+    else {
+      seen.add(key);
+    }
+  }
+
+  const unsupportedGroupMailboxes: string[] = addresses.filter((address) =>
+    /@.*\.(onmicrosoft|google|groups)\./i.test(address),
+  );
 
   return {
-    valid: invalidAddresses.length === 0,
+    valid: invalidAddresses.length === 0 && duplicateAddresses.length === 0 && unsupportedGroupMailboxes.length === 0,
     invalidAddresses,
+    duplicateAddresses,
+    unsupportedGroupMailboxes,
   };
 }
 
@@ -125,18 +146,30 @@ export function isExecDigestScheduleFormValid(form: ExecDigestScheduleFormState)
     return false;
   }
 
-  return validateExecDigestRecipientEmails(form.recipients).valid;
-}
-
-/** Human-readable next-send line for the schedule preview card. */
-export function formatExecDigestNextSendPreview(form: ExecDigestScheduleFormState): string {
   if (!form.emailEnabled) {
-    return "No scheduled send until weekly digest email is enabled.";
+    return true;
   }
 
+  const validation = validateExecDigestRecipientEmails(form.recipients);
+
+  return validation.valid && parseExecDigestRecipientEmails(form.recipients).length > 0;
+}
+
+/** Human-readable cadence label for executive digest sends. */
+export function formatExecDigestCadenceLabel(form: ExecDigestScheduleFormState): string {
   const dayName: string = EXEC_DIGEST_DAY_NAMES[form.dayOfWeek] ?? "—";
   const timeLabel: string = formatExecDigestSendTimeLabel(form.hourOfDay);
+
+  return `${dayName} at ${timeLabel}`;
+}
+
+/** Human-readable next-send line for saved schedule summaries. */
+export function formatExecDigestNextSendPreview(form: ExecDigestScheduleFormState): string {
+  if (!form.emailEnabled) {
+    return "Not scheduled";
+  }
+
   const zoneLabel: string = formatIanaTimeZoneOptionLabel(form.ianaTimeZoneId);
 
-  return `Next scheduled send: ${dayName} at ${timeLabel} ${zoneLabel}`;
+  return `${formatExecDigestCadenceLabel(form)} (${zoneLabel})`;
 }

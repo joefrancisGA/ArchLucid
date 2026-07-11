@@ -42,6 +42,8 @@ export type WeeklyDigestHealthBannerProps = {
    * `schedule` — compact strip with executive schedule gaps only.
    */
   readonly variant?: "full" | "subscriptions" | "schedule";
+  /** When true, loads health for parent state but renders no banner chrome. */
+  readonly loadOnly?: boolean;
 };
 
 type HealthMetricProps = {
@@ -89,8 +91,8 @@ function formatExecutiveScheduleSummary(snap: WeeklyDigestHealthDto): string {
 }
 
 /** Compact digest status summary with actionable setup gaps for the Digests hub. */
-export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): ReactElement {
-  const { refreshToken = 0, onHealthLoaded, variant = "full" } = props;
+export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): ReactElement | null {
+  const { refreshToken = 0, onHealthLoaded, variant = "full", loadOnly = false } = props;
   const [snap, setSnap] = useState<WeeklyDigestHealthDto | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -112,6 +114,10 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
   useEffect(() => {
     void load();
   }, [load, refreshToken]);
+
+  if (loadOnly) {
+    return null;
+  }
 
   if (loading && snap === null) {
     return (

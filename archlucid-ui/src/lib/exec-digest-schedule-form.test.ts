@@ -75,7 +75,7 @@ describe("exec-digest-schedule-form", () => {
         dayOfWeek: 1,
         hourOfDay: 8,
       }),
-    ).toContain("No scheduled send");
+    ).toBe("Not scheduled");
     expect(
       formatExecDigestNextSendPreview({
         emailEnabled: true,
@@ -84,6 +84,10 @@ describe("exec-digest-schedule-form", () => {
         dayOfWeek: 1,
         hourOfDay: 8,
       }),
-    ).toBe("Next scheduled send: Monday at 8:00 AM UTC");
+    ).toBe("Monday at 8:00 AM (UTC)");
+  });
+
+  it("rejects duplicate recipients when enabled", () => {
+    expect(validateExecDigestRecipientEmails("ops@example.com; ops@example.com").valid).toBe(false);
   });
 });

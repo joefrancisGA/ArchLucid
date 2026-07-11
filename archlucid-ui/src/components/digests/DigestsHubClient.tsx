@@ -16,9 +16,12 @@ import {
   resolveDigestNextBestAction,
 } from "@/lib/digest-setup-gap-actions";
 import {
+  DIGESTS_BROWSE_PAGE_SUBTITLE,
   DIGESTS_BROWSE_PREVIEW_DISABLED_TITLE,
   DIGESTS_BROWSE_SEND_TEST_LABEL,
   DIGESTS_BROWSE_SEND_TEST_TITLE,
+  DIGESTS_PAGE_SUBTITLE,
+  DIGESTS_SCHEDULE_PREVIEW_LABEL,
 } from "@/lib/digests-browse-copy";
 import { DIGESTS_HUB_TAB_IDS, digestsHubTabFromSearchParam, type DigestsHubTabId } from "@/lib/digests-hub-tab";
 import {
@@ -44,9 +47,6 @@ const SUBSCRIPTIONS_TAB_READER_TITLE =
   "List is readable at Read rank; creating or changing subscriptions requires operator (Execute) access.";
 const SCHEDULE_TAB_READER_TITLE =
   "Preferences are readable; saving changes requires operator (Execute) access.";
-
-const DIGESTS_PAGE_SUBTITLE =
-  "Send scheduled summaries of review activity, governance signals, findings, and advisory scans.";
 
 const DIGEST_PRIVACY_NOTE =
   "Digest emails include summaries and links back to ArchLucid. Sensitive evidence content is not included unless explicitly configured.";
@@ -132,36 +132,69 @@ export function DigestsHubClient(): ReactElement {
           second: "2-digit",
         });
 
+  const pageSubtitle: string = activeTab === "schedule" ? DIGESTS_PAGE_SUBTITLE : DIGESTS_BROWSE_PAGE_SUBTITLE;
+  const showBrowseHeaderActions: boolean = activeTab === "browse";
+
   return (
     <div className="px-0" data-testid="digests-hub">
       <OperatorPageHeader
         title="Architecture digests"
-        subtitle={DIGESTS_PAGE_SUBTITLE}
+        subtitle={pageSubtitle}
         titleTestId="digests-page-title"
         actions={
-          <>
-            <Button asChild size="sm" variant="primary" data-testid="digests-primary-action">
-              <Link href={primaryHref}>{primaryLabel}</Link>
-            </Button>
-            <Button
-              asChild={hasPreviewDigest}
-              size="sm"
-              variant="outline"
-              data-testid="digests-preview-action"
-              title={previewActionTitle}
-              disabled={!hasPreviewDigest}
-            >
-              {hasPreviewDigest ? <Link href={previewHref}>Preview digest</Link> : <span>Preview digest</span>}
-            </Button>
-            <Button
-              asChild
-              size="sm"
-              variant="outline"
-              data-testid="digests-send-test-action"
-              title={sendTestActionTitle}
-            >
-              <Link href="/advisory?tab=schedules">{DIGESTS_BROWSE_SEND_TEST_LABEL}</Link>
-            </Button>
+          showBrowseHeaderActions ? (
+            <>
+              <Button asChild size="sm" variant="primary" data-testid="digests-primary-action">
+                <Link href={primaryHref}>{primaryLabel}</Link>
+              </Button>
+              <Button
+                asChild={hasPreviewDigest}
+                size="sm"
+                variant="outline"
+                data-testid="digests-preview-action"
+                title={previewActionTitle}
+                disabled={!hasPreviewDigest}
+              >
+                {hasPreviewDigest ? (
+                  <Link href={previewHref}>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</Link>
+                ) : (
+                  <span>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</span>
+                )}
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                data-testid="digests-send-test-action"
+                title={sendTestActionTitle}
+              >
+                <Link href="/advisory?tab=schedules">{DIGESTS_BROWSE_SEND_TEST_LABEL}</Link>
+              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={onRefresh}
+                  disabled={refreshing}
+                  data-testid="digests-refresh-button"
+                  title={
+                    canMutate
+                      ? digestsListRefreshButtonTitleOperator
+                      : digestsListRefreshButtonTitleReader
+                  }
+                >
+                  {refreshing ? "Refreshing…" : "Refresh"}
+                </Button>
+                <span
+                  className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="digests-last-updated"
+                >
+                  Last updated: {lastUpdatedLabel}
+                </span>
+              </div>
+            </>
+          ) : activeTab === "subscriptions" ? (
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 type="button"
@@ -170,32 +203,30 @@ export function DigestsHubClient(): ReactElement {
                 onClick={onRefresh}
                 disabled={refreshing}
                 data-testid="digests-refresh-button"
-                title={
-                  canMutate
-                    ? digestsListRefreshButtonTitleOperator
-                    : digestsListRefreshButtonTitleReader
-                }
               >
                 {refreshing ? "Refreshing…" : "Refresh"}
               </Button>
-              <span
-                className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="digests-last-updated"
-              >
-                Last updated: {lastUpdatedLabel}
-              </span>
             </div>
-          </>
+          ) : null
         }
       />
 
-      <WeeklyDigestHealthBanner
-        refreshToken={healthRefreshToken}
-        onHealthLoaded={onHealthLoaded}
-        variant={healthBannerVariant}
-      />
+      {activeTab === "schedule" ? (
+        <WeeklyDigestHealthBanner
+          refreshToken={healthRefreshToken}
+          onHealthLoaded={onHealthLoaded}
+          variant="schedule"
+          loadOnly
+        />
+      ) : (
+        <WeeklyDigestHealthBanner
+          refreshToken={healthRefreshToken}
+          onHealthLoaded={onHealthLoaded}
+          variant={healthBannerVariant}
+        />
+      )}
 
-      {activeTab !== "subscriptions" ? (
+      {activeTab !== "subscriptions" && activeTab !== "schedule" ? (
         <p
           className={cn(
             "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
@@ -244,7 +275,12 @@ export function DigestsHubClient(): ReactElement {
           <DigestSubscriptionsContent />
         </TabsContent>
         <TabsContent value="schedule" className="mt-4">
-          <ExecDigestScheduleContent refreshToken={scheduleRefreshToken} />
+          <ExecDigestScheduleContent
+            refreshToken={scheduleRefreshToken}
+            healthSnap={healthSnap}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+          />
         </TabsContent>
       </Tabs>
     </div>
