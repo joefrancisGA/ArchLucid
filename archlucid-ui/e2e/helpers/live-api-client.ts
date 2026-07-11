@@ -1125,7 +1125,13 @@ export async function listArchitectureRuns(
 
   await throwIfNotOk(res, "GET /v1/architecture/runs");
 
-  return res.json() as Promise<ArchitectureRunListItemJson[]>;
+  const body = (await res.json()) as ArchitectureRunListItemJson[] | { items?: ArchitectureRunListItemJson[] };
+
+  if (Array.isArray(body)) {
+    return body;
+  }
+
+  return body.items ?? [];
 }
 
 /** POST approve without throwing — use for negative-path assertions (`expect.soft` + status/body). */
