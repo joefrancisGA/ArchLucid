@@ -17,6 +17,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/reviews": "demo-ready",
   "/governance/findings": "advanced-only",
   "/settings/security-trust": "demo-ready",
+  "/settings/preferences": "demo-ready",
   "/workspace/security-trust": "demo-ready",
   "/value-report": "advanced-only",
   "/value-report/pilot": "advanced-only",

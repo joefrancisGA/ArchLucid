@@ -3,6 +3,7 @@ import type { ColorModePreference } from "@/lib/color-mode-preference";
 
 export type UserPreferencesResponse = {
   appearancePreference: ColorModePreference;
+  appearancePreferenceIsExplicit: boolean;
 };
 
 export type SetAppearancePreferenceRequest = {

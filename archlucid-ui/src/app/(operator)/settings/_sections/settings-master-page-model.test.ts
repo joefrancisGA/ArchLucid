@@ -19,6 +19,7 @@ describe("settings-master-page-model", () => {
 
     expect(ids).toContain("general");
     expect(ids).toContain("security-trust");
+    expect(sections.find((section) => section.id === "general")?.destinations.some((d) => d.id === "user-preferences")).toBe(true);
     expect(ids).not.toContain("workspace");
     expect(ids).not.toContain("advanced");
     expect(ids).not.toContain("developer-internal");

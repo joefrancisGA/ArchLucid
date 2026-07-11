@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { ColorModeSegmentedControl } from "@/components/ColorModeSegmentedControl";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,6 @@ import { SettingsMasterOverviewHeader } from "./SettingsMasterOverviewHeader";
 import { SettingsMasterRecentChangesCard } from "./SettingsMasterRecentChangesCard";
 import { SettingsMasterSearchField } from "./SettingsMasterSearchField";
 import { SettingsMasterSectionNav } from "./SettingsMasterSectionNav";
-import { SettingsScopeMeta } from "./SettingsScopeMeta";
 
 export function SettingsPageView() {
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
@@ -106,31 +104,6 @@ export function SettingsPageView() {
                 </div>
 
                 <div className="grid gap-4">
-                  {section.showAppearance ? (
-                    <Card data-testid="settings-appearance-card">
-                      <CardHeader>
-                        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                          Choose how ArchLucid appears in this browser.
-                        </p>
-                        <SettingsScopeMeta
-                          scope="browser"
-                          source="local"
-                          editability="editable"
-                          saveBehavior="Saved automatically in this browser."
-                        />
-                        <div className="space-y-2">
-                          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                            Color mode
-                          </p>
-                          <ColorModeSegmentedControl />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ) : null}
-
                   {section.showHelp ? (
                     <Card data-testid="settings-help-card">
                       <CardHeader>

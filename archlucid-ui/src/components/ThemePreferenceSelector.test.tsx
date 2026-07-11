@@ -3,14 +3,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { COLOR_MODE_STORAGE_KEY } from "@/lib/color-mode-preference";
 
-import { ColorModeSegmentedControl } from "./ColorModeSegmentedControl";
+import { ThemePreferenceSelector } from "./ThemePreferenceSelector";
 
 vi.mock("@/lib/api/user-preferences", () => ({
   getUserPreferences: vi.fn(),
   setUserAppearancePreference: vi.fn(),
 }));
 
-describe("ColorModeSegmentedControl", () => {
+import { setUserAppearancePreference } from "@/lib/api/user-preferences";
+
+describe("ThemePreferenceSelector", () => {
   afterEach(() => {
     document.documentElement.classList.remove("dark");
 
@@ -22,8 +24,8 @@ describe("ColorModeSegmentedControl", () => {
     }
   });
 
-  it("renders theme preference options", async () => {
-    render(<ColorModeSegmentedControl />);
+  it("renders accessible radio-card theme options", async () => {
+    render(<ThemePreferenceSelector />);
 
     await waitFor(() => {
       expect(screen.getByTestId("theme-preference-option-system")).toBeInTheDocument();
@@ -31,12 +33,13 @@ describe("ColorModeSegmentedControl", () => {
 
     expect(screen.getByTestId("theme-preference-option-light")).toBeInTheDocument();
     expect(screen.getByTestId("theme-preference-option-dark")).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: /System/i })).toBeInTheDocument();
   });
 
-  it("persists dark selection", async () => {
+  it("persists dark selection locally and to the server", async () => {
     const setItem = vi.spyOn(Storage.prototype, "setItem");
 
-    render(<ColorModeSegmentedControl />);
+    render(<ThemePreferenceSelector />);
 
     const darkOption = await waitFor(() => document.getElementById("theme-preference-dark") as HTMLInputElement);
 
@@ -45,5 +48,6 @@ describe("ColorModeSegmentedControl", () => {
     expect(setItem).toHaveBeenCalledWith(COLOR_MODE_STORAGE_KEY, "dark");
     expect(darkOption).toBeChecked();
     expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(setUserAppearancePreference).toHaveBeenCalledWith("dark");
   });
 });

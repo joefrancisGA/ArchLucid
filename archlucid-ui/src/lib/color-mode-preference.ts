@@ -128,6 +128,23 @@ export function persistColorModePreference(
   applyColorModePreference(preference, systemPrefersDark);
 }
 
+export function clearCachedColorModePreference(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(COLOR_MODE_STORAGE_KEY);
+  }
+  catch {
+    // ignore
+  }
+
+  const systemPrefersDark = readSystemPrefersDark();
+
+  applyColorModePreference("system", systemPrefersDark);
+}
+
 /** When authenticated, server preference wins over stale localStorage. */
 export async function syncColorModePreferenceFromServer(): Promise<void> {
   if (typeof window === "undefined") {
@@ -136,8 +153,17 @@ export async function syncColorModePreferenceFromServer(): Promise<void> {
 
   try {
     const remote = await getUserPreferences();
-    const normalized = normalizeColorModePreference(remote.appearancePreference);
     const systemPrefersDark = readSystemPrefersDark();
+    const localPreference = readStoredColorModePreference();
+
+    if (!remote.appearancePreferenceIsExplicit && localPreference !== "system") {
+      await persistColorModePreferenceToServer(localPreference);
+      persistColorModePreference(localPreference, systemPrefersDark);
+
+      return;
+    }
+
+    const normalized = normalizeColorModePreference(remote.appearancePreference);
 
     persistColorModePreference(normalized, systemPrefersDark);
   }
