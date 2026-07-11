@@ -71,13 +71,14 @@ export async function expectBuyerExecutiveSummarySurface(page: Page): Promise<vo
 }
 
 /**
- * Live API executive route: subnav can expose "Executive summary" before the page H1 hydrates ??? wait for the
+ * Live API executive route: subnav can expose "Executive summary" before RSC completes — wait for the
  * review shell and its primary heading (executive shell has no global H1 like the operator sidebar chrome).
  */
 export async function expectBuyerExecutiveReviewPrimaryHeading(page: Page, options?: { timeout?: number }): Promise<void> {
   const timeout = options?.timeout ?? 60_000;
   const reviewPage = page.getByTestId("executive-review-page");
 
+  await expect(page.getByTestId("executive-review-loading")).toHaveCount(0, { timeout });
   await expect(reviewPage).toBeVisible({ timeout });
   await expect(reviewPage.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout });
 }

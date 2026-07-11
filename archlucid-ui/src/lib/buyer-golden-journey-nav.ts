@@ -3,6 +3,7 @@ import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { comparePageHref } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
 import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
@@ -80,6 +81,19 @@ function normalizedPath(pathname: string): string {
   return (pathname.split("?")[0] ?? "").trim().replace(/\/$/, "") || "/";
 }
 
+function isGoldenJourneySpineRunId(runId: string): boolean {
+  const trimmed = runId.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  return (
+    canonicalizeDemoRunId(trimmed) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID) ||
+    isPinnedDemoWorkspaceRunId(trimmed)
+  );
+}
+
 /**
  * When the URL is on the curated Claims Intake spine, returns adjacent journey links for the layer strip stepper.
  */
@@ -99,80 +113,98 @@ export function resolveBuyerGoldenJourneyNav(
 
   if (path === execBase || path.startsWith(`${execBase}/`)) {
     stepIdx = 0;
-  } else if (
-    path === manifestBase
-    || path.startsWith(`${manifestBase}/`)
-    || path === manifestRecord
-    || path === manifestArchitecturePath
-  ) {
-    stepIdx = 1;
-  } else if (path.startsWith("/graph")) {
-    const graphRunId =
-      options?.searchRunId?.trim() ??
-      new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
-      "";
-
-    if (
-      graphRunId.length > 0 &&
-      canonicalizeDemoRunId(graphRunId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
-    ) {
-      stepIdx = 2;
-    } else {
-      return null;
-    }
-  } else if (path.startsWith("/ask")) {
-    return null;
-  } else if (path.startsWith("/compare")) {
-    return {
-      summaryLine: "Optional review change comparison — secondary diligence view",
-      prev: { label: defs[1].label, href: defs[1].href },
-      next: { label: defs[2].label, href: defs[2].href },
-      currentStepIndex: null,
-    };
-  } else if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
-    return null;
-  } else if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {
-    return null;
-  } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
-    return null;
-  } else if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {
-    return null;
-  } else if (pathMatchesGovernanceAlerts(path)) {
-    return null;
-  } else if (path === "/governance") {
-    const governanceRunId =
-      options?.searchRunId?.trim() ??
-      new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
-      "";
-
-    if (governanceRunId.length === 0) {
-      return null;
-    }
-
-    if (canonicalizeDemoRunId(governanceRunId) !== canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
-      return null;
-    }
-
-    stepIdx = 3;
-  } else if (path.startsWith("/governance")) {
-    return null;
-  } else if (path.startsWith("/audit")) {
-    stepIdx = 4;
   } else {
-    const workspace = /^\/reviews\/([^/]+)$/.exec(path);
+    const executivePinnedRun = /^\/executive\/reviews\/([^/]+)$/.exec(path);
 
+    if (executivePinnedRun !== null && isGoldenJourneySpineRunId(executivePinnedRun[1])) {
+      stepIdx = 0;
+    }
+  }
+
+  if (stepIdx === null) {
     if (
-      workspace !== null &&
-      canonicalizeDemoRunId(workspace[1]) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
+      path === manifestBase
+      || path.startsWith(`${manifestBase}/`)
+      || path === manifestRecord
+      || path === manifestArchitecturePath
     ) {
+      stepIdx = 1;
+    } else {
+      const signedRecordFriendly = /^\/reviews\/([^/]+)\/signed-record$/.exec(path);
+
+      if (signedRecordFriendly !== null && isGoldenJourneySpineRunId(signedRecordFriendly[1])) {
+        stepIdx = 1;
+      }
+    }
+  }
+
+  if (stepIdx === null) {
+    if (path.startsWith("/graph")) {
+      const graphRunId =
+        options?.searchRunId?.trim() ??
+        new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
+        "";
+
+      if (graphRunId.length > 0 && isGoldenJourneySpineRunId(graphRunId)) {
+        stepIdx = 2;
+      } else {
+        return null;
+      }
+    } else if (path.startsWith("/ask")) {
+      return null;
+    } else if (path.startsWith("/compare")) {
       return {
-        summaryLine: `Review package overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle} and ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
-        prev: { label: defs[0].label, href: defs[0].href },
-        next: { label: defs[1].label, href: defs[1].href },
+        summaryLine: "Optional review change comparison — secondary diligence view",
+        prev: { label: defs[1].label, href: defs[1].href },
+        next: { label: defs[2].label, href: defs[2].href },
         currentStepIndex: null,
       };
-    }
+    } else if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
+      return null;
+    } else if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {
+      return null;
+    } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
+      return null;
+    } else if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {
+      return null;
+    } else if (pathMatchesGovernanceAlerts(path)) {
+      return null;
+    } else if (path === "/governance") {
+      const governanceRunId =
+        options?.searchRunId?.trim() ??
+        new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
+        "";
 
+      if (governanceRunId.length === 0) {
+        return null;
+      }
+
+      if (!isGoldenJourneySpineRunId(governanceRunId)) {
+        return null;
+      }
+
+      stepIdx = 3;
+    } else if (path.startsWith("/governance")) {
+      return null;
+    } else if (path.startsWith("/audit")) {
+      stepIdx = 4;
+    } else {
+      const workspace = /^\/reviews\/([^/]+)$/.exec(path);
+
+      if (workspace !== null && isGoldenJourneySpineRunId(workspace[1])) {
+        return {
+          summaryLine: `Review package overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle} and ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
+          prev: { label: defs[0].label, href: defs[0].href },
+          next: { label: defs[1].label, href: defs[1].href },
+          currentStepIndex: null,
+        };
+      }
+
+      return null;
+    }
+  }
+
+  if (stepIdx === null) {
     return null;
   }
 

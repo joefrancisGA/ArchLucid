@@ -8,6 +8,7 @@ import { severityFromTrace, severitySortRank } from "@/lib/executive-finding-sev
 import { decisionGradeExecutiveTraceRows } from "@/lib/executive-decision-grade-trace-rows";
 import { tryStaticDemoExplanationSummary } from "@/lib/operator-static-demo";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
+import { resolveServerScopeHeadersForRun } from "@/lib/server-run-scope";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { ExecutiveReviewFirstViewport } from "@/components/executive/ExecutiveReviewFirstViewport";
 import { ExecutivePageHeader } from "@/components/executive/ExecutivePageHeader";
@@ -107,8 +108,11 @@ export default async function ExecutiveReviewFindingsPage({
   let runSummary: Awaited<ReturnType<typeof getRunSummary>> | null = null;
   let failure: ApiLoadFailureState | null = null;
 
+  const serverScopeHeaders = await resolveServerScopeHeadersForRun(runId);
+  const apiScopeOptions = { scopeHeaders: serverScopeHeaders };
+
   try {
-    runSummary = await getRunSummary(runId);
+    runSummary = await getRunSummary(runId, apiScopeOptions);
   } catch (e) {
     if (isApiNotFoundFailure(toApiLoadFailure(e))) {
       notFound();
@@ -116,7 +120,7 @@ export default async function ExecutiveReviewFindingsPage({
   }
 
   try {
-    summary = await getRunExplanationSummary(runId);
+    summary = await getRunExplanationSummary(runId, apiScopeOptions);
   } catch (e) {
     const f = toApiLoadFailure(e);
 

@@ -1,6 +1,7 @@
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { pathMatchesGovernanceAlerts } from "@/lib/governance-route-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import {
   BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
   BUYER_SURFACE_VOCABULARY,
@@ -61,6 +62,15 @@ export function buyerPolishedRouteOrientation(
     return {
       label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
       line: `Board-ready posture, outcomes, and evidence hooks for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
+    };
+  }
+
+  const executivePinnedRun = /^\/executive\/reviews\/([^/]+)$/.exec(path);
+
+  if (executivePinnedRun !== null && isPinnedDemoWorkspaceRunId(executivePinnedRun[1])) {
+    return {
+      label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+      line: "Board-ready posture, outcomes, and evidence hooks for this finalized review package.",
     };
   }
 

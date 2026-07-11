@@ -13,10 +13,7 @@ import {
 import { buildAdrGeneratorRunInput } from "@/lib/adr-from-run";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import {
-  isPinnedDemoWorkspaceRunId,
-  resolveDemoWorkspaceScopeHeadersForRunId,
-} from "@/lib/demo-workspace-scope";
+import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
 import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
@@ -45,6 +42,7 @@ import { mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings } from "@/lib/r
 // critical-path RunDetailPageModel so the heavy finding scan doesn't block first-screen rendering.
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { resolveServerScopeHeadersForRun } from "@/lib/server-run-scope";
 import {
   projectIdFromScopeHeaders,
   runProjectMatchesEffectiveScope,
@@ -67,18 +65,6 @@ export type LoadRunDetailPageModelResult =
   | { kind: "fetch-error"; loadFailure: ApiLoadFailureState | null; fallbackMessage: string }
   | { kind: "malformed-response"; message: string }
   | { kind: "success"; model: RunDetailPageModel };
-
-async function resolveServerScopeHeadersForRun(runId: string): Promise<Record<string, string>> {
-  const demoScopeHeaders = resolveDemoWorkspaceScopeHeadersForRunId(runId);
-
-  if (demoScopeHeaders !== null) {
-    return demoScopeHeaders;
-  }
-
-  const { getServerResolvedScopeHeaders } = await import("@/lib/server-operator-scope");
-
-  return getServerResolvedScopeHeaders();
-}
 
 /** Fetches and coerces run-detail plus dependent resources for the run detail route. */
 export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDetailPageModelResult> {

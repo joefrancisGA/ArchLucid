@@ -198,8 +198,11 @@ export async function restoreArchitectureRequest(requestId: string): Promise<voi
 }
 
 /** Fetches the lightweight summary for a single run. */
-export async function getRunSummary(runId: string): Promise<RunSummary> {
-  return apiGet<RunSummary>(`/v1/authority/runs/${runId}/summary`);
+export async function getRunSummary(
+  runId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<RunSummary> {
+  return apiGet<RunSummary>(`/v1/authority/runs/${runId}/summary`, options);
 }
 
 /** Fetches the full run detail envelope (run metadata, snapshots, manifest, trace, bundle). */
