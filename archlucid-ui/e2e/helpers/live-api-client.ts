@@ -88,11 +88,17 @@ export const liveBypassDefaultActorId = "dev-user";
 /** Stable peer reviewer actor key for segregation-of-duties E2E (distinct from {@link liveBypassDefaultActorId}). */
 export const livePeerReviewerActorId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
 
+/** E2E governance rejector actor (distinct from default bypass submitter). */
+export const liveE2eRejectorActorName = "e2e-rejector";
+
+/** Stable rejector actor key paired with {@link liveE2eRejectorActorName}. */
+export const liveE2eRejectorActorId = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+
 const LIVE_E2E_GOVERNANCE_REVIEWER_ACTOR_IDS: Readonly<Record<string, string>> = {
   [livePeerReviewerActorName]: livePeerReviewerActorId,
   "e2e-concurrent-approver-a": "cccccccc-cccc-cccc-cccc-ccccccccccca",
   "e2e-concurrent-approver-b": "cccccccc-cccc-cccc-cccc-cccccccccccb",
-  "e2e-rejector": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+  [liveE2eRejectorActorName]: liveE2eRejectorActorId,
 };
 
 /**
@@ -1290,6 +1296,21 @@ export type LiveGovernanceReviewRequestOptions = {
   readonly apiKey?: string | null;
   /** DevelopmentBypass only — maps to `X-ArchLucid-Test-Actor-Id` when set. */
   readonly testActorId?: string | null;
+};
+
+/** Bypass-mode peer reviewer options for governance approve/reject (distinct from default submitter). */
+export const livePeerReviewerGovernanceOptions: LiveGovernanceReviewRequestOptions = {
+  testActorId: livePeerReviewerActorId,
+};
+
+/** Bypass-mode submitter options for intentional self-approval negative paths. */
+export const liveBypassSubmitterGovernanceOptions: LiveGovernanceReviewRequestOptions = {
+  testActorId: liveBypassDefaultActorId,
+};
+
+/** Bypass-mode rejector options for governance reject paths. */
+export const liveRejectorGovernanceOptions: LiveGovernanceReviewRequestOptions = {
+  testActorId: liveE2eRejectorActorId,
 };
 
 /** POST approve without throwing — use for negative-path assertions (`expect.soft` + status/body). */

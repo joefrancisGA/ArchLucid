@@ -13,6 +13,8 @@ import {
   liveApiBase,
   liveE2eArchitectureDescription,
   liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
+  liveE2eRejectorActorName,
+  liveRejectorGovernanceOptions,
   postGovernanceApproveRaw,
   postGovernanceRejectRaw,
   rejectGovernanceRequest,
@@ -23,8 +25,6 @@ import {
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
 import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
-
-const e2eRejectorActor = "e2e-rejector";
 
 const liveRejectionForensics: { runId?: string; approvalRequestId?: string } = {};
 
@@ -112,10 +112,10 @@ test.describe("live-api-governance-rejection", () => {
       request,
       approvalRequestId,
       {
-        reviewedBy: e2eRejectorActor,
+        reviewedBy: liveE2eRejectorActorName,
         reviewComment: "E2E rejection test",
       },
-      undefined,
+      liveRejectorGovernanceOptions,
       tenantScope,
     );
 
@@ -125,10 +125,10 @@ test.describe("live-api-governance-rejection", () => {
       request,
       approvalRequestId,
       {
-        reviewedBy: e2eRejectorActor,
+        reviewedBy: liveE2eRejectorActorName,
         reviewComment: "should fail — already rejected",
       },
-      undefined,
+      liveRejectorGovernanceOptions,
       tenantScope,
     );
 
@@ -141,10 +141,10 @@ test.describe("live-api-governance-rejection", () => {
       request,
       approvalRequestId,
       {
-        reviewedBy: e2eRejectorActor,
+        reviewedBy: liveE2eRejectorActorName,
         reviewComment: "second reject should fail",
       },
-      undefined,
+      liveRejectorGovernanceOptions,
       tenantScope,
     );
 

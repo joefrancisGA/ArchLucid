@@ -17,9 +17,11 @@ import {
   listArchitectureRuns,
   liveApiBase,
   liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
+  liveBypassSubmitterGovernanceOptions,
+  livePeerReviewerActorName,
+  livePeerReviewerGovernanceOptions,
   resolveLiveAuthActorName,
   resolveLiveAuthMode,
-  livePeerReviewerActorName,
   waitForArchitectureRunListCommitted,
   waitForAuthorityRunSummaryReady,
   waitForReadyForCommit,
@@ -181,7 +183,7 @@ test.describe("live-api-journey", () => {
         reviewedBy: resolveLiveAuthActorName(),
         reviewComment: "should be blocked (same as submitter)",
       },
-      undefined,
+      resolveLiveAuthMode() === "bypass" ? liveBypassSubmitterGovernanceOptions : undefined,
       tenantScope,
     );
 
@@ -195,7 +197,7 @@ test.describe("live-api-journey", () => {
         reviewedBy: livePeerReviewerActorName,
         reviewComment: "E2E test auto-approve",
       },
-      undefined,
+      livePeerReviewerGovernanceOptions,
       tenantScope,
     );
 
@@ -208,7 +210,7 @@ test.describe("live-api-journey", () => {
         reviewedBy: livePeerReviewerActorName,
         reviewComment: "second approve should fail",
       },
-      undefined,
+      livePeerReviewerGovernanceOptions,
       tenantScope,
     );
 
