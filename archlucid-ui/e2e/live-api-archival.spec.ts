@@ -12,6 +12,7 @@ import {
   listArchitectureRuns,
   liveApiBase,
   liveE2eArchitectureDescription,
+  normalizeRunIdForCompare,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
@@ -68,7 +69,8 @@ test.describe("live-api-archival", () => {
     const rows = await listArchitectureRuns(request, tenantScope);
 
     for (const id of runIds) {
-      const row = rows.find((r) => r.runId === id);
+      const normalizedId = normalizeRunIdForCompare(id);
+      const row = rows.find((r) => normalizeRunIdForCompare(String(r.runId ?? "")) === normalizedId);
 
       expect(row, `list should include committed run ${id}`).toBeDefined();
     }

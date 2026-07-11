@@ -147,6 +147,24 @@ export function normalizeRunIdForCompare(value: string): string {
   return value.replace(/-/g, "").trim().toLowerCase();
 }
 
+/** Unwraps `CursorPagedResponse` (`items` / legacy bare array) for live API list endpoints. */
+export function unwrapCursorPagedResponseItems<T>(body: unknown): T[] {
+  if (Array.isArray(body)) {
+    return body;
+  }
+
+  if (body !== null && typeof body === "object") {
+    const record = body as Record<string, unknown>;
+    const items = record.items ?? record.Items;
+
+    if (Array.isArray(items)) {
+      return items as T[];
+    }
+  }
+
+  return [];
+}
+
 /** Matches LlmSemanticAdmissionGate architecture-domain heuristic (see ArchLucid.Application). */
 const liveE2eArchitectureAdmissionRegex =
   /\b(architecture|system|database|api|service|cloud|azure|aws|gcp|security|compliance|tenant|scale|latency|throughput|auth|identity)\b/i;
@@ -1125,13 +1143,9 @@ export async function listArchitectureRuns(
 
   await throwIfNotOk(res, "GET /v1/architecture/runs");
 
-  const body = (await res.json()) as ArchitectureRunListItemJson[] | { items?: ArchitectureRunListItemJson[] };
+  const body: unknown = await res.json();
 
-  if (Array.isArray(body)) {
-    return body;
-  }
-
-  return body.items ?? [];
+  return unwrapCursorPagedResponseItems<ArchitectureRunListItemJson>(body);
 }
 
 /** POST approve without throwing — use for negative-path assertions (`expect.soft` + status/body). */
