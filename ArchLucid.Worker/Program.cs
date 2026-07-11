@@ -13,7 +13,7 @@ namespace ArchLucid.Worker;
 // ReSharper disable once PartialTypeWithSinglePart
 public partial class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -55,10 +55,10 @@ public partial class Program
             app.Environment,
             typeof(Program).Assembly);
 
-        ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
+        await ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync(app);
 
         app.Logger.LogInformation("ArchLucid Worker starting (hosted background services only).");
         app.UseArchLucidWorkerPipeline();
-        app.Run();
+        await app.RunAsync();
     }
 }

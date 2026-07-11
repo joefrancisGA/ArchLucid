@@ -30,7 +30,7 @@ namespace ArchLucid.Api;
     "Application startup wiring; tested via integration tests against WebApplicationFactory.")]
 public partial class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -174,7 +174,7 @@ public partial class Program
             app.Environment,
             typeof(Program).Assembly);
 
-        ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
+        await ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync(app);
 
         if (app.Logger.IsEnabled(LogLevel.Information))
 
@@ -185,7 +185,7 @@ public partial class Program
         app.UseArchLucidPipelineBeforeSerilogRequestLogging();
         app.UseSerilogRequestLogging(ArchLucidSerilogRequestLogging.ConfigureRequestLogging);
         app.UseArchLucidPipelineAfterSerilogRequestLogging();
-        app.Run();
+        await app.RunAsync();
     }
 }
 

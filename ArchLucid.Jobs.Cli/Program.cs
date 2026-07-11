@@ -73,7 +73,7 @@ public static class Program
             app.Environment,
             typeof(Program).Assembly);
 
-        ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
+        await ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync(app);
 
         ArchLucidJobRunner runner = app.Services.GetRequiredService<ArchLucidJobRunner>();
 

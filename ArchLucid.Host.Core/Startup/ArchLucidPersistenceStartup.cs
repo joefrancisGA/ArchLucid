@@ -25,7 +25,7 @@ public static class ArchLucidPersistenceStartup
             : sqlTopology.DevelopmentTenantBootstrapConnectionString;
     }
 
-    private static void RunSystemSchemaBootstrapIfAvailable(
+    private static async Task RunSystemSchemaBootstrapIfAvailableAsync(
         WebApplication app,
         string systemConnectionString,
         ArchLucidPersistenceOptions persistenceOptions)
@@ -52,12 +52,12 @@ public static class ArchLucidPersistenceStartup
             : DefaultSchemaBootstrapTimeoutSeconds;
         using CancellationTokenSource cts = new(TimeSpan.FromSeconds(bootstrapTimeoutSeconds));
 
-        bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
+        await bootstrapper.EnsureSchemaAsync(cts.Token).ConfigureAwait(false);
 
         app.Logger.LogInformation("Startup: system-plane schema bootstrap completed.");
     }
 
-    public static void RunSchemaBootstrapMigrationsAndOptionalDemoSeed(WebApplication app)
+    public static async Task RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync(WebApplication app)
     {
         ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(app.Configuration);
         ArchLucidPersistenceOptions persistenceOptions =
@@ -97,7 +97,8 @@ public static class ArchLucidPersistenceStartup
 
                         app.Logger.LogInformation("Startup: system-plane DbUp migrations completed successfully.");
 
-                        RunSystemSchemaBootstrapIfAvailable(app, systemConnectionString, persistenceOptions);
+                        await RunSystemSchemaBootstrapIfAvailableAsync(app, systemConnectionString, persistenceOptions)
+                            .ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
@@ -199,7 +200,7 @@ public static class ArchLucidPersistenceStartup
                     : DefaultSchemaBootstrapTimeoutSeconds;
                 using CancellationTokenSource cts = new(TimeSpan.FromSeconds(bootstrapTimeoutSeconds));
 
-                bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
+                await bootstrapper.EnsureSchemaAsync(cts.Token).ConfigureAwait(false);
 
                 app.Logger.LogInformation("Startup: schema bootstrap completed.");
 
@@ -234,7 +235,7 @@ public static class ArchLucidPersistenceStartup
             using IServiceScope seedScope = app.Services.CreateScope();
             IDemoSeedService demoSeed = seedScope.ServiceProvider.GetRequiredService<IDemoSeedService>();
 
-            demoSeed.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
+            await demoSeed.SeedAsync(CancellationToken.None).ConfigureAwait(false);
 
             app.Logger.LogInformation("Startup: demo seed completed.");
         }
