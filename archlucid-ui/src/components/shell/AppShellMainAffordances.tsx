@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 
 import { BuyerGoldenJourneyLayerContextStrip } from "@/components/shell/BuyerGoldenJourneyLayerContextStrip";
+import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBanner";
 
 const Breadcrumbs = dynamic(
   () => import("@/components/Breadcrumbs").then((module) => module.Breadcrumbs),
@@ -29,14 +30,6 @@ const FirstVisitHelpAutoOpen = dynamic(
   () =>
     import("@/components/usability/FirstVisitHelpAutoOpen").then(
       (module) => module.FirstVisitHelpAutoOpen,
-    ),
-  { loading: () => null },
-);
-
-const ExplainThisViewBanner = dynamic(
-  () =>
-    import("@/components/usability/ExplainThisViewBanner").then(
-      (module) => module.ExplainThisViewBanner,
     ),
   { loading: () => null },
 );
