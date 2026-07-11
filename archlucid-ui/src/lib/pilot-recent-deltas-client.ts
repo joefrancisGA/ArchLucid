@@ -19,7 +19,15 @@ export async function fetchPilotRecentDeltas(count: number): Promise<RecentPilot
       return null;
     }
 
-    return (await res.json()) as RecentPilotRunDeltasPayload;
+    const payload = (await res.json()) as RecentPilotRunDeltasPayload;
+
+    // Boundary guard: a proxy/mock returning JSON without `items` must degrade to
+    // "panel hidden" (null → error state), never crash `.find`/`.map` consumers mid-render.
+    if (!Array.isArray(payload.items)) {
+      return null;
+    }
+
+    return payload;
   } catch {
     return null;
   }

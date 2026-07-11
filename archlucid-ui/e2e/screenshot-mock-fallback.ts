@@ -285,7 +285,16 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
   }
 
   if (pathname === "/v1/pilots/runs/recent-deltas") {
-    return { deltas: [] as unknown[] };
+    // Mirrors ArchLucid.Contracts.Pilots.RecentPilotRunDeltasResponse — delta panels
+    // hide on returnedCount 0; a shape without `items` crashes review-detail consumers.
+    return {
+      items: [] as unknown[],
+      requestedCount: 0,
+      returnedCount: 0,
+      medianTotalFindings: null,
+      medianTimeToCommittedManifestTotalSeconds: null,
+      medianLlmCallCount: null,
+    };
   }
 
   const pilotRunDeltasMatch = /^\/v1\/pilots\/runs\/([^/]+)\/pilot-run-deltas$/.exec(pathname);

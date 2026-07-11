@@ -30,7 +30,7 @@ describe("fetchPilotRecentDeltasCached", () => {
 
   it("dedupes concurrent reads into one network request", async () => {
     const fetchMock = vi.fn(async () => {
-      return new Response(JSON.stringify({ returnedCount: 2, deltas: [] }), {
+      return new Response(JSON.stringify({ items: [], requestedCount: 5, returnedCount: 2 }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
