@@ -73,6 +73,7 @@ export function CtoDemoHowItWorksTrigger(props: CtoDemoHowItWorksTriggerProps): 
               title: "What ArchLucid does with your data",
               summary: "",
               audience: "buyer",
+              contentKind: "product-help",
               sourcePaths: [],
               pdfStatus: "public",
             }
