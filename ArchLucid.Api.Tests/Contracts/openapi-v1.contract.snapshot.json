@@ -22392,6 +22392,34 @@
         ],
         "type": "object"
       },
+      "TeamsIncomingWebhookConnectionTestRequest": {
+        "properties": {
+          "keyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TeamsIncomingWebhookConnectionTestResponse": {
+        "properties": {
+          "delivered": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "delivered"
+        ],
+        "type": "object"
+      },
       "TeamsIncomingWebhookConnectionUpsertRequest": {
         "properties": {
           "enabledTriggers": {
@@ -22415,6 +22443,35 @@
         },
         "required": [
           "keyVaultSecretName"
+        ],
+        "type": "object"
+      },
+      "TeamsIncomingWebhookSecretValidationOutcome": {
+        "type": "integer"
+      },
+      "TeamsIncomingWebhookSecretValidationRequest": {
+        "properties": {
+          "keyVaultSecretName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyVaultSecretName"
+        ],
+        "type": "object"
+      },
+      "TeamsIncomingWebhookSecretValidationResponse": {
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/TeamsIncomingWebhookSecretValidationOutcome"
+          }
+        },
+        "required": [
+          "message",
+          "outcome"
         ],
         "type": "object"
       },
@@ -58021,6 +58078,146 @@
               }
             },
             "description": "Not Found"
+          }
+        },
+        "tags": [
+          "TeamsIncomingWebhookConnections"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/integrations/teams/connections/test": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TeamsIncomingWebhookConnectionTestRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TeamsIncomingWebhookConnectionTestRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TeamsIncomingWebhookConnectionTestRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsIncomingWebhookConnectionTestResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsIncomingWebhookConnectionTestResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsIncomingWebhookConnectionTestResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TeamsIncomingWebhookConnections"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/integrations/teams/connections/validate-secret": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TeamsIncomingWebhookSecretValidationRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TeamsIncomingWebhookSecretValidationRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TeamsIncomingWebhookSecretValidationRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsIncomingWebhookSecretValidationResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsIncomingWebhookSecretValidationResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsIncomingWebhookSecretValidationResponse"
+                }
+              }
+            },
+            "description": "OK"
           }
         },
         "tags": [

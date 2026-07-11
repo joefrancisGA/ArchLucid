@@ -22392,6 +22392,34 @@
         ],
         "type": "object"
       },
+      "TeamsIncomingWebhookConnectionTestRequest": {
+        "properties": {
+          "keyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TeamsIncomingWebhookConnectionTestResponse": {
+        "properties": {
+          "delivered": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "delivered"
+        ],
+        "type": "object"
+      },
       "TeamsIncomingWebhookConnectionUpsertRequest": {
         "properties": {
           "enabledTriggers": {
@@ -22415,6 +22443,35 @@
         },
         "required": [
           "keyVaultSecretName"
+        ],
+        "type": "object"
+      },
+      "TeamsIncomingWebhookSecretValidationOutcome": {
+        "type": "integer"
+      },
+      "TeamsIncomingWebhookSecretValidationRequest": {
+        "properties": {
+          "keyVaultSecretName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyVaultSecretName"
+        ],
+        "type": "object"
+      },
+      "TeamsIncomingWebhookSecretValidationResponse": {
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/TeamsIncomingWebhookSecretValidationOutcome"
+          }
+        },
+        "required": [
+          "message",
+          "outcome"
         ],
         "type": "object"
       },
