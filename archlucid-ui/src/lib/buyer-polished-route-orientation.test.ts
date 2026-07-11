@@ -81,6 +81,10 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/compare")).toBeNull();
   });
 
+  it("returns null for create-architecture intake at /reviews/new", () => {
+    expect(buyerPolishedRouteOrientation("/reviews/new")).toBeNull();
+  });
+
   it("orients the advisory route with recommendation copy", () => {
     const o = buyerPolishedRouteOrientation("/advisory");
 

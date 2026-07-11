@@ -54,11 +54,18 @@ import {
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
   GUIDED_INTAKE_CONTINUE_TO_DISCOVERY,
+  GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,
+  GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER,
+  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
+  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER,
   GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION,
+  GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
   GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP0_CARD_TITLE,
   GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
+  buildGuidedIntakeCreationAdvanceBlockerMessage,
   guidedIntakeArchitectureIntentHelperText,
+  guidedIntakeCreationArchitectureOverviewHelperText,
 } from "@/lib/guided-intake-copy";
 import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
@@ -89,6 +96,31 @@ const INTAKE_STEPS = [
     description: "Submit the admitted draft to the authority pipeline.",
   },
 ] as const;
+
+type IntakeFieldLabelProps = {
+  readonly htmlFor: string;
+  readonly label: string;
+  readonly required: boolean;
+};
+
+function IntakeFieldLabel(props: IntakeFieldLabelProps): React.JSX.Element {
+  return (
+    <Label
+      htmlFor={props.htmlFor}
+      className="font-semibold text-neutral-900 dark:text-neutral-100"
+    >
+      {props.label}
+      <span
+        className={cn(
+          "font-normal text-neutral-500 dark:text-neutral-400",
+          OPERATOR_TYPOGRAPHY.helper,
+        )}
+      >
+        {props.required ? " (required)" : " (optional)"}
+      </span>
+    </Label>
+  );
+}
 
 export function SocraticIntakeWizard() {
   const router = useRouter();
@@ -143,12 +175,37 @@ export function SocraticIntakeWizard() {
 
   const intentTrimmedLength = freeTextIntent.trim().length;
   const intentMeetsMinimum = intentTrimmedLength >= MIN_INTENT_CHARS;
+  const outcomeTrimmedLength = businessOutcome.trim().length;
+  const outcomeMeetsMinimum = outcomeTrimmedLength >= MIN_OUTCOME_CHARS;
 
-  const canAdvanceIntent =
-    intentMeetsMinimum &&
-    businessOutcome.trim().length >= MIN_OUTCOME_CHARS &&
-    actorSet.actors.length > 0 &&
-    !busy;
+  const canAdvanceIntent = isCreateArchitectureFlow
+    ? intentMeetsMinimum && outcomeMeetsMinimum && !busy
+    : intentMeetsMinimum &&
+      outcomeMeetsMinimum &&
+      actorSet.actors.length > 0 &&
+      !busy;
+
+  const createArchitectureAdvanceBlockers = useMemo(() => {
+    if (!isCreateArchitectureFlow) {
+      return [];
+    }
+
+    const blockers: string[] = [];
+
+    if (!intentMeetsMinimum) {
+      blockers.push("architecture overview");
+    }
+
+    if (!outcomeMeetsMinimum) {
+      blockers.push("business outcome");
+    }
+
+    return blockers;
+  }, [intentMeetsMinimum, isCreateArchitectureFlow, outcomeMeetsMinimum]);
+
+  const createArchitectureAdvanceHint = buildGuidedIntakeCreationAdvanceBlockerMessage(
+    createArchitectureAdvanceBlockers,
+  );
 
   const allClarificationsHandled =
     pendingQuestions.length === 0 ||
@@ -415,12 +472,14 @@ export function SocraticIntakeWizard() {
 
   return (
     <div className="space-y-4" data-testid="socratic-intake-wizard">
-      <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")} data-testid="socratic-intake-progress">
-        {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}
-      </p>
-      <DraftIntakeClaimLabel
-        surface={isCreateArchitectureFlow ? "architecture-creation-draft" : "structural-admission"}
-      />
+      {!isCreateArchitectureFlow ? (
+        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")} data-testid="socratic-intake-progress">
+          {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}
+        </p>
+      ) : null}
+      {!isCreateArchitectureFlow ? (
+        <DraftIntakeClaimLabel surface="structural-admission" />
+      ) : null}
 
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
@@ -472,65 +531,152 @@ export function SocraticIntakeWizard() {
 
       {step === 0 ? (
         <Card>
-          <CardHeader>
-            <CardTitle>{INTAKE_STEPS[0].cardTitle}</CardTitle>
-            <CardDescription>{INTAKE_STEPS[0].description}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          {!isCreateArchitectureFlow ? (
+            <CardHeader>
+              <CardTitle>{INTAKE_STEPS[0].cardTitle}</CardTitle>
+              <CardDescription>{INTAKE_STEPS[0].description}</CardDescription>
+            </CardHeader>
+          ) : null}
+          <CardContent className={cn(isCreateArchitectureFlow ? "space-y-6" : "space-y-4", isCreateArchitectureFlow && "pt-4")}>
             <div className="space-y-2">
-              <Label htmlFor="socratic-intent">Architecture intent (required)</Label>
+              <IntakeFieldLabel
+                htmlFor="socratic-intent"
+                label={
+                  isCreateArchitectureFlow
+                    ? GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL
+                    : "Architecture intent"
+                }
+                required
+              />
               <Textarea
                 id="socratic-intent"
                 value={freeTextIntent}
                 onChange={(event) => setFreeTextIntent(event.target.value)}
-                rows={3}
+                rows={isCreateArchitectureFlow ? 4 : 3}
                 disabled={busy}
-                placeholder={GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER}
+                placeholder={
+                  isCreateArchitectureFlow
+                    ? GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER
+                    : GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER
+                }
                 data-testid="socratic-intent"
                 aria-invalid={intentTrimmedLength > 0 && !intentMeetsMinimum}
                 aria-describedby="socratic-intent-helper"
+                aria-required
               />
               <p
                 id="socratic-intent-helper"
-                className={OPERATOR_TYPOGRAPHY.helper}
+                className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
                 role={intentTrimmedLength > 0 && !intentMeetsMinimum ? "alert" : "status"}
                 data-testid="socratic-intent-helper"
               >
-                {guidedIntakeArchitectureIntentHelperText(intentTrimmedLength)}
+                {isCreateArchitectureFlow
+                  ? guidedIntakeCreationArchitectureOverviewHelperText(intentTrimmedLength)
+                  : guidedIntakeArchitectureIntentHelperText(intentTrimmedLength)}
               </p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="socratic-system-name">System name (optional)</Label>
-              <Input
-                id="socratic-system-name"
-                value={systemName}
-                onChange={(event) => setSystemName(event.target.value)}
-                disabled={busy}
-                data-testid="socratic-system-name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="socratic-outcome">Business outcome (required)</Label>
-              <Textarea
-                id="socratic-outcome"
-                value={businessOutcome}
-                onChange={(event) => setBusinessOutcome(event.target.value)}
-                rows={2}
-                disabled={busy}
-                placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
-                data-testid="socratic-outcome"
-              />
-            </div>
+
+            {isCreateArchitectureFlow ? (
+              <div className="space-y-2">
+                <IntakeFieldLabel
+                  htmlFor="socratic-outcome"
+                  label={GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}
+                  required
+                />
+                <Textarea
+                  id="socratic-outcome"
+                  value={businessOutcome}
+                  onChange={(event) => setBusinessOutcome(event.target.value)}
+                  rows={2}
+                  disabled={busy}
+                  placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
+                  data-testid="socratic-outcome"
+                  aria-invalid={outcomeTrimmedLength > 0 && !outcomeMeetsMinimum}
+                  aria-describedby="socratic-outcome-helper"
+                  aria-required
+                />
+                <p
+                  id="socratic-outcome-helper"
+                  className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+                  role={outcomeTrimmedLength > 0 && !outcomeMeetsMinimum ? "alert" : "status"}
+                  data-testid="socratic-outcome-helper"
+                >
+                  {outcomeTrimmedLength === 0
+                    ? GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER
+                    : outcomeMeetsMinimum
+                      ? `${outcomeTrimmedLength} characters.`
+                      : `${outcomeTrimmedLength} / ${MIN_OUTCOME_CHARS} characters. ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER}`}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <IntakeFieldLabel htmlFor="socratic-system-name" label="System name" required={false} />
+                  <Input
+                    id="socratic-system-name"
+                    value={systemName}
+                    onChange={(event) => setSystemName(event.target.value)}
+                    disabled={busy}
+                    data-testid="socratic-system-name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <IntakeFieldLabel htmlFor="socratic-outcome" label="Business outcome" required />
+                  <Textarea
+                    id="socratic-outcome"
+                    value={businessOutcome}
+                    onChange={(event) => setBusinessOutcome(event.target.value)}
+                    rows={2}
+                    disabled={busy}
+                    placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
+                    data-testid="socratic-outcome"
+                    aria-required
+                  />
+                </div>
+              </>
+            )}
+
             <DraftIntakeActorEditor
               actorSet={actorSet}
               intentText={freeTextIntent}
               disabled={busy}
+              creationFlow={isCreateArchitectureFlow}
               onChange={setActorSet}
             />
+
+            {isCreateArchitectureFlow ? (
+              <div className="space-y-2">
+                <IntakeFieldLabel
+                  htmlFor="socratic-system-name"
+                  label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL}
+                  required={false}
+                />
+                <Input
+                  id="socratic-system-name"
+                  value={systemName}
+                  onChange={(event) => setSystemName(event.target.value)}
+                  disabled={busy}
+                  data-testid="socratic-system-name"
+                />
+              </div>
+            ) : null}
+
             <PilotModePolicyPackToggle
               enabled={focusedPilotModeEnabled}
               onEnabledChange={setFocusedPilotModeEnabled}
+              presentation={isCreateArchitectureFlow ? "scope-card" : "checkbox"}
             />
+
+            {isCreateArchitectureFlow && !canAdvanceIntent && createArchitectureAdvanceHint.length > 0 ? (
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+                role="status"
+                data-testid="socratic-advance-hint"
+              >
+                {createArchitectureAdvanceHint}
+              </p>
+            ) : null}
+
             <Button
               type="button"
               disabled={!canAdvanceIntent}

@@ -193,7 +193,7 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (/^\/reviews\/[^/]+$/.exec(path) !== null) {
+  if (path !== "/reviews/new" && /^\/reviews\/[^/]+$/.exec(path) !== null) {
     return {
       label: "Review package",
       line: "Review package record — outcomes, findings, artifacts, downloads, and deep links into evidence surfaces.",

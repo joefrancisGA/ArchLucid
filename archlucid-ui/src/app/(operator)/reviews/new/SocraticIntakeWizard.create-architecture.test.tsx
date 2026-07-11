@@ -48,7 +48,9 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
 vi.mock("@/components/draft-intake/DraftIntakeActorEditor", () => ({
   DraftIntakeActorEditor: ({
     onChange,
+    disabled,
   }: {
+    disabled?: boolean;
     onChange: (actorSet: {
       actors: Array<{
         label: string;
@@ -63,6 +65,7 @@ vi.mock("@/components/draft-intake/DraftIntakeActorEditor", () => ({
     <button
       type="button"
       data-testid="draft-intake-actor-stub-add"
+      disabled={disabled}
       onClick={() => {
         onChange({
           actors: [
@@ -78,7 +81,7 @@ vi.mock("@/components/draft-intake/DraftIntakeActorEditor", () => ({
         });
       }}
     >
-      Stub add actor
+      Stub add person or system
     </button>
   ),
 }));
@@ -95,7 +98,10 @@ vi.mock("@/lib/toast", () => ({
 
 import { SocraticIntakeWizard } from "@/app/(operator)/reviews/new/SocraticIntakeWizard";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
-import { GUIDED_INTAKE_CONTINUE_TO_DISCOVERY } from "@/lib/guided-intake-copy";
+import {
+  GUIDED_INTAKE_CONTINUE_TO_DISCOVERY,
+  GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,
+} from "@/lib/guided-intake-copy";
 
 const validIntent =
   "We are designing a governed workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture packages.";
@@ -137,6 +143,51 @@ describe("SocraticIntakeWizard create-architecture intent", () => {
     });
 
     expect(admitDraftRequest).not.toHaveBeenCalled();
+  });
+
+  it("uses create-architecture labels and hides redundant draft callouts", () => {
+    render(<SocraticIntakeWizard />);
+
+    expect(screen.getByLabelText(`${GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL} (required)`)).toBeInTheDocument();
+    expect(screen.queryByTestId("socratic-intake-progress")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("draft-intake-claim-label-architecture-creation-draft")).not.toBeInTheDocument();
+    expect(screen.getByTestId("pilot-mode-policy-pack-toggle-selected-standards")).toBeInTheDocument();
+  });
+
+  it("allows continuing without actors when overview and outcome are complete", async () => {
+    render(<SocraticIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("socratic-intent"), { target: { value: validIntent } });
+    fireEvent.change(screen.getByTestId("socratic-outcome"), {
+      target: { value: "Reduce cycle time for governed architecture reviews." },
+    });
+
+    const continueButton = screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_DISCOVERY });
+    expect(continueButton).toBeEnabled();
+
+    fireEvent.click(continueButton);
+
+    await waitFor(() => {
+      expect(getDraftQuestions).toHaveBeenCalledWith("draft-session");
+    });
+
+    expect(admitDraftRequest).not.toHaveBeenCalled();
+  });
+
+  it("shows field-level validation instead of only disabling continue", () => {
+    render(<SocraticIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("socratic-intent"), { target: { value: "Too short." } });
+
+    expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_DISCOVERY })).toBeDisabled();
+    expect(screen.getByTestId("socratic-advance-hint")).toHaveTextContent(/architecture overview/i);
+  });
+
+  it("allows adding people or systems before the overview is complete", () => {
+    render(<SocraticIntakeWizard />);
+
+    const addButton = screen.getByTestId("draft-intake-actor-stub-add");
+    expect(addButton).toBeEnabled();
   });
 
   it("continues to discovery questions with getDraftQuestions instead of admitDraftRequest", async () => {
