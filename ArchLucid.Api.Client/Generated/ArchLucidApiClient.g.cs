@@ -86249,6 +86249,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("appearancePreference")]
         public string? AppearancePreference { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("appearancePreferenceIsExplicit")]
+        public bool? AppearancePreferenceIsExplicit { get; set; } = default!;
+
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]

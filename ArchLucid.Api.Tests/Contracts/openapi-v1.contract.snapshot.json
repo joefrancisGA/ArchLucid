@@ -24648,6 +24648,9 @@
         "properties": {
           "appearancePreference": {
             "type": "string"
+          },
+          "appearancePreferenceIsExplicit": {
+            "type": "boolean"
           }
         },
         "type": "object"
