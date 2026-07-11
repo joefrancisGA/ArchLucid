@@ -182,9 +182,14 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
 
         string scriptPath = ResolveArchLucidSqlScriptPath();
 
+        string schemaBootstrapConnectionString = ResolveTenantSchemaBootstrapConnectionString(
+            topologySnapshot,
+            connectionString);
+
         RegisterTenantRuntimeInfrastructure(
             services,
             connectionString,
+            schemaBootstrapConnectionString,
             scriptPath,
             enforceServerCertificateTrust);
         RegisterTenantRepositories(services, configuration);
@@ -228,10 +233,27 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantSqlCatalogProvisioner, SqlTenantSqlCatalogProvisioner>();
     }
 
+    /// <summary>
+    ///     Elevated tenant catalog connection for DDL bootstrap; mirrors DbUp bootstrap resolution in persistence startup.
+    /// </summary>
+    private static string ResolveTenantSchemaBootstrapConnectionString(
+        SqlTopologyOptions topology,
+        string runtimeConnectionString)
+    {
+        if (!string.IsNullOrWhiteSpace(topology.DevelopmentTenantBootstrapConnectionString))
+            return topology.DevelopmentTenantBootstrapConnectionString;
+
+        if (!string.IsNullOrWhiteSpace(topology.DevelopmentTenantConnectionString))
+            return topology.DevelopmentTenantConnectionString;
+
+        return runtimeConnectionString;
+    }
+
     /// <summary>Tenant-plane SQL stack: routing, resilience, read replicas, bootstrapper.</summary>
     private static void RegisterTenantRuntimeInfrastructure(
         IServiceCollection services,
         string connectionString,
+        string schemaBootstrapConnectionString,
         string scriptPath,
         bool enforceServerCertificateTrust)
     {
@@ -311,9 +333,9 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
             sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>(),
             sp.GetRequiredService<ILogger<ReadReplicaRoutedConnectionFactory>>()));
 
-        services.AddScoped<ISchemaBootstrapper>(sp =>
+        services.AddScoped<ISchemaBootstrapper>(_ =>
             new SqlSchemaBootstrapper(
-                sp.GetRequiredService<ISqlConnectionFactory>(),
+                new SqlConnectionFactory(schemaBootstrapConnectionString, enforceServerCertificateTrust),
                 scriptPath));
     }
 
