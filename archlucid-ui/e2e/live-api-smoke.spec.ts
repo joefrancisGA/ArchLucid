@@ -40,6 +40,7 @@ import {
   waitForReadyForCommit,
 } from "./helpers/live-api-client";
 import { comparisonRequestOutcomePanel, comparePageMainHeading, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import { expandWizardBaselineZipEvidence } from "./helpers/wizard-baseline-zip-evidence";
 
 function makeLiveSmokeArchLucidZipForInput(): { name: string; mimeType: string; buffer: Buffer } {
   const manifest = {
@@ -149,24 +150,42 @@ test.describe("live-api-smoke", () => {
 
     await page.goto("/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
 
-    // `?baseline=1` now enters the 4-step SimplifiedPilotWizard directly (ZIP upload is step 1 —
-    // there is no separate "start blank" preset step, and the full-wizard shell's progress testid
-    // never renders for this entry point; see NewRunWizardClient.baseline-first.test.tsx).
+    // `?baseline=1` opens the 4-step SimplifiedPilotWizard: identity/description (step 1), optional
+    // Azure ZIP evidence inside a collapsed advanced section (step 2), baseline metrics, then review.
     await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });
 
-    await expect(page.getByTestId("wizard-baseline-zip-field")).toBeVisible();
+    await expect(page.getByTestId("simplified-pilot-progress")).toContainText(/step 1 of 4/i, {
+      timeout: 30_000,
+    });
+
+    const forward = page.getByRole("button", { name: /^(Continue|Next)$/ });
+
+    await expect(page.getByRole("textbox", { name: "System name" })).toBeVisible({ timeout: 30_000 });
+
+    const description = page.getByRole("textbox", { name: "Description" });
+    const descriptionText = (await description.inputValue()).trim();
+
+    if (descriptionText.length < 10) {
+      await description.fill(
+        liveE2eArchitectureDescription(
+          "Live smoke pilot spine: assess security, cost, and governance before production rollout.",
+        ),
+      );
+    }
+
+    await forward.click();
+
+    await expect(page.getByTestId("simplified-pilot-progress")).toContainText(/step 2 of 4/i, {
+      timeout: 30_000,
+    });
+
+    await expandWizardBaselineZipEvidence(page);
 
     const zipFile = makeLiveSmokeArchLucidZipForInput();
 
     await page.getByTestId("wizard-baseline-zip-field-input").setInputFiles(zipFile);
 
     await expect(page.getByTestId("wizard-azure-zip-error")).toHaveCount(0, { timeout: 30_000 });
-
-    const forward = page.getByRole("button", { name: /^(Continue|Next)$/ });
-
-    await forward.click();
-
-    await expect(page.getByRole("textbox", { name: "System name" })).toBeVisible({ timeout: 30_000 });
 
     await forward.click();
 
