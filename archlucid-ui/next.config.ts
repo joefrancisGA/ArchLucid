@@ -184,15 +184,6 @@ const nextConfig: NextConfig = {
       },
       // Run-scoped signed record deep link lands on the review package (manifest summary section).
       { source: "/reviews/:id/signed-record", destination: "/reviews/:id" },
-      // Governance canonical URLs reuse existing App Router trees (TB-405).
-      { source: "/governance/resolution", destination: "/governance-resolution" },
-      { source: "/governance/resolution/:path*", destination: "/governance-resolution/:path*" },
-      { source: "/governance/audit", destination: "/audit" },
-      { source: "/governance/audit/:path*", destination: "/audit/:path*" },
-      { source: "/governance/alerts", destination: "/alerts" },
-      { source: "/governance/alerts/:path*", destination: "/alerts/:path*" },
-      { source: "/governance/alert-rules", destination: "/alert-rules" },
-      { source: "/governance/alert-rules/:path*", destination: "/alert-rules/:path*" },
       // Tenant-administration canonical URLs reuse existing App Router trees (TB-406).
       { source: "/settings/security-trust", destination: "/workspace/security-trust" },
       { source: "/settings/security-trust/:path*", destination: "/workspace/security-trust/:path*" },

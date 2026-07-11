@@ -28,11 +28,11 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
 import { useNavSurface } from "@/lib/use-nav-surface";
-import type { AlertsInboxPageModel } from "@/app/(operator)/alerts/_sections/alerts-inbox-page-model";
+import type { AlertsInboxPageModel } from "@/app/(operator)/governance/alerts/_sections/alerts-inbox-page-model";
 import {
   ALERTS_INBOX_ALL_STATUSES_VALUE,
   ALERTS_INBOX_PAGE_SIZE,
-} from "@/app/(operator)/alerts/_sections/load-alerts-inbox-page-model";
+} from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import type { AlertActionLoopDto } from "@/types/operate-rhythm";
 import type { AlertRecord } from "@/types/alerts";
 

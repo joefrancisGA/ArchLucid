@@ -1,6 +1,6 @@
 import {
   auditBuyerEventIsSystemRecordedActor,
-} from "@/app/(operator)/audit/audit-ui-helpers";
+} from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { buyerSafeActorDisplayName } from "@/lib/buyer-demo-persona-labels";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";

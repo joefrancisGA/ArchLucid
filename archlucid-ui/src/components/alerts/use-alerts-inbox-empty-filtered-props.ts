@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
-import { ALERTS_INBOX_ALL_STATUSES_VALUE } from "@/app/(operator)/alerts/_sections/load-alerts-inbox-page-model";
+import { ALERTS_INBOX_ALL_STATUSES_VALUE } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import {
   buildAlertsInboxEmptyStateProps,
   resolveAlertsInboxEmptyVariant,

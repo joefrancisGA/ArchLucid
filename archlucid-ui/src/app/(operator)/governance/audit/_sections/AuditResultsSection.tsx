@@ -4,7 +4,7 @@ import Link from "next/link";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Button } from "@/components/ui/button";
 import type { AuditEvent } from "@/lib/api";
-import { formatAuditSummaryHeading } from "@/app/(operator)/audit/audit-ui-helpers";
+import { formatAuditSummaryHeading } from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { formatBuyerAuditResultsStatusLine } from "@/lib/audit-trail-page-helpers";
 import {
   auditBuyerUtilitiesDetailsSummary,

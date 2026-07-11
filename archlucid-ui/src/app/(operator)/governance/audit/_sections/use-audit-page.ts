@@ -10,7 +10,7 @@ import {
   formatBuyerAuditTrailSummaryLine,
   groupAuditEventsByLifecycleStage,
   principalRolesAllowAuditCsvExport,
-} from "@/app/(operator)/audit/audit-ui-helpers";
+} from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { buyerAuditTrailGovernanceSummaryCounts } from "@/lib/audit-trail-page-helpers";
 import { useNavCallerAuthorityRank, useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";

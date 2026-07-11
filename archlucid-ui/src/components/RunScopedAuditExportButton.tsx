@@ -4,7 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useState } from "react";
 
-import { principalRolesAllowAuditCsvExport } from "@/app/(operator)/audit/audit-ui-helpers";
+import { principalRolesAllowAuditCsvExport } from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { downloadAuditExportCsv } from "@/lib/api";

@@ -77,7 +77,7 @@ vi.mock("./recommendation-learning/_sections/load-recommendation-learning-page-d
     }),
 }));
 
-vi.mock("./governance-resolution/_sections/load-governance-resolution-page-data", () => ({
+vi.mock("./governance/resolution/_sections/load-governance-resolution-page-data", () => ({
   loadGovernanceResolutionPageData: () =>
     Promise.resolve({
       data: {
@@ -100,7 +100,7 @@ vi.mock("./governance-resolution/_sections/load-governance-resolution-page-data"
     }),
 }));
 
-vi.mock("./policy-packs/_sections/load-policy-packs-page-data", () => ({
+vi.mock("./governance/policy-packs/_sections/load-policy-packs-page-data", () => ({
   loadPolicyPacksPageData: () =>
     Promise.resolve({
       packs: [],
@@ -167,7 +167,7 @@ import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscript
 
 import AskPage from "./ask/page";
 import EvolutionReviewPage from "./evolution-review/page";
-import GovernanceResolutionPage from "./governance-resolution/page";
+import GovernanceResolutionPage from "./governance/resolution/page";
 import OnboardingPage from "./onboarding/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
 import PlanningPage from "./planning/page";

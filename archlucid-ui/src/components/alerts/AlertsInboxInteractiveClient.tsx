@@ -6,7 +6,7 @@ import { AlertsInboxControls } from "@/components/alerts/AlertsInboxControls";
 import { AlertsInboxPageIntro } from "@/components/alerts/AlertsInboxPageIntro";
 import { AlertsInboxSummaryRow } from "@/components/alerts/AlertsInboxSummaryRow";
 import { useAlertsInboxController } from "@/components/alerts/use-alerts-inbox-controller";
-import type { AlertsInboxPageModel } from "@/app/(operator)/alerts/_sections/alerts-inbox-page-model";
+import type { AlertsInboxPageModel } from "@/app/(operator)/governance/alerts/_sections/alerts-inbox-page-model";
 
 export type AlertsInboxInteractiveClientProps = {
   /** Server-loaded inbox snapshot for first paint (TB-564). */

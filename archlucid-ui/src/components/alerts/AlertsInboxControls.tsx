@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import {
   ALERTS_INBOX_ALL_STATUSES_VALUE,
-} from "@/app/(operator)/alerts/_sections/load-alerts-inbox-page-model";
+} from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import {
   alertsInboxRefreshButtonTitleOperator,
   alertsInboxRefreshButtonTitleReader,
