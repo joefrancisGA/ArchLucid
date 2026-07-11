@@ -39,7 +39,7 @@ import { OPERATOR_HOME_WORKSPACE_ACTIVITY_LEAD } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
 import { cn } from "@/lib/utils";
 
-
+import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
 type OperatorHomePageViewProps = {
 
