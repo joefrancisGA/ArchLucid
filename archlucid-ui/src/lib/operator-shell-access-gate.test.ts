@@ -1,10 +1,27 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+const { signedInState } = vi.hoisted(() => ({
+  signedInState: { value: true },
+}));
+
+vi.mock("@/lib/auth-config", () => ({
+  AUTH_MODE: "entra-jwt",
+}));
+
+vi.mock("@/lib/oidc/config", () => ({
+  isJwtAuthMode: () => true,
+}));
+
+vi.mock("@/lib/oidc/session", () => ({
+  isLikelySignedIn: () => signedInState.value,
+}));
 
 import {
   operatorHomeGateAllowsInitialPaint,
   operatorHomeGateBlocksInitialPaint,
   pathnameExemptFromOperatorAccessGate,
   shouldDeferOperatorShellChrome,
+  unsignedJwtSessionBlocksOperatorShell,
 } from "@/lib/operator-shell-access-gate";
 
 describe("operator-shell-access-gate", () => {
@@ -15,15 +32,29 @@ describe("operator-shell-access-gate", () => {
   });
 
   it("defers chrome while authority is loading on operator routes", () => {
+    signedInState.value = true;
+
     expect(shouldDeferOperatorShellChrome("/reviews", true)).toBe(true);
     expect(shouldDeferOperatorShellChrome("/reviews", false)).toBe(false);
   });
 
+  it("defers chrome on deep-linked operator routes when JWT session is absent", () => {
+    signedInState.value = false;
+
+    expect(unsignedJwtSessionBlocksOperatorShell("/reviews")).toBe(true);
+    expect(shouldDeferOperatorShellChrome("/reviews", false)).toBe(true);
+    expect(shouldDeferOperatorShellChrome("/403", false)).toBe(false);
+  });
+
   it("does not defer chrome on exempt routes even while authority loads", () => {
+    signedInState.value = true;
+
     expect(shouldDeferOperatorShellChrome("/403", true)).toBe(false);
   });
 
   it("blocks operator home initial paint when JWT session is absent", () => {
+    signedInState.value = false;
+
     expect(operatorHomeGateBlocksInitialPaint("/")).toBe(!operatorHomeGateAllowsInitialPaint());
     expect(operatorHomeGateBlocksInitialPaint("/reviews")).toBe(false);
   });

@@ -40,6 +40,23 @@ export function operatorHomeGateBlocksInitialPaint(pathname: string | null): boo
   return !operatorHomeGateAllowsInitialPaint();
 }
 
+/** JWT mode without a browser session — defer shell chrome on any operator route, not only `/`. */
+export function unsignedJwtSessionBlocksOperatorShell(pathname: string | null): boolean {
+  if (pathnameExemptFromOperatorAccessGate(pathname)) {
+    return false;
+  }
+
+  if (AUTH_MODE === "development-bypass" || !isJwtAuthMode()) {
+    return false;
+  }
+
+  if (typeof window === "undefined") {
+    return true;
+  }
+
+  return !isLikelySignedIn();
+}
+
 export function shouldDeferOperatorShellChrome(
   pathname: string | null,
   isAuthorityLoading: boolean,
@@ -48,7 +65,7 @@ export function shouldDeferOperatorShellChrome(
     return false;
   }
 
-  if (operatorHomeGateBlocksInitialPaint(pathname)) {
+  if (unsignedJwtSessionBlocksOperatorShell(pathname)) {
     return true;
   }
 

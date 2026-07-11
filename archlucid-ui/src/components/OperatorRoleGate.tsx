@@ -38,6 +38,8 @@ export function OperatorRoleGate({ children }: OperatorRoleGateProps) {
     }
 
     if (isJwtAuthMode() && !isLikelySignedIn()) {
+      router.replace("/welcome");
+
       return;
     }
 
@@ -46,13 +48,17 @@ export function OperatorRoleGate({ children }: OperatorRoleGateProps) {
     }
 
     router.replace("/403");
-  }, [currentPrincipal, isAuthorityLoading, lacksArchLucidAccess, pathname, router]);
+  }, [currentPrincipal, isAuthorityLoading, jwtSignedIn, lacksArchLucidAccess, pathname, router]);
 
   if (pathnameExemptFromOperatorAccessGate(pathname)) {
     return <>{children}</>;
   }
 
   if (shouldDeferOperatorShellChrome(pathname, isAuthorityLoading)) {
+    return <OperatorShellAccessGateLoading />;
+  }
+
+  if (isJwtAuthMode() && !isLikelySignedIn()) {
     return <OperatorShellAccessGateLoading />;
   }
 
