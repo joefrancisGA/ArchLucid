@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import { ArchitectureCreateWorkItemSection } from "@/components/architecture/ArchitectureCreateWorkItemSection";
+import { ArchitectureSponsorSharingPanel } from "@/components/architecture/ArchitectureSponsorSharingPanel";
 import { ArchitectureCreatedHomeViewport } from "@/components/architecture/ArchitectureCreatedHomeViewport";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import {
@@ -65,6 +66,12 @@ export function RunDetailArchitectureCreatedFirstViewport(
         architectureName={merged.architectureName}
         architectureOverview={merged.architectureOverview}
         ownerLabel={merged.ownerLabel}
+        findings={props.findings}
+      />
+      <ArchitectureSponsorSharingPanel
+        runId={props.baseline.runId}
+        architecture={merged}
+        architectureSourceText={props.architectureSourceText}
         findings={props.findings}
       />
     </div>
