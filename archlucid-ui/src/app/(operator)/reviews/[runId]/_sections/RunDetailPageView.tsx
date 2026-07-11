@@ -337,6 +337,7 @@ export function RunDetailPageView(props: {
                   baseline={architectureCreatedBaseline}
                   architectureSourceText={submittedArchitectureText ?? ""}
                   canEditDiagram={!m.manifestId}
+                  findings={quickDecisionFindings}
                 />
               ) : (
                 <>
@@ -436,6 +437,16 @@ export function RunDetailPageView(props: {
                   goldenManifestJsonForExport={m.goldenManifestJsonForExport}
                   manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
                   manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
+                  providerNeutralWorkItems={showArchitectureCreatedHome}
+                  architectureWorkItemContext={
+                    showArchitectureCreatedHome
+                      ? {
+                          architectureName: architectureCreatedBaseline.architectureName,
+                          architectureOverview: architectureCreatedBaseline.architectureOverview,
+                          ownerLabel: architectureCreatedBaseline.ownerLabel,
+                        }
+                      : null
+                  }
                 />
               </Suspense>
 

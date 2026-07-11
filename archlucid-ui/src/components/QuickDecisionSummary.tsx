@@ -12,6 +12,7 @@ import { FindingPolicyCitationProminentStrip } from "@/components/findings/Findi
 import { FindingsItsmExportToolbar } from "@/components/FindingsItsmExportToolbar";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
+import { FindingCreateWorkItemActions } from "@/components/work-items/FindingCreateWorkItemActions";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingTrustChip } from "@/components/FindingTrustChip";
@@ -86,6 +87,13 @@ export type QuickDecisionSummaryProps = {
   /** Workspace layout: collapsible finding cards with critical/high expanded by default. */
   readonly workspaceCardMode?: boolean;
   readonly defaultExpandLowSeverity?: boolean;
+  /** Architecture-creation review detail: provider-neutral work item affordance instead of Jira-biased copy controls. */
+  readonly providerNeutralWorkItems?: boolean;
+  readonly architectureWorkItemContext?: {
+    readonly architectureName: string;
+    readonly architectureOverview: string;
+    readonly ownerLabel: string | null;
+  } | null;
 };
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
@@ -359,23 +367,36 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           className="mt-2 border-t border-neutral-100 pt-2 dark:border-neutral-800"
           data-testid={`finding-itsm-sync-${f.findingId}`}
         >
-          <p className={cn("m-0 mb-1", OPERATOR_NAV_GROUP_LABEL, "text-neutral-700 dark:text-neutral-300")}>
-            Jira / ServiceNow
-          </p>
-          <div className="flex flex-wrap items-center gap-2">
-            <CopyGovernanceQueueWorkItemButton
+          {props.providerNeutralWorkItems === true && props.architectureWorkItemContext ? (
+            <FindingCreateWorkItemActions
               runId={props.runId}
-              findingId={f.findingId}
-              findingTitle={f.title}
-              severityLabel={
-                f.severityValue >= 3 ? "High" : f.severityValue === 2 ? "Medium" : f.severityValue === 1 ? "Low" : "Info"
-              }
-              recommendedAction={f.recommendation}
-              statusLabel="Open"
-              compact
+              finding={f}
+              architectureName={props.architectureWorkItemContext.architectureName}
+              architectureOverview={props.architectureWorkItemContext.architectureOverview}
+              ownerLabel={props.architectureWorkItemContext.ownerLabel}
+              allFindings={props.findings}
             />
-            <ItsmOutboundQuickActions findingId={f.findingId} compact />
-          </div>
+          ) : (
+            <>
+              <p className={cn("m-0 mb-1", OPERATOR_NAV_GROUP_LABEL, "text-neutral-700 dark:text-neutral-300")}>
+                Jira / ServiceNow
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <CopyGovernanceQueueWorkItemButton
+                  runId={props.runId}
+                  findingId={f.findingId}
+                  findingTitle={f.title}
+                  severityLabel={
+                    f.severityValue >= 3 ? "High" : f.severityValue === 2 ? "Medium" : f.severityValue === 1 ? "Low" : "Info"
+                  }
+                  recommendedAction={f.recommendation}
+                  statusLabel="Open"
+                  compact
+                />
+                <ItsmOutboundQuickActions findingId={f.findingId} compact />
+              </div>
+            </>
+          )}
         </div>
         {askFindingId === f.findingId ? (
           <div className="mt-3">

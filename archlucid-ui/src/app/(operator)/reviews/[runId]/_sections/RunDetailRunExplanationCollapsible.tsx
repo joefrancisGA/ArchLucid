@@ -36,6 +36,12 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly insightDensityView: FindingsSnapshotInsightDensityView;
   readonly manifestRuleSetId?: string | null;
   readonly manifestRuleSetVersion?: string | null;
+  readonly providerNeutralWorkItems?: boolean;
+  readonly architectureWorkItemContext?: {
+    readonly architectureName: string;
+    readonly architectureOverview: string;
+    readonly ownerLabel: string | null;
+  } | null;
 };
 
 export function RunDetailRunExplanationCollapsible(
@@ -57,6 +63,8 @@ export function RunDetailRunExplanationCollapsible(
     insightDensityView,
     manifestRuleSetId,
     manifestRuleSetVersion,
+    providerNeutralWorkItems,
+    architectureWorkItemContext,
   } = props;
 
   return (
@@ -85,6 +93,8 @@ export function RunDetailRunExplanationCollapsible(
           usingExplanationFallback={quickDecisionFromExplanationFallback}
           manifestRuleSetId={manifestRuleSetId}
           manifestRuleSetVersion={manifestRuleSetVersion}
+          providerNeutralWorkItems={providerNeutralWorkItems}
+          architectureWorkItemContext={architectureWorkItemContext}
         />
         <CoverageChecklistPanel items={insightDensityView.checklistCoverage} className="mt-4" />
       </CollapsibleSection>

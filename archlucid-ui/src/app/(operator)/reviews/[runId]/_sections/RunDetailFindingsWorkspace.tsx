@@ -20,6 +20,12 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly usingExplanationFallback?: boolean;
   readonly manifestRuleSetId?: string | null;
   readonly manifestRuleSetVersion?: string | null;
+  readonly providerNeutralWorkItems?: boolean;
+  readonly architectureWorkItemContext?: {
+    readonly architectureName: string;
+    readonly architectureOverview: string;
+    readonly ownerLabel: string | null;
+  } | null;
 };
 
 /** Findings list with workspace toolbar filters for the review detail page. */
@@ -62,6 +68,8 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         manifestRuleSetVersion={props.manifestRuleSetVersion}
         workspaceCardMode
         defaultExpandLowSeverity={false}
+        providerNeutralWorkItems={props.providerNeutralWorkItems}
+        architectureWorkItemContext={props.architectureWorkItemContext}
       />
     </div>
   );
