@@ -3,9 +3,19 @@
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# CD pipeline (manual `workflow_dispatch`)
+# CD pipeline (dev schedule + manual `workflow_dispatch`)
 
 This document describes the multi-job **CD** workflow (`.github/workflows/cd.yml`). It complements [DEPLOYMENT.md](./DEPLOYMENT.md) and [DEPLOYMENT_TERRAFORM.md](./DEPLOYMENT_TERRAFORM.md).
+
+GitHub environment setup: [`docs/operations/GITHUB_CD_ENVIRONMENTS.md`](../operations/GITHUB_CD_ENVIRONMENTS.md).
+
+## Triggers
+
+| Trigger | Target | Notes |
+|---------|--------|-------|
+| **Schedule** `22:00` `America/New_York` | `dev` | Automated nightly deploy (`action=deploy`). |
+| **workflow_dispatch** | `dev` / `staging` / `production` | Manual deploy or rollback. Staging/production are not scheduled. |
+| **Dev maintenance window** | `dev` only | Deploy allowed during hour **22** ET unless repo var `CD_MAINTENANCE_WINDOW_OVERRIDE=true`. Post-deploy validation must pass before **23:00** ET or the job fails and optional rollback runs. |
 
 ## Objective
 
@@ -71,7 +81,7 @@ flowchart LR
 |------|---------|---------------|----------------------|
 | 1 | `GET /health/live` | HTTP **200** | Logs HTTP code and body preview (redacted) on failure. |
 | 2 | `GET /health/ready` | HTTP **200** and JSON **`.status` == `"Healthy"`** | Logs compact JSON preview; on non-Healthy see probe **Next steps** in the Markdown report. Does **not** call `GET /health` (requires **ReadAuthority**). |
-| 3 | `GET /openapi/v1.json` | HTTP **200** | OpenAPI must expose **`.info.title`** unless break-glass **`--allow-missing-openapi`** is used (document out of band if ever enabled in CD). **Note:** some Production-like hosts return **404** for OpenAPI — align `SMOKE_TEST_BASE_URL` or hosting. |
+| 3 | `GET /openapi/v1.json` | HTTP **200** with **`X-Api-Key`** (admin key from environment secret `ARCHLUCID_API_KEY`) | Required when `ArchLucidAuth__Mode=ApiKey`. Do **not** use `--allow-missing-openapi` in CD. |
 | 4 | `GET /version` | HTTP **200** | Compact JSON in report (redacted patterns). Anonymous per `VersionController`. |
 | 5 | `GET {SMOKE_SYNTHETIC_PATH}` | HTTP **200** | Omitted when the path is **`/version`** (already checked). |
 

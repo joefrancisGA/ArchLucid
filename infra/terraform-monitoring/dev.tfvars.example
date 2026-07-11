@@ -1,0 +1,30 @@
+# Example tfvars for infra/terraform-monitoring (dev / shared subscription).
+# Copy to terraform.tfvars locally or inject via GitHub Environment secret DEV_MONITORING_TFVARS.
+# Do not commit phone numbers or webhook URLs.
+
+enable_monitoring_stack = true
+resource_group_name     = "rg-ArchLucid-dev"
+name_prefix             = "archlucid-dev"
+alert_email_address     = "security@archlucid.net"
+
+# P0 path: SMS + voice to owner cell (digits only; country code 1 for US).
+enable_critical_action_group = true
+alert_sms_country_code       = "1"
+alert_voice_country_code     = "1"
+# alert_sms_phone_number   = "<digits-only, set via TF_VAR or Key Vault>"
+# alert_voice_phone_number = "<digits-only, set via TF_VAR or Key Vault>"
+
+# Optional: read phones from Key Vault instead of tfvars (production pattern).
+# read_alert_secrets_from_key_vault            = true
+# alert_secrets_key_vault_name                 = "kvrgarchluciddev8aa56f"
+# alert_secrets_key_vault_resource_group_name  = "rg-ArchLucid-dev"
+
+# Wire after container apps exist:
+# api_container_app_resource_id   = "/subscriptions/.../Microsoft.App/containerApps/archlucid-api"
+# worker_container_app_resource_id = "/subscriptions/.../Microsoft.App/containerApps/archlucid-worker"
+container_cpu_nanos_threshold = 500000000
+
+tags = {
+  workload = "archlucid"
+  tier     = "dev"
+}

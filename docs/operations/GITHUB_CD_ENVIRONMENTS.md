@@ -1,0 +1,83 @@
+# GitHub CD environments (dev / staging / production)
+
+Operators configure **three GitHub Environments** on this repository. They may point at the **same Azure subscription and Container Apps** initially; split subscriptions and hostnames later without changing workflow shape.
+
+Canonical workflow: [`.github/workflows/cd.yml`](../../.github/workflows/cd.yml) · Pipeline reference: [`docs/library/DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md)
+
+## Environment names
+
+| GitHub Environment | CD `target` input | Intended use |
+|--------------------|-------------------|--------------|
+| **dev** | `dev` | Nightly 22:00 ET scheduled deploy + manual break-glass |
+| **staging** | `staging` | Manual CD only (no maintenance window enforcement) |
+| **production** | `production` | Manual CD only; optional required reviewers |
+
+Create each under **Settings → Environments** in GitHub.
+
+## Required secrets (per environment)
+
+Copy the **same values** into all three environments until infra diverges.
+
+| Secret | Purpose |
+|--------|---------|
+| `AZURE_CLIENT_ID` | Entra app registration for GitHub OIDC |
+| `AZURE_TENANT_ID` | Entra tenant |
+| `AZURE_SUBSCRIPTION_ID` | Deployment subscription |
+| `ACR_LOGIN_SERVER` | e.g. `acrarchluciddev.azurecr.io` |
+| `AZURE_RESOURCE_GROUP` | e.g. `rg-ArchLucid-dev` |
+| `CONTAINER_APP_API_NAME` | e.g. `archlucid-api` |
+| `CONTAINER_APP_WORKER_NAME` | e.g. `archlucid-worker` (optional) |
+| `CONTAINER_APP_UI_NAME` | e.g. `archlucid-ui` (optional) |
+| `SMOKE_TEST_BASE_URL` | Public API base URL (no trailing slash) |
+| `ARCHLUCID_API_KEY` | Admin API key (`X-Api-Key`) for OpenAPI post-deploy probe |
+| `TF_WORKING_DIRECTORY` | e.g. `infra/terraform-container-apps` (optional) |
+
+### dev-only secrets
+
+| Secret | Purpose |
+|--------|---------|
+| `DEV_TFVARS` | Multiline HCL body for `dev.tfvars` when planning/applying container-apps Terraform |
+
+## Repository variables (recommended)
+
+Set under **Settings → Secrets and variables → Actions → Variables** (or per-environment where noted).
+
+| Variable | Suggested value (dev) | Purpose |
+|----------|----------------------|---------|
+| `CD_ROLLBACK_ON_SMOKE_FAILURE` | `true` | Deactivate failed API/worker revisions after smoke |
+| `CD_POST_DEPLOY_MAX_ATTEMPTS` | `6` | Retry deployment-evidence probes during cold start |
+| `CD_POST_DEPLOY_RETRY_WAIT_SECONDS` | `10` | Wait between probe attempts |
+| `CD_MAINTENANCE_WINDOW_OVERRIDE` | unset (`false`) | Set `true` for break-glass dev deploy outside 22:00 ET |
+
+## Dev maintenance window (22:00–23:00 America/New_York)
+
+- **Scheduled deploy:** `cd.yml` runs at **22:00** `America/New_York` daily (`target=dev`, `action=deploy`).
+- **Manual dev deploy:** Allowed only during hour **22** ET unless `CD_MAINTENANCE_WINDOW_OVERRIDE=true`.
+- **Confirmation deadline:** Post-deploy validation must pass before **23:00** ET; otherwise the workflow fails and rollback runs when `CD_ROLLBACK_ON_SMOKE_FAILURE=true`.
+
+Staging and production are **not** window-gated (manual `workflow_dispatch` only).
+
+## Bootstrap script
+
+From repo root (requires `gh` CLI and repo admin):
+
+```powershell
+.\scripts\ci\bootstrap-github-cd-environments.ps1 `
+  -AdminApiKey '<same value as Container App Authentication__ApiKey__AdminKey>' `
+  -AzureClientId '<oidc-app-client-id>' `
+  -AzureTenantId '<tenant-id>' `
+  -AzureSubscriptionId '<subscription-id>' `
+  -AcrLoginServer 'acrarchluciddev.azurecr.io' `
+  -AzureResourceGroup 'rg-ArchLucid-dev' `
+  -SmokeTestBaseUrl 'https://<api-fqdn>' `
+  -AlertSmsPhone '<digits-only-us-cell>' `
+  -AlertVoicePhone '<digits-only-us-cell>'
+```
+
+This sets environment secrets/variables for **dev**, **staging**, and **production** (same Azure targets for now). Phone numbers are stored only in GitHub Secrets / Terraform apply inputs, not in git.
+
+## P0 alerting (SMS + voice)
+
+Apply `infra/terraform-monitoring` with `enable_critical_action_group=true` and phone numbers from Key Vault or `TF_VAR_alert_sms_phone_number` / `TF_VAR_alert_voice_phone_number`. See [`infra/terraform-monitoring/dev.tfvars.example`](../../infra/terraform-monitoring/dev.tfvars.example).
+
+P0 Prometheus rules route to the **critical** action group; dev CPU/SLO alerts stay on the email-only **ops** group unless you wire Prometheus workspace IDs.
