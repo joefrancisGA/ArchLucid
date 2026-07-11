@@ -68,6 +68,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   "alert-simulation": "Alert simulation",
   "alert-tuning": "Alert tuning",
   "policy-packs": "Policy packs",
+  "first-30-days": "Governance setup",
   "governance-resolution": OPERATOR_NAV_LINK_LABELS.governanceResolution,
   governance: "Governance",
   findings: "Findings",
