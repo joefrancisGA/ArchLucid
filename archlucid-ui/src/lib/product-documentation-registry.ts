@@ -443,8 +443,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "alerts",
-    title: "Alerts",
-    summary: "Triage governance alerts and configure alert rules, routing, and simulation.",
+    title: "Understanding governance alerts",
+    summary:
+      "Learn how ArchLucid identifies governance risks, routes them to the right owners, and tracks resolution.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/ALERTS_OPERATOR_GUIDE.md"],
   },

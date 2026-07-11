@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
+import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
 import { HelpHowArchLucidWorksGuideView } from "../_sections/HelpHowArchLucidWorksGuideView";
@@ -55,6 +56,10 @@ function renderHelpTopicView(loaded: NonNullable<ReturnType<typeof tryLoadProduc
 
   if (loaded.entry.slug === "troubleshooting") {
     return <HelpTroubleshootingGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "alerts") {
+    return <HelpAlertsGuideView entry={loaded.entry} />;
   }
 
   return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;
