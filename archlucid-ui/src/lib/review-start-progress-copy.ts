@@ -4,6 +4,14 @@ export const REVIEW_START_PREPARING_LABEL = "Preparing architecture review…";
 
 export const REVIEW_START_OPENING_LABEL = "Opening review…";
 
+export const OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL = "Opening completed review…";
+
+export const OPERATOR_HOME_PREPARING_ARCHITECTURE_WORKSPACE_LABEL = "Preparing architecture workspace…";
+
+export const OPERATOR_HOME_OPENING_CREATION_EXAMPLE_LABEL = "Opening creation example…";
+
+export const OPERATOR_HOME_RUNNING_GUIDED_REVIEW_LABEL = "Running guided review…";
+
 export const REVIEW_START_NAVIGATION_FAILED_MESSAGE =
   "We could not start the architecture review. Your selections have been preserved. Try again.";
 

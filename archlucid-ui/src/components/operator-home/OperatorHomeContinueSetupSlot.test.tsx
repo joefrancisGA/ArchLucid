@@ -6,15 +6,26 @@ vi.mock("next/link", () => ({
 }));
 
 const useFinishSetupReadinessContext = vi.fn();
+const useNavCommittedArchitectureReview = vi.fn();
 
 vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
   useFinishSetupReadinessContext: () => useFinishSetupReadinessContext(),
 }));
 
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: () => useNavCommittedArchitectureReview(),
+}));
+
+import {
+  OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
+  OPERATOR_HOME_READY_TO_BEGIN_TITLE,
+} from "@/lib/buyer-polish-copy";
+
 import { OperatorHomeContinueSetupSlot } from "./OperatorHomeContinueSetupSlot";
 
 describe("OperatorHomeContinueSetupSlot", () => {
-  it("renders Continue setup prominently when setup is incomplete", () => {
+  it("renders readiness prominently for first-run tenants with a blocker", () => {
+    useNavCommittedArchitectureReview.mockReturnValue(false);
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
       context: {
@@ -29,12 +40,14 @@ describe("OperatorHomeContinueSetupSlot", () => {
     render(<OperatorHomeContinueSetupSlot placement="prominent" />);
 
     expect(screen.getByTestId("home-block-continue-setup")).toBeInTheDocument();
-    expect(screen.getByTestId("inline-guidance-setup-readiness")).toHaveTextContent("Setup readiness:");
-    expect(screen.getByText("1 of 4 complete")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open guide" })).toHaveAttribute("href", "/onboarding");
+    expect(screen.getByTestId("operator-home-readiness-blocker")).toHaveTextContent(
+      OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
+    );
+    expect(screen.queryByText(/of \d+ complete/i)).not.toBeInTheDocument();
   });
 
-  it("hides Continue setup when every tracked setup step is complete", () => {
+  it("keeps readiness visible when optional setup remains but required access is ready", () => {
+    useNavCommittedArchitectureReview.mockReturnValue(false);
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
       context: {
@@ -43,6 +56,25 @@ describe("OperatorHomeContinueSetupSlot", () => {
         principalAdmin: true,
       },
       readyCount: 4,
+      totalCount: 4,
+    });
+
+    render(<OperatorHomeContinueSetupSlot placement="prominent" />);
+
+    expect(screen.getByTestId("home-block-continue-setup")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_READY_TO_BEGIN_TITLE })).toBeInTheDocument();
+  });
+
+  it("hides readiness after the tenant has committed workspace activity", () => {
+    useNavCommittedArchitectureReview.mockReturnValue(true);
+    useFinishSetupReadinessContext.mockReturnValue({
+      phase: "ready",
+      context: {
+        healthReady: true,
+        healthLoadFailed: false,
+        principalAdmin: false,
+      },
+      readyCount: 1,
       totalCount: 4,
     });
 

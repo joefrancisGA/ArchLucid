@@ -54,6 +54,7 @@ vi.mock("@/components/OperatorHomeGate", () => ({
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => false,
+  useNavCallerAuthorityRank: () => 3,
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: 3,
     isAuthorityLoading: false,
@@ -181,7 +182,7 @@ describe("HomePage — buyer-polished shell", () => {
     expect(screen.queryByTestId("operator-home-sample-review-preview")).toBeNull();
     expect(screen.getByTestId("operator-home-explore-sample-section")).toBeInTheDocument();
 
-    const workspaceActivityHeading = screen.getByRole("heading", { name: "Workspace activity" });
+    const workspaceActivityHeading = screen.getByRole("heading", { name: "Recent reviews" });
     expect(workspaceActivityHeading).toBeInTheDocument();
 
     const exploreSample = screen.getByTestId("operator-home-explore-sample-section");
@@ -207,7 +208,7 @@ describe("HomePage (55R smoke — landing)", () => {
   it("renders dual-path hero, workspace activity, consolidated explore sample section, and collapsed setup section", async () => {
     await renderHomePage();
 
-    expect(screen.getByRole("heading", { name: "Workspace activity" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Recent reviews" })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-example-request-panel")).toBeNull();
     expect(screen.queryByTestId("operator-home-sample-review-preview")).toBeNull();
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
@@ -219,12 +220,9 @@ describe("HomePage (55R smoke — landing)", () => {
       "href",
       "/reviews/new?template=claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Run sample review" })).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-explore-open-completed-sample")).toHaveAttribute(
-      "href",
-      "/reviews/claims-intake-modernization",
-    );
-    expect(screen.getAllByRole("link", { name: "Open completed sample" })).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "Run guided review" })).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-explore-open-completed-sample")).toBeNull();
+    expect(screen.getByRole("link", { name: "Open completed review" })).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     });
@@ -236,9 +234,9 @@ describe("HomePage (55R smoke — landing)", () => {
   it("exposes create and review CTAs from the dual-path hero", async () => {
     await renderHomePage();
 
-    expect(screen.getByRole("link", { name: "Create architecture" })).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByRole("link", { name: "Run sample review" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Create architecture" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Start review" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Run guided review" })).toBeInTheDocument();
   });
 
   it("exposes primary workflow destinations matching shell review paths", async () => {

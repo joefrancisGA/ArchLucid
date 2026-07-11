@@ -5,11 +5,16 @@ vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
 
-import { OPERATOR_HOME_CARD_SECTION_HEADING, INLINE_GUIDANCE_LABEL_CLASS } from "@/lib/design-tokens";
+import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import {
+  OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
+  OPERATOR_HOME_CONNECT_CLOUD_BODY,
   OPERATOR_HOME_CONTINUE_SETUP_BODY,
-  OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE,
-  OPERATOR_HOME_SETUP_READINESS_TITLE,
+  OPERATOR_HOME_INVITE_COLLABORATORS_BODY,
+  OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE,
+  OPERATOR_HOME_READY_TO_BEGIN_TITLE,
+  OPERATOR_HOME_SETUP_STATUS_OPTIONAL,
+  OPERATOR_HOME_SETUP_STATUS_READY,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
@@ -20,28 +25,31 @@ import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
 import { OperatorHomeContinueSetupCard } from "./OperatorHomeContinueSetupCard";
 
 describe("OperatorHomeContinueSetupCard", () => {
-  it("renders the Continue setup card with setup guide CTA", () => {
-    render(<OperatorHomeContinueSetupCard />);
+  it("renders ready-to-begin copy with explicit optional setup items", () => {
+    render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
 
     expect(screen.getByTestId("home-block-continue-setup")).toBeInTheDocument();
 
-    const heading = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_SETUP_READINESS_TITLE });
+    const heading = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_READY_TO_BEGIN_TITLE });
 
     expect(heading).toBeInTheDocument();
     expect(heading.className).toContain("tracking-tight");
     expect(OPERATOR_HOME_CARD_SECTION_HEADING).toContain("tracking-tight");
-    expect(screen.getByTestId("inline-guidance-optional-setup")).toHaveTextContent(
-      PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
-    );
-    expect(screen.getByTestId("inline-guidance-optional-setup")).toHaveClass(INLINE_GUIDANCE_LABEL_CLASS.split(" ")[0]);
     expect(screen.getByText(OPERATOR_HOME_CONTINUE_SETUP_BODY)).toBeInTheDocument();
-    expect(screen.getByTestId("inline-guidance-setup-next-action")).toHaveTextContent("Next:");
-    expect(screen.getByText(OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE)).toBeInTheDocument();
-    expect(screen.queryByText(/evidence checklist/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-setup-workspace-access-status")).toHaveTextContent(
+      OPERATOR_HOME_SETUP_STATUS_READY,
+    );
+    expect(screen.getByTestId("operator-home-setup-cloud-status")).toHaveTextContent(
+      OPERATOR_HOME_SETUP_STATUS_OPTIONAL,
+    );
+    expect(screen.getByTestId("operator-home-setup-reviewer-status")).toHaveTextContent(
+      OPERATOR_HOME_SETUP_STATUS_OPTIONAL,
+    );
+    expect(screen.getByRole("heading", { level: 3, name: PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL })).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_CONNECT_CLOUD_BODY)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_INVITE_COLLABORATORS_BODY)).toBeInTheDocument();
+    expect(screen.queryByText(/of \d+ complete/i)).not.toBeInTheDocument();
 
-    const setupGuideLink = screen.getByRole("link", { name: "Open guide" });
-
-    expect(setupGuideLink).toHaveAttribute("href", "/onboarding");
     expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toHaveAttribute(
       "href",
       CLOUD_CONNECTIONS_PATH,
@@ -50,24 +58,15 @@ describe("OperatorHomeContinueSetupCard", () => {
       "href",
       INVITE_REVIEWER_PATH,
     );
-    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER })).toBeInTheDocument();
-    expect(screen.queryByText(/Continue getting started/i)).not.toBeInTheDocument();
   });
 
-  it("shows optional setup readiness status when counts are provided", () => {
-    render(<OperatorHomeContinueSetupCard readyCount={2} totalCount={4} loading={false} />);
+  it("shows an explicit blocker instead of fractional readiness counts", () => {
+    render(<OperatorHomeContinueSetupCard canBegin={false} blockerMessage={OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER} />);
 
-    expect(screen.getByTestId("inline-guidance-setup-readiness")).toHaveTextContent("Setup readiness:");
-    expect(screen.getByText("2 of 4 complete")).toBeInTheDocument();
-  });
-
-  it("keeps the setup CTA as a link (not a button) to the onboarding guide", () => {
-    render(<OperatorHomeContinueSetupCard readyCount={1} totalCount={4} />);
-
-    const setupGuideLink = screen.getByRole("link", { name: "Open guide" });
-
-    expect(setupGuideLink).toHaveAttribute("href", "/onboarding");
-    expect(screen.queryByRole("button", { name: "Open guide" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-readiness-blocker")).toHaveTextContent(
+      OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
+    );
+    expect(screen.queryByText(/of \d+ complete/i)).not.toBeInTheDocument();
   });
 });

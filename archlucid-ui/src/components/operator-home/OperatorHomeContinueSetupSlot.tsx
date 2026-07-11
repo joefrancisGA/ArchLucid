@@ -1,40 +1,33 @@
 "use client";
 
+import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorHomeContinueSetupCard } from "@/components/operator-home/OperatorHomeContinueSetupCard";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
-import { areFinishSetupRequiredStepsComplete } from "@/lib/finish-setup-wizard-steps";
-import {
-  resolveOperatorHomeContinueSetupPlacement,
-  type OperatorHomeContinueSetupPlacement,
-} from "@/lib/resolve-operator-home-continue-setup-placement";
-import { resolveOperatorHomeSetupNextActionId } from "@/lib/resolve-operator-home-setup-next-action";
+import { resolveOperatorHomeWorkspaceReadiness } from "@/lib/operator-home-workspace-readiness";
 
 type OperatorHomeContinueSetupSlotProps = {
-  readonly placement: OperatorHomeContinueSetupPlacement;
+  readonly placement: "prominent" | "hidden";
 };
 
-/** Renders Continue setup on Overview only when placement matches setup readiness. */
+/** Renders workspace readiness on Overview for first-run tenants only. */
 export function OperatorHomeContinueSetupSlot(props: OperatorHomeContinueSetupSlotProps): React.JSX.Element | null {
+  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const readiness = useFinishSetupReadinessContext();
-  const requiredStepsComplete =
-    readiness.context !== null ? areFinishSetupRequiredStepsComplete(readiness.context) : false;
-  const resolvedPlacement = resolveOperatorHomeContinueSetupPlacement({
-    phase: readiness.phase,
-    readyCount: readiness.readyCount,
-    totalCount: readiness.totalCount,
-    requiredStepsComplete,
-  });
 
-  if (resolvedPlacement !== props.placement) {
+  if (props.placement !== "prominent" || hasCommittedArchitectureReview) {
     return null;
   }
 
+  const workspaceReadiness =
+    readiness.context !== null
+      ? resolveOperatorHomeWorkspaceReadiness(readiness.context)
+      : { canBegin: true, blockerMessage: null };
+
   return (
     <OperatorHomeContinueSetupCard
-      readyCount={readiness.readyCount}
-      totalCount={readiness.totalCount}
       loading={readiness.phase === "loading"}
-      setupNextActionId={resolveOperatorHomeSetupNextActionId(readiness.readyCount, readiness.totalCount)}
+      canBegin={workspaceReadiness.canBegin}
+      blockerMessage={workspaceReadiness.blockerMessage}
     />
   );
 }

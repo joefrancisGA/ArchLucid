@@ -12,11 +12,22 @@ import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
   OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
-  OPERATOR_HOME_SETUP_READINESS_TITLE,
-  PILOT_COMMAND_CENTER_HEADING,
+  OPERATOR_HOME_INTENT_CHOOSER_HEADING,
+  OPERATOR_HOME_READY_TO_BEGIN_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
@@ -90,7 +101,7 @@ describe("operator home peer card titles", () => {
     renderWithOperatorQuery(<PilotCommandCenterCard />);
     render(<OperatorHomeExploreSampleSection />);
 
-    const heroTitle = screen.getByRole("heading", { level: 2, name: PILOT_COMMAND_CENTER_HEADING });
+    const heroTitle = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_INTENT_CHOOSER_HEADING });
     const exploreSampleTitle = screen.getByRole("heading", {
       level: 2,
       name: OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
@@ -100,8 +111,8 @@ describe("operator home peer card titles", () => {
     expectPeerCardTitleClasses(exploreSampleTitle.className);
   });
 
-  it("uses the same peer-card title scale for Setup readiness, Workspace metrics, and Explore ArchLucid", () => {
-    render(<OperatorHomeContinueSetupCard />);
+  it("uses the same peer-card title scale for readiness, Workspace metrics, and Explore ArchLucid", () => {
+    render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={emptyRunsDashboard} />);
     render(
@@ -118,7 +129,7 @@ describe("operator home peer card titles", () => {
       </OperatorHomeDisclosureSection>,
     );
 
-    for (const name of [OPERATOR_HOME_SETUP_READINESS_TITLE, "Workspace metrics and status", OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE]) {
+    for (const name of [OPERATOR_HOME_READY_TO_BEGIN_TITLE, "Workspace metrics and status", OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE]) {
       expectPeerCardTitleClasses(screen.getByRole("heading", { level: 2, name }).className);
     }
   });

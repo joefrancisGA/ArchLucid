@@ -7,8 +7,8 @@ import type { OperatorHomePageViewModel } from "@/app/(operator)/_sections/opera
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
   OPERATOR_HOME_RECENT_REVIEWS_HEADING,
-  OPERATOR_HOME_SETUP_READINESS_TITLE,
-  PILOT_COMMAND_CENTER_HEADING,
+  OPERATOR_HOME_INTENT_CHOOSER_HEADING,
+  OPERATOR_HOME_READY_TO_BEGIN_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
@@ -79,6 +79,7 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
+  useNavCallerAuthorityRank: () => 3,
 }));
 
 vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
@@ -198,11 +199,11 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
     const { container } = renderWithOperatorQuery(<OperatorHomePageView model={mockHomeModel(false)} />);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: PILOT_COMMAND_CENTER_HEADING })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: OPERATOR_HOME_INTENT_CHOOSER_HEADING })).toBeInTheDocument();
     });
 
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_SETUP_READINESS_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_READY_TO_BEGIN_TITLE })).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeInTheDocument();
@@ -215,11 +216,11 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
     const { container } = renderWithOperatorQuery(<OperatorHomePageView model={mockHomeModel(true)} />);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: PILOT_COMMAND_CENTER_HEADING })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: OPERATOR_HOME_INTENT_CHOOSER_HEADING })).toBeInTheDocument();
     });
 
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_SETUP_READINESS_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_READY_TO_BEGIN_TITLE })).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeInTheDocument();

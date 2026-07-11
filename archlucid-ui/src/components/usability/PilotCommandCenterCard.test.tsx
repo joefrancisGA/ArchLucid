@@ -5,14 +5,12 @@ import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCente
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
-  OPERATOR_HOME_DUAL_PATH_CHOOSER_GUIDANCE,
+  OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-  OPERATOR_HOME_RECOMMENDED_FIRST_BADGE,
-  OPERATOR_HOME_RECOMMENDED_NEXT_LABEL,
-  OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE,
+  OPERATOR_HOME_INTENT_CHOOSER_HEADING,
+  OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
-  PILOT_COMMAND_CENTER_HEADING,
 } from "@/lib/buyer-polish-copy";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
@@ -24,6 +22,17 @@ import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
+}));
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    prefetch: vi.fn(),
+  }),
 }));
 
 vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
@@ -61,18 +70,19 @@ describe("PilotCommandCenterCard", () => {
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(emptyCommitContext);
   });
 
-  it("shows dual-path hero copy before committed workspace activity", () => {
+  it("shows three intent paths before committed workspace activity", () => {
     renderWithOperatorQuery(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-command-center-tagline")).toHaveTextContent(
       OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
     );
+    expect(screen.getByTestId("pilot-command-center-tagline")).not.toHaveTextContent(/Either way/i);
 
     expect(
-      screen.getByRole("heading", { level: 2, name: PILOT_COMMAND_CENTER_HEADING }),
+      screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_INTENT_CHOOSER_HEADING }),
     ).toBeInTheDocument();
 
-    const title = screen.getByRole("heading", { level: 2, name: PILOT_COMMAND_CENTER_HEADING });
+    const title = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_INTENT_CHOOSER_HEADING });
     expect(title.className).toContain("text-[15px]");
     expect(title.className).not.toContain("text-lg");
 
@@ -83,26 +93,21 @@ describe("PilotCommandCenterCard", () => {
     }
 
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
-    expect(screen.getByTestId("inline-guidance-recommended-next")).toHaveTextContent(
-      OPERATOR_HOME_RECOMMENDED_NEXT_LABEL,
+    expect(screen.getByTestId("operator-home-explore-recommended-badge")).toHaveTextContent(
+      OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
     );
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE })).toHaveAttribute(
+    expect(screen.getByTestId("operator-home-explore-completed-review-cta")).toHaveAttribute(
       "href",
       showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
     );
-    expect(screen.getByTestId("operator-home-dual-path-chooser-guidance")).toHaveTextContent(
-      OPERATOR_HOME_DUAL_PATH_CHOOSER_GUIDANCE,
-    );
-    expect(screen.getByTestId("operator-home-review-recommended-first")).toHaveTextContent(
-      OPERATOR_HOME_RECOMMENDED_FIRST_BADGE,
-    );
-    expect(screen.getByTestId("operator-home-create-architecture-cta")).toHaveAttribute(
-      "href",
-      REVIEWS_NEW_GUIDED_INTAKE_HREF,
-    );
-    expect(screen.getByTestId("operator-home-review-architecture-cta")).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-create-architecture-cta")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-review-architecture-cta")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toBeInTheDocument();
+    expect(screen.queryByTestId("inline-guidance-recommended-next")).toBeNull();
+    expect(screen.queryByText(/Recommended first/i)).toBeNull();
+    expect(screen.queryByText(/Recommended next/i)).toBeNull();
   });
 
   it("shows workspace overview hero copy after committed workspace activity", () => {
@@ -128,16 +133,6 @@ describe("PilotCommandCenterCard", () => {
 
     expect(screen.getByTestId("pilot-command-center-lead")).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
-  });
-
-  it("shows dual-path hero cards without a duplicate sample CTA before first commit", () => {
-    renderWithOperatorQuery(<PilotCommandCenterCard />);
-
-    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
-    expect(screen.queryByTestId("pilot-command-center-open-completed-sample")).toBeNull();
-    expect(screen.queryByTestId("pilot-command-center-cta-row")).toBeNull();
-    expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
-    expect(screen.queryByTestId("pilot-path-preview-stepper")).toBeNull();
   });
 
   it("does not render optional setup links on the hero card", () => {

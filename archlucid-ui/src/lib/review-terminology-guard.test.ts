@@ -130,8 +130,8 @@ describe("review terminology guard", () => {
     expect(governanceModeVocabulary(true).reviewPlural).toBe("Reviews");
     expect(RUNS_EMPTY.title).toBe("No architecture packages yet");
     expect(RUNS_EMPTY_COMPACT.title).toBe("No architecture packages yet");
-    expect(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE).toBe("No architecture packages yet");
-    expect(OPERATOR_HOME_WORKSPACE_EMPTY_BODY.toLowerCase()).toContain("create or review an architecture");
+    expect(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE).toBe("No reviews yet");
+    expect(OPERATOR_HOME_WORKSPACE_EMPTY_BODY.toLowerCase()).toContain("completed and in-progress");
   });
 
   it("architect workspace copy files avoid legacy operator persona labels", () => {
