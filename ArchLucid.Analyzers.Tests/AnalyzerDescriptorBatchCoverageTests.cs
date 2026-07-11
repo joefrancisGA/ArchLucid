@@ -93,9 +93,27 @@ public sealed class AnalyzerDescriptorBatchCoverageTests
     }
 
     [Fact]
-    public void Arch005_descriptor_is_enabled_by_default()
+    public void Arch006_descriptor_exposes_rule_metadata()
     {
-        Assert.Equal("ARCH005", Arch005Descriptor.Rule.Id);
-        Assert.True(Arch005Descriptor.Rule.IsEnabledByDefault);
+        Assert.Equal("ARCH006", Arch006Descriptor.UnscopedTableRule.Id);
+        Assert.Equal("ARCH006a", Arch006Descriptor.UnanalyzableSqlRule.Id);
+        Assert.Equal("ARCH006b", Arch006Descriptor.EmptyExemptionJustificationRule.Id);
+        Assert.Equal("ArchLucid.Security", Arch006Descriptor.UnscopedTableRule.Category);
+        Assert.True(Arch006Descriptor.UnscopedTableRule.IsEnabledByDefault);
+    }
+
+    [Fact]
+    public void Arch006_descriptor_factories_create_expected_diagnostics()
+    {
+        Microsoft.CodeAnalysis.Diagnostic unscoped =
+            Arch006Descriptor.CreateUnscopedTable(Microsoft.CodeAnalysis.Location.None, "Runs");
+        Microsoft.CodeAnalysis.Diagnostic unanalyzable =
+            Arch006Descriptor.CreateUnanalyzableSql(Microsoft.CodeAnalysis.Location.None, "Runs");
+        Microsoft.CodeAnalysis.Diagnostic emptyJustification =
+            Arch006Descriptor.CreateEmptyExemptionJustification(Microsoft.CodeAnalysis.Location.None, "method");
+
+        Assert.Equal(Arch006Descriptor.UnscopedTableId, unscoped.Id);
+        Assert.Equal(Arch006Descriptor.UnanalyzableSqlId, unanalyzable.Id);
+        Assert.Equal(Arch006Descriptor.EmptyExemptionJustificationId, emptyJustification.Id);
     }
 }

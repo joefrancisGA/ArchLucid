@@ -63,6 +63,7 @@ public sealed class SqlAuditImmutabilityRulesCoverageTests
         string? resolved = SqlAuditImmutabilityRules.ResolveAuditCatalogConnectionString(configuration);
 
         resolved.Should().Be(ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration));
+        resolved.Should().Contain("ArchLucid");
     }
 
     private sealed class TestHostEnvironment : IHostEnvironment

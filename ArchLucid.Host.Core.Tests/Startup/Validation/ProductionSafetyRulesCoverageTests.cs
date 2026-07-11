@@ -1,3 +1,5 @@
+using System.Text;
+
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Startup.Validation.Rules;
@@ -77,12 +79,18 @@ public sealed class ProductionSafetyRulesCoverageTests
     [Fact]
     public void CollectTrialAuthExternalId_requires_tenant_id_when_mode_enabled()
     {
-        Dictionary<string, string?> settings = new()
-        {
-            ["Auth:Trial:Modes:0"] = TrialAuthModeConstants.MsaExternalId,
-            ["Auth:Trial:ExternalIdTenantId"] = "",
-        };
-        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(settings!).Build();
+        const string json = """
+                            {
+                              "Auth": {
+                                "Trial": {
+                                  "Modes": [ "MsaExternalId" ],
+                                  "ExternalIdTenantId": ""
+                                }
+                              }
+                            }
+                            """;
+        using MemoryStream stream = new(Encoding.UTF8.GetBytes(json));
+        IConfiguration configuration = new ConfigurationBuilder().AddJsonStream(stream).Build();
         List<string> errors = [];
 
         ProductionSafetyRules.CollectTrialAuthExternalId(configuration, errors);
