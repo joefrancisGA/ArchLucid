@@ -216,7 +216,7 @@ function buildPrimaryActions(
   input: BuildArchitectureCreatedHomeModelInput,
 ): ArchitectureCreatedPrimaryAction[] {
   const clarifyHref = REVIEWS_NEW_CREATE_ARCHITECTURE_HREF;
-  const diagramHref = "#capture-evidence";
+  const diagramHref = "#architecture-diagram";
   const assessmentHref = "#architecture-assessment-progress";
   const hasClarificationGaps = buildMissingItems(input).some(
     (item) => item.id === "business-outcome" || item.id === "architecture-overview" || item.id === "people-systems",
@@ -310,6 +310,7 @@ export function buildArchitectureCreatedHomeModel(
     primaryActions: buildPrimaryActions(input),
     overflowActions: [
       { label: "View assessment details", href: "#run-explanation" },
+      { label: "Architecture diagram", href: "#architecture-diagram" },
       { label: "Add evidence", href: "#capture-evidence" },
       { label: "Submitted architecture", href: "#submitted-architecture" },
     ],

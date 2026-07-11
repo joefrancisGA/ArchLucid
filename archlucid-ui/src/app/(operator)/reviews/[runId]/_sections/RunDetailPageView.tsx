@@ -333,7 +333,11 @@ export function RunDetailPageView(props: {
           main={
             <>
               {showArchitectureCreatedHome ? (
-                <RunDetailArchitectureCreatedFirstViewport baseline={architectureCreatedBaseline} />
+                <RunDetailArchitectureCreatedFirstViewport
+                  baseline={architectureCreatedBaseline}
+                  architectureSourceText={submittedArchitectureText ?? ""}
+                  canEditDiagram={!m.manifestId}
+                />
               ) : (
                 <>
                   <RunDetailWorkspaceHeader
