@@ -440,6 +440,31 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page): Promis
   await expect(deliverablesDetails).toHaveAttribute("open", "");
 }
 
+/** Buyer-polished run detail collapses `#sponsor-handoff` (Time-to-Value banner) by default — expand before sponsor PDF assertions. */
+export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page): Promise<void> {
+  const sponsorHandoff = page.locator("#sponsor-handoff").first();
+
+  await expect(sponsorHandoff).toBeVisible({ timeout: 60_000 });
+
+  const briefingDetails = page.locator("details:has(#sponsor-handoff)").first();
+
+  if ((await briefingDetails.count()) === 0) {
+    return;
+  }
+
+  const briefingSummary = briefingDetails.locator("summary").first();
+
+  await expect(briefingSummary).toBeVisible({ timeout: 60_000 });
+
+  const detailsOpen: boolean = await briefingDetails.evaluate((element) => (element as HTMLDetailsElement).open);
+
+  if (!detailsOpen) {
+    await briefingSummary.click();
+  }
+
+  await expect(briefingDetails).toHaveAttribute("open", "");
+}
+
 /** Opens buyer-polished run deliverables and switches to the ARB/audit artifact tab. */
 export async function openBuyerRunDetailArchitectureReviewBoardDeliverables(page: Page): Promise<Locator> {
   await ensureBuyerDeliverablesSectionExpanded(page);
