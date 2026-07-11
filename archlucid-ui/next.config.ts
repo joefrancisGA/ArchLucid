@@ -190,12 +190,6 @@ const nextConfig: NextConfig = {
       { source: "/settings/users", destination: "/settings/roles" },
       { source: "/settings/support", destination: "/admin/support" },
       { source: "/settings/support/:path*", destination: "/admin/support/:path*" },
-      // Integrations canonical URLs reuse settings cloud-connections App Router tree (TB-407).
-      { source: "/integrations/cloud-connections", destination: "/settings/cloud-connections" },
-      { source: "/integrations/cloud-connections/:path*", destination: "/settings/cloud-connections/:path*" },
-      // Semantic path aliases reuse existing App Router trees (TB-408).
-      { source: "/integrations/readiness", destination: "/integrations/operations" },
-      { source: "/integrations/readiness/:path*", destination: "/integrations/operations/:path*" },
       { source: "/settings/ai-usage", destination: "/settings/cost-reporting" },
       { source: "/settings/ai-usage/:path*", destination: "/settings/cost-reporting/:path*" },
     ];

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "Integration readiness",
 };
 
-export default function IntegrationsOperationsPage() {
+export default function IntegrationsReadinessPage() {
   return (
     <div className="w-full max-w-[1120px] space-y-6 px-1 py-4 sm:px-0">
       <OperatorPageHeader

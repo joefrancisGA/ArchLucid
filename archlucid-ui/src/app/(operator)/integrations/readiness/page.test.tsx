@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import IntegrationsOperationsPage from "@/app/(operator)/integrations/operations/page";
+import IntegrationsReadinessPage from "@/app/(operator)/integrations/readiness/page";
 
 vi.mock("@/components/integrations/ConnectorOperationsDashboard", () => ({
   ConnectorOperationsDashboard: () => <div data-testid="connector-operations-dashboard" />,
@@ -11,9 +11,9 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-describe("IntegrationsOperationsPage", () => {
+describe("IntegrationsReadinessPage", () => {
   it("renders operational intro and contextual help without inline layer guidance", () => {
-    render(<IntegrationsOperationsPage />);
+    render(<IntegrationsReadinessPage />);
 
     expect(screen.getByRole("heading", { name: "Integration readiness" })).toBeInTheDocument();
     expect(
