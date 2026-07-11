@@ -23,8 +23,8 @@ import {
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
-import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
-import { runIdFromReviewsHref } from "./helpers/run-id-from-href";
+import { expectLiveManifestDetailPageReady, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import { manifestIdFromSignedRecordHref, runIdFromReviewsHref } from "./helpers/run-id-from-href";
 
 const modes = (process.env.LIVE_TRIAL_E2E_MODES ?? "register-baseline")
   .split(",")
@@ -211,15 +211,17 @@ test.describe("live-api-trial-signup", () => {
       "Seeded sample run should expose a golden manifest link once summaries hydrate.",
     ).toBeVisible({ timeout: 120_000 });
 
-    await manifestLink.click();
+    const manifestHref = (await manifestLink.getAttribute("href")) ?? "";
+    const manifestId = manifestIdFromSignedRecordHref(manifestHref);
 
-    const manifestMain = page.locator("main");
+    expect(manifestId.length).toBeGreaterThan(0);
 
-    await expect(manifestMain.getByText(/Fetching manifest summary and artifacts/i)).toHaveCount(0, {
-      timeout: 120_000,
-    });
+    await Promise.all([
+      page.waitForURL(/\/(?:signed-records|manifests)\/.+/i, { waitUntil: "commit" }),
+      manifestLink.click(),
+    ]);
 
-    await expect(manifestMain.getByRole("heading", { name: "Manifest", level: 2 })).toBeVisible({ timeout: 120_000 });
+    await expectLiveManifestDetailPageReady(page, manifestId, { timeoutMs: 120_000 });
 
     const metricsRes = await request.get(`${liveApiBase}/metrics`, { timeout: 30_000 });
 

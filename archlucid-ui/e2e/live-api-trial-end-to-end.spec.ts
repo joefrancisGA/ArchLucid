@@ -22,7 +22,8 @@ import {
   searchAudit,
   waitForReadyForCommit,
 } from "./helpers/live-api-client";
-import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import { expectLiveManifestDetailPageReady, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import { manifestIdFromSignedRecordHref } from "./helpers/run-id-from-href";
 
 type Register201 = {
   tenantId: string;
@@ -242,17 +243,17 @@ test.describe("live-api-trial-end-to-end", () => {
       timeout: 120_000,
     });
 
-    await manifestLink.click();
+    const manifestHref = (await manifestLink.getAttribute("href")) ?? "";
+    const manifestId = manifestIdFromSignedRecordHref(manifestHref);
 
-    const manifestMain = page.locator("main");
+    expect(manifestId.length).toBeGreaterThan(0);
 
-    await expect(manifestMain.getByText(/Fetching manifest summary and artifacts/i)).toHaveCount(0, {
-      timeout: 120_000,
-    });
+    await Promise.all([
+      page.waitForURL(/\/(?:signed-records|manifests)\/.+/i, { waitUntil: "commit" }),
+      manifestLink.click(),
+    ]);
 
-    await expect(manifestMain.getByRole("heading", { name: "Manifest", level: 2 })).toBeVisible({ timeout: 120_000 });
-
-    await expect(manifestMain.getByRole("heading", { name: "Artifacts", level: 3 })).toBeVisible({ timeout: 120_000 });
+    await expectLiveManifestDetailPageReady(page, manifestId, { timeoutMs: 120_000 });
 
     const sampleRunId = trialJson.trialSampleRunId!.includes("-")
       ? trialJson.trialSampleRunId!
