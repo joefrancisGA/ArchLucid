@@ -101,6 +101,7 @@ Default **depth-first** material belongs under **`docs/library/`** or a topic su
 
 ## Related
 
+- [`docs/architecture/INFORMATION_ARCHITECTURE.md`](../architecture/INFORMATION_ARCHITECTURE.md) — five-category in-app and public-surface content taxonomy (`contentKind` on `/help` registry)
 - [`docs/go-to-market/UI_GLOSSARY_V1.md`](../go-to-market/UI_GLOSSARY_V1.md) — persona terms for customer-visible copy
 - [`docs/library/PILOT_GUIDE.md`](PILOT_GUIDE.md)
 - [`docs/contributor/README.md`](../engineering/CONTRIBUTOR_ON_ONE_PAGE.md)) (if present)

@@ -4,6 +4,11 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  isInternalRunbookSlug,
+  PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG,
+  type ProductDocumentationContentKind,
+} from "@/lib/product-documentation-content-kinds";
+import {
   getProductDocumentationEntry,
   inAppHelpHref,
   listProductDocumentationEntries,
@@ -141,6 +146,61 @@ describe("product-documentation-registry", () => {
 
     for (const [slug, pdfStatus] of Object.entries(expected)) {
       expect(getProductDocumentationEntry(slug)?.pdfStatus).toBe(pdfStatus);
+    }
+  });
+
+  it("declares contentKind on every registry entry (TB-732)", () => {
+    const registrySlugs = listProductDocumentationEntries().map((entry) => entry.slug);
+
+    expect(registrySlugs.length).toBeGreaterThan(0);
+
+    for (const entry of listProductDocumentationEntries()) {
+      expect(entry).toHaveProperty("contentKind");
+      expect(
+        entry.contentKind === "product-help" ||
+          entry.contentKind === "technical-documentation" ||
+          entry.contentKind === "internal-runbook",
+      ).toBe(true);
+      expect(entry.contentKind).toBe(PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG[entry.slug]);
+    }
+
+    for (const slug of Object.keys(PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG)) {
+      expect(registrySlugs, `orphan contentKind mapping for ${slug}`).toContain(slug);
+    }
+  });
+
+  it("tags internal-runbook slugs with internal-runbook contentKind (TB-732)", () => {
+    const internalRunbookSlugs = [
+      "first-pilot-operator-runbook",
+      "first-value-20-minutes",
+      "pre-commit-ci-gate",
+    ] as const;
+
+    for (const slug of internalRunbookSlugs) {
+      expect(isInternalRunbookSlug(slug)).toBe(true);
+      expect(getProductDocumentationEntry(slug)?.contentKind).toBe("internal-runbook");
+    }
+  });
+
+  it("tags technical-documentation slugs per IA foundation (TB-732)", () => {
+    const technicalSlugs: readonly string[] = [
+      "configuration-reference",
+      "operator-auth-roles",
+      "cli-usage",
+      "governance-api-contracts",
+      "admin-diagnostics",
+      "developer-troubleshooting",
+      "workload-identity-federation",
+      "azure-permissions",
+      "observability",
+      "projection-cache-replicas",
+    ];
+
+    for (const slug of technicalSlugs) {
+      const kind: ProductDocumentationContentKind | undefined =
+        getProductDocumentationEntry(slug)?.contentKind;
+
+      expect(kind, slug).toBe("technical-documentation");
     }
   });
 });

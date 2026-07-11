@@ -331,6 +331,7 @@ When adding or moving a route:
 
 **Related docs:**
 
+- [INFORMATION_ARCHITECTURE.md](INFORMATION_ARCHITECTURE.md) — five-category content taxonomy for `/help`, contextual help, marketing, and trust surfaces
 - [archlucid-ui/README.md](../../archlucid-ui/README.md) — run commands and legacy route table  
 - [NAV_CONFIG_CONTRACT.md](../../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md) — sidebar and authority contract  
 - [DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md) — Docker demo stack  
