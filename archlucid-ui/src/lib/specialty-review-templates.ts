@@ -1,5 +1,6 @@
-import type { WizardFormValues } from "@/lib/wizard-schema";
+import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { WizardFormValues } from "@/lib/wizard-schema";
 
 export const SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE = "Specialty review templates";
 
@@ -207,11 +208,11 @@ export const SPECIALTY_REVIEW_TEMPLATES_RELATED_LINKS = [
   { label: "Help choosing a template", href: "#need-help-choosing" },
 ] as const;
 
-export const SPECIALTY_REVIEW_TEMPLATES_GUIDE_HEADINGS = [
-  { id: "specialty-template-catalog", text: "Available templates" },
-  { id: "integrations-optional", text: "Integrations" },
-  { id: "need-help-choosing", text: "Need help choosing?" },
-] as const;
+export const SPECIALTY_REVIEW_TEMPLATES_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
+  { level: 2, id: "specialty-template-catalog", title: "Available templates" },
+  { level: 2, id: "integrations-optional", title: "Integrations" },
+  { level: 2, id: "need-help-choosing", title: "Need help choosing?" },
+];
 
 const REVIEW_INTAKE_CLOUD_QUERY_KEY = "cloud";
 
