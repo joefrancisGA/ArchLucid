@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
   deriveReplayValidationOutcome,
   replayValidationModeDefinition,
@@ -19,7 +19,7 @@ export type ReplayValidationResultPanelProps = {
 
 function outcomeKind(
   outcome: ReturnType<typeof deriveReplayValidationOutcome>,
-): "ready" | "needs-attention" | "danger" | "muted" {
+): EnterpriseStatusKind {
   switch (outcome) {
     case "valid":
       return "ready";
@@ -28,10 +28,10 @@ function outcomeKind(
       return "needs-attention";
     case "invalid":
     case "failed":
-      return "danger";
+      return "blocked";
     case "cancelled":
     case null:
-      return "muted";
+      return "neutral";
     default: {
       const exhaustive: never = outcome;
       return exhaustive;

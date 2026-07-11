@@ -4,7 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import { REPLAY_VALIDATION_HISTORY_EMPTY } from "@/lib/replay-validation-copy";
 import {
   formatReplayDurationLabel,
@@ -20,7 +20,7 @@ export type ReplayValidationHistorySectionProps = {
 
 function historyOutcomeKind(
   outcome: ReplayValidationHistoryEntry["outcome"],
-): "ready" | "needs-attention" | "danger" | "muted" {
+): EnterpriseStatusKind {
   switch (outcome) {
     case "valid":
       return "ready";
@@ -29,9 +29,9 @@ function historyOutcomeKind(
       return "needs-attention";
     case "invalid":
     case "failed":
-      return "danger";
+      return "blocked";
     case "cancelled":
-      return "muted";
+      return "neutral";
     default: {
       const exhaustive: never = outcome;
       return exhaustive;
