@@ -91,10 +91,14 @@ export function summarizeMaskedWebhookSubscription(metadataJson: string): {
 }
 
 export function buildWebhookSubscriptionMetadata(secret: string, eventTypes: string[]): string {
+  const trimmedSecret = secret.trim();
   const payload: WebhookSubscriptionMetadata & Record<string, unknown> = {
     eventTypes: [...new Set(eventTypes.map((e) => e.trim()).filter((e) => e.length > 0))],
-    webhookSharedSecret: secret.trim(),
   };
+
+  if (trimmedSecret.length > 0) {
+    payload.webhookSharedSecret = trimmedSecret;
+  }
 
   return JSON.stringify(payload);
 }
