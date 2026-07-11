@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Authority;
@@ -108,6 +108,7 @@ public sealed class DemoSeedService(
         await EnsureExportRecordAsync(demo, cancellationToken);
         await EnsureNorthwindProductTourWorkspaceSeedAsync(scope, cancellationToken);
         await EnsureMeridianAlpineRegulatedScenarioWorkspaceSeedAsync(scope, cancellationToken);
+
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Demo seed completed (Contoso Retail Modernization). Runs: {Baseline}, {Hardened}.", demo.RunBaseline, demo.RunHardened);
     }
@@ -627,6 +628,7 @@ public sealed class DemoSeedService(
         // ArchitectureRunDetail.DecisionTraces now reads from AuthorityDecisionTraces (see RunDetailQueryService).
         _ = traceId;
         RunRecord? authorityCommitted = await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken);
+
         if (authorityCommitted is not null)
         {
             authorityCommitted.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
@@ -772,6 +774,7 @@ public sealed class DemoSeedService(
                 Description = "Checkout API persists order and payment state."
             }
         ];
+
         if (!richSeed)
             return new GoldenManifest
             {
@@ -839,6 +842,7 @@ public sealed class DemoSeedService(
     private async Task EnsureGovernanceAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
         if (await approvalRepository.GetByIdAsync(demo.ApprovalRequest, cancellationToken) is null)
         {
             GovernanceApprovalRequest approval = new()
@@ -861,6 +865,7 @@ public sealed class DemoSeedService(
         }
 
         IReadOnlyList<GovernancePromotionRecord> promos = await promotionRepository.GetByRunIdAsync(demo.RunHardened, cancellationToken);
+
         if (promos.All(p => p.PromotionRecordId != demo.PromotionRecord))
         {
             GovernancePromotionRecord promotion = new()
@@ -887,6 +892,7 @@ public sealed class DemoSeedService(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<GovernanceEnvironmentActivation> rows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
+
         if (rows.Any(r => r.ActivationId == activationId))
             return;
         GovernanceEnvironmentActivation activation = new()
@@ -953,6 +959,7 @@ public sealed class DemoSeedService(
     private async Task EnsureNorthwindProductTourCommittedScenarioAsync(ScopeContext scope, CancellationToken cancellationToken)
     {
         Guid runGuid = DemoTourWorkspaceIds.AuthorityRunId(scope.TenantId);
+
         if (await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken) is not null)
 
             return;

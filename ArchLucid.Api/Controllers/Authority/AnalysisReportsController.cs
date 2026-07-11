@@ -81,6 +81,7 @@ public sealed class AnalysisReportsController(
         request.RunId = runId;
 
         RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+
         if (runDetail.Error is not null)
             return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
@@ -141,6 +142,7 @@ public sealed class AnalysisReportsController(
         request.RunId = runId;
 
         RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+
         if (runDetail.Error is not null)
             return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
@@ -176,6 +178,7 @@ public sealed class AnalysisReportsController(
         request.RunId = runId;
 
         RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+
         if (runDetail.Error is not null)
             return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
@@ -208,6 +211,7 @@ public sealed class AnalysisReportsController(
         request.RunId = runId;
 
         RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+
         if (runDetail.Error is not null)
             return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
@@ -244,6 +248,7 @@ public sealed class AnalysisReportsController(
         request.RunId = runId;
 
         RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+
         if (runDetail.Error is not null)
             return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
@@ -301,6 +306,7 @@ public sealed class AnalysisReportsController(
         await ApplyConsultingWhitelabelPrefillAsync(runId, request, cancellationToken);
 
         RunDetailLookup loaded = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+
         if (loaded.Error is not null)
             return loaded.Error;
 
@@ -394,6 +400,7 @@ public sealed class AnalysisReportsController(
         await ApplyConsultingWhitelabelPrefillAsync(runId, request, cancellationToken);
 
         RunDetailLookup loaded = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+
         if (loaded.Error is not null)
             return loaded.Error;
 

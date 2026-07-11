@@ -353,6 +353,7 @@ public sealed class AuthorityQueryController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         ManifestSummaryDto? result = await queryService.GetManifestSummaryAsync(scope, manifestId, ct);
+
         if (result is null)
             return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -405,6 +406,7 @@ public sealed class AuthorityQueryController(
                 "Coordinator-only or in-progress runs do not satisfy this contract.");
 
         DecisionProvenanceGraph? graph = await provenanceGraphAccess.ResolveGraphAsync(scope, detail, ct);
+
         if (graph is null)
             return this.UnprocessableEntityProblem(
                 "Provenance graph could not be resolved for this run.");

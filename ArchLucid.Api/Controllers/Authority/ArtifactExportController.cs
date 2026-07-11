@@ -72,6 +72,7 @@ public sealed class ArtifactExportController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
         if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
@@ -93,6 +94,7 @@ public sealed class ArtifactExportController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
@@ -115,6 +117,7 @@ public sealed class ArtifactExportController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
@@ -137,6 +140,7 @@ public sealed class ArtifactExportController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
@@ -164,6 +168,7 @@ public sealed class ArtifactExportController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
         if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
@@ -171,6 +176,7 @@ public sealed class ArtifactExportController(
 
         SynthesizedArtifact? artifact =
             await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
+
         if (artifact is null)
             return this.NotFoundProblem(
                 $"Artifact '{artifactId}' was not found for manifest '{manifestId}'.",
@@ -196,6 +202,7 @@ public sealed class ArtifactExportController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
         if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
@@ -203,6 +210,7 @@ public sealed class ArtifactExportController(
 
         SynthesizedArtifact? artifact =
             await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
+
         if (artifact is null)
             return this.NotFoundProblem($"Artifact '{artifactId}' was not found for manifest '{manifestId}'.",
                 ProblemTypes.ResourceNotFound);
@@ -236,6 +244,7 @@ public sealed class ArtifactExportController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
         if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
@@ -243,6 +252,7 @@ public sealed class ArtifactExportController(
 
         IReadOnlyList<SynthesizedArtifact> artifacts =
             await artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);
+
         if (artifacts.Count == 0)
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' has no artifact bundle or the bundle contains no artifacts. " +
@@ -379,6 +389,7 @@ public sealed class ArtifactExportController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
         if (runDetail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 

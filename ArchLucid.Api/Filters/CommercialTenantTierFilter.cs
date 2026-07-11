@@ -140,6 +140,7 @@ public sealed class CommercialTenantTierFilter(
         }
 
         // ApiKey/JWT live E2E jobs share the same greenfield SQL catalog without dbo.Tenants rows for default scope.
+
         if (isDevelopmentHost && liveE2eHarnessConfigured)
         {
             return true;

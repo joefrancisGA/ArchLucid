@@ -98,6 +98,7 @@ public static class ApplicationProblemMapper
                     d.Extensions["runId"] = qgx.RunId;
                     d.Extensions["traceId"] = qgx.TraceId;
                     d.Extensions["agentLabel"] = qgx.AgentLabel;
+
                     if (!string.IsNullOrWhiteSpace(qgx.EvaluationReason))
                         d.Extensions["evaluationReason"] = qgx.EvaluationReason!;
 
@@ -109,6 +110,7 @@ public static class ApplicationProblemMapper
 
         // Simulator / real executor wrap per-task failures so callers get dispatch key + AgentType; without mapping this
         // surfaced as HTTP 500 (ReplayRun/Execute only caught InvalidOperationException).
+
         if (ex is AgentHandlerExecutionException agentHandlerEx)
         {
             string detail = agentHandlerEx.InnerException is not null
@@ -168,6 +170,7 @@ public static class ApplicationProblemMapper
         // Authority pipeline uses CancellationTokenSource.CancelAfter(PipelineTimeout); that surfaces as
         // OperationCanceledException (same as TaskCanceledException). Without mapping, MVC yields HTTP 500 via the
         // generic handler while integration tests only retry HTTP 503 for cold-start SQL / transient outages.
+
         if (TryMapRetryableOperationCanceled(ex, httpContext, instance, out result))
             return true;
 
@@ -338,6 +341,7 @@ public static class ApplicationProblemMapper
             return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
 
         problem.Extensions["driftDetected"] = drift.DriftDetected;
+
         if (!string.IsNullOrWhiteSpace(drift.Summary))
             problem.Extensions["driftSummary"] = drift.Summary;
 
@@ -379,6 +383,7 @@ public static class ApplicationProblemMapper
         }
 
         // Parallel commits on the same run can deadlock; 409 matches other concurrency outcomes (ROWVERSION, unique key).
+
         if (TryFindSqlExceptionWithNumber(ex, 1205) is not null)
         {
             result = CreateProblemResult(
@@ -417,6 +422,7 @@ public static class ApplicationProblemMapper
 
         // Network-layer and Azure throttling codes that SqlTransientDetector already classifies for Polly retries
         // but that can still surface at the HTTP boundary when the open/operation budget is exhausted.
+
         if (SqlTransientDetector.IsTransient(ex))
         {
             result = CreateProblemResult(
@@ -459,6 +465,7 @@ public static class ApplicationProblemMapper
             return false;
 
         // Caller disconnected — avoid emitting application-layer 503 Problem Details for an aborted transport.
+
         if (httpContext.RequestAborted.IsCancellationRequested)
             return false;
 
