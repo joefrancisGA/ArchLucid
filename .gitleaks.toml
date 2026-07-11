@@ -59,6 +59,7 @@ paths = [
   '''(?:^|/)ArchLucid\.Application/Drafts/QuestionSelection/UniversalIntakeQuestions\.cs$''',
   '''(?:^|/)archlucid-ui/e2e/helpers/draft-intake-question-keys\.ts$''',
   '''(?:^|/)archlucid-ui/e2e/live-api-socratic-intake\.spec\.ts$''',
+  '''(?:^|/)archlucid-ui/src/lib/architecture-creation-question-definition\.ts$''',
 ]
 
 [[allowlists]]
