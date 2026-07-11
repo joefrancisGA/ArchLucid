@@ -70,8 +70,8 @@ function reviewDetailHref(runId: string): string {
 }
 
 function resolveShareHref(commitContext: CorePilotCommitContext): string {
-  if (commitContext.latestCommittedRunId !== null) {
-    return reviewDetailHref(commitContext.latestCommittedRunId);
+  if (commitContext.firstCommittedRunId !== null) {
+    return reviewDetailHref(commitContext.firstCommittedRunId);
   }
 
   return reviewDetailHref(SHOWCASE_STATIC_DEMO_RUN_ID);
@@ -311,10 +311,10 @@ export function resolveFirstReviewGuideHeaderActions(
   const { commitContext, canExecute } = input;
   const sampleHref = reviewDetailHref(SHOWCASE_STATIC_DEMO_RUN_ID);
 
-  if (commitContext.hasCommittedManifest && commitContext.latestCommittedRunId !== null) {
+  if (commitContext.hasCommittedManifest && commitContext.firstCommittedRunId !== null) {
     return {
       primaryLabel: "Open completed package",
-      primaryHref: reviewDetailHref(commitContext.latestCommittedRunId),
+      primaryHref: reviewDetailHref(commitContext.firstCommittedRunId),
       primaryDisabled: false,
       primaryDisabledReason: null,
       secondaryLabel: "Explore sample review",
