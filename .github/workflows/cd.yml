@@ -85,10 +85,10 @@ env:
 
 jobs:
   build-push-images:
-    name: Build and push images (${{ env.CD_TARGET }})
-    if: env.CD_ACTION == 'deploy'
+    name: Build and push images (${{ github.event.inputs.target || 'dev' }})
+    if: (github.event.inputs.action || 'deploy') == 'deploy'
     runs-on: ubuntu-latest
-    environment: ${{ env.CD_TARGET }}
+    environment: ${{ github.event.inputs.target || 'dev' }}
     outputs:
       image_tag: ${{ steps.image_tag_out.outputs.image_tag }}
       build_timestamp: ${{ steps.build_metadata.outputs.build_timestamp }}
@@ -103,7 +103,7 @@ jobs:
       - name: Dev maintenance window guard
         env:
           CD_MAINTENANCE_WINDOW_OVERRIDE: ${{ vars.CD_MAINTENANCE_WINDOW_OVERRIDE }}
-        run: bash scripts/ci/cd-maintenance-window-guard.sh "${{ env.CD_TARGET }}"
+        run: bash scripts/ci/cd-maintenance-window-guard.sh "${{ github.event.inputs.target || 'dev' }}"
 
       - name: Azure login (OIDC)
         uses: azure/login@v2
@@ -117,9 +117,9 @@ jobs:
           TAG="${{ vars.IMAGE_TAG }}"
           if [ -z "$TAG" ]; then TAG="${{ github.sha }}"; fi
           echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
-          if [ "${{ env.CD_TARGET }}" = "staging" ]; then
+          if [ "${{ github.event.inputs.target || 'dev' }}" = "staging" ]; then
             echo "LATEST_ALIAS=latest-staging" >> "$GITHUB_ENV"
-          elif [ "${{ env.CD_TARGET }}" = "dev" ]; then
+          elif [ "${{ github.event.inputs.target || 'dev' }}" = "dev" ]; then
             echo "LATEST_ALIAS=latest-dev" >> "$GITHUB_ENV"
           else
             echo "LATEST_ALIAS=latest-production" >> "$GITHUB_ENV"
@@ -130,7 +130,7 @@ jobs:
         run: |
           BUILD_TS="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           echo "BUILD_TIMESTAMP=$BUILD_TS" >> "$GITHUB_ENV"
-          echo "DEPLOY_ENV=${{ env.CD_TARGET }}" >> "$GITHUB_ENV"
+          echo "DEPLOY_ENV=${{ github.event.inputs.target || 'dev' }}" >> "$GITHUB_ENV"
           echo "build_timestamp=$BUILD_TS" >> "$GITHUB_OUTPUT"
 
       - name: Export image_tag output
@@ -217,11 +217,11 @@ jobs:
           cache-to: type=gha,scope=ui-docker-smoke-v2,mode=max
 
   terraform-plan:
-    name: Terraform plan (${{ env.CD_TARGET }})
+    name: Terraform plan (${{ github.event.inputs.target || 'dev' }})
     needs: build-push-images
-    if: env.CD_ACTION == 'deploy'
+    if: (github.event.inputs.action || 'deploy') == 'deploy'
     runs-on: ubuntu-latest
-    environment: ${{ env.CD_TARGET }}
+    environment: ${{ github.event.inputs.target || 'dev' }}
     outputs:
       plan_created: ${{ steps.plan_gate.outputs.plan_created }}
     env:
@@ -231,7 +231,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Materialize dev.tfvars from secret (optional)
-        if: env.CD_TARGET == 'dev'
+        if: (github.event.inputs.target || 'dev') == 'dev'
         env:
           DEV_TFVARS: ${{ secrets.DEV_TFVARS }}
           # Additive overlay: lets an agent/operator append new flags (e.g. enable_api_sql_runtime_identity)
@@ -278,7 +278,7 @@ jobs:
       - name: Terraform init and plan
         if: steps.plan_gate.outputs.plan_created == 'true'
         env:
-          TARGET: ${{ env.CD_TARGET }}
+          TARGET: ${{ github.event.inputs.target || 'dev' }}
         run: |
           cd "$TF_DIR"
           terraform init -input=false
@@ -312,7 +312,7 @@ jobs:
         if: steps.plan_gate.outputs.plan_created == 'true'
         uses: actions/upload-artifact@v7
         with:
-          name: tfplan-${{ env.CD_TARGET }}
+          name: tfplan-${{ github.event.inputs.target || 'dev' }}
           path: .cd-tfplan/tfplan
           if-no-files-found: error
 
@@ -320,20 +320,20 @@ jobs:
         if: steps.plan_gate.outputs.plan_created == 'true'
         run: |
           cd "$TF_DIR"
-          echo "## Terraform plan (${{ env.CD_TARGET }})" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Terraform plan (${{ github.event.inputs.target || 'dev' }})" >> "$GITHUB_STEP_SUMMARY"
           echo '```hcl' >> "$GITHUB_STEP_SUMMARY"
           terraform show -no-color tfplan >> "$GITHUB_STEP_SUMMARY" || true
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
   terraform-apply:
-    name: Terraform apply (${{ env.CD_TARGET }})
+    name: Terraform apply (${{ github.event.inputs.target || 'dev' }})
     needs: terraform-plan
     if: |
-      env.CD_ACTION == 'deploy' &&
+      (github.event.inputs.action || 'deploy') == 'deploy' &&
       (github.event.inputs.run_terraform_apply == true || github.event.inputs.run_terraform_apply == 'true') &&
       needs.terraform-plan.outputs.plan_created == 'true'
     runs-on: ubuntu-latest
-    environment: ${{ env.CD_TARGET }}
+    environment: ${{ github.event.inputs.target || 'dev' }}
     env:
       TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
     steps:
@@ -355,7 +355,7 @@ jobs:
       - name: Download Terraform plan
         uses: actions/download-artifact@v7
         with:
-          name: tfplan-${{ env.CD_TARGET }}
+          name: tfplan-${{ github.event.inputs.target || 'dev' }}
           path: ${{ runner.temp }}/tfplan-artifact
 
       - name: Terraform init and apply
@@ -371,16 +371,16 @@ jobs:
           terraform apply -input=false tfplan
 
   deploy-container-apps:
-    name: Deploy Container Apps (${{ env.CD_TARGET }})
+    name: Deploy Container Apps (${{ github.event.inputs.target || 'dev' }})
     needs: [build-push-images, terraform-plan, terraform-apply]
     if: |
       always() &&
-      env.CD_ACTION == 'deploy' &&
+      (github.event.inputs.action || 'deploy') == 'deploy' &&
       needs.build-push-images.result == 'success' &&
       needs.terraform-plan.result == 'success' &&
       (needs.terraform-apply.result == 'success' || needs.terraform-apply.result == 'skipped')
     runs-on: ubuntu-latest
-    environment: ${{ env.CD_TARGET }}
+    environment: ${{ github.event.inputs.target || 'dev' }}
     outputs:
       revision_before: ${{ steps.api_rev_before.outputs.revision }}
       revision_after: ${{ steps.api_rev_after.outputs.revision }}
@@ -416,7 +416,7 @@ jobs:
       # vector index when Retrieval__AzureSearch__Endpoint is unset (see the config completeness
       # check step below, which only warns, never fails CD, for this same reason).
       - name: Ensure RAG retrieval infra is awake (dev only, auto-heal)
-        if: env.CD_TARGET == 'dev'
+        if: (github.event.inputs.target || 'dev') == 'dev'
         continue-on-error: true
         env:
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
@@ -826,7 +826,7 @@ jobs:
           fi
 
   smoke-test:
-    name: Post-deploy validation (${{ env.CD_TARGET }})
+    name: Post-deploy validation (${{ github.event.inputs.target || 'dev' }})
     needs: deploy-container-apps
     # always() is required here: without it, GitHub's implicit success() check walks the
     # entire transitive needs graph (including terraform-apply, which is intentionally
@@ -834,10 +834,10 @@ jobs:
     # deploy-container-apps itself succeeded.
     if: |
       always() &&
-      env.CD_ACTION == 'deploy' &&
+      (github.event.inputs.action || 'deploy') == 'deploy' &&
       needs.deploy-container-apps.result == 'success'
     runs-on: ubuntu-latest
-    environment: ${{ env.CD_TARGET }}
+    environment: ${{ github.event.inputs.target || 'dev' }}
     steps:
       - uses: actions/checkout@v5
 
@@ -877,7 +877,7 @@ jobs:
           WAIT="${CD_POST_DEPLOY_RETRY_WAIT_SECONDS:-10}"
           case "$MAX" in ''|*[!0-9]*) MAX=6 ;; esac
           case "$WAIT" in ''|*[!0-9]*) WAIT=10 ;; esac
-          TARGET="${{ env.CD_TARGET }}"
+          TARGET="${{ github.event.inputs.target || 'dev' }}"
 
           smoke_one() {
             local attempt=1
@@ -937,7 +937,7 @@ jobs:
           WAIT="${CD_POST_DEPLOY_RETRY_WAIT_SECONDS:-10}"
           case "$MAX" in ''|*[!0-9]*) MAX=6 ;; esac
           case "$WAIT" in ''|*[!0-9]*) WAIT=10 ;; esac
-          TARGET="${{ env.CD_TARGET }}"
+          TARGET="${{ github.event.inputs.target || 'dev' }}"
           URL="${BASE}/openapi/v1.json"
           attempt=1
           while [ "$attempt" -le "$MAX" ]; do
@@ -1005,12 +1005,12 @@ jobs:
             echo "::error::ARCHLUCID_API_KEY not set — deployment-evidence OpenAPI probe requires admin X-Api-Key."
             exit 1
           fi
-          OUT="artifacts/deployment-evidence-${{ env.CD_TARGET }}-${{ github.run_id }}.md"
+          OUT="artifacts/deployment-evidence-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.md"
           MAX="${CD_POST_DEPLOY_MAX_ATTEMPTS:-6}"
           WAIT="${CD_POST_DEPLOY_RETRY_WAIT_SECONDS:-10}"
           case "$MAX" in ''|*[!0-9]*) MAX=6 ;; esac
           case "$WAIT" in ''|*[!0-9]*) WAIT=10 ;; esac
-          TARGET="${{ env.CD_TARGET }}"
+          TARGET="${{ github.event.inputs.target || 'dev' }}"
           attempt=1
           while [ "$attempt" -le "$MAX" ]; do
             bash scripts/ci/cd-maintenance-deadline-check.sh "$TARGET"
@@ -1037,8 +1037,8 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: deployment-evidence-${{ env.CD_TARGET }}-${{ github.run_id }}
-          path: artifacts/deployment-evidence-${{ env.CD_TARGET }}-${{ github.run_id }}.md
+          name: deployment-evidence-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}
+          path: artifacts/deployment-evidence-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.md
           if-no-files-found: ignore
 
       - name: Promote canary API traffic to new revision (optional)
@@ -1072,10 +1072,10 @@ jobs:
     needs: [deploy-container-apps, smoke-test]
     if: |
       always() &&
-      env.CD_ACTION == 'deploy' &&
+      (github.event.inputs.action || 'deploy') == 'deploy' &&
       needs.smoke-test.result == 'failure'
     runs-on: ubuntu-latest
-    environment: ${{ env.CD_TARGET }}
+    environment: ${{ github.event.inputs.target || 'dev' }}
     steps:
       - name: Azure login (OIDC)
         uses: azure/login@v2
@@ -1131,10 +1131,10 @@ jobs:
           fi
 
   manual-rollback:
-    name: Manual rollback (${{ env.CD_TARGET }})
-    if: env.CD_ACTION == 'rollback'
+    name: Manual rollback (${{ github.event.inputs.target || 'dev' }})
+    if: (github.event.inputs.action || 'deploy') == 'rollback'
     runs-on: ubuntu-latest
-    environment: ${{ env.CD_TARGET }}
+    environment: ${{ github.event.inputs.target || 'dev' }}
     steps:
       - name: Azure login (OIDC)
         uses: azure/login@v2
@@ -1175,8 +1175,8 @@ jobs:
     # silently skips this job whenever an upstream job (e.g. terraform-apply) was 'skipped'.
     if: |
       always() &&
-      env.CD_ACTION == 'deploy' &&
-      env.CD_TARGET == 'production' &&
+      (github.event.inputs.action || 'deploy') == 'deploy' &&
+      (github.event.inputs.target || 'dev') == 'production' &&
       needs.smoke-test.result == 'success'
     runs-on: ubuntu-latest
     environment: production
@@ -1219,7 +1219,7 @@ jobs:
       - manual-rollback
     if: always()
     runs-on: ubuntu-latest
-    environment: ${{ env.CD_TARGET }}
+    environment: ${{ github.event.inputs.target || 'dev' }}
     steps:
       - name: CD notification webhook (optional)
         env:
@@ -1231,7 +1231,7 @@ jobs:
           fi
           TAG="${IMAGE_TAG:-${{ github.sha }}}"
           curl -fsS -X POST -H "Content-Type: application/json" \
-            -d "{\"text\":\"CD ${{ job.status }} — ${{ env.CD_ACTION }} / ${{ env.CD_TARGET }} — image ${TAG} — ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+            -d "{\"text\":\"CD ${{ job.status }} — ${{ github.event.inputs.action || 'deploy' }} / ${{ github.event.inputs.target || 'dev' }} — image ${TAG} — ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
             "$CD_NOTIFY_WEBHOOK_URL" || true
 
       - name: CD summary
@@ -1239,8 +1239,8 @@ jobs:
           IMAGE_TAG: ${{ needs.build-push-images.outputs.image_tag }}
         run: |
           echo "## CD summary" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Action: ${{ env.CD_ACTION }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Target: ${{ env.CD_TARGET }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Action: ${{ github.event.inputs.action || 'deploy' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Target: ${{ github.event.inputs.target || 'dev' }}" >> "$GITHUB_STEP_SUMMARY"
           if [ -n "${IMAGE_TAG:-}" ]; then
             echo "- Image tag (SHA-pinned): \`${IMAGE_TAG}\`" >> "$GITHUB_STEP_SUMMARY"
           else
