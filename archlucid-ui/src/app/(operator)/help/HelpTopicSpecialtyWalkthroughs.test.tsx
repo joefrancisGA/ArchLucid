@@ -9,6 +9,18 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: vi.fn(() => true),
 }));
 
+vi.mock("@/hooks/use-review-intake-navigation", () => ({
+  useReviewIntakeNavigation: () => ({
+    navigate: vi.fn(),
+    isNavigating: false,
+    loadingLabel: "Preparing architecture review…",
+    showStagedPanel: false,
+    activeStageId: null,
+    stages: [],
+    error: null,
+  }),
+}));
+
 import { HelpSpecialtyWalkthroughTemplatesView } from "@/app/(operator)/help/_sections/HelpSpecialtyWalkthroughTemplatesView";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -82,10 +94,7 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
 
     expect(screen.getByTestId("specialty-template-selection-banner")).toHaveTextContent("Selected template: AI governance");
     expect(screen.getByRole("button", { name: "Remove template" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Continue to review setup" })).toHaveAttribute(
-      "href",
-      "/reviews/new?path=guided-intake&template=ai-governance",
-    );
+    expect(screen.getByTestId("specialty-template-continue-setup")).toBeInTheDocument();
   });
 
   it("opens a preview dialog without internal policy identifiers", () => {

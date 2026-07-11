@@ -16,10 +16,10 @@ describe("buildRunDetailNavSections", () => {
 
     expect(sections.find((s) => s.id === "architecture-graph")?.available).toBe(false);
     expect(sections.find((s) => s.id === "artifacts-exports")?.label).toBe("Deliverables");
-    expect(sections.find((s) => s.id === "run-decision-summary")?.label).toBe("Decision");
-    expect(sections.find((s) => s.id === "manifest-summary")?.label).toBe("Finalized decision record");
+    expect(sections.find((s) => s.id === "review-summary")?.label).toBe("Summary");
+    expect(sections.find((s) => s.id === "manifest-summary")?.label).toBe("Policies and standards");
     expect(sections.find((s) => s.id === "manifest-summary")?.available).toBe(true);
-    expect(sections.find((s) => s.id === "technology-baseline")?.label).toBe("Technology choices");
+    expect(sections.find((s) => s.id === "submitted-architecture")?.label).toBe("Submitted architecture");
   });
 
   it("full operator includes review trail and diagnostics sections", () => {

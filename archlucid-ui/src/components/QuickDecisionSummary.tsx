@@ -66,6 +66,10 @@ import {
   formatHiddenLowConfidenceHint,
   partitionQuickDecisionFindingsByConfidence,
 } from "@/lib/finding-confidence-filter";
+import {
+  defaultWorkspaceExpandedForFinding,
+  workspaceFindingAreaLabel,
+} from "@/components/findings/RunDetailFindingsToolbar";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type QuickDecisionSummaryProps = {
@@ -79,6 +83,9 @@ export type QuickDecisionSummaryProps = {
   readonly usingExplanationFallback?: boolean;
   readonly manifestRuleSetId?: string | null;
   readonly manifestRuleSetVersion?: string | null;
+  /** Workspace layout: collapsible finding cards with critical/high expanded by default. */
+  readonly workspaceCardMode?: boolean;
+  readonly defaultExpandLowSeverity?: boolean;
 };
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
@@ -179,12 +186,14 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     const reviewStatus = humanReviewStatusDisplay(f.humanReviewStatus);
     const owner = f.assignedToUserId?.trim() ?? "";
 
-    return (
-      <li
-        key={f.findingId}
-        className={cn("pl-1", subdued ? "opacity-80" : undefined)}
-        data-testid={subdued ? `quick-decision-low-confidence-${f.findingId}` : undefined}
-      >
+    const workspaceCardMode = props.workspaceCardMode === true;
+    const defaultOpen =
+      !workspaceCardMode ||
+      props.defaultExpandLowSeverity === true ||
+      defaultWorkspaceExpandedForFinding(f);
+
+    const rowBody = (
+      <>
         {citationModel.pack !== null || citationModel.policy !== null ? (
           <FindingPolicyCitationProminentStrip
             pack={citationModel.pack}
@@ -194,12 +203,14 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           />
         ) : null}
         <div className="flex flex-wrap items-start gap-2">
-          <SeverityTag
-            severity={badgeLabel}
-            kind={severityKindFromNumericValue(f.severityValue)}
-            label={badgeLabel}
-            className="shrink-0 tabular-nums"
-          />
+          {!workspaceCardMode ? (
+            <SeverityTag
+              severity={badgeLabel}
+              kind={severityKindFromNumericValue(f.severityValue)}
+              label={badgeLabel}
+              className="shrink-0 tabular-nums"
+            />
+          ) : null}
           {showTierBadge ? (
             <StatusTag kind="neutral" label={findingEnforcementTierLabel(f.enforcementTier)} className="shrink-0" />
           ) : null}
@@ -215,7 +226,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               data-testid={`finding-evidence-gap-${f.findingId}`}
             />
           ) : null}
-          {reviewStatus !== null ? (
+          {!workspaceCardMode && reviewStatus !== null ? (
             <StatusTag
               kind={reviewStatus.statusKind}
               label={reviewStatus.label}
@@ -225,13 +236,19 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           {f.isMuted ? (
             <StatusTag kind="neutral" label="Muted" className="shrink-0" />
           ) : null}
-          <Link
-            href={href}
-            className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1")}
-          >
-            <span className="sr-only">Finding {f.findingId}: </span>
-            {f.title}
-          </Link>
+          {!workspaceCardMode ? (
+            <Link
+              href={href}
+              className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1")}
+            >
+              <span className="sr-only">Finding {f.findingId}: </span>
+              {f.title}
+            </Link>
+          ) : (
+            <span className={cn("min-w-0 flex-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {f.title}
+            </span>
+          )}
           {viewEvidenceHref !== null ? (
             <FindingEvidenceLinkChip
               href={viewEvidenceHref}
@@ -288,6 +305,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           {canMutate ? (
             <FindingFeedbackThumbs runId={props.runId} findingId={f.findingId} compact />
           ) : null}
+          {workspaceCardMode ? (
+            <Button type="button" size="sm" variant="outline" className="h-8 shrink-0" asChild>
+              <Link href={href}>Open finding</Link>
+            </Button>
+          ) : null}
         </div>
         {f.traceConfidenceLabel !== null &&
         f.traceConfidenceLabel !== undefined &&
@@ -306,13 +328,13 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             Evaluation score {Math.round(f.evaluationConfidenceScore)}
           </p>
         ) : null}
-        {snippet.length > 0 ? (
+        {snippet.length > 0 && !workspaceCardMode ? (
           <p className={cn("m-0 mt-1 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-semibold text-neutral-700 dark:text-neutral-300">Recommended action: </span>
             <span>{snippet}</span>
           </p>
         ) : null}
-        {owner.length > 0 ? (
+        {owner.length > 0 && !workspaceCardMode ? (
           <p
             className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             data-testid={`finding-owner-${f.findingId}`}
@@ -360,6 +382,80 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             <FindingAskInlinePanel findingId={f.findingId} defaultOpen />
           </div>
         ) : null}
+      </>
+    );
+
+    if (workspaceCardMode) {
+      return (
+        <li
+          key={f.findingId}
+          className={cn("list-none pl-0", subdued ? "opacity-80" : undefined)}
+          data-testid={subdued ? `quick-decision-low-confidence-${f.findingId}` : `finding-workspace-card-${f.findingId}`}
+        >
+          <details
+            className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+            data-workspace-disclosure
+            open={defaultOpen}
+          >
+            <summary
+              className={cn(
+                "cursor-pointer list-none [&::-webkit-details-marker]:hidden",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <SeverityTag
+                  severity={badgeLabel}
+                  kind={severityKindFromNumericValue(f.severityValue)}
+                  label={badgeLabel}
+                  className="shrink-0 tabular-nums"
+                />
+                {reviewStatus !== null ? (
+                  <StatusTag
+                    kind={reviewStatus.statusKind}
+                    label={reviewStatus.label}
+                    data-testid={`finding-review-status-${f.findingId}`}
+                  />
+                ) : (
+                  <StatusTag kind="neutral" label="Open" />
+                )}
+                <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{f.title}</span>
+              </div>
+              <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">Area: </span>
+                {workspaceFindingAreaLabel(f)}
+                {snippet.length > 0 ? (
+                  <>
+                    <span className="mx-1">·</span>
+                    <span className="font-medium text-neutral-700 dark:text-neutral-300">Impact: </span>
+                    {snippet}
+                  </>
+                ) : null}
+              </p>
+              <p className={cn("m-0 mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                <span className="font-medium">Owner: </span>
+                {owner.length > 0 ? owner : "No remediation owner assigned"}
+                <span className="mx-1">·</span>
+                <span className="font-medium">Evidence: </span>
+                {evidenceRefCount}
+                <span className="mx-1">·</span>
+                <span className="font-medium">Decision: </span>
+                {reviewStatus?.label ?? "Not recorded"}
+              </p>
+            </summary>
+            <div className="mt-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">{rowBody}</div>
+          </details>
+        </li>
+      );
+    }
+
+    return (
+      <li
+        key={f.findingId}
+        className={cn("pl-1", subdued ? "opacity-80" : undefined)}
+        data-testid={subdued ? `quick-decision-low-confidence-${f.findingId}` : undefined}
+      >
+        {rowBody}
       </li>
     );
   }

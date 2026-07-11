@@ -18,39 +18,44 @@ export function buildRunDetailNavSections(
 
     if (buyerPolishedSections) {
       return [
-        { id: "run-decision-summary", label: "Decision", available: Boolean(manifestId) },
-        { id: "manifest-summary", label: "Finalized decision record", available: Boolean(manifestId) },
-        { id: "capture-evidence", label: "Capture evidence", available: !Boolean(manifestId) },
-        { id: "technology-baseline", label: "Technology choices", available: true },
+        { id: "review-summary", label: "Summary", available: true },
+        { id: "run-explanation", label: "Findings", available: true },
         { id: "trust-evidence", label: "Evidence", available: Boolean(trustEvidenceCard) },
-        { id: "run-explanation", label: "Assessment", available: Boolean(manifestId) },
-        { id: "pipeline-timeline", label: "Activity", available: true },
+        { id: "manifest-summary", label: "Policies and standards", available: Boolean(manifestId) },
+        { id: "governance-decision", label: "Decisions", available: true },
+        { id: "recommended-actions", label: "Remediation", available: true },
+        { id: "review-package", label: "Review package", available: true },
+        { id: "pipeline-timeline", label: "Activity and audit", available: true },
         {
           id: "architecture-graph",
           label: "Evidence trail",
           available: Boolean(graphSnapshotId),
         },
         { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
+        { id: "submitted-architecture", label: "Submitted architecture", available: true },
       ];
     }
   
     return [
-      { id: "manifest-summary", label: "Signed review record", available: Boolean(manifestSummary) },
+      { id: "review-summary", label: "Summary", available: true },
+      { id: "run-explanation", label: "Findings", available: true },
+      { id: "trust-evidence", label: "Evidence", available: Boolean(trustEvidenceCard) },
+      { id: "manifest-summary", label: "Policies and standards", available: Boolean(manifestSummary) },
+      { id: "governance-decision", label: "Decisions", available: true },
+      { id: "recommended-actions", label: "Remediation", available: true },
+      { id: "review-package", label: "Review package", available: true },
       { id: "capture-evidence", label: "Add evidence", available: !Boolean(manifestId) },
       { id: "technology-baseline", label: "Technology baseline", available: true },
-      { id: "trust-evidence", label: "Evidence card", available: Boolean(trustEvidenceCard) },
-    { id: "run-metadata", label: "Review", available: true },
-    { id: "pipeline-timeline", label: "Timeline", available: true },
-    {
-      id: "architecture-graph",
-      label: "Architecture graph",
-      available: Boolean(graphSnapshotId),
-    },
-    { id: "authority-chain", label: "Review trail", available: true },
-    { id: "provenance-summary", label: "Provenance", available: true },
-    { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
-    { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
-    { id: "agent-forensics", label: "Diagnostics", available: true },
-    { id: "run-actions", label: "Actions", available: true },
-  ];
+      { id: "pipeline-timeline", label: "Activity and audit", available: true },
+      {
+        id: "architecture-graph",
+        label: "Architecture graph",
+        available: Boolean(graphSnapshotId),
+      },
+      { id: "authority-chain", label: "Review trail", available: true },
+      { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
+      { id: "submitted-architecture", label: "Submitted architecture", available: true },
+      { id: "agent-forensics", label: "Diagnostics", available: true },
+      { id: "run-actions", label: "Actions", available: true },
+    ];
 }

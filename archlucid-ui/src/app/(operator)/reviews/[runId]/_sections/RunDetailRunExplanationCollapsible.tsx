@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FindingsWhatIfAnalysisPanel } from "@/components/FindingsWhatIfAnalysisPanel";
-import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
+import { RunDetailFindingsWorkspace } from "./RunDetailFindingsWorkspace";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabilityTable";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
@@ -61,18 +61,22 @@ export function RunDetailRunExplanationCollapsible(
 
   return (
     <section id="run-explanation" className="scroll-mt-24">
+      <div className="mb-3">
+        <h2 className={cn("m-0 text-lg font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          ArchLucid review
+        </h2>
+        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Findings, evidence, and governance outcomes from the completed analysis.
+        </p>
+      </div>
       <CollapsibleSection
-        title={buyerPolishedArtifactTable ? "Findings & assessment" : "Architecture review summary"}
-        defaultOpen={buyerPolishedArtifactTable}
+        title={buyerPolishedArtifactTable ? "Findings" : "Findings and assessment"}
+        defaultOpen
+        sectionTestId="run-detail-findings-section"
       >
         <InsightDensityCurationBanner curation={insightDensityView.curation} />
         <FindingsWhatIfAnalysisPanel findings={quickDecisionFindings} baselineAnnualCostUsd={baselineAnnualCostUsd} isIllustrativePricing={isIllustrativePricing} />
-        <RunDetailSponsorModeExplanationCard
-          explanationSummary={explanationSummary}
-          findings={quickDecisionFindings}
-          buyerPolishedArtifactTable={buyerPolishedArtifactTable}
-        />
-        <QuickDecisionSummary
+        <RunDetailFindingsWorkspace
           runId={runId}
           findings={quickDecisionFindings}
           buyerPolishedShell={buyerPolishedArtifactTable}
@@ -83,6 +87,18 @@ export function RunDetailRunExplanationCollapsible(
           manifestRuleSetVersion={manifestRuleSetVersion}
         />
         <CoverageChecklistPanel items={insightDensityView.checklistCoverage} className="mt-4" />
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="Assessment narrative"
+        defaultOpen={false}
+        sectionTestId="run-detail-assessment-narrative"
+      >
+        <RunDetailSponsorModeExplanationCard
+          explanationSummary={explanationSummary}
+          findings={quickDecisionFindings}
+          buyerPolishedArtifactTable={buyerPolishedArtifactTable}
+        />
         {explanationFailure ? (
           <>
             <p className={cn("m-0 mb-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>

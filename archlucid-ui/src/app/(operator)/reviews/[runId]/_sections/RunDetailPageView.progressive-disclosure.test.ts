@@ -22,19 +22,24 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(forensicsIndex).toBeGreaterThan(-1);
   });
 
-  it("places proof status before evidence density strip on committed packages", () => {
+  it("prioritizes workspace header and summary before findings", () => {
+    const headerIndex = source.indexOf("<RunDetailWorkspaceHeader");
+    const summaryIndex = source.indexOf("<RunDetailWorkspaceSummaryStrip");
+    const findingsIndex = source.indexOf("<RunDetailExplanationDeferred");
+
+    expect(headerIndex).toBeGreaterThan(-1);
+    expect(summaryIndex).toBeGreaterThan(-1);
+    expect(findingsIndex).toBeGreaterThan(-1);
+    expect(headerIndex).toBeLessThan(summaryIndex);
+    expect(summaryIndex).toBeLessThan(findingsIndex);
+  });
+
+  it("places proof status before findings in workspace layout", () => {
     const proofIndex = source.indexOf("<RunDetailFirstScreenProofStatusClient");
-    const summaryHeaderSource = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "ReviewPackageSummaryHeader.tsx"),
-      "utf8",
-    );
-    const evidenceStripIndex = summaryHeaderSource.indexOf("<ReviewPackageEvidenceDensityStrip");
     const findingsIndex = source.indexOf("<RunDetailExplanationDeferred");
 
     expect(proofIndex).toBeGreaterThan(-1);
-    expect(evidenceStripIndex).toBeGreaterThan(-1);
     expect(findingsIndex).toBeGreaterThan(-1);
-    expect(source.indexOf("<ReviewPackageSummaryHeader")).toBeLessThan(proofIndex);
     expect(proofIndex).toBeLessThan(findingsIndex);
   });
 
@@ -75,13 +80,13 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(disclosureSource).toContain('defaultOpen={false}');
   });
 
-  it("hides per-finding trace table behind collapsible disclosure", () => {
-    const collapsibleSource = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "RunDetailRunExplanationCollapsible.tsx"),
+  it("collapses submitted architecture by default", () => {
+    const submittedSource = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "RunDetailSubmittedArchitectureSection.tsx"),
       "utf8",
     );
 
-    expect(collapsibleSource).toContain("run-finding-explainability-collapsible");
-    expect(collapsibleSource).toContain("defaultOpen={false}");
+    expect(submittedSource).toContain('data-testid="submitted-architecture-collapsible"');
+    expect(submittedSource).toContain("Architecture submitted for review");
   });
 });

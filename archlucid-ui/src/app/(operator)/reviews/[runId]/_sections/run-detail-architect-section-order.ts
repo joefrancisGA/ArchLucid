@@ -48,7 +48,7 @@ export type RunDetailDraftArchitectSection = (typeof RUN_DETAIL_DRAFT_ARCHITECT_
 
 /** Maps PageView source markers to architect section ids for order regression tests. */
 export const RUN_DETAIL_PAGE_VIEW_SECTION_MARKERS: Readonly<Record<RunDetailFinalizedArchitectSection, string>> = {
-  "summary-header": "<ReviewPackageSummaryHeader",
+  "summary-header": "<RunDetailWorkspaceHeader",
   "section-nav": "<RunDetailSectionNav",
   "policy-pack-callout": "<ReviewDetailPolicyPackImpactCallout",
   "commit-blocking-banner": "<CommitBlockingFindingsBanner",

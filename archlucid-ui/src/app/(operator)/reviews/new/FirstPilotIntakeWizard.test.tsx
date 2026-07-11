@@ -44,7 +44,7 @@ vi.mock("./QuickReviewWizardDeferredPanels", () => ({
 }));
 
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { BUYER_NEW_REVIEW_TOAST_CATEGORY, BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
 import { showError } from "@/lib/toast";
 import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 
@@ -113,7 +113,7 @@ describe("FirstPilotIntakeWizard", () => {
     expect(screen.queryByTestId("quick-review-proof-scope")).not.toBeInTheDocument();
   });
 
-  it("uses buyer-safe toast category on submit errors", async () => {
+  it("shows a buyer-safe inline error when submit fails", async () => {
     createRun.mockRejectedValue(new Error("Network down"));
 
     render(<FirstPilotIntakeWizard />);
@@ -125,7 +125,10 @@ describe("FirstPilotIntakeWizard", () => {
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {
-      expect(showError).toHaveBeenCalledWith(BUYER_NEW_REVIEW_TOAST_CATEGORY, "Network down");
+      expect(screen.getByTestId("first-pilot-submit-error")).toHaveTextContent(
+        /could not start the architecture review/i,
+      );
     });
+    expect(showError).not.toHaveBeenCalled();
   });
 });

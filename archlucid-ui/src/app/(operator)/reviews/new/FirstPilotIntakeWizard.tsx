@@ -6,11 +6,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
+import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
+import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
-import { ReviewSubmitPhaseProgress, type ReviewSubmitPhaseId } from "@/components/usability/ReviewSubmitPhaseProgress";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,10 +24,11 @@ import { FirstRunIntakeStepGuide } from "@/components/wizard/FirstRunIntakeStepG
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
-import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
 import { BUYER_NEW_REVIEW_TOAST_CATEGORY, BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
+import { REVIEW_START_CREATION_FAILED_MESSAGE, REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -39,7 +40,6 @@ import {
 } from "@/lib/first-pilot-intake";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { reviewPathTimeEstimate } from "@/lib/review-path-time-estimates";
 import { showError, showSuccess } from "@/lib/toast";
 
 import { WizardEvidenceUploadZone } from "./QuickReviewWizardDeferredPanels";
@@ -92,28 +92,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [proofScope, setProofScope] = useState<QuickReviewProofScopeId[]>(DEFAULT_PROOF_SCOPE);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<unknown | null>(null);
-  const [submitPhase, setSubmitPhase] = useState<ReviewSubmitPhaseId>("mapping");
-
-  useEffect(() => {
-    if (!submitting) {
-      return;
-    }
-
-    setSubmitPhase("mapping");
-    const policyTimer = window.setTimeout(() => {
-      setSubmitPhase("policy");
-    }, 900);
-    const findingsTimer = window.setTimeout(() => {
-      setSubmitPhase("findings");
-    }, 1800);
-
-    return () => {
-      window.clearTimeout(policyTimer);
-      window.clearTimeout(findingsTimer);
-    };
-  }, [submitting]);
+  const creationProgress = useReviewCreationProgress();
 
   useEffect(() => {
     if (exampleTemplate === null || exampleTemplatePrefillAppliedRef.current) {
@@ -137,7 +116,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       evidenceFileCount: evidenceFiles.length,
     }) &&
     resolvedBrief.length <= ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH &&
-    !submitting &&
+    !creationProgress.isActive &&
     !blocksLlmExecution;
 
   const titleReady = runTitle.trim().length >= 2;
@@ -164,8 +143,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       return;
     }
 
-    setSubmitting(true);
-    setSubmitError(null);
+    creationProgress.begin({ hasTemplate: exampleTemplate !== null });
 
     try {
       const body = buildFirstPilotPayload(
@@ -178,13 +156,14 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       const id = res.run?.runId ?? null;
 
       if (id === null) {
-        showToast("err", "API returned no architecture review id.");
+        creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
 
         return;
       }
 
       recordFirstTenantFunnelEvent("first_run_started");
-      showToast("ok", `Architecture review ${id} created — starting analysis.`);
+      creationProgress.markPreparingQuestions();
+      creationProgress.markOpeningReview();
 
       if (onRunCreatedNavigate !== undefined) {
         onRunCreatedNavigate(id);
@@ -193,18 +172,8 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       }
 
       router.push(buildReviewGenerationRedirect(id, "quick-review"));
-    } catch (error: unknown) {
-      setSubmitError(error);
-
-      if (!isApiRequestError(error)) {
-        const message =
-          error && typeof error === "object" && "message" in error
-            ? String((error as { message?: string }).message)
-            : "Request failed.";
-        showToast("err", message);
-      }
-    } finally {
-      setSubmitting(false);
+    } catch {
+      creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
     }
   };
 
@@ -293,49 +262,31 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
           <ReviewPathTimeEstimateBanner pathId="quick-review" />
 
-          {submitting ? (
-            <ReviewSubmitPhaseProgress
-              activePhase={submitPhase}
-              minutesEstimate={`First package typically ready in ${reviewPathTimeEstimate("quick-review").minutesLow}–${reviewPathTimeEstimate("quick-review").minutesHigh} minutes`}
+          {creationProgress.showStagedPanel && creationProgress.activeStageId !== null ? (
+            <ReviewStartStagedProgress
+              stages={creationProgress.stages}
+              activeStageId={creationProgress.activeStageId}
+              headline={REVIEW_START_PREPARING_LABEL}
+              testId="first-pilot-review-start-progress"
             />
           ) : null}
 
-          {submitError !== null ? (
-            <div data-testid="first-pilot-submit-error">
-              {isApiRequestError(submitError) ? (
-                <OperatorApiProblem
-                  problem={submitError.problem}
-                  fallbackMessage={submitError.message}
-                  correlationId={submitError.correlationId}
-                  httpStatus={submitError.httpStatus}
-                  retryAfterSeconds={submitError.retryAfterSeconds}
-                />
-              ) : (
-                <OperatorApiProblem
-                  problem={null}
-                  fallbackMessage={
-                    submitError && typeof submitError === "object" && "message" in submitError
-                      ? String((submitError as { message?: string }).message)
-                      : "Request failed."
-                  }
-                />
-              )}
-            </div>
+          {creationProgress.error !== null ? (
+            <ReviewStartInlineError message={creationProgress.error} testId="first-pilot-submit-error" />
           ) : null}
 
-          {!submitting ? (
-            <Button
-              type="button"
-              variant="primary"
-              disabled={!canStart}
-              onClick={() => {
-                void submitRun();
-              }}
-              data-testid="first-pilot-start"
-            >
-              {BUYER_START_ARCHITECTURE_REVIEW_CTA}
-            </Button>
-          ) : null}
+          <ReviewStartLoadingButton
+            type="button"
+            variant="primary"
+            disabled={!canStart}
+            onClick={() => {
+              void submitRun();
+            }}
+            data-testid="first-pilot-start"
+            idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
+            loadingLabel={creationProgress.loadingLabel}
+            isLoading={creationProgress.isActive}
+          />
         </CardContent>
       </Card>
     </div>

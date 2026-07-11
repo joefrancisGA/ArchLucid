@@ -7,6 +7,9 @@ import { useCallback, useId, useMemo, useState } from "react";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
+import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
+import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -19,12 +22,14 @@ import {
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
 import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 import {
@@ -239,17 +244,16 @@ function SelectedTemplateBanner(props: {
   readonly cloudContext: SpecialtyReviewCloudContext;
   readonly onChange: () => void;
   readonly onRemove: () => void;
+  readonly onContinue: () => void;
+  readonly isContinuing: boolean;
+  readonly loadingLabel: string;
 }): React.ReactElement {
-  const continueHref = buildSpecialtyReviewUseTemplateHref({
-    intakeTemplateId: props.template.intakeTemplateId,
-    cloudContext: props.template.supportsCloudContext ? props.cloudContext : undefined,
-  });
-
   return (
     <div
       className="rounded-lg border border-teal-200/80 bg-teal-50/50 p-4 dark:border-teal-900/50 dark:bg-teal-950/20"
       data-testid="specialty-template-selection-banner"
       role="status"
+      aria-busy={props.isContinuing}
     >
       <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Selected template: {props.template.title}
@@ -259,13 +263,18 @@ function SelectedTemplateBanner(props: {
         the review creation page.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button asChild size="sm">
-          <Link href={continueHref}>Continue to review setup</Link>
-        </Button>
-        <Button type="button" size="sm" variant="outline" onClick={props.onChange}>
+        <ReviewStartLoadingButton
+          size="sm"
+          idleLabel="Continue to review setup"
+          loadingLabel={props.loadingLabel}
+          isLoading={props.isContinuing}
+          onClick={props.onContinue}
+          data-testid="specialty-template-continue-setup"
+        />
+        <Button type="button" size="sm" variant="outline" onClick={props.onChange} disabled={props.isContinuing}>
           Change template
         </Button>
-        <Button type="button" size="sm" variant="ghost" onClick={props.onRemove}>
+        <Button type="button" size="sm" variant="ghost" onClick={props.onRemove} disabled={props.isContinuing}>
           Remove template
         </Button>
       </div>
@@ -278,6 +287,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
   _props: HelpSpecialtyWalkthroughTemplatesClientProps,
 ): React.ReactElement {
   const canExecute = useOperateCapability();
+  const navigation = useReviewIntakeNavigation();
   const [selectedTemplateId, setSelectedTemplateId] = useState<SpecialtyReviewTemplateId | null>(null);
   const [preview, setPreview] = useState<SpecialtyTemplatePreviewState | null>(null);
   const [saasCloudContext, setSaasCloudContext] = useState<SpecialtyReviewCloudContext>("None");
@@ -299,8 +309,21 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
     document.getElementById("specialty-template-catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
+  const handleContinueToReviewSetup = useCallback(() => {
+    if (selectedTemplate === null) {
+      return;
+    }
+
+    const href = buildSpecialtyReviewUseTemplateHref({
+      intakeTemplateId: selectedTemplate.intakeTemplateId,
+      cloudContext: selectedTemplate.supportsCloudContext ? saasCloudContext : undefined,
+    });
+
+    navigation.navigate({ href, hasTemplate: true });
+  }, [navigation, saasCloudContext, selectedTemplate]);
+
   return (
-    <article data-testid="help-specialty-walkthrough-templates">
+    <article data-testid="help-specialty-walkthrough-templates" aria-busy={navigation.isNavigating}>
       <HelpTopicHashScroll />
       <OperatorPageContainer variant="reading" className="mx-auto max-w-[1100px] space-y-6">
         <header className="space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
@@ -326,8 +349,22 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
             cloudContext={selectedTemplate.supportsCloudContext ? saasCloudContext : "None"}
             onChange={handleChangeTemplate}
             onRemove={handleRemoveSelection}
+            onContinue={handleContinueToReviewSetup}
+            isContinuing={navigation.isNavigating}
+            loadingLabel={navigation.loadingLabel}
           />
         ) : null}
+
+        {navigation.showStagedPanel && navigation.activeStageId !== null ? (
+          <ReviewStartStagedProgress
+            stages={navigation.stages}
+            activeStageId={navigation.activeStageId}
+            headline={REVIEW_START_PREPARING_LABEL}
+            testId="specialty-template-review-start-progress"
+          />
+        ) : null}
+
+        {navigation.error !== null ? <ReviewStartInlineError message={navigation.error} /> : null}
 
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_12.5rem] lg:items-start">
           <div className="min-w-0 space-y-8">

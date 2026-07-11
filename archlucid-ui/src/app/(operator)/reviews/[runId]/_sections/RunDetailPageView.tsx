@@ -24,9 +24,6 @@ import { RunRetrievalGroundingSummaryCard } from "@/components/RunRetrievalGroun
 import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
 import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
-import {
-  buyerHeaderStatusTwinPillCaption,
-} from "@/lib/review-buyer-disposition-line";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
@@ -37,9 +34,39 @@ import {
 
 import { ReviewAgentExecutionLogSection } from "@/components/reviews/ReviewAgentExecutionLogSection";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
-import { ReviewPackageSummaryHeader } from "./ReviewPackageSummaryHeader";
-import { resolveReviewPackageSummaryMode } from "./resolve-review-package-summary-mode";
+import { ReviewGenerationCreatedNotice } from "@/components/review-intake/ReviewGenerationCreatedNotice";
+import { resolveQuickDecisionFindingsForRunDetail } from "@/lib/quick-decision-summary-derive";
+import {
+  countFindingsAwaitingAction,
+  countFindingsBySeverity,
+  deriveArchitectureSystemName,
+  deriveBlockingApprovalCount,
+  deriveHighestFindingSeverityLabel,
+  deriveLastEvaluatedLabel,
+  deriveOverallPostureLabel,
+  deriveRecommendedWorkspaceActions,
+  deriveReviewDisplayTitle,
+  deriveReviewOwnerLabel,
+  deriveReviewTemplateLabel,
+  deriveRunDetailWorkspaceStatus,
+  deriveSubmittedArchitectureText,
+} from "@/lib/run-detail-workspace-derive";
+
 import { resolveReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
+import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
+import { RunDetailGovernanceDecisionSection } from "./RunDetailGovernanceDecisionSection";
+import { RunDetailRecommendedActionsPanel } from "./RunDetailRecommendedActionsPanel";
+import { RunDetailReviewPackageSection } from "./RunDetailReviewPackageSection";
+import { RunDetailSubmittedArchitectureSection } from "./RunDetailSubmittedArchitectureSection";
+import {
+  RunDetailWorkspaceBlockingBanner,
+  RunDetailWorkspaceDisclosureProvider,
+  RunDetailWorkspaceHeader,
+  RunDetailWorkspaceLayout,
+  RunDetailWorkspaceSeverityRail,
+  RunDetailWorkspaceSummaryStrip,
+} from "./RunDetailWorkspaceChrome";
+import { RunDetailWorkspaceStickyActions } from "./RunDetailWorkspaceStickyActions";
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
 import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
@@ -153,9 +180,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
   const buyerFinalizedPackage =
     m.buyerPolishedArtifactTable === true && Boolean(m.manifestId);
-  const reviewPackageSummaryMode = resolveReviewPackageSummaryMode(m.manifestId);
   const blockingFindingCount = m.manifestSummary?.unresolvedIssueCount ?? 0;
-  const advisoryFindingCount = Math.max(0, (m.findingCountDisplay ?? 0) - blockingFindingCount);
 
   const sectionNavEl = <RunDetailSectionNav sections={m.runDetailNavSections} />;
 
@@ -201,82 +226,230 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
     m.headline.trim().length > 0 &&
     Boolean(m.manifestId);
 
+  const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(
+    m.resolvedDetail,
+    m.explanationSummary,
+  );
+  const severityCounts = countFindingsBySeverity(quickDecisionFindings);
+  const workspaceStatus = deriveRunDetailWorkspaceStatus({
+    run: m.resolvedDetail.run,
+    manifestId: m.manifestId,
+    manifestStatus: m.manifestSummary?.status ?? null,
+    showProgressTracker: m.showProgressTracker,
+    operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
+    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
+  });
+  const reviewDisplayTitle = deriveReviewDisplayTitle(runSummaryForBadge, m.headline);
+  const systemName = deriveArchitectureSystemName(runSummaryForBadge, reviewDisplayTitle);
+  const highestSeverity = deriveHighestFindingSeverityLabel(
+    quickDecisionFindings,
+    m.explanationSummary?.riskPosture ?? null,
+  );
+  const overallPosture = deriveOverallPostureLabel(
+    m.explanationSummary?.riskPosture,
+    m.governanceGateLabel,
+    highestSeverity,
+  );
+  const blockingApprovalCount = deriveBlockingApprovalCount({
+    unresolvedIssueCount: m.manifestSummary?.unresolvedIssueCount,
+    hasCommitBlockingFailures: findingCoverageSummary?.hasCommitBlockingFailures === true,
+    findings: quickDecisionFindings,
+  });
+  const recommendedActions = deriveRecommendedWorkspaceActions({
+    runId: m.resolvedDetail.run.runId,
+    findings: quickDecisionFindings,
+    manifestId: m.manifestId,
+    showProgressTracker: m.showProgressTracker,
+    hasCommitBlockingFailures: findingCoverageSummary?.hasCommitBlockingFailures === true,
+    blockingFindingCount,
+    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
+    operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
+    manifestStatus: m.manifestSummary?.status ?? null,
+    runCompleted: m.resolvedDetail.run.completedUtc != null,
+  });
+  const submittedArchitectureText = deriveSubmittedArchitectureText(runSummaryForBadge, reviewDisplayTitle);
+  const governanceDecisionLabel =
+    (m.resolvedDetail.run.operatorGovernanceDecision ?? "").trim().length > 0
+      ? (m.resolvedDetail.run.operatorGovernanceDecision ?? "").trim()
+      : m.governanceGateLabel ?? "No governance decision recorded";
+  const evidenceCoverageLabel =
+    m.resolvedDetail.trustEvidenceCard !== null && m.resolvedDetail.trustEvidenceCard !== undefined
+      ? `${m.artifacts.length} evidence artifact${m.artifacts.length === 1 ? "" : "s"}`
+      : null;
+
   const runDetailBody = (
     <div
-      className={`w-full ${OPERATOR_LAYOUT.sectionStack} px-1 py-2 sm:px-0 ${m.buyerPolishedArtifactTable ? "max-w-[1440px]" : "max-w-[1200px]"}`}
+      className={`w-full ${OPERATOR_LAYOUT.sectionStack} px-1 py-2 sm:px-0 max-w-[1160px]`}
     >
       <CtoDemoReviewRouteGuard runId={m.resolvedDetail.run.runId} />
       <RunDetailBreadcrumb headline={m.headline} />
 
+      <Suspense fallback={null}>
+        <ReviewGenerationCreatedNotice analysisInProgress={m.showProgressTracker} />
+      </Suspense>
+
       {showDemoMarketingChrome ? <OperatorDemoStaticBanner /> : null}
       {m.usedStaticDemoRun ? <DemoDataBadge variant="banner" className="mb-2" /> : null}
 
-      <ReviewPackageSummaryHeader
-        mode={reviewPackageSummaryMode}
-        pageHeader={{
-          runSummary: runSummaryForBadge,
-          runId: m.resolvedDetail.run.runId,
-          manifestId: m.manifestId,
-          headline: m.headline,
-          hasGoldenManifest: Boolean(m.manifestId),
-          executionFlavorBuyerSummary: m.resolvedDetail.executionFlavorBuyerSummary,
-          buyerGovernanceApprovalLabel:
-            m.buyerPolishedArtifactTable === true ? m.governanceGateLabel ?? null : null,
-          buyerHeaderStatusCaption:
-            m.buyerPolishedArtifactTable === true
-              ? buyerHeaderStatusTwinPillCaption({
-                  hasGoldenManifest: Boolean(m.manifestId),
-                  findingCountDisplay: m.findingCountDisplay,
-                  warningCountDisplay: m.warningCountDisplay,
-                  unresolvedIssueCountDisplay: m.manifestSummary?.unresolvedIssueCount ?? null,
-                  governanceGateLabel: m.governanceGateLabel,
-                  aggregateRiskPosture: m.explanationSummary?.riskPosture ?? null,
-                })
-              : null,
-          commitBlockedReason,
-          hasGovernanceWarnings: m.resolvedDetail.run.hasGovernanceWarnings === true,
-          usedStaticDemoRun: m.usedStaticDemoRun,
-        }}
-        plainSummary={
-          m.manifestId
-            ? {
-                blockingFindingCount,
-                advisoryFindingCount,
-                overallRiskLabel: m.explanationSummary?.riskPosture ?? m.governanceGateLabel ?? "Moderate",
-              }
-            : null
-        }
-        evidenceDensity={
-          m.manifestId
-            ? {
-                findingCount: m.findingCountDisplay,
-                evidenceArtifactCount: m.artifacts.length,
-                policiesCheckedLabel:
-                  m.manifestSummaryForUi !== null
-                    ? policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion)
-                    : null,
-                governanceApprovalLabel: m.governanceGateLabel ?? null,
-                auditTrailHref: `/audit?runId=${encodeURIComponent(m.resolvedDetail.run.runId)}`,
-              }
-            : null
-        }
-        outcomeCards={outcomeCardsEl}
-        showCtoDemoAuditButton={m.buyerPolishedArtifactTable === true && Boolean(m.manifestId)}
-        attentionLineInput={{
-          mode: reviewPackageSummaryMode,
-          blockingFindingCount,
-          hasCommitBlockingFailures: findingCoverageSummary?.hasCommitBlockingFailures === true,
-          proofPacketExportReady: Boolean(m.manifestId) && !m.usedStaticDemoRun,
-          hasGoldenManifest: Boolean(m.manifestId),
-        }}
-        primaryAction={reviewPackagePrimaryAction}
-        primaryActionRunId={m.resolvedDetail.run.runId}
-        primaryActionHasGoldenManifest={Boolean(m.manifestId)}
-        primaryActionCommitBlockedReason={commitBlockedReason}
-        demoteHeaderFinalizeButton
-      />
+      <RunDetailWorkspaceDisclosureProvider>
+        <RunDetailWorkspaceLayout
+          stickyActions={
+            <RunDetailWorkspaceStickyActions
+              runId={m.resolvedDetail.run.runId}
+              primaryAction={reviewPackagePrimaryAction}
+              hasGoldenManifest={Boolean(m.manifestId)}
+              commitBlockedReason={commitBlockedReason}
+              showProgressTracker={m.showProgressTracker}
+              manifestId={m.manifestId}
+            />
+          }
+          main={
+            <>
+              <RunDetailWorkspaceHeader
+                reviewTitle={reviewDisplayTitle}
+                systemName={systemName}
+                workspaceStatus={workspaceStatus}
+                overallPosture={overallPosture}
+                highestSeverity={highestSeverity}
+                lastEvaluatedUtc={deriveLastEvaluatedLabel(m.resolvedDetail.run, m.manifestSummary)}
+                reviewOwner={deriveReviewOwnerLabel(m.resolvedDetail.run)}
+                templateLabel={deriveReviewTemplateLabel(m.manifestSummaryForUi)}
+              />
 
-      {buyerFinalizedPackage ? sectionNavEl : null}
+              <RunDetailWorkspaceSummaryStrip
+                overallPosture={overallPosture}
+                criticalCount={severityCounts.critical}
+                highCount={severityCounts.high}
+                awaitingActionCount={countFindingsAwaitingAction(quickDecisionFindings)}
+                governanceDecisionLabel={governanceDecisionLabel}
+                evidenceCoverageLabel={evidenceCoverageLabel}
+              />
+
+              <RunDetailWorkspaceBlockingBanner blockingCount={blockingApprovalCount} />
+
+              <ReviewPackagePrimaryAction
+                action={reviewPackagePrimaryAction}
+                runId={m.resolvedDetail.run.runId}
+                hasGoldenManifest={Boolean(m.manifestId)}
+                commitBlockedReason={commitBlockedReason}
+              />
+
+              <div className="lg:hidden">{sectionNavEl}</div>
+
+              {!m.manifestId ? (
+                (() => {
+                  const legacyStatus = m.resolvedDetail.run.legacyRunStatus;
+                  const isDeadLettered = m.resolvedDetail.run.isDeadLettered === true;
+                  const stalled = detectStalledReview(
+                    m.resolvedDetail.run.createdUtc,
+                    m.resolvedDetail.run.completedUtc != null
+                      || legacyStatus === "Completed"
+                      || legacyStatus === "Failed",
+                    Date.now(),
+                    isDeadLettered,
+                  );
+
+                  return stalled.isStalled ? (
+                    <StalledReviewGuidanceCallout
+                      elapsedMinutes={stalled.elapsedMinutes}
+                      runId={m.resolvedDetail.run.runId}
+                    />
+                  ) : null;
+                })()
+              ) : null}
+
+              {findingCoverageSummary?.hasCommitBlockingFailures === true ? (
+                <CommitBlockingFindingsBanner
+                  runId={m.resolvedDetail.run.runId}
+                  blockingFindings={[
+                    {
+                      findingId: "blocking-findings",
+                      title: "Open blocking findings — review findings section below",
+                    },
+                  ]}
+                />
+              ) : null}
+
+              <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
+
+              {!m.manifestId && m.showProgressTracker ? (
+                <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+              ) : null}
+
+              <Suspense fallback={<RunDetailExplanationSkeleton />}>
+                <RunDetailExplanationDeferred
+                  runId={m.routeRunId}
+                  buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+                  resolvedDetail={m.resolvedDetail}
+                  explanationSummary={m.explanationSummary}
+                  explanationFailure={m.explanationFailure}
+                  findingCountDisplay={m.findingCountDisplay}
+                  warningCountDisplay={m.warningCountDisplay}
+                  goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+                  manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+                  manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
+                />
+              </Suspense>
+
+              <RunDetailRecommendedActionsPanel actions={recommendedActions} />
+
+              <RunDetailGovernanceDecisionSection
+                runId={m.resolvedDetail.run.runId}
+                manifestId={m.manifestId}
+                buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+                operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
+                operatorGovernanceDecisionRationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale}
+                operatorGovernanceDecisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc}
+                operatorGovernanceDecisionByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId}
+                manifestStatus={m.manifestSummary?.status ?? null}
+                governanceGateLabel={m.governanceGateLabel}
+                blockingFindingCount={blockingApprovalCount}
+                hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+              />
+
+              <RunDetailReviewPackageSection
+                manifestId={m.manifestId}
+                runId={m.resolvedDetail.run.runId}
+                artifactCount={m.artifacts.length}
+                findingCount={m.findingCountDisplay}
+                showExportActions={Boolean(m.manifestId) && !m.usedStaticDemoRun}
+              />
+
+              <RunDetailSubmittedArchitectureSection
+                architectureText={submittedArchitectureText}
+                canEditSource={!m.manifestId}
+                editHref={
+                  !m.manifestId
+                    ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
+                    : null
+                }
+              />
+
+              <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure open={false}>
+                <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
+                <div className="mt-3">{outcomeCardsEl}</div>
+              </details>
+            </>
+          }
+          rail={
+            <>
+              <ReviewPackagePrimaryAction
+                action={reviewPackagePrimaryAction}
+                runId={m.resolvedDetail.run.runId}
+                hasGoldenManifest={Boolean(m.manifestId)}
+                commitBlockedReason={commitBlockedReason}
+              />
+              <RunDetailWorkspaceSeverityRail
+                criticalCount={severityCounts.critical}
+                highCount={severityCounts.high}
+                mediumCount={severityCounts.medium}
+                lowCount={severityCounts.low}
+              />
+              {sectionNavEl}
+            </>
+          }
+        />
+      </RunDetailWorkspaceDisclosureProvider>
 
       {reviewPolicyPackCallout !== null ? (
         <ReviewDetailPolicyPackImpactCallout
@@ -287,45 +460,9 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         />
       ) : null}
 
-      {!m.manifestId ? (
-        (() => {
-          const legacyStatus = m.resolvedDetail.run.legacyRunStatus;
-          const isDeadLettered = m.resolvedDetail.run.isDeadLettered === true;
-          const stalled = detectStalledReview(
-            m.resolvedDetail.run.createdUtc,
-            m.resolvedDetail.run.completedUtc != null
-              || legacyStatus === "Completed"
-              || legacyStatus === "Failed",
-            Date.now(),
-            isDeadLettered,
-          );
-
-          return stalled.isStalled ? (
-            <StalledReviewGuidanceCallout
-              elapsedMinutes={stalled.elapsedMinutes}
-              runId={m.resolvedDetail.run.runId}
-            />
-          ) : null;
-        })()
-      ) : null}
-
-      {findingCoverageSummary?.hasCommitBlockingFailures === true ? (
-        <CommitBlockingFindingsBanner
-          runId={m.resolvedDetail.run.runId}
-          blockingFindings={[
-            {
-              findingId: "blocking-findings",
-              title: "Open blocking findings — review findings section below",
-            },
-          ]}
-        />
-      ) : null}
-
       <FirstWeekRouteGuidance
         variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
       />
-
-      <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
 
       <RunDetailTechnologyBaselineSection
         runId={m.resolvedDetail.run.runId}
@@ -340,27 +477,6 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           runId={m.resolvedDetail.run.runId}
           buyerPolished={m.buyerPolishedArtifactTable ?? false}
         />
-      ) : null}
-
-      {!m.manifestId && m.showProgressTracker ? (
-        <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
-      ) : null}
-
-      {m.buyerPolishedArtifactTable && m.manifestId ? (
-        <Suspense fallback={<RunDetailExplanationSkeleton />}>
-          <RunDetailExplanationDeferred
-            runId={m.routeRunId}
-            buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-            resolvedDetail={m.resolvedDetail}
-            explanationSummary={m.explanationSummary}
-            explanationFailure={m.explanationFailure}
-            findingCountDisplay={m.findingCountDisplay}
-            warningCountDisplay={m.warningCountDisplay}
-            goldenManifestJsonForExport={m.goldenManifestJsonForExport}
-            manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
-            manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
-          />
-        </Suspense>
       ) : null}
 
       {m.buyerPolishedArtifactTable && m.manifestId ? (
