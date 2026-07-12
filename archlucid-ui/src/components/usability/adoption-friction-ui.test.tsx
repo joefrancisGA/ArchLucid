@@ -9,10 +9,8 @@ import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
-  PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
 } from "@/lib/buyer-polish-copy";
-import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
 import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
@@ -49,22 +47,22 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("pilot-command-center-cta-row")).toBeNull();
   });
 
-  it("shows optional setup links on the readiness card instead of the hero (TB-346)", () => {
+  it("shows optional cloud shortcut on intent cards, not on the readiness panel (TB-346)", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.queryByTestId("pilot-command-center-optional-setup")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-connect-azure")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-invite-reviewer")).toBeNull();
+    expect(screen.getByTestId("operator-home-optional-cloud-shortcut")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-connect-cloud")).toHaveAttribute("href", "/integrations/cloud-connections");
+    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE }).className).toMatch(/border/);
 
     render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
 
-    expect(screen.getByRole("heading", { level: 3, name: PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL })).toBeInTheDocument();
-    expect(screen.getByTestId("continue-setup-connect-cloud")).toHaveAttribute("href", "/integrations/cloud-connections");
-    expect(screen.getByTestId("continue-setup-invite-reviewer")).toHaveAttribute("href", INVITE_REVIEWER_PATH);
-    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE }).className).toMatch(/border/);
-    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER }).className).toMatch(/border/);
+    expect(screen.queryByRole("heading", { level: 3, name: PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL })).toBeNull();
+    expect(screen.queryByTestId("continue-setup-connect-cloud")).toBeNull();
+    expect(screen.queryByTestId("continue-setup-invite-reviewer")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-setup-disclosure")).toBeNull();
   });
 });

@@ -285,6 +285,7 @@ export function RunsDashboardPanelClient({
           data-testid="runs-dashboard-panel"
         >
           <CardHeader className={OPERATOR_CARD.header}>
+            {buyerPolishedShell && hideHeading ? null : (
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
                 {buyerPolishedShell
@@ -305,6 +306,7 @@ export function RunsDashboardPanelClient({
                 </Link>
               ) : null}
             </div>
+            )}
             <div className={cn("flex flex-wrap items-center gap-2", buyerPolishedShell ? "" : OPERATOR_LAYOUT.inlineGap)}>
               <TabsList
                 aria-label={buyerPolishedShell ? "Review views" : "Review views"}

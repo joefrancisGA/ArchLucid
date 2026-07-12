@@ -46,11 +46,14 @@ vi.mock("@/hooks/use-create-architecture-navigation", () => ({
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
 import {
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
+  OPERATOR_HOME_CONNECT_CLOUD_BODY,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE,
   OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
+  OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
-  OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT,
+  PILOT_COMMAND_CENTER_CONNECT_AZURE,
 } from "@/lib/buyer-polish-copy";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { REVIEW_START_LOADING_LABEL } from "@/lib/review-start-progress-copy";
 import {
@@ -66,8 +69,12 @@ describe("OperatorHomeDualPathCards", () => {
       OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
     );
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE })).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-dual-path-chooser-guidance")).toHaveTextContent(
-      OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT,
+    expect(screen.getByText(OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY)).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-optional-cloud-shortcut")).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_CONNECT_CLOUD_BODY)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toHaveAttribute(
+      "href",
+      CLOUD_CONNECTIONS_PATH,
     );
     expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
