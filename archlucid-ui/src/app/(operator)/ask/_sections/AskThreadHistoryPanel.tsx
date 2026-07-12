@@ -8,6 +8,9 @@ import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from
 import { ASK_THREAD_HISTORY_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import type { ConversationThread } from "@/types/conversation";
 
+const ASK_THREAD_HISTORY_NAV_LABEL_OPERATOR = "Conversation history";
+const ASK_THREAD_HISTORY_NAV_LABEL_BUYER = "Saved review questions";
+
 export type AskThreadHistoryPanelProps = {
   buyerPolishedShell: boolean;
   /** Selected review for buyer-scoped context labels. */
@@ -34,6 +37,9 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
     canonicalizeDemoRunId(runId.trim()) === SHOWCASE_STATIC_DEMO_RUN_ID
       ? `Scoped to ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}`
       : "Scoped to the selected review package";
+  const threadListNavLabel = buyerPolishedShell
+    ? ASK_THREAD_HISTORY_NAV_LABEL_BUYER
+    : ASK_THREAD_HISTORY_NAV_LABEL_OPERATOR;
 
   return (
     <Card className="h-fit border-neutral-200 dark:border-neutral-700">
@@ -76,31 +82,36 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
           {buyerPolishedShell ? "Ask a new review question" : "New conversation"}
         </Button>
         {threads.length === 0 ? <EnterpriseCompactEmptyState {...ASK_THREAD_HISTORY_EMPTY} /> : null}
-        <ul className="m-0 list-none space-y-1 p-0">
-          {threads.map((thread) => (
-            <li key={thread.threadId}>
-              <Button
-                type="button"
-                variant="ghost"
-                className={cn(
-                  "h-auto w-full justify-start whitespace-normal py-2 text-left",
-                  OPERATOR_TYPOGRAPHY.body,
-                  selectedThreadId === thread.threadId &&
-                    "border border-neutral-300 bg-[var(--al-layer-hover)] font-semibold dark:border-neutral-600 dark:bg-neutral-800/80",
-                  selectedThreadId !== thread.threadId && "font-normal",
-                )}
-                onClick={() => void onSelectThread(thread.threadId)}
-              >
-                <span>
-                  {thread.title}
-                  <div className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {listDateFormatter(thread.lastUpdatedUtc)}
-                  </div>
-                </span>
-              </Button>
-            </li>
-          ))}
-        </ul>
+        {threads.length > 0 ? (
+          <nav aria-label={threadListNavLabel}>
+            <ul className="m-0 list-none space-y-1 p-0">
+              {threads.map((thread) => (
+                <li key={thread.threadId}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className={cn(
+                      "h-auto w-full justify-start whitespace-normal py-2 text-left",
+                      OPERATOR_TYPOGRAPHY.body,
+                      selectedThreadId === thread.threadId &&
+                        "border border-neutral-300 bg-[var(--al-layer-hover)] font-semibold dark:border-neutral-600 dark:bg-neutral-800/80",
+                      selectedThreadId !== thread.threadId && "font-normal",
+                    )}
+                    aria-current={selectedThreadId === thread.threadId ? "true" : undefined}
+                    onClick={() => void onSelectThread(thread.threadId)}
+                  >
+                    <span>
+                      {thread.title}
+                      <div className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                        {listDateFormatter(thread.lastUpdatedUtc)}
+                      </div>
+                    </span>
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ) : null}
       </CardContent>
     </Card>
   );
