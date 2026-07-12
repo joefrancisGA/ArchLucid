@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
-  usePathname: (): string => "/settings/roles",
+  usePathname: (): string => "/settings/users",
   useRouter: (): { push: () => void; replace: () => void; refresh: () => void } => ({
     push: vi.fn(),
     replace: vi.fn(),
@@ -38,6 +38,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
     callerAuthorityRank: nav.callerAuthorityRank,
     isAuthorityLoading: nav.isAuthorityLoading,
   }),
+  useNavCallerAuthorityRank: () => nav.callerAuthorityRank,
 }));
 
 const hoistedRolesLoad = vi.hoisted(() => ({ demo: false }));

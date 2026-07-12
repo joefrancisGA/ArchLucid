@@ -2,28 +2,37 @@ import { describe, expect, it } from "vitest";
 
 import nextConfig from "../next.config";
 
-describe("next.config administration routes (TB-522)", () => {
-  it("redirects legacy /settings/roles index to canonical users tab URL", async () => {
+describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
+  it("does not define legacy administration URL redirects", async () => {
     const redirectRules = await nextConfig.redirects?.();
 
-    expect(redirectRules).toBeDefined();
-
-    const rolesRedirect = redirectRules?.find(
-      (rule) => rule.source === "/settings/roles" && rule.destination === "/settings/users?tab=roles",
-    );
-
-    expect(rolesRedirect?.permanent).toBe(true);
+    expect(redirectRules ?? []).toEqual([]);
   });
 
-  it("rewrites /settings/users to the tabbed roles page implementation", async () => {
+  it("does not rewrite canonical administration URLs to legacy App Router trees (TB-751)", async () => {
     const rewriteRules = await nextConfig.rewrites?.();
 
     expect(rewriteRules).toBeDefined();
 
-    const usersRewrite = rewriteRules?.find(
-      (rule) => rule.source === "/settings/users" && rule.destination === "/settings/roles",
-    );
+    expect(
+      rewriteRules?.some(
+        (rule) =>
+          rule.source === "/settings/security-trust"
+          || rule.source === "/settings/security-trust/:path*",
+      ),
+    ).toBe(false);
 
-    expect(usersRewrite).toBeDefined();
+    expect(
+      rewriteRules?.some(
+        (rule) => rule.source === "/settings/users" || rule.source === "/settings/users/:path*",
+      ),
+    ).toBe(false);
+
+    expect(
+      rewriteRules?.some(
+        (rule) =>
+          rule.source === "/settings/support" || rule.source === "/settings/support/:path*",
+      ),
+    ).toBe(false);
   });
 });

@@ -191,7 +191,7 @@ const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "Users and roles",
     description: "Invite reviewers, approvers, and administrators.",
     keywords: ["users", "roles", "invite", "admin", "reader", "auditor"],
-    action: { kind: "route", href: "/settings/roles", helpSlug: "operator-auth-roles" },
+    action: { kind: "route", href: "/settings/users", helpSlug: "operator-auth-roles" },
   },
   {
     id: "sso-identity",
@@ -303,6 +303,7 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
   { prefix: "/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
   { prefix: "/reviews/new", topicIds: ["create-first-review", "upload-evidence", "first-review-guide"] },
   { prefix: "/reviews", topicIds: ["review-findings", "finalize-review", "review-artifacts"] },
+  { prefix: "/settings/users", topicIds: ["users-and-roles", "sso-identity"] },
   { prefix: "/settings/roles", topicIds: ["users-and-roles", "sso-identity"] },
   { prefix: "/settings/identity", topicIds: ["sso-identity", "users-and-roles"] },
 ];

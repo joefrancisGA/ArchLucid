@@ -25,6 +25,7 @@ export function pathMatchesSettingsUsers(pathname: string): boolean {
   return (
     pathMatchesRoutePrefix(pathname, SETTINGS_USERS_PATH)
     || pathMatchesRoutePrefix(pathname, LEGACY_ADMIN_USERS_PATH)
+    || pathMatchesRoutePrefix(pathname, LEGACY_SETTINGS_ROLES_PATH)
   );
 }
 

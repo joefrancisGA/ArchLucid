@@ -161,6 +161,7 @@ const nextConfig: NextConfig = {
       { source: "/admin/support/:path*", destination: "/settings/support/:path*", permanent: true },
       // Administration users/roles nav consolidation (TB-522).
       { source: "/settings/roles", destination: "/settings/users?tab=roles", permanent: true },
+      { source: "/settings/roles/:path*", destination: "/settings/users/:path*", permanent: true },
       // Executive dashboard consolidation (TB-608) — same ExecutiveRoiDashboardPageView content as
       // the operator-shell /dashboard nav item; the standalone executive-chrome page is retired.
       { source: "/executive/dashboard", destination: "/dashboard", permanent: true },
@@ -184,12 +185,6 @@ const nextConfig: NextConfig = {
       },
       // Run-scoped signed record deep link lands on the review package (manifest summary section).
       { source: "/reviews/:id/signed-record", destination: "/reviews/:id" },
-      // Tenant-administration canonical URLs reuse existing App Router trees (TB-406).
-      { source: "/settings/security-trust", destination: "/workspace/security-trust" },
-      { source: "/settings/security-trust/:path*", destination: "/workspace/security-trust/:path*" },
-      { source: "/settings/users", destination: "/settings/roles" },
-      { source: "/settings/support", destination: "/admin/support" },
-      { source: "/settings/support/:path*", destination: "/admin/support/:path*" },
       { source: "/settings/ai-usage", destination: "/settings/cost-reporting" },
       { source: "/settings/ai-usage/:path*", destination: "/settings/cost-reporting/:path*" },
     ];
