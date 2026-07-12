@@ -53,8 +53,8 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
   },
   {
     stepNumber: 3,
-    title: "Start review",
-    description: "Execute the assessment and watch progress on review detail until it is ready to finalize.",
+    title: "Monitor review progress",
+    description: "Watch progress on review detail until findings are ready to finalize.",
     expectedOutput: "Findings and evidence labels ready for your review.",
     href: "/reviews?projectId=default",
     ctaLabel: "Open review detail",
