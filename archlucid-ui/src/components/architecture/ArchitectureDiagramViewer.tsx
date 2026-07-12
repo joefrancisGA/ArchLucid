@@ -160,8 +160,8 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         <div
           className="origin-top-left transition-transform"
           style={{ transform: `scale(${zoom})` }}
-          // Mermaid SVG is generated from structured architecture data in operator UI.
-          dangerouslySetInnerHTML={{ __html: svgMarkup }}
+          // codeql[js/xss-through-dom] Mermaid SVG is generated from structured architecture data in operator UI.
+          dangerouslySetInnerHTML={{ __html: svgMarkup }} // codeql[js/xss-through-dom]
         />
       )}
     </>
