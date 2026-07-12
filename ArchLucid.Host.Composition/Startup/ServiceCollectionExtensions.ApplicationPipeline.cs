@@ -1,3 +1,4 @@
+using ArchLucid.Application.OperatorHome;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Agents;
@@ -247,6 +248,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IFindingLlmAuditService, FindingLlmAuditService>();
         services.AddScoped<IAgentOutputQualityGateOptionsResolver, AgentOutputQualityGateOptionsResolver>();
         services.AddScoped<ITenantAgentOutputQualityGateModeService, TenantAgentOutputQualityGateModeService>();
+        services.AddScoped<IFeaturedCompletedSampleService, FeaturedCompletedSampleService>();
         services.AddScoped<IPilotRunDeltaComputer, PilotRunDeltaComputer>();
         services.AddScoped<IRecentPilotRunDeltasService, RecentPilotRunDeltasService>();
         services.AddScoped<IPolicyPackDryRunService, PolicyPackDryRunService>();

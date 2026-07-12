@@ -11,4 +11,6 @@ export const operatorQueryKeys = {
   corePilotCommitContext: ["operator", "core-pilot", "commit-context"] as const,
   pilotRecentDeltas: (count: number) => ["operator", "pilots", "recent-deltas", { count }] as const,
   runsByProjectPaged: (params: RunsByProjectPagedParams) => ["operator", "runs", "paged", params] as const,
+  tenantHomepageSettings: ["operator", "tenant", "homepage-settings"] as const,
+  featuredCompletedSampleCandidates: ["operator", "tenant", "homepage-settings", "eligible-samples"] as const,
 };

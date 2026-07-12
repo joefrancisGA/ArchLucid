@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { OperatorHomeCompletedSampleAction } from "@/components/operator-home/OperatorHomeCompletedSampleAction";
 import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
 import { OperatorHomeReadinessStrip } from "@/components/operator-home/OperatorHomeReadinessStrip";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
@@ -22,7 +23,6 @@ import {
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE,
-  OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
   OPERATOR_HOME_READ_ONLY_INTENT_HINT,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
@@ -34,22 +34,20 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resolveOperatorHomeWorkspaceReadiness } from "@/lib/operator-home-workspace-readiness";
 import {
   OPERATOR_HOME_OPENING_CLOUD_CONNECTIONS_LABEL,
-  OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL,
   REVIEW_START_LOADING_LABEL,
   REVIEW_START_PREPARING_LABEL,
 } from "@/lib/review-start-progress-copy";
-import {
-  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
-  showcaseSampleReviewPackageHref,
-} from "@/lib/showcase-sample-review-registry";
 import { cn } from "@/lib/utils";
 
 type SelectedHomePath = "explore-completed-review" | "create-architecture" | "review-architecture" | null;
 
-const completedReviewHref = showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId);
+type OperatorHomeDualPathCardsProps = {
+  readonly variant?: "prominent" | "compact";
+};
 
 /** Three intent cards on Overview — explore, review, or create without implying sequence. */
-export function OperatorHomeDualPathCards(): React.JSX.Element {
+export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps): React.JSX.Element {
+  const variant = props.variant ?? "prominent";
   const reviewNavigation = useReviewIntakeNavigation();
   const createArchitectureNavigation = useCreateArchitectureNavigation();
   const canExecute = useOperateCapability();
@@ -59,7 +57,8 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
   const [selectedPath, setSelectedPath] = useState<SelectedHomePath>(null);
 
   const canManageCloudConnections = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
-  const showEvaluationBadge = !hasWorkspaceReviews;
+  const showEvaluationBadge = !hasWorkspaceReviews && variant === "prominent";
+  const isCompact = variant === "compact";
 
   const workspaceReadiness =
     readiness.context !== null
@@ -80,17 +79,21 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
     <div
       className={cn("space-y-3", OPERATOR_LAYOUT.inlineGap)}
       data-testid="operator-home-dual-path-cards"
+      data-variant={variant}
       aria-busy={reviewNavigation.isNavigating || createArchitectureNavigation.isNavigating}
     >
       <div
-        className={cn("grid gap-3 md:grid-cols-3 sm:grid-cols-2", OPERATOR_LAYOUT.inlineGap)}
+        className={cn("grid gap-3 sm:grid-cols-2 md:grid-cols-3", OPERATOR_LAYOUT.inlineGap)}
         role="status"
         aria-live="polite"
       >
         <article
           className={cn(
             OPERATOR_SURFACE_CARD_CLASS,
-            "flex flex-col gap-3 border-2 border-teal-800/25 p-4 dark:border-teal-500/30",
+            "flex flex-col gap-3 p-4",
+            isCompact
+              ? "border border-neutral-200 dark:border-neutral-800"
+              : "border-2 border-teal-800/25 dark:border-teal-500/30",
             selectedPath === "explore-completed-review" && "ring-2 ring-teal-700/40 ring-offset-2",
           )}
           data-testid="operator-home-explore-completed-review-card"
@@ -105,24 +108,18 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
               />
             ) : null}
             <h3
-              className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}
+              className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_TYPE_SCALE.sectionTitle)}
               id="operator-home-explore-completed-review-title"
             >
               {OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE}
             </h3>
-            <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-              {OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY}
-            </p>
+            {!isCompact ? (
+              <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+                {OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY}
+              </p>
+            ) : null}
           </div>
-          <OperatorHomeNavigateLoadingButton
-            variant="primary"
-            size="sm"
-            className="h-8 w-fit"
-            href={completedReviewHref}
-            idleLabel={OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}
-            loadingLabel={OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL}
-            data-testid="operator-home-explore-completed-review-cta"
-          />
+          <OperatorHomeCompletedSampleAction compact={isCompact} />
         </article>
 
         <article
@@ -137,14 +134,16 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
         >
           <div className="min-w-0 space-y-1">
             <h3
-              className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}
+              className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_TYPE_SCALE.sectionTitle)}
               id="operator-home-review-architecture-title"
             >
               {OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE}
             </h3>
-            <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-              {OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY}
-            </p>
+            {!isCompact ? (
+              <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+                {OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY}
+              </p>
+            ) : null}
           </div>
           {canExecute ? (
             <ReviewStartLoadingButton
@@ -189,14 +188,16 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
         >
           <div className="min-w-0 space-y-1">
             <h3
-              className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}
+              className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_TYPE_SCALE.sectionTitle)}
               id="operator-home-create-architecture-title"
             >
               {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE}
             </h3>
-            <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-              {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY}
-            </p>
+            {!isCompact ? (
+              <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+                {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY}
+              </p>
+            ) : null}
           </div>
           {canExecute ? (
             <ReviewStartLoadingButton
@@ -217,10 +218,12 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
         </article>
       </div>
 
-      <OperatorHomeReadinessStrip
-        canBegin={workspaceReadiness.canBegin}
-        blockerMessage={workspaceReadiness.blockerMessage}
-      />
+      {!isCompact ? (
+        <OperatorHomeReadinessStrip
+          canBegin={workspaceReadiness.canBegin}
+          blockerMessage={workspaceReadiness.blockerMessage}
+        />
+      ) : null}
 
       {reviewNavigation.showStagedPanel && reviewNavigation.activeStageId !== null ? (
         <ReviewStartStagedProgress

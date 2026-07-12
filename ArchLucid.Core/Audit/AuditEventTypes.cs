@@ -639,6 +639,9 @@ public static class AuditEventTypes
     /// <summary>Operator saved per-tenant ROI cost assumptions on <c>dbo.TenantCostSettings</c>.</summary>
     public const string TenantCostSettingsUpdated = "TenantCostSettingsUpdated";
 
+    /// <summary>Workspace owner updated the featured completed sample on operator home.</summary>
+    public const string TenantHomepageSettingsUpdated = "TenantHomepageSettingsUpdated";
+
     /// <summary>LLM prompt truncated because estimated tokens exceeded the configured context threshold.</summary>
     public const string LlmContextTruncated = "LlmContextTruncated";
 

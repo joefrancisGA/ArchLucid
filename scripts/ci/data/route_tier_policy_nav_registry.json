@@ -1592,6 +1592,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Tenancy/TenantHomepageSettingsController.cs",
+      "class_name": "TenantHomepageSettingsController",
+      "route_template": "v{version:apiVersion}/tenant/homepage-settings",
+      "normalized_prefix": "/v1/tenant/homepage-settings",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Tenancy/TenantIntegrationsOperationsController.cs",
       "class_name": "TenantIntegrationsOperationsController",
       "route_template": "v{version:apiVersion}/tenant/integrations/operations",

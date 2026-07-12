@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **173** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **174** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:173 -->
+<!-- route-tier-policy-nav-registry-count:174 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -231,6 +231,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Tenancy/TenantCustomerSuccessController.cs` | `/v1/tenant/customer-success` | standard | Authorize |  |  |
 | `Tenancy/TenantErasureLegalHoldController.cs` | `/v1/tenant/erasure` | none | Authorize |  |  |
 | `Tenancy/TenantExecDigestPreferencesController.cs` | `/v1/tenant` | standard | Authorize |  |  |
+| `Tenancy/TenantHomepageSettingsController.cs` | `/v1/tenant/homepage-settings` | none | Authorize |  |  |
 | `Tenancy/TenantIntegrationsOperationsController.cs` | `/v1/tenant/integrations/operations` | standard | Authorize |  |  |
 | `Tenancy/TenantLlmCostReportingController.cs` | `/v1/tenant` | none | ReadAuthority |  |  |
 | `Tenancy/TenantMeasuredRoiController.cs` | `/v1/tenant/measured-roi` | standard | Authorize | /value-report/roi |  |
