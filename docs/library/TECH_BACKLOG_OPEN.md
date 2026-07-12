@@ -2,7 +2,7 @@
 
 # Tech backlog — verified open items
 
-> **Updated:** 2026-07-07 (regenerated manually after **TB-679** closed). **Source of truth:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md). **Done detail archive:** [`docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`](../archive/TECH_BACKLOG_DONE_ARCHIVE.md). **Sonnet questions:** [`SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`](SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md).
+> **Updated:** 2026-07-12 (added open **TB-754–TB-759** cold-start free-cost cluster; full regen still tracked by **TB-673**). **Source of truth:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md). **Done detail archive:** [`docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`](../archive/TECH_BACKLOG_DONE_ARCHIVE.md). **Sonnet questions:** [`SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`](SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md).
 
 ## Recently closed (do not re-open)
 
@@ -27,10 +27,16 @@
 
 ## Open items (auto-generated from summary table)
 
-_Regenerated 2026-07-07. 36 open rows._
+_Regenerated 2026-07-07. 36 open rows (+ **TB-754–TB-759** appended 2026-07-12; full regen still **TB-673**)._
 
 | ID | Title | Cluster |
 | --- | --- | --- |
+| TB-754 | Verify CD post-deploy retry repo vars | Deployability — cold start, zero Azure compute increase |
+| TB-755 | Enable CD canary + bake (staging/production) | Deployability — hide revision cold start |
+| TB-756 | Avoid no-op Container App updates | Deployability — reduce revision thrash |
+| TB-757 | UI proxy / client warm-up tolerance | Adoption friction — 502/503 retry before toast |
+| TB-758 | Cheap `SMOKE_SYNTHETIC_PATH` after `/version` | Deployability — post-deploy warm path |
+| TB-759 | Cold-start measurement runbook | Performance — evidence before paid levers |
 | TB-9 | Architecture invariant program ? doc + ADR 0035 finalize | Engineering governance ? single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule |
 | TB-141 | Near-term GTM backlog: real pilot proof packet cohort | GTM proof ? owner-selected scenarios, approved data boundaries, and buyer-safe proof packets for Azure cost / orphan / governance review and adjacent starter cohorts |
 | TB-142 | Near-term GTM backlog: market-facing demo asset production | GTM proof ? approved screenshots/video/copy and evidence-labeling rules for channel-specific demo assets |
@@ -53,7 +59,6 @@ _Regenerated 2026-07-07. 36 open rows._
 | TB-655 | Terraform root consolidation — collapse 15+ roots into `foundation` / `platform` / `app` modules with state-migration plan; retire conflicting `apply-saas.ps1` vs `provision-landing-zone.ps1` orderings; see `## TB-655` below | Deployability P2 — **V1**; depends on **TB-654** schema; found during setup/deployment complexity review 2026-07-05 |
 | TB-659 | Onboarding doc consolidation — one canonical setup path per persona (dev, platform operator, enterprise tenant); archive superseded runbooks with redirect notes under `docs/archive/`; see `## TB-659` below | Maintainability P3 — **V1**; extends **FIRST_30_MINUTES.md** discipline; found during setup/deployment complexity review 2026-07-05 |
 | TB-661 | Reference-architecture exemplar curation runbook — checklist for constraints, topology diversity, PII/customer-name bans, fingerprint coverage, and review sign-off before merge; see `## TB-661` below | Maintainability P2 — **V1**; complements **TB-660** |
-| TB-662 | `ReferenceArchitecture` retrieval IR golden cases — add corpus rows to `tests/eval-datasets/retrieval-golden/cases.json` + floor ratchet entry so exemplar fingerprint matching cannot regress silently; see `## TB-662` below | Correctness P2 — **V1**; extends **RAG-V1-011** / **TB-049** |
 | TB-663 | Topology exemplar style-prior observability on run detail — show `exemplarMissing` vs retrieved `ReferenceArchitecture` hits (informational only) in retrieval grounding panel; see `## TB-663` below | Explainability P2 — **V1**; extends **TB-109** |
 | TB-664 | Prior-manifest corpus quality guidance for operators — when accepted runs produce useful Ask/prior-decision chunks vs noise; commit-time doc + optional UI hint; see `## TB-664` below | Stickiness P2 — **V1**; **RAG-V1-002** already indexes on commit |
 | TB-670 | Migrate existing hand-rolled tab UIs onto shared `Tabs` primitive — Settings roles, Help shell/panel, deliverables artifact tabs, Alerts/Digests/Advisory hubs; add arrow-key support and `tabpanel` linkage everywhere; see `## TB-670` below | Adoption friction P2 — **V1**; depends on **TB-665**; found during tab-candidate UX assessment 2026-07-06 |

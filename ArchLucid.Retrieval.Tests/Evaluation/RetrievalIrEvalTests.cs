@@ -1,9 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
+using ArchLucid.Retrieval.Topology;
 
 using FluentAssertions;
 
@@ -114,6 +117,68 @@ public sealed class RetrievalIrEvalTests
 
         hits.Should().NotBeEmpty(because: "the identity query must return the indexed chunk");
         hits[0].ChunkId.Should().Be(firstChunk.ChunkId);
+    }
+
+    [Fact]
+    public async Task ReferenceArchitecture_PlatformExemplar_VisibleWhenIncludePlatformCorpora()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid projectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        InMemoryVectorIndex index = new();
+        RetrievalChunk platformExemplar = new()
+        {
+            ChunkId = "ra-ms-01",
+            DocumentId = "exemplar-standard-3-tier",
+            TenantId = CorpusKindSentinels.PlatformSentinelTenantId,
+            WorkspaceId = CorpusKindSentinels.PlatformSentinelTenantId,
+            ProjectId = CorpusKindSentinels.PlatformSentinelTenantId,
+            CorpusKind = CorpusKind.ReferenceArchitecture,
+            SourceType = "ReferenceArchitectureExemplar",
+            SourceId = "REF-TPL-MICROSERVICES-API-GW-001",
+            Title = "Microservices with API gateway",
+            Text = "Azure API Management front door for microservices.",
+            Embedding = [0.30f, 0.30f, 0.82f, 0.0f],
+            EmbeddingDimension = 4,
+            EmbeddingModelId = "eval-golden",
+        };
+
+        await index.UpsertChunksAsync([platformExemplar], CancellationToken.None);
+
+        RetrievalQuery query = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            TopK = 5,
+            IncludePlatformCorpora = true,
+            QueryText = TopologyExemplarStylePriorFormatter.BuildExemplarQueryText(new ArchitectureRequest
+            {
+                RequestId = "REQ-RA-01",
+                SystemName = "ContosoRetailWeb",
+                Description = "Microservices with API gateway.",
+                Environment = "prod",
+                CloudProvider = CloudProvider.Azure,
+                Constraints = ["Private endpoints for data tiers"],
+            }),
+        };
+
+        IReadOnlyList<RetrievalHit> hits = await index.SearchAsync(
+            query,
+            [0.31f, 0.29f, 0.81f, 0.0f],
+            CancellationToken.None);
+
+        hits.Should().ContainSingle(h => h.ChunkId == "ra-ms-01");
+    }
+
+    [Fact]
+    public void GoldenDataset_IncludesReferenceArchitectureCases()
+    {
+        RetrievalIrGoldenDataset dataset = LoadGoldenDataset();
+
+        dataset.Corpus.Should().Contain(c => string.Equals(c.CorpusKind, "ReferenceArchitecture", StringComparison.OrdinalIgnoreCase));
+        dataset.Cases.Should().Contain(c => c.Id != null && c.Id.StartsWith("ir-ra-", StringComparison.Ordinal));
     }
 
     private static InMemoryVectorIndex BuildIndex(RetrievalIrGoldenDataset dataset)
@@ -280,6 +345,9 @@ public sealed class RetrievalIrEvalTests
 
     private sealed class RetrievalIrCase
     {
+        [JsonPropertyName("id")]
+        public string? Id { get; set; }
+
         [JsonPropertyName("queryEmbedding")]
         public float[] QueryEmbedding { get; set; } = [];
 

@@ -1,9 +1,9 @@
 {
   "formatVersion": "1.1",
-  "casesEvaluated": 47,
-  "meanRecallAt5": 0.9787234042553191,
-  "meanMrr": 0.9219858156028369,
-  "meanNdcgAt10": 0.9398918665447737,
+  "casesEvaluated": 53,
+  "meanRecallAt5": 0.9811320754716981,
+  "meanMrr": 0.9308176100628931,
+  "meanNdcgAt10": 0.9466965608981956,
   "floorRecallAt5": 0.85,
   "floorMrr": 0.75,
   "corpusBreakdown": [
@@ -55,6 +55,15 @@
     {
       "corpusKind": "PriorManifest",
       "caseCount": 13,
+      "meanRecallAt5": 1.0,
+      "meanMrr": 1.0,
+      "meanNdcgAt10": 1.0,
+      "orderingSensitiveCaseCount": 0,
+      "meanOrderingSensitiveNdcgAt10": null
+    },
+    {
+      "corpusKind": "ReferenceArchitecture",
+      "caseCount": 6,
       "meanRecallAt5": 1.0,
       "meanMrr": 1.0,
       "meanNdcgAt10": 1.0,
@@ -434,6 +443,54 @@
     {
       "id": "ir-pd-arch-04",
       "corpusKind": "PlatformDoc",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ra-ms-01",
+      "corpusKind": "ReferenceArchitecture",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ra-ms-02",
+      "corpusKind": "ReferenceArchitecture",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ra-3tier-01",
+      "corpusKind": "ReferenceArchitecture",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ra-dr-01",
+      "corpusKind": "ReferenceArchitecture",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ra-platform-scope",
+      "corpusKind": "ReferenceArchitecture",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ra-noise",
+      "corpusKind": "ReferenceArchitecture",
       "recallAt5": 1.0,
       "mrr": 1.0,
       "ndcgAt10": 1.0,
