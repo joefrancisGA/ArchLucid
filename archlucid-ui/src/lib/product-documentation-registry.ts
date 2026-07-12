@@ -113,6 +113,14 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/PILOT_GUIDE.md"],
   },
   {
+    slug: "prior-manifest-retrieval",
+    title: "Prior manifest retrieval",
+    summary:
+      "How finalized reviews become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy runs.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/PRIOR_MANIFEST_RETRIEVAL_GUIDE.md"],
+  },
+  {
     slug: "getting-started",
     title: "Getting started",
     summary:

@@ -16,14 +16,16 @@ vi.mock("next/navigation", async (importOriginal) => {
 
 vi.mock("@/lib/api", () => ({
   commitArchitectureRun: vi.fn(),
+  getRunSummary: vi.fn(),
 }));
 
-import { commitArchitectureRun } from "@/lib/api";
+import { commitArchitectureRun, getRunSummary } from "@/lib/api";
 import { ApiRequestError } from "@/lib/api-request-error";
 
 import { CommitRunButton } from "./CommitRunButton";
 
 const mockCommit = vi.mocked(commitArchitectureRun);
+const mockGetRunSummary = vi.mocked(getRunSummary);
 
 describe("CommitRunButton", () => {
   it("renders disabled message when already finalized", () => {
@@ -56,6 +58,7 @@ describe("CommitRunButton", () => {
 
   it("opens confirm dialog and calls commit on confirm", async () => {
     mockCommit.mockResolvedValue({});
+    mockGetRunSummary.mockResolvedValue({ findingCount: 4 } as Awaited<ReturnType<typeof getRunSummary>>);
 
     render(<CommitRunButton runId="run-1" disabled={false} />);
 
@@ -68,6 +71,12 @@ describe("CommitRunButton", () => {
     await waitFor(() => {
       expect(mockCommit).toHaveBeenCalledWith("run-1", { notifySponsor: false });
     });
+
+    expect(await screen.findByText(/decisions are now searchable in Ask/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /prior manifest guide/i })).toHaveAttribute(
+      "href",
+      "/help/prior-manifest-retrieval",
+    );
   });
 
   it("passes notifySponsor when the email checkbox is checked", async () => {

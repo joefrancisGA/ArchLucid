@@ -52,7 +52,7 @@ Output-side citation faithfulness on policy-pack and Ask-shaped scenarios lives 
 - **Positive readiness:** policy-pack identity, AI governance, healthcare regulatory, Azure SaaS readiness rows with required `sourceId` citations.
 - **Negative controls:** missing citation, wrong corpus, unsupported ROI/cost, deferred-scope compliance claims.
 
-Retrieval-side golden queries live in `tests/eval-datasets/retrieval-golden/cases.json` with per-corpus floors (PolicyPack MRR and ordering-sensitive NDCG@10; **ReferenceArchitecture** MRR for Topology exemplar fingerprint regressions). Output-side citation faithfulness (**RAG-V1-005**) is a separate harness in `tests/eval-datasets/faithfulness-golden/cases.json`.
+Retrieval-side golden queries live in `tests/eval-datasets/retrieval-golden/cases.json` with per-corpus floors (PolicyPack MRR and ordering-sensitive NDCG@10; **ReferenceArchitecture** MRR for Topology exemplar fingerprint regressions; **PriorManifest** operator corpus guidance in [`PRIOR_MANIFEST_RETRIEVAL_GUIDE.md`](../library/customer-facing/PRIOR_MANIFEST_RETRIEVAL_GUIDE.md)). Output-side citation faithfulness (**RAG-V1-005**) is a separate harness in `tests/eval-datasets/faithfulness-golden/cases.json`.
 
 ## Verification
 
