@@ -10,17 +10,16 @@ const source = readFileSync(
 );
 
 describe("OperatorHomePageView progressive disclosure", () => {
-  it("places Continue setup after hero and before workspace activity", () => {
+  it("places workspace activity after hero and examples via state-aware placement", () => {
     const heroIndex = source.indexOf("PilotCommandCenterCard");
-    const continueSetupIndex = source.indexOf('<OperatorHomeContinueSetupSlot placement="prominent" />');
     const reviewsIndex = source.indexOf('aria-labelledby="operator-home-reviews-heading"');
-    const exploreSampleIndex = source.indexOf("<OperatorHomeExploreSampleSection />");
+    const examplesPlacementIndex = source.indexOf("<OperatorHomeExamplesPlacement");
 
     expect(heroIndex).toBeGreaterThan(-1);
-    expect(continueSetupIndex).toBeGreaterThan(heroIndex);
-    expect(reviewsIndex).toBeGreaterThan(continueSetupIndex);
-    expect(exploreSampleIndex).toBeGreaterThan(reviewsIndex);
+    expect(reviewsIndex).toBeGreaterThan(heroIndex);
+    expect(examplesPlacementIndex).toBeGreaterThan(reviewsIndex);
     expect(source).not.toContain("<OperatorHomeContinueSetupCard");
+    expect(source).not.toContain("<OperatorHomeContinueSetupSlot");
     expect(source).not.toContain("<OperatorHomeSampleReviewPreview />");
     expect(source).not.toContain("OperatorHomeDemoOperations");
   });

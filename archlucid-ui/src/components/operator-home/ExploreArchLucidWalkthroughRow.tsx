@@ -1,33 +1,30 @@
 import { cn } from "@/lib/utils";
 
-import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
-import { EXPLORE_ARCHLUCID_ROW_CLASS } from "@/components/operator-home/explore-archlucid-row-class";
+import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
 import {
   OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA,
-  OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
   OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_LEAD,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { OPERATOR_HOME_OPENING_WORKFLOW_LABEL } from "@/lib/review-start-progress-copy";
 
 /** Buyer-facing review flow walkthrough row inside Explore ArchLucid. */
 export function ExploreArchLucidWalkthroughRow(): React.JSX.Element {
   return (
-    <section
-      aria-label={OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING}
-      data-testid="explore-archlucid-walkthrough-row"
-      className={EXPLORE_ARCHLUCID_ROW_CLASS}
-    >
-      <h3 id="explore-archlucid-walkthrough-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        {OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING}
-      </h3>
-      <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+    <div className="space-y-2" data-testid="explore-archlucid-walkthrough-row">
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_LEAD}
       </p>
-      <OperatorHomeGuidanceLink
-        helpSlug="core-pilot"
-        label={OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA}
-        className="mt-3 inline-block"
+      <OperatorHomeNavigateLoadingButton
+        variant="outline"
+        size="sm"
+        className="h-8 w-fit border-0 px-0 font-medium text-teal-800 underline underline-offset-2 shadow-none dark:text-teal-300"
+        href={inAppHelpHref("core-pilot")}
+        idleLabel={OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA}
+        loadingLabel={OPERATOR_HOME_OPENING_WORKFLOW_LABEL}
+        data-testid="explore-archlucid-view-workflow"
       />
-    </section>
+    </div>
   );
 }

@@ -46,7 +46,7 @@ export const OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL = "Sample includes:";
 
 export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Run guided review";
 
-export const OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA = "Open completed review";
+export const OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA = "Open review";
 
 /** @deprecated Prefer {@link OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}. */
 export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA;
@@ -64,17 +64,17 @@ export const OPERATOR_HOME_CREATION_EXAMPLE_BODY =
 export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE = "Guided review example";
 
 export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY =
-  "Watch ArchLucid evaluate a sample architecture.";
+  "See how ArchLucid evaluates a sample architecture.";
 
 export const OPERATOR_HOME_COMMAND_CENTER_TAGLINE =
-  "Create a new architecture or review an existing one. Both paths produce an evidence-backed review with findings, decisions, and a record your stakeholders can use.";
+  "Create an architecture, review an existing design, or explore a completed review. ArchLucid produces evidence-backed findings, decisions, and a record stakeholders can use.";
 
 export const OPERATOR_HOME_INTENT_CHOOSER_HEADING = "What would you like to do?";
 
 export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE = "Explore a completed review";
 
 export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY =
-  "See real findings, evidence, decisions, and a finalized review package before using your own architecture.";
+  "Inspect real findings, evidence, decisions, and a finalized review package before using your own architecture.";
 
 export const OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE = "Best for evaluating ArchLucid";
 
@@ -86,7 +86,7 @@ export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review an existing architecture";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
-  "Provide the architecture information you already have, such as diagrams, descriptions, requirements, evidence, or other supporting material. A formal package is not required.";
+  "Provide the architecture information you already have, including diagrams, descriptions, requirements, evidence, or other supporting material.";
 
 /** @deprecated Merged into {@link OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY} on the home review card. */
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT = OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY;
@@ -116,7 +116,7 @@ export const OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST = "Open latest review";
 export const OPERATOR_HOME_EXPLORE_SAMPLE_HEADING = "See ArchLucid in action";
 
 export const OPERATOR_HOME_EXPLORE_SAMPLE_LEAD =
-  "Explore architecture creation or watch ArchLucid run a guided review.";
+  "Explore how ArchLucid creates an architecture or evaluates one through a guided review.";
 
 export const OPERATOR_HOME_OPEN_COMPLETED_SAMPLE_HINT =
   "Inspect findings, evidence, and decisions from a finished review.";
@@ -153,12 +153,12 @@ export const SAMPLE_REVIEW_PACKAGE_AHA_LEAD =
 export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No reviews yet";
 
 export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
-  "Completed and in-progress architecture reviews will appear here.";
+  "Your in-progress and completed architecture reviews will appear here.";
 
 export const OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA = "Learn how reviews work";
 
 export const OPERATOR_HOME_WORKSPACE_ACTIVITY_LEAD =
-  "Architecture reviews appear here after you create or review an architecture.";
+  "Continue active reviews or open completed results.";
 
 export const OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE = "No archived reviews yet.";
 
@@ -202,7 +202,12 @@ export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional workspace set
 
 /** Ready-state body on the home readiness panel. */
 export const OPERATOR_HOME_CONTINUE_SETUP_BODY =
-  "You can create or review an architecture now. No additional setup is required.";
+  "No additional setup is required to create or review an architecture.";
+
+/** Compact readiness strip beside primary home choices. */
+export const OPERATOR_HOME_READY_STRIP_LABEL = "Ready to begin · No additional setup required";
+
+export const OPERATOR_HOME_READY_STRIP_SUPPORT = "No additional setup required";
 
 export const OPERATOR_HOME_READY_TO_BEGIN_TITLE = "Ready to begin";
 
@@ -228,6 +233,12 @@ export const OPERATOR_HOME_CONNECT_CLOUD_TITLE = "Connect cloud environment";
 
 export const OPERATOR_HOME_CONNECT_CLOUD_BODY =
   "Import architecture evidence from Azure, AWS, or Google Cloud.";
+
+/** Low-emphasis cloud shortcut beneath the review architecture path. */
+export const OPERATOR_HOME_CLOUD_EVIDENCE_LINK = "Have cloud evidence? Connect a cloud environment.";
+
+export const OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT =
+  "Cloud connection requires workspace administrator access.";
 
 export const OPERATOR_HOME_INVITE_COLLABORATORS_BODY =
   "Invite collaborators when you are ready to share or review work.";

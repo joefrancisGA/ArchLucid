@@ -22,6 +22,28 @@ import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
+  useNavCallerAuthorityRank: vi.fn(() => 100),
+}));
+
+vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
+  useFinishSetupReadinessContext: () => ({
+    phase: "ready",
+    context: {
+      healthReady: true,
+      healthLoadFailed: false,
+      principalAdmin: true,
+    },
+    readyCount: 4,
+    totalCount: 4,
+  }),
+}));
+
+vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
+  useOperatorHomeWorkspaceActivity: () => ({
+    hasWorkspaceReviews: false,
+    hasActionNeededReviews: false,
+    reportWorkspaceReviews: vi.fn(),
+  }),
 }));
 
 vi.mock("@/hooks/use-operate-capability", () => ({
@@ -76,7 +98,7 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByTestId("pilot-command-center-tagline")).toHaveTextContent(
       OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
     );
-    expect(screen.getByTestId("pilot-command-center-tagline")).not.toHaveTextContent(/Either way/i);
+    expect(screen.getByTestId("pilot-command-center-tagline")).not.toHaveTextContent(/Both paths/i);
 
     expect(
       screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_INTENT_CHOOSER_HEADING }),

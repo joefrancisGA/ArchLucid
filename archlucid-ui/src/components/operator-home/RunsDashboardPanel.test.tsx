@@ -34,6 +34,8 @@ import { listRunsByProjectPaged } from "@/lib/api";
 import { BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA, OPERATOR_HOME_WORKSPACE_EMPTY_BODY, OPERATOR_HOME_WORKSPACE_EMPTY_TITLE } from "@/lib/buyer-polish-copy";
 import * as operatorStaticDemo from "@/lib/operator-static-demo";
 
+import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
+
 import { RunsDashboardPanel } from "./RunsDashboardPanel";
 
 import type { RunSummary } from "@/types/authority";
@@ -51,7 +53,11 @@ function renderRunsDashboardPanel(ui: ReactElement = <RunsDashboardPanel />) {
     },
   });
 
-  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+  return render(
+    <OperatorHomeWorkspaceActivityProvider initialHasReviews={false}>
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    </OperatorHomeWorkspaceActivityProvider>,
+  );
 }
 
 function stubFetchForDashboard() {
@@ -173,10 +179,11 @@ describe("RunsDashboardPanel", () => {
 
       renderRunsDashboardPanel();
 
-      await waitFor(() => {
-        expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
-      });
-      expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("runs-dashboard-status-filters")).toBeNull();
+    expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
       expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
     } finally {
       fallbackSpy.mockRestore();
@@ -334,12 +341,21 @@ describe("RunsDashboardPanel", () => {
     }
   });
 
-  it("uses buyer-polished tab labels with stable test ids (TB-352)", async () => {
+  it("uses buyer-polished tab labels with stable test ids when reviews exist (TB-352)", async () => {
     runsDashBuyerPolishedForced.on = true;
 
+    const run: RunSummary = {
+      runId: "33333333-3333-3333-3333-333333333333",
+      projectId: "default",
+      description: "Active review",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
     listRuns.mockResolvedValue({
-      items: [],
-      totalCount: 0,
+      items: [run],
+      totalCount: 1,
       page: 1,
       pageSize: 5,
       hasMore: false,
@@ -366,6 +382,8 @@ describe("RunsDashboardPanel", () => {
     });
     expect(screen.queryByTestId("runs-dashboard-filters")).toBeNull();
     expect(screen.queryByTestId("runs-dashboard-governance-warnings-only")).toBeNull();
+
+    runsDashBuyerPolishedForced.on = false;
   });
 
   it("buyer-polished empty state shows workspace empty copy without duplicate onboarding CTAs", async () => {
@@ -385,10 +403,11 @@ describe("RunsDashboardPanel", () => {
 
       renderRunsDashboardPanel();
 
-      await waitFor(() => {
-        expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
-      });
-      expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("runs-dashboard-status-filters")).toBeNull();
+    expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
       expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: "View review package" })).toBeNull();
       expect(screen.queryByTestId("example-request-panel")).toBeNull();
@@ -483,10 +502,20 @@ describe("RunsDashboardPanel", () => {
     runsDashBuyerPolishedForced.on = false;
   });
 
-  it("operator shell exposes tablist with tabpanels and keyboard navigation (TB-667)", async () => {
+  it("operator shell exposes tablist with tabpanels and keyboard navigation when reviews exist (TB-667)", async () => {
+    const activeRun: RunSummary = {
+      runId: "66666666-6666-6666-6666-666666666666",
+      projectId: "default",
+      description: "Active review",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      isArchived: false,
+    };
+
     listRuns.mockResolvedValue({
-      items: [],
-      totalCount: 0,
+      items: [activeRun],
+      totalCount: 1,
       page: 1,
       pageSize: 5,
       hasMore: false,
@@ -494,6 +523,8 @@ describe("RunsDashboardPanel", () => {
     stubFetchForDashboard();
 
     renderRunsDashboardPanel();
+
+    await screen.findByRole("link", { name: "Active review" });
 
     await waitFor(() => {
       expect(screen.getByRole("tablist", { name: "Review views" })).toBeInTheDocument();
@@ -503,9 +534,7 @@ describe("RunsDashboardPanel", () => {
     expect(screen.queryByRole("link", { name: /open all reviews/i })).not.toBeNull();
     expect(screen.getByTestId("runs-dashboard-status-filters").querySelector("a")).toBeNull();
 
-    const recentTab = screen.getByRole("tab", { name: /recent/i });
-    recentTab.focus();
-    fireEvent.keyDown(screen.getByRole("tablist", { name: "Review views" }), { key: "ArrowRight" });
+    fireEvent.click(screen.getByRole("tab", { name: /needs attention/i }));
 
     await waitFor(() => {
       expect(screen.getByRole("tab", { name: /needs attention/i })).toHaveAttribute("aria-selected", "true");
