@@ -56,8 +56,10 @@ public sealed class TenantProvisioningService(
     public async Task<TenantProvisioningResult> ProvisionAsync(TenantProvisioningRequest request, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(request);
+
         if (string.IsNullOrWhiteSpace(request.Name))
             throw new ArgumentException("Tenant name is required.", nameof(request));
+
         if (string.IsNullOrWhiteSpace(request.AdminEmail) || !request.AdminEmail.Contains('@', StringComparison.Ordinal))
             throw new ArgumentException("Admin email is required.", nameof(request));
         string slug = TenantSlugNormalizer.FromName(request.Name);
