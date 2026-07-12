@@ -101,7 +101,7 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
     const checkoutState = searchParams.get("checkout");
 
     if (checkoutState === "success") {
-      showSuccess("Billing", "Checkout completed. Your plan will update once payment is confirmed.");
+      showSuccess("Billing: Checkout completed. Your plan will update once payment is confirmed.");
     }
   }, [searchParams]);
 
