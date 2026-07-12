@@ -9,6 +9,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
 export type RunDetailWorkspaceHeaderProps = {
@@ -177,6 +178,7 @@ export function RunDetailWorkspaceSummaryStrip(
 
 export type RunDetailWorkspaceBlockingBannerProps = {
   readonly blockingCount: number;
+  readonly runId: string;
 };
 
 export function RunDetailWorkspaceBlockingBanner(
@@ -199,7 +201,7 @@ export function RunDetailWorkspaceBlockingBanner(
           {label}
         </p>
         <Button variant="outline" size="sm" asChild>
-          <Link href="#run-explanation">Review blocking findings</Link>
+          <Link href={buildReviewDetailTabHref(props.runId, "findings")}>Review blocking findings</Link>
         </Button>
       </div>
     </div>

@@ -34,11 +34,16 @@ import {
 } from "@/lib/showcase-static-demo";
 
 import { ReviewAgentExecutionLogSection } from "@/components/reviews/ReviewAgentExecutionLogSection";
+import { ReviewDetailWorkspace } from "@/components/reviews/ReviewDetailWorkspace";
+import { RunDetailOverviewPanelClient } from "@/components/reviews/RunDetailOverviewPanelClient";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
 import { ReviewGenerationCreatedNotice } from "@/components/review-intake/ReviewGenerationCreatedNotice";
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
-import { resolveQuickDecisionFindingsForRunDetail } from "@/lib/quick-decision-summary-derive";
+import {
+  humanReviewStatusDisplay,
+  resolveQuickDecisionFindingsForRunDetail,
+} from "@/lib/quick-decision-summary-derive";
 import {
   countFindingsAwaitingAction,
   countFindingsBySeverity,
@@ -58,7 +63,6 @@ import {
 import { resolveReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
 import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
 import { RunDetailGovernanceDecisionSection } from "./RunDetailGovernanceDecisionSection";
-import { RunDetailRecommendedActionsPanel } from "./RunDetailRecommendedActionsPanel";
 import { RunDetailReviewPackageSection } from "./RunDetailReviewPackageSection";
 import { RunDetailSubmittedArchitectureSection } from "./RunDetailSubmittedArchitectureSection";
 import {
@@ -66,7 +70,6 @@ import {
   RunDetailWorkspaceDisclosureProvider,
   RunDetailWorkspaceHeader,
   RunDetailWorkspaceLayout,
-  RunDetailWorkspaceSeverityRail,
   RunDetailWorkspaceSummaryStrip,
 } from "./RunDetailWorkspaceChrome";
 import { RunDetailWorkspaceStickyActions } from "./RunDetailWorkspaceStickyActions";
@@ -290,6 +293,257 @@ export function RunDetailPageView(props: {
   const showArchitectureCreatedHome =
     props.fromArchitectureCreation === true && (m.manifestId ?? "").trim().length === 0;
   const lastEvaluatedUtc = deriveLastEvaluatedLabel(m.resolvedDetail.run, m.manifestSummary);
+  const pendingDecisionCount = quickDecisionFindings.filter((finding) => {
+    const status = humanReviewStatusDisplay(finding.humanReviewStatus);
+
+    return status?.label === "Pending review";
+  }).length;
+  const architectureEditHref =
+    !m.manifestId
+      ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
+      : null;
+  const explanationDeferredEl = (
+    <RunDetailExplanationDeferred
+      runId={m.routeRunId}
+      buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+      resolvedDetail={m.resolvedDetail}
+      explanationSummary={m.explanationSummary}
+      explanationFailure={m.explanationFailure}
+      findingCountDisplay={m.findingCountDisplay}
+      warningCountDisplay={m.warningCountDisplay}
+      goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+      manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+      manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
+    />
+  );
+  const governanceDecisionSectionEl = (
+    <RunDetailGovernanceDecisionSection
+      runId={m.resolvedDetail.run.runId}
+      manifestId={m.manifestId}
+      buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+      operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
+      operatorGovernanceDecisionRationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale}
+      operatorGovernanceDecisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc}
+      operatorGovernanceDecisionByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId}
+      manifestStatus={m.manifestSummary?.status ?? null}
+      governanceGateLabel={m.governanceGateLabel}
+      blockingFindingCount={blockingApprovalCount}
+      hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+    />
+  );
+  const submittedArchitectureTabEl = (
+    <RunDetailSubmittedArchitectureSection
+      architectureText={submittedArchitectureText}
+      canEditSource={!m.manifestId}
+      editHref={architectureEditHref}
+      useStructuredPresentation
+      runId={m.resolvedDetail.run.runId}
+      helperText="Source material submitted for this review — distinct from ArchLucid analysis in other tabs."
+    />
+  );
+  const tabbedWorkspaceEl = !showArchitectureCreatedHome ? (
+    <Suspense fallback={<RunDetailExplanationSkeleton />}>
+      <ReviewDetailWorkspace
+        tabCounts={{
+          findings: (m.findingCountDisplay ?? 0) > 0 ? m.findingCountDisplay : null,
+          evidence: m.artifacts.length > 0 ? m.artifacts.length : null,
+          decisionsRemediation: pendingDecisionCount > 0 ? pendingDecisionCount : null,
+        }}
+        panels={{
+          overview: (
+            <RunDetailOverviewPanelClient
+              runId={m.resolvedDetail.run.runId}
+              architectureTitle={systemName ?? reviewDisplayTitle}
+              architectureText={submittedArchitectureText}
+              evidenceCount={m.artifacts.length}
+              userAssertions={null}
+              recommendedActions={recommendedActions}
+              blockingCount={blockingApprovalCount}
+              governanceDecisionLabel={governanceDecisionLabel}
+              findingCount={m.findingCountDisplay ?? 0}
+              criticalCount={severityCounts.critical}
+              highCount={severityCounts.high}
+              hasManifest={Boolean(m.manifestId)}
+              proofStatusSlot={<RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />}
+            />
+          ),
+          findings: (
+            <>
+              {m.explanationSummary !== null ? (
+                <RunExplanationConfidenceBanner summary={m.explanationSummary} />
+              ) : null}
+              {explanationDeferredEl}
+            </>
+          ),
+          evidence: (
+            <div className="space-y-4">
+              {!m.manifestId ? (
+                <RunDetailCaptureEvidenceSection
+                  runId={m.resolvedDetail.run.runId}
+                  buyerPolished={m.buyerPolishedArtifactTable ?? false}
+                />
+              ) : null}
+              {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
+                <RunTrustEvidenceCardSection
+                  card={m.resolvedDetail.trustEvidenceCard}
+                  evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
+                />
+              ) : null}
+            </div>
+          ),
+          policies: (
+            <div className="space-y-4">
+              {reviewPolicyPackCallout !== null ? (
+                <ReviewDetailPolicyPackImpactCallout
+                  ruleSetId={reviewPolicyPackCallout.ruleSetId}
+                  ruleSetVersion={reviewPolicyPackCallout.ruleSetVersion}
+                  runId={m.resolvedDetail.run.runId}
+                  totalFindingCount={m.findingCountDisplay}
+                />
+              ) : null}
+              {m.manifestId && m.manifestSummaryForUi ? (
+                <RunDetailManifestSummarySection
+                  manifestSummary={m.manifestSummaryForUi}
+                  buyerPolishedShell={m.buyerPolishedArtifactTable}
+                  runExecution={{
+                    realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator,
+                    pilotAoaiDeploymentSnapshot: m.resolvedDetail.run.pilotAoaiDeploymentSnapshot ?? null,
+                  }}
+                />
+              ) : null}
+            </div>
+          ),
+          decisionsRemediation: (
+            <div className="space-y-4">
+              {governanceDecisionSectionEl}
+              {m.buyerPolishedArtifactTable && m.manifestId ? (
+                <Suspense fallback={<RunDetailDecisionDeltaSkeleton />}>
+                  <RunDetailDecisionDeltaDeferred
+                    runId={m.routeRunId}
+                    resolvedDetail={m.resolvedDetail}
+                    explanationSummary={m.explanationSummary}
+                    isCommitted
+                  />
+                </Suspense>
+              ) : null}
+              {buyerFinalizedPackage ? null : showGovernanceCtaCard ? governanceCtaEl : null}
+            </div>
+          ),
+          reviewPackage: (
+            <div className="space-y-4">
+              <RunDetailReviewPackageSection
+                manifestId={m.manifestId}
+                runId={m.resolvedDetail.run.runId}
+                artifactCount={m.artifacts.length}
+                findingCount={m.findingCountDisplay}
+                showExportActions={Boolean(m.manifestId) && !m.usedStaticDemoRun}
+              />
+              {m.manifestId ? (
+                <PersistentSponsorEmailStrip runId={m.resolvedDetail.run.runId} isCommitted />
+              ) : null}
+              {m.manifestId ? (
+                <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
+                  <RunDetailExportDeliverableDialog runId={m.resolvedDetail.run.runId} manifestId={m.manifestId} />
+                  <ShareableReviewLinkButton runId={m.resolvedDetail.run.runId} isCommitted />
+                  {m.resolvedDetail.run.completedUtc ? (
+                    <ReviewSealedIndicatorChip sealedUtc={m.resolvedDetail.run.completedUtc} />
+                  ) : null}
+                </div>
+              ) : null}
+              {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
+            </div>
+          ),
+          architecture: submittedArchitectureTabEl,
+          activity: (
+            <div className="space-y-4">
+              {!m.manifestId && m.showProgressTracker ? (
+                <div id="pipeline-timeline" className="scroll-mt-24">
+                  <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+                </div>
+              ) : null}
+              {m.showProgressTracker && m.manifestId ? (
+                <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+              ) : null}
+              <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
+                <summary className="cursor-pointer font-semibold">Technology baseline</summary>
+                <div className="mt-3">
+                  <RunDetailTechnologyBaselineSection
+                    runId={m.resolvedDetail.run.runId}
+                    manifestFinalized={Boolean(m.manifestId)}
+                    buyerPolished={m.buyerPolishedArtifactTable ?? false}
+                    usedStaticDemoRun={m.usedStaticDemoRun}
+                    warningCountDisplay={m.warningCountDisplay ?? 0}
+                  />
+                </div>
+              </details>
+              <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
+                <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
+                <div className="mt-3">{outcomeCardsEl}</div>
+              </details>
+              <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
+                <RunDetailMidDeferredSections context={deferredContext} />
+              </Suspense>
+              {!m.buyerPolishedArtifactTable ? (
+                <Suspense
+                  fallback={
+                    <div
+                      className="h-12 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+                      role="status"
+                      aria-label="Loading comparison banner"
+                    />
+                  }
+                >
+                  <WhatIfBranchCompareBanner
+                    currentRunId={m.resolvedDetail.run.runId}
+                    hasCurrentManifest={Boolean(m.manifestId)}
+                  />
+                </Suspense>
+              ) : null}
+              <RunDetailHolisticCriticPanelDeferred
+                runId={m.resolvedDetail.run.runId}
+                hasGoldenManifest={Boolean(m.manifestId)}
+              />
+              {!m.buyerPolishedArtifactTable ? (
+                <RunDetailLastFailureCard
+                  summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
+                  legacyRunStatus={(m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null}
+                />
+              ) : null}
+              {buyerFinalizedPackage ? null : (
+                <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} demoted />
+              )}
+              {!m.buyerPolishedArtifactTable ? (
+                <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
+                  <RunDetailGenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
+                </div>
+              ) : null}
+              {!m.buyerPolishedArtifactTable ? (
+                <RunDetailCompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
+              ) : null}
+              {!m.buyerPolishedArtifactTable ? (
+                <RunDetailOperatorTechnicalDisclosure>
+                  <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
+                  <RunAgentResultsSummaryCard
+                    results={m.resolvedDetail.results}
+                    retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
+                  />
+                  <ReviewAgentExecutionLogSection results={m.resolvedDetail.results} />
+                  <RunRetrievalGroundingSummaryCard
+                    summary={m.resolvedDetail.retrievalGroundingSummary}
+                    runId={m.resolvedDetail.run.runId}
+                  />
+                  <RunDetailRunMetadataSection run={m.resolvedDetail.run} runDetailTraceId={m.runDetailTraceId} />
+                </RunDetailOperatorTechnicalDisclosure>
+              ) : null}
+              <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
+                <RunDetailBelowFoldSections model={m} context={deferredContext} />
+              </Suspense>
+            </div>
+          ),
+        }}
+      />
+    </Suspense>
+  ) : null;
   const architectureCreatedBaseline: BuildArchitectureCreatedHomeModelInput = {
     runId: m.resolvedDetail.run.runId,
     architectureName: systemName ?? reviewDisplayTitle,
@@ -475,7 +729,10 @@ export function RunDetailPageView(props: {
               )}
 
               {!showArchitectureCreatedHome ? (
-                <RunDetailWorkspaceBlockingBanner blockingCount={blockingApprovalCount} />
+                <RunDetailWorkspaceBlockingBanner
+                  blockingCount={blockingApprovalCount}
+                  runId={m.resolvedDetail.run.runId}
+                />
               ) : null}
 
               {!showArchitectureCreatedHome ? (
@@ -486,8 +743,6 @@ export function RunDetailPageView(props: {
                   commitBlockedReason={commitBlockedReason}
                 />
               ) : null}
-
-              {!showArchitectureCreatedHome ? <div className="lg:hidden">{sectionNavEl}</div> : null}
 
               {!m.manifestId ? (
                 (() => {
@@ -517,269 +772,180 @@ export function RunDetailPageView(props: {
                   blockingFindings={[
                     {
                       findingId: "blocking-findings",
-                      title: "Open blocking findings — review findings section below",
+                      title: "Open blocking findings — review the Findings tab",
                     },
                   ]}
                 />
               ) : null}
 
-              {!showArchitectureCreatedHome && !m.manifestId && m.showProgressTracker ? (
-                <div
-                  id="architecture-assessment-progress"
-                  className="scroll-mt-24"
-                >
-                  <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
-                </div>
-              ) : null}
-
-              {!showArchitectureCreatedHome ? (
-                <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
-              ) : null}
-
-              {!showArchitectureCreatedHome ? (
-                <Suspense fallback={<RunDetailExplanationSkeleton />}>
-                  <RunDetailExplanationDeferred
-                    runId={m.routeRunId}
-                    buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-                    resolvedDetail={m.resolvedDetail}
-                    explanationSummary={m.explanationSummary}
-                    explanationFailure={m.explanationFailure}
-                    findingCountDisplay={m.findingCountDisplay}
-                    warningCountDisplay={m.warningCountDisplay}
-                    goldenManifestJsonForExport={m.goldenManifestJsonForExport}
-                    manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
-                    manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
-                  />
-                </Suspense>
-              ) : null}
-
-              {!showArchitectureCreatedHome ? (
-                <RunDetailRecommendedActionsPanel actions={recommendedActions} />
-              ) : null}
-
-              {!showArchitectureCreatedHome ? (
-                <RunDetailGovernanceDecisionSection
-                  runId={m.resolvedDetail.run.runId}
-                  manifestId={m.manifestId}
-                  buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-                  operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
-                  operatorGovernanceDecisionRationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale}
-                  operatorGovernanceDecisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc}
-                  operatorGovernanceDecisionByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId}
-                  manifestStatus={m.manifestSummary?.status ?? null}
-                  governanceGateLabel={m.governanceGateLabel}
-                  blockingFindingCount={blockingApprovalCount}
-                  hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
-                />
-              ) : null}
-
-              {!showArchitectureCreatedHome ? (
-                <RunDetailReviewPackageSection
-                  manifestId={m.manifestId}
-                  runId={m.resolvedDetail.run.runId}
-                  artifactCount={m.artifacts.length}
-                  findingCount={m.findingCountDisplay}
-                  showExportActions={Boolean(m.manifestId) && !m.usedStaticDemoRun}
-                />
-              ) : null}
-
-              {!showArchitectureCreatedHome ? (
-                <RunDetailSubmittedArchitectureSection
-                  architectureText={submittedArchitectureText}
-                  canEditSource={!m.manifestId}
-                  editHref={
-                    !m.manifestId
-                      ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
-                      : null
-                  }
-                  runId={m.resolvedDetail.run.runId}
-                />
-              ) : null}
-
-              {!showArchitectureCreatedHome ? (
-                <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure open={false}>
-                  <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
-                  <div className="mt-3">{outcomeCardsEl}</div>
-                </details>
-              ) : null}
+              {tabbedWorkspaceEl}
             </>
           }
-          rail={
-            showArchitectureCreatedHome ? null : (
-              <>
-                <ReviewPackagePrimaryAction
-                  action={reviewPackagePrimaryAction}
-                  runId={m.resolvedDetail.run.runId}
-                  hasGoldenManifest={Boolean(m.manifestId)}
-                  commitBlockedReason={commitBlockedReason}
-                />
-                <RunDetailWorkspaceSeverityRail
-                  criticalCount={severityCounts.critical}
-                  highCount={severityCounts.high}
-                  mediumCount={severityCounts.medium}
-                  lowCount={severityCounts.low}
-                />
-                {sectionNavEl}
-              </>
-            )
-          }
+          rail={null}
         />
       </RunDetailWorkspaceDisclosureProvider>
 
-      {reviewPolicyPackCallout !== null ? (
-        <ReviewDetailPolicyPackImpactCallout
-          ruleSetId={reviewPolicyPackCallout.ruleSetId}
-          ruleSetVersion={reviewPolicyPackCallout.ruleSetVersion}
-          runId={m.resolvedDetail.run.runId}
-          totalFindingCount={m.findingCountDisplay}
-        />
+      {showArchitectureCreatedHome ? (
+        <>
+          {reviewPolicyPackCallout !== null ? (
+            <ReviewDetailPolicyPackImpactCallout
+              ruleSetId={reviewPolicyPackCallout.ruleSetId}
+              ruleSetVersion={reviewPolicyPackCallout.ruleSetVersion}
+              runId={m.resolvedDetail.run.runId}
+              totalFindingCount={m.findingCountDisplay}
+            />
+          ) : null}
+        </>
       ) : null}
 
       <FirstWeekRouteGuidance
         variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
       />
 
-      {!showArchitectureCreatedHome ? (
-        <RunDetailTechnologyBaselineSection
-          runId={m.resolvedDetail.run.runId}
-          manifestFinalized={Boolean(m.manifestId)}
-          buyerPolished={m.buyerPolishedArtifactTable ?? false}
-          usedStaticDemoRun={m.usedStaticDemoRun}
-          warningCountDisplay={m.warningCountDisplay ?? 0}
-        />
-      ) : null}
-
-      {!m.manifestId && !showArchitectureCreatedHome ? (
-        <RunDetailCaptureEvidenceSection
-          runId={m.resolvedDetail.run.runId}
-          buyerPolished={m.buyerPolishedArtifactTable ?? false}
-        />
-      ) : null}
-
-      {m.buyerPolishedArtifactTable && m.manifestId ? (
-        <Suspense fallback={<RunDetailDecisionDeltaSkeleton />}>
-          <RunDetailDecisionDeltaDeferred
-            runId={m.routeRunId}
-            resolvedDetail={m.resolvedDetail}
-            explanationSummary={m.explanationSummary}
-            isCommitted
+      {showArchitectureCreatedHome ? (
+        <>
+          <RunDetailTechnologyBaselineSection
+            runId={m.resolvedDetail.run.runId}
+            manifestFinalized={Boolean(m.manifestId)}
+            buyerPolished={m.buyerPolishedArtifactTable ?? false}
+            usedStaticDemoRun={m.usedStaticDemoRun}
+            warningCountDisplay={m.warningCountDisplay ?? 0}
           />
-        </Suspense>
+
+          {!m.manifestId ? (
+            <RunDetailCaptureEvidenceSection
+              runId={m.resolvedDetail.run.runId}
+              buyerPolished={m.buyerPolishedArtifactTable ?? false}
+            />
+          ) : null}
+
+          {m.buyerPolishedArtifactTable && m.manifestId ? (
+            <Suspense fallback={<RunDetailDecisionDeltaSkeleton />}>
+              <RunDetailDecisionDeltaDeferred
+                runId={m.routeRunId}
+                resolvedDetail={m.resolvedDetail}
+                explanationSummary={m.explanationSummary}
+                isCommitted
+              />
+            </Suspense>
+          ) : null}
+
+          {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
+            <RunTrustEvidenceCardSection
+              card={m.resolvedDetail.trustEvidenceCard}
+              evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
+            />
+          ) : null}
+
+          {m.manifestId && m.manifestSummaryForUi ? (
+            <RunDetailManifestSummarySection
+              manifestSummary={m.manifestSummaryForUi}
+              buyerPolishedShell={m.buyerPolishedArtifactTable}
+              runExecution={{
+                realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator,
+                pilotAoaiDeploymentSnapshot: m.resolvedDetail.run.pilotAoaiDeploymentSnapshot ?? null,
+              }}
+            />
+          ) : null}
+
+          {m.manifestId ? (
+            <PersistentSponsorEmailStrip runId={m.resolvedDetail.run.runId} isCommitted />
+          ) : null}
+
+          {m.manifestId ? (
+            <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
+              <RunDetailExportDeliverableDialog runId={m.resolvedDetail.run.runId} manifestId={m.manifestId} />
+              <ShareableReviewLinkButton runId={m.resolvedDetail.run.runId} isCommitted />
+              {m.resolvedDetail.run.completedUtc ? (
+                <ReviewSealedIndicatorChip sealedUtc={m.resolvedDetail.run.completedUtc} />
+              ) : null}
+            </div>
+          ) : null}
+
+          {m.explanationSummary !== null ? (
+            <RunExplanationConfidenceBanner summary={m.explanationSummary} />
+          ) : null}
+
+          <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
+            <RunDetailMidDeferredSections context={deferredContext} />
+          </Suspense>
+
+          {!m.buyerPolishedArtifactTable ? (
+            <Suspense
+              fallback={
+                <div
+                  className="h-12 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+                  role="status"
+                  aria-label="Loading comparison banner"
+                />
+              }
+            >
+              <WhatIfBranchCompareBanner
+                currentRunId={m.resolvedDetail.run.runId}
+                hasCurrentManifest={Boolean(m.manifestId)}
+              />
+            </Suspense>
+          ) : null}
+
+          <RunDetailHolisticCriticPanelDeferred
+            runId={m.resolvedDetail.run.runId}
+            hasGoldenManifest={Boolean(m.manifestId)}
+          />
+          {buyerFinalizedPackage ? null : showGovernanceCtaCard ? governanceCtaEl : null}
+
+          {!m.buyerPolishedArtifactTable ? (
+            <RunDetailLastFailureCard
+              summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
+              legacyRunStatus={(m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null}
+            />
+          ) : null}
+
+          {buyerFinalizedPackage ? null : (
+            <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} demoted />
+          )}
+
+          {!m.buyerPolishedArtifactTable ? (
+            <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
+              <RunDetailGenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
+            </div>
+          ) : null}
+
+          {!m.buyerPolishedArtifactTable ? (
+            <RunDetailCompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
+          ) : null}
+
+          {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
+
+          {!m.buyerPolishedArtifactTable ? (
+            <RunDetailOperatorTechnicalDisclosure>
+              <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
+              <RunAgentResultsSummaryCard
+                results={m.resolvedDetail.results}
+                retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
+              />
+              <ReviewAgentExecutionLogSection results={m.resolvedDetail.results} />
+              <RunRetrievalGroundingSummaryCard
+                summary={m.resolvedDetail.retrievalGroundingSummary}
+                runId={m.resolvedDetail.run.runId}
+              />
+              <RunDetailRunMetadataSection run={m.resolvedDetail.run} runDetailTraceId={m.runDetailTraceId} />
+            </RunDetailOperatorTechnicalDisclosure>
+          ) : null}
+
+          {m.showProgressTracker && m.manifestId ? (
+            <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+          ) : null}
+
+          {buyerFinalizedPackage ? null : sectionNavEl}
+
+          <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
+            <RunDetailBelowFoldSections model={m} context={deferredContext} />
+          </Suspense>
+        </>
       ) : null}
 
       {governanceAlertsEl}
       <RunDetailExecutiveBottomLine explanationSummary={m.explanationSummary} />
-
-      {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
-        <RunTrustEvidenceCardSection
-          card={m.resolvedDetail.trustEvidenceCard}
-          evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
-        />
-      ) : null}
-
-      {m.manifestId && m.manifestSummaryForUi ? (
-        <RunDetailManifestSummarySection
-          manifestSummary={m.manifestSummaryForUi}
-          buyerPolishedShell={m.buyerPolishedArtifactTable}
-          runExecution={{
-            realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator,
-            pilotAoaiDeploymentSnapshot: m.resolvedDetail.run.pilotAoaiDeploymentSnapshot ?? null,
-          }}
-        />
-      ) : null}
-
-      {m.manifestId ? (
-        <PersistentSponsorEmailStrip runId={m.resolvedDetail.run.runId} isCommitted />
-      ) : null}
-
-      {m.manifestId ? (
-        <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
-          <RunDetailExportDeliverableDialog runId={m.resolvedDetail.run.runId} manifestId={m.manifestId} />
-          <ShareableReviewLinkButton runId={m.resolvedDetail.run.runId} isCommitted />
-          {m.resolvedDetail.run.completedUtc ? (
-            <ReviewSealedIndicatorChip sealedUtc={m.resolvedDetail.run.completedUtc} />
-          ) : null}
-        </div>
-      ) : null}
-
-      {m.explanationSummary !== null ? (
-        <RunExplanationConfidenceBanner summary={m.explanationSummary} />
-      ) : null}
-
-      {!showArchitectureCreatedHome ? (
-        <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
-          <RunDetailMidDeferredSections context={deferredContext} />
-        </Suspense>
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <Suspense
-          fallback={
-            <div
-              className="h-12 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-              role="status"
-              aria-label="Loading comparison banner"
-            />
-          }
-        >
-          <WhatIfBranchCompareBanner
-            currentRunId={m.resolvedDetail.run.runId}
-            hasCurrentManifest={Boolean(m.manifestId)}
-          />
-        </Suspense>
-      ) : null}
-
-      <RunDetailHolisticCriticPanelDeferred
-        runId={m.resolvedDetail.run.runId}
-        hasGoldenManifest={Boolean(m.manifestId)}
-      />
-      {buyerFinalizedPackage ? null : showGovernanceCtaCard ? governanceCtaEl : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <RunDetailLastFailureCard
-          summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
-          legacyRunStatus={(m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null}
-        />
-      ) : null}
-
-      {buyerFinalizedPackage ? null : (
-        <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} demoted />
-      )}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
-          <RunDetailGenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
-        </div>
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <RunDetailCompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
-      ) : null}
-
-      {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
-
-
-      {!m.buyerPolishedArtifactTable ? (
-        <RunDetailOperatorTechnicalDisclosure>
-          <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
-          <RunAgentResultsSummaryCard
-            results={m.resolvedDetail.results}
-            retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
-          />
-          <ReviewAgentExecutionLogSection results={m.resolvedDetail.results} />
-          <RunRetrievalGroundingSummaryCard
-            summary={m.resolvedDetail.retrievalGroundingSummary}
-            runId={m.resolvedDetail.run.runId}
-          />
-          <RunDetailRunMetadataSection run={m.resolvedDetail.run} runDetailTraceId={m.runDetailTraceId} />
-        </RunDetailOperatorTechnicalDisclosure>
-      ) : null}
-
-      {m.showProgressTracker && m.manifestId ? (
-        <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
-      ) : null}
-
-      {buyerFinalizedPackage ? null : sectionNavEl}
 
       {m.buyerPolishedArtifactTable ? (
         <RunDetailBuyerModeFallbackBanner
@@ -788,10 +954,6 @@ export function RunDetailPageView(props: {
       ) : null}
 
       <RunDetailBuyerPilotConversionSection buyerPolishedArtifactTable={m.buyerPolishedArtifactTable} />
-
-      <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
-        <RunDetailBelowFoldSections model={m} context={deferredContext} />
-      </Suspense>
     </div>
   );
 

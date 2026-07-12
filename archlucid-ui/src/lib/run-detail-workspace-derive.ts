@@ -11,6 +11,7 @@ import {
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import type { ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
 
 export type RunDetailWorkspaceStatusKind =
@@ -303,7 +304,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       reason: "Pipeline stages are still running for this review.",
       relatedFindingCount: null,
       ownerOrRole: "Review owner",
-      href: "#pipeline-timeline",
+      href: buildReviewDetailTabHref(input.runId, "activity", { hash: "pipeline-timeline" }),
     });
   }
 
@@ -316,7 +317,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       reason: `${count} unresolved finding${count === 1 ? "" : "s"} currently block approval or finalization.`,
       relatedFindingCount: count,
       ownerOrRole: null,
-      href: "#run-explanation",
+      href: buildReviewDetailTabHref(input.runId, "findings"),
     });
   } else if (severityCounts.critical > 0 || severityCounts.high > 0) {
     const count = severityCounts.critical + severityCounts.high;
@@ -327,7 +328,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       reason: `${count} critical or high finding${count === 1 ? "" : "s"} need attention.`,
       relatedFindingCount: count,
       ownerOrRole: null,
-      href: "#run-explanation",
+      href: buildReviewDetailTabHref(input.runId, "findings"),
     });
   }
 
@@ -338,7 +339,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       reason: "Remediation owners are not set for important findings.",
       relatedFindingCount: unassignedHigh,
       ownerOrRole: "Remediation lead",
-      href: "#run-explanation",
+      href: buildReviewDetailTabHref(input.runId, "findings"),
     });
   }
 
@@ -349,7 +350,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       reason: "Human review decisions are still open.",
       relatedFindingCount: pendingDecision,
       ownerOrRole: "Governance reviewer",
-      href: "#governance-decision",
+      href: buildReviewDetailTabHref(input.runId, "decisions-remediation", { hash: "governance-decision" }),
     });
   }
 
@@ -360,7 +361,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       reason: `${evidenceGaps} finding${evidenceGaps === 1 ? "" : "s"} lack linked evidence citations.`,
       relatedFindingCount: evidenceGaps,
       ownerOrRole: null,
-      href: "#capture-evidence",
+      href: buildReviewDetailTabHref(input.runId, "evidence"),
     });
   }
 
@@ -391,7 +392,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       reason: "Analysis is complete — finalize to create the shareable review package.",
       relatedFindingCount: null,
       ownerOrRole: "Review owner",
-      href: "#run-actions",
+      href: buildReviewDetailTabHref(input.runId, "review-package"),
     });
   }
 
@@ -402,7 +403,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       reason: "Exports and deliverables are available for this finalized review.",
       relatedFindingCount: null,
       ownerOrRole: null,
-      href: "#review-package",
+      href: buildReviewDetailTabHref(input.runId, "review-package"),
     });
   }
 

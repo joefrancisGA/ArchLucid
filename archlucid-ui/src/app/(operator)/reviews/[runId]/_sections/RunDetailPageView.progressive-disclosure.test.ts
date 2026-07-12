@@ -10,8 +10,8 @@ const source = readFileSync(
 );
 
 describe("RunDetailPageView progressive disclosure", () => {
-  it("prioritizes first-screen proof status before advanced forensics", () => {
-    const proofIndex = source.indexOf("<RunDetailFirstScreenProofStatusClient");
+  it("prioritizes first-screen proof status in overview tab", () => {
+    const proofIndex = source.indexOf("proofStatusSlot={<RunDetailFirstScreenProofStatusClient");
     const belowFoldSource = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "RunDetailBelowFoldSections.tsx"),
       "utf8",
@@ -22,25 +22,26 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(forensicsIndex).toBeGreaterThan(-1);
   });
 
-  it("prioritizes workspace header and summary before findings", () => {
+  it("prioritizes workspace header and summary before tabbed workspace render", () => {
     const headerIndex = source.indexOf("<RunDetailWorkspaceHeader");
     const summaryIndex = source.indexOf("<RunDetailWorkspaceSummaryStrip");
-    const findingsIndex = source.lastIndexOf("<RunDetailExplanationDeferred");
+    const workspaceRenderIndex = source.indexOf("{tabbedWorkspaceEl}");
 
     expect(headerIndex).toBeGreaterThan(-1);
     expect(summaryIndex).toBeGreaterThan(-1);
-    expect(findingsIndex).toBeGreaterThan(-1);
+    expect(workspaceRenderIndex).toBeGreaterThan(-1);
     expect(headerIndex).toBeLessThan(summaryIndex);
-    expect(summaryIndex).toBeLessThan(findingsIndex);
+    expect(summaryIndex).toBeLessThan(workspaceRenderIndex);
   });
 
-  it("places proof status before findings in workspace layout", () => {
-    const proofIndex = source.indexOf("<RunDetailFirstScreenProofStatusClient");
-    const findingsIndex = source.lastIndexOf("<RunDetailExplanationDeferred");
+  it("places proof status in overview tab before findings panel", () => {
+    const overviewPanelIndex = source.indexOf("<RunDetailOverviewPanelClient");
+    const findingsPanelIndex = source.indexOf("findings: (");
 
-    expect(proofIndex).toBeGreaterThan(-1);
-    expect(findingsIndex).toBeGreaterThan(-1);
-    expect(proofIndex).toBeLessThan(findingsIndex);
+    expect(overviewPanelIndex).toBeGreaterThan(-1);
+    expect(findingsPanelIndex).toBeGreaterThan(-1);
+    expect(overviewPanelIndex).toBeLessThan(findingsPanelIndex);
+    expect(source).toContain("proofStatusSlot={<RunDetailFirstScreenProofStatusClient");
   });
 
   it("hides operator forensics and metadata in sponsor mode", () => {
@@ -88,6 +89,13 @@ describe("RunDetailPageView progressive disclosure", () => {
 
     expect(submittedSource).toContain('data-testid="submitted-architecture-collapsible"');
     expect(submittedSource).toContain("Architecture submitted for review");
+  });
+
+  it("uses tabbed review workspace for standard review detail mode", () => {
+    expect(source).toContain("ReviewDetailWorkspace");
+    expect(source).toContain("RunDetailOverviewPanelClient");
+    expect(source).toContain("tabbedWorkspaceEl");
+    expect(source).toContain("useStructuredPresentation");
   });
 
   it("uses tabbed architecture workspace for create-architecture handoff", () => {
