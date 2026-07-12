@@ -58,7 +58,7 @@ describe("HelpCorePilotGuideView", () => {
     const stepper = screen.getByTestId("core-pilot-workflow-stepper");
     expect(within(stepper).getByRole("heading", { name: "Start review" })).toBeInTheDocument();
     expect(within(stepper).getByRole("heading", { name: "Add evidence" })).toBeInTheDocument();
-    expect(within(stepper).getByRole("heading", { name: "Run analysis" })).toBeInTheDocument();
+    expect(within(stepper).getByRole("heading", { name: "Monitor review progress" })).toBeInTheDocument();
     expect(within(stepper).getByRole("heading", { name: "Finalize package" })).toBeInTheDocument();
     expect(within(stepper).getByRole("heading", { name: "Share outputs" })).toBeInTheDocument();
     expect(within(stepper).getAllByRole("link").length).toBeGreaterThanOrEqual(5);
@@ -107,6 +107,9 @@ describe("HelpCorePilotGuideView", () => {
 
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-toc-heading")).toHaveTextContent("On this page");
-    expect(screen.getByRole("link", { name: "Run the first review" })).toHaveAttribute("href", "#run-the-first-review");
+    expect(screen.getAllByRole("link", { name: "Run the first review" })[0]).toHaveAttribute(
+      "href",
+      "#run-the-first-review",
+    );
   });
 });
