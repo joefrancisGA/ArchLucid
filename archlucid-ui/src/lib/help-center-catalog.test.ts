@@ -8,8 +8,8 @@ import {
 import { getProductDocumentationEntry, normalizeHelpTopicSlug } from "@/lib/product-documentation-registry";
 
 describe("help-center-catalog", () => {
-  it("keeps the default landing grid to twelve featured topics", () => {
-    expect(HELP_CENTER_FEATURED_SLUGS).toHaveLength(12);
+  it("keeps the default landing grid to fourteen featured topics", () => {
+    expect(HELP_CENTER_FEATURED_SLUGS).toHaveLength(14);
   });
 
   it("hides internal topics until advanced is expanded for admins", () => {

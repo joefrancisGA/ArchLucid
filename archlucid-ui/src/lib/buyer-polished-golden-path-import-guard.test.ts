@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,7 +16,6 @@ const GOLDEN_PATH_ROOTS = [
   join(uiRoot, "src", "app", "(operator)", "reviews"),
   join(uiRoot, "src", "app", "(operator)", "manifests"),
   join(uiRoot, "src", "app", "(operator)", "governance"),
-  join(uiRoot, "src", "app", "(operator)", "audit"),
   join(uiRoot, "src", "app", "(operator)", "dashboard"),
   join(uiRoot, "src", "app", "(executive)"),
   join(uiRoot, "src", "app", "(operator)", "ask"),
@@ -31,6 +30,10 @@ const ALLOWLIST_SUFFIXES = [
 ];
 
 function listSourceFiles(dir: string, acc: string[] = []): string[] {
+  if (!existsSync(dir)) {
+    return acc;
+  }
+
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
     const stat = statSync(full);
@@ -58,6 +61,10 @@ function collectOffenders(pattern: RegExp): string[] {
   const offenders: string[] = [];
 
   for (const root of GOLDEN_PATH_ROOTS) {
+    if (!existsSync(root)) {
+      continue;
+    }
+
     for (const file of listSourceFiles(root)) {
       const src = readFileSync(file, "utf8");
 

@@ -18,7 +18,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
   it("recognizes pinned SQL demo workspace executive and spine query routes", () => {
     const runEnc = encodeURIComponent(WORKSPACE_A_RUN_ID);
 
-    expect(resolveBuyerGoldenJourneyNav(`/executive/reviews/${runEnc}`)?.currentStepIndex).toBe(0);
+    expect(resolveBuyerGoldenJourneyNav(`/reviews/${runEnc}`)?.currentStepIndex).toBe(0);
     expect(
       resolveBuyerGoldenJourneyNav(`/reviews/${runEnc}/signed-record`)?.currentStepIndex,
     ).toBe(1);
