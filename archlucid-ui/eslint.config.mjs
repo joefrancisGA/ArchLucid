@@ -42,5 +42,5 @@ export default defineConfig([
       "buyer-review-terminology/no-run-primary-copy": "error",
     },
   },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "lighthouserc.cjs"]),
 ]);

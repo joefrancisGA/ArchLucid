@@ -91,7 +91,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
   {
     stepNumber: 2,
     title: "Analyze the architecture",
-    description: "Run the assessment and monitor progress until findings are ready to inspect.",
+    description: "Start the review and monitor progress until findings are ready to inspect.",
     expectedOutputs: "Findings with severity, impact, and evidence labels.",
     href: "/reviews?projectId=default",
     ctaLabel: "Open review packages",
