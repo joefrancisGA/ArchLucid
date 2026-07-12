@@ -147,10 +147,10 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
       return null;
     }
 
+    // SVG profile allowlists attributes; event handlers (on*) are not permitted.
     return DOMPurify.sanitize(svgMarkup, {
       USE_PROFILES: { svg: true, svgFilters: true },
       FORBID_TAGS: ["script", "foreignObject"],
-      FORBID_ATTR: [/^on/i],
     });
   }, [svgMarkup]);
 
