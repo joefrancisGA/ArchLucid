@@ -153,8 +153,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
             {[...pricing.packages]
               .sort((a, b) => pricingTierSortIndex(a.id) - pricingTierSortIndex(b.id))
               .map((pkg) => {
-                const isKnownTier = isMarketingPricingTierId(pkg.id);
-                const tierId = isKnownTier ? pkg.id : null;
+                const tierId: MarketingPricingTierId | null = isMarketingPricingTierId(pkg.id) ? pkg.id : null;
                 const cta = tierId !== null ? MARKETING_PRICING_TIER_CTAS[tierId] : undefined;
                 const isRecommended = tierId === MARKETING_PRICING_RECOMMENDED_TIER;
                 const includedLine = formatIncludedUsersAndWorkspaces(pkg);
