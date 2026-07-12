@@ -190,7 +190,7 @@ public sealed class GovernanceStickinessController(
                 RunId = Guid.Empty,
                 Disposition = request.Disposition,
                 Rationale = request.Rationale,
-                RevisitDueUtc = request.Disposition == ArchLucid.Contracts.Findings.FindingDisposition.Deferred && request.RevisitDueUtc == null 
+                RevisitDueUtc = request.Disposition == ArchLucid.Contracts.Findings.FindingDisposition.Deferred && request.RevisitDueUtc is null 
                     ? TimeProvider.System.GetUtcNow().AddDays(30) 
                     : request.RevisitDueUtc
             };
