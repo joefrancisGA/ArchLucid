@@ -2,15 +2,20 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
+import { AsyncActionButton } from "@/components/ui/AsyncActionButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
+import { startMarketingPlanBillingCheckout } from "@/lib/billing-checkout-client";
+import { isSelfServeBillingCheckoutPlan } from "@/lib/billing-checkout-tier-map";
 import {
   MARKETING_PRICING_RECOMMENDED_TIER,
   OPERATOR_BILLING_CATALOG_NOTE,
   OPERATOR_BILLING_TIER_CTAS,
+  isMarketingPricingTierId,
   type MarketingPricingTierId,
 } from "@/lib/marketing/marketing-public-pricing";
 import {
@@ -21,7 +26,7 @@ import {
 } from "@/lib/pricing-catalog-display";
 import { fetchPricingCatalog } from "@/lib/pricing-catalog-client";
 import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
-import { showInfo } from "@/lib/toast";
+import { showInfo, showSuccess } from "@/lib/toast";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function PlanSummaryLines(props: { pricing: PricingDoc; pkg: PricingPackage }) {
@@ -63,9 +68,20 @@ function PlanAddonDetails(props: { pricing: PricingDoc; pkg: PricingPackage }) {
   );
 }
 
-export function OperatorBillingPlansClient() {
+type OperatorBillingPlansClientProps = {
+  readonly initialPlanId?: string | null;
+};
+
+export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProps) {
+  const searchParams = useSearchParams();
   const [pricing, setPricing] = useState<PricingDoc | null>(null);
   const [pricingError, setPricingError] = useState(false);
+  const [checkoutPlanId, setCheckoutPlanId] = useState<MarketingPricingTierId | null>(null);
+  const checkoutInFlightRef = useRef(false);
+
+  const selectedPlanRaw = props.initialPlanId ?? searchParams.get("plan");
+  const selectedPlanId =
+    typeof selectedPlanRaw === "string" && isMarketingPricingTierId(selectedPlanRaw) ? selectedPlanRaw : null;
 
   const loadPricing = useCallback(async () => {
     try {
@@ -81,9 +97,58 @@ export function OperatorBillingPlansClient() {
     void loadPricing();
   }, [loadPricing]);
 
-  const onPlaceholderCommercialAction = useCallback(() => {
-    showInfo("Self-serve checkout is coming soon. Contact sales if you need to upgrade before checkout ships.");
+  useEffect(() => {
+    const checkoutState = searchParams.get("checkout");
+
+    if (checkoutState === "success") {
+      showSuccess("Billing", "Checkout completed. Your plan will update once payment is confirmed.");
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (selectedPlanId === null) {
+      return;
+    }
+
+    const card = document.querySelector(`[data-testid="billing-tier-${selectedPlanId}"]`);
+
+    if (card instanceof HTMLElement) {
+      card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [pricing, selectedPlanId]);
+
+  const onSalesLedPlanAction = useCallback((tierId: MarketingPricingTierId) => {
+    if (tierId === "enterprise") {
+      showInfo("Enterprise packaging is sales-led. Use the quote form on public pricing or contact sales.");
+
+      return;
+    }
+
+    showInfo("Professional guided trials are sales-led. Request a quote on public pricing or contact sales.");
   }, []);
+
+  const onStartCheckout = useCallback(
+    async (tierId: MarketingPricingTierId, pkg: PricingPackage) => {
+      if (checkoutInFlightRef.current) {
+        return;
+      }
+
+      checkoutInFlightRef.current = true;
+      setCheckoutPlanId(tierId);
+
+      try {
+        await startMarketingPlanBillingCheckout({
+          planId: tierId,
+          seats: pkg.includedUsers ?? 1,
+          workspaces: pkg.includedWorkspaces ?? 1,
+        });
+      } finally {
+        checkoutInFlightRef.current = false;
+        setCheckoutPlanId(null);
+      }
+    },
+    [],
+  );
 
   return (
     <div className="space-y-4">
@@ -116,6 +181,9 @@ export function OperatorBillingPlansClient() {
             const cta = OPERATOR_BILLING_TIER_CTAS[tierId];
             const bullets = BILLING_TIER_FEATURE_BULLETS[pkg.id] ?? [];
             const isRecommended = tierId === MARKETING_PRICING_RECOMMENDED_TIER;
+            const isSelected = selectedPlanId === tierId;
+            const isCheckoutLoading = checkoutPlanId === tierId;
+            const selfServe = isSelfServeBillingCheckoutPlan(tierId);
 
             return (
               <Card
@@ -123,6 +191,7 @@ export function OperatorBillingPlansClient() {
                 className={cn(
                   "flex flex-col",
                   isRecommended ? "border-teal-600 ring-1 ring-teal-600/20 dark:border-teal-500" : null,
+                  isSelected ? "ring-2 ring-teal-700/40 dark:ring-teal-400/50" : null,
                 )}
                 data-testid={`billing-tier-${pkg.id}`}
               >
@@ -153,14 +222,28 @@ export function OperatorBillingPlansClient() {
                   </div>
                 </CardContent>
                 <CardFooter className="mt-auto flex-col gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-700">
-                  <Button
-                    type="button"
-                    variant={tierId === "architect" || isRecommended ? "primary" : "outline"}
-                    className="w-full"
-                    onClick={onPlaceholderCommercialAction}
-                  >
-                    {cta?.primaryLabel ?? "Contact us"}
-                  </Button>
+                  {selfServe ? (
+                    <AsyncActionButton
+                      type="button"
+                      variant={tierId === "architect" || isRecommended ? "primary" : "outline"}
+                      className="w-full"
+                      idleLabel={cta?.primaryLabel ?? "Upgrade plan"}
+                      loadingLabel="Opening checkout…"
+                      isLoading={isCheckoutLoading}
+                      onClick={() => {
+                        void onStartCheckout(tierId, pkg);
+                      }}
+                    />
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => onSalesLedPlanAction(tierId)}
+                    >
+                      {cta?.primaryLabel ?? "Contact us"}
+                    </Button>
+                  )}
                   <p className={cn("text-center", OPERATOR_TYPOGRAPHY.micro)}>
                     Effective {pricing.effectiveDate} · {pricing.currency}
                   </p>

@@ -164,6 +164,7 @@ public sealed class BillingCheckoutController(
 
         return label.Trim() switch
         {
+            "Architect" => BillingCheckoutTier.Architect,
             "Pro" => BillingCheckoutTier.Pro,
             "Enterprise" => BillingCheckoutTier.Enterprise,
             _ => BillingCheckoutTier.Team

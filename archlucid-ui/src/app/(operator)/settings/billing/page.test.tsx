@@ -1,12 +1,24 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const showError = vi.fn();
 const showInfo = vi.fn();
+const showSuccess = vi.fn();
+
+const startMarketingPlanBillingCheckout = vi.hoisted(() => vi.fn().mockResolvedValue("redirected"));
 
 vi.mock("@/lib/toast", () => ({
   showError: (...args: unknown[]) => showError(...args),
   showInfo: (...args: unknown[]) => showInfo(...args),
+  showSuccess: (...args: unknown[]) => showSuccess(...args),
+}));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/lib/billing-checkout-client", () => ({
+  startMarketingPlanBillingCheckout,
 }));
 
 vi.mock("@/hooks/use-tenant-trial-status-query", () => ({
@@ -56,7 +68,7 @@ vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
   };
 });
 
-import BillingSettingsPage from "./page";
+import { OperatorBillingSettingsClient } from "./OperatorBillingSettingsClient";
 
 const pricingFixture = {
   schemaVersion: 1,
@@ -126,6 +138,8 @@ describe("BillingSettingsPage", () => {
   beforeEach(() => {
     showError.mockClear();
     showInfo.mockClear();
+    showSuccess.mockClear();
+    startMarketingPlanBillingCheckout.mockClear();
   });
 
   it("loads canonical tiers, shows subscription management layout, and hides Stripe ids", async () => {
@@ -150,7 +164,7 @@ describe("BillingSettingsPage", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<BillingSettingsPage />);
+    render(<OperatorBillingSettingsClient />);
 
     await waitFor(() => {
       expect(screen.getByTestId("billing-tier-architect")).toBeInTheDocument();
@@ -170,9 +184,14 @@ describe("BillingSettingsPage", () => {
     expect(screen.queryByLabelText(/Stripe customer id/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Advanced billing details/i)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Start Architect plan/i }));
+    const architectCard = screen.getByTestId("billing-tier-architect");
+    fireEvent.click(within(architectCard).getByRole("button", { name: /Start Architect plan/i }));
 
-    expect(showInfo).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(startMarketingPlanBillingCheckout).toHaveBeenCalledWith(
+        expect.objectContaining({ planId: "architect", seats: 1, workspaces: 1 }),
+      );
+    });
 
     vi.unstubAllGlobals();
   });

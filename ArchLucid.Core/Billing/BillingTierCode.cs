@@ -10,6 +10,7 @@ public static class BillingTierCode
         return tier switch
         {
             BillingCheckoutTier.Team => nameof(TenantTier.Standard),
+            BillingCheckoutTier.Architect => nameof(TenantTier.Standard),
             BillingCheckoutTier.Pro => nameof(TenantTier.Standard),
             BillingCheckoutTier.Enterprise => nameof(TenantTier.Enterprise),
             _ => nameof(TenantTier.Standard)
@@ -21,6 +22,7 @@ public static class BillingTierCode
         return tier switch
         {
             BillingCheckoutTier.Team => "Team",
+            BillingCheckoutTier.Architect => "Architect",
             BillingCheckoutTier.Pro => "Pro",
             BillingCheckoutTier.Enterprise => "Enterprise",
             _ => "Team"

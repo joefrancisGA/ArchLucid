@@ -10,7 +10,7 @@ import { OperatorBillingWalletPanel } from "./OperatorBillingWalletPanel";
 import { OPERATOR_BILLING_PAGE_LEAD } from "@/lib/marketing/marketing-public-pricing";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-export function OperatorBillingSettingsClient() {
+export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: string | null }) {
   return (
     <div className="w-full max-w-[1440px] space-y-8 px-4 py-8" data-testid="operator-billing-plans-page">
       <header className="space-y-2">
@@ -22,7 +22,7 @@ export function OperatorBillingSettingsClient() {
 
       <section id="billing-plans" className="scroll-mt-24 space-y-4">
         <h2 className={OPERATOR_NAV_GROUP_LABEL}>Available plans</h2>
-        <OperatorBillingPlansClient />
+        <OperatorBillingPlansClient initialPlanId={props.initialPlanId ?? null} />
       </section>
 
       <OperatorBillingUsageSection />

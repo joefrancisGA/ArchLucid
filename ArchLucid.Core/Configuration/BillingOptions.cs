@@ -34,6 +34,16 @@ public sealed class StripeBillingOptions
         init;
     }
 
+    /// <summary>
+    ///     Optional restricted API key (<c>rk_</c>) used only for Checkout Session creation. Falls back to
+    ///     <see cref="SecretKey" /> when unset.
+    /// </summary>
+    public string? CheckoutSecretKey
+    {
+        get;
+        init;
+    }
+
     /// <summary>Stripe webhook signing secret (whsec_…).</summary>
     public string? WebhookSigningSecret
     {
@@ -49,6 +59,12 @@ public sealed class StripeBillingOptions
     }
 
     public string? PriceIdTeam
+    {
+        get;
+        init;
+    }
+
+    public string? PriceIdArchitect
     {
         get;
         init;

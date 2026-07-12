@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
 import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
+import { buildMarketingSelfServeBillingHref } from "@/lib/marketing/marketing-billing-plan-href";
 import {
   BUYER_MARKETING_PRICING_AI_USAGE_NOTE,
   MARKETING_PRICING_RECOMMENDED_TIER,
@@ -15,34 +16,13 @@ import {
   isMarketingPricingTierId,
   type MarketingPricingTierId,
 } from "@/lib/marketing/marketing-public-pricing";
-import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
+import type { PricingDoc } from "@/lib/pricing-types";
 import {
   formatIncludedUsersAndWorkspaces,
   formatMonthlyAiCredits,
   formatPlanPrice,
   pricingTierSortIndex,
 } from "@/lib/pricing-catalog-display";
-import { looksStripeHostedTestCheckoutUrl, resolveTeamStripeCheckoutHref } from "@/lib/team-stripe-checkout-url";
-
-function resolveStripeCheckoutHref(pricing: PricingDoc, tierId: MarketingPricingTierId): string | null {
-  if (!isPublicStripeTeamCheckoutEnabled()) {
-    return null;
-  }
-
-  if (tierId === "architect") {
-    return resolveTeamStripeCheckoutHref(pricing.architectStripeCheckoutUrl);
-  }
-
-  if (tierId === "team") {
-    return resolveTeamStripeCheckoutHref(pricing.teamStripeCheckoutUrl);
-  }
-
-  return null;
-}
-
-function stripeSubscribeLabel(checkoutHref: string): string {
-  return looksStripeHostedTestCheckoutUrl(checkoutHref) ? "Subscribe (Stripe test)" : "Subscribe with Stripe";
-}
 
 export type MarketingTierPricingSectionProps = {
   /** Element id for the section heading (accessibility). */
@@ -59,7 +39,7 @@ export type MarketingTierPricingSectionProps = {
   showSignupCallToAction?: boolean;
   /** DOM id of the quote panel on the same page (Pro / Enterprise scroll target). */
   quoteSectionDomId?: string;
-  /** When true, Team tier leads with quote even if Stripe test checkout is enabled (trial nudge flow). */
+  /** When true, Team tier leads with quote even if self-serve checkout is enabled (trial nudge flow). */
   preferSalesLedQuoteCta?: boolean;
   /** When true, show the monthly AI credits explainer under the tier grid. */
   showAiUsageNote?: boolean;
@@ -71,6 +51,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
   const [pricing, setPricing] = useState<PricingDoc | null>(null);
   const [pricingError, setPricingError] = useState(false);
   const [pricingLoading, setPricingLoading] = useState(true);
+  const selfServeCheckoutEnabled = isPublicStripeTeamCheckoutEnabled();
 
   const scrollToQuote = useCallback(() => {
     if (typeof document === "undefined") {
@@ -158,7 +139,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 const isRecommended = tierId === MARKETING_PRICING_RECOMMENDED_TIER;
                 const includedLine = formatIncludedUsersAndWorkspaces(pkg);
                 const aiCreditsLine = formatMonthlyAiCredits(pkg);
-                const stripeHref = tierId !== null ? resolveStripeCheckoutHref(pricing, tierId) : null;
+                const billingHref = tierId !== null && selfServeCheckoutEnabled ? buildMarketingSelfServeBillingHref(tierId) : null;
                 const bullets = BILLING_TIER_FEATURE_BULLETS[pkg.id] ?? [];
 
                 return (
@@ -217,41 +198,37 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                         </Button>
                       ) : null}
 
-                      {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && stripeHref !== null ? (
+                      {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref !== null ? (
                         <Button asChild variant="primary" className="w-full">
-                          <a
+                          <Link
                             data-testid={pkg.id === "team" ? "pricing-team-subscribe-stripe" : `pricing-${pkg.id}-subscribe-stripe`}
-                            href={stripeHref.trim()}
-                            rel="noopener noreferrer"
-                            target="_blank"
+                            href={billingHref}
                           >
-                            {stripeSubscribeLabel(stripeHref)}
-                          </a>
+                            {cta.primaryLabel}
+                          </Link>
                         </Button>
                       ) : null}
 
-                      {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && stripeHref === null ? (
+                      {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref === null ? (
                         <Button asChild variant="primary" className="w-full">
                           <Link href={props.signupHref}>{cta.primaryLabel}</Link>
                         </Button>
                       ) : null}
 
-                      {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && stripeHref !== null ? (
+                      {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref !== null ? (
                         <Button asChild variant="outline" className="w-full">
                           <Link href={props.signupHref}>{cta.secondaryLabel ?? "Start now"}</Link>
                         </Button>
                       ) : null}
 
-                      {cta.primaryKind === "stripe" && props.preferSalesLedQuoteCta && stripeHref !== null ? (
+                      {cta.primaryKind === "stripe" && props.preferSalesLedQuoteCta && billingHref !== null ? (
                         <Button asChild variant="outline" className="w-full">
-                          <a
+                          <Link
                             data-testid="pricing-team-subscribe-stripe"
-                            href={stripeHref.trim()}
-                            rel="noopener noreferrer"
-                            target="_blank"
+                            href={billingHref}
                           >
-                            {stripeSubscribeLabel(stripeHref)}
-                          </a>
+                            {cta.primaryLabel}
+                          </Link>
                         </Button>
                       ) : null}
                     </div>

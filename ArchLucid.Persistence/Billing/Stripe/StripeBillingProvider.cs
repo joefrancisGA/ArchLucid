@@ -50,10 +50,11 @@ public sealed class StripeBillingProvider(
         CancellationToken cancellationToken)
     {
         BillingOptions billing = _billingOptions.CurrentValue;
-        string? secretKey = billing.Stripe.SecretKey?.Trim();
+        string? secretKey = ResolveCheckoutApiKey(billing);
 
         if (string.IsNullOrWhiteSpace(secretKey))
-            throw new InvalidOperationException("Billing:Stripe:SecretKey is not configured.");
+            throw new InvalidOperationException(
+                "Billing:Stripe:CheckoutSecretKey or Billing:Stripe:SecretKey is not configured.");
 
         string? priceId = ResolvePriceId(billing, request.TargetTier);
 
@@ -276,6 +277,7 @@ public sealed class StripeBillingProvider(
 
         string planToken = checkoutTier switch
         {
+            BillingCheckoutTier.Architect => "archlucid-stripe-architect",
             BillingCheckoutTier.Pro => "archlucid-stripe-pro",
             BillingCheckoutTier.Enterprise => "archlucid-stripe-enterprise",
             _ => "archlucid-stripe-team"
@@ -317,6 +319,7 @@ public sealed class StripeBillingProvider(
 
         return raw.Trim() switch
         {
+            "Architect" => BillingCheckoutTier.Architect,
             "Pro" => BillingCheckoutTier.Pro,
             "Enterprise" => BillingCheckoutTier.Enterprise,
             _ => BillingCheckoutTier.Team
@@ -333,11 +336,22 @@ public sealed class StripeBillingProvider(
             : fallback;
     }
 
+    private static string? ResolveCheckoutApiKey(BillingOptions billing)
+    {
+        string? restricted = billing.Stripe.CheckoutSecretKey?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(restricted))
+            return restricted;
+
+        return billing.Stripe.SecretKey?.Trim();
+    }
+
     private static string? ResolvePriceId(BillingOptions billing, BillingCheckoutTier tier)
     {
         return tier switch
         {
             BillingCheckoutTier.Team => billing.Stripe.PriceIdTeam?.Trim(),
+            BillingCheckoutTier.Architect => billing.Stripe.PriceIdArchitect?.Trim(),
             BillingCheckoutTier.Pro => billing.Stripe.PriceIdPro?.Trim(),
             BillingCheckoutTier.Enterprise => billing.Stripe.PriceIdEnterprise?.Trim(),
             _ => billing.Stripe.PriceIdTeam?.Trim()
