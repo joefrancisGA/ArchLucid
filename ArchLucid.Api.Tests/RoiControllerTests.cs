@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Roi;
 using ArchLucid.Application.Roi;
@@ -95,9 +96,63 @@ public sealed class RoiControllerTests
 
         audit.Verify(
             a => a.LogAsync(
-                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.ExecutiveRoiBoardPackExported),
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.ExecutiveRoiBoardPackExported
+                    && !string.IsNullOrWhiteSpace(e.DataJson)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+
+        JsonDocument auditJson = JsonDocument.Parse(
+            audit.Invocations[0].Arguments[0] is AuditEvent ev ? ev.DataJson : "{}");
+        auditJson.RootElement.GetProperty("format").GetString().Should().Be("markdown");
+    }
+
+    [Fact]
+    public async Task GetExecutiveSummaryBoardPackAsync_returns_pdf_and_audits_with_json_payload()
+    {
+        ExecutiveRoiBoardPackExportResult export = new()
+        {
+            Format = ExecutiveRoiBoardPackFormat.Pdf,
+            ContentType = "application/pdf",
+            FileName = "executive-roi-board-pack.pdf",
+            FileBytes = [0x25, 0x50, 0x44, 0x46],
+        };
+
+        Mock<IExecutiveRoiBoardPackExporter> exporter = new();
+        exporter
+            .Setup(e => e.ExportAsync(
+                ExecutiveRoiBoardPackFormat.Pdf,
+                It.IsAny<string?>(),
+                false,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(export);
+
+        Mock<IAuditService> audit = new();
+
+        RoiController controller = CreateController(
+            Mock.Of<IExecutiveRoiSummaryService>(),
+            exporter.Object,
+            audit.Object);
+
+        IActionResult action = await controller.GetExecutiveSummaryBoardPackAsync(
+            format: "pdf",
+            generateNarrative: false,
+            CancellationToken.None);
+
+        FileContentResult file = action.Should().BeOfType<FileContentResult>().Subject;
+        file.ContentType.Should().Be("application/pdf");
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.ExecutiveRoiBoardPackExported
+                    && !string.IsNullOrWhiteSpace(e.DataJson)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        JsonDocument auditJson = JsonDocument.Parse(
+            audit.Invocations[0].Arguments[0] is AuditEvent ev ? ev.DataJson : "{}");
+        auditJson.RootElement.GetProperty("format").GetString().Should().Be("pdf");
     }
 
     [Fact]

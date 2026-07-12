@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Roi;
@@ -82,7 +83,7 @@ public sealed class RoiController(
                 AuditEventTypes.ExecutiveRoiBoardPackExported,
                 User?.Identity?.Name ?? "operator",
                 "roi-board-pack",
-                $"format={parsedFormat.ToString().ToLowerInvariant()}"),
+                JsonSerializer.Serialize(new { format = parsedFormat.ToString().ToLowerInvariant() })),
             cancellationToken).ConfigureAwait(false);
 
         if (parsedFormat == ExecutiveRoiBoardPackFormat.Pdf && export.FileBytes is not null)
