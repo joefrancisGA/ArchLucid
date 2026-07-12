@@ -552,7 +552,9 @@ public sealed class DependencyConstraintTests
             because: "TB-723 `archlucid docs pdf render` hosts ProductDocumentationPdfBuilder from Application.Pilots.");
 
         references.Should().NotContain(
-            a => a.Name is "ArchLucid.Persistence" or "ArchLucid.Decisioning" or "ArchLucid.Host.Core",
+            a => a.Name == "ArchLucid.Persistence"
+                || a.Name == "ArchLucid.Decisioning"
+                || a.Name == "ArchLucid.Host.Core",
             because: "Cli must remain a thin host; deeper layers belong behind Api.Client or the pdf render exception only.");
     }
 
