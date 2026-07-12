@@ -194,6 +194,7 @@ public sealed class TeamsIncomingWebhookConnectionsController(
     }
 
     /// <summary>Validates that a Key Vault secret exists, is accessible, and contains a Teams webhook URL.</summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("connections/validate-secret")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: read-only Key Vault probe; no connection persisted.")]
@@ -209,6 +210,7 @@ public sealed class TeamsIncomingWebhookConnectionsController(
     }
 
     /// <summary>Sends a synthetic Teams test notification using a Key Vault secret reference.</summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("connections/test")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: synthetic Teams probe; no governance event created.")]
