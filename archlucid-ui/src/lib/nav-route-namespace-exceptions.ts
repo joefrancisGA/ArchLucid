@@ -35,4 +35,10 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
     canonicalPrefixes: ["/scorecard", "/value-report"],
     exceptionReason: "Digest subscriptions hub uses a top-level route; promoted from Internal Ops to Reports (governance-digest theme, nav placement audit 2026-07-05).",
   },
+  {
+    navGroupId: "operate-governance",
+    href: "/advisory",
+    canonicalPrefixes: ["/governance"],
+    exceptionReason: "Architecture advisory hub uses a top-level route; grouped under Enterprise governance until TB-408 canonical route consolidation.",
+  },
 ];

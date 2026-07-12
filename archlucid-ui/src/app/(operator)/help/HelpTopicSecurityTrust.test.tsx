@@ -82,7 +82,7 @@ describe("HelpTopicMarkdownView security and trust", () => {
 
     render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    const toc = screen.getByRole("navigation", { name: "On this page" });
+    const toc = screen.getByTestId("help-topic-toc");
 
     for (const heading of headings) {
       const link = within(toc).getByRole("link", { name: heading.title });

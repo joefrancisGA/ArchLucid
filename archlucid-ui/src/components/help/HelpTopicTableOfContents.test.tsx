@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -32,17 +32,18 @@ describe("HelpTopicTableOfContents", () => {
   it("renders the on-this-page heading and anchor links", () => {
     render(<HelpTopicTableOfContents headings={SAMPLE_HEADINGS} />);
 
-    const heading = screen.getByTestId("help-topic-toc-heading");
+    const desktopToc = screen.getByTestId("help-topic-toc");
+    const heading = within(desktopToc).getByTestId("help-topic-toc-heading");
 
     expect(heading).toHaveTextContent("On this page");
     expect(heading).toHaveClass("font-semibold");
     expect(heading.className).toContain(HELP_PAGE_TOC.heading);
 
     for (const item of SAMPLE_HEADINGS) {
-      expect(screen.getByRole("link", { name: item.title })).toHaveAttribute("href", `#${item.id}`);
+      expect(within(desktopToc).getByRole("link", { name: item.title })).toHaveAttribute("href", `#${item.id}`);
     }
 
-    const list = screen.getByRole("list");
+    const list = within(desktopToc).getByRole("list");
 
     expect(list.className).not.toContain("overflow-y");
     expect(list.className).not.toContain("max-h");
@@ -53,11 +54,15 @@ describe("HelpTopicTableOfContents", () => {
 
     render(<HelpTopicTableOfContents headings={SAMPLE_HEADINGS} />);
 
-    expect(screen.getByRole("link", { name: "What can wait until later" })).toHaveAttribute(
+    const desktopToc = screen.getByTestId("help-topic-toc");
+
+    expect(within(desktopToc).getByRole("link", { name: "What can wait until later" })).toHaveAttribute(
       "aria-current",
       "location",
     );
-    expect(screen.getByRole("link", { name: "Pilot first. Operate later." })).not.toHaveAttribute("aria-current");
+    expect(within(desktopToc).getByRole("link", { name: "Pilot first. Operate later." })).not.toHaveAttribute(
+      "aria-current",
+    );
   });
 
   it("updates the active link when the location hash changes", () => {
@@ -65,7 +70,8 @@ describe("HelpTopicTableOfContents", () => {
 
     render(<HelpTopicTableOfContents headings={SAMPLE_HEADINGS} />);
 
-    const relatedLink = screen.getByRole("link", { name: "Related guides" });
+    const desktopToc = screen.getByTestId("help-topic-toc");
+    const relatedLink = within(desktopToc).getByRole("link", { name: "Related guides" });
 
     expect(relatedLink).not.toHaveAttribute("aria-current");
 

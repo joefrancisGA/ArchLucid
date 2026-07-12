@@ -100,7 +100,7 @@ describe("Review guide", () => {
 
     render(<HelpTopicMarkdownView entry={entry} markdown={loaded.markdown} />);
 
-    const toc = screen.getByRole("navigation", { name: "On this page" });
+    const toc = screen.getByTestId("help-topic-toc");
 
     for (const title of TOC_SECTION_TITLES) {
       expect(within(toc).getByRole("link", { name: title })).toBeInTheDocument();
