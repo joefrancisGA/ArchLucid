@@ -220,13 +220,13 @@ type AppShellClientProps = {
 
 function AppShellDeferChromeBoundary({
   shellRootRef,
+  deferChrome,
   children,
 }: {
   shellRootRef: RefObject<HTMLDivElement | null>;
+  deferChrome: boolean;
   children: ReactNode;
 }) {
-  const deferChrome = useOperatorShellChromeDeferred();
-
   if (deferChrome) {
     return <OperatorShellDeferredChrome shellRootRef={shellRootRef} />;
   }
@@ -251,6 +251,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
 function AppShellInner({ children }: AppShellClientProps) {
   const pathname = usePathname();
   const chromeMode = useOperatorChromeMode();
+  const deferChrome = useOperatorShellChromeDeferred();
   const [helpGuidesOpen, setHelpGuidesOpen] = useState(false);
   const [helpGuidesInitialTab, setHelpGuidesInitialTab] = useState<HelpTabId>("guides");
   const [helpDocSearchOpen, setHelpDocSearchOpen] = useState(false);
@@ -282,10 +283,13 @@ function AppShellInner({ children }: AppShellClientProps) {
   const isAccessDeniedRoute = pathname === "/403";
   const isStandaloneAccessSurface = isAuthRoute || isAccessDeniedRoute;
 
-  /** `useLayoutEffect`: runs before paint so Playwright sees the marker as soon as the shell DOM commits. */
+  /**
+   * `useLayoutEffect`: runs before paint so Playwright sees the marker as soon as the shell DOM commits.
+   * Re-run when deferred access-gate chrome swaps to full shell — `shellRootRef` moves to a new node (TB-730).
+   */
   useLayoutEffect(() => {
     shellRootRef.current?.setAttribute("data-app-ready", "true");
-  }, []);
+  }, [pathname, chromeMode, isStandaloneAccessSurface, deferChrome]);
 
   if (isStandaloneAccessSurface) {
     const surfaceChildren = isAccessDeniedRoute ? (
@@ -319,7 +323,7 @@ function AppShellInner({ children }: AppShellClientProps) {
   if (chromeMode === "minimal") {
     return (
       <OperatorShellProviders>
-        <AppShellDeferChromeBoundary shellRootRef={shellRootRef}>
+        <AppShellDeferChromeBoundary deferChrome={deferChrome} shellRootRef={shellRootRef}>
           <AppInsightsTelemetryInit />
           <SessionIdleTimeoutGuard />
           <TooltipProvider delayDuration={200}>
@@ -420,7 +424,7 @@ function AppShellInner({ children }: AppShellClientProps) {
 
   return (
     <OperatorShellProviders>
-      <AppShellDeferChromeBoundary shellRootRef={shellRootRef}>
+      <AppShellDeferChromeBoundary deferChrome={deferChrome} shellRootRef={shellRootRef}>
       <AppInsightsTelemetryInit />
       <SessionIdleTimeoutGuard />
       <TooltipProvider delayDuration={200}>

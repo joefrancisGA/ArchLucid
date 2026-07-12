@@ -171,6 +171,8 @@ describe("AppShellClient — shell chrome labels", () => {
 
   beforeEach(() => {
     fullShellMock.value = true;
+    navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+    navAuthMock.isAuthorityLoading = false;
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => new Response(JSON.stringify({ status: "Healthy", entries: [] }), { status: 200 })),
@@ -239,5 +241,31 @@ describe("AppShellClient — shell chrome labels", () => {
     expect(screen.queryByTestId("sidebar-nav")).not.toBeInTheDocument();
     expect(screen.queryByTestId("app-shell-topbar")).not.toBeInTheDocument();
     expect(screen.queryByTestId("protected-child")).not.toBeInTheDocument();
+  });
+
+  it("keeps data-app-ready on the shell root after deferred access chrome resolves", async () => {
+    navAuthMock.isAuthorityLoading = true;
+
+    const view = renderWithOperatorQuery(
+      <AppShellClient>
+        <div data-testid="protected-child">child</div>
+      </AppShellClient>,
+    );
+
+    expect(document.querySelector('[data-app-ready="true"]')).not.toBeNull();
+
+    navAuthMock.isAuthorityLoading = false;
+    view.rerender(
+      <AppShellClient>
+        <div data-testid="protected-child">child</div>
+      </AppShellClient>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("sidebar-nav")).toBeInTheDocument();
+    });
+
+    expect(document.querySelector('[data-app-ready="true"]')).not.toBeNull();
+    expect(document.querySelectorAll('[data-app-ready="true"]')).toHaveLength(1);
   });
 });
