@@ -287,7 +287,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-658 | **Done** (2026-07-06) — `archlucid stack doctor` profiles route `Test-ArchLucidPrerequisites.ps1`, config lint, drift preflight, deployment-evidence, and onboard-preflight; Vitest drift guard; see `## TB-658` below | Supportability P2 — **V1**; complements **TB-654**; found during setup/deployment complexity review 2026-07-05 | M |
 | TB-659 | Onboarding doc consolidation — one canonical setup path per persona (dev, platform operator, enterprise tenant); archive superseded runbooks with redirect notes under `docs/archive/`; see `## TB-659` below | Maintainability P3 — **V1**; extends **FIRST_30_MINUTES.md** discipline; found during setup/deployment complexity review 2026-07-05 | S |
 | TB-660 | **Done** (2026-07-06) — reference-architecture exemplar library: 10 indexed owner-reviewed `ArchitectureRequest` JSON patterns (microservices, DR, zero-trust, regulated finance, event-driven saga, AKS, AWS 3-tier, plus existing 3-tier/serverless/pipeline); README pattern matrix; `ExemplarCorpusIndexerTests` + `TopologyExemplarStylePriorFormatterTests` smoke | Time-to-Value P1 — **V1**; **RAG-V1.1-001** content gap closed | M |
-| TB-661 | Reference-architecture exemplar curation runbook — checklist for constraints, topology diversity, PII/customer-name bans, fingerprint coverage, and review sign-off before merge; see `## TB-661` below | Maintainability P2 — **V1**; complements **TB-660** | S |
+| TB-661 | **Done** (2026-07-12) — `REFERENCE_ARCHITECTURE_EXEMPLAR_CURATION.md` runbook + `assert_reference_architecture_exemplars.py` README/fingerprint guard; linked from `templates/reference-architectures/README.md`; see `## TB-661` below | Maintainability P2 — **V1**; complements **TB-660** | S |
 | TB-662 | **Done** (2026-07-12) — `ReferenceArchitecture` retrieval IR golden cases: 5 platform-sentinel corpus chunks + 6 `ir-ra-*` cases in `tests/eval-datasets/retrieval-golden/cases.json`; per-corpus MRR floor; `RetrievalIrEvalTests` platform-scope + dataset guard; `DEEPER_RAG_QUALITY_PROGRAM.md` updated; see `## TB-662` below | Correctness P2 — **V1**; extends **RAG-V1-011** / **TB-049** | S |
 | TB-663 | **Done** (2026-07-12) — Topology exemplar style-prior observability on run detail: `TopologyReferenceArchitectureExemplarSummaryResolver` + DTO fields on `RunRetrievalGroundingSummaryDto`; `RunRetrievalExemplarStylePriorStrip` + Topology agent-results deep link; see `## TB-663` below | Explainability P2 — **V1**; extends **TB-109** | S |
 | TB-664 | Prior-manifest corpus quality guidance for operators — when accepted runs produce useful Ask/prior-decision chunks vs noise; commit-time doc + optional UI hint; see `## TB-664` below | Stickiness P2 — **V1**; **RAG-V1-002** already indexes on commit | S |
@@ -17637,6 +17637,8 @@ Closed 2026-07-07: unit tests for `PagingParameters`, `ReplayArtifactResponseFac
 ---
 
 ## TB-661 — Reference-architecture exemplar curation runbook (P2)
+
+**Closed (2026-07-12):** `docs/runbooks/REFERENCE_ARCHITECTURE_EXEMPLAR_CURATION.md` (fields, diversity, PII bans, reviewer checklist, style-prior scope); `scripts/ci/assert_reference_architecture_exemplars.py` enforces README ↔ JSON parity and `systemName`+`cloudProvider` fingerprint uniqueness in pre-corset guards; `templates/reference-architectures/README.md` links the runbook.
 
 **Window:** V1 — documentation + lightweight CI guard optional.
 

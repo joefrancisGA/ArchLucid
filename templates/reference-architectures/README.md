@@ -18,3 +18,5 @@ Files ending in `.request.json` are **excluded** from `ExemplarCorpusIndexer` (r
 | [`aws-three-tier-vpc.json`](aws-three-tier-vpc.json) | AWS | Three-tier VPC web app | Private RDS/ECS, VPC endpoints, IAM roles |
 
 **Indexed exemplar count:** 10 (owner-reviewed `ArchitectureRequest` patterns). Re-indexed on deploy via `ExemplarCorpusStartupIndexerHostedService`.
+
+**Curation:** Before adding or editing exemplars, follow [`docs/runbooks/REFERENCE_ARCHITECTURE_EXEMPLAR_CURATION.md`](../../docs/runbooks/REFERENCE_ARCHITECTURE_EXEMPLAR_CURATION.md) (reviewer checklist + CI guard `assert_reference_architecture_exemplars.py`).
