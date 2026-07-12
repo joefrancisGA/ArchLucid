@@ -21,6 +21,7 @@ import {
   writeArchitectureCreationDraftId,
 } from "@/lib/architecture-creation-session";
 import { ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS } from "@/lib/architecture-creation-question-definition";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 
 describe("initializeArchitectureCreation", () => {
   beforeEach(() => {
@@ -56,7 +57,7 @@ describe("initializeArchitectureCreation", () => {
 
     const result = await initializeArchitectureCreation();
 
-    expect(createDraftRequest).toHaveBeenCalledWith(ARCHITECTURE_CREATION_BOOTSTRAP_INTENT);
+    expect(createDraftRequest).toHaveBeenCalledWith(ARCHITECTURE_CREATION_BOOTSTRAP_INTENT, CREATE_ARCHITECTURE_INTENT);
     expect(readArchitectureCreationDraftId()).toBe("draft-new");
     expect(result.draftId).toBe("draft-new");
   });

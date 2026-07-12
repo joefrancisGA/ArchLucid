@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildAiUsageDashboardDerived,
@@ -58,6 +58,15 @@ function baseBudgetStatus() {
 }
 
 describe("ai-usage-dashboard-model", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(Date.UTC(2026, 6, 10, 12, 0, 0)));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("projects month-end spend from month-to-date usage", () => {
     const reference = new Date(Date.UTC(2026, 6, 10));
     const projected = projectMonthEndSpendUsd(25, reference);

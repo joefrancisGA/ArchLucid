@@ -57,7 +57,7 @@ describe("BuyerCtoDemoTourOverlay", () => {
     render(<BuyerCtoDemoTourOverlay />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("cto-demo-preflight-gate")).toBeInTheDocument();
+      expect(screen.getByTestId("cto-demo-customer-preflight-gate")).toBeInTheDocument();
     });
 
     expect(screen.queryByTestId("buyer-cto-demo-tour-next")).toBeNull();

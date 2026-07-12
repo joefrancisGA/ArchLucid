@@ -51,7 +51,7 @@ describe("HelpSearchPanel", () => {
     expect(screen.getByTestId("help-search-group-start-here")).toBeInTheDocument();
     expect(screen.getByTestId("help-search-group-review-work")).toBeInTheDocument();
     expect(screen.getByTestId("help-search-recommended-group")).toBeInTheDocument();
-    expect(within(screen.getByTestId("help-search-recommended-group")).getByText("Review guide")).toBeInTheDocument();
+    expect(within(screen.getByTestId("help-search-recommended-group")).getByText("First review guide")).toBeInTheDocument();
     expect(within(screen.getByTestId("help-search-group-start-here")).getByText("Run a sample review")).toBeInTheDocument();
     expect(screen.getByText("Upload architecture evidence")).toBeInTheDocument();
     expect(screen.queryByText(/engineering runbook/i)).not.toBeInTheDocument();
@@ -63,7 +63,7 @@ describe("HelpSearchPanel", () => {
     render(<HelpSearchPanel open onOpenChange={() => {}} />);
 
     expect(screen.getByTestId("help-search-recommended-group")).toBeInTheDocument();
-    expect(within(screen.getByTestId("help-search-recommended-group")).getByText("Run a sample review")).toBeInTheDocument();
+    expect(within(screen.getByTestId("help-search-recommended-group")).getByText("Getting started")).toBeInTheDocument();
   });
 
   it("filters topics when searching and renders an empty state", () => {
@@ -93,7 +93,7 @@ describe("HelpSearchPanel", () => {
     render(<HelpSearchPanel open onOpenChange={() => {}} />);
 
     const firstReviewButton = screen.getByRole("button", {
-      name: /Review guide\./i,
+      name: /First review guide\./i,
     });
 
     expect(firstReviewButton).toBeInTheDocument();
