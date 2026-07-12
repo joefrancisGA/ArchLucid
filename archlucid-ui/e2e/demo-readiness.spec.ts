@@ -216,7 +216,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   }) => {
     await page.goto("/governance/policy-packs/e2e-policy-pack-001");
     // Pack detail body uses buyer-polished empty-state copy; breadcrumb uses demo fixture titles — not `getRouteTitle`'s "Policy pack detail".
-    await expect(page.getByRole("link", { name: /^Open Policy packs$/ })).toBeVisible();
+    await expect(page.getByRole("link", { name: /^Policy packs$/ })).toBeVisible();
     await expect(page.getByRole("heading", { level: 1, name: /^Governance workflow$/i })).toHaveCount(0);
   });
 
