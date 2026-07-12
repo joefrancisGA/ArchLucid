@@ -21928,6 +21928,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/governance/recurrence-schedules/preview-next-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["PreviewRecurrenceScheduleRunsRequest"];
+                    "application/json": null | components["schemas"]["PreviewRecurrenceScheduleRunsRequest"];
+                    "text/json": null | components["schemas"]["PreviewRecurrenceScheduleRunsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PreviewRecurrenceScheduleRunsResponse"];
+                        "text/json": components["schemas"]["PreviewRecurrenceScheduleRunsResponse"];
+                        "text/plain": components["schemas"]["PreviewRecurrenceScheduleRunsResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/governance/recurrence-schedules/{scheduleId}": {
         parameters: {
             query?: never;
@@ -23664,6 +23718,92 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/integrations/teams/connections/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["TeamsIncomingWebhookConnectionTestRequest"];
+                    "application/json": null | components["schemas"]["TeamsIncomingWebhookConnectionTestRequest"];
+                    "text/json": null | components["schemas"]["TeamsIncomingWebhookConnectionTestRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TeamsIncomingWebhookConnectionTestResponse"];
+                        "text/json": components["schemas"]["TeamsIncomingWebhookConnectionTestResponse"];
+                        "text/plain": components["schemas"]["TeamsIncomingWebhookConnectionTestResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/integrations/teams/connections/validate-secret": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["TeamsIncomingWebhookSecretValidationRequest"];
+                    "application/json": null | components["schemas"]["TeamsIncomingWebhookSecretValidationRequest"];
+                    "text/json": null | components["schemas"]["TeamsIncomingWebhookSecretValidationRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TeamsIncomingWebhookSecretValidationResponse"];
+                        "text/json": components["schemas"]["TeamsIncomingWebhookSecretValidationResponse"];
+                        "text/plain": components["schemas"]["TeamsIncomingWebhookSecretValidationResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -26932,6 +27072,91 @@ export interface paths {
                     "application/*+json": null | components["schemas"]["SponsorPackSentPostRequest"];
                     "application/json": null | components["schemas"]["SponsorPackSentPostRequest"];
                     "text/json": null | components["schemas"]["SponsorPackSentPostRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/pilots/runs/{runId}/sponsor-preliminary-share": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SponsorPreliminarySharePostRequest"];
+                    "application/json": null | components["schemas"]["SponsorPreliminarySharePostRequest"];
+                    "text/json": null | components["schemas"]["SponsorPreliminarySharePostRequest"];
                 };
             };
             responses: {
@@ -33760,6 +33985,7 @@ export interface components {
             systemName: string;
             topologyHints: string[];
             wizardPresetUsed?: null | string;
+            workflowIntent?: null | string;
         };
         ArchitectureRequestTemplateSummary: {
             description: string;
@@ -34566,7 +34792,7 @@ export interface components {
         };
         CreateArchitectureReviewRecurrenceScheduleRequest: {
             cronExpression?: string;
-            isEnabled?: boolean;
+            isEnabled?: null | boolean;
             name?: string;
             /** Format: uuid */
             sourceRunId?: string;
@@ -34578,6 +34804,7 @@ export interface components {
         };
         CreateDraftRequest: {
             freeTextIntent?: string;
+            workflowIntent?: null | string;
         };
         CreateGovernanceActivationRequest: {
             environment?: string;
@@ -35089,6 +35316,7 @@ export interface components {
             schemaVersion?: number;
             systemName?: null | string;
             transparencyTrail?: components["schemas"]["TransparencyTrail"];
+            workflowIntent?: null | string;
         };
         DraftRequestResponse: {
             /** Format: date-time */
@@ -37222,6 +37450,7 @@ export interface components {
             focusedPilotModeEnabled?: null | boolean;
             freeTextIntent?: null | string;
             systemName?: null | string;
+            workflowIntent?: null | string;
         };
         PatchTechnologyLedgerEntryRequest: {
             isLocked?: null | boolean;
@@ -37856,6 +38085,18 @@ export interface components {
             /** Format: int32 */
             syntheticCount?: number;
             syntheticSeverity?: components["schemas"]["FindingSeverity"];
+        };
+        PreviewRecurrenceScheduleRunsRequest: {
+            /** Format: int32 */
+            count?: number;
+            cronExpression?: string;
+            /** Format: date-time */
+            fromUtc?: null | string;
+        };
+        PreviewRecurrenceScheduleRunsResponse: {
+            isValid?: boolean;
+            nextRunUtc?: string[];
+            validationError?: null | string;
         };
         PriorManifestEvidence: {
             existingDatastores?: string[];
@@ -38834,6 +39075,7 @@ export interface components {
             /** Format: date-time */
             createdUtc?: string;
             currentManifestVersion?: null | string;
+            packageOrigin?: null | string;
             requestId?: string;
             runId?: string;
             status?: string;
@@ -38938,6 +39180,7 @@ export interface components {
             /** Format: date-time */
             operatorGovernanceDecisionUtc?: null | string;
             otelTraceId?: null | string;
+            packageOrigin?: null | string;
             pilotAoaiDeploymentSnapshot?: null | string;
             projectId: string;
             realModeFellBackToSimulator?: boolean;
@@ -39051,6 +39294,7 @@ export interface components {
             isDemoWelcomeRun?: boolean;
             isPinned?: boolean;
             isSample?: boolean;
+            packageOrigin?: null | string;
             projectId: string;
             runDegradedExecution?: boolean;
             /** Format: uuid */
@@ -39202,6 +39446,13 @@ export interface components {
             deliveryMethod?: null | string;
             recipientEmail?: null | string;
         };
+        SponsorPreliminarySharePostRequest: {
+            confidentialityLabel?: null | string;
+            deliveryMethod?: null | string;
+            knownGaps?: null | string[];
+            overrideAcknowledged?: boolean;
+            readinessStatus?: null | string;
+        };
         StageTimelineSummary: {
             /** Format: date-time */
             completedUtc: null | string;
@@ -39311,10 +39562,25 @@ export interface components {
             /** Format: date-time */
             updatedUtc?: string;
         };
+        TeamsIncomingWebhookConnectionTestRequest: {
+            keyVaultSecretName?: null | string;
+        };
+        TeamsIncomingWebhookConnectionTestResponse: {
+            delivered: boolean;
+            message?: null | string;
+        };
         TeamsIncomingWebhookConnectionUpsertRequest: {
             enabledTriggers?: null | string[];
             keyVaultSecretName: string;
             label?: null | string;
+        };
+        TeamsIncomingWebhookSecretValidationOutcome: number;
+        TeamsIncomingWebhookSecretValidationRequest: {
+            keyVaultSecretName: string;
+        };
+        TeamsIncomingWebhookSecretValidationResponse: {
+            message: string;
+            outcome: components["schemas"]["TeamsIncomingWebhookSecretValidationOutcome"];
         };
         TechnologyLedgerEntryResponse: {
             /** Format: date-time */
@@ -39910,6 +40176,7 @@ export interface components {
         UsageMeterKind: number;
         UserPreferencesResponse: {
             appearancePreference?: string;
+            appearancePreferenceIsExplicit?: boolean;
         };
         WeeklyDigestHealthResponse: {
             /** Format: int32 */
