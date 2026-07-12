@@ -832,6 +832,16 @@
       "nav_operator_href": "/compare"
     },
     {
+      "controller_file": "Authority/RunCoverageController.cs",
+      "class_name": "RunCoverageController",
+      "route_template": "v{version:apiVersion}/runs",
+      "normalized_prefix": "/v1/runs",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/RunQueryController.cs",
       "class_name": "RunQueryController",
       "route_template": "v{version:apiVersion}/architecture",
@@ -1070,6 +1080,16 @@
       "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": "/governance"
+    },
+    {
+      "controller_file": "Governance/GovernanceCoverageController.cs",
+      "class_name": "GovernanceCoverageController",
+      "route_template": "v{version:apiVersion}/governance",
+      "normalized_prefix": "/v1/governance",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
     },
     {
       "controller_file": "Governance/GovernancePreCommitSimulationController.cs",

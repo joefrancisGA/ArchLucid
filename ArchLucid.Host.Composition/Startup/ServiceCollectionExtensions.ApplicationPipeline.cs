@@ -45,6 +45,7 @@ using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Application.Runs.TechnologyLedger;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Core.Runs;
@@ -227,6 +228,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<TechnologyLedgerEvidenceSeeder>();
         services.AddScoped<TechnologyLedgerTopologyProposalSeeder>();
         services.AddScoped<ITechnologyLedgerRunCommandService, TechnologyLedgerRunCommandService>();
+        services.AddScoped<ICoverageQueryService, CoverageQueryService>();
+        services.AddSingleton<CoverageAssignmentValidator>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         services.AddScoped<IRunEngineProvenanceCaptureService, RunEngineProvenanceCaptureService>();
