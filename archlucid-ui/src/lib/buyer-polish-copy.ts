@@ -247,6 +247,8 @@ export const OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE = "Open the first review guide.
 
 export const OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH = "Choose a creation or review path.";
 
+export const OPERATOR_HOME_EXAMPLES_AND_LEARNING_HEADING = "Examples and learning";
+
 export const OPERATOR_HOME_SETUP_NEXT_CONNECT_CLOUD = "Connect cloud";
 
 export const OPERATOR_HOME_SETUP_NEXT_INVITE_REVIEWER = "Invite reviewer";
