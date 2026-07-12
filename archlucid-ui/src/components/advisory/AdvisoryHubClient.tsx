@@ -89,9 +89,13 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps): React
       </OperatorPageHeader>
 
       <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-6">
-        <TabsList aria-label="Advisory hub sections" data-testid="advisory-hub-tablist" className="mb-0">
+        <TabsList
+          aria-label="Advisory hub sections"
+          data-testid="advisory-hub-tablist"
+          className="mb-0 inline-flex w-fit gap-0 rounded-md border border-neutral-200 bg-neutral-50 p-0.5 border-b-0 pb-0.5 dark:border-neutral-700 dark:bg-neutral-900"
+        >
           {ADVISORY_HUB_TAB_IDS.map((id) => {
-            const softMuted: boolean = !canMutate && id === "schedules";
+            const selected = activeTab === id;
             const tabTitle: string | undefined =
               !canMutate && id === "schedules" ? SCHEDULES_TAB_READER_TITLE : undefined;
 
@@ -101,7 +105,12 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps): React
                 value={id}
                 data-testid={`advisory-hub-tab-${id}`}
                 title={tabTitle}
-                className={softMuted ? "opacity-80" : undefined}
+                className={cn(
+                  "-mb-px mb-0 rounded border-0 border-b-0 px-3 py-1.5 shadow-none",
+                  selected
+                    ? "bg-white text-al-text-primary shadow-sm dark:bg-neutral-950"
+                    : "bg-transparent text-al-text-secondary hover:text-al-text-primary",
+                )}
               >
                 {TAB_LABEL[id]}
               </TabsTrigger>
