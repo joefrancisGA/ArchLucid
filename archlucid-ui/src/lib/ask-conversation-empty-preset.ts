@@ -1,5 +1,6 @@
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 /** Shown in Ask ArchLucid when a thread has no messages yet. */
@@ -24,7 +25,7 @@ export const ASK_NO_REVIEW_PACKAGE_EMPTY: EnterpriseCompactEmptyStateProps = {
   title: "No review package available",
   description: "Create or load a review package before asking questions.",
   actions: [
-    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "primary" },
+    { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH, variant: "primary" },
     {
       label: "Load sample workspace",
       href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,

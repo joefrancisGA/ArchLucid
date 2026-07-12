@@ -7,9 +7,12 @@ import {
 } from "@/lib/nav-committed-architecture-review-gate";
 
 describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
-  it("allows the four-step pilot path and help/onboarding before first commit, not operate hubs", () => {
+  it("allows the pilot path and help/onboarding before first commit, not operate hubs", () => {
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architectures")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architectures/new")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architectures/draft-1")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews/new")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews/abc/def")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/graph")).toBe(true);
@@ -48,6 +51,7 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
     );
     expect(hrefs).toEqual([
       "/",
+      "/architectures/new",
       "/reviews/new",
       "/reviews",
       "/dashboard",

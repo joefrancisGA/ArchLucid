@@ -19,6 +19,13 @@ describe("isNavLinkActive", () => {
     expect(isNavLinkActive("/reviews", "/reviews/new")).toBe(false);
   });
 
+  it("matches create architecture for draft editor routes", () => {
+    expect(isNavLinkActive("/architectures/new", "/architectures/new")).toBe(true);
+    expect(isNavLinkActive("/architectures/draft-1", "/architectures/new")).toBe(true);
+    expect(isNavLinkActive("/architectures", "/architectures/new")).toBe(false);
+    expect(isNavLinkActive("/architectures", "/architectures")).toBe(true);
+  });
+
   it("matches exact path or nested segments for other routes", () => {
     expect(isNavLinkActive("/compare", "/compare")).toBe(true);
     expect(isNavLinkActive("/governance/dashboard", "/governance/dashboard")).toBe(true);

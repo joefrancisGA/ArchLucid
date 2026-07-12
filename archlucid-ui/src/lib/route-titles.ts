@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 
@@ -11,6 +12,10 @@ export function getRouteTitle(pathname: string): string {
 
   if (/^\/reviews\/[^/]+$/.test(normalized)) {
     return "Review detail";
+  }
+
+  if (/^\/architectures\/[^/]+$/.test(normalized)) {
+    return CREATE_ARCHITECTURE_LABEL;
   }
 
   if (/^\/signed-records\/[^/]+$/.test(normalized)) {

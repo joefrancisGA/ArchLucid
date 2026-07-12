@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import {
   BUYER_NEW_REVIEW_NAV_LABEL,
   OPERATOR_START_REVIEW_QUICK_ACTION_LABEL,
@@ -13,10 +14,21 @@ import {
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 describe("operator-nav-labels", () => {
-  it("returns Create architecture for left nav in buyer-polished and default shells", () => {
+  it("returns Start review for left nav in buyer-polished and default shells", () => {
     expect(resolveNewReviewNavLinkLabel(true)).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
     expect(resolveNewReviewNavLinkLabel(false)).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
-    expect(BUYER_NEW_REVIEW_NAV_LABEL).toBe(CREATE_ARCHITECTURE_LABEL);
+    expect(BUYER_NEW_REVIEW_NAV_LABEL).toBe(START_REVIEW_LABEL);
+  });
+
+  it("overrides /architectures/new presentation when buyer vocabulary pass is active", () => {
+    const source = {
+      href: ARCHITECTURES_NEW_PATH,
+      label: "Capture",
+      title: "Create architecture — start",
+    };
+
+    expect(resolveNavLinkPresentation(source, true).label).toBe(CREATE_ARCHITECTURE_LABEL);
+    expect(resolveNavLinkPresentation(source, false).label).toBe(CREATE_ARCHITECTURE_LABEL);
   });
 
   it("overrides /reviews/new presentation when buyer vocabulary pass is active", () => {
@@ -30,15 +42,15 @@ describe("operator-nav-labels", () => {
     expect(resolveNavLinkPresentation(source, false).label).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
   });
 
-  it("labels quick action /reviews/new as Create architecture", () => {
+  it("labels quick action /reviews/new as Start review", () => {
     const source = {
       href: "/reviews/new",
       label: OPERATOR_NAV_LINK_LABELS.capture,
-      title: "Create architecture — start",
+      title: "Start review — begin",
     };
 
     expect(resolveQuickActionNavLinkPresentation(source).label).toBe(OPERATOR_START_REVIEW_QUICK_ACTION_LABEL);
-    expect(OPERATOR_START_REVIEW_QUICK_ACTION_LABEL).toBe(CREATE_ARCHITECTURE_LABEL);
+    expect(OPERATOR_START_REVIEW_QUICK_ACTION_LABEL).toBe(START_REVIEW_LABEL);
   });
 
   it("TB-606: matches reviews list hrefs only", () => {

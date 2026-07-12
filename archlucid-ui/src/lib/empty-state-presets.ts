@@ -2,6 +2,7 @@ import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lu
 
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { OPERATOR_GRAPH_IDLE_BODY, OPERATOR_GRAPH_IDLE_TITLE, OPERATOR_GRAPH_WHAT_YOU_WILL_SEE } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -18,7 +19,7 @@ export const RUNS_EMPTY: EmptyStateProps = {
   description:
     "Create or review an architecture to generate a package with findings, evidence, signed review record, and exports. Or open the sample package to see the completed flow.",
   actions: [
-    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new" },
+    { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",
@@ -41,7 +42,7 @@ export const GRAPH_IDLE: EmptyStateProps = {
   title: OPERATOR_GRAPH_IDLE_TITLE,
   description: `${OPERATOR_GRAPH_WHAT_YOU_WILL_SEE} ${OPERATOR_GRAPH_IDLE_BODY}`,
   actions: [
-    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new" },
+    { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     {
       label: "Open sample evidence graph",
       href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
@@ -61,7 +62,7 @@ export const GRAPH_IDLE_BUYER: EmptyStateProps = {
       label: "Open sample evidence graph",
       href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
     },
-    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "outline" as const },
+    { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH, variant: "outline" as const },
     { label: "Upload evidence", href: "/reviews/new", variant: "outline" as const },
   ],
 };

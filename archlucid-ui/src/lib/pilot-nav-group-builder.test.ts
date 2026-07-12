@@ -79,6 +79,7 @@ describe("PilotNavGroupBuilder", () => {
     expect(group.links.map((link) => link.label)).toEqual([
       "Overview",
       CREATE_ARCHITECTURE_LABEL,
+      "Start review",
       "Architecture packages",
       "Executive dashboard",
       "First review guide",
@@ -93,12 +94,14 @@ describe("PilotNavGroupBuilder", () => {
     expect(reviewsListLink?.label).toBe("Architecture packages");
   });
 
-  it("TB-646: uses creation-first new-review nav title in pilot nav", () => {
+  it("TB-646: uses Start review nav label for /reviews/new in pilot nav", () => {
     const group = new PilotNavGroupBuilder().build();
-    const newReviewLink = group.links.find((link) => link.href === "/reviews/new");
+    const createArchitectureLink = group.links.find((link) => link.href === "/architectures/new");
+    const startReviewLink = group.links.find((link) => link.href === "/reviews/new");
 
-    expect(newReviewLink?.label).toBe(CREATE_ARCHITECTURE_LABEL);
-    expect(newReviewLink?.title?.toLowerCase()).toContain("create architecture");
-    expect(newReviewLink?.title?.toLowerCase()).not.toContain("architecture request");
+    expect(createArchitectureLink?.label).toBe(CREATE_ARCHITECTURE_LABEL);
+    expect(startReviewLink?.label).toBe("Start review");
+    expect(startReviewLink?.title?.toLowerCase()).toContain("start review");
+    expect(startReviewLink?.title?.toLowerCase()).not.toContain("create architecture");
   });
 });

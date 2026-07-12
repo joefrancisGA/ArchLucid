@@ -1,4 +1,5 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
@@ -11,8 +12,10 @@ import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
 /** Static pathname → announcement title mappings for documented top-level routes. */
 export const ROUTE_TITLES: Record<string, string> = {
   "/": OPERATOR_NAV_LINK_LABELS.home,
+  [ARCHITECTURES_LIST_PATH]: "Architectures",
+  [ARCHITECTURES_NEW_PATH]: CREATE_ARCHITECTURE_LABEL,
   "/reviews": RUNS_LIST_PAGE_TITLES.buyerPolished,
-  "/reviews/new": CREATE_ARCHITECTURE_LABEL,
+  "/reviews/new": START_REVIEW_LABEL,
   "/alerts": "Alerts",
   "/alert-rules": "Alert rules",
   "/compare": "Compare",

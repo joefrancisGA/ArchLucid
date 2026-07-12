@@ -23,11 +23,14 @@ import {
   answerDraftQuestion,
   createDraftRequest,
   getDraftQuestions,
+  getDraftRequest,
   patchDraftRequest,
   skipDraftQuestion,
   submitDraftRequest,
 } from "@/lib/api/draft-intake-api";
+import { architectureDraftPath, SOURCE_ARCHITECTURE_QUERY_PARAM } from "@/lib/architecture-routes";
 import {
+  architectureCreationDefaultActorSet,
   applyArchitectureCreationDraftToFormState,
   initializeArchitectureCreation,
 } from "@/lib/architecture-creation-init";
@@ -143,6 +146,8 @@ export function SocraticIntakeWizard() {
   );
   const isCreateArchitectureFlow = isCreateArchitectureIntent(workflowIntent);
   const creationInitStartedRef = useRef(false);
+  const sourceArchitectureLoadedRef = useRef(false);
+  const sourceArchitectureId = searchParams?.get(SOURCE_ARCHITECTURE_QUERY_PARAM)?.trim() ?? "";
 
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -251,6 +256,27 @@ export function SocraticIntakeWizard() {
       setPendingQuestions([...result.questionSelection.pendingMustQuestions]);
     });
   }, [isCreateArchitectureFlow]);
+
+  useEffect(() => {
+    if (sourceArchitectureId.length === 0 || isCreateArchitectureFlow || sourceArchitectureLoadedRef.current) {
+      return;
+    }
+
+    sourceArchitectureLoadedRef.current = true;
+
+    void getDraftRequest(sourceArchitectureId).then((draft) => {
+      setDraftId(draft.draftId);
+      const formState = applyArchitectureCreationDraftToFormState(draft);
+      setFreeTextIntent(formState.freeTextIntent);
+      setBusinessOutcome(formState.businessOutcome);
+      setSystemName(formState.systemName);
+      setActorSet(
+        draft.document.actorSet.actors.length > 0
+          ? draft.document.actorSet
+          : architectureCreationDefaultActorSet(),
+      );
+    });
+  }, [isCreateArchitectureFlow, sourceArchitectureId]);
 
   const refreshQuestions = useCallback(async (id: string) => {
     const questions = await getDraftQuestions(id);
@@ -518,6 +544,21 @@ export function SocraticIntakeWizard() {
       ) : null}
 
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
+
+      {sourceArchitectureId.length > 0 ? (
+        <Card className="border-teal-200 bg-teal-50 dark:border-teal-800 dark:bg-teal-950/40">
+          <CardHeader>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviewing saved architecture</CardTitle>
+            <CardDescription>
+              This review evaluates a snapshot of{" "}
+              <Link href={architectureDraftPath(sourceArchitectureId)} className="font-medium underline">
+                architecture {sourceArchitectureId}
+              </Link>
+              . Later edits to the architecture draft will not change this review&apos;s evidence basis.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      ) : null}
 
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
 

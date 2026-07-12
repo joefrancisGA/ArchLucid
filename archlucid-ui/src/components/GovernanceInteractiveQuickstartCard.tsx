@@ -1,5 +1,6 @@
 "use client";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -80,7 +81,7 @@ export function GovernanceInteractiveQuickstartCard({
           <Link href="/policy-packs">Policy packs</Link>
         </Button>
         <Button asChild size="sm" variant="outline">
-          <Link href="/reviews/new">{CREATE_ARCHITECTURE_LABEL}</Link>
+          <Link href={ARCHITECTURES_NEW_PATH}>{CREATE_ARCHITECTURE_LABEL}</Link>
         </Button>
       </CardFooter>
     </Card>

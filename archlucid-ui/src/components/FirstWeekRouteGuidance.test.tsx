@@ -1,4 +1,5 @@
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -72,7 +73,7 @@ describe("FirstWeekRouteGuidance", () => {
 
     expect(screen.getByText(FIRST_WEEK_ROUTE_GUIDANCE.onboarding.useWhen)).toBeInTheDocument();
     expect(screen.queryByText(/Use this when:/)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", ARCHITECTURES_NEW_PATH);
   });
 
   it("renders home guidance with recommended first-session summary", () => {
@@ -86,7 +87,7 @@ describe("FirstWeekRouteGuidance", () => {
     fireEvent.click(screen.getByRole("button", { name: /Expand Recommended first session path/i }));
 
     expect(screen.getByText(/evidence-only/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", ARCHITECTURES_NEW_PATH);
   });
 
   it("keeps home collapsed summary free of internal terminology", () => {
