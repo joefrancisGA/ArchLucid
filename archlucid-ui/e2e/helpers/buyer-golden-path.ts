@@ -1,6 +1,9 @@
 import { expect, type Page } from "@playwright/test";
 
-import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+  SHOWCASE_BUYER_REVIEW_TITLE,
+} from "@/lib/showcase-static-demo";
 
 import {
   SCREENSHOT_LEFT_RUN_ID,
@@ -47,10 +50,10 @@ export const BUYER_GOLDEN_PATH_HREFS = {
 /** Buyer audit page title when scoped to the showcase run (`AuditPageView`). */
 export const BUYER_SHOWCASE_AUDIT_TRAIL_HEADING = "Audit trail for Claims Intake Modernization";
 
-/** Executive route H1 uses run `description` from showcase static payload. */
-export const BUYER_SHOWCASE_EXECUTIVE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
+/** Review detail workspace H1 for showcase run (`deriveReviewDisplayTitle` / `buyerFacingReviewTitleFromSummary`). */
+export const BUYER_SHOWCASE_EXECUTIVE_HEADLINE = SHOWCASE_BUYER_REVIEW_TITLE;
 
-/** Review detail H1 for showcase run (`load-run-detail-page-model` buyer-polished headline). */
+/** Procurement-oriented package label in cards, breadcrumbs, and static demo copy. */
 export const BUYER_SHOWCASE_REVIEW_PACKAGE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
 
 /** Playwright-accessible name may include status chips inside the H1 flex row. */
@@ -87,7 +90,7 @@ export async function expectBuyerReviewPackagePrimaryHeading(page: Page, options
 /** Buyer golden path review package is hydrated with headline + manifest data. */
 export async function expectBuyerGoldenPageReady(page: Page): Promise<void> {
   await waitForAppReady(page);
-  await expect(page.getByTestId("buyer-golden-page-ready")).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('[data-buyer-golden-ready="true"]')).toBeVisible({ timeout: 60_000 });
 }
 
 /** Layer strip stepper is present on curated spine routes in buyer-polished mock E2E. */
