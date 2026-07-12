@@ -285,7 +285,7 @@ export function TabsTrigger(props: TabsTriggerProps): ReactElement {
         "font-medium leading-none",
         "-mb-px border-b-2",
         selected
-          ? "border-teal-600 text-teal-700 dark:border-teal-400 dark:text-teal-300"
+          ? "border-teal-600 text-al-text-primary dark:border-teal-400 dark:text-teal-300"
           : "border-transparent text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100",
         "focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
         props.disabled && "cursor-not-allowed opacity-50",
