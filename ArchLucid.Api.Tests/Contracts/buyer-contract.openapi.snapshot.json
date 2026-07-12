@@ -4706,6 +4706,35 @@
         ],
         "type": "object"
       },
+      "BillingSubscriptionStatusResponseDto": {
+        "properties": {
+          "hasSubscription": {
+            "type": "boolean"
+          },
+          "isPaymentPastDue": {
+            "type": "boolean"
+          },
+          "provider": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tierCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "BoardPackPdfPostRequest": {
         "properties": {
           "periodEndUtc": {

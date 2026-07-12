@@ -4733,10 +4733,6 @@
             ]
           }
         },
-        "required": [
-          "hasSubscription",
-          "isPaymentPastDue"
-        ],
         "type": "object"
       },
       "BoardPackPdfPostRequest": {
