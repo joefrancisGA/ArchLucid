@@ -61,4 +61,12 @@ describe("buildColorModeBootstrapInlineScript", () => {
 
     expect(document.documentElement.classList.contains("dark")).toBe(true);
   });
+
+  it("rejects unknown authority theme env defaults", () => {
+    const script = buildColorModeBootstrapInlineScript("not-a-theme");
+
+    runBootstrapScript(script);
+
+    expect(document.documentElement.getAttribute("data-al-authority-theme")).toBe("default");
+  });
 });
