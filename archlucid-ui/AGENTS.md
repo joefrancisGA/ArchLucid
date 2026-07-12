@@ -26,6 +26,7 @@ Carbon design system (**TB-114 – TB-120**, done 2026-05-31): tokens, neutral s
 - **Generated types:** `npm run generate:api-types` → `src/lib/api-types.generated.ts` (must stay aligned when OpenAPI changes; see root workspace rule **`Http-Surface-Docs-And-Clients.mdc`**).
 - **`src/lib/openapi-schemas.ts`** re-exports `components` / `paths`; prefer aliasing schemas there (see `types/authority.ts`) over parallel DTO structs.
 - **Deferred UI architecture work:** `docs/library/UI_ARCHITECTURE_V1_1.md` (data-fetching layer, SidebarNav refactor, Suspense polish, …).
+- **Hub-page IA (status + deep-link only):** [`docs/NAV_CONFIG_CONTRACT.md`](./docs/NAV_CONFIG_CONTRACT.md) § Hub pages (TB-680); drift guard `scripts/onboarding-hub-drift-guard.test.ts`.
 - **Product documentation presentation (V1):** `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md` — customer-facing help links must use in-app `/help/{topic}` routes, not GitHub blob pages (**TB-143 – TB-148**).
 
 ## Typical commands
