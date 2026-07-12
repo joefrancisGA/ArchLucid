@@ -40,6 +40,7 @@ export type DraftRequestDocument = {
   businessOutcome?: string;
   actorSet: ActorSet;
   parentDraftId?: string;
+  workflowIntent?: "create-architecture" | "start-review";
 };
 
 export type BranchDraftRequest = {
