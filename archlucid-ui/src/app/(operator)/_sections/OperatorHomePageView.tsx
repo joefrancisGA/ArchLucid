@@ -72,8 +72,15 @@ function buildExamplesPlacement(
   );
 }
 
+function resolveHomeQuickJumpRunIds(model: OperatorHomePageViewModel): string[] {
+  return (model.runsDashboard?.items ?? [])
+    .map((run) => run.runId?.trim() ?? "")
+    .filter((runId) => runId.length > 0);
+}
+
 function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageViewModel }) {
   const initialHasReviews = (props.model.runsDashboard?.items.length ?? 0) > 0;
+  const quickJumpRunIds = resolveHomeQuickJumpRunIds(props.model);
 
   return (
     <OperatorHomeWorkspaceActivityProvider initialHasReviews={initialHasReviews}>
@@ -87,7 +94,7 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
           fullOperatorShell: false,
         })}
       />
-      <DevTestingQuickSwitchPanel />
+      <DevTestingQuickSwitchPanel runIds={quickJumpRunIds} />
     </OperatorHomeWorkspaceActivityProvider>
   );
 }
@@ -95,6 +102,7 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel }) {
   const fullOperatorShell = isOperatorExperienceFullShellEnv();
   const initialHasReviews = (props.model.runsDashboard?.items.length ?? 0) > 0;
+  const quickJumpRunIds = resolveHomeQuickJumpRunIds(props.model);
 
   return (
     <OperatorHomeWorkspaceActivityProvider initialHasReviews={initialHasReviews}>
@@ -112,7 +120,7 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
           fullOperatorShell,
         })}
       />
-      <DevTestingQuickSwitchPanel />
+      <DevTestingQuickSwitchPanel runIds={quickJumpRunIds} />
     </OperatorHomeWorkspaceActivityProvider>
   );
 }
