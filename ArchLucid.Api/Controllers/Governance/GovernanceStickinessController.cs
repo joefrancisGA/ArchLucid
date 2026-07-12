@@ -417,6 +417,7 @@ public sealed class GovernanceStickinessController(
         return Ok(schedules);
     }
 
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("recurrence-schedules/preview-next-runs")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Read-only recurrence schedule preview; no schedule persisted.")]

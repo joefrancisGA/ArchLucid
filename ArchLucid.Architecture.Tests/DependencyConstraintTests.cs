@@ -542,16 +542,18 @@ public sealed class DependencyConstraintTests
     [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
-    public void Cli_must_not_reference_Application_assembly()
+    public void Cli_Application_reference_is_limited_to_offline_pdf_render_pipeline()
     {
-        // GoldenCohort data types moved to Core.GoldenCorpus; Cli is now a thin HTTP-client
-        // host that should compose over Api.Client and Contracts only.
         Assembly cli = typeof(ManifestValidator).Assembly;
         AssemblyName[] references = cli.GetReferencedAssemblies();
 
-        references.Should().NotContain(
+        references.Should().Contain(
             a => a.Name == "ArchLucid.Application",
-            because: "Cli is a thin host over ArchLucid.Api.Client; data utilities belong in Core.GoldenCorpus not Application.");
+            because: "TB-723 `archlucid docs pdf render` hosts ProductDocumentationPdfBuilder from Application.Pilots.");
+
+        references.Should().NotContain(
+            a => a.Name is "ArchLucid.Persistence" or "ArchLucid.Decisioning" or "ArchLucid.Host.Core",
+            because: "Cli must remain a thin host; deeper layers belong behind Api.Client or the pdf render exception only.");
     }
 
     [Fact]
