@@ -8,7 +8,7 @@ The **live scoring workbook is not in git**. It lives at:
 .local/owner/ui_route_traffic_estimates.md
 ```
 
-Use `/al-ui-score` and `/al-ui-note` — those commands read and write that path automatically.
+Use `/al-ui-score`, `/al-ui-note`, and `/al-ui-tableupdate` — those commands read and write that path automatically.
 
 ## Why this moved
 

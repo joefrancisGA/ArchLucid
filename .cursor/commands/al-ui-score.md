@@ -120,4 +120,5 @@ Use stdout from the script when available.
 ## Related commands
 
 - `/al-ui-note` — add or replace Notes by ID
+- `/al-ui-tableupdate` — reconcile master table with live route catalog
 - Route catalog (paths, demo tiers): `docs/architecture/ui_routes.md`
