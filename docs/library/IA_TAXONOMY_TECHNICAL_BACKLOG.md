@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — superseded satellite; items merged into `TECH_BACKLOG.md` (TB-732 – TB-737). Retained for link stability only.
+
 > **Superseded — merged into [`TECH_BACKLOG.md`](TECH_BACKLOG.md).** This satellite file existed
 > temporarily because `TECH_BACKLOG.md` had unrelated uncommitted changes when this cluster was
 > planned (see [`.cursor/prompts/ia-taxonomy-00-plan-and-sitemap.md`](../../.cursor/prompts/ia-taxonomy-00-plan-and-sitemap.md)).

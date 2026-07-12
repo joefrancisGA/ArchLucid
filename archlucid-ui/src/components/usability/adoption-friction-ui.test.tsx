@@ -15,10 +15,32 @@ import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
+  useNavCallerAuthorityRank: () => 100,
 }));
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
+}));
+
+vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
+  useFinishSetupReadinessContext: () => ({
+    phase: "ready",
+    context: {
+      healthReady: true,
+      healthLoadFailed: false,
+      principalAdmin: true,
+    },
+    readyCount: 4,
+    totalCount: 4,
+  }),
+}));
+
+vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
+  useOperatorHomeWorkspaceActivity: () => ({
+    hasWorkspaceReviews: false,
+    hasActionNeededReviews: false,
+    reportWorkspaceReviews: vi.fn(),
+  }),
 }));
 
 vi.mock("next/navigation", () => ({

@@ -131,7 +131,7 @@ describe("review terminology guard", () => {
     expect(RUNS_EMPTY.title).toBe("No architecture packages yet");
     expect(RUNS_EMPTY_COMPACT.title).toBe("No architecture packages yet");
     expect(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE).toBe("No reviews yet");
-    expect(OPERATOR_HOME_WORKSPACE_EMPTY_BODY.toLowerCase()).toContain("completed and in-progress");
+    expect(OPERATOR_HOME_WORKSPACE_EMPTY_BODY.toLowerCase()).toContain("in-progress and completed");
   });
 
   it("architect workspace copy files avoid legacy operator persona labels", () => {

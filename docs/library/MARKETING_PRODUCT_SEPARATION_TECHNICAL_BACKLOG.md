@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — superseded satellite; items merged into `TECH_BACKLOG.md` (TB-729 – TB-731). Retained for link stability only.
+
 > **Superseded — merged into [`TECH_BACKLOG.md`](TECH_BACKLOG.md).** This satellite file existed
 > temporarily because `TECH_BACKLOG.md` had unrelated uncommitted changes when
 > [`MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md`](MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md) was

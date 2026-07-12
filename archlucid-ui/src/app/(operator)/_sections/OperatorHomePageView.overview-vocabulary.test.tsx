@@ -203,7 +203,8 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
     });
 
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_READY_TO_BEGIN_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-readiness-strip")).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_READY_TO_BEGIN_TITLE)).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeInTheDocument();
@@ -220,7 +221,8 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
     });
 
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_READY_TO_BEGIN_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-readiness-strip")).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_READY_TO_BEGIN_TITLE)).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeInTheDocument();

@@ -1,4 +1,4 @@
-> **Scope:** Owner-directed assessment of whether ArchLucid should split public marketing pages (pricing, FAQ, request-demo/signup, security overview, resources) into a separate deployment/domain from the authenticated product app.
+> **Scope:** Contributor-reference — owner-directed assessment of marketing vs product app separation; not a buyer or operator document.
 > **Decision date:** 2026-07-10. **Owner:** product owner (solo founder).
 > **Audience:** engineers and AI coding agents evaluating hosting/deployment changes to `archlucid-ui`.
 > **Depends on:** [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md) (existing, still-current routing/hosting decision for the apex domain), `archlucid-ui/src/components/OperatorRoleGate.tsx` / `OperatorHomeGate.tsx` (in-app auth boundary), `infra/terraform-container-apps` (UI Container App compute).
