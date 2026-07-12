@@ -16,6 +16,7 @@ internal static class ServiceCollectionExtensionsAiUsage
 
         services.AddSingleton<IDemoAiPromptCache, DemoAiPromptCache>();
         services.AddScoped<ITenantAiBudgetPolicyResolver, TenantAiBudgetPolicyResolver>();
+        services.AddScoped<ISelfServiceTrialAiBudgetPolicyProvisioner, SelfServiceTrialAiBudgetPolicyProvisioner>();
         services.AddScoped<ITenantLlmMonthlyBudgetCapResolver, TenantLlmMonthlyBudgetCapResolver>();
         services.AddScoped<IAiBudgetPreCallGuard, AiBudgetPreCallGuard>();
         services.AddScoped<DemoExpensiveActionGate>();

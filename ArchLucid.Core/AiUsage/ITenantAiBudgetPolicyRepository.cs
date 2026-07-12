@@ -3,6 +3,16 @@ namespace ArchLucid.Core.AiUsage;
 public interface ITenantAiBudgetPolicyRepository
 {
     Task<TenantAiBudgetPolicyRow?> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Inserts the default self-service trial AI budget row when absent so new trials have a durable server-side
+    ///     hard cap independent of admin dashboard visits.
+    /// </summary>
+    Task<bool> EnsureDefaultTrialPolicyIfAbsentAsync(
+        Guid tenantId,
+        decimal budgetAmountUsd,
+        DateTimeOffset trialExpirationUtc,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class TenantAiBudgetPolicyRow

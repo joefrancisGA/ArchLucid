@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Identity;
+using ArchLucid.Application.AiUsage;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -17,6 +18,7 @@ public sealed class TrialTenantBootstrapService(
     ITenantRepository tenantRepository,
     IAuditService auditService,
     ITrialBootstrapEmailVerificationPolicy emailVerificationPolicy,
+    ISelfServiceTrialAiBudgetPolicyProvisioner trialAiBudgetPolicyProvisioner,
     ILogger<TrialTenantBootstrapService> logger) : ITrialTenantBootstrapService
 {
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -24,6 +26,9 @@ public sealed class TrialTenantBootstrapService(
 
     private readonly ITrialBootstrapEmailVerificationPolicy _emailVerificationPolicy =
         emailVerificationPolicy ?? throw new ArgumentNullException(nameof(emailVerificationPolicy));
+
+    private readonly ISelfServiceTrialAiBudgetPolicyProvisioner _trialAiBudgetPolicyProvisioner =
+        trialAiBudgetPolicyProvisioner ?? throw new ArgumentNullException(nameof(trialAiBudgetPolicyProvisioner));
 
     private readonly ILogger<TrialTenantBootstrapService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
@@ -141,6 +146,11 @@ public sealed class TrialTenantBootstrapService(
                 // The registering admin occupies the first trial seat immediately — otherwise TrialSeatsUsed
                 // stays 0 until their first authenticated request reaches TrialSeatReservationMiddleware.
                 await _tenantRepository.TryClaimTrialSeatAsync(result.TenantId, auditActorEmail.Trim(), cancellationToken);
+
+                await _trialAiBudgetPolicyProvisioner.EnsureDefaultTrialPolicyIfAbsentAsync(
+                    result.TenantId,
+                    expires,
+                    cancellationToken);
 
                 string actor = auditActorEmail.Trim();
                 await _auditService.LogAsync(
