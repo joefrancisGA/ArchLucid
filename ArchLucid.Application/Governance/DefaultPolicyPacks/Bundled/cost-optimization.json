@@ -17,7 +17,7 @@
   },
   "metadata": {
     "templateId": "cost-optimization-v1",
-    "pack.displayName": "Cost optimization (extractor-aligned)",
+    "pack.displayName": "FinOps & Cloud Cost Optimization",
     "pack.category": "Cost",
     "pack.version": "1.0.1",
     "pack.isDefault": "true",
