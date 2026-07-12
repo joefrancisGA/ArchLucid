@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { COLOR_MODE_STORAGE_KEY } from "@/lib/color-mode-preference";
 import { buildColorModeBootstrapInlineScript } from "@/lib/color-mode-bootstrap";
+import { resolveAuthorityThemeFromEnv } from "@/lib/ui-authority-theme";
 
 function runBootstrapScript(script: string, options?: { readonly storedMode?: string | null; readonly prefersDark?: boolean }): void {
   const storedMode = options?.storedMode;
@@ -63,7 +64,7 @@ describe("buildColorModeBootstrapInlineScript", () => {
   });
 
   it("rejects unknown authority theme env defaults", () => {
-    const script = buildColorModeBootstrapInlineScript("not-a-theme");
+    const script = buildColorModeBootstrapInlineScript(resolveAuthorityThemeFromEnv("not-a-theme"));
 
     runBootstrapScript(script);
 
