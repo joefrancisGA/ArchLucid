@@ -21,6 +21,14 @@ namespace ArchLucid.Application.Tests.Tenancy;
 [Trait("Category", "Unit")]
 public sealed class TenantProvisioningServiceTests
 {
+    private static void SetupSlugNotFound(Mock<ITenantRepository> repo)
+    {
+        repo.Setup(r => r.GetBySlugFromControlPlaneCatalogAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+        repo.Setup(r => r.GetBySlugAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+    }
+
     private static Mock<IOptionsMonitor<TenantProvisioningOptions>> DefaultProvisioningMonitor()
     {
         Mock<IOptionsMonitor<TenantProvisioningOptions>> m = new();
@@ -107,9 +115,11 @@ public sealed class TenantProvisioningServiceTests
         };
 
         Mock<ITenantRepository> repo = new();
-        repo.SetupSequence(r => r.GetBySlugAsync(slug, It.IsAny<CancellationToken>()))
+        repo.SetupSequence(r => r.GetBySlugFromControlPlaneCatalogAsync(slug, It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantRecord?)null)
             .ReturnsAsync(existing);
+        repo.Setup(r => r.GetBySlugAsync(slug, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
         repo.Setup(r => r.InsertTenantAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
@@ -155,7 +165,7 @@ public sealed class TenantProvisioningServiceTests
     public async Task ProvisionAsync_rejects_unknown_data_region_when_configured_allowlist_strict()
     {
         Mock<ITenantRepository> repo = new();
-        repo.Setup(r => r.GetBySlugAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((TenantRecord?)null);
+        SetupSlugNotFound(repo);
 
         Mock<IOptionsMonitor<TenantProvisioningOptions>> options = new();
         options.Setup(m => m.CurrentValue).Returns(new TenantProvisioningOptions { SupportedDataRegions = ["default"] });
@@ -259,8 +269,7 @@ public sealed class TenantProvisioningServiceTests
     {
         Mock<ITenantRepository> repo = new();
 
-        repo.Setup(r => r.GetBySlugAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((TenantRecord?)null);
+        SetupSlugNotFound(repo);
 
         repo.Setup(r => r.InsertTenantAsync(
                 It.IsAny<Guid>(),
@@ -347,8 +356,7 @@ public sealed class TenantProvisioningServiceTests
 
         Mock<ITenantRepository> repo = new();
 
-        repo.Setup(r => r.GetBySlugAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((TenantRecord?)null);
+        SetupSlugNotFound(repo);
 
         repo.Setup(r => r.InsertTenantAsync(
                 It.IsAny<Guid>(),
