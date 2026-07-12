@@ -98,7 +98,7 @@ jobs:
       TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Dev maintenance window guard
         env:
@@ -106,7 +106,7 @@ jobs:
         run: bash scripts/ci/cd-maintenance-window-guard.sh "${{ github.event.inputs.target || 'dev' }}"
 
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -228,7 +228,7 @@ jobs:
       TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Materialize dev.tfvars from secret (optional)
         if: (github.event.inputs.target || 'dev') == 'dev'
@@ -253,7 +253,7 @@ jobs:
           fi
 
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -338,10 +338,10 @@ jobs:
       TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -353,7 +353,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Download Terraform plan
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: tfplan-${{ github.event.inputs.target || 'dev' }}
           path: ${{ runner.temp }}/tfplan-artifact
@@ -399,10 +399,10 @@ jobs:
       # this job's workspace, which is otherwise empty (deploy-container-apps has no other
       # step that checks out the repo).
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -839,9 +839,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target || 'dev' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -852,7 +852,7 @@ jobs:
 
       - name: Azure login (OIDC) for canary promotion
         if: vars.CD_CANARY_ENABLED == 'true'
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -1035,7 +1035,7 @@ jobs:
 
       - name: Upload deployment evidence (Markdown)
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: deployment-evidence-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}
           path: artifacts/deployment-evidence-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.md
@@ -1078,7 +1078,7 @@ jobs:
     environment: ${{ github.event.inputs.target || 'dev' }}
     steps:
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -1137,7 +1137,7 @@ jobs:
     environment: ${{ github.event.inputs.target || 'dev' }}
     steps:
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -1182,10 +1182,10 @@ jobs:
     environment: production
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
