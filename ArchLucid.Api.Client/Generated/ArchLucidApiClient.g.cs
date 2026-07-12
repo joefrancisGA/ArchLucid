@@ -83671,6 +83671,15 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("operatorDetail")]
         public string? OperatorDetail { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("topologyReferenceArchitectureExemplarCount")]
+        public int? TopologyReferenceArchitectureExemplarCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("topologyReferenceArchitectureExemplarDocumentIds")]
+        public System.Collections.Generic.ICollection<string>? TopologyReferenceArchitectureExemplarDocumentIds { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("topologyReferenceArchitectureExemplarMissing")]
+        public bool? TopologyReferenceArchitectureExemplarMissing { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("totalGraphRagNeighborsAdded")]
         public int? TotalGraphRagNeighborsAdded { get; set; } = default!;
 
