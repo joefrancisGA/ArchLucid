@@ -105,6 +105,18 @@ export function RunDetailSubmittedArchitectureSection(
     [props.runId, props.userAssertions],
   );
 
+  const copyText = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      window.setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch {
+      setCopied(false);
+    }
+  }, [text]);
+
   if (text.length === 0) {
     return (
       <section id="submitted-architecture" className="scroll-mt-24" data-testid="submitted-architecture-empty">
@@ -161,18 +173,6 @@ export function RunDetailSubmittedArchitectureSection(
 
   const previewLines = architecturePreviewLines(text);
   const hasMore = text.split(/\r?\n/).filter((line) => line.trim().length > 0).length > previewLines.length;
-
-  const copyText = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      window.setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    } catch {
-      setCopied(false);
-    }
-  }, [text]);
 
   return (
     <section id="submitted-architecture" className="scroll-mt-24" data-testid="submitted-architecture-section">
