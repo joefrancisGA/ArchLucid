@@ -7,8 +7,8 @@ import { RunsListCompareSelectionBar } from "./RunsListCompareSelectionBar";
 import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
+  OPERATOR_HOME_CLOUD_EVIDENCE_LINK,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
-  PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
 } from "@/lib/buyer-polish-copy";
 import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
@@ -77,8 +77,8 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("pilot-command-center-invite-reviewer")).toBeNull();
     expect(screen.getByTestId("operator-home-optional-cloud-shortcut")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-connect-cloud")).toHaveAttribute("href", "/integrations/cloud-connections");
-    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE }).className).toMatch(/border/);
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_CLOUD_EVIDENCE_LINK })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_CLOUD_EVIDENCE_LINK }).className).toMatch(/border/);
 
     render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
 

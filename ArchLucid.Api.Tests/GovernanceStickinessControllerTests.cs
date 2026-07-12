@@ -87,12 +87,16 @@ public sealed class GovernanceStickinessControllerTests
 
         Mock<IArchitectureReviewRecurrenceNextRunCalculator> nextRun =
             recurrenceCalculator ?? new Mock<IArchitectureReviewRecurrenceNextRunCalculator>();
-        nextRun
-            .Setup(c => c.IsSupportedCronExpression(It.IsAny<string>()))
-            .Returns(true);
-        nextRun
-            .Setup(c => c.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>()))
-            .Returns(DateTime.UtcNow.AddDays(7));
+
+        if (recurrenceCalculator is null)
+        {
+            nextRun
+                .Setup(c => c.IsSupportedCronExpression(It.IsAny<string>()))
+                .Returns(true);
+            nextRun
+                .Setup(c => c.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>()))
+                .Returns(DateTime.UtcNow.AddDays(7));
+        }
 
         Mock<IGovernanceDigestDecisionNeededComposer> digestComposer = new();
         digestComposer

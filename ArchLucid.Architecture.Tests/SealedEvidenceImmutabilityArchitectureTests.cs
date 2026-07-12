@@ -75,7 +75,7 @@ public sealed class SealedEvidenceImmutabilityArchitectureTests
 
         string probeText = File.ReadAllText(probePath);
         probeText.Should().Contain(nameof(SealedEvidenceTableRegistry.SealedTableNames));
-        probeText.Should().Contain("SqlDatabaseImmutabilityProbeHelpers.HasDenyPermission");
+        probeText.Should().Contain("SqlDatabaseImmutabilityProbeHelpers.CollectMissingDenyPermissions");
     }
 
     [Fact]
