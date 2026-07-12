@@ -38,7 +38,11 @@ export default defineConfig({
     timeout: skipNextBuild ? 120_000 : 600_000,
     env: {
       LIVE_API_URL: process.env.LIVE_API_URL ?? "http://127.0.0.1:5128",
-      ARCHLUCID_PROXY_BEARER_TOKEN: process.env.ARCHLUCID_PROXY_BEARER_TOKEN ?? "",
+      // RSC run-detail SSR calls the API directly (not Playwright request). Mirror live E2E auth lanes:
+      // ApiKey CI sets LIVE_API_KEY only; JWT CI sets ARCHLUCID_PROXY_BEARER_TOKEN before Playwright.
+      ARCHLUCID_API_KEY: process.env.ARCHLUCID_API_KEY ?? process.env.LIVE_API_KEY ?? "",
+      ARCHLUCID_PROXY_BEARER_TOKEN:
+        process.env.ARCHLUCID_PROXY_BEARER_TOKEN ?? process.env.LIVE_JWT_TOKEN ?? "",
       ARCHLUCID_PROXY_ALLOW_CLIENT_SCOPE_HEADERS: "true",
       NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR: "1",
     },

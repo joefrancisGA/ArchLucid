@@ -3946,6 +3946,7 @@ jobs:
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_API_KEY: e2e-admin-key-ci
           LIVE_API_KEY_READONLY: e2e-readonly-key-ci
+          ARCHLUCID_API_KEY: e2e-admin-key-ci
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           NODE_OPTIONS: --max-old-space-size=6144
         run: |

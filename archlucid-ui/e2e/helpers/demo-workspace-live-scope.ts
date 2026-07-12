@@ -57,6 +57,10 @@ export async function injectDemoWorkspaceOperatorScope(
     projectId: scope.projectId,
   });
 
+  // Establish the Playwright origin before setting cookies so the first RSC navigation to run detail
+  // includes archlucid_operator_scope_v1 (isolated tenant scope for live-api-journey).
+  await page.goto("/", { waitUntil: "commit" });
+
   await page.context().addCookies([
     {
       name: OPERATOR_SCOPE_COOKIE_NAME,

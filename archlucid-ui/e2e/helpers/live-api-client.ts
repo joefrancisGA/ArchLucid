@@ -1218,6 +1218,40 @@ export async function waitForAuthorityRunSummaryReady(
   );
 }
 
+/** Polls buyer-summary until `run.goldenManifestId` is present — same surface SSR uses for the finalized package link. */
+export async function waitForAuthorityBuyerSummaryGoldenManifest(
+  request: APIRequestContext,
+  runId: string,
+  timeoutMs = 90_000,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<string> {
+  const deadline = Date.now() + liveE2eCommitWaitMs(timeoutMs);
+  const encoded = encodeURIComponent(runId);
+
+  while (Date.now() < deadline) {
+    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}/buyer-summary`, {
+      headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
+    });
+
+    if (res.ok()) {
+      const body = (await res.json()) as { run?: { goldenManifestId?: string | null } };
+      const goldenManifestId = body.run?.goldenManifestId?.trim() ?? "";
+
+      if (goldenManifestId.length > 0) {
+        return goldenManifestId;
+      }
+    } else if (res.status() !== 404) {
+      await throwIfNotOk(res, `GET /v1/authority/runs/${encoded}/buyer-summary`);
+    }
+
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+
+  throw new Error(
+    `Authority buyer-summary for ${runId} missing run.goldenManifestId within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
+  );
+}
+
 /** Polls GET /v1/architecture/runs until the row shows Committed or timeout (dashboard list consistency). */
 export async function waitForArchitectureRunListCommitted(
   request: APIRequestContext,

@@ -20,9 +20,11 @@ import {
   liveBypassSubmitterGovernanceOptions,
   livePeerReviewerActorName,
   livePeerReviewerGovernanceOptions,
+  normalizeRunIdForCompare,
   resolveLiveAuthActorName,
   resolveLiveAuthMode,
   waitForArchitectureRunListCommitted,
+  waitForAuthorityBuyerSummaryGoldenManifest,
   waitForAuthorityRunSummaryReady,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -34,6 +36,8 @@ import {
   auditPageMainHeading,
   expectLiveManifestDetailPageReady,
   expectLiveRunDetailPageReady,
+  outcomeStripSignedRecordLink,
+  reviewOutcomeSummaryStrip,
   runDetailFinalizedPackageLink,
 } from "./helpers/operator-journey";
 
@@ -107,6 +111,19 @@ test.describe("live-api-journey", () => {
 
     await waitForAuthorityRunSummaryReady(request, runId, 60_000, tenantScope);
 
+    const authorityGoldenManifestId = await waitForAuthorityBuyerSummaryGoldenManifest(
+      request,
+      runId,
+      60_000,
+      tenantScope,
+    );
+
+    if (normalizeRunIdForCompare(authorityGoldenManifestId) !== normalizeRunIdForCompare(goldenManifestId)) {
+      throw new Error(
+        `Authority buyer-summary goldenManifestId (${authorityGoldenManifestId}) disagrees with architecture run detail (${goldenManifestId})`,
+      );
+    }
+
     // `live-api-journey.spec.ts` also runs under the ApiKey and JWT CI jobs (see
     // `.github/workflows/ci.yml`), which don't support `x-tenant-id`-header scope overrides (ApiKey CI
     // keys carry no bound `tenant_id` claim → 403 via `ScopeIdentityBindingMiddleware`; JWT resolves
@@ -124,16 +141,29 @@ test.describe("live-api-journey", () => {
 
     await expect(page.getByText(/Loading review detail/)).toHaveCount(0, { timeout: 60_000 });
 
-    const manifestLink = runDetailFinalizedPackageLink(page);
+    const outcomeStrip = reviewOutcomeSummaryStrip(page);
+    await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
 
-    await expect(
-      manifestLink,
-      `Golden manifest link missing for run ${runId}. Server run detail may lack goldenManifestId or UI/API mismatch.`,
-    ).toBeVisible({ timeout: 60_000 });
+    const manifestLink = runDetailFinalizedPackageLink(page);
+    const outcomeStripManifestLink = outcomeStripSignedRecordLink(outcomeStrip);
+
+    await expect
+      .poll(
+        async () =>
+          (await manifestLink.isVisible()) || (await outcomeStripManifestLink.isVisible()),
+        {
+          timeout: 60_000,
+          message: `Golden manifest link missing for run ${runId}. Server run detail may lack goldenManifestId or UI/API mismatch.`,
+        },
+      )
+      .toBe(true);
+
+    const linkToOpen =
+      (await manifestLink.isVisible()) ? manifestLink : outcomeStripManifestLink;
 
     await Promise.all([
       page.waitForURL(/\/(?:signed-records|manifests)\/.+/i, { waitUntil: "commit" }),
-      manifestLink.click(),
+      linkToOpen.click(),
     ]);
 
     await expectLiveManifestDetailPageReady(page, goldenManifestId, { timeoutMs: 60_000 });
