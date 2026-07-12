@@ -4680,6 +4680,32 @@
         ],
         "type": "object"
       },
+      "BillingPortalPostRequest": {
+        "properties": {
+          "returnUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "BillingPortalResponseDto": {
+        "properties": {
+          "portalUrl": {
+            "type": "string"
+          },
+          "providerSessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "portalUrl",
+          "providerSessionId"
+        ],
+        "type": "object"
+      },
       "BoardPackPdfPostRequest": {
         "properties": {
           "periodEndUtc": {
@@ -68848,6 +68874,76 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/BillingCheckoutResponseDto"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "BillingCheckout"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/tenant/billing/portal": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BillingPortalPostRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BillingPortalPostRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BillingPortalPostRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingPortalResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingPortalResponseDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingPortalResponseDto"
                 }
               }
             },
