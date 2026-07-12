@@ -41,6 +41,25 @@ internal sealed class StripeCheckoutNoNetworkBillingProvider(IBillingLedger ledg
         };
     }
 
+    public async Task<BillingPortalResult> CreateBillingPortalSessionAsync(
+        BillingPortalRequest request,
+        CancellationToken cancellationToken)
+    {
+        string? providerRef = await _ledger.TryGetProviderSubscriptionIdAsync(request.TenantId, cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(providerRef))
+            throw new InvalidOperationException(
+                "No Stripe customer is linked to this tenant yet. Complete checkout or add a payment method first.");
+
+        string sessionId = "bps_test_e2e_" + Guid.NewGuid().ToString("N");
+
+        return new BillingPortalResult
+        {
+            PortalUrl = $"https://billing.stripe.com/session/e2e_test#{Uri.EscapeDataString(sessionId)}",
+            ProviderSessionId = sessionId
+        };
+    }
+
     public Task<BillingWebhookHandleResult> HandleWebhookAsync(
         BillingWebhookInbound inbound,
         CancellationToken cancellationToken)

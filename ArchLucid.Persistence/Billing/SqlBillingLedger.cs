@@ -277,4 +277,18 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
         return await connection.QuerySingleOrDefaultAsync<BillingSubscriptionSnapshot>(
             new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
     }
+
+    public async Task<string?> TryGetProviderSubscriptionIdAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string sql = """
+                           SELECT ProviderSubscriptionId
+                           FROM dbo.BillingSubscriptions
+                           WHERE TenantId = @TenantId;
+                           """;
+
+        return await connection.QuerySingleOrDefaultAsync<string?>(
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+    }
 }

@@ -57,6 +57,15 @@ public sealed class InMemoryBillingLedgerTests
             CancellationToken.None);
 
         (await sut.TenantHasActiveSubscriptionAsync(tenantId, CancellationToken.None)).Should().BeFalse();
+        (await sut.TryGetProviderSubscriptionIdAsync(tenantId, CancellationToken.None)).Should().Be("sess");
+    }
+
+    [SkippableFact]
+    public async Task TryGetProviderSubscriptionIdAsync_returns_null_when_empty()
+    {
+        InMemoryBillingLedger sut = new();
+
+        (await sut.TryGetProviderSubscriptionIdAsync(Guid.NewGuid(), CancellationToken.None)).Should().BeNull();
     }
 
     [SkippableFact]

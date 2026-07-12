@@ -84,6 +84,14 @@ public sealed class AzureMarketplaceBillingProvider(
         return new BillingCheckoutResult { CheckoutUrl = url, ProviderSessionId = sessionId, ExpiresUtc = TimeProvider.System.GetUtcNow().AddDays(7) };
     }
 
+    public Task<BillingPortalResult> CreateBillingPortalSessionAsync(
+        BillingPortalRequest request,
+        CancellationToken cancellationToken)
+    {
+        throw new InvalidOperationException(
+            "Azure Marketplace billing does not support the Stripe Billing Portal. Manage subscription in Azure Portal.");
+    }
+
     public async Task<BillingWebhookHandleResult> HandleWebhookAsync(
         BillingWebhookInbound inbound,
         CancellationToken cancellationToken)

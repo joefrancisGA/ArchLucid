@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
@@ -20,7 +21,10 @@ import {
   readOperatorScopeFromStorage,
 } from "@/lib/operator-scope-storage";
 import { resolveOperatorBillingCurrentPlan } from "@/lib/operator-billing-current-plan";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { OperatorBillingManageBillingAction } from "./OperatorBillingManageBillingAction";
 
 function readWorkspaceLabelFromStorage(): string | null {
   const scope = readOperatorScopeFromStorage();
@@ -35,6 +39,7 @@ function readWorkspaceLabelFromStorage(): string | null {
 }
 
 export function OperatorBillingCurrentPlanSummary() {
+  const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const { data: trialPayload } = useTenantTrialStatusQuery();
   const [workspaceLabel, setWorkspaceLabel] = useState<string | null>(null);
   const [aiBudgetRemainingPercent, setAiBudgetRemainingPercent] = useState<number | null>(null);
@@ -150,7 +155,9 @@ export function OperatorBillingCurrentPlanSummary() {
               <Link href="#billing-plans">Compare available plans</Link>
             </Button>
           </div>
-        ) : null}
+        ) : (
+          <OperatorBillingManageBillingAction canMutate={canMutate} variant="outline" size="sm" />
+        )}
       </CardContent>
     </Card>
   );

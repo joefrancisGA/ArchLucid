@@ -157,6 +157,83 @@ public sealed class BillingCheckoutController(
             });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("portal")]
+    [SkipTrialWriteLimit]
+    [ProducesResponseType(typeof(BillingPortalResponseDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> PortalAsync(
+        [FromBody] BillingPortalPostRequest? body,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        if (body is null || string.IsNullOrWhiteSpace(body.ReturnUrl))
+        {
+            return this.BadRequestProblem(
+                "ReturnUrl is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        IBillingProvider providerForAudit = _billingProviderRegistry.ResolveActiveProvider();
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.BillingPortalInitiated,
+                ActorUserId = User.Identity?.Name ?? "admin",
+                ActorUserName = User.Identity?.Name ?? "admin",
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(new { provider = providerForAudit.ProviderName })
+            },
+            cancellationToken);
+
+        BillingPortalRequest request = new()
+        {
+            TenantId = scope.TenantId,
+            ReturnUrl = body.ReturnUrl.Trim()
+        };
+
+        IBillingProvider provider = _billingProviderRegistry.ResolveActiveProvider();
+
+        BillingPortalResult result;
+
+        try
+        {
+            result = await provider.CreateBillingPortalSessionAsync(request, cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.BillingPortalCompleted,
+                ActorUserId = User.Identity?.Name ?? "admin",
+                ActorUserName = User.Identity?.Name ?? "admin",
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        provider = provider.ProviderName,
+                        providerSessionId = result.ProviderSessionId
+                    })
+            },
+            cancellationToken);
+
+        return Ok(
+            new BillingPortalResponseDto
+            {
+                PortalUrl = result.PortalUrl,
+                ProviderSessionId = result.ProviderSessionId
+            });
+    }
+
     private static BillingCheckoutTier ParseCheckoutTier(string? label)
     {
         if (string.IsNullOrWhiteSpace(label))

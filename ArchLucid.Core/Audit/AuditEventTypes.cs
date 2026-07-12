@@ -672,6 +672,12 @@ public static class AuditEventTypes
     /// <summary>Hosted billing checkout session created successfully (payload may include provider session id).</summary>
     public const string BillingCheckoutCompleted = "BillingCheckoutCompleted";
 
+    /// <summary>Admin initiated Stripe Billing Portal session for self-serve billing management.</summary>
+    public const string BillingPortalInitiated = "BillingPortalInitiated";
+
+    /// <summary>Stripe Billing Portal session created successfully (payload may include provider session id).</summary>
+    public const string BillingPortalCompleted = "BillingPortalCompleted";
+
     /// <summary>
     ///     Tenant-level customer notification channel toggles updated (
     ///     <c>PUT /v1/notifications/customer-channel-preferences</c>).
