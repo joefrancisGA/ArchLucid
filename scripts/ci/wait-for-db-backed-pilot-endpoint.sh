@@ -53,8 +53,38 @@ probe_pilot_run_deltas() {
   rm -f "${body_file}"
 }
 
+probe_authority_run_detail() {
+  local label="$1"
+  local run_id="$2"
+  local workspace_id="$3"
+  local project_id="$4"
+  local body_file
+  body_file="$(mktemp)"
+  last_label="${label}"
+  last_status="$(
+    curl -sS -o "${body_file}" -w "%{http_code}" \
+      "${API_URL}/v1/authority/runs/${run_id}" \
+      -H "Accept: application/json" \
+      -H "x-tenant-id: ${TENANT_ID}" \
+      -H "x-workspace-id: ${workspace_id}" \
+      -H "x-project-id: ${project_id}" || true
+  )"
+  last_body="$(head -c 500 "${body_file}" 2>/dev/null || true)"
+  rm -f "${body_file}"
+}
+
 all_pilot_endpoints_ready() {
+  probe_authority_run_detail "workspace A product tour authority" "${RUN_A}" "${WS_A}" "${PROJ_A}"
+  if [ "${last_status}" != "200" ]; then
+    return 1
+  fi
+
   probe_pilot_run_deltas "workspace A product tour" "${RUN_A}" "${WS_A}" "${PROJ_A}"
+  if [ "${last_status}" != "200" ]; then
+    return 1
+  fi
+
+  probe_authority_run_detail "workspace B regulated scenario authority" "${RUN_B}" "${WS_B}" "${PROJ_B}"
   if [ "${last_status}" != "200" ]; then
     return 1
   fi
@@ -77,11 +107,11 @@ dump_pilot_diagnostics() {
   fi
 }
 
-echo "Waiting for DB-backed pilot-run-deltas on demo workspace A and B (up to $((MAX_ATTEMPTS * SLEEP_SECONDS))s)..."
+echo "Waiting for DB-backed authority runs and pilot-run-deltas on demo workspace A and B (up to $((MAX_ATTEMPTS * SLEEP_SECONDS))s)..."
 
 for i in $(seq 1 "${MAX_ATTEMPTS}"); do
   if all_pilot_endpoints_ready; then
-    echo "DB-backed pilot-run-deltas ready for workspace A and B."
+    echo "DB-backed authority runs and pilot-run-deltas ready for workspace A and B."
     exit 0
   fi
 

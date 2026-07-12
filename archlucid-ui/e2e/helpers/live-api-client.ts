@@ -802,6 +802,23 @@ function isTransientHttpStatus(code: number): boolean {
   return code === 429 || (code >= 500 && code < 600);
 }
 
+function isRetriableLiveApiProbeStatus(code: number, retryRunNotFound: boolean): boolean {
+  if (retryRunNotFound && code === 404) {
+    return true;
+  }
+
+  return isTransientHttpStatus(code);
+}
+
+export type LiveApiTransientRetryOptions = {
+  readonly apiKey?: string | null;
+  /**
+   * Demo seed convergence: startup `DemoSeedStartupHostedService` and `POST /v1/demo/seed` can race;
+   * poll past transient `RUN_NOT_FOUND` until scoped authority rows are visible.
+   */
+  readonly retryRunNotFound?: boolean;
+};
+
 function isTransientLiveApiTransportError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
 
@@ -919,14 +936,16 @@ export async function getLiveApiPathWithTransientRetries(
 
 /**
  * Same as {@link getAuthorityRunDetailRaw} but retries on HTTP 5xx (transient API/SQL) and 429 during CI seed probes.
+ * Pass `retryRunNotFound: true` from demo workspace seed readiness helpers.
  */
 export async function getAuthorityRunDetailWithTransientRetries(
   request: APIRequestContext,
   runId: string,
   tenantScope: LiveTenantScopeHeaders,
-  options?: { apiKey?: string | null },
+  options?: LiveApiTransientRetryOptions,
 ): Promise<APIResponse> {
   let lastResponse: APIResponse | undefined;
+  const retryRunNotFound = options?.retryRunNotFound === true;
 
   for (let attempt = 0; attempt < maxTransientHttpPollAttempts; attempt++) {
     try {
@@ -953,7 +972,7 @@ export async function getAuthorityRunDetailWithTransientRetries(
       continue;
     }
 
-    if (isTransientHttpStatus(code) && attempt < maxTransientHttpPollAttempts - 1) {
+    if (isRetriableLiveApiProbeStatus(code, retryRunNotFound) && attempt < maxTransientHttpPollAttempts - 1) {
       await sleepTransientHttpBackoff(attempt);
 
       continue;
@@ -983,14 +1002,16 @@ const maxPilotRunDeltasPollAttempts = maxTransientHttpPollAttempts;
 
 /**
  * Same as {@link getPilotRunDeltasRaw} but retries on HTTP 5xx (transient API/SQL) and 429 during CI seed probes.
+ * Pass `retryRunNotFound: true` from demo workspace seed readiness helpers.
  */
 export async function getPilotRunDeltasWithTransientRetries(
   request: APIRequestContext,
   runId: string,
   tenantScope: LiveTenantScopeHeaders,
-  options?: { apiKey?: string | null },
+  options?: LiveApiTransientRetryOptions,
 ): Promise<APIResponse> {
   let lastResponse: APIResponse | undefined;
+  const retryRunNotFound = options?.retryRunNotFound === true;
 
   for (let attempt = 0; attempt < maxPilotRunDeltasPollAttempts; attempt++) {
     lastResponse = await getPilotRunDeltasRaw(request, runId, tenantScope, options);
@@ -1006,7 +1027,7 @@ export async function getPilotRunDeltasWithTransientRetries(
       continue;
     }
 
-    if (isTransientHttpStatus(code) && attempt < maxPilotRunDeltasPollAttempts - 1) {
+    if (isRetriableLiveApiProbeStatus(code, retryRunNotFound) && attempt < maxPilotRunDeltasPollAttempts - 1) {
       await sleepTransientHttpBackoff(attempt);
 
       continue;
