@@ -15,7 +15,12 @@ import {
   getMaxInfrastructureMutationAttempts,
   InfraTransientError,
 } from "./live-api-infra-retry";
-import { getLiveJwtTokenFromEnvSync, isLiveJwtTokenConfigured } from "./jwt-token-provider";
+import {
+  getLiveJwtPeerTokenFromEnvSync,
+  getLiveJwtRejectorTokenFromEnvSync,
+  getLiveJwtTokenFromEnvSync,
+  isLiveJwtTokenConfigured,
+} from "./jwt-token-provider";
 
 export { InfraTransientError } from "./live-api-infra-retry";
 
@@ -333,9 +338,12 @@ function pickAuthHeaders(
 }
 
 /** JSON request headers. Pass `""` to force **no** auth (negative tests). Omit argument for default credentials. */
-export function liveJsonHeaders(explicitApiKey?: string | null): Record<string, string> {
+export function liveJsonHeaders(
+  explicitApiKey?: string | null,
+  explicitBearerToken?: string | null,
+): Record<string, string> {
   return {
-    ...pickAuthHeaders(explicitApiKey),
+    ...pickAuthHeaders(explicitApiKey, explicitBearerToken),
     Accept: "application/json",
     "Content-Type": "application/json",
   };
@@ -1328,6 +1336,8 @@ export async function listArchitectureRuns(
 
 export type LiveGovernanceReviewRequestOptions = {
   readonly apiKey?: string | null;
+  /** JwtBearer lane — overrides `LIVE_JWT_TOKEN` for this request (peer reviewer / rejector SoD). */
+  readonly bearerToken?: string | null;
   /** DevelopmentBypass only — maps to `X-ArchLucid-Test-Actor-Id` when set. */
   readonly testActorId?: string | null;
 };
@@ -1347,6 +1357,43 @@ export const liveRejectorGovernanceOptions: LiveGovernanceReviewRequestOptions =
   testActorId: liveE2eRejectorActorId,
 };
 
+/**
+ * Governance approve/reject resolves reviewer identity from `IActorContext` (JWT/API key/bypass headers),
+ * not the JSON `reviewedBy` field — pick auth for the intended reviewer per lane.
+ */
+export function resolveLivePeerReviewerGovernanceOptions(): LiveGovernanceReviewRequestOptions {
+  if (resolveLiveJwtMode()) {
+    const bearerToken = getLiveJwtPeerTokenFromEnvSync();
+
+    if (bearerToken.length === 0) {
+      throw new Error(
+        "JWT governance peer approve requires LIVE_JWT_PEER_TOKEN (distinct from LIVE_JWT_TOKEN submitter identity).",
+      );
+    }
+
+    return { bearerToken };
+  }
+
+  return livePeerReviewerGovernanceOptions;
+}
+
+/** {@link resolveLivePeerReviewerGovernanceOptions} counterpart for governance rejection specs. */
+export function resolveLiveRejectorGovernanceOptions(): LiveGovernanceReviewRequestOptions {
+  if (resolveLiveJwtMode()) {
+    const bearerToken = getLiveJwtRejectorTokenFromEnvSync();
+
+    if (bearerToken.length === 0) {
+      throw new Error(
+        "JWT governance reject requires LIVE_JWT_REJECTOR_TOKEN (distinct from LIVE_JWT_TOKEN submitter identity).",
+      );
+    }
+
+    return { bearerToken };
+  }
+
+  return liveRejectorGovernanceOptions;
+}
+
 /** POST approve without throwing — use for negative-path assertions (`expect.soft` + status/body). */
 export async function postGovernanceApproveRaw(
   request: APIRequestContext,
@@ -1362,7 +1409,7 @@ export async function postGovernanceApproveRaw(
     },
     headers: mergeTenantScope(
       {
-        ...liveJsonHeaders(options?.apiKey),
+        ...liveJsonHeaders(options?.apiKey, options?.bearerToken),
         ...liveTestActorHeaders(body.reviewedBy, options?.testActorId),
       },
       tenantScope,
@@ -1466,7 +1513,7 @@ export async function approveGovernanceRequest(
       },
       headers: mergeTenantScope(
         {
-          ...liveJsonHeaders(options?.apiKey),
+          ...liveJsonHeaders(options?.apiKey, options?.bearerToken),
           ...liveTestActorHeaders(body.reviewedBy, options?.testActorId),
         },
         tenantScope,
@@ -1496,7 +1543,7 @@ export async function rejectGovernanceRequest(
       },
       headers: mergeTenantScope(
         {
-          ...liveJsonHeaders(options?.apiKey),
+          ...liveJsonHeaders(options?.apiKey, options?.bearerToken),
           ...liveTestActorHeaders(body.reviewedBy, options?.testActorId),
         },
         tenantScope,
@@ -1524,7 +1571,7 @@ export async function postGovernanceRejectRaw(
     },
     headers: mergeTenantScope(
       {
-        ...liveJsonHeaders(options?.apiKey),
+        ...liveJsonHeaders(options?.apiKey, options?.bearerToken),
         ...liveTestActorHeaders(body.reviewedBy, options?.testActorId),
       },
       tenantScope,

@@ -4115,9 +4115,19 @@ jobs:
             --issuer "https://ci.archlucid.local" \
             --audience "api://archlucid-live-e2e-jwt" \
             --out-token "${RUNNER_TEMP}/ci-jwt-token.txt"
+          python3 "${GITHUB_WORKSPACE}/scripts/ci/mint_ci_jwt.py" \
+            --private-key "${RUNNER_TEMP}/ci-jwt-priv.pem" \
+            --issuer "https://ci.archlucid.local" \
+            --audience "api://archlucid-live-e2e-jwt" \
+            --name "e2e-peer-reviewer" \
+            --sub "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" \
+            --out-token "${RUNNER_TEMP}/ci-jwt-peer-token.txt"
           TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/ci-jwt-token.txt")"
+          PEER_TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/ci-jwt-peer-token.txt")"
           echo "::add-mask::${TOKEN}"
+          echo "::add-mask::${PEER_TOKEN}"
           export LIVE_JWT_TOKEN="${TOKEN}"
+          export LIVE_JWT_PEER_TOKEN="${PEER_TOKEN}"
           export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
           npx playwright install --with-deps chromium
           curl -fsS http://127.0.0.1:5128/health/ready

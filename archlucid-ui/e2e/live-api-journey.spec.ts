@@ -19,7 +19,7 @@ import {
   liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   liveBypassSubmitterGovernanceOptions,
   livePeerReviewerActorName,
-  livePeerReviewerGovernanceOptions,
+  resolveLivePeerReviewerGovernanceOptions,
   normalizeRunIdForCompare,
   resolveLiveAuthActorName,
   resolveLiveAuthMode,
@@ -227,7 +227,7 @@ test.describe("live-api-journey", () => {
         reviewedBy: livePeerReviewerActorName,
         reviewComment: "E2E test auto-approve",
       },
-      livePeerReviewerGovernanceOptions,
+      resolveLivePeerReviewerGovernanceOptions(),
       tenantScope,
     );
 
@@ -240,7 +240,7 @@ test.describe("live-api-journey", () => {
         reviewedBy: livePeerReviewerActorName,
         reviewComment: "second approve should fail",
       },
-      livePeerReviewerGovernanceOptions,
+      resolveLivePeerReviewerGovernanceOptions(),
       tenantScope,
     );
 

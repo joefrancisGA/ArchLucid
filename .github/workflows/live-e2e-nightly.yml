@@ -384,9 +384,29 @@ jobs:
             --issuer "https://nightly.archlucid.local" \
             --audience "api://archlucid-live-e2e-nightly-jwt" \
             --out-token "${RUNNER_TEMP}/nightly-jwt-token.txt"
+          python3 "${GITHUB_WORKSPACE}/scripts/ci/mint_ci_jwt.py" \
+            --private-key "${RUNNER_TEMP}/nightly-jwt-priv.pem" \
+            --issuer "https://nightly.archlucid.local" \
+            --audience "api://archlucid-live-e2e-nightly-jwt" \
+            --name "e2e-peer-reviewer" \
+            --sub "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" \
+            --out-token "${RUNNER_TEMP}/nightly-jwt-peer-token.txt"
+          python3 "${GITHUB_WORKSPACE}/scripts/ci/mint_ci_jwt.py" \
+            --private-key "${RUNNER_TEMP}/nightly-jwt-priv.pem" \
+            --issuer "https://nightly.archlucid.local" \
+            --audience "api://archlucid-live-e2e-nightly-jwt" \
+            --name "e2e-rejector" \
+            --sub "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee" \
+            --out-token "${RUNNER_TEMP}/nightly-jwt-rejector-token.txt"
           TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/nightly-jwt-token.txt")"
+          PEER_TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/nightly-jwt-peer-token.txt")"
+          REJECTOR_TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/nightly-jwt-rejector-token.txt")"
           echo "::add-mask::${TOKEN}"
+          echo "::add-mask::${PEER_TOKEN}"
+          echo "::add-mask::${REJECTOR_TOKEN}"
           export LIVE_JWT_TOKEN="${TOKEN}"
+          export LIVE_JWT_PEER_TOKEN="${PEER_TOKEN}"
+          export LIVE_JWT_REJECTOR_TOKEN="${REJECTOR_TOKEN}"
           export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
           npx playwright install --with-deps chromium
           npx playwright test

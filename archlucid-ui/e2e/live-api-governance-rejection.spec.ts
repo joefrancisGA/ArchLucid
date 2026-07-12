@@ -14,7 +14,7 @@ import {
   liveE2eArchitectureDescription,
   liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   liveE2eRejectorActorName,
-  liveRejectorGovernanceOptions,
+  resolveLiveRejectorGovernanceOptions,
   postGovernanceApproveRaw,
   postGovernanceRejectRaw,
   rejectGovernanceRequest,
@@ -115,7 +115,7 @@ test.describe("live-api-governance-rejection", () => {
         reviewedBy: liveE2eRejectorActorName,
         reviewComment: "E2E rejection test",
       },
-      liveRejectorGovernanceOptions,
+      resolveLiveRejectorGovernanceOptions(),
       tenantScope,
     );
 
@@ -128,7 +128,7 @@ test.describe("live-api-governance-rejection", () => {
         reviewedBy: liveE2eRejectorActorName,
         reviewComment: "should fail — already rejected",
       },
-      liveRejectorGovernanceOptions,
+      resolveLiveRejectorGovernanceOptions(),
       tenantScope,
     );
 
@@ -144,7 +144,7 @@ test.describe("live-api-governance-rejection", () => {
         reviewedBy: liveE2eRejectorActorName,
         reviewComment: "second reject should fail",
       },
-      liveRejectorGovernanceOptions,
+      resolveLiveRejectorGovernanceOptions(),
       tenantScope,
     );
 

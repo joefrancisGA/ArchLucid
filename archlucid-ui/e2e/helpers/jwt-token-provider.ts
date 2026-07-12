@@ -10,6 +10,16 @@ export function getLiveJwtTokenFromEnvSync(): string {
   return process.env.LIVE_JWT_TOKEN?.trim() ?? "";
 }
 
+/** Distinct peer reviewer JWT for governance SoD (must differ from {@link getLiveJwtTokenFromEnvSync} `name` claim). */
+export function getLiveJwtPeerTokenFromEnvSync(): string {
+  return process.env.LIVE_JWT_PEER_TOKEN?.trim() ?? "";
+}
+
+/** Distinct rejector JWT for governance rejection E2E under JwtBearer. */
+export function getLiveJwtRejectorTokenFromEnvSync(): string {
+  return process.env.LIVE_JWT_REJECTOR_TOKEN?.trim() ?? "";
+}
+
 /** True when `LIVE_JWT_TOKEN` is non-empty (JWT auth lane active for `live-api-client` helpers). */
 export function isLiveJwtTokenConfigured(): boolean {
   return getLiveJwtTokenFromEnvSync().length > 0;
