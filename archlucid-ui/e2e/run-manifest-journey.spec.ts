@@ -17,7 +17,12 @@ import {
   expectBuyerGoldenPageReady,
 } from "./helpers/buyer-golden-path";
 import { waitForAppReady } from "./helpers/waits";
-import { outcomeStripSignedRecordLink } from "./helpers/operator-journey";
+import {
+  expandReviewDetailOutcomeCards,
+  openReviewDetailWorkspaceTab,
+  openVisibleReviewOutcomeSummaryStrip,
+  outcomeStripSignedRecordLink,
+} from "./helpers/operator-journey";
 
 const SHOWCASE_RUN_DETAIL_HEADING = BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN;
 
@@ -36,9 +41,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
       getAppMain(page).getByRole("heading", { level: 1 }).filter({ hasText: SHOWCASE_RUN_DETAIL_HEADING }),
     ).toBeVisible({ timeout: 60_000 });
 
-    const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
-
-    await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
+    const outcomeStrip = await openVisibleReviewOutcomeSummaryStrip(page, SHOWCASE_DEMO_RUN_ID);
 
     const manifestLink = outcomeStripSignedRecordLink(outcomeStrip);
     const manifestHref = `/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
@@ -76,6 +79,8 @@ test.describe("operator journey — run detail to manifest and back", () => {
       getAppMain(page).getByRole("heading", { level: 1 }).filter({ hasText: SHOWCASE_RUN_DETAIL_HEADING }),
     ).toBeVisible({ timeout: 60_000 });
 
+    await openReviewDetailWorkspaceTab(page, SHOWCASE_DEMO_RUN_ID, "activity");
+    await expandReviewDetailOutcomeCards(page);
     await expect(page.locator('section[aria-label="Review outcome summary"]')).toBeVisible({ timeout: 60_000 });
   });
 });

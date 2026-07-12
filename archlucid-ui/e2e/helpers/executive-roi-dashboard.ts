@@ -210,6 +210,12 @@ export async function registerExecutiveRoiDashboardDeterministicProxyRoutes(page
   });
 
   await page.route("**/api/proxy/v1/roi/executive-summary/export**", async (route) => {
+    if (route.request().method() !== "GET") {
+      await route.continue();
+
+      return;
+    }
+
     await route.fulfill({ status: 200, contentType: "application/json", body: exportBody });
   });
 
@@ -494,6 +500,13 @@ export async function expectExecutiveRoiPortfolioPanels(page: Page): Promise<voi
 
 
 export async function expectExecutiveRoiEnvironmentPieVisible(page: Page): Promise<void> {
+  await page
+    .getByText("Savings by environment")
+    .scrollIntoViewIfNeeded({ timeout: 30_000 })
+    .catch(() => undefined);
+
+  await page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 60_000 }).catch(() => null);
+
   await expect(page.getByText("Loading environment breakdown…")).toHaveCount(0, { timeout: 60_000 });
   await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible({ timeout: 30_000 });
 }

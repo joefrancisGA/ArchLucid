@@ -21,7 +21,10 @@ import {
 } from "../e2e/helpers/buyer-golden-path";
 import { getAppMain } from "../e2e/helpers/app-main";
 import { reviewsHubFirstPackageRow } from "../e2e/helpers/reviews-hub";
-import { outcomeStripSignedRecordLink } from "../e2e/helpers/operator-journey";
+import {
+  openVisibleReviewOutcomeSummaryStrip,
+  outcomeStripSignedRecordLink,
+} from "../e2e/helpers/operator-journey";
 import { waitForAppReady } from "../e2e/helpers/waits";
 
 const SHOWCASE_RUN_URL_PATTERN = new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`);
@@ -65,7 +68,7 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
       getAppMain(page).getByRole("heading", { level: 1 }).filter({ hasText: BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN }),
     ).toBeVisible({ timeout: 60_000 });
 
-    const outcomeStrip = getAppMain(page).locator('section[aria-label="Review outcome summary"]');
+    const outcomeStrip = await openVisibleReviewOutcomeSummaryStrip(page, SHOWCASE_DEMO_RUN_ID);
     const manifestLink = outcomeStripSignedRecordLink(outcomeStrip);
 
     await expect(manifestLink).toBeVisible({ timeout: 60_000 });
@@ -86,6 +89,6 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
     await expect(reviewLink).toBeVisible({ timeout: 60_000 });
     await reviewLink.click();
     await expect(page).toHaveURL(SHOWCASE_RUN_URL_PATTERN, { timeout: 60_000 });
-    await expect(outcomeStrip).toBeVisible();
+    await openVisibleReviewOutcomeSummaryStrip(page, SHOWCASE_DEMO_RUN_ID);
   });
 });
