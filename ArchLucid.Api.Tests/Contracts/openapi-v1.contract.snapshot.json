@@ -9836,6 +9836,35 @@
           "HardInfeasible"
         ]
       },
+      "FeaturedCompletedSampleCandidateResponse": {
+        "properties": {
+          "architectureName": {
+            "type": "string"
+          },
+          "completedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "isSampleApproved": {
+            "type": "boolean"
+          },
+          "reviewTitle": {
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "architectureName",
+          "completedUtc",
+          "isSampleApproved",
+          "reviewTitle",
+          "runId"
+        ],
+        "type": "object"
+      },
       "FileContentResult": {
         "properties": {
           "contentType": {
@@ -23007,6 +23036,58 @@
           },
           "updatedUtc": {
             "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantHomepageSettingsGetResponse": {
+        "properties": {
+          "architectureName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "completedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "isSampleApproved": {
+            "type": "boolean"
+          },
+          "reviewTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "selectedRunId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantHomepageSettingsPutRequest": {
+        "properties": {
+          "selectedRunId": {
+            "format": "uuid",
             "type": [
               "null",
               "string"
@@ -69516,6 +69597,163 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/tenant/homepage-settings": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantHomepageSettingsGetResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantHomepageSettingsGetResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantHomepageSettingsGetResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantHomepageSettings"
+        ],
+        "x-archlucid-audience": "operator"
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantHomepageSettingsPutRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantHomepageSettingsPutRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantHomepageSettingsPutRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantHomepageSettingsGetResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantHomepageSettingsGetResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantHomepageSettingsGetResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "TenantHomepageSettings"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/tenant/homepage-settings/eligible-samples": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FeaturedCompletedSampleCandidateResponse"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FeaturedCompletedSampleCandidateResponse"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FeaturedCompletedSampleCandidateResponse"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantHomepageSettings"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/tenant/integrations/operations": {
       "get": {
         "responses": {
@@ -71403,6 +71641,9 @@
     },
     {
       "name": "TenantExecDigestPreferences"
+    },
+    {
+      "name": "TenantHomepageSettings"
     },
     {
       "name": "TenantIntegrationsOperations"

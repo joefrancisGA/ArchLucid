@@ -9836,6 +9836,35 @@
           "HardInfeasible"
         ]
       },
+      "FeaturedCompletedSampleCandidateResponse": {
+        "properties": {
+          "architectureName": {
+            "type": "string"
+          },
+          "completedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "isSampleApproved": {
+            "type": "boolean"
+          },
+          "reviewTitle": {
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "architectureName",
+          "completedUtc",
+          "isSampleApproved",
+          "reviewTitle",
+          "runId"
+        ],
+        "type": "object"
+      },
       "FileContentResult": {
         "properties": {
           "contentType": {
@@ -23015,6 +23044,58 @@
         },
         "type": "object"
       },
+      "TenantHomepageSettingsGetResponse": {
+        "properties": {
+          "architectureName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "completedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "isSampleApproved": {
+            "type": "boolean"
+          },
+          "reviewTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "selectedRunId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantHomepageSettingsPutRequest": {
+        "properties": {
+          "selectedRunId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "TenantIdentityProtocol": {
         "type": "integer"
       },
@@ -27294,6 +27375,9 @@
     },
     {
       "name": "TenantExecDigestPreferences"
+    },
+    {
+      "name": "TenantHomepageSettings"
     },
     {
       "name": "TenantIntegrationsOperations"
