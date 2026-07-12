@@ -497,7 +497,8 @@ public sealed class AuthorityQueryController(
             HasWarnings = x.HasWarnings,
             HasGovernanceWarnings = x.HasGovernanceWarnings,
             RunDegradedExecution = x.RunDegradedExecution,
-            DegradedExecutionAgents = x.DegradedExecutionAgents
+            DegradedExecutionAgents = x.DegradedExecutionAgents,
+            PackageOrigin = x.PackageOrigin
         };
     }
 }

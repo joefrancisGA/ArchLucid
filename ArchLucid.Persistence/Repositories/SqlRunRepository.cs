@@ -55,7 +55,7 @@ public sealed class SqlRunRepository(
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                StructuralExecutionMode,
-                               RetryCount, LastFailureReason
+                               RetryCount, LastFailureReason, PackageOrigin
                            )
                            OUTPUT inserted.RowVersionStamp INTO @RunInsertOutput
                            VALUES
@@ -66,7 +66,7 @@ public sealed class SqlRunRepository(
                                @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
                                @IsDemoWelcomeRun, @IsPublicShowcase, @IsSample, @IsPinned, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
                                @StructuralExecutionMode,
-                               @RetryCount, @LastFailureReason
+                               @RetryCount, @LastFailureReason, @PackageOrigin
                            );
 
                            SELECT RowVersionStamp FROM @RunInsertOutput;
@@ -121,7 +121,7 @@ public sealed class SqlRunRepository(
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                    IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
-                                   RetryCount, LastFailureReason, EngineProvenanceJson,
+                                   RetryCount, LastFailureReason, EngineProvenanceJson, PackageOrigin,
                                    OperatorGovernanceDecision, OperatorGovernanceDecisionRationale,
                                    OperatorGovernanceDecisionUtc, OperatorGovernanceDecisionByUserId,
                                    RowVersionStamp AS RowVersion,
@@ -524,7 +524,8 @@ public sealed class SqlRunRepository(
                                StructuralExecutionMode = @StructuralExecutionMode,
                                RetryCount = @RetryCount,
                                LastFailureReason = @LastFailureReason,
-                               EngineProvenanceJson = @EngineProvenanceJson
+                               EngineProvenanceJson = @EngineProvenanceJson,
+                               PackageOrigin = @PackageOrigin
                            OUTPUT inserted.RowVersionStamp INTO @RunUpdateOutput
                            WHERE RunId = @RunId
                              AND TenantId = @TenantId
@@ -850,7 +851,8 @@ public sealed class SqlRunRepository(
             StructuralExecutionMode = run.StructuralExecutionMode.ToString(),
             run.RetryCount,
             run.LastFailureReason,
-            run.EngineProvenanceJson
+            run.EngineProvenanceJson,
+            run.PackageOrigin
         };
     }
 
@@ -943,6 +945,7 @@ public sealed class SqlRunRepository(
                         run.RetryCount,
                         run.LastFailureReason,
                         run.EngineProvenanceJson,
+                        run.PackageOrigin,
                         run.RowVersion
                     },
                     transaction,

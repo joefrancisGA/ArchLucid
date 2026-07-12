@@ -30,8 +30,14 @@ export function buildDefaultActorSet(): ActorSet {
   };
 }
 
-export async function createDraftRequest(freeTextIntent: string): Promise<DraftRequestResponse> {
-  return apiPostJson<DraftRequestResponse>(DRAFT_BASE, { freeTextIntent: freeTextIntent.trim() });
+export async function createDraftRequest(
+  freeTextIntent: string,
+  workflowIntent?: "create-architecture" | "start-review",
+): Promise<DraftRequestResponse> {
+  return apiPostJson<DraftRequestResponse>(DRAFT_BASE, {
+    freeTextIntent: freeTextIntent.trim(),
+    ...(workflowIntent !== undefined ? { workflowIntent } : {}),
+  });
 }
 
 export async function getDraftRequest(draftId: string): Promise<DraftRequestResponse> {
@@ -46,6 +52,7 @@ export async function patchDraftRequest(
     businessOutcome?: string;
     actorSet?: ActorSet;
     focusedPilotModeEnabled?: boolean;
+    workflowIntent?: "create-architecture" | "start-review";
   },
 ): Promise<DraftRequestResponse> {
   return apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, body);

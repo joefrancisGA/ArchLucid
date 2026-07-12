@@ -32,8 +32,10 @@ import {
   initializeArchitectureCreation,
 } from "@/lib/architecture-creation-init";
 import {
+  CREATE_ARCHITECTURE_INTENT,
   isCreateArchitectureIntent,
   resolveArchitectureWorkflowIntent,
+  START_REVIEW_INTENT,
 } from "@/lib/architecture-workflow-intent";
 import { writeArchitectureCreationDraftId } from "@/lib/architecture-creation-session";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
@@ -234,9 +236,10 @@ export function SocraticIntakeWizard() {
 
     creationInitStartedRef.current = true;
 
-    void initializeArchitectureCreation().then((result) => {
+    void initializeArchitectureCreation().then(async (result) => {
       if (result.draftId !== null) {
         setDraftId(result.draftId);
+        await patchDraftRequest(result.draftId, { workflowIntent: CREATE_ARCHITECTURE_INTENT });
       }
 
       const formState = applyArchitectureCreationDraftToFormState(result.draft);
@@ -286,7 +289,10 @@ export function SocraticIntakeWizard() {
       let id = draftId;
 
       if (id === null) {
-        const created = await createDraftRequest(freeTextIntent.trim());
+        const created = await createDraftRequest(
+          freeTextIntent.trim(),
+          isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
+        );
         id = created.draftId;
         setDraftId(id);
         writeArchitectureCreationDraftId(id);
@@ -298,6 +304,7 @@ export function SocraticIntakeWizard() {
         systemName: systemName.trim() || undefined,
         actorSet: normalizeActorSetForAdmission(actorSet),
         focusedPilotModeEnabled,
+        workflowIntent: CREATE_ARCHITECTURE_INTENT,
       });
 
       const questions = await getDraftQuestions(id);
@@ -316,7 +323,7 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [actorSet, businessOutcome, draftId, focusedPilotModeEnabled, freeTextIntent, systemName]);
+  }, [actorSet, businessOutcome, draftId, focusedPilotModeEnabled, freeTextIntent, isCreateArchitectureFlow, systemName]);
 
   const runAdmission = useCallback(async () => {
     setBusy(true);
@@ -325,7 +332,10 @@ export function SocraticIntakeWizard() {
     setRedirectVerdict(null);
 
     try {
-      const created = await createDraftRequest(freeTextIntent.trim());
+      const created = await createDraftRequest(
+        freeTextIntent.trim(),
+        isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
+      );
       const id = created.draftId;
       setDraftId(id);
 
@@ -335,6 +345,7 @@ export function SocraticIntakeWizard() {
         systemName: systemName.trim() || undefined,
         actorSet: normalizeActorSetForAdmission(actorSet),
         focusedPilotModeEnabled,
+        workflowIntent: isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
       });
 
       const admission = await admitDraftRequest(id);

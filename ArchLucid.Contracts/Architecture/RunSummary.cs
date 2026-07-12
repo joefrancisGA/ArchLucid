@@ -49,6 +49,13 @@ public sealed class RunSummary
         set;
     } = string.Empty;
 
+    /// <summary>Package origin for list badges (<c>Created</c> | <c>Reviewed</c>).</summary>
+    public string? PackageOrigin
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     When <see langword="true" />, deferred authority pipeline work dead-lettered after retry exhaustion.
     /// </summary>

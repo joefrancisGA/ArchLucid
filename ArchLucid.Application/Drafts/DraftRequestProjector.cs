@@ -32,7 +32,24 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             InlineRequirements = BuildInlineRequirements(document),
             IntakeTransparencyTrail = CloneTransparencyTrail(document.TransparencyTrail),
             PolicyReferences = BuildPolicyReferences(document),
+            WorkflowIntent = ResolveWorkflowIntent(document),
         };
+    }
+
+    private static string? ResolveWorkflowIntent(DraftRequestDocument document)
+    {
+        string? intent = document.WorkflowIntent?.Trim();
+
+        if (string.IsNullOrWhiteSpace(intent))
+            return null;
+
+        if (string.Equals(intent, ArchitectureWorkflowIntent.CreateArchitecture, StringComparison.OrdinalIgnoreCase))
+            return ArchitectureWorkflowIntent.CreateArchitecture;
+
+        if (string.Equals(intent, ArchitectureWorkflowIntent.StartReview, StringComparison.OrdinalIgnoreCase))
+            return ArchitectureWorkflowIntent.StartReview;
+
+        return null;
     }
 
     private static List<string> BuildPolicyReferences(DraftRequestDocument document)

@@ -3,6 +3,7 @@ using ArchLucid.Application.Drafts.PriorAnswerReuse;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Requests;
@@ -71,7 +72,12 @@ public sealed class DraftRequestService(
             throw new InvalidOperationException(
                 $"FreeTextIntent must be at least {DraftIntakeValidation.MinimumFreeTextIntentLength} characters after trim.");
 
-        DraftRequestDocument document = new() { FreeTextIntent = intent, FocusedPilotModeEnabled = true };
+        DraftRequestDocument document = new()
+        {
+            FreeTextIntent = intent,
+            FocusedPilotModeEnabled = true,
+            WorkflowIntent = NormalizeWorkflowIntent(request.WorkflowIntent),
+        };
 
         return await _draftRepository.CreateAsync(
             scope.TenantId,
@@ -611,6 +617,9 @@ public sealed class DraftRequestService(
 
         if (patch.FocusedPilotModeEnabled.HasValue)
             document.FocusedPilotModeEnabled = patch.FocusedPilotModeEnabled.Value;
+
+        if (patch.WorkflowIntent is not null)
+            document.WorkflowIntent = NormalizeWorkflowIntent(patch.WorkflowIntent);
     }
 
     private static void SyncTransparencyFromDocument(DraftRequestDocument document)
@@ -785,5 +794,21 @@ public sealed class DraftRequestService(
                 ?? draft.Document.RequiredMustQuestionKeys,
             Verdict = verdict,
         };
+    }
+
+    private static string? NormalizeWorkflowIntent(string? workflowIntent)
+    {
+        string? intent = workflowIntent?.Trim();
+
+        if (string.IsNullOrWhiteSpace(intent))
+            return null;
+
+        if (string.Equals(intent, ArchitectureWorkflowIntent.CreateArchitecture, StringComparison.OrdinalIgnoreCase))
+            return ArchitectureWorkflowIntent.CreateArchitecture;
+
+        if (string.Equals(intent, ArchitectureWorkflowIntent.StartReview, StringComparison.OrdinalIgnoreCase))
+            return ArchitectureWorkflowIntent.StartReview;
+
+        return null;
     }
 }

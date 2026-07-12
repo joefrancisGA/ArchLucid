@@ -37,4 +37,11 @@ public sealed class PatchDraftRequest
         get;
         set;
     }
+
+    [JsonPropertyName("workflowIntent")]
+    public string? WorkflowIntent
+    {
+        get;
+        set;
+    }
 }

@@ -14,6 +14,7 @@ import {
   readArchitectureCreationDraftId,
   writeArchitectureCreationDraftId,
 } from "@/lib/architecture-creation-session";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { buildDefaultActorSet, createDraftRequest, getDraftRequest } from "@/lib/api/draft-intake-api";
 import type { DraftRequestResponse } from "@/types/draft-intake";
 
@@ -55,7 +56,7 @@ async function restoreOrCreateDraft(timings: ArchitectureCreationInitTimings): P
 
   try {
     const created = await measureArchitectureCreationPhase("draft-create", timings, async () =>
-      createDraftRequest(ARCHITECTURE_CREATION_BOOTSTRAP_INTENT),
+      createDraftRequest(ARCHITECTURE_CREATION_BOOTSTRAP_INTENT, CREATE_ARCHITECTURE_INTENT),
     );
     writeArchitectureCreationDraftId(created.draftId);
 

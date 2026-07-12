@@ -572,6 +572,11 @@ IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
 GO
 
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'PackageOrigin') IS NULL
+    ALTER TABLE dbo.Runs ADD PackageOrigin NVARCHAR(16) NULL;
+GO
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'RowVersionStamp') IS NULL
     ALTER TABLE dbo.Runs ADD RowVersionStamp ROWVERSION;
 GO

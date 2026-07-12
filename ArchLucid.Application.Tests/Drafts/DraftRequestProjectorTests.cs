@@ -57,6 +57,17 @@ public sealed class DraftRequestProjectorTests
     }
 
     [Fact]
+    public void Project_CopiesWorkflowIntentOntoArchitectureRequest()
+    {
+        DraftRequestDocument document = CreateDocument();
+        document.WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture;
+
+        Contracts.Requests.ArchitectureRequest request = _projector.Project(document, Guid.NewGuid());
+
+        request.WorkflowIntent.Should().Be(ArchitectureWorkflowIntent.CreateArchitecture);
+    }
+
+    [Fact]
     public void Project_WhenCloudTargetMalformed_UsesNoneWithoutThrowing()
     {
         DraftRequestDocument document = CreateDocument();

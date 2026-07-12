@@ -274,6 +274,7 @@ export function tryStaticDemoRunSummariesPaged(
     hasGraphSnapshot: !!chain.graphSnapshotId,
     hasFindingsSnapshot: !!chain.findingsSnapshotId,
     hasGoldenManifest: true,
+    packageOrigin: "Reviewed",
   };
 
   return { items: [item], totalCount: 1 };

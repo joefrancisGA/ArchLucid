@@ -1442,6 +1442,7 @@ public sealed class DemoSeedService(
             ArchitectureRequestId = requestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
             IsSample = ShouldMarkSeededRunAsSample(scope.TenantId),
+            PackageOrigin = ArchitecturePackageOrigin.Created,
         };
 
         await _runRepository.SaveAsync(row, cancellationToken);
@@ -1682,6 +1683,7 @@ public sealed class DemoSeedService(
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,
             RequestSource = "draft-intake",
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
             Constraints =
             [
                 "All inference and search data planes use private connectivity from the application VNet",

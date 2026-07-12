@@ -17,6 +17,8 @@ type RunSummaryWireExtensions = {
   isArchived?: boolean | null;
   /** When true, the run was created via an idempotency replay. */
   idempotencyReplayed?: boolean | null;
+  /** Package origin for list badges (`Created` | `Reviewed`). */
+  packageOrigin?: string | null;
 };
 
 /**

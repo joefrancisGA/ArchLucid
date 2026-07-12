@@ -1,4 +1,5 @@
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Mapping;
 using ArchLucid.Contracts.Agents;
@@ -114,7 +115,7 @@ public sealed class ArchitectureRunAuthorityCoordination(
         output.Tasks = tasks;
 
         if (enlistUnitOfWork is null)
-            await PatchAuthorityRunHeaderAsync(authorityRun.RunId, request.RequestId, deferred, cancellationToken);
+            await PatchAuthorityRunHeaderAsync(authorityRun.RunId, request, deferred, cancellationToken);
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation(
                 "Coordination completed: RunId={RunId}, RequestId={RequestId}, StarterTaskCount={TaskCount}, EvidenceBundleId={EvidenceBundleId}, Deferred={Deferred}",
@@ -126,7 +127,11 @@ public sealed class ArchitectureRunAuthorityCoordination(
         return output;
     }
 
-    private async Task PatchAuthorityRunHeaderAsync(Guid authorityRunId, string requestId, bool deferred, CancellationToken cancellationToken)
+    private async Task PatchAuthorityRunHeaderAsync(
+        Guid authorityRunId,
+        ArchitectureRequest request,
+        bool deferred,
+        CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? header = await _runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken);
@@ -134,12 +139,13 @@ public sealed class ArchitectureRunAuthorityCoordination(
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning("Authority run header {RunId} not found for lifecycle patch (RequestId={RequestId}).", authorityRunId,
-                    LogSanitizer.Sanitize(requestId));
+                    LogSanitizer.Sanitize(request.RequestId));
             return;
         }
 
-        header.ArchitectureRequestId = requestId;
+        header.ArchitectureRequestId = request.RequestId;
         header.LegacyRunStatus = _runStateTransitionService.GetCoordinationLegacyStatusAfterCreate(deferred);
+        header.PackageOrigin = ArchitecturePackageOriginResolver.Resolve(request);
         await _runRepository.UpdateAsync(header, cancellationToken);
     }
 

@@ -262,4 +262,13 @@ public sealed class RunRecord
         get;
         set;
     }
+
+    /// <summary>
+    ///     Package origin label (<see cref="Contracts.Common.ArchitecturePackageOrigin" />) persisted at run create.
+    /// </summary>
+    public string? PackageOrigin
+    {
+        get;
+        set;
+    }
 }

@@ -988,6 +988,11 @@ export const BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION = "Action needed";
 
 export const BUYER_RUNS_DASHBOARD_FILTER_ALL = "All";
 
+/** TB-740: compact origin badge on workspace/reviews list rows (buyer-polished shell only). */
+export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_CREATED_BADGE = "Created";
+
+export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_BADGE = "Reviewed";
+
 /** Footer navigation on home review packages card — distinct from the All status filter pill. */
 export const BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA = "Open review packages";
 

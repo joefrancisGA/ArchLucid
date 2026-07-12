@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { isRunApprovedPackage, isRunNeedingAttention, runsDashboardTabLabel } from "@/components/operator-home/runs-dashboard-helpers";
+import {
+  ArchitecturePackageOriginBadge,
+  isRunApprovedPackage,
+  isRunNeedingAttention,
+  runsDashboardTabLabel,
+} from "@/components/operator-home/runs-dashboard-helpers";
+import { render, screen } from "@testing-library/react";
 import type { RunSummary } from "@/types/authority";
 
 describe("runsDashboardTabLabel (TB-667)", () => {
@@ -44,5 +50,23 @@ describe("runs dashboard status filters", () => {
     expect(isRunApprovedPackage(approvedRun)).toBe(true);
     expect(isRunApprovedPackage(monitoredRun)).toBe(false);
     expect(isRunNeedingAttention(attentionRun)).toBe(true);
+  });
+});
+
+describe("ArchitecturePackageOriginBadge (TB-740)", () => {
+  it("renders Created badge in buyer-polished shell only", () => {
+    const run: RunSummary = {
+      runId: "created-run",
+      projectId: "default",
+      packageOrigin: "Created",
+    };
+
+    const { rerender } = render(<ArchitecturePackageOriginBadge run={run} buyerPolishedShell />);
+
+    expect(screen.getByTestId("architecture-package-origin-created")).toHaveTextContent("Created");
+
+    rerender(<ArchitecturePackageOriginBadge run={run} buyerPolishedShell={false} />);
+
+    expect(screen.queryByTestId("architecture-package-origin-created")).toBeNull();
   });
 });

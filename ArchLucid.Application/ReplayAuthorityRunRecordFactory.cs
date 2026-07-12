@@ -1,5 +1,6 @@
-using ArchLucid.Contracts.Requests;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 
@@ -41,7 +42,9 @@ internal static class ReplayAuthorityRunRecordFactory
                 Description = sourceAuthorityRun.Description,
                 CreatedUtc = createdUtc,
                 ArchitectureRequestId = request.RequestId,
-                StructuralExecutionMode = StructuralExecutionMode.Simulator
+                StructuralExecutionMode = StructuralExecutionMode.Simulator,
+                PackageOrigin = sourceAuthorityRun.PackageOrigin
+                    ?? ArchitecturePackageOriginResolver.Resolve(request),
             };
 
         return new RunRecord
@@ -53,7 +56,8 @@ internal static class ReplayAuthorityRunRecordFactory
             ProjectId = request.SystemName,
             CreatedUtc = createdUtc,
             ArchitectureRequestId = request.RequestId,
-            StructuralExecutionMode = StructuralExecutionMode.Simulator
+            StructuralExecutionMode = StructuralExecutionMode.Simulator,
+            PackageOrigin = ArchitecturePackageOriginResolver.Resolve(request)
         };
     }
 }
