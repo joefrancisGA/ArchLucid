@@ -1,4 +1,4 @@
-/* R270: Roll back 270_sp_FinalizeManifest_PreSealedAnchors.sql — restore dbo.sp_FinalizeManifest (DbUp 132 shape). */
+/* R272: Roll back 272_sp_FinalizeManifest_PreSealedAnchors.sql — restore dbo.sp_FinalizeManifest (DbUp 132 shape). */
 
 IF OBJECT_ID(N'dbo.sp_FinalizeManifest', N'P') IS NULL
     EXECUTE(N'CREATE PROCEDURE dbo.sp_FinalizeManifest AS BEGIN SET NOCOUNT ON; END;');

@@ -7842,7 +7842,7 @@ BEGIN
 END;
 GO
 
-/* ---- Manifest finalization: one active golden manifest per run + dbo.sp_FinalizeManifest (DbUp 120 + 132 outbox Priority + 270 pre-sealed anchors). ---- */
+/* ---- Manifest finalization: one active golden manifest per run + dbo.sp_FinalizeManifest (DbUp 120 + 132 outbox Priority + 272 pre-sealed anchors). ---- */
 IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1

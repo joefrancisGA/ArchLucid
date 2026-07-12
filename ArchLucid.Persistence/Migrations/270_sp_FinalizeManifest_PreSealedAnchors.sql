@@ -1,4 +1,4 @@
-/* 270: sp_FinalizeManifest — lifecycle-only finalize when authority pipeline pre-sealed TB-310 anchors at request time. */
+/* 272: sp_FinalizeManifest — lifecycle-only finalize when authority pipeline pre-sealed TB-310 anchors at request time. */
 
 IF OBJECT_ID(N'dbo.sp_FinalizeManifest', N'P') IS NULL
     EXECUTE(N'CREATE PROCEDURE dbo.sp_FinalizeManifest AS BEGIN SET NOCOUNT ON; END;');
