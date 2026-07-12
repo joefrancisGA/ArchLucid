@@ -21,8 +21,6 @@ using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
-using Microsoft.Extensions.Logging.Abstractions;
-
 using Moq;
 
 namespace ArchLucid.Application.Tests.Orchestration;
@@ -161,6 +159,9 @@ public sealed class ArchitectureRunExecuteOrchestratorPreSealedAnchorsTests
 
         Mock<IUnifiedGoldenManifestReader> manifestReader = new(MockBehavior.Strict);
 
+        ArchitectureRunExecuteOrchestratorTailDependencies tail =
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateStandardTailDependencies(scopeProvider.Object);
+
         ArchitectureRunExecuteOrchestrator sut = new(
             runRepo.Object,
             scopeProvider.Object,
@@ -185,9 +186,9 @@ public sealed class ArchitectureRunExecuteOrchestratorPreSealedAnchorsTests
             Microsoft.Extensions.Options.Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
-            NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
+            tail.TopologyProposalSeeder,
+            tail.DemoExpensiveActionGate,
+            tail.Logger);
 
         await sut.ExecuteRunAsync(runId);
 
