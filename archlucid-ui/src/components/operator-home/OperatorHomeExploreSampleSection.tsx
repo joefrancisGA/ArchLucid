@@ -8,6 +8,7 @@ import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAutho
 import {
   OPERATOR_HOME_CREATION_EXAMPLE_BODY,
   OPERATOR_HOME_CREATION_EXAMPLE_TITLE,
+  OPERATOR_HOME_EXAMPLES_AND_LEARNING_HEADING,
   OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
   OPERATOR_HOME_EXPLORE_SAMPLE_LEAD,
   OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY,
@@ -43,6 +44,9 @@ export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
   }
 
   const reducedProminence = hasWorkspaceReviews;
+  const sectionHeading = reducedProminence
+    ? OPERATOR_HOME_EXAMPLES_AND_LEARNING_HEADING
+    : OPERATOR_HOME_EXPLORE_SAMPLE_HEADING;
 
   return (
     <section
@@ -58,7 +62,7 @@ export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
     >
       <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <OperatorHomeCardSectionTitle id="operator-home-explore-sample-heading">
-          {OPERATOR_HOME_EXPLORE_SAMPLE_HEADING}
+          {sectionHeading}
         </OperatorHomeCardSectionTitle>
         <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
           {OPERATOR_HOME_EXPLORE_SAMPLE_LEAD}

@@ -97,15 +97,15 @@ export function resolveBuyerGoldenJourneyNav(
 
   let stepIdx: number | null = null;
 
-  if (path === execBase || path.startsWith(`${execBase}/`)) {
-    stepIdx = 0;
-  } else if (
+  if (
     path === manifestBase
     || path.startsWith(`${manifestBase}/`)
     || path === manifestRecord
     || path === manifestArchitecturePath
   ) {
     stepIdx = 1;
+  } else if (path === execBase || path.startsWith(`${execBase}/`)) {
+    stepIdx = 0;
   } else if (path.startsWith("/graph")) {
     const graphRunId =
       options?.searchRunId?.trim() ??

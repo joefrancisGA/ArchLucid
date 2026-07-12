@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:292 -->
+<!-- audit-core-const-count:293 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -145,6 +145,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Governance policy-pack dry-run (what-if) | `PolicyPackDryRunService` (`POST /v1/governance/policy-packs/{id}/dry-run`); `GovernanceController` (`POST /v1/governance/simulate`) | `GovernanceDryRunRequested` | Tenant/Workspace/Project from ambient scope | `{ policyPackId, proposedThresholdsRedacted (string — proposedThresholds JSON after `LlmPromptRedaction`), evaluatedRunIds[], deltaCounts: { evaluated, wouldBlock, wouldAllow, runMissing } }` — payload **must** flow through the redaction pipeline (PENDING_QUESTIONS Q37); read-auth gated, no real commit. |
 | Pre-commit synthetic simulation (what-if) | `GovernancePreCommitSimulationController` (`POST /v1/governance/pre-commit/simulate`) | `GovernancePreCommitSimulationEvaluated` | RunId when parseable | `runId`, synthetic parameters, gate outcome summary (`blocked`, `warnOnly`, counts, sample blocking finding ids — no manifest commit) |
 | Realized value attestation upsert (tenant settings) | `GovernanceStickinessController` (`PUT /v1/governance/realized-value/attestation`); `RealizedValueAttestationService` | — | — | Attestation stored in tenant settings; **no** separate durable audit row in V1 (`[MutatingAuditExcluded]` on controller) |
+| Architecture review recurrence schedule preview (no persistence) | `GovernanceStickinessController` (`POST /v1/governance/recurrence-schedules/preview-next-runs`) | — | — | Cron preview only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | User appearance preference upsert | `UserPreferencesController` (`PUT /v1/user/preferences/appearance`) | — | — | Personal appearance preference stored in `dbo.UserSettings`; **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Outbound webhook URL probe (no persistence) | `OutboundWebhookDryRunController` (`POST /v1/webhooks/dry-run`); `BillingCheckoutController` (`POST /v1/tenant/billing/marketplace/webhook-test`) | `OutboundWebhookDryRunProbeExecuted` | — | Target authority/path and scheme only (no query string), `hasSharedSecret` flag, transport/status — **no** shared secret or response body in payload |
 | Synthetic `AuthorityRunCompleted` webhook simulation (no persistence) | `WebhookSimulationController` (`POST /v1/integrations/webhooks/simulate`) | `WebhookAuthorityRunCompletedSimulationExecuted` | — | Target authority/path and scheme only (no query string), `hasSharedSecret` flag, transport/status — **no** shared secret or response body in payload |
@@ -228,6 +229,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Tenant architecture review board cover logo upload | `AdminController` (`POST /v1/admin/tenant/logo`) | `TenantReviewBoardCoverLogoUploaded` | Tenant + default workspace/project from scope | `{ logoByteLength }` — PNG/JPEG validated via `ArchitectureReviewBoardCoverLogoValidator`; image bytes are **not** stored in audit payload |
 | Microsoft Teams incoming-webhook connection upsert | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionUpserted` | Tenant + default workspace/project from scope | Key Vault reference metadata (no secret material) |
 | Microsoft Teams incoming-webhook connection remove | `TeamsIncomingWebhookConnectionsController` (`DELETE /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionRemoved` | Tenant + default workspace/project from scope | connection id / scope fields |
+| Microsoft Teams incoming-webhook secret validation probe (no persistence) | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections/validate-secret`) | — | — | Key Vault probe only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
+| Microsoft Teams incoming-webhook connection test notification (no persistence) | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections/test`) | — | — | Synthetic Teams ping only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Tenant ITSM connector credential reference upsert (Jira / ServiceNow) | `TenantItsmConnectorConnectionsController` (`POST /v1/integrations/itsm/connections/{provider}`) | `TenantItsmConnectorConnectionUpserted` | Tenant + default workspace/project from scope | provider label, credential secret name length, inbound webhook secret presence, enabled flag — **no** secret material |
 | Tenant ITSM connector credential reference remove | `TenantItsmConnectorConnectionsController` (`DELETE /v1/integrations/itsm/connections/{provider}`) | `TenantItsmConnectorConnectionRemoved` | Tenant + default workspace/project from scope | provider label — **no** secret material |
 | Jira OAuth consent flow started (Atlassian 3LO) | `TenantItsmConnectorConnectionsController` (`POST /v1/integrations/itsm/connections/jira/oauth/consent/start`) | `TenantItsmConnectorConnectionUpserted` | Tenant + default workspace/project from scope | `{ provider, authMode, oauthConsentStarted }` — **no** OAuth state, PKCE verifier, or client secret material |
@@ -488,6 +491,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `PilotCloseoutRecorded` | `PilotCloseoutRecorded` | `PilotsController` (`POST /v1/pilots/closeout`) |
 | `SponsorProofPackGenerated` | `SponsorProofPackGenerated` | `PilotsController` (`GET /v1/pilots/runs/{runId}/sponsor-proof-pack.zip`) |
 | `SponsorEvidencePackSent` | `SponsorEvidencePackSent` | `PilotsController` (`POST /v1/pilots/runs/{runId}/sponsor-pack-sent`) |
+| `SponsorPreliminaryArchitectureShared` | `SponsorPreliminaryArchitectureShared` | `PilotsController` (`POST /v1/pilots/runs/{runId}/sponsor-preliminary-share`) |
 | `CorePilotTeamChecklistUpdated` | `CorePilotTeamChecklistUpdated` | `CorePilotTeamChecklistController` (`PUT …/tenant/core-pilot-checklist`) |
 | `GovernanceApprovalRejected` | `GovernanceApprovalRejected` | `GovernanceWorkflowService` |
 | `GovernanceSelfApprovalBlocked` | `GovernanceSelfApprovalBlocked` | `GovernanceWorkflowService` |
