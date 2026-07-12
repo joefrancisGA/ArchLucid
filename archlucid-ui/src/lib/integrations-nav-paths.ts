@@ -1,10 +1,10 @@
 import { pathMatchesRoutePrefix } from "@/lib/governance-route-paths";
 
-/** Canonical integration readiness hub URL (TB-408). */
+/** Canonical integration readiness hub URL (TB-408 / TB-750). */
 export const INTEGRATIONS_READINESS_PATH = "/integrations/readiness";
 
-/** App Router implementation path — rewrite target for {@link INTEGRATIONS_READINESS_PATH}. */
-export const INTEGRATIONS_OPERATIONS_PATH = "/integrations/operations";
+/** Legacy browser path — permanent redirect to {@link INTEGRATIONS_READINESS_PATH} (TB-408). */
+export const LEGACY_INTEGRATIONS_OPERATIONS_PATH = "/integrations/operations";
 
 /** Legacy combined operator route — redirects to Integration readiness; use Jira/ServiceNow paths instead. */
 export const LEGACY_INTEGRATIONS_ITSM_PATH = "/integrations/itsm";
@@ -35,7 +35,7 @@ export function pathMatchesCloudConnections(pathname: string): boolean {
 export function pathMatchesIntegrationsReadiness(pathname: string): boolean {
   return (
     pathMatchesRoutePrefix(pathname, INTEGRATIONS_READINESS_PATH)
-    || pathMatchesRoutePrefix(pathname, INTEGRATIONS_OPERATIONS_PATH)
+    || pathMatchesRoutePrefix(pathname, LEGACY_INTEGRATIONS_OPERATIONS_PATH)
     || pathMatchesRoutePrefix(pathname, LEGACY_INTEGRATIONS_ITSM_PATH)
   );
 }

@@ -27,9 +27,22 @@ import {
   skipDraftQuestion,
   submitDraftRequest,
 } from "@/lib/api/draft-intake-api";
+import {
+  applyArchitectureCreationDraftToFormState,
+  initializeArchitectureCreation,
+} from "@/lib/architecture-creation-init";
+import {
+  CREATE_ARCHITECTURE_INTENT,
+  isCreateArchitectureIntent,
+  resolveArchitectureWorkflowIntent,
+  START_REVIEW_INTENT,
+} from "@/lib/architecture-workflow-intent";
+import { writeArchitectureCreationDraftId } from "@/lib/architecture-creation-session";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { CREATE_ARCHITECTURE_STARTING_LABEL } from "@/lib/review-start-progress-copy";
 import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigation";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { recordArchitectureCreationHandoff } from "@/lib/architecture-creation-handoff";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -43,10 +56,19 @@ import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
+  GUIDED_INTAKE_CONTINUE_TO_DISCOVERY,
+  GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,
+  GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER,
+  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
+  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER,
+  GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION,
+  GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
   GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP0_CARD_TITLE,
   GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
+  buildGuidedIntakeCreationAdvanceBlockerMessage,
   guidedIntakeArchitectureIntentHelperText,
+  guidedIntakeCreationArchitectureOverviewHelperText,
 } from "@/lib/guided-intake-copy";
 import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
@@ -78,6 +100,31 @@ const INTAKE_STEPS = [
   },
 ] as const;
 
+type IntakeFieldLabelProps = {
+  readonly htmlFor: string;
+  readonly label: string;
+  readonly required: boolean;
+};
+
+function IntakeFieldLabel(props: IntakeFieldLabelProps): React.JSX.Element {
+  return (
+    <Label
+      htmlFor={props.htmlFor}
+      className="font-semibold text-neutral-900 dark:text-neutral-100"
+    >
+      {props.label}
+      <span
+        className={cn(
+          "font-normal text-neutral-500 dark:text-neutral-400",
+          OPERATOR_TYPOGRAPHY.helper,
+        )}
+      >
+        {props.required ? " (required)" : " (optional)"}
+      </span>
+    </Label>
+  );
+}
+
 export function SocraticIntakeWizard() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -89,6 +136,13 @@ export function SocraticIntakeWizard() {
       resolveReviewIntakeExampleTemplateFromSearchParams((key) => searchParams?.get(key) ?? null).template,
     [searchParams],
   );
+
+  const workflowIntent = useMemo(
+    () => resolveArchitectureWorkflowIntent((key) => searchParams?.get(key) ?? null),
+    [searchParams],
+  );
+  const isCreateArchitectureFlow = isCreateArchitectureIntent(workflowIntent);
+  const creationInitStartedRef = useRef(false);
 
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -124,12 +178,37 @@ export function SocraticIntakeWizard() {
 
   const intentTrimmedLength = freeTextIntent.trim().length;
   const intentMeetsMinimum = intentTrimmedLength >= MIN_INTENT_CHARS;
+  const outcomeTrimmedLength = businessOutcome.trim().length;
+  const outcomeMeetsMinimum = outcomeTrimmedLength >= MIN_OUTCOME_CHARS;
 
-  const canAdvanceIntent =
-    intentMeetsMinimum &&
-    businessOutcome.trim().length >= MIN_OUTCOME_CHARS &&
-    actorSet.actors.length > 0 &&
-    !busy;
+  const canAdvanceIntent = isCreateArchitectureFlow
+    ? intentMeetsMinimum && outcomeMeetsMinimum && !busy
+    : intentMeetsMinimum &&
+      outcomeMeetsMinimum &&
+      actorSet.actors.length > 0 &&
+      !busy;
+
+  const createArchitectureAdvanceBlockers = useMemo(() => {
+    if (!isCreateArchitectureFlow) {
+      return [];
+    }
+
+    const blockers: string[] = [];
+
+    if (!intentMeetsMinimum) {
+      blockers.push("architecture overview");
+    }
+
+    if (!outcomeMeetsMinimum) {
+      blockers.push("business outcome");
+    }
+
+    return blockers;
+  }, [intentMeetsMinimum, isCreateArchitectureFlow, outcomeMeetsMinimum]);
+
+  const createArchitectureAdvanceHint = buildGuidedIntakeCreationAdvanceBlockerMessage(
+    createArchitectureAdvanceBlockers,
+  );
 
   const allClarificationsHandled =
     pendingQuestions.length === 0 ||
@@ -149,6 +228,29 @@ export function SocraticIntakeWizard() {
     setBusinessOutcome(exampleTemplate.businessOutcome);
     setSystemName(exampleTemplate.systemName);
   }, [exampleTemplate]);
+
+  useEffect(() => {
+    if (!isCreateArchitectureFlow || creationInitStartedRef.current) {
+      return;
+    }
+
+    creationInitStartedRef.current = true;
+
+    void initializeArchitectureCreation().then(async (result) => {
+      if (result.draftId !== null) {
+        setDraftId(result.draftId);
+        await patchDraftRequest(result.draftId, { workflowIntent: CREATE_ARCHITECTURE_INTENT });
+      }
+
+      const formState = applyArchitectureCreationDraftToFormState(result.draft);
+      setFreeTextIntent(formState.freeTextIntent);
+      setBusinessOutcome(formState.businessOutcome);
+      setSystemName(formState.systemName);
+      setAllQuestions([...result.questionSelection.allQuestions]);
+      setRequiredMustQuestionKeys([...result.questionSelection.requiredMustQuestionKeys]);
+      setPendingQuestions([...result.questionSelection.pendingMustQuestions]);
+    });
+  }, [isCreateArchitectureFlow]);
 
   const refreshQuestions = useCallback(async (id: string) => {
     const questions = await getDraftQuestions(id);
@@ -179,6 +281,50 @@ export function SocraticIntakeWizard() {
     [refreshQuestions],
   );
 
+  const runCreateArchitectureContinuation = useCallback(async () => {
+    setBusy(true);
+    setSubmitError(null);
+
+    try {
+      let id = draftId;
+
+      if (id === null) {
+        const created = await createDraftRequest(
+          freeTextIntent.trim(),
+          isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
+        );
+        id = created.draftId;
+        setDraftId(id);
+        writeArchitectureCreationDraftId(id);
+      }
+
+      await patchDraftRequest(id, {
+        freeTextIntent: freeTextIntent.trim(),
+        businessOutcome: businessOutcome.trim(),
+        systemName: systemName.trim() || undefined,
+        actorSet: normalizeActorSetForAdmission(actorSet),
+        focusedPilotModeEnabled,
+        workflowIntent: CREATE_ARCHITECTURE_INTENT,
+      });
+
+      const questions = await getDraftQuestions(id);
+      setAllQuestions(questions.selection.allQuestions);
+      setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
+      setPendingQuestions(questions.selection.pendingMustQuestions);
+      setSavedLocallyQuestionKeys(new Set());
+      setViewAllClarifications(false);
+      setStep(1);
+      showSuccess("Continue with the architecture discovery questions.");
+    } catch (error) {
+      setSubmitError(error);
+      if (isApiRequestError(error)) {
+        showError("Architecture creation", error.message);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [actorSet, businessOutcome, draftId, focusedPilotModeEnabled, freeTextIntent, isCreateArchitectureFlow, systemName]);
+
   const runAdmission = useCallback(async () => {
     setBusy(true);
     setSubmitError(null);
@@ -186,7 +332,10 @@ export function SocraticIntakeWizard() {
     setRedirectVerdict(null);
 
     try {
-      const created = await createDraftRequest(freeTextIntent.trim());
+      const created = await createDraftRequest(
+        freeTextIntent.trim(),
+        isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
+      );
       const id = created.draftId;
       setDraftId(id);
 
@@ -196,6 +345,7 @@ export function SocraticIntakeWizard() {
         systemName: systemName.trim() || undefined,
         actorSet: normalizeActorSetForAdmission(actorSet),
         focusedPilotModeEnabled,
+        workflowIntent: isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
       });
 
       const admission = await admitDraftRequest(id);
@@ -320,8 +470,32 @@ export function SocraticIntakeWizard() {
         return;
       }
 
-      showSuccess("Architecture review started from guided intake.");
-      router.push(buildReviewGenerationRedirect(result.runId, "socratic-intake"));
+      showSuccess(
+        isCreateArchitectureFlow
+          ? "Architecture draft created — opening your architecture workspace."
+          : "Architecture review started from guided intake.",
+      );
+
+      if (isCreateArchitectureFlow) {
+        recordArchitectureCreationHandoff({
+          runId: result.runId,
+          architectureName: systemName.trim(),
+          architectureOverview: freeTextIntent.trim(),
+          businessOutcome: businessOutcome.trim(),
+          peopleAndSystems: actorSet.actors.map((actor) => ({
+            label: actor.label?.trim() || actor.kind,
+            kind: actor.kind,
+          })),
+        });
+      }
+
+      router.push(
+        buildReviewGenerationRedirect(
+          result.runId,
+          isCreateArchitectureFlow ? "create-architecture" : "socratic-intake",
+          { architectureCreation: isCreateArchitectureFlow },
+        ),
+      );
     } catch (error) {
       setSubmitError(error);
       if (isApiRequestError(error)) {
@@ -330,14 +504,18 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [draftId, parentSpawnedRunId, router]);
+  }, [actorSet.actors, businessOutcome, draftId, freeTextIntent, isCreateArchitectureFlow, parentSpawnedRunId, router, systemName]);
 
   return (
     <div className="space-y-4" data-testid="socratic-intake-wizard">
-      <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")} data-testid="socratic-intake-progress">
-        {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}
-      </p>
-      <DraftIntakeClaimLabel surface="structural-admission" />
+      {!isCreateArchitectureFlow ? (
+        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")} data-testid="socratic-intake-progress">
+          {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}
+        </p>
+      ) : null}
+      {!isCreateArchitectureFlow ? (
+        <DraftIntakeClaimLabel surface="structural-admission" />
+      ) : null}
 
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
@@ -389,74 +567,172 @@ export function SocraticIntakeWizard() {
 
       {step === 0 ? (
         <Card>
-          <CardHeader>
-            <CardTitle>{INTAKE_STEPS[0].cardTitle}</CardTitle>
-            <CardDescription>{INTAKE_STEPS[0].description}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          {!isCreateArchitectureFlow ? (
+            <CardHeader>
+              <CardTitle>{INTAKE_STEPS[0].cardTitle}</CardTitle>
+              <CardDescription>{INTAKE_STEPS[0].description}</CardDescription>
+            </CardHeader>
+          ) : null}
+          <CardContent className={cn(isCreateArchitectureFlow ? "space-y-6" : "space-y-4", isCreateArchitectureFlow && "pt-4")}>
             <div className="space-y-2">
-              <Label htmlFor="socratic-intent">Architecture intent (required)</Label>
+              <IntakeFieldLabel
+                htmlFor="socratic-intent"
+                label={
+                  isCreateArchitectureFlow
+                    ? GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL
+                    : "Architecture intent"
+                }
+                required
+              />
               <Textarea
                 id="socratic-intent"
                 value={freeTextIntent}
                 onChange={(event) => setFreeTextIntent(event.target.value)}
-                rows={3}
+                rows={isCreateArchitectureFlow ? 4 : 3}
                 disabled={busy}
-                placeholder={GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER}
+                placeholder={
+                  isCreateArchitectureFlow
+                    ? GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER
+                    : GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER
+                }
                 data-testid="socratic-intent"
                 aria-invalid={intentTrimmedLength > 0 && !intentMeetsMinimum}
                 aria-describedby="socratic-intent-helper"
+                aria-required
               />
               <p
                 id="socratic-intent-helper"
-                className={OPERATOR_TYPOGRAPHY.helper}
+                className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
                 role={intentTrimmedLength > 0 && !intentMeetsMinimum ? "alert" : "status"}
                 data-testid="socratic-intent-helper"
               >
-                {guidedIntakeArchitectureIntentHelperText(intentTrimmedLength)}
+                {isCreateArchitectureFlow
+                  ? guidedIntakeCreationArchitectureOverviewHelperText(intentTrimmedLength)
+                  : guidedIntakeArchitectureIntentHelperText(intentTrimmedLength)}
               </p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="socratic-system-name">System name (optional)</Label>
-              <Input
-                id="socratic-system-name"
-                value={systemName}
-                onChange={(event) => setSystemName(event.target.value)}
-                disabled={busy}
-                data-testid="socratic-system-name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="socratic-outcome">Business outcome (required)</Label>
-              <Textarea
-                id="socratic-outcome"
-                value={businessOutcome}
-                onChange={(event) => setBusinessOutcome(event.target.value)}
-                rows={2}
-                disabled={busy}
-                placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
-                data-testid="socratic-outcome"
-              />
-            </div>
+
+            {isCreateArchitectureFlow ? (
+              <div className="space-y-2">
+                <IntakeFieldLabel
+                  htmlFor="socratic-outcome"
+                  label={GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}
+                  required
+                />
+                <Textarea
+                  id="socratic-outcome"
+                  value={businessOutcome}
+                  onChange={(event) => setBusinessOutcome(event.target.value)}
+                  rows={2}
+                  disabled={busy}
+                  placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
+                  data-testid="socratic-outcome"
+                  aria-invalid={outcomeTrimmedLength > 0 && !outcomeMeetsMinimum}
+                  aria-describedby="socratic-outcome-helper"
+                  aria-required
+                />
+                <p
+                  id="socratic-outcome-helper"
+                  className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+                  role={outcomeTrimmedLength > 0 && !outcomeMeetsMinimum ? "alert" : "status"}
+                  data-testid="socratic-outcome-helper"
+                >
+                  {outcomeTrimmedLength === 0
+                    ? GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER
+                    : outcomeMeetsMinimum
+                      ? `${outcomeTrimmedLength} characters.`
+                      : `${outcomeTrimmedLength} / ${MIN_OUTCOME_CHARS} characters. ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER}`}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <IntakeFieldLabel htmlFor="socratic-system-name" label="System name" required={false} />
+                  <Input
+                    id="socratic-system-name"
+                    value={systemName}
+                    onChange={(event) => setSystemName(event.target.value)}
+                    disabled={busy}
+                    data-testid="socratic-system-name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <IntakeFieldLabel htmlFor="socratic-outcome" label="Business outcome" required />
+                  <Textarea
+                    id="socratic-outcome"
+                    value={businessOutcome}
+                    onChange={(event) => setBusinessOutcome(event.target.value)}
+                    rows={2}
+                    disabled={busy}
+                    placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
+                    data-testid="socratic-outcome"
+                    aria-required
+                  />
+                </div>
+              </>
+            )}
+
             <DraftIntakeActorEditor
               actorSet={actorSet}
               intentText={freeTextIntent}
               disabled={busy}
+              creationFlow={isCreateArchitectureFlow}
               onChange={setActorSet}
             />
+
+            {isCreateArchitectureFlow ? (
+              <div className="space-y-2">
+                <IntakeFieldLabel
+                  htmlFor="socratic-system-name"
+                  label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL}
+                  required={false}
+                />
+                <Input
+                  id="socratic-system-name"
+                  value={systemName}
+                  onChange={(event) => setSystemName(event.target.value)}
+                  disabled={busy}
+                  data-testid="socratic-system-name"
+                />
+              </div>
+            ) : null}
+
             <PilotModePolicyPackToggle
               enabled={focusedPilotModeEnabled}
               onEnabledChange={setFocusedPilotModeEnabled}
+              presentation={isCreateArchitectureFlow ? "scope-card" : "checkbox"}
             />
+
+            {isCreateArchitectureFlow && !canAdvanceIntent && createArchitectureAdvanceHint.length > 0 ? (
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+                role="status"
+                data-testid="socratic-advance-hint"
+              >
+                {createArchitectureAdvanceHint}
+              </p>
+            ) : null}
+
             <Button
               type="button"
               disabled={!canAdvanceIntent}
               onClick={() => {
+                if (isCreateArchitectureFlow) {
+                  void runCreateArchitectureContinuation();
+                  return;
+                }
+
                 void runAdmission();
               }}
               data-testid="socratic-admit"
             >
-              {busy ? "Checking admission…" : GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS}
+              {busy
+                ? isCreateArchitectureFlow
+                  ? CREATE_ARCHITECTURE_STARTING_LABEL
+                  : "Checking admission…"
+                : isCreateArchitectureFlow
+                  ? GUIDED_INTAKE_CONTINUE_TO_DISCOVERY
+                  : GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS}
             </Button>
           </CardContent>
         </Card>
@@ -467,10 +743,14 @@ export function SocraticIntakeWizard() {
           <CardHeader>
             <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
             <CardDescription>
-              {activePendingQuestions.length === 0
-                ? "All required clarifications are answered or skipped. You can continue."
-                : `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`}{" "}
-              Your answers will be included when you review and submit.
+              {isCreateArchitectureFlow
+                ? GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION
+                : activePendingQuestions.length === 0
+                  ? "All required clarifications are answered or skipped. You can continue."
+                  : `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`}{" "}
+              {isCreateArchitectureFlow
+                ? "Your answers stay with the architecture draft until you choose to start a review."
+                : "Your answers will be included when you review and submit."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

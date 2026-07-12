@@ -7,16 +7,19 @@ vi.mock("./ReviewsNewPathSwitcher", () => ({
 }));
 
 vi.mock("@/components/usability/NewReviewSampleEscapeLink", () => ({
-  NewReviewSampleEscapeLink: () => null,
+  NewReviewSampleEscapeLink: () => <div data-testid="new-review-sample-escape" />,
 }));
 
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer-polish-copy";
+import { REVIEWS_NEW_CREATE_ARCHITECTURE_PAGE_LEAD } from "@/lib/reviews-new-path-copy";
 
 import NewRunPage from "./page";
 
 describe("Create architecture page", () => {
-  it("renders the title without an adjacent tooltip trigger", () => {
-    render(<NewRunPage />);
+  it("renders the title without an adjacent tooltip trigger", async () => {
+    const ui = await NewRunPage({ searchParams: Promise.resolve({}) });
+    render(ui);
 
     expect(screen.getByRole("heading", { level: 2, name: CREATE_ARCHITECTURE_LABEL }).parentElement).toHaveClass(
       "mt-6",
@@ -26,5 +29,18 @@ describe("Create architecture page", () => {
     expect(screen.queryByText(/pilot guidance/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-page-lead")).toHaveTextContent(REVIEWS_NEW_PAGE_LEAD);
     expect(screen.queryByText(/Guided intake/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("new-review-sample-escape")).toBeInTheDocument();
+  });
+
+  it("uses create-architecture page lead and hides the sample escape link", async () => {
+    const ui = await NewRunPage({
+      searchParams: Promise.resolve({ intent: CREATE_ARCHITECTURE_INTENT }),
+    });
+    render(ui);
+
+    expect(screen.getByTestId("reviews-new-page-lead")).toHaveTextContent(
+      REVIEWS_NEW_CREATE_ARCHITECTURE_PAGE_LEAD,
+    );
+    expect(screen.queryByTestId("new-review-sample-escape")).not.toBeInTheDocument();
   });
 });

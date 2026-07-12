@@ -1,236 +1,308 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
+import {
+  TRUST_ASSURANCE_CLASSIFICATIONS,
+  TRUST_ASSURANCE_GLANCE_PANELS,
+  TRUST_CENTER_HERO,
+  TRUST_CENTER_PUBLIC_EVIDENCE_VERSION,
+  TRUST_CENTER_SECURITY_EMAIL,
+  TRUST_CONTENT_CARDS,
+  TRUST_PLANNED_ASSURANCE_MILESTONES,
+  TRUST_PUBLIC_EVIDENCE_RELEASE,
+  TRUST_SECURITY_CONTACT,
+  type TrustAssuranceClassification,
+} from "@/lib/trust-center-buyer-content";
 
-/** Curated buyer Trust Center sections — avoids rendering raw repo markdown publicly. */
 export type MarketingTrustCenterBuyerBodyProps = {
   readonly lastReviewedUtc: string | null;
 };
 
-/** Public Trust Center structured layout (marketing route). Does not imply SOC&nbsp;2 CPA attestation or completed third-party penetration tests unless a published summary states otherwise. */
-export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBodyProps): ReactNode {
-  const { lastReviewedUtc } = props;
+function AssuranceClassificationTag(props: {
+  readonly classification: TrustAssuranceClassification;
+}): ReactNode {
+  const label: string = TRUST_ASSURANCE_CLASSIFICATIONS[props.classification];
+  const kind =
+    props.classification === "public"
+      ? "ready"
+      : props.classification === "planned"
+        ? "draft"
+        : "needs-attention";
 
   return (
-    <div className="space-y-10">
-      <header>
-        <h1 className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Trust Center</h1>
-        <p className={cn("mt-3 font-medium leading-relaxed text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-          Buyers can rely on published procurement artifacts today: control mapping and questionnaire-oriented summaries,
-          architecture and security documentation, and audit-ready evidence packages backed by immutable lifecycle logging for
-          material changes.
-        </p>
-        <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          Detailed diligence materials (questionnaire responses, subprocessors, tenancy detail) are delivered through your
-          procurement channel — coordinate intake via{" "}
-          <Link
-            href="#trust-contact-review"
-            className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
-          >
-            Security review contact
-          </Link>
-          .
-        </p>
+    <StatusTag
+      kind={kind}
+      label={label}
+      data-testid={`trust-classification-${props.classification}`}
+    />
+  );
+}
 
-        <p className={cn("mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {lastReviewedUtc !== null
-            ? `Last assurance content review (UTC): ${lastReviewedUtc}.`
-            : "Last assurance content review is refreshed with each assurance-cycle update."}
-        </p>
+function formatTrustReviewDate(lastReviewedUtc: string | null): string {
+  if (lastReviewedUtc === null) {
+    return "Updated with each assurance-cycle refresh";
+  }
 
-        <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 px-4 py-4">
-          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Assurance at a glance</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-lg border-2 border-blue-300/80 bg-white/90 p-4 shadow-sm dark:border-blue-800/70 dark:bg-neutral-950/50">
-              <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-                Available now
-              </p>
-              <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                <li>
-                  Procurement-ready architecture, operations, and security documentation packs you can submit during initial
-                  procurement review.
-                </li>
-                <li>
-                  Audit-ready evidence packages and questionnaire-oriented summaries, with immutable lifecycle logging for
-                  material changes.
-                </li>
-                <li>Published procurement artifacts mapped to common security-questionnaire structures.</li>
-              </ul>
-            </div>
-            <div className="rounded-md border border-blue-200/70 bg-white/80 p-3 dark:border-blue-900/60 dark:bg-neutral-950/40">
-              <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Shared during diligence
-              </p>
-              <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-                <li>CAIQ-lite / SIG–oriented summaries and questionnaire responses under confidentiality</li>
-                <li>
-                  Subprocessors and tenancy overview on request — start with{" "}
-                  <Link
-                    href="#trust-contact-review"
-                    className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
-                  >
-                    Security review contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div className="rounded-md border border-blue-200/70 bg-white/80 p-3 dark:border-blue-900/60 dark:bg-neutral-950/40">
-              <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Planned assurance activities
-              </p>
-              <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-                <li>
-                  Formal reports are distributed after completion, approval, and controlled release — aligned with your
-                  procurement calendar.
-                </li>
-              </ul>
-            </div>
-          </div>
+  const parsed: Date = new Date(lastReviewedUtc);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return lastReviewedUtc;
+  }
+
+  return parsed.toISOString().slice(0, 10);
+}
+
+/** Public Trust Center structured layout (marketing route). Does not imply SOC 2 CPA attestation or completed third-party penetration tests unless a published summary states otherwise. */
+export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBodyProps): ReactNode {
+  const { lastReviewedUtc } = props;
+  const reviewedLabel: string = formatTrustReviewDate(lastReviewedUtc);
+
+  return (
+    <div className="space-y-12" data-testid="trust-center-body">
+      <header className="space-y-5" data-testid="trust-center-hero">
+        <div className="max-w-3xl">
+          <h1 className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
+            {TRUST_CENTER_HERO.title}
+          </h1>
+          <p className={cn("mt-3 text-lg leading-relaxed text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            {TRUST_CENTER_HERO.subtitle}
+          </p>
+          <p className={cn("mt-2 max-w-prose leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            {TRUST_CENTER_HERO.intro}
+          </p>
         </div>
 
-        <div
-          className="mt-6 flex flex-wrap items-center gap-3"
-          data-testid="trust-center-primary-ctas"
-          aria-label="Trust Center primary actions"
-        >
-          <Button variant="primary" size="sm" asChild>
-            <Link href="mailto:security@archlucid.net">Request diligence materials</Link>
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+          <Button variant="primary" size="default" asChild data-testid="trust-center-primary-action">
+            <Link href={`mailto:${TRUST_CENTER_SECURITY_EMAIL}`}>Request diligence materials</Link>
           </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/security-trust">Security and trust detail</Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/privacy">Privacy disclosures</Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="#trust-contact-review">Security review contact</Link>
-          </Button>
+          <nav
+            className={cn("flex flex-wrap items-center gap-x-4 gap-y-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+            aria-label="Trust Center secondary actions"
+            data-testid="trust-center-secondary-links"
+          >
+            <Link href="#trust-public-evidence" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
+              View public evidence
+            </Link>
+            <Link href="#trust-contact-review" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
+              Contact security
+            </Link>
+            <Link href="/privacy" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
+              Privacy disclosures
+            </Link>
+            <Link href="/security-trust" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
+              Security and trust details
+            </Link>
+          </nav>
         </div>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <section
-          id="isolation-section"
-          aria-labelledby="trust-security-posture"
-          className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
+      <section aria-labelledby="trust-assurance-glance-heading" data-testid="trust-center-assurance-glance">
+        <h2
+          id="trust-assurance-glance-heading"
+          className={cn("font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}
         >
-          <h2 id="trust-security-posture" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-            Security posture summary
-          </h2>
-          <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            ArchLucid is built for regulated buyers: tenant isolation, scope-filtered APIs, immutable audit instrumentation for
-            material changes, and evidence packs suitable for questionnaires. Detailed control narratives and questionnaire
-            responses are shared during diligence.
-          </p>
-        </section>
-
-        <section
-          aria-labelledby="trust-assurance-artifacts"
-          className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
-        >
-          <h2 id="trust-assurance-artifacts" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-            Assurance artifacts
-          </h2>
-          <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            Request the current procurement-ready bundle containing questionnaire pre-fills (for example CAIQ-lite and SIG
-            oriented summaries), tenancy and subprocessors overview, SLA summary excerpts, incident response placeholders, and
-            security contact references. Detailed reports referenced in questionnaires are commonly shared under confidentiality.
-          </p>
-        </section>
-
-        <section
-          id="data-handling-section"
-          aria-labelledby="trust-data-handling"
-          className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
-        >
-          <h2 id="trust-data-handling" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-            Data handling &amp; privacy
-          </h2>
-          <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            ArchLucid stores architecture review evidence and governance metadata about systems customers describe — not a clinical
-            record system or patient-care record store.{" "}
-            The public demo uses illustrative data only and is not intended for regulated health data. Production deployments are
-            configured under contractual data-processing terms. Coordinate via the{" "}
-            <Link
-              href="#trust-contact-review"
-              className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+          Assurance at a glance
+        </h2>
+        <div className="mt-5 grid gap-4 lg:grid-cols-3" data-testid="trust-center-assurance-grid">
+          {TRUST_ASSURANCE_GLANCE_PANELS.map((panel) => (
+            <article
+              key={panel.id}
+              className="flex h-full flex-col rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
+              data-testid={`trust-glance-panel-${panel.id}`}
             >
-              Security review contact
-            </Link>{" "}
-            for privacy agreements. Plain-language disclosures live on the{" "}
-            <Link href="/privacy" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
-              Privacy
-            </Link>{" "}
-            page.
-          </p>
-        </section>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.cardTitle)}>
+                  {panel.title}
+                </h3>
+                <AssuranceClassificationTag classification={panel.classification} />
+              </div>
+              <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{panel.summary}</p>
+              <ul className={cn("m-0 mt-3 list-disc space-y-2 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+                {panel.bullets.map((bullet) => (
+                  <li key={bullet}>{bullet}</li>
+                ))}
+              </ul>
+              {panel.actionHref !== undefined && panel.actionLabel !== undefined ? (
+                <p className="mt-4">
+                  <Link
+                    href={panel.actionHref}
+                    className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+                  >
+                    {panel.actionLabel}
+                  </Link>
+                </p>
+              ) : null}
+            </article>
+          ))}
+        </div>
+      </section>
 
-        <section
-          aria-labelledby="trust-procurement"
-          className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
+      <section aria-labelledby="trust-primary-content-heading" data-testid="trust-center-content-grid">
+        <h2
+          id="trust-primary-content-heading"
+          className={cn("font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}
         >
-          <h2 id="trust-procurement" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-            Procurement questionnaire response package
-          </h2>
-          <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            Procurement teams reuse structured answers mapped to ArchLucid&rsquo;s reusable procurement evidence catalogue. Submit
-            your intake form requirements and stakeholder list via the{" "}
-            <Link
-              href="#trust-contact-review"
-              className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+          Trust content
+        </h2>
+        <div className="mt-5 grid gap-5 md:grid-cols-2">
+          {TRUST_CONTENT_CARDS.map((card) => (
+            <article
+              key={card.id}
+              id={card.sectionId}
+              className="flex h-full flex-col rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
+              data-testid={`trust-content-card-${card.id}`}
             >
-              Security review contact
-            </Link>{" "}
-            so we align the diligence package to your process.
-          </p>
-        </section>
-      </div>
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.cardTitle)}>
+                  {card.title}
+                </h3>
+                <AssuranceClassificationTag classification={card.classification} />
+              </div>
+              <p className={cn("m-0 mt-3 max-w-prose flex-1 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+                {card.description}
+              </p>
+              <p className="mt-4">
+                <Link
+                  href={card.actionHref}
+                  className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+                >
+                  {card.actionLabel}
+                </Link>
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
 
-      <section aria-labelledby="trust-planned-assurance">
-        <h2 id="trust-planned-assurance" className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
+      <section id="trust-planned-assurance" aria-labelledby="trust-planned-assurance-heading" data-testid="trust-center-planned-assurance">
+        <h2
+          id="trust-planned-assurance-heading"
+          className={cn("font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}
+        >
           Planned assurance
         </h2>
-        <p className={cn("mt-2 max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          Planned assurance activities below — timelines align with your procurement calendar.
+        <p className={cn("mt-2 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          Roadmap items below describe intended programs. ArchLucid does not state certification, attestation, or independent
+          validation unless a published summary explicitly says so.
         </p>
-        <ul className={cn("mt-3 max-w-3xl list-disc space-y-2 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          <li>
-            <span className="font-medium text-neutral-900 dark:text-neutral-100">SOC&nbsp;2 program:</span> readiness mapping
-            and control baselines continue on a published cadence. Planned attestations and third-party reports are
-            distributed only after completion, approval, and release through the appropriate procurement channel.
-          </li>
-          <li>
-            <span className="font-medium text-neutral-900 dark:text-neutral-100">Penetration testing:</span> independent
-            third-party testing is planned for the next assurance cycle; redacted summaries are provided when approved for
-            distribution.
-          </li>
-          <li>
-            Internal security assessments continue on a rolling cadence; detailed summaries are shared during diligence under
-            confidentiality.
-          </li>
-        </ul>
+        <div className="mt-5 overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-800">
+          <table className="w-full min-w-[40rem] border-collapse text-left">
+            <thead className="bg-neutral-50 dark:bg-neutral-900/60">
+              <tr>
+                <th scope="col" className={cn("px-4 py-3 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  Activity
+                </th>
+                <th scope="col" className={cn("px-4 py-3 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  Status
+                </th>
+                <th scope="col" className={cn("px-4 py-3 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  Timing
+                </th>
+                <th scope="col" className={cn("px-4 py-3 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  Deliverable
+                </th>
+                <th scope="col" className={cn("px-4 py-3 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  Availability
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {TRUST_PLANNED_ASSURANCE_MILESTONES.map((milestone) => (
+                <tr key={milestone.id} className="border-t border-neutral-200 dark:border-neutral-800">
+                  <td className={cn("px-4 py-3 align-top text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                    <div className="space-y-2">
+                      <p className="m-0 font-medium">{milestone.activity}</p>
+                      <AssuranceClassificationTag classification={milestone.classification} />
+                    </div>
+                  </td>
+                  <td className={cn("px-4 py-3 align-top text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{milestone.status}</td>
+                  <td className={cn("px-4 py-3 align-top text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{milestone.timing}</td>
+                  <td className={cn("px-4 py-3 align-top text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{milestone.deliverable}</td>
+                  <td className={cn("px-4 py-3 align-top text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{milestone.availability}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section
+        id="trust-public-evidence"
+        aria-labelledby="trust-public-evidence-heading"
+        className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
+        data-testid="trust-center-public-evidence"
+      >
+        <h2
+          id="trust-public-evidence-heading"
+          className={cn("font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}
+        >
+          Public evidence release
+        </h2>
+        <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <dt className={cn("font-medium text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>Artifact name</dt>
+            <dd className={cn("m-0 mt-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{TRUST_PUBLIC_EVIDENCE_RELEASE.artifactName}</dd>
+          </div>
+          <div>
+            <dt className={cn("font-medium text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>Version</dt>
+            <dd className={cn("m-0 mt-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="trust-evidence-version">
+              {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-medium text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>Last reviewed</dt>
+            <dd className={cn("m-0 mt-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="trust-evidence-reviewed">
+              {reviewedLabel}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-medium text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>Availability</dt>
+            <dd className="m-0 mt-1">
+              <AssuranceClassificationTag classification={TRUST_PUBLIC_EVIDENCE_RELEASE.classification} />
+            </dd>
+          </div>
+        </dl>
+        <p className={cn("m-0 mt-4 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          {TRUST_PUBLIC_EVIDENCE_RELEASE.description}
+        </p>
+        <p className="mt-4">
+          <Link
+            href={`mailto:${TRUST_CENTER_SECURITY_EMAIL}?subject=${encodeURIComponent(TRUST_PUBLIC_EVIDENCE_RELEASE.requestSubject)}`}
+            className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+            data-testid="trust-center-evidence-request-link"
+          >
+            Request public evidence summary
+          </Link>
+        </p>
       </section>
 
       <section
         id="trust-contact-review"
         aria-labelledby="trust-contact-review-heading"
-        className="rounded-xl border-2 border-neutral-200 bg-white px-5 py-5 shadow-md dark:border-neutral-700 dark:bg-neutral-900/50"
+        className="rounded-xl border border-neutral-200 bg-neutral-50 px-6 py-6 dark:border-neutral-700 dark:bg-neutral-900/50"
+        data-testid="trust-center-security-contact"
       >
-        <h2 id="trust-contact-review-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
-          Security contact
+        <h2
+          id="trust-contact-review-heading"
+          className={cn("font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}
+        >
+          {TRUST_SECURITY_CONTACT.title}
         </h2>
-        <p className={cn("mt-2 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          Email{" "}
+        <p className={cn("m-0 mt-3 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          {TRUST_SECURITY_CONTACT.intro}
+        </p>
+        <p className={cn("m-0 mt-4", OPERATOR_TYPOGRAPHY.body)}>
           <Link
-            className="font-medium text-blue-800 underline underline-offset-2 hover:text-blue-950 dark:text-blue-300 dark:hover:text-blue-200"
-            href="mailto:security@archlucid.net"
+            className="font-semibold text-blue-800 underline underline-offset-2 hover:text-blue-950 dark:text-blue-300 dark:hover:text-blue-200"
+            href={`mailto:${TRUST_CENTER_SECURITY_EMAIL}`}
           >
-            security@archlucid.net
+            {TRUST_CENTER_SECURITY_EMAIL}
           </Link>
-          . We send the current public-safe evidence summary by email to ensure buyers receive the latest approved version.
         </p>
       </section>
     </div>

@@ -24,7 +24,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Overview → Create architecture → Review packages → Executive dashboard; then First review guide and governance follow-up.",
+        "Buyer-first path: Overview → Create architecture → Architecture packages → Executive dashboard; then First review guide and governance follow-up.",
       links: [
         {
           href: "/",
@@ -46,7 +46,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/reviews?projectId=default",
           label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
-          title: this.shortcutTitle("Browse finalized review packages", "alt+r"),
+          title: this.shortcutTitle("Browse finalized architecture packages", "alt+r"),
           keyShortcut: "alt+r",
           icon: ListOrdered,
           tier: "essential",

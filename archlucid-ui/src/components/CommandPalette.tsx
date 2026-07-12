@@ -35,7 +35,6 @@ import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path
 import { resetBuyerCtoDemoSession } from "@/lib/buyer-cto-demo-orchestration";
 import {
   ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
-  getStartCtoDemoTourHref,
 } from "@/lib/buyer-cto-demo-tour";
 import {
   COMMAND_PALETTE_RESET_DEMO_LABEL,
@@ -361,9 +360,8 @@ function CommandPaletteDemoActions({
       <CommandItem
         value={`demo ${COMMAND_PALETTE_START_CTO_DEMO_LABEL} tour start`}
         onSelect={() => {
-          window.dispatchEvent(new Event(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT));
           onClose();
-          onNavigate(getStartCtoDemoTourHref());
+          window.dispatchEvent(new Event(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT));
         }}
       >
         {COMMAND_PALETTE_START_CTO_DEMO_LABEL}

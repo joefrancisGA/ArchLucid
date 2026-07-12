@@ -6,9 +6,11 @@ import {
   Gavel,
   GitBranch,
   History,
+  Lightbulb,
   Scale,
   Shield,
   ShieldX,
+  SlidersHorizontal,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
@@ -79,6 +81,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
+          href: "/advisory",
+          label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
+          title: "Generate prioritized follow-up recommendations from finalized review packages",
+          icon: Lightbulb,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
           href: "/governance/audit",
           label: OPERATOR_NAV_LINK_LABELS.auditTrail,
           title: "See who did what and when",
@@ -92,6 +102,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           title: this.shortcutTitle("Review items needing attention", "alt+l"),
           keyShortcut: "alt+l",
           icon: Bell,
+          tier: "advanced",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/governance/alert-rules",
+          label: OPERATOR_NAV_LINK_LABELS.alertRules,
+          title: "Configure alert rules, routing, and simulation",
+          icon: SlidersHorizontal,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",
         },

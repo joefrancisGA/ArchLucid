@@ -26,7 +26,12 @@ export function StalledReviewGuidanceCallout(props: StalledReviewGuidanceCallout
         <Button asChild type="button" size="sm" variant="outline">
           <Link href={`/reviews/${encodeURIComponent(props.runId)}`}>Refresh review detail</Link>
         </Button>
-        <InAppHelpLink helpSlug="troubleshooting" label="Troubleshooting guide" variant="text" />
+        <InAppHelpLink
+          helpSlug="troubleshooting"
+          hashFragment="review-package-does-not-open"
+          label="Troubleshooting guide"
+          variant="text"
+        />
       </div>
     </OperatorWarningCallout>
   );

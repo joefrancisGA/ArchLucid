@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Remove resurrected legacy UI route traffic workbook after branch checkout.
+set -eu
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+LEGACY="$REPO_ROOT/docs/architecture/ui_route_traffic_estimates.md"
+
+if [ ! -f "$LEGACY" ]; then
+    exit 0
+fi
+
+if git -C "$REPO_ROOT" ls-files --error-unmatch "docs/architecture/ui_route_traffic_estimates.md" >/dev/null 2>&1; then
+    rm -f "$LEGACY"
+    echo "[post-checkout] Removed tracked legacy ui_route_traffic_estimates.md."
+    echo "[post-checkout] Owner workbook: .local/owner/ui_route_traffic_estimates.md"
+fi

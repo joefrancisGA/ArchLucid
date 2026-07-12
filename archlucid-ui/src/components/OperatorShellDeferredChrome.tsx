@@ -1,0 +1,34 @@
+"use client";
+
+import type { RefObject } from "react";
+
+import { AppToaster } from "@/components/AppToaster";
+import { OperatorShellAccessGateLoading } from "@/components/OperatorShellAccessGateLoading";
+import { RouteAnnouncer } from "@/components/RouteAnnouncer";
+
+type OperatorShellDeferredChromeProps = {
+  shellRootRef: RefObject<HTMLDivElement | null>;
+};
+
+/** Full-viewport neutral shell while access gates resolve — no sidebar or top bar (TB-730). */
+export function OperatorShellDeferredChrome({ shellRootRef }: OperatorShellDeferredChromeProps) {
+  return (
+    <>
+      <div
+        ref={shellRootRef}
+        data-testid="operator-shell-access-gate-root"
+        className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950"
+      >
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex flex-1 flex-col px-4 py-4 outline-none focus:outline-none lg:px-6 lg:py-6"
+        >
+          <OperatorShellAccessGateLoading />
+        </main>
+      </div>
+      <AppToaster />
+      <RouteAnnouncer />
+    </>
+  );
+}

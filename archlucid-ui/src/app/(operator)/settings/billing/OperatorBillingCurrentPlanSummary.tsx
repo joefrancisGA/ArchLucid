@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -11,7 +12,9 @@ import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-se
 import {
   fetchLlmMonthlyDollarBudgetStatusCached,
   llmBudgetRemainingPercent,
+  llmBudgetUtilizationPercent,
 } from "@/lib/llm-monthly-budget-status";
+import { OPERATOR_BILLING_TIER_CTAS } from "@/lib/marketing/marketing-public-pricing";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
@@ -35,6 +38,8 @@ export function OperatorBillingCurrentPlanSummary() {
   const { data: trialPayload } = useTenantTrialStatusQuery();
   const [workspaceLabel, setWorkspaceLabel] = useState<string | null>(null);
   const [aiBudgetRemainingPercent, setAiBudgetRemainingPercent] = useState<number | null>(null);
+  const [includedAiBudgetUsd, setIncludedAiBudgetUsd] = useState<number | null>(null);
+  const [aiUsedPercent, setAiUsedPercent] = useState<number | null>(null);
 
   useEffect(() => {
     const syncScopeLabel = () => {
@@ -58,10 +63,14 @@ export function OperatorBillingCurrentPlanSummary() {
 
         if (!cancelled) {
           setAiBudgetRemainingPercent(llmBudgetRemainingPercent(status));
+          setIncludedAiBudgetUsd(status.effectiveHardCapUsd);
+          setAiUsedPercent(llmBudgetUtilizationPercent(status));
         }
       } catch {
         if (!cancelled) {
           setAiBudgetRemainingPercent(null);
+          setIncludedAiBudgetUsd(null);
+          setAiUsedPercent(null);
         }
       }
     })();
@@ -91,34 +100,56 @@ export function OperatorBillingCurrentPlanSummary() {
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Current plan</CardTitle>
         <CardDescription>{view.supportingLine}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3 pt-0">
+      <CardContent className="space-y-4 pt-0">
         <dl className={cn("grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
           <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Status</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">Plan</dt>
             <dd className="font-medium text-al-text-primary">{view.headline}</dd>
           </div>
-          {view.aiBudgetRemainingPercent !== null ? (
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Status</dt>
+            <dd className="font-medium text-al-text-primary">
+              {view.hasPaidPlan ? "Active paid plan" : "No active subscription"}
+            </dd>
+          </div>
+          {includedAiBudgetUsd !== null ? (
             <div>
-              <dt className="text-neutral-500 dark:text-neutral-400">AI budget</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">Included AI usage</dt>
+              <dd className="font-medium tabular-nums text-al-text-primary">${includedAiBudgetUsd.toFixed(0)} / month</dd>
+            </div>
+          ) : null}
+          {aiUsedPercent !== null ? (
+            <div>
+              <dt className="text-neutral-500 dark:text-neutral-400">Used this month</dt>
               <dd className="font-medium tabular-nums text-al-text-primary">
-                {view.aiBudgetRemainingPercent}% remaining{" "}
-                <Link
-                  href="#billing-usage"
-                  className={cn(OPERATOR_TYPOGRAPHY.micro, OPERATOR_LINK.nav)}
-                >
-                  View usage
+                {aiUsedPercent}%{" "}
+                <Link href="#billing-usage" className={cn(OPERATOR_TYPOGRAPHY.micro, OPERATOR_LINK.nav)}>
+                  View details
                 </Link>
               </dd>
             </div>
           ) : null}
+          {view.aiBudgetRemainingPercent !== null ? (
+            <div>
+              <dt className="text-neutral-500 dark:text-neutral-400">Remaining</dt>
+              <dd className="font-medium tabular-nums text-al-text-primary">{view.aiBudgetRemainingPercent}% of plan allowance</dd>
+            </div>
+          ) : null}
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Workspaces</dt>
+            <dd className="font-medium text-al-text-primary">{view.workspaceLabel ?? "1 workspace in scope"}</dd>
+          </div>
         </dl>
+
         {!view.hasPaidPlan ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link href="#billing-plans" className={OPERATOR_LINK.nav}>
-              Choose a plan
-            </Link>{" "}
-            to activate paid packaging for this workspace.
-          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="primary" size="sm" asChild>
+              <Link href="#billing-plans">{OPERATOR_BILLING_TIER_CTAS.architect.primaryLabel}</Link>
+            </Button>
+            <Button type="button" variant="outline" size="sm" asChild>
+              <Link href="#billing-plans">Compare available plans</Link>
+            </Button>
+          </div>
         ) : null}
       </CardContent>
     </Card>

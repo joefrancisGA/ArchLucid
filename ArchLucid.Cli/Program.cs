@@ -598,6 +598,17 @@ public static class Program
                 case "deployment-evidence":
                     return await DeploymentEvidenceCommand.RunAsync(normalized.Skip(1).ToArray());
 
+                case "docs":
+                    if (normalized.Length > 2
+                        && string.Equals(normalized[1], "pdf", StringComparison.Ordinal)
+                        && string.Equals(normalized[2], "render", StringComparison.Ordinal))
+                        return await DocsPdfRenderCommand.RunAsync(normalized.Skip(3).ToArray());
+
+                    Console.WriteLine(
+                        "Usage: archlucid docs pdf render --markdown <path.md> --metadata <metadata.json> --out <path.pdf>");
+
+                    return CliExitCode.UsageError;
+
                 case "support":
                     if (normalized.Length > 2
                         && string.Equals(normalized[1], "incident-readiness-drill", StringComparison.OrdinalIgnoreCase))

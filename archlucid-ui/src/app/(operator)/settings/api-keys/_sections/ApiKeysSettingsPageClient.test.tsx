@@ -1,14 +1,23 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ApiKeysSettingsPageClient } from "./ApiKeysSettingsPageClient";
+import { ApiKeysSettingsRestrictedState } from "./ApiKeysSettingsRestrictedState";
+
+vi.mock("@/lib/api-keys-settings-access", () => ({
+  isApiKeysSettingsSurfaceEnabled: () => true,
+}));
+
+vi.mock("@/lib/internal-operator-env", () => ({
+  isArchLucidInternalOperatorShellEnv: () => false,
+}));
 
 describe("ApiKeysSettingsPageClient", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it("loads masked status and shows rotate reveal", async () => {
+  it("loads masked fingerprints without internal config names and requires admin rotate confirmation", async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
 
@@ -45,13 +54,40 @@ describe("ApiKeysSettingsPageClient", () => {
     render(<ApiKeysSettingsPageClient />);
 
     await waitFor(() => {
-      expect(screen.getByText("****cdef")).toBeInTheDocument();
+      expect(screen.getByText("Ends in cdef")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Rotate admin key (replace)" }));
+    expect(screen.queryByText("Authentication:ApiKey:Enabled")).not.toBeInTheDocument();
+    expect(screen.queryByText("DevelopmentBypassAll")).not.toBeInTheDocument();
+    expect(screen.queryByText("Key Vault")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Rotate admin key" }));
+
+    const dialog = await screen.findByRole("alertdialog");
+    const confirmButton = within(dialog).getByRole("button", { name: "Rotate admin key" });
+    expect(confirmButton).toBeDisabled();
+
+    fireEvent.change(screen.getByTestId("api-key-confirm-phrase"), { target: { value: "Rotate admin key" } });
+    expect(confirmButton).not.toBeDisabled();
+
+    fireEvent.click(confirmButton);
 
     await waitFor(() => {
       expect(screen.getByTestId("api-key-plaintext")).toHaveValue("newkeymaterial");
     });
+
+    expect(screen.getByText("Copy this key now. ArchLucid will not show it again.")).toBeInTheDocument();
+    expect(screen.getByText("Admin key rotated")).toBeInTheDocument();
+  });
+
+  it("shows restricted state when surface is disabled", () => {
+    render(<ApiKeysSettingsRestrictedState reason="surface_disabled" />);
+
+    expect(screen.getByTestId("api-keys-settings-restricted")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "API key management is not available in this workspace experience. Contact your ArchLucid representative for enterprise API access.",
+      ),
+    ).toBeInTheDocument();
   });
 });

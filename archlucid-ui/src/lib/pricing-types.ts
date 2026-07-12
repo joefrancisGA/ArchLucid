@@ -3,6 +3,13 @@ export type PricingPackage = {
   id: string;
   title: string;
   summary: string;
+  /** Single buyer-facing monthly price when the plan is self-serve bundled. */
+  planMonthlyUsd?: number;
+  /** When `"custom"`, public surfaces show Custom instead of a list price. */
+  pricingDisplay?: "monthly" | "custom";
+  includedUsers?: number;
+  includedWorkspaces?: number;
+  monthlyAiCredits?: number;
   workspaceMonthlyUsd?: number;
   maxWorkspaces?: number;
   includedArchitectSeats?: number;
@@ -24,6 +31,12 @@ export type PricingDoc = {
   teamStripeCheckoutUrl?: string | null;
   /** Must be true when `teamStripeCheckoutUrl` contains CI placeholder markers — see `scripts/ci/pricing_json_checkout_guard.py`. */
   teamStripeCheckoutUrlSalesLedPlaceholder?: boolean;
+  /**
+   * Optional Stripe Checkout URL for the Architect self-serve tier (same placeholder discipline as Team).
+   */
+  architectStripeCheckoutUrl?: string | null;
+  architectStripeCheckoutUrlSalesLedPlaceholder?: boolean;
+  architectStripeCheckoutUrlStripeTestMode?: boolean;
   /**
    * When true, marks a Stripe **test-mode** hosted Checkout / Payment Link (`cs_test_*`, `buy.stripe.com/test_*`)
    * or other explicitly non-production checkout URL. CI enforces this for hosted Stripe test patterns; omit or

@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 
 import { CtoDemoHowItWorksTrigger } from "@/components/cto-demo/CtoDemoHowItWorksTrigger";
-import { CtoDemoPreflightGate } from "@/components/cto-demo/CtoDemoPreflightGate";
+import { CtoDemoCustomerPreflightGate } from "@/components/cto-demo/CtoDemoCustomerPreflightGate";
 import { CtoDemoRecapCard } from "@/components/cto-demo/CtoDemoRecapCard";
 import { CtoDemoSoftRestartButton } from "@/components/cto-demo/CtoDemoSoftRestartButton";
 import { CtoDemoStorySelector } from "@/components/cto-demo/CtoDemoStorySelector";
@@ -35,6 +35,7 @@ import {
   buyerCtoDemoStepBudgetSeconds,
   formatCtoDemoStepBudgetLabel,
   formatCtoDemoStepTimer,
+  getStartCtoDemoTourHref,
   readBuyerCtoDemoAutoplay,
   readBuyerCtoDemoExploreMode,
   readBuyerCtoDemoPreflightAcknowledged,
@@ -673,9 +674,20 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
               {BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
             </Button>
           </div>
-          <CtoDemoPreflightGate
+          <CtoDemoCustomerPreflightGate
             onAcknowledged={() => {
               setPreflightAcknowledged(true);
+
+              if (!readBuyerCtoDemoPreflightAcknowledged()) {
+                return;
+              }
+
+              const destination = getStartCtoDemoTourHref();
+              const destinationPath = destination.split("?")[0] ?? destination;
+
+              if (pathname !== destinationPath) {
+                router.push(destination);
+              }
             }}
           />
           <div className="mt-3">

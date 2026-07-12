@@ -16,7 +16,7 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { formatUtc } from "@/app/(operator)/audit/_sections/audit-page-helpers";
+import { formatUtc } from "@/app/(operator)/governance/audit/_sections/audit-page-helpers";
 import type { AuditEvent } from "@/lib/api";
 import { GOVERNANCE_BYPASS_INVOKED_EVENT_TYPE, parseGovernanceBypassAuditPayload } from "@/lib/governance-bypass-audit-payload";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";

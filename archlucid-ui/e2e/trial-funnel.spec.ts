@@ -8,7 +8,7 @@ import { backendApiPath } from "./helpers/route-match";
  *
  * Covers the deterministic happy path described in `docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`:
  *
- *  1. Marketing `/signup` form (custom baseline path: tenant-supplied hours).
+ *  1. Marketing `/signup` form (required fields only).
  *  2. `POST /api/proxy/v1/register` → 201 with stub tenant identifiers.
  *  3. Redirect to `/signup/verify?email=...` (verification UI rendered).
  *  4. Operator dashboard `/` shows `BeforeAfterDeltaPanel` with the captured baseline (16 h)
@@ -132,7 +132,7 @@ async function installFunnelMocks(page: Page, capture: RegisterCapture): Promise
 }
 
 test.describe("trial funnel — mocked end-to-end", () => {
-  test("signup form forwards the optional baseline + dashboard renders the before-vs-measured delta", async ({
+  test("signup form provisions workspace and dashboard renders the before-vs-measured delta", async ({
     page,
   }) => {
     const capture: RegisterCapture = { body: null };
@@ -144,20 +144,15 @@ test.describe("trial funnel — mocked end-to-end", () => {
     await page.getByLabel(/Full name/i).fill("Ops User");
     await page.getByLabel(/Organization name/i).fill("Contoso Trial Org");
 
-    await page.getByTestId("signup-baseline-choice-custom").click();
-
-    await page.getByTestId("signup-baseline-hours").fill("16");
-    await page.getByTestId("signup-baseline-source").fill("team estimate");
-
-    await page.getByRole("button", { name: /Create your workspace/i }).click();
+    await page.getByRole("button", { name: /Create evaluation workspace/i }).click();
 
     await expect(page).toHaveURL(/\/signup\/verify\?email=ops%40example\.com/);
 
     expect(capture.body).not.toBeNull();
     expect(capture.body?.adminEmail).toBe("ops@example.com");
     expect(capture.body?.organizationName).toBe("Contoso Trial Org");
-    expect(capture.body?.baselineReviewCycleHours).toBe(16);
-    expect(capture.body?.baselineReviewCycleSource).toBe("team estimate");
+    expect(capture.body?.baselineReviewCycleHours).toBeUndefined();
+    expect(capture.body?.baselineReviewCycleSource).toBeUndefined();
 
     /**
      * `TrialWelcomeRunDeepLink` normally redirects first-time home visitors to `/reviews/{trialWelcomeRunId}`.

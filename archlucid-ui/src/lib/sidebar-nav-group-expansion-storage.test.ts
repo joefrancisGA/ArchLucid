@@ -24,7 +24,6 @@ describe("sidebar-nav-group-expansion-storage", () => {
       "operate-governance": false,
       "operate-reports": false,
       "operate-integrations": false,
-      "operate-platform-ops": false,
       "operator-admin": true,
       "operator-system-admin": false,
     });
@@ -36,7 +35,6 @@ describe("sidebar-nav-group-expansion-storage", () => {
       "operate-governance": false,
       "operate-reports": false,
       "operate-integrations": false,
-      "operate-platform-ops": false,
       "operator-admin": true,
       "operator-system-admin": false,
     });

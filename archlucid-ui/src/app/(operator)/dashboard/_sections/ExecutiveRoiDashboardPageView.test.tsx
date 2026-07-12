@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/SeedSampleReviewButton", () => ({
-  SeedSampleReviewButton: () => <button type="button">Load sample workspace</button>,
+  SeedSampleReviewButton: () => <button type="button">Load sample dashboard</button>,
 }));
 
 vi.mock("@/components/executive/ExecutiveDashboardDataContext", () => ({
@@ -56,7 +56,8 @@ describe("ExecutiveRoiDashboardPageView executive surface", () => {
 
     expect(screen.getByTestId("executive-dashboard-empty-state")).toBeInTheDocument();
     expect(screen.getByTestId("executive-dashboard-page-hero")).toHaveAttribute("data-dashboard-empty", "true");
-    expect(screen.getByTestId("executive-dashboard-empty-preview")).toBeInTheDocument();
+    expect(screen.getByTestId("executive-dashboard-preview-metrics")).toBeInTheDocument();
+    expect(screen.getByTestId("executive-dashboard-how-it-works")).toBeInTheDocument();
     expect(screen.queryByTestId("executive-primary-decisions-needed")).not.toBeInTheDocument();
     expect(screen.getByTestId("sponsor-exports-section")).toHaveAttribute("data-surface", "executive");
     expect(screen.getByRole("heading", { name: "Executive dashboard" })).toBeInTheDocument();

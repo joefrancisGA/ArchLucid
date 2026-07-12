@@ -3,8 +3,13 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
+import { OperatorShellAccessGateLoading } from "@/components/OperatorShellAccessGateLoading";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { operatorPrincipalLacksArchLucidAccess } from "@/lib/access-denied-context";
+import {
+  pathnameExemptFromOperatorAccessGate,
+  shouldDeferOperatorShellChrome,
+} from "@/lib/operator-shell-access-gate";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 
@@ -24,7 +29,7 @@ export function OperatorRoleGate({ children }: OperatorRoleGateProps) {
   const lacksArchLucidAccess = operatorPrincipalLacksArchLucidAccess(currentPrincipal, { jwtSignedIn });
 
   useEffect(() => {
-    if (pathname === "/403" || pathname.startsWith("/auth/")) {
+    if (pathnameExemptFromOperatorAccessGate(pathname)) {
       return;
     }
 
@@ -33,6 +38,8 @@ export function OperatorRoleGate({ children }: OperatorRoleGateProps) {
     }
 
     if (isJwtAuthMode() && !isLikelySignedIn()) {
+      router.replace("/welcome");
+
       return;
     }
 
@@ -41,10 +48,18 @@ export function OperatorRoleGate({ children }: OperatorRoleGateProps) {
     }
 
     router.replace("/403");
-  }, [currentPrincipal, isAuthorityLoading, lacksArchLucidAccess, pathname, router]);
+  }, [currentPrincipal, isAuthorityLoading, jwtSignedIn, lacksArchLucidAccess, pathname, router]);
 
-  if (pathname === "/403") {
+  if (pathnameExemptFromOperatorAccessGate(pathname)) {
     return <>{children}</>;
+  }
+
+  if (shouldDeferOperatorShellChrome(pathname, isAuthorityLoading)) {
+    return <OperatorShellAccessGateLoading />;
+  }
+
+  if (isJwtAuthMode() && !isLikelySignedIn()) {
+    return <OperatorShellAccessGateLoading />;
   }
 
   if (!isAuthorityLoading && lacksArchLucidAccess && (isJwtAuthMode() ? isLikelySignedIn() : true)) {

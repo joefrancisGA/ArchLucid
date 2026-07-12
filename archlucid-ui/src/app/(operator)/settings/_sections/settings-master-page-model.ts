@@ -1,4 +1,5 @@
 import { AUTHORITY_RANK, requiredAuthorityRank, type RequiredAuthority } from "@/lib/nav-authority";
+import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 
 import type { SettingsMasterDestination, SettingsMasterSection, SettingsMasterTier } from "./settings-master-types";
 
@@ -12,7 +13,6 @@ export type SettingsMasterPageModelInput = {
 
 export type SettingsMasterVisibleSection = SettingsMasterSection & {
   readonly destinations: readonly SettingsMasterDestination[];
-  readonly showAppearance: boolean;
   readonly showHelp: boolean;
   readonly showSupportBundle: boolean;
 };
@@ -96,6 +96,10 @@ export function buildSettingsMasterVisibleSections(
           return false;
         }
 
+        if (destination.id === "api-keys" && !isApiKeysSettingsSurfaceEnabled()) {
+          return false;
+        }
+
         if (!destinationMatchesQuery(destination, normalizedQuery) && !sectionMatchesQuery(section, normalizedQuery)) {
           return false;
         }
@@ -103,9 +107,6 @@ export function buildSettingsMasterVisibleSections(
         return true;
       });
 
-      const showAppearance =
-        section.id === "general"
-        && inlineGeneralMatchesQuery(normalizedQuery, ["appearance", "color", "theme", "general"]);
       const showHelp =
         section.id === "general"
         && inlineGeneralMatchesQuery(normalizedQuery, ["help", "guide", "general"]);
@@ -117,7 +118,6 @@ export function buildSettingsMasterVisibleSections(
       return {
         ...section,
         destinations,
-        showAppearance,
         showHelp,
         showSupportBundle,
       };
@@ -127,7 +127,7 @@ export function buildSettingsMasterVisibleSections(
         return true;
       }
 
-      return section.showAppearance || section.showHelp || section.showSupportBundle;
+      return section.showHelp || section.showSupportBundle;
     });
 }
 

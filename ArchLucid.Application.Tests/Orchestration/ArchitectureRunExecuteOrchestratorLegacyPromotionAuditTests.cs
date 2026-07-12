@@ -185,6 +185,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         await sut.ExecuteRunAsync(runId);

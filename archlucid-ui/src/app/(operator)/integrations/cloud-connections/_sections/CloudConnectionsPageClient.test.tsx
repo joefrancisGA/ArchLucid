@@ -1,0 +1,85 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/toast", () => ({
+  showError: vi.fn(),
+  showSuccess: vi.fn(),
+}));
+
+const listTier2Connections = vi.fn(async () => []);
+const listAwsTier2Connections = vi.fn(async () => []);
+const listGcpTier2Connections = vi.fn(async () => []);
+
+vi.mock("@/lib/api/cloud-connections-api", () => ({
+  listTier2Connections: (...args: unknown[]) => listTier2Connections(...args),
+  configureTier2Connection: vi.fn(),
+  validateTier2ConnectionHostedRun: vi.fn(),
+}));
+
+vi.mock("@/lib/api/aws-cloud-connections-api", () => ({
+  listAwsTier2Connections: (...args: unknown[]) => listAwsTier2Connections(...args),
+  configureAwsTier2Connection: vi.fn(),
+  disconnectAwsTier2Connection: vi.fn(),
+  triggerAwsTier2HostedRun: vi.fn(),
+}));
+
+vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
+  listGcpTier2Connections: (...args: unknown[]) => listGcpTier2Connections(...args),
+  configureGcpTier2Connection: vi.fn(),
+  disconnectGcpTier2Connection: vi.fn(),
+  triggerGcpTier2HostedRun: vi.fn(),
+}));
+
+import { CloudConnectionsPageClient } from "./CloudConnectionsPageClient";
+
+describe("CloudConnectionsPageClient", () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+    window.localStorage.clear();
+  });
+
+  it("renders cloud-neutral landing cards without inline provider setup forms", async () => {
+    render(<CloudConnectionsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cloud-connection-card-evidence-only")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("heading", { level: 1, name: "Cloud connections" })).toBeInTheDocument();
+    expect(screen.getByText(/Cloud connectors are optional/i)).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-platform-scope-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-gcp")).toBeInTheDocument();
+    expect(screen.queryByTestId("tier2-connection-wizard")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("aws-account-id")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("gcp-project-id")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-aws").querySelector('a[href="/integrations/cloud-connections/aws"]')).toBeTruthy();
+  });
+
+  it("hides provider cards when platform scope is narrowed", async () => {
+    window.localStorage.setItem(
+      "archlucid_operator_scope_v1",
+      JSON.stringify({
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        workspaceLabel: "Pilot workspace",
+        projectLabel: "Default",
+      }),
+    );
+
+    render(<CloudConnectionsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("cloud-platform-scope-azure"));
+    fireEvent.click(screen.getByTestId("cloud-platform-scope-gcp"));
+
+    expect(screen.queryByTestId("cloud-connection-card-azure")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("cloud-connection-card-gcp")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
+  });
+});

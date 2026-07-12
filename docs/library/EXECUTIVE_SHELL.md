@@ -2,12 +2,12 @@
 
 # Executive shell (operator UI)
 
-**What:** A minimal Next.js route group under [`archlucid-ui/src/app/(executive)/`](../../archlucid-ui/src/app/(executive)/) with no sidebar — optimized for sponsor and CTO-style reading: finalized reviews, prioritized findings, finding detail, and DOCX export via existing REST endpoints.
+**What:** A minimal Next.js route group under [`archlucid-ui/src/app/(executive)/`](../../archlucid-ui/src/app/(executive)/) with no sidebar — optimized for sponsor and CTO-style reading of portfolio scorecard surfaces.
 
 **Entry points:**
 
-- Direct: `/executive/reviews` (list), `/executive/reviews/{runId}` (findings board), `/executive/reviews/{runId}/findings/{findingId}` (detail).
-- From operator shell: review detail **Actions** includes **Open executive view** when a golden manifest exists (`manifestId`).
+- Direct: `/executive/scorecard` (tenant scorecard).
+- Review package executive summary: `/reviews/{runId}` in the operator shell (legacy `/executive/reviews/*` URLs redirect here).
 
 **Auth:** Same JWT / API-key session as the operator shell (`AuthPanel` in header). No anonymous or token-based sharing in V1; shareable links are a V1.1+ topic.
 

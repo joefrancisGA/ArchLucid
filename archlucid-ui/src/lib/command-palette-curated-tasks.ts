@@ -19,7 +19,7 @@ export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
   { label: "Ask ArchLucid", href: "/ask", searchValue: "task I want ask question chat" },
   { label: "Semantic search", href: "/search", searchValue: "task I want search find architecture" },
   { label: "Alerts inbox", href: "/governance/alerts", searchValue: "task I want alerts triage inbox" },
-  { label: "Alert rules (configure)", href: "/governance/alerts?tab=rules", searchValue: "task I want alert rules configure" },
+  { label: "Alert rules (configure)", href: "/governance/alert-rules", searchValue: "task I want alert rules configure" },
   { label: "Audit Trail", href: "/governance/audit", searchValue: "task I want audit compliance csv export evidence" },
   { label: "Digests & subscriptions", href: "/digests", searchValue: "task I want digest email subscriptions" },
   { label: "Policy packs", href: "/governance/policy-packs", searchValue: "task I want policy governance rules" },

@@ -1,36 +1,27 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { MarketingCustomPolicyPackAuthoringSection } from "@/components/marketing/MarketingCustomPolicyPackAuthoringSection";
 import {
   CUSTOM_POLICY_PACK_SOW_HREF,
   CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL,
-  ORDER_FORM_ADDENDUM_C_HREF,
-  PRICING_PHILOSOPHY_CUSTOM_PACK_HREF,
 } from "@/lib/marketing-custom-policy-pack-authoring";
 
 describe("MarketingCustomPolicyPackAuthoringSection", () => {
-  it("renders SKU rows and canonical doc links without hard-coded list prices", () => {
+  it("renders SKU rows and SoW link without hard-coded list prices", () => {
     render(<MarketingCustomPolicyPackAuthoringSection />);
 
     expect(screen.getByTestId("custom-policy-pack-authoring-section")).toBeInTheDocument();
     expect(screen.getByTestId("custom-policy-pack-sku-starter")).toBeInTheDocument();
     expect(screen.getByTestId("custom-policy-pack-sku-standard")).toBeInTheDocument();
     expect(screen.getByTestId("custom-policy-pack-sku-program")).toBeInTheDocument();
-    expect(screen.getByTestId("custom-policy-pack-pricing-philosophy-link")).toHaveAttribute(
-      "href",
-      PRICING_PHILOSOPHY_CUSTOM_PACK_HREF,
-    );
     expect(screen.getByTestId("custom-policy-pack-sow-link")).toHaveAttribute("href", CUSTOM_POLICY_PACK_SOW_HREF);
-    expect(screen.getByTestId("custom-policy-pack-order-form-link")).toHaveAttribute(
-      "href",
-      ORDER_FORM_ADDENDUM_C_HREF,
-    );
+    expect(screen.getByRole("heading", { name: /optional professional services/i })).toBeInTheDocument();
 
     const sectionText = screen.getByTestId("custom-policy-pack-authoring-section").textContent ?? "";
-    // Locked USD list prices must not appear in UI copy (canonical source: PRICING_PHILOSOPHY.md only).
     expect(sectionText).not.toMatch(/\$[\d,]+/);
     expect(sectionText).not.toContain(CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL);
+    expect(sectionText).not.toContain("PRICING_PHILOSOPHY");
   });
 
   it("links the CTA to the quote form with custom-pack interest", () => {

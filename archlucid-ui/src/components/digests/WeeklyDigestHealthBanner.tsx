@@ -12,11 +12,20 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import {
   digestsHaveExistingConfiguration,
+  digestSetupShowsRecipientClarification,
   formatDigestInstant,
   mapDigestSetupGaps,
+  resolveDigestNextBestAction,
   resolveDigestOverallStatus,
   type DigestSetupGapAction,
 } from "@/lib/digest-setup-gap-actions";
+import {
+  DIGESTS_BROWSE_NEXT_BEST_ACTION_PREFIX,
+  DIGESTS_BROWSE_RELATED_ADVISORY_LABEL,
+  DIGESTS_BROWSE_RELATED_INTEGRATIONS_LABEL,
+  DIGESTS_BROWSE_RECIPIENTS_HELPER,
+  DIGESTS_BROWSE_SETUP_MESSAGE,
+} from "@/lib/digests-browse-copy";
 import { EXEC_DIGEST_DAY_NAMES, formatExecDigestSendTimeLabel } from "@/lib/exec-digest-schedule-form";
 import { formatIanaTimeZoneOptionLabel } from "@/lib/iana-time-zone-select";
 import { fetchWeeklyDigestHealth } from "@/lib/api";
@@ -33,6 +42,8 @@ export type WeeklyDigestHealthBannerProps = {
    * `schedule` — compact strip with executive schedule gaps only.
    */
   readonly variant?: "full" | "subscriptions" | "schedule";
+  /** When true, loads health for parent state but renders no banner chrome. */
+  readonly loadOnly?: boolean;
 };
 
 type HealthMetricProps = {
@@ -80,8 +91,8 @@ function formatExecutiveScheduleSummary(snap: WeeklyDigestHealthDto): string {
 }
 
 /** Compact digest status summary with actionable setup gaps for the Digests hub. */
-export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): ReactElement {
-  const { refreshToken = 0, onHealthLoaded, variant = "full" } = props;
+export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): ReactElement | null {
+  const { refreshToken = 0, onHealthLoaded, variant = "full", loadOnly = false } = props;
   const [snap, setSnap] = useState<WeeklyDigestHealthDto | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -103,6 +114,10 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
   useEffect(() => {
     void load();
   }, [load, refreshToken]);
+
+  if (loadOnly) {
+    return null;
+  }
 
   if (loading && snap === null) {
     return (
@@ -127,6 +142,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
   }
 
   const overall = resolveDigestOverallStatus(snap);
+  const setupNeeded: boolean = overall.label === "Setup needed";
   const allGaps: DigestSetupGapAction[] = mapDigestSetupGaps(snap.setupGaps.slice(0, 4));
   const gaps: DigestSetupGapAction[] =
     variant === "subscriptions"
@@ -135,6 +151,9 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
         ? allGaps.filter(isScheduleRelevantGap).slice(0, 2)
         : allGaps;
   const configured: boolean = digestsHaveExistingConfiguration(snap);
+  const nextBestAction = variant === "full" ? resolveDigestNextBestAction(snap) : null;
+  const showRecipientClarification =
+    variant === "full" && digestSetupShowsRecipientClarification(snap);
   const executiveRecipients: string =
     snap.executiveDigestRecipientCount > 0
       ? String(snap.executiveDigestRecipientCount)
@@ -153,7 +172,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
     <div
       className={cn(
         "mb-4 rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950",
-        compact ? "px-3 py-2" : "p-4",
+        compact ? "px-3 py-2" : setupNeeded ? "p-3" : "p-4",
         OPERATOR_TYPOGRAPHY.body,
       )}
       data-testid="weekly-digest-health-banner"
@@ -183,22 +202,62 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
             </span>
           ) : null}
         </div>
-        <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Related:{" "}
-          <Link
-            className="text-al-link underline-offset-2 hover:underline"
-            href="/advisory?tab=schedules"
-          >
-            Advisory schedules
-          </Link>
-          {" · "}
-          <Link className="text-al-link underline-offset-2 hover:underline" href={INTEGRATIONS_READINESS_PATH}>
-            Integration readiness
-          </Link>
-        </p>
+        {variant === "full" ? (
+          <div className="flex flex-wrap gap-2" data-testid="digests-browse-related-actions">
+            <Button asChild size="sm" variant="outline">
+              <Link href="/advisory?tab=schedules">{DIGESTS_BROWSE_RELATED_ADVISORY_LABEL}</Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link href={INTEGRATIONS_READINESS_PATH}>{DIGESTS_BROWSE_RELATED_INTEGRATIONS_LABEL}</Link>
+            </Button>
+          </div>
+        ) : (
+          <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Related:{" "}
+            <Link
+              className="text-al-link underline-offset-2 hover:underline"
+              href="/advisory?tab=schedules"
+            >
+              Advisory schedules
+            </Link>
+            {" · "}
+            <Link className="text-al-link underline-offset-2 hover:underline" href={INTEGRATIONS_READINESS_PATH}>
+              Integration readiness
+            </Link>
+          </p>
+        )}
       </div>
 
-      {!compact ? (
+      {variant === "full" && setupNeeded ? (
+        <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="digests-browse-setup-message">
+          {DIGESTS_BROWSE_SETUP_MESSAGE}
+        </p>
+      ) : null}
+
+      {nextBestAction !== null ? (
+        <div
+          className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/50"
+          data-testid="digests-browse-next-best-action"
+        >
+          <div>
+            <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+              {DIGESTS_BROWSE_NEXT_BEST_ACTION_PREFIX}
+            </p>
+            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{nextBestAction.title}</p>
+          </div>
+          <Button asChild size="sm" variant="primary">
+            <Link href={nextBestAction.href}>{nextBestAction.actionLabel}</Link>
+          </Button>
+        </div>
+      ) : null}
+
+      {showRecipientClarification ? (
+        <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {DIGESTS_BROWSE_RECIPIENTS_HELPER}
+        </p>
+      ) : null}
+
+      {!compact && !setupNeeded ? (
         <div className="mt-3 flex flex-wrap gap-x-6 gap-y-3" data-testid="digest-health-metrics">
           <HealthMetric label="Enabled schedules" value={String(snap.enabledAdvisoryScheduleCount)} />
           <HealthMetric label="Active subscriptions" value={String(snap.enabledDigestSubscriptionCount)} />

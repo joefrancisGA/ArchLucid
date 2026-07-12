@@ -12,6 +12,7 @@ type AdminIdentityProviderHealthProbe = components["schemas"]["AdminIdentityProv
 export type IdentityProviderHealthStripProps = {
   payload: AdminIdentityProviderDiagnosticsResponse | null;
   fetchNote: string | null;
+  readonly showTechnicalDetails?: boolean;
 };
 
 function statusBadgeClass(status: string | undefined): string {
@@ -59,13 +60,19 @@ export function IdentityProviderHealthStrip(props: IdentityProviderHealthStripPr
     <Card data-testid="identity-provider-health-card">
       <CardHeader>
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Identity provider health</CardTitle>
-        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          Cached probes from{" "}
-          <span className={cn("font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.micro)}>
-            GET /v1/admin/diagnostics/identity-providers
-          </span>{" "}
-          (Admin session). Read-only — does not alter authentication behaviour.
-        </p>
+        {props.showTechnicalDetails === true ? (
+          <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+            Cached probes from{" "}
+            <span className={cn("font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.micro)}>
+              GET /v1/admin/diagnostics/identity-providers
+            </span>{" "}
+            (Admin session). Read-only — does not alter authentication behaviour.
+          </p>
+        ) : (
+          <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+            Read-only health status for configured identity providers.
+          </p>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
         {fetchNote ? (

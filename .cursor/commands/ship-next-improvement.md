@@ -45,18 +45,20 @@ Optional cross-check: `docs/library/TECH_BACKLOG_OPEN.md` (may be stale — pref
 
 ## How to detect assessment-implementable items
 
-**Source of truth:** `docs/assessments/LATEST_GPT55.md` §17 **Top Improvement Opportunities**.
+**Primary source of truth:** `docs/assessments/LATEST_GPT55.md` §17 **Top Improvement Opportunities**.
 
 Also check §17 **Promoted to V1 (owner decision, standing)** for owner-authorized items that may not yet have a TB row or may override Tier 3 holds.
 
+**Secondary source of truth:** `docs/assessments/LATEST_EXPOSURE.md` §20 **Top Improvement Opportunities** (broader exposure readiness — controlled beta / public self-service / LinkedIn mention gates). Check this **only after** `LATEST_GPT55.md` §17 has no unshipped Tier 1/2/Promoted-V1 candidate.
+
 Pick the **next** item that:
 
-1. Is in **Tier 1 — Must Fix** or **Tier 2 — High Leverage** (not Tier 3 Hold), **or** appears in **Promoted to V1** as active engineering (not already closed),
-2. Is **engineering / Cursor-actionable** (has or implies code, tests, CI, or in-app/docs guard),
+1. Is in `LATEST_GPT55.md` §17 **Tier 1 — Must Fix** or **Tier 2 — High Leverage** (not Tier 3 Hold), **or** appears in **Promoted to V1** as active engineering (not already closed); **or**, if none remain there, is in `LATEST_EXPOSURE.md` §20 **Tier 1 — Must Fix Before Controlled Beta**, **Tier 2 — Must Fix Before Public Mention**, or **Tier 3 — Must Fix Before Public Self-Service** (not Tier 4 Defer),
+2. Is **engineering / Cursor-actionable** (has or implies code, tests, CI, or in-app/docs guard) — `LATEST_EXPOSURE.md` §20 rows include a Cursor prompt precisely for this check,
 3. Is **not** already shipped (verify against repo + `TECH_BACKLOG.md`),
 4. Passes the guardrails above.
 
-If §17 says no Tier 1/2 engineering items remain and no open Promoted-to-V1 row is unshipped, fall through to step 4 (general backlog) — do **not** force an assessment-only item.
+If neither assessment file has an unshipped Tier 1/2/3/Promoted-V1 engineering item, fall through to step 4 (general backlog) — do **not** force an assessment-only item.
 
 Map assessment IDs to backlog when present (e.g. **TB-600**). Prefer implementing via the `TECH_BACKLOG.md` row when both exist.
 
@@ -90,8 +92,8 @@ Then go to **Step 6** (do not implement).
 ## Proposed next improvement
 
 **Step:** 1 | 2 | 3 | 4 | 5 (nothing found) | 6 (fresh assessment)
-**Candidate:** TB-### — <title> (or assessment §17 title if no TB yet)
-**Priority:** P0 | P1 | P2 | P3 | Tier 1 | Tier 2 | Promoted V1
+**Candidate:** TB-### — <title> (or assessment §17/§20 title if no TB yet)
+**Priority:** P0 | P1 | P2 | P3 | Tier 1 | Tier 2 | Tier 3 (exposure only) | Promoted V1
 **Why this one:** <one sentence — first open row in band per backlog/assessment order>
 **Blockers:** None | <list>
 **Likely touch surfaces:** <paths or subsystems, if inferable from TB detail>
@@ -131,11 +133,11 @@ Otherwise → **Step 3**.
 
 ### Step 3 — Next Cursor-actionable assessment item
 
-If Step 0 selected a **Tier 1/2 or Promoted-to-V1** assessment candidate:
+If Step 0 selected a **Tier 1/2 or Promoted-to-V1** candidate from `LATEST_GPT55.md` §17, **or** a **Tier 1/2/3** candidate from `LATEST_EXPOSURE.md` §20:
 
 1. Implement it.
 2. Run the **Quality gate** (below).
-3. Mark Done in `TECH_BACKLOG.md` when a TB-ID exists; update `LATEST_GPT55.md` §17 to acknowledge closure (move to shipped pointer — do not leave as open Tier entry).
+3. Mark Done in `TECH_BACKLOG.md` when a TB-ID exists; update whichever assessment file listed it (`LATEST_GPT55.md` §17 or `LATEST_EXPOSURE.md` §20) to acknowledge closure (move to shipped pointer — do not leave as open Tier entry).
 4. Commit, push to **`master`**.
 5. Run the **CI gate** (below).
 6. Go to **Step 5**.
@@ -156,13 +158,20 @@ Otherwise → **Step 6**.
 
 ### Step 5 — Rescore (only if steps 1–4 shipped something)
 
-Update `docs/assessments/LATEST_GPT55.md` in place:
+If the shipped item came from `LATEST_GPT55.md` §17, update `docs/assessments/LATEST_GPT55.md` in place:
 
 1. Prepend a **Rescore (YYYY-MM-DD):** line to the pass-date header describing what closed and which pillars moved.
 2. Apply score deltas using the **§2 Scorecard** methodology already used in that file (increment affected pillar scores; recalculate **(A) Headline readiness** from weighted contributions).
 3. Update §7, §8, §14, §17, and other sections that still list the item as open.
 4. Commit and push the assessment update to **`master`** (same branch as implementation, or a follow-up commit).
 5. **Display the rescoring in chat:** show before/after headline %, changed pillar scores, and one-line rationale.
+
+If the shipped item came from `LATEST_EXPOSURE.md` §20 instead, update `docs/assessments/LATEST_EXPOSURE.md` in place:
+
+1. Prepend a **Rescore (YYYY-MM-DD):** line to the pass-date header describing what closed and which exposure-gate item(s) moved.
+2. Move the closed row from its Tier table to a one-line "shipped" acknowledgment; re-run the affected exposure-readiness score(s) in §2 and the affected gate verdict(s) in §3 (e.g. flipping a `FAIL`/`PARTIAL` gate to `PASS` may move the overall RYG for that exposure level — update §0's table if so).
+3. Commit and push the assessment update to **`master`**.
+4. **Display the rescoring in chat:** show before/after RYG for the affected exposure level(s) and one-line rationale.
 
 ### Step 6 — Fresh assessment (only if steps 1–4 did nothing)
 

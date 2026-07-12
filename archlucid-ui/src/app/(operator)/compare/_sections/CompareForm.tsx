@@ -16,7 +16,7 @@ import {
   compareRunIdsAreSameAfterDemoCanonicalization,
   readCompareRunIdsFromSearchParams,
 } from "@/lib/compare-url-query-params";
-import { BUYER_COMPARE_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_COMPARE_PAGE_TITLE, BUYER_COMPARE_PRIMARY_ACTION_LABEL } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import {
@@ -24,7 +24,11 @@ import {
   tryStaticDemoGoldenManifestComparison,
   tryStaticDemoRunComparison,
 } from "@/lib/operator-static-demo";
-import { CompareBuyerScopedGate } from "@/app/(operator)/compare/_sections/CompareBuyerScopedGate";
+import { CompareComparisonDimensionsPreview } from "@/app/(operator)/compare/_sections/CompareComparisonDimensionsPreview";
+import { CompareEmptyResultsPlaceholder } from "@/app/(operator)/compare/_sections/CompareEmptyResultsPlaceholder";
+import { CompareHowComparisonWorksSection } from "@/app/(operator)/compare/_sections/CompareHowComparisonWorksSection";
+import { CompareRelatedReviewLinks } from "@/app/(operator)/compare/_sections/CompareRelatedReviewLinks";
+import { CompareSampleComparisonAction } from "@/app/(operator)/compare/_sections/CompareSampleComparisonAction";
 import { CompareDemoQuickPick } from "@/app/(operator)/compare/_sections/CompareDemoQuickPick";
 import { CompareInsufficientFinalizedEmptyState } from "@/app/(operator)/compare/_sections/CompareInsufficientFinalizedEmptyState";
 import { CompareLastRequestOutcomeDetails } from "@/app/(operator)/compare/_sections/CompareLastRequestOutcomeDetails";
@@ -378,16 +382,8 @@ export function CompareForm() {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const { finalizedCount, insufficientForCompare } = useCompareFinalizedRunAvailability();
 
-  const leftPickerLabel = isDemoClaimsIntakeComparePair
-    ? "Baseline Claims Intake Review"
-    : buyerPolished
-      ? "Prior architecture review (same request)"
-      : "Baseline review";
-  const rightPickerLabel = isDemoClaimsIntakeComparePair
-    ? "Updated Claims Intake Review"
-    : buyerPolished
-      ? "Later architecture review (same request)"
-      : "Updated review";
+  const leftPickerLabel = isDemoClaimsIntakeComparePair ? "Baseline Claims Intake Review" : "Baseline review";
+  const rightPickerLabel = isDemoClaimsIntakeComparePair ? "Updated Claims Intake Review" : "Updated review";
 
   const pickClaimsIntakePair = () => {
     setLeftRunId(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID);
@@ -399,18 +395,12 @@ export function CompareForm() {
     urlComparePair.prior.trim().length > 0 && urlComparePair.later.trim().length > 0;
   const hasPrefilledSelection = leftTrim.length > 0 || rightTrim.length > 0;
   const showInsufficientFinalized =
+    buyerPolished &&
     insufficientForCompare &&
     !hasPrefilledSelection &&
     !buyerCompareHasUrlPair &&
     !compareHasRenderableOutcome;
-  const showBuyerCompareScopedGate =
-    buyerPolished &&
-    !showInsufficientFinalized &&
-    !buyerCompareHasUrlPair &&
-    !compareHasRenderableOutcome &&
-    leftTrim.length === 0 &&
-    rightTrim.length === 0;
-  const showCompareWorkflow = !showInsufficientFinalized && !showBuyerCompareScopedGate;
+  const showEmptyComparisonOutput = !loading && !compareHasRenderableOutcome;
 
   const loadBuyerSampleComparison = () => {
     pickClaimsIntakePair();
@@ -435,18 +425,29 @@ export function CompareForm() {
         }
       />
       {showInsufficientFinalized ? (
-        <CompareInsufficientFinalizedEmptyState finalizedCount={finalizedCount} />
+        <CompareInsufficientFinalizedEmptyState
+          finalizedCount={finalizedCount}
+          onLoadSampleComparison={loadBuyerSampleComparison}
+        />
       ) : null}
-      {showBuyerCompareScopedGate ? (
-        <CompareBuyerScopedGate onLoadSampleComparison={loadBuyerSampleComparison} />
-      ) : null}
-      {isStaticDemoPayloadFallbackEnabled() && !buyerPolished && showCompareWorkflow ? (
+      {isStaticDemoPayloadFallbackEnabled() && !buyerPolished ? (
         <CompareDemoQuickPick onPickClaimsIntake={pickClaimsIntakePair} />
       ) : null}
-      {showCompareWorkflow ? (
       <div
-        className={cn("flex max-w-3xl flex-col gap-8", compareInsightFirstLayout ? "flex-col-reverse" : null)}
+        className={cn("flex max-w-3xl flex-col gap-6", compareInsightFirstLayout ? "flex-col-reverse" : null)}
+        data-testid="compare-workspace"
       >
+        {buyerPolished ? (
+          <div className="flex flex-col gap-4">
+            <CompareComparisonDimensionsPreview />
+            <div className="flex flex-wrap items-center gap-2">
+              <CompareRelatedReviewLinks />
+              {showEmptyComparisonOutput ? (
+                <CompareSampleComparisonAction onLoadSampleComparison={loadBuyerSampleComparison} />
+              ) : null}
+            </div>
+          </div>
+        ) : null}
         <CompareRunPickersSection
           leftPickerLabel={leftPickerLabel}
           rightPickerLabel={rightPickerLabel}
@@ -468,8 +469,11 @@ export function CompareForm() {
           onRightRunPicked={setRightPickedSummary}
           useBuyerFacingRunLabels={buyerPolished}
           summarizeButtonLabel={buyerPolished ? "Summarize for leadership" : "Summarize for sponsor"}
+          compareButtonLabel={buyerPolished ? BUYER_COMPARE_PRIMARY_ACTION_LABEL : "Compare two reviews"}
           collapseBelowResults={compareInsightFirstLayout && buyerPolished}
         />
+
+        {showEmptyComparisonOutput ? <CompareEmptyResultsPlaceholder /> : null}
 
         <CompareResultsPanel
           showStaleInputsWarning={showStaleInputsWarning}
@@ -495,9 +499,7 @@ export function CompareForm() {
           buyerPolished={buyerPolished}
         />
       </div>
-      ) : null}
 
-      {showCompareWorkflow ? (
       <CompareLastRequestOutcomeDetails
         pairAligned={pairAligned}
         loading={loading}
@@ -513,13 +515,14 @@ export function CompareForm() {
         legacyMalformed={legacyMalformed}
         buyerPolished={buyerPolished}
       />
-      ) : null}
 
-      {showCompareWorkflow ? (
+      {buyerPolished ? (
+        <CompareHowComparisonWorksSection />
+      ) : (
         <LayerHeader pageKey="compare" density="compact" collapsibleGuidance="How compare works" />
-      ) : null}
+      )}
 
-      {showCompareWorkflow ? <CompareAdvancedDiagnosticsSection /> : null}
+      <CompareAdvancedDiagnosticsSection />
     </div>
   );
 }

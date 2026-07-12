@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
+import { IMPROVEMENT_PLANNING_PLANS_EMPTY_MESSAGE } from "@/lib/planning-page-copy";
 import type { LearningPlanListItemResponse } from "@/types/learning";
 import { planningNumericCellCls, planningTableCls, planningThTdCls } from "./planning-table-styles";
 
@@ -9,7 +10,17 @@ type PlanningPlansTableProps = {
   themeTitleById: Map<string, string>;
 };
 
-const mutedNoteCls = (cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper));
+const mutedNoteCls = cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper);
+
+function resolveRecommendedNextAction(plan: LearningPlanListItemResponse): string {
+  const explanation = plan.priorityExplanation?.trim();
+
+  if (explanation !== undefined && explanation.length > 0) {
+    return explanation;
+  }
+
+  return plan.summary.trim().length > 0 ? plan.summary : "Open the plan for recommended action steps.";
+}
 
 /** Prioritized plans with theme context and links into read-only detail. */
 export function PlanningPlansTable(props: PlanningPlansTableProps) {
@@ -18,7 +29,7 @@ export function PlanningPlansTable(props: PlanningPlansTableProps) {
   if (plans.length === 0) {
     return (
       <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
-        No plans in this scope.
+        {IMPROVEMENT_PLANNING_PLANS_EMPTY_MESSAGE}
       </p>
     );
   }
@@ -31,8 +42,8 @@ export function PlanningPlansTable(props: PlanningPlansTableProps) {
             <th className={planningNumericCellCls}>Priority</th>
             <th className={planningThTdCls}>Plan</th>
             <th className={planningThTdCls}>Theme</th>
-            <th className={planningNumericCellCls}>Theme evidence</th>
             <th className={planningThTdCls}>Status</th>
+            <th className={planningThTdCls}>Recommended next action</th>
           </tr>
         </thead>
         <tbody>
@@ -40,16 +51,17 @@ export function PlanningPlansTable(props: PlanningPlansTableProps) {
             <tr key={p.planId}>
               <td className={planningNumericCellCls}>{p.priorityScore}</td>
               <td className={planningThTdCls}>
-                <Link href={`/planning/plans/${encodeURIComponent(p.planId)}`} className="text-blue-700 dark:text-blue-400">
+                <Link href={`/planning/plans/${encodeURIComponent(p.planId)}`} className="font-medium text-blue-700 dark:text-blue-400">
                   {p.title}
                 </Link>
-                <div className={cn("mt-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{p.summary}</div>
               </td>
               <td className={planningThTdCls}>
                 <span className={mutedNoteCls}>{themeTitleById.get(p.themeId) ?? p.themeId}</span>
               </td>
-              <td className={planningNumericCellCls}>{p.themeEvidenceSignalCount ?? "—"}</td>
               <td className={planningThTdCls}>{p.status}</td>
+              <td className={cn(planningThTdCls, "max-w-[320px]", OPERATOR_TYPOGRAPHY.helper)}>
+                {resolveRecommendedNextAction(p)}
+              </td>
             </tr>
           ))}
         </tbody>

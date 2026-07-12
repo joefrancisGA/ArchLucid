@@ -1,0 +1,123 @@
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const mockList = vi.fn();
+const mockCreate = vi.fn();
+const mockToggle = vi.fn();
+const mockTest = vi.fn();
+const mockDryRun = vi.fn();
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
+}));
+
+vi.mock("@/lib/api", () => ({
+  listAlertRoutingSubscriptions: (...args: unknown[]) => mockList(...args),
+  createAlertRoutingSubscription: (...args: unknown[]) => mockCreate(...args),
+  toggleAlertRoutingSubscription: (...args: unknown[]) => mockToggle(...args),
+  testWebhookSubscription: (...args: unknown[]) => mockTest(...args),
+  dryRunOutboundWebhook: (...args: unknown[]) => mockDryRun(...args),
+}));
+
+vi.mock("@/lib/toast", () => ({
+  showSuccess: vi.fn(),
+  showError: vi.fn(),
+}));
+
+import { SlackIntegrationPageClient } from "@/app/(operator)/integrations/slack/_sections/SlackIntegrationPageClient";
+import {
+  SLACK_INTEGRATION_PAGE_SUBTITLE,
+  SLACK_INTEGRATION_PAGE_TITLE,
+} from "@/lib/slack-integration-page-copy";
+
+describe("SlackIntegrationPageClient", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockList.mockResolvedValue([]);
+    mockCreate.mockResolvedValue({});
+    mockToggle.mockResolvedValue({});
+    mockTest.mockResolvedValue({ transportSucceeded: true, statusCode: 200, responseBodyTruncated: false });
+    mockDryRun.mockResolvedValue({ transportSucceeded: true, statusCode: 200, responseBodyTruncated: false });
+  });
+
+  it("shows the page title before help content and an honest status", async () => {
+    render(<SlackIntegrationPageClient />);
+
+    expect(screen.getByRole("heading", { level: 1, name: SLACK_INTEGRATION_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByText(SLACK_INTEGRATION_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(await screen.findByTestId("slack-configuration-status")).toHaveTextContent("Not configured");
+    expect(screen.getByTestId("slack-integration-help-panel")).toBeInTheDocument();
+  });
+
+  it("renders customer-facing form labels and actions", async () => {
+    render(<SlackIntegrationPageClient />);
+
+    expect(await screen.findByRole("heading", { name: "Add Slack destination" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Destination name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Minimum alert severity")).toBeInTheDocument();
+    expect(screen.getByLabelText("Slack incoming webhook URL")).toBeInTheDocument();
+    expect(screen.getByLabelText("Signing secret (optional)")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save destination" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Send test notification" })).toBeInTheDocument();
+  });
+
+  it("shows polished empty state for destinations", async () => {
+    render(<SlackIntegrationPageClient />);
+
+    expect(await screen.findByTestId("slack-destinations-empty-state")).toHaveTextContent("No Slack destinations yet");
+  });
+
+  it("sends a dry-run test notification from the form", async () => {
+    render(<SlackIntegrationPageClient />);
+
+    const nameInput = await screen.findByLabelText("Destination name");
+    const webhookInput = screen.getByLabelText("Slack incoming webhook URL");
+
+    fireEvent.change(nameInput, {
+      target: { value: "Governance alerts" },
+    });
+    fireEvent.blur(nameInput);
+    fireEvent.change(webhookInput, {
+      target: { value: "https://hooks.slack.com/services/T000/B000/XXXXXXXX" },
+    });
+    fireEvent.blur(webhookInput);
+    fireEvent.click(screen.getByRole("button", { name: "Send test notification" }));
+
+    await waitFor(() => {
+      expect(mockDryRun).toHaveBeenCalledWith({
+        targetUrl: "https://hooks.slack.com/services/T000/B000/XXXXXXXX",
+        sharedSecret: null,
+      });
+    });
+
+    expect(await screen.findByTestId("slack-form-test-feedback")).toHaveTextContent(
+      "Test notification sent successfully.",
+    );
+  });
+
+  it("lists existing destinations without exposing webhook URLs in the table", async () => {
+    mockList.mockResolvedValue([
+      {
+        routingSubscriptionId: "sub-1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Governance alerts",
+        channelType: "SlackWebhook",
+        destination: "https://hooks.slack.com/services/SECRET/PATH",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        lastDeliveredUtc: "2026-01-02T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<SlackIntegrationPageClient />);
+
+    expect(await screen.findByTestId("slack-configuration-status")).toHaveTextContent("1 active destination");
+    const table = await screen.findByTestId("slack-destinations-table");
+    expect(within(table).getByText("Governance alerts")).toBeInTheDocument();
+    expect(screen.queryByText("https://hooks.slack.com/services/SECRET/PATH")).not.toBeInTheDocument();
+  });
+});

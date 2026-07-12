@@ -1,4 +1,6 @@
 import type { AuditActiveFilterChip } from "@/components/AuditActiveFilterChips";
+import { formatAuditTrailReviewFilterChipLabel } from "@/lib/audit-trail-page-helpers";
+import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 
 export type AuditFilterChipInput = {
   eventType: string;
@@ -14,7 +16,10 @@ export function buildAuditActiveFilterChips(input: AuditFilterChipInput): AuditA
   const chips: AuditActiveFilterChip[] = [];
 
   if (input.eventType.trim().length > 0) {
-    chips.push({ id: "eventType", label: `Event: ${input.eventType.trim()}` });
+    chips.push({
+      id: "eventType",
+      label: `Event: ${pipelineEventTypeFriendlyLabel(input.eventType.trim())}`,
+    });
   }
 
   if (input.auditDatePreset === "24h") {
@@ -38,11 +43,11 @@ export function buildAuditActiveFilterChips(input: AuditFilterChipInput): AuditA
   }
 
   if (input.actorUserId.trim().length > 0) {
-    chips.push({ id: "actorUserId", label: "Actor filter" });
+    chips.push({ id: "actorUserId", label: `Actor: ${input.actorUserId.trim()}` });
   }
 
   if (input.runId.trim().length > 0) {
-    chips.push({ id: "runId", label: "Review scope" });
+    chips.push({ id: "runId", label: formatAuditTrailReviewFilterChipLabel(input.runId) });
   }
 
   return chips;

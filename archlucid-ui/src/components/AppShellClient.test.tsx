@@ -200,7 +200,7 @@ describe("AppShellClient — shell chrome labels", () => {
       </AppShellClient>,
     );
 
-    const topbar = screen.getByTestId("app-shell-topbar");
+    const topbar = await screen.findByTestId("app-shell-topbar");
 
     expect(screen.queryByTestId("executive-operator-shell-switcher")).not.toBeInTheDocument();
     expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
@@ -210,19 +210,34 @@ describe("AppShellClient — shell chrome labels", () => {
     expect(topbar.textContent?.toLowerCase() ?? "").not.toContain("operator");
   });
 
-  it("left-aligns the sidebar row with the top bar and reserves a fixed sidebar width", () => {
+  it("left-aligns the sidebar row with the top bar and reserves a fixed sidebar width", async () => {
     renderWithOperatorQuery(
       <AppShellClient>
         <div>child</div>
       </AppShellClient>,
     );
 
-    const sidebarRow = screen.getByTestId("sidebar-nav").parentElement;
-    const sidebarNav = screen.getByTestId("sidebar-nav");
+    const sidebarNav = await screen.findByTestId("sidebar-nav");
+    const sidebarRow = sidebarNav.parentElement;
 
     expect(sidebarRow).not.toBeNull();
     expect(sidebarRow?.className).toContain(OPERATOR_SHELL_BODY_ROW_CLASS);
     expect(sidebarRow?.className).not.toMatch(/mx-auto/);
     expect(sidebarNav).toHaveClass(OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS);
+  });
+
+  it("defers sidebar and top bar while operator authority is loading", () => {
+    navAuthMock.isAuthorityLoading = true;
+
+    renderWithOperatorQuery(
+      <AppShellClient>
+        <div data-testid="protected-child">child</div>
+      </AppShellClient>,
+    );
+
+    expect(screen.getByTestId("operator-shell-access-gate-loading")).toBeInTheDocument();
+    expect(screen.queryByTestId("sidebar-nav")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("app-shell-topbar")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("protected-child")).not.toBeInTheDocument();
   });
 });

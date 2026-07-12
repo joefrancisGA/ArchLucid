@@ -103,12 +103,31 @@ describe("getBreadcrumbs", () => {
       { label: "Help", href: "/help" },
       { label: "Cloud connections" },
     ]);
+    expect(getBreadcrumbs("/help/cloud-connections/aws")).toEqual([
+      { label: "Help", href: "/help" },
+      { label: "Cloud connections" },
+    ]);
+    expect(getBreadcrumbs("/help/cloud-connections/gcp")).toEqual([
+      { label: "Help", href: "/help" },
+      { label: "Cloud connections" },
+    ]);
   });
 
   it("maps the workspace and scope guide breadcrumb to match its page title", () => {
     expect(getBreadcrumbs("/help/scope")).toEqual([
       { label: "Help", href: "/help" },
       { label: "Workspace and scope" },
+    ]);
+  });
+
+  it("maps how-it-works and data-handling breadcrumbs to page titles", () => {
+    expect(getBreadcrumbs("/help/how-it-works")).toEqual([
+      { label: "Help", href: "/help" },
+      { label: "How ArchLucid works" },
+    ]);
+    expect(getBreadcrumbs("/help/data-handling")).toEqual([
+      { label: "Help", href: "/help" },
+      { label: "What ArchLucid does with your data" },
     ]);
   });
 
@@ -122,6 +141,13 @@ describe("getBreadcrumbs", () => {
   it("redirect target path breadcrumb resolves to registry only", () => {
     expect(getBreadcrumbs("/governance/policy-packs")).toEqual([
       { label: "Policy packs", href: "/governance/policy-packs" },
+    ]);
+  });
+
+  it("labels Responsible AI policy pack id 1 with a human-readable breadcrumb", () => {
+    expect(getBreadcrumbs("/governance/policy-packs/1")).toEqual([
+      { label: "Policy packs", href: "/governance/policy-packs" },
+      { label: "Responsible AI" },
     ]);
   });
 
@@ -267,33 +293,6 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/audit")).toEqual([
       { label: "Governance", href: "/governance" },
       { label: "Audit trail" },
-    ]);
-  });
-
-  it("TB-523: maps executive summary to Review packages · title · Executive summary", () => {
-    expect(getBreadcrumbs(`/executive/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)).toEqual([
-      { label: "Review packages", href: "/reviews" },
-      {
-        label: SHOWCASE_BUYER_REVIEW_TITLE,
-        href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
-      },
-      { label: "Executive summary" },
-    ]);
-  });
-
-  it("TB-523: maps executive finding detail under the executive summary crumb", () => {
-    expect(
-      getBreadcrumbs(
-        `/executive/reviews/e2e-fixture-run-001/findings/e2e-finding-001`,
-      ),
-    ).toEqual([
-      { label: "Review packages", href: "/reviews" },
-      {
-        label: "Claims Intake Modernization",
-        href: "/reviews/e2e-fixture-run-001",
-      },
-      { label: "Executive summary", href: "/executive/reviews/e2e-fixture-run-001" },
-      { label: "Demonstration finding" },
     ]);
   });
 });

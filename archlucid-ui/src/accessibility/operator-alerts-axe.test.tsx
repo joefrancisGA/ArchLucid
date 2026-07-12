@@ -32,7 +32,7 @@ vi.mock("@/components/alerts/AlertSimulationTuningSection", () => ({
   AlertSimulationTuningSection: () => <div data-testid="stub-simulation">Simulation</div>,
 }));
 
-import AlertsPage from "@/app/(operator)/alerts/page";
+import AlertsPage from "@/app/(operator)/governance/alerts/page";
 
 expect.extend(toHaveNoViolations);
 

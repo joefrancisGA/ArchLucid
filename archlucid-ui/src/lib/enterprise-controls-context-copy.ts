@@ -171,7 +171,7 @@ export const auditSearchEventsSectionHeadingOperator = "Search audit events";
 export const auditSearchEventsSectionHeadingReader = "Search audit events (inspect)";
 
 /** Audit log — buyer demo shell: section title without internal “inspect” cue. */
-export const auditSearchEventsSectionHeadingBuyerPolished = "Filter audit trail";
+export const auditSearchEventsSectionHeadingBuyerPolished = "Filters";
 
 /** Audit log — search is always **GET**; label nudges read-tier callers away from export expectations. */
 export const auditSearchEventsButtonLabelReaderRank = "Search audit log";
@@ -523,7 +523,7 @@ export const auditSearchNoResultsReaderLine = "No audit events match your search
 
 /** Audit log — zero rows after search in buyer-polished shell (no “broken product” tone). */
 export const auditSearchNoResultsBuyerPolishedLine =
-  "No matching entries in this sample trail. Try widening the date range or choosing Any for event type.";
+  "No events match the current review and filter settings.";
 
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
 

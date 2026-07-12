@@ -1,5 +1,6 @@
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
+import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { pathMatchesCloudConnections } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -55,7 +56,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   advisory: "Advisory",
   "recommendation-learning": OPERATOR_NAV_LINK_LABELS.recommendationTuning,
   "product-learning": OPERATOR_NAV_LINK_LABELS.pilotFeedback,
-  planning: "Planning",
+  planning: "Improvement planning",
   "evolution-review": "Impact preview",
   "advisory-scheduling": "Schedules",
   digests: "Digests",
@@ -67,6 +68,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   "alert-simulation": "Alert simulation",
   "alert-tuning": "Alert tuning",
   "policy-packs": "Policy packs",
+  "first-30-days": "Governance setup",
   "governance-resolution": OPERATOR_NAV_LINK_LABELS.governanceResolution,
   governance: "Governance",
   findings: "Findings",
@@ -91,8 +93,11 @@ const SEGMENT_LABELS: Record<string, string> = {
   jira: "Jira",
   servicenow: "ServiceNow",
   slack: "Slack",
+  teams: "Teams",
   webhooks: "Webhooks",
   scope: "Workspace and scope",
+  "how-it-works": "How ArchLucid works",
+  "data-handling": "What ArchLucid does with your data",
 };
 
 /**
@@ -115,12 +120,6 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [{ label: newReviewWizardCrumbLabel() }];
   }
 
-  const executiveReviewTrail = tryBuildExecutiveReviewBreadcrumbs(normalized, options);
-
-  if (executiveReviewTrail !== null) {
-    return executiveReviewTrail;
-  }
-
   const governanceRunTrail = tryBuildGovernanceRunScopedBreadcrumbs(normalized, options);
 
   if (governanceRunTrail !== null) {
@@ -138,8 +137,15 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     }
   }
 
-  // Azure cloud connection help — avoid generic multi-cloud breadcrumb segments.
-  if (normalized === "/help/cloud-connections/azure" || normalized === "/help/cloud-connections-azure") {
+  // Cloud connection help — avoid generic multi-cloud breadcrumb segments.
+  if (
+    normalized === "/help/cloud-connections/azure" ||
+    normalized === "/help/cloud-connections-azure" ||
+    normalized === "/help/cloud-connections/aws" ||
+    normalized === "/help/cloud-connections-aws" ||
+    normalized === "/help/cloud-connections/gcp" ||
+    normalized === "/help/cloud-connections-gcp"
+  ) {
     return [
       { label: "Help", href: "/help" },
       { label: OPERATOR_NAV_LINK_LABELS.cloudConnections },
@@ -187,8 +193,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
       return [...items, { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH }];
     }
 
-    const allSegments = ["governance", "policy-packs", idSegment];
-    const lastLabel = labelForSegment(idSegment, allSegments, 2, options);
+    const lastLabel = resolvePolicyPackDetailBreadcrumbLabel(idSegment, null);
 
     return [
       ...items,
@@ -438,6 +443,10 @@ function labelForSegment(
     return "Policy pack detail";
   }
 
+  if (prev === "policy-packs") {
+    return resolvePolicyPackDetailBreadcrumbLabel(segment, null);
+  }
+
   const demoTitle = buyer ? BUYER_DEMO_PATH_SEGMENT_TITLES[segment] ?? DEMO_PATH_SEGMENT_TITLES[segment] : DEMO_PATH_SEGMENT_TITLES[segment];
 
   if (
@@ -555,49 +564,4 @@ function tryBuildGovernanceRunScopedBreadcrumbs(
     { label: packageTitle, href: reviewHref },
     { label: "Governance" },
   ];
-}
-
-function tryBuildExecutiveReviewBreadcrumbs(
-  normalizedPath: string,
-  options?: GetBreadcrumbsOptions,
-): BreadcrumbItem[] | null {
-  const segments = normalizedPath.split("/").filter(Boolean);
-
-  if (segments.length < 3 || segments[0] !== "executive" || segments[1] !== "reviews") {
-    return null;
-  }
-
-  const runId = segments[2] ?? "";
-
-  if (runId.length === 0) {
-    return null;
-  }
-
-  const reviewsListHref = resolveReviewsListBreadcrumbHref(options);
-  const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review package";
-  const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
-  const executiveHref = `/executive/reviews/${encodeURIComponent(runId)}`;
-
-  const items: BreadcrumbItem[] = [
-    { label: "Review packages", href: reviewsListHref },
-    { label: packageTitle, href: reviewHref },
-  ];
-
-  if (segments.length >= 5 && segments[3] === "findings") {
-    const findingId = segments[4] ?? "";
-    const findingLabel = DEMO_PATH_SEGMENT_TITLES[findingId] ?? "Finding";
-
-    items.push({ label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle, href: executiveHref });
-    items.push({ label: findingLabel });
-
-    return items;
-  }
-
-  if (segments.length === 3) {
-    items.push({ label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle });
-
-    return items;
-  }
-
-  return null;
 }

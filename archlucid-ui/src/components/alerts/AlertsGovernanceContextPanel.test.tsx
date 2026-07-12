@@ -3,27 +3,27 @@ import { describe, expect, it } from "vitest";
 
 import { AlertsGovernanceContextPanel } from "@/components/alerts/AlertsGovernanceContextPanel";
 import {
-  ALERTS_APPROVAL_QUEUE_GUIDANCE,
+  ALERTS_CONTEXT_NOTE,
   ALERTS_HOW_ALERTS_WORK_LABEL,
   ALERTS_PAGE_SUBTITLE,
   ALERTS_QUICK_GUIDANCE_BULLETS,
 } from "@/lib/alerts-page-copy";
 
 describe("AlertsGovernanceContextPanel", () => {
-  it("renders approval queue guidance, scan bullets, and collapsible help", () => {
+  it("renders contextual note and collapsible help", () => {
     render(<AlertsGovernanceContextPanel canMutateAlertInbox />);
 
     expect(screen.getByTestId("alerts-governance-context-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("inline-guidance-approval-queue")).toHaveTextContent("Approval queue:");
-    expect(screen.getByText(new RegExp(ALERTS_APPROVAL_QUEUE_GUIDANCE, "i"))).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open governance" })).toHaveAttribute("href", "/governance");
+    expect(screen.getByText(ALERTS_CONTEXT_NOTE)).toBeInTheDocument();
+    expect(screen.getByText(ALERTS_HOW_ALERTS_WORK_LABEL)).toBeInTheDocument();
+    expect(screen.queryByTestId("inline-guidance-approval-queue")).not.toBeInTheDocument();
 
     for (const bullet of ALERTS_QUICK_GUIDANCE_BULLETS) {
       expect(screen.getByText(bullet)).toBeInTheDocument();
     }
 
-    expect(screen.getByText(ALERTS_HOW_ALERTS_WORK_LABEL)).toBeInTheDocument();
     expect(screen.getByText(/create at least one enabled rule/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open alerts help" })).toHaveAttribute("href", "/help/alerts");
   });
 
   it("uses reader-oriented help steps when triage writes are unavailable", () => {
@@ -36,6 +36,6 @@ describe("AlertsGovernanceContextPanel", () => {
 
 describe("alerts page copy", () => {
   it("keeps the inbox subtitle action-oriented", () => {
-    expect(ALERTS_PAGE_SUBTITLE).toContain("Triage");
+    expect(ALERTS_PAGE_SUBTITLE).toContain("Triage governance");
   });
 });

@@ -14,6 +14,8 @@ import { SamlSpConfigurationForm } from "./SamlSpConfigurationForm";
 
 describe("SamlSpConfigurationForm", () => {
   beforeEach(() => {
+    vi.stubGlobal("confirm", vi.fn(() => true));
+
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -68,6 +70,10 @@ describe("SamlSpConfigurationForm", () => {
 
     fireEvent.change(screen.getByTestId("saml-mapping-idp-Admin"), {
       target: { value: "archlucid-admins" },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("saml-save-configuration-button")).not.toBeDisabled();
     });
 
     fireEvent.click(screen.getByTestId("saml-save-configuration-button"));

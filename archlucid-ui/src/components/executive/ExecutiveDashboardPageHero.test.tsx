@@ -1,21 +1,17 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
-
-vi.mock("@/components/SeedSampleReviewButton", () => ({
-  SeedSampleReviewButton: () => <button type="button">Load sample workspace</button>,
-}));
 
 import { ExecutiveDashboardPageHero } from "@/components/executive/ExecutiveDashboardPageHero";
 
 describe("ExecutiveDashboardPageHero", () => {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
-  it("renders consolidated hero copy and learn-more link when the dashboard is empty", () => {
+  it("renders consolidated hero copy and quiet learn-more link when the dashboard is empty", () => {
     render(<ExecutiveDashboardPageHero dashboardEmpty />);
 
-    expect(screen.getByTestId("executive-dashboard-page-hero")).toBeInTheDocument();
+    expect(screen.getByTestId("executive-dashboard-page-hero")).toHaveAttribute("data-dashboard-empty", "true");
     expect(screen.getByRole("heading", { name: v.portfolioPageTitle })).toBeInTheDocument();
     expect(screen.getByText(v.portfolioPageLead)).toBeInTheDocument();
     expect(screen.queryByText(v.portfolioPageNextStep)).not.toBeInTheDocument();
@@ -23,17 +19,16 @@ describe("ExecutiveDashboardPageHero", () => {
       "href",
       v.portfolioPageLearnMoreHref,
     );
-    expect(screen.getByRole("link", { name: v.emptyStatePrimaryAction })).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByRole("button", { name: v.emptyStateSecondaryAction })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "View sample portfolio dashboard" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: v.emptyStatePrimaryAction })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: v.emptyStateSecondaryAction })).not.toBeInTheDocument();
   });
 
-  it("hides hero actions when metrics are available", () => {
+  it("keeps the learn-more link when metrics are available", () => {
     render(<ExecutiveDashboardPageHero dashboardEmpty={false} />);
 
+    expect(screen.getByTestId("executive-dashboard-page-hero")).toHaveAttribute("data-dashboard-empty", "false");
     expect(screen.getByText(v.portfolioPageLead)).toBeInTheDocument();
     expect(screen.queryByText(v.portfolioPageNextStep)).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: v.emptyStatePrimaryAction })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: v.portfolioPageLearnMoreLabel })).toBeInTheDocument();
   });
 });

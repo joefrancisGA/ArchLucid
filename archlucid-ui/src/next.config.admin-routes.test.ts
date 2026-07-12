@@ -1,29 +1,60 @@
-import { describe, expect, it } from "vitest";
-
-import nextConfig from "../next.config";
-
-describe("next.config administration routes (TB-522)", () => {
-  it("redirects legacy /settings/roles index to canonical users tab URL", async () => {
-    const redirectRules = await nextConfig.redirects?.();
-
-    expect(redirectRules).toBeDefined();
-
-    const rolesRedirect = redirectRules?.find(
-      (rule) => rule.source === "/settings/roles" && rule.destination === "/settings/users?tab=roles",
-    );
-
-    expect(rolesRedirect?.permanent).toBe(true);
-  });
-
-  it("rewrites /settings/users to the tabbed roles page implementation", async () => {
-    const rewriteRules = await nextConfig.rewrites?.();
-
-    expect(rewriteRules).toBeDefined();
-
-    const usersRewrite = rewriteRules?.find(
-      (rule) => rule.source === "/settings/users" && rule.destination === "/settings/roles",
-    );
-
-    expect(usersRewrite).toBeDefined();
-  });
-});
+import { describe, expect, it } from "vitest";
+
+import nextConfig from "../next.config";
+
+describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
+  it("keeps permanent redirects for legacy administration URLs", async () => {
+    const redirectRules = await nextConfig.redirects?.();
+
+    expect(redirectRules).toBeDefined();
+
+    expect(
+      redirectRules?.find(
+        (rule) =>
+          rule.source === "/workspace/security-trust"
+          && rule.destination === "/settings/security-trust",
+      )?.permanent,
+    ).toBe(true);
+
+    expect(
+      redirectRules?.find(
+        (rule) => rule.source === "/admin/users" && rule.destination === "/settings/users",
+      )?.permanent,
+    ).toBe(true);
+
+    expect(
+      redirectRules?.find(
+        (rule) =>
+          rule.source === "/settings/roles"
+          && rule.destination === "/settings/users?tab=roles",
+      )?.permanent,
+    ).toBe(true);
+  });
+
+  it("does not rewrite canonical administration URLs to legacy App Router trees (TB-751)", async () => {
+    const rewriteRules = await nextConfig.rewrites?.();
+
+    expect(rewriteRules).toBeDefined();
+
+    expect(
+      rewriteRules?.some(
+        (rule) =>
+          rule.source === "/settings/security-trust"
+          || rule.source === "/settings/security-trust/:path*",
+      ),
+    ).toBe(false);
+
+    expect(
+      rewriteRules?.some(
+        (rule) => rule.source === "/settings/users" || rule.source === "/settings/users/:path*",
+      ),
+    ).toBe(false);
+
+    expect(
+      rewriteRules?.some(
+        (rule) =>
+          rule.source === "/settings/support" || rule.source === "/settings/support/:path*",
+      ),
+    ).toBe(false);
+  });
+});

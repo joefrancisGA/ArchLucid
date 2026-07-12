@@ -4,9 +4,36 @@ export const COLOR_MODE_STORAGE_KEY = "archlucid_color_mode";
 
 export type ColorModePreference = "light" | "dark" | "system";
 
+export type ResolvedColorModeAppearance = "light" | "dark";
+
+const LEGACY_COLOR_MODE_ALIASES_TO_SYSTEM = new Set([
+  "auto",
+  "default",
+  "teal",
+  "charcoal",
+  "authority",
+  "charcoal-authority",
+]);
+
 export function normalizeColorModePreference(value: string | null | undefined): ColorModePreference {
-  if (value === "light" || value === "dark" || value === "system") {
-    return value;
+  if (value === null || value === undefined) {
+    return "system";
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return "system";
+  }
+
+  const normalized = trimmed.toLowerCase();
+
+  if (normalized === "light" || normalized === "dark" || normalized === "system") {
+    return normalized;
+  }
+
+  if (LEGACY_COLOR_MODE_ALIASES_TO_SYSTEM.has(normalized)) {
+    return "system";
   }
 
   return "system";
@@ -44,6 +71,14 @@ export function readSystemPrefersDark(): boolean {
   }
 
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+/** Resolved appearance for rendering. Never persist this value as the user preference. */
+export function resolveColorModeAppearance(
+  preference: ColorModePreference,
+  systemPrefersDark: boolean,
+): ResolvedColorModeAppearance {
+  return resolveDarkAppearance(preference, systemPrefersDark) ? "dark" : "light";
 }
 
 /** Whether the UI is currently showing dark styling for the stored preference. */
@@ -128,21 +163,50 @@ export function persistColorModePreference(
   applyColorModePreference(preference, systemPrefersDark);
 }
 
-/** When authenticated, server preference wins over stale localStorage. */
-export async function syncColorModePreferenceFromServer(): Promise<void> {
+export function clearCachedColorModePreference(): void {
   if (typeof window === "undefined") {
     return;
   }
 
   try {
+    window.localStorage.removeItem(COLOR_MODE_STORAGE_KEY);
+  }
+  catch {
+    // ignore
+  }
+
+  const systemPrefersDark = readSystemPrefersDark();
+
+  applyColorModePreference("system", systemPrefersDark);
+}
+
+/** When authenticated, server preference wins over stale localStorage. */
+export async function syncColorModePreferenceFromServer(): Promise<ColorModePreference | null> {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
     const remote = await getUserPreferences();
-    const normalized = normalizeColorModePreference(remote.appearancePreference);
     const systemPrefersDark = readSystemPrefersDark();
+    const localPreference = readStoredColorModePreference();
+
+    if (!remote.appearancePreferenceIsExplicit && localPreference !== "system") {
+      await persistColorModePreferenceToServer(localPreference);
+      persistColorModePreference(localPreference, systemPrefersDark);
+
+      return localPreference;
+    }
+
+    const normalized = normalizeColorModePreference(remote.appearancePreference);
 
     persistColorModePreference(normalized, systemPrefersDark);
+
+    return normalized;
   }
   catch {
     // Anonymous, offline, or API unavailable — keep localStorage fallback.
+    return null;
   }
 }
 

@@ -4,7 +4,6 @@ import { OperateAnalysisNavGroupBuilder } from "@/lib/operate-analysis-nav-group
 import { OperateArchitectAdvancedNavGroupBuilder } from "@/lib/operate-architect-advanced-nav-group-builder";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
 import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-nav-group-builder";
-import { OperatePlatformOpsNavGroupBuilder } from "@/lib/operate-platform-ops-nav-group-builder";
 import { OperateReportsNavGroupBuilder } from "@/lib/operate-reports-nav-group-builder";
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator-admin-nav-group-builder";
 import { OperatorSystemAdminNavGroupBuilder } from "@/lib/operator-system-admin-nav-group-builder";
@@ -26,7 +25,6 @@ const NAV_GROUP_BUILDERS: NavGroupBuilder[] = [
   new OperateGovernanceNavGroupBuilder(),
   new OperateReportsNavGroupBuilder(),
   new OperateIntegrationsNavGroupBuilder(),
-  new OperatePlatformOpsNavGroupBuilder(),
   new OperatorAdminNavGroupBuilder(),
   new OperatorSystemAdminNavGroupBuilder(),
 ];

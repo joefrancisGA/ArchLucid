@@ -23,7 +23,7 @@ test.describe("operator shell smoke", () => {
         .getByTestId("pilot-command-center-card")
         .or(appMain.getByTestId("operator-home-pilot-command-center-host").getByTestId("pilot-command-center-card")),
     ).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Workspace activity", level: 2 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Recent reviews", level: 2 })).toBeVisible();
   });
 
   test("runs list with default project shows a run row without generic error boundary @smoke", async ({ page }) => {

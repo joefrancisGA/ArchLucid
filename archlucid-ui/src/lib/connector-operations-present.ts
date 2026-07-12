@@ -40,12 +40,12 @@ export const CONNECTOR_PURPOSE_GROUPS: readonly ConnectorPurposeGroup[] = [
   {
     id: "publishing",
     title: "Publish and digest updates",
-    description: "Share review artifacts to knowledge bases and scheduled architecture digests.",
+    description: "Share review artifacts to knowledge bases and send scheduled architecture digests to stakeholders.",
   },
   {
     id: "technical",
-    title: "Background delivery",
-    description: "Advanced event delivery for asynchronous integration workflows.",
+    title: "Advanced delivery infrastructure",
+    description: "Background event delivery for asynchronous integration workflows — not required for standard reviews.",
   },
 ] as const;
 

@@ -12,6 +12,7 @@
 /coverage
 /playwright-report/
 /test-results/
+/.lighthouseci/
 
 # next.js
 /.next/
@@ -23,6 +24,11 @@
 
 # production
 /build
+/.build/
+
+# generated documentation PDFs (TB-723)
+/public/docs-pdf/*.pdf
+/public/docs-pdf/manifest.json
 
 # misc
 .DS_Store

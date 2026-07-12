@@ -10,10 +10,36 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { parseEvolutionPlanSnapshot } from "@/lib/evolution-plan-snapshot";
+import {
+  DEFAULT_IMPACT_PREVIEW_COMPARISON_SCOPE,
+  type ImpactPreviewBaselineOption,
+  type ImpactPreviewComparisonScope,
+} from "@/lib/impact-preview-page-types";
+import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+import { runSummaryDisplayLabel } from "@/lib/run-summary-display-label";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
 
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
 import type { EvolutionReviewPageServerLoad } from "./load-evolution-review-page-data";
+
+function mergeBaselineOptions(
+  linkedRunIds: readonly string[],
+  finalizedRuns: ReadonlyArray<{ readonly runId: string; readonly label: string }>,
+): ImpactPreviewBaselineOption[] {
+  const byId = new Map<string, ImpactPreviewBaselineOption>();
+
+  for (const run of finalizedRuns) {
+    byId.set(run.runId, { runId: run.runId, label: run.label });
+  }
+
+  for (const runId of linkedRunIds) {
+    if (!byId.has(runId)) {
+      byId.set(runId, { runId, label: runId });
+    }
+  }
+
+  return Array.from(byId.values());
+}
 
 export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad): EvolutionReviewPageViewModel {
   const isDemo = serverLoad.mode === "demo";
@@ -23,6 +49,13 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
   );
   const [selectedId, setSelectedId] = useState<string | null>(
     serverLoad.mode === "live" ? serverLoad.selectedId : null,
+  );
+  const [selectedBaselineId, setSelectedBaselineId] = useState<string | null>(null);
+  const [baselineRunOptions, setBaselineRunOptions] = useState<ReadonlyArray<{ readonly runId: string; readonly label: string }>>(
+    [],
+  );
+  const [comparisonScope, setComparisonScope] = useState<ImpactPreviewComparisonScope>(
+    DEFAULT_IMPACT_PREVIEW_COMPARISON_SCOPE,
   );
   const [detail, setDetail] = useState<EvolutionResultsResponse | null>(
     serverLoad.mode === "live" ? serverLoad.detail : null,
@@ -92,6 +125,39 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
       return;
     }
 
+    let cancelled = false;
+
+    void loadProjectRunsMergedWithDemoFallback("default", { forCompare: true, committedOnly: true })
+      .then((merged) => {
+        if (cancelled) {
+          return;
+        }
+
+        setBaselineRunOptions(
+          merged.items.map((item) => ({
+            runId: item.runId,
+            label: runSummaryDisplayLabel(item),
+          })),
+        );
+      })
+      .catch(() => {
+        if (cancelled) {
+          return;
+        }
+
+        setBaselineRunOptions([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isDemo]);
+
+  useEffect(() => {
+    if (isDemo) {
+      return;
+    }
+
     if (skipInitialClientListFetchRef.current) {
       skipInitialClientListFetchRef.current = false;
 
@@ -129,6 +195,31 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
     return parseEvolutionPlanSnapshot(detail.planSnapshotJson);
   }, [detail]);
 
+  const baselineOptions = useMemo(
+    () => mergeBaselineOptions(planSnapshot?.linkedArchitectureRunIds ?? [], baselineRunOptions),
+    [baselineRunOptions, planSnapshot?.linkedArchitectureRunIds],
+  );
+
+  useEffect(() => {
+    if (baselineOptions.length === 0) {
+      setSelectedBaselineId(null);
+
+      return;
+    }
+
+    setSelectedBaselineId((prev) => {
+      if (prev !== null && baselineOptions.some((option) => option.runId === prev)) {
+        return prev;
+      }
+
+      return baselineOptions[0]?.runId ?? null;
+    });
+  }, [baselineOptions]);
+
+  const toggleComparisonScope = useCallback((key: keyof ImpactPreviewComparisonScope) => {
+    setComparisonScope((prev) => ({ ...prev, [key]: !prev[key] }));
+  }, []);
+
   const onSimulate = useCallback(async () => {
     if (selectedId === null || selectedId === "") {
       return;
@@ -153,6 +244,11 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
     candidates,
     selectedId,
     setSelectedId,
+    selectedBaselineId,
+    setSelectedBaselineId,
+    baselineOptions,
+    comparisonScope,
+    toggleComparisonScope,
     detail,
     listLoading,
     detailLoading,

@@ -10,6 +10,8 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { DigestsBrowseIncludesPreview } from "@/components/digests/DigestsBrowseIncludesPreview";
+import { DigestsBrowseSetupChecklist } from "@/components/digests/DigestsBrowseSetupChecklist";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -20,8 +22,11 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
-import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
+import { buildDigestSetupChecklistItems, formatDigestInstant } from "@/lib/digest-setup-gap-actions";
+import {
+  DIGESTS_BROWSE_EMPTY_DESCRIPTION,
+  DIGESTS_BROWSE_EMPTY_TITLE,
+} from "@/lib/digests-browse-copy";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -32,6 +37,7 @@ import {
 } from "@/lib/api";
 import type { ArchitectureDigest } from "@/types/advisory-scheduling";
 import type { DigestDeliveryAttempt } from "@/types/digest-subscriptions";
+import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 export type DigestsBrowseContentProps = {
   /** When incremented by the hub Refresh control, reloads the digest list. */
@@ -40,6 +46,8 @@ export type DigestsBrowseContentProps = {
   readonly onLoaded?: () => void;
   /** When true, omits the page title (hub already renders OperatorPageHeader). */
   readonly hidePageHeader?: boolean;
+  /** Weekly health snapshot for setup checklist and browse guidance. */
+  readonly healthSnap?: WeeklyDigestHealthDto | null;
 };
 
 function resolveDeliveryStatus(
@@ -103,8 +111,7 @@ function downloadDigestExport(digest: ArchitectureDigest): void {
  * Browse tab: architecture digest history and detail.
  */
 export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): ReactElement {
-  const { refreshToken = 0, onLoaded, hidePageHeader = false } = props;
-  const canMutateEnterpriseShell = useOperateCapability();
+  const { refreshToken = 0, onLoaded, hidePageHeader = false, healthSnap = null } = props;
   const [digests, setDigests] = useState<ArchitectureDigest[]>([]);
   const [selected, setSelected] = useState<ArchitectureDigest | null>(null);
   const [deliveryAttempts, setDeliveryAttempts] = useState<DigestDeliveryAttempt[]>([]);
@@ -169,11 +176,10 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
     }
   }
 
-  const emptyStateFooter: ReactElement | undefined = canMutateEnterpriseShell ? (
-    <Button asChild size="sm" variant="outline">
-      <Link href="/advisory?tab=schedules">Send test digest</Link>
-    </Button>
-  ) : undefined;
+  const setupChecklist =
+    healthSnap !== null ? buildDigestSetupChecklistItems(healthSnap, digests.length > 0) : null;
+  const setupIncomplete: boolean =
+    setupChecklist !== null ? setupChecklist.some((item) => !item.complete) : false;
 
   return (
     <div className="w-full max-w-[1400px]" data-testid="digests-browse-content">
@@ -203,18 +209,21 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
       ) : null}
 
       {!loading && digests.length === 0 && failure === null ? (
-        <div className="mt-4" data-testid="digests-browse-empty-state">
+        <div className="mt-4 space-y-4" data-testid="digests-browse-empty-state">
+          {setupChecklist !== null && setupIncomplete ? (
+            <DigestsBrowseSetupChecklist items={setupChecklist} />
+          ) : null}
+          <DigestsBrowseIncludesPreview />
           <EnterpriseCompactEmptyState
             testId="digests-empty-state"
-            title="No digests generated yet"
-            description="Configure a schedule or send a test digest to generate the first digest."
-            actions={[
-              { label: "Configure schedule", href: "/digests?tab=schedule", variant: "primary" },
-              { label: "Create subscription", href: "/digests?tab=subscriptions", variant: "outline" },
-            ]}
-            footer={emptyStateFooter}
+            title={DIGESTS_BROWSE_EMPTY_TITLE}
+            description={DIGESTS_BROWSE_EMPTY_DESCRIPTION}
           />
         </div>
+      ) : null}
+
+      {setupChecklist !== null && setupIncomplete && digests.length > 0 ? (
+        <DigestsBrowseSetupChecklist items={setupChecklist} />
       ) : null}
 
       {digests.length > 0 ? (

@@ -183,4 +183,14 @@ public sealed class ArchitectureRequest
         get;
         set;
     }
+
+    /// <summary>
+    ///     Explicit create-vs-review intent from homepage CTAs (<see cref="Common.ArchitectureWorkflowIntent" />).
+    ///     Persisted in request JSON for package-origin derivation at run create (TB-740).
+    /// </summary>
+    public string? WorkflowIntent
+    {
+        get;
+        set;
+    }
 }

@@ -73,6 +73,11 @@
  */
 
 import {
+  applyDevRoleOverrideToPrincipal,
+  DEV_TEST_ACTOR_ROLE_HEADER,
+  readDevRoleOverrideFromDocument,
+} from "@/lib/dev-testing-overrides";
+import {
   AUTHORITY_RANK,
   collectArchLucidRoleClaimValues,
   hasRecognizedArchLucidRoleValues,
@@ -165,6 +170,12 @@ export async function buildAuthMeProxyRequestInit(): Promise<RequestInit> {
 
   if (bearer !== undefined && bearer !== null && bearer.trim().length > 0) {
     headers.set("Authorization", `Bearer ${bearer}`);
+  }
+
+  const devRoleOverride = readDevRoleOverrideFromDocument();
+
+  if (devRoleOverride !== null) {
+    headers.set(DEV_TEST_ACTOR_ROLE_HEADER, devRoleOverride);
   }
 
   return mergeRegistrationScopeForProxy({
@@ -302,7 +313,7 @@ export async function loadCurrentPrincipal(options?: { init?: RequestInit }): Pr
 
     const body = (await response.json()) as AuthMeResponse;
 
-    return normalizeAuthMeResponse(body);
+    return applyDevRoleOverrideToPrincipal(normalizeAuthMeResponse(body));
   } catch {
     return createSyntheticPrincipal("me-network");
   }

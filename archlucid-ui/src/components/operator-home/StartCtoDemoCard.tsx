@@ -1,9 +1,10 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback } from "react";
 
-import { Button } from "@/components/ui/button";
+import { CtoDemoCustomerStartError } from "@/components/cto-demo/CtoDemoCustomerStartError";
+import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { EXPLORE_ARCHLUCID_ROW_CLASS } from "@/components/operator-home/explore-archlucid-row-class";
 import {
   BUYER_HOME_START_CTO_DEMO_ARIA,
@@ -11,12 +12,25 @@ import {
   BUYER_HOME_START_CTO_DEMO_HEADING,
   BUYER_HOME_START_CTO_DEMO_LEAD,
 } from "@/lib/buyer-polish-copy";
-import { getStartCtoDemoTourHref } from "@/lib/buyer-cto-demo-tour";
+import { buyerCtoDemoCustomerStartHref } from "@/lib/buyer-cto-demo-customer-start";
+import { useBuyerCtoDemoCustomerStart } from "@/hooks/use-buyer-cto-demo-customer-start";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /** Buyer-facing example review row inside Explore ArchLucid. */
 export function StartCtoDemoCard(): React.JSX.Element {
-  const startHref = getStartCtoDemoTourHref();
+  const router = useRouter();
+  const customerStart = useBuyerCtoDemoCustomerStart();
+
+  const handleStart = useCallback(async () => {
+    const outcome = await customerStart.startDemo();
+
+    if (outcome === null || outcome.status === "failed") {
+      return;
+    }
+
+    router.push(buyerCtoDemoCustomerStartHref());
+  }, [customerStart, router]);
 
   return (
     <section
@@ -30,12 +44,33 @@ export function StartCtoDemoCard(): React.JSX.Element {
       <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {BUYER_HOME_START_CTO_DEMO_LEAD}
       </p>
-      <div className="mt-3">
-        <Button asChild className="w-full justify-center sm:w-auto">
-          <Link href={startHref} data-testid="start-cto-demo-cta">
-            {BUYER_HOME_START_CTO_DEMO_CTA}
-          </Link>
-        </Button>
+      {customerStart.sampleModeNotice !== null ? (
+        <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          {customerStart.sampleModeNotice}
+        </p>
+      ) : null}
+      <div className="mt-3 space-y-3">
+        <ReviewStartLoadingButton
+          type="button"
+          variant="primary"
+          className="w-full justify-center sm:w-auto"
+          idleLabel={BUYER_HOME_START_CTO_DEMO_CTA}
+          loadingLabel={customerStart.loadingLabel}
+          isLoading={customerStart.isStarting}
+          onClick={() => {
+            void handleStart();
+          }}
+          data-testid="start-cto-demo-cta"
+        />
+        {customerStart.errorMessage !== null ? (
+          <CtoDemoCustomerStartError
+            message={customerStart.errorMessage}
+            tryingAgain={customerStart.isStarting}
+            onTryAgain={() => {
+              void handleStart();
+            }}
+          />
+        ) : null}
       </div>
     </section>
   );

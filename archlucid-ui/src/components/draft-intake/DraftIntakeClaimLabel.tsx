@@ -3,15 +3,20 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type DraftIntakeClaimSurface =
+  | "architecture-creation-draft"
   | "structural-admission"
   | "llm-intake-reasoning"
   | "redirected-draft"
   | "admitted-draft"
   | "spawned-review";
 
-import { GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT } from "@/lib/guided-intake-copy";
+import {
+  GUIDED_INTAKE_CREATION_DRAFT_GUIDANCE_CALLOUT,
+  GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT,
+} from "@/lib/guided-intake-copy";
 
 const SURFACE_COPY: Record<DraftIntakeClaimSurface, string> = {
+  "architecture-creation-draft": GUIDED_INTAKE_CREATION_DRAFT_GUIDANCE_CALLOUT,
   "structural-admission": GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT,
   "llm-intake-reasoning": "Intake assistant notes — not part of the review evidence trail.",
   "redirected-draft": "Intake decision receipt — not an architecture finding",
@@ -24,7 +29,7 @@ export type DraftIntakeClaimLabelProps = {
 };
 
 function claimLabelClassName(surface: DraftIntakeClaimSurface): string {
-  if (surface === "structural-admission") {
+  if (surface === "structural-admission" || surface === "architecture-creation-draft") {
     return cn(
       "m-0 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-300",
       OPERATOR_TYPOGRAPHY.body,

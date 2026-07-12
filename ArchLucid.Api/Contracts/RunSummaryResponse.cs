@@ -139,4 +139,11 @@ public class RunSummaryResponse
         get;
         set;
     }
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.PackageOrigin" />
+    public string? PackageOrigin
+    {
+        get;
+        set;
+    }
 }

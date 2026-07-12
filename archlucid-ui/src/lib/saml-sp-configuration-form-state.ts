@@ -92,13 +92,37 @@ export function buildSamlSpActivateRequest(values: SamlSpConfigurationFormValues
 export { ARCHLUCID_ROLES as SAML_SP_ARCHLUCID_ROLES };
 
 export function isSamlSpConfigurationFormValid(values: SamlSpConfigurationFormValues): boolean {
+  return resolveSamlSpConfigurationValidationError(values) === null;
+}
+
+/** Returns the first validation error for SAML SP configuration, if any. */
+export function resolveSamlSpConfigurationValidationError(values: SamlSpConfigurationFormValues): string | null {
   if (values.issuerUri.trim().length === 0) {
-    return false;
+    return "Issuer / entity ID is required.";
   }
 
   if (values.roleClaimName.trim().length === 0) {
-    return false;
+    return "Attribute used for roles/groups is required.";
   }
 
-  return values.mappings.some((row) => row.idpValue.trim().length > 0 && row.archLucidRole.trim().length > 0);
+  const populatedMappings = values.mappings.filter((row) => row.idpValue.trim().length > 0);
+
+  if (!populatedMappings.some((row) => row.archLucidRole.trim().length > 0)) {
+    return "Add at least one IdP group or role mapping.";
+  }
+
+  for (const row of populatedMappings) {
+    if (row.archLucidRole.trim().length === 0) {
+      return "Complete every role mapping row or clear unused values.";
+    }
+  }
+
+  const idpValues = populatedMappings.map((row) => row.idpValue.trim().toLowerCase());
+  const duplicate = idpValues.find((value, index) => idpValues.indexOf(value) !== index);
+
+  if (duplicate !== undefined) {
+    return `Duplicate IdP group or role value: ${duplicate}`;
+  }
+
+  return null;
 }

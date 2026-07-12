@@ -9,4 +9,11 @@ public sealed class CreateDraftRequest
         get;
         set;
     } = string.Empty;
+
+    /// <summary>Optional <see cref="Common.ArchitectureWorkflowIntent" /> from homepage CTA query param.</summary>
+    public string? WorkflowIntent
+    {
+        get;
+        set;
+    }
 }

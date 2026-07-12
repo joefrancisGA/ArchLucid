@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LlmBudgetUtilizationMeter } from "@/components/LlmBudgetUtilizationMeter";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import { OPERATOR_BILLING_AI_OVERAGE_NOTE } from "@/lib/marketing/marketing-public-pricing";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export function OperatorBillingUsageSection() {
@@ -29,19 +30,16 @@ export function OperatorBillingUsageSection() {
   return (
     <section id="billing-usage" className="scroll-mt-24 space-y-3" data-testid="operator-billing-usage-section">
       <div>
-        <h2 className={OPERATOR_NAV_GROUP_LABEL}>
-          Usage and overages
-        </h2>
+        <h2 className={OPERATOR_NAV_GROUP_LABEL}>AI usage and credits</h2>
         <p className={cn("mt-1 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
-          Included reviews, architect seats, and AI usage for the current UTC month. Overage charges apply after included
-          allocations are consumed.
+          Track included AI usage for the current month, prepaid credit balance, and auto-replenish settings below.
         </p>
       </div>
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Monthly AI usage</CardTitle>
           <CardDescription>
-            Tracks AI analysis spend against your plan&apos;s included monthly allocation and any purchased credits.
+            Included AI usage is part of your plan allowance. {OPERATOR_BILLING_AI_OVERAGE_NOTE}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-0">

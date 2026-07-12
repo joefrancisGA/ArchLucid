@@ -54,6 +54,7 @@ public static class OutboxAwareIntegrationEventPublishing
             {
                 if (logger.IsEnabled(LogLevel.Warning))
 
+                    // codeql[cs/exposure-of-sensitive-information]: canonical IntegrationEventTypes URN; sanitized inside Core helper (docs/library/CODEQL_TRIAGE.md).
                     logger.LogWarningIntegrationEventSerializationFailed(ex, eventType);
 
                 return;
@@ -86,6 +87,7 @@ public static class OutboxAwareIntegrationEventPublishing
             {
                 if (logger.IsEnabled(LogLevel.Warning))
 
+                    // codeql[cs/exposure-of-sensitive-information]: canonical IntegrationEventTypes URN; sanitized inside Core helper (docs/library/CODEQL_TRIAGE.md).
                     logger.LogWarningIntegrationEventOutboxEnqueueFailed(ex, eventType);
             }
 

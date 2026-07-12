@@ -219,7 +219,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     const nav = screen.getByRole("navigation", { name: "Architecture" });
     expect(within(nav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(nav).getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/reviews/new");
-    expect(within(nav).getByRole("link", { name: "Review packages" })).toHaveAttribute(
+    expect(within(nav).getByRole("link", { name: "Architecture packages" })).toHaveAttribute(
       "href",
       "/reviews?projectId=default",
     );

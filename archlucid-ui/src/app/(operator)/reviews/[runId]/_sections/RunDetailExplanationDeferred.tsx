@@ -23,6 +23,12 @@ type RunDetailExplanationDeferredProps = {
   readonly goldenManifestJsonForExport: unknown | null;
   readonly manifestRuleSetId?: string | null;
   readonly manifestRuleSetVersion?: string | null;
+  readonly providerNeutralWorkItems?: boolean;
+  readonly architectureWorkItemContext?: {
+    readonly architectureName: string;
+    readonly architectureOverview: string;
+    readonly ownerLabel: string | null;
+  } | null;
 };
 
 /**
@@ -46,6 +52,8 @@ export async function RunDetailExplanationDeferred(
     goldenManifestJsonForExport,
     manifestRuleSetId,
     manifestRuleSetVersion,
+    providerNeutralWorkItems,
+    architectureWorkItemContext,
   } = props;
 
   const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
@@ -80,6 +88,8 @@ export async function RunDetailExplanationDeferred(
       insightDensityView={insightDensityView}
       manifestRuleSetId={manifestRuleSetId}
       manifestRuleSetVersion={manifestRuleSetVersion}
+      providerNeutralWorkItems={providerNeutralWorkItems}
+      architectureWorkItemContext={architectureWorkItemContext}
     />
   );
 }

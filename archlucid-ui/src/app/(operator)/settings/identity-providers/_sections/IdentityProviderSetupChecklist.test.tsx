@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";
 
 describe("IdentityProviderSetupChecklist", () => {
-  it("shows ApiKey discovery guidance and config key", () => {
+  it("shows ApiKey discovery guidance without config keys by default", () => {
     render(
       <IdentityProviderSetupChecklist
         configDiagnostics={{
@@ -29,10 +29,10 @@ describe("IdentityProviderSetupChecklist", () => {
     );
 
     expect(screen.getByText(/API key mode does not use OIDC discovery/i)).toBeInTheDocument();
-    expect(screen.getAllByText("ArchLucidAuth:Mode").length).toBeGreaterThan(0);
+    expect(screen.queryByText("ArchLucidAuth:Mode")).not.toBeInTheDocument();
   });
 
-  it("shows development bypass as action needed with production-like auth doc link", () => {
+  it("shows local development sign-in guidance without exposing DevelopmentBypass", () => {
     render(
       <IdentityProviderSetupChecklist
         configDiagnostics={{
@@ -57,13 +57,43 @@ describe("IdentityProviderSetupChecklist", () => {
     );
 
     expect(screen.getByText(/Next setup step:/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/DevelopmentBypass is local-only/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Local development sign-in is enabled/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/DevelopmentBypass/i)).not.toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Setup guide" }).length).toBeGreaterThan(0);
+  });
+
+  it("shows config keys only in technical diagnostics mode", () => {
+    render(
+      <IdentityProviderSetupChecklist
+        showTechnicalDetails
+        configDiagnostics={{
+          authMode: "ApiKey",
+          audienceConfigured: true,
+          issuerOrAuthorityConfigured: null,
+          openIdDiscoverySucceeded: null,
+          saml2Enabled: false,
+          spEntityIdConfigured: null,
+          samlRoleClaimSourcesConfigured: null,
+          tenantClaimMappingConfigured: null,
+          tenantIdentityProviderProtocol: null,
+          jwksConfigured: null,
+          scimProvisioningConfigured: null,
+          scimBearerTokenActive: null,
+          roleClaimNameConfigured: true,
+          misconfigurationHints: [],
+        }}
+        configDiagnosticsNote={null}
+        samlOperationalHealth={{ saml2Enabled: false }}
+      />,
+    );
+
+    expect(screen.getAllByText("ArchLucidAuth:Mode").length).toBeGreaterThan(0);
   });
 
   it("shows SAML certificate unknown when enabled without expiry", () => {
     render(
       <IdentityProviderSetupChecklist
+        showTechnicalDetails
         configDiagnostics={{
           authMode: "JwtBearer",
           audienceConfigured: true,

@@ -266,7 +266,29 @@ export function stripLeadingContributorScopeBlockquote(markdown: string): string
 
 /** Removes HTML comments from markdown before operator-facing help render. */
 export function stripHtmlComments(markdown: string): string {
-  return markdown.replace(/<!--[\s\S]*?-->/g, "");
+  let result = "";
+  let cursor = 0;
+
+  while (cursor < markdown.length) {
+    const open = markdown.indexOf("<!--", cursor);
+
+    if (open === -1) {
+      result += markdown.slice(cursor);
+      break;
+    }
+
+    result += markdown.slice(cursor, open);
+    const close = markdown.indexOf("-->", open + 4);
+
+    if (close === -1) {
+      result += markdown.slice(open);
+      break;
+    }
+
+    cursor = close + 3;
+  }
+
+  return result;
 }
 
 /** Drops contributor-only sections that must not appear in buyer help topics. */

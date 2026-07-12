@@ -6,9 +6,17 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 const replace = vi.fn();
 
+const { signedInState } = vi.hoisted(() => ({
+  signedInState: { value: true },
+}));
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/reviews",
   useRouter: () => ({ replace }),
+}));
+
+vi.mock("@/lib/auth-config", () => ({
+  AUTH_MODE: "entra-jwt",
 }));
 
 vi.mock("@/lib/oidc/config", () => ({
@@ -16,7 +24,7 @@ vi.mock("@/lib/oidc/config", () => ({
 }));
 
 vi.mock("@/lib/oidc/session", () => ({
-  isLikelySignedIn: () => true,
+  isLikelySignedIn: () => signedInState.value,
 }));
 
 const principalState: { current: CurrentPrincipal; loading: boolean } = {
@@ -47,6 +55,9 @@ import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 
 describe("OperatorRoleGate", () => {
   it("redirects signed-in principals without ArchLucid roles to /403", () => {
+    signedInState.value = true;
+    principalState.loading = false;
+
     render(
       <OperatorRoleGate>
         <div>protected</div>
@@ -54,5 +65,37 @@ describe("OperatorRoleGate", () => {
     );
 
     expect(replace).toHaveBeenCalledWith("/403");
+  });
+
+  it("redirects unsigned JWT sessions to welcome and hides page content", () => {
+    signedInState.value = false;
+    principalState.loading = false;
+    replace.mockClear();
+
+    const view = render(
+      <OperatorRoleGate>
+        <div data-testid="protected-page">protected</div>
+      </OperatorRoleGate>,
+    );
+
+    expect(view.getByTestId("operator-shell-access-gate-loading")).toBeInTheDocument();
+    expect(view.queryByTestId("protected-page")).not.toBeInTheDocument();
+    expect(replace).toHaveBeenCalledWith("/welcome");
+  });
+
+  it("renders neutral loading without page content while authority resolves", () => {
+    signedInState.value = true;
+    principalState.loading = true;
+    replace.mockClear();
+
+    const view = render(
+      <OperatorRoleGate>
+        <div data-testid="protected-page">protected</div>
+      </OperatorRoleGate>,
+    );
+
+    expect(view.getByTestId("operator-shell-access-gate-loading")).toBeInTheDocument();
+    expect(view.queryByTestId("protected-page")).not.toBeInTheDocument();
+    expect(replace).not.toHaveBeenCalled();
   });
 });

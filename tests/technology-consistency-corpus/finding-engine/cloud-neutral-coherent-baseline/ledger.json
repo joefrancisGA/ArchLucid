@@ -1,0 +1,26 @@
+[
+  {
+    "entryId": "neutral-cloud",
+    "runId": "cccccccccccccccccccccccccccccccc",
+    "role": "CloudPlatform",
+    "technologyName": "Cloud-neutral posture",
+    "providerFamily": "None",
+    "status": "Chosen",
+    "source": "User",
+    "isLocked": false,
+    "createdUtc": "2026-01-01T00:00:00.000Z",
+    "updatedUtc": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "entryId": "neutral-compute",
+    "runId": "cccccccccccccccccccccccccccccccc",
+    "role": "ComputeRuntime",
+    "technologyName": "Kubernetes",
+    "providerFamily": "None",
+    "status": "Chosen",
+    "source": "User",
+    "isLocked": false,
+    "createdUtc": "2026-01-01T00:00:00.000Z",
+    "updatedUtc": "2026-01-01T00:00:00.000Z"
+  }
+]

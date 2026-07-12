@@ -7,8 +7,6 @@ import {
   buildCustomPolicyPackQuoteHref,
   CUSTOM_POLICY_PACK_AUTHORING_SKUS,
   CUSTOM_POLICY_PACK_SOW_HREF,
-  ORDER_FORM_ADDENDUM_C_HREF,
-  PRICING_PHILOSOPHY_CUSTOM_PACK_HREF,
 } from "@/lib/marketing-custom-policy-pack-authoring";
 
 export type MarketingCustomPolicyPackAuthoringSectionProps = {
@@ -33,12 +31,11 @@ export function MarketingCustomPolicyPackAuthoringSection(
         id="custom-policy-pack-authoring-heading"
         className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.pageTitle)}
       >
-        Custom Policy Pack Authoring (Professional Services)
+        Optional professional services
       </h2>
       <p className={cn("mt-3 max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Commission customer-specific governance policy packs beyond bundled{" "}
-        <strong>PlatformDefault</strong> packs. Engagements are owner-delivered professional services — not a
-        self-serve product toggle. Choose an IP tier that matches your confidentiality posture:
+        Need customer-specific governance policy packs beyond bundled defaults? ArchLucid offers fixed-scope professional
+        services engagements — choose an IP tier that matches your confidentiality posture:
       </p>
       <ul className={cn("mt-3 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         <li>
@@ -91,18 +88,7 @@ export function MarketingCustomPolicyPackAuthoringSection(
       </div>
 
       <p className={cn("mt-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Canonical USD list prices (customer-exclusive and ArchLucid-owned tiers), maintenance options, and discount
-        stacking rules live only in{" "}
-        <a
-          className="font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-200"
-          href={PRICING_PHILOSOPHY_CUSTOM_PACK_HREF}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-testid="custom-policy-pack-pricing-philosophy-link"
-        >
-          PRICING_PHILOSOPHY §4.2
-        </a>
-        . Review the{" "}
+        Delivery windows, maintenance options, and scope details are finalized in your statement of work.{" "}
         <a
           className="font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-200"
           href={CUSTOM_POLICY_PACK_SOW_HREF}
@@ -110,17 +96,7 @@ export function MarketingCustomPolicyPackAuthoringSection(
           rel="noopener noreferrer"
           data-testid="custom-policy-pack-sow-link"
         >
-          SoW template
-        </a>{" "}
-        and{" "}
-        <a
-          className="font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-200"
-          href={ORDER_FORM_ADDENDUM_C_HREF}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-testid="custom-policy-pack-order-form-link"
-        >
-          Order Form Addendum C
+          Review the SoW template
         </a>{" "}
         before procurement.
       </p>

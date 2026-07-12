@@ -15,7 +15,7 @@ import {
   pathMatchesSettingsUsers,
 } from "@/lib/settings-admin-route-paths";
 
-describe("settings-admin-route-paths (TB-406)", () => {
+describe("settings-admin-route-paths (TB-406 / TB-751)", () => {
   it("exposes canonical tenant-admin paths under /settings/*", () => {
     expect(SETTINGS_USERS_PATH).toBe("/settings/users");
     expect(SETTINGS_USERS_ROLES_TAB_PATH).toBe("/settings/users?tab=roles");
@@ -27,6 +27,7 @@ describe("settings-admin-route-paths (TB-406)", () => {
   it("matches canonical and legacy users, security-trust, and support paths", () => {
     expect(pathMatchesSettingsUsers("/settings/users")).toBe(true);
     expect(pathMatchesSettingsUsers("/admin/users")).toBe(true);
+    expect(pathMatchesSettingsUsers("/settings/roles")).toBe(true);
     expect(pathMatchesSettingsSecurityTrust("/settings/security-trust")).toBe(true);
     expect(pathMatchesSettingsSecurityTrust("/workspace/security-trust")).toBe(true);
     expect(pathMatchesSettingsSupport("/settings/support")).toBe(true);

@@ -5,6 +5,10 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+vi.mock("@/lib/features", () => ({
+  isShowSystemAdministrationNavEnabled: () => false,
+}));
+
 vi.mock("@/lib/api", () => ({
   getExecDigestPreferences: vi.fn(),
   saveExecDigestPreferences: vi.fn(),
@@ -41,50 +45,106 @@ describe("ExecDigestScheduleContent", () => {
     });
   });
 
-  it("renders customer-safe schedule copy without internal transport language", async () => {
+  it("renders digest status block and schedule form first", async () => {
     render(<ExecDigestScheduleContent />);
 
-    expect(await screen.findByRole("heading", { level: 2, name: "Weekly executive digest" })).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "Send a weekly summary of review activity, governance signals, findings, and dashboard links to executive recipients.",
-      ),
-    ).toBeInTheDocument();
-    expect(document.body.textContent).not.toMatch(
-      /trial lifecycle|Not yet saved to the database|IANA timezone|Hour \(0–23/i,
-    );
-    expect(screen.getByText(/workspace's configured outbound email channel/i)).toBeInTheDocument();
-    expect(screen.getByTestId("exec-digest-schedule-preview")).toHaveTextContent(
-      "No scheduled send until weekly digest email is enabled.",
-    );
+    expect(await screen.findByTestId("exec-digest-status-block")).toBeInTheDocument();
+    expect(screen.getByTestId("exec-digest-status-tag")).toHaveTextContent("Off");
+    expect(screen.getByText("No scheduled emails will be sent.")).toBeInTheDocument();
+    expect(screen.getByTestId("exec-digest-enable-action")).toBeInTheDocument();
+    expect(screen.getByLabelText("Send executive digest")).toBeInTheDocument();
+    expect(screen.queryByTestId("exec-digest-schedule-technical-details")).not.toBeInTheDocument();
   });
 
-  it("shows unsaved changes and saves schedule with primary button", async () => {
-    render(<ExecDigestScheduleContent />);
+  it("enables digest, saves schedule, and shows saved summary", async () => {
+    render(
+      <ExecDigestScheduleContent
+        healthSnap={{
+          enabledAdvisoryScheduleCount: 1,
+          digestSubscriptionCount: 1,
+          enabledDigestSubscriptionCount: 2,
+          digestSubscriptionsByEmailChannel: 2,
+          digestSubscriptionsBySlackChannel: 0,
+          digestSubscriptionsByTeamsChannel: 0,
+          executiveEmailDigestIsConfigured: false,
+          executiveEmailDigestEnabled: false,
+          executiveDigestRecipientCount: 0,
+          executiveDigestIanaTimeZoneId: "UTC",
+          executiveDigestDayOfWeek: 1,
+          executiveDigestHourOfDay: 8,
+          setupGaps: [],
+        }}
+      />,
+    );
 
-    await screen.findByLabelText("Enable weekly executive digest");
-    fireEvent.click(screen.getByLabelText("Enable weekly executive digest"));
+    fireEvent.click(await screen.findByTestId("exec-digest-enable-action"));
     fireEvent.change(screen.getByLabelText("Recipients"), { target: { value: "ops@example.com" } });
     fireEvent.blur(screen.getByLabelText("Recipients"));
 
     expect(screen.getByTestId("exec-digest-unsaved-status")).toBeInTheDocument();
-
     fireEvent.click(screen.getByTestId("exec-digest-save-schedule"));
 
     await waitFor(() => {
       expect(saveExecDigestPreferences).toHaveBeenCalled();
     });
+
     expect(await screen.findByTestId("exec-digest-save-success")).toHaveTextContent("Schedule saved");
+    expect(screen.getByTestId("exec-digest-saved-summary")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Manage subscriptions" })).toHaveAttribute(
+      "href",
+      "/digests?tab=subscriptions",
+    );
   });
 
-  it("validates invalid recipient emails", async () => {
+  it("validates invalid and duplicate recipient emails", async () => {
     render(<ExecDigestScheduleContent />);
 
-    const recipients = await screen.findByLabelText("Recipients");
+    fireEvent.click(await screen.findByTestId("exec-digest-enable-action"));
+
+    const recipients = screen.getByLabelText("Recipients");
     fireEvent.change(recipients, { target: { value: "not-an-email" } });
     fireEvent.blur(recipients);
-
     expect(screen.getByRole("alert")).toHaveTextContent(/Invalid email address/i);
+
+    fireEvent.change(recipients, { target: { value: "ops@example.com; ops@example.com" } });
+    fireEvent.blur(recipients);
+    expect(screen.getByRole("alert")).toHaveTextContent(/Duplicate recipient/i);
     expect(screen.getByTestId("exec-digest-save-schedule")).toBeDisabled();
+  });
+
+  it("shows preview and test actions with clarified labels", async () => {
+    render(
+      <ExecDigestScheduleContent
+        healthSnap={{
+          enabledAdvisoryScheduleCount: 1,
+          digestSubscriptionCount: 1,
+          enabledDigestSubscriptionCount: 1,
+          digestSubscriptionsByEmailChannel: 1,
+          digestSubscriptionsBySlackChannel: 0,
+          digestSubscriptionsByTeamsChannel: 0,
+          executiveEmailDigestIsConfigured: false,
+          executiveEmailDigestEnabled: false,
+          executiveDigestRecipientCount: 0,
+          executiveDigestIanaTimeZoneId: "UTC",
+          executiveDigestDayOfWeek: 1,
+          executiveDigestHourOfDay: 8,
+          setupGaps: [],
+          latestArchitectureDigestId: "digest-1",
+        }}
+      />,
+    );
+
+    await screen.findByTestId("exec-digest-preview-action");
+    expect(screen.getByRole("link", { name: "Preview latest generated digest" })).toHaveAttribute(
+      "href",
+      "/digests?tab=browse#digest-digest-1",
+    );
+    expect(screen.getByRole("link", { name: "Generate and send test digest" })).toHaveAttribute(
+      "href",
+      "/advisory?tab=schedules",
+    );
+    expect(
+      screen.getByText("Preview opens the latest generated digest and does not reflect unsaved schedule changes."),
+    ).toBeInTheDocument();
   });
 });

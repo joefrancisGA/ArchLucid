@@ -12,8 +12,9 @@ import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHo
 import { Button } from "@/components/ui/button";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
-  resolveOperatorHomeHeroHeading,
+  OPERATOR_HOME_INTENT_CHOOSER_HEADING,
+  OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
+  OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
 } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_CARD,
@@ -30,7 +31,7 @@ import {
 const heroCtaButtonClass = "h-8";
 
 const DEFAULT_NEXT_ACTION: PilotNextBestAction = {
-  label: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
+  label: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
   href: showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
   bridgeCopy: OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
 };
@@ -41,12 +42,14 @@ type PilotCommandCenterCardProps = {
 };
 
 /**
- * Overview command center — dual create/review paths for first-run tenants; state-aware CTA after commit.
+ * Overview command center — three intent paths for first-run tenants; state-aware CTA after commit.
  */
 export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}): React.JSX.Element {
   const cardTestId = props.embedded === true ? "pilot-command-center-card-embedded" : "pilot-command-center-card";
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
-  const heroHeading = resolveOperatorHomeHeroHeading(hasCommittedArchitectureReview);
+  const heroHeading = hasCommittedArchitectureReview
+    ? OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING
+    : OPERATOR_HOME_INTENT_CHOOSER_HEADING;
   const commitQuery = useCorePilotCommitContextQuery();
 
   const nextAction = useMemo((): PilotNextBestAction => {
@@ -77,19 +80,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
       </div>
 
       {!hasCommittedArchitectureReview ? (
-        <>
-          <OperatorHomeDualPathCards />
-          <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)} data-testid="pilot-command-center-cta-row">
-            <Button asChild variant="outline" size="sm" className={heroCtaButtonClass}>
-              <Link
-                href={showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId)}
-                data-testid="pilot-command-center-open-completed-sample"
-              >
-                {OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA}
-              </Link>
-            </Button>
-          </div>
-        </>
+        <OperatorHomeDualPathCards />
       ) : (
         <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", OPERATOR_LAYOUT.inlineGap)}>
           <p

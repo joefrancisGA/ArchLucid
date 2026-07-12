@@ -42,24 +42,10 @@ describe("getRouteTitle — unknown path", () => {
   });
 
   it("strips trailing slash", () => {
-    expect(getRouteTitle("/planning/")).toBe("Planning");
+    expect(getRouteTitle("/planning/")).toBe("Improvement planning");
   });
 
   it("capitalizes ITSM acronym for itsm path segment", () => {
     expect(getRouteTitle("/admin/integrations/itsm")).toBe("ITSM");
-  });
-});
-
-describe("getRouteTitle — executive shell", () => {
-  it("returns Executive reviews for list", () => {
-    expect(getRouteTitle("/executive/reviews")).toBe("Executive reviews");
-  });
-
-  it("returns Risk review for one review", () => {
-    expect(getRouteTitle("/executive/reviews/run-abc")).toBe("Risk review");
-  });
-
-  it("returns Finding (executive) for finding detail", () => {
-    expect(getRouteTitle("/executive/reviews/run-abc/findings/f-1")).toBe("Finding (executive)");
   });
 });

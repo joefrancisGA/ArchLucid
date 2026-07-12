@@ -2,7 +2,16 @@
  * Customer-visible in-app documentation registry.
  * Source of truth: `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md`.
  */
+import {
+  resolveProductDocumentationContentKind,
+  type ProductDocumentationContentKind,
+} from "@/lib/product-documentation-content-kinds";
+
+export type { ProductDocumentationContentKind } from "@/lib/product-documentation-content-kinds";
 export type ProductDocumentationAudience = "operator" | "buyer" | "marketing" | "developer";
+
+/** PDF pipeline eligibility — `null` means not PDF-eligible (TB-722). */
+export type ProductDocumentationPdfStatus = "public" | "customer" | "internal";
 
 export type ProductDocumentationEntry = {
   slug: string;
@@ -15,11 +24,20 @@ export type ProductDocumentationEntry = {
   sectionAnchors?: readonly string[];
   /** Include markdown before the first `##` when `sectionAnchors` is set. */
   includeIntroWithSections?: boolean;
+  /** IA taxonomy kind for `/help` (TB-732); unused by rendering until later phases. */
+  contentKind: ProductDocumentationContentKind;
+  pdfStatus: ProductDocumentationPdfStatus | null;
+};
+
+type ProductDocumentationRegistryInput = Omit<ProductDocumentationEntry, "pdfStatus" | "contentKind"> & {
+  pdfStatus?: ProductDocumentationPdfStatus | null;
 };
 
 /** Slug aliases for contextual deep links (`/help/{slug}`). */
 export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "cloud-connections/azure": "cloud-connections-azure",
+  "cloud-connections/aws": "cloud-connections-aws",
+  "cloud-connections/gcp": "cloud-connections-gcp",
   "security/workload-identity-federation": "workload-identity-federation",
   "security/azure-permissions": "azure-permissions",
   "users-and-roles": "operator-auth-roles",
@@ -35,7 +53,7 @@ export function normalizeHelpTopicSlug(slug: string): string {
   return HELP_TOPIC_SLUG_ALIASES[trimmed] ?? trimmed;
 }
 
-export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[] = [
+const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistryInput[] = [
   {
     slug: "first-review",
     title: "First review in 90 minutes",
@@ -43,14 +61,6 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
       "Printable first-run evidence checklist — demo or new request through finalize, extractor ZIP upload, ROI proof, and audit export.",
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md"],
-  },
-  {
-    slug: "pre-commit-ci-gate",
-    title: "Pre-commit gate in CI",
-    summary:
-      "Copy-paste GitHub Actions and Azure DevOps starters that call pre-commit simulate or commit on a tagged review using API key secrets.",
-    audience: "developer",
-    sourcePaths: ["docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md"],
   },
   {
     slug: "pilot-nav-profile",
@@ -68,6 +78,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
       "Complete one review package before opening deeper governance, reporting, or integration workflows.",
     audience: "buyer",
     sourcePaths: ["docs/library/FIRST_HOUR_OPERATOR_PATH.md"],
+    pdfStatus: "public",
   },
   {
     slug: "review-guide",
@@ -104,7 +115,8 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   {
     slug: "getting-started",
     title: "Getting started",
-    summary: "Concepts, scope, and the fastest path to a governed review package.",
+    summary:
+      "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md"],
   },
@@ -133,9 +145,10 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   {
     slug: "findings",
     title: "Findings",
-    summary: "Severity, business impact, evidence citations, and recommended monitoring or remediation actions.",
+    summary:
+      "Understand architecture risks, inspect supporting evidence, and decide how each finding should be addressed.",
     audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md"],
+    sourcePaths: ["docs/library/customer-facing/FINDINGS_OPERATOR_GUIDE.md"],
   },
   {
     slug: "executive-summary",
@@ -153,13 +166,12 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "governance-approval",
-    title: "Governance workflow",
-    summary: "Submit, review, approve, and promote signed review records when governance workflows are enabled.",
+    title: "Governance approval",
+    summary:
+      "Learn how architecture work moves from submission to approval, revision, or rejection.",
     audience: "operator",
-    sourcePaths: [
-      "docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md",
-      "docs/library/GOVERNANCE_WORKFLOW_UI.md",
-    ],
+    sourcePaths: ["docs/library/customer-facing/GOVERNANCE_APPROVAL_OPERATOR_GUIDE.md"],
+    pdfStatus: "customer",
   },
   {
     slug: "audit-trail",
@@ -167,27 +179,43 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     summary: "Immutable audit events, correlation identifiers, and buyer-safe export posture.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/FAQ.md", "docs/library/AUDIT_COVERAGE_MATRIX.md"],
+    pdfStatus: "customer",
   },
   {
     slug: "how-it-works",
-    title: "What ArchLucid does with your data",
-    summary: "Data flow, tenant isolation, audit trail, and portability — factual security posture for CTO diligence.",
+    title: "How ArchLucid works",
+    summary:
+      "From architecture evidence to findings, decisions, governance records, and sponsor-ready outputs.",
     audience: "buyer",
-    sourcePaths: ["docs/library/customer-facing/HOW_IT_WORKS.md"],
+    sourcePaths: ["docs/library/customer-facing/HOW_ARCHLUCID_WORKS.md"],
+    pdfStatus: "public",
+  },
+  {
+    slug: "data-handling",
+    title: "What ArchLucid does with your data",
+    summary:
+      "Data flow, tenant isolation, audit trail, and portability for architecture review evidence.",
+    audience: "buyer",
+    sourcePaths: ["docs/library/customer-facing/DATA_HANDLING.md"],
+    pdfStatus: "public",
   },
   {
     slug: "security-trust",
     title: "Security and trust",
     summary: "Assurance ladder, data handling, subprocessors, and diligence materials for procurement reviewers.",
     audience: "buyer",
-    sourcePaths: ["docs/go-to-market/trust-center.md", "docs/library/customer-facing/HOW_IT_WORKS.md"],
+    sourcePaths: ["docs/go-to-market/trust-center.md", "docs/library/customer-facing/DATA_HANDLING.md"],
+    pdfStatus: "public",
   },
   {
     slug: "cloud-connections",
     title: "Cloud connections",
-    summary: "Optional Azure connections for production-faithful evidence — scope, federation, and validation.",
+    summary:
+      "Optional Azure, AWS, and GCP connections for read-only evidence — or evidence-only reviews without any connector.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
+    sectionAnchors: ["choose-your-cloud-platform", "related-topics"],
+    includeIntroWithSections: true,
   },
   {
     slug: "cloud-connections-azure",
@@ -197,6 +225,27 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["connect-azure-securely"],
+    pdfStatus: "customer",
+  },
+  {
+    slug: "cloud-connections-aws",
+    title: "Connect AWS securely",
+    summary:
+      "OIDC-federated read-only IAM role, Resource Explorer inventory, and connection validation — without long-lived access keys.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
+    sectionAnchors: ["connect-aws-securely"],
+    pdfStatus: "customer",
+  },
+  {
+    slug: "cloud-connections-gcp",
+    title: "Connect GCP securely",
+    summary:
+      "Workload Identity Federation, Cloud Asset Viewer, project scope, and connection validation — without service-account JSON keys.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
+    sectionAnchors: ["connect-gcp-securely"],
+    pdfStatus: "customer",
   },
   {
     slug: "workload-identity-federation",
@@ -223,6 +272,14 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     sourcePaths: ["docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"],
   },
   {
+    slug: "integration-readiness",
+    title: "Integration readiness",
+    summary:
+      "Understand ready, recommended, and optional notification, ticketing, publishing, and delivery integrations for your workspace.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/INTEGRATION_READINESS.md"],
+  },
+  {
     slug: "procurement",
     title: "Procurement FAQ",
     summary: "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.",
@@ -240,9 +297,10 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     slug: "core-pilot",
     title: "Your first architecture review",
     summary:
-      "Guided first-session path — evidence intake, optional cloud connectors for Azure/AWS/GCP, finalize, and sponsor exports.",
+      "Guided first-review checklist — evidence, optional cloud connectors, finalize, and sponsor exports.",
     audience: "buyer",
     sourcePaths: ["docs/CORE_PILOT.md"],
+    pdfStatus: "public",
   },
   {
     slug: "first-value-20-minutes",
@@ -289,8 +347,9 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "specialty-walkthroughs",
-    title: "Specialty walkthrough templates",
-    summary: "Optional Azure SaaS, AI governance, and healthcare templates after first commit — not required for core pilot.",
+    title: "Specialty review templates",
+    summary:
+      "Start with focused guidance for a specific architecture, governance, or industry scenario.",
     audience: "operator",
     sourcePaths: ["docs/library/walkthroughs/README.md"],
   },
@@ -305,7 +364,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     slug: "troubleshooting",
     title: "Troubleshooting",
     summary:
-      "If something fails: refresh, check session and workspace, download a support bundle, then contact your tenant admin or ArchLucid support.",
+      "Find common issues, try the first fix, and collect support details when needed.",
     audience: "operator",
     sourcePaths: [
       "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
@@ -384,10 +443,11 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "alerts",
-    title: "Alerts",
-    summary: "Inbox, rules, routing, composite alerts, and simulation tuning.",
+    title: "Understanding governance alerts",
+    summary:
+      "Learn how ArchLucid identifies governance risks, routes them to the right owners, and tracks resolution.",
     audience: "operator",
-    sourcePaths: ["docs/library/ALERTS.md"],
+    sourcePaths: ["docs/library/customer-facing/ALERTS_OPERATOR_GUIDE.md"],
   },
   {
     slug: "governance-api-contracts",
@@ -447,6 +507,13 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     sourcePaths: ["docs/library/PRODUCT_LEARNING.md"],
   },
 ] as const;
+
+export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[] =
+  PRODUCT_DOCUMENTATION_REGISTRY_INPUT.map((entry) => ({
+    ...entry,
+    contentKind: resolveProductDocumentationContentKind(entry.slug),
+    pdfStatus: entry.pdfStatus ?? null,
+  }));
 
 const bySlug = new Map(PRODUCT_DOCUMENTATION_REGISTRY.map((entry) => [entry.slug, entry]));
 

@@ -33,6 +33,25 @@ public sealed class UserPreferencesControllerTests
         OkObjectResult ok = (OkObjectResult)result;
         UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
         body.AppearancePreference.Should().Be(AppearancePreferenceValues.Default);
+        body.AppearancePreferenceIsExplicit.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task GetPreferences_MarksExplicitStoredValue()
+    {
+        Mock<IUserSettingsRepository> repository = new();
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.AppearancePreference, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("system");
+
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.GetPreferences(CancellationToken.None);
+
+        OkObjectResult ok = (OkObjectResult)result;
+        UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
+        body.AppearancePreference.Should().Be("system");
+        body.AppearancePreferenceIsExplicit.Should().BeTrue();
     }
 
     [SkippableFact]
@@ -51,6 +70,7 @@ public sealed class UserPreferencesControllerTests
         OkObjectResult ok = (OkObjectResult)result;
         UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
         body.AppearancePreference.Should().Be("dark");
+        body.AppearancePreferenceIsExplicit.Should().BeTrue();
     }
 
     [SkippableFact]

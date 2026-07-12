@@ -24,7 +24,7 @@ export const REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS = [
   "src/app/(operator)/settings/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
   "src/app/(operator)/scorecard/_sections/PilotScorecardPageView.tsx",
   "src/app/(operator)/value-report/pilot/_sections/PilotValueReportPageView.tsx",
-  "src/app/(operator)/policy-packs/_sections/PolicyRuleAuthoringWizard.tsx",
+  "src/app/(operator)/governance/policy-packs/_sections/PolicyRuleAuthoringWizard.tsx",
   "src/app/(marketing)/quick-start/QuickStartClient.tsx",
   "src/app/(executive)/executive/scorecard/ExecutiveScorecardClient.tsx",
 ] as const;
@@ -91,6 +91,12 @@ export const REVIEW_TERMINOLOGY_BANNED_OPERATOR_PERSONA_PATTERNS = [
   "operators want",
 ] as const;
 
+/** Lowercase phrase fragments banned on nav labels and hub/home list empty states (TB-738). */
+export const REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS = [
+  "review packages",
+  "no review packages yet",
+] as const;
+
 export const REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS = [
   "src/lib/empty-state-presets.ts",
   "src/lib/enterprise-compact-empty-state-presets.ts",
@@ -98,6 +104,12 @@ export const REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS = [
   "src/lib/glossary-definitions.ts",
   "src/lib/layer-guidance.ts",
   "src/lib/nav-disclosure-copy.ts",
+] as const;
+
+/** Nav caption and reviews hub modules scanned for TB-738 architecture-package list noun. */
+export const REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS = [
+  "src/lib/pilot-nav-group-builder.ts",
+  "src/app/(operator)/reviews/_sections/reviews-hub-copy.ts",
 ] as const;
 
 /**

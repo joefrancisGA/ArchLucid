@@ -47,9 +47,9 @@ export function RunDetailPipelineStagesSection({
           Authority pipeline stages for this review (context ingestion through artifacts). Durations are measured in-product; use the trace link for full distributed spans.
         </p>
         {otelTraceId ? (
-          <p className={cn("mb-3", OPERATOR_TYPOGRAPHY.body)}>
+          <div className={cn("mb-3", OPERATOR_TYPOGRAPHY.body)}>
             <RunTraceViewerLink traceId={otelTraceId} />
-          </p>
+          </div>
         ) : null}
         <ul className="space-y-2" data-testid="run-detail-pipeline-stages-list">
           {stageTimeline.map((stage) => (

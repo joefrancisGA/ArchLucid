@@ -123,7 +123,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
     onDismiss();
 
     if (buyerShell) {
-      router.push(`/executive/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
+      router.push(`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
 
       return;
     }

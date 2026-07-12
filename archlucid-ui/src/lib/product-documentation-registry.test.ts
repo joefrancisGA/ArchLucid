@@ -4,11 +4,17 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  isInternalRunbookSlug,
+  PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG,
+  type ProductDocumentationContentKind,
+} from "@/lib/product-documentation-content-kinds";
+import {
   getProductDocumentationEntry,
   inAppHelpHref,
   listProductDocumentationEntries,
   type ProductDocumentationEntry,
 } from "@/lib/product-documentation-registry";
+import { getHelpCenterTier } from "@/lib/help-center-catalog";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 const REDIRECT_STUB_MARKERS = [/moved\s+—/i, /^#\s*moved\b/i];
@@ -48,6 +54,8 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("pilot-guide")).toBe("/help/pilot-guide");
     expect(getProductDocumentationEntry("troubleshooting")?.title).toBe("Troubleshooting");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
+    expect(getProductDocumentationEntry("cloud-connections/aws")?.title).toBe("Connect AWS securely");
+    expect(getProductDocumentationEntry("cloud-connections/gcp")?.title).toBe("Connect GCP securely");
     expect(getProductDocumentationEntry("enterprise-onboarding")?.title).toBe("Enterprise onboarding checklist");
     expect(inAppHelpHref("enterprise-onboarding")).toBe("/help/enterprise-onboarding");
   });
@@ -61,6 +69,29 @@ describe("product-documentation-registry", () => {
     }
   });
 
+  it("registers integration readiness help for contextual page guidance", () => {
+    expect(getProductDocumentationEntry("integration-readiness")?.title).toBe("Integration readiness");
+  });
+
+  it("keeps AWS and GCP cloud-connection help free of Azure-only copy", () => {
+    const awsLoaded = tryLoadProductDocumentation("cloud-connections-aws");
+    const gcpLoaded = tryLoadProductDocumentation("cloud-connections-gcp");
+
+    expect(awsLoaded).not.toBeNull();
+    expect(gcpLoaded).not.toBeNull();
+
+    const awsMarkdown = awsLoaded!.markdown;
+    const gcpMarkdown = gcpLoaded!.markdown;
+
+    expect(awsMarkdown).toContain("Connect AWS securely");
+    expect(awsMarkdown).not.toContain("Cost Management Reader");
+    expect(awsMarkdown).not.toContain("connect-azure-securely");
+
+    expect(gcpMarkdown).toContain("Connect GCP securely");
+    expect(gcpMarkdown).not.toContain("Cost Management Reader");
+    expect(gcpMarkdown).not.toContain("connect-azure-securely");
+  });
+
   it("does not register redirect-only stub paths for buyer or operator audiences (TB-146)", () => {
     for (const entry of listProductDocumentationEntries()) {
       if (entry.audience === "developer") {
@@ -68,6 +99,111 @@ describe("product-documentation-registry", () => {
       }
 
       assertNotRedirectStub(entry);
+    }
+  });
+
+  it("declares pdfStatus on every registry entry with null default (TB-722)", () => {
+    for (const entry of listProductDocumentationEntries()) {
+      expect(entry).toHaveProperty("pdfStatus");
+      expect(entry.pdfStatus === null || typeof entry.pdfStatus === "string").toBe(true);
+    }
+  });
+
+  it("keeps pdfStatus internal entries aligned with help-center internal tier (TB-722)", () => {
+    for (const entry of listProductDocumentationEntries()) {
+      if (entry.pdfStatus !== "internal") {
+        continue;
+      }
+
+      expect(getHelpCenterTier(entry)).toBe("internal");
+    }
+  });
+
+  it("does not mark internal-tier help topics as public PDFs (TB-722)", () => {
+    for (const entry of listProductDocumentationEntries()) {
+      if (entry.pdfStatus !== "public") {
+        continue;
+      }
+
+      expect(getHelpCenterTier(entry)).not.toBe("internal");
+    }
+  });
+
+  it("does not register contributor-only pre-commit CI runbook in the in-app registry (TB-735)", () => {
+    expect(getProductDocumentationEntry("pre-commit-ci-gate")).toBeNull();
+  });
+
+  it("maps initial PDF strategy slugs to expected pdfStatus (TB-722)", () => {
+    const expected: Readonly<Record<string, ProductDocumentationEntry["pdfStatus"]>> = {
+      "core-pilot": "public",
+      "first-hour-operator-path": "public",
+      "how-it-works": "public",
+      "data-handling": "public",
+      "security-trust": "public",
+      "cloud-connections-azure": "customer",
+      "cloud-connections-aws": "customer",
+      "cloud-connections-gcp": "customer",
+      "governance-approval": "customer",
+      "audit-trail": "customer",
+      "pilot-roi-model": null,
+    };
+
+    for (const [slug, pdfStatus] of Object.entries(expected)) {
+      expect(getProductDocumentationEntry(slug)?.pdfStatus).toBe(pdfStatus);
+    }
+  });
+
+  it("declares contentKind on every registry entry (TB-732)", () => {
+    const registrySlugs = listProductDocumentationEntries().map((entry) => entry.slug);
+
+    expect(registrySlugs.length).toBeGreaterThan(0);
+
+    for (const entry of listProductDocumentationEntries()) {
+      expect(entry).toHaveProperty("contentKind");
+      expect(
+        entry.contentKind === "product-help" ||
+          entry.contentKind === "technical-documentation" ||
+          entry.contentKind === "internal-runbook",
+      ).toBe(true);
+      expect(entry.contentKind).toBe(PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG[entry.slug]);
+    }
+
+    for (const slug of Object.keys(PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG)) {
+      expect(registrySlugs, `orphan contentKind mapping for ${slug}`).toContain(slug);
+    }
+  });
+
+  it("tags internal-runbook slugs with internal-runbook contentKind (TB-732)", () => {
+    const internalRunbookSlugs = [
+      "first-pilot-operator-runbook",
+      "first-value-20-minutes",
+    ] as const;
+
+    for (const slug of internalRunbookSlugs) {
+      expect(isInternalRunbookSlug(slug)).toBe(true);
+      expect(getProductDocumentationEntry(slug)?.contentKind).toBe("internal-runbook");
+    }
+  });
+
+  it("tags technical-documentation slugs per IA foundation (TB-732)", () => {
+    const technicalSlugs: readonly string[] = [
+      "configuration-reference",
+      "operator-auth-roles",
+      "cli-usage",
+      "governance-api-contracts",
+      "admin-diagnostics",
+      "developer-troubleshooting",
+      "workload-identity-federation",
+      "azure-permissions",
+      "observability",
+      "projection-cache-replicas",
+    ];
+
+    for (const slug of technicalSlugs) {
+      const kind: ProductDocumentationContentKind | undefined =
+        getProductDocumentationEntry(slug)?.contentKind;
+
+      expect(kind, slug).toBe("technical-documentation");
     }
   });
 });

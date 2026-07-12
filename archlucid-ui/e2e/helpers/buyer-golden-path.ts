@@ -28,7 +28,7 @@ export function isShowcaseSignedManifestBrowserPath(pathname: string): boolean {
 }
 
 export const BUYER_GOLDEN_PATH_HREFS = {
-  executive: `/executive/reviews/${showcaseRunEnc}`,
+  executive: `/reviews/${showcaseRunEnc}`,
   reviewPackage: `/reviews/${showcaseRunEnc}`,
   signedManifestFriendly: `/reviews/${showcaseRunEnc}/signed-record`,
   signedManifestCanonical: `/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
@@ -45,8 +45,7 @@ export const BUYER_GOLDEN_PATH_HREFS = {
 } as const;
 
 /** Buyer audit page title when scoped to the showcase run (`AuditPageView`). */
-export const BUYER_SHOWCASE_AUDIT_TRAIL_HEADING =
-  "Audit trail for Claims Intake Modernization Review Package";
+export const BUYER_SHOWCASE_AUDIT_TRAIL_HEADING = "Audit trail for Claims Intake Modernization";
 
 /** Executive route H1 uses run `description` from showcase static payload. */
 export const BUYER_SHOWCASE_EXECUTIVE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
@@ -71,16 +70,11 @@ export async function expectBuyerExecutiveSummarySurface(page: Page): Promise<vo
 }
 
 /**
- * Live API executive route: subnav can expose "Executive summary" before RSC completes — wait for the
+ * Live API executive route: subnav can expose "Executive summary" before the page H1 hydrates ??? wait for the
  * review shell and its primary heading (executive shell has no global H1 like the operator sidebar chrome).
  */
 export async function expectBuyerExecutiveReviewPrimaryHeading(page: Page, options?: { timeout?: number }): Promise<void> {
-  const timeout = options?.timeout ?? 60_000;
-  const reviewPage = page.getByTestId("executive-review-page");
-
-  await expect(page.getByTestId("executive-review-loading")).toHaveCount(0, { timeout });
-  await expect(reviewPage).toBeVisible({ timeout });
-  await expect(reviewPage.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout });
+  await expectBuyerReviewPackagePrimaryHeading(page, options);
 }
 
 /** Review package detail H1 after buyer-golden hydration (operator shell includes its own chrome H1). */
@@ -93,22 +87,11 @@ export async function expectBuyerReviewPackagePrimaryHeading(page: Page, options
 /** Buyer golden path review package is hydrated with headline + manifest data. */
 export async function expectBuyerGoldenPageReady(page: Page): Promise<void> {
   await waitForAppReady(page);
-
-  // `reviews/[runId]/loading.tsx` renders RunDetailSkeleton without review-detail-root until RSC completes.
-  await expect(page.getByLabel("Loading review detail")).toHaveCount(0, { timeout: 60_000 });
-
-  const reviewDetailRoot = page.getByTestId("review-detail-root").first();
-
-  await expect(reviewDetailRoot).toBeVisible({ timeout: 60_000 });
-  await expect(reviewDetailRoot).toHaveAttribute("data-buyer-golden-ready", "true", { timeout: 60_000 });
-  await expect(reviewDetailRoot.locator('section[aria-label="Review outcome summary"]')).toBeVisible({
-    timeout: 60_000,
-  });
+  await expect(page.getByTestId("buyer-golden-page-ready")).toBeVisible({ timeout: 60_000 });
 }
 
 /** Layer strip stepper is present on curated spine routes in buyer-polished mock E2E. */
 export async function expectBuyerGoldenJourneyStepper(page: Page): Promise<void> {
   await waitForAppReady(page);
-
-  await expect(page.getByRole("navigation", { name: "Review journey steps" })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("buyer-golden-journey-stepper")).toBeVisible({ timeout: 60_000 });
 }

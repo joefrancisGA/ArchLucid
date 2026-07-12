@@ -7,6 +7,7 @@ This document describes **`tests/eval-corpus/`** — a deliberately **small, syn
 Companion scripts:
 
 - **`scripts/ci/eval_agent_corpus.py`** — synthetic scenarios under **`tests/eval-corpus/`** (finding recall vs recordings).
+- **`scripts/ci/assert_technology_consistency_corpus.py`** — manifest drift guard for **`tests/technology-consistency-corpus/`** (deterministic Technology Ledger finding-engine and artifact-prose lint regression; see that folder’s **`README.md`**).
 - **`scripts/ci/eval_agent_quality.py`** — validates **`tests/eval-datasets/`** (manifest **`schemaVersion` 2**): topology/cost/compliance/critic eval JSON **must** include per-case **`architecturalContext`**, **`expect.requiredCategories`**, and **`expect.forbiddenCategories`**. Prompt-injection fixtures declare **`expectedBlockedAt`** as **`precheck`**, **`redactor`**, **`evaluator`**, or **`judge`**. CI passes **`--strict`** on PR and nightly workflows so schema drift fails the build.
 
 Release-candidate automation:
@@ -103,6 +104,19 @@ Reported **`recall`** = **hits ÷ rules** per scenario — not classical IR reca
 4. (Optional) Add **`qualityEvidence`** with **`mode: "simulator"`** and **`agent-results/<case>.simulator.json`** — see the “V1 customer-like brief slice” section above.
 5. (Optional **real-mode quality row**) Clone **`scenario-real-mode-smoke.json`** or any **`scenario-real-mode-*.json`**: **`mode: "real"`**, a unique **`agentResultPathEnv`** name, **`agentType`** label, **`recordings/*.findings.json`**, substring probes. RC may commit **synthetic** **`agent-results/*.real.json`** exemplars (same shape as Web **`AgentResult`**); do **not** commit customer or production AOAI prompts/responses.
 6. Run `python scripts/ci/eval_agent_corpus.py` locally before pushing; use `--markdown-report` for the RC artifact.
+
+---
+
+## Technology consistency golden corpus
+
+**`tests/technology-consistency-corpus/`** is a **separate** fixture tree from **`tests/eval-corpus/`**:
+
+| Corpus | Asserts | CI entry |
+|--------|---------|----------|
+| **`tests/eval-corpus/`** | Agent finding recall / quality evidence on **AgentResult** JSON | **`eval_agent_corpus.py`** |
+| **`tests/technology-consistency-corpus/`** | Deterministic **`TechnologyConsistencyFindingEngine`** titles and **`TechnologyLedgerArtifactLinter`** rule ids on committed ledger snapshots + prose | **`TechnologyConsistencyGoldenCorpus`** / **`TechnologyConsistencyArtifactGoldenCorpus`** dotnet filters + **`assert_technology_consistency_corpus.py`** |
+
+Authoring checklist and local commands: **`tests/technology-consistency-corpus/README.md`**.
 
 ---
 

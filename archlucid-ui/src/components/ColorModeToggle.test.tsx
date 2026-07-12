@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { ColorModePreferenceProvider } from "@/components/ColorModePreferenceProvider";
+
 vi.mock("@/lib/api/user-preferences", () => ({
   getUserPreferences: vi.fn().mockRejectedValue(new Error("offline")),
   setUserAppearancePreference: vi.fn().mockResolvedValue(undefined),
@@ -11,6 +13,14 @@ import {
   buildColorModeToggleLabel,
   resolveNextColorModePreference,
 } from "./ColorModeToggle";
+
+function renderColorModeToggle() {
+  return render(
+    <ColorModePreferenceProvider>
+      <ColorModeToggle />
+    </ColorModePreferenceProvider>,
+  );
+}
 
 describe("ColorModeToggle helpers", () => {
   it("advances system on a light OS to dark, not redundant light", () => {
@@ -43,7 +53,7 @@ describe("ColorModeToggle", () => {
   it("persists dark preference when system is showing light", async () => {
     const setItem = vi.spyOn(Storage.prototype, "setItem");
 
-    render(<ColorModeToggle />);
+    renderColorModeToggle();
 
     const themeButton = await waitFor(() =>
       screen.getByRole("button", {
@@ -60,7 +70,7 @@ describe("ColorModeToggle", () => {
   it("cycles light to dark and dark back to system", async () => {
     window.localStorage.setItem("archlucid_color_mode", "light");
 
-    render(<ColorModeToggle />);
+    renderColorModeToggle();
 
     const fromLight = await waitFor(() =>
       screen.getByRole("button", { name: /color mode: light\. activate to switch to dark\./i }),

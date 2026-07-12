@@ -1,3 +1,4 @@
+import { clearCachedColorModePreference } from "@/lib/color-mode-preference";
 import {
   getOidcAuthority,
   getOidcClientId,
@@ -69,6 +70,7 @@ export function clearOidcSession(): void {
     OIDC_CODE_VERIFIER_KEY,
     OIDC_NONCE_KEY,
   ]);
+  clearCachedColorModePreference();
 }
 
 export function storePkceState(state: string, codeVerifier: string, nonce: string): void {

@@ -5,7 +5,7 @@ Replace `DemoStrictNavigationGate`'s silent redirect-to-home with an informative
 
 ## Context
 - Current state: `DemoStrictNavigationGate.tsx` silently redirects blocked prefixes to `/`. To a CTO watching, this looks like a bug or a broken link.
-- Blocked prefixes (from `DemoStrictNavigationGate`): `/admin`, `/settings`, `/replay`, `/planning`, `/search`, `/integrations`, `/evolution`, `/portfolio`, `/users`, `/billing`, and others.
+- Blocked prefixes (from `DemoStrictNavigationGate`): `/admin`, `/settings`, `/replay`, `/planning`, `/search`, `/integrations`, `/evolution`, `/users`, `/billing`, and others.
 - Key files:
   - `archlucid-ui/src/components/cto-demo/CtoDemoReviewRouteGuard.tsx` — related guard pattern
   - `archlucid-ui/src/components/DemoStrictNavigationGate.tsx` (or equivalent — find via grep for `DemoStrictNavigationGate`)
@@ -62,7 +62,6 @@ export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: "/planning", label: "Planning", description: "Multi-quarter governance roadmap and remediation scheduling." },
   { prefix: "/integrations", label: "Integrations", description: "Connect Jira, ServiceNow, Slack, and CI/CD pipelines (V1.1)." },
   { prefix: "/evolution", label: "Evolution candidates", description: "Trend analysis of recurring findings across review packages." },
-  { prefix: "/portfolio", label: "Portfolio", description: "Cross-workspace governance posture and risk aggregation." },
   { prefix: "/users", label: "Users & roles", description: "Role-based access control and authority assignment." },
   { prefix: "/billing", label: "Billing", description: "Subscription management and usage reporting." },
 ];

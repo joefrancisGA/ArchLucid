@@ -437,6 +437,12 @@ public static class AuditEventTypes
     /// <summary>Operator marked sponsor evidence as delivered (<c>POST /v1/pilots/runs/{runId}/sponsor-pack-sent</c>, TB-243).</summary>
     public const string SponsorEvidencePackSent = "SponsorEvidencePackSent";
 
+    /// <summary>
+    ///     Operator shared a preliminary architecture draft with sponsors before commit (
+    ///     <c>POST /v1/pilots/runs/{runId}/sponsor-preliminary-share</c>).
+    /// </summary>
+    public const string SponsorPreliminaryArchitectureShared = "SponsorPreliminaryArchitectureShared";
+
     /// <summary>Core Pilot team checklist step upsert (<c>PUT …/tenant/core-pilot-checklist</c>).</summary>
     public const string CorePilotTeamChecklistUpdated = "CorePilotTeamChecklistUpdated";
 

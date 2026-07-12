@@ -2,6 +2,16 @@
   "version": 1,
   "entries": [
     {
+      "controller_file": "Admin/AdminAiUsageDashboardController.cs",
+      "class_name": "AdminAiUsageDashboardController",
+      "route_template": "v{version:apiVersion}/admin",
+      "normalized_prefix": "/v1/admin",
+      "commercial_tier": "none",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminApiKeySettingsController.cs",
       "class_name": "AdminApiKeySettingsController",
       "route_template": "v{version:apiVersion}/admin/settings/api-keys",
@@ -1466,16 +1476,6 @@
       "class_name": "ExecutiveSummaryController",
       "route_template": "v{version:apiVersion}/reports/executive-summary",
       "normalized_prefix": "/v1/reports/executive-summary",
-      "commercial_tier": "none",
-      "class_policy": "ReadAuthority",
-      "exemption": null,
-      "nav_operator_href": null
-    },
-    {
-      "controller_file": "Reports/ReportsController.cs",
-      "class_name": "ReportsController",
-      "route_template": "v{version:apiVersion}/reports",
-      "normalized_prefix": "/v1/reports",
       "commercial_tier": "none",
       "class_policy": "ReadAuthority",
       "exemption": null,

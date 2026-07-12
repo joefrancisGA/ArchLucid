@@ -1,83 +1,92 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   createAlertRoutingSubscription,
+  dryRunOutboundWebhook,
   listAlertRoutingSubscriptions,
   testWebhookSubscription,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  labelForWebhookEventId,
-  webhookOutboundEventCatalog,
-  webhookSettingsDefaultValues,
-  webhookSettingsFormSchema,
-  type WebhookSettingsFormValues,
-} from "@/lib/webhook-settings-form-schema";
-import { summarizeMaskedWebhookSubscription, buildWebhookSubscriptionMetadata } from "@/lib/webhook-subscription-metadata";
+  slackIntegrationDefaultValues,
+  slackIntegrationFormSchema,
+  type SlackIntegrationFormValues,
+} from "@/lib/slack-integration-form-schema";
 import {
-  presentWebhookConnectionTestRequestFailure,
-  presentWebhookConnectionTestToasts,
-} from "@/lib/webhook-subscription-connection-test";
+  SLACK_INTEGRATION_DISABLE_CONFIRM,
+  SLACK_INTEGRATION_DISABLE_SUCCESS,
+  SLACK_INTEGRATION_ENABLE_SUCCESS,
+  SLACK_INTEGRATION_PAGE_SUBTITLE,
+  SLACK_INTEGRATION_PAGE_TITLE,
+  SLACK_INTEGRATION_SAVE_SUCCESS,
+  slackIntegrationConfigurationStatusLabel,
+} from "@/lib/slack-integration-page-copy";
+import {
+  interpretSlackIntegrationTestResult,
+  type SlackIntegrationTestFeedback,
+} from "@/lib/slack-integration-test-feedback";
+import { buildWebhookSubscriptionMetadata } from "@/lib/webhook-subscription-metadata";
 import { showSuccess } from "@/lib/toast";
+import { cn } from "@/lib/utils";
+import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
-import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
+import { SlackDestinationForm } from "./SlackDestinationForm";
+import { SlackDestinationsPanel } from "./SlackDestinationsPanel";
+import { SlackIntegrationAside } from "./SlackIntegrationAside";
 
-const SLACK_CHANNEL_TYPE: WebhookSettingsFormValues["channelType"] = "SlackWebhook";
+const SLACK_CHANNEL_TYPE = "SlackWebhook";
 
-/** Slack alert routing — Slack incoming webhook URLs for architecture alerts in this workspace scope. */
+const SAVE_FAILURE_MESSAGE = "We could not save this destination. Check the fields and try again.";
+
+/** Slack alert routing — incoming webhook destinations for governance alerts in this workspace scope. */
 export function SlackIntegrationPageClient(): React.ReactElement {
   const canMutate = useOperateCapability();
   const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [testingId, setTestingId] = useState<string | null>(null);
-  const [testResults, setTestResults] = useState<Record<string, WebhookTestResponse>>({});
+  const [testingForm, setTestingForm] = useState(false);
+  const [formTestFeedback, setFormTestFeedback] = useState<SlackIntegrationTestFeedback | null>(null);
+  const [rowTestFeedback, setRowTestFeedback] = useState<Record<string, SlackIntegrationTestFeedback>>({});
 
-  const form = useForm<WebhookSettingsFormValues>({
-    resolver: zodResolver(webhookSettingsFormSchema),
-    defaultValues: { ...webhookSettingsDefaultValues, channelType: SLACK_CHANNEL_TYPE },
+  const form = useForm<SlackIntegrationFormValues>({
+    resolver: zodResolver(slackIntegrationFormSchema),
+    defaultValues: slackIntegrationDefaultValues,
     mode: "onBlur",
   });
 
-  const { register, handleSubmit, control, formState: { errors }, reset } = form;
-  const watchedEventTypes = useWatch({ control, name: "eventTypes" });
-  const showAlertSeverityFilter =
-    watchedEventTypes === undefined ||
-    watchedEventTypes.length === 0 ||
-    watchedEventTypes.every((eventId) => eventId.startsWith("archlucid.alert."));
+  const { handleSubmit, reset } = form;
 
   const slackRows = useMemo(
     () => items.filter((row) => row.channelType === SLACK_CHANNEL_TYPE),
     [items],
   );
 
-  const load = useCallback(async () => {
+  const activeDestinationCount = useMemo(
+    () => slackRows.filter((row) => row.isEnabled === true).length,
+    [slackRows],
+  );
+
+  const load = useCallback(async (): Promise<void> => {
     setLoading(true);
     setFailure(null);
 
     try {
       const data = await listAlertRoutingSubscriptions();
       setItems(data);
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
+    } catch (error) {
+      setFailure(toApiLoadFailure(error));
     } finally {
       setLoading(false);
     }
@@ -87,7 +96,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
     void load();
   }, [load]);
 
-  async function onTestWebhook(routingSubscriptionId: string) {
+  async function onTestDestination(routingSubscriptionId: string): Promise<void> {
     if (testingId !== null) {
       return;
     }
@@ -96,23 +105,56 @@ export function SlackIntegrationPageClient(): React.ReactElement {
 
     try {
       const result = await testWebhookSubscription(routingSubscriptionId);
-      setTestResults((prev) => ({ ...prev, [routingSubscriptionId]: result }));
-      presentWebhookConnectionTestToasts(result);
-    } catch (e) {
-      setTestResults((prev) => {
-        const next = { ...prev };
-        delete next[routingSubscriptionId];
-        return next;
-      });
-      presentWebhookConnectionTestRequestFailure(e);
+      const feedback = interpretSlackIntegrationTestResult(result);
+      setRowTestFeedback((prev) => ({ ...prev, [routingSubscriptionId]: feedback }));
+    } catch {
+      setRowTestFeedback((prev) => ({
+        ...prev,
+        [routingSubscriptionId]: {
+          kind: "error",
+          message: "We could not deliver the test notification. Check the webhook URL and Slack permissions.",
+        },
+      }));
     } finally {
       setTestingId(null);
     }
   }
 
-  async function onToggle(routingSubscriptionId: string) {
+  const onSendFormTest = handleSubmit(async (values) => {
     if (!canMutate) {
       return;
+    }
+
+    setFormTestFeedback(null);
+    setTestingForm(true);
+
+    try {
+      const result = await dryRunOutboundWebhook({
+        targetUrl: values.webhookUrl.trim(),
+        sharedSecret: values.secret.trim().length > 0 ? values.secret.trim() : null,
+      });
+      setFormTestFeedback(interpretSlackIntegrationTestResult(result));
+    } catch {
+      setFormTestFeedback({
+        kind: "error",
+        message: "We could not deliver the test notification. Check the webhook URL and Slack permissions.",
+      });
+    } finally {
+      setTestingForm(false);
+    }
+  });
+
+  async function onToggleDestination(routingSubscriptionId: string, isEnabled: boolean): Promise<void> {
+    if (!canMutate) {
+      return;
+    }
+
+    if (isEnabled) {
+      const confirmed = window.confirm(SLACK_INTEGRATION_DISABLE_CONFIRM);
+
+      if (!confirmed) {
+        return;
+      }
     }
 
     setFailure(null);
@@ -120,17 +162,19 @@ export function SlackIntegrationPageClient(): React.ReactElement {
     try {
       await toggleAlertRoutingSubscription(routingSubscriptionId);
       await load();
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      showSuccess(isEnabled ? SLACK_INTEGRATION_DISABLE_SUCCESS : SLACK_INTEGRATION_ENABLE_SUCCESS);
+    } catch (error) {
+      setFailure(toApiLoadFailure(error));
     }
   }
 
-  const submit = handleSubmit(async (values) => {
+  const onSave = handleSubmit(async (values) => {
     if (!canMutate) {
       return;
     }
 
     setFailure(null);
+    setFormTestFeedback(null);
 
     try {
       await createAlertRoutingSubscription({
@@ -141,32 +185,41 @@ export function SlackIntegrationPageClient(): React.ReactElement {
         isEnabled: true,
         metadataJson: buildWebhookSubscriptionMetadata(values.secret, values.eventTypes),
       });
-      reset({ ...webhookSettingsDefaultValues, channelType: SLACK_CHANNEL_TYPE });
+      reset(slackIntegrationDefaultValues);
       await load();
-      showSuccess("Slack route saved.");
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      showSuccess(SLACK_INTEGRATION_SAVE_SUCCESS);
+    } catch {
+      setFailure({
+        message: SAVE_FAILURE_MESSAGE,
+        problem: null,
+        correlationId: null,
+        httpStatus: null,
+        retryAfterSeconds: null,
+      });
     }
   });
 
   return (
-    <div className="w-full max-w-3xl space-y-8 px-4 py-8 sm:px-6 lg:px-8" data-testid="integrations-slack-page">
-      <LayerHeader pageKey="slack-notifications" density="compact" collapsibleGuidance="About Slack notifications" />
-
-      <header className="space-y-2 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Slack</h1>
-        <p className={cn("leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Route architecture alerts to Slack channels using incoming webhook URLs. Secrets are stored with the
-          subscription and are not shown again after save.
+    <div className="w-full max-w-[68rem] space-y-8 px-4 py-8 sm:px-6 lg:px-8" data-testid="integrations-slack-page">
+      <header className="space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{SLACK_INTEGRATION_PAGE_TITLE}</h1>
+        <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          {SLACK_INTEGRATION_PAGE_SUBTITLE}
         </p>
-        <p className={cn("leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p
+          className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+          data-testid="slack-configuration-status"
+        >
+          {loading ? "Loading configuration status…" : slackIntegrationConfigurationStatusLabel(activeDestinationCount)}
+        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           See{" "}
           <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
             Integration readiness
-          </Link>{" "}
-          for cross-integration status. For Microsoft Teams, use{" "}
+          </Link>
+          . Need a different channel?{" "}
           <Link className={OPERATOR_LINK.inline} href="/integrations/teams">
-            Microsoft Teams
+            Configure Microsoft Teams
           </Link>
           .
         </p>
@@ -183,207 +236,33 @@ export function SlackIntegrationPageClient(): React.ReactElement {
       ) : null}
 
       <FormProvider {...form}>
-        <form onSubmit={(e) => void submit(e)} className={cn("space-y-8", !canMutate && "opacity-95")}>
-          <section aria-labelledby="slack-create-heading" className="space-y-5">
-            <div>
-              <h2 id="slack-create-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                New Slack route
-              </h2>
-              <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Paste a Slack incoming webhook URL for the channel that should receive alerts.
-              </p>
-            </div>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start">
+          <div className={cn("min-w-0 space-y-10", !canMutate && "opacity-95")}>
+            <SlackDestinationForm
+              canMutate={canMutate}
+              loading={loading}
+              testingForm={testingForm}
+              formTestFeedback={formTestFeedback}
+              onSave={() => void onSave()}
+              onSendTest={() => void onSendFormTest()}
+            />
 
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <Label htmlFor="slack-route-name">Route name</Label>
-                <Input
-                  id="slack-route-name"
-                  className="mt-1"
-                  disabled={!canMutate}
-                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                  {...register("name")}
-                />
-                {errors.name?.message !== undefined ? (
-                  <p role="alert" className={cn("mt-1 text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>
-                    {errors.name.message}
-                  </p>
-                ) : null}
-              </div>
+            <SlackDestinationsPanel
+              destinations={slackRows}
+              loading={loading}
+              canMutate={canMutate}
+              testingId={testingId}
+              rowTestFeedback={rowTestFeedback}
+              onRefresh={() => void load()}
+              onTest={(routingSubscriptionId) => void onTestDestination(routingSubscriptionId)}
+              onToggle={(routingSubscriptionId, isEnabled) =>
+                void onToggleDestination(routingSubscriptionId, isEnabled)
+              }
+            />
+          </div>
 
-              {showAlertSeverityFilter ? (
-                <div className="sm:col-span-2">
-                  <Label htmlFor="slack-minimum-severity">Minimum alert severity</Label>
-                  <select
-                    id="slack-minimum-severity"
-                    className={cn(
-                      "mt-1 block w-full rounded-md border border-neutral-300 bg-white p-2 shadow-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring dark:border-neutral-700 dark:bg-neutral-950",
-                      OPERATOR_TYPOGRAPHY.body,
-                    )}
-                    disabled={!canMutate}
-                    title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                    {...register("minimumSeverity")}
-                  >
-                    <option value="Info">Info</option>
-                    <option value="Warning">Warning</option>
-                    <option value="High">High</option>
-                    <option value="Critical">Critical</option>
-                  </select>
-                </div>
-              ) : null}
-
-              <div className="sm:col-span-2">
-                <Label htmlFor="slack-webhook-url">Slack webhook URL</Label>
-                <Input
-                  id="slack-webhook-url"
-                  className={cn("mt-1 font-mono", OPERATOR_TYPOGRAPHY.body)}
-                  placeholder="https://hooks.slack.com/services/..."
-                  disabled={!canMutate}
-                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                  {...register("webhookUrl")}
-                />
-                {errors.webhookUrl?.message !== undefined ? (
-                  <p role="alert" className={cn("mt-1 text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>
-                    {errors.webhookUrl.message}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="sm:col-span-2">
-                <Label htmlFor="slack-secret">Signing secret</Label>
-                <Input
-                  id="slack-secret"
-                  type="password"
-                  autoComplete="off"
-                  className={cn("mt-1 font-mono", OPERATOR_TYPOGRAPHY.body)}
-                  placeholder="Paste once — it will not be shown after save"
-                  disabled={!canMutate}
-                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                  {...register("secret")}
-                />
-                {errors.secret?.message !== undefined ? (
-                  <p role="alert" className={cn("mt-1 text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>
-                    {errors.secret.message}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="sm:col-span-2 space-y-2">
-                <fieldset>
-                  <legend className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Event types</legend>
-                  <Controller
-                    name="eventTypes"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="mt-3 grid gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-800">
-                        {webhookOutboundEventCatalog.map((opt) => {
-                          const checked = field.value.includes(opt.id);
-
-                          return (
-                            <label key={opt.id} className={cn("flex cursor-pointer items-start gap-2 leading-snug", OPERATOR_TYPOGRAPHY.body)}>
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                disabled={!canMutate}
-                                onChange={() => {
-                                  const next = checked ? field.value.filter((v) => v !== opt.id) : [...field.value, opt.id];
-                                  field.onChange(next);
-                                }}
-                                className="mt-[3px] h-4 w-4"
-                              />
-                              <span className="font-medium text-al-text-primary">{opt.label}</span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                    )}
-                  />
-                </fieldset>
-              </div>
-            </div>
-
-            <Button type="submit" disabled={!canMutate || loading} data-testid="slack-save-button">
-              Save Slack route
-            </Button>
-          </section>
-
-          <section aria-labelledby="slack-existing-heading">
-            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 id="slack-existing-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                  Active Slack routes
-                </h2>
-                <p className={cn("max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  Enabled Slack webhook routes in this workspace ({slackRows.length}).
-                </p>
-              </div>
-              <Button type="button" variant="outline" size="sm" onClick={() => void load()} disabled={loading}>
-                {loading ? "Refreshing…" : "Refresh"}
-              </Button>
-            </div>
-
-            {slackRows.length === 0 ? (
-              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No Slack routes configured yet.</p>
-            ) : (
-              <ul className="grid gap-4">
-                {slackRows.map((row) => {
-                  const masked = summarizeMaskedWebhookSubscription(row.metadataJson);
-                  const friendlyEventLabels = masked.eventTypes.map((eventId) => labelForWebhookEventId(eventId));
-
-                  return (
-                    <li
-                      key={row.routingSubscriptionId}
-                      className="rounded-lg border border-neutral-200 bg-card p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-950"
-                    >
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <h3 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{row.name}</h3>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <BooleanStatusChip value={row.isEnabled === true} trueLabel="Enabled" falseLabel="Disabled" />
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            disabled={testingId !== null}
-                            onClick={() => void onTestWebhook(row.routingSubscriptionId)}
-                          >
-                            {testingId === row.routingSubscriptionId ? "Testing…" : "Test connection"}
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            disabled={!canMutate || loading}
-                            onClick={() => void onToggle(row.routingSubscriptionId)}
-                          >
-                            {row.isEnabled === true ? "Disable" : "Enable"}
-                          </Button>
-                        </div>
-                      </div>
-                      <dl className={cn("mt-4 grid gap-2", OPERATOR_TYPOGRAPHY.body)}>
-                        <div>
-                          <dt className={OPERATOR_NAV_GROUP_LABEL}>Webhook URL</dt>
-                          <dd className={cn("break-all font-mono", OPERATOR_TYPOGRAPHY.body)}>{row.destination}</dd>
-                        </div>
-                        <div>
-                          <dt className={OPERATOR_NAV_GROUP_LABEL}>Event types</dt>
-                          <dd>{friendlyEventLabels.length > 0 ? friendlyEventLabels.join(", ") : "(none)"}</dd>
-                        </div>
-                      </dl>
-                      {testResults[row.routingSubscriptionId] !== undefined ? (
-                        <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                          Last test:{" "}
-                          {testResults[row.routingSubscriptionId]!.transportSucceeded ? "delivered" : "failed"}
-                        </p>
-                      ) : null}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </section>
-        </form>
+          <SlackIntegrationAside />
+        </div>
       </FormProvider>
     </div>
   );

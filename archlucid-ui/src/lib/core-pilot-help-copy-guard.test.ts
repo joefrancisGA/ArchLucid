@@ -50,7 +50,7 @@ describe("core-pilot help copy guard", () => {
   it("frames evidence-only path without requiring a cloud connector", () => {
     const text = readCorePilotHelpMarkdown().toLowerCase();
 
-    expect(text).toContain("evidence-only review path");
+    expect(text).toContain("fast path: evidence-only review");
     expect(text).toContain("connector access has not yet been approved");
     expect(text).not.toContain("no azure extractor");
   });
@@ -60,6 +60,7 @@ describe("core-pilot help copy guard", () => {
 
     expect(source.split("\n").some((line) => /^---\s*$/.test(line.trim()))).toBe(false);
     expect(source).toContain("## Run the first review");
-    expect(source).toContain("## Cloud connectors");
+    expect(source).toContain("## Cloud connectors are optional for your first review");
+    expect(source).toContain("## What can wait");
   });
 });

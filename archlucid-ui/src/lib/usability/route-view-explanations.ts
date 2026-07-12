@@ -11,14 +11,6 @@ export type RouteViewExplanation = {
 
 const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteViewExplanation }[] = [
   {
-    prefix: "/compare",
-    explanation: {
-      title: "Compare two reviews",
-      summary: "Side-by-side diff of two architecture reviews — findings, decision records, and cost deltas.",
-      nextAction: "Pick a baseline and updated review, then read the structured comparison summary.",
-    },
-  },
-  {
     prefix: "/audit",
     explanation: {
       title: "Audit trail",
@@ -41,6 +33,10 @@ export function routeViewExplanationForPathname(pathname: string): RouteViewExpl
   }
 
   if (path === "/alerts" || path.startsWith("/alerts/")) {
+    return null;
+  }
+
+  if (path === "/compare" || path.startsWith("/compare/")) {
     return null;
   }
 

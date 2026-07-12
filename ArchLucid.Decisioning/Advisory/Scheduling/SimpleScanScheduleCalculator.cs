@@ -1,32 +1,82 @@
-namespace ArchLucid.Decisioning.Advisory.Scheduling;
+using Cronos;
 
-/// <summary>
-///     Minimal schedule interpreter: a few named aliases, fixed <c>0 7 * * *</c> (07:00 UTC daily), and a default of +1
-///     day for any other token.
+namespace ArchLucid.Decisioning.Advisory.Scheduling;
+///     UTC schedule interpreter for advisory scans and architecture review recurrence.
 /// </summary>
 /// <remarks>
-///     Not a full CRON engine; unknown patterns fall back to <see cref="DateTime" /> day increments. Prefer documented
-///     expressions for predictable scans.
+///     Named aliases (<c>@hourly</c>, <c>@daily</c>, <c>@weekly</c>) advance from the reference instant.
+///     Standard five-field cron expressions use Cronos calendar semantics in UTC.
+///     Unknown or invalid expressions return <see langword="null" /> — never a silent fallback.
 /// </remarks>
 public sealed class SimpleScanScheduleCalculator : IScanScheduleCalculator
 {
     /// <inheritdoc />
-    public DateTime? ComputeNextRunUtc(string cronExpression, DateTime fromUtc)
+    public bool IsSupportedCronExpression(string cronExpression)
     {
-        string cron = cronExpression.Trim();
-        return cron switch
+        if (string.IsNullOrWhiteSpace(cronExpression))
         {
-            "@hourly" => fromUtc.AddHours(1),
-            "@daily" => fromUtc.AddDays(1),
-            "@weekly" => fromUtc.AddDays(7),
-            "0 7 * * *" => NextDailyAtSevenAmUtc(fromUtc),
-            _ => fromUtc.AddDays(1)
-        };
+            return false;
+        }
+
+        string cron = cronExpression.Trim();
+
+        if (IsIntervalAlias(cron))
+        {
+            return true;
+        }
+
+        return TryParseCronExpression(cron, out _);
     }
 
-    private static DateTime NextDailyAtSevenAmUtc(DateTime fromUtc)
+    /// <inheritdoc />
+    public DateTime? ComputeNextRunUtc(string cronExpression, DateTime fromUtc)
     {
-        DateTime todaySeven = fromUtc.Date.AddHours(7);
-        return fromUtc < todaySeven ? todaySeven : fromUtc.Date.AddDays(1).AddHours(7);
+        if (string.IsNullOrWhiteSpace(cronExpression))
+        {
+            return null;
+        }
+
+        string cron = cronExpression.Trim();
+
+        if (IsIntervalAlias(cron))
+        {
+            return cron switch
+            {
+                "@hourly" => fromUtc.AddHours(1),
+                "@daily" => fromUtc.AddDays(1),
+                "@weekly" => fromUtc.AddDays(7),
+                _ => null,
+            };
+        }
+
+        if (!TryParseCronExpression(cron, out CronExpression? expression) || expression is null)
+        {
+            return null;
+        }
+
+        return expression.GetNextOccurrence(fromUtc, TimeZoneInfo.Utc, inclusive: false);
+    }
+
+    /// <inheritdoc />
+    public IReadOnlyList<DateTime> ComputeNextRunsUtc(string cronExpression, DateTime fromUtc, int count) =>
+        ScanScheduleNextRuns.Compute(this, cronExpression, fromUtc, count);
+
+    private static bool IsIntervalAlias(string cron) =>
+        cron is "@hourly" or "@daily" or "@weekly";
+
+    private static bool TryParseCronExpression(string cron, out CronExpression? expression)
+    {
+        expression = null;
+
+        try
+        {
+            expression = CronExpression.Parse(cron, CronFormat.Standard);
+
+            return true;
+        }
+        catch (CronFormatException)
+        {
+            return false;
+        }
     }
 }

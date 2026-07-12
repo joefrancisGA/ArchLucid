@@ -14,6 +14,7 @@ extensions:
       - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerHostLeaderElectionExtensions", "LogInformationHostLeaderLeaseAcquired", "(Microsoft.Extensions.Logging.ILogger,System.String,System.String)", "summary", "manual"]
       - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerHostLeaderElectionExtensions", "LogInformationHostLeaderWorkStoppedLeaseLossOrHandoff", "(Microsoft.Extensions.Logging.ILogger,System.String)", "summary", "manual"]
       - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerHostLeaderElectionExtensions", "LogWarningHostLeaderLeaseRenewalFailedStopping", "(Microsoft.Extensions.Logging.ILogger,System.String,System.String)", "summary", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerTrialBootstrapExtensions", "LogInformationTrialBootstrapEmailVerificationBlocked", "(Microsoft.Extensions.Logging.ILogger,System.Guid,System.String)", "summary", "manual"]
       - ["ArchLucid.Core.Diagnostics", "SanitizedLoggerDebugExtensions", "LogDebugAwsPricingProbeFailed", "(Microsoft.Extensions.Logging.ILogger,System.Exception,System.String,System.String)", "summary", "manual"]
   # Canonical com.archlucid.* integration event type literals are not private data.
   - addsTo:

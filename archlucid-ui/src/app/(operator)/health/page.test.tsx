@@ -6,11 +6,21 @@ import {
   extendBuyerPolishedShellVitestMock,
 } from "@/testing/buyer-polished-shell-vitest-override";
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
-  extendBuyerPolishedShellVitestMock(importOriginal),
-);
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await extendBuyerPolishedShellVitestMock(importOriginal);
+
+  return {
+    ...actual,
+    isOperatorExperienceFullShellEnv: vi.fn(() => false),
+  };
+});
+
+vi.mock("@/lib/features", () => ({
+  isShowSystemAdministrationNavEnabled: vi.fn(() => false),
+}));
 
 import SystemHealthPage from "./page";
+import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 
 function jsonResponse(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
@@ -79,5 +89,30 @@ describe("SystemHealthPage", () => {
     expect(screen.getByText("Responding")).toBeInTheDocument();
 
     vi.unstubAllGlobals();
+  });
+
+  it("renders a demo-safe system health dashboard in the buyer-polished shell", async () => {
+    buyerPolishedShellVitestOverride.value = true;
+    vi.mocked(isShowSystemAdministrationNavEnabled).mockReturnValue(false);
+
+    render(<SystemHealthPage />);
+
+    expect(screen.getByTestId("system-health-demo-page")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "System health" })).toBeInTheDocument();
+    expect(screen.getByText(/Monitor platform readiness, service status, integrations/i)).toBeInTheDocument();
+    expect(screen.getByTestId("system-health-demo-context-note")).toHaveTextContent(/Demo workspace/i);
+    expect(screen.queryByText(/sample review shell/i)).toBeNull();
+    expect(screen.getByTestId("system-health-summary-tiles")).toBeInTheDocument();
+    expect(screen.getByTestId("system-health-operational-checks")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
+    expect(screen.getByTestId("system-health-refresh-timestamp")).toHaveTextContent(/Last refreshed:/i);
+
+    fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+
+    expect(screen.getByRole("button", { name: "Refreshing…" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
+    });
   });
 });

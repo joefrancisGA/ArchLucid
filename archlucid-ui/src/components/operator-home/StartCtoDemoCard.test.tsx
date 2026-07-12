@@ -1,5 +1,11 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const push = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push }),
+}));
 
 vi.mock("@/lib/buyer-cto-demo-readiness", () => ({
   evaluateBuyerCtoDemoReadiness: vi.fn(async () => ({
@@ -18,17 +24,24 @@ import {
 import { getStartCtoDemoTourHref } from "@/lib/buyer-cto-demo-tour";
 
 describe("StartCtoDemoCard", () => {
-  it("renders heading, lead copy, and CTA linking to golden journey step 1", async () => {
+  beforeEach(() => {
+    push.mockClear();
+  });
+
+  it("renders heading, lead copy, and starts the demo after optimistic preflight", async () => {
     render(<StartCtoDemoCard />);
 
     expect(screen.getByRole("region", { name: BUYER_HOME_START_CTO_DEMO_ARIA })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: BUYER_HOME_START_CTO_DEMO_HEADING })).toBeInTheDocument();
     expect(screen.getByText(BUYER_HOME_START_CTO_DEMO_LEAD)).toBeInTheDocument();
 
+    const cta = screen.getByTestId("start-cto-demo-cta");
+    expect(cta).toHaveTextContent(BUYER_HOME_START_CTO_DEMO_CTA);
+
+    fireEvent.click(cta);
+
     await waitFor(() => {
-      const cta = screen.getByTestId("start-cto-demo-cta");
-      expect(cta).toHaveAttribute("href", getStartCtoDemoTourHref());
-      expect(cta).toHaveTextContent(BUYER_HOME_START_CTO_DEMO_CTA);
+      expect(push).toHaveBeenCalledWith(getStartCtoDemoTourHref());
     });
   });
 });

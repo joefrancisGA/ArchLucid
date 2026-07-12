@@ -15,14 +15,15 @@ import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-
 import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
 import { showError, showSuccess } from "@/lib/toast";
-import { isApiRequestError } from "@/lib/api-request-error";
-import { showApiRequestErrorToast } from "@/lib/api-error-toast";
+import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
+import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
+import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
 import {
@@ -30,7 +31,6 @@ import {
   proofScopeToRequiredCapabilities,
   type QuickReviewProofScopeId,
 } from "@/components/usability/QuickReviewProofScopeField";
-import { ReviewSubmitPhaseProgress, type ReviewSubmitPhaseId } from "@/components/usability/ReviewSubmitPhaseProgress";
 import type { CtoDemoReviewExecutionMode } from "@/components/cto-demo/CtoDemoReviewModeCallout";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
@@ -39,7 +39,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
-import { reviewPathTimeEstimate } from "@/lib/review-path-time-estimates";
+import { REVIEW_START_CREATION_FAILED_MESSAGE, REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
 import {
   persistQuickReviewWizardPreferences,
   readQuickReviewWizardPreferences,
@@ -145,13 +145,11 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const [activeSampleBriefId, setActiveSampleBriefId] = useState<string | null>(null);
   const [runTitle, setRunTitle] = useState("");
   const [scope, setScope] = useState<Record<string, string> | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<unknown | null>(null);
+  const creationProgress = useReviewCreationProgress();
   const [executionMode, setExecutionMode] = useState<CtoDemoReviewExecutionMode>(initialWizardState.executionMode);
   const [evidenceAttached, setEvidenceAttached] = useState(false);
   const [proofScope, setProofScope] = useState<QuickReviewProofScopeId[]>(initialWizardState.proofScope);
   const [advancedConfigExpanded, setAdvancedConfigExpanded] = useState(initialWizardState.advancedConfigExpanded);
-  const [submitPhase, setSubmitPhase] = useState<ReviewSubmitPhaseId>("mapping");
 
   const briefOk = briefText.trim().length >= MIN_BRIEF_CHARS && briefText.trim().length <= ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH;
   const showDemoModeCallout = isCtoDemoPackEnv() || isBuyerPolishedOperatorShellEnv() || readBuyerCtoDemoTourActive();
@@ -209,25 +207,6 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
     setBriefText(sample.brief);
     setActiveSampleBriefId(sample.id);
   }, [exampleTemplate]);
-
-  useEffect(() => {
-    if (!submitting) {
-      return;
-    }
-
-    setSubmitPhase("mapping");
-    const policyTimer = window.setTimeout(() => {
-      setSubmitPhase("policy");
-    }, 900);
-    const findingsTimer = window.setTimeout(() => {
-      setSubmitPhase("findings");
-    }, 1800);
-
-    return () => {
-      window.clearTimeout(policyTimer);
-      window.clearTimeout(findingsTimer);
-    };
-  }, [submitting]);
 
   const scopeTenant = scope?.["x-tenant-id"] ?? "—";
   const scopeWorkspace = scope?.["x-workspace-id"] ?? "—";
@@ -301,8 +280,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       return;
     }
 
-    setSubmitting(true);
-    setSubmitError(null);
+    creationProgress.begin({ hasTemplate: exampleTemplate !== null });
 
     try {
       const body = buildQuickReviewPayload(
@@ -315,13 +293,14 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       const id = res.run?.runId ?? null;
 
       if (!id) {
-        showToast("err", "API returned no architecture review id.");
+        creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
 
         return;
       }
 
       recordFirstTenantFunnelEvent("first_run_started");
-      showToast("ok", `Architecture review ${id} created — opening pipeline.`);
+      creationProgress.markPreparingQuestions();
+      creationProgress.markOpeningReview();
 
       if (onRunCreatedNavigate !== undefined) {
         onRunCreatedNavigate(id);
@@ -330,24 +309,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       }
 
       router.push(buildReviewGenerationRedirect(id, "quick-review"));
-    } catch (error: unknown) {
-      setSubmitError(error);
-
-      if (isApiRequestError(error)) {
-        showApiRequestErrorToast(error, "Quick review");
-
-        return;
-      }
-
-      const message =
-        error && typeof error === "object" && "message" in error
-          ? String((error as { message?: string }).message)
-          : "Request failed.";
-      showToast("err", message);
-    } finally {
-      setSubmitting(false);
+    } catch {
+      creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
     }
   };
+
+  const isStartingReview = creationProgress.isActive;
 
   return (
     <OperatorPageContainer variant="workflow" className="grid gap-4 pb-36 lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)]">
@@ -504,33 +471,16 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
               <strong>Brief length:</strong> {briefText.trim().length} characters
             </p>
             <p className="m-0 line-clamp-4 text-neutral-600 dark:text-neutral-400">{briefText.trim()}</p>
-            {submitting ? (
-              <ReviewSubmitPhaseProgress
-                activePhase={submitPhase}
-                minutesEstimate={`First package typically ready in ${reviewPathTimeEstimate("quick-review").minutesLow}–${reviewPathTimeEstimate("quick-review").minutesHigh} minutes`}
+            {creationProgress.showStagedPanel && creationProgress.activeStageId !== null ? (
+              <ReviewStartStagedProgress
+                stages={creationProgress.stages}
+                activeStageId={creationProgress.activeStageId}
+                headline={REVIEW_START_PREPARING_LABEL}
+                testId="quick-review-start-progress"
               />
             ) : null}
-            {submitError !== null ? (
-              <div data-testid="quick-review-submit-error">
-                {isApiRequestError(submitError) ? (
-                  <OperatorApiProblem
-                    problem={submitError.problem}
-                    fallbackMessage={submitError.message}
-                    correlationId={submitError.correlationId}
-                    httpStatus={submitError.httpStatus}
-                    retryAfterSeconds={submitError.retryAfterSeconds}
-                  />
-                ) : (
-                  <OperatorApiProblem
-                    problem={null}
-                    fallbackMessage={
-                      submitError && typeof submitError === "object" && "message" in submitError
-                        ? String((submitError as { message?: string }).message)
-                        : "Request failed."
-                    }
-                  />
-                )}
-              </div>
+            {creationProgress.error !== null ? (
+              <ReviewStartInlineError message={creationProgress.error} testId="quick-review-submit-error" />
             ) : null}
           </CardContent>
         </Card>
@@ -538,16 +488,16 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 
       <div className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
         {step > 0 ? (
-          <Button type="button" variant="outline" onClick={goBack} disabled={submitting}>
+          <Button type="button" variant="outline" onClick={goBack} disabled={isStartingReview}>
             Back
           </Button>
         ) : null}
         {step < 2 ? (
-          <Button type="button" onClick={goNext} disabled={submitting || (step === 0 && !briefOk)}>
+          <Button type="button" onClick={goNext} disabled={isStartingReview || (step === 0 && !briefOk)}>
             Next
           </Button>
         ) : (
-          <Button
+          <ReviewStartLoadingButton
             type="button"
             onClick={() => {
               if (executionMode === "simulator" && showDemoModeCallout) {
@@ -558,11 +508,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 
               void submitRun();
             }}
-            disabled={submitting || blocksLlmExecution}
+            disabled={blocksLlmExecution}
             data-testid="quick-review-start"
-          >
-            Start Architecture Review
-          </Button>
+            idleLabel="Start Architecture Review"
+            loadingLabel={creationProgress.loadingLabel}
+            isLoading={isStartingReview}
+          />
         )}
       </div>
       </div>

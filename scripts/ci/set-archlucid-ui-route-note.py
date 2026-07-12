@@ -9,6 +9,7 @@ from pathlib import Path
 
 from archlucid_ui_route_traffic_table import (
     DOC,
+    ensure_owner_workbook,
     find_row,
     merge_note,
     parse_rows,
@@ -32,8 +33,9 @@ def main() -> int:
     args = parser.parse_args()
 
     row_id = args.id.strip().upper()
-    text = args.doc.read_text(encoding="utf-8")
-    before, table_body, after = split_document(text, args.doc)
+    doc_path = ensure_owner_workbook() if args.doc == DOC else args.doc
+    text = doc_path.read_text(encoding="utf-8")
+    before, table_body, after = split_document(text, doc_path)
     rows = parse_rows(table_body)
 
     if not rows:
@@ -57,7 +59,7 @@ def main() -> int:
 
         match["notes"] = merge_note(previous, args.note, replace=args.replace)
 
-    write_table(args.doc, before, rows, after)
+    write_table(doc_path, before, rows, after)
 
     print(
         f"Updated {row_id} ({match['path']}): notes {previous!r} -> {match['notes']!r}; "

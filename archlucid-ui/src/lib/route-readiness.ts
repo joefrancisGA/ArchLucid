@@ -17,6 +17,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/reviews": "demo-ready",
   "/governance/findings": "advanced-only",
   "/settings/security-trust": "demo-ready",
+  "/settings/preferences": "demo-ready",
   "/workspace/security-trust": "demo-ready",
   "/value-report": "advanced-only",
   "/value-report/pilot": "advanced-only",
@@ -47,11 +48,13 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/governance/policy-packs": "advanced-only",
   "/governance/audit": "advanced-only",
   "/governance/alerts": "advanced-only",
+  "/governance/alert-rules": "advanced-only",
   "/governance-resolution": "advanced-only",
   "/policy-packs": "advanced-only",
   "/audit": "advanced-only",
   "/health": "demo-ready",
   "/alerts": "advanced-only",
+  "/alert-rules": "advanced-only",
   "/demo/explain": "hidden",
 
   "/product-learning": "advanced-only",
@@ -77,7 +80,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/settings/roles": "admin-only",
   "/settings/api-keys": "admin-only",
   "/admin/ai-usage-cost": "admin-only",
-  /** Alias to Alert rules hub (`/alerts?tab=rules`) for settings-style bookmarks. */
+  /** Alias to Alert rules hub for settings-style bookmarks. */
   "/settings/alerts": "advanced-only",
 };
 
@@ -119,9 +122,11 @@ const DEMO_MODE_ADVANCED_NAV_ALLOWLIST = new Set<string>([
   "/governance/audit",
   "/governance/policy-packs",
   "/governance/alerts",
+  "/governance/alert-rules",
   "/audit",
   "/policy-packs",
   "/alerts",
+  "/alert-rules",
 ]);
 
 import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
@@ -141,6 +146,10 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
   "/settings/cloud-connections",
   "/admin/ai-usage-cost",
   "/settings/identity-providers",
+  "/settings/identity-providers/saml",
+  "/settings/identity-providers/oidc",
+  "/settings/identity-providers/role-mapping",
+  "/settings/identity-providers/diagnostics",
   "/settings/identity/sso-wizard",
   "/settings/scim-provisioning",
   "/value-report",

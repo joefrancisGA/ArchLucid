@@ -1,3 +1,4 @@
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { writeOperatorScopeCookieFromHeaders } from "@/lib/operator-scope-cookie";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 
@@ -13,6 +14,7 @@ const STORAGE_PREFIX = "archlucid_review_generation_handoff_v1_";
 export type ReviewGenerationHandoffSource =
   | "quick-review"
   | "socratic-intake"
+  | "create-architecture"
   | "wizard-track"
   | "full-wizard"
   | "quick-start"
@@ -131,6 +133,7 @@ function isReviewGenerationHandoffSource(value: unknown): value is ReviewGenerat
   return (
     value === "quick-review" ||
     value === "socratic-intake" ||
+    value === "create-architecture" ||
     value === "wizard-track" ||
     value === "full-wizard" ||
     value === "quick-start" ||
@@ -150,11 +153,18 @@ export function isFromGenerationSearchParam(value: string | string[] | undefined
  * Review detail href after create/generate. App Router has no location state — the query flag plus sessionStorage
  * handoff record are the source of truth for post-generation failure UX.
  */
-export function reviewDetailHrefAfterGeneration(runId: string): string {
+export function reviewDetailHrefAfterGeneration(
+  runId: string,
+  options?: { readonly architectureCreation?: boolean },
+): string {
   const trimmedRunId = runId.trim();
   const qs = new URLSearchParams();
 
   qs.set(FROM_GENERATION_QUERY_KEY, "1");
+
+  if (options?.architectureCreation === true) {
+    qs.set("intent", CREATE_ARCHITECTURE_INTENT);
+  }
 
   return `/reviews/${encodeURIComponent(trimmedRunId)}?${qs.toString()}`;
 }
@@ -163,9 +173,11 @@ export function reviewDetailHrefAfterGeneration(runId: string): string {
 export function buildReviewGenerationRedirect(
   runId: string,
   source: ReviewGenerationHandoffSource,
-  extras?: { readonly jobId?: string | null },
+  extras?: { readonly jobId?: string | null; readonly architectureCreation?: boolean },
 ): string {
   recordReviewGenerationHandoff(runId, source, extras);
 
-  return reviewDetailHrefAfterGeneration(runId);
+  return reviewDetailHrefAfterGeneration(runId, {
+    architectureCreation: extras?.architectureCreation === true,
+  });
 }

@@ -39,10 +39,6 @@ vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
 
-vi.mock("@/components/ColorModeSegmentedControl", () => ({
-  ColorModeSegmentedControl: () => <div data-testid="color-mode-segmented-stub" />,
-}));
-
 vi.mock("@/components/SupportBundleDownloadButton", () => ({
   SupportBundleDownloadButton: ({ showDiagnosticsLink }: { showDiagnosticsLink?: boolean }) => (
     <div data-testid="support-bundle-stub" data-diagnostics={showDiagnosticsLink ? "true" : "false"} />
@@ -67,7 +63,7 @@ describe("SettingsPageView", () => {
     expect(screen.getByTestId("settings-master-overview-header")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Search settings…")).toBeInTheDocument();
     expect(screen.getByTestId("settings-master-section-nav")).toBeInTheDocument();
-    expect(screen.getByTestId("color-mode-segmented-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-destination-user-preferences")).toBeInTheDocument();
     expect(screen.getByTestId("settings-section-security-trust")).toBeInTheDocument();
     expect(screen.queryByTestId("settings-section-advanced")).not.toBeInTheDocument();
     expect(screen.queryByTestId("settings-developer-tools-card")).not.toBeInTheDocument();

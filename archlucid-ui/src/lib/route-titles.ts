@@ -17,14 +17,6 @@ export function getRouteTitle(pathname: string): string {
     return "Architecture package";
   }
 
-  if (/^\/executive\/reviews\/[^/]+\/findings\/[^/]+$/.test(normalized)) {
-    return "Finding (executive)";
-  }
-
-  if (/^\/executive\/reviews\/[^/]+$/.test(normalized)) {
-    return "Risk review";
-  }
-
   if (/^\/governance\/policy-packs\/[^/]+$/.test(normalized)) {
     const tail = normalized.split("/").filter((s) => s.length > 0).pop() ?? "";
 

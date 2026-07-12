@@ -208,6 +208,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 }

@@ -14,6 +14,7 @@ using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.ContextIngestion.Repositories;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Core.AdminNotifications;
+using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Budgeting;
@@ -260,6 +261,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
             sp.GetRequiredService<ILogger<AgentTraceOrphanBlobCleanupService>>()));
         services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
         services.AddSingleton<ILlmTenantBudgetRepository, InMemoryLlmTenantBudgetRepository>();
+        services.AddSingleton<IAiUsageEventRepository, Persistence.AiUsage.InMemoryAiUsageEventRepository>();
+        services.AddSingleton<ITenantAiBudgetPolicyRepository, Persistence.AiUsage.InMemoryTenantAiBudgetPolicyRepository>();
         services.AddSingleton<ILlmTenantWalletRepository, InMemoryLlmTenantWalletRepository>();
         services.AddSingleton<IMarketingPricingQuoteRequestRepository, NoOpMarketingPricingQuoteRequestRepository>();
         services.AddSingleton<IMarketingPricingQuoteRequestAgingReader, NoOpMarketingPricingQuoteRequestAgingReader>();

@@ -580,6 +580,11 @@ IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
 GO
 
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'PackageOrigin') IS NULL
+    ALTER TABLE dbo.Runs ADD PackageOrigin NVARCHAR(16) NULL;
+GO
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'RowVersionStamp') IS NULL
     ALTER TABLE dbo.Runs ADD RowVersionStamp ROWVERSION;
 GO
@@ -9265,5 +9270,43 @@ IF OBJECT_ID(N'dbo.RecommendationRecords', N'U') IS NOT NULL
 BEGIN
     ALTER TABLE dbo.RecommendationRecords ADD CONSTRAINT CK_RecommendationRecords_SourceEvidenceLinksJson_IsJson
         CHECK (ISJSON(SourceEvidenceLinksJson) = 1);
+END;
+GO
+
+/* 270: Per-tenant AI budget policy overrides (demo/trial governance). */
+IF OBJECT_ID(N'dbo.TenantAiBudgetPolicy', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantAiBudgetPolicy
+    (
+        TenantId                UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_TenantAiBudgetPolicy PRIMARY KEY,
+        BudgetAmountUsd         DECIMAL(18, 4)   NULL,
+        HardStopEnabled         BIT              NOT NULL CONSTRAINT DF_TenantAiBudgetPolicy_HardStop DEFAULT (1),
+        AllowCustomerAiProvider BIT              NOT NULL CONSTRAINT DF_TenantAiBudgetPolicy_CustomerProvider DEFAULT (0),
+        TrialExpirationUtc      DATETIMEOFFSET   NULL,
+        LastUpdatedUtc          DATETIME2(7)     NOT NULL CONSTRAINT DF_TenantAiBudgetPolicy_Lku DEFAULT SYSUTCDATETIME()
+    );
+END;
+GO
+
+/* 271: AI usage events for demo/trial governance dashboards. */
+IF OBJECT_ID(N'dbo.AiUsageEvents', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AiUsageEvents
+    (
+        Id                  UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AiUsageEvents PRIMARY KEY,
+        TenantId            UNIQUEIDENTIFIER NOT NULL,
+        UserId              NVARCHAR(256)    NULL,
+        Feature             NVARCHAR(64)     NOT NULL,
+        ProviderKind        NVARCHAR(64)     NOT NULL,
+        InputTokens         INT              NOT NULL CONSTRAINT DF_AiUsageEvents_InputTokens DEFAULT (0),
+        OutputTokens        INT              NOT NULL CONSTRAINT DF_AiUsageEvents_OutputTokens DEFAULT (0),
+        EstimatedCostUsd    DECIMAL(18, 6)   NOT NULL CONSTRAINT DF_AiUsageEvents_EstimatedCostUsd DEFAULT (0),
+        ActualCostUsd       DECIMAL(18, 6)   NULL,
+        OccurredUtc         DATETIMEOFFSET   NOT NULL CONSTRAINT DF_AiUsageEvents_OccurredUtc DEFAULT SYSUTCDATETIME(),
+        CorrelationId       NVARCHAR(128)    NULL,
+        ServedFromDemoCache BIT              NOT NULL CONSTRAINT DF_AiUsageEvents_ServedFromDemoCache DEFAULT (0),
+        BudgetBlocked       BIT              NOT NULL CONSTRAINT DF_AiUsageEvents_BudgetBlocked DEFAULT (0),
+        INDEX IX_AiUsageEvents_TenantOccurred NONCLUSTERED (TenantId, OccurredUtc DESC)
+    );
 END;
 GO

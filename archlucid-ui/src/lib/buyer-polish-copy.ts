@@ -13,6 +13,14 @@ export const BUYER_EXAMPLE_WORKSPACE_TOOLTIP =
 
 export const BUYER_COMPARE_PAGE_TITLE = "Compare reviews";
 
+export const BUYER_COMPARE_PRIMARY_ACTION_LABEL = "Compare reviews";
+
+export const BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA = "Open signed review record";
+
+export const BUYER_COMPARE_OPEN_EVIDENCE_TRAIL_CTA = "Open evidence trail";
+
+export const BUYER_COMPARE_OPEN_SAMPLE_COMPARISON_CTA = "Open sample comparison";
+
 export const BUYER_COMPARE_STRUCTURED_HEADING = "Review comparison";
 
 export const BUYER_COMPARE_STRUCTURED_LEAD =
@@ -36,29 +44,87 @@ export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 /** Quiet label above the non-clickable sample finding preview rows — signals "content", not "actions". */
 export const OPERATOR_HOME_SAMPLE_FINDINGS_INCLUDES_LABEL = "Sample includes:";
 
-export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Run sample review";
+export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Run guided review";
 
-export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = "Open completed sample";
+export const OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA = "Open completed review";
+
+/** @deprecated Prefer {@link OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}. */
+export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA;
+
+export const OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA = "Open creation example";
+
+/** @deprecated Prefer {@link OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA}. */
+export const OPERATOR_HOME_OPEN_CREATED_SAMPLE_CTA = OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA;
+
+export const OPERATOR_HOME_CREATION_EXAMPLE_TITLE = "Architecture creation example";
+
+export const OPERATOR_HOME_CREATION_EXAMPLE_BODY =
+  "See how ArchLucid turns goals and constraints into an architecture.";
+
+export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE = "Guided review example";
+
+export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY =
+  "Watch ArchLucid evaluate a sample architecture.";
 
 export const OPERATOR_HOME_COMMAND_CENTER_TAGLINE =
-  "Create, review, and govern architecture decisions with evidence-backed traceability.";
+  "Create a new architecture or review an existing one. Both paths produce an evidence-backed review with findings, decisions, and a record your stakeholders can use.";
 
-export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Create architecture";
+export const OPERATOR_HOME_INTENT_CHOOSER_HEADING = "What would you like to do?";
+
+export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE = "Explore a completed review";
+
+export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY =
+  "See real findings, evidence, decisions, and a finalized review package before using your own architecture.";
+
+export const OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE = "Best for evaluating ArchLucid";
+
+export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Create an architecture";
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
-  "Generate or refine an architecture from goals, constraints, and evidence.";
+  "Build an architecture from business goals, constraints, requirements, and available evidence.";
 
-export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review architecture";
+export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review an existing architecture";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
-  "Evaluate an architecture package for findings, risks, evidence, and governance readiness.";
+  "Provide the architecture information you already have, such as diagrams, descriptions, requirements, evidence, or other supporting material. A formal package is not required.";
+
+/** @deprecated Merged into {@link OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY} on the home review card. */
+export const OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT = OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY;
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA = "Start review";
 
-export const OPERATOR_HOME_EXPLORE_SAMPLE_HEADING = "Explore a sample workspace";
+/** @deprecated Removed from first-run hero — retained for legacy imports. */
+export const OPERATOR_HOME_RECOMMENDED_FIRST_BADGE = "Best for evaluating ArchLucid";
+
+export const OPERATOR_HOME_DUAL_PATH_CHOOSER_GUIDANCE = OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT;
+
+export const OPERATOR_HOME_RECOMMENDED_NEXT_LABEL = "Recommended next:";
+
+export const OPERATOR_HOME_RECOMMENDED_NEXT_STATIC =
+  "Open the completed review to see findings, evidence, and decisions before your first review.";
+
+export const OPERATOR_HOME_RECOMMENDED_NEXT_CREATE_OR_REVIEW = OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA;
+
+export const OPERATOR_HOME_RECOMMENDED_NEXT_START_REVIEW = "Start review";
+
+export const OPERATOR_HOME_RECOMMENDED_NEXT_CREATE_ARCHITECTURE = "Create architecture";
+
+export const OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_SAMPLE = OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA;
+
+export const OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST = "Open latest review";
+
+export const OPERATOR_HOME_EXPLORE_SAMPLE_HEADING = "See ArchLucid in action";
 
 export const OPERATOR_HOME_EXPLORE_SAMPLE_LEAD =
-  "See a completed package or run a guided sample review before using your own evidence.";
+  "Explore architecture creation or watch ArchLucid run a guided review.";
+
+export const OPERATOR_HOME_OPEN_COMPLETED_SAMPLE_HINT =
+  "Inspect findings, evidence, and decisions from a finished review.";
+
+export const OPERATOR_HOME_RUN_SAMPLE_REVIEW_HINT = OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY;
+
+export const OPERATOR_HOME_READ_ONLY_INTENT_HINT =
+  "Your role can explore samples and learn how reviews work. Ask a workspace administrator for permission to create or start reviews.";
 
 /** @deprecated Prefer {@link OPERATOR_HOME_EXPLORE_SAMPLE_HEADING} — retained for legacy imports. */
 export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = OPERATOR_HOME_EXPLORE_SAMPLE_HEADING;
@@ -84,10 +150,15 @@ export const SAMPLE_REVIEW_PACKAGE_AHA_HEADING = "Your first-value moment";
 export const SAMPLE_REVIEW_PACKAGE_AHA_LEAD =
   "This sample review package leads with one decision-changing finding — expand evidence and exports below when ready.";
 
-export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No review packages yet";
+export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No reviews yet";
 
 export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
-  "Created architectures and review packages will appear here after you start.";
+  "Completed and in-progress architecture reviews will appear here.";
+
+export const OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA = "Learn how reviews work";
+
+export const OPERATOR_HOME_WORKSPACE_ACTIVITY_LEAD =
+  "Architecture reviews appear here after you create or review an architecture.";
 
 export const OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE = "No archived reviews yet.";
 
@@ -97,11 +168,11 @@ export const PILOT_COMMAND_CENTER_HEADING = "Create or review an architecture";
 
 export const OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING = "Recent activity";
 
-/** Hero title on `/` — first-run CTA until the tenant has a committed architecture review. */
+/** Hero title on `/` — first-run intent chooser until the tenant has a committed architecture review. */
 export function resolveOperatorHomeHeroHeading(hasWorkspaceActivity: boolean): string {
   return hasWorkspaceActivity
     ? OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING
-    : PILOT_COMMAND_CENTER_HEADING;
+    : OPERATOR_HOME_INTENT_CHOOSER_HEADING;
 }
 
 export const PILOT_COMMAND_CENTER_LEAD =
@@ -127,21 +198,57 @@ export const PILOT_COMMAND_CENTER_OUTCOMES = [
   "Decision impact",
 ] as const;
 
-export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional setup:";
+export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional workspace setup";
 
-/** Setup readiness card body — paired with {@link PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL} on Overview. */
+/** Ready-state body on the home readiness panel. */
 export const OPERATOR_HOME_CONTINUE_SETUP_BODY =
-  "Open the first review guide for the checklist, then add reviewer access or cloud connections when you are ready.";
+  "You can create or review an architecture now. No additional setup is required.";
+
+export const OPERATOR_HOME_READY_TO_BEGIN_TITLE = "Ready to begin";
+
+export const OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE = "One required item remains";
+
+export const OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER =
+  "Assign a workspace administrator before starting a review.";
+
+export const OPERATOR_HOME_HEALTH_BLOCKER =
+  "Confirm platform health before starting a review.";
+
+export const OPERATOR_HOME_SETUP_WORKSPACE_ACCESS_LABEL = "Workspace access";
+
+export const OPERATOR_HOME_SETUP_CLOUD_CONNECTION_LABEL = "Cloud connection";
+
+export const OPERATOR_HOME_SETUP_REVIEWER_INVITATION_LABEL = "Reviewer invitation";
+
+export const OPERATOR_HOME_SETUP_STATUS_READY = "Ready";
+
+export const OPERATOR_HOME_SETUP_STATUS_OPTIONAL = "Optional";
+
+export const OPERATOR_HOME_CONNECT_CLOUD_TITLE = "Connect cloud environment";
+
+export const OPERATOR_HOME_CONNECT_CLOUD_BODY =
+  "Import architecture evidence from Azure, AWS, or Google Cloud.";
+
+export const OPERATOR_HOME_INVITE_COLLABORATORS_BODY =
+  "Invite collaborators when you are ready to share or review work.";
+
+export const OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE = "Open the first review guide.";
+
+export const OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH = "Choose a creation or review path.";
+
+export const OPERATOR_HOME_SETUP_NEXT_CONNECT_CLOUD = "Connect cloud";
+
+export const OPERATOR_HOME_SETUP_NEXT_INVITE_REVIEWER = "Invite reviewer";
 
 /** Collapsed summary on `/onboarding` optional setup disclosure (TB-679). */
 export const ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY =
-  "Workspace setup for admins — identity, roles, and ROI baseline. Not required for your first review.";
+  "Identity, administrator access, platform health, and ROI baseline — optional before your first review.";
 
 /** Post-registration trial handoff on `/onboarding` (TB-679). */
 export const GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD =
   "Confirm trial limits below, then use the checklist on this page or start a review with the sample highlighted on step one.";
 
-/** Operator home setup card heading (Overview IA final vocabulary). */
+/** @deprecated Prefer {@link OPERATOR_HOME_READY_TO_BEGIN_TITLE} on first-run home. */
 export const OPERATOR_HOME_SETUP_READINESS_TITLE = "Setup readiness";
 
 export const PILOT_COMMAND_CENTER_STEPS_HEADING = "3 steps";
@@ -159,17 +266,17 @@ export const PILOT_PATH_PREVIEW_STEPS = [
 /** Section B on operator home — optional setup, walkthroughs, and workspace context. */
 export const OPERATOR_HOME_WORKSPACE_SETUP_SECTION_TITLE = "Workspace setup";
 
-export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Explore ArchLucid";
+export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Learn the architecture workflow";
 
 export const OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY =
-  "Review walkthrough and product concepts.";
+  "See how ArchLucid moves from goals and evidence to architecture, findings, decisions, and finalized results.";
 
-export const OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING = "Review walkthrough";
+export const OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING = "Architecture workflow";
 
 export const OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_LEAD =
-  "Walk through the architecture review flow from evidence to decision record.";
+  "See how ArchLucid moves from goals and evidence to architecture, findings, decisions, and finalized results.";
 
-export const OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA = "View walkthrough";
+export const OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA = "View workflow";
 
 export const OPERATOR_HOME_DEMO_OPERATIONS_TITLE = "Demo operations";
 
@@ -230,6 +337,28 @@ export const BUYER_CTO_DEMO_READINESS_STATIC_LABEL = "Demo ready (static fallbac
 export const BUYER_CTO_DEMO_READINESS_NOT_READY_LABEL = "Demo not ready";
 
 export const BUYER_CTO_DEMO_READINESS_CHECKING_LABEL = "Checking demo readiness…";
+
+export const BUYER_CTO_DEMO_PREPARING_LABEL = "Preparing demo…";
+
+export const BUYER_CTO_DEMO_START_FAILED_MESSAGE = "We could not start the demo right now. Please try again.";
+
+export const BUYER_CTO_DEMO_ENVIRONMENT_UNAVAILABLE_MESSAGE =
+  "The demo environment is temporarily unavailable.";
+
+export const BUYER_CTO_DEMO_SAMPLE_MODE_NOTICE =
+  "Showing a saved example review for this walkthrough.";
+
+export const BUYER_CTO_DEMO_TRY_AGAIN_CTA = "Try again";
+
+export const BUYER_CTO_DEMO_CONTACT_SUPPORT_CTA = "Contact support";
+
+export const INTERNAL_DEMO_READINESS_PAGE_LEAD =
+  "Internal demo diagnostics, showcase controls, and readiness rechecks for ArchLucid operators.";
+
+export const INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK = "Open diagnostics dashboard";
+
+export const INTERNAL_DEMO_READINESS_TOOLING_DISABLED =
+  "Demo operator tooling is not enabled in this environment.";
 
 export const BUYER_CTO_DEMO_READINESS_REFRESH_CTA = "Recheck readiness";
 
@@ -409,7 +538,7 @@ export const BUYER_HOME_WELCOME_LEAD =
   "Start with the executive view, then the signed review record, audit trail, and prioritized findings.";
 
 /** Canonical home reviews zone heading — both operator shells (TB-347). */
-export const OPERATOR_HOME_RECENT_REVIEWS_HEADING = "Workspace activity";
+export const OPERATOR_HOME_RECENT_REVIEWS_HEADING = "Recent reviews";
 
 export const BUYER_HOME_REVIEWS_SECTION_HEADING = OPERATOR_HOME_RECENT_REVIEWS_HEADING;
 
@@ -422,10 +551,10 @@ export const BUYER_HOME_SETUP_SECTION_HEADING = "Start a new review";
 
 export const BUYER_RUNS_DASHBOARD_RECENT_LABEL = "Featured finalized review package";
 
-export const BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY = "Recent review packages";
+export const BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY = "Architecture reviews";
 
 export const BUYER_RUNS_DASHBOARD_RECENT_SUMMARY =
-  "Recent review package: signed decision record, evidence, governance, and audit.";
+  "Track findings, evidence, decisions, and finalized outputs from your architecture reviews.";
 
 export const BUYER_RUN_INSPECTOR_FINALIZED_LABEL = "Example · finalized";
 
@@ -466,7 +595,43 @@ export const RUNS_LIST_VIEW_SAMPLE_PACKAGE_CTA = "View sample package";
 export const BUYER_ONBOARDING_PAGE_TITLE = "First review guide";
 
 export const BUYER_ONBOARDING_PAGE_LEAD =
-  "Create and finalize your first architecture review package.";
+  "Create, evaluate, and finalize your first evidence-backed architecture review.";
+
+export const FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE = "Your first review";
+
+export const FIRST_REVIEW_GUIDE_OUTCOMES_TITLE = "What you will have";
+
+export const FIRST_REVIEW_GUIDE_OUTCOMES: readonly string[] = [
+  "A finalized architecture review record",
+  "Evidence-backed findings",
+  "Recorded decisions and exceptions",
+  "A shareable review package",
+] as const;
+
+export const FIRST_REVIEW_GUIDE_REQUIRED_SETUP_TITLE = "Required before you start";
+
+export const FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE = "Optional workspace setup";
+
+export const FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_LEAD =
+  "These settings can improve security, administration, and reporting, but most are not required to begin your first review.";
+
+export const FIRST_REVIEW_GUIDE_GET_MORE_TITLE = "Get more from ArchLucid";
+
+export const FIRST_REVIEW_GUIDE_GET_MORE_ROI_COPY =
+  "Add an ROI baseline to estimate savings and support executive reporting.";
+
+export const FIRST_REVIEW_GUIDE_HELP_TITLE = "Need help?";
+
+export const FIRST_REVIEW_GUIDE_TEMPLATE_LABEL = "Review template";
+
+export const FIRST_REVIEW_GUIDE_TEMPLATE_CHOOSE_ACTION = "Choose template";
+
+export const FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL = "Next step";
+
+export const ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL = "Dismiss optional setup";
+
+export const ONBOARDING_OPTIONAL_SETUP_DISMISS_DETAIL =
+  "Hides this checklist on this device. It does not validate or complete the underlying settings.";
 
 export const BUYER_ONBOARDING_NAV_TOOLTIP = "First review guide — checklist and milestones";
 
@@ -568,7 +733,7 @@ export const BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE = "Monitored risks";
 export const BUYER_GOVERNANCE_DECISION_REGISTER_TITLE = "Decision register";
 
 export const BUYER_GOVERNANCE_DECISION_REGISTER_LEAD =
-  "Signed decisions across reviews — category, supporting findings, and lineage.";
+  "Browse signed architecture decisions across review packages, including category, supporting findings, confidence, and lineage.";
 
 export const BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA = "View finding and evidence";
 
@@ -605,7 +770,7 @@ export const BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK = (findingCount: number, w
 export const BUYER_COMPARE_OPEN_FULL_LINK_LABEL = "View review change comparison";
 
 export const BUYER_MARKETING_PRICING_PAGE_INTRO =
-  "Compare Team, Professional, and Enterprise packaging. Professional is the typical procurement path; detailed terms and diligence artifacts are finalized through your vendor review process.";
+  "Start with one architect, grow into a governed review practice, and use Enterprise when procurement, SSO, or private deployment is required.";
 
 /** Sales-led V1: no self-serve checkout; quote and order form finalize commercial terms. */
 export const BUYER_SALES_LED_V1_PRICING_NOTE =
@@ -742,19 +907,42 @@ export const BUYER_GRAPH_WHAT_THIS_PROVES =
 export const BUYER_VALUE_REPORT_PAGE_TITLE = "Executive value report";
 
 export const BUYER_VALUE_REPORT_PAGE_SUBTITLE =
-  "Create an executive-ready report summarizing finalized reviews, findings, governance activity, and estimated ROI.";
+  "Generate sponsor-ready summaries of finalized reviews, findings, governance activity, and estimated ROI.";
 
-export const BUYER_VALUE_REPORT_OUTCOME_LEAD = BUYER_VALUE_REPORT_PAGE_SUBTITLE;
+export const BUYER_VALUE_REPORT_OUTCOME_LEAD =
+  "Choose a reporting period, preview what the sponsor report will include, and export when finalized reviews exist in that window.";
 
-export const BUYER_VALUE_REPORT_OUTCOME_DETAILS =
-  "Use this report for sponsor updates and procurement diligence — choose the report period and download formats below.";
+export const BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE = "How value reports work";
+
+export const BUYER_VALUE_REPORT_HOW_IT_WORKS_DETAILS =
+  "Value reports aggregate finalized review packages, governance activity, and ROI estimates for the selected UTC period. Exports unlock after at least one finalized review falls in the window. Use Pilot outcomes, ROI summary, or Review scorecard for deeper drill-downs.";
 
 export const BUYER_VALUE_REPORT_PERIOD_UTC_HELP = "Times are in UTC for consistent reporting.";
 
-export const BUYER_VALUE_REPORT_EMPTY_TITLE = "No report data for this period";
+export const BUYER_VALUE_REPORT_PERIOD_EXPORTS_TITLE = "Report period and exports";
+
+export const BUYER_VALUE_REPORT_EXPORT_DISABLED_HELP =
+  "Exports are available after at least one finalized review exists in this period.";
+
+export const BUYER_VALUE_REPORT_INCLUDES_TITLE = "Sponsor report includes";
+
+export const BUYER_VALUE_REPORT_INCLUDES_ITEMS = [
+  "Finalized review packages",
+  "Key findings",
+  "Governance activity",
+  "Decision summary",
+  "ROI estimate",
+  "Recommended next actions",
+] as const;
+
+export const BUYER_VALUE_REPORT_EMPTY_TITLE = "No finalized reviews in this report period";
 
 export const BUYER_VALUE_REPORT_EMPTY_DESCRIPTION =
-  "Finalize at least one review package to generate a meaningful sponsor value report.";
+  "Finalize at least one review package in the selected period to generate a sponsor value report.";
+
+export const BUYER_VIEW_SAMPLE_VALUE_REPORT_CTA = "View sample value report";
+
+export const BUYER_VALUE_REPORT_DEMO_SAMPLE_NOTE = "Demo workspace: sample report output is available.";
 
 export const BUYER_VALUE_REPORT_PREVIEW_TITLE = "Report preview";
 
@@ -763,8 +951,6 @@ export const BUYER_FINDING_SUMMARY_DECISION_IMPACT_LABEL = "Decision impact";
 export const BUYER_FINDING_SUMMARY_NEXT_STEP_LABEL = "What to do next";
 
 export const BUYER_GRAPH_TECHNICAL_CONTROLS_DISCLOSURE = "Graph options and filters";
-
-export const BUYER_VALUE_REPORT_EXPORT_DISCLOSURE = "Report window and export";
 
 export const BUYER_EXECUTIVE_DATA_SOURCE_NOTE = "Source: committed reviews in this workspace.";
 
@@ -801,6 +987,20 @@ export const BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING = "Approved with monitori
 export const BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION = "Action needed";
 
 export const BUYER_RUNS_DASHBOARD_FILTER_ALL = "All";
+
+/** TB-740: compact origin badge on workspace/reviews list rows (buyer-polished shell only). */
+export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_CREATED_BADGE = "Created";
+
+export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_BADGE = "Reviewed";
+
+/** Footer navigation on home review packages card — distinct from the All status filter pill. */
+export const BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA = "Open review packages";
+
+/** @deprecated Use {@link BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA}. */
+export const BUYER_RUNS_DASHBOARD_VIEW_ALL_REVIEW_PACKAGES_CTA = BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA;
+
+export const BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES =
+  "No approved review packages match this filter yet.";
 
 export const BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA = "Open all reviews";
 

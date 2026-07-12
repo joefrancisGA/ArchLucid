@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { RunIdPicker } from "@/components/RunIdPicker";
-import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer-polish-copy";
+import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY, BUYER_COMPARE_PRIMARY_ACTION_LABEL } from "@/lib/buyer-polish-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
 
@@ -27,6 +27,8 @@ export type CompareRunPickersSectionProps = {
   useBuyerFacingRunLabels?: boolean;
   /** Buyer shell: replaces “Summarize for sponsor” with procurement-oriented language. */
   summarizeButtonLabel?: string;
+  /** Buyer shell: primary compare action label. */
+  compareButtonLabel?: string;
   /** Buyer shell: collapse pickers below results when comparison is on screen. */
   collapseBelowResults?: boolean;
 };
@@ -53,6 +55,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     onRightRunPicked,
     useBuyerFacingRunLabels = false,
     summarizeButtonLabel = "Summarize for sponsor",
+    compareButtonLabel = "Compare two reviews",
     collapseBelowResults = false,
   } = props;
 
@@ -136,7 +139,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             onClick={() => void onCompare()}
             disabled={compareActionsDisabled}
           >
-            {loading ? "Comparing…" : "Compare two reviews"}
+            {loading ? "Comparing…" : compareButtonLabel}
           </button>
           {showSummarizeForSponsor ? (
             <button

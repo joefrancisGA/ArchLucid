@@ -11,6 +11,7 @@ import { RunsDashboardFilters } from "@/components/operator-home/RunsDashboardFi
 import { RunsDashboardOutcomesTab } from "@/components/operator-home/RunsDashboardOutcomesTab";
 import { RunsDashboardRecentTab } from "@/components/operator-home/RunsDashboardRecentTab";
 import {
+  isRunApprovedPackage,
   runIsShowcaseHomeExampleStory,
   runSummaryHasArchivedField,
   runsDashboardTabLabel,
@@ -27,7 +28,8 @@ import {
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
 import {
-  BUYER_RUNS_DASHBOARD_FILTER_ALL,
+  BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES,
+  BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY,
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_DASHBOARD_SECTION_HEADING,
@@ -60,7 +62,7 @@ export function RunsDashboardPanelClient({
   hideHeading = false,
   initialModel = null,
 }: RunsDashboardPanelClientProps = {}) {
-  const [tab, setTab] = useState<RunsDashboardTabId>("recent");
+  const [tab, setTab] = useState<RunsDashboardTabId>("all");
   const [governanceWarningsOnly, setGovernanceWarningsOnly] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [restoreBusyRequestId, setRestoreBusyRequestId] = useState<string | null>(null);
@@ -226,11 +228,10 @@ export function RunsDashboardPanelClient({
   const showcasePrimaryCta =
     showcaseDemoRun !== undefined ? getBuyerSafeReviewsTableLink(showcaseDemoRun.runId) : null;
 
-  const onlyShowcaseRunInBuyerPolishedWorkspace =
-    buyerPolishedShell &&
-    filteredItems.length === 1 &&
-    filteredItems[0] !== undefined &&
-    runIsShowcaseHomeExampleStory(filteredItems[0]);
+  const approvedTabItems = useMemo(
+    () => filteredItems.filter(isRunApprovedPackage),
+    [filteredItems],
+  );
 
   const runListError = phase === "error" && failure !== null && effectiveItems.length === 0;
 
@@ -247,6 +248,12 @@ export function RunsDashboardPanelClient({
   }
 
   const openAllReviewsHref = `/reviews?projectId=${encodeURIComponent(projectId)}`;
+
+  const buyerStatusTabIds: readonly RunsDashboardTabId[] = ["all", "approved", "attention", "outcomes"];
+  const operatorStatusTabIds: readonly RunsDashboardTabId[] = ["all", "attention", "outcomes"];
+  const statusTabIds = buyerPolishedShell ? buyerStatusTabIds : operatorStatusTabIds;
+
+  const isRecentListTab = tab === "all" || tab === "approved";
 
   const buyerFilterPillClass = (active: boolean, disabled: boolean = false) =>
     cn(
@@ -278,25 +285,17 @@ export function RunsDashboardPanelClient({
           data-testid="runs-dashboard-panel"
         >
           <CardHeader className={OPERATOR_CARD.header}>
+            {buyerPolishedShell && hideHeading ? null : (
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
                 {buyerPolishedShell
                   ? BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY
-                  : tab === "recent"
+                  : isRecentListTab
                     ? RUNS_DASHBOARD_LABELS.latestInWorkspace
                     : null}
                 {!buyerPolishedShell && tab === "attention" ? RUNS_DASHBOARD_LABELS.reviewsNeedingAttention : null}
                 {!buyerPolishedShell && tab === "outcomes" ? RUNS_DASHBOARD_LABELS.reviewOutcomes : null}
               </CardTitle>
-              {buyerPolishedShell && !onlyShowcaseRunInBuyerPolishedWorkspace ? (
-                <Link
-                  href={openAllReviewsHref}
-                  data-testid="runs-dashboard-filter-all"
-                  className={cn("inline-block shrink-0 font-semibold sm:ml-auto", OPERATOR_LINK.nav)}
-                >
-                  {BUYER_RUNS_DASHBOARD_FILTER_ALL}
-                </Link>
-              ) : null}
               {!buyerPolishedShell ? (
                 <Link
                   href={openAllReviewsHref}
@@ -307,6 +306,7 @@ export function RunsDashboardPanelClient({
                 </Link>
               ) : null}
             </div>
+            )}
             <div className={cn("flex flex-wrap items-center gap-2", buyerPolishedShell ? "" : OPERATOR_LAYOUT.inlineGap)}>
               <TabsList
                 aria-label={buyerPolishedShell ? "Review views" : "Review views"}
@@ -315,7 +315,7 @@ export function RunsDashboardPanelClient({
                   buyerPolishedShell ? "gap-1 border-0" : "-mb-px overflow-x-auto",
                 )}
               >
-                {(["recent", "attention", "outcomes"] as const).map((id) => (
+                {statusTabIds.map((id) => (
                   <TabsTrigger
                     key={id}
                     value={id}
@@ -345,7 +345,7 @@ export function RunsDashboardPanelClient({
                       return;
                     }
 
-                    setTab("recent");
+                    setTab("all");
                     setShowArchived(!showArchived);
                   }}
                   className={buyerFilterPillClass(showArchived, archivedFilterDisabled)}
@@ -355,7 +355,7 @@ export function RunsDashboardPanelClient({
               ) : null}
             </div>
             <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
-              {tab === "recent"
+              {isRecentListTab
                 ? buyerPolishedShell
                   ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY
                   : RUNS_DASHBOARD_LABELS.recentSummary
@@ -381,7 +381,7 @@ export function RunsDashboardPanelClient({
               onShowArchivedChange={setShowArchived}
             />
 
-            <TabsContent value="recent" className="pt-0" data-testid="runs-dashboard-panel-recent">
+            <TabsContent value="all" className="pt-0" data-testid="runs-dashboard-panel-all">
               <RunsDashboardRecentTab
                 phase={phase}
                 failure={failure}
@@ -395,6 +395,29 @@ export function RunsDashboardPanelClient({
                 showArchived={showArchived}
                 archivedFieldSupported={archivedFieldSupported}
                 restoreBusyRequestId={restoreBusyRequestId}
+                contentTestId="runs-dashboard-tab-all"
+                onRestoreArchivedRequest={(requestId) => {
+                  void restoreArchivedRequest(requestId);
+                }}
+              />
+            </TabsContent>
+
+            <TabsContent value="approved" className="pt-0" data-testid="runs-dashboard-panel-approved">
+              <RunsDashboardRecentTab
+                phase={phase}
+                failure={failure}
+                runListError={runListError}
+                filteredItems={approvedTabItems}
+                effectiveItems={effectiveItems}
+                buyerPolishedShell={buyerPolishedShell}
+                showcaseDemoRun={undefined}
+                showcasePrimaryCta={null}
+                buyerSafeHighlight={false}
+                showArchived={showArchived}
+                archivedFieldSupported={archivedFieldSupported}
+                restoreBusyRequestId={restoreBusyRequestId}
+                contentTestId="runs-dashboard-tab-approved"
+                statusFilterEmptyMessage={BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES}
                 onRestoreArchivedRequest={(requestId) => {
                   void restoreArchivedRequest(requestId);
                 }}
@@ -413,6 +436,17 @@ export function RunsDashboardPanelClient({
             <TabsContent value="outcomes" className="pt-0" data-testid="runs-dashboard-panel-outcomes">
               <RunsDashboardOutcomesTab buyerPolishedShell={buyerPolishedShell} showcaseDemoRun={showcaseDemoRun} />
             </TabsContent>
+            {buyerPolishedShell && effectiveItems.length > 0 ? (
+              <div className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
+                <Link
+                  href={openAllReviewsHref}
+                  data-testid="runs-dashboard-open-review-packages"
+                  className={cn("inline-block font-semibold", OPERATOR_LINK.nav)}
+                >
+                  {BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA}
+                </Link>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       </Tabs>

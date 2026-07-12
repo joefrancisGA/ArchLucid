@@ -3,39 +3,62 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MarketingTierPricingSection } from "./MarketingTierPricingSection";
 
+const mockPricingDoc = {
+  schemaVersion: 1,
+  currency: "USD",
+  packages: [
+    {
+      id: "architect",
+      title: "Architect",
+      summary: "For one architect",
+      planMonthlyUsd: 99,
+      pricingDisplay: "monthly",
+      includedUsers: 1,
+      includedWorkspaces: 1,
+      monthlyAiCredits: 500,
+    },
+    {
+      id: "team",
+      title: "Team",
+      summary: "Team tier",
+      planMonthlyUsd: 249,
+      pricingDisplay: "monthly",
+      includedUsers: 5,
+      includedWorkspaces: 1,
+      monthlyAiCredits: 2500,
+      workspaceMonthlyUsd: 199,
+      seatMonthlyUsd: 79,
+    },
+    {
+      id: "professional",
+      title: "Professional",
+      summary: "Pro tier",
+      planMonthlyUsd: 1799,
+      pricingDisplay: "monthly",
+      includedUsers: 15,
+      includedWorkspaces: 5,
+      monthlyAiCredits: 10000,
+      workspaceMonthlyUsd: 899,
+      seatMonthlyUsd: 179,
+    },
+    {
+      id: "enterprise",
+      title: "Enterprise",
+      summary: "Ent tier",
+      pricingDisplay: "custom",
+    },
+  ],
+  teamStripeCheckoutUrl: "https://pay.example.test/checkout",
+  architectStripeCheckoutUrl: "https://pay.example.test/architect-checkout",
+};
+
 describe("MarketingTierPricingSection", () => {
   beforeEach(() => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({
-          schemaVersion: 1,
-          currency: "USD",
-          packages: [
-            {
-              id: "team",
-              title: "Team",
-              summary: "Team tier",
-              workspaceMonthlyUsd: 199,
-              seatMonthlyUsd: 79,
-            },
-            {
-              id: "professional",
-              title: "Professional",
-              summary: "Pro tier",
-              workspaceMonthlyUsd: 899,
-              seatMonthlyUsd: 179,
-            },
-            {
-              id: "enterprise",
-              title: "Enterprise",
-              summary: "Ent tier",
-              annualFloorUsd: 60000,
-            },
-          ],
-          teamStripeCheckoutUrl: "https://pay.example.test/checkout",
-        }),
+        json: async () => mockPricingDoc,
       }),
     );
   });
@@ -45,47 +68,19 @@ describe("MarketingTierPricingSection", () => {
     vi.unstubAllEnvs();
   });
 
-  it("renders quote-first Team CTAs when Stripe checkout flag is unset even if pricing JSON has a usable URL", async () => {
-    const quote = document.createElement("div");
-    quote.id = "pricing-quote-request";
-    document.body.appendChild(quote);
-
+  it("renders Architect first with self-serve signup when Stripe checkout is disabled", async () => {
     render(
-      <MarketingTierPricingSection
-        sectionHeadingId="pricing-heading"
-        sectionTitle="Pricing"
-        signupHref="/signup?utm_source=pricing_page"
-        quoteSectionDomId="pricing-quote-request"
-      />,
+      <MarketingTierPricingSection sectionHeadingId="pricing-heading" sectionTitle="Pricing" signupHref="/signup?utm_source=pricing_page" />,
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Team" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Architect" })).toBeInTheDocument();
     });
 
-    const teamCard = screen.getByRole("heading", { name: "Team" }).closest("li");
-    if (teamCard === null) {
-      throw new Error("expected Team tier list item");
-    }
-
-    const teamScope = within(teamCard);
-    teamScope.getByRole("button", { name: /request quote/i });
-    teamScope.getByRole("link", { name: /start an evaluation/i });
-
-    expect(teamScope.queryByTestId("pricing-team-subscribe-stripe")).not.toBeInTheDocument();
-
-    const trial = teamScope.getByRole("link", { name: /start an evaluation/i });
-    expect(trial.getAttribute("href")).toContain("/signup?");
-    expect(trial.getAttribute("href")).toContain("utm_source=pricing_page");
-
-    const talkButtons = screen.getAllByRole("button", { name: /talk to sales/i });
-    expect(talkButtons).toHaveLength(2);
-
-    const scroll = vi.spyOn(quote, "scrollIntoView");
-    fireEvent.click(teamScope.getByRole("button", { name: /request quote/i }));
-    expect(scroll).toHaveBeenCalled();
-
-    quote.remove();
+    const architectCard = screen.getByTestId("pricing-tier-architect");
+    within(architectCard).getByRole("link", { name: /start architect plan/i });
+    expect(screen.getByTestId("pricing-tier-price-enterprise")).toHaveTextContent("Custom");
+    expect(screen.queryByTestId("pricing-early-adopter-framing")).not.toBeInTheDocument();
   });
 
   it("sets Team primary CTA to Stripe Checkout when NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED is true", async () => {
@@ -105,15 +100,11 @@ describe("MarketingTierPricingSection", () => {
     }
 
     const teamScope = within(teamCard);
-
     const stripeSubscribe = teamScope.getByTestId("pricing-team-subscribe-stripe");
 
     expect(stripeSubscribe.getAttribute("href")).toBe("https://pay.example.test/checkout");
-
     expect(stripeSubscribe).toHaveTextContent(/subscribe with stripe/i);
-
-    teamScope.getByRole("button", { name: /request quote/i });
-    teamScope.getByRole("link", { name: /start an evaluation/i });
+    teamScope.getByRole("link", { name: /start team evaluation/i });
   });
 
   it("uses NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL for Team primary CTA href when flag is true", async () => {
@@ -144,30 +135,7 @@ describe("MarketingTierPricingSection", () => {
       vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
-          schemaVersion: 1,
-          currency: "USD",
-          packages: [
-            {
-              id: "team",
-              title: "Team",
-              summary: "Team tier",
-              workspaceMonthlyUsd: 199,
-              seatMonthlyUsd: 79,
-            },
-            {
-              id: "professional",
-              title: "Professional",
-              summary: "Pro tier",
-              workspaceMonthlyUsd: 899,
-              seatMonthlyUsd: 179,
-            },
-            {
-              id: "enterprise",
-              title: "Enterprise",
-              summary: "Ent tier",
-              annualFloorUsd: 60000,
-            },
-          ],
+          ...mockPricingDoc,
           teamStripeCheckoutUrl: "https://checkout.stripe.com/c/pay/cs_test_json",
         }),
       }),
@@ -192,30 +160,7 @@ describe("MarketingTierPricingSection", () => {
       vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
-          schemaVersion: 1,
-          currency: "USD",
-          packages: [
-            {
-              id: "team",
-              title: "Team",
-              summary: "Team tier",
-              workspaceMonthlyUsd: 199,
-              seatMonthlyUsd: 79,
-            },
-            {
-              id: "professional",
-              title: "Professional",
-              summary: "Pro tier",
-              workspaceMonthlyUsd: 899,
-              seatMonthlyUsd: 179,
-            },
-            {
-              id: "enterprise",
-              title: "Enterprise",
-              summary: "Ent tier",
-              annualFloorUsd: 60000,
-            },
-          ],
+          ...mockPricingDoc,
           teamStripeCheckoutUrl: "https://buy.stripe.com/test_some_link",
         }),
       }),
@@ -240,30 +185,7 @@ describe("MarketingTierPricingSection", () => {
       vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
-          schemaVersion: 1,
-          currency: "USD",
-          packages: [
-            {
-              id: "team",
-              title: "Team",
-              summary: "Team tier",
-              workspaceMonthlyUsd: 199,
-              seatMonthlyUsd: 79,
-            },
-            {
-              id: "professional",
-              title: "Professional",
-              summary: "Pro tier",
-              workspaceMonthlyUsd: 899,
-              seatMonthlyUsd: 179,
-            },
-            {
-              id: "enterprise",
-              title: "Enterprise",
-              summary: "Ent tier",
-              annualFloorUsd: 60000,
-            },
-          ],
+          ...mockPricingDoc,
           teamStripeCheckoutUrl: "https://checkout.stripe.com/c/pay/cs_live_abc",
         }),
       }),
@@ -287,31 +209,9 @@ describe("MarketingTierPricingSection", () => {
       vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
-          schemaVersion: 1,
-          currency: "USD",
-          packages: [
-            {
-              id: "team",
-              title: "Team",
-              summary: "Team tier",
-              workspaceMonthlyUsd: 199,
-              seatMonthlyUsd: 79,
-            },
-            {
-              id: "professional",
-              title: "Professional",
-              summary: "Pro tier",
-              workspaceMonthlyUsd: 899,
-              seatMonthlyUsd: 179,
-            },
-            {
-              id: "enterprise",
-              title: "Enterprise",
-              summary: "Ent tier",
-              annualFloorUsd: 60000,
-            },
-          ],
+          ...mockPricingDoc,
           teamStripeCheckoutUrl: "https://checkout.stripe.com/placeholder-replace-before-launch",
+          architectStripeCheckoutUrl: "https://checkout.stripe.com/placeholder-replace-before-launch",
         }),
       }),
     );
@@ -343,8 +243,11 @@ describe("MarketingTierPricingSection", () => {
     expect(screen.queryByTestId("pricing-team-subscribe-stripe")).not.toBeInTheDocument();
   });
 
-  it("prefers Request quote as Team primary CTA when preferSalesLedQuoteCta is true", async () => {
+  it("prefers sales-led quote as Team primary CTA when preferSalesLedQuoteCta is true", async () => {
     vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "true");
+    const quote = document.createElement("div");
+    quote.id = "pricing-quote-request";
+    document.body.appendChild(quote);
 
     render(
       <MarketingTierPricingSection
@@ -352,6 +255,7 @@ describe("MarketingTierPricingSection", () => {
         sectionTitle="Pricing"
         signupHref="/signup?utm_source=pricing_page"
         preferSalesLedQuoteCta
+        quoteSectionDomId="pricing-quote-request"
       />,
     );
 
@@ -365,7 +269,26 @@ describe("MarketingTierPricingSection", () => {
     }
 
     const teamScope = within(teamCard);
-    teamScope.getByRole("button", { name: /^request quote$/i });
+    const scroll = vi.spyOn(quote, "scrollIntoView");
+    fireEvent.click(teamScope.getByRole("button", { name: /start team evaluation/i }));
+    expect(scroll).toHaveBeenCalled();
     teamScope.getByTestId("pricing-team-subscribe-stripe");
+
+    quote.remove();
+  });
+
+  it("shows the AI usage note when showAiUsageNote is enabled", async () => {
+    render(
+      <MarketingTierPricingSection
+        sectionHeadingId="pricing-heading"
+        sectionTitle="Pricing"
+        signupHref="/signup"
+        showAiUsageNote
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("pricing-ai-usage-note")).toBeInTheDocument();
+    });
   });
 });

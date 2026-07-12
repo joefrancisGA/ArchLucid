@@ -42,6 +42,16 @@ public class DevelopmentBypassAuthenticationHandler(
         {
             HttpRequest req = Request;
 
+            if (req.Headers.TryGetValue(ArchLucidAuthOptions.TestActorRoleHeader, out StringValues actorRoleValues))
+            {
+                string trimmedRole = actorRoleValues.ToString().Trim();
+
+                if (trimmedRole.Length > 0)
+                {
+                    role = trimmedRole;
+                }
+            }
+
             if (req.Headers.TryGetValue(ArchLucidAuthOptions.TestActorNameHeader, out StringValues actorNameValues))
             {
                 string trimmed = actorNameValues.ToString().Trim();

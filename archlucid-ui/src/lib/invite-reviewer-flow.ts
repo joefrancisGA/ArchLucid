@@ -2,7 +2,7 @@ import type { ArchLucidAppRole } from "@/lib/current-principal";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
 
 /** Canonical invite-reviewer route from operator home optional-setup and admin deep links. */
-export const INVITE_REVIEWER_PATH = "/settings/roles/invite-reviewer";
+export const INVITE_REVIEWER_PATH = "/settings/users/invite-reviewer";
 
 /** Users tab on the combined users-and-roles admin page. */
 export const SETTINGS_ROLES_USERS_TAB_PATH = SETTINGS_USERS_USERS_TAB_PATH;

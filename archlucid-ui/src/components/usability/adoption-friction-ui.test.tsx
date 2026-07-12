@@ -7,66 +7,62 @@ import { RunsListCompareSelectionBar } from "./RunsListCompareSelectionBar";
 import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
-  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
-  PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
 } from "@/lib/buyer-polish-copy";
-import { INLINE_GUIDANCE_LABEL_CLASS } from "@/lib/design-tokens";
-import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
-import {
-  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
-  showcaseSampleReviewPackageHref,
-} from "@/lib/showcase-sample-review-registry";
+import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
 }));
 
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
+
 describe("PilotCommandCenterCard", () => {
-  it("renders dual-path hero cards and a single completed-sample CTA without duplicate sample links", () => {
+  it("renders three intent cards without duplicate completed-sample CTA rows", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-create-architecture-cta")).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByTestId("operator-home-review-architecture-cta")).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-create-architecture-cta")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-review-architecture-cta")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
 
-    const openSample = screen.getByTestId("pilot-command-center-open-completed-sample");
-    expect(openSample).toHaveAttribute(
-      "href",
-      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
-    );
-    expect(openSample).toHaveTextContent(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
+    expect(screen.queryByTestId("pilot-command-center-open-completed-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-help")).toBeNull();
     expect(screen.queryByTestId("pilot-path-preview-stepper")).toBeNull();
-    expect(screen.getByTestId("pilot-command-center-cta-row")).toBeInTheDocument();
+    expect(screen.queryByTestId("pilot-command-center-cta-row")).toBeNull();
   });
 
-  it("shows optional setup links on the Continue setup card instead of the hero (TB-346)", () => {
+  it("shows optional cloud shortcut on intent cards, not on the readiness panel (TB-346)", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.queryByTestId("pilot-command-center-optional-setup")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-connect-azure")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-invite-reviewer")).toBeNull();
-
-    render(<OperatorHomeContinueSetupCard />);
-
-    const optionalSetupLabel = screen.getByTestId("inline-guidance-optional-setup");
-
-    expect(optionalSetupLabel).toHaveTextContent(PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL);
-    expect(optionalSetupLabel).toHaveClass(INLINE_GUIDANCE_LABEL_CLASS.split(" ")[0]);
-    expect(screen.getByTestId("continue-setup-connect-cloud")).toHaveAttribute("href", "/integrations/cloud-connections");
-    expect(screen.getByTestId("continue-setup-invite-reviewer")).toHaveAttribute("href", INVITE_REVIEWER_PATH);
+    expect(screen.getByTestId("operator-home-optional-cloud-shortcut")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-connect-cloud")).toHaveAttribute("href", "/integrations/cloud-connections");
     expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE }).className).toMatch(/border/);
-    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER }).className).toMatch(/border/);
+
+    render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
+
+    expect(screen.queryByRole("heading", { level: 3, name: PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL })).toBeNull();
+    expect(screen.queryByTestId("continue-setup-connect-cloud")).toBeNull();
+    expect(screen.queryByTestId("continue-setup-invite-reviewer")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-setup-disclosure")).toBeNull();
   });
 });

@@ -18,7 +18,7 @@ type AdminTokenClaimsDiagnosticResponse = components["schemas"]["AdminTokenClaim
 /**
  * Dry-run JWT role mapping against current tenant configuration via POST /v1/admin/auth/diagnose-token.
  */
-export function AuthTokenTestMappingCard() {
+export function AuthTokenTestMappingCard(props: { readonly showTechnicalDetails?: boolean } = {}): React.JSX.Element {
   const [bearerToken, setBearerToken] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<AdminTokenClaimsDiagnosticResponse | null>(null);
@@ -78,8 +78,9 @@ export function AuthTokenTestMappingCard() {
       <CardHeader>
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Test mapping</CardTitle>
         <CardDescription>
-          Paste a sample JWT from your IdP (payload only — signature is not validated). ArchLucid evaluates claim
-          mappings and returns resolved roles without changing tenant configuration.
+          {props.showTechnicalDetails === true
+            ? "Paste a sample JWT from your IdP (payload only — signature is not validated). ArchLucid evaluates claim mappings and returns resolved roles without changing tenant configuration."
+            : "Evaluate how a sample identity token maps to ArchLucid workspace roles without changing tenant configuration."}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">

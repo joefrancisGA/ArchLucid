@@ -42,7 +42,7 @@ export function FindingInspectFindingBody({
     (isNextPublicDemoMode() || isDemoRunIdEligibleForStaticFallback(runId)) && isOperatorExperienceFullShellEnv();
   const reviewContextHref =
     surface === "executive"
-      ? `/executive/reviews/${encodeURIComponent(runId)}`
+      ? `/reviews/${encodeURIComponent(runId)}`
       : isDemoRunIdEligibleForStaticFallback(runId)
         ? getShowcaseManifestHref()
         : `/reviews/${encodeURIComponent(runId)}`;

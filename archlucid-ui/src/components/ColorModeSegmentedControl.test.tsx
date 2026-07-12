@@ -1,14 +1,23 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { ColorModePreferenceProvider } from "@/components/ColorModePreferenceProvider";
 import { COLOR_MODE_STORAGE_KEY } from "@/lib/color-mode-preference";
 
 import { ColorModeSegmentedControl } from "./ColorModeSegmentedControl";
 
 vi.mock("@/lib/api/user-preferences", () => ({
-  getUserPreferences: vi.fn(),
+  getUserPreferences: vi.fn().mockRejectedValue(new Error("anonymous")),
   setUserAppearancePreference: vi.fn(),
 }));
+
+function renderSegmentedControl() {
+  return render(
+    <ColorModePreferenceProvider>
+      <ColorModeSegmentedControl />
+    </ColorModePreferenceProvider>,
+  );
+}
 
 describe("ColorModeSegmentedControl", () => {
   afterEach(() => {
@@ -22,29 +31,28 @@ describe("ColorModeSegmentedControl", () => {
     }
   });
 
-  it("renders system, light, and dark options with helper text", async () => {
-    render(<ColorModeSegmentedControl />);
+  it("renders theme preference options", async () => {
+    renderSegmentedControl();
 
     await waitFor(() => {
-      expect(screen.getByTestId("color-mode-option-system")).toBeInTheDocument();
+      expect(screen.getByTestId("theme-preference-option-system")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("color-mode-option-light")).toBeInTheDocument();
-    expect(screen.getByTestId("color-mode-option-dark")).toBeInTheDocument();
-    expect(screen.getByText("System follows your device setting.")).toBeInTheDocument();
+    expect(screen.getByTestId("theme-preference-option-light")).toBeInTheDocument();
+    expect(screen.getByTestId("theme-preference-option-dark")).toBeInTheDocument();
   });
 
   it("persists dark selection", async () => {
     const setItem = vi.spyOn(Storage.prototype, "setItem");
 
-    render(<ColorModeSegmentedControl />);
+    renderSegmentedControl();
 
-    const darkOption = await waitFor(() => screen.getByTestId("color-mode-option-dark"));
+    const darkOption = await waitFor(() => document.getElementById("theme-preference-dark") as HTMLInputElement);
 
     fireEvent.click(darkOption);
 
     expect(setItem).toHaveBeenCalledWith(COLOR_MODE_STORAGE_KEY, "dark");
-    expect(darkOption).toHaveAttribute("aria-pressed", "true");
+    expect(darkOption).toBeChecked();
     expect(document.documentElement.classList.contains("dark")).toBe(true);
   });
 });

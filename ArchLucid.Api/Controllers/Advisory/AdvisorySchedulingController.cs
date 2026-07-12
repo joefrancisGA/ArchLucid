@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
@@ -78,7 +79,26 @@ public sealed class AdvisorySchedulingController(
         if (string.IsNullOrWhiteSpace(request.RunProjectSlug))
             request.RunProjectSlug = AdvisoryScanSchedule.DefaultProjectSlug;
         request.CreatedUtc = TimeProvider.System.UtcNowDateTime();
-        request.NextRunUtc = scheduleCalculator.ComputeNextRunUtc(request.CronExpression, TimeProvider.System.UtcNowDateTime());
+
+        if (!scheduleCalculator.IsSupportedCronExpression(request.CronExpression))
+        {
+            return this.BadRequestProblem(
+                RecurrenceScheduleCronValidation.InvalidCronMessage,
+                ProblemTypes.ValidationFailed);
+        }
+
+        DateTime? nextRunUtc = scheduleCalculator.ComputeNextRunUtc(
+            request.CronExpression,
+            TimeProvider.System.UtcNowDateTime());
+
+        if (nextRunUtc is null)
+        {
+            return this.BadRequestProblem(
+                RecurrenceScheduleCronValidation.InvalidCronMessage,
+                ProblemTypes.ValidationFailed);
+        }
+
+        request.NextRunUtc = nextRunUtc;
 
         await scheduleRepository.CreateAsync(request, ct);
 

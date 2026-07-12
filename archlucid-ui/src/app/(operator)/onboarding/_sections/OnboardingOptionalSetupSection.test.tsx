@@ -2,7 +2,11 @@ import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY, ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION } from "@/lib/buyer-polish-copy";
+import {
+  FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE,
+  ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
+  ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
+} from "@/lib/buyer-polish-copy";
 
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
 
@@ -16,9 +20,12 @@ vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
   useFinishSetupReadinessContext: () => useFinishSetupReadinessContext(),
 }));
 
-vi.mock("@/components/FinishSetupWizardPanel", () => ({
-  FinishSetupWizardPanel: ({ variant }: { variant?: string }) => (
-    <div data-testid="finish-setup-wizard-panel-stub" data-variant={variant ?? "default"} />
+vi.mock("./OptionalWorkspaceSetupList", () => ({
+  OptionalWorkspaceSetupList: () => <div data-testid="optional-workspace-setup-list-stub" />,
+  OptionalWorkspaceSetupDismissButton: ({ onDismiss }: { onDismiss: () => void }) => (
+    <button type="button" data-testid="optional-workspace-setup-dismiss" onClick={onDismiss}>
+      Dismiss optional setup
+    </button>
   ),
 }));
 
@@ -44,6 +51,7 @@ vi.mock("@/components/operator-home/OperatorHomeDisclosureSection", () => ({
 
 describe("OnboardingOptionalSetupSection", () => {
   beforeEach(() => {
+    window.localStorage.clear();
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
       context: {
@@ -56,19 +64,19 @@ describe("OnboardingOptionalSetupSection", () => {
     });
   });
 
-  it("groups ROI baseline and workspace setup under optional setup for workspace admins", () => {
+  it("groups optional workspace setup rows under a collapsed disclosure for workspace admins", () => {
     render(<OnboardingOptionalSetupSection />);
 
     expect(screen.getByTestId("onboarding-optional-setup")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("optional-setup-collapsed-summary")).toHaveTextContent(
       ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
     );
-    expect(screen.getByRole("link", { name: "Configure ROI baseline" })).toHaveAttribute("href", "/settings/baseline");
-    expect(screen.getByTestId("finish-setup-wizard-panel-stub")).toHaveAttribute("data-variant", "optional");
+    expect(screen.getByTestId("optional-workspace-setup-list-stub")).toBeInTheDocument();
     expect(screen.queryByTestId("onboarding-optional-setup-delegation")).not.toBeInTheDocument();
   });
 
-  it("shows admin-delegation copy instead of SSO and workspace setup for non-admin principals", () => {
+  it("shows admin-delegation copy instead of setup rows for non-admin principals", () => {
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
       context: {
@@ -85,7 +93,6 @@ describe("OnboardingOptionalSetupSection", () => {
     expect(screen.getByTestId("onboarding-optional-setup-delegation")).toBeInTheDocument();
     expect(screen.getByText(ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION)).toBeInTheDocument();
     expect(screen.queryByTestId("onboarding-optional-setup")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("finish-setup-wizard-panel-stub")).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Configure ROI baseline" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("optional-workspace-setup-list-stub")).not.toBeInTheDocument();
   });
 });

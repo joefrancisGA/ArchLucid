@@ -152,6 +152,26 @@ export async function testWebhookSubscription(routingSubscriptionId: string): Pr
   );
 }
 
+export type OutboundWebhookDryRunRequestBody = {
+  targetUrl: string;
+  sharedSecret?: string | null;
+};
+
+/** Probes a webhook URL without persisting a subscription (POST `/v1/webhooks/dry-run`). */
+export async function dryRunOutboundWebhook(body: OutboundWebhookDryRunRequestBody): Promise<WebhookTestResponse> {
+  const payload: OutboundWebhookDryRunRequestBody = {
+    targetUrl: body.targetUrl.trim(),
+  };
+
+  const trimmedSecret = body.sharedSecret?.trim() ?? "";
+
+  if (trimmedSecret.length > 0) {
+    payload.sharedSecret = trimmedSecret;
+  }
+
+  return apiPostJson<WebhookTestResponse>("/v1/webhooks/dry-run", payload);
+}
+
 /** @deprecated Prefer {@link testWebhookSubscription}. */
 export async function testIntegrationWebhook(routingSubscriptionId: string): Promise<WebhookTestResponse> {
   return testWebhookSubscription(routingSubscriptionId);

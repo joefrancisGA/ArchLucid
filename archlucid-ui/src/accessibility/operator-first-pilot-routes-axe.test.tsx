@@ -30,22 +30,43 @@ describe("first-pilot operator routes — axe (Vitest)", () => {
       <IdentityProvidersSettingsPageView
         model={{
           note: null,
-          rows: [
-            {
-              configPath: "ArchLucidAuth:Mode",
-              isSet: true,
-              effectiveValue: "DevelopmentBypass",
-            },
-          ],
+          rows: null,
           identityProviderDiagnostics: null,
           identityProviderDiagnosticsNote: null,
           identityProviderDiagnosticsLoaded: true,
-          oidcDiagnostics: null,
+          authConfigurationDiagnostics: {
+            authMode: "JwtBearer",
+            audienceConfigured: true,
+            issuerOrAuthorityConfigured: true,
+            openIdDiscoverySucceeded: true,
+            saml2Enabled: false,
+            roleClaimNameConfigured: true,
+            tenantClaimMappingConfigured: true,
+          },
+          authConfigurationDiagnosticsNote: null,
+          authConfigurationDiagnosticsLoaded: true,
+          oidcDiagnostics: {
+            authMode: "JwtBearer",
+            discoverySucceeded: true,
+          },
           oidcDiagnosticsNote: null,
           oidcDiagnosticsLoaded: true,
-          samlOperationalHealth: null,
+          samlOperationalHealth: { saml2Enabled: false },
           samlOperationalHealthNote: null,
           samlOperationalHealthLoaded: true,
+          dataLoaded: true,
+          accessDenied: false,
+          overview: {
+            authenticationModeLabel: "OIDC / JWT",
+            ssoStatus: "Enabled",
+            samlStatus: "Not configured",
+            oidcStatus: "Healthy",
+            roleMappingStatus: "Enabled",
+            lastValidationLabel: "Healthy",
+            recommendedNextStep: "Configure SAML metadata",
+            recommendedNextHref: "/settings/identity-providers/saml",
+            usesLocalDevelopmentSignIn: false,
+          },
         }}
       />,
     );

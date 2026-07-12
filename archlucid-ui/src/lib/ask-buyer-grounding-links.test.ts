@@ -10,7 +10,7 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links).not.toBeNull();
     expect(links!.length).toBe(7);
     expect(links![0]?.label).toBe("Executive summary");
-    expect(links![0]?.href).toContain("/executive/reviews/");
+    expect(links![0]?.href).toContain("/reviews/");
     expect(links![1]?.href).toContain("/signed-record");
     expect(links!.some((l) => l.href.includes("/findings/phi-minimization-risk"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/graph?"))).toBe(true);

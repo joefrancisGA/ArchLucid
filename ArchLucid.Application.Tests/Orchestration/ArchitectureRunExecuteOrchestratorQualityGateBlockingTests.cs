@@ -197,6 +197,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateBlockingTests
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);

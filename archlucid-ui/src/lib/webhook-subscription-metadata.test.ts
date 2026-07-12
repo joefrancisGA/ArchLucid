@@ -16,6 +16,14 @@ describe("webhook-subscription-metadata", () => {
     expect(parsed.eventTypes).toEqual(["a", "b"]);
   });
 
+  it("omits webhookSharedSecret when secret is blank", () => {
+    const json = buildWebhookSubscriptionMetadata("", ["archlucid.alert.recorded"]);
+    const parsed = JSON.parse(json) as { webhookSharedSecret?: string; eventTypes: string[] };
+
+    expect(parsed.webhookSharedSecret).toBeUndefined();
+    expect(parsed.eventTypes).toEqual(["archlucid.alert.recorded"]);
+  });
+
   it("summarizeMaskedWebhookSubscription hides secret literals", () => {
     const blob = JSON.stringify({
       webhookSharedSecret: "hunter2",

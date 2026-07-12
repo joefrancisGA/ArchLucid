@@ -67,6 +67,7 @@ export type TabsProps = {
   readonly syncUrlParam?: string;
   readonly orientation?: TabsOrientation;
   readonly className?: string;
+  readonly "data-testid"?: string;
 };
 
 export function Tabs(props: TabsProps): ReactElement {
@@ -166,7 +167,11 @@ export function Tabs(props: TabsProps): ReactElement {
 
   return (
     <TabsContext.Provider value={contextValue}>
-      <div className={cn("flex flex-col", props.className)} data-tabs-root>
+      <div
+        className={cn("flex flex-col", props.className)}
+        data-tabs-root
+        data-testid={props["data-testid"]}
+      >
         {props.children}
       </div>
     </TabsContext.Provider>

@@ -680,7 +680,8 @@ public sealed class RunQueryController(
                 CreatedUtc = r.CreatedUtc,
                 CompletedUtc = r.CompletedUtc,
                 CurrentManifestVersion = r.CurrentManifestVersion,
-                SystemName = r.SystemName
+                SystemName = r.SystemName,
+                PackageOrigin = r.PackageOrigin
             })
             .ToList();
 

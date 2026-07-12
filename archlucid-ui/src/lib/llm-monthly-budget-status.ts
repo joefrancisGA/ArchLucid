@@ -17,6 +17,9 @@ export type LlmMonthlyDollarBudgetStatus = {
   assumedNextCallReservationUsd: number | null;
   hardCapUtilizationFraction: number | null;
   warnFraction: number | null;
+  remainingBudgetUsd?: number | null;
+  workspaceKind?: string | null;
+  customerAiProviderConfigured?: boolean;
 };
 
 /** Raw fetch for TanStack Query `queryFn` and imperative callers. */
@@ -113,4 +116,13 @@ export function formatBuyerLlmUsageApproachingCopy(remainingPercent: number): st
 
 export function formatBuyerLlmUsageExhaustedCopy(): string {
   return "AI analysis budget for this trial month is exhausted (0% remaining). Upgrade to continue real-mode runs.";
+}
+
+export function formatTrialAiBudgetRemainingCopy(remainingUsd: number): string {
+  const rounded = Math.max(0, Math.round(remainingUsd * 100) / 100);
+  return `AI budget remaining: $${rounded.toFixed(2)}`;
+}
+
+export function formatTrialAiCreditWarningCopy(): string {
+  return "This action may use trial AI credits.";
 }

@@ -20,6 +20,7 @@ import { RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
 import { REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE, REVIEWS_HUB_PAGE_SUBTITLE } from "./reviews-hub-copy";
+import { ReviewsHubExploreSamples } from "./ReviewsHubExploreSamples";
 import { ReviewsHubPackageIncludes } from "./ReviewsHubPackageIncludes";
 import { ReviewsHubPrimaryActions } from "./ReviewsHubPrimaryActions";
 import { ReviewsHubRecentPackages } from "./ReviewsHubRecentPackages";
@@ -71,6 +72,7 @@ export function RunsPageView(props: Props) {
         <>
           <ReviewsHubSummaryRow summary={workspaceSummary} />
           <ReviewsHubPrimaryActions />
+          <ReviewsHubExploreSamples />
           <ReviewsHubPackageIncludes />
           <ReviewsHubRecentPackages runs={m.runs} />
         </>

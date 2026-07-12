@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import type { RunSummary } from "@/types/authority";
 
 import {
   REVIEWS_HUB_RECENT_EMPTY_BODY,
+  REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
   REVIEWS_HUB_RECENT_SECTION_TITLE,
 } from "./reviews-hub-copy";
@@ -45,6 +46,13 @@ export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): 
           <p className={cn("m-0 mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {REVIEWS_HUB_RECENT_EMPTY_BODY}
           </p>
+          <div className="mt-4">
+            <Button variant="primary" size="sm" asChild>
+              <Link href="/reviews/new" data-testid="reviews-hub-recent-empty-start-review">
+                {REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL}
+              </Link>
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="mt-3 overflow-x-auto">

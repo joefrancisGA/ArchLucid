@@ -1,4 +1,6 @@
 using ArchLucid.Application.Budgeting;
+using ArchLucid.Application.AiUsage;
+using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -32,7 +34,8 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusServiceTests
             monitor.Object,
             cost.Object,
             repo,
-            scope.Object);
+            scope.Object,
+            CreatePaidPolicyResolver().Object);
 
         LlmMonthlyTenantDollarBudgetStatusResult r = await sut.GetStatusAsync();
 
@@ -84,7 +87,8 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusServiceTests
             monitor.Object,
             cost.Object,
             repo,
-            scope.Object);
+            scope.Object,
+            CreatePaidPolicyResolver().Object);
 
         LlmMonthlyTenantDollarBudgetStatusResult r = await sut.GetStatusAsync();
 
@@ -139,7 +143,8 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusServiceTests
             monitor.Object,
             cost.Object,
             repo,
-            scope.Object);
+            scope.Object,
+            CreatePaidPolicyResolver().Object);
 
         LlmMonthlyTenantDollarBudgetStatusResult r = await sut.GetStatusAsync();
 
@@ -169,13 +174,31 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusServiceTests
             monitor.Object,
             cost.Object,
             repo,
-            scope.Object);
+            scope.Object,
+            CreatePaidPolicyResolver().Object);
 
         LlmMonthlyTenantDollarBudgetStatusResult r = await sut.GetStatusAsync();
 
         r.MonthlyBudgetMonitoringActive.Should().BeTrue();
         r.BlocksAdditionalLlmExecution.Should().BeFalse();
         r.AssumedNextCallReservationUsd.Should().BeNull();
+    }
+
+    private static Mock<ITenantAiBudgetPolicyResolver> CreatePaidPolicyResolver()
+    {
+        Mock<ITenantAiBudgetPolicyResolver> policy = new();
+        policy
+            .Setup(p => p.ResolveAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantAiBudgetPolicySnapshot
+                {
+                    WorkspaceKind = AiUsageWorkspaceKind.Paid,
+                    BudgetAmountUsd = 75m,
+                    HardStopEnabled = true,
+                    BlocksAdditionalLlmExecution = false,
+                });
+
+        return policy;
     }
 
     private sealed class FixedUtcTimeProvider(DateTime utcNow) : TimeProvider

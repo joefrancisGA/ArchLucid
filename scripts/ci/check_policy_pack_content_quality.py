@@ -27,6 +27,76 @@ FORBIDDEN_CERTIFICATION_PHRASES = (
 )
 NEGATION_PREFIXES = ("not ", "no ", "non-", "without ", "does not ", "do not ")
 
+CLOUD_NEUTRAL_CURATED_ARTIFACTS = frozenset(
+    {
+        "docs/samples/policy-packs/security-architecture-baseline-rules-v1.json",
+        "docs/samples/policy-packs/cost-optimization-rules-v1.json",
+    }
+)
+
+CLOUD_AGNOSTIC_EVIDENCE_PREFIXES = (
+    "governance.",
+    "metadata.",
+    "services[]",
+    "datastores[]",
+    "relationships",
+    "evidence.",
+)
+
+CLOUD_NEUTRAL_MIN_MULTI_CLOUD_RULE_RATIO = 0.9
+
+
+def _extractor_clouds_from_hints(hints: list[str]) -> set[str]:
+    clouds: set[str] = set()
+
+    for hint in hints:
+        if hint.startswith("azureExtractor."):
+            clouds.add("azure")
+        elif hint.startswith("awsExtractor."):
+            clouds.add("aws")
+        elif hint.startswith("gcpExtractor."):
+            clouds.add("gcp")
+
+    return clouds
+
+
+def _rule_has_multi_cloud_grounding(hints: list[str]) -> bool:
+    if len(_extractor_clouds_from_hints(hints)) >= 2:
+        return True
+
+    return any(any(hint.startswith(prefix) for prefix in CLOUD_AGNOSTIC_EVIDENCE_PREFIXES) for hint in hints)
+
+
+def _cloud_neutral_curated_violations(curated_path: Path, rel_path: str) -> list[str]:
+    violations: list[str] = []
+    curated = json.loads(curated_path.read_text(encoding="utf-8"))
+    rules = curated.get("rules") or []
+
+    if not rules:
+        violations.append(f"{rel_path}: cloud-neutral pack has no curated rules")
+        return violations
+
+    grounded = 0
+
+    for rule in rules:
+        if not isinstance(rule, dict):
+            continue
+
+        hints = [str(hint).strip() for hint in (rule.get("evidenceHints") or []) if str(hint).strip()]
+
+        if _rule_has_multi_cloud_grounding(hints):
+            grounded += 1
+
+    ratio = grounded / len(rules)
+
+    if ratio < CLOUD_NEUTRAL_MIN_MULTI_CLOUD_RULE_RATIO:
+        violations.append(
+            f"{rel_path}: cloud-neutral pack must ground >=90% of rules with two or more cloud extractor "
+            f"prefixes or cloud-agnostic manifest fields (actual {grounded}/{len(rules)} = {ratio:.0%})"
+        )
+
+    return violations
+
 
 def _line_has_negated_certification_claim(line: str, phrase: str) -> bool:
     lower = line.lower()
@@ -158,6 +228,11 @@ def policy_pack_content_quality_violations(root: Path) -> list[str]:
                     f"{pack_path.relative_to(root)}: complianceRuleKeys mismatch curated rules "
                     f"(expected {len(expected_ids)}, curated {len(curated_ids)})"
                 )
+
+            curated_rel_normalized = curated_rel.strip() if isinstance(curated_rel, str) else ""
+
+            if curated_rel_normalized in CLOUD_NEUTRAL_CURATED_ARTIFACTS:
+                violations.extend(_cloud_neutral_curated_violations(curated_path, curated_rel_normalized))
 
             for rule in rules:
                 if not isinstance(rule, dict):

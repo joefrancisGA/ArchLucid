@@ -28,6 +28,8 @@ Set-Location $RepoRoot
 Write-Host "Installing git hooks from $GitHooksDir (core.hooksPath)"
 Set-HookFileLineEndings (Join-Path $GitHooksDir 'pre-commit')
 Set-HookFileLineEndings (Join-Path $GitHooksDir 'pre-push')
+Set-HookFileLineEndings (Join-Path $GitHooksDir 'post-checkout')
+Set-HookFileLineEndings (Join-Path $RepoRoot 'scripts/hooks/post-checkout')
 
 $helper = Join-Path $RepoRoot 'scripts/hooks/resolve-python.sh'
 Set-HookFileLineEndings $helper
@@ -47,8 +49,9 @@ foreach ($py in $pythonCandidates) {
 }
 
 Write-Host 'Hooks enabled:'
-Write-Host '  pre-commit  — controller audit + route registry sync (when staged paths match)'
-Write-Host '  pre-push    — OpenAPI v1 + buyer snapshot check (when outgoing commits touch API paths)'
+Write-Host '  pre-commit    — owner-workbook guard + controller audit + route registry sync (when staged paths match)'
+Write-Host '  post-checkout — removes resurrected legacy ui_route_traffic_estimates.md after branch switches'
+Write-Host '  pre-push      — OpenAPI v1 + buyer snapshot check (when outgoing commits touch API paths)'
 Write-Host ''
 Write-Host 'Skip pre-commit once: ARCHLUCID_SKIP_PRE_COMMIT=1 git commit'
 Write-Host 'Skip pre-push once:   ARCHLUCID_SKIP_OPENAPI_PRE_PUSH=1 git push'

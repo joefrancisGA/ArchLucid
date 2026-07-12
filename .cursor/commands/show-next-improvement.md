@@ -44,18 +44,20 @@ Optional cross-check: `docs/library/TECH_BACKLOG_OPEN.md` (may be stale — pref
 
 ## How to detect assessment-implementable items
 
-**Source of truth:** `docs/assessments/LATEST_GPT55.md` §17 **Top Improvement Opportunities**.
+**Primary source of truth:** `docs/assessments/LATEST_GPT55.md` §17 **Top Improvement Opportunities**.
 
 Also check §17 **Promoted to V1 (owner decision, standing)** for owner-authorized items that may not yet have a TB row or may override Tier 3 holds.
 
+**Secondary source of truth:** `docs/assessments/LATEST_EXPOSURE.md` §20 **Top Improvement Opportunities** (broader exposure readiness — controlled beta / public self-service / LinkedIn mention gates). Check this **only after** `LATEST_GPT55.md` §17 has no unshipped Tier 1/2/Promoted-V1 candidate.
+
 Pick the **next** item that:
 
-1. Is in **Tier 1 — Must Fix** or **Tier 2 — High Leverage** (not Tier 3 Hold), **or** appears in **Promoted to V1** as active engineering (not already closed),
+1. Is in `LATEST_GPT55.md` §17 **Tier 1 — Must Fix** or **Tier 2 — High Leverage** (not Tier 3 Hold), **or** appears in **Promoted to V1** as active engineering (not already closed); **or**, if none remain there, is in `LATEST_EXPOSURE.md` §20 **Tier 1 — Must Fix Before Controlled Beta**, **Tier 2 — Must Fix Before Public Mention**, or **Tier 3 — Must Fix Before Public Self-Service** (not Tier 4 Defer),
 2. Is **engineering / Cursor-actionable** (has or implies code, tests, CI, or in-app/docs guard),
 3. Is **not** already shipped (verify against repo + `TECH_BACKLOG.md`),
 4. Passes the guardrails above.
 
-If §17 says no Tier 1/2 engineering items remain and no open Promoted-to-V1 row is unshipped, fall through to step 4 (general backlog) — do **not** force an assessment-only item.
+If neither assessment file has an unshipped Tier 1/2/3/Promoted-V1 engineering item, fall through to step 4 (general backlog) — do **not** force an assessment-only item.
 
 Map assessment IDs to backlog when present (e.g. **TB-600**). Prefer the `TECH_BACKLOG.md` row when both exist.
 
@@ -88,9 +90,9 @@ Otherwise → **Step 3**.
 
 ### Step 3 — Next Cursor-actionable assessment item
 
-If §17 of `LATEST_GPT55.md` has an implementable Tier 1/2 engineering item, **or** an unshipped **Promoted to V1** engineering row:
+If §17 of `LATEST_GPT55.md` has an implementable Tier 1/2 engineering item, **or** an unshipped **Promoted to V1** engineering row, **or** (only if `LATEST_GPT55.md` §17 has none) §20 of `LATEST_EXPOSURE.md` has an implementable Tier 1/2/3 engineering item:
 
-1. Select the first such item in assessment order (Tier 1 before Tier 2; Promoted table after checking tiers if tiers are empty).
+1. Select the first such item in assessment order (`LATEST_GPT55.md` §17 Tier 1 before Tier 2 before Promoted table; then, only if none remain, `LATEST_EXPOSURE.md` §20 Tier 1 before Tier 2 before Tier 3).
 2. Note blockers and whether a TB row exists or needs creation.
 3. **Report** and **stop**.
 
@@ -141,8 +143,8 @@ End with a concise preview block:
 ## Show next improvement
 
 **Step:** 1 | 2 | 3 | 4 | 5 (nothing found)
-**Candidate:** TB-### — <title> (or assessment §17 title if no TB yet)
-**Priority:** P0 | P1 | P2 | P3 | Tier 1 | Tier 2 | Promoted V1
+**Candidate:** TB-### — <title> (or assessment §17/§20 title if no TB yet)
+**Priority:** P0 | P1 | P2 | P3 | Tier 1 | Tier 2 | Tier 3 (exposure only) | Promoted V1
 **Why this one:** <one sentence — first open row in band per backlog/assessment order>
 **Blockers:** None | <list>
 **Likely touch surfaces:** <paths or subsystems, if inferable from TB detail>
@@ -161,6 +163,6 @@ Optionally list the **next 2–3** runners-up (same priority band or next band) 
 
 ## Explicit non-goals
 
-- Do **not** implement, commit, push, or update `TECH_BACKLOG.md` / `LATEST_GPT55.md`.
+- Do **not** implement, commit, push, or update `TECH_BACKLOG.md` / `LATEST_GPT55.md` / `LATEST_EXPOSURE.md`.
 - Do **not** run compile, test, or assessment generation.
 - Do **not** ask which branch to commit to (no commit will occur).

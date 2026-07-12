@@ -144,4 +144,11 @@ public class RunSummaryDto
         get;
         set;
     }
+
+    /// <summary>Package origin label for workspace list badges (TB-740).</summary>
+    public string? PackageOrigin
+    {
+        get;
+        set;
+    }
 }

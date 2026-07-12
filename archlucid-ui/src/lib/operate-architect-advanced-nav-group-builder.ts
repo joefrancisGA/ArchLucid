@@ -1,8 +1,6 @@
 import {
   Kanban,
-  Lightbulb,
   MessageSquareText,
-  RefreshCw,
   Sparkles,
 } from "lucide-react";
 
@@ -19,27 +17,8 @@ export class OperateArchitectAdvancedNavGroupBuilder extends NavGroupBuilderBase
       id: "operate-architect-advanced",
       label: OPERATOR_NAV_GROUP_LABELS.architectPrograms,
       surface: "review-workflow",
-      caption: "Advisory scans, improvement themes, and recommendation tuning.",
+      caption: "Improvement themes and recommendation tuning.",
       links: [
-        {
-          href: "/evolution-review",
-          label: OPERATOR_NAV_LINK_LABELS.evolutionCandidates,
-          title: "Impact preview — preview expected impact of proposed architecture changes on governance posture",
-          icon: RefreshCw,
-          tier: "advanced",
-          // Browsing existing proposed changes and their previews only needs ReadAuthority — matches the
-          // EvolutionController list/detail/results/export endpoints. Only "Simulate change impact" itself is
-          // Execute-gated (see useOperateCapability() in EvolutionReviewPageView and the /simulate endpoint policy).
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/advisory",
-          label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
-          title: "Scheduled advisory scans and improvement recommendations",
-          icon: Lightbulb,
-          tier: "advanced",
-          requiredAuthority: "ReadAuthority",
-        },
         {
           href: "/recommendation-learning",
           label: OPERATOR_NAV_LINK_LABELS.recommendationTuning,

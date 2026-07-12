@@ -238,9 +238,26 @@ export async function createArchitectureReviewRecurrenceSchedule(body: {
   sourceRunId: string;
   name?: string;
   cronExpression?: string;
-  isEnabled?: boolean;
+  isEnabled: boolean;
 }): Promise<ArchitectureReviewRecurrenceSchedule> {
   return apiPostJson<ArchitectureReviewRecurrenceSchedule>(`${governanceBase()}/recurrence-schedules`, body);
+}
+
+export type PreviewRecurrenceScheduleRunsResponse = {
+  isValid: boolean;
+  validationError?: string | null;
+  nextRunUtc: string[];
+};
+
+export async function previewRecurrenceScheduleRuns(body: {
+  cronExpression: string;
+  count?: number;
+  fromUtc?: string;
+}): Promise<PreviewRecurrenceScheduleRunsResponse> {
+  return apiPostJson<PreviewRecurrenceScheduleRunsResponse>(
+    `${governanceBase()}/recurrence-schedules/preview-next-runs`,
+    body,
+  );
 }
 
 export async function listArchitectureReviewRecurrenceSchedules(): Promise<ArchitectureReviewRecurrenceSchedule[]> {

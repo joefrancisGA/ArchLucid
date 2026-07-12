@@ -12,6 +12,7 @@ import { RunProvenanceInline } from "@/components/RunProvenanceInline";
 import { RunsRowBaselineMenu } from "@/components/RunsRowBaselineMenu";
 import { RunTableRowErrorBoundary } from "@/components/RunTableRowErrorBoundary";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
+import { ArchitecturePackageOriginBadge } from "@/components/operator-home/runs-dashboard-helpers";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -754,6 +755,11 @@ export function RunsListClient({
                                 ) : null}
                                 <EnterpriseTableCell className="max-w-[min(100vw,28rem)]">
                                   <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                                    <ArchitecturePackageOriginBadge
+                                      run={run}
+                                      buyerPolishedShell={buyerPolished}
+                                      className="text-[0.6rem]"
+                                    />
                                     {/* Status badge leads the row so ARB scanners see state before reading the title */}
                                     <RunStatusBadge run={run} />
                                     <span className={cn("min-w-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>

@@ -77,7 +77,7 @@ Use these stable tokens for a **single** walkthrough session (aligned with `src/
 
 | Step | URL |
 |------|-----|
-| Executive summary | `/executive/reviews/claims-intake-modernization` |
+| Executive summary | `/reviews/claims-intake-modernization` |
 | Review package detail | `/reviews/claims-intake-modernization` |
 | Provenance | `/reviews/claims-intake-modernization/provenance` |
 | Primary finding | `/reviews/claims-intake-modernization/findings/phi-minimization-risk` |
@@ -280,7 +280,7 @@ Use when capturing **API-not-running** or **empty DB** evidence. Pick **one** sc
 | Block | Routes | Capture focus |
 |-------|--------|---------------|
 | 10.1 Overview vs reviews | `/`, `/reviews?projectId=default` | Empty vs Claims Intake row; drawer if present |
-| 10.2 Review package | `/reviews/claims-intake-modernization`, `/provenance`, finding, `/inspect`, optional `/executive/reviews/...` | Same `runId` throughout |
+| 10.2 Review package | `/reviews/claims-intake-modernization`, `/provenance`, finding, `/inspect` | Same `runId` throughout |
 | 10.3 Manifest / marketing | `/manifests/{id}`, `/see-it`, `/showcase/claims-intake-modernization` | Story without API |
 | 10.4 Graph | `/graph` provenance + architecture loads | Canvas visible |
 | 10.5 Ask | `/ask` list + one question attempt | Empty vs error |
@@ -487,7 +487,6 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Planning** | `/planning` | [ ] |
 | **Planning plan detail** | `/planning/plans/{planId}` | [ ] |
 | **Evolution candidates** | `/evolution-review` | [ ] |
-| **Portfolio dashboard** | `/portfolio` | [ ] |
 | **Pilot value report** | `/value-report/pilot` | [ ] |
 | **ROI summary** | `/value-report/roi` | [ ] |
 | **Connector operations** | `/integrations/operations` | [ ] |
@@ -513,9 +512,7 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Security & trust (operator workspace)** | `/workspace/security-trust` | [ ] |
 | **Teams notifications** | `/integrations/teams` | [ ] |
 | **Value report (DOCX)** | `/value-report` | [ ] |
-| **Executive reviews list** | `/executive/reviews` | [ ] |
-| **Executive review summary** | `/executive/reviews/{runId}` | [ ] |
-| **Executive finding detail** | `/executive/reviews/{runId}/findings/{findingId}` | [ ] |
+| **Executive reviews (retired)** | `/executive/reviews` → `/reviews` | [ ] |
 | **Executive scorecard** | `/executive/scorecard` | [ ] |
 | **Settings hub** | `/settings` | [ ] |
 | **Tenant settings** | `/settings/tenant` | [ ] |
@@ -540,7 +537,6 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Admin — pricing quote aging** | `/admin/pricing-quote-aging` | [ ] |
 | **Admin — evidence proposals** | `/admin/evidence-proposals` | [ ] |
 | **Integration DLQ** | `/operate/integration-events/dlq` | [ ] |
-| **Resource coverage report** | `/reports/resource-coverage` | [ ] |
 | **Architecture patterns** | `/patterns` | [ ] |
 | **Demo explain** | `/demo/explain` | [ ] |
 | **Why ArchLucid (internal proof)** | `/why-archlucid` | [ ] |
@@ -601,7 +597,7 @@ You are already here after sign-in. No clicks required.
 
 **Sidebar → Review work → Executive summary** (or **Ctrl+K** → “Executive summary”).
 
-**From home content:** **Sample package** card → **Open executive summary** (buyer-polished) opens `/executive/reviews/claims-intake-modernization`; the sidebar **Executive summary** link is `/dashboard` (ROI dashboard — distinct from per-package executive view).
+**From home content:** **Sample package** card → **Open executive summary** (buyer-polished) opens `/reviews/claims-intake-modernization`; the sidebar **Executive summary** link is `/dashboard` (ROI dashboard — distinct from per-package executive view).
 
 ### Review packages list (`/reviews?projectId=default`)
 
@@ -653,7 +649,7 @@ Use **`claims-intake-modernization`** as `{runId}`, **`phi-minimization-risk`** 
 
 **From home:** **Sample package** → **View full review package** / **Open sample review package**, or **Review packages** list → **Claims Intake Modernization** row.
 
-### Executive review summary (`/executive/reviews/{runId}`)
+### Executive review summary (`/reviews/{runId}` — legacy `/executive/reviews/*` redirects here)
 
 **From home:** **Sample package** primary CTA **Open executive summary**, or **Review journey** step **1. Executive summary**.
 
@@ -700,7 +696,7 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 | Planning | `/planning` | **Analysis → Planning** (Execute authority). |
 | Planning plan detail | `/planning/plans/{planId}` | **Planning** → open a plan row. |
 | Evolution candidates | `/evolution-review` | **Analysis → Evolution candidates** (Execute authority). |
-| Portfolio dashboard | `/portfolio` | **Analysis → Portfolio Dashboard**. |
+| Executive dashboard (portfolio overview) | `/dashboard` | **Analysis → Executive dashboard** (legacy `/portfolio` redirects here). |
 | Pilot value report | `/value-report/pilot` | **Analysis → Pilot value report**. |
 | ROI summary | `/value-report/roi` | **Analysis → ROI report**. |
 | Connector operations | `/integrations/operations` | **Analysis → Connector operations**. |
@@ -738,9 +734,8 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 
 | Page | Route | Click-through from `/` |
 |------|-------|------------------------|
-| Executive reviews list | `/executive/reviews` | **Ctrl+K** → “Executive reviews”, or executive mode switcher if enabled in your build. |
-| Executive review summary | `/executive/reviews/{runId}` | **Overview → Sample package → Open executive summary** (fastest for Claims Intake). |
-| Executive finding | `/executive/reviews/{runId}/findings/{findingId}` | Executive review → finding row. |
+| Review package (executive summary) | `/reviews/{runId}` | **Overview → Sample package → Open executive summary** (fastest for Claims Intake). |
+| Finding detail | `/reviews/{runId}/findings/{findingId}` | Review package → finding row. |
 | Executive scorecard | `/executive/scorecard` | **Ctrl+K** → “Executive scorecard”. |
 
 ---
@@ -781,7 +776,6 @@ Requires **Admin** or **Execute** authority per link. Expand **Admin** group.
 
 | Page | Route | Click-through from `/` |
 |------|-------|------------------------|
-| Resource coverage | `/reports/resource-coverage` | **Ctrl+K** → “Resource coverage”, or direct URL. |
 | Architecture patterns | `/patterns` | **Ctrl+K** → “Patterns”, or direct URL. |
 | Demo explain | `/demo/explain` | **Ctrl+K** → “Demo explain”. |
 | Why ArchLucid | `/why-archlucid` | Engineer shell only — **Ctrl+K** or direct URL; buyer shell redirects to executive summary. |
@@ -825,7 +819,7 @@ These items need **human cross-surface comparison** on the Claims Intake showcas
 
 | ID | Surfaces | Known gap | What to verify manually | Likely implementation locus |
 |----|----------|-----------|-------------------------|-----------------------------|
-| **E.1** | Executive summary · review detail · manifest · governance | **Executive summary data is inconsistent with the rest of the package.** Summary shows **0 findings** and **low risk** while the core package shows **9 findings** and **1 monitored PHI risk**. | Open `/executive/reviews/claims-intake-modernization`, then review detail and manifest. Counts and risk posture must match spine (9 / 1 monitored). Executive KPIs must not imply “no findings” when the package narrative cites PHI monitoring. | `ExecutiveReviewFirstViewport.tsx`, executive scorecard clients, static executive payloads vs `SHOWCASE_STATIC_DEMO_SPINE_COUNTS` |
+| **E.1** | Executive summary · review detail · manifest · governance | **Executive summary data is inconsistent with the rest of the package.** Summary shows **0 findings** and **low risk** while the core package shows **9 findings** and **1 monitored PHI risk**. | Open `/reviews/claims-intake-modernization`, then review detail and manifest. Counts and risk posture must match spine (9 / 1 monitored). Executive KPIs must not imply “no findings” when the package narrative cites PHI monitoring. | review detail clients, executive scorecard clients, static payloads vs `SHOWCASE_STATIC_DEMO_SPINE_COUNTS` |
 | **E.2** | Executive summary | **“Recommended executive action: Intake experience”** (or similar) appears **mis-seeded or mis-bound** — wrong field, placeholder, or unrelated to Claims Intake outcomes. | Read the recommended-action block aloud: would a sponsor act on it? It must align with Claims Intake modernization / PHI monitoring story, not a generic template. | `ExecutiveReviewFirstViewport.tsx`, `executive-risk-review-markdown.ts` |
 | **E.3** | Reviews list (`/reviews`) | **Multiple packages are plausible**, but **state combinations need cleanup.** Example: **“Pending governance approval”** must not appear alongside a **PACKAGE FINALIZED** (or equivalent) badge **without explanation**. | Scan every row: status line, phase chips, and badges must be mutually consistent. If both “pending” and “finalized” appear, inline copy must explain timing (e.g. manifest finalized, approval workflow open). | `RunsListClient.tsx`, `RunsListBuyerFeaturedCard.tsx`, `RunStatusBadge.tsx`, buyer package scope filters |
 | **E.4** | Governance approval lineage | Lineage is **seeded** but still exposes **environment promotion** and **raw pipeline** concepts unsuitable for buyer polish. | Open approval lineage for the showcase approval. Labels read as governance/decision history, not CI/CD jargon, unless explicitly marked **technical appendix**. | `GovernanceApprovalLineageDetailContent.tsx`, governance static demo payloads |

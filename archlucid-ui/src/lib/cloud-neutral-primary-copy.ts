@@ -74,7 +74,6 @@ export const CLOUD_NEUTRAL_PRIMARY_COPY = {
     "Upload a cloud inventory ZIP after commit (AWS, Azure, or GCP) so ROI and cost findings cite measured inventory.",
   demoExplainConversionLead:
     "Upload architecture evidence (brief, diagram, document, or optional cloud inventory ZIP) to get a review like this in about 15 minutes.",
-  resourceCoverageEmptyHint: "Upload a cloud inventory ZIP (AWS, Azure, or GCP) to populate coverage metrics.",
   roiStaleInventoryHint:
     "Uploaded cost evidence is stale. Re-run the read-only inventory script for your cloud provider to refresh pricing inputs.",
   roiKpiMissingInventoryHint:

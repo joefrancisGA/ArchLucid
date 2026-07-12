@@ -47,7 +47,12 @@ public sealed class UserPreferencesController(
         string appearancePreference = AppearancePreferenceValues.NormalizeOrNull(stored)
             ?? AppearancePreferenceValues.Default;
 
-        return Ok(new UserPreferencesResponse { AppearancePreference = appearancePreference });
+        return Ok(new UserPreferencesResponse
+        {
+            AppearancePreference = appearancePreference,
+            AppearancePreferenceIsExplicit = stored is not null
+                && AppearancePreferenceValues.NormalizeOrNull(stored) is not null,
+        });
     }
 
     /// <summary>Persists the authenticated user's appearance preference.</summary>

@@ -26,6 +26,7 @@ const SAML_ROTATION_RUNBOOK_URL = resolveInAppDocHref("docs/library/SAML_SP_CERT
 export type SamlOperationalHealthStripProps = {
   payload: AdminSamlOperationalHealthResponse | null;
   fetchNote: string | null;
+  readonly showTechnicalDetails?: boolean;
 };
 
 function formatUtcDiagnostic(iso: string): string {
@@ -105,11 +106,9 @@ export function SamlOperationalHealthStrip(props: SamlOperationalHealthStripProp
       <CardHeader>
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>SAML 2.0 SP operational signals</CardTitle>
         <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          Mirrors read-only fields from{" "}
-          <span className={cn("font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.micro)}>
-            GET /v1/admin/auth/saml-operational-health
-          </span>{" "}
-          (Admin session). Does not alter SAML authentication behaviour.
+          {props.showTechnicalDetails === true
+            ? "Mirrors read-only SAML operational health signals from the admin diagnostics API."
+            : "Read-only SAML signing certificate and metadata health signals."}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -181,8 +180,7 @@ export function SamlOperationalHealthStrip(props: SamlOperationalHealthStripProp
           </div>
         ) : (
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-            SAML 2.0 SP integration is disabled (
-            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>ArchLucidAuth:Saml2:Enabled</span> is false).
+            SAML single sign-on is disabled for this workspace.
           </p>
         )}
       </CardContent>

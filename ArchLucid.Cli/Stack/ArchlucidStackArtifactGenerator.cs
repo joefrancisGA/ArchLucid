@@ -91,7 +91,8 @@ internal static class ArchlucidStackArtifactGenerator
         builder.AppendLine("api_min_replicas = 2");
         builder.AppendLine("api_max_replicas = 5");
         builder.AppendLine("ui_min_replicas  = 1");
-        builder.AppendLine("ui_max_replicas  = 3");
+        builder.AppendLine("ui_max_replicas  = 6");
+        builder.AppendLine("ui_scale_concurrent_requests = 10");
         builder.AppendLine("worker_min_replicas = 1");
         builder.AppendLine("worker_max_replicas = 20");
         builder.AppendLine();

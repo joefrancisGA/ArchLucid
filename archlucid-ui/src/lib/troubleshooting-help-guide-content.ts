@@ -1,0 +1,304 @@
+import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const TROUBLESHOOTING_HELP_SUBTITLE =
+  "Find common issues, try the first fix, and collect support details when needed.";
+
+export type TroubleshootingIssueKind =
+  | "user-fixable"
+  | "workspace-admin"
+  | "archlucid-support"
+  | "internal-operator";
+
+export type TroubleshootingLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+export type TroubleshootingIssue = {
+  readonly id: string;
+  readonly title: string;
+  readonly kind: TroubleshootingIssueKind;
+  readonly whatYouSee: string;
+  readonly likelyCause: string;
+  readonly tryFirst: string;
+  readonly ifStillBlocked: string;
+  readonly nextSteps: readonly TroubleshootingLink[];
+};
+
+export const TROUBLESHOOTING_ISSUE_KIND_LABELS: Readonly<Record<TroubleshootingIssueKind, string>> = {
+  "user-fixable": "You can try this",
+  "workspace-admin": "Workspace admin",
+  "archlucid-support": "Contact support",
+  "internal-operator": "Operator / support",
+};
+
+export const TROUBLESHOOTING_START_HERE_ITEMS = [
+  "Refresh the page",
+  "Confirm you are in the correct workspace",
+  "Check whether the review package is finalized",
+  "Open System health if loading or readiness looks wrong",
+  "Download a support bundle before contacting support",
+] as const;
+
+export const TROUBLESHOOTING_PRIMARY_ACTIONS = {
+  systemHealth: { href: "/health", label: "Open System health" },
+  contactSupport: { href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}`, label: "Contact support" },
+} as const;
+
+export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
+  {
+    id: "overview-workspace-empty",
+    title: "Overview or workspace readiness looks empty",
+    kind: "user-fixable",
+    whatYouSee: "Workspace readiness does not load, or the section stays blank for a long time.",
+    likelyCause: "Temporary service delay, sample workspace not loaded, or wrong workspace selected.",
+    tryFirst: "Refresh the page and confirm you are in the intended workspace.",
+    ifStillBlocked: "Open System health. If readiness stays red, download a support bundle and contact support.",
+    nextSteps: [
+      { label: "Open System health", href: "/health" },
+      { label: "Open review packages", href: "/reviews" },
+      { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}` },
+    ],
+  },
+  {
+    id: "sample-review-missing",
+    title: "Sample review package is missing",
+    kind: "user-fixable",
+    whatYouSee: "No sample review appears on Overview or the review packages list.",
+    likelyCause: "Sample workspace setup is incomplete or you are scoped to a different workspace.",
+    tryFirst: "Refresh Overview and confirm the workspace switcher shows the workspace you expect.",
+    ifStillBlocked: "Start a new review or ask your workspace admin to confirm sample data is available.",
+    nextSteps: [
+      { label: "Getting started", href: inAppHelpHref("getting-started") },
+      { label: "View first review guide", href: inAppHelpHref("first-hour-operator-path") },
+      { label: "Start architecture review", href: "/reviews/new" },
+    ],
+  },
+  {
+    id: "review-package-does-not-open",
+    title: "Review package does not open",
+    kind: "user-fixable",
+    whatYouSee: "Selecting a review shows an error or endless loading.",
+    likelyCause: "Wrong review selected, workspace scope mismatch, or a temporary service error.",
+    tryFirst: "Refresh the page and open the review again. Note the on-screen error message.",
+    ifStillBlocked: "Use the decision tree below, then download a support bundle if the issue repeats after refresh.",
+    nextSteps: [
+      { label: "Open review packages", href: "/reviews" },
+      { label: "Open System health", href: "/health" },
+      { label: "Decision tree", href: "#decision-tree" },
+    ],
+  },
+  {
+    id: "findings-count-wrong",
+    title: "Findings count looks wrong",
+    kind: "user-fixable",
+    whatYouSee: "Findings on Overview or inside the package do not match expectations.",
+    likelyCause: "Filters applied, stale list, or the review is still in progress.",
+    tryFirst: "Open the review package and confirm review status is complete.",
+    ifStillBlocked: "Compare findings with the evidence trail and package summary.",
+    nextSteps: [
+      { label: "Open review packages", href: "/reviews" },
+      { label: "Open evidence trail guide", href: inAppHelpHref("evidence-trail") },
+      { label: "Open findings queue", href: "/governance/findings" },
+    ],
+  },
+  {
+    id: "export-download-unavailable",
+    title: "Export or deliverable download is unavailable",
+    kind: "user-fixable",
+    whatYouSee: "Export is disabled or the download fails.",
+    likelyCause: "Review not finalized, missing signed review record, or your role cannot export.",
+    tryFirst: "Confirm the review package is finalized and you have export permission.",
+    ifStillBlocked: "Review governance approval requirements and retry after refresh.",
+    nextSteps: [
+      { label: "Open governance approval", href: inAppHelpHref("governance-approval") },
+      { label: "Open review packages", href: "/reviews" },
+      { label: "Open users and roles", href: inAppHelpHref("operator-auth-roles") },
+    ],
+  },
+  {
+    id: "governance-pre-commit-blocked",
+    title: "Finalize blocked by governance policy",
+    kind: "workspace-admin",
+    whatYouSee: "Finalize returns a governance block with severity or policy pack details.",
+    likelyCause: "Findings exceed the configured pre-commit threshold for the active policy pack.",
+    tryFirst: "Review blocking findings, remediate or accept risk per policy, then retry finalize.",
+    ifStillBlocked: "Ask a workspace admin to adjust policy thresholds if the block is not appropriate.",
+    nextSteps: [
+      { label: "Open governance approval", href: inAppHelpHref("governance-approval") },
+      { label: "Open policy packs", href: "/policy-packs" },
+      { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}` },
+    ],
+  },
+  {
+    id: "ask-compare-unavailable",
+    title: "Ask or compare is unavailable",
+    kind: "user-fixable",
+    whatYouSee: "Ask, compare, or related analysis surfaces are greyed out.",
+    likelyCause: "Feature gated until the first review is finalized or trial limits apply.",
+    tryFirst: "Finalize your first review package, then refresh the page.",
+    ifStillBlocked: "Check trial banners on Overview for budget or entitlement limits.",
+    nextSteps: [
+      { label: "View first review guide", href: inAppHelpHref("first-hour-operator-path") },
+      { label: "Open review packages", href: "/reviews" },
+      { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}` },
+    ],
+  },
+  {
+    id: "evidence-upload-failed",
+    title: "Evidence upload failed",
+    kind: "user-fixable",
+    whatYouSee: "Upload fails on a new review or from an evidence ZIP.",
+    likelyCause: "Unsupported file type, size limit, or validation issue in the evidence package.",
+    tryFirst: "Read the inline error, confirm file type and size, then retry the upload.",
+    ifStillBlocked: "Try a smaller file or a different evidence format before contacting support.",
+    nextSteps: [
+      { label: "Open evidence upload guide", href: inAppHelpHref("evidence-intake") },
+      { label: "Start architecture review", href: "/reviews/new" },
+      { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}` },
+    ],
+  },
+  {
+    id: "permissions-or-sign-in-issue",
+    title: "Permissions or sign-in issue",
+    kind: "workspace-admin",
+    whatYouSee: "Actions are missing, or you see access denied style errors.",
+    likelyCause: "Role, sign-in session, or workspace scope does not match the action.",
+    tryFirst: "Sign out and back in. Confirm your role in workspace settings.",
+    ifStillBlocked: "Ask your workspace admin or IT team to verify identity and role assignment.",
+    nextSteps: [
+      { label: "Open users and roles", href: inAppHelpHref("operator-auth-roles") },
+      { label: "Open workspace settings", href: "/settings/tenant" },
+      { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}` },
+    ],
+  },
+] as const;
+
+export type TroubleshootingDecisionBranch = {
+  readonly label: string;
+  readonly href: string;
+  readonly linkLabel: string;
+};
+
+export type TroubleshootingDecisionStep = {
+  readonly id: string;
+  readonly question: string;
+  readonly branches: readonly TroubleshootingDecisionBranch[];
+};
+
+export const TROUBLESHOOTING_DECISION_TREE_STEPS: readonly TroubleshootingDecisionStep[] = [
+  {
+    id: "decision-sign-in",
+    question: "Can you sign in?",
+    branches: [
+      {
+        label: "No",
+        href: inAppHelpHref("troubleshooting", "permissions-or-sign-in-issue"),
+        linkLabel: "Open permissions and sign-in help",
+      },
+      { label: "Yes", href: "#decision-workspace", linkLabel: "Continue to workspace check" },
+    ],
+  },
+  {
+    id: "decision-workspace",
+    question: "Are you in the expected workspace?",
+    branches: [
+      {
+        label: "No",
+        href: inAppHelpHref("operator-auth-roles"),
+        linkLabel: "Open users and roles / contact workspace admin",
+      },
+      { label: "Yes", href: "#decision-review-visible", linkLabel: "Continue to review packages" },
+    ],
+  },
+  {
+    id: "decision-review-visible",
+    question: "Is a review package visible?",
+    branches: [
+      { label: "No", href: "/reviews", linkLabel: "Open review packages" },
+      { label: "No — need a sample", href: inAppHelpHref("getting-started"), linkLabel: "Load sample workspace / getting started" },
+      { label: "No — start fresh", href: "/reviews/new", linkLabel: "Start architecture review" },
+      { label: "Yes", href: "#decision-finalized", linkLabel: "Continue to finalize check" },
+    ],
+  },
+  {
+    id: "decision-finalized",
+    question: "Is the review finalized or committed?",
+    branches: [
+      { label: "No", href: "/reviews", linkLabel: "Open review detail and finalize package" },
+      { label: "Yes", href: "#decision-outputs", linkLabel: "Continue to outputs check" },
+    ],
+  },
+  {
+    id: "decision-outputs",
+    question: "Are findings, evidence, or report outputs missing?",
+    branches: [
+      { label: "Findings missing", href: inAppHelpHref("evidence-trail"), linkLabel: "Open evidence trail" },
+      { label: "Reports missing", href: "/value-report", linkLabel: "Open value report" },
+      {
+        label: "Permissions missing",
+        href: inAppHelpHref("operator-auth-roles"),
+        linkLabel: "Open users and roles",
+      },
+    ],
+  },
+  {
+    id: "decision-still-blocked",
+    question: "Still blocked?",
+    branches: [
+      { label: "Download support bundle", href: "#before-contacting-support", linkLabel: "Before contacting support" },
+      { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}`, linkLabel: "Email support" },
+    ],
+  },
+] as const;
+
+export const TROUBLESHOOTING_BEFORE_CONTACT_ITEMS = [
+  "Workspace name",
+  "Review package name or ID if visible",
+  "Approximate time of issue",
+  "Screenshot of the error, if possible",
+  "Support bundle (download below)",
+  "What action failed",
+  "Error message shown on screen, if any",
+  "Whether the issue still happens after refresh",
+] as const;
+
+export type TroubleshootingAdvancedDiagnosticItem = {
+  readonly title: string;
+  readonly body: string;
+  readonly href: string;
+  readonly linkLabel: string;
+  readonly adminOnly?: boolean;
+};
+
+export const TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_ITEMS: readonly TroubleshootingAdvancedDiagnosticItem[] = [
+  {
+    title: "Service readiness",
+    body: "Open System health for live and ready checks. Workspace administrators can review dependency status before escalating.",
+    href: "/health",
+    linkLabel: "Open System health",
+  },
+  {
+    title: "Admin diagnostics",
+    body: "Workspace admins can review readiness signals, assistant diagnostics, and platform health references in Help.",
+    href: inAppHelpHref("admin-diagnostics"),
+    linkLabel: "Open admin diagnostics",
+  },
+  {
+    title: "Support reference for tickets",
+    body: "When support asks for a support reference, copy the request ID shown on the error panel. Do not share secrets or evidence contents.",
+    href: inAppHelpHref("developer-troubleshooting"),
+    linkLabel: "Engineering troubleshooting runbook",
+    adminOnly: true,
+  },
+] as const;
+
+export const TROUBLESHOOTING_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
+  { level: 2, id: "start-here", title: "Start here" },
+  { level: 2, id: "common-issues", title: "Common issues" },
+  { level: 2, id: "decision-tree", title: "Decision tree" },
+  { level: 2, id: "before-contacting-support", title: "Before contacting support" },
+  { level: 2, id: "advanced-diagnostics", title: "Advanced diagnostics" },
+];

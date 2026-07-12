@@ -61,7 +61,7 @@ describe("OperatorLayeredConnectivityError", () => {
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open troubleshooting" })).toHaveAttribute(
       "href",
-      "/help/troubleshooting",
+      "/help/troubleshooting#overview-workspace-empty",
     );
     expect(screen.getByRole("link", { name: "System health" })).toHaveAttribute("href", "/health");
   });

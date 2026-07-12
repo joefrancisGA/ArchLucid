@@ -22,6 +22,20 @@ if [ "${ARCHLUCID_SKIP_PRE_COMMIT:-}" = "1" ]; then
 fi
 
 STAGED="$(git diff --cached --name-only --diff-filter=ACMR)"
+if [ -n "$STAGED" ]; then
+    if printf '%s\n' "$STAGED" | grep -qE '^\.local/'; then
+        echo "[pre-commit] Refusing to commit .local/ (owner-only data)."
+        echo "[pre-commit] Unstage with: git reset HEAD -- .local/"
+        exit 1
+    fi
+    if printf '%s\n' "$STAGED" | grep -qF 'docs/architecture/ui_route_traffic_estimates.md'; then
+        echo "[pre-commit] Refusing to commit docs/architecture/ui_route_traffic_estimates.md."
+        echo "[pre-commit] Owner workbook: .local/owner/ui_route_traffic_estimates.md"
+        echo "[pre-commit] See docs/architecture/UI_ROUTE_TRAFFIC_ESTIMATES_OWNER.md"
+        exit 1
+    fi
+fi
+
 STAGED_CONTROLLERS=""
 if [ -n "$STAGED" ]; then
     STAGED_CONTROLLERS="$(printf '%s\n' "$STAGED" | grep -E '^ArchLucid\.Api/Controllers/.*Controller\.cs$' || true)"

@@ -1,4 +1,5 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { DIGESTS_BROWSE_SEND_TEST_LABEL } from "@/lib/digests-browse-copy";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 /** Actionable setup gap for the digests health card. */
@@ -67,6 +68,14 @@ export type DigestOverallStatus = {
   readonly label: string;
 };
 
+export type DigestSetupChecklistItem = {
+  readonly id: string;
+  readonly label: string;
+  readonly href: string;
+  readonly complete: boolean;
+  readonly detail: string;
+};
+
 /** Overall digest loop status from the weekly health snapshot. */
 export function resolveDigestOverallStatus(snap: WeeklyDigestHealthDto): DigestOverallStatus {
   const healthyLoop: boolean =
@@ -83,10 +92,105 @@ export function resolveDigestOverallStatus(snap: WeeklyDigestHealthDto): DigestO
     snap.enabledDigestSubscriptionCount === 0 &&
     !snap.executiveEmailDigestEnabled
   ) {
-    return { kind: "blocked", label: "Not configured" };
+    return { kind: "draft", label: "Setup needed" };
   }
 
   return { kind: "needs-attention", label: "Action needed" };
+}
+
+/** Suggested primary setup step from the current health snapshot. */
+export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): DigestSetupGapAction | null {
+  if (snap.enabledAdvisoryScheduleCount === 0) {
+    return {
+      title: "Configure schedule",
+      impact: "Enable an advisory scan schedule to generate digests on a cadence.",
+      actionLabel: "Configure schedule",
+      href: "/advisory?tab=schedules",
+    };
+  }
+
+  if (snap.enabledDigestSubscriptionCount === 0) {
+    return {
+      title: "Add recipients or subscriptions",
+      impact: "Add digest subscriptions so generated digests have outbound recipients.",
+      actionLabel: "Add subscriptions",
+      href: "/digests?tab=subscriptions",
+    };
+  }
+
+  if (!snap.executiveEmailDigestEnabled && snap.executiveDigestRecipientCount === 0) {
+    return {
+      title: "Configure executive recipients",
+      impact: "Optional sponsor rollup emails are configured on the Schedule tab.",
+      actionLabel: "Configure schedule",
+      href: "/digests?tab=schedule",
+    };
+  }
+
+  if (
+    snap.latestArchitectureDigestGeneratedUtc === null ||
+    snap.latestArchitectureDigestGeneratedUtc === undefined ||
+    snap.latestArchitectureDigestGeneratedUtc.trim() === ""
+  ) {
+    return {
+      title: "Send test digest",
+      impact: "Generate the first digest to verify delivery and preview content.",
+      actionLabel: DIGESTS_BROWSE_SEND_TEST_LABEL,
+      href: "/advisory?tab=schedules",
+    };
+  }
+
+  return null;
+}
+
+export function buildDigestSetupChecklistItems(
+  snap: WeeklyDigestHealthDto,
+  hasGeneratedDigests: boolean,
+): readonly DigestSetupChecklistItem[] {
+  const hasSchedule: boolean = snap.enabledAdvisoryScheduleCount > 0;
+  const hasRecipients: boolean = snap.enabledDigestSubscriptionCount > 0;
+  const hasTestDigest: boolean =
+    snap.latestArchitectureDigestGeneratedUtc !== null &&
+    snap.latestArchitectureDigestGeneratedUtc !== undefined &&
+    snap.latestArchitectureDigestGeneratedUtc.trim() !== "";
+
+  return [
+    {
+      id: "schedule",
+      label: "Configure schedule",
+      href: "/advisory?tab=schedules",
+      complete: hasSchedule,
+      detail: hasSchedule ? "Advisory scan schedule enabled." : "Enable a cadence for digest generation.",
+    },
+    {
+      id: "recipients",
+      label: "Add recipients or subscriptions",
+      href: "/digests?tab=subscriptions",
+      complete: hasRecipients,
+      detail: hasRecipients ? "Active digest subscriptions configured." : "Add outbound recipients for delivery.",
+    },
+    {
+      id: "test",
+      label: DIGESTS_BROWSE_SEND_TEST_LABEL,
+      href: "/advisory?tab=schedules",
+      complete: hasTestDigest,
+      detail: hasTestDigest ? "At least one digest has been generated." : "Verify delivery with a test digest.",
+    },
+    {
+      id: "history",
+      label: "Review generated history",
+      href: "/digests?tab=browse",
+      complete: hasGeneratedDigests,
+      detail: hasGeneratedDigests ? "Digest history is available below." : "Generated digests will appear in this list.",
+    },
+  ];
+}
+
+export function digestSetupShowsRecipientClarification(snap: WeeklyDigestHealthDto): boolean {
+  const hasSubscriptionGap: boolean = snap.setupGaps.some((gap) => /digest subscriptions/i.test(gap));
+  const hasExecutiveGap: boolean = snap.setupGaps.some((gap) => /executive email digest/i.test(gap));
+
+  return hasSubscriptionGap && hasExecutiveGap;
 }
 
 /** True when schedules, subscriptions, or executive email already have some configuration. */

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -12,19 +14,19 @@ import {
 } from "@/components/ui/select";
 import {
   ALERTS_INBOX_ALL_STATUSES_VALUE,
-} from "@/app/(operator)/alerts/_sections/load-alerts-inbox-page-model";
+} from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import {
   alertsInboxRefreshButtonTitleOperator,
   alertsInboxRefreshButtonTitleReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatRelativeTime } from "@/lib/relative-time";
 
 export type AlertsInboxControlsProps = {
   readonly status: string;
   readonly page: number;
   readonly totalPages: number;
-  readonly totalCount: number;
   readonly loading: boolean;
   readonly buyerPolishedShell: boolean;
   readonly canMutateAlertInbox: boolean;
@@ -34,34 +36,32 @@ export type AlertsInboxControlsProps = {
   readonly allVisibleSelected: boolean;
   readonly pageMixSummary: string | null;
   readonly hasLoadFailure: boolean;
+  readonly lastRefreshedUtc: string | null;
   readonly onStatusChange: (value: string) => void;
   readonly onRefresh: () => void;
   readonly onAcknowledgeSelected: () => void;
   readonly onToggleSelectAllVisible: (checked: boolean) => void;
 };
 
-function formatAlertsInboxCountLabel(totalCount: number, status: string, loading: boolean): string {
-  if (loading) {
-    return "Loading alerts…";
+function formatLastUpdatedLabel(lastRefreshedUtc: string | null, loading: boolean): string {
+  if (loading && lastRefreshedUtc === null) {
+    return "Updating…";
   }
 
-  if (status === "Open") {
-    return `${totalCount} open ${totalCount === 1 ? "alert" : "alerts"}`;
+  if (lastRefreshedUtc === null) {
+    return "Not refreshed yet";
   }
 
-  if (status === ALERTS_INBOX_ALL_STATUSES_VALUE) {
-    return `${totalCount} ${totalCount === 1 ? "alert" : "alerts"}`;
-  }
-
-  return `${totalCount} ${status.toLowerCase()} ${totalCount === 1 ? "alert" : "alerts"}`;
+  return `Updated ${formatRelativeTime(lastRefreshedUtc)}`;
 }
 
 export function AlertsInboxControls(props: AlertsInboxControlsProps) {
-  const countLabel = formatAlertsInboxCountLabel(props.totalCount, props.status, props.loading);
-
   return (
     <>
-      <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+      <div
+        className="mb-3 flex flex-wrap items-end justify-between gap-3"
+        data-testid="alerts-inbox-controls"
+      >
         <div className="flex flex-wrap items-end gap-3">
           <div className="grid gap-2">
             <Label htmlFor="alerts-status-filter">Status</Label>
@@ -107,10 +107,10 @@ export function AlertsInboxControls(props: AlertsInboxControlsProps) {
         {!props.hasLoadFailure ? (
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="alerts-inbox-count-label"
+            data-testid="alerts-inbox-last-updated"
             aria-live="polite"
           >
-            {countLabel}
+            {formatLastUpdatedLabel(props.lastRefreshedUtc, props.loading)}
           </p>
         ) : null}
       </div>
@@ -118,15 +118,6 @@ export function AlertsInboxControls(props: AlertsInboxControlsProps) {
       {props.pageMixSummary !== null && props.status === ALERTS_INBOX_ALL_STATUSES_VALUE && !props.hasLoadFailure ? (
         <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)} data-testid="alerts-inbox-page-mix">
           Page {props.page} of {props.totalPages}: {props.pageMixSummary}.
-        </p>
-      ) : null}
-
-      {!props.hasLoadFailure && props.totalCount === 0 && !props.buyerPolishedShell && !props.loading ? (
-        <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link className={cn("font-medium", OPERATOR_LINK.nav)} href="/governance/alerts?tab=rules">
-            Configure alert rules
-          </Link>{" "}
-          when you expect traffic.
         </p>
       ) : null}
 

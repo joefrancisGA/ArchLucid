@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { HelpTourTrigger } from "./HelpTourTrigger";
@@ -18,8 +19,20 @@ export default function HelpPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>Help</h1>
-        <p className={`m-0 max-w-prose ${OPERATOR_TYPOGRAPHY.helper}`}>
-          Start with the product guide for review workflows and cloud connections. Open the Documentation tab for searchable reference links.
+        <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>
+          Start with the product guide for review workflows and cloud connections. See{" "}
+          <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/help/how-it-works">
+            How ArchLucid works
+          </Link>{" "}
+          for the workflow, the{" "}
+          <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/faq">
+            Product FAQ
+          </Link>{" "}
+          for evaluation and pricing answers, and{" "}
+          <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/help/data-handling">
+            data handling
+          </Link>{" "}
+          for security posture. Open the Documentation tab for searchable reference links.
         </p>
         </div>
         <HelpTourTrigger />

@@ -1,57 +1,233 @@
-import Link from "next/link";
+"use client";
 
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useState } from "react";
+
+import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
+import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
+import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
+import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
+import { StatusTag } from "@/components/ui/status-tag";
+import { useCreateArchitectureNavigation } from "@/hooks/use-create-architecture-navigation";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
+  OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
+  OPERATOR_HOME_CONNECT_CLOUD_BODY,
+  OPERATOR_HOME_CONNECT_CLOUD_TITLE,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
+  OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY,
+  OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE,
+  OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
+  OPERATOR_HOME_READ_ONLY_INTENT_HINT,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
+  PILOT_COMMAND_CENTER_CONNECT_AZURE,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import {
+  OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL,
+  REVIEW_START_LOADING_LABEL,
+  REVIEW_START_PREPARING_LABEL,
+} from "@/lib/review-start-progress-copy";
+import {
+  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
+  showcaseSampleReviewPackageHref,
+} from "@/lib/showcase-sample-review-registry";
 import { cn } from "@/lib/utils";
 
-/** Side-by-side create vs review entry points on Overview. */
+type SelectedHomePath = "explore-completed-review" | "create-architecture" | "review-architecture" | null;
+
+const completedReviewHref = showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId);
+
+const optionalCloudLinkClass = cn(
+  "inline-flex shrink-0 items-center rounded-md border border-neutral-300 px-3 py-1.5",
+  OPERATOR_TYPE_SCALE.button,
+  "font-medium text-al-text-primary hover:border-neutral-400 hover:bg-[var(--al-layer-hover)]",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)]",
+  "dark:border-neutral-700 dark:hover:border-neutral-600",
+);
+
+/** Three intent cards on Overview — explore, review, or create without implying sequence. */
 export function OperatorHomeDualPathCards(): React.JSX.Element {
+  const reviewNavigation = useReviewIntakeNavigation();
+  const createArchitectureNavigation = useCreateArchitectureNavigation();
+  const canExecute = useOperateCapability();
+  const [selectedPath, setSelectedPath] = useState<SelectedHomePath>(null);
+
+  const startCreateArchitecture = () => {
+    setSelectedPath("create-architecture");
+    createArchitectureNavigation.navigate();
+  };
+
+  const startReviewArchitecture = () => {
+    setSelectedPath("review-architecture");
+    reviewNavigation.navigate({ href: "/reviews/new" });
+  };
+
   return (
     <div
-      className={cn("grid gap-3 sm:grid-cols-2", OPERATOR_LAYOUT.inlineGap)}
+      className={cn("space-y-3", OPERATOR_LAYOUT.inlineGap)}
       data-testid="operator-home-dual-path-cards"
+      aria-busy={reviewNavigation.isNavigating || createArchitectureNavigation.isNavigating}
     >
-      <article
-        className={cn(OPERATOR_SURFACE_CARD_CLASS, "flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800")}
-        data-testid="operator-home-create-architecture-card"
+      <div
+        className={cn("grid gap-3 md:grid-cols-3 sm:grid-cols-2", OPERATOR_LAYOUT.inlineGap)}
+        role="status"
+        aria-live="polite"
       >
-        <div className="min-w-0 space-y-1">
-          <h3 className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}>{OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE}</h3>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-            {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY}
-          </p>
-        </div>
-        <Button asChild variant="primary" size="sm" className="h-8 w-fit">
-          <Link href="/reviews/new" data-testid="operator-home-create-architecture-cta">
-            {CREATE_ARCHITECTURE_LABEL}
-          </Link>
-        </Button>
-      </article>
+        <article
+          className={cn(
+            OPERATOR_SURFACE_CARD_CLASS,
+            "flex flex-col gap-3 border-2 border-teal-800/25 p-4 dark:border-teal-500/30",
+            selectedPath === "explore-completed-review" && "ring-2 ring-teal-700/40 ring-offset-2",
+          )}
+          data-testid="operator-home-explore-completed-review-card"
+          aria-labelledby="operator-home-explore-completed-review-title"
+        >
+          <div className="min-w-0 space-y-2">
+            <StatusTag
+              kind="ready"
+              label={OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE}
+              data-testid="operator-home-explore-recommended-badge"
+            />
+            <h3
+              className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}
+              id="operator-home-explore-completed-review-title"
+            >
+              {OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE}
+            </h3>
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+              {OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY}
+            </p>
+          </div>
+          <OperatorHomeNavigateLoadingButton
+            variant="primary"
+            size="sm"
+            className="h-8 w-fit"
+            href={completedReviewHref}
+            idleLabel={OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}
+            loadingLabel={OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL}
+            data-testid="operator-home-explore-completed-review-cta"
+          />
+        </article>
 
-      <article
-        className={cn(OPERATOR_SURFACE_CARD_CLASS, "flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800")}
-        data-testid="operator-home-review-architecture-card"
+        <article
+          className={cn(
+            OPERATOR_SURFACE_CARD_CLASS,
+            "flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800",
+            selectedPath === "review-architecture" && "ring-2 ring-teal-700/40 ring-offset-2",
+          )}
+          data-testid="operator-home-review-architecture-card"
+          aria-labelledby="operator-home-review-architecture-title"
+          aria-current={selectedPath === "review-architecture" ? "true" : undefined}
+        >
+          <div className="min-w-0 space-y-1">
+            <h3
+              className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}
+              id="operator-home-review-architecture-title"
+            >
+              {OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE}
+            </h3>
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+              {OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY}
+            </p>
+          </div>
+          {canExecute ? (
+            <ReviewStartLoadingButton
+              variant="primary"
+              size="sm"
+              className="h-8 w-fit"
+              idleLabel={OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA}
+              loadingLabel={REVIEW_START_LOADING_LABEL}
+              isLoading={reviewNavigation.isNavigating && selectedPath === "review-architecture"}
+              onClick={startReviewArchitecture}
+              data-testid="operator-home-review-architecture-cta"
+            />
+          ) : (
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
+              {OPERATOR_HOME_READ_ONLY_INTENT_HINT}
+            </p>
+          )}
+        </article>
+
+        <article
+          className={cn(
+            OPERATOR_SURFACE_CARD_CLASS,
+            "flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800 sm:col-span-2 md:col-span-1",
+            selectedPath === "create-architecture" && "ring-2 ring-teal-700/40 ring-offset-2",
+          )}
+          data-testid="operator-home-create-architecture-card"
+          aria-labelledby="operator-home-create-architecture-title"
+          aria-current={selectedPath === "create-architecture" ? "true" : undefined}
+        >
+          <div className="min-w-0 space-y-1">
+            <h3
+              className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}
+              id="operator-home-create-architecture-title"
+            >
+              {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE}
+            </h3>
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+              {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY}
+            </p>
+          </div>
+          {canExecute ? (
+            <ReviewStartLoadingButton
+              variant="primary"
+              size="sm"
+              className="h-8 w-fit"
+              idleLabel={CREATE_ARCHITECTURE_LABEL}
+              loadingLabel={createArchitectureNavigation.loadingLabel}
+              isLoading={createArchitectureNavigation.isNavigating && selectedPath === "create-architecture"}
+              onClick={startCreateArchitecture}
+              data-testid="operator-home-create-architecture-cta"
+            />
+          ) : (
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
+              {OPERATOR_HOME_READ_ONLY_INTENT_HINT}
+            </p>
+          )}
+        </article>
+      </div>
+
+      <div
+        className={cn(
+          "flex flex-col gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-800 sm:flex-row sm:items-start sm:justify-between",
+          OPERATOR_LAYOUT.inlineGap,
+        )}
+        data-testid="operator-home-optional-cloud-shortcut"
       >
         <div className="min-w-0 space-y-1">
-          <h3 className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}>{OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE}</h3>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-            {OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY}
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "font-medium text-al-text-primary")}>
+            {OPERATOR_HOME_CONNECT_CLOUD_TITLE}
+          </p>
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
+            {OPERATOR_HOME_CONNECT_CLOUD_BODY}
           </p>
         </div>
-        <Button asChild variant="outline" size="sm" className="h-8 w-fit">
-          <Link href="/reviews/new" data-testid="operator-home-review-architecture-cta">
-            {OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA}
-          </Link>
-        </Button>
-      </article>
+        <Link href={CLOUD_CONNECTIONS_PATH} className={optionalCloudLinkClass} data-testid="operator-home-connect-cloud">
+          {PILOT_COMMAND_CENTER_CONNECT_AZURE}
+        </Link>
+      </div>
+
+      {reviewNavigation.showStagedPanel && reviewNavigation.activeStageId !== null ? (
+        <ReviewStartStagedProgress
+          stages={reviewNavigation.stages}
+          activeStageId={reviewNavigation.activeStageId}
+          headline={REVIEW_START_PREPARING_LABEL}
+          testId="operator-home-review-start-progress"
+        />
+      ) : null}
+
+      {reviewNavigation.error !== null ? <ReviewStartInlineError message={reviewNavigation.error} /> : null}
+      {createArchitectureNavigation.error !== null ? (
+        <ReviewStartInlineError message={createArchitectureNavigation.error} />
+      ) : null}
     </div>
   );
 }

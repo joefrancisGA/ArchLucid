@@ -33,8 +33,10 @@ import {
   GUIDED_INTAKE_ACTORS_EMPTY_STATE,
   GUIDED_INTAKE_ACTORS_SECTION_HEADING,
   GUIDED_INTAKE_ADD_ACTOR_BUTTON,
+  GUIDED_INTAKE_ADD_ANOTHER_ACTOR_BUTTON,
   GUIDED_INTAKE_ADD_SELECTED_ACTORS_BUTTON,
   GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON,
+  GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT,
   GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING,
   GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT,
@@ -48,6 +50,8 @@ export type DraftIntakeActorEditorProps = {
   readonly minIntentChars?: number;
   readonly disabled?: boolean;
   readonly onChange: (actorSet: ActorSet) => void;
+  /** When true, uses create-architecture helper copy and always allows manual adds. */
+  readonly creationFlow?: boolean;
 };
 
 function updateActorAtIndex(
@@ -164,13 +168,17 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
   const addActorButtonLabel =
     props.actorSet.actors.length === 0
       ? GUIDED_INTAKE_ADD_ACTOR_BUTTON
-      : "Add another actor";
+      : GUIDED_INTAKE_ADD_ANOTHER_ACTOR_BUTTON;
+
+  const sectionHint = props.creationFlow === true
+    ? GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT
+    : GUIDED_INTAKE_TRUST_BOUNDARY_HINT;
 
   return (
     <div className="draft-intake-actor-editor space-y-4" data-testid="draft-intake-actor-editor">
       <div className="space-y-1">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             {GUIDED_INTAKE_ACTORS_SECTION_HEADING}
           </p>
           <Button
@@ -187,7 +195,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
           </Button>
         </div>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {GUIDED_INTAKE_TRUST_BOUNDARY_HINT}
+          {sectionHint}
         </p>
         {!canSuggestFromIntent ? (
           <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)} data-testid="draft-intake-actor-suggest-hint">
@@ -215,7 +223,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
           </p>
           {pendingSuggestions.length === 0 ? (
             <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-              No new suggestions — add actors manually or edit intent and try again.
+              No new suggestions — add people or systems manually or edit the overview and try again.
             </p>
           ) : (
             <ul className="m-0 list-none space-y-2 p-0">

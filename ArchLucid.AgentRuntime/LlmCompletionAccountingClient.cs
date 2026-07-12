@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm;
@@ -52,6 +53,12 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
 
     private readonly ILlmCostEstimator _costEstimator;
 
+    private readonly IAiBudgetPreCallGuard _aiBudgetPreCallGuard;
+
+    private readonly IDemoAiPromptCache _demoPromptCache;
+
+    private readonly IOptionsMonitor<AiUsageControlsOptions> _aiUsageControlsOptions;
+
     private readonly bool _useJudgeDailyCapOnly;
 
     private readonly IOptionsMonitor<LlmJudgeDailyTokenBudgetOptions>? _judgeDailyBudgetOptions;
@@ -73,6 +80,9 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarBudgetOptions,
         LlmMonthlyTenantDollarBudgetTracker monthlyDollarBudgetTracker,
         ILlmCostEstimator costEstimator,
+        IAiBudgetPreCallGuard aiBudgetPreCallGuard,
+        IDemoAiPromptCache demoPromptCache,
+        IOptionsMonitor<AiUsageControlsOptions> aiUsageControlsOptions,
         IAuditService auditService,
         ILogger<LlmCompletionAccountingClient> logger,
         bool useJudgeDailyCapOnly = false,
@@ -93,6 +103,9 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         ArgumentNullException.ThrowIfNull(monthlyDollarBudgetOptions);
         ArgumentNullException.ThrowIfNull(monthlyDollarBudgetTracker);
         ArgumentNullException.ThrowIfNull(costEstimator);
+        ArgumentNullException.ThrowIfNull(aiBudgetPreCallGuard);
+        ArgumentNullException.ThrowIfNull(demoPromptCache);
+        ArgumentNullException.ThrowIfNull(aiUsageControlsOptions);
         ArgumentNullException.ThrowIfNull(auditService);
         ArgumentNullException.ThrowIfNull(logger);
 
@@ -110,6 +123,9 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         _monthlyDollarBudgetOptions = monthlyDollarBudgetOptions;
         _monthlyDollarBudgetTracker = monthlyDollarBudgetTracker;
         _costEstimator = costEstimator;
+        _aiBudgetPreCallGuard = aiBudgetPreCallGuard;
+        _demoPromptCache = demoPromptCache;
+        _aiUsageControlsOptions = aiUsageControlsOptions;
         _auditService = auditService;
         _logger = logger;
         _useJudgeDailyCapOnly = useJudgeDailyCapOnly;
@@ -136,6 +152,23 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         string providerKind = _inner.Descriptor.ProviderKind;
+
+        AiBudgetPreCallGuardResult guardResult = await _aiBudgetPreCallGuard
+            .EnsureAllowedAsync(
+                scope.TenantId,
+                AmbientAiUsageFeatureScope.Current,
+                providerKind,
+                systemPrompt,
+                userPrompt,
+                correlationId: null,
+                actorUserId: null,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (guardResult.ServedFromDemoCache && !string.IsNullOrWhiteSpace(guardResult.CachedResponseJson))
+        {
+            return guardResult.CachedResponseJson;
+        }
 
         long? dailyReserved = null;
         decimal? monthlyReserved = null;
@@ -198,7 +231,17 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
 
         try
         {
-            return await _inner.CompleteJsonAsync(outboundSystem, outboundUser, maxTokens, temperature, cancellationToken);
+            string completion =
+                await _inner.CompleteJsonAsync(outboundSystem, outboundUser, maxTokens, temperature, cancellationToken);
+
+            if (_aiUsageControlsOptions.CurrentValue.DemoMode)
+            {
+                _demoPromptCache.Set(
+                    DemoAiPromptCacheKeys.Build(systemPrompt, userPrompt),
+                    completion);
+            }
+
+            return completion;
         }
         finally
         {
@@ -299,6 +342,21 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                     completionTok);
 
                 await TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, CancellationToken.None)
+                    .ConfigureAwait(false);
+
+                decimal? estimatedUsd = _costEstimator.EstimateUsd(promptTok, completionTok);
+
+                await _aiBudgetPreCallGuard
+                    .RecordCompletionAsync(
+                        scope.TenantId,
+                        AmbientAiUsageFeatureScope.Current,
+                        providerKind,
+                        promptTok,
+                        completionTok,
+                        estimatedUsd,
+                        correlationId: null,
+                        actorUserId: null,
+                        CancellationToken.None)
                     .ConfigureAwait(false);
             }
         }

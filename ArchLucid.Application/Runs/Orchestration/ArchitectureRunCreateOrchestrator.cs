@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Metadata;
@@ -480,6 +481,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
         header.ArchitectureRequestId = request.RequestId;
         header.LegacyRunStatus = _runStateTransitionService.GetCoordinationLegacyStatusAfterCreate(deferred);
+        header.PackageOrigin = ArchitecturePackageOriginResolver.Resolve(request);
 
         if (uow.SupportsExternalTransaction)
             await _runRepository.UpdateAsync(header, cancellationToken, uow.Connection, uow.Transaction);

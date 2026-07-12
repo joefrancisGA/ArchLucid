@@ -19,7 +19,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("keeps executive summary orientation for the showcase run", () => {
-    const base = `/executive/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`;
+    const base = `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`;
     const o = buyerPolishedRouteOrientation(base);
 
     expect(o?.label).toBe("Executive summary");
@@ -77,11 +77,19 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/alerts")).toBeNull();
   });
 
+  it("returns null for compare — the page carries its own workspace header", () => {
+    expect(buyerPolishedRouteOrientation("/compare")).toBeNull();
+  });
+
+  it("returns null for create-architecture intake at /reviews/new", () => {
+    expect(buyerPolishedRouteOrientation("/reviews/new")).toBeNull();
+  });
+
   it("orients the advisory route with recommendation copy", () => {
     const o = buyerPolishedRouteOrientation("/advisory");
 
     expect(o?.label).toBe("Advisory scans");
-    expect(o?.line).toContain("Recommended changes");
+    expect(o?.line).toContain("Prioritized follow-up");
   });
 
   it("orients advisory sub-routes (e.g. ?tab=schedules) consistently", () => {

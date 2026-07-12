@@ -1,5 +1,6 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Identity;
+using ArchLucid.Application.AiUsage;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
@@ -29,6 +30,7 @@ public sealed class TrialTenantBootstrapServiceTests
             repo.Object,
             audit.Object,
             email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         TenantProvisioningResult result = new()
@@ -107,6 +109,7 @@ public sealed class TrialTenantBootstrapServiceTests
             repo.Object,
             audit.Object,
             email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -158,6 +161,73 @@ public sealed class TrialTenantBootstrapServiceTests
     }
 
     [SkippableFact]
+    public async Task TryBootstrapAfterSelfRegistrationAsync_persists_default_trial_ai_budget_policy()
+    {
+        Mock<IDemoSeedService> demo = new();
+        demo.Setup(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        demo.Setup(s => s.SeedAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<ITenantRepository> repo = new();
+        repo.Setup(r => r.CommitSelfServiceTrialAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<Guid>(),
+                It.IsAny<decimal?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<string?>(),
+                It.IsAny<int?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        repo.Setup(r => r.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        repo.Setup(r => r.EnqueueTrialArchitecturePreseedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        Mock<ITrialBootstrapEmailVerificationPolicy> email = new();
+        email.Setup(e => e.CanProvisionTrialForRegisteredEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        Mock<ISelfServiceTrialAiBudgetPolicyProvisioner> budgetProvisioner = CreateTrialAiBudgetProvisionerMock();
+
+        TrialTenantBootstrapService sut = new(
+            demo.Object,
+            repo.Object,
+            audit.Object,
+            email.Object,
+            budgetProvisioner.Object,
+            NullLogger<TrialTenantBootstrapService>.Instance);
+
+        Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        await sut.TryBootstrapAfterSelfRegistrationAsync(
+            new TenantProvisioningResult
+            {
+                TenantId = tenantId,
+                DefaultWorkspaceId = Guid.NewGuid(),
+                DefaultProjectId = Guid.NewGuid(),
+                WasAlreadyProvisioned = false,
+            },
+            "owner@example.com",
+            null,
+            null,
+            CancellationToken.None);
+
+        budgetProvisioner.Verify(
+            p => p.EnsureDefaultTrialPolicyIfAbsentAsync(
+                tenantId,
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task TryBootstrapAfterSelfRegistrationAsync_commits_trial_with_welcome_run_when_full_demo_seed_fails()
     {
         Guid tenantId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
@@ -198,6 +268,7 @@ public sealed class TrialTenantBootstrapServiceTests
             repo.Object,
             audit.Object,
             email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         TenantProvisioningResult result = new()
@@ -272,6 +343,7 @@ public sealed class TrialTenantBootstrapServiceTests
             repo.Object,
             audit.Object,
             email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         TenantProvisioningResult result = new()
@@ -322,6 +394,7 @@ public sealed class TrialTenantBootstrapServiceTests
             repo.Object,
             audit.Object,
             email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         TenantProvisioningResult result = new()
@@ -380,6 +453,7 @@ public sealed class TrialTenantBootstrapServiceTests
             repo.Object,
             audit.Object,
             email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -454,6 +528,7 @@ public sealed class TrialTenantBootstrapServiceTests
             repo.Object,
             audit.Object,
             email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         TenantProvisioningResult result = new()
@@ -474,5 +549,17 @@ public sealed class TrialTenantBootstrapServiceTests
         Assert.True(persistAt >= 0);
         Assert.True(seedAt >= 0);
         Assert.True(persistAt < seedAt);
+    }
+
+    private static Mock<ISelfServiceTrialAiBudgetPolicyProvisioner> CreateTrialAiBudgetProvisionerMock()
+    {
+        Mock<ISelfServiceTrialAiBudgetPolicyProvisioner> mock = new();
+        mock.Setup(p => p.EnsureDefaultTrialPolicyIfAbsentAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        return mock;
     }
 }

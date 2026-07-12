@@ -65,6 +65,9 @@ export function auditEventFriendlyTitle(eventType: string): string {
     case "GovernanceApprovalRequested":
       return "Governance approval requested";
 
+    case "SponsorPreliminaryArchitectureShared":
+      return "Preliminary architecture shared with sponsor";
+
     default:
       return humanizeUnknownAuditEventType(key);
   }

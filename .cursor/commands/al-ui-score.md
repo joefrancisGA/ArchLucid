@@ -4,12 +4,12 @@ description: Set an ArchLucid UI route Evidence score by table ID and re-sort th
 
 # Set UI route score (`/al-ui-score`)
 
-Update one row in the master table at `docs/architecture/ui_route_traffic_estimates.md`
+Update one row in the owner workbook at `.local/owner/ui_route_traffic_estimates.md`
 by **ID** shorthand, then **re-sort** the master table:
 - **Score 0** — Hit% **descending** (most hits first); ties **A→Z** by path
 - **Scored** — **Weight descending**; ties **A→Z** by path
 
-Also recomputes **OVERALL WEIGHT SCORE** (sum of all row Weight values) at the top of the report.
+Also recomputes **OVERALL WEIGHT SCORE** (actual Weight sum as a % of max possible: Hit% × 100 per row) at the top of the report.
 
 ## Arguments (required)
 
@@ -42,13 +42,19 @@ If either argument is missing, **stop** and ask for both.
 
 ### Step 2 — Working-tree safety
 
-Before editing `docs/architecture/ui_route_traffic_estimates.md`, run:
+Before editing `.local/owner/ui_route_traffic_estimates.md`, run:
 
 ```powershell
-.\scripts\agent\check-working-tree-path.ps1 -Path 'docs/architecture/ui_route_traffic_estimates.md'
+.\scripts\agent\check-working-tree-path.ps1 -Path '.local/owner/ui_route_traffic_estimates.md'
 ```
 
 If exit code **2**, stop and tell the user the path is blocked (commit/stash or explicit override).
+
+If the owner file is missing, bootstrap it first:
+
+```powershell
+python .\scripts\ci\bootstrap-ui-route-traffic-owner-workbook.py
+```
 
 ### Step 3 — Apply update (preferred)
 
@@ -66,10 +72,11 @@ python .\scripts\ci\set-archlucid-ui-route-score.py ASK 78
 
 The script:
 
+- Ensures the owner workbook exists (bootstrap from template when missing)
 - Updates the **Scores** cell and recomputed **Weight** (Hit% × Scores) for the matching **ID**
 - Leaves **Notes** unchanged (still `None` unless the owner edited them)
 - Re-sorts the master table: score **0** rows by Hit% **descending**; scored rows by **Weight descending**; ties A→Z by path
-- Recomputes **OVERALL WEIGHT SCORE** (sum of all Weight values) near the top of the doc
+- Recomputes **OVERALL WEIGHT SCORE** near the top of the doc
 - Preserves the **ID** column and all other rows
 
 If the script fails (unknown ID), report the error and **do not** hand-edit unless fixing a script bug.
@@ -99,10 +106,12 @@ Use stdout from the script when available.
 - **Do not** commit or push unless the user names a branch and asks to commit.
 - **Do not** invent scores for other rows.
 - **Do not** re-sort scored rows by Hit% × Scores ascending; they use **Weight descending**.
+- **Do not** edit `docs/architecture/ui_route_traffic_estimates.md` — that legacy path is gitignored and must not be re-tracked.
 
 ## Canonical file
 
-- `docs/architecture/ui_route_traffic_estimates.md` — master table
+- `docs/architecture/UI_ROUTE_TRAFFIC_ESTIMATES_OWNER.md` — owner workbook location + guards
+- `.local/owner/ui_route_traffic_estimates.md` — live master table (gitignored)
 - `scripts/ci/set-archlucid-ui-route-score.py` — update + resort helper
 - `scripts/ci/archlucid_ui_route_traffic_table.py` — shared table parse/render
 - `scripts/ci/resort-archlucid-ui-route-traffic-table.py` — resort-only helper (no score change)

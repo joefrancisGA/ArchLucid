@@ -16,10 +16,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { CtoDemoTenantIsolationProofCallout } from "@/components/cto-demo/CtoDemoTenantIsolationProofCallout";
-import { HOW_IT_WORKS_MARKDOWN } from "@/lib/how-it-works-markdown";
+import { DATA_HANDLING_MARKDOWN } from "@/lib/how-it-works-markdown";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
-const HOW_IT_WORKS_SLUG = "how-it-works";
+const DATA_HANDLING_SLUG = "data-handling";
 
 export type CtoDemoHowItWorksTriggerProps = {
   readonly variant?: "button" | "link";
@@ -30,7 +30,7 @@ export type CtoDemoHowItWorksTriggerProps = {
 export function CtoDemoHowItWorksTrigger(props: CtoDemoHowItWorksTriggerProps): React.JSX.Element {
   const { variant = "button", focusSection, trigger: customTrigger } = props;
   const [open, setOpen] = useState(false);
-  const entry = getProductDocumentationEntry(HOW_IT_WORKS_SLUG);
+  const entry = getProductDocumentationEntry(DATA_HANDLING_SLUG);
 
   const defaultTrigger =
     variant === "link" ? (
@@ -69,14 +69,16 @@ export function CtoDemoHowItWorksTrigger(props: CtoDemoHowItWorksTriggerProps): 
         <HelpTopicMarkdownView
           entry={
             entry ?? {
-              slug: HOW_IT_WORKS_SLUG,
+              slug: DATA_HANDLING_SLUG,
               title: "What ArchLucid does with your data",
               summary: "",
               audience: "buyer",
+              contentKind: "product-help",
               sourcePaths: [],
+              pdfStatus: "public",
             }
           }
-          markdown={HOW_IT_WORKS_MARKDOWN}
+          markdown={DATA_HANDLING_MARKDOWN}
         />
       </DialogContent>
     </Dialog>

@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Button } from "@/components/ui/button";
+import { AUDIT_TRAIL_ACTIVE_FILTER_CLEAR } from "@/lib/audit-trail-page-copy";
 
 export type AuditActiveFilterChip = {
   id: string;
@@ -42,7 +43,7 @@ export function AuditActiveFilterChips(props: AuditActiveFilterChipsProps): Reac
         </Button>
       ))}
       <Button type="button" variant="ghost" size="sm" className={cn("h-7", OPERATOR_TYPOGRAPHY.helper)} onClick={onClearAll}>
-        Clear all
+        {AUDIT_TRAIL_ACTIVE_FILTER_CLEAR}
       </Button>
     </div>
   );

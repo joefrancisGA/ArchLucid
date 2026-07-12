@@ -2,6 +2,10 @@ import type { Dispatch, SetStateAction } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { EvolutionPlanSnapshot } from "@/lib/evolution-plan-snapshot";
+import type {
+  ImpactPreviewBaselineOption,
+  ImpactPreviewComparisonScope,
+} from "@/lib/impact-preview-page-types";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
 
 export type EvolutionReviewPageViewModel = {
@@ -9,6 +13,11 @@ export type EvolutionReviewPageViewModel = {
   readonly candidates: EvolutionCandidateChangeSetResponse[];
   readonly selectedId: string | null;
   readonly setSelectedId: Dispatch<SetStateAction<string | null>>;
+  readonly selectedBaselineId: string | null;
+  readonly setSelectedBaselineId: Dispatch<SetStateAction<string | null>>;
+  readonly baselineOptions: readonly ImpactPreviewBaselineOption[];
+  readonly comparisonScope: ImpactPreviewComparisonScope;
+  readonly toggleComparisonScope: (key: keyof ImpactPreviewComparisonScope) => void;
   readonly detail: EvolutionResultsResponse | null;
   readonly listLoading: boolean;
   readonly detailLoading: boolean;

@@ -101,7 +101,7 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
-vi.mock("./policy-packs/_sections/load-policy-packs-page-data", () => ({
+vi.mock("./governance/policy-packs/_sections/load-policy-packs-page-data", () => ({
   loadPolicyPacksPageData: () =>
     Promise.resolve({
       packs: [],

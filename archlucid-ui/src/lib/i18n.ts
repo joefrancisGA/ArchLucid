@@ -41,13 +41,13 @@ export const ARCHITECTURE_REVIEW_LABELS = {
 
 /** `/reviews` index {@link OperatorPageHeader} title by shell mode (`RunsPageView`). */
 export const RUNS_LIST_PAGE_TITLES = {
-  buyerPolished: "Review Packages",
-  fullOperator: "Review Packages",
+  buyerPolished: "Architecture Packages",
+  fullOperator: "Architecture Packages",
 } as const;
 
 /** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). @deprecated Use `REVIEWS_HUB_PAGE_SUBTITLE`. */
 export const RUNS_LIST_PAGE_SUBTITLE =
-  "Create, resume, and inspect evidence-backed architecture review packages.";
+  "Start, resume, and inspect evidence-backed architecture review packages.";
 
 export const PIPELINE_STATUS_TOOLTIPS = {
   finalized: `The ${DOMAIN_TERMS.goldenManifest} is finalized and the architecture review is complete.`,
@@ -116,7 +116,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator-shell ROI dashboard (`/dashboard`); the standalone executive-chrome duplicate was retired (TB-608). */
   portfolioOverview: "Executive dashboard",
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
-  reviewPackage: "Review packages",
+  reviewPackage: "Architecture packages",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   /** Left nav destination for `/reviews/new` — creation intake (brief, diagram, document, optional cloud). */
   capture: CREATE_ARCHITECTURE_LABEL,
@@ -129,6 +129,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   pilotBaselines: "ROI baselines",
   scorecard: BUYER_TERMINOLOGY.reviewScorecard,
   alerts: "Alerts",
+  alertRules: "Alert rules",
   policyPacks: "Policy packs",
   governanceResolution: "Standards & rules",
   governanceWorkflow: "Approval queue",
@@ -149,7 +150,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   architectureAdvisory: "Advisory scans",
   recommendationTuning: "Recommendation tuning",
   pilotFeedback: BUYER_TERMINOLOGY.evaluationFeedback,
-  planning: "Planning",
+  planning: "Improvement planning",
   evolutionCandidates: "Impact preview",
   pilotValueReport: BUYER_TERMINOLOGY.evaluationValueReport,
   roiReport: "ROI report",
@@ -173,9 +174,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
 
 /** Customer-facing copy for `/integrations/cloud-connections`. */
 export const CLOUD_CONNECTIONS_PAGE_COPY = {
-  lead:
-    "Cloud connections are optional. Connect Azure, AWS, or GCP for scheduled read-only evidence collection, or create reviews from briefs, diagrams, documents, and uploaded ZIPs alone.",
-  automatedConnectionsSectionHeading: "Automated connections",
+  lead: "Connect cloud providers for read-only evidence collection, or run evidence-only reviews from briefs, diagrams, documents, and IaC exports.",
+  automatedConnectionsSectionHeading: "Connection options",
   azureSectionHeading: "Azure",
   awsSectionHeading: "AWS",
   gcpSectionHeading: "GCP",

@@ -38,7 +38,7 @@ describe("PreCommitGovernanceBlockPanel", () => {
 
     expect(screen.getByTestId("pre-commit-governance-block-troubleshooting-link")).toHaveAttribute(
       "href",
-      "/help/troubleshooting#7-commit-409-governance-pre-commit-blocked",
+      "/help/troubleshooting#governance-pre-commit-blocked",
     );
 
     expect(screen.getByTestId("pre-commit-governance-block-audit-link")).toHaveAttribute(

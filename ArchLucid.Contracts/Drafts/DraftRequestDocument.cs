@@ -104,4 +104,14 @@ public sealed class DraftRequestDocument
         get;
         set;
     }
+
+    /// <summary>
+    ///     Homepage workflow intent copied to <see cref="Requests.ArchitectureRequest.WorkflowIntent" /> on submit.
+    /// </summary>
+    [JsonPropertyName("workflowIntent")]
+    public string? WorkflowIntent
+    {
+        get;
+        set;
+    }
 }

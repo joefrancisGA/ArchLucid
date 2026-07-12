@@ -28,6 +28,8 @@ export type NavLinkItem = {
   keyShortcut?: string;
   /** Optional icon for sidebar and mobile drawer. */
   icon?: LucideIcon;
+  /** Optional badge shown beside the label (e.g. Preview). */
+  navBadge?: string;
 };
 
 /**

@@ -77,7 +77,7 @@ vi.mock("./recommendation-learning/_sections/load-recommendation-learning-page-d
     }),
 }));
 
-vi.mock("./governance-resolution/_sections/load-governance-resolution-page-data", () => ({
+vi.mock("./governance/resolution/_sections/load-governance-resolution-page-data", () => ({
   loadGovernanceResolutionPageData: () =>
     Promise.resolve({
       data: {
@@ -100,7 +100,7 @@ vi.mock("./governance-resolution/_sections/load-governance-resolution-page-data"
     }),
 }));
 
-vi.mock("./policy-packs/_sections/load-policy-packs-page-data", () => ({
+vi.mock("./governance/policy-packs/_sections/load-policy-packs-page-data", () => ({
   loadPolicyPacksPageData: () =>
     Promise.resolve({
       packs: [],
@@ -167,7 +167,7 @@ import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscript
 
 import AskPage from "./ask/page";
 import EvolutionReviewPage from "./evolution-review/page";
-import GovernanceResolutionPage from "./governance-resolution/page";
+import GovernanceResolutionPage from "./governance/resolution/page";
 import OnboardingPage from "./onboarding/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
 import PlanningPage from "./planning/page";
@@ -182,9 +182,9 @@ import SearchPage from "./search/page";
  * Alert surfaces: bodies live in `@/components/alerts/*Content`; the `/alerts` route is the tabbed hub.
  */
 describe("operator client pages — render gate", () => {
-  it("Alerts inbox content renders primary heading", () => {
+  it("Alerts inbox content renders summary row", () => {
     render(<AlertsInboxContent />);
-    expect(screen.getByTestId("alerts-inbox-count-label")).toBeInTheDocument();
+    expect(screen.getByTestId("alerts-inbox-summary-row")).toBeInTheDocument();
   });
 
   it("Alert rules content renders primary heading", () => {
@@ -237,7 +237,7 @@ describe("operator client pages — render gate", () => {
   it("PlanningPage renders primary heading", async () => {
     const page = await PlanningPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Planning" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Improvement planning" })).toBeInTheDocument();
   });
 
   it("PlanningPage does not render internal codename '59R' in user-visible output", async () => {

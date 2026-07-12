@@ -10,24 +10,49 @@ import {
   applyAlertAction,
   archiveAlert,
   fetchAlertActionLoop,
+  listAlertRules,
   listAlertsPaged,
 } from "@/lib/api";
+import { listRunsByProjectPaged } from "@/lib/api/architecture-runs";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  countBlockingAlerts,
+  resolveLastEvaluatedUtc,
+  type AlertsInboxSummaryCounts,
+} from "@/lib/alerts-inbox-summary";
+import {
+  ALERTS_INBOX_DEFAULT_PROJECT_ID,
+  type AlertsInboxWorkspaceContext,
+} from "@/lib/alerts-inbox-workspace-context";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
 import { useNavSurface } from "@/lib/use-nav-surface";
-import type { AlertsInboxPageModel } from "@/app/(operator)/alerts/_sections/alerts-inbox-page-model";
+import type { AlertsInboxPageModel } from "@/app/(operator)/governance/alerts/_sections/alerts-inbox-page-model";
 import {
   ALERTS_INBOX_ALL_STATUSES_VALUE,
   ALERTS_INBOX_PAGE_SIZE,
-} from "@/app/(operator)/alerts/_sections/load-alerts-inbox-page-model";
+} from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import type { AlertActionLoopDto } from "@/types/operate-rhythm";
 import type { AlertRecord } from "@/types/alerts";
 
 type PendingActionState = {
   alertId: string;
   action: AlertActionKind;
+};
+
+const EMPTY_SUMMARY: AlertsInboxSummaryCounts = {
+  open: 0,
+  acknowledged: 0,
+  resolved: 0,
+  blocking: 0,
+  lastEvaluatedUtc: null,
+};
+
+const EMPTY_WORKSPACE_CONTEXT: AlertsInboxWorkspaceContext = {
+  hasReviews: false,
+  hasAlertRules: false,
+  loading: true,
 };
 
 export function useAlertsInboxController(initialModel: AlertsInboxPageModel | null) {
@@ -50,6 +75,13 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
   const [selectedAlertIds, setSelectedAlertIds] = useState<string[]>([]);
   const [batchAckBusy, setBatchAckBusy] = useState(false);
   const [archiveBusyAlertId, setArchiveBusyAlertId] = useState<string | null>(null);
+  const [summaryCounts, setSummaryCounts] = useState<AlertsInboxSummaryCounts>(() => ({
+    ...EMPTY_SUMMARY,
+    open: initialModel?.status === "Open" ? initialModel.totalCount : 0,
+  }));
+  const [summaryLoading, setSummaryLoading] = useState(initialModel === null);
+  const [workspaceContext, setWorkspaceContext] = useState<AlertsInboxWorkspaceContext>(EMPTY_WORKSPACE_CONTEXT);
+  const [lastRefreshedUtc, setLastRefreshedUtc] = useState<string | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / ALERTS_INBOX_PAGE_SIZE));
 
@@ -65,6 +97,67 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
 
   const allVisibleSelected =
     visibleAlerts.length > 0 && selectedOnPageCount === visibleAlerts.length;
+
+  const loadWorkspaceContext = useCallback(async (): Promise<void> => {
+    setWorkspaceContext((prev) => ({ ...prev, loading: true }));
+
+    try {
+      const [rules, runs] = await Promise.all([
+        listAlertRules(),
+        listRunsByProjectPaged(ALERTS_INBOX_DEFAULT_PROJECT_ID, 1, 1),
+      ]);
+
+      setWorkspaceContext({
+        hasReviews: runs.totalCount > 0,
+        hasAlertRules: rules.length > 0,
+        loading: false,
+      });
+    } catch {
+      setWorkspaceContext({
+        hasReviews: false,
+        hasAlertRules: false,
+        loading: false,
+      });
+    }
+  }, []);
+
+  const loadSummaryCounts = useCallback(async (): Promise<void> => {
+    setSummaryLoading(true);
+
+    try {
+      const [openPage, acknowledgedPage, resolvedPage, recentPage] = await Promise.all([
+        listAlertsPaged("Open", 1, 1),
+        listAlertsPaged("Acknowledged", 1, 1),
+        listAlertsPaged("Resolved", 1, 1),
+        listAlertsPaged(null, 1, 1),
+      ]);
+
+      let blocking = 0;
+      let lastEvaluatedUtc = resolveLastEvaluatedUtc(recentPage.items);
+
+      if (openPage.totalCount > 0) {
+        const openItemsPage = await listAlertsPaged("Open", 1, Math.min(openPage.totalCount, 100));
+        blocking = countBlockingAlerts(openItemsPage.items);
+        const openLast = resolveLastEvaluatedUtc(openItemsPage.items);
+
+        if (openLast !== null) {
+          lastEvaluatedUtc = openLast;
+        }
+      }
+
+      setSummaryCounts({
+        open: openPage.totalCount,
+        acknowledged: acknowledgedPage.totalCount,
+        resolved: resolvedPage.totalCount,
+        blocking,
+        lastEvaluatedUtc,
+      });
+    } catch {
+      setSummaryCounts(EMPTY_SUMMARY);
+    } finally {
+      setSummaryLoading(false);
+    }
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -93,6 +186,8 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
       if (data.totalCount > 0 && page > pages) {
         setPage(pages);
       }
+
+      setLastRefreshedUtc(new Date().toISOString());
     } catch (e) {
       if (shouldMergeOperatorDemoAlertSample()) {
         const statusFilter = status === ALERTS_INBOX_ALL_STATUSES_VALUE ? null : status;
@@ -105,13 +200,16 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
           setAlerts([]);
           setTotalCount(0);
         }
+
+        setLastRefreshedUtc(new Date().toISOString());
       } else {
         setFailure(toApiLoadFailure(e));
       }
     } finally {
       setLoading(false);
+      void loadSummaryCounts();
     }
-  }, [status, page]);
+  }, [status, page, loadSummaryCounts]);
 
   const matchesInitialSnapshot =
     initialModel !== null &&
@@ -125,6 +223,11 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
 
     void load();
   }, [initialModel, load, matchesInitialSnapshot]);
+
+  useEffect(() => {
+    void loadWorkspaceContext();
+    void loadSummaryCounts();
+  }, [loadSummaryCounts, loadWorkspaceContext]);
 
   const pageMixSummary = useMemo(() => {
     if (visibleAlerts.length === 0) {
@@ -144,7 +247,12 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     return parts.length > 0 ? parts.join(" · ") : null;
   }, [visibleAlerts]);
 
-  const emptyFilteredProps = useAlertsInboxEmptyFilteredProps(buyerPolishedShell, canMutateAlertInbox);
+  const emptyFilteredProps = useAlertsInboxEmptyFilteredProps(
+    buyerPolishedShell,
+    canMutateAlertInbox,
+    workspaceContext,
+    status,
+  );
 
   const act = useCallback(
     async (alertId: string, action: AlertActionKind, comment: string) => {
@@ -308,6 +416,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     closeActionLoopDialog,
     emptyFilteredProps,
     failure,
+    lastRefreshedUtc,
     loading,
     onAcknowledgeSelected,
     onArchiveAlert,
@@ -321,11 +430,14 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     setActionComment,
     setPage,
     status,
+    summaryCounts,
+    summaryLoading,
     toggleAlertSelected,
     toggleSelectAllVisible,
     totalCount,
     totalPages,
     visibleAlerts,
+    workspaceContext,
     load,
   };
 }

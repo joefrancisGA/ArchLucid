@@ -6,34 +6,23 @@ import { describe, expect, it } from "vitest";
 
 const sectionsDir = dirname(fileURLToPath(import.meta.url));
 const pageViewSource = readFileSync(join(sectionsDir, "RunDetailPageView.tsx"), "utf8");
-const summaryHeaderSource = readFileSync(join(sectionsDir, "ReviewPackageSummaryHeader.tsx"), "utf8");
+const workspaceChromeSource = readFileSync(join(sectionsDir, "RunDetailWorkspaceChrome.tsx"), "utf8");
 
-describe("ReviewPackageSummaryHeader integration", () => {
-  it("is the single render site for the four former summary widgets on RunDetailPageView", () => {
-    expect(pageViewSource).toContain("<ReviewPackageSummaryHeader");
-    expect(pageViewSource).not.toContain("<RunDetailPageHeader");
-    expect(pageViewSource).not.toContain("<ReviewPackagePlainSummary");
-    expect(pageViewSource).not.toContain("<ReviewPackageEvidenceDensityStrip");
-    expect(pageViewSource).toMatch(/outcomeCards=\{outcomeCardsEl\}/);
-    expect(pageViewSource).not.toMatch(/>\s*\{outcomeCardsEl\}\s*</);
+describe("Run detail workspace header integration", () => {
+  it("uses workspace header and summary strip on RunDetailPageView", () => {
+    expect(pageViewSource).toContain("<RunDetailWorkspaceHeader");
+    expect(pageViewSource).toContain("<RunDetailWorkspaceSummaryStrip");
+    expect(pageViewSource).not.toContain("<ReviewPackageSummaryHeader");
   });
 
-  it("branches explicitly on draft vs finalized mode", () => {
-    expect(summaryHeaderSource).toContain('data-review-package-summary-mode={props.mode}');
-    expect(summaryHeaderSource).toContain('props.mode === "finalized"');
+  it("exposes customer-facing review metadata without internal ids in workspace header", () => {
+    expect(workspaceChromeSource).toContain("data-testid=\"run-detail-workspace-header\"");
+    expect(workspaceChromeSource).toContain("Review status");
+    expect(workspaceChromeSource).not.toContain("runId");
   });
 
-  it("composes the retired widgets inside the summary header section", () => {
-    expect(summaryHeaderSource).toContain("<RunDetailPageHeader");
-    expect(summaryHeaderSource).toContain("<ReviewPackagePlainSummary");
-    expect(summaryHeaderSource).toContain("<ReviewPackageEvidenceDensityStrip");
-    expect(summaryHeaderSource).toContain("review-package-attention-line");
-    expect(summaryHeaderSource).toContain("<ReviewPackagePrimaryAction");
-    expect(summaryHeaderSource).toContain("demoteHeaderFinalizeButton");
-  });
-
-  it("uses shared operator layout spacing tokens (TB-621)", () => {
-    expect(summaryHeaderSource).toContain("OPERATOR_LAYOUT.sectionStack");
+  it("uses shared operator layout spacing tokens", () => {
+    expect(workspaceChromeSource).toContain("OPERATOR_LAYOUT.sectionStack");
     expect(pageViewSource).toContain("OPERATOR_LAYOUT.sectionStack");
   });
 });

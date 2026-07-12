@@ -1,4 +1,10 @@
-export type CronSchedulePresetId = "daily-7utc" | "hourly" | "daily" | "weekly" | "custom";
+export type CronSchedulePresetId =
+  | "daily-7utc"
+  | "weekly-monday-8utc"
+  | "hourly"
+  | "daily"
+  | "weekly"
+  | "custom";
 
 export type CronSchedulePreset = {
   id: Exclude<CronSchedulePresetId, "custom">;
@@ -13,6 +19,12 @@ export const CRON_SCHEDULE_PRESETS: readonly CronSchedulePreset[] = [
     label: "Daily at 07:00 UTC",
     expression: "0 7 * * *",
     description: "Once per day at 07:00 UTC (recommended).",
+  },
+  {
+    id: "weekly-monday-8utc",
+    label: "Weekly on Monday at 08:00 UTC",
+    expression: "0 8 * * 1",
+    description: "Once per week on Monday at 08:00 UTC.",
   },
   {
     id: "hourly",

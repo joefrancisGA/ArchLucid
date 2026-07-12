@@ -228,6 +228,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateAutoRetryTests
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         ExecuteRunResult result = await sut.ExecuteRunAsync(runId);

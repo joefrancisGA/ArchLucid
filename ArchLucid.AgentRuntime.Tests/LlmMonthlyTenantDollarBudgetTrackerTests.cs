@@ -278,6 +278,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
             costEstimator,
             repository,
             new NoOpLlmTenantWalletService(),
+            new PassthroughTenantLlmMonthlyBudgetCapResolver(),
             effectiveConfiguration,
             effectiveHostEnvironment,
             timeProvider ?? TimeProvider.System);

@@ -10,9 +10,11 @@ import {
 describe("help-search-panel-catalog", () => {
   it("recommends first-review topics on overview", () => {
     expect(recommendedHelpSearchPanelTopicIds("/")).toEqual([
+      "getting-started-help",
+      "how-archlucid-works",
       "first-review-guide",
+      "product-faq",
       "create-first-review",
-      "sample-review",
     ]);
   });
 
@@ -20,6 +22,8 @@ describe("help-search-panel-catalog", () => {
     expect(recommendedHelpSearchPanelTopicIds("/integrations/cloud-connections")).toEqual([
       "cloud-connections",
       "connect-azure",
+      "connect-aws",
+      "connect-gcp",
       "troubleshoot",
     ]);
   });

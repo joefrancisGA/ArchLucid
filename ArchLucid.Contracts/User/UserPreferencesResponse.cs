@@ -8,4 +8,11 @@ public sealed class UserPreferencesResponse
         get;
         set;
     } = AppearancePreferenceValues.Default;
+
+    /// <summary>True when the user has an explicit stored appearance preference row.</summary>
+    public bool AppearancePreferenceIsExplicit
+    {
+        get;
+        set;
+    }
 }

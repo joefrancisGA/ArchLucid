@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { OperateAnalysisNavGroupBuilder } from "@/lib/operate-analysis-nav-group-builder";
-import { OperateArchitectAdvancedNavGroupBuilder } from "@/lib/operate-architect-advanced-nav-group-builder";
+import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
 
 describe("OperateAnalysisNavGroupBuilder", () => {
   it("uses Insights group label and caption (TB-525)", () => {
@@ -20,7 +20,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     expect(graphLink?.keyShortcut).toBe("alt+y");
   });
 
-  it("lists Review scorecard last in Insights nav", () => {
+  it("lists Pattern library last in Insights nav when preview is enabled", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.href)).toEqual([
@@ -28,15 +28,24 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/ask",
       "/search",
       "/compare",
+      "/evolution-review",
       "/scorecard",
+      "/patterns",
     ]);
-    expect(group.links.at(-1)?.label).toBe("Review scorecard");
+    expect(group.links.at(-1)?.label).toBe("Pattern library");
+    expect(group.links.at(-1)?.navBadge).toBe("Preview");
+  });
+
+  it("lists Review scorecard before Pattern library in Insights nav", () => {
+    const group = new OperateAnalysisNavGroupBuilder().build();
+
+    expect(group.links.at(-2)?.label).toBe("Review scorecard");
   });
 });
 
-describe("OperateArchitectAdvancedNavGroupBuilder", () => {
+describe("OperateGovernanceNavGroupBuilder", () => {
   it("labels advisory nav as Advisory scans (TB-529)", () => {
-    const group = new OperateArchitectAdvancedNavGroupBuilder().build();
+    const group = new OperateGovernanceNavGroupBuilder().build();
     const advisoryLink = group.links.find((link) => link.href === "/advisory");
 
     expect(advisoryLink?.label).toBe("Advisory scans");

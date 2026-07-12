@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Diagnostics;
 
 using ArchLucid.Application.Agents.Evidence;
+using ArchLucid.Application.AiUsage;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
@@ -12,6 +13,7 @@ using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.AiUsage;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Metadata;
@@ -58,6 +60,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IRunStateTransitionService runStateTransitionService,
     IRunEngineProvenanceCaptureService runEngineProvenanceCaptureService,
     TechnologyLedgerTopologyProposalSeeder technologyLedgerTopologyProposalSeeder,
+    DemoExpensiveActionGate demoExpensiveActionGate,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -117,6 +120,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private readonly TechnologyLedgerTopologyProposalSeeder _technologyLedgerTopologyProposalSeeder =
         technologyLedgerTopologyProposalSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerTopologyProposalSeeder));
+
+    private readonly DemoExpensiveActionGate _demoExpensiveActionGate =
+        demoExpensiveActionGate ?? throw new ArgumentNullException(nameof(demoExpensiveActionGate));
 
     /// <inheritdoc/>
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -240,6 +246,13 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
         if (idempotent is not null)
             return idempotent;
+
+        Guid tenantId = scopeContextProvider.GetCurrentScope().TenantId;
+
+        await _demoExpensiveActionGate
+            .EnsureExpensiveActionAllowedAsync(tenantId, AiUsageFeature.ArchitectureGeneration, cancellationToken)
+            .ConfigureAwait(false);
+
         await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunStarted, actor, runId, null, cancellationToken);
         try
         {
@@ -277,7 +290,10 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
             try
             {
-                results = await agentExecutor.ExecuteAsync(runId, request, evidence, tasks, cancellationToken);
+                using (AmbientAiUsageFeatureScope.Push(AiUsageFeature.ArchitectureGeneration))
+                {
+                    results = await agentExecutor.ExecuteAsync(runId, request, evidence, tasks, cancellationToken);
+                }
             }
             catch (AgentRunPartialBudgetException partial)
                 when (_agentOutputQualityGateOptions.Value.PersistPartialOutputsOnBudgetExceeded &&
@@ -598,8 +614,13 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
         AgentTask retryTask = BuildQualityGateRetryTask(task, agentType);
 
-        IReadOnlyList<AgentResult> retryBatch =
-            await _agentExecutor.ExecuteAsync(runId, request, evidence, [retryTask], cancellationToken);
+        IReadOnlyList<AgentResult> retryBatch;
+
+        using (AmbientAiUsageFeatureScope.Push(AiUsageFeature.ArchitectureGeneration))
+        {
+            retryBatch =
+                await _agentExecutor.ExecuteAsync(runId, request, evidence, [retryTask], cancellationToken);
+        }
 
         if (retryBatch.Count == 0)
         {

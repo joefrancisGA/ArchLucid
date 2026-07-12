@@ -104,10 +104,11 @@ describe("WelcomeMarketingPage", () => {
     expect(selfDemoAnchor.compareDocumentPosition(walkthroughAnchor) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(walkthroughAnchor.compareDocumentPosition(earlyAccessControl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    expect(screen.getByRole("link", { name: /bulk upload limit \(30 files\)/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /how many files can i upload\?/i })).toHaveAttribute(
       "href",
-      "/faq#bulk-upload-30-files",
+      "/faq#how-many-files-upload",
     );
     expect(screen.getByRole("link", { name: /^demo workspaces$/i })).toHaveAttribute("href", "/faq#demo-workspaces");
+    expect(screen.getByRole("link", { name: /^product faq$/i })).toHaveAttribute("href", "/faq");
   });
 });

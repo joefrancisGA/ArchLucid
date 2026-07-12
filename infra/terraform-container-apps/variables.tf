@@ -159,7 +159,7 @@ variable "ui_min_replicas" {
 variable "ui_max_replicas" {
   type        = number
   description = "Maximum Operator UI replicas."
-  default     = 3
+  default     = 6
 }
 
 variable "api_scale_concurrent_requests" {
@@ -171,7 +171,7 @@ variable "api_scale_concurrent_requests" {
 variable "ui_scale_concurrent_requests" {
   type        = number
   description = "HTTP scale rule for the UI container app."
-  default     = 20
+  default     = 10
 }
 
 variable "api_cpu" {
@@ -497,7 +497,7 @@ variable "secondary_ui_min_replicas" {
 variable "secondary_ui_max_replicas" {
   type        = number
   description = "Maximum UI replicas in the secondary region."
-  default     = 3
+  default     = 6
 }
 
 variable "secondary_read_replica_connection_string" {

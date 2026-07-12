@@ -10,6 +10,8 @@ if str(_REPO_ROOT / "scripts" / "ci") not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT / "scripts" / "ci"))
 
 from archlucid_ui_route_traffic_table import (  # noqa: E402
+    DOC,
+    OWNER_DOC,
     format_overall_weight_total,
     parse_rows,
     sort_key,
@@ -58,4 +60,10 @@ def test_overall_weight_total() -> None:
         {"pct": "3%", "score": "74"},
         {"pct": "4%", "score": "78"},
     ]
-    assert format_overall_weight_total(rows) == "534"
+    assert format_overall_weight_total(rows) == "76.29%"
+
+
+def test_default_doc_points_at_owner_workbook() -> None:
+    assert DOC == OWNER_DOC
+    assert OWNER_DOC.name == "ui_route_traffic_estimates.md"
+    assert ".local" in OWNER_DOC.as_posix()

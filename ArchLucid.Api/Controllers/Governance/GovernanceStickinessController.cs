@@ -338,8 +338,33 @@ public sealed class GovernanceStickinessController(
         if (request.SourceRunId == Guid.Empty)
             return this.BadRequestProblem("Source run id is required.", ProblemTypes.ValidationFailed);
 
+        if (!request.IsEnabled.HasValue)
+        {
+            return this.BadRequestProblem(
+                "isEnabled is required. Set true to activate recurring assessments or false to save paused.",
+                ProblemTypes.ValidationFailed);
+        }
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         DateTime now = TimeProvider.System.UtcNowDateTime();
+        string cronExpression = string.IsNullOrWhiteSpace(request.CronExpression) ? "0 8 * * 1" : request.CronExpression.Trim();
+
+        if (!recurrenceNextRunCalculator.IsSupportedCronExpression(cronExpression))
+        {
+            return this.BadRequestProblem(
+                RecurrenceScheduleCronValidation.InvalidCronMessage,
+                ProblemTypes.ValidationFailed);
+        }
+
+        DateTime? nextRunUtc = recurrenceNextRunCalculator.ComputeNextRunUtc(cronExpression, now);
+
+        if (nextRunUtc is null)
+        {
+            return this.BadRequestProblem(
+                RecurrenceScheduleCronValidation.InvalidCronMessage,
+                ProblemTypes.ValidationFailed);
+        }
+
         ArchitectureReviewRecurrenceSchedule schedule = new()
         {
             ScheduleId = Guid.NewGuid(),
@@ -348,13 +373,11 @@ public sealed class GovernanceStickinessController(
             ProjectId = scope.ProjectId,
             SourceRunId = request.SourceRunId,
             Name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim(),
-            CronExpression = string.IsNullOrWhiteSpace(request.CronExpression) ? "0 8 * * 1" : request.CronExpression.Trim(),
-            IsEnabled = request.IsEnabled,
+            CronExpression = cronExpression,
+            IsEnabled = request.IsEnabled.Value,
             CreatedUtc = now,
             CreatedByUserId = actorContext.GetActorId(),
-            NextRunUtc = recurrenceNextRunCalculator.ComputeNextRunUtc(
-                string.IsNullOrWhiteSpace(request.CronExpression) ? "0 8 * * 1" : request.CronExpression.Trim(),
-                now),
+            NextRunUtc = nextRunUtc,
         };
 
         await recurrenceScheduleRepository.CreateAsync(schedule, cancellationToken);
@@ -394,6 +417,55 @@ public sealed class GovernanceStickinessController(
         return Ok(schedules);
     }
 
+    [HttpPost("recurrence-schedules/preview-next-runs")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Read-only recurrence schedule preview; no schedule persisted.")]
+    [ProducesResponseType(typeof(PreviewRecurrenceScheduleRunsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult PreviewRecurrenceScheduleRuns(
+        [FromBody] PreviewRecurrenceScheduleRunsRequest? request)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (request.Count is < 1 or > 20)
+        {
+            return this.BadRequestProblem("Count must be between 1 and 20.", ProblemTypes.ValidationFailed);
+        }
+
+        string cronExpression = (request.CronExpression ?? string.Empty).Trim();
+
+        if (!recurrenceNextRunCalculator.IsSupportedCronExpression(cronExpression))
+        {
+            return Ok(new PreviewRecurrenceScheduleRunsResponse
+            {
+                IsValid = false,
+                ValidationError = RecurrenceScheduleCronValidation.InvalidCronMessage,
+                NextRunUtc = Array.Empty<DateTime>(),
+            });
+        }
+
+        DateTime fromUtc = request.FromUtc ?? TimeProvider.System.UtcNowDateTime();
+        IReadOnlyList<DateTime> nextRuns =
+            recurrenceNextRunCalculator.ComputeNextRunsUtc(cronExpression, fromUtc, request.Count);
+
+        if (nextRuns.Count == 0)
+        {
+            return Ok(new PreviewRecurrenceScheduleRunsResponse
+            {
+                IsValid = false,
+                ValidationError = RecurrenceScheduleCronValidation.InvalidCronMessage,
+                NextRunUtc = Array.Empty<DateTime>(),
+            });
+        }
+
+        return Ok(new PreviewRecurrenceScheduleRunsResponse
+        {
+            IsValid = true,
+            NextRunUtc = nextRuns,
+        });
+    }
+
     [HttpPut("recurrence-schedules/{scheduleId:guid}")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ArchitectureReviewRecurrenceSchedule), StatusCodes.Status200OK)]
@@ -431,11 +503,28 @@ public sealed class GovernanceStickinessController(
         if (!string.IsNullOrWhiteSpace(request.CronExpression))
         {
             cron = request.CronExpression.Trim();
+
+            if (!recurrenceNextRunCalculator.IsSupportedCronExpression(cron))
+            {
+                return this.BadRequestProblem(
+                    RecurrenceScheduleCronValidation.InvalidCronMessage,
+                    ProblemTypes.ValidationFailed);
+            }
+
             existing.CronExpression = cron;
         }
 
         DateTime updateNow = TimeProvider.System.GetUtcNow().UtcDateTime;
-        existing.NextRunUtc = recurrenceNextRunCalculator.ComputeNextRunUtc(cron, updateNow);
+        DateTime? nextRunUtc = recurrenceNextRunCalculator.ComputeNextRunUtc(cron, updateNow);
+
+        if (nextRunUtc is null)
+        {
+            return this.BadRequestProblem(
+                RecurrenceScheduleCronValidation.InvalidCronMessage,
+                ProblemTypes.ValidationFailed);
+        }
+
+        existing.NextRunUtc = nextRunUtc;
 
         await recurrenceScheduleRepository.UpdateAsync(existing, cancellationToken);
 

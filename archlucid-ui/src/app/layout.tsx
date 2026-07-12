@@ -4,7 +4,10 @@ import type { ReactNode } from "react";
 import { MARKETING_ROOT_OG_DESCRIPTION } from "@/lib/marketing-open-graph";
 import { PERSONA_SHELL_DEFAULT_DOCUMENT_TITLE } from "@/lib/persona-shell-vocabulary";
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
+import { buildColorModeBootstrapInlineScript } from "@/lib/color-mode-bootstrap";
 import { resolveAuthorityThemeFromEnv } from "@/lib/ui-authority-theme";
+
+import { ColorModePreferenceProvider } from "@/components/ColorModePreferenceProvider";
 
 import "./globals.css";
 
@@ -55,13 +58,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html:
-              `(function(){try{var colorKey='archlucid_color_mode';var mode=localStorage.getItem(colorKey)||'system';var dark=mode==='dark'||(mode!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',dark);var themeKey='archlucid_authority_theme';var def='${authorityThemeEnvDefault}';var theme=localStorage.getItem(themeKey);if(theme!=='charcoal'&&theme!=='default'){theme=def;}document.documentElement.setAttribute('data-al-authority-theme',theme==='charcoal'?'charcoal':'default');}catch(e){}})();`,
+            __html: buildColorModeBootstrapInlineScript(authorityThemeEnvDefault),
           }}
         />
       </head>
       <body className="min-h-screen font-sans">
-        {children}
+        <ColorModePreferenceProvider>{children}</ColorModePreferenceProvider>
       </body>
     </html>
   );

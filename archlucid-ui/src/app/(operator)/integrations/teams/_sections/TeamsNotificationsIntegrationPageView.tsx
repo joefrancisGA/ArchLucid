@@ -1,57 +1,86 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-import { describeTeamsNotificationTrigger } from "./teams-integration-trigger-descriptions";
-import type { TeamsNotificationsIntegrationPageViewModel } from "./teams-notifications-integration-view-model";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import {
+  TEAMS_INTEGRATION_CONNECT_SECTION_LEAD,
+  TEAMS_INTEGRATION_CONNECT_SECTION_TITLE,
+  TEAMS_INTEGRATION_DESTINATION_NAME_HELPER,
+  TEAMS_INTEGRATION_PAGE_SUBTITLE,
+  TEAMS_INTEGRATION_PAGE_TITLE,
+  TEAMS_INTEGRATION_SECRET_EXAMPLE,
+  TEAMS_INTEGRATION_SECRET_HELPER,
+  teamsIntegrationConnectionStatusLabel,
+} from "@/lib/teams-integration-page-copy";
+import { cn } from "@/lib/utils";
+
+import { TeamsConnectionSummary } from "./TeamsConnectionSummary";
+import { TeamsIntegrationAside } from "./TeamsIntegrationAside";
+import { TeamsNotificationsSelector } from "./TeamsNotificationsSelector";
+import type { TeamsNotificationsIntegrationPageViewModel } from "./teams-notifications-integration-view-model";
 
 type Props = {
   readonly model: TeamsNotificationsIntegrationPageViewModel;
 };
 
-export function TeamsNotificationsIntegrationPageView(props: Props) {
+export function TeamsNotificationsIntegrationPageView(props: Props): React.ReactElement {
   const m = props.model;
 
   if (m.isDemo) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
         capability="Microsoft Teams integration"
-        description="In a connected tenant, administrators configure Microsoft Teams notification routing for governance events."
+        description="In a connected tenant, administrators can connect Microsoft Teams notifications using a Key Vault secret reference."
       />
     );
   }
 
-  return (
-    <div className="w-full max-w-3xl space-y-6">
-      <LayerHeader pageKey="teams-notifications" />
+  const destinationName =
+    m.label.trim().length > 0 ? m.label.trim() : m.secretName.trim().length > 0 ? m.secretName.trim() : "Teams channel";
 
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Microsoft Teams</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Register the{" "}
-          <strong>Key Vault secret name</strong> that holds your Teams incoming webhook URL. ArchLucid never stores the
-          webhook URL in SQL — Logic Apps or workers resolve the secret at delivery time. For custom HTTPS webhook routes,
-          use{" "}
-          <Link className={OPERATOR_LINK.nav} href="/integrations/webhooks">
-            Webhooks
-          </Link>
-          . See{" "}
-          <Link className={OPERATOR_LINK.nav} href="/help/troubleshooting">
-            Teams notifications help
-          </Link>
-          .
+  const validationMessage =
+    m.secretValidation !== null && m.secretValidation.outcome !== "invalid-name"
+      ? m.secretValidation.message
+      : null;
+  const validationKind = m.secretValidation === null ? null : m.secretValidation.outcome === "valid" ? "success" : "error";
+
+  return (
+    <div className="w-full max-w-[68rem] space-y-8 px-4 py-8 sm:px-6 lg:px-8" data-testid="integrations-teams-page">
+      <header className="space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{TEAMS_INTEGRATION_PAGE_TITLE}</h1>
+        <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          {TEAMS_INTEGRATION_PAGE_SUBTITLE}
         </p>
-      </div>
+        <p
+          className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+          data-testid="teams-connection-status"
+        >
+          {m.loading ? "Loading connection status…" : teamsIntegrationConnectionStatusLabel(m.connectionStatus)}
+        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("troubleshooting")}>
+            Microsoft Teams notification help
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
+            Integration readiness
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_SLACK_PATH}>
+            Slack notifications
+          </Link>
+        </p>
+      </header>
 
       {m.failure !== null ? (
         <div role="alert">
@@ -65,114 +94,153 @@ export function TeamsNotificationsIntegrationPageView(props: Props) {
 
       {m.loading && m.conn === null ? (
         <OperatorLoadingNotice>Loading Teams configuration…</OperatorLoadingNotice>
-      ) : m.conn !== null ? (
-        <div className="space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-          <p className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            Status:{" "}
-            <span className="font-medium">{m.conn.isConfigured ? "Configured (Key Vault reference)" : "Not configured"}</span>
-            {m.conn.isConfigured ? (
-              <span className="text-al-text-secondary">
-                {" "}
-                — updated {new Date(m.conn.updatedUtc).toLocaleString()}
-              </span>
+      ) : (
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start">
+          <div className={cn("min-w-0 space-y-8", !m.canMutate && "opacity-95")}>
+            {m.conn?.isConfigured === true ? (
+              <TeamsConnectionSummary
+                conn={m.conn}
+                destinationName={destinationName}
+                status={m.connectionStatus}
+                lastTestMessage={m.lastTestMessage}
+              />
             ) : null}
-          </p>
 
-          <div className="space-y-2">
-            <Label htmlFor="kv-secret">Key Vault secret name</Label>
-            <Input
-              id="kv-secret"
-              name="keyVaultSecretName"
-              value={m.secretName}
-              onChange={(e) => m.setSecretName(e.target.value)}
-              disabled={!m.canMutate || m.saving}
-              autoComplete="off"
-              placeholder="e.g. teams-incoming-webhook-prod"
-            />
-            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Must not be a raw URL (entries containing :// are rejected by the API).
-            </p>
+            <section aria-labelledby="teams-connect-heading" className="space-y-5">
+              <div>
+                <h2 id="teams-connect-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+                  {TEAMS_INTEGRATION_CONNECT_SECTION_TITLE}
+                </h2>
+                <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {TEAMS_INTEGRATION_CONNECT_SECTION_LEAD}
+                </p>
+              </div>
+
+              <div className="grid max-w-xl gap-5">
+                <div>
+                  <Label htmlFor="kv-secret">Key Vault secret name</Label>
+                  <Input
+                    id="kv-secret"
+                    name="keyVaultSecretName"
+                    value={m.secretName}
+                    onChange={(event) => m.setSecretName(event.target.value)}
+                    disabled={!m.canMutate || m.saving}
+                    autoComplete="off"
+                    placeholder="teams-governance-alerts-prod"
+                    aria-describedby="kv-secret-helper kv-secret-example kv-secret-error"
+                  />
+                  <p id="kv-secret-helper" className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {TEAMS_INTEGRATION_SECRET_HELPER}
+                  </p>
+                  <p id="kv-secret-example" className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {TEAMS_INTEGRATION_SECRET_EXAMPLE}
+                  </p>
+                  {m.secretValidation !== null && m.secretValidation.outcome === "invalid-name" ? (
+                    <p id="kv-secret-error" role="alert" className={cn("m-0 mt-1 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)}>
+                      {m.secretValidation.message}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div>
+                  <Label htmlFor="teams-destination-name">Destination name (optional)</Label>
+                  <Input
+                    id="teams-destination-name"
+                    name="label"
+                    value={m.label}
+                    onChange={(event) => m.setLabel(event.target.value)}
+                    disabled={!m.canMutate || m.saving}
+                    autoComplete="off"
+                    placeholder="Architecture governance"
+                    aria-describedby="teams-destination-name-helper"
+                  />
+                  <p id="teams-destination-name-helper" className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {TEAMS_INTEGRATION_DESTINATION_NAME_HELPER}
+                  </p>
+                </div>
+
+                <TeamsNotificationsSelector
+                  enabledTriggers={m.enabledTriggers}
+                  canMutate={m.canMutate}
+                  saving={m.saving}
+                  showValidationError={m.showTriggerValidationError}
+                  onToggle={m.toggleTrigger}
+                  onSelectRecommended={m.onSelectRecommended}
+                  onSelectAll={m.onSelectAll}
+                  onClearAll={m.onClearAll}
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="primary"
+                  disabled={!m.canMutate || m.saving}
+                  title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                  data-testid="teams-save-button"
+                  onClick={() => void m.onSave()}
+                >
+                  {m.conn?.isConfigured === true ? "Save changes" : "Save Teams connection"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!m.canMutate || m.saving || m.validating || m.secretName.trim().length === 0}
+                  onClick={() => void m.onValidateSecret()}
+                >
+                  {m.validating ? "Validating…" : "Validate secret"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!m.canMutate || m.saving || m.testing || !m.canSendTest}
+                  data-testid="teams-test-button"
+                  onClick={() => void m.onSendTest()}
+                >
+                  {m.testing ? "Sending test…" : "Send test notification"}
+                </Button>
+                {m.conn?.isConfigured === true ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={!m.canMutate || m.saving}
+                    onClick={() => void m.onRemove()}
+                  >
+                    Remove connection
+                  </Button>
+                ) : null}
+              </div>
+
+              {m.testMessage !== null && m.testKind !== null ? (
+                <p
+                  role={m.testKind === "error" ? "alert" : "status"}
+                  className={cn(
+                    "m-0",
+                    OPERATOR_TYPOGRAPHY.body,
+                    m.testKind === "error" ? "text-red-700 dark:text-red-300" : "text-teal-800 dark:text-teal-200",
+                  )}
+                  data-testid="teams-form-test-feedback"
+                >
+                  {m.testMessage}
+                </p>
+              ) : null}
+            </section>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="teams-label">Label (optional)</Label>
-            <Input
-              id="teams-label"
-              name="label"
-              value={m.label}
-              onChange={(e) => m.setLabel(e.target.value)}
-              disabled={!m.canMutate || m.saving}
-              autoComplete="off"
-              placeholder="Channel or team name"
-            />
-          </div>
-
-          <fieldset className="space-y-2">
-            <legend className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              Notification triggers
-            </legend>
-            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Select which integration events fan out to this Teams channel. The Logic Apps workflow filters server-side
-              before delivery, so disabled triggers cannot reach the channel even if upstream routing misbehaves.
-            </p>
-
-            <ul className="space-y-2">
-              {m.catalog.map((eventType) => {
-                const description = describeTeamsNotificationTrigger(eventType);
-                const checkboxId = `trigger-${eventType.replace(/\./g, "-")}`;
-                const checked = m.enabledTriggers.has(eventType);
-
-                return (
-                  <li key={eventType} className="flex items-start gap-2">
-                    <input
-                      id={checkboxId}
-                      type="checkbox"
-                      checked={checked}
-                      onChange={(e) => m.toggleTrigger(eventType, e.target.checked)}
-                      disabled={!m.canMutate || m.saving}
-                      className="mt-1 h-4 w-4 rounded border-neutral-300 text-blue-700 focus:ring-blue-500 dark:border-neutral-700"
-                      aria-describedby={`${checkboxId}-help`}
-                    />
-                    <div className="flex-1">
-                      <Label htmlFor={checkboxId} className="font-medium">
-                        {description.label}
-                      </Label>
-                      <p id={`${checkboxId}-help`} className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                        {description.helpText}
-                      </p>
-                      <p className={cn("font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{eventType}</p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </fieldset>
-
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              onClick={() => void m.onSave()}
-              disabled={!m.canMutate || m.saving || m.secretName.trim() === ""}
-            >
-              Save reference
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => void m.onRemove()}
-              disabled={!m.canMutate || m.saving || !m.conn.isConfigured}
-            >
-              Remove reference
-            </Button>
-          </div>
-
-          {!m.canMutate ? (
-            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Your role can view this page; saving requires elevated permissions (same as other Enterprise configuration
-              surfaces).
-            </p>
-          ) : null}
+          <TeamsIntegrationAside
+            validationMessage={validationMessage}
+            validationKind={validationKind}
+            testMessage={m.testMessage}
+            testKind={m.testKind}
+          />
         </div>
+      )}
+
+      {!m.canMutate ? (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Your role can view this page. Saving, validating, testing, and removing a connection require elevated
+          permissions.
+        </p>
       ) : null}
     </div>
   );

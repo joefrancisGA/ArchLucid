@@ -10,6 +10,7 @@ vi.mock("@/lib/demo-ui-env", () => ({
 vi.mock("@/lib/cto-demo-presenter-pack", () => ({
   isCtoDemoOperatorToolingEnv: () => true,
   isCtoDemoInternalOperatorControlsEnv: () => internalControlsForced.on,
+  isCtoDemoPackEnv: () => false,
 }));
 
 const internalControlsForced = vi.hoisted(() => ({ on: false as boolean }));
@@ -44,6 +45,12 @@ vi.mock("@/lib/buyer-cto-demo-readiness", () => ({
         label: "Five-step demo path",
         status: "pass",
         detail: "All journey routes resolve.",
+      },
+      {
+        id: "api-ready",
+        label: "API readiness",
+        status: "pass",
+        detail: "Live API is reachable.",
       },
     ],
   })),
@@ -80,5 +87,16 @@ describe("BuyerCtoDemoReadinessPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("buyer-cto-demo-run-of-show-download")).toBeInTheDocument();
     });
+  });
+
+  it("groups checks into sections on the internal admin layout", async () => {
+    render(<BuyerCtoDemoReadinessPanel layout="internal-page" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Demo experience" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Platform services" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("demo-readiness-last-checked")).toBeInTheDocument();
   });
 });

@@ -6,11 +6,36 @@
  * `docs/library/OPERATOR_UI_EXPERIENCE_MODES.md`). Demos (`NEXT_PUBLIC_DEMO_MODE` / `NEXT_PUBLIC_DEMO_STATIC_OPERATOR`)
  * stay buyer-polished regardless.
  */
+import {
+  readDevShellExperienceOverrideFromDocument,
+  type DevShellExperienceOverride,
+} from "@/lib/dev-testing-overrides";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
-export function isOperatorExperienceFullShellEnv(): boolean {
+
+function resolveOperatorExperienceFullShellFromBuildEnv(): boolean {
   const raw = (process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE ?? "").trim().toLowerCase();
 
   return raw === "operator";
+}
+
+/**
+ * Full operator shell density (nav metadata, shortcut chips, engineering chrome).
+ * In local development, a browser cookie override wins over the build-time env — see
+ * {@link DevTestingQuickSwitchPanel}.
+ */
+export function isOperatorExperienceFullShellEnv(override?: DevShellExperienceOverride | null): boolean {
+  const cookieOverride =
+    override !== undefined ? override : readDevShellExperienceOverrideFromDocument();
+
+  if (cookieOverride === "full-operator") {
+    return true;
+  }
+
+  if (cookieOverride === "buyer-polished") {
+    return false;
+  }
+
+  return resolveOperatorExperienceFullShellFromBuildEnv();
 }
 
 /**

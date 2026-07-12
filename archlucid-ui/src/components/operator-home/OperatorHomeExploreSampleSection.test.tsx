@@ -3,9 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeExploreSampleSection } from "@/components/operator-home/OperatorHomeExploreSampleSection";
 import {
+  OPERATOR_HOME_CREATION_EXAMPLE_TITLE,
   OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
   OPERATOR_HOME_EXPLORE_SAMPLE_LEAD,
-  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
+  OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE,
+  OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
@@ -14,9 +16,9 @@ import {
   reviewIntakeExampleTemplateHref,
 } from "@/lib/operator-home-example-request";
 import {
-  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
-  showcaseSampleReviewPackageHref,
-} from "@/lib/showcase-sample-review-registry";
+  SHOWCASE_SAMPLE_CREATED_REGISTRY,
+  showcaseSampleCreatedPackageHref,
+} from "@/lib/showcase-sample-created-registry";
 
 const committedReviewMock = vi.hoisted(() => ({ value: false }));
 
@@ -24,8 +26,15 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => committedReviewMock.value,
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
+
 describe("OperatorHomeExploreSampleSection", () => {
-  it("renders consolidated sample workspace actions for first-run tenants", () => {
+  it("renders secondary examples without duplicating the hero completed review", () => {
     committedReviewMock.value = false;
 
     render(<OperatorHomeExploreSampleSection />);
@@ -44,12 +53,15 @@ describe("OperatorHomeExploreSampleSection", () => {
     }
 
     expect(screen.getByText(OPERATOR_HOME_EXPLORE_SAMPLE_LEAD)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_CREATION_EXAMPLE_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE })).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-explore-open-completed-sample")).toBeNull();
 
-    expect(screen.getByTestId("operator-home-explore-open-completed-sample")).toHaveAttribute(
+    expect(screen.getByTestId("operator-home-explore-open-created-sample")).toHaveAttribute(
       "href",
-      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
+      showcaseSampleCreatedPackageHref(SHOWCASE_SAMPLE_CREATED_REGISTRY.runId),
     );
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA })).toBeInTheDocument();
 
     expect(screen.getByTestId("operator-home-explore-run-sample-review")).toHaveAttribute(
       "href",

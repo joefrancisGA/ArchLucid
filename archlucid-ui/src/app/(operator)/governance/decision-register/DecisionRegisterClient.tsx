@@ -1,14 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DecisionRegisterTimeline } from "@/components/DecisionRegisterTimeline";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   getArchitectureDecisionRegister,
   type ArchitectureDecisionRegisterEntry,
@@ -16,55 +14,155 @@ import {
 } from "@/lib/api/governance-stickiness-api";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { projectIdFromScopeHeaders } from "@/lib/operator-resource-scope";
-import {
-  BUYER_GOVERNANCE_DECISION_REGISTER_LEAD,
-  BUYER_GOVERNANCE_DECISION_REGISTER_TITLE,
-} from "@/lib/buyer-polish-copy";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { DECISION_REGISTER_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { BUYER_GOVERNANCE_DECISION_REGISTER_TITLE } from "@/lib/buyer-polish-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-const BUYER_CONFIDENCE_OPTIONS = ["Evidence-backed", "Model-assisted", "Unknown"] as const;
+import { DecisionRegisterDecisionCard } from "./DecisionRegisterDecisionCard";
+import { DecisionRegisterFiltersPanel } from "./DecisionRegisterFiltersPanel";
+import { DecisionRegisterSummaryRow } from "./DecisionRegisterSummaryRow";
+import { DecisionRegisterViewSwitcher, type DecisionRegisterViewMode } from "./DecisionRegisterViewSwitcher";
+import {
+  DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE,
+  DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES,
+  DECISION_REGISTER_EMPTY_ACTION_START_REVIEW,
+  DECISION_REGISTER_EMPTY_BODY,
+  DECISION_REGISTER_EMPTY_TITLE,
+  DECISION_REGISTER_FILTER_NO_MATCH_BODY,
+  DECISION_REGISTER_FILTER_NO_MATCH_TITLE,
+  DECISION_REGISTER_PAGE_SUBTITLE,
+  DECISION_REGISTER_VIEW_CARDS_PANEL_LABEL,
+  DECISION_REGISTER_VIEW_TIMELINE_PANEL_LABEL,
+} from "./decision-register-copy";
+import {
+  DEFAULT_DECISION_REGISTER_DATE_PRESET,
+  resolveDecisionRegisterDateRange,
+  type DecisionRegisterDatePreset,
+} from "./decision-register-date-range";
+import { deriveDecisionRegisterSummary } from "./decision-register-summary";
+
+const defaultDateRange = resolveDecisionRegisterDateRange(DEFAULT_DECISION_REGISTER_DATE_PRESET);
 
 export default function DecisionRegisterClient() {
-  const [decisions, setDecisions] = useState<ArchitectureDecisionRegisterEntry[]>([]);
+  const [workspaceDecisions, setWorkspaceDecisions] = useState<ArchitectureDecisionRegisterEntry[]>([]);
+  const [filteredDecisions, setFilteredDecisions] = useState<ArchitectureDecisionRegisterEntry[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingWorkspace, setLoadingWorkspace] = useState(true);
+  const [loadingFiltered, setLoadingFiltered] = useState(true);
   const [category, setCategory] = useState("");
-  const [recordedAfter, setRecordedAfter] = useState("");
-  const [recordedBefore, setRecordedBefore] = useState("");
+  const [recordedAfter, setRecordedAfter] = useState(defaultDateRange.recordedAfter);
+  const [recordedBefore, setRecordedBefore] = useState(defaultDateRange.recordedBefore);
+  const [datePreset, setDatePreset] = useState<DecisionRegisterDatePreset>(DEFAULT_DECISION_REGISTER_DATE_PRESET);
   const [minConfidence, setMinConfidence] = useState("");
   const [maxConfidence, setMaxConfidence] = useState("");
-  const [buyerConfidenceSource, setBuyerConfidenceSource] = useState("");
-  const [viewMode, setViewMode] = useState<"cards" | "timeline">("cards");
+  const [confidenceBasis, setConfidenceBasis] = useState("");
+  const [viewMode, setViewMode] = useState<DecisionRegisterViewMode>("cards");
 
   const filters = useMemo((): ArchitectureDecisionRegisterFilters => {
     const parsed: ArchitectureDecisionRegisterFilters = {};
 
-    if (category.trim().length > 0) parsed.category = category.trim();
-    if (recordedAfter.trim().length > 0) parsed.recordedAfterUtc = new Date(recordedAfter).toISOString();
-    if (recordedBefore.trim().length > 0) parsed.recordedBeforeUtc = new Date(recordedBefore).toISOString();
-    if (minConfidence.trim().length > 0) parsed.minConfidence = Number(minConfidence);
-    if (maxConfidence.trim().length > 0) parsed.maxConfidence = Number(maxConfidence);
-    if (buyerConfidenceSource.trim().length > 0) parsed.buyerConfidenceSource = buyerConfidenceSource.trim();
+    if (category.trim().length > 0) {
+      parsed.category = category.trim();
+    }
+
+    if (recordedAfter.trim().length > 0) {
+      parsed.recordedAfterUtc = new Date(recordedAfter).toISOString();
+    }
+
+    if (recordedBefore.trim().length > 0) {
+      parsed.recordedBeforeUtc = new Date(recordedBefore).toISOString();
+    }
+
+    if (minConfidence.trim().length > 0) {
+      parsed.minConfidence = Number(minConfidence);
+    }
+
+    if (maxConfidence.trim().length > 0) {
+      parsed.maxConfidence = Number(maxConfidence);
+    }
+
+    if (confidenceBasis.trim().length > 0) {
+      parsed.buyerConfidenceSource = confidenceBasis.trim();
+    }
 
     return parsed;
-  }, [buyerConfidenceSource, category, maxConfidence, minConfidence, recordedAfter, recordedBefore]);
+  }, [category, confidenceBasis, maxConfidence, minConfidence, recordedAfter, recordedBefore]);
+
+  const summary = useMemo(() => deriveDecisionRegisterSummary(workspaceDecisions), [workspaceDecisions]);
+  const collapseAdvancedFilters = workspaceDecisions.length === 0;
+  const loading = loadingWorkspace || loadingFiltered;
+  const hasWorkspaceDecisions = workspaceDecisions.length > 0;
+  const hasFilteredResults = filteredDecisions.length > 0;
+  const filtersExcludeMatches = hasWorkspaceDecisions && !hasFilteredResults && !loading && loadError === null;
+
+  const resetFilters = useCallback(() => {
+    const range = resolveDecisionRegisterDateRange(DEFAULT_DECISION_REGISTER_DATE_PRESET);
+    setCategory("");
+    setRecordedAfter(range.recordedAfter);
+    setRecordedBefore(range.recordedBefore);
+    setDatePreset(DEFAULT_DECISION_REGISTER_DATE_PRESET);
+    setMinConfidence("");
+    setMaxConfidence("");
+    setConfidenceBasis("");
+  }, []);
+
+  const applyDatePreset = useCallback((preset: DecisionRegisterDatePreset) => {
+    const range = resolveDecisionRegisterDateRange(preset);
+    setDatePreset(preset);
+    setRecordedAfter(range.recordedAfter);
+    setRecordedBefore(range.recordedBefore);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
 
     void (async () => {
-      setLoading(true);
+      setLoadingWorkspace(true);
+
+      try {
+        const projectId = projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders());
+        const response = await getArchitectureDecisionRegister(projectId);
+        if (!cancelled) {
+          setWorkspaceDecisions(response.decisions ?? []);
+        }
+      } catch (error: unknown) {
+        if (!cancelled) {
+          setWorkspaceDecisions([]);
+          setLoadError(error instanceof Error ? error.message : "Failed to load decision register.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingWorkspace(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      setLoadingFiltered(true);
       setLoadError(null);
 
       try {
         const projectId = projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders());
         const response = await getArchitectureDecisionRegister(projectId, filters);
-        if (!cancelled) setDecisions(response.decisions ?? []);
+        if (!cancelled) {
+          setFilteredDecisions(response.decisions ?? []);
+        }
       } catch (error: unknown) {
-        if (!cancelled) setLoadError(error instanceof Error ? error.message : "Failed to load decision register.");
+        if (!cancelled) {
+          setFilteredDecisions([]);
+          setLoadError(error instanceof Error ? error.message : "Failed to load decision register.");
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoadingFiltered(false);
+        }
       }
     })();
 
@@ -74,111 +172,39 @@ export default function DecisionRegisterClient() {
   }, [filters]);
 
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-4" data-testid="decision-register-page">
       <OperatorPageHeader
         title={BUYER_GOVERNANCE_DECISION_REGISTER_TITLE}
-        subtitle={BUYER_GOVERNANCE_DECISION_REGISTER_LEAD}
-        actions={
-          <div className="flex gap-2">
-            <Button type="button" variant={viewMode === "cards" ? "primary" : "outline"} size="sm" onClick={() => setViewMode("cards")}>
-              Cards
-            </Button>
-            <Button type="button" variant={viewMode === "timeline" ? "primary" : "outline"} size="sm" onClick={() => setViewMode("timeline")}>
-              Timeline
-            </Button>
-          </div>
-        }
+        subtitle={DECISION_REGISTER_PAGE_SUBTITLE}
+        actions={<DecisionRegisterViewSwitcher viewMode={viewMode} onViewModeChange={setViewMode} />}
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Filters</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-3">
-          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
-            <span className="font-medium">Category</span>
-            <input
-              className="rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-            />
-          </label>
-          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
-            <span className="font-medium">Recorded after</span>
-            <input
-              type="date"
-              className="rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-              value={recordedAfter}
-              onChange={(event) => setRecordedAfter(event.target.value)}
-            />
-          </label>
-          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
-            <span className="font-medium">Recorded before</span>
-            <input
-              type="date"
-              className="rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-              value={recordedBefore}
-              onChange={(event) => setRecordedBefore(event.target.value)}
-            />
-          </label>
-          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
-            <span className="font-medium">Min confidence</span>
-            <input
-              type="number"
-              min={0}
-              max={1}
-              step={0.01}
-              className="rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-              value={minConfidence}
-              onChange={(event) => setMinConfidence(event.target.value)}
-            />
-          </label>
-          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
-            <span className="font-medium">Max confidence</span>
-            <input
-              type="number"
-              min={0}
-              max={1}
-              step={0.01}
-              className="rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-              value={maxConfidence}
-              onChange={(event) => setMaxConfidence(event.target.value)}
-            />
-          </label>
-          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
-            <span className="font-medium">Buyer confidence source</span>
-            <select
-              className="rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-              value={buyerConfidenceSource}
-              onChange={(event) => setBuyerConfidenceSource(event.target.value)}
-            >
-              <option value="">Any</option>
-              {BUYER_CONFIDENCE_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="flex items-end">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setCategory("");
-                setRecordedAfter("");
-                setRecordedBefore("");
-                setMinConfidence("");
-                setMaxConfidence("");
-                setBuyerConfidenceSource("");
-              }}
-            >
-              Clear filters
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {!loadError ? <DecisionRegisterSummaryRow summary={summary} /> : null}
+
+      <DecisionRegisterFiltersPanel
+        category={category}
+        recordedAfter={recordedAfter}
+        recordedBefore={recordedBefore}
+        minConfidence={minConfidence}
+        maxConfidence={maxConfidence}
+        confidenceBasis={confidenceBasis}
+        datePreset={datePreset}
+        collapseAdvanced={collapseAdvancedFilters}
+        onCategoryChange={setCategory}
+        onRecordedAfterChange={(value) => {
+          setRecordedAfter(value);
+          setDatePreset("all");
+        }}
+        onRecordedBeforeChange={(value) => {
+          setRecordedBefore(value);
+          setDatePreset("all");
+        }}
+        onMinConfidenceChange={setMinConfidence}
+        onMaxConfidenceChange={setMaxConfidence}
+        onConfidenceBasisChange={setConfidenceBasis}
+        onDatePresetChange={applyDatePreset}
+        onClearFilters={resetFilters}
+      />
 
       {loading ? <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading decision register…</p> : null}
 
@@ -187,59 +213,52 @@ export default function DecisionRegisterClient() {
           testId="decision-register-load-error"
           title="Decision register unavailable"
           description={loadError}
-          actions={[{ label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" }]}
+          actions={[{ label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/reviews?projectId=default", variant: "primary" }]}
         />
       ) : null}
 
-      {!loading && !loadError && decisions.length === 0 ? (
-        <EnterpriseCompactEmptyState {...DECISION_REGISTER_EMPTY_COMPACT} />
+      {!loading && !loadError && !hasWorkspaceDecisions ? (
+        <EnterpriseCompactEmptyState
+          testId="decision-register-empty-state"
+          title={DECISION_REGISTER_EMPTY_TITLE}
+          description={DECISION_REGISTER_EMPTY_BODY}
+          actions={[
+            { label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/reviews?projectId=default", variant: "primary" },
+            { label: DECISION_REGISTER_EMPTY_ACTION_START_REVIEW, href: "/reviews/new", variant: "outline" },
+            { label: DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE, href: "/governance", variant: "outline" },
+          ]}
+        />
       ) : null}
 
-      {!loading && !loadError && decisions.length > 0 && viewMode === "timeline" ? (
-        <DecisionRegisterTimeline decisions={decisions} />
+      {!loading && !loadError && filtersExcludeMatches ? (
+        <EnterpriseCompactEmptyState
+          testId="decision-register-filter-no-match-empty-state"
+          title={DECISION_REGISTER_FILTER_NO_MATCH_TITLE}
+          description={DECISION_REGISTER_FILTER_NO_MATCH_BODY}
+          footer={
+            <Button type="button" variant="outline" size="sm" data-testid="decision-register-clear-filters-empty" onClick={resetFilters}>
+              Clear filters
+            </Button>
+          }
+        />
       ) : null}
 
-      {!loading && !loadError && decisions.length > 0 && viewMode === "cards" ? (
-      <div className="grid gap-4">
-        {decisions.map((decision) => (
-          <Card key={`${decision.manifestId}-${decision.decisionId}`}>
-            <CardHeader>
-              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{decision.title}</CardTitle>
-            </CardHeader>
-            <CardContent className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
-              <p>
-                <span className="font-medium">Category:</span> {decision.category} ·{" "}
-                <span className="font-medium">Option:</span> {decision.selectedOption}
-              </p>
-              <p className="text-al-text-secondary">{decision.rationale}</p>
-              {decision.confidence != null ? (
-                <p>
-                  Confidence: {decision.confidence}
-                  {decision.buyerConfidenceSource
-                    ? ` (${decision.buyerConfidenceSource})`
-                    : decision.confidenceSource
-                      ? ` (${decision.confidenceSource})`
-                      : ""}
-                </p>
-              ) : (
-                <p className="text-al-text-secondary">
-                  Confidence: Unknown{decision.buyerConfidenceSource ? ` (${decision.buyerConfidenceSource})` : ""}
-                </p>
-              )}
-              <p className="text-al-text-secondary">Recorded: {decision.recordedAtUtc}</p>
-              <p>
-                <Link className={OPERATOR_LINK.nav} href={`/signed-records/${decision.manifestId}`}>
-                  View signed record
-                </Link>
-                {" · "}
-                <Link className={OPERATOR_LINK.nav} href={`/reviews/${decision.runId}`}>
-                  View review
-                </Link>
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {!loading && !loadError && hasFilteredResults && viewMode === "timeline" ? (
+        <div aria-label={DECISION_REGISTER_VIEW_TIMELINE_PANEL_LABEL} data-testid="decision-register-timeline-panel">
+          <DecisionRegisterTimeline decisions={filteredDecisions} />
+        </div>
+      ) : null}
+
+      {!loading && !loadError && hasFilteredResults && viewMode === "cards" ? (
+        <div
+          className="grid gap-4"
+          aria-label={DECISION_REGISTER_VIEW_CARDS_PANEL_LABEL}
+          data-testid="decision-register-cards"
+        >
+          {filteredDecisions.map((decision) => (
+            <DecisionRegisterDecisionCard key={`${decision.manifestId}-${decision.decisionId}`} decision={decision} />
+          ))}
+        </div>
       ) : null}
     </div>
   );

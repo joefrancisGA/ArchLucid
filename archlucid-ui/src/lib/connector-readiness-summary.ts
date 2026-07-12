@@ -4,9 +4,11 @@ import {
   isOptionalConnector,
   isRecommendedConnector,
   resolveConnectorDisplayStatus,
-  resolveIntegrationEventBusDisplayStatus,
-  type ConnectorDisplayStatus,
 } from "@/lib/connector-operations-present";
+import {
+  resolveIntegrationBackgroundDeliveryLabel,
+  type IntegrationBackgroundDeliveryLabel,
+} from "@/lib/integration-readiness-present";
 import type {
   ConnectorSurfaceStatusDto,
   IntegrationEventBusStatusDto,
@@ -20,11 +22,11 @@ export type IntegrationReadinessSummaryTile = {
   readonly tone: "healthy" | "neutral" | "attention" | "disabled";
 };
 
-export type IntegrationRecommendedNextStep = {
-  readonly id: string;
+export type IntegrationRecommendedFirstSetup = {
   readonly title: string;
   readonly detail: string;
   readonly href: string | null;
+  readonly configureHelper: string | null;
 };
 
 export function resolveIntegrationReadinessHeadline(
@@ -39,25 +41,30 @@ export function resolveIntegrationReadinessHeadline(
     return "Core review workflows are ready. Resolve integrations marked needs attention before relying on them in production.";
   }
 
-  const eventBusStatus = resolveIntegrationEventBusDisplayStatus(eventBus);
+  const backgroundLabel = resolveIntegrationBackgroundDeliveryLabel(eventBus);
 
-  if (eventBusStatus === "Needs attention") {
+  if (backgroundLabel === "Not configured") {
     return "Core review workflows are ready. Background delivery needs attention before asynchronous integration events can run.";
+  }
+
+  const anyReady = connectors.some((connector) => isConnectorReady(connector));
+
+  if (!anyReady) {
+    return "Core review workflows are ready. Integrations are optional.";
   }
 
   return "Core review workflows are ready. Optional delivery channels can be configured when needed.";
 }
 
-function tileToneForStatus(status: ConnectorDisplayStatus): IntegrationReadinessSummaryTile["tone"] {
-  if (status === "Ready") {
+export const INTEGRATION_READINESS_OPTIONAL_SUPPORTING_COPY =
+  "You can complete architecture reviews without configuring integrations." as const;
+
+function tileToneForBackground(label: IntegrationBackgroundDeliveryLabel): IntegrationReadinessSummaryTile["tone"] {
+  if (label === "Configured") {
     return "healthy";
   }
 
-  if (status === "Disabled") {
-    return "disabled";
-  }
-
-  if (status === "Needs attention") {
+  if (label === "Not configured") {
     return "attention";
   }
 
@@ -68,7 +75,7 @@ export function buildIntegrationReadinessSummaryTiles(
   data: TenantIntegrationsOperationsDto,
 ): readonly IntegrationReadinessSummaryTile[] {
   const readyConnectors = data.connectors.filter((connector) => isConnectorReady(connector)).length;
-  const eventBusReady = resolveIntegrationEventBusDisplayStatus(data.integrationEventBus) === "Ready";
+  const eventBusReady = resolveIntegrationBackgroundDeliveryLabel(data.integrationEventBus) === "Configured";
   const readyCount = readyConnectors + (eventBusReady ? 1 : 0);
 
   const recommendedRemaining = data.connectors.filter(
@@ -87,7 +94,7 @@ export function buildIntegrationReadinessSummaryTiles(
   }).length;
 
   const disabledCount = data.connectors.filter((connector) => isDisabledConnector(connector)).length;
-  const backgroundStatus = resolveIntegrationEventBusDisplayStatus(data.integrationEventBus);
+  const backgroundStatus = resolveIntegrationBackgroundDeliveryLabel(data.integrationEventBus);
 
   return [
     {
@@ -118,7 +125,7 @@ export function buildIntegrationReadinessSummaryTiles(
       id: "background",
       label: "Background delivery",
       value: backgroundStatus,
-      tone: tileToneForStatus(backgroundStatus),
+      tone: tileToneForBackground(backgroundStatus),
     },
   ];
 }
@@ -138,44 +145,33 @@ function firstConfigurationHref(
   return null;
 }
 
-export function buildIntegrationRecommendedNextSteps(
+export function buildIntegrationRecommendedFirstSetup(
   data: TenantIntegrationsOperationsDto,
-): readonly IntegrationRecommendedNextStep[] {
-  const steps: IntegrationRecommendedNextStep[] = [];
+): IntegrationRecommendedFirstSetup | null {
   const teamsReady = isConnectorReady(data.connectors.find((row) => row.connectorKey === "teams") ?? null);
   const slackReady = isConnectorReady(data.connectors.find((row) => row.connectorKey === "slack") ?? null);
 
   if (!teamsReady && !slackReady) {
-    steps.push({
-      id: "notify-team",
-      title: "Configure Microsoft Teams or Slack for review notifications",
+    return {
+      title: "Configure Teams or Slack to send review notifications.",
       detail: "Recommended when stakeholders should receive review outcomes in a collaboration channel.",
       href: firstConfigurationHref(data.connectors, ["teams", "slack"]),
-    });
+      configureHelper: "Send review notifications to a channel.",
+    };
   }
 
-  const jiraReady = isConnectorReady(data.connectors.find((row) => row.connectorKey === "jira") ?? null);
-  const serviceNowReady = isConnectorReady(data.connectors.find((row) => row.connectorKey === "servicenow") ?? null);
+  return null;
+}
 
-  if (!jiraReady && !serviceNowReady) {
-    steps.push({
-      id: "create-tickets",
-      title: "Configure Jira or ServiceNow if findings should create tickets",
-      detail: "Optional — enable outbound ticketing when your workflow needs backlog or incident records.",
-      href: firstConfigurationHref(data.connectors, ["jira", "servicenow"]),
-    });
+/** @deprecated Use {@link buildIntegrationRecommendedFirstSetup}. */
+export function buildIntegrationRecommendedNextSteps(
+  data: TenantIntegrationsOperationsDto,
+): readonly IntegrationRecommendedFirstSetup[] {
+  const first = buildIntegrationRecommendedFirstSetup(data);
+
+  if (first === null) {
+    return [];
   }
 
-  const eventBusReady = resolveIntegrationEventBusDisplayStatus(data.integrationEventBus) === "Ready";
-
-  if (!eventBusReady) {
-    steps.push({
-      id: "event-bus",
-      title: "Enable background delivery only when asynchronous events are required",
-      detail: "Standard review workflows do not require the event bus. Configure it for advanced integration delivery.",
-      href: null,
-    });
-  }
-
-  return steps.slice(0, 3);
+  return [first];
 }

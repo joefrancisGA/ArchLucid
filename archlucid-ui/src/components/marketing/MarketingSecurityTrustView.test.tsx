@@ -31,42 +31,92 @@ describe("MarketingSecurityTrustView", () => {
     expect(text).not.toMatch(/2026-04-29/i);
   });
 
-  it("surfaces the NDA notice and points reviewers at security@archlucid.net", () => {
+  it("uses security contact labeling instead of procurement contact", () => {
     render(<MarketingSecurityTrustView />);
 
-    expect(screen.getAllByText(/under NDA/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Security and due-diligence contact/i)).toBeInTheDocument();
+    expect(screen.queryByText(/^Procurement contact:/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/security@archlucid\.net/i).length).toBeGreaterThan(0);
   });
 
-  it("describes staging resilience without internal backlog references", () => {
-    render(<MarketingSecurityTrustView />);
+  it("avoids internal procedural phrasing in customer-facing copy", () => {
+    const { container } = render(<MarketingSecurityTrustView />);
+    const text = container.textContent ?? "";
 
-    const chaosRow = screen.getByTestId("assurance-row-chaos-game-day-quarterly-staging-2026");
-    expect(within(chaosRow).getByText(/Staging-only fault-injection/i)).toBeInTheDocument();
+    expect(text).not.toMatch(/Grouped by what exists today/i);
+    expect(text).not.toMatch(/maturity picture in one pass/i);
+    expect(text).not.toMatch(/Available for diligence today/i);
+    expect(text).not.toMatch(/At a glance/i);
   });
 
-  it("surfaces maturity status and availability copy (details, not badge-only labels)", () => {
+  it("surfaces public, NDA, and planned status labels with text badges", () => {
     render(<MarketingSecurityTrustView />);
+
+    expect(screen.getByTestId("security-trust-summary-public-evidence")).toHaveTextContent("Available now");
+    expect(screen.getByTestId("security-trust-summary-nda-materials")).toHaveTextContent("Available under NDA");
+    expect(screen.getByTestId("security-trust-summary-next-cycle")).toHaveTextContent("Planned");
 
     const penTest = screen.getByTestId("assurance-row-pen-test-third-party-planned");
     expect(within(penTest).getByTestId("assurance-maturity-badge")).toHaveTextContent("Planned");
-    expect(within(penTest).getByTestId("assurance-access-badge")).toHaveTextContent(
-      /Redacted summary|security@archlucid/i,
-    );
+    expect(within(penTest).getByTestId("assurance-access-badge")).toHaveTextContent("Planned");
 
     const soc2 = screen.getByTestId("assurance-row-owner-security-self-assessment-2026");
     expect(within(soc2).getByTestId("assurance-maturity-badge")).toHaveTextContent("Available now");
-    expect(within(soc2).getByTestId("assurance-access-badge")).toHaveTextContent(/readiness summary|SOC/i);
+    expect(within(soc2).getByTestId("assurance-access-badge")).toHaveTextContent("Public");
   });
 
-  it("groups primary diligence CTAs under the available-now strip", () => {
+  it("renders hero actions and primary diligence CTAs", () => {
     render(<MarketingSecurityTrustView />);
 
-    const ctaRow = screen.getByTestId("security-trust-primary-ctas");
-    expect(within(ctaRow).getByRole("link", { name: /Request diligence materials/i })).toHaveAttribute(
+    const heroCtas = screen.getByTestId("security-trust-hero-ctas");
+    expect(within(heroCtas).getByRole("link", { name: /View public evidence/i })).toHaveAttribute("href", "/trust");
+    expect(within(heroCtas).getByRole("link", { name: /Request diligence materials/i })).toHaveAttribute(
       "href",
       "/trust#trust-contact-review",
     );
-    expect(within(ctaRow).getByRole("link", { name: /Open Trust Center/i })).toHaveAttribute("href", "/trust");
+    expect(within(heroCtas).getByRole("link", { name: /Contact security/i })).toHaveAttribute(
+      "href",
+      "mailto:security@archlucid.net",
+    );
+  });
+
+  it("uses semantic heading order and public footer links", () => {
+    render(<MarketingSecurityTrustView />);
+
+    const headings = screen.getAllByRole("heading").map((node) => node.tagName);
+    expect(headings[0]).toBe("H1");
+
+    const footer = screen.getByTestId("marketing-public-footer");
+    expect(within(footer).getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
+    expect(within(footer).getByRole("link", { name: "Trust Center" })).toHaveAttribute("href", "/trust");
+    expect(within(footer).getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/auth/signin");
+  });
+
+  it("renders desktop assurance grids by maturity tier", () => {
+    const { container } = render(<MarketingSecurityTrustView />);
+
+    expect(screen.getByTestId("security-trust-assurance-grid-available_now")).toHaveClass("lg:grid-cols-2");
+    expect(container.querySelector('[data-testid="security-trust-summary-row"] .lg\\:grid-cols-3')).not.toBeNull();
+  });
+
+  it("does not render a duplicate marketing navigation header", () => {
+    render(<MarketingSecurityTrustView />);
+
+    expect(screen.queryByRole("navigation", { name: "Marketing" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/ArchLucid — welcome/i)).not.toBeInTheDocument();
+  });
+});
+
+describe("MarketingSecurityTrustPage chrome", () => {
+  it("renders exactly one public header when composed with marketing layout chrome", () => {
+    render(
+      <>
+        <header data-testid="marketing-public-header">Public nav</header>
+        <MarketingSecurityTrustView />
+      </>,
+    );
+
+    expect(screen.getAllByTestId("marketing-public-header")).toHaveLength(1);
+    expect(screen.queryByRole("navigation", { name: "Marketing" })).not.toBeInTheDocument();
   });
 });

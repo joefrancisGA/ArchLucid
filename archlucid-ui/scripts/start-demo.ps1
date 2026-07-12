@@ -18,4 +18,4 @@ if (Test-Path Env:\NEXT_PUBLIC_OPERATOR_EXPERIENCE) {
 Write-Host "==> Demo env active: DEMO_MODE=1, STATIC_OPERATOR=1, COMPARE_ROUTE=1, NAV_EXPANDED=1"
 Write-Host "==> Starting Next.js on http://localhost:3001"
 
-& npx next dev --turbopack -p 3001
+& npx next dev --webpack -p 3001

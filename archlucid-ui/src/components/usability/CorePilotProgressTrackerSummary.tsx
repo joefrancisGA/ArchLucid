@@ -1,11 +1,13 @@
 "use client";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resolveCorePilotStepPresentation } from "@/lib/core-pilot-step-presentation";
 import {
   FIRST_VALUE_MINUTES_ESTIMATE,
@@ -26,6 +28,8 @@ export function CorePilotProgressTrackerSummary(props: CorePilotProgressTrackerS
   const [hydrated, setHydrated] = useState(false);
   const commitPresentationContext = useCorePilotCommitPresentationContext();
   const { progress, statuses } = useCorePilotDerivedStepStatus();
+  const callerAuthorityRank = useNavCallerAuthorityRank();
+  const canOpenInternalRunbook = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
   useEffect(() => {
     setHydrated(true);
@@ -65,10 +69,14 @@ export function CorePilotProgressTrackerSummary(props: CorePilotProgressTrackerS
           </p>
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             About {estimatedMinutes} minutes remaining
-            {" · "}
-            <Link href="/help/first-value-20-minutes" className="font-medium text-teal-800 underline dark:text-teal-300">
-              Complete one review package in about {FIRST_VALUE_MINUTES_ESTIMATE} minutes
-            </Link>
+            {canOpenInternalRunbook ? (
+              <>
+                {" · "}
+                <Link href="/help/first-value-20-minutes" className="font-medium text-teal-800 underline dark:text-teal-300">
+                  Complete one review package in about {FIRST_VALUE_MINUTES_ESTIMATE} minutes
+                </Link>
+              </>
+            ) : null}
           </p>
           {nextStep !== null ? (
             <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>

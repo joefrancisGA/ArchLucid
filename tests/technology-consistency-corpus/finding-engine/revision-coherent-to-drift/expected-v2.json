@@ -1,0 +1,6 @@
+{
+  "mode": "WarnOnly",
+  "findingTitles": ["ConflictingChosenProviderFamily"],
+  "minimumCount": 1,
+  "maximumCount": 1
+}

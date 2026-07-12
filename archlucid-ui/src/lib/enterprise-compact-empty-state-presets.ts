@@ -1,29 +1,39 @@
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
+  BUYER_START_ARCHITECTURE_REVIEW_CTA,
+  OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
   OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE,
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
 } from "@/lib/buyer-polish-copy";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-/** Reviews list when the project has zero review packages. */
+/** Reviews list when the project has zero architecture packages. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "runs-list-empty-state",
-  title: "No review packages yet",
+  title: "No architecture packages yet",
   description:
-    "Start an architecture review to generate a package with findings, evidence, and exports. Or explore a completed sample package.",
+    "Create or review an architecture to generate a package with findings, evidence, and exports. Or explore a completed sample package.",
   actions: [
     { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "primary" },
     { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
 };
 
-/** Operator home reviews zone — hero CTAs above; demo seed below when the live list is empty. */
+/** Operator home reviews zone — compact empty state without duplicating hero actions. */
 export const OPERATOR_HOME_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "operator-home-workspace-empty-state",
   title: OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
   description: OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
+  actions: [
+    {
+      label: OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
+      href: inAppHelpHref("first-review"),
+      variant: "outline",
+    },
+  ],
 };
 
 /** Workspace Activity archived filter — no archived review packages in scope. */
@@ -48,12 +58,12 @@ export const SEARCH_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
 /** Planning themes/plans empty for current scope. */
 export const PLANNING_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "planning-empty-state",
-  title: "No themes or plans in this scope yet",
+  title: "No improvement plans yet",
   description:
-    "Feedback themes and improvement plans show here when persisted for the current tenant / workspace / project. Scope follows workspace defaults unless you set proxy overrides. Run a committed review first if this tenant is new.",
+    "Capture review feedback or run pilot feedback analysis to generate themes and prioritized plans.",
   actions: [
-    { label: "View reviews", href: "/reviews?projectId=default", variant: "primary" },
-    { label: "Pilot feedback", href: "/product-learning", variant: "outline" },
+    { label: "Capture review feedback", href: "/product-learning", variant: "primary" },
+    { label: "View reviews", href: "/reviews", variant: "outline" },
   ],
 };
 
@@ -74,7 +84,7 @@ export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = 
   description:
     "You need at least two finalized review packages before ArchLucid can compare changes over time.",
   actions: [
-    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "primary" },
+    { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/reviews/new", variant: "primary" },
     { label: "Open review packages", href: "/reviews?projectId=default", variant: "outline" },
   ],
 };
@@ -86,7 +96,7 @@ export const COMPARE_INSUFFICIENT_FINALIZED_COMPACT: EnterpriseCompactEmptyState
   description: "Finalize one more review package to compare changes over time.",
   actions: [
     { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
-    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "outline" },
+    { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/reviews/new", variant: "outline" },
   ],
 };
 
@@ -118,9 +128,10 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   testId: "decision-register-empty-state",
   title: "No signed decisions yet",
   description:
-    "Finalize a review package to record architecture decisions here. Each entry links to the signed review record and supporting findings.",
+    "Finalize a review package to create signed architecture decisions with supporting findings and evidence lineage.",
   actions: [
     { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
+    { label: "Start architecture review", href: "/reviews/new", variant: "outline" },
     { label: "Open governance workflow", href: "/governance", variant: "outline" },
   ],
 };

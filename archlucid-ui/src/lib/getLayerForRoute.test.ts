@@ -27,7 +27,7 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/settings/support")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/users")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/roles")).toBe("operator-admin");
-    expect(getLayerForRoute("/settings/roles/invite-reviewer")).toBe("operator-admin");
+    expect(getLayerForRoute("/settings/users/invite-reviewer")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/ai-usage")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/cost-reporting")).toBe("operator-admin");
     expect(getLayerForRoute("/integrations/readiness")).toBe("operator-admin");
@@ -57,7 +57,7 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/scorecard")).toBe("operate-analysis");
     expect(getLayerForRoute("/integrations/teams")).toBe("operate-analysis");
     expect(getLayerForRoute("/product-learning")).toBe("operate-analysis");
-    expect(getLayerForRoute("/advisory")).toBe("operate-analysis");
+    expect(getLayerForRoute("/advisory")).toBe("operate-governance");
   });
 
   it("returns pilot for paths not in NAV_GROUPS", () => {

@@ -9,6 +9,7 @@
 | Buyer-facing UI | Technical / unchanged |
 |----------------|----------------------|
 | **Review** | Run, run ID, `ArchitectureRun`, API `/v1/architecture/run/...` |
+| **Architecture package** | Review package (legacy UI noun), finalized review artifact — findings, evidence trail, signed decision record, and exports for one architecture review |
 | **Finalize review** / **Finalize** (when context clear) | Commit, `POST .../commit`, golden manifest persistence |
 | **Architecture snapshot** / **Snapshot** | Manifest, golden manifest, `GoldenManifest` |
 | **Evidence graph** | Knowledge graph internally; URL path `/graph` |

@@ -18,6 +18,18 @@ export const FOCUSED_PILOT_MODE_COPY = {
   toggleAssistiveOff: CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleAssistiveOff,
 } as const;
 
+/** Create-architecture intake — scope card copy (distinct from review quick-start toggle). */
+export const FOCUSED_PILOT_MODE_CREATION_COPY = {
+  sectionLabel: "Initial review focus",
+  focusedDescription:
+    "Your first review starts with the standards below. You can add more standards later.",
+  expandedDescription:
+    "All enabled standards may contribute findings. You can narrow scope again before starting a review.",
+  changeFocusAction: "Change review focus",
+  focusedAssistiveOn: "Initial review is limited to the selected standards shown.",
+  focusedAssistiveOff: "All enabled standards may contribute findings.",
+} as const;
+
 /** Adds or removes the focused pilot policy reference token. */
 export function applyFocusedPilotModePolicyReferences(
   policyReferences: readonly string[],

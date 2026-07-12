@@ -38,11 +38,32 @@ export type HelpSearchPanelGroup = {
 
 const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
+    id: "getting-started-help",
+    title: "Getting started",
+    description: "Learn how ArchLucid turns architecture evidence into review findings and governance-ready outputs.",
+    keywords: ["getting started", "concepts", "overview", "introduction"],
+    action: { kind: "route", href: "/help/getting-started", helpSlug: "getting-started" },
+  },
+  {
+    id: "how-archlucid-works",
+    title: "How ArchLucid works",
+    description: "Product workflow from architecture evidence through findings, decisions, governance, and exports.",
+    keywords: ["how it works", "workflow", "review flow", "evidence", "exports", "governance"],
+    action: { kind: "route", href: "/help/how-it-works", helpSlug: "how-it-works" },
+  },
+  {
     id: "first-review-guide",
-    title: "Review guide",
+    title: "First review guide",
     description: "Step-by-step: name the review, upload evidence, add context, and finalize the package.",
     keywords: ["first review", "review guide", "new review", "architecture context", "getting started"],
     action: { kind: "route", href: "/help/review-guide", helpSlug: "review-guide" },
+  },
+  {
+    id: "product-faq",
+    title: "Product FAQ",
+    description: "Evaluation, pricing, evidence, governance, and security answers for architects and sponsors.",
+    keywords: ["faq", "evaluation", "pricing", "trial", "architect license", "security", "azure", "aws", "gcp"],
+    action: { kind: "route", href: "/faq", helpSlug: null },
   },
   {
     id: "create-first-review",
@@ -117,6 +138,13 @@ const GOVERNANCE_TOPICS: readonly HelpSearchPanelTopic[] = [
 
 const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
+    id: "integration-readiness",
+    title: "Integration readiness",
+    description: "See which notification, ticketing, publishing, and delivery integrations are ready or optional.",
+    keywords: ["integration", "readiness", "teams", "slack", "jira", "servicenow", "webhooks", "setup"],
+    action: { kind: "route", href: "/integrations/readiness", helpSlug: "integration-readiness" },
+  },
+  {
     id: "cloud-connections",
     title: "Cloud connections",
     description: "Connect Azure, AWS, or GCP for scheduled read-only evidence collection.",
@@ -131,11 +159,39 @@ const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/cloud-connections-azure", helpSlug: "cloud-connections-azure" },
   },
   {
+    id: "connect-aws",
+    title: "Connect AWS securely",
+    description: "OIDC-federated read-only IAM role, Resource Explorer inventory, and validation.",
+    keywords: ["aws", "iam", "oidc", "resource explorer", "federation"],
+    action: { kind: "route", href: "/help/cloud-connections-aws", helpSlug: "cloud-connections-aws" },
+  },
+  {
+    id: "connect-gcp",
+    title: "Connect GCP securely",
+    description: "Workload Identity Federation, Cloud Asset Viewer, and connection validation.",
+    keywords: ["gcp", "google cloud", "workload identity", "cloud asset"],
+    action: { kind: "route", href: "/help/cloud-connections-gcp", helpSlug: "cloud-connections-gcp" },
+  },
+  {
+    id: "security-trust-help",
+    title: "Security and trust",
+    description: "Assurance materials, diligence support, and links to data-handling posture.",
+    keywords: ["security", "trust", "soc", "assurance", "compliance", "privacy"],
+    action: { kind: "route", href: "/help/security-trust", helpSlug: "security-trust" },
+  },
+  {
+    id: "data-handling-help",
+    title: "What ArchLucid does with your data",
+    description: "Data flow, tenant isolation, audit trail, AI provider handling, and portability.",
+    keywords: ["data handling", "privacy", "isolation", "tenant", "ai provider", "portability", "deletion"],
+    action: { kind: "route", href: "/help/data-handling", helpSlug: "data-handling" },
+  },
+  {
     id: "users-and-roles",
     title: "Users and roles",
     description: "Invite reviewers, approvers, and administrators.",
     keywords: ["users", "roles", "invite", "admin", "reader", "auditor"],
-    action: { kind: "route", href: "/settings/roles", helpSlug: "operator-auth-roles" },
+    action: { kind: "route", href: "/settings/users", helpSlug: "operator-auth-roles" },
   },
   {
     id: "sso-identity",
@@ -207,27 +263,47 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   governance: ["governance-workflow", "risk-register", "policy-packs"],
   sso: ["sso-identity"],
   azure: ["cloud-connections", "connect-azure"],
+  aws: ["cloud-connections", "connect-aws"],
+  gcp: ["cloud-connections", "connect-gcp"],
   audit: ["review-artifacts", "governance-workflow"],
   scim: ["sso-identity"],
   support: ["contact-support", "troubleshoot"],
+  faq: ["product-faq"],
+  evaluation: ["product-faq", "first-review-guide"],
+  pricing: ["product-faq"],
   shortcuts: ["keyboard-shortcuts"],
+  isolation: ["data-handling-help"],
+  "data handling": ["data-handling-help", "security-trust-help"],
+  privacy: ["data-handling-help", "security-trust-help"],
 };
 
 const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly topicIds: readonly string[] }[] = [
-  { prefix: "/", topicIds: ["first-review-guide", "create-first-review", "sample-review"] },
-  { prefix: "/onboarding", topicIds: ["first-review-guide", "create-first-review", "sample-review"] },
+  { prefix: "/", topicIds: ["getting-started-help", "how-archlucid-works", "first-review-guide", "product-faq", "create-first-review"] },
+  { prefix: "/onboarding", topicIds: ["how-archlucid-works", "first-review-guide", "product-faq", "create-first-review", "sample-review"] },
+  { prefix: "/help", topicIds: ["getting-started-help", "how-archlucid-works", "first-review-guide", "product-faq", "cloud-connections", "data-handling-help", "security-trust-help", "troubleshoot"] },
+  { prefix: "/pricing", topicIds: ["product-faq", "first-review-guide"] },
+  { prefix: "/signup", topicIds: ["product-faq", "first-review-guide"] },
   {
     prefix: "/integrations/cloud-connections",
-    topicIds: ["cloud-connections", "connect-azure", "troubleshoot"],
+    topicIds: ["cloud-connections", "connect-azure", "connect-aws", "connect-gcp", "troubleshoot"],
+  },
+  {
+    prefix: "/integrations/readiness",
+    topicIds: ["integration-readiness", "cloud-connections", "troubleshoot"],
+  },
+  {
+    prefix: "/integrations/operations",
+    topicIds: ["integration-readiness", "cloud-connections", "troubleshoot"],
   },
   {
     prefix: "/settings/cloud-connections",
-    topicIds: ["cloud-connections", "connect-azure", "troubleshoot"],
+    topicIds: ["cloud-connections", "connect-azure", "connect-aws", "connect-gcp", "troubleshoot"],
   },
   { prefix: "/governance", topicIds: ["governance-workflow", "risk-register", "policy-packs"] },
   { prefix: "/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
   { prefix: "/reviews/new", topicIds: ["create-first-review", "upload-evidence", "first-review-guide"] },
   { prefix: "/reviews", topicIds: ["review-findings", "finalize-review", "review-artifacts"] },
+  { prefix: "/settings/users", topicIds: ["users-and-roles", "sso-identity"] },
   { prefix: "/settings/roles", topicIds: ["users-and-roles", "sso-identity"] },
   { prefix: "/settings/identity", topicIds: ["sso-identity", "users-and-roles"] },
 ];

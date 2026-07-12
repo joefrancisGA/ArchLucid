@@ -101,7 +101,7 @@ describe("RunInspectorPreview", () => {
 
     expect(screen.getByRole("link", { name: "Executive summary" })).toHaveAttribute(
       "href",
-      "/executive/reviews/claims-intake-modernization",
+      "/reviews/claims-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
       "href",

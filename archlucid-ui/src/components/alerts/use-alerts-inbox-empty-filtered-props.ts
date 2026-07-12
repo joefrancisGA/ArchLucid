@@ -1,35 +1,38 @@
 import { useMemo } from "react";
 
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
+import { ALERTS_INBOX_ALL_STATUSES_VALUE } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import {
-  ALERTS_EMPTY_STATE_BODY,
-  ALERTS_EMPTY_STATE_PRIMARY_ACTION,
-  ALERTS_EMPTY_STATE_PRIMARY_HREF,
-  ALERTS_EMPTY_STATE_TITLE,
-} from "@/lib/alerts-page-copy";
-import { governanceAlertsTabHref } from "@/lib/governance-route-paths";
+  buildAlertsInboxEmptyStateProps,
+  resolveAlertsInboxEmptyVariant,
+  type AlertsInboxWorkspaceContext,
+} from "@/lib/alerts-inbox-workspace-context";
 
 /** Empty-state copy for filtered alerts inbox (TB-564). */
 export function useAlertsInboxEmptyFilteredProps(
   buyerPolishedShell: boolean,
   canMutateAlertInbox: boolean,
+  workspaceContext: AlertsInboxWorkspaceContext,
+  statusFilter: string,
 ): EnterpriseCompactEmptyStateProps {
   return useMemo((): EnterpriseCompactEmptyStateProps => {
-    const secondaryAction =
-      !buyerPolishedShell && canMutateAlertInbox
-        ? [{ label: "Set up alert rules", href: governanceAlertsTabHref("rules"), variant: "outline" as const }]
-        : [];
+    const variant = resolveAlertsInboxEmptyVariant(workspaceContext, statusFilter, ALERTS_INBOX_ALL_STATUSES_VALUE);
+    const { title, description, actions } = buildAlertsInboxEmptyStateProps(variant, canMutateAlertInbox);
 
-    const actions: EnterpriseCompactEmptyStateProps["actions"] = [
-      { label: ALERTS_EMPTY_STATE_PRIMARY_ACTION, href: ALERTS_EMPTY_STATE_PRIMARY_HREF, variant: "primary" },
-      ...secondaryAction,
-    ];
+    if (buyerPolishedShell) {
+      return {
+        testId: "alerts-inbox-empty-state",
+        title,
+        description,
+        actions: actions?.slice(0, 1),
+      };
+    }
 
     return {
       testId: "alerts-inbox-empty-state",
-      title: ALERTS_EMPTY_STATE_TITLE,
-      description: ALERTS_EMPTY_STATE_BODY,
+      title,
+      description,
       actions,
     };
-  }, [buyerPolishedShell, canMutateAlertInbox]);
+  }, [buyerPolishedShell, canMutateAlertInbox, workspaceContext, statusFilter]);
 }

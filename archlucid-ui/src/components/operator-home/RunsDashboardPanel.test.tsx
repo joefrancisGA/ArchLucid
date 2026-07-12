@@ -31,7 +31,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { listRunsByProjectPaged } from "@/lib/api";
-import { OPERATOR_HOME_WORKSPACE_EMPTY_BODY } from "@/lib/buyer-polish-copy";
+import { BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA, OPERATOR_HOME_WORKSPACE_EMPTY_BODY, OPERATOR_HOME_WORKSPACE_EMPTY_TITLE } from "@/lib/buyer-polish-copy";
 import * as operatorStaticDemo from "@/lib/operator-static-demo";
 
 import { RunsDashboardPanel } from "./RunsDashboardPanel";
@@ -176,7 +176,7 @@ describe("RunsDashboardPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
-      expect(screen.getByText("No review packages yet")).toBeInTheDocument();
+      expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
       expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
     } finally {
       fallbackSpy.mockRestore();
@@ -349,14 +349,8 @@ describe("RunsDashboardPanel", () => {
     renderRunsDashboardPanel();
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "All" })).toHaveAttribute(
-        "data-testid",
-        "runs-dashboard-filter-all",
-      );
-      expect(screen.getByRole("tab", { name: "Approved" })).toHaveAttribute(
-        "data-testid",
-        "runs-dashboard-tab-recent",
-      );
+      expect(screen.getByRole("tab", { name: "All" })).toHaveAttribute("data-testid", "runs-dashboard-tab-all");
+      expect(screen.getByRole("tab", { name: "Approved" })).toHaveAttribute("data-testid", "runs-dashboard-tab-approved");
       expect(screen.getByRole("tab", { name: "Action needed" })).toHaveAttribute(
         "data-testid",
         "runs-dashboard-tab-attention",
@@ -365,8 +359,10 @@ describe("RunsDashboardPanel", () => {
         "data-testid",
         "runs-dashboard-tab-outcomes",
       );
+      expect(screen.queryByTestId("runs-dashboard-view-all-reviews")).toBeNull();
       expect(screen.queryByTestId("runs-dashboard-show-archived")).toBeNull();
       expect(screen.queryByTestId("runs-dashboard-open-all-reviews")).toBeNull();
+      expect(screen.queryByRole("link", { name: "All" })).toBeNull();
     });
     expect(screen.queryByTestId("runs-dashboard-filters")).toBeNull();
     expect(screen.queryByTestId("runs-dashboard-governance-warnings-only")).toBeNull();
@@ -392,7 +388,7 @@ describe("RunsDashboardPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
-      expect(screen.getByText("No review packages yet")).toBeInTheDocument();
+      expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
       expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: "View review package" })).toBeNull();
       expect(screen.queryByTestId("example-request-panel")).toBeNull();
@@ -428,6 +424,10 @@ describe("RunsDashboardPanel", () => {
     const archivedFilter = await screen.findByTestId("runs-dashboard-show-archived");
     expect(archivedFilter).toHaveTextContent("Archived 0");
     expect(archivedFilter).toBeDisabled();
+    expect(screen.getByRole("link", { name: BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA })).toHaveAttribute(
+      "data-testid",
+      "runs-dashboard-open-review-packages",
+    );
     expect(screen.queryByTestId("runs-dashboard-archived-unsupported")).toBeNull();
     expect(screen.queryByText(/contact your administrator/i)).toBeNull();
 

@@ -166,6 +166,7 @@ public sealed class ArchitectureRunExecuteOrchestratorIdempotencyTests
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

@@ -23,7 +23,14 @@ internal static class RunListWarningFlagSql
                                            r.IsDemoWelcomeRun,
                                            r.IsPublicShowcase, r.IsPinned, r.RealModeFellBackToSimulator, r.PilotAoaiDeploymentSnapshot,
                                            r.StructuralExecutionMode,
-                                           r.RetryCount, r.LastFailureReason
+                                           r.RetryCount, r.LastFailureReason,
+                                           COALESCE(
+                                               r.PackageOrigin,
+                                               CASE
+                                                   WHEN JSON_VALUE(ar.RequestJson, '$.workflowIntent') = N'create-architecture'
+                                                       THEN N'Created'
+                                                   ELSE N'Reviewed'
+                                               END) AS PackageOrigin
                                            """;
 
     /// <summary>Projected columns; pair with <see cref="LeftJoinAggregates" /> after <see cref="FromRunsNoLock" />.</summary>
@@ -86,5 +93,7 @@ internal static class RunListWarningFlagSql
                                                  WHERE ar.Status = N'Open'
                                                  GROUP BY ar.RunId
                                              ) govWarn ON govWarn.RunId = r.RunId
+                                             LEFT JOIN dbo.ArchitectureRequests ar WITH (NOLOCK)
+                                                 ON ar.RequestId = r.ArchitectureRequestId
                                              """;
 }

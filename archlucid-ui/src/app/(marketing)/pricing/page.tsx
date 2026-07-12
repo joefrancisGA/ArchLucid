@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
-import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingCustomPolicyPackAuthoringSection } from "@/components/marketing/MarketingCustomPolicyPackAuthoringSection";
-import { MarketingPricingPublicCutoverNotice } from "@/components/marketing/MarketingPricingPublicCutoverNotice";
+import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
+import { MarketingPricingUsageFaqSection } from "@/components/marketing/MarketingPricingUsageFaqSection";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { TrialNudgePricingQuoteFocus } from "@/components/marketing/TrialNudgePricingQuoteFocus";
-import { BUYER_MARKETING_PRICING_PAGE_INTRO, BUYER_SALES_LED_V1_PRICING_NOTE } from "@/lib/buyer-polish-copy";
-import { BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE } from "@/lib/buyer-polish-copy";
+import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { buildPricingSignupHref } from "@/lib/marketing/pricing-signup-href";
 import {
   CUSTOM_POLICY_PACK_QUOTE_INTEREST,
   CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL,
 } from "@/lib/marketing-custom-policy-pack-authoring";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
-import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   MARKETING_PRICING_OG_DESCRIPTION,
   buildMarketingSocialMetadata,
@@ -24,7 +25,7 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Pricing",
-  description: `ArchLucid ${BRAND_CATEGORY} — packaging and pricing overview — request a demo or quote.`,
+  description: `ArchLucid ${BRAND_CATEGORY} — start with one architect, grow into team and enterprise plans.`,
   ...buildMarketingSocialMetadata("Pricing", MARKETING_PRICING_OG_DESCRIPTION, "/pricing"),
   other: {
     "x-archlucid-brand-category-legacy": BRAND_CATEGORY_LEGACY,
@@ -55,28 +56,26 @@ export default async function PricingPage(props: PricingPageProps) {
         sectionTitle="Pricing"
         sectionIntro={BUYER_MARKETING_PRICING_PAGE_INTRO}
         signupHref={signupHref}
-        signupCallToActionLabel="Request evaluation workspace"
+        signupCallToActionLabel="Start now"
         showSignupCallToAction={false}
         preferSalesLedQuoteCta={preferSalesLedQuoteCta}
+        showAiUsageNote
       />
-      <MarketingPricingPublicCutoverNotice />
-      <p
-        className={`mb-4 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}
-        data-testid="pricing-sales-led-v1-note"
-      >
-        {BUYER_SALES_LED_V1_PRICING_NOTE}
+      <MarketingPricingUsageFaqSection />
+      <p className={cn("mb-10 max-w-3xl", MARKETING_TYPOGRAPHY.body, "text-al-text-secondary")}>
+        More evaluation and security answers in the{" "}
+        <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/faq">
+          Product FAQ
+        </Link>
+        .
       </p>
+      <MarketingCustomPolicyPackAuthoringSection quoteSectionDomId="pricing-quote-request" />
       <p
         className={`mb-6 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}
         data-testid="pricing-brand-category-paragraph"
       >
-        ArchLucid is an {BRAND_CATEGORY} offering {BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE}. For procurement-led deployments,{" "}
-        <a className={MARKETING_SURFACES.inlineLink} href="#pricing-quote-request">
-          request a quote
-        </a>{" "}
-        below.
+        ArchLucid is an {BRAND_CATEGORY} for governed architecture review, evidence traceability, and audit-ready decision records.
       </p>
-      <MarketingCustomPolicyPackAuthoringSection quoteSectionDomId="pricing-quote-request" />
       <MarketingPricingQuotePanel
         initialTierInterest={
           customPolicyPackQuoteInterest ? CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL : undefined

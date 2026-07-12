@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_ONBOARDING_PAGE_TITLE,
+  FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
+} from "@/lib/buyer-polish-copy";
 
 import { SHOWCASE_DEMO_RUN_ID } from "../e2e/fixtures/ids";
 import { registerFreshTenantOnboardingMocks } from "../e2e/helpers/register-onboarding-mocks";
@@ -22,14 +25,15 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
 
     await expect(page.getByRole("heading", { name: /start your evaluation/i })).toBeVisible();
 
-    await expect(page.getByText(/By continuing you agree/i)).toBeVisible();
+    await expect(page.getByText(/We use this information to create your evaluation workspace/i)).toBeVisible();
     await expect(page.getByRole("link", { name: /privacy policy/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /security and trust/i })).toBeVisible();
 
     await page.getByLabel(/Work email/i).fill("fresh-tenant@example.com");
     await page.getByLabel(/Full name/i).fill("Fresh Tenant Admin");
     await page.getByLabel(/Organization name/i).fill("Contoso Fresh Tenant Org");
 
-    await page.getByRole("button", { name: /Create your workspace/i }).click();
+    await page.getByRole("button", { name: /Create evaluation workspace/i }).click();
 
     await expect(page).toHaveURL(/\/signup\/verify\?email=fresh-tenant%40example\.com/);
 
@@ -39,31 +43,25 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
 
     await expect(page.getByRole("heading", { name: BUYER_ONBOARDING_PAGE_TITLE, level: 1 })).toBeVisible();
 
-    await expect(page.getByRole("heading", { name: "Progress", level: 2 })).toBeVisible({ timeout: 30_000 });
+    await expect(
+      page.getByRole("heading", { name: FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE, level: 2 }),
+    ).toBeVisible({ timeout: 30_000 });
 
-    await expect(page.getByTestId("onboarding-open-sample-run")).toBeVisible();
-    await expect(page.getByTestId("onboarding-open-sample-run")).toHaveAttribute(
+    await expect(page.getByRole("link", { name: "Explore sample review" })).toHaveAttribute(
       "href",
       `/reviews/${SHOWCASE_DEMO_RUN_ID}`,
     );
 
-    await expect(page.getByTestId("core-pilot-checklist")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("first-review-guide-walkthrough")).toBeVisible({ timeout: 30_000 });
 
     await page.goto("/settings/identity-providers");
 
     await expect(page.getByRole("heading", { name: "Identity providers", level: 1 })).toBeVisible();
 
-    const catalog = page.getByTestId("identity-providers-table");
-    await expect(catalog).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("identity-providers-overview-summary")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("identity-providers-settings-nav")).toBeVisible();
+    await expect(page.getByTestId("identity-providers-recommended-next-card")).toBeVisible();
 
-    await expect(catalog.getByRole("cell", { name: "ArchLucidAuth:Authority", exact: true })).toBeVisible();
-    await expect(catalog.getByRole("cell", { name: "ArchLucidAuth:Audience", exact: true })).toBeVisible();
-
-    await expect(catalog.getByRole("row").filter({ hasText: "ArchLucidAuth:Authority" }).first()).toContainText(
-      "login.microsoftonline.com",
-    );
-    await expect(catalog.getByRole("row").filter({ hasText: "ArchLucidAuth:Audience" }).first()).toContainText(
-      "api://archlucid-onboarding-demo",
-    );
+    await expect(page.getByTestId("identity-providers-table")).toHaveCount(0);
   });
 });

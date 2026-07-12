@@ -47,4 +47,11 @@ public sealed class RunListItemResponse
         get;
         set;
     } = string.Empty;
+
+    /// <summary>Package origin for list badges (<c>Created</c> | <c>Reviewed</c>).</summary>
+    public string? PackageOrigin
+    {
+        get;
+        set;
+    }
 }

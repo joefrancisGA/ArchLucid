@@ -13,6 +13,13 @@ const themeBackground = "#1E3A5F";
 
 const targets = [
   {
+    source: "archlucid-dark.svg",
+    output: "archlucid-dark.png",
+    width: 480,
+    height: 120,
+    fitOnCanvas: false,
+  },
+  {
     source: "og-default.svg",
     output: "og-default.png",
     width: 1200,

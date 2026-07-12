@@ -8,7 +8,7 @@ import { useEffect, useState, type ReactElement } from "react";
 import {
   ConnectorReadinessCard,
   IntegrationReadinessSummaryStrip,
-  IntegrationRecommendedNextStepsStrip,
+  IntegrationRecommendedFirstSetupCard,
 } from "@/components/integrations/IntegrationReadinessSections";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
@@ -23,19 +23,25 @@ import {
   resolveConnectorDisplayStatus,
   resolveConnectorGuidance,
   resolveConnectorHumanStatus,
-  resolveIntegrationEventBusDisplayStatus,
   resolveIntegrationEventBusGuidance,
   resolveIntegrationEventBusHumanStatus,
 } from "@/lib/connector-operations-present";
 import {
   buildIntegrationReadinessSummaryTiles,
-  buildIntegrationRecommendedNextSteps,
+  buildIntegrationRecommendedFirstSetup,
   resolveIntegrationReadinessHeadline,
 } from "@/lib/connector-readiness-summary";
+import {
+  isConnectorDisabledForDeployment,
+  resolveConnectorConfigureHelper,
+  resolveConnectorDetailsLabel,
+  resolveIntegrationBackgroundDeliveryLabel,
+} from "@/lib/integration-readiness-present";
 import type { TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
 
 export function ConnectorOperationsDashboard(): ReactElement {
   const [data, setData] = useState<TenantIntegrationsOperationsDto | null>(null);
+  const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
   const [problem, setProblem] = useState<{ problem?: ApiProblemDetails; message: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -51,11 +57,13 @@ export function ConnectorOperationsDashboard(): ReactElement {
 
         if (!cancelled) {
           setData(row);
+          setLastCheckedAt(new Date());
         }
       } catch (e: unknown) {
         if (!cancelled) {
           setProblem({ message: e instanceof Error ? e.message : "Could not load connector operations summary." });
           setData(null);
+          setLastCheckedAt(null);
         }
       } finally {
         if (!cancelled) {
@@ -83,21 +91,21 @@ export function ConnectorOperationsDashboard(): ReactElement {
     return <OperatorApiProblem problem={problem.problem} fallbackMessage={problem.message} variant="warning" />;
   }
 
-  if (!data) {
+  if (!data || lastCheckedAt === null) {
     return <></>;
   }
 
   const groupedConnectors = groupConnectorsByPurpose(data.connectors);
   const summaryTiles = buildIntegrationReadinessSummaryTiles(data);
   const headline = resolveIntegrationReadinessHeadline(data.connectors, data.integrationEventBus);
-  const nextSteps = buildIntegrationRecommendedNextSteps(data);
+  const recommendedFirstSetup = buildIntegrationRecommendedFirstSetup(data);
   const eventBusHumanStatus = resolveIntegrationEventBusHumanStatus(data.integrationEventBus);
-  const eventBusDisplayStatus = resolveIntegrationEventBusDisplayStatus(data.integrationEventBus);
+  const eventBusBackgroundLabel = resolveIntegrationBackgroundDeliveryLabel(data.integrationEventBus);
 
   return (
     <div className="space-y-8">
-      <IntegrationReadinessSummaryStrip headline={headline} tiles={summaryTiles} />
-      <IntegrationRecommendedNextStepsStrip steps={nextSteps} />
+      <IntegrationReadinessSummaryStrip headline={headline} tiles={summaryTiles} lastCheckedAt={lastCheckedAt} />
+      {recommendedFirstSetup ? <IntegrationRecommendedFirstSetupCard setup={recommendedFirstSetup} /> : null}
 
       {CONNECTOR_PURPOSE_GROUPS.filter((group) => group.id !== "technical").map((group) => {
         const connectors = groupedConnectors.get(group.id) ?? [];
@@ -115,16 +123,21 @@ export function ConnectorOperationsDashboard(): ReactElement {
             <ul className="mt-4 grid list-none gap-4 p-0 md:grid-cols-2">
               {connectors.map((connector) => {
                 const humanStatus = resolveConnectorHumanStatus(connector);
+                const displayStatus = resolveConnectorDisplayStatus(connector);
+                const disabledForDeployment = isConnectorDisabledForDeployment(connector);
 
                 return (
                   <ConnectorReadinessCard
                     key={connector.connectorKey}
                     title={connectorCardTitle(connector)}
-                    displayStatus={resolveConnectorDisplayStatus(connector)}
+                    displayStatus={displayStatus}
                     guidance={resolveConnectorGuidance(connector, humanStatus)}
                     bestFor={resolveConnectorBestFor(connector.connectorKey)}
                     configurationHref={connector.configurationHref ?? null}
+                    configureHelper={resolveConnectorConfigureHelper(connector.connectorKey)}
+                    detailsLabel={resolveConnectorDetailsLabel(displayStatus, disabledForDeployment)}
                     technicalDetails={connector.summary}
+                    disabledForDeployment={disabledForDeployment}
                     testId={`connector-card-${connector.connectorKey}`}
                   />
                 );
@@ -144,11 +157,20 @@ export function ConnectorOperationsDashboard(): ReactElement {
         <ul className="mt-4 grid list-none gap-4 p-0 md:grid-cols-2">
           <ConnectorReadinessCard
             title="Integration event bus"
-            displayStatus={eventBusDisplayStatus}
+            displayStatus={
+              eventBusBackgroundLabel === "Configured"
+                ? "Ready"
+                : eventBusBackgroundLabel === "Not configured"
+                  ? "Needs attention"
+                  : "Optional"
+            }
             guidance={resolveIntegrationEventBusGuidance(data.integrationEventBus, eventBusHumanStatus)}
             bestFor="Use when integration events must be delivered asynchronously across services."
             configurationHref={null}
+            configureHelper={null}
+            detailsLabel="View setup details"
             technicalDetails={formatIntegrationEventBusTechnicalDetails(data.integrationEventBus)}
+            disabledForDeployment={false}
             testId="connector-card-integration-event-bus"
           />
         </ul>

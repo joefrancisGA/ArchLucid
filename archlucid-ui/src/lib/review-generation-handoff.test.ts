@@ -28,6 +28,12 @@ describe("review-generation-handoff", () => {
     );
   });
 
+  it("adds create-architecture intent to generation redirect href", () => {
+    expect(reviewDetailHrefAfterGeneration(RUN_ID, { architectureCreation: true })).toBe(
+      `/reviews/${encodeURIComponent(RUN_ID)}?${FROM_GENERATION_QUERY_KEY}=1&intent=create-architecture`,
+    );
+  });
+
   it("records and reads handoff context in sessionStorage", () => {
     recordReviewGenerationHandoff(RUN_ID, "quick-review", { jobId: "job-1" });
 

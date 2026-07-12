@@ -154,4 +154,19 @@ describe("DraftIntakeActorEditor", () => {
       ],
     });
   });
+
+  it("shows creation-flow helper copy when requested", () => {
+    const onChange = vi.fn();
+
+    render(
+      <DraftIntakeActorEditor
+        actorSet={{ actors: [] }}
+        intentText=""
+        creationFlow
+        onChange={onChange}
+      />,
+    );
+
+    expect(screen.getByText(/Add people and systems manually/i)).toBeInTheDocument();
+  });
 });

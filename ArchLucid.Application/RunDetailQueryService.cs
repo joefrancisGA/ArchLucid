@@ -165,7 +165,8 @@ public sealed class RunDetailQueryService(
             CompletedUtc = r.CompletedUtc,
             CurrentManifestVersion = r.CurrentManifestVersion,
             SystemName = r.ProjectId,
-            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r)
+            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
+            PackageOrigin = r.PackageOrigin
         }).ToList();
     }
 
@@ -193,7 +194,8 @@ public sealed class RunDetailQueryService(
             CompletedUtc = r.CompletedUtc,
             CurrentManifestVersion = r.CurrentManifestVersion,
             SystemName = r.ProjectId,
-            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r)
+            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
+            PackageOrigin = r.PackageOrigin
         }).ToList();
         string? next = null;
         if (!page.HasMore || page.Items.Count <= 0)
@@ -224,7 +226,8 @@ public sealed class RunDetailQueryService(
             CompletedUtc = r.CompletedUtc,
             CurrentManifestVersion = r.CurrentManifestVersion,
             SystemName = r.ProjectId,
-            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r)
+            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
+            PackageOrigin = r.PackageOrigin
         }).ToList();
 
         return (items, page.HasMore);

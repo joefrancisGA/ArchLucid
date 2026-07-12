@@ -5,30 +5,36 @@ import { useCallback, useEffect, useState } from "react";
 import type { HealthReadyResponse, VersionInfoResponse } from "@/lib/health-dashboard-types";
 import { fetchHealthLive } from "@/lib/fetch-health-live";
 import { HEALTH_READY_PATH, HEALTH_VERSION_PATH } from "@/lib/health-endpoint-paths";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { buildCriticalDependencyRows } from "@/lib/system-health-critical-dependencies";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 
 import type { SystemHealthPageViewModel } from "./system-health-page-view-model";
 
-export function useSystemHealthPage(): SystemHealthPageViewModel {
-  const isDemo =
-    isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv();
+const DEMO_REFRESH_DELAY_MS = 350;
 
-  const [loading, setLoading] = useState(!isDemo);
+function isBuyerDemoSystemHealthShell(): boolean {
+  return isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
+}
+
+export function useSystemHealthPage(): SystemHealthPageViewModel {
+  const showDemoWorkspaceDashboard = isBuyerDemoSystemHealthShell();
+  const isStaticDemo =
+    isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || showDemoWorkspaceDashboard;
+
+  const [loading, setLoading] = useState(showDemoWorkspaceDashboard ? false : !isStaticDemo);
   const [liveOk, setLiveOk] = useState(false);
   const [liveStatus, setLiveStatus] = useState("Unknown");
   const [ready, setReady] = useState<HealthReadyResponse | null>(null);
   const [readyError, setReadyError] = useState<string | null>(null);
   const [version, setVersion] = useState<VersionInfoResponse | null>(null);
-  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(
+    showDemoWorkspaceDashboard ? new Date() : null,
+  );
 
-  const refresh = useCallback(async () => {
-    if (isDemo) {
-      return;
-    }
-
+  const refreshLiveHealth = useCallback(async () => {
     setLoading(true);
     setReadyError(null);
 
@@ -65,15 +71,39 @@ export function useSystemHealthPage(): SystemHealthPageViewModel {
       setLastRefreshedAt(new Date());
       setLoading(false);
     }
-  }, [isDemo]);
+  }, []);
 
-  useEffect(() => {
-    if (isDemo) {
+  const refreshDemoHealth = useCallback(async () => {
+    setLoading(true);
+
+    await new Promise<void>((resolve) => {
+      window.setTimeout(resolve, DEMO_REFRESH_DELAY_MS);
+    });
+
+    setLastRefreshedAt(new Date());
+    setLoading(false);
+  }, []);
+
+  const refresh = useCallback(async () => {
+    if (showDemoWorkspaceDashboard) {
+      await refreshDemoHealth();
       return;
     }
 
-    void refresh();
-  }, [isDemo, refresh]);
+    if (isStaticDemo) {
+      return;
+    }
+
+    await refreshLiveHealth();
+  }, [isStaticDemo, refreshDemoHealth, refreshLiveHealth, showDemoWorkspaceDashboard]);
+
+  useEffect(() => {
+    if (showDemoWorkspaceDashboard || isStaticDemo) {
+      return;
+    }
+
+    void refreshLiveHealth();
+  }, [isStaticDemo, refreshLiveHealth, showDemoWorkspaceDashboard]);
 
   const criticalDependencies = buildCriticalDependencyRows(ready?.entries ?? []);
 
@@ -87,5 +117,7 @@ export function useSystemHealthPage(): SystemHealthPageViewModel {
     criticalDependencies,
     refresh,
     lastRefreshedAt,
+    showDemoWorkspaceDashboard,
+    showTechnicalDetails: isShowSystemAdministrationNavEnabled(),
   };
 }

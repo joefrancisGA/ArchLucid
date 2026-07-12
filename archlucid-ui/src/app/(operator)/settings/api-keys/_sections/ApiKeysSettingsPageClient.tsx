@@ -1,14 +1,55 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { components } from "@/lib/api-types.generated";
+import { buildApiKeysSummary } from "@/lib/build-api-keys-summary";
+import {
+  API_KEYS_ACTION_ISSUE_OVERLAP,
+  API_KEYS_ACTION_ROTATE_ADMIN,
+  API_KEYS_ACTION_ROTATE_READONLY,
+  API_KEYS_ACTION_VIEW_AUDIT,
+  API_KEYS_ADMIN_KEY_NAME,
+  API_KEYS_CREDENTIALS_SECTION_TITLE,
+  API_KEYS_ENTERPRISE_ONLY_NOTICE,
+  API_KEYS_OVERLAP_SUCCESS,
+  API_KEYS_PAGE_SUBTITLE,
+  API_KEYS_PAGE_TITLE,
+  API_KEYS_PERMISSION_ADMIN,
+  API_KEYS_PERMISSION_READONLY,
+  API_KEYS_READONLY_KEY_NAME,
+  API_KEYS_RECENT_EVENTS_SECTION_TITLE,
+  API_KEYS_RESTRICTED_DESCRIPTION,
+  API_KEYS_ROTATE_FAILED,
+  API_KEYS_ROTATE_SUCCESS_ADMIN,
+  API_KEYS_ROTATE_SUCCESS_READONLY,
+  API_KEYS_SSO_ONLY_NOTICE,
+  API_KEYS_STATUS_ACTIVE,
+  API_KEYS_STATUS_EXPIRED,
+  API_KEYS_STATUS_NOT_CONFIGURED,
+  API_KEYS_AUDIT_ACTOR_SELF,
+} from "@/lib/api-keys-settings-copy";
+import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
+import type {
+  ApiKeyAuditEvent,
+  ApiKeyCredentialSlot,
+  ApiKeyPendingAction,
+} from "@/lib/api-keys-settings-types";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { Button } from "@/components/ui/button";
-import { DismissControl } from "@/components/usability/DismissControl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+
+import { ApiKeyActionConfirmDialog } from "./ApiKeyActionConfirmDialog";
+import { ApiKeyCredentialTable, type ApiKeyCredentialRowModel } from "./ApiKeyCredentialTable";
+import { ApiKeyRecentEventsTable } from "./ApiKeyRecentEventsTable";
+import { ApiKeyRotateRevealPanel } from "./ApiKeyRotateRevealPanel";
+import { ApiKeysSettingsRestrictedState } from "./ApiKeysSettingsRestrictedState";
+import { ApiKeysSettingsSummaryRow } from "./ApiKeysSettingsSummaryRow";
+import { ApiKeysSettingsTechnicalDetails } from "./ApiKeysSettingsTechnicalDetails";
 
 type AdminApiKeySettingsResponse = components["schemas"]["AdminApiKeySettingsResponse"];
 type AdminApiKeyRotateResponse = components["schemas"]["AdminApiKeyRotateResponse"];
@@ -22,43 +63,81 @@ type LoadState =
   | { status: "ready"; settings: AdminApiKeySettingsResponse }
   | { status: "blocked"; note: string };
 
-type RotateReveal = {
-  response: AdminApiKeyRotateResponse;
-};
+function resolveSlotStatusLabel(slot: ApiKeySlotStatusDto | undefined): string {
+  if (slot?.isConfigured !== true) {
+    return API_KEYS_STATUS_NOT_CONFIGURED;
+  }
 
-function ApiKeySlotPanel(props: { label: string; slot: ApiKeySlotStatusDto | undefined }) {
-  const segments = props.slot?.maskedSegments ?? [];
+  if (slot.expiresAtUtc) {
+    const expiresMs = Date.parse(slot.expiresAtUtc);
 
-  return (
-    <>
-      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{props.label}</p>
-      {segments.length === 0 ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Not configured</p>
-      ) : (
-        <ul
-          className={cn(
-            "m-0 list-inside list-disc font-mono text-al-text-primary",
-            OPERATOR_TYPOGRAPHY.micro,
-          )}
-        >
-          {segments.map((segment) => (
-            <li key={segment}>{segment}</li>
-          ))}
-        </ul>
-      )}
-      {props.slot?.expiresAtUtc ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-          Expires (UTC): {props.slot.expiresAtUtc}
-        </p>
-      ) : null}
-    </>
-  );
+    if (!Number.isNaN(expiresMs) && expiresMs < Date.now()) {
+      return API_KEYS_STATUS_EXPIRED;
+    }
+  }
+
+  return API_KEYS_STATUS_ACTIVE;
+}
+
+function buildCredentialRows(settings: AdminApiKeySettingsResponse): readonly ApiKeyCredentialRowModel[] {
+  return [
+    {
+      slot: "Admin",
+      keyName: API_KEYS_ADMIN_KEY_NAME,
+      permissionLabel: API_KEYS_PERMISSION_ADMIN,
+      slotStatus: settings.admin,
+      statusLabel: resolveSlotStatusLabel(settings.admin),
+    },
+    {
+      slot: "ReadOnly",
+      keyName: API_KEYS_READONLY_KEY_NAME,
+      permissionLabel: API_KEYS_PERMISSION_READONLY,
+      slotStatus: settings.readOnly,
+      statusLabel: resolveSlotStatusLabel(settings.readOnly),
+    },
+  ];
+}
+
+function createAuditEvent(
+  action: ApiKeyAuditEvent["action"],
+  keyName: string,
+  outcome: ApiKeyAuditEvent["outcome"],
+): ApiKeyAuditEvent {
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    occurredAtUtc: new Date().toISOString(),
+    actor: API_KEYS_AUDIT_ACTOR_SELF,
+    action,
+    keyName,
+    outcome,
+  };
+}
+
+function resolveSuccessBanner(
+  slot: ApiKeyCredentialSlot,
+  invalidatePrevious: boolean,
+): string {
+  if (slot === "ReadOnly") {
+    return API_KEYS_ROTATE_SUCCESS_READONLY;
+  }
+
+  if (!invalidatePrevious) {
+    return API_KEYS_OVERLAP_SUCCESS;
+  }
+
+  return API_KEYS_ROTATE_SUCCESS_ADMIN;
 }
 
 export function ApiKeysSettingsPageClient() {
+  const surfaceEnabled = isApiKeysSettingsSurfaceEnabled();
+  const showTechnicalDetails = isArchLucidInternalOperatorShellEnv();
   const [state, setState] = useState<LoadState>({ status: "idle" });
-  const [rotateReveal, setRotateReveal] = useState<RotateReveal | null>(null);
+  const [rotateReveal, setRotateReveal] = useState<AdminApiKeyRotateResponse | null>(null);
+  const [pendingAction, setPendingAction] = useState<ApiKeyPendingAction | null>(null);
   const [rotating, setRotating] = useState(false);
+  const [auditEvents, setAuditEvents] = useState<readonly ApiKeyAuditEvent[]>([]);
+  const [statusBanner, setStatusBanner] = useState<string | null>(null);
+  const eventsSectionRef = useRef<HTMLElement | null>(null);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -74,7 +153,7 @@ export function ApiKeysSettingsPageClient() {
           status: "blocked",
           note:
             res.status === 401 || res.status === 403
-              ? "Admin session required for API key management (`AdminAuthority`)."
+              ? API_KEYS_RESTRICTED_DESCRIPTION
               : `API key settings unavailable (HTTP ${res.status}).`,
         });
 
@@ -89,185 +168,216 @@ export function ApiKeysSettingsPageClient() {
   }, []);
 
   useEffect(() => {
+    if (!surfaceEnabled) {
+      return;
+    }
+
     void load();
-  }, [load]);
+  }, [load, surfaceEnabled]);
 
-  const rotate = useCallback(async (slot: "Admin" | "ReadOnly", invalidatePrevious: boolean) => {
-    setRotating(true);
-    setRotateReveal(null);
+  const executeRotate = useCallback(
+    async (slot: ApiKeyCredentialSlot, invalidatePrevious: boolean) => {
+      setRotating(true);
+      setRotateReveal(null);
+      setStatusBanner(null);
+      const keyName = slot === "Admin" ? API_KEYS_ADMIN_KEY_NAME : API_KEYS_READONLY_KEY_NAME;
 
-    try {
-      const res = await fetch(`${settingsPath}/rotate`, {
-        ...mergeRegistrationScopeForProxy({
-          method: "POST",
-          headers: { Accept: "application/json", "Content-Type": "application/json" },
-        }),
-        body: JSON.stringify({ slot, invalidatePrevious }),
-      });
-
-      if (!res.ok) {
-        setState({
-          status: "blocked",
-          note: `Rotation failed (HTTP ${res.status}).`,
+      try {
+        const res = await fetch(`${settingsPath}/rotate`, {
+          ...mergeRegistrationScopeForProxy({
+            method: "POST",
+            headers: { Accept: "application/json", "Content-Type": "application/json" },
+          }),
+          body: JSON.stringify({ slot, invalidatePrevious }),
         });
 
-        return;
-      }
+        if (!res.ok) {
+          setAuditEvents((current) => [
+            createAuditEvent("rotation_failed", keyName, "failed"),
+            ...current,
+          ]);
+          setStatusBanner(API_KEYS_ROTATE_FAILED);
 
-      const response = (await res.json()) as AdminApiKeyRotateResponse;
-      setRotateReveal({ response });
-    } catch (e: unknown) {
-      setState({ status: "blocked", note: e instanceof Error ? e.message : String(e) });
-    } finally {
-      setRotating(false);
+          return;
+        }
+
+        const response = (await res.json()) as AdminApiKeyRotateResponse;
+        setRotateReveal(response);
+        setStatusBanner(resolveSuccessBanner(slot, invalidatePrevious));
+        setAuditEvents((current) => [
+          createAuditEvent(
+            slot === "Admin" && !invalidatePrevious ? "overlap_key_issued" : "key_rotated",
+            keyName,
+            "success",
+          ),
+          ...current,
+        ]);
+        await load();
+      } catch {
+        setAuditEvents((current) => [
+          createAuditEvent("rotation_failed", keyName, "failed"),
+          ...current,
+        ]);
+        setStatusBanner(API_KEYS_ROTATE_FAILED);
+      } finally {
+        setRotating(false);
+        setPendingAction(null);
+      }
+    },
+    [load],
+  );
+
+  const summary = useMemo(() => {
+    if (state.status !== "ready") {
+      return {
+        accessEnabled: false,
+        activeAdminKeys: 0,
+        activeReadOnlyKeys: 0,
+        lastRotationUtc: null,
+        lastUsedUtc: null,
+      };
     }
-  }, []);
+
+    return buildApiKeysSummary(state.settings, auditEvents);
+  }, [auditEvents, state]);
+
+  const credentialRows = useMemo(() => {
+    if (state.status !== "ready") {
+      return [];
+    }
+
+    return buildCredentialRows(state.settings);
+  }, [state]);
+
+  if (!surfaceEnabled) {
+    return <ApiKeysSettingsRestrictedState reason="surface_disabled" />;
+  }
+
+  if (state.status === "blocked") {
+    return <ApiKeysSettingsRestrictedState reason="forbidden" />;
+  }
 
   return (
-    <div className="w-full max-w-3xl space-y-6" data-testid="api-keys-settings-page">
-      <header>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>API keys</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Host authentication keys under{" "}
-          <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
-            Authentication:ApiKey
-          </span>
-          . This UI never stores raw keys — copy new material once and update Key Vault or app settings. For
-          zero-downtime overlap, append the suffix to your existing config value (comma-separated segments).
-        </p>
+    <div className="w-full max-w-5xl space-y-6" data-testid="api-keys-settings-page">
+      <header className="space-y-3">
+        <Button asChild variant="ghost" size="sm" className="h-8 px-0 text-teal-800 dark:text-teal-300">
+          <Link href="/settings#settings-section-advanced">← Settings</Link>
+        </Button>
+        <div>
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{API_KEYS_PAGE_TITLE}</h1>
+          <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {API_KEYS_PAGE_SUBTITLE}
+          </p>
+          <p className={cn("mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {API_KEYS_ENTERPRISE_ONLY_NOTICE}
+          </p>
+        </div>
       </header>
 
       {state.status === "loading" ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading API key status…</p>
       ) : null}
-      {state.status === "blocked" ? (
-        <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-rose-800 dark:text-rose-200")} role="alert">
-          {state.note}
+
+      {state.status === "ready" && state.settings.enabled === false ? (
+        <p className={cn("m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)} role="status">
+          {API_KEYS_SSO_ONLY_NOTICE}
         </p>
       ) : null}
 
+      {statusBanner ? (
+        <p className={cn("m-0 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100", OPERATOR_TYPOGRAPHY.body)} role="status">
+          {statusBanner}
+        </p>
+      ) : null}
+
+      <ApiKeysSettingsSummaryRow summary={summary} loading={state.status === "loading"} />
+
       {state.status === "ready" ? (
         <Card>
-          <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Current status</CardTitle>
-          </CardHeader>
-          <CardContent className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)}>
-            <dl className="m-0 grid grid-cols-[minmax(0,200px)_1fr] gap-2">
-              <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Authentication:ApiKey:Enabled
-              </dt>
-              <dd className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                {String(state.settings.enabled)}
-              </dd>
-              <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>DevelopmentBypassAll</dt>
-              <dd className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                {String(state.settings.developmentBypassAll)}
-              </dd>
-            </dl>
-
-            {state.settings.developmentBypassAll ? (
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body, "text-amber-900 dark:text-amber-100")} role="status">
-                Development bypass is enabled on this host — do not use in production.
-              </p>
-            ) : null}
-
-            <div className="space-y-3">
-              <section className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
-                <ApiKeySlotPanel label="Admin key" slot={state.settings.admin} />
-              </section>
-              <section className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
-                <ApiKeySlotPanel label="Read-only key" slot={state.settings.readOnly} />
-              </section>
-            </div>
-
-            <div className="flex flex-wrap gap-2 pt-2">
-              <Button type="button" size="sm" disabled={rotating} onClick={() => void rotate("Admin", true)}>
-                Rotate admin key (replace)
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{API_KEYS_CREDENTIALS_SECTION_TITLE}</CardTitle>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                disabled={rotating}
+                onClick={() => setPendingAction({ kind: "issue_overlap" })}
+              >
+                {API_KEYS_ACTION_ISSUE_OVERLAP}
               </Button>
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
                 disabled={rotating}
-                onClick={() => void rotate("Admin", false)}
+                onClick={() => setPendingAction({ kind: "rotate_readonly" })}
               >
-                Issue admin overlap key
+                {API_KEYS_ACTION_ROTATE_READONLY}
               </Button>
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
-                disabled={rotating}
-                onClick={() => void rotate("ReadOnly", true)}
+                onClick={() => eventsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
               >
-                Rotate read-only key
+                {API_KEYS_ACTION_VIEW_AUDIT}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="destructive"
+                disabled={rotating}
+                onClick={() => setPendingAction({ kind: "rotate_admin" })}
+              >
+                {API_KEYS_ACTION_ROTATE_ADMIN}
               </Button>
             </div>
+          </CardHeader>
+          <CardContent>
+            <ApiKeyCredentialTable
+              rows={credentialRows}
+              busy={rotating}
+              onIssueOverlap={() => setPendingAction({ kind: "issue_overlap" })}
+              onRotateAdmin={() => setPendingAction({ kind: "rotate_admin" })}
+              onRotateReadOnly={() => setPendingAction({ kind: "rotate_readonly" })}
+            />
           </CardContent>
         </Card>
       ) : null}
 
-      {rotateReveal ? (
-        <Card data-testid="api-key-rotate-reveal">
-          <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Copy new key material</CardTitle>
-          </CardHeader>
-          <CardContent className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
-            <p className={cn("m-0 text-rose-900 dark:text-rose-100", OPERATOR_TYPOGRAPHY.body)} role="alert">
-              Shown once. It will not appear again after you dismiss this panel.
-            </p>
-            <p className="m-0">
-              Config path:{" "}
-              <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
-                {rotateReveal.response.configPath ?? "—"}
-              </span>
-            </p>
-            <label className="block space-y-1">
-              <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>New key</span>
-              <textarea
-                className={cn(
-                  "w-full rounded-md border border-neutral-300 bg-neutral-50 p-2 font-mono dark:border-neutral-600 dark:bg-neutral-900",
-                  OPERATOR_TYPOGRAPHY.micro,
-                )}
-                readOnly
-                rows={2}
-                value={rotateReveal.response.plaintextKey ?? ""}
-                data-testid="api-key-plaintext"
-              />
-            </label>
-            {rotateReveal.response.deploymentAction === "Replace" ? (
-              <label className="block space-y-1">
-                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>Set config value to</span>
-                <textarea
-                  className={cn(
-                    "w-full rounded-md border border-neutral-300 bg-neutral-50 p-2 font-mono dark:border-neutral-600 dark:bg-neutral-900",
-                    OPERATOR_TYPOGRAPHY.micro,
-                  )}
-                  readOnly
-                  rows={2}
-                  value={rotateReveal.response.replaceConfigValue ?? ""}
-                />
-              </label>
-            ) : (
-              <label className="block space-y-1">
-                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
-                  Append to existing config value
-                </span>
-                <textarea
-                  className={cn(
-                    "w-full rounded-md border border-neutral-300 bg-neutral-50 p-2 font-mono dark:border-neutral-600 dark:bg-neutral-900",
-                    OPERATOR_TYPOGRAPHY.micro,
-                  )}
-                  readOnly
-                  rows={1}
-                  value={rotateReveal.response.appendConfigSuffix ?? ""}
-                />
-              </label>
-            )}
-            <DismissControl onDismiss={() => setRotateReveal(null)} />
-          </CardContent>
-        </Card>
+      <section ref={eventsSectionRef} className="space-y-3">
+        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{API_KEYS_RECENT_EVENTS_SECTION_TITLE}</h2>
+        <ApiKeyRecentEventsTable events={auditEvents} />
+      </section>
+
+      {rotateReveal ? <ApiKeyRotateRevealPanel response={rotateReveal} onDismiss={() => setRotateReveal(null)} /> : null}
+
+      {showTechnicalDetails && state.status === "ready" ? (
+        <ApiKeysSettingsTechnicalDetails settings={state.settings} rotateResponse={rotateReveal} />
       ) : null}
+
+      <ApiKeyActionConfirmDialog
+        pendingAction={pendingAction}
+        busy={rotating}
+        onCancel={() => setPendingAction(null)}
+        onConfirm={() => {
+          if (pendingAction === null) {
+            return;
+          }
+
+          if (pendingAction.kind === "rotate_admin") {
+            void executeRotate("Admin", true);
+            return;
+          }
+
+          if (pendingAction.kind === "rotate_readonly") {
+            void executeRotate("ReadOnly", true);
+            return;
+          }
+
+          void executeRotate("Admin", false);
+        }}
+      />
     </div>
   );
 }

@@ -40,6 +40,8 @@ describe("operator-home-example-request", () => {
     expect(
       resolveReviewIntakeExampleTemplate({ templateParam: "claims-intake-modernization" })?.title,
     ).toBe("Claims Intake Modernization");
+    expect(resolveReviewIntakeExampleTemplate({ templateParam: "saas-readiness" })?.title).toBe("SaaS readiness");
+    expect(resolveReviewIntakeExampleTemplate({ templateParam: "ai-governance" })?.title).toBe("AI governance");
     expect(resolveReviewIntakeExampleTemplate({ exampleParam: "healthcare-claims-intake" })?.id).toBe(
       "claims-intake-modernization",
     );

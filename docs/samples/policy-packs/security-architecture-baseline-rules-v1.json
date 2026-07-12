@@ -3,8 +3,8 @@
   "kind": "archlucid.policyPack.curatedRules.v1",
   "pack": {
     "name": "Security Architecture Baseline",
-    "description": "Starter security posture checks for cloud architecture reviews \u2014 identity, network, encryption, logging, and secure SDLC. Aligned to CIS Azure Foundations and OWASP ASVS themes. Not an exhaustive compliance assessment.",
-    "version": "1.1.0",
+    "description": "Starter security posture checks for cloud architecture reviews \u2014 identity, network, encryption, logging, and secure SDLC. Grounded in Azure, AWS, and GCP inventory ZIP manifests plus architecture manifest governance fields. Aligned to CIS and OWASP themes. Not an exhaustive compliance assessment.",
+    "version": "1.1.1",
     "category": "Security",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",

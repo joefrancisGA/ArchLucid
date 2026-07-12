@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
+import * as enterpriseCompactEmptyStatePresets from "@/lib/enterprise-compact-empty-state-presets";
 import {
   DECISION_REGISTER_EMPTY_COMPACT,
   EXECUTIVE_REVIEWS_EMPTY_COMPACT,
@@ -8,6 +10,13 @@ import {
   RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT,
   SCIM_NO_TOKENS_EMPTY_COMPACT,
 } from "@/lib/enterprise-compact-empty-state-presets";
+
+function compactPresetsWithActions(): Array<{ name: string; preset: EnterpriseCompactEmptyStateProps }> {
+  return Object.entries(enterpriseCompactEmptyStatePresets)
+    .filter(([name, value]) => name.endsWith("_COMPACT") && typeof value === "object" && value !== null)
+    .map(([name, preset]) => ({ name, preset: preset as EnterpriseCompactEmptyStateProps }))
+    .filter(({ preset }) => (preset.actions?.length ?? 0) > 0);
+}
 
 describe("enterprise compact empty state presets (pass 5)", () => {
   it("assigns stable test ids for operator empty surfaces", () => {
@@ -25,6 +34,7 @@ describe("enterprise compact empty state presets (pass 5)", () => {
   it("surfaces first-hour CTAs on executive and decision register empties", () => {
     expect(EXECUTIVE_REVIEWS_EMPTY_COMPACT.actions?.[0]?.href).toBe("/see-it");
     expect(DECISION_REGISTER_EMPTY_COMPACT.actions?.[0]?.href).toBe("/reviews?projectId=default");
+    expect(DECISION_REGISTER_EMPTY_COMPACT.actions?.[1]?.href).toBe("/reviews/new");
     expect(IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT.actions?.[0]?.href).toBe("/settings/identity/sso-wizard");
   });
 
@@ -42,6 +52,15 @@ describe("enterprise compact empty state presets (pass 5)", () => {
       const corpus = [preset.title, preset.description ?? ""].join(" ").toLowerCase();
 
       expect(corpus, preset.testId).not.toMatch(/\boperator\b/);
+    }
+  });
+
+  it("uses unique action hrefs per preset (EnterpriseCompactEmptyState keys by href)", () => {
+    for (const { name, preset } of compactPresetsWithActions()) {
+      const hrefs = (preset.actions ?? []).map((action) => action.href);
+      const uniqueHrefs = new Set(hrefs);
+
+      expect(uniqueHrefs.size, `${name} (${preset.testId ?? "no testId"})`).toBe(hrefs.length);
     }
   });
 });

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceScheduleCreatePanel } from "@/components/governance/RecurrenceScheduleCreatePanel";
 import { RecurrenceScheduleExamplesSection } from "@/components/governance/RecurrenceScheduleExamplesSection";
 import { RecurrenceScheduleFormFields } from "@/components/governance/RecurrenceScheduleFormFields";
@@ -210,7 +211,7 @@ export default function RecurrenceSchedulesClient() {
     setEditorState(null);
   }
 
-  async function saveEdit(scheduleId: string): Promise<void> {
+  async function saveEdit(scheduleId: string, isEnabled: boolean): Promise<void> {
     if (!canMutate || editorState === null) {
       return;
     }
@@ -228,7 +229,7 @@ export default function RecurrenceSchedulesClient() {
       await updateArchitectureReviewRecurrenceSchedule(scheduleId, {
         name: editorState.name.trim(),
         cronExpression: editorState.cronExpression.trim(),
-        isEnabled: editorState.isEnabled,
+        isEnabled,
       });
 
       cancelEdit();
@@ -383,17 +384,10 @@ export default function RecurrenceSchedulesClient() {
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
                         {isEditing && editorState !== null ? (
-                          <form
-                            className="flex min-w-[18rem] flex-col gap-3"
-                            onSubmit={(event) => {
-                              event.preventDefault();
-                              void saveEdit(schedule.scheduleId);
-                            }}
-                          >
+                          <div className="flex min-w-[18rem] flex-col gap-3">
                             <RecurrenceScheduleFormFields
                               name={editorState.name}
                               cronExpression={editorState.cronExpression}
-                              isEnabled={editorState.isEnabled}
                               disabled={busyId === schedule.scheduleId}
                               onNameChange={(value) =>
                                 setEditorState((current) => (current === null ? current : { ...current, name: value }))
@@ -403,26 +397,21 @@ export default function RecurrenceSchedulesClient() {
                                   current === null ? current : { ...current, cronExpression: value },
                                 )
                               }
-                              onIsEnabledChange={(value) =>
-                                setEditorState((current) =>
-                                  current === null ? current : { ...current, isEnabled: value },
-                                )
-                              }
                             />
-                            <div className="flex flex-wrap gap-2">
-                              <Button
-                                type="submit"
-                                size="sm"
-                                disabled={busyId === schedule.scheduleId || !canMutate}
-                                title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                              >
-                                Save
-                              </Button>
-                              <Button type="button" size="sm" variant="outline" onClick={cancelEdit}>
-                                Cancel
-                              </Button>
-                            </div>
-                          </form>
+                            <RecurrenceScheduleActivationActions
+                              mode="edit"
+                              cronExpression={editorState.cronExpression}
+                              pendingIsEnabled={editorState.isEnabled}
+                              disabled={!canMutate}
+                              busy={busyId === schedule.scheduleId}
+                              onSavePaused={() => void saveEdit(schedule.scheduleId, false)}
+                              onEnableRecurring={() => void saveEdit(schedule.scheduleId, true)}
+                              onSaveChanges={() => void saveEdit(schedule.scheduleId, editorState.isEnabled)}
+                            />
+                            <Button type="button" size="sm" variant="outline" onClick={cancelEdit}>
+                              Cancel
+                            </Button>
+                          </div>
                         ) : (
                           <div className="flex flex-col gap-2">
                             <div className="flex flex-wrap gap-2">

@@ -419,6 +419,89 @@ public sealed class PilotsController(
         return NoContent();
     }
 
+    /// <summary>
+    ///     Records preliminary architecture sponsor sharing for draft runs (audit-only).
+    /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("runs/{runId}/sponsor-preliminary-share")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> PostSponsorPreliminaryShare(
+        string runId,
+        [FromBody] SponsorPreliminarySharePostRequest? body,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
+        if (detail is null)
+        {
+            return this.NotFoundProblem($"Run '{runId}' was not found (or is out of scope).", ProblemTypes.RunNotFound);
+        }
+
+        string readinessStatus = body?.ReadinessStatus?.Trim() ?? "unknown";
+
+        if (readinessStatus.Length > 64)
+        {
+            readinessStatus = readinessStatus[..64];
+        }
+
+        if (!string.Equals(readinessStatus, "ready", StringComparison.OrdinalIgnoreCase)
+            && body?.OverrideAcknowledged != true)
+        {
+            return this.ConflictProblem(
+                "Preliminary sponsor sharing requires explicit override acknowledgement when readiness is not Ready.",
+                ProblemTypes.Conflict);
+        }
+
+        string deliveryMethod = body?.DeliveryMethod?.Trim() ?? "preliminary-draft";
+
+        if (deliveryMethod.Length > 64)
+        {
+            deliveryMethod = deliveryMethod[..64];
+        }
+
+        string? confidentialityLabel = body?.ConfidentialityLabel?.Trim();
+
+        if (confidentialityLabel is not null && confidentialityLabel.Length > 256)
+        {
+            confidentialityLabel = confidentialityLabel[..256];
+        }
+
+        string[] knownGaps = body?.KnownGaps ?? Array.Empty<string>();
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string actor = actorContext.GetActor();
+        string payload = JsonSerializer.Serialize(
+            new
+            {
+                runId = detail.Run.RunId,
+                readinessStatus,
+                knownGaps,
+                overrideAcknowledged = body?.OverrideAcknowledged == true,
+                confidentialityLabel,
+                deliveryMethod,
+                isCommitted = detail.IsCommitted,
+                recordedUtc = TimeProvider.System.GetUtcNow(),
+            });
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.SponsorPreliminaryArchitectureShared,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = payload,
+            },
+            cancellationToken);
+
+        return NoContent();
+    }
+
     /// <summary>JSON pilot scorecard for the current tenant scope (UTC window).</summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("scorecard")]

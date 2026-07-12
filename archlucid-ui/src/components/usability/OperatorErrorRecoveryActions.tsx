@@ -8,6 +8,7 @@ import { InAppHelpLink } from "@/components/InAppHelpLink";
 
 type OperatorErrorRecoveryActionsProps = {
   readonly helpSlug?: string;
+  readonly helpHashFragment?: string;
   readonly showSystemHealth?: boolean;
 };
 
@@ -25,7 +26,12 @@ export function OperatorErrorRecoveryActions(props: OperatorErrorRecoveryActions
         Retry
       </button>
       {props.helpSlug !== undefined ? (
-        <InAppHelpLink helpSlug={props.helpSlug} label="Open troubleshooting" variant="text" />
+        <InAppHelpLink
+          helpSlug={props.helpSlug}
+          hashFragment={props.helpHashFragment}
+          label="Open troubleshooting"
+          variant="text"
+        />
       ) : (
         <Link href="/help/troubleshooting" className="text-teal-800 underline dark:text-teal-300">
           Open troubleshooting

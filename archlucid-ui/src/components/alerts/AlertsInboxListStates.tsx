@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { ALERTS_INBOX_PAGE_SIZE } from "@/app/(operator)/alerts/_sections/load-alerts-inbox-page-model";
+import { ALERTS_INBOX_PAGE_SIZE } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type AlertsInboxListStatesProps = {

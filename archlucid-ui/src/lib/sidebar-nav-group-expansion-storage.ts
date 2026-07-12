@@ -10,7 +10,6 @@ export type SidebarCollapsibleNavGroupId =
   | "operate-governance"
   | "operate-reports"
   | "operate-integrations"
-  | "operate-platform-ops"
   | "operator-admin"
   | "operator-system-admin";
 
@@ -29,7 +28,6 @@ export const SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION: SidebarNavGroupExpansionState 
   "operate-governance": false,
   "operate-reports": false,
   "operate-integrations": false,
-  "operate-platform-ops": false,
   "operator-admin": false,
   "operator-system-admin": false,
 };
@@ -102,7 +100,6 @@ function migrateLegacySidebarExpansion(): SidebarNavGroupExpansionState {
     "operate-governance": governanceExpanded,
     "operate-reports": reportsExpanded,
     "operate-integrations": integrationsExpanded,
-    "operate-platform-ops": false,
     "operator-admin": showAdministration,
     "operator-system-admin": false,
   };
@@ -118,6 +115,7 @@ function parseStoredExpansion(raw: string): SidebarNavGroupExpansionState | null
 
     const record = parsed as Record<string, unknown>;
     const legacyOperationsExpanded = record["operate-operations"] === true;
+    const legacyPlatformOpsExpanded = record["operate-platform-ops"] === true;
 
     return {
       pilot: record.pilot !== false,
@@ -127,8 +125,8 @@ function parseStoredExpansion(raw: string): SidebarNavGroupExpansionState | null
       "operate-governance": record["operate-governance"] === true,
       "operate-reports": record["operate-reports"] === true || legacyOperationsExpanded,
       "operate-integrations": record["operate-integrations"] === true || legacyOperationsExpanded,
-      "operate-platform-ops": record["operate-platform-ops"] === true || legacyOperationsExpanded,
-      "operator-admin": record["operator-admin"] === true,
+      "operator-admin":
+        record["operator-admin"] === true || legacyPlatformOpsExpanded || legacyOperationsExpanded,
       "operator-system-admin": record["operator-system-admin"] === true,
     };
   } catch {
@@ -187,7 +185,6 @@ export function isSidebarCollapsibleNavGroupId(groupId: string): groupId is Side
     groupId === "operate-governance" ||
     groupId === "operate-reports" ||
     groupId === "operate-integrations" ||
-    groupId === "operate-platform-ops" ||
     groupId === "operator-admin" ||
     groupId === "operator-system-admin"
   );

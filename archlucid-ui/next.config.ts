@@ -128,11 +128,19 @@ const nextConfig: NextConfig = {
       { source: "/audit/:path*", destination: "/governance/audit/:path*", permanent: true },
       { source: "/alerts", destination: "/governance/alerts", permanent: true },
       { source: "/alerts/:path*", destination: "/governance/alerts/:path*", permanent: true },
-      { source: "/alert-rules", destination: "/governance/alerts?tab=rules", permanent: false },
-      { source: "/alert-routing", destination: "/governance/alerts?tab=routing", permanent: false },
-      { source: "/composite-alert-rules", destination: "/governance/alerts?tab=composite", permanent: false },
-      { source: "/alert-simulation", destination: "/governance/alerts?tab=simulation", permanent: false },
-      { source: "/alert-tuning", destination: "/governance/alerts?tab=simulation", permanent: false },
+      { source: "/alert-rules", destination: "/governance/alert-rules", permanent: false },
+      { source: "/alert-routing", destination: "/governance/alert-rules?tab=routing", permanent: false },
+      { source: "/composite-alert-rules", destination: "/governance/alert-rules?tab=composite", permanent: false },
+      { source: "/alert-simulation", destination: "/governance/alert-rules?tab=simulation", permanent: false },
+      { source: "/alert-tuning", destination: "/governance/alert-rules?tab=simulation", permanent: false },
+      { source: "/governance/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "rules" }], permanent: false },
+      { source: "/governance/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "routing" }], permanent: false },
+      { source: "/governance/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "composite" }], permanent: false },
+      { source: "/governance/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "simulation" }], permanent: false },
+      { source: "/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "rules" }], permanent: false },
+      { source: "/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "routing" }], permanent: false },
+      { source: "/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "composite" }], permanent: false },
+      { source: "/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "simulation" }], permanent: false },
       { source: "/settings/webhooks", destination: "/integrations/webhooks", permanent: true },
       { source: "/integrations/itsm", destination: "/integrations/readiness", permanent: true },
       { source: "/integrations/itsm/:path*", destination: "/integrations/readiness", permanent: true },
@@ -153,9 +161,15 @@ const nextConfig: NextConfig = {
       { source: "/admin/support/:path*", destination: "/settings/support/:path*", permanent: true },
       // Administration users/roles nav consolidation (TB-522).
       { source: "/settings/roles", destination: "/settings/users?tab=roles", permanent: true },
+      { source: "/settings/roles/:path*", destination: "/settings/users/:path*", permanent: true },
       // Executive dashboard consolidation (TB-608) — same ExecutiveRoiDashboardPageView content as
       // the operator-shell /dashboard nav item; the standalone executive-chrome page is retired.
       { source: "/executive/dashboard", destination: "/dashboard", permanent: true },
+      // Cross-tenant portfolio page retired — portfolio overview nav already targets /dashboard.
+      { source: "/portfolio", destination: "/dashboard", permanent: true },
+      // Executive reviews retired — operator /reviews tree is canonical (TB-608 follow-on).
+      { source: "/executive/reviews", destination: "/reviews", permanent: true },
+      { source: "/executive/reviews/:path*", destination: "/reviews/:path*", permanent: true },
     ];
   },
   async rewrites() {
@@ -171,25 +185,6 @@ const nextConfig: NextConfig = {
       },
       // Run-scoped signed record deep link lands on the review package (manifest summary section).
       { source: "/reviews/:id/signed-record", destination: "/reviews/:id" },
-      // Governance canonical URLs reuse existing App Router trees (TB-405).
-      { source: "/governance/resolution", destination: "/governance-resolution" },
-      { source: "/governance/resolution/:path*", destination: "/governance-resolution/:path*" },
-      { source: "/governance/audit", destination: "/audit" },
-      { source: "/governance/audit/:path*", destination: "/audit/:path*" },
-      { source: "/governance/alerts", destination: "/alerts" },
-      { source: "/governance/alerts/:path*", destination: "/alerts/:path*" },
-      // Tenant-administration canonical URLs reuse existing App Router trees (TB-406).
-      { source: "/settings/security-trust", destination: "/workspace/security-trust" },
-      { source: "/settings/security-trust/:path*", destination: "/workspace/security-trust/:path*" },
-      { source: "/settings/users", destination: "/settings/roles" },
-      { source: "/settings/support", destination: "/admin/support" },
-      { source: "/settings/support/:path*", destination: "/admin/support/:path*" },
-      // Integrations canonical URLs reuse settings cloud-connections App Router tree (TB-407).
-      { source: "/integrations/cloud-connections", destination: "/settings/cloud-connections" },
-      { source: "/integrations/cloud-connections/:path*", destination: "/settings/cloud-connections/:path*" },
-      // Semantic path aliases reuse existing App Router trees (TB-408).
-      { source: "/integrations/readiness", destination: "/integrations/operations" },
-      { source: "/integrations/readiness/:path*", destination: "/integrations/operations/:path*" },
       { source: "/settings/ai-usage", destination: "/settings/cost-reporting" },
       { source: "/settings/ai-usage/:path*", destination: "/settings/cost-reporting/:path*" },
     ];

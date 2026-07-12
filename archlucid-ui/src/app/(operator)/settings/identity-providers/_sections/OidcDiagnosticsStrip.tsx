@@ -10,6 +10,7 @@ type AdminOidcDiagnosticsResponse = components["schemas"]["AdminOidcDiagnosticsR
 export type OidcDiagnosticsStripProps = {
   payload: AdminOidcDiagnosticsResponse | null;
   fetchNote: string | null;
+  readonly showTechnicalDetails?: boolean;
 };
 
 function discoveryStatusLabel(payload: AdminOidcDiagnosticsResponse): string {
@@ -63,13 +64,19 @@ export function OidcDiagnosticsStrip(props: OidcDiagnosticsStripProps) {
     <Card data-testid="oidc-diagnostics-card">
       <CardHeader>
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>OIDC discovery diagnostics</CardTitle>
-        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          From{" "}
-          <span className={cn("font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.micro)}>
-            GET /v1/admin/auth/oidc-diagnostics
-          </span>{" "}
-          (Admin session). Secrets are never returned.
-        </p>
+        {props.showTechnicalDetails === true ? (
+          <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+            From{" "}
+            <span className={cn("font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.micro)}>
+              GET /v1/admin/auth/oidc-diagnostics
+            </span>{" "}
+            (Admin session). Secrets are never returned.
+          </p>
+        ) : (
+          <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+            Discovery validation for the configured OIDC authority and audience.
+          </p>
+        )}
       </CardHeader>
       <CardContent className={cn("space-y-3 text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         <div className="flex flex-wrap items-center gap-2">
@@ -83,8 +90,8 @@ export function OidcDiagnosticsStrip(props: OidcDiagnosticsStripProps) {
         </div>
         <dl className={cn("m-0 grid gap-2", OPERATOR_TYPOGRAPHY.helper)}>
           <div>
-            <dt className={OPERATOR_NAV_GROUP_LABEL}>Auth mode</dt>
-            <dd className="m-0 mt-1 font-mono">{payload.authMode ?? "—"}</dd>
+            <dt className={OPERATOR_NAV_GROUP_LABEL}>Authentication mode</dt>
+            <dd className="m-0 mt-1">{formatAuthModeLabel(payload.authMode)}</dd>
           </div>
           <div>
             <dt className={OPERATOR_NAV_GROUP_LABEL}>Configured authority</dt>
@@ -94,7 +101,7 @@ export function OidcDiagnosticsStrip(props: OidcDiagnosticsStripProps) {
             <dt className={OPERATOR_NAV_GROUP_LABEL}>Configured audience</dt>
             <dd className="m-0 mt-1 break-all font-mono">{payload.configuredAudience ?? "—"}</dd>
           </div>
-          {payload.openIdConfigurationUrl ? (
+          {payload.openIdConfigurationUrl && props.showTechnicalDetails === true ? (
             <div>
               <dt className={OPERATOR_NAV_GROUP_LABEL}>Discovery URL</dt>
               <dd className="m-0 mt-1 break-all font-mono">{payload.openIdConfigurationUrl}</dd>
@@ -124,4 +131,17 @@ export function OidcDiagnosticsStrip(props: OidcDiagnosticsStripProps) {
       </CardContent>
     </Card>
   );
+}
+
+function formatAuthModeLabel(authMode: string | null | undefined): string {
+  switch (authMode) {
+    case "DevelopmentBypass":
+      return "Local development sign-in";
+    case "JwtBearer":
+      return "OIDC / JWT";
+    case "ApiKey":
+      return "API key";
+    default:
+      return authMode ?? "—";
+  }
 }

@@ -45,7 +45,7 @@ export function OperatorLayeredConnectivityError(props: OperatorLayeredConnectiv
       <div data-testid="operator-connectivity-primary">
         <strong>{OPERATOR_CONNECTIVITY_ERROR_PRIMARY_HEADING}</strong>
         <p className="mt-2">{OPERATOR_CONNECTIVITY_ERROR_PRIMARY_BODY}</p>
-        <OperatorErrorRecoveryActions helpSlug="troubleshooting" showSystemHealth />
+        <OperatorErrorRecoveryActions helpSlug="troubleshooting" helpHashFragment="overview-workspace-empty" showSystemHealth />
       </div>
       <OperatorErrorUiReferenceLine />
       <details

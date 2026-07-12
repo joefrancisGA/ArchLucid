@@ -103,22 +103,135 @@ export const SECURITY_TRUST_MATURITY_SECTION_HEADINGS: Readonly<
 > = {
   available_now: {
     id: "security-trust-available-now",
-    title: "Available now",
-    intro: "Public summaries and artifacts you can reference while scoping diligence.",
+    title: "Publicly available",
+    intro: "Published summaries and artifacts for initial security review.",
   },
   during_diligence: {
     id: "security-trust-during-diligence",
-    title: "Available during diligence",
-    intro: "Engagements in flight or summarized for procurement under confidentiality.",
+    title: "Available under NDA",
+    intro: "Detailed materials shared after diligence intake and confidentiality review.",
   },
   planned_next: {
     id: "security-trust-planned-next",
-    title: "Planned next assurance cycle",
-    intro: "Scheduled or roadmap assurance work — timelines and scope align with your procurement calendar.",
+    title: "Planned",
+    intro: "Scheduled assurance work in the next review cycle.",
   },
 };
 
 export const SECURITY_TRUST_NDA_NOTICE =
-  "Detailed third-party test reports and quantitative findings are shared under NDA when available. This page records status and how to request material during diligence.";
+  "Detailed third-party test reports and quantitative findings are shared under NDA when available. This page summarizes what you can review today and how to request additional materials.";
 
 export const SECURITY_TRUST_SOC2_READINESS_FOOTNOTE = "Not a SOC 2 attestation report.";
+
+export const SECURITY_TRUST_HERO_SUPPORTING =
+  "Review ArchLucid’s current assurance posture, public security materials, and due-diligence process.";
+
+export type SecurityTrustEvidenceGroup = {
+  readonly id: string;
+  readonly title: string;
+  readonly summary: string;
+  readonly examples: readonly string[];
+};
+
+export const SECURITY_TRUST_EVIDENCE_GROUPS: readonly SecurityTrustEvidenceGroup[] = [
+  {
+    id: "public",
+    title: "Publicly available",
+    summary: "Artifacts you can reference during initial security and procurement review.",
+    examples: [
+      "SOC 2 readiness summary excerpt and accessibility statement",
+      "Published data-handling posture and architecture documentation",
+      "Trust Center evidence summaries",
+    ],
+  },
+  {
+    id: "nda",
+    title: "Available under NDA",
+    summary: "Detailed reports and findings shared after diligence intake.",
+    examples: [
+      "Internal security assessment summaries",
+      "Questionnaire responses and control evidence packs",
+    ],
+  },
+  {
+    id: "on-request",
+    title: "Available on request",
+    summary: "Materials coordinated through your security contact after diligence intake.",
+    examples: [
+      "Subprocessor and tenancy detail for active evaluations",
+      "Secure disclosure and encrypted communication instructions",
+    ],
+  },
+  {
+    id: "planned",
+    title: "Planned",
+    summary: "Scheduled assurance work in the next review cycle.",
+    examples: ["Independent third-party penetration test with redacted summary when complete"],
+  },
+] as const;
+
+export type SecurityTrustSummaryColumn = {
+  readonly id: string;
+  readonly title: string;
+  readonly status: string;
+  readonly description: string;
+  readonly href?: string;
+  readonly linkLabel?: string;
+};
+
+export const SECURITY_TRUST_SUMMARY_COLUMNS: readonly SecurityTrustSummaryColumn[] = [
+  {
+    id: "public-evidence",
+    title: "Public evidence",
+    status: "Available now",
+    description: "Procurement-ready summaries, accessibility attestation, and published control mapping.",
+    href: "/trust",
+    linkLabel: "View Trust Center",
+  },
+  {
+    id: "nda-materials",
+    title: "NDA materials",
+    status: "Available under NDA",
+    description: "Detailed security assessments and questionnaire responses after diligence intake.",
+    href: "mailto:security@archlucid.net",
+    linkLabel: "Request diligence materials",
+  },
+  {
+    id: "next-cycle",
+    title: "Next assurance cycle",
+    status: "Planned",
+    description: "Independent third-party penetration testing is scheduled for the next assurance cycle.",
+  },
+] as const;
+
+export function assuranceEvidenceClassification(row: AssuranceEngagementRow): string {
+  if (row.maturityTier === "planned_next") {
+    return "Planned";
+  }
+
+  if (row.summaryAccess.kind === "public") {
+    return "Public";
+  }
+
+  if (row.maturityTier === "during_diligence") {
+    return "Available under NDA";
+  }
+
+  return "Available on request";
+}
+
+export function assuranceMaturityBadgeLabel(tier: AssuranceMaturityTier): string {
+  switch (tier) {
+    case "available_now":
+      return "Available now";
+
+    case "during_diligence":
+      return "Available under NDA";
+
+    case "planned_next":
+      return "Planned";
+
+    default:
+      return tier;
+  }
+}

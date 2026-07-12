@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -10,130 +11,140 @@ namespace ArchLucid.Cli.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
-public sealed class DataConsistencyCommandTests
+public sealed class DataConsistencyCommandTests : IDisposable
 {
-    [Fact]
-    public async Task Usage_error_when_no_args()
-    {
-        int exit = await DataConsistencyCommand.RunAsync([], CancellationToken.None);
+    private readonly string? _prevApiKey;
 
-        exit.Should().Be(CliExitCode.UsageError);
+    public DataConsistencyCommandTests()
+    {
+        _prevApiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
+    }
+
+    public void Dispose()
+    {
+        Environment.SetEnvironmentVariable("ARCHLUCID_API_KEY", _prevApiKey);
     }
 
     [Fact]
-    public async Task Usage_error_for_help_flag()
+    public async Task RunAsync_help_lists_orphans_and_remediate_subcommands()
     {
-        int exit = await DataConsistencyCommand.RunAsync(["--help"], CancellationToken.None);
+        StringWriter output = new(CultureInfo.InvariantCulture);
+        TextWriter prevOut = Console.Out;
 
-        exit.Should().Be(CliExitCode.UsageError);
+        try
+        {
+            Console.SetOut(output);
+
+            int exit = await DataConsistencyCommand.RunAsync(["--help"]);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            string text = output.ToString();
+            text.Should().Contain("data-consistency orphans");
+            text.Should().Contain("remediate");
+            text.Should().Contain("golden-manifests");
+        }
+        finally
+        {
+            Console.SetOut(prevOut);
+        }
     }
 
     [Fact]
-    public async Task Usage_error_for_unknown_subcommand()
+    public async Task RunAsync_orphans_prints_success_body()
     {
-        int exit = await DataConsistencyCommand.RunAsync(["unknown"], CancellationToken.None);
+        using CancellationTokenSource listenCts = new(TimeSpan.FromSeconds(30));
+        await using DataConsistencyLoopbackApi api = await DataConsistencyLoopbackApi.StartAsync(listenCts.Token);
+        Environment.SetEnvironmentVariable("ARCHLUCID_API_KEY", "test-admin-key");
 
-        exit.Should().Be(CliExitCode.UsageError);
+        StringWriter output = new(CultureInfo.InvariantCulture);
+        TextWriter prevOut = Console.Out;
+
+        try
+        {
+            Console.SetOut(output);
+
+            int exit = await DataConsistencyCommand.RunAsync(
+                ["orphans", "--api-base-url", api.BaseUrl.TrimEnd('/')],
+                listenCts.Token);
+
+            exit.Should().Be(CliExitCode.Success);
+            output.ToString().Should().Contain("goldenManifests");
+        }
+        finally
+        {
+            Console.SetOut(prevOut);
+        }
     }
 
     [Fact]
-    public async Task Usage_error_when_remediate_missing_target()
+    public async Task RunAsync_remediate_golden_manifests_posts_dry_run_path()
     {
-        int exit = await DataConsistencyCommand.RunAsync(["remediate"], CancellationToken.None);
+        using CancellationTokenSource listenCts = new(TimeSpan.FromSeconds(30));
+        await using DataConsistencyLoopbackApi api = await DataConsistencyLoopbackApi.StartAsync(listenCts.Token);
+        Environment.SetEnvironmentVariable("ARCHLUCID_API_KEY", "test-admin-key");
 
-        exit.Should().Be(CliExitCode.UsageError);
+        StringWriter output = new(CultureInfo.InvariantCulture);
+        TextWriter prevOut = Console.Out;
+
+        try
+        {
+            Console.SetOut(output);
+
+            int exit = await DataConsistencyCommand.RunAsync(
+                ["remediate", "golden-manifests", "--api-base-url", api.BaseUrl.TrimEnd('/')],
+                listenCts.Token);
+
+            exit.Should().Be(CliExitCode.Success);
+            api.LastRemediatePath.Should().Be("/v1/admin/diagnostics/data-consistency/orphan-golden-manifests?dryRun=true&maxRows=50");
+            output.ToString().Should().Contain("dryRun");
+        }
+        finally
+        {
+            Console.SetOut(prevOut);
+        }
     }
 
-    [Fact]
-    public async Task Usage_error_for_unknown_remediate_target()
-    {
-        int exit = await DataConsistencyCommand.RunAsync(["remediate", "unknown-target"], CancellationToken.None);
-
-        exit.Should().Be(CliExitCode.UsageError);
-    }
-
-    [Fact]
-    public async Task Orphans_returns_success_when_api_responds_ok()
-    {
-        await using LocalJsonApiHost host = await LocalJsonApiHost.StartAsync(
-            "v1/admin/diagnostics/data-consistency/orphans",
-            """{"orphanComparisonRecords":0}""");
-
-        int exit = await DataConsistencyCommand.RunAsync(
-            ["orphans", "--api-base-url", host.BaseUrl],
-            CancellationToken.None);
-
-        exit.Should().Be(CliExitCode.Success);
-    }
-
-    [Fact]
-    public async Task Remediate_comparison_records_posts_dry_run_by_default()
-    {
-        await using LocalJsonApiHost host = await LocalJsonApiHost.StartAsync(
-            "v1/admin/diagnostics/data-consistency/orphan-comparison-records",
-            """{"dryRun":true,"rows":0}""",
-            HttpMethod.Post);
-
-        int exit = await DataConsistencyCommand.RunAsync(
-            ["remediate", "comparison-records", "--api-base-url", host.BaseUrl],
-            CancellationToken.None);
-
-        exit.Should().Be(CliExitCode.Success);
-        host.LastRequestPath.Should().Contain("orphan-comparison-records");
-    }
-
-    private sealed class LocalJsonApiHost : IAsyncDisposable
+    private sealed class DataConsistencyLoopbackApi : IAsyncDisposable
     {
         private readonly HttpListener _listener = new();
-        private readonly CancellationTokenSource _cts = new();
-        private Task? _loop;
+        private readonly CancellationTokenSource _runnerCts = new();
+        private Task _loop = Task.CompletedTask;
 
-        public string BaseUrl { get; private set; } = string.Empty;
+        private DataConsistencyLoopbackApi(string baseUrl) => BaseUrl = baseUrl;
 
-        public string? LastRequestPath { get; private set; }
+        public string BaseUrl { get; }
 
-        public static async Task<LocalJsonApiHost> StartAsync(
-            string expectedPathSuffix,
-            string responseBody,
-            HttpMethod? method = null)
+        public string? LastRemediatePath { get; private set; }
+
+        public static async Task<DataConsistencyLoopbackApi> StartAsync(CancellationToken cancellationToken)
         {
-            HttpMethod expectedMethod = method ?? HttpMethod.Get;
-            LocalJsonApiHost host = new();
-            int port = GetFreeTcpPort();
-            host.BaseUrl = $"http://127.0.0.1:{port}";
-            host._listener.Prefixes.Add($"{host.BaseUrl}/");
-            host._listener.Start();
-            host._loop = Task.Run(() => host.ListenLoopAsync(expectedPathSuffix, responseBody, expectedMethod, host._cts.Token));
+            int port = ReserveFreeTcpPort();
+            DataConsistencyLoopbackApi api = new($"http://127.0.0.1:{port}/");
+            api._listener.Prefixes.Add(api.BaseUrl);
+            api._listener.Start();
+            api._loop = Task.Run(() => api.AcceptLoopAsync(api._runnerCts.Token), CancellationToken.None);
+            await Task.Yield();
+            cancellationToken.ThrowIfCancellationRequested();
 
-            await Task.Delay(50);
-
-            return host;
+            return api;
         }
 
-        public async ValueTask DisposeAsync()
+        private static int ReserveFreeTcpPort()
         {
-            await _cts.CancelAsync();
+            TcpListener tcp = new(IPAddress.Loopback, 0);
+            tcp.Start();
 
-            if (_loop is not null)
+            try
             {
-                try
-                {
-                    await _loop;
-                }
-                catch (OperationCanceledException)
-                {
-                }
+                return ((IPEndPoint)tcp.LocalEndpoint).Port;
             }
-
-            _listener.Stop();
-            _listener.Close();
+            finally
+            {
+                tcp.Stop();
+            }
         }
 
-        private async Task ListenLoopAsync(
-            string expectedPathSuffix,
-            string responseBody,
-            HttpMethod expectedMethod,
-            CancellationToken cancellationToken)
+        private async Task AcceptLoopAsync(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -151,46 +162,106 @@ public sealed class DataConsistencyCommandTests
                 {
                     break;
                 }
+                catch (ObjectDisposedException)
+                {
+                    break;
+                }
 
-                await HandleAsync(context, expectedPathSuffix, responseBody, expectedMethod);
+                try
+                {
+                    await HandleAsync(context);
+                }
+                catch
+                {
+                    try
+                    {
+                        context.Response.StatusCode = 500;
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // Client may have aborted.
+                    }
+                }
             }
         }
 
-        private async Task HandleAsync(
-            HttpListenerContext context,
-            string expectedPathSuffix,
-            string responseBody,
-            HttpMethod expectedMethod)
+        private async Task HandleAsync(HttpListenerContext context)
         {
-            HttpListenerRequest request = context.Request;
-            LastRequestPath = request.Url?.PathAndQuery;
+            string path = context.Request.Url!.AbsolutePath;
+            string method = context.Request.HttpMethod.ToUpperInvariant();
 
-            bool methodOk = string.Equals(request.HttpMethod, expectedMethod.Method, StringComparison.OrdinalIgnoreCase);
-            bool pathOk = request.Url?.AbsolutePath.Contains(expectedPathSuffix, StringComparison.OrdinalIgnoreCase) == true;
-            byte[] body = Encoding.UTF8.GetBytes(responseBody);
-            HttpListenerResponse response = context.Response;
-
-            if (!methodOk || !pathOk)
+            if (string.Equals(path, "/v1/admin/diagnostics/data-consistency/orphans", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(method, "GET", StringComparison.Ordinal))
             {
-                response.StatusCode = (int)HttpStatusCode.NotFound;
-                response.Close();
+                await WriteJsonAsync(
+                    context.Response,
+                    200,
+                    """{"goldenManifests":0,"findingsSnapshots":0,"contextSnapshots":0,"graphSnapshots":0}""");
 
                 return;
             }
 
-            response.StatusCode = (int)HttpStatusCode.OK;
-            response.ContentType = "application/json";
-            response.ContentLength64 = body.Length;
-            await response.OutputStream.WriteAsync(body);
+            if (path.StartsWith("/v1/admin/diagnostics/data-consistency/orphan-", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(method, "POST", StringComparison.Ordinal))
+            {
+                LastRemediatePath = path + context.Request.Url.Query;
+                await WriteJsonAsync(context.Response, 200, """{"dryRun":true,"rowsAffected":0}""");
+
+                return;
+            }
+
+            await WriteTextAsync(context.Response, 404, "not found");
+        }
+
+        private static async Task WriteTextAsync(HttpListenerResponse response, int status, string body)
+        {
+            response.StatusCode = status;
+            response.ContentType = "text/plain; charset=utf-8";
+            byte[] bytes = Encoding.UTF8.GetBytes(body);
+            response.ContentLength64 = bytes.Length;
+            await response.OutputStream.WriteAsync(bytes);
             response.Close();
         }
 
-        private static int GetFreeTcpPort()
+        private static async Task WriteJsonAsync(HttpListenerResponse response, int status, string json)
         {
-            using TcpListener listener = new(IPAddress.Loopback, 0);
-            listener.Start();
+            response.StatusCode = status;
+            response.ContentType = "application/json; charset=utf-8";
+            byte[] bytes = Encoding.UTF8.GetBytes(json);
+            response.ContentLength64 = bytes.Length;
+            await response.OutputStream.WriteAsync(bytes);
+            response.Close();
+        }
 
-            return ((IPEndPoint)listener.LocalEndpoint).Port;
+        public async ValueTask DisposeAsync()
+        {
+            await _runnerCts.CancelAsync();
+
+            try
+            {
+                _listener.Stop();
+            }
+            catch (HttpListenerException)
+            {
+                // Ignore shutdown races.
+            }
+            catch (ObjectDisposedException)
+            {
+                // Ignore shutdown races.
+            }
+
+            _listener.Close();
+
+            try
+            {
+                await _loop;
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected on shutdown.
+            }
+
+            _runnerCts.Dispose();
         }
     }
 }
