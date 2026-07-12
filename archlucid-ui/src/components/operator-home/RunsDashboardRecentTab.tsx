@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -5,6 +6,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorHomeWorkspaceArchivedEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceArchivedEmptyState";
 import { OperatorHomeWorkspaceEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceEmptyState";
 import {
+  isRunNeedingAttention,
   runListPrimaryRequestId,
   runListPrimaryTitle,
   RunListRowBadges,
@@ -81,6 +83,19 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
     (props.phase === "ready" || props.phase === "error");
 
   const panelTestId = props.contentTestId ?? "runs-dashboard-tab-all";
+
+  const sortedItems = useMemo(() => {
+    return [...props.filteredItems].sort((left, right) => {
+      const leftNeedsAttention = isRunNeedingAttention(left) ? 0 : 1;
+      const rightNeedsAttention = isRunNeedingAttention(right) ? 0 : 1;
+
+      if (leftNeedsAttention !== rightNeedsAttention) {
+        return leftNeedsAttention - rightNeedsAttention;
+      }
+
+      return 0;
+    });
+  }, [props.filteredItems]);
 
   return (
     <div data-testid={panelTestId}>
@@ -199,9 +214,9 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
         </section>
       ) : null}
 
-      {(props.phase === "ready" || props.phase === "error") && props.filteredItems.length > 0 ? (
+      {(props.phase === "ready" || props.phase === "error") && sortedItems.length > 0 ? (
         <ul className="m-0 list-none space-y-2 p-0" data-testid="recent-runs-home-panel">
-          {props.filteredItems.map((run) => {
+          {sortedItems.map((run) => {
             const requestId = runListPrimaryRequestId(run);
 
             return (

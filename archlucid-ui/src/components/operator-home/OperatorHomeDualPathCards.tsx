@@ -1,21 +1,23 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
+import { OperatorHomeReadinessStrip } from "@/components/operator-home/OperatorHomeReadinessStrip";
+import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useCreateArchitectureNavigation } from "@/hooks/use-create-architecture-navigation";
+import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
-  OPERATOR_HOME_CONNECT_CLOUD_BODY,
-  OPERATOR_HOME_CONNECT_CLOUD_TITLE,
+  OPERATOR_HOME_CLOUD_EVIDENCE_LINK,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY,
@@ -25,11 +27,13 @@ import {
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
-  PILOT_COMMAND_CENTER_CONNECT_AZURE,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { resolveOperatorHomeWorkspaceReadiness } from "@/lib/operator-home-workspace-readiness";
 import {
+  OPERATOR_HOME_OPENING_CLOUD_CONNECTIONS_LABEL,
   OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL,
   REVIEW_START_LOADING_LABEL,
   REVIEW_START_PREPARING_LABEL,
@@ -44,20 +48,23 @@ type SelectedHomePath = "explore-completed-review" | "create-architecture" | "re
 
 const completedReviewHref = showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId);
 
-const optionalCloudLinkClass = cn(
-  "inline-flex shrink-0 items-center rounded-md border border-neutral-300 px-3 py-1.5",
-  OPERATOR_TYPE_SCALE.button,
-  "font-medium text-al-text-primary hover:border-neutral-400 hover:bg-[var(--al-layer-hover)]",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)]",
-  "dark:border-neutral-700 dark:hover:border-neutral-600",
-);
-
 /** Three intent cards on Overview — explore, review, or create without implying sequence. */
 export function OperatorHomeDualPathCards(): React.JSX.Element {
   const reviewNavigation = useReviewIntakeNavigation();
   const createArchitectureNavigation = useCreateArchitectureNavigation();
   const canExecute = useOperateCapability();
+  const callerAuthorityRank = useNavCallerAuthorityRank();
+  const readiness = useFinishSetupReadinessContext();
+  const { hasWorkspaceReviews } = useOperatorHomeWorkspaceActivity();
   const [selectedPath, setSelectedPath] = useState<SelectedHomePath>(null);
+
+  const canManageCloudConnections = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const showEvaluationBadge = !hasWorkspaceReviews;
+
+  const workspaceReadiness =
+    readiness.context !== null
+      ? resolveOperatorHomeWorkspaceReadiness(readiness.context)
+      : { canBegin: true, blockerMessage: null };
 
   const startCreateArchitecture = () => {
     setSelectedPath("create-architecture");
@@ -90,11 +97,13 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
           aria-labelledby="operator-home-explore-completed-review-title"
         >
           <div className="min-w-0 space-y-2">
-            <StatusTag
-              kind="ready"
-              label={OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE}
-              data-testid="operator-home-explore-recommended-badge"
-            />
+            {showEvaluationBadge ? (
+              <StatusTag
+                kind="ready"
+                label={OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE}
+                data-testid="operator-home-explore-recommended-badge"
+              />
+            ) : null}
             <h3
               className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}
               id="operator-home-explore-completed-review-title"
@@ -153,6 +162,19 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
               {OPERATOR_HOME_READ_ONLY_INTENT_HINT}
             </p>
           )}
+          {canManageCloudConnections ? (
+            <div className="pt-1" data-testid="operator-home-optional-cloud-shortcut">
+              <OperatorHomeNavigateLoadingButton
+                variant="outline"
+                size="sm"
+                className={cn("h-8 w-fit border-0 px-0 font-medium shadow-none", OPERATOR_LINK.nav)}
+                href={CLOUD_CONNECTIONS_PATH}
+                idleLabel={OPERATOR_HOME_CLOUD_EVIDENCE_LINK}
+                loadingLabel={OPERATOR_HOME_OPENING_CLOUD_CONNECTIONS_LABEL}
+                data-testid="operator-home-connect-cloud"
+              />
+            </div>
+          ) : null}
         </article>
 
         <article
@@ -195,25 +217,10 @@ export function OperatorHomeDualPathCards(): React.JSX.Element {
         </article>
       </div>
 
-      <div
-        className={cn(
-          "flex flex-col gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-800 sm:flex-row sm:items-start sm:justify-between",
-          OPERATOR_LAYOUT.inlineGap,
-        )}
-        data-testid="operator-home-optional-cloud-shortcut"
-      >
-        <div className="min-w-0 space-y-1">
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "font-medium text-al-text-primary")}>
-            {OPERATOR_HOME_CONNECT_CLOUD_TITLE}
-          </p>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
-            {OPERATOR_HOME_CONNECT_CLOUD_BODY}
-          </p>
-        </div>
-        <Link href={CLOUD_CONNECTIONS_PATH} className={optionalCloudLinkClass} data-testid="operator-home-connect-cloud">
-          {PILOT_COMMAND_CENTER_CONNECT_AZURE}
-        </Link>
-      </div>
+      <OperatorHomeReadinessStrip
+        canBegin={workspaceReadiness.canBegin}
+        blockerMessage={workspaceReadiness.blockerMessage}
+      />
 
       {reviewNavigation.showStagedPanel && reviewNavigation.activeStageId !== null ? (
         <ReviewStartStagedProgress

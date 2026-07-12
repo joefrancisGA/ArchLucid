@@ -6,7 +6,11 @@ export const REVIEW_START_PREPARING_LABEL = "Preparing architecture review…";
 
 export const REVIEW_START_OPENING_LABEL = "Opening review…";
 
-export const OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL = "Opening completed review…";
+export const OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL = "Opening review…";
+
+export const OPERATOR_HOME_OPENING_CLOUD_CONNECTIONS_LABEL = "Opening cloud connections…";
+
+export const OPERATOR_HOME_OPENING_WORKFLOW_LABEL = "Opening workflow…";
 
 export const OPERATOR_HOME_PREPARING_ARCHITECTURE_WORKSPACE_LABEL = "Preparing architecture workspace…";
 

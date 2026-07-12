@@ -222,7 +222,7 @@ describe("HomePage (55R smoke — landing)", () => {
     );
     expect(screen.getByRole("link", { name: "Run guided review" })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-explore-open-completed-sample")).toBeNull();
-    expect(screen.getByRole("link", { name: "Open completed review" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     });

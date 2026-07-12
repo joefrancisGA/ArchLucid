@@ -1,8 +1,10 @@
 "use client";
 
+import { OperatorHomeExploreSampleSection } from "@/components/operator-home/OperatorHomeExploreSampleSection";
+import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
+import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
-import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import {
   OPERATOR_HOME_CREATION_EXAMPLE_BODY,
   OPERATOR_HOME_CREATION_EXAMPLE_TITLE,
@@ -13,7 +15,7 @@ import {
   OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import {
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
   reviewIntakeExampleTemplateHref,
@@ -34,16 +36,25 @@ const creationExampleHref = showcaseSampleCreatedPackageHref(SHOWCASE_SAMPLE_CRE
 /** Secondary examples below workspace activity — distinct from the hero completed-review path. */
 export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
+  const { hasWorkspaceReviews } = useOperatorHomeWorkspaceActivity();
 
   if (hasCommittedArchitectureReview) {
     return null;
   }
 
+  const reducedProminence = hasWorkspaceReviews;
+
   return (
     <section
       aria-labelledby="operator-home-explore-sample-heading"
-      className={cn(OPERATOR_SURFACE_CARD_CLASS, OPERATOR_CARD.body, "border border-neutral-200 shadow-sm dark:border-neutral-800")}
+      className={cn(
+        OPERATOR_LAYOUT.sectionHeadingStack,
+        reducedProminence
+          ? "border-t border-neutral-200 pt-4 dark:border-neutral-800"
+          : "rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900",
+      )}
       data-testid="operator-home-explore-sample-section"
+      data-prominence={reducedProminence ? "secondary" : "primary"}
     >
       <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <OperatorHomeCardSectionTitle id="operator-home-explore-sample-heading">
@@ -53,7 +64,7 @@ export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
           {OPERATOR_HOME_EXPLORE_SAMPLE_LEAD}
         </p>
       </div>
-      <div className={cn("mt-4 grid gap-3 sm:grid-cols-2", OPERATOR_LAYOUT.inlineGap)}>
+      <div className={cn("grid gap-3 sm:grid-cols-2", reducedProminence ? "mt-3" : "mt-4", OPERATOR_LAYOUT.inlineGap)}>
         <article className="flex flex-col gap-2" aria-labelledby="operator-home-creation-example-title">
           <h3 className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)} id="operator-home-creation-example-title">
             {OPERATOR_HOME_CREATION_EXAMPLE_TITLE}

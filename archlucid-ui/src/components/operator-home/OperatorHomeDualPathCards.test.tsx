@@ -16,6 +16,31 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
+  useFinishSetupReadinessContext: () => ({
+    phase: "ready",
+    context: {
+      healthReady: true,
+      healthLoadFailed: false,
+      principalAdmin: true,
+    },
+    readyCount: 4,
+    totalCount: 4,
+  }),
+}));
+
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCallerAuthorityRank: () => 100,
+}));
+
+vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
+  useOperatorHomeWorkspaceActivity: () => ({
+    hasWorkspaceReviews: false,
+    hasActionNeededReviews: false,
+    reportWorkspaceReviews: vi.fn(),
+  }),
+}));
+
 vi.mock("@/hooks/use-review-intake-navigation", () => ({
   useReviewIntakeNavigation: () => ({
     navigate: (input: { href: string }) => {
@@ -46,12 +71,12 @@ vi.mock("@/hooks/use-create-architecture-navigation", () => ({
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
 import {
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
-  OPERATOR_HOME_CONNECT_CLOUD_BODY,
+  OPERATOR_HOME_CLOUD_EVIDENCE_LINK,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE,
   OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
-  PILOT_COMMAND_CENTER_CONNECT_AZURE,
+  OPERATOR_HOME_READY_STRIP_SUPPORT,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
@@ -71,14 +96,14 @@ describe("OperatorHomeDualPathCards", () => {
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE })).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY)).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-optional-cloud-shortcut")).toBeInTheDocument();
-    expect(screen.getByText(OPERATOR_HOME_CONNECT_CLOUD_BODY)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_CLOUD_EVIDENCE_LINK })).toHaveAttribute(
       "href",
       CLOUD_CONNECTIONS_PATH,
     );
     expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-readiness-strip")).toHaveTextContent(OPERATOR_HOME_READY_STRIP_SUPPORT);
     expect(screen.queryByText(/Recommended first/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Recommended next/i)).not.toBeInTheDocument();
   });

@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OperatorHomeAdvancedGuidanceSection } from "@/components/operator-home/OperatorHomeAdvancedGuidanceSection";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
-  OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
+  OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA,
 } from "@/lib/buyer-polish-copy";
 
 vi.mock("@/lib/cto-demo-presenter-pack", () => ({
@@ -30,8 +30,8 @@ describe("OperatorHomeAdvancedGuidanceSection", () => {
     await waitFor(() => {
       expect(screen.getByTestId("explore-archlucid-buyer-content")).toBeInTheDocument();
     });
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("explore-archlucid-walkthrough-row")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA })).toBeInTheDocument();
     expect(screen.queryByTestId("core-pilot-checklist")).toBeNull();
   });
 
