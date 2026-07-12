@@ -161,6 +161,7 @@ vi.mock("./product-learning/_sections/load-product-learning-page-data", () => {
 });
 
 import { AdvisoryScansContent } from "@/components/advisory/AdvisoryScansContent";
+import { ADVISORY_SCANS_FORM_SECTION_TITLE } from "@/lib/advisory-copy";
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
@@ -214,7 +215,7 @@ describe("operator client pages — render gate", () => {
 
   it("Advisory hub Scans tab content renders primary heading", () => {
     render(<AdvisoryScansContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Scans" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: ADVISORY_SCANS_FORM_SECTION_TITLE })).toBeInTheDocument();
   });
 
   it("Advisory hub Schedules tab content renders primary heading", () => {
@@ -249,7 +250,7 @@ describe("operator client pages — render gate", () => {
   it("EvolutionReviewPage renders primary heading", async () => {
     const page = await EvolutionReviewPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Impact preview" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Impact preview" })).toBeInTheDocument();
   });
 
   it("EvolutionReviewPage does not render internal codename '60R' in user-visible output", async () => {

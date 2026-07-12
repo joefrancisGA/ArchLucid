@@ -210,15 +210,15 @@ export const GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
     ART[Artifacts]
   end
   subgraph outputs [Committed outputs]
-    GM[Golden manifest]
+    SR[Signed review record]
     PKG[Downloads / exports]
   end
   AR --> CI --> KG --> FD --> DV --> ART
   R -.created at start.- CI
   FD --> gov{Governance gate}
-  gov -->|allow| GM
+  gov -->|allow| SR
   gov -->|block / warn policy| gov
-  GM --> PKG`;
+  SR --> PKG`;
 
 export const GETTING_STARTED_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "quick-start", title: GETTING_STARTED_HELP_QUICK_START_TITLE },
