@@ -61,7 +61,11 @@ public sealed class TenantProvisioningService(
         if (string.IsNullOrWhiteSpace(request.AdminEmail) || !request.AdminEmail.Contains('@', StringComparison.Ordinal))
             throw new ArgumentException("Admin email is required.", nameof(request));
         string slug = TenantSlugNormalizer.FromName(request.Name);
-        TenantRecord? existing = await _tenantRepository.GetBySlugAsync(slug, ct);
+        // Self-service registration inserts dbo.Tenants on the control-plane catalog; slug idempotency must consult that plane first.
+        TenantRecord? existing = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
+
+        if (existing is null)
+            existing = await _tenantRepository.GetBySlugAsync(slug, ct);
 
         if (existing is not null)
             return await BuildAlreadyProvisionedResultAsync(existing, request, slug, ct);
@@ -80,7 +84,10 @@ public sealed class TenantProvisioningService(
         }
         catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
         {
-            TenantRecord? raced = await _tenantRepository.GetBySlugAsync(slug, ct);
+            TenantRecord? raced = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
+
+            if (raced is null)
+                raced = await _tenantRepository.GetBySlugAsync(slug, ct);
 
             if (raced is null)
                 throw;

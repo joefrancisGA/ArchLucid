@@ -23,11 +23,12 @@ namespace ArchLucid.Api.Tests;
 public sealed class DemoSeedAuthorityChainAuditIntegrationTests
 {
     /// <summary>
-    ///     <see cref="ArchLucid.Application.Bootstrap.DemoSeedService.SeedAsync" /> on the default tenant persists four
-    ///     authority FK chains (Contoso baseline + hardened, Northwind product tour, Meridian Alpine regulated scenario),
-    ///     each emitting one <see cref="AuditEventTypes.AuthorityCommittedChainPersisted" /> row.
+    ///     <see cref="ArchLucid.Application.Bootstrap.DemoSeedService.SeedAsync" /> on the default tenant persists five
+    ///     authority FK chains (Contoso baseline + hardened, Northwind product tour, Meridian Alpine regulated scenario,
+    ///     born-governed created architecture package sample), each emitting one
+    ///     <see cref="AuditEventTypes.AuthorityCommittedChainPersisted" /> row.
     /// </summary>
-    private const int ExpectedAuthorityCommittedChainAuditRowCount = 4;
+    private const int ExpectedAuthorityCommittedChainAuditRowCount = 5;
 
     private const string SqlUnavailable =
         "API greenfield SQL tests need SQL Server. Set "
