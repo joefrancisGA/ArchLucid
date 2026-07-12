@@ -68886,6 +68886,36 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/tenant/billing/marketplace/webhook-test": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "BillingCheckout"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/tenant/billing/portal": {
       "post": {
         "requestBody": {
@@ -68944,36 +68974,6 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/BillingPortalResponseDto"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "tags": [
-          "BillingCheckout"
-        ],
-        "x-archlucid-audience": "operator"
-      }
-    },
-    "/v1/tenant/billing/marketplace/webhook-test": {
-      "post": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
                 }
               }
             },

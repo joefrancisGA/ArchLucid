@@ -4680,6 +4680,32 @@
         ],
         "type": "object"
       },
+      "BillingPortalPostRequest": {
+        "properties": {
+          "returnUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "BillingPortalResponseDto": {
+        "properties": {
+          "portalUrl": {
+            "type": "string"
+          },
+          "providerSessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "portalUrl",
+          "providerSessionId"
+        ],
+        "type": "object"
+      },
       "BoardPackPdfPostRequest": {
         "properties": {
           "periodEndUtc": {
