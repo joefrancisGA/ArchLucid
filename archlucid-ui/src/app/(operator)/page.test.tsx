@@ -96,6 +96,7 @@ vi.mock("./_sections/load-operator-home-runs-dashboard-model", () => ({
 import HomePage from "./page";
 import { loadOperatorHomeRunsDashboardModel } from "./_sections/load-operator-home-runs-dashboard-model";
 import type { OperatorHomeRunsDashboardModel } from "./_sections/operator-home-runs-dashboard-model";
+import type { RunSummary } from "@/types/authority";
 
 const mockLoadOperatorHomeRunsDashboardModel = vi.mocked(loadOperatorHomeRunsDashboardModel);
 
@@ -110,6 +111,23 @@ function defaultRunsDashboard(buyerPolishedShell = false): OperatorHomeRunsDashb
     malformedMessage: null,
     usedStaticRunsFallback: false,
     buyerPolishedShell,
+  };
+}
+
+const sampleHomeRun: RunSummary = {
+  runId: "33333333-3333-3333-3333-333333333333",
+  projectId: "default",
+  description: "Active review",
+  createdUtc: "2026-01-15T12:00:00.000Z",
+  hasFindingsSnapshot: true,
+  hasGoldenManifest: false,
+};
+
+function runsDashboardWithSampleRun(buyerPolishedShell = false): OperatorHomeRunsDashboardModel {
+  return {
+    ...defaultRunsDashboard(buyerPolishedShell),
+    items: [sampleHomeRun],
+    totalCount: 1,
   };
 }
 
@@ -195,10 +213,7 @@ describe("HomePage — buyer-polished shell", () => {
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
     expect(screen.queryByText("Operational metrics")).toBeNull();
     expect(screen.queryByText(/AI co-architect/i)).toBeNull();
-
-    await waitFor(() => {
-      expect(screen.getByRole("tab", { name: "All" })).toBeInTheDocument();
-    });
+    expect(screen.queryByTestId("runs-dashboard-status-filters")).toBeNull();
   });
 });
 
@@ -240,6 +255,15 @@ describe("HomePage (55R smoke — landing)", () => {
   });
 
   it("exposes primary workflow destinations matching shell review paths", async () => {
+    mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(runsDashboardWithSampleRun());
+    listRunsByProjectPaged.mockResolvedValue({
+      items: [sampleHomeRun],
+      totalCount: 1,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+
     await renderHomePage();
 
     await waitFor(() => {

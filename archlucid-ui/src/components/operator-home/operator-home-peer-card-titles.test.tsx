@@ -31,6 +31,15 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
+  useNavCallerAuthorityRank: () => 100,
+}));
+
+vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
+  useOperatorHomeWorkspaceActivity: () => ({
+    hasWorkspaceReviews: false,
+    hasActionNeededReviews: false,
+    reportWorkspaceReviews: vi.fn(),
+  }),
 }));
 
 vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
@@ -41,8 +50,32 @@ vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
       healthLoadFailed: false,
       principalAdmin: true,
     },
-    readyCount: 2,
+    readyCount: 4,
     totalCount: 4,
+  }),
+}));
+
+vi.mock("@/hooks/use-review-intake-navigation", () => ({
+  useReviewIntakeNavigation: () => ({
+    navigate: vi.fn(),
+    reset: vi.fn(),
+    isNavigating: false,
+    isPending: false,
+    activeStageId: null,
+    showStagedPanel: false,
+    stages: [],
+    loadingLabel: "Starting review…",
+    error: null,
+  }),
+}));
+
+vi.mock("@/hooks/use-create-architecture-navigation", () => ({
+  useCreateArchitectureNavigation: () => ({
+    navigate: vi.fn(),
+    reset: vi.fn(),
+    isNavigating: false,
+    loadingLabel: "Starting architecture…",
+    error: null,
   }),
 }));
 
