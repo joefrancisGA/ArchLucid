@@ -4,6 +4,10 @@ export const MARKETING_PRICING_TIER_ORDER = ["architect", "team", "professional"
 
 export type MarketingPricingTierId = (typeof MARKETING_PRICING_TIER_ORDER)[number];
 
+export function isMarketingPricingTierId(id: string): id is MarketingPricingTierId {
+  return (MARKETING_PRICING_TIER_ORDER as readonly string[]).includes(id);
+}
+
 export type MarketingPricingTierCta = {
   readonly primaryLabel: string;
   readonly primaryKind: "stripe" | "signup" | "quote";

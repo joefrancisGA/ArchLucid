@@ -12,6 +12,7 @@ import {
   BUYER_MARKETING_PRICING_AI_USAGE_NOTE,
   MARKETING_PRICING_RECOMMENDED_TIER,
   MARKETING_PRICING_TIER_CTAS,
+  isMarketingPricingTierId,
   type MarketingPricingTierId,
 } from "@/lib/marketing/marketing-public-pricing";
 import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
@@ -152,12 +153,13 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
             {[...pricing.packages]
               .sort((a, b) => pricingTierSortIndex(a.id) - pricingTierSortIndex(b.id))
               .map((pkg) => {
-                const tierId = pkg.id as MarketingPricingTierId;
-                const cta = MARKETING_PRICING_TIER_CTAS[tierId];
+                const isKnownTier = isMarketingPricingTierId(pkg.id);
+                const tierId = isKnownTier ? pkg.id : null;
+                const cta = tierId !== null ? MARKETING_PRICING_TIER_CTAS[tierId] : undefined;
                 const isRecommended = tierId === MARKETING_PRICING_RECOMMENDED_TIER;
                 const includedLine = formatIncludedUsersAndWorkspaces(pkg);
                 const aiCreditsLine = formatMonthlyAiCredits(pkg);
-                const stripeHref = resolveStripeCheckoutHref(pricing, tierId);
+                const stripeHref = tierId !== null ? resolveStripeCheckoutHref(pricing, tierId) : null;
                 const bullets = BILLING_TIER_FEATURE_BULLETS[pkg.id] ?? [];
 
                 return (
@@ -202,6 +204,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                         ))}
                       </ul>
                     ) : null}
+                    {cta !== undefined ? (
                     <div className="mt-4 flex flex-col gap-2">
                       {cta.primaryKind === "quote" ? (
                         <Button type="button" variant={isRecommended ? "primary" : "outline"} className="w-full" onClick={() => scrollToQuote()}>
@@ -253,6 +256,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                         </Button>
                       ) : null}
                     </div>
+                    ) : null}
                   </li>
                 );
               })}
