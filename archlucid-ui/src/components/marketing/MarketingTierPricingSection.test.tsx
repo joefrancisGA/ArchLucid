@@ -277,6 +277,50 @@ describe("MarketingTierPricingSection", () => {
     quote.remove();
   });
 
+  it("renders catalog packages without marketing CTAs when tier id is unknown", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          schemaVersion: 1,
+          currency: "USD",
+          packages: [
+            {
+              id: "pilot",
+              title: "Pilot",
+              summary: "Legacy pilot tier",
+              workspaceMonthlyUsd: 100,
+              seatMonthlyUsd: 10,
+              annualFloorUsd: 1200,
+            },
+          ],
+        }),
+      }),
+    );
+
+    render(
+      <MarketingTierPricingSection
+        sectionHeadingId="pricing-heading"
+        sectionTitle="Pricing"
+        signupHref="/signup"
+        showSignupCallToAction={false}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Pilot" })).toBeInTheDocument();
+    });
+
+    const pilotCard = screen.getByRole("heading", { name: "Pilot" }).closest("li");
+    if (pilotCard === null) {
+      throw new Error("expected Pilot tier list item");
+    }
+
+    expect(within(pilotCard).queryByRole("button")).not.toBeInTheDocument();
+    expect(within(pilotCard).queryByRole("link")).not.toBeInTheDocument();
+  });
+
   it("shows the AI usage note when showAiUsageNote is enabled", async () => {
     render(
       <MarketingTierPricingSection
