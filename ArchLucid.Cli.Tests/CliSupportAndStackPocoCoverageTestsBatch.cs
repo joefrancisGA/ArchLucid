@@ -61,7 +61,7 @@ public sealed class CliSupportAndStackPocoCoverageTestsBatch
     {
         string[] names = Enum.GetNames<StackDoctorStepKind>();
 
-        names.Should().HaveCount(6);
+        names.Should().HaveCount(5);
         Enum.IsDefined(typeof(StackDoctorStepKind), StackDoctorStepKind.ConfigLint).Should().BeTrue();
     }
 }
