@@ -2,7 +2,7 @@
 
 # ArchLucid Broader Exposure Assessment — Controlled Beta: GREEN / Public Self-Service: YELLOW / Public Mention: GREEN (controlled CTA)
 
-**Pass date:** 2026-07-10. **Reasoning engine:** Claude (Sonnet), code-grounded — no live Azure OpenAI call made during this pass. **Prompt:** [`assessment_prompt_v4.md`](assessment_prompt_v4.md). **Source materials inspected:** live code inspection of `archlucid-ui/src` (marketing pricing/demo/showcase routes, operator billing/health/policy-pack/cloud-connections/onboarding surfaces), `docs/library/TECH_BACKLOG.md` (full file, through TB-728), `docs/library/V1_SCOPE.md` (SOC2/pen-test scope rows), `docs/assessments/LATEST_GPT55.md` (existing `(A)` headline and V1 ship gate), backend rate-limiting (`RateLimitingRolePartitionBuilderTests.cs`, `PipelineExtensions.cs`), k6 CI smoke (`scripts/ci/start_api_for_k6.sh`). **Limitations:** this is a code/doc-grounded desk review, not a live click-through of a deployed environment or a live buyer session; where I could not verify a claim directly in code I marked the gate **UNKNOWN** rather than assuming pass or fail. No live pilot data exists to check probability estimates against (see §6).
+**Pass date:** 2026-07-10. **Rescore (2026-07-11):** Public-traffic launch load-test drill **shipped** — `scripts/load/public-showcase-burst.js`, `scripts/load/authenticated-first-review-burst.js`, `scripts/ci/run_launch_load_drill.sh`, manual workflow `k6-launch-load-drill.yml`, and `docs/architecture/LAUNCH_LOAD_DRILL.md`; first measured run still pending owner traffic-sizing input. Load/Traffic Readiness **55→58** (drill harness in repo; exposure gate #7 execution not yet recorded). **Reasoning engine:** Claude (Sonnet), code-grounded — no live Azure OpenAI call made during this pass. **Prompt:** [`assessment_prompt_v4.md`](assessment_prompt_v4.md). **Source materials inspected:** live code inspection of `archlucid-ui/src` (marketing pricing/demo/showcase routes, operator billing/health/policy-pack/cloud-connections/onboarding surfaces), `docs/library/TECH_BACKLOG.md` (full file, through TB-728), `docs/library/V1_SCOPE.md` (SOC2/pen-test scope rows), `docs/assessments/LATEST_GPT55.md` (existing `(A)` headline and V1 ship gate), backend rate-limiting (`RateLimitingRolePartitionBuilderTests.cs`, `PipelineExtensions.cs`), k6 CI smoke (`scripts/ci/start_api_for_k6.sh`). **Limitations:** this is a code/doc-grounded desk review, not a live click-through of a deployed environment or a live buyer session; where I could not verify a claim directly in code I marked the gate **UNKNOWN** rather than assuming pass or fail. No live pilot data exists to check probability estimates against (see §6).
 
 ---
 
@@ -82,7 +82,7 @@ The engineering substrate is materially more mature than the risk patterns this 
 | 4 | AI budget limits visible and enforced | **PARTIAL** | Visible to admins (wallet, budget pill); enforcement for a hypothetical *unauthenticated, self-serve* trial tenant specifically (as opposed to a founder-provisioned demo/trial tenant) was not independently verified this pass. |
 | 5 | Public demo cannot create uncontrolled AI cost | **PASS** | `/demo/preview` and `/showcase/*` are backed by a static demo payload (`isStaticDemoPayloadFallbackActiveForRun`, `SHOWCASE_STATIC_DEMO_RUN_ID`) — no live LLM call per visitor. |
 | 6 | Public demo traffic rate-limited and isolated | **PARTIAL** | Backend rate limiting exists (`RateLimitingRolePartitionBuilderTests.cs`) and is role-partitioned; explicit isolation of *anonymous public* traffic from paid-tenant AI spend specifically was not independently confirmed. |
-| 7 | Load test plan exists and has passed expected launch traffic | **FAIL** | k6 exists only as a PR-time CI smoke (`start_api_for_k6.sh`, one write-path scenario) — no burst/launch-traffic drill artifact found anywhere in `docs/`. |
+| 7 | Load test plan exists and has passed expected launch traffic | **PARTIAL** | Burst/ramp harness shipped (`scripts/load/public-showcase-burst.js`, `scripts/load/authenticated-first-review-burst.js`, `scripts/ci/run_launch_load_drill.sh`, manual workflow `k6-launch-load-drill.yml`, `docs/architecture/LAUNCH_LOAD_DRILL.md`); first measured drill run with owner-sized traffic still pending. |
 | 8 | System health buyer-safe or hidden | **PASS** | See Controlled Beta Gate #7. |
 | 9 | Billing page hides Stripe/internal details from normal users | **PASS** (with caveat) | `WalletController` `GET` lowered to ReadAuthority (TB-625); mutation (`PUT`) stays Admin-only — non-admin self-serve users see balance, not raw price/product IDs, per the component split. |
 | 10 | No raw IDs/API/debug language on buyer-accessible pages | **PASS** | Policy-pack detail renders through named typed components (`PolicyPackGenericDetail`, `ResponsibleAiPolicyPackDetail`, `HealthcareClaimsPolicyPackDetail`, `PolicyPackDetailNotFound`) — no evidence of a raw numeric-route fallback. |
@@ -92,7 +92,7 @@ The engineering substrate is materially more mature than the risk patterns this 
 | 14 | Support path clear | **PASS** | See Controlled Beta Gate #6. |
 | 15 | Product usable without founder explanation | **UNKNOWN** | Same caveat as Controlled Beta Gate #12 — no measured cold-start session exists. |
 
-**Public self-service: YELLOW.** One clean FAIL (#7, load testing) plus two PARTIALs (#4, #6) are enough on their own to hold this at YELLOW regardless of how many other gates PASS — a burst of LinkedIn-driven signups hitting an unlload-tested API is exactly the kind of incident this exposure level is designed to prevent.
+**Public self-service: YELLOW.** Gate #7 moved from FAIL to PARTIAL (drill harness shipped; execution still pending) plus two PARTIALs (#4, #6) — enough on their own to hold YELLOW until a measured drill run and AI-ceiling verification close.
 
 ### LinkedIn / Public Mention Gate
 
@@ -229,11 +229,11 @@ For **authenticated trial/demo tenants** (as opposed to the fully public showcas
 
 ## 11. Reliability and Load Exposure
 
-**Load readiness score: 55/100.**
+**Load readiness score: 58/100.**
 
-Backend rate limiting is real and role-partitioned (`RateLimitingRolePartitionBuilderTests.cs`), and a k6-based CI smoke exists (`start_api_for_k6.sh`) exercising the write-path (`create_run`) authority pipeline through `sp_getapplock` idempotency — this is genuine load-adjacent engineering, not zero. What is missing is a **launch-scale rehearsal**: no artifact in `docs/` describes a burst/ramp scenario sized to "several thousand visitors in a day" or "LinkedIn-post traffic spike," and the k6 smoke's own comment describes it as a **CI startup smoke test**, not a load test.
+Backend rate limiting is real and role-partitioned (`RateLimitingRolePartitionBuilderTests.cs`), and a k6-based CI smoke exists (`start_api_for_k6.sh`) exercising the write-path (`create_run`) authority pipeline through `sp_getapplock` idempotency — this is genuine load-adjacent engineering, not zero. A **launch-scale rehearsal harness** now exists (`scripts/load/*`, `run_launch_load_drill.sh`, manual `k6-launch-load-drill` workflow, `docs/architecture/LAUNCH_LOAD_DRILL.md`); what remains is an **executed** drill sized to the founder's expected LinkedIn-post peak with recorded p50/p95/p99 and error rates.
 
-**Minimum load test plan:** one k6 (or equivalent) scenario that ramps concurrent anonymous traffic against `/showcase/*` and `/demo/preview` to a multiple of expected LinkedIn-post peak (the founder's own audience size is the right sizing input here), confirming the static-payload path holds without touching the authenticated API's rate-limit budget; a second scenario ramping authenticated signup + first-review traffic to validate the rate-limit partitions actually protect paid/trial tenants from a public burst.
+**Minimum load test plan:** run the shipped k6 scenarios — anonymous ramp against `/showcase/*`, `/demo/preview`, and `/welcome`; authenticated read burst against audit search and authority runs — sized to a multiple of expected LinkedIn-post peak; record results in `docs/architecture/LAUNCH_LOAD_DRILL.md`.
 
 **Launch-blocking reliability gaps:** none block **controlled beta** (known cohort, known size) or **public mention with a controlled CTA** (static demo path, not a live trial). The gap blocks **public self-service** specifically, because that is the only exposure level where traffic size is not founder-controlled.
 
@@ -290,7 +290,7 @@ Blunt, per the prompt's instruction:
 
 | # | Weakness | Why it matters | RYG impact | Beta impact | Self-service impact | Mention impact | Fastest fix | Classification |
 |---|---|---|---|---|---|---|---|---|
-| 1 | No public-traffic burst load test | Only concrete FAIL in any gate table | Caps self-service YELLOW | None | Blocking | None | Run one k6 burst scenario against `/showcase` + signup | reliability |
+| 1 | Launch load drill not yet executed with recorded results | Gate #7 PARTIAL (harness shipped 2026-07-11) | Caps self-service YELLOW | None | Blocking until first run | None | Run `k6-launch-load-drill` or local orchestrator; record in `LAUNCH_LOAD_DRILL.md` | reliability |
 | 2 | Self-serve checkout flag off + undogfooded | Pricing promise ("grow into team plans") not currently self-fulfillable | Contributes to self-service YELLOW | None | Blocking | None | One Stripe test-mode dry run before flipping flag | engineering / pricing |
 | 3 | Zero completed real-mode pilots | Dominant gap across diagnostic scores (§6) | Caps 30-day usage/purchase probability | None (expected at this stage) | Blocking (proof, not code) | None | Run G-REAL-06 | market validation |
 | 4 | No captured marketing screenshots/video | Blocks LinkedIn post *quality* | None (safety unaffected) | None | None | Delays first post | Capture screenshots (M-07), record video (M-16) | design / market validation |
@@ -343,25 +343,10 @@ _None engineering-actionable._ The one open item for this tier (M-07/M-16 screen
 
 | Title | Tier | Exposure level blocked | Why it matters | Affected scores | Evidence | Fastest fix | Owner | Recommended engine | Cursor prompt |
 |---|---|---|---|---|---|---|---|---|---|
-| **Public-traffic burst/launch load-test drill** | 3 | Public self-service | Only concrete FAIL gate found this pass (§3 Public Self-Service Gate #7); a LinkedIn-driven signup burst with no rehearsal is the single most likely public-self-service incident. | Load/Traffic Readiness (55→target 75+) | `scripts/ci/start_api_for_k6.sh` is a PR-time write-path smoke only; no burst/ramp scenario artifact found in `docs/`. | Add a k6 scenario ramping anonymous `/showcase`+`/demo/preview` traffic and a second ramping authenticated signup+first-review traffic, sized to a multiple of the founder's expected LinkedIn-post reach; document results in a new `docs/architecture/LAUNCH_LOAD_DRILL_<date>.md`. | Cursor (script) + founder (traffic sizing input) | **Composer** — mechanical k6 scenario authoring; escalate to Sonnet if rate-limit partition tuning is needed after first results | See below |
 | **Confirm hard per-tenant AI-spend ceiling for a hypothetical self-serve trial signup** | 3 | Public self-service | §3 Public Self-Service Gate #4/#6 marked PARTIAL — visibility exists, hard enforcement for a not-yet-vetted self-serve tenant specifically was not independently confirmed. | AI Cost-Control Readiness (74→target 85+) | `LlmBudgetStatusPill`, wallet cap fields exist and are admin-visible; enforcement path for a brand-new self-serve signup was not traced end-to-end this pass. | Trace (or add, if missing) a default per-tenant hard ceiling applied at trial-tenant creation time, independent of admin-visible dashboards; add a regression test asserting a new self-serve tenant cannot exceed it without an explicit upgrade action. | Cursor | **Sonnet** — requires tracing existing tenant-provisioning + budget-enforcement code paths before deciding whether this is a gap or already-covered | See below |
 | **Stripe test-mode dry run of self-serve Team checkout** | 3 | Public self-service | `isPublicStripeTeamCheckoutEnabled()` gates code that has, per this pass's inspection, no evidence of an executed end-to-end test-mode purchase. | Self-Service Trial Readiness (62→target 85+) | `marketing/is-public-stripe-team-checkout-enabled.ts` confirms default-off; no dry-run artifact found. | Execute one real Stripe test-mode checkout end to end (signup → payment → webhook → tenant provisioning) before flipping the flag; document the run. | Founder (Stripe test-mode credentials) + Cursor (webhook/provisioning verification) | **Composer** — mechanical verification once test-mode credentials are available | N/A — requires live Stripe test-mode session, not pure code change |
 
-**Cursor prompt — Public-traffic burst/launch load-test drill:**
-
-> **Current problem:** `scripts/ci/start_api_for_k6.sh` runs a single k6 scenario (`create_run`) as a CI startup smoke test against the full authority pipeline — it verifies correctness under one synthetic request, not behavior under a realistic traffic burst. No artifact in `docs/` documents a load/ramp test sized to a plausible LinkedIn-post traffic spike.
->
-> **Desired behavior:** Add a new k6 script (e.g. `scripts/loadtest/public_showcase_burst.js`) that ramps anonymous virtual users against `/showcase/claims-intake-modernization` and `/demo/preview` to a configurable peak (default a few thousand requests over a few minutes), asserting p95 latency and zero 5xx; add a second script ramping authenticated signup + first-review creation to a smaller peak (tens of concurrent tenants), asserting the existing role-partitioned rate limiter (`RateLimitingRolePartitionBuilderTests.cs`) holds without starving legitimate paid/trial traffic. Document the run (traffic shape, results, any tuning applied) in a new `docs/architecture/LAUNCH_LOAD_DRILL_<date>.md`.
->
-> **Scope boundaries:** Do not change production rate-limit policy values as part of this task unless the drill's own results show a concrete failure — this task is measurement-first. Do not require live Azure OpenAI calls in the burst scenario (the showcase path is already static-payload; keep it that way and assert it in the script).
-> * **Non-goals:** production infrastructure scaling changes; changes to the checkout flow itself (see the separate Stripe dry-run item).
->
-> **Acceptance criteria:**
-> - New k6 scripts run locally and in CI (manually triggered job, not merge-blocking) against a mock-backed or staging environment.
-> - Results are documented with concrete numbers (p50/p95/p99 latency, error rate) at the target traffic peak.
-> - If the showcase path is found to make any live LLM call under load, that is flagged as a P0 regression against the static-payload design, not accepted as expected behavior.
->
-> **Tests to add/update:** the new k6 scripts themselves function as the test; add a short CI job entry documenting how to invoke them manually (not merge-blocking, since this is a periodic drill, not a per-PR gate).
+**Shipped (2026-07-11):** ~~**Public-traffic burst/launch load-test drill**~~ — k6 ramp scripts for static showcase/marketing UI paths + authenticated API read burst; `workflow_dispatch` job `k6-launch-load-drill`; results template in `docs/architecture/LAUNCH_LOAD_DRILL.md`. First measured drill run still owner-pending.
 
 **Cursor prompt — Confirm hard per-tenant AI-spend ceiling for self-serve trial signup:**
 
@@ -387,8 +372,8 @@ _None engineering-actionable._ The one open item for this tier (M-07/M-16 screen
 ## 21. Prompt Batching Guidance
 
 **First batch (before public self-service, safe now):**
-1. Public-traffic burst/launch load-test drill — **Composer** safe (mechanical k6 scripting), escalate to Sonnet only if tuning is needed after first results.
-2. Confirm hard per-tenant AI-spend ceiling for self-serve trial — **Sonnet recommended** (requires tracing existing provisioning/budget code before deciding scope).
+1. Confirm hard per-tenant AI-spend ceiling for self-serve trial — **Sonnet recommended** (requires tracing existing provisioning/budget code before deciding scope).
+2. Execute the shipped launch load drill (`k6-launch-load-drill` workflow or local orchestrator) and record results — **founder** traffic sizing + **Composer** for any tuning after first results.
 
 **Second batch (before flipping the self-serve checkout flag):**
 3. Stripe test-mode dry run — not a code task; founder-executed with Cursor verifying webhook/provisioning behavior afterward. **Composer** safe for the verification half.
@@ -401,9 +386,9 @@ No trust-breaking UI defects, pricing/billing canonicalization gaps, cloud-neutr
 ## 22. Final Verdict
 
 1. **Should ArchLucid enter controlled beta?** Yes, now.
-2. **Should ArchLucid allow public self-service?** Not yet — close the load-drill and AI-ceiling-verification items in §20 Tier 3 first, and complete at least one real pilot.
+2. **Should ArchLucid allow public self-service?** Not yet — execute the shipped load drill with recorded results, close AI-ceiling verification in §20 Tier 3, and complete at least one real pilot.
 3. **Should the founder start mentioning ArchLucid on LinkedIn?** Yes, with a "request access" CTA, ideally after (not blocked by) capturing real screenshots/video.
-4. **Single highest-leverage thing to fix next:** run the public-traffic burst/launch load-test drill (§20) — it is the one concrete FAIL gate standing between YELLOW and GREEN for public self-service.
-5. **Single most dangerous premature exposure move:** flipping `NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED` to `true` before that drill exists.
+4. **Single highest-leverage thing to fix next:** confirm hard per-tenant AI-spend ceiling for self-serve trial signup (§20 Tier 3) — then execute the shipped launch load drill with owner-sized traffic.
+5. **Single most dangerous premature exposure move:** flipping `NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED` to `true` before the load drill has been **executed** with recorded results.
 
 **Blunt sentence:** ArchLucid has already fixed the rough edges this kind of assessment usually exists to find — the real gate left standing is proof under real traffic and real buyers, not more polish.
