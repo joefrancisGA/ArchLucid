@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { RunDetailAgentResult } from "@/types/authority";
+import type { RunDetailAgentResult, RunRetrievalGroundingSummary } from "@/types/authority";
 
 function agentTypeLabel(agentType: RunDetailAgentResult["agentType"]): string {
   switch (agentType) {
@@ -26,9 +26,31 @@ function countArray(value: readonly unknown[] | null | undefined): number {
   return Array.isArray(value) ? value.length : 0;
 }
 
+function topologyExemplarLink(summary: RunRetrievalGroundingSummary | null | undefined): ReactElement | null {
+  if (summary === null || summary === undefined)
+    return null;
+
+  const missing = summary.topologyReferenceArchitectureExemplarMissing === true;
+  const count = summary.topologyReferenceArchitectureExemplarCount ?? 0;
+
+  if (!missing && count === 0)
+    return null;
+
+  return (
+    <p className="m-0 mt-1">
+      <a className="font-medium underline underline-offset-2" href="#run-retrieval-exemplar-style-prior">
+        {missing
+          ? "No reference architecture exemplar matched — open retrieval grounding"
+          : `${count} reference architecture exemplar chunk${count === 1 ? "" : "s"} used as style prior`}
+      </a>
+    </p>
+  );
+}
+
 /** Summarizes architecture pipeline agent results on the operator run detail page (TB-106). */
 export function RunAgentResultsSummaryCard(props: {
   readonly results: readonly RunDetailAgentResult[] | null | undefined;
+  readonly retrievalGroundingSummary?: RunRetrievalGroundingSummary | null;
 }): ReactElement | null {
   const rows = props.results?.filter((row) => row !== null && row !== undefined) ?? [];
 
@@ -74,6 +96,7 @@ export function RunAgentResultsSummaryCard(props: {
                   {evidenceRefs} evidence ref{evidenceRefs === 1 ? "" : "s"}
                   {confidence !== null ? ` · confidence ${confidence}` : null}
                 </p>
+                {result.agentType === 1 ? topologyExemplarLink(props.retrievalGroundingSummary) : null}
               </li>
             );
           })}

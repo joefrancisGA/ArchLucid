@@ -762,7 +762,10 @@ export function RunDetailPageView(props: {
       {!m.buyerPolishedArtifactTable ? (
         <RunDetailOperatorTechnicalDisclosure>
           <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
-          <RunAgentResultsSummaryCard results={m.resolvedDetail.results} />
+          <RunAgentResultsSummaryCard
+            results={m.resolvedDetail.results}
+            retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
+          />
           <ReviewAgentExecutionLogSection results={m.resolvedDetail.results} />
           <RunRetrievalGroundingSummaryCard
             summary={m.resolvedDetail.retrievalGroundingSummary}

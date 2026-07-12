@@ -21521,6 +21521,19 @@
               "string"
             ]
           },
+          "topologyReferenceArchitectureExemplarCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "topologyReferenceArchitectureExemplarDocumentIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "topologyReferenceArchitectureExemplarMissing": {
+            "type": "boolean"
+          },
           "totalGraphRagNeighborsAdded": {
             "format": "int32",
             "type": "integer"

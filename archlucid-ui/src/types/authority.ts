@@ -208,6 +208,9 @@ export type RunRetrievalGroundingSummary = {
   readonly graphRagQualityPosture?: string | null;
   readonly disposition?: string;
   readonly operatorDetail?: string | null;
+  readonly topologyReferenceArchitectureExemplarCount?: number;
+  readonly topologyReferenceArchitectureExemplarDocumentIds?: readonly string[];
+  readonly topologyReferenceArchitectureExemplarMissing?: boolean;
 };
 
 type RunDetailDtoBase = components["schemas"]["RunDetailDto"];
