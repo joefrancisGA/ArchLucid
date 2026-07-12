@@ -54,6 +54,7 @@
     "dbo.TenantHealthScores"
   ],
   "tenantIdOnRow": [
+    "dbo.AiUsageEvents",
     "dbo.FineTunedModelRegistryEntries",
     "dbo.IdempotencyRecords",
     "dbo.LlmDailyTenantTokenWindowState",
@@ -62,6 +63,7 @@
     "dbo.LlmTenantWalletLedger",
     "dbo.LlmTenantWalletState",
     "dbo.SentEmails",
+    "dbo.TenantAiBudgetPolicy",
     "dbo.TenantAwsConnectionRecords",
     "dbo.TenantCostSettings",
     "dbo.TenantGcpConnectionRecords",
