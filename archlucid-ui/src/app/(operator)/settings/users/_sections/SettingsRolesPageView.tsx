@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ArchLucidAppRole } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
@@ -45,71 +46,61 @@ type Props = {
   readonly model: SettingsRolesPageViewModel;
 };
 
-/** Reads the `tab` search param to determine the initial tab. Defaults to "users". */
-function useInitialTab(): TabId {
-  const params = useSearchParams();
-  const raw = params.get("tab");
+function sanitizeSettingsRolesTab(raw: string | null, canManageApiKeys: boolean): TabId {
+  if (raw === "roles") {
+    return "roles";
+  }
 
-  if (raw === "roles" || raw === "keys") {
-    return raw;
+  if (raw === "keys" && canManageApiKeys) {
+    return "keys";
   }
 
   return "users";
 }
 
-function TabBar({
-  active,
-  onChange,
-  tabs,
-}: {
-  active: TabId;
-  onChange: (tab: TabId) => void;
-  tabs: readonly { id: TabId; label: string }[];
-}) {
-  return (
-    <div
-      role="tablist"
-      aria-label="Users and roles sections"
-      className="flex gap-1 border-b border-neutral-200 pb-0 dark:border-neutral-800"
-    >
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          role="tab"
-          aria-selected={active === tab.id}
-          aria-controls={`settings-roles-tabpanel-${tab.id}`}
-          id={`settings-roles-tab-${tab.id}`}
-          type="button"
-          onClick={() => onChange(tab.id)}
-          className={cn(
-            "px-4 py-2 font-medium leading-none outline-none transition-colors",
-            OPERATOR_TYPOGRAPHY.body,
-            "-mb-px border-b-2",
-            active === tab.id
-              ? "border-teal-600 text-teal-700 dark:border-teal-400 dark:text-teal-300"
-              : "border-transparent text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100",
-          )}
-          data-testid={`settings-roles-tab-${tab.id}`}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 export function SettingsRolesPageView(props: Props) {
   const m = props.model;
-  const initialTab = useInitialTab();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canManageApiKeys = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const tabs = visibleTabs(canManageApiKeys);
-  const [activeTab, setActiveTab] = useState<TabId>(() => {
-    if (initialTab === "keys" && !canManageApiKeys)
-      return "users";
+  const urlTab = sanitizeSettingsRolesTab(searchParams.get("tab"), canManageApiKeys);
+  const [activeTab, setActiveTab] = useState<TabId>(urlTab);
 
-    return initialTab;
-  });
+  useEffect(() => {
+    setActiveTab(urlTab);
+  }, [urlTab]);
+
+  useEffect(() => {
+    const onPop = () => {
+      const sp = new URLSearchParams(window.location.search);
+      setActiveTab(sanitizeSettingsRolesTab(sp.get("tab"), canManageApiKeys));
+    };
+
+    window.addEventListener("popstate", onPop);
+
+    return () => {
+      window.removeEventListener("popstate", onPop);
+    };
+  }, [canManageApiKeys]);
+
+  const onSelectTab = useCallback(
+    (id: string) => {
+      const tabId = sanitizeSettingsRolesTab(id, canManageApiKeys);
+      setActiveTab(tabId);
+
+      if (tabId === "users") {
+        router.replace(pathname);
+
+        return;
+      }
+
+      router.replace(`${pathname}?tab=${encodeURIComponent(tabId)}`);
+    },
+    [canManageApiKeys, pathname, router],
+  );
 
   if (m.surface === "demo") {
     return (
@@ -151,15 +142,16 @@ export function SettingsRolesPageView(props: Props) {
         </p>
       </div>
 
-      <TabBar active={activeTab} onChange={setActiveTab} tabs={tabs} />
+      <Tabs value={activeTab} onValueChange={onSelectTab} className="space-y-6">
+        <TabsList aria-label="Users and roles sections" data-testid="settings-roles-tablist">
+          {tabs.map((tab) => (
+            <TabsTrigger key={tab.id} value={tab.id} data-testid={`settings-roles-tab-${tab.id}`}>
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      {activeTab === "users" ? (
-        <div
-          id="settings-roles-tabpanel-users"
-          role="tabpanel"
-          aria-labelledby="settings-roles-tab-users"
-          data-testid="settings-roles-tabpanel-users"
-        >
+        <TabsContent value="users" data-testid="settings-roles-tabpanel-users">
           <div className="space-y-6">
             <Card>
               <CardHeader>
@@ -203,16 +195,9 @@ export function SettingsRolesPageView(props: Props) {
               </Card>
             ) : null}
           </div>
-        </div>
-      ) : null}
+        </TabsContent>
 
-      {activeTab === "roles" ? (
-        <div
-          id="settings-roles-tabpanel-roles"
-          role="tabpanel"
-          aria-labelledby="settings-roles-tab-roles"
-          data-testid="settings-roles-tabpanel-roles"
-        >
+        <TabsContent value="roles" data-testid="settings-roles-tabpanel-roles">
           <Card>
             <CardHeader>
               <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Roles and permissions</CardTitle>
@@ -221,53 +206,48 @@ export function SettingsRolesPageView(props: Props) {
               <SettingsRolesMatrixSection />
             </CardContent>
           </Card>
-        </div>
-      ) : null}
+        </TabsContent>
 
-      {activeTab === "keys" && canManageApiKeys ? (
-        <div
-          id="settings-roles-tabpanel-keys"
-          role="tabpanel"
-          aria-labelledby="settings-roles-tab-keys"
-          data-testid="settings-roles-tabpanel-keys"
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>API keys</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                Assign built-in roles to approved automation principals. Credential rotation and lifecycle management
-                live under{" "}
-                <a href="/settings/api-keys" className="text-teal-700 underline underline-offset-2 dark:text-teal-300">
-                  API keys
-                </a>
-                .
-              </p>
-              {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
-              {!m.loading && m.note !== null ? (
-                <div data-testid="settings-roles-api-keys-note">
-                  <OperatorEmptyState
-                    title={settingsRolesEmptyStateTitle(m.note)}
-                    description={settingsRolesEmptyStateDescription(m.note)}
-                  />
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <Button type="button" variant="secondary" size="sm" onClick={() => void m.load()}>
-                      Refresh
-                    </Button>
+        {canManageApiKeys ? (
+          <TabsContent value="keys" data-testid="settings-roles-tabpanel-keys">
+            <Card>
+              <CardHeader>
+                <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>API keys</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                  Assign built-in roles to approved automation principals. Credential rotation and lifecycle management
+                  live under{" "}
+                  <a href="/settings/api-keys" className="text-teal-700 underline underline-offset-2 dark:text-teal-300">
+                    API keys
+                  </a>
+                  .
+                </p>
+                {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
+                {!m.loading && m.note !== null ? (
+                  <div data-testid="settings-roles-api-keys-note">
+                    <OperatorEmptyState
+                      title={settingsRolesEmptyStateTitle(m.note)}
+                      description={settingsRolesEmptyStateDescription(m.note)}
+                    />
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Button type="button" variant="secondary" size="sm" onClick={() => void m.load()}>
+                        Refresh
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ) : null}
-              {!m.loading && apiKeyRows.length > 0 ? (
-                <PrincipalTable rows={apiKeyRows} onRoleChange={m.onRoleChange} />
-              ) : null}
-              {!m.loading && m.note === null && apiKeyRows.length === 0 ? (
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No API keys found in this workspace.</p>
-              ) : null}
-            </CardContent>
-          </Card>
-        </div>
-      ) : null}
+                ) : null}
+                {!m.loading && apiKeyRows.length > 0 ? (
+                  <PrincipalTable rows={apiKeyRows} onRoleChange={m.onRoleChange} />
+                ) : null}
+                {!m.loading && m.note === null && apiKeyRows.length === 0 ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No API keys found in this workspace.</p>
+                ) : null}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        ) : null}
+      </Tabs>
     </div>
   );
 }

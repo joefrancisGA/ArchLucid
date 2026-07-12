@@ -3,10 +3,11 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { ReactElement } from "react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { ArtifactIntegrityTechnicalDetails } from "@/components/ArtifactIntegrityTechnicalDetails";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DELIVERABLE_TAB_ARB_BUCKETS,
   DELIVERABLE_TAB_EXECUTIVE_BUCKETS,
@@ -14,8 +15,6 @@ import {
   type SponsorArtifactAudienceBucket,
 } from "@/lib/artifact-review-helpers";
 import type { ArtifactDescriptor } from "@/types/authority";
-
-type TabId = "executive" | "arb";
 
 function artifactsMatchingBuckets(
   artifacts: readonly ArtifactDescriptor[],
@@ -35,7 +34,6 @@ export function BuyerDeliverablesArtifactTabs(props: {
   readonly artifacts: readonly ArtifactDescriptor[];
 }): ReactElement {
   const { manifestId, runId, artifacts } = props;
-  const [tab, setTab] = useState<TabId>("executive");
 
   const sortedAll = useMemo(
     () => [...artifacts].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" })),
@@ -51,58 +49,52 @@ export function BuyerDeliverablesArtifactTabs(props: {
 
   return (
     <div className="space-y-4" data-testid="buyer-deliverables-artifact-tabs">
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Deliverable groups">
-        {(["executive", "arb"] as const).map((id) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            aria-selected={tab === id}
-            className={cn("rounded-md border px-3 py-1.5 font-semibold transition", OPERATOR_TYPOGRAPHY.helper,
-              tab === id
-                ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
-                : "border-transparent bg-neutral-100 text-neutral-600 hover:border-neutral-300 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-600",
-            )}
-            onClick={() => {
-              setTab(id);
-            }}
-          >
-            {id === "executive" ? "Executive and sponsor artifacts" : "Architecture review board artifacts"}
-          </button>
-        ))}
-      </div>
+      <Tabs defaultValue="executive">
+        <TabsList aria-label="Deliverable groups" className="gap-2 border-0">
+          <TabsTrigger value="executive" className="rounded-md border px-3 py-1.5">
+            Executive and sponsor artifacts
+          </TabsTrigger>
+          <TabsTrigger value="arb" className="rounded-md border px-3 py-1.5">
+            Architecture review board artifacts
+          </TabsTrigger>
+        </TabsList>
 
-      {tab === "executive" ? (
-        execRows.length === 0 ? (
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            No executive or sponsor-scoped outputs are listed for this package in this view.
-          </p>
-        ) : (
-          <ArtifactListTable
-            manifestId={manifestId}
-            runId={runId}
-            artifacts={execRows}
-            sponsorMode
-            audienceSections
-            deliverablesBucketAllowlist={DELIVERABLE_TAB_EXECUTIVE_BUCKETS}
-            omitIntegrityDetails
-          />
-        )
-      ) : arbRows.length === 0 ? (
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          No architecture review board or audit-scoped outputs are listed for this package in this view.
-        </p>
-      ) : (
-        <ArtifactListTable
-          manifestId={manifestId}
-          runId={runId}
-          artifacts={arbRows}
-          sponsorMode
-          audienceSections
-          deliverablesBucketAllowlist={DELIVERABLE_TAB_ARB_BUCKETS}
-          omitIntegrityDetails
-        />
-      )}
+        <TabsContent value="executive" className="pt-4" data-testid="buyer-deliverables-panel-executive">
+          {execRows.length === 0 ? (
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+              No executive or sponsor-scoped outputs are listed for this package in this view.
+            </p>
+          ) : (
+            <ArtifactListTable
+              manifestId={manifestId}
+              runId={runId}
+              artifacts={execRows}
+              sponsorMode
+              audienceSections
+              deliverablesBucketAllowlist={DELIVERABLE_TAB_EXECUTIVE_BUCKETS}
+              omitIntegrityDetails
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="arb" className="pt-4" data-testid="buyer-deliverables-panel-arb">
+          {arbRows.length === 0 ? (
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+              No architecture review board or audit-scoped outputs are listed for this package in this view.
+            </p>
+          ) : (
+            <ArtifactListTable
+              manifestId={manifestId}
+              runId={runId}
+              artifacts={arbRows}
+              sponsorMode
+              audienceSections
+              deliverablesBucketAllowlist={DELIVERABLE_TAB_ARB_BUCKETS}
+              omitIntegrityDetails
+            />
+          )}
+        </TabsContent>
+      </Tabs>
 
       <ArtifactIntegrityTechnicalDetails artifacts={sortedAll} />
     </div>

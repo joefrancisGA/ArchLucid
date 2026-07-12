@@ -31,9 +31,25 @@ describe("enterprise Tabs primitive drift guard (TB-665)", () => {
 
   it("includes Vitest coverage for keyboard and URL sync", () => {
     const tests = readRepoFile("archlucid-ui/src/components/ui/tabs.test.tsx");
+    const advisoryHub = readRepoFile("archlucid-ui/src/components/advisory/AdvisoryHubClient.test.tsx");
 
     expect(tests).toContain("ArrowRight");
     expect(tests).toContain("syncUrlParam");
     expect(tests).toContain("aria-selected");
+    expect(advisoryHub).toContain("AdvisoryHubClient (TB-670)");
+    expect(advisoryHub).toContain("ArrowLeft");
+  });
+
+  it("migrates TB-670 call sites onto shared Tabs imports", () => {
+    const helpTabsShell = readRepoFile("archlucid-ui/src/app/(operator)/help/HelpTabsShell.tsx");
+    const settingsRoles = readRepoFile(
+      "archlucid-ui/src/app/(operator)/settings/users/_sections/SettingsRolesPageView.tsx",
+    );
+    const deliverables = readRepoFile("archlucid-ui/src/components/BuyerDeliverablesArtifactTabs.tsx");
+
+    expect(helpTabsShell).toContain('@/components/ui/tabs');
+    expect(settingsRoles).toContain("sanitizeSettingsRolesTab");
+    expect(settingsRoles).toContain("onValueChange={onSelectTab}");
+    expect(deliverables).toContain("TabsContent");
   });
 });
