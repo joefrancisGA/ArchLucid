@@ -65128,6 +65128,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("wizardPresetUsed")]
         public string? WizardPresetUsed { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("workflowIntent")]
+        public string? WorkflowIntent { get; set; } = default!;
+
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -67937,6 +67940,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("freeTextIntent")]
         public string? FreeTextIntent { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("workflowIntent")]
+        public string? WorkflowIntent { get; set; } = default!;
+
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -69887,6 +69893,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("transparencyTrail")]
         public TransparencyTrail? TransparencyTrail { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("workflowIntent")]
+        public string? WorkflowIntent { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -77239,6 +77248,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("systemName")]
         public string? SystemName { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("workflowIntent")]
+        public string? WorkflowIntent { get; set; } = default!;
+
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -82515,6 +82527,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("currentManifestVersion")]
         public string? CurrentManifestVersion { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("packageOrigin")]
+        public string? PackageOrigin { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("requestId")]
         public string? RequestId { get; set; } = default!;
 
@@ -82842,6 +82857,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("otelTraceId")]
         public string? OtelTraceId { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("packageOrigin")]
+        public string? PackageOrigin { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("pilotAoaiDeploymentSnapshot")]
         public string? PilotAoaiDeploymentSnapshot { get; set; } = default!;
 
@@ -83152,6 +83170,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("isSample")]
         public bool? IsSample { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("packageOrigin")]
+        public string? PackageOrigin { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]

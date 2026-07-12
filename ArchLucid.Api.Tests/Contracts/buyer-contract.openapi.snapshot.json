@@ -3502,6 +3502,12 @@
               "null",
               "string"
             ]
+          },
+          "workflowIntent": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [
@@ -6350,6 +6356,12 @@
         "properties": {
           "freeTextIntent": {
             "type": "string"
+          },
+          "workflowIntent": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -8071,6 +8083,12 @@
           },
           "transparencyTrail": {
             "$ref": "#/components/schemas/TransparencyTrail"
+          },
+          "workflowIntent": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -15366,6 +15384,12 @@
               "null",
               "string"
             ]
+          },
+          "workflowIntent": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -20872,6 +20896,12 @@
               "string"
             ]
           },
+          "packageOrigin": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "requestId": {
             "type": "string"
           },
@@ -21233,6 +21263,12 @@
             ]
           },
           "otelTraceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "packageOrigin": {
             "type": [
               "null",
               "string"
@@ -21607,6 +21643,12 @@
           },
           "isSample": {
             "type": "boolean"
+          },
+          "packageOrigin": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "projectId": {
             "type": "string"
