@@ -1,4 +1,5 @@
 import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance-mutation-idempotency-key";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 
 export type FindingDispositionKind =
@@ -166,6 +167,11 @@ export async function getArchitectureDecisionRegister(
   return apiGet<ArchitectureDecisionRegisterResponse>(`${governanceBase()}/decision-register${suffix}`);
 }
 
+export type RecordBulkFindingDispositionResponse = {
+  processedCount: number;
+  updatedFindingIds: string[];
+};
+
 export async function recordFindingDisposition(
   findingId: string,
   body: {
@@ -175,10 +181,32 @@ export async function recordFindingDisposition(
     revisitDueUtc?: string;
     evidenceRequestText?: string;
   },
+  options?: { readonly idempotencyKey?: string },
 ): Promise<FindingDispositionEvent> {
+  const idempotencyKey = options?.idempotencyKey?.trim() || createGovernanceMutationIdempotencyKey();
+
   return apiPostJson<FindingDispositionEvent>(
     `${governanceBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
     body,
+    { extraHeaders: { "Idempotency-Key": idempotencyKey } },
+  );
+}
+
+export async function recordBulkFindingDisposition(
+  body: {
+    findingIds: readonly string[];
+    disposition: FindingDispositionKind;
+    rationale?: string;
+    revisitDueUtc?: string;
+  },
+  options?: { readonly idempotencyKey?: string },
+): Promise<RecordBulkFindingDispositionResponse> {
+  const idempotencyKey = options?.idempotencyKey?.trim() || createGovernanceMutationIdempotencyKey();
+
+  return apiPostJson<RecordBulkFindingDispositionResponse>(
+    `${governanceBase()}/findings/bulk-disposition`,
+    body,
+    { extraHeaders: { "Idempotency-Key": idempotencyKey } },
   );
 }
 

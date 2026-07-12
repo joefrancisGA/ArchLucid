@@ -47,6 +47,11 @@ public sealed class MutatingHttpIdempotencyArchitectureTests
         File.Exists(queryPath).Should().BeTrue();
         string queryText = File.ReadAllText(queryPath);
         queryText.Should().Contain("[IdempotencyFilter]");
+
+        string stickinessPath = Path.Combine(root, "ArchLucid.Api", "Controllers", "Governance", "GovernanceStickinessController.cs");
+        File.Exists(stickinessPath).Should().BeTrue();
+        string stickinessText = File.ReadAllText(stickinessPath);
+        stickinessText.Should().Contain("[IdempotencyFilter]");
     }
 
     [Fact]

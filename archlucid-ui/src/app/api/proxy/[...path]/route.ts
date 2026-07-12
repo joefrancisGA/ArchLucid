@@ -15,6 +15,11 @@ import { PROXY_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
 
+const IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
+/** Matches `ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength` on the API. */
+const MAX_IDEMPOTENCY_KEY_LENGTH = 256;
+const IDEMPOTENCY_REPLAYED_HEADER = "X-Idempotency-Replayed";
+
 /** Forwards JSON/binary calls to the upstream C# API (`GET`/`POST`/`PUT`/`PATCH`/`DELETE`). */
 type ForwardMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -62,6 +67,15 @@ function buildUpstreamHeaders(request: NextRequest, proxyPath?: string): Headers
 
   if (typeof incomingTraceParent === "string" && isValidTraceParent(incomingTraceParent)) {
     h.set(TRACE_PARENT_HEADER, incomingTraceParent.trim());
+  }
+
+  const incomingIdempotencyKey = request.headers.get(IDEMPOTENCY_KEY_HEADER)?.trim() ?? "";
+
+  if (
+    incomingIdempotencyKey.length > 0 &&
+    incomingIdempotencyKey.length <= MAX_IDEMPOTENCY_KEY_LENGTH
+  ) {
+    h.set(IDEMPOTENCY_KEY_HEADER, incomingIdempotencyKey);
   }
 
   return h;
@@ -376,6 +390,12 @@ function passThrough(res: Response, cacheControlPrivateMaxAgeSeconds?: number): 
 
   if (traceParent && traceParent.trim().length > 0) {
     out.headers.set("traceparent", traceParent.trim());
+  }
+
+  const idempotencyReplayed = res.headers.get(IDEMPOTENCY_REPLAYED_HEADER);
+
+  if (idempotencyReplayed && idempotencyReplayed.trim().length > 0) {
+    out.headers.set(IDEMPOTENCY_REPLAYED_HEADER, idempotencyReplayed.trim());
   }
 
   if (

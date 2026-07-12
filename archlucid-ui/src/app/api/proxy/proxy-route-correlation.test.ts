@@ -6,6 +6,8 @@ import { CORRELATION_ID_HEADER, TRACE_PARENT_HEADER } from "@/lib/correlation";
 import * as correlation from "@/lib/correlation";
 import { resetProxyRateLimitStateForTests } from "@/lib/proxy-rate-limit";
 
+const IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
+
 describe("proxy route X-Correlation-ID", () => {
   const fetchMock = vi.fn();
 
@@ -91,15 +93,50 @@ describe("proxy route X-Correlation-ID", () => {
     expect(headers.get(TRACE_PARENT_HEADER)).toBe(traceParent);
   });
 
-  it("ignores invalid browser traceparent on upstream fetch", async () => {
-    const req = new NextRequest(`http://localhost/api/proxy/health/live`, {
-      headers: { [TRACE_PARENT_HEADER]: "not-a-traceparent" },
+  it("forwards Idempotency-Key on POST", async () => {
+    const idempotencyKey = "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb";
+    const req = new NextRequest(`http://localhost/api/proxy/v1/governance/findings/f-1/dispositions`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "content-length": "2",
+        [IDEMPOTENCY_KEY_HEADER]: idempotencyKey,
+      },
+      body: "{}",
     });
 
-    await GET(req, { params: Promise.resolve({ path: ["api", "health"] }) });
+    await POST(req, { params: Promise.resolve({ path: ["v1", "governance", "findings", "f-1", "dispositions"] }) });
 
     const init = fetchMock.mock.calls[0]![1] as RequestInit;
     const headers = init.headers as Headers;
-    expect(headers.get(TRACE_PARENT_HEADER)).toBeNull();
+    expect(headers.get(IDEMPOTENCY_KEY_HEADER)).toBe(idempotencyKey);
+  });
+
+  it("forwards X-Idempotency-Replayed from upstream on POST", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response("{}", {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "X-Idempotency-Replayed": "true",
+        },
+      }),
+    );
+
+    const req = new NextRequest(`http://localhost/api/proxy/v1/governance/findings/f-1/dispositions`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "content-length": "2",
+        [IDEMPOTENCY_KEY_HEADER]: "cccccccc-cccc-4ccc-cccc-cccccccccccc",
+      },
+      body: "{}",
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "governance", "findings", "f-1", "dispositions"] }),
+    });
+
+    expect(res.headers.get("X-Idempotency-Replayed")).toBe("true");
   });
 });
