@@ -25,6 +25,10 @@ vi.mock("@/hooks/use-tenant-trial-status-query", () => ({
   useTenantTrialStatusQuery: () => ({ data: null }),
 }));
 
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCallerAuthorityRank: () => 3,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
   return {

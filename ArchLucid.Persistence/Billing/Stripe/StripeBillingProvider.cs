@@ -18,24 +18,20 @@ public sealed class StripeBillingProvider(
     IOptionsMonitor<BillingOptions> billingOptions,
     IBillingLedger ledger,
     IBillingWebhookReplayGuard webhookReplayGuard,
-    BillingWebhookTrialActivator trialActivator,
-    IMarketplaceChangePlanWebhookMutationHandler changePlanWebhookMutationHandler,
+    StripeBillingSubscriptionWebhookProcessor subscriptionWebhookProcessor,
     ILlmTenantWalletStripeWebhookProcessor walletWebhookProcessor,
     ILlmTenantWalletRepository walletRepository) : IBillingProvider
 {
     private readonly IOptionsMonitor<BillingOptions> _billingOptions =
         billingOptions ?? throw new ArgumentNullException(nameof(billingOptions));
 
-    private readonly IMarketplaceChangePlanWebhookMutationHandler _changePlanWebhookMutationHandler =
-        changePlanWebhookMutationHandler ?? throw new ArgumentNullException(nameof(changePlanWebhookMutationHandler));
-
     private readonly IBillingLedger _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
+
+    private readonly StripeBillingSubscriptionWebhookProcessor _subscriptionWebhookProcessor =
+        subscriptionWebhookProcessor ?? throw new ArgumentNullException(nameof(subscriptionWebhookProcessor));
 
     private readonly IBillingWebhookReplayGuard _webhookReplayGuard =
         webhookReplayGuard ?? throw new ArgumentNullException(nameof(webhookReplayGuard));
-
-    private readonly BillingWebhookTrialActivator _trialActivator =
-        trialActivator ?? throw new ArgumentNullException(nameof(trialActivator));
 
     private readonly ILlmTenantWalletStripeWebhookProcessor _walletWebhookProcessor =
         walletWebhookProcessor ?? throw new ArgumentNullException(nameof(walletWebhookProcessor));
@@ -79,6 +75,18 @@ public sealed class StripeBillingProvider(
                 ["tier"] = BillingTierCode.CheckoutTierLabel(request.TargetTier),
                 ["seats"] = Math.Max(1, request.Seats).ToString(CultureInfo.InvariantCulture),
                 ["workspaces"] = Math.Max(1, request.Workspaces).ToString(CultureInfo.InvariantCulture)
+            },
+            SubscriptionData = new SessionSubscriptionDataOptions
+            {
+                Metadata = new Dictionary<string, string>
+                {
+                    ["tenant_id"] = request.TenantId.ToString("D", CultureInfo.InvariantCulture),
+                    ["workspace_id"] = request.WorkspaceId.ToString("D", CultureInfo.InvariantCulture),
+                    ["project_id"] = request.ProjectId.ToString("D", CultureInfo.InvariantCulture),
+                    ["tier"] = BillingTierCode.CheckoutTierLabel(request.TargetTier),
+                    ["seats"] = Math.Max(1, request.Seats).ToString(CultureInfo.InvariantCulture),
+                    ["workspaces"] = Math.Max(1, request.Workspaces).ToString(CultureInfo.InvariantCulture)
+                }
             },
             LineItems =
             [
@@ -155,13 +163,15 @@ public sealed class StripeBillingProvider(
         BillingWebhookInbound inbound,
         CancellationToken cancellationToken)
     {
+        StripeBillingWebhookRoute route = inbound.StripeWebhookRoute ?? StripeBillingWebhookRoute.Subscription;
         BillingOptions billing = _billingOptions.CurrentValue;
-        string? signingSecret = billing.Stripe.WebhookSigningSecret?.Trim();
+        string? signingSecret = ResolveWebhookSigningSecret(billing, route);
 
         if (string.IsNullOrWhiteSpace(signingSecret) || string.IsNullOrWhiteSpace(inbound.StripeSignatureHeader))
-
+        {
             return BillingWebhookHandleResult.Rejected(
                 "Stripe webhook signing secret or Stripe-Signature header is missing.");
+        }
 
         Event stripeEvent;
 
@@ -197,22 +207,20 @@ public sealed class StripeBillingProvider(
             string? prior = await _ledger.GetWebhookEventResultStatusAsync(stripeEvent.Id, cancellationToken);
 
             if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase))
+            {
                 return BillingWebhookHandleResult.ReplayRejected(
                     $"Stripe webhook event '{stripeEvent.Id}' was already processed.");
+            }
         }
 
         try
         {
-            if (string.Equals(stripeEvent.Type, "checkout.session.completed", StringComparison.OrdinalIgnoreCase))
-            {
-                Session? session = TryGetCheckoutSessionFromEvent(stripeEvent);
+            bool handled = await DispatchStripeWebhookEventAsync(route, stripeEvent, inbound.RawBody, cancellationToken);
 
-                if (session is not null)
-                    await HandleCheckoutSessionCompletedAsync(session, inbound.RawBody, cancellationToken);
-            }
-            else if (stripeEvent.Type.StartsWith("payment_intent.", StringComparison.OrdinalIgnoreCase))
+            if (!handled)
             {
-                await HandleWalletPaymentIntentEventAsync(stripeEvent, cancellationToken).ConfigureAwait(false);
+                return BillingWebhookHandleResult.Rejected(
+                    $"Stripe event type '{stripeEvent.Type}' is not handled on the {route} webhook route.");
             }
 
             await _ledger.MarkWebhookProcessedAsync(stripeEvent.Id, "Processed", cancellationToken);
@@ -226,6 +234,121 @@ public sealed class StripeBillingProvider(
 
             throw;
         }
+    }
+
+    private async Task<bool> DispatchStripeWebhookEventAsync(
+        StripeBillingWebhookRoute route,
+        Event stripeEvent,
+        string rawBody,
+        CancellationToken cancellationToken)
+    {
+        if (IsStripeConnectivityEvent(stripeEvent.Type))
+            return true;
+
+        if (route == StripeBillingWebhookRoute.Wallet)
+        {
+            if (!stripeEvent.Type.StartsWith("payment_intent.", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            await HandleWalletPaymentIntentEventAsync(stripeEvent, cancellationToken).ConfigureAwait(false);
+
+            return true;
+        }
+
+        return await DispatchSubscriptionWebhookEventAsync(stripeEvent, rawBody, cancellationToken);
+    }
+
+    private async Task<bool> DispatchSubscriptionWebhookEventAsync(
+        Event stripeEvent,
+        string rawBody,
+        CancellationToken cancellationToken)
+    {
+        if (string.Equals(stripeEvent.Type, "checkout.session.completed", StringComparison.OrdinalIgnoreCase))
+        {
+            Session? session = TryGetCheckoutSessionFromEvent(stripeEvent);
+
+            if (session is not null)
+            {
+                await _subscriptionWebhookProcessor.HandleCheckoutSessionCompletedAsync(
+                    session,
+                    rawBody,
+                    cancellationToken);
+            }
+
+            return true;
+        }
+
+        if (string.Equals(stripeEvent.Type, "customer.subscription.updated", StringComparison.OrdinalIgnoreCase))
+        {
+            Subscription? subscription = TryGetSubscriptionFromEvent(stripeEvent);
+
+            if (subscription is not null)
+            {
+                await _subscriptionWebhookProcessor.HandleSubscriptionUpdatedAsync(
+                    subscription,
+                    rawBody,
+                    cancellationToken);
+            }
+
+            return true;
+        }
+
+        if (string.Equals(stripeEvent.Type, "customer.subscription.deleted", StringComparison.OrdinalIgnoreCase))
+        {
+            Subscription? subscription = TryGetSubscriptionFromEvent(stripeEvent);
+
+            if (subscription is not null)
+            {
+                await _subscriptionWebhookProcessor.HandleSubscriptionDeletedAsync(
+                    subscription,
+                    rawBody,
+                    cancellationToken);
+            }
+
+            return true;
+        }
+
+        if (string.Equals(stripeEvent.Type, "invoice.payment_failed", StringComparison.OrdinalIgnoreCase))
+        {
+            Invoice? invoice = TryGetInvoiceFromEvent(stripeEvent);
+
+            if (invoice is not null)
+            {
+                await _subscriptionWebhookProcessor.HandleInvoicePaymentFailedAsync(
+                    invoice,
+                    rawBody,
+                    cancellationToken);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsStripeConnectivityEvent(string eventType)
+    {
+        return string.Equals(eventType, "ping", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string? ResolveWebhookSigningSecret(BillingOptions billing, StripeBillingWebhookRoute route)
+    {
+        if (route == StripeBillingWebhookRoute.Wallet)
+        {
+            string? wallet = billing.Stripe.WalletWebhookSigningSecret?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(wallet))
+                return wallet;
+        }
+        else
+        {
+            string? subscription = billing.Stripe.SubscriptionWebhookSigningSecret?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(subscription))
+                return subscription;
+        }
+
+        return billing.Stripe.WebhookSigningSecret?.Trim();
     }
 
     private static Session? TryGetCheckoutSessionFromEvent(Event stripeEvent)
@@ -288,85 +411,26 @@ public sealed class StripeBillingProvider(
         return null;
     }
 
-    private async Task HandleCheckoutSessionCompletedAsync(
-        Session session,
-        string rawBody,
-        CancellationToken cancellationToken)
+    private static Subscription? TryGetSubscriptionFromEvent(Event stripeEvent)
     {
-        if (session.Metadata is null)
-            return;
+        if (stripeEvent.Data?.Object is Subscription fromTyped)
+            return fromTyped;
 
-        if (!TryParseGuid(session.Metadata, "tenant_id", out Guid tenantId) ||
-            !TryParseGuid(session.Metadata, "workspace_id", out Guid workspaceId) ||
-            !TryParseGuid(session.Metadata, "project_id", out Guid projectId))
+        if (stripeEvent.Data?.RawObject is JToken token)
+            return token.ToObject<Subscription>(Newtonsoft.Json.JsonSerializer.Create(StripeConfiguration.SerializerSettings));
 
-            return;
-
-        BillingCheckoutTier checkoutTier = ParseCheckoutTier(session.Metadata, "tier");
-        string tierCode = BillingTierCode.FromCheckoutTier(checkoutTier);
-        int seats = ParsePositiveInt(session.Metadata, "seats", 1);
-        int workspaces = ParsePositiveInt(session.Metadata, "workspaces", 1);
-        string subscriptionId = session.SubscriptionId ?? session.Id;
-
-        string planToken = checkoutTier switch
-        {
-            BillingCheckoutTier.Architect => "archlucid-stripe-architect",
-            BillingCheckoutTier.Pro => "archlucid-stripe-pro",
-            BillingCheckoutTier.Enterprise => "archlucid-stripe-enterprise",
-            _ => "archlucid-stripe-team"
-        };
-
-        using JsonDocument planDoc = JsonDocument.Parse(
-            JsonSerializer.Serialize(new Dictionary<string, string> { ["planId"] = planToken }));
-
-        await _changePlanWebhookMutationHandler.HandleAsync(tenantId, planDoc.RootElement, rawBody, cancellationToken);
-
-        await _trialActivator.OnSubscriptionActivatedAsync(
-            tenantId,
-            workspaceId,
-            projectId,
-            ProviderName,
-            subscriptionId,
-            tierCode,
-            BillingTierCode.CheckoutTierLabel(checkoutTier),
-            seats,
-            workspaces,
-            rawBody,
-            cancellationToken);
+        return null;
     }
 
-    private static bool TryParseGuid(Dictionary<string, string> metadata, string key, out Guid value)
+    private static Invoice? TryGetInvoiceFromEvent(Event stripeEvent)
     {
-        value = Guid.Empty;
+        if (stripeEvent.Data?.Object is Invoice fromTyped)
+            return fromTyped;
 
-        if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
-            return false;
+        if (stripeEvent.Data?.RawObject is JToken token)
+            return token.ToObject<Invoice>(Newtonsoft.Json.JsonSerializer.Create(StripeConfiguration.SerializerSettings));
 
-        return Guid.TryParse(raw.Trim(), out value);
-    }
-
-    private static BillingCheckoutTier ParseCheckoutTier(Dictionary<string, string> metadata, string key)
-    {
-        if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
-            return BillingCheckoutTier.Team;
-
-        return raw.Trim() switch
-        {
-            "Architect" => BillingCheckoutTier.Architect,
-            "Pro" => BillingCheckoutTier.Pro,
-            "Enterprise" => BillingCheckoutTier.Enterprise,
-            _ => BillingCheckoutTier.Team
-        };
-    }
-
-    private static int ParsePositiveInt(Dictionary<string, string> metadata, string key, int fallback)
-    {
-        if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
-            return fallback;
-
-        return int.TryParse(raw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int n) && n > 0
-            ? n
-            : fallback;
+        return null;
     }
 
     private static string? ResolveCheckoutApiKey(BillingOptions billing)

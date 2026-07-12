@@ -4706,6 +4706,39 @@
         ],
         "type": "object"
       },
+      "BillingSubscriptionStatusResponseDto": {
+        "properties": {
+          "hasSubscription": {
+            "type": "boolean"
+          },
+          "isPaymentPastDue": {
+            "type": "boolean"
+          },
+          "provider": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tierCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "hasSubscription",
+          "isPaymentPastDue"
+        ],
+        "type": "object"
+      },
       "BoardPackPdfPostRequest": {
         "properties": {
           "periodEndUtc": {
@@ -48688,6 +48721,19 @@
         "x-archlucid-audience": "internal"
       }
     },
+    "/v1/billing/webhooks/stripe/subscriptions": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "BillingStripeWebhook"
+        ],
+        "x-archlucid-audience": "internal"
+      }
+    },
     "/v1/compare": {
       "get": {
         "parameters": [
@@ -68974,6 +69020,36 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/BillingPortalResponseDto"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "BillingCheckout"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/tenant/billing/subscription": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingSubscriptionStatusResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingSubscriptionStatusResponseDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingSubscriptionStatusResponseDto"
                 }
               }
             },

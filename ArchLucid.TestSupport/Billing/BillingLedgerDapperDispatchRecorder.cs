@@ -143,4 +143,11 @@ public sealed class BillingLedgerDapperDispatchRecorder(
     {
         return _inner.TryGetProviderSubscriptionIdAsync(tenantId, cancellationToken);
     }
+
+    public Task<Guid?> TryResolveTenantIdByProviderSubscriptionIdAsync(
+        string providerSubscriptionId,
+        CancellationToken cancellationToken)
+    {
+        return _inner.TryResolveTenantIdByProviderSubscriptionIdAsync(providerSubscriptionId, cancellationToken);
+    }
 }

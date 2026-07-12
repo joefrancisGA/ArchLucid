@@ -3,20 +3,28 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { OperatorBillingCurrentPlanSummary } from "./OperatorBillingCurrentPlanSummary";
-import { OperatorBillingPlansClient } from "./OperatorBillingPlansClient";
-import { OperatorBillingUsageSection } from "./OperatorBillingUsageSection";
-import { OperatorBillingWalletPanel } from "./OperatorBillingWalletPanel";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_BILLING_PAGE_LEAD } from "@/lib/marketing/marketing-public-pricing";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { OperatorBillingCurrentPlanSummary } from "./OperatorBillingCurrentPlanSummary";
+import { OperatorBillingPaymentPastDueBanner } from "./OperatorBillingPaymentPastDueBanner";
+import { OperatorBillingPlansClient } from "./OperatorBillingPlansClient";
+import { OperatorBillingUsageSection } from "./OperatorBillingUsageSection";
+import { OperatorBillingWalletPanel } from "./OperatorBillingWalletPanel";
+
 export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: string | null }) {
+  const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
+
   return (
     <div className="w-full max-w-[1440px] space-y-8 px-4 py-8" data-testid="operator-billing-plans-page">
       <header className="space-y-2">
         <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Billing &amp; plans</h1>
         <p className={cn("max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{OPERATOR_BILLING_PAGE_LEAD}</p>
       </header>
+
+      <OperatorBillingPaymentPastDueBanner canMutate={canMutate} />
 
       <OperatorBillingCurrentPlanSummary />
 

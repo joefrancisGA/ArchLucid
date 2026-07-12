@@ -678,6 +678,15 @@ public static class AuditEventTypes
     /// <summary>Stripe Billing Portal session created successfully (payload may include provider session id).</summary>
     public const string BillingPortalCompleted = "BillingPortalCompleted";
 
+    /// <summary>Stripe subscription moved to Suspended (dunning / payment failure) via webhook.</summary>
+    public const string BillingSubscriptionSuspended = "BillingSubscriptionSuspended";
+
+    /// <summary>Stripe subscription returned to Active after successful payment via webhook.</summary>
+    public const string BillingSubscriptionReinstated = "BillingSubscriptionReinstated";
+
+    /// <summary>Stripe subscription canceled or deleted via webhook.</summary>
+    public const string BillingSubscriptionCanceled = "BillingSubscriptionCanceled";
+
     /// <summary>
     ///     Tenant-level customer notification channel toggles updated (
     ///     <c>PUT /v1/notifications/customer-channel-preferences</c>).

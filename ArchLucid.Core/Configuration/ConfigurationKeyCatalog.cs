@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(168)
+        return new List<ConfigurationKeyEntry>(170)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -360,6 +360,14 @@ public static class ConfigurationKeyCatalog
                 ConfigKeyRequirementKind.None),
             E("Billing", "Billing:Stripe:WebhookSigningSecret", M("env", "KeyVault"), "empty", "Production",
                 "Validates `Stripe-Signature` on the webhook path.", ConfigKeyRequirementKind.WhenProduction),
+            E("Billing", "Billing:Stripe:SubscriptionWebhookSigningSecret", M("env", "KeyVault"), "empty",
+                "When using Stripe subscriptions",
+                "Signing secret for `POST /v1/billing/webhooks/stripe/subscriptions`; falls back to WebhookSigningSecret.",
+                ConfigKeyRequirementKind.None),
+            E("Billing", "Billing:Stripe:WalletWebhookSigningSecret", M("env", "KeyVault"), "empty",
+                "When using Stripe wallet top-ups",
+                "Signing secret for `POST /v1/billing/webhooks/stripe` (payment_intent.*); falls back to WebhookSigningSecret.",
+                ConfigKeyRequirementKind.None),
             E("Billing", "Billing:Stripe:PublishableKey", M("appsettings", "env", "KeyVault"), "empty",
                 "When checkout UI in app", "Publishable key (non-secret but still not echoed by CLI in raw form here).",
                 ConfigKeyRequirementKind.None),

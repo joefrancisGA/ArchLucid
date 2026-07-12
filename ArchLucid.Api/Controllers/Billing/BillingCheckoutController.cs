@@ -70,7 +70,11 @@ public sealed class BillingCheckoutController(
 
         BillingCheckoutTier tier = ParseCheckoutTier(body.TargetTier);
 
-        if (await _billingLedger.TenantHasActiveSubscriptionAsync(scope.TenantId, cancellationToken))
+        BillingSubscriptionSnapshot? existingSubscription =
+            await _billingLedger.TryGetSubscriptionAsync(scope.TenantId, cancellationToken);
+
+        if (existingSubscription is not null &&
+            !string.Equals(existingSubscription.Status, "Canceled", StringComparison.OrdinalIgnoreCase))
         {
             IBillingProvider conflictProvider = _billingProviderRegistry.ResolveActiveProvider();
             ArchLucidInstrumentation.RecordBillingCheckout(
@@ -79,7 +83,7 @@ public sealed class BillingCheckoutController(
                 "conflict_active_subscription");
 
             return this.ConflictProblem(
-                "An active billing subscription already exists for this tenant.",
+                "A billing subscription already exists for this tenant. Use Manage billing to update payment or cancel.",
                 ProblemTypes.Conflict);
         }
 
@@ -231,6 +235,38 @@ public sealed class BillingCheckoutController(
             {
                 PortalUrl = result.PortalUrl,
                 ProviderSessionId = result.ProviderSessionId
+            });
+    }
+
+    [HttpGet("subscription")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [ProducesResponseType(typeof(BillingSubscriptionStatusResponseDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSubscriptionStatusAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        BillingSubscriptionSnapshot? snapshot =
+            await _billingLedger.TryGetSubscriptionAsync(scope.TenantId, cancellationToken);
+
+        if (snapshot is null)
+        {
+            return Ok(
+                new BillingSubscriptionStatusResponseDto
+                {
+                    HasSubscription = false,
+                    IsPaymentPastDue = false
+                });
+        }
+
+        bool isPastDue = string.Equals(snapshot.Status, "Suspended", StringComparison.OrdinalIgnoreCase);
+
+        return Ok(
+            new BillingSubscriptionStatusResponseDto
+            {
+                HasSubscription = true,
+                Provider = snapshot.Provider,
+                TierCode = snapshot.TierCode,
+                Status = snapshot.Status,
+                IsPaymentPastDue = isPastDue
             });
     }
 

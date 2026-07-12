@@ -53,7 +53,9 @@ public sealed class StripeBillingProviderCheckoutWebhookIdempotencyTests
         Mock<IAuditService> audit = new();
         BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
         Mock<IMarketplaceChangePlanWebhookMutationHandler> changePlan = new();
-        StripeBillingProvider sut = StripeBillingProviderTestSupport.CreateSut(monitor, ledger, activator, changePlan);
+        StripeBillingSubscriptionWebhookProcessor subscriptionProcessor =
+            new(ledger.Object, activator, changePlan.Object, audit.Object);
+        StripeBillingProvider sut = StripeBillingProviderTestSupport.CreateSut(monitor, ledger, subscriptionProcessor, changePlan);
 
         Event stripeEvent = new()
         {

@@ -28,7 +28,17 @@ public sealed class BillingStripeWebhookController(StripeBillingProvider stripeB
 
     [HttpPost("stripe")]
     [Consumes("application/json")]
-    public async Task<IActionResult> StripeAsync(CancellationToken cancellationToken)
+    public Task<IActionResult> StripeWalletAsync(CancellationToken cancellationToken) =>
+        HandleStripeWebhookAsync(StripeBillingWebhookRoute.Wallet, cancellationToken);
+
+    [HttpPost("stripe/subscriptions")]
+    [Consumes("application/json")]
+    public Task<IActionResult> StripeSubscriptionsAsync(CancellationToken cancellationToken) =>
+        HandleStripeWebhookAsync(StripeBillingWebhookRoute.Subscription, cancellationToken);
+
+    private async Task<IActionResult> HandleStripeWebhookAsync(
+        StripeBillingWebhookRoute route,
+        CancellationToken cancellationToken)
     {
         Request.EnableBuffering();
 
@@ -42,7 +52,9 @@ public sealed class BillingStripeWebhookController(StripeBillingProvider stripeB
 
         BillingWebhookInbound inbound = new()
         {
-            RawBody = rawBody, StripeSignatureHeader = string.IsNullOrWhiteSpace(signature) ? null : signature
+            RawBody = rawBody,
+            StripeSignatureHeader = string.IsNullOrWhiteSpace(signature) ? null : signature,
+            StripeWebhookRoute = route
         };
 
         BillingWebhookHandleResult result =

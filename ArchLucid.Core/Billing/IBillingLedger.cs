@@ -73,4 +73,9 @@ public interface IBillingLedger
     ///     exists; otherwise null.
     /// </summary>
     Task<string?> TryGetProviderSubscriptionIdAsync(Guid tenantId, CancellationToken cancellationToken);
+
+    /// <summary>Resolves a tenant from a Stripe subscription or checkout session id persisted on the billing row.</summary>
+    Task<Guid?> TryResolveTenantIdByProviderSubscriptionIdAsync(
+        string providerSubscriptionId,
+        CancellationToken cancellationToken);
 }
