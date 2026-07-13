@@ -246,6 +246,15 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     pdfStatus: "customer",
   },
   {
+    slug: "azure-permissions",
+    title: "Azure permissions for cloud connections",
+    summary:
+      "Grant ArchLucid the minimum read-only Azure roles, scopes, and verification steps for hosted cloud connections.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/AZURE_CLOUD_CONNECTION_PERMISSIONS.md"],
+    pdfStatus: "customer",
+  },
+  {
     slug: "enterprise-onboarding",
     title: "Enterprise onboarding checklist",
     summary:

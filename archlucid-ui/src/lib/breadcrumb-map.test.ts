@@ -117,15 +117,20 @@ describe("getBreadcrumbs", () => {
   it("maps cloud connections help without generic Cloud connections segment", () => {
     expect(getBreadcrumbs("/help/cloud-connections/azure")).toEqual([
       { label: "Help", href: "/help" },
-      { label: "Cloud connections" },
+      { label: "Cloud connections", href: "/integrations/cloud-connections" },
     ]);
     expect(getBreadcrumbs("/help/cloud-connections/aws")).toEqual([
       { label: "Help", href: "/help" },
-      { label: "Cloud connections" },
+      { label: "Cloud connections", href: "/integrations/cloud-connections" },
     ]);
     expect(getBreadcrumbs("/help/cloud-connections/gcp")).toEqual([
       { label: "Help", href: "/help" },
-      { label: "Cloud connections" },
+      { label: "Cloud connections", href: "/integrations/cloud-connections" },
+    ]);
+    expect(getBreadcrumbs("/help/azure-permissions")).toEqual([
+      { label: "Help", href: "/help" },
+      { label: "Cloud connections", href: "/integrations/cloud-connections" },
+      { label: "Azure permissions" },
     ]);
   });
 

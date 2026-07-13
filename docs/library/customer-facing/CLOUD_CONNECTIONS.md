@@ -155,12 +155,11 @@ If federation is misconfigured, validation fails fast with an API error — fix 
 
 ## Azure permissions reference {#azure-permissions}
 
-| Azure role | Purpose | Write access |
-|------------|---------|--------------|
-| **Reader** | Subscription inventory for architecture evidence | No |
-| **Cost Management Reader** | Read-only cost posture for value and risk context | No |
+Use the dedicated in-app guide for role requirements, scopes, setup, and verification:
 
-Do **not** assign Owner, Contributor, User Access Administrator, or broad directory roles for the Azure connection.
+**[Azure permissions for cloud connections](/help/azure-permissions)**
+
+That guide is driven by the same permission contract as hosted Tier 2 validation and customer onboarding templates. Do **not** assign Owner, Contributor, User Access Administrator, or broad directory roles for the Azure connection.
 
 ## Related topics {#related-topics}
 

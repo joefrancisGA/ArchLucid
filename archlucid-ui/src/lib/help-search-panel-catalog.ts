@@ -173,6 +173,13 @@ const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/cloud-connections-azure", helpSlug: "cloud-connections-azure" },
   },
   {
+    id: "azure-permissions",
+    title: "Azure permissions for cloud connections",
+    description: "Required Reader role, optional cost access, scopes, setup, and verification.",
+    keywords: ["azure", "permissions", "reader", "cost management", "iam", "roles", "scope"],
+    action: { kind: "route", href: "/help/azure-permissions", helpSlug: "azure-permissions" },
+  },
+  {
     id: "connect-aws",
     title: "Connect AWS securely",
     description: "OIDC-federated read-only IAM role, Resource Explorer inventory, and validation.",
@@ -284,7 +291,7 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   export: ["review-artifacts", "finalize-review"],
   governance: ["governance-workflow", "risk-register", "policy-packs"],
   sso: ["sso-identity"],
-  azure: ["cloud-connections", "connect-azure"],
+  azure: ["cloud-connections", "connect-azure", "azure-permissions"],
   aws: ["cloud-connections", "connect-aws"],
   gcp: ["cloud-connections", "connect-gcp"],
   audit: ["review-artifacts", "governance-workflow"],
@@ -312,7 +319,7 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
   { prefix: "/signup", topicIds: ["product-faq", "first-review-guide"] },
   {
     prefix: "/integrations/cloud-connections",
-    topicIds: ["cloud-connections", "connect-azure", "connect-aws", "connect-gcp", "troubleshoot"],
+    topicIds: ["cloud-connections", "connect-azure", "azure-permissions", "connect-aws", "connect-gcp", "troubleshoot"],
   },
   {
     prefix: "/integrations/readiness",
@@ -324,7 +331,7 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
   },
   {
     prefix: "/settings/cloud-connections",
-    topicIds: ["cloud-connections", "connect-azure", "connect-aws", "connect-gcp", "troubleshoot"],
+    topicIds: ["cloud-connections", "connect-azure", "azure-permissions", "connect-aws", "connect-gcp", "troubleshoot"],
   },
   { prefix: "/governance", topicIds: ["governance-workflow", "risk-register", "policy-packs"] },
   { prefix: "/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },

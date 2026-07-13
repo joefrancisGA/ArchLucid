@@ -232,7 +232,11 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
                 Terraform / Bicep onboarding templates
               </Link>{" "}
               in your tenant. Replace subscription and ArchLucid identity placeholders before applying federated
-              credentials.
+              credentials. See the{" "}
+              <Link href={TIER2_WIZARD_HELP_HREFS.azurePermissions} className="text-teal-700 underline dark:text-teal-400">
+                Azure permissions guide
+              </Link>{" "}
+              for required roles and scopes.
             </p>
           </div>
 

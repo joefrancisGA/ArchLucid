@@ -146,6 +146,7 @@ describe("product-documentation-registry", () => {
       "cloud-connections-azure": "customer",
       "cloud-connections-aws": "customer",
       "cloud-connections-gcp": "customer",
+      "azure-permissions": "customer",
       "governance-approval": "customer",
       "audit-trail": "customer",
       "pilot-roi-model": null,

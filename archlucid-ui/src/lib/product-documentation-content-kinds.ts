@@ -20,6 +20,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "cloud-connections-aws": "product-help",
   "cloud-connections-azure": "product-help",
   "cloud-connections-gcp": "product-help",
+  "azure-permissions": "product-help",
   "comparison-replay": "product-help",
   "configuration-reference": "technical-documentation",
   "core-pilot": "product-help",
