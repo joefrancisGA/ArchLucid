@@ -9,9 +9,9 @@ import {
   AZURE_PERMISSIONS_VERIFY_HEADING,
   AZURE_PERMISSIONS_VERIFY_INTRO,
 } from "@/lib/azure-cloud-connection-permissions-copy";
-import { AUTHORITY_RANK } from "@/lib/authority-rank";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { useNavCallerAuthorityRank } from "@/lib/nav-caller-authority-rank";
 import { resolveApiErrorMessage } from "@/lib/resolve-api-error-message";
 import { cn } from "@/lib/utils";
 
