@@ -5,6 +5,7 @@ import {
   OPERATOR_DEMO_REVIEW_RUN_ID,
   operatorDemoReviewApiResponse,
 } from "./fixtures/operator-demo-review-run";
+import { openReviewDetailWorkspaceTab } from "./helpers/operator-journey";
 
 /**
  * Reliability guard for the one-click demo review path (assessment Tier 2 #7).
@@ -30,8 +31,10 @@ test.describe("demo review one-click reliability @demo-review", () => {
     await page.goto(`/reviews/${encodeURIComponent(OPERATOR_DEMO_REVIEW_RUN_ID)}`);
 
     const reviewDetail = page.getByTestId("review-detail-root");
+    await openReviewDetailWorkspaceTab(page, OPERATOR_DEMO_REVIEW_RUN_ID, "policies");
     await expect(reviewDetail.getByTestId("review-detail-policy-pack-impact-callout")).toBeVisible({ timeout: 15_000 });
 
+    await openReviewDetailWorkspaceTab(page, OPERATOR_DEMO_REVIEW_RUN_ID, "findings");
     const quickDecisionSummary = page.getByTestId("quick-decision-summary");
     await expect(quickDecisionSummary).toBeVisible({ timeout: 60_000 });
     await quickDecisionSummary.scrollIntoViewIfNeeded();

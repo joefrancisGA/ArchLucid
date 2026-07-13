@@ -35,9 +35,11 @@ describe("RunDetailPageView progressive disclosure", () => {
   });
 
   it("places proof status in overview tab before findings panel", () => {
-    const overviewPanelIndex = source.indexOf("<RunDetailOverviewPanelClient");
-    const findingsPanelIndex = source.indexOf("findings: (");
+    const tabbedWorkspaceIndex = source.indexOf("const tabbedWorkspaceEl");
+    const overviewPanelIndex = source.indexOf("<RunDetailOverviewPanelClient", tabbedWorkspaceIndex);
+    const findingsPanelIndex = source.indexOf("findings: (", overviewPanelIndex);
 
+    expect(tabbedWorkspaceIndex).toBeGreaterThan(-1);
     expect(overviewPanelIndex).toBeGreaterThan(-1);
     expect(findingsPanelIndex).toBeGreaterThan(-1);
     expect(overviewPanelIndex).toBeLessThan(findingsPanelIndex);
