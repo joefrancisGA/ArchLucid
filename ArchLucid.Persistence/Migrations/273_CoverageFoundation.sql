@@ -9,7 +9,13 @@ IF OBJECT_ID(N'dbo.PolicyPacks', N'U') IS NOT NULL
 BEGIN
     ALTER TABLE dbo.PolicyPacks
         ADD QualityDimension NVARCHAR(64) NULL;
+END;
+GO
 
+IF OBJECT_ID(N'dbo.PolicyPacks', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.PolicyPacks', N'QualityDimension') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_PolicyPacks_QualityDimension')
+BEGIN
     ALTER TABLE dbo.PolicyPacks
         ADD CONSTRAINT CK_PolicyPacks_QualityDimension CHECK (
             QualityDimension IS NULL OR QualityDimension IN (
