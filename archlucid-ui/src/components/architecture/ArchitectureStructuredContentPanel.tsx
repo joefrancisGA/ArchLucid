@@ -38,7 +38,10 @@ export function ArchitectureStructuredContentPanel(
 ): React.JSX.Element {
   const [parseAttempt, setParseAttempt] = useState(0);
   const parseResult = useMemo(
-    () => parseArchitectureGeneratedContent(props.sourceText, props.userAssertions),
+    () => {
+      void parseAttempt;
+      return parseArchitectureGeneratedContent(props.sourceText, props.userAssertions);
+    },
   // parseAttempt forces a client-side re-parse when the operator retries structuring.
     [props.sourceText, props.userAssertions, parseAttempt],
   );

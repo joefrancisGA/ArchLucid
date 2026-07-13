@@ -3,7 +3,7 @@
 import { MailCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -48,7 +48,7 @@ export function SignupVerifyClient() {
   const [cooldownTick, setCooldownTick] = useState(0);
   const autoContinueRef = useRef<number | null>(null);
 
-  const resendCooldown = useMemo(() => readSignupVerifyResendCooldown(), [cooldownTick, resendOutcome]);
+  const resendCooldown = readSignupVerifyResendCooldown();
 
   const refreshTrialStatus = useCallback(async (): Promise<SignupVerifyTrialStatusResult> => {
     const result = await fetchSignupVerifyTrialStatus();

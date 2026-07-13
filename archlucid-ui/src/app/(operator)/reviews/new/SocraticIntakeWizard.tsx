@@ -372,7 +372,7 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [actorSet, businessOutcome, focusedPilotModeEnabled, freeTextIntent, refreshQuestions, systemName]);
+  }, [actorSet, businessOutcome, focusedPilotModeEnabled, freeTextIntent, isCreateArchitectureFlow, refreshQuestions, systemName]);
 
   const reviewAnswers = useCallback(async () => {
     if (draftId === null) {

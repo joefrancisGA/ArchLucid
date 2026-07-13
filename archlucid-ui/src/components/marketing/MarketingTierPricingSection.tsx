@@ -15,7 +15,7 @@ import {
   isMarketingPricingTierId,
   type MarketingPricingTierId,
 } from "@/lib/marketing/marketing-public-pricing";
-import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
+import type { PricingDoc } from "@/lib/pricing-types";
 import {
   formatIncludedUsersAndWorkspaces,
   formatMonthlyAiCredits,

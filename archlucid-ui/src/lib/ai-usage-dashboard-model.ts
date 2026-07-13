@@ -1,7 +1,6 @@
 import type { AdminAiUsageDashboard, AdminAiUsageEventRow } from "@/lib/admin-ai-usage-dashboard";
 import type {
   AiUsageActivityStatusFilter,
-  AiUsageActivityTriggerFilter,
   AiUsageBreakdownGroupBy,
   AiUsageDashboardFilters,
 } from "@/lib/ai-usage-dashboard-filters";

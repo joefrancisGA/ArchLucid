@@ -158,7 +158,7 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
     } finally {
       setIsSaving(false);
     }
-  }, [canMutate, clientId, onSaved, subscriptionIds, tenantId, validateFields]);
+  }, [canMutate, clientId, onSaved, securityStepOffset, subscriptionIds, tenantId, validateFields]);
 
   const handleValidateHostedRun = useCallback(async () => {
     if (!canRunValidation) {

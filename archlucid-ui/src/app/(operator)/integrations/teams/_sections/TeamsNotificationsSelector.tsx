@@ -3,7 +3,6 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {

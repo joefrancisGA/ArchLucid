@@ -58,6 +58,7 @@ export type ArchitectureDiagramViewerProps = {
 
 /** Interactive architecture diagram canvas with zoom, pan, fullscreen, and accessible fallback text. */
 export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps): React.JSX.Element {
+  const { mermaidSource, onRenderFailure } = props;
   const reactId = useId();
   const renderId = useMemo(() => sanitizeMermaidRenderId(`arch-diagram-${reactId}`), [reactId]);
   const dark = useDocumentDarkMode();
@@ -85,7 +86,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
         });
 
-        const result = await mermaid.render(renderId, props.mermaidSource.trim());
+        const result = await mermaid.render(renderId, mermaidSource.trim());
 
         if (!cancelled) {
           setSvgMarkup(result.svg);
@@ -94,7 +95,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         if (!cancelled) {
           const message = error instanceof Error ? error.message : ARCHITECTURE_DIAGRAM_RENDER_FAILURE;
           setRenderError(message);
-          props.onRenderFailure?.();
+          onRenderFailure?.();
         }
       }
     }
@@ -104,7 +105,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     return (): void => {
       cancelled = true;
     };
-  }, [props.mermaidSource, dark, renderId, props.onRenderFailure]);
+  }, [mermaidSource, dark, renderId, onRenderFailure]);
 
   const adjustZoom = useCallback((delta: number) => {
     setZoom((current) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number((current + delta).toFixed(2)))));

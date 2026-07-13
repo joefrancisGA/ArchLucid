@@ -42,7 +42,7 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
   const canMutate = useOperateCapability();
   const copy = ITSM_PRODUCT_PAGE_COPY[props.product];
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
-  const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
+  const [, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [testError, setTestError] = useState<string | null>(null);

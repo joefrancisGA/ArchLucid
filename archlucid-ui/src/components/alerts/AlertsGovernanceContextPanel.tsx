@@ -10,9 +10,10 @@ export type AlertsGovernanceContextPanelProps = {
 };
 
 /** Compact orientation for the alerts inbox — detailed guidance lives in contextual help. */
-export function AlertsGovernanceContextPanel({
-  canMutateAlertInbox: _canMutateAlertInbox,
-}: AlertsGovernanceContextPanelProps): React.JSX.Element {
+export function AlertsGovernanceContextPanel(
+  props: AlertsGovernanceContextPanelProps,
+): React.JSX.Element {
+  void props;
   return (
     <div
       className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

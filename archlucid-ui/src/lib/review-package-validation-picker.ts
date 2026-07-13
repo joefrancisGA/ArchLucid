@@ -47,7 +47,9 @@ export function reviewPackageFinalizedDateLabel(run: RunSummary): string {
   return formatRecurrenceScheduleUtcLabel(run.createdUtc);
 }
 
-export function reviewPackageOwnerLabel(_run: RunSummary): string {
+export function reviewPackageOwnerLabel(run: RunSummary): string {
+  void run;
+
   return "—";
 }
 

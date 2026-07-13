@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -14,7 +13,7 @@ import {
   discoverIdentityProviderMetadata,
   fetchTenantIdentityProviderConfiguration,
 } from "@/lib/admin-identity-provider-api";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildSamlSpActivateRequest,
   createDefaultSamlSpConfigurationFormValues,

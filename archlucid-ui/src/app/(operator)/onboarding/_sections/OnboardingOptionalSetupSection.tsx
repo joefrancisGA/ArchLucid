@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
@@ -9,7 +8,6 @@ import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readine
 import {
   ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
   ONBOARDING_OPTIONAL_SETUP_DISMISS_DETAIL,
-  ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL,
   ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
   FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_LEAD,
   FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE,

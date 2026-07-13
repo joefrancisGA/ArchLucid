@@ -9,7 +9,6 @@ import {
   parseDevShellExperienceOverride,
   persistDevRoleOverride,
   persistDevShellExperienceOverride,
-  readDevRoleOverrideFromDocument,
   readDevShellExperienceOverrideFromDocument,
 } from "@/lib/dev-testing-overrides";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
