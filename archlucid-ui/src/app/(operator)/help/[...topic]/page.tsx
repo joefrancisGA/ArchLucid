@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
+import { HelpBillingAndPlansGuideView } from "../_sections/HelpBillingAndPlansGuideView";
 import { HelpFindingsGuideView } from "../_sections/HelpFindingsGuideView";
 import { HelpGovernanceApprovalGuideView } from "../_sections/HelpGovernanceApprovalGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
@@ -63,6 +64,10 @@ function renderHelpTopicView(loaded: NonNullable<ReturnType<typeof tryLoadProduc
 
   if (loaded.entry.slug === "alerts") {
     return <HelpAlertsGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "billing-and-plans") {
+    return <HelpBillingAndPlansGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "findings") {
