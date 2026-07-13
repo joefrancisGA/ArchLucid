@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
+import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftSaveStatus } from "@/components/architecture/ArchitectureDraftSaveStatus";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
@@ -195,6 +197,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           </p>
         </div>
         <ArchitectureDraftSaveStatus saveState={saveState} lastSavedUtc={lastSavedUtc} />
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <ArchitectureDraftGuidanceDisclosure className="flex-1" />
+        <PageContextualHelpButton />
       </div>
 
       {conflictMessage !== null ? (

@@ -2,8 +2,8 @@
  * Maps operator routes to in-app `/help/{slug}` topics for contextual help buttons.
  */
 
-import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
+import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 
 export type PageHelpTopic = {
@@ -14,7 +14,7 @@ export type PageHelpTopic = {
 const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/", topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/onboarding", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
-  { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: CREATE_ARCHITECTURE_LABEL } },
+  { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/reviews", topic: { slug: "review-packages", label: "Review packages" } },
   { prefix: "/dashboard", topic: { slug: "executive-summary", label: "Executive dashboard" } },
