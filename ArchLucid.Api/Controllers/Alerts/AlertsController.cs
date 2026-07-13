@@ -96,7 +96,7 @@ public sealed class AlertsController(
             includeArchived,
             ct);
 
-        return Ok(alerts);
+        return Ok(PagedResponseBuilder.FromDatabasePage(alerts, alerts.Count, 1, take));
     }
 
     /// <summary>Archives an alert in the current scope (hidden from default listings).</summary>

@@ -78,7 +78,7 @@ public sealed class ConversationController(
             safeTake,
             ct);
 
-        return Ok(threads);
+        return Ok(PagedResponseBuilder.FromDatabasePage(threads, threads.Count, 1, safeTake));
     }
 
     /// <summary>Returns messages for the specified conversation thread.</summary>

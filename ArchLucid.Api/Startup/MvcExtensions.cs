@@ -31,10 +31,12 @@ internal static class MvcExtensions
         services.AddSingleton<AuditEventCsvFormatter>();
         services.AddSingleton<IConfigureOptions<MvcOptions>, AuditCsvFormatterMvcOptionsConfigurer>();
 
-        IMvcBuilder mvcBuilder = services.AddControllers(options =>
+        IMvcBuilder mvcBuilder = services            .AddControllers(options =>
             {
                 options.Conventions.Add(new DefaultPublicApiRateLimitConvention());
                 options.Filters.Add<ApiProblemDetailsExceptionFilter>();
+                options.Filters.Add<ApiErrorResponseNormalizationFilter>();
+                options.Filters.Add<OpenApiUndeclaredQueryParameterFilter>();
                 options.Filters.Add<TrialLimitExceededAuditFilter>();
                 options.Filters.Add<RouteTenantScopeBindingFilter>();
             })
@@ -99,6 +101,9 @@ internal static class MvcExtensions
             options.AddOperationTransformer<MicrosoftOpenApiAudienceOperationTransformer>();
             options.AddOperationTransformer<MicrosoftOpenApiEvidenceBulkUploadOperationTransformer>();
             options.AddDocumentTransformer<MicrosoftOpenApiAudienceSchemaDocumentTransformer>();
+            options.AddSchemaTransformer<MicrosoftOpenApiJsonStringEnumSchemaTransformer>();
+            options.AddSchemaTransformer<MicrosoftOpenApiRequiredRequestPropertiesSchemaTransformer>();
+            options.AddOperationTransformer<MicrosoftOpenApiStandardProblemDetailsOperationTransformer>();
         });
         services.AddEndpointsApiExplorer();
         services.AddArchLucidSwagger();

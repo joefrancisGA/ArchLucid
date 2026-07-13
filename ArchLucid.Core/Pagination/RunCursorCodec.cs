@@ -20,7 +20,7 @@ public static class RunCursorCodec
         };
         byte[] utf8 = JsonSerializer.SerializeToUtf8Bytes(dto, SerializerOptions);
 
-        return Base64UrlEncode(utf8);
+        return Base64UrlCodec.Encode(utf8);
     }
 
     /// <summary>Returns <see langword="null" /> when <paramref name="encoded" /> is null/whitespace or invalid.</summary>
@@ -29,7 +29,8 @@ public static class RunCursorCodec
         if (string.IsNullOrWhiteSpace(encoded))
             return null;
 
-        byte[] bytes = Base64UrlDecode(encoded.Trim());
+        if (!Base64UrlCodec.TryDecode(encoded, out byte[] bytes))
+            return null;
         RunListCursorDto? dto =
             JsonSerializer.Deserialize<RunListCursorDto>(bytes, SerializerOptions);
 
@@ -51,29 +52,6 @@ public static class RunCursorCodec
 
     private static DateTime NormalizeDateTimeUtc(DateTime dt) =>
         dt.Kind is DateTimeKind.Utc ? dt : DateTime.SpecifyKind(dt.ToUniversalTime(), DateTimeKind.Utc);
-
-    private static string Base64UrlEncode(byte[] utf8Bytes)
-    {
-        string b64 = Convert.ToBase64String(utf8Bytes);
-
-        return b64.TrimEnd('=').Replace('+', '-').Replace('/', '_');
-    }
-
-    private static byte[] Base64UrlDecode(string b64Url)
-    {
-        string padded = b64Url.Replace('-', '+').Replace('_', '/');
-        switch (padded.Length % 4)
-        {
-            case 2:
-                padded += "==";
-                break;
-            case 3:
-                padded += "=";
-                break;
-        }
-
-        return Convert.FromBase64String(padded);
-    }
 
     private sealed class RunListCursorDto
     {
