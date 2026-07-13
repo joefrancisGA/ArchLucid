@@ -141,14 +141,14 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     title: "Start a review",
     summary: "Start a review from a brief, diagram, document, or cloud evidence; verify intake before finalize.",
     audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md"],
+    sourcePaths: ["docs/library/customer-facing/EVIDENCE_INTAKE_OPERATOR_GUIDE.md"],
   },
   {
     slug: "review-packages",
     title: "Review packages",
     summary: "Browse, inspect, and export governed review packages in the architect workspace.",
     audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md"],
+    sourcePaths: ["docs/library/customer-facing/REVIEW_PACKAGES_OPERATOR_GUIDE.md"],
   },
   {
     slug: "findings",

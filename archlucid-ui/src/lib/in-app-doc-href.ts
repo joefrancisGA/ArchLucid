@@ -41,7 +41,6 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/first_hour_operator_path.md": "first-hour-operator-path",
   "docs/runbooks/first_value_20_minutes.md": "first-value-20-minutes",
   "docs/library/governance_workflow_ui.md": "governance-approval",
-  "docs/library/customer-facing/workflow_recipes_by_persona.md": "evidence-intake",
   "docs/library/customer-facing/operator_quickstart.md": "getting-started",
   "docs/library/customer-facing/concepts_in_5_minutes.md": "getting-started",
   "docs/library/customer-facing/faq.md": "executive-summary",

@@ -1,4 +1,4 @@
-> **Scope:** Copy-paste adoption recipes that map existing product surfaces (API, CLI, operator UI) to four buyer/operator personas. No new product commitments; defer anything not in V1 scope to the linked depth docs.
+> **Scope:** Integration and engineering documentation — persona API/CLI recipes that map product surfaces to automation workflows. **Not** rendered as in-app product help (`/help`); use [Start a review](/help/evidence-intake) and [Review packages](/help/review-packages) for operator guidance.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
