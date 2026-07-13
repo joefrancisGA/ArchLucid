@@ -520,6 +520,7 @@ BEGIN
         IsDemoWelcomeRun BIT NOT NULL CONSTRAINT DF_Runs_IsDemoWelcomeRun_Greenfield DEFAULT (0),
         IsPinned BIT NOT NULL CONSTRAINT DF_Runs_IsPinned_Greenfield DEFAULT (0),
         IsSample BIT NOT NULL CONSTRAINT DF_Runs_IsSample_Greenfield DEFAULT (0),
+        PackageOrigin NVARCHAR(16) NULL,
         StructuralExecutionMode NVARCHAR(32) NOT NULL CONSTRAINT DF_Runs_StructuralExecutionMode_Greenfield DEFAULT (N'Simulator'),
         CONSTRAINT CK_Runs_StructuralExecutionMode_Greenfield CHECK (StructuralExecutionMode IN (N'Simulator', N'Real', N'Fallback', N'Mixed')),
         RowVersionStamp ROWVERSION,
