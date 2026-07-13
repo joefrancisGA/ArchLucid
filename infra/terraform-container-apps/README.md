@@ -41,6 +41,18 @@ Ensure **`infra/terraform-storage`** has created containers **`golden-manifests`
 
 The UI calls the backend via same-origin **`/api/proxy`** in dev. In Container Apps, set the server-side base URL for the UI container (e.g. **`ARCHIFORGE_API_BASE_URL`** or your Next.js env naming) to the **API HTTPS URL** from Terraform output **`api_https_url`**, or place **APIM** / **Front Door** in front and point at that hostname instead.
 
+## Custom domain without Front Door (`ui_custom_domain_name` / `api_custom_domain_name`)
+
+Azure Container Apps supports binding a custom hostname directly to an app with an Azure-managed certificate — no edge tier required. This is the cost-aware option for environments where **`infra/terraform-edge`**'s WAF/CDN base fee ($35–330/month) is not warranted (see [`PILOT_PROFILE.md`](../../docs/deployment/PILOT_PROFILE.md)); the default `*.azurecontainerapps.io` FQDN (**`ui_https_url`** / **`api_https_url`**) remains available either way.
+
+**Apply order matters — Azure verifies domain ownership before Terraform can bind the domain:**
+
+1. Leave **`ui_custom_domain_name`** / **`api_custom_domain_name`** unset and run `terraform apply` once (or read existing state) to get the **`ui_custom_domain_verification_id`** / **`api_custom_domain_verification_id`** outputs.
+2. At your DNS host, create a **TXT** record `asuid.<hostname>` with that value, and a **CNAME** for `<hostname>` pointing at **`ui_container_app_fqdn`** (or `api_container_app_fqdn`).
+3. Wait for DNS propagation, then set **`ui_custom_domain_name`** (and/or **`api_custom_domain_name`**) and re-apply. Terraform creates the `azurerm_container_app_custom_domain` and requests an `azurerm_container_app_environment_managed_certificate` for that hostname.
+
+**Known provider caveat:** some `azurerm` versions do not reliably auto-bind the managed certificate to the domain once issued (the domain can stay in a disabled/HTTP-only state — see [hashicorp/terraform-provider-azurerm#27362](https://github.com/hashicorp/terraform-provider-azurerm/issues/27362)). If HTTPS on the custom domain doesn't come up after apply, run the one-off fallback: `az containerapp hostname bind --hostname <hostname> -g <rg> -n <app-name> --environment <env-name> --validation-method CNAME`.
+
 ## Background services and replicas
 
 **Terraform** provisions a dedicated **`archlucid-worker`** container app (**`worker_min_replicas` / `worker_max_replicas`**, default **1 / 20**) that runs **advisory scan polling**, **data archival**, **retrieval indexing outbox** processing, and (when durable) **background export jobs** from Azure Storage Queue. The **API** app uses **`Hosting__Role=Api`**, so it does **not** run those loops.
