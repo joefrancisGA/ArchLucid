@@ -2,7 +2,7 @@
 
 # Tech backlog — verified open items
 
-> **Updated:** 2026-07-12 (added open **TB-754–TB-759** cold-start free-cost cluster; full regen still tracked by **TB-673**). **Source of truth:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md). **Done detail archive:** [`docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`](../archive/TECH_BACKLOG_DONE_ARCHIVE.md). **Sonnet questions:** [`SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`](SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md).
+> **Updated:** 2026-07-12 (added open **TB-858–TB-865** UI dependency & supply-chain cluster — remove unused direct deps (**TB-858** App Insights React plugin, **TB-859** `ajv`/`ajv-formats`), Knip cross-check (**TB-860**), `engines.node` pin (**TB-861**), `reactflow`/`mermaid` import-policy tests (**TB-862**/**TB-863**), weekly `npm audit` CI (**TB-864**), `optimizePackageImports` drift guard (**TB-865**); source [`docs/architecture/ui_dependency_assessment.md`](../architecture/ui_dependency_assessment.md); **TB-697** refreshed). Prior: 2026-07-12 (added open **TB-847–TB-857** AI initiative readiness wedge implementation cluster — six wedge-MVP items (**TB-847**–**TB-854**, incl. **P0** credibility fixes **TB-853**), two ADR 0058 fast-follows (**TB-855**, **TB-856**), and validation-program instrumentation (**TB-857**); see `TECH_BACKLOG.md`). Prior: 2026-07-12 (added open **TB-763–TB-846** async UX & feedback audit cluster — 84 tickets: self-serve Stripe checkout P0 (**TB-763**–**TB-766**, owner override of the commerce-un-hold gate, see `V1_DEFERRED.md §6b`), governance write idempotency + advisory durable job (**TB-767**, **TB-768**), two consolidation primitives (**TB-769**, **TB-770**), and 76 individual loading/progress/confirmation fixes across Architecture, Insights, Governance, Integrations, and Administration; full regen still tracked by **TB-673**). Prior: 2026-07-12 (added open **TB-760–TB-762** dev Front-Door-to-Container-Apps-FQDN cost cutover cluster, all gated — do not implement before a green RC ≥ RC10 CI run). Prior: 2026-07-12 (added open **TB-754–TB-759** cold-start free-cost cluster). **Source of truth:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md). **Done detail archive:** [`docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`](../archive/TECH_BACKLOG_DONE_ARCHIVE.md). **Sonnet questions:** [`SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`](SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md).
 
 ## Recently closed (do not re-open)
 
@@ -24,19 +24,39 @@
 | Commercial closeout | **TB-129** – **TB-134** (quote-to-proof readiness, quote aging export, closeout consistency, tier fit, offer pack, overclaim guard) |
 | Pilot acceptance automation | **TB-158** (threshold doc + `report_pilot_acceptance_thresholds.py` + first-pilot proof artifacts) |
 
+## Open clusters (summary rows — see `TECH_BACKLOG.md` for individual entries)
+
+| Cluster | IDs | Summary |
+| --- | --- | --- |
+| Async UX & feedback audit | **TB-763** – **TB-846** (84 tickets, all open) | Self-serve Stripe checkout P0 (**TB-763**–**TB-766**, owner override 2026-07-12 of the commerce-un-hold gate — Azure Marketplace dropped to V2 pending buyer demand); governance-write idempotency + advisory durable job/cancel (**TB-767**, **TB-768**); `AsyncActionButton` + connection-test consolidation primitives (**TB-769**, **TB-770**); 76 individual loading/progress/confirmation fixes across Architecture & Reviews (**TB-771**–**TB-789**), Insights (**TB-790**–**TB-803**), Governance (**TB-804**–**TB-820**), Integrations (**TB-821**–**TB-832**), and Administration (**TB-833**–**TB-846**). |
+| AI initiative readiness wedge | **TB-847** – **TB-857** (11 tickets, all open) | Thin-readiness-layer wedge MVP from [`docs/architecture/ai_initiative_governance.md`](../architecture/ai_initiative_governance.md): question set (**TB-847**), deterministic conditional follow-ups (**TB-848**), disposition rollup (**TB-849**), RFI memo export (**TB-850**), provisional→issued→sealed anchoring (**TB-851**), trial value report (**TB-852**), **P0** credibility fixes (**TB-853**), landing page + demo script (**TB-854**); ADR 0058 fast-follows: bounded generative L2g tier (**TB-855**), nightly retrospective question mining (**TB-856**); 90-day validation instrumentation (**TB-857**). |
+| UI dependency & supply-chain | **TB-858** – **TB-865** (8 tickets, all open) | From [`docs/architecture/ui_dependency_assessment.md`](../architecture/ui_dependency_assessment.md): Tier 1 removals (**TB-858** `@microsoft/applicationinsights-react-js`, **TB-859** `ajv`/`ajv-formats`); Knip cross-validation (**TB-860**); `engines.node >=22` (**TB-861**); **TB-570**-style import-policy tests for `reactflow` (**TB-862**) and `mermaid` (**TB-863**); weekly `npm audit` scheduled CI (**TB-864**); `optimizePackageImports` allowlist drift guard (**TB-865**). Related open: **TB-697** bundle re-audit (unblocked, 2,150.9 kB baseline). |
+
 
 ## Open items (auto-generated from summary table)
 
-_Regenerated 2026-07-07. 36 open rows (+ **TB-754–TB-759** appended 2026-07-12; full regen still **TB-673**)._
+_Regenerated 2026-07-07. 36 open rows (+ **TB-754–TB-759** appended 2026-07-12, + **TB-760–TB-762** appended 2026-07-12, + **TB-858–TB-865** appended 2026-07-12; full regen still **TB-673**)._
 
 | ID | Title | Cluster |
 | --- | --- | --- |
+| TB-858 | Remove unused `@microsoft/applicationinsights-react-js` | UI dependency & supply-chain — Tier 1 removal |
+| TB-859 | Remove unused `ajv` + `ajv-formats` | UI dependency & supply-chain — Tier 1 removal |
+| TB-860 | Knip cross-validation of UI unused-dependency findings | UI dependency & supply-chain — investigation only |
+| TB-861 | Pin `engines.node` (`>=22`) on `archlucid-ui` | UI dependency & supply-chain — governance |
+| TB-862 | `reactflow` import-policy test (TB-570 pattern) | UI dependency & supply-chain — bundle guard |
+| TB-863 | `mermaid` import-policy test (TB-570 pattern) | UI dependency & supply-chain — bundle guard |
+| TB-864 | Weekly scheduled `npm audit` for `archlucid-ui` | UI dependency & supply-chain — supply-chain CI |
+| TB-865 | `optimizePackageImports` allowlist drift guard | UI dependency & supply-chain — extends TB-565 |
+| TB-697 | Re-audit `/reviews/[runId]` bundle composition (2,150.9 kB baseline) | Performance — bundle optimization |
 | TB-754 | Verify CD post-deploy retry repo vars | Deployability — cold start, zero Azure compute increase |
 | TB-755 | Enable CD canary + bake (staging/production) | Deployability — hide revision cold start |
 | TB-756 | Avoid no-op Container App updates | Deployability — reduce revision thrash |
 | TB-757 | UI proxy / client warm-up tolerance | Adoption friction — 502/503 retry before toast |
 | TB-758 | Cheap `SMOKE_SYNTHETIC_PATH` after `/version` | Deployability — post-deploy warm path |
 | TB-759 | Cold-start measurement runbook | Performance — evidence before paid levers |
+| TB-760 | Cut `dev` CD target off Front Door onto Container Apps FQDN | Deployability — **gated: not before green RC ≥ RC10 CI** |
+| TB-761 | Apply/verify direct-to-Container-App custom domain for `dev` | Deployability — **gated: not before TB-760 green, RC ≥ RC10** |
+| TB-762 | Decommission Front Door for `dev` | Cost-effectiveness — **gated: not before TB-760/761 green, RC ≥ RC10** |
 | TB-9 | Architecture invariant program ? doc + ADR 0035 finalize | Engineering governance ? single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule |
 | TB-141 | Near-term GTM backlog: real pilot proof packet cohort | GTM proof ? owner-selected scenarios, approved data boundaries, and buyer-safe proof packets for Azure cost / orphan / governance review and adjacent starter cohorts |
 | TB-142 | Near-term GTM backlog: market-facing demo asset production | GTM proof ? approved screenshots/video/copy and evidence-labeling rules for channel-specific demo assets |
@@ -77,7 +97,6 @@ _Regenerated 2026-07-07. 36 open rows (+ **TB-754–TB-759** appended 2026-07-12
 | TB-674 | Rename Getting started → First review guide | P2 |
 | TB-678 | Role-gate workspace setup on `principalAdmin` | P2 |
 | TB-679 | Trial/optional-setup copy drift — **Done** (2026-07-07) | P2 |
-| TB-680 | Hub-page do-not-duplicate contract + drift guard | P2 |
 | TB-676 | Dedupe cloud inventory from Finish setup wizard | P3 |
 
 ### Real-mode / eval (owner or credentialed CI)
