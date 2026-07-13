@@ -80,6 +80,13 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/faq", helpSlug: null },
   },
   {
+    id: "glossary",
+    title: "Glossary",
+    description: "Definitions for review, evidence, governance, and organization terms used in ArchLucid.",
+    keywords: ["glossary", "terms", "definitions", "finding", "risk", "control", "review package", "evidence trail"],
+    action: { kind: "route", href: "/help/glossary", helpSlug: "glossary" },
+  },
+  {
     id: "create-first-review",
     title: "Create your first review package",
     description: "Start with a brief, diagram, IaC file, or evidence ZIP.",

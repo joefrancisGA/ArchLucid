@@ -139,6 +139,13 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   }
 
   // Cloud connection help — avoid generic multi-cloud breadcrumb segments.
+  if (normalized === "/help/glossary") {
+    return [
+      { label: "Support", href: "/help" },
+      { label: "Glossary" },
+    ];
+  }
+
   if (normalized === "/help/azure-permissions") {
     return [
       { label: "Support", href: "/help" },

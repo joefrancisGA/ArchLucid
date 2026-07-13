@@ -127,6 +127,15 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/WORKSPACE_SCOPE_GUIDE.md"],
   },
   {
+    slug: "glossary",
+    title: "Glossary",
+    summary:
+      "Definitions for the terms used throughout ArchLucid reviews, evidence, governance, and administration.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/CUSTOMER_GLOSSARY.md"],
+    pdfStatus: "customer",
+  },
+  {
     slug: "evidence-intake",
     title: "Start a review",
     summary: "Start a review from a brief, diagram, document, or cloud evidence; verify intake before finalize.",

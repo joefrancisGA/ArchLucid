@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { TOOLTIP_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -18,7 +19,7 @@ export type GlossaryTooltipProps = {
 const SEEN_KEY_PREFIX = "glossary-seen-";
 
 /**
- * Dotted inline term with a short definition, optional “Learn more” to `docs/library/GLOSSARY.md`, and optional first-visit pulse.
+ * Dotted inline term with a short definition, optional “Learn more” to `/help/glossary`, and optional first-visit pulse.
  * Use within an app region wrapped by `TooltipProvider` (see `AppShellClient`).
  */
 export function GlossaryTooltip({ termKey, children, pulseOnFirstSession = true }: GlossaryTooltipProps) {
@@ -62,9 +63,9 @@ export function GlossaryTooltip({ termKey, children, pulseOnFirstSession = true 
         <p className={cn("mb-0 mt-1.5 leading-snug", TOOLTIP_TYPOGRAPHY.body)}>{entry.definition}</p>
         {entry.docLink !== undefined ? (
           <p className={cn("mb-0 mt-2", TOOLTIP_TYPOGRAPHY.body)}>
-            <a className={TOOLTIP_TYPOGRAPHY.link} href={entry.docLink} target="_blank" rel="noreferrer">
+            <Link className={TOOLTIP_TYPOGRAPHY.link} href={entry.docLink}>
               Learn more in glossary →
-            </a>
+            </Link>
           </p>
         ) : null}
       </TooltipContent>

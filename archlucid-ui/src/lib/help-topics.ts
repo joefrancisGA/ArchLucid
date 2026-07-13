@@ -184,12 +184,20 @@ export const HELP_TOPICS: HelpTopic[] = [
     routes: [],
   },
   {
+    id: "glossary",
+    title: "Glossary",
+    keywords: ["terms", "definitions", "finding", "risk", "review package", "evidence trail"],
+    summary: "Customer-facing definitions for review, evidence, governance, and organization terms.",
+    docPath: "docs/library/customer-facing/CUSTOMER_GLOSSARY.md",
+    routes: ["/help/glossary"],
+  },
+  {
     id: "scope",
     title: "Tenant / workspace / project scope",
     keywords: ["headers", "x-tenant-id", "isolation"],
     summary: "Scope headers isolate data; keep the same scope between UI and API integrations.",
-    docPath: "docs/library/GLOSSARY.md",
-    routes: [],
+    docPath: "docs/library/customer-facing/WORKSPACE_SCOPE_GUIDE.md",
+    routes: ["/help/scope"],
   },
   {
     id: "pilot-feedback",

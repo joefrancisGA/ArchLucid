@@ -55,6 +55,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "review-guide": "product-help",
   "review-packages": "product-help",
   scope: "product-help",
+  glossary: "product-help",
   "security-trust": "product-help",
   "specialty-walkthroughs": "product-help",
   troubleshooting: "product-help",

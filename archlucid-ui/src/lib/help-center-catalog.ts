@@ -49,6 +49,8 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "users-and-roles": "product",
   "billing-and-plans": "product",
   troubleshooting: "product",
+  glossary: "product",
+  scope: "product",
   "pilot-guide": "product",
   "path-chooser": "product",
   "enterprise-onboarding": "admin",
