@@ -6,7 +6,10 @@ import {
   DemoPreviewMarketingBody,
   DemoPreviewNotAvailable,
 } from "./DemoPreviewMarketingBody";
+import { DemoPreviewHero } from "./_sections/DemoPreviewHero";
+import { DemoPreviewResultAtAGlance } from "./_sections/DemoPreviewResultAtAGlance";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
+import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const fixture: DemoCommitPagePreviewResponse = {
   generatedUtc: "2026-04-01T12:00:00.000Z",
@@ -85,21 +88,42 @@ const fixture: DemoCommitPagePreviewResponse = {
   },
 };
 
-describe("Demo preview marketing body", () => {
-  it("renders all sections from a fixture payload", () => {
-    render(<DemoPreviewMarketingBody payload={fixture} buyerAudienceChrome={false} />);
+const showcasePayload = getShowcaseStaticDemoPayload(SHOWCASE_STATIC_DEMO_RUN_ID);
 
-    expect(screen.getByTestId("demo-preview-status-banner")).toHaveTextContent("demo tenant — replace before publishing");
-    expect(screen.getByTestId("demo-preview-run")).toHaveTextContent("Fixture");
-    expect(screen.getByTestId("demo-preview-review-trail")).toHaveTextContent("Review trail");
-    expect(screen.getByTestId("demo-preview-review-trail")).toHaveTextContent("Review submitted");
-    expect(screen.getByTestId("demo-preview-manifest-summary")).toHaveTextContent("Finalized");
-    expect(screen.getByTestId("demo-preview-aggregate-explanation")).toHaveTextContent("Healthy");
-    expect(screen.getByTestId("demo-preview-pipeline-timeline")).toHaveTextContent("Review submitted");
-    expect(screen.getByTestId("demo-preview-artifacts")).toHaveTextContent("Architecture brief");
-    expect(screen.getByTestId("demo-preview-footer")).toHaveTextContent(
-      "Structured architecture review output — review package, findings, and audit trail.",
+describe("Demo preview marketing body", () => {
+  it("renders guided buyer walkthrough sections from showcase payload", () => {
+    render(
+      <>
+        <DemoPreviewResultAtAGlance payload={showcasePayload} />
+        <DemoPreviewMarketingBody payload={showcasePayload} />
+      </>,
     );
+
+    expect(screen.getByTestId("demo-preview-artifact-nav")).toBeInTheDocument();
+    expect(screen.getByTestId("demo-preview-executive-conclusion")).toBeInTheDocument();
+    expect(screen.getByTestId("demo-preview-result-at-a-glance")).toBeInTheDocument();
+    expect(screen.queryByTestId("demo-preview-guided-callouts")).not.toBeInTheDocument();
+    expect(screen.queryByText("How to read this walkthrough")).not.toBeInTheDocument();
+    expect(screen.queryByText("Review package summary")).not.toBeInTheDocument();
+    expect(screen.getByTestId("demo-preview-signin-callout")).toBeInTheDocument();
+    expect(screen.getByTestId("demo-preview-signup-cta")).toBeInTheDocument();
+  });
+
+  it("renders hero, result panel, artifact navigation, and lifecycle from fixture payload", () => {
+    render(
+      <>
+        <DemoPreviewHero />
+        <DemoPreviewResultAtAGlance payload={fixture} />
+        <DemoPreviewMarketingBody payload={fixture} buyerAudienceChrome={false} />
+      </>,
+    );
+
+    expect(screen.getByTestId("demo-preview-hero")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "See a finalized architecture review package" })).toBeInTheDocument();
+    expect(screen.getByTestId("demo-preview-result-at-a-glance")).toHaveTextContent("Review result at a glance");
+    expect(screen.getByTestId("demo-preview-review-trail")).toBeInTheDocument();
+    expect(screen.getByTestId("demo-preview-artifacts")).toBeInTheDocument();
+    expect(screen.queryByText("Context snapshot ID")).not.toBeInTheDocument();
   });
 
   it("renders the not-available notice", () => {
