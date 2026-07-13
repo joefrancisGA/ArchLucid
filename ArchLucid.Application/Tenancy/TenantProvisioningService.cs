@@ -8,7 +8,6 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.Logging;
@@ -62,12 +61,20 @@ public sealed class TenantProvisioningService(
 
         if (string.IsNullOrWhiteSpace(request.AdminEmail) || !request.AdminEmail.Contains('@', StringComparison.Ordinal))
             throw new ArgumentException("Admin email is required.", nameof(request));
+
+        string normalizedOrganizationName = TenantOrganizationDuplicateDetector.NormalizeOrganizationName(request.Name);
         string slug = TenantSlugNormalizer.FromName(request.Name);
-        // Self-service registration inserts dbo.Tenants on the control-plane catalog; slug idempotency must consult that plane first.
-        TenantRecord? existing = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
+        TenantRecord? existing =
+            await _tenantRepository.GetByNormalizedOrganizationNameAsync(normalizedOrganizationName, ct);
 
         if (existing is null)
-            existing = await _tenantRepository.GetBySlugAsync(slug, ct);
+        {
+            // Self-service registration inserts dbo.Tenants on the control-plane catalog; slug idempotency must consult that plane first.
+            existing = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
+
+            if (existing is null)
+                existing = await _tenantRepository.GetBySlugAsync(slug, ct);
+        }
 
         if (existing is not null)
             return await BuildAlreadyProvisionedResultAsync(existing, request, slug, ct);
@@ -84,12 +91,18 @@ public sealed class TenantProvisioningService(
             await _tenantRepository.InsertTenantAsync(
                 tenantId, request.Name.Trim(), slug, request.Tier, request.EntraTenantId, dataRegionKey, ct);
         }
-        catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
+        catch (Exception ex) when (TenantOrganizationDuplicateDetector.IsDuplicateOrganization(ex))
         {
-            TenantRecord? raced = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
+            TenantRecord? raced =
+                await _tenantRepository.GetByNormalizedOrganizationNameAsync(normalizedOrganizationName, ct);
 
             if (raced is null)
-                raced = await _tenantRepository.GetBySlugAsync(slug, ct);
+            {
+                raced = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
+
+                if (raced is null)
+                    raced = await _tenantRepository.GetBySlugAsync(slug, ct);
+            }
 
             if (raced is null)
                 throw;

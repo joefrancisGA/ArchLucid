@@ -23,6 +23,8 @@ public sealed class TenantProvisioningServiceTests
 {
     private static void SetupSlugNotFound(Mock<ITenantRepository> repo)
     {
+        repo.Setup(r => r.GetByNormalizedOrganizationNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
         repo.Setup(r => r.GetBySlugFromControlPlaneCatalogAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantRecord?)null);
         repo.Setup(r => r.GetBySlugAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -94,6 +96,63 @@ public sealed class TenantProvisioningServiceTests
             s => s.EnsureDefaultPolicyPacksAsync(first.TenantId, first.DefaultWorkspaceId, first.DefaultProjectId,
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task ProvisionAsync_is_idempotent_by_normalized_organization_name()
+    {
+        InMemoryTenantRepository repo = new();
+        InMemoryTenantSettingsRepository settingsRepo = new();
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("admin@test");
+        Mock<IAuditService> audit = new();
+        Mock<ITenantSqlCatalogProvisioner> sqlCatalog = new();
+
+        sqlCatalog
+            .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IDefaultPolicyPackSeeder> packSeeder = new();
+        packSeeder
+            .Setup(s =>
+                s.EnsureDefaultPolicyPacksAsync(
+                    It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TenantProvisioningOptions>> options = DefaultProvisioningMonitor();
+        InMemoryArchitectureProjectRepository projects = new();
+
+        TenantProvisioningService sut = new(
+            repo,
+            projects,
+            actor.Object,
+            audit.Object,
+            NullLogger<TenantProvisioningService>.Instance,
+            options.Object,
+            sqlCatalog.Object,
+            packSeeder.Object,
+            new Mock<IMarketingAttributionService>().Object,
+            settingsRepo);
+
+        TenantProvisioningRequest firstRequest = new()
+        {
+            Name = "Contoso Labs",
+            AdminEmail = "ops@contoso.example",
+            Tier = TenantTier.Enterprise,
+        };
+
+        TenantProvisioningResult first = await sut.ProvisionAsync(firstRequest, CancellationToken.None);
+        TenantProvisioningResult second = await sut.ProvisionAsync(
+            new TenantProvisioningRequest
+            {
+                Name = "  contoso labs ",
+                AdminEmail = "other@contoso.example",
+                Tier = TenantTier.Enterprise,
+            },
+            CancellationToken.None);
+
+        second.WasAlreadyProvisioned.Should().BeTrue();
+        second.TenantId.Should().Be(first.TenantId);
     }
 
     [SkippableFact]

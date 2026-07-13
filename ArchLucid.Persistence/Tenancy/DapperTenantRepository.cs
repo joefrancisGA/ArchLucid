@@ -61,6 +61,27 @@ public sealed class DapperTenantRepository(
         return await QueryTenantBySlugAsync(catalogConnection, normalizedSlug, ct).ConfigureAwait(false);
     }
 
+    public async Task<TenantRecord?> GetByNormalizedOrganizationNameAsync(string normalizedOrganizationName, CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(normalizedOrganizationName);
+
+        string normalizedName = normalizedOrganizationName.Trim().ToUpperInvariant();
+
+        await using SqlConnection catalogConnection =
+            await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        TenantRecord? fromCatalog =
+            await QueryTenantByNormalizedOrganizationNameAsync(catalogConnection, normalizedName, ct).ConfigureAwait(false);
+
+        if (fromCatalog is not null)
+            return fromCatalog;
+
+        await using SqlConnection tenantConnection =
+            await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await QueryTenantByNormalizedOrganizationNameAsync(tenantConnection, normalizedName, ct).ConfigureAwait(false);
+    }
+
     public async Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
@@ -1240,6 +1261,38 @@ public sealed class DapperTenantRepository(
 
         return row?.ToRecord();
     }
+
+    private static async Task<TenantRecord?> QueryTenantByNormalizedOrganizationNameAsync(
+        SqlConnection connection,
+        string normalizedOrganizationName,
+        CancellationToken ct)
+    {
+        const string sql = """
+                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                  TenantErasureRequestedUtc,
+                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
+                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
+                                  TrialStatus, TrialSampleRunId,
+                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
+                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
+                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
+                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
+                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
+                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
+                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
+                           FROM dbo.Tenants
+                           WHERE UPPER(LTRIM(RTRIM(Name))) = @NormalizedOrganizationName;
+                           """;
+
+        TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
+            new CommandDefinition(sql, new
+            {
+                NormalizedOrganizationName = normalizedOrganizationName
+            }, cancellationToken: ct)).ConfigureAwait(false);
+
+        return row?.ToRecord();
+    }
+
     private static async Task ApplyTrialRunIncrementAsync(
         IDbConnection connection,
         IDbTransaction? transaction,

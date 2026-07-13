@@ -17,6 +17,11 @@ public interface ITenantRepository
     /// </summary>
     Task<TenantRecord?> GetBySlugFromControlPlaneCatalogAsync(string slug, CancellationToken ct);
 
+    /// <summary>
+    ///     Reads <c>dbo.Tenants</c> by normalized organization display name (<c>UPPER(TRIM(Name))</c>) for registration duplicate gates.
+    /// </summary>
+    Task<TenantRecord?> GetByNormalizedOrganizationNameAsync(string normalizedOrganizationName, CancellationToken ct);
+
     Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct);
 
     /// <summary>Lookup by Entra directory tenant id (<c>tid</c> claim) when linked.</summary>

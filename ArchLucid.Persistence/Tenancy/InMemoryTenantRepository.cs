@@ -48,6 +48,22 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         return GetBySlugAsync(slug, ct);
     }
 
+    public Task<TenantRecord?> GetByNormalizedOrganizationNameAsync(string normalizedOrganizationName, CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(normalizedOrganizationName);
+        _ = ct;
+
+        string key = normalizedOrganizationName.Trim().ToUpperInvariant();
+
+        lock (_trialGate)
+        {
+            TenantRecord? match = _byId.Values.FirstOrDefault(
+                record => string.Equals(record.Name.Trim().ToUpperInvariant(), key, StringComparison.Ordinal));
+
+            return Task.FromResult(match);
+        }
+    }
+
     public Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
