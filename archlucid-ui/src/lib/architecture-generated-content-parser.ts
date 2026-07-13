@@ -1,3 +1,4 @@
+import { normalizeArchitectureNarrativeSourceForParsing } from "@/lib/architecture-narrative-presentation";
 import {
   ARCHITECTURE_STRUCTURED_SECTION_KEYS,
   ARCHITECTURE_STRUCTURED_SECTION_TITLES,
@@ -473,7 +474,8 @@ export function parseArchitectureGeneratedContent(
   assertions: ArchitectureCreationUserAssertions | null = null,
 ): ArchitectureStructuredParseResult {
   const trimmedSource = sourceText.trim();
-  const { cleanedLines, suppressedCount } = sanitizeSourceText(trimmedSource);
+  const normalizedSource = normalizeArchitectureNarrativeSourceForParsing(trimmedSource);
+  const { cleanedLines, suppressedCount } = sanitizeSourceText(normalizedSource);
   const cleanedText = cleanedLines.join("\n").trim();
   const drafts = createEmptyDrafts();
   const blocks = splitSourceIntoSectionBlocks(cleanedText);
@@ -490,7 +492,7 @@ export function parseArchitectureGeneratedContent(
 
   mergeUserAssertions(drafts, assertions);
   const sections = finalizeSections(drafts);
-  const hasPartialParseFailure = estimatePartialParseFailure(trimmedSource, cleanedText, sections, suppressedCount);
+  const hasPartialParseFailure = estimatePartialParseFailure(normalizedSource, cleanedText, sections, suppressedCount);
 
   return {
     sections,

@@ -3,54 +3,32 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useMemo, useState } from "react";
 
+import { ArchitectureNarrativeMarkdownView } from "@/components/architecture/ArchitectureNarrativeMarkdownView";
 import { ArchitectureStructuredContentPanel } from "@/components/architecture/ArchitectureStructuredContentPanel";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { readArchitectureCreationHandoff } from "@/lib/architecture-creation-handoff";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
+import { prepareArchitectureNarrativeForPresentation } from "@/lib/architecture-narrative-presentation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const PREVIEW_LINE_COUNT = 4;
 
 function architecturePreviewLines(text: string): readonly string[] {
-  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
+  const prepared = prepareArchitectureNarrativeForPresentation(text).markdown;
+  const lines = prepared.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
 
   if (lines.length > 0) {
     return lines.slice(0, PREVIEW_LINE_COUNT);
   }
 
-  const paragraphs = text.split(/\n\s*\n/).map((part) => part.trim()).filter((part) => part.length > 0);
+  const paragraphs = prepared.split(/\n\s*\n/).map((part) => part.trim()).filter((part) => part.length > 0);
 
   if (paragraphs.length > 0) {
     return paragraphs.slice(0, PREVIEW_LINE_COUNT);
   }
 
-  return [text.slice(0, 280)];
-}
-
-function renderArchitectureBody(text: string): React.ReactNode {
-  const blocks = text.split(/\n\s*\n/).map((part) => part.trim()).filter((part) => part.length > 0);
-
-  if (blocks.length <= 1) {
-    return (
-      <p className={cn("m-0 whitespace-pre-wrap leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        {text}
-      </p>
-    );
-  }
-
-  return (
-    <div className="space-y-3">
-      {blocks.map((block, index) => (
-        <p
-          key={`arch-block-${index}`}
-          className={cn("m-0 whitespace-pre-wrap leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
-        >
-          {block}
-        </p>
-      ))}
-    </div>
-  );
+  return [prepared.slice(0, 280)];
 }
 
 function resolveUserAssertions(
@@ -125,10 +103,10 @@ export function RunDetailSubmittedArchitectureSection(
           defaultOpen={false}
           sectionTestId="submitted-architecture-collapsible"
         >
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            No architecture description was submitted with this review. Evidence and uploaded documents may still be
-            available in the evidence sections.
-          </p>
+          <ArchitectureNarrativeMarkdownView
+            markdown=""
+            emptyStateMessage="No architecture description was submitted with this review. Evidence and uploaded documents may still be available in the evidence sections."
+          />
         </CollapsibleSection>
       </section>
     );
@@ -197,11 +175,7 @@ export function RunDetailSubmittedArchitectureSection(
             )}
             data-testid="submitted-architecture-preview"
           >
-            {previewLines.map((line, index) => (
-              <p key={`preview-${index}`} className="m-0 leading-relaxed text-neutral-700 dark:text-neutral-300">
-                {line}
-              </p>
-            ))}
+            <ArchitectureNarrativeMarkdownView markdown={previewLines.join("\n\n")} />
             {hasMore ? (
               <p className="m-0 mt-2 text-neutral-500 dark:text-neutral-400">Expand to read the full description.</p>
             ) : null}
@@ -220,7 +194,9 @@ export function RunDetailSubmittedArchitectureSection(
             <summary className={cn("cursor-pointer font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Expand full description
             </summary>
-            <div className="mt-3">{renderArchitectureBody(text)}</div>
+            <div className="mt-3">
+              <ArchitectureNarrativeMarkdownView markdown={text} tableCaption="Submitted architecture narrative table" />
+            </div>
           </details>
         </div>
       </details>

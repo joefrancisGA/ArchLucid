@@ -1,16 +1,17 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { ArchitectureNarrativeMarkdownView } from "@/components/architecture/ArchitectureNarrativeMarkdownView";
 import {
   ARCHITECTURE_STRUCTURED_SHOW_LESS_LABEL,
   ARCHITECTURE_STRUCTURED_SHOW_MORE_LABEL,
 } from "@/lib/architecture-structured-content-copy";
 import {
   ARCHITECTURE_NARRATIVE_PREVIEW_WORD_LIMIT,
-  truncateToWordLimit,
+  shouldUseSectionLevelNarrativeDisclosure,
+  truncateMarkdownPreservingStructure,
 } from "@/lib/architecture-structured-narrative";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -23,20 +24,23 @@ export type ArchitectureStructuredNarrativeProps = {
 export function ArchitectureStructuredNarrative(props: ArchitectureStructuredNarrativeProps): React.JSX.Element | null {
   const [expanded, setExpanded] = useState(false);
   const wordLimit = props.wordLimit ?? ARCHITECTURE_NARRATIVE_PREVIEW_WORD_LIMIT;
-  const { preview, truncated } = truncateToWordLimit(props.markdown, wordLimit);
+  const { preview, truncated } = useMemo(
+    () => truncateMarkdownPreservingStructure(props.markdown, wordLimit),
+    [props.markdown, wordLimit],
+  );
   const displayMarkdown = expanded || !truncated ? props.markdown : preview;
+  const useSectionDisclosure = shouldUseSectionLevelNarrativeDisclosure(props.markdown, wordLimit);
 
-  if (displayMarkdown.trim().length === 0) {
+  if (props.markdown.trim().length === 0) {
     return null;
   }
 
   return (
     <div className="space-y-2" data-testid="architecture-structured-narrative">
       <div className={cn("text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-        <MarketingAccessibilityMarkdownFragment
-          markdownBody={displayMarkdown}
+        <ArchitectureNarrativeMarkdownView
+          markdown={displayMarkdown}
           tableCaption="Architecture section table"
-          presentation="help"
         />
       </div>
       {truncated ? (
@@ -50,8 +54,13 @@ export function ArchitectureStructuredNarrative(props: ArchitectureStructuredNar
             setExpanded((current) => !current);
           }}
           data-testid="architecture-structured-narrative-toggle"
+          aria-expanded={expanded}
         >
-          {expanded ? ARCHITECTURE_STRUCTURED_SHOW_LESS_LABEL : ARCHITECTURE_STRUCTURED_SHOW_MORE_LABEL}
+          {expanded
+            ? ARCHITECTURE_STRUCTURED_SHOW_LESS_LABEL
+            : useSectionDisclosure
+              ? "Show remaining sections"
+              : ARCHITECTURE_STRUCTURED_SHOW_MORE_LABEL}
         </button>
       ) : null}
     </div>

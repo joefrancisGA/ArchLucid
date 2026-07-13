@@ -90,6 +90,15 @@ alpha|beta|gamma|delta|epsilon|zeta`;
     expect(result.sourceText.length).toBeGreaterThan(1000);
   });
 
+  it("normalizes escaped newlines before section parsing", () => {
+    const source = "## Executive summary\\n\\nGoverned claims intake.\\n\\n## Risks\\n\\n- Partner outage";
+    const result = parseArchitectureGeneratedContent(source, null);
+
+    expect(result.sections.some((section) => section.key === "executive-summary")).toBe(true);
+    expect(result.sections.some((section) => section.key === "risks")).toBe(true);
+    expect(result.sourceText).toContain("\\n");
+  });
+
   it("does not treat HTML or script injection as executable markup in structured narrative", () => {
     const source = `## Risks
 <script>alert('xss')</script>
