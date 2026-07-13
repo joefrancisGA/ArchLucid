@@ -1,4 +1,4 @@
-import { CloudCog, Hash, Ticket, UsersRound, Webhook, Workflow } from "lucide-react";
+import { CloudCog, Hash, Ticket, UsersRound, Workflow } from "lucide-react";
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
   INTEGRATIONS_JIRA_PATH,
@@ -8,6 +8,7 @@ import {
   INTEGRATIONS_WEBHOOKS_PATH,
 } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -65,8 +66,8 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           href: INTEGRATIONS_WEBHOOKS_PATH,
           label: OPERATOR_NAV_LINK_LABELS.webhooks,
           title: OPERATOR_NAV_LINK_LABELS.webhooks,
-          icon: Webhook,
-          tier: "advanced",
+          icon: WEBHOOKS_SURFACE_ICON,
+          tier: "extended",
           requiredAuthority: "ExecuteAuthority",
         },
       ],

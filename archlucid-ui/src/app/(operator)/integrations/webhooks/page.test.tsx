@@ -1,7 +1,7 @@
 /**
- * Sanity checks for webhook settings UX wiring (validators + mocked alert-routing adapters).
+ * Webhooks integration page — navigation, copy, validation, and async feedback.
  */
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const apiMocks = vi.hoisted(() => ({
@@ -11,8 +11,10 @@ const apiMocks = vi.hoisted(() => ({
   toggle: vi.fn(),
 }));
 
+const useOperateCapabilityMock = vi.hoisted(() => vi.fn(() => true));
+
 vi.mock("@/hooks/use-operate-capability", () => ({
-  useOperateCapability: () => true,
+  useOperateCapability: () => useOperateCapabilityMock(),
 }));
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
@@ -32,6 +34,10 @@ vi.mock("@/lib/api", () => ({
   toggleAlertRoutingSubscription: apiMocks.toggle,
 }));
 
+import { getBreadcrumbs } from "@/lib/breadcrumb-map";
+import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-nav-group-builder";
+import { WEBHOOKS_BANNED_UI_PATTERNS, WEBHOOKS_PAGE_TITLE } from "@/lib/webhooks-page-copy";
+import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 import { showError, showSuccess } from "@/lib/toast";
 
 import WebhooksIntegrationPage from "./page";
@@ -42,24 +48,117 @@ describe("WebhooksIntegrationPage", () => {
     apiMocks.create.mockReset();
     apiMocks.test.mockReset();
     apiMocks.toggle.mockReset();
+    useOperateCapabilityMock.mockReset();
+    useOperateCapabilityMock.mockReturnValue(true);
 
     apiMocks.list.mockResolvedValue([]);
     apiMocks.create.mockResolvedValue({});
   });
 
-  it("submits webhook subscription payload with trimmed metadata", async () => {
+  it("is discoverable in Integrations navigation with the shared icon", () => {
+    const group = new OperateIntegrationsNavGroupBuilder().build();
+    const webhooksLink = group.links.find((link) => link.href === "/integrations/webhooks");
+
+    expect(webhooksLink?.label).toBe("Webhooks");
+    expect(webhooksLink?.icon).toBe(WEBHOOKS_SURFACE_ICON);
+  });
+
+  it("uses consistent breadcrumb and page title terminology", () => {
+    expect(getBreadcrumbs("/integrations/webhooks").at(-1)?.label).toBe("Webhooks");
+    render(<WebhooksIntegrationPage />);
+    expect(screen.getByRole("heading", { name: WEBHOOKS_PAGE_TITLE })).toBeInTheDocument();
+  });
+
+  it("shows dedicated integration cross-references without implying they consume generic webhooks", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-dedicated-links")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("link", { name: "Jira" })).toHaveAttribute("href", "/integrations/jira");
+    expect(screen.getByRole("link", { name: "ServiceNow" })).toHaveAttribute("href", "/integrations/servicenow");
+    expect(screen.getByRole("link", { name: "Microsoft Teams" })).toHaveAttribute("href", "/integrations/teams");
+    expect(screen.getByRole("link", { name: "Slack" })).toHaveAttribute("href", "/integrations/slack");
+
+    const pageText = screen.getByTestId("webhooks-page").textContent ?? "";
+    expect(pageText).toMatch(/another HTTPS endpoint/i);
+    expect(pageText).not.toMatch(/generic webhooks for custom HTTP endpoints/i);
+  });
+
+  it("does not expose internal implementation language in the rendered page", async () => {
     render(<WebhooksIntegrationPage />);
 
     await waitFor(() => {
       expect(apiMocks.list).toHaveBeenCalled();
+      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
+    });
+
+    const pageText = screen.getByTestId("webhooks-page").textContent ?? "";
+
+    for (const pattern of WEBHOOKS_BANNED_UI_PATTERNS) {
+      expect(pageText, `expected no match for ${pattern}`).not.toMatch(pattern);
+    }
+  });
+
+  it("validates required fields, HTTPS URL, secret length, and event selection", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    expect(await screen.findByText(/Subscription name is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/Destination URL is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/Signing secret must be at least 16 characters/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText(/Alert recorded/i));
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+    expect(await screen.findByText(/Select at least one event/i)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/destination url/i), { target: { value: "http://insecure.example/hook" } });
+    fireEvent.blur(screen.getByLabelText(/destination url/i));
+    expect(await screen.findByText(/must use HTTPS/i)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/destination url/i), { target: { value: "not-a-url" } });
+    fireEvent.blur(screen.getByLabelText(/destination url/i));
+    expect(await screen.findByText(/Enter a valid HTTPS URL/i)).toBeInTheDocument();
+  });
+
+  it("shows minimum severity only when alert events are selected", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
+    });
+
+    expect(screen.getByLabelText(/Send alerts at or above/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText(/Alert recorded/i));
+    expect(screen.queryByLabelText(/Send alerts at or above/i)).toBeNull();
+
+    fireEvent.click(screen.getByLabelText(/Alert acknowledged/i));
+    expect(screen.getByLabelText(/Send alerts at or above/i)).toBeInTheDocument();
+  });
+
+  it("never redisplays the signing secret input after save and submits trimmed metadata", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
     });
 
     fireEvent.change(screen.getByLabelText(/subscription name/i), { target: { value: "Signal hook" } });
-    fireEvent.change(screen.getByLabelText(/webhook url/i), {
+    fireEvent.change(screen.getByLabelText(/destination url/i), {
       target: { value: "https://listener.example/webhook" },
     });
-    fireEvent.change(screen.getByLabelText(/shared secret/i), { target: { value: `${"z".repeat(16)}x` } });
-    fireEvent.click(screen.getByLabelText(/alert acknowledged/i));
+    fireEvent.change(screen.getByLabelText(/signing secret/i), { target: { value: `${"z".repeat(16)}x` } });
+    fireEvent.click(screen.getByLabelText(/Alert acknowledged/i));
 
     fireEvent.click(screen.getByTestId("webhook-save-button"));
 
@@ -67,24 +166,122 @@ describe("WebhooksIntegrationPage", () => {
       expect(apiMocks.create).toHaveBeenCalled();
     });
 
+    expect(showSuccess).toHaveBeenCalledWith("Subscription saved.");
+    expect((screen.getByLabelText(/signing secret/i) as HTMLInputElement).value).toBe("");
+
     const callBody = apiMocks.create.mock.calls[0][0];
-    expect(callBody.channelType).toBe("OnCallWebhook");
     expect(callBody.destination).toBe("https://listener.example/webhook");
-
-    expect(typeof callBody.metadataJson).toBe("string");
-
     expect(callBody.metadataJson.includes("zzz")).toBe(true);
-
-    const parsedMeta = JSON.parse(callBody.metadataJson) as Record<string, unknown>;
-
-    expect(Array.isArray(parsedMeta.eventTypes)).toBe(true);
-    expect(parsedMeta.webhookSharedSecret).toContain("z");
-    expect(parsedMeta.eventTypes).toEqual(
+    expect(JSON.parse(callBody.metadataJson).eventTypes).toEqual(
       expect.arrayContaining(["archlucid.alert.recorded", "archlucid.alert.acknowledged"]),
     );
   });
 
-  it("shows HTTP status and response body after Test Connection", async () => {
+  it("prevents duplicate submission while saving", async () => {
+    let resolveCreate: (() => void) | undefined;
+    apiMocks.create.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveCreate = () => resolve({});
+        }),
+    );
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
+    });
+
+    fireEvent.change(screen.getByLabelText(/subscription name/i), { target: { value: "Signal hook" } });
+    fireEvent.change(screen.getByLabelText(/destination url/i), {
+      target: { value: "https://listener.example/webhook" },
+    });
+    fireEvent.change(screen.getByLabelText(/signing secret/i), { target: { value: `${"z".repeat(16)}` } });
+
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhook-save-button")).toHaveTextContent(/Saving subscription/i);
+    });
+
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    expect(apiMocks.create).toHaveBeenCalledTimes(1);
+
+    resolveCreate?.();
+    await waitFor(() => {
+      expect(screen.getByTestId("webhook-save-button")).toHaveTextContent(/Save subscription/i);
+    });
+  });
+
+  it("rejects duplicate subscription names locally", async () => {
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: "11111111-1111-1111-1111-111111111111",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Existing hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhook-subscription-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText(/subscription name/i), { target: { value: "existing hook" } });
+    fireEvent.change(screen.getByLabelText(/destination url/i), {
+      target: { value: "https://listener.example/new" },
+    });
+    fireEvent.change(screen.getByLabelText(/signing secret/i), { target: { value: `${"z".repeat(16)}` } });
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    expect(await screen.findByText(/subscription with this name already exists/i)).toBeInTheDocument();
+    expect(apiMocks.create).not.toHaveBeenCalled();
+  });
+
+  it("renders empty state guidance", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    expect(await screen.findByTestId("webhooks-empty-state")).toHaveTextContent("No webhook subscriptions yet");
+  });
+
+  it("renders existing subscriptions with masked destination hostname and secret status", async () => {
+    const subscriptionId = "11111111-1111-1111-1111-111111111111";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/secret/path?token=abc",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16), eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    const card = await screen.findByTestId(`webhook-subscription-${subscriptionId}`);
+    expect(within(card).getByText("listener.example/…")).toBeInTheDocument();
+    expect(within(card).queryByText(/secret\/path/i)).toBeNull();
+    expect(within(card).getByText(/Stored — copy is not shown/i)).toBeInTheDocument();
+  });
+
+  it("shows test pending, success, and failure feedback for saved subscriptions", async () => {
     const subscriptionId = "11111111-1111-1111-1111-111111111111";
     apiMocks.list.mockResolvedValue([
       {
@@ -111,23 +308,67 @@ describe("WebhooksIntegrationPage", () => {
 
     render(<WebhooksIntegrationPage />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId(`webhook-test-${subscriptionId}`)).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId(`webhook-test-${subscriptionId}`));
+    const testButton = await screen.findByTestId(`webhook-test-${subscriptionId}`);
+    fireEvent.click(testButton);
 
     await waitFor(() => {
       expect(apiMocks.test).toHaveBeenCalledWith(subscriptionId);
     });
 
+    expect(showSuccess).toHaveBeenCalledWith(expect.stringContaining("Test event delivered"));
     expect(await screen.findByTestId(`webhook-test-result-${subscriptionId}`)).toHaveTextContent("HTTP 202");
-    expect(screen.getByTestId(`webhook-test-result-${subscriptionId}`)).toHaveTextContent('{"ok":true}');
-    expect(showSuccess).toHaveBeenCalledWith(expect.stringContaining("Connection test succeeded"));
+
+    apiMocks.test.mockResolvedValue({
+      transportSucceeded: false,
+      statusCode: 0,
+      error: "Connection refused",
+      responseBodyTruncated: false,
+    });
+
+    fireEvent.click(testButton);
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("We could not reach the destination.", "Connection refused");
+    });
   });
 
-  it("shows failure toast when connection test transport fails", async () => {
-    const subscriptionId = "22222222-2222-2222-2222-222222222222";
+  it("shows save failure feedback without raw internal errors", async () => {
+    apiMocks.create.mockRejectedValue(new Error("routingSubscriptionId conflict in dbo.AlertRouting"));
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
+    });
+
+    fireEvent.change(screen.getByLabelText(/subscription name/i), { target: { value: "Signal hook" } });
+    fireEvent.change(screen.getByLabelText(/destination url/i), {
+      target: { value: "https://listener.example/webhook" },
+    });
+    fireEvent.change(screen.getByLabelText(/signing secret/i), { target: { value: `${"z".repeat(16)}` } });
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    expect(await screen.findByText(/Could not save the subscription/i)).toBeInTheDocument();
+    expect(screen.getByTestId("webhooks-page").textContent).not.toMatch(/dbo\./i);
+  });
+
+  it("disables mutation controls when the operator lacks execute capability", async () => {
+    useOperateCapabilityMock.mockReturnValue(false);
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    expect(screen.getByTestId("webhook-save-button")).toBeDisabled();
+    expect(screen.getByLabelText(/subscription name/i)).toBeDisabled();
+    expect(apiMocks.create).not.toHaveBeenCalled();
+  });
+
+  it("shows test pending label while a test event is in flight", async () => {
+    const subscriptionId = "11111111-1111-1111-1111-111111111111";
+    let resolveTest: (() => void) | undefined;
     apiMocks.list.mockResolvedValue([
       {
         routingSubscriptionId: subscriptionId,
@@ -136,33 +377,57 @@ describe("WebhooksIntegrationPage", () => {
         projectId: "p",
         name: "Hook",
         channelType: "OnCallWebhook",
-        destination: "https://listener.example/fail-hook",
+        destination: "https://listener.example/hook",
         minimumSeverity: "High",
         isEnabled: true,
         createdUtc: "2026-01-01T00:00:00Z",
         metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
       },
     ]);
-    apiMocks.test.mockResolvedValue({
-      transportSucceeded: false,
-      statusCode: 0,
-      error: "Connection refused",
-      responseBodyTruncated: false,
-    });
+    apiMocks.test.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveTest = () =>
+            resolve({
+              transportSucceeded: true,
+              statusCode: 202,
+              reasonPhrase: "Accepted",
+              responseBodyTruncated: false,
+            });
+        }),
+    );
 
     render(<WebhooksIntegrationPage />);
 
+    const testButton = await screen.findByTestId(`webhook-test-${subscriptionId}`);
+    fireEvent.click(testButton);
+
+    expect(testButton).toHaveTextContent(/Sending test event/i);
+
+    resolveTest?.();
     await waitFor(() => {
-      expect(screen.getByTestId(`webhook-test-${subscriptionId}`)).toBeInTheDocument();
+      expect(testButton).toHaveTextContent(/Send test event/i);
+    });
+  });
+
+  it("associates form fields with accessible labels", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhook-save-button")).not.toBeDisabled();
     });
 
-    fireEvent.click(screen.getByTestId(`webhook-test-${subscriptionId}`));
+    expect(screen.getByLabelText(/Subscription name/i)).toHaveAttribute("id", "webhook-subscription-name");
+    expect(screen.getByLabelText(/Destination URL/i)).toHaveAttribute("id", "webhook-url");
+    expect(screen.getByLabelText(/Signing secret/i)).toHaveAttribute("id", "webhook-secret");
+    expect(screen.getByRole("group", { name: /Webhook events/i })).toBeInTheDocument();
+  });
 
-    await waitFor(() => {
-      expect(showError).toHaveBeenCalledWith(
-        "Connection test failed — could not reach destination",
-        "Connection refused",
-      );
-    });
+  it("includes accessible about panel content", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    const about = await screen.findByTestId("webhooks-about-panel");
+    expect(within(about).getByRole("heading", { name: /About webhooks/i })).toBeInTheDocument();
+    expect(within(about).getByText(/How delivery is secured/i)).toBeInTheDocument();
   });
 });

@@ -25,7 +25,7 @@ const httpsWebhookUrlSchema = z
   .trim()
   .superRefine((value, ctx) => {
     if (value.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Webhook URL is required." });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Destination URL is required." });
 
       return;
     }
@@ -41,24 +41,24 @@ const httpsWebhookUrlSchema = z
     }
 
     if (parsed.protocol !== "https:") {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Webhook URL must use HTTPS." });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Destination URL must use HTTPS." });
     }
   });
 
 export const webhookSettingsFormSchema = z.object({
-  name: z.string().min(1, "Name is required.").max(200, "Name is too long."),
+  name: z.string().min(1, "Subscription name is required.").max(200, "Subscription name is too long."),
   webhookUrl: httpsWebhookUrlSchema,
   secret: z
     .string()
     .trim()
-    .min(16, "Use a webhook secret at least 16 characters (rotate if you pasted a shorter value)."),
+    .min(16, "Signing secret must be at least 16 characters."),
   channelType: z.enum(["TeamsWebhook", "SlackWebhook", "OnCallWebhook"]),
   minimumSeverity: z.enum(["Info", "Warning", "High", "Critical"]),
-  eventTypes: z.array(z.string()).min(1, "Select at least one event type."),
+  eventTypes: z.array(z.string()).min(1, "Select at least one event."),
 });
 
 export const webhookSettingsDefaultValues: WebhookSettingsFormValues = {
-  name: "Outbound webhook",
+  name: "",
   webhookUrl: "",
   secret: "",
   channelType: "OnCallWebhook",
