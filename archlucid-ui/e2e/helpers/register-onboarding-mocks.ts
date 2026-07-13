@@ -21,18 +21,6 @@ async function fulfillJson(route: Route, status: number, body: unknown): Promise
  * identity alignment (`GET /v1/admin/configuration/summary`). Other backend proxy requests fall through to the mock API server.
  */
 export async function registerFreshTenantOnboardingMocks(page: Page): Promise<void> {
-  await page.route("**/api/proxy/api/auth/me", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        name: "Fresh Tenant Admin",
-        claims: [{ type: "roles", value: "Admin" }],
-        hasCommittedArchitectureReview: false,
-      }),
-    });
-  });
-
   await page.route("**/*", async (route) => {
     const req = route.request();
     const url = new URL(req.url());
@@ -155,5 +143,17 @@ export async function registerFreshTenantOnboardingMocks(page: Page): Promise<vo
     }
 
     await route.continue();
+  });
+
+  await page.route("**/api/proxy/api/auth/me", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        name: "Fresh Tenant Admin",
+        claims: [{ type: "roles", value: "Admin" }],
+        hasCommittedArchitectureReview: false,
+      }),
+    });
   });
 }

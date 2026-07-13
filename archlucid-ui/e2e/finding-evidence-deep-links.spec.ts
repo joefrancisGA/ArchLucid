@@ -31,7 +31,9 @@ test.describe("finding evidence deep-links @demo-readiness", () => {
 
     await openReviewDetailWorkspaceTab(page, SHOWCASE_DEMO_RUN_ID, "findings");
 
-    const evidenceChip = page.getByTestId("finding-evidence-link-chip").first();
+    const findingsPanel = page.getByTestId("review-detail-workspace-panel-findings");
+    const evidenceChip = findingsPanel.getByTestId("finding-evidence-link-chip").first();
+    await evidenceChip.scrollIntoViewIfNeeded();
     await expect(evidenceChip).toBeVisible({ timeout: 60_000 });
     await expect(evidenceChip).toHaveAttribute(
       "href",

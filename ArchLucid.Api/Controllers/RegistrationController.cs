@@ -88,6 +88,7 @@ public sealed class RegistrationController(
         }
 
         string? normalizedBaselineSource = NormalizeBaselineReviewCycleSource(body.BaselineReviewCycleSource);
+
         if (body.BaselineReviewCycleHours is null && normalizedBaselineSource is not null)
         {
             return await RegisterFailureValidationAsync(

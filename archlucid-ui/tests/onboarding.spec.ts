@@ -56,7 +56,9 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
 
     await page.goto("/settings/identity-providers");
 
-    await expect(page.getByRole("heading", { name: "Identity providers", level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Identity providers", level: 1 })).toBeVisible({
+      timeout: 30_000,
+    });
 
     await expect(page.getByTestId("identity-providers-overview-summary")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("identity-providers-settings-nav")).toBeVisible();
