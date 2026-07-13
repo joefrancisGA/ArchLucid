@@ -180,6 +180,14 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     ];
   }
 
+  if (normalized === "/settings/scim-provisioning") {
+    return [
+      { label: "Settings", href: "/settings" },
+      { label: "Identity providers", href: "/settings/identity-providers" },
+      { label: "SCIM provisioning" },
+    ];
+  }
+
   const items: BreadcrumbItem[] = [];
   const rawSegments = normalized.split("/").filter(Boolean);
 

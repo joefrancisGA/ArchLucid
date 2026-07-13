@@ -99,6 +99,14 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("maps SCIM provisioning as Settings / Identity providers / SCIM provisioning", () => {
+    expect(getBreadcrumbs("/settings/scim-provisioning")).toEqual([
+      { label: "Settings", href: "/settings" },
+      { label: "Identity providers", href: "/settings/identity-providers" },
+      { label: "SCIM provisioning" },
+    ]);
+  });
+
   it("maps cloud connections under Integrations (not Settings)", () => {
     expect(getBreadcrumbs("/integrations/cloud-connections")).toEqual([
       { label: "Integrations", href: "/integrations/readiness" },

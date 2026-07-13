@@ -104,12 +104,8 @@ export const COMPARE_INSUFFICIENT_FINALIZED_COMPACT: EnterpriseCompactEmptyState
 /** SCIM token list when no inbound provisioning tokens exist yet. */
 export const SCIM_NO_TOKENS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "scim-no-tokens-empty-state",
-  title: "No SCIM tokens yet",
-  description:
-    "Issue a bearer token, verify connectivity against ServiceProviderConfig, then configure your identity provider's SCIM provisioning app.",
-  actions: [
-    { label: "Open SSO wizard", href: "/settings/identity/sso-wizard", variant: "outline" },
-  ],
+  title: "No active SCIM tokens",
+  description: "Create a token above to begin configuring automated user and group provisioning.",
 };
 
 /** Identity provider catalog when hosting configuration has not produced rows yet. */
