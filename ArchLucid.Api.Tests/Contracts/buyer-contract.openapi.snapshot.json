@@ -4496,6 +4496,146 @@
         ],
         "type": "object"
       },
+      "AzureBoardsConnectionTestResponse": {
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "statusCode": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AzureBoardsIntegrationHealthResponse": {
+        "properties": {
+          "reachable": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AzureBoardsNamedItemsResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "AzureBoardsOutboundSettingsResponse": {
+        "properties": {
+          "areaPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "defaultTags": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "defaultWorkItemType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "iterationPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastConnectionTestSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastConnectionTestUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "projectName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AzureBoardsOutboundSettingsUpsertRequest": {
+        "properties": {
+          "areaPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "defaultTags": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "defaultWorkItemType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "iterationPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "projectName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "AzureExtractorChunkUploadStartBody": {
         "properties": {
           "fileName": {
@@ -30323,6 +30463,9 @@
     },
     {
       "name": "AwsTier2Connection"
+    },
+    {
+      "name": "AzureBoardsIntegrations"
     },
     {
       "name": "AzureExtractorUpload"
