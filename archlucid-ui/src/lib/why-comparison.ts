@@ -20,7 +20,7 @@ export type WhyHardComparisonRow = {
 export const WHY_COMPARISON_TABLE_ROW_LABELS_IN_ORDER = [
   "Every commit produces a versioned, immutable review record",
   "Every material change produces a typed audit record in an append-only store",
-  "Tenant isolation uses database-per-tenant SQL catalogs via TenantDatabaseBindings, plus application-layer scope enforcement within each tenant (SQL RLS is not the production boundary)",
+  "Tenant isolation uses separate database catalogs per tenant, with application-layer scope enforcement on every request",
   "Authentication fails closed by default (API keys disabled until enabled)",
   "Comparison replay can re-derive the same artifact and detect drift",
   "Findings carry typed payloads per category, not free-text",
