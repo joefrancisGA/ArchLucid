@@ -142,18 +142,16 @@ export async function registerFreshTenantOnboardingMocks(page: Page): Promise<vo
       return;
     }
 
-    await route.continue();
-  });
-
-  await page.route("**/api/proxy/api/auth/me", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
+    if (method === "GET" && path === "/api/auth/me") {
+      await fulfillJson(route, 200, {
         name: "Fresh Tenant Admin",
         claims: [{ type: "roles", value: "Admin" }],
         hasCommittedArchitectureReview: false,
-      }),
-    });
+      });
+
+      return;
+    }
+
+    await route.continue();
   });
 }

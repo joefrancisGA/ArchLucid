@@ -54,10 +54,17 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
 
     await expect(page.getByTestId("first-review-guide-walkthrough")).toBeVisible({ timeout: 30_000 });
 
-    await page.goto("/settings/identity-providers");
+    await Promise.all([
+      page.waitForResponse(
+        (response) => response.url().includes("/api/proxy/api/auth/me") && response.ok(),
+        { timeout: 60_000 },
+      ),
+      page.goto("/settings/identity-providers"),
+    ]);
 
+    await expect(page.getByTestId("identity-providers-settings-shell")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByRole("heading", { name: "Identity providers", level: 1 })).toBeVisible({
-      timeout: 30_000,
+      timeout: 60_000,
     });
 
     await expect(page.getByTestId("identity-providers-overview-summary")).toBeVisible({ timeout: 30_000 });
