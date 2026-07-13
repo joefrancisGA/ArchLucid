@@ -434,6 +434,25 @@ export async function expandReviewDetailOutcomeCards(page: Page): Promise<void> 
   await expect(details).toHaveAttribute("open");
 }
 
+/** Findings tab workspace cards fold row actions by default — expand before chip/link assertions. */
+export async function expandFindingWorkspaceCard(scope: Locator, findingId: string): Promise<Locator> {
+  const card = scope.getByTestId(`finding-workspace-card-${findingId}`);
+
+  await expect(card).toBeVisible({ timeout: 60_000 });
+
+  const details = card.locator("details");
+
+  const isOpen: boolean = await details.evaluate((element) => (element as HTMLDetailsElement).open);
+
+  if (!isOpen) {
+    await details.locator(":scope > summary").click();
+  }
+
+  await expect(details).toHaveAttribute("open");
+
+  return card;
+}
+
 /** Opens activity tab, expands outcome cards, and returns the visible outcome summary strip. */
 export async function openVisibleReviewOutcomeSummaryStrip(page: Page, runId: string): Promise<Locator> {
   await openReviewDetailWorkspaceTab(page, runId, "activity");

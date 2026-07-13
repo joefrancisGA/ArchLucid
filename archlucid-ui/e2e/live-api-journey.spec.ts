@@ -36,8 +36,8 @@ import {
   auditPageMainHeading,
   expectLiveManifestDetailPageReady,
   expectLiveRunDetailPageReady,
+  openVisibleReviewOutcomeSummaryStrip,
   outcomeStripSignedRecordLink,
-  reviewOutcomeSummaryStrip,
   runDetailFinalizedPackageLink,
 } from "./helpers/operator-journey";
 
@@ -141,8 +141,7 @@ test.describe("live-api-journey", () => {
 
     await expect(page.getByText(/Loading review detail/)).toHaveCount(0, { timeout: 60_000 });
 
-    const outcomeStrip = reviewOutcomeSummaryStrip(page);
-    await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
+    const outcomeStrip = await openVisibleReviewOutcomeSummaryStrip(page, runId);
 
     const manifestLink = runDetailFinalizedPackageLink(page);
     const outcomeStripManifestLink = outcomeStripSignedRecordLink(outcomeStrip);
