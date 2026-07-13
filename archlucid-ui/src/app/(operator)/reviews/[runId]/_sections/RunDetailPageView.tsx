@@ -59,6 +59,7 @@ import {
   deriveRunDetailWorkspaceStatus,
   deriveSubmittedArchitectureText,
 } from "@/lib/run-detail-workspace-derive";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 
 import { resolveReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
 import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
@@ -731,7 +732,7 @@ export function RunDetailPageView(props: {
               {!showArchitectureCreatedHome ? (
                 <RunDetailWorkspaceBlockingBanner
                   blockingCount={blockingApprovalCount}
-                  runId={m.resolvedDetail.run.runId}
+                  findingsTabHref={buildReviewDetailTabHref(m.resolvedDetail.run.runId, "findings")}
                 />
               ) : null}
 
