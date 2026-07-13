@@ -58,7 +58,7 @@ The script:
 - **Migrates** legacy workbook paths (e.g. `/alerts` → `/governance/alerts`) and merges Hit% / scores on collision
 - **Removes** rows whose paths are not in the catalog
 - **Adds** missing catalog paths with a new 3-letter **ID**, **Hit% 0.02%**, **score 0**, **Notes None**
-- Refreshes **Section** from catalog; re-sorts; recomputes **OVERALL WEIGHT SCORE**
+- Refreshes **Section** from catalog; re-sorts by **Deficit** (score 0 rows first); recomputes **Weight**, **Deficit**, and **OVERALL WEIGHT SCORE**
 - Updates the source line `page.tsx` count in the doc header
 
 Re-run is **idempotent** when the catalog is unchanged.

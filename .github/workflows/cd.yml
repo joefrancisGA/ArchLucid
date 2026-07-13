@@ -514,8 +514,16 @@ jobs:
             || fail "Authentication__ApiKey__TenantId is not a valid GUID"
           is_exact "Demo__Enabled" "false" \
             || fail "Demo__Enabled must be 'false'"
-          is_exact "Cors__AllowedOrigins__0" "https://www.archlucid.net" \
-            || fail "Cors__AllowedOrigins__0 must be 'https://www.archlucid.net'"
+          # dev has no fixed public hostname (Container Apps FQDN or an operator-chosen custom
+          # domain, per PILOT_PROFILE.md "omit Front Door for pilots") — only staging/production
+          # are pinned to the buyer-facing apex, so only those targets assert the exact origin.
+          if [ "${{ github.event.inputs.target || 'dev' }}" = "dev" ]; then
+            is_set "Cors__AllowedOrigins__0" \
+              || fail "Cors__AllowedOrigins__0 is not set"
+          else
+            is_exact "Cors__AllowedOrigins__0" "https://www.archlucid.net" \
+              || fail "Cors__AllowedOrigins__0 must be 'https://www.archlucid.net'"
+          fi
           is_exact "Billing__Provider" "None" \
             || fail "Billing__Provider must be 'None'"
           is_exact "ArchLucid__Secrets__Provider" "KeyVault" \
