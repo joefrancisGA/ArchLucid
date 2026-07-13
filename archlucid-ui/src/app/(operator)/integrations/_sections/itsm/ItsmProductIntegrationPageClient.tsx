@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { PageHeading } from "@/components/PageHeading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,7 +20,7 @@ import {
 } from "@/lib/api/itsm-outbound-api";
 import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
-import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
 import {
   formatItsmNativeCreateReadyMessage,
   ITSM_INTEGRATION_READINESS_AFTER_LINK,
@@ -140,20 +141,26 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
       className="w-full max-w-3xl space-y-6"
       data-testid={`integrations-${props.product}-page`}
     >
-      <header className={OPERATOR_LAYOUT.sectionHeadingStack}>
-        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{copy.pageTitle}</h1>
-        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>{copy.summary}</p>
-        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>
-          See{" "}
-          <Link
-            href={INTEGRATIONS_READINESS_PATH}
-            className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
-          >
-            Integration readiness
-          </Link>{" "}
-          {ITSM_INTEGRATION_READINESS_AFTER_LINK}
-        </p>
-      </header>
+      <PageHeading
+        navHref={props.product === "jira" ? INTEGRATIONS_JIRA_PATH : INTEGRATIONS_SERVICENOW_PATH}
+        title={copy.pageTitle}
+        variant="integration"
+        description={
+          <>
+            <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>{copy.summary}</p>
+            <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>
+              See{" "}
+              <Link
+                href={INTEGRATIONS_READINESS_PATH}
+                className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+              >
+                Integration readiness
+              </Link>{" "}
+              {ITSM_INTEGRATION_READINESS_AFTER_LINK}
+            </p>
+          </>
+        }
+      />
 
       {loadError ? (
         <p className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)} role="alert">

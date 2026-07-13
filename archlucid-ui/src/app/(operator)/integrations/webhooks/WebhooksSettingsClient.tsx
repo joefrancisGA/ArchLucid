@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { PageHeading } from "@/components/PageHeading";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,7 +52,7 @@ import {
   WEBHOOKS_TEST_LABEL,
   WEBHOOKS_TESTING_LABEL,
 } from "@/lib/webhooks-page-copy";
-import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
+import { INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
 import {
   labelForWebhookEventId,
   webhookOutboundEventCatalog,
@@ -69,8 +70,6 @@ import { showSuccess } from "@/lib/toast";
 import { WebhooksAboutPanel } from "./WebhooksAboutPanel";
 
 import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
-
-const WebhookIcon = WEBHOOKS_SURFACE_ICON;
 
 function isGenericOutboundWebhookChannel(channelType: string): boolean {
   return channelType === "OnCallWebhook";
@@ -226,30 +225,30 @@ export function WebhooksSettingsClient() {
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8" data-testid="webhooks-page">
-      <header className="flex flex-wrap items-start gap-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-900">
-          <WebhookIcon className="h-6 w-6 text-neutral-700 dark:text-neutral-200" aria-hidden />
-        </div>
-        <div className="min-w-0 flex-1 space-y-2">
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{WEBHOOKS_PAGE_TITLE}</h1>
-          <p className={cn("m-0 max-w-3xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {WEBHOOKS_PAGE_DESCRIPTION}
-          </p>
-          <p className={cn("m-0 max-w-3xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {WEBHOOKS_PAGE_DEDICATED_INTEGRATIONS_INTRO}
-          </p>
-          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="webhooks-dedicated-links">
-            {WEBHOOKS_DEDICATED_INTEGRATION_LINKS.map((link, index) => (
-              <span key={link.href}>
-                {index > 0 ? " · " : null}
-                <Link href={link.href} className={OPERATOR_LINK.inline}>
-                  {link.label}
-                </Link>
-              </span>
-            ))}
-          </p>
-        </div>
-      </header>
+      <PageHeading
+        navHref={INTEGRATIONS_WEBHOOKS_PATH}
+        title={WEBHOOKS_PAGE_TITLE}
+        variant="integration"
+        bordered
+        description={
+          <>
+            <p className={cn("m-0 max-w-3xl leading-snug", OPERATOR_TYPOGRAPHY.body)}>{WEBHOOKS_PAGE_DESCRIPTION}</p>
+            <p className={cn("m-0 max-w-3xl leading-snug", OPERATOR_TYPOGRAPHY.body)}>
+              {WEBHOOKS_PAGE_DEDICATED_INTEGRATIONS_INTRO}
+            </p>
+            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)} data-testid="webhooks-dedicated-links">
+              {WEBHOOKS_DEDICATED_INTEGRATION_LINKS.map((link, index) => (
+                <span key={link.href}>
+                  {index > 0 ? " · " : null}
+                  <Link href={link.href} className={OPERATOR_LINK.inline}>
+                    {link.label}
+                  </Link>
+                </span>
+              ))}
+            </p>
+          </>
+        }
+      />
 
       {failure !== null ? (
         <div role="alert">

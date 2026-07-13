@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { PageHeading } from "@/components/PageHeading";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
@@ -135,12 +136,11 @@ export function SettingsRolesPageView(props: Props) {
 
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Users and roles</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Invite users, assign roles, and manage workspace access.
-        </p>
-      </div>
+      <PageHeading
+        navHref="/settings/users"
+        title="Users and roles"
+        description="Invite users, assign roles, and manage workspace access."
+      />
 
       <Tabs value={activeTab} onValueChange={onSelectTab} className="space-y-6">
         <TabsList aria-label="Users and roles sections" data-testid="settings-roles-tablist">
