@@ -58,6 +58,9 @@ describe("product-documentation-registry", () => {
     expect(getProductDocumentationEntry("cloud-connections/gcp")?.title).toBe("Connect GCP securely");
     expect(getProductDocumentationEntry("enterprise-onboarding")?.title).toBe("Enterprise onboarding checklist");
     expect(inAppHelpHref("enterprise-onboarding")).toBe("/help/enterprise-onboarding");
+    expect(inAppHelpHref("cloud-connections-azure")).toBe("/help/cloud-connections/azure");
+    expect(inAppHelpHref("cloud-connections-aws")).toBe("/help/cloud-connections/aws");
+    expect(inAppHelpHref("cloud-connections-gcp")).toBe("/help/cloud-connections/gcp");
   });
 
   it("loads markdown for every registry topic from the monorepo", () => {
@@ -205,5 +208,27 @@ describe("product-documentation-registry", () => {
 
       expect(kind, slug).toBe("technical-documentation");
     }
+  });
+
+  it("keeps evidence-intake and review-packages on distinct help sources (TB-761)", () => {
+    const evidenceIntake = getProductDocumentationEntry("evidence-intake");
+    const reviewPackages = getProductDocumentationEntry("review-packages");
+
+    expect(evidenceIntake?.sourcePaths).toEqual([
+      "docs/library/customer-facing/EVIDENCE_INTAKE_OPERATOR_GUIDE.md",
+    ]);
+    expect(reviewPackages?.sourcePaths).toEqual([
+      "docs/library/customer-facing/REVIEW_PACKAGES_OPERATOR_GUIDE.md",
+    ]);
+    expect(evidenceIntake?.sourcePaths[0]).not.toBe(reviewPackages?.sourcePaths[0]);
+
+    const evidenceMarkdown = tryLoadProductDocumentation("evidence-intake")?.markdown ?? "";
+    const packagesMarkdown = tryLoadProductDocumentation("review-packages")?.markdown ?? "";
+
+    expect(evidenceMarkdown).toContain("Choose a starting path");
+    expect(evidenceMarkdown).not.toContain("Workflow recipes by persona");
+    expect(packagesMarkdown).toContain("Where to find your packages");
+    expect(packagesMarkdown).not.toContain("Workflow recipes by persona");
+    expect(evidenceMarkdown).not.toBe(packagesMarkdown);
   });
 });
