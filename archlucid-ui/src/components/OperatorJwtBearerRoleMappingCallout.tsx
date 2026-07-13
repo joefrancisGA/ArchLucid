@@ -1,9 +1,8 @@
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { cn } from "@/lib/utils";
 
 type OperatorJwtBearerRoleMappingCalloutProps = {
   testId?: string;
