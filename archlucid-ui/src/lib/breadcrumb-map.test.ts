@@ -91,6 +91,14 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("maps SSO wizard as Settings / Identity providers / Configure SSO", () => {
+    expect(getBreadcrumbs("/settings/identity/sso-wizard")).toEqual([
+      { label: "Settings", href: "/settings" },
+      { label: "Identity providers", href: "/settings/identity-providers" },
+      { label: "Configure SSO" },
+    ]);
+  });
+
   it("maps cloud connections under Integrations (not Settings)", () => {
     expect(getBreadcrumbs("/integrations/cloud-connections")).toEqual([
       { label: "Integrations", href: "/integrations/readiness" },

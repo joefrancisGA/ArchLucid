@@ -171,6 +171,14 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     ];
   }
 
+  if (normalized === "/settings/identity/sso-wizard") {
+    return [
+      { label: "Settings", href: "/settings" },
+      { label: "Identity providers", href: "/settings/identity-providers" },
+      { label: "Configure SSO" },
+    ];
+  }
+
   const items: BreadcrumbItem[] = [];
   const rawSegments = normalized.split("/").filter(Boolean);
 

@@ -29,12 +29,44 @@ export type SsoWizardState = {
 export const ARCHLUCID_ROLES = ["Admin", "Operator", "Reader", "Auditor"] as const;
 
 export const SSO_WIZARD_STEPS = [
-  { label: "Protocol", description: "OIDC or SAML 2.0" },
-  { label: "Discover", description: "Metadata URL" },
-  { label: "Map roles", description: "Claim → role" },
-  { label: "Test login", description: "Sandbox verify" },
-  { label: "Activate", description: "Save tenant row" },
+  { label: "Protocol", description: "Choose OIDC or SAML" },
+  { label: "Provider details", description: "Enter provider metadata" },
+  { label: "Role mapping", description: "Map groups and claims" },
+  { label: "Test connection", description: "Verify sign-in" },
+  { label: "Activate", description: "Review and enable" },
 ] as const;
+
+export function ssoWizardHasUnsavedChanges(state: SsoWizardState, step: number): boolean {
+  if (step > 0) {
+    return true;
+  }
+
+  if (state.protocol !== null) {
+    return true;
+  }
+
+  if (state.metadataUrl.trim().length > 0) {
+    return true;
+  }
+
+  if (state.issuerUri.trim().length > 0) {
+    return true;
+  }
+
+  if (state.sampleClaimValues.trim().length > 0) {
+    return true;
+  }
+
+  if (state.keyVaultSecretName.trim().length > 0) {
+    return true;
+  }
+
+  if (state.claimMapping.mappings.some((mapping) => mapping.idpValue.trim().length > 0)) {
+    return true;
+  }
+
+  return false;
+}
 
 export function createDefaultSsoWizardState(): SsoWizardState {
   return {
