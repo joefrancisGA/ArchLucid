@@ -50,6 +50,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/contributor-reference/security.md": "operator-auth-roles",
   "docs/runbooks/common_errors.md": "developer-troubleshooting",
   "docs/go-to-market/how_to_request_procurement_pack.md": "executive-summary",
+  "docs/library/customer-facing/workflow_recipes_by_persona.md": "evidence-intake",
   "docs/runbooks/azure_extractor_ingest.md": "evidence-intake",
   "docs/go-to-market/tenant_isolation.md": "audit-trail",
   "docs/go-to-market/customer_trust_and_access.md": "audit-trail",

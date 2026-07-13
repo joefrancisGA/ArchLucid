@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
 import type { ReviewPackagePrimaryAction as ReviewPackagePrimaryActionModel } from "./resolve-review-package-primary-action";
 
@@ -27,11 +28,13 @@ export function RunDetailWorkspaceStickyActions(
       <div className="flex flex-wrap items-center gap-2">
         {props.showProgressTracker ? (
           <Button variant="outline" size="sm" asChild>
-            <Link href="#pipeline-timeline">Continue review</Link>
+            <Link href={buildReviewDetailTabHref(props.runId, "activity", { hash: "pipeline-timeline" })}>
+              Continue review
+            </Link>
           </Button>
         ) : null}
         <Button variant="outline" size="sm" asChild>
-          <Link href="#run-explanation">Review findings</Link>
+          <Link href={buildReviewDetailTabHref(props.runId, "findings")}>Review findings</Link>
         </Button>
         {props.manifestId ? (
           <Button variant="outline" size="sm" asChild>
@@ -47,7 +50,7 @@ export function RunDetailWorkspaceStickyActions(
           />
         ) : (
           <Button variant="outline" size="sm" asChild>
-            <Link href="#artifacts-exports">Share</Link>
+            <Link href={buildReviewDetailTabHref(props.runId, "review-package")}>Share</Link>
           </Button>
         )}
       </div>

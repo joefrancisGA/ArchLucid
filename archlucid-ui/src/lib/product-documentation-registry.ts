@@ -527,8 +527,22 @@ export function getProductDocumentationEntry(slug: string): ProductDocumentation
   return bySlug.get(normalized) ?? null;
 }
 
+/** Prefer slash aliases (e.g. `cloud-connections/azure`) over retired hyphen slug URLs. */
+function preferredHelpPathSegmentForSlug(slug: string): string {
+  const normalized = normalizeHelpTopicSlug(slug);
+
+  for (const [alias, canonical] of Object.entries(HELP_TOPIC_SLUG_ALIASES)) {
+
+    if (canonical === normalized && canonical.startsWith("cloud-connections-")) {
+      return alias;
+    }
+  }
+
+  return normalized;
+}
+
 export function inAppHelpHref(slug: string, hashFragment?: string): string {
-  const base = `/help/${slug.trim().toLowerCase()}`;
+  const base = `/help/${preferredHelpPathSegmentForSlug(slug).trim().toLowerCase()}`;
   const hash = hashFragment?.trim().replace(/^#/, "");
 
   if (hash === undefined || hash.length === 0) {

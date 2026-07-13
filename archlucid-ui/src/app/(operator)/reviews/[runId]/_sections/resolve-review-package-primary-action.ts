@@ -4,6 +4,8 @@ import {
   shouldShowRunDetailGovernanceCta,
 } from "@/lib/run-detail-governance-cta-visibility";
 
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+
 import { resolveReviewPackageSummaryMode } from "./resolve-review-package-summary-mode";
 
 export type ReviewPackagePrimaryActionKind =
@@ -41,25 +43,26 @@ const REVIEW_PACKAGE_PRIMARY_ACTION_LABELS: Record<
   "export-proof-packet": "Export proof packet",
 };
 
-function reviewFindingsHref(): string {
-  return "#run-explanation";
+function reviewFindingsHref(runId: string): string {
+  return buildReviewDetailTabHref(runId, "findings");
 }
 
-function addEvidenceHref(): string {
-  return "#capture-evidence";
+function addEvidenceHref(runId: string): string {
+  return buildReviewDetailTabHref(runId, "evidence");
 }
 
-function exportProofPacketHref(): string {
-  return "#artifacts-exports";
+function exportProofPacketHref(runId: string): string {
+  return buildReviewDetailTabHref(runId, "evidence", { hash: "artifacts-exports" });
 }
 
 function buildLinkAction(
+  runId: string,
   kind: Exclude<ReviewPackagePrimaryActionKind, "finalize-package" | "open-governance-decision">,
 ): ReviewPackagePrimaryAction {
   const hrefByKind: Record<typeof kind, string> = {
-    "review-findings": reviewFindingsHref(),
-    "add-evidence": addEvidenceHref(),
-    "export-proof-packet": exportProofPacketHref(),
+    "review-findings": reviewFindingsHref(runId),
+    "add-evidence": addEvidenceHref(runId),
+    "export-proof-packet": exportProofPacketHref(runId),
   };
 
   return {
@@ -92,12 +95,12 @@ export function resolveReviewPackagePrimaryAction(
   const mode = resolveReviewPackageSummaryMode(input.manifestId);
 
   if (input.hasCommitBlockingFailures) {
-    return buildLinkAction("review-findings");
+    return buildLinkAction(input.runId, "review-findings");
   }
 
   if (mode === "finalized") {
     if (input.blockingFindingCount > 0) {
-      return buildLinkAction("review-findings");
+      return buildLinkAction(input.runId, "review-findings");
     }
 
     if (
@@ -111,11 +114,11 @@ export function resolveReviewPackagePrimaryAction(
       return buildGovernanceAction(input.runId);
     }
 
-    return buildLinkAction("export-proof-packet");
+    return buildLinkAction(input.runId, "export-proof-packet");
   }
 
   if (!input.runCompleted) {
-    return buildLinkAction("add-evidence");
+    return buildLinkAction(input.runId, "add-evidence");
   }
 
   return buildFinalizeAction();
