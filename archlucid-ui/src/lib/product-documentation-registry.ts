@@ -38,7 +38,8 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "cloud-connections/azure": "cloud-connections-azure",
   "cloud-connections/aws": "cloud-connections-aws",
   "cloud-connections/gcp": "cloud-connections-gcp",
-  "users-and-roles": "operator-auth-roles",
+  "users-and-roles": "users-and-roles",
+  "operator-auth-roles": "users-and-roles",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {
@@ -363,11 +364,13 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/walkthroughs/README.md"],
   },
   {
-    slug: "operator-auth-roles",
+    slug: "users-and-roles",
     title: "Users and roles",
-    summary: "JWT bearer role mapping, Entra app roles, and least-privilege role expectations for tenant admins.",
-    audience: "developer",
-    sourcePaths: ["docs/library/contributor-reference/SECURITY.md"],
+    summary:
+      "Understand ArchLucid roles, who can manage access, and how permissions apply across your workspace.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/USERS_AND_ROLES_GUIDE.md"],
+    pdfStatus: "customer",
   },
   {
     slug: "troubleshooting",

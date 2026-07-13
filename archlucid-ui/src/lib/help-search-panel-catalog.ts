@@ -219,7 +219,7 @@ const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "Users and roles",
     description: "Invite reviewers, approvers, and administrators.",
     keywords: ["users", "roles", "invite", "admin", "reader", "auditor"],
-    action: { kind: "route", href: "/settings/users", helpSlug: "operator-auth-roles" },
+    action: { kind: "route", href: "/help/users-and-roles", helpSlug: "users-and-roles" },
   },
   {
     id: "sso-identity",

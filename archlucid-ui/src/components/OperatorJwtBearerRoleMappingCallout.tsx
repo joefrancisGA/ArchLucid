@@ -2,8 +2,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
-import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type OperatorJwtBearerRoleMappingCalloutProps = {
   testId?: string;
@@ -33,12 +33,6 @@ export function OperatorJwtBearerRoleMappingCallout(props: OperatorJwtBearerRole
         >
           Open configuration reference (ArchLucidAuth role mapping)
         </Link>
-        {" · "}
-        <InAppHelpLink
-          helpSlug="operator-auth-roles"
-          label="Open SECURITY.md ArchLucidRoles reference"
-          className="inline-flex h-4 w-4 align-middle"
-        />
       </p>
     </div>
   );

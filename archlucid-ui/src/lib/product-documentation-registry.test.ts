@@ -189,7 +189,6 @@ describe("product-documentation-registry", () => {
   it("tags technical-documentation slugs per IA foundation (TB-732)", () => {
     const technicalSlugs: readonly string[] = [
       "configuration-reference",
-      "operator-auth-roles",
       "cli-usage",
       "governance-api-contracts",
       "admin-diagnostics",

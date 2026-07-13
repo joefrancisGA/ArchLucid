@@ -146,6 +146,13 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     ];
   }
 
+  if (normalized === "/help/users-and-roles" || normalized === "/help/operator-auth-roles") {
+    return [
+      { label: "Support", href: "/help" },
+      { label: "Users and roles" },
+    ];
+  }
+
   if (normalized === "/help/azure-permissions") {
     return [
       { label: "Support", href: "/help" },

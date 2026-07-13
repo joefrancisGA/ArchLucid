@@ -192,6 +192,14 @@ export const HELP_TOPICS: HelpTopic[] = [
     routes: ["/help/glossary"],
   },
   {
+    id: "users-and-roles",
+    title: "Users and roles",
+    keywords: ["roles", "permissions", "admin", "reader", "auditor", "invite"],
+    summary: "Workspace roles, access management, and reviewer invitations.",
+    docPath: "docs/library/customer-facing/USERS_AND_ROLES_GUIDE.md",
+    routes: ["/help/users-and-roles"],
+  },
+  {
     id: "scope",
     title: "Tenant / workspace / project scope",
     keywords: ["headers", "x-tenant-id", "isolation"],

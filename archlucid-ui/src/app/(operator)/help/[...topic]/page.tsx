@@ -7,6 +7,7 @@ import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
 import { HelpBillingAndPlansGuideView } from "../_sections/HelpBillingAndPlansGuideView";
 import { HelpFindingsGuideView } from "../_sections/HelpFindingsGuideView";
 import { HelpGlossaryPageView } from "../_sections/HelpGlossaryPageView";
+import { HelpUsersAndRolesGuideView } from "../_sections/HelpUsersAndRolesGuideView";
 import { HelpGovernanceApprovalGuideView } from "../_sections/HelpGovernanceApprovalGuideView";
 import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissionsGuideView";
 import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
@@ -114,6 +115,10 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "glossary") {
     return <HelpGlossaryPageView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "users-and-roles") {
+    return <HelpUsersAndRolesGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "cloud-connections-azure") {

@@ -24,7 +24,7 @@ export const HELP_CENTER_FEATURED_SLUGS: readonly string[] = [
   "cloud-connections",
   "security-trust",
   "data-handling",
-  "operator-auth-roles",
+  "users-and-roles",
   "billing-and-plans",
   "troubleshooting",
 ] as const;
@@ -57,7 +57,6 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "integration-readiness": "admin",
   procurement: "admin",
   "configuration-reference": "admin",
-  "operator-auth-roles": "admin",
   alerts: "admin",
   "specialty-walkthroughs": "admin",
   "first-hour-operator-path": "product",

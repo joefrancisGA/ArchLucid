@@ -115,7 +115,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     nextSteps: [
       { label: "Open governance approval", href: inAppHelpHref("governance-approval") },
       { label: "Open review packages", href: "/reviews" },
-      { label: "Open users and roles", href: inAppHelpHref("operator-auth-roles") },
+      { label: "Open users and roles", href: inAppHelpHref("users-and-roles") },
     ],
   },
   {
@@ -169,7 +169,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     tryFirst: "Sign out and back in. Confirm your role in workspace settings.",
     ifStillBlocked: "Ask your workspace admin or IT team to verify identity and role assignment.",
     nextSteps: [
-      { label: "Open users and roles", href: inAppHelpHref("operator-auth-roles") },
+      { label: "Open users and roles", href: inAppHelpHref("users-and-roles") },
       { label: "Open workspace settings", href: "/settings/tenant" },
       { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}` },
     ],
@@ -207,7 +207,7 @@ export const TROUBLESHOOTING_DECISION_TREE_STEPS: readonly TroubleshootingDecisi
     branches: [
       {
         label: "No",
-        href: inAppHelpHref("operator-auth-roles"),
+        href: inAppHelpHref("users-and-roles"),
         linkLabel: "Open users and roles / contact workspace admin",
       },
       { label: "Yes", href: "#decision-review-visible", linkLabel: "Continue to review packages" },
@@ -239,7 +239,7 @@ export const TROUBLESHOOTING_DECISION_TREE_STEPS: readonly TroubleshootingDecisi
       { label: "Reports missing", href: "/value-report", linkLabel: "Open value report" },
       {
         label: "Permissions missing",
-        href: inAppHelpHref("operator-auth-roles"),
+        href: inAppHelpHref("users-and-roles"),
         linkLabel: "Open users and roles",
       },
     ],

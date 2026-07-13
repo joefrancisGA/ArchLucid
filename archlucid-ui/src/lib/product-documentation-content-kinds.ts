@@ -42,7 +42,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "how-it-works": "product-help",
   "integration-readiness": "product-help",
   "integrations/azure-boards": "product-help",
-  "operator-auth-roles": "technical-documentation",
+  "users-and-roles": "product-help",
   "path-chooser": "product-help",
   "pilot-feedback": "product-help",
   "pilot-guide": "product-help",

@@ -39,7 +39,8 @@ describe("help topic slug aliases", () => {
     expect(normalizeHelpTopicSlug("cloud-connections/aws")).toBe("cloud-connections-aws");
     expect(normalizeHelpTopicSlug("cloud-connections/gcp")).toBe("cloud-connections-gcp");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
-    expect(getProductDocumentationEntry("users-and-roles")?.slug).toBe("operator-auth-roles");
+    expect(getProductDocumentationEntry("users-and-roles")?.slug).toBe("users-and-roles");
+    expect(getProductDocumentationEntry("operator-auth-roles")?.slug).toBe("users-and-roles");
   });
 });
 
