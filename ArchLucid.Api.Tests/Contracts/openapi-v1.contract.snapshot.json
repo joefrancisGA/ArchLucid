@@ -5191,6 +5191,63 @@
         },
         "type": "object"
       },
+      "CommittedCoverageAssignmentSnapshot": {
+        "properties": {
+          "coverageType": {
+            "type": "string"
+          },
+          "evaluationVersion": {
+            "type": "string"
+          },
+          "exclusionReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "policyPackId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policyPackVersion": {
+            "type": "string"
+          },
+          "qualityDimension": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "recommendationConfidence": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "recommendationRationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "recommendationTrigger": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "selectionState": {
+            "type": "string"
+          },
+          "triggeringEvidenceRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "CommittedEffectiveGovernanceSnapshotDescriptor": {
         "properties": {
           "complianceRuleKeyCount": {
@@ -5206,6 +5263,12 @@
           "conflictCount": {
             "format": "int32",
             "type": "integer"
+          },
+          "coverageAssignments": {
+            "items": {
+              "$ref": "#/components/schemas/CommittedCoverageAssignmentSnapshot"
+            },
+            "type": "array"
           },
           "generatedUtc": {
             "format": "date-time",
@@ -6368,6 +6431,126 @@
           }
         },
         "type": "object"
+      },
+      "CoverageAssignmentResponse": {
+        "properties": {
+          "actorUserId": {
+            "type": "string"
+          },
+          "coverageAssignmentId": {
+            "type": "string"
+          },
+          "coverageType": {
+            "$ref": "#/components/schemas/CoverageType"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "evaluationVersion": {
+            "type": "string"
+          },
+          "exclusionReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "policyPackId": {
+            "type": "string"
+          },
+          "policyPackVersion": {
+            "type": "string"
+          },
+          "qualityDimension": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/QualityDimension"
+              }
+            ]
+          },
+          "recommendationConfidence": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RecommendationConfidence"
+              }
+            ]
+          },
+          "recommendationRationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "recommendationTrigger": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "selectionState": {
+            "$ref": "#/components/schemas/CoverageSelectionState"
+          },
+          "triggeringEvidenceRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "CoverageSelectionState": {
+        "type": "integer"
+      },
+      "CoverageSummaryResponse": {
+        "properties": {
+          "additionalOptionalCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "assignments": {
+            "items": {
+              "$ref": "#/components/schemas/CoverageAssignmentResponse"
+            },
+            "type": "array"
+          },
+          "contextualRecommendedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "legacyCoverageNotRecorded": {
+            "type": "boolean"
+          },
+          "organizationRequiredCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "platformOverlayCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "providerNeutralBaselineCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "CoverageType": {
+        "type": "integer"
       },
       "CreateArchitectureReviewRecurrenceScheduleRequest": {
         "properties": {
@@ -16556,6 +16739,16 @@
             "format": "uuid",
             "type": "string"
           },
+          "qualityDimension": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/QualityDimension"
+              }
+            ]
+          },
           "status": {
             "type": "string"
           },
@@ -18170,6 +18363,9 @@
         },
         "type": "object"
       },
+      "QualityDimension": {
+        "type": "integer"
+      },
       "QuestionSelectionResult": {
         "properties": {
           "allQuestions": {
@@ -18385,6 +18581,9 @@
           }
         },
         "type": "object"
+      },
+      "RecommendationConfidence": {
+        "type": "integer"
       },
       "RecommendationLearningProfile": {
         "properties": {
@@ -20135,6 +20334,17 @@
           },
           "topic": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RunCoverageResponse": {
+        "properties": {
+          "runId": {
+            "type": "string"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/CoverageSummaryResponse"
           }
         },
         "type": "object"
@@ -54424,6 +54634,96 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/governance/coverage": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoverageSummaryResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoverageSummaryResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoverageSummaryResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "GovernanceCoverage"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/governance/dashboard": {
       "get": {
         "parameters": [
@@ -67327,6 +67627,127 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/runs/{runId}/coverage": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunCoverageResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunCoverageResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunCoverageResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "RunCoverage"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/runs/{runId}/export/{format}": {
       "get": {
         "parameters": [
@@ -71589,6 +72010,9 @@
       "name": "Governance"
     },
     {
+      "name": "GovernanceCoverage"
+    },
+    {
       "name": "GovernancePreCommitSimulation"
     },
     {
@@ -71740,6 +72164,9 @@
     },
     {
       "name": "RunComparison"
+    },
+    {
+      "name": "RunCoverage"
     },
     {
       "name": "RunQuery"
