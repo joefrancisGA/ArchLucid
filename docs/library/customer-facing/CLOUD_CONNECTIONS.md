@@ -18,46 +18,11 @@ You can also run **evidence-only** reviews from uploaded inventory ZIPs without 
 
 ## Connect Azure securely {#connect-azure-securely}
 
-ArchLucid can use Azure metadata and cost evidence when you connect selected subscriptions. The Azure connection is optional; reviews can also use briefs, diagrams, documents, and uploaded evidence.
+The in-app guide at `/help/cloud-connections/azure` is the canonical setup reference for federated authentication, read-only Azure roles, setup steps, and data classification.
 
-**Evidence tier:** cloud-connected (optional hosted pull from authorized subscriptions).
+**[Open Connect Azure securely](/help/cloud-connections/azure)**
 
-### Security model
-
-- **Workload identity federation** — ArchLucid authenticates at runtime without storing client secrets.
-- **No long-lived client secrets** — federated credentials trust ArchLucid's published managed identity.
-- **Read-only Azure roles** — **Reader** and **Cost Management Reader** only.
-- **Subscription or management-group scope** — not tenant-wide directory read.
-- **Customer-controlled access** — you provision the service principal and can revoke federation at any time.
-
-### Setup steps
-
-1. Complete the in-product **security review** checklist from the [**Azure cloud connection**](/integrations/cloud-connections/azure) page.
-2. Create a read-only Azure identity (Azure CLI script, Terraform, or Bicep templates).
-3. Enter tenant ID, application (client) ID, and subscription IDs.
-4. Save the connection, then run **Run validation pull** to confirm federated credentials and read access.
-
-### Required roles
-
-| Azure role | Purpose | Write access |
-|------------|---------|--------------|
-| **Reader** | Subscription inventory for architecture evidence | No |
-| **Cost Management Reader** | Read-only cost posture for value and risk context | No |
-
-Do **not** assign Owner, Contributor, User Access Administrator, or broad directory roles for the Azure connection.
-
-### What ArchLucid stores
-
-- Tenant ID
-- Application (client) ID
-- Subscription or management-group scope
-- Connection status and validation timestamp
-
-### What ArchLucid does not store
-
-- Client secrets
-- Owner or Contributor privileges
-- Tenant-wide Global Reader permissions
+For role requirements, scopes, CLI templates, and verification, see **[Azure permissions for cloud connections](/help/azure-permissions)**.
 
 ## Connect AWS securely {#connect-aws-securely}
 

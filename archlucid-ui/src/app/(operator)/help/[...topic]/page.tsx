@@ -8,6 +8,7 @@ import { HelpBillingAndPlansGuideView } from "../_sections/HelpBillingAndPlansGu
 import { HelpFindingsGuideView } from "../_sections/HelpFindingsGuideView";
 import { HelpGovernanceApprovalGuideView } from "../_sections/HelpGovernanceApprovalGuideView";
 import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissionsGuideView";
+import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
 import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialtyWalkthroughTemplatesView";
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
@@ -108,6 +109,15 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "governance-approval") {
     return <HelpGovernanceApprovalGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "cloud-connections-azure") {
+    return (
+      <HelpConnectAzureSecurelyGuideView
+        entry={loaded.entry}
+        returnHref={resolveAzurePermissionsReturnHref(readSearchParam(searchParams, "returnTo"))}
+      />
+    );
   }
 
   if (loaded.entry.slug === "azure-permissions") {

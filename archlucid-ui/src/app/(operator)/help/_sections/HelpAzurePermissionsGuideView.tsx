@@ -49,17 +49,17 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 import { cn } from "@/lib/utils";
 
 const AZURE_PERMISSIONS_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
-  { id: "read-only-summary", text: "Read-only by design", level: 2 },
-  { id: "permissions-matrix", text: "Required and optional permissions", level: 2 },
-  { id: "recommended-scope", text: "Choose the narrowest practical scope", level: 2 },
-  { id: "connection-context-heading", text: "Connection values", level: 2 },
-  { id: "setup", text: "Assign the Azure roles", level: 2 },
-  { id: "collected-data", text: "Information ArchLucid collects", level: 2 },
-  { id: "cannot-do", text: "Actions these permissions do not allow", level: 2 },
-  { id: "custom-role", text: "Using a custom Azure role", level: 2 },
-  { id: "azure-permissions-verify-heading", text: "Verify the connection", level: 2 },
-  { id: "troubleshoot", text: "Troubleshoot permission checks", level: 2 },
-  { id: "other-providers", text: "Other cloud providers", level: 2 },
+  { id: "read-only-summary", title: "Read-only by design", level: 2 },
+  { id: "permissions-matrix", title: "Required and optional permissions", level: 2 },
+  { id: "recommended-scope", title: "Choose the narrowest practical scope", level: 2 },
+  { id: "connection-context-heading", title: "Connection values", level: 2 },
+  { id: "setup", title: "Assign the Azure roles", level: 2 },
+  { id: "collected-data", title: "Information ArchLucid collects", level: 2 },
+  { id: "cannot-do", title: "Actions these permissions do not allow", level: 2 },
+  { id: "custom-role", title: "Using a custom Azure role", level: 2 },
+  { id: "azure-permissions-verify-heading", title: "Verify the connection", level: 2 },
+  { id: "troubleshoot", title: "Troubleshoot permission checks", level: 2 },
+  { id: "other-providers", title: "Other cloud providers", level: 2 },
 ];
 
 type HelpAzurePermissionsGuideViewProps = {
