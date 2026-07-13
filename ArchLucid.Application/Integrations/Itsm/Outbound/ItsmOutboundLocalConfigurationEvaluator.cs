@@ -2,6 +2,8 @@ using System.Net;
 
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integrations.Itsm;
+using ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
 using ArchLucid.Persistence.Integrations;
 
 namespace ArchLucid.Application.Integrations.Itsm.Outbound;
@@ -83,6 +85,50 @@ public static class ItsmOutboundLocalConfigurationEvaluator
             credentials.FromTenantConnection
                 ? "Tenant ServiceNow connector references are configured (live validation still required)."
                 : "ServiceNow instance URL and credential fields are populated (live validation still required).");
+    }
+
+    public static ItsmOutboundLocalReadiness EvaluateAzureBoards(
+        IntegrationsItsmOutboundOptions options,
+        TenantItsmConnectorConnectionRecord? tenantConnection,
+        TenantAzureBoardsOutboundSettings? tenantSettings)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        bool urlOk = tenantConnection is not null
+            && TryValidateItsmOutboundVendorBaseUrl(tenantConnection.InstanceBaseUrl)
+            || TryValidateItsmOutboundVendorBaseUrl(options.AzureBoards.OrganizationBaseUrl.Trim());
+
+        bool credentialOk = tenantConnection is not null
+            && !string.IsNullOrWhiteSpace(tenantConnection.CredentialKeyVaultSecretName)
+            || !string.IsNullOrWhiteSpace(options.AzureBoards.PersonalAccessToken.Trim());
+
+        bool projectOk = !string.IsNullOrWhiteSpace(tenantSettings?.ProjectName?.Trim());
+        bool workItemTypeOk = !string.IsNullOrWhiteSpace(tenantSettings?.DefaultWorkItemType?.Trim());
+
+        if (!urlOk)
+        {
+            return new ItsmOutboundLocalReadiness(
+                false,
+                "Set an Azure DevOps organization URL (https://dev.azure.com/your-organization).");
+        }
+
+        if (!credentialOk)
+        {
+            return new ItsmOutboundLocalReadiness(
+                false,
+                "Azure Boards requires a personal access token reference in secure storage.");
+        }
+
+        if (!projectOk || !workItemTypeOk)
+        {
+            return new ItsmOutboundLocalReadiness(
+                false,
+                "Select a default Azure Boards project and work item type for this workspace.");
+        }
+
+        return new ItsmOutboundLocalReadiness(
+            true,
+            "Azure DevOps organization, credentials, project, and work item type are configured (live validation still required).");
     }
 
     public static ItsmOutboundLocalReadiness EvaluateServiceNow(IntegrationsItsmOutboundOptions options)

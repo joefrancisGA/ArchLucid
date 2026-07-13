@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integrations.Itsm;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
@@ -21,6 +22,8 @@ public sealed class ConnectorOperationsSummaryReader(
     IOptions<ConfluencePublishingOptions> confluenceOptions,
     ITenantTeamsIncomingWebhookConnectionRepository teamsConnectionRepository,
     ITenantItsmOutboundSettingsRepository tenantItsmSettingsRepository,
+    ITenantAzureBoardsOutboundSettingsRepository azureBoardsSettingsRepository,
+    ITenantItsmConnectorConnectionRepository itsmConnectorConnectionRepository,
     IDigestSubscriptionRepository digestSubscriptionRepository,
     IAdvisoryScanScheduleRepository advisoryScheduleRepository,
     IAlertRoutingSubscriptionRepository alertRoutingRepository) : IConnectorOperationsSummaryReader
@@ -39,6 +42,12 @@ public sealed class ConnectorOperationsSummaryReader(
 
     private readonly ITenantItsmOutboundSettingsRepository _tenantItsmSettingsRepository =
         tenantItsmSettingsRepository ?? throw new ArgumentNullException(nameof(tenantItsmSettingsRepository));
+
+    private readonly ITenantAzureBoardsOutboundSettingsRepository _azureBoardsSettingsRepository =
+        azureBoardsSettingsRepository ?? throw new ArgumentNullException(nameof(azureBoardsSettingsRepository));
+
+    private readonly ITenantItsmConnectorConnectionRepository _itsmConnectorConnectionRepository =
+        itsmConnectorConnectionRepository ?? throw new ArgumentNullException(nameof(itsmConnectorConnectionRepository));
 
     private readonly IDigestSubscriptionRepository _digestSubscriptionRepository =
         digestSubscriptionRepository ?? throw new ArgumentNullException(nameof(digestSubscriptionRepository));
@@ -69,6 +78,14 @@ public sealed class ConnectorOperationsSummaryReader(
         TenantItsmOutboundSettings? tenantItsm =
             await _tenantItsmSettingsRepository.TryGetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
+        TenantAzureBoardsOutboundSettings? azureBoardsSettings =
+            await _azureBoardsSettingsRepository.TryGetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        TenantItsmConnectorConnectionRecord? azureBoardsConnection =
+            await _itsmConnectorConnectionRepository
+                .GetAsync(scope.TenantId, TenantItsmConnectorProvider.AzureBoards, cancellationToken)
+                .ConfigureAwait(false);
+
         TeamsIncomingWebhookConnectionResponse? teamsRow =
             await _teamsConnectionRepository.GetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
@@ -76,9 +93,15 @@ public sealed class ConnectorOperationsSummaryReader(
         string teamsSmoke = teamsConfigured ? "LocallyValid" : "NotConfigured";
 
         ItsmOutboundLocalReadiness jiraLocal = ItsmOutboundLocalConfigurationEvaluator.EvaluateJira(_itsm, tenantItsm);
+        ItsmOutboundLocalReadiness azureBoardsLocal = ItsmOutboundLocalConfigurationEvaluator.EvaluateAzureBoards(
+            _itsm,
+            azureBoardsConnection,
+            azureBoardsSettings);
         ItsmOutboundLocalReadiness snowLocal = ItsmOutboundLocalConfigurationEvaluator.EvaluateServiceNow(_itsm);
         bool jiraOk = jiraLocal.IsReady;
         string jiraSummary = jiraLocal.Summary;
+        bool azureBoardsOk = azureBoardsLocal.IsReady;
+        string azureBoardsSummary = azureBoardsLocal.Summary;
         bool snowOk = snowLocal.IsReady;
         string snowSummary = snowLocal.Summary;
         (bool confOk, string confSummary) = EvaluateConfluence();
@@ -139,6 +162,15 @@ public sealed class ConnectorOperationsSummaryReader(
                 SmokeReadiness = jiraOk ? "LocallyValid" : "ConfigurationIncomplete",
                 Summary = jiraSummary,
                 ConfigurationHref = "/integrations/jira",
+            },
+            new()
+            {
+                ConnectorKey = "azureBoards",
+                DisplayName = "Azure Boards (work management)",
+                IsConfigured = azureBoardsOk,
+                SmokeReadiness = azureBoardsOk ? "LocallyValid" : "ConfigurationIncomplete",
+                Summary = azureBoardsSummary,
+                ConfigurationHref = "/integrations/azure-boards",
             },
             new()
             {

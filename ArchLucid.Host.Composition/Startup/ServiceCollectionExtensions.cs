@@ -1,6 +1,8 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Findings;
+using ArchLucid.Application.Integrations.AzureBoards;
+using ArchLucid.Application.Integrations.AzureBoards.Outbound;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Integrations.Itsm.OAuth;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
@@ -174,13 +176,17 @@ public static partial class ServiceCollectionExtensions
             .AddOutboundExternalHttpResilience();
         services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
             .AddOutboundExternalHttpResilience();
+        services.AddHttpClient<AzureBoardsOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
+            .AddOutboundExternalHttpResilience();
         services.AddScoped<JiraExternalTicketConnector>();
         services.AddScoped<ServiceNowExternalTicketConnector>();
+        services.AddScoped<AzureBoardsExternalTicketConnector>();
         services.AddScoped<IExternalTicketConnectorRegistry>(static sp =>
             new ExternalTicketConnectorRegistry(
             [
                 sp.GetRequiredService<JiraExternalTicketConnector>(),
-                sp.GetRequiredService<ServiceNowExternalTicketConnector>()
+                sp.GetRequiredService<ServiceNowExternalTicketConnector>(),
+                sp.GetRequiredService<AzureBoardsExternalTicketConnector>()
             ]));
         services
             .AddHttpClient(
@@ -199,6 +205,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IItsmOutboundHttpAuthenticator, ItsmOutboundHttpAuthenticator>();
         services.AddScoped<IItsmOutboundIssueCreationService, ItsmOutboundIssueCreationService>();
         services.AddScoped<ItsmOutboundIssueCreationService>();
+        services.AddScoped<IAzureBoardsIntegrationService, AzureBoardsIntegrationService>();
         services.AddScoped<ItsmExternalTicketUrlBuilder>();
         services.AddScoped<ItsmFindingCorrelationQueryService>();
         services.AddScoped<RunFindingExternalTrackingEnrichmentService>();

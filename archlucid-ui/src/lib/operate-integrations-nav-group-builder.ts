@@ -1,6 +1,7 @@
 import { CloudCog, Hash, Ticket, UsersRound, Workflow } from "lucide-react";
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
+  INTEGRATIONS_AZURE_BOARDS_PATH,
   INTEGRATIONS_JIRA_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
   INTEGRATIONS_SLACK_PATH,
@@ -8,6 +9,7 @@ import {
   INTEGRATIONS_WEBHOOKS_PATH,
 } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { AZURE_BOARDS_SURFACE_ICON } from "@/lib/azure-boards-surface-icon";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -34,6 +36,14 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.jira,
           title: OPERATOR_NAV_LINK_LABELS.jira,
           icon: Ticket,
+          tier: "extended",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
+          href: INTEGRATIONS_AZURE_BOARDS_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.azureBoards,
+          title: OPERATOR_NAV_LINK_LABELS.azureBoards,
+          icon: AZURE_BOARDS_SURFACE_ICON,
           tier: "extended",
           requiredAuthority: "AdminAuthority",
         },

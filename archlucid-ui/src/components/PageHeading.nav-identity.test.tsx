@@ -6,6 +6,7 @@ import { PageHeading } from "@/components/PageHeading";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import {
   CLOUD_CONNECTIONS_PATH,
+  INTEGRATIONS_AZURE_BOARDS_PATH,
   INTEGRATIONS_JIRA_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
   INTEGRATIONS_SLACK_PATH,
@@ -13,6 +14,7 @@ import {
   INTEGRATIONS_WEBHOOKS_PATH,
 } from "@/lib/integrations-nav-paths";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
+import { AZURE_BOARDS_SURFACE_ICON } from "@/lib/azure-boards-surface-icon";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 
 function expectSameIcon(navHref: string, expectedIcon: typeof CloudCog): void {
@@ -31,6 +33,10 @@ describe("PageHeading nav identity", () => {
 
   it("uses the same icon definition as navigation for Jira", () => {
     expectSameIcon(INTEGRATIONS_JIRA_PATH, Ticket);
+  });
+
+  it("uses the same icon definition as navigation for Azure Boards", () => {
+    expectSameIcon(INTEGRATIONS_AZURE_BOARDS_PATH, AZURE_BOARDS_SURFACE_ICON);
   });
 
   it("uses the same icon definition as navigation for ServiceNow", () => {

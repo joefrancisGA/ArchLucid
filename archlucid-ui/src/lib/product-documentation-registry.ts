@@ -262,6 +262,14 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/INTEGRATION_READINESS.md"],
   },
   {
+    slug: "integrations/azure-boards",
+    title: "Azure Boards integration",
+    summary:
+      "Connect Azure DevOps for work item creation from ArchLucid findings — independent of your architecture cloud provider.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/AZURE_BOARDS_INTEGRATION.md"],
+  },
+  {
     slug: "procurement",
     title: "Procurement FAQ",
     summary: "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.",

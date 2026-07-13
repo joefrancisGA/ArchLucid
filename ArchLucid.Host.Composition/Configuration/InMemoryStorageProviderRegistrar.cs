@@ -274,6 +274,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IItsmFindingCorrelationRepository, InMemoryItsmFindingCorrelationRepository>();
         services.AddSingleton<IRunFindingExternalTrackingReadRepository, InMemoryRunFindingExternalTrackingReadRepository>();
         services.AddSingleton<ITenantItsmOutboundSettingsRepository, InMemoryTenantItsmOutboundSettingsRepository>();
+        services.AddSingleton<ITenantAzureBoardsOutboundSettingsRepository, InMemoryTenantAzureBoardsOutboundSettingsRepository>();
         services.AddSingleton<ITenantItsmConnectorConnectionRepository, InMemoryTenantItsmConnectorConnectionRepository>();
         services.AddSingleton<ITenantSettingsRepository, InMemoryTenantSettingsRepository>();
         services.AddSingleton<IFineTuningManifestConsentReader, TenantSettingsFineTuningManifestConsentReader>();

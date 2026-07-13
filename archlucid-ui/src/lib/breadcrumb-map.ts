@@ -91,6 +91,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   integrations: "Integrations",
   itsm: "ITSM",
   jira: "Jira",
+  "azure-boards": "Azure Boards",
   servicenow: "ServiceNow",
   slack: "Slack",
   teams: "Teams",

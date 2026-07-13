@@ -1,0 +1,224 @@
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const mockFetchAzureHealth = vi.fn();
+const mockFetchAzureSettings = vi.fn();
+const mockFetchItsmHealth = vi.fn();
+const mockFetchConnection = vi.fn();
+const mockUpsertSettings = vi.fn();
+const mockUpsertConnection = vi.fn();
+const mockTestConnection = vi.fn();
+const mockListProjects = vi.fn();
+const mockListWorkItemTypes = vi.fn();
+
+let canMutate = true;
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => canMutate,
+}));
+
+vi.mock("@/lib/features", () => ({
+  isShowSystemAdministrationNavEnabled: () => false,
+}));
+
+vi.mock("@/lib/api/azure-boards-api", () => ({
+  fetchAzureBoardsHealth: (...args: unknown[]) => mockFetchAzureHealth(...args),
+  fetchAzureBoardsSettings: (...args: unknown[]) => mockFetchAzureSettings(...args),
+  listAzureBoardsProjects: (...args: unknown[]) => mockListProjects(...args),
+  listAzureBoardsWorkItemTypes: (...args: unknown[]) => mockListWorkItemTypes(...args),
+  testAzureBoardsConnection: (...args: unknown[]) => mockTestConnection(...args),
+  upsertAzureBoardsSettings: (...args: unknown[]) => mockUpsertSettings(...args),
+}));
+
+vi.mock("@/lib/api/itsm-outbound-api", () => ({
+  fetchItsmIntegrationHealth: (...args: unknown[]) => mockFetchItsmHealth(...args),
+  fetchTenantItsmConnectorConnection: (...args: unknown[]) => mockFetchConnection(...args),
+  upsertTenantItsmConnectorConnection: (...args: unknown[]) => mockUpsertConnection(...args),
+}));
+
+import { AzureBoardsIntegrationPageClient } from "./AzureBoardsIntegrationPageClient";
+import {
+  AZURE_BOARDS_PAGE_DESCRIPTION,
+  AZURE_BOARDS_PAGE_TITLE,
+  AZURE_BOARDS_TEST_CONNECTION_LABEL,
+} from "@/lib/azure-boards-page-copy";
+import { AZURE_BOARDS_BANNED_UI_PATTERNS } from "@/lib/azure-boards-page-copy";
+
+function baseHealth(overrides: Record<string, unknown> = {}) {
+  return {
+    status: "not_configured",
+    reachable: false,
+    summary: "Azure Boards credentials are not configured.",
+    ...overrides,
+  };
+}
+
+function baseSettings(overrides: Record<string, unknown> = {}) {
+  return {
+    isConfigured: false,
+    projectName: null,
+    defaultWorkItemType: null,
+    ...overrides,
+  };
+}
+
+function baseConnection(overrides: Record<string, unknown> = {}) {
+  return {
+    provider: "AzureBoards",
+    isConfigured: false,
+    instanceBaseUrl: null,
+    credentialKeyVaultSecretName: null,
+    ...overrides,
+  };
+}
+
+describe("AzureBoardsIntegrationPageClient", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    canMutate = true;
+    mockFetchAzureHealth.mockResolvedValue(baseHealth());
+    mockFetchItsmHealth.mockResolvedValue({ nativeEnabled: true });
+    mockFetchAzureSettings.mockResolvedValue(baseSettings());
+    mockFetchConnection.mockResolvedValue(baseConnection());
+    mockListProjects.mockResolvedValue([]);
+    mockListWorkItemTypes.mockResolvedValue([]);
+    mockUpsertSettings.mockResolvedValue(
+      baseSettings({ isConfigured: true, projectName: "Pilot", defaultWorkItemType: "Issue" }),
+    );
+    mockUpsertConnection.mockResolvedValue(
+      baseConnection({
+        isConfigured: true,
+        instanceBaseUrl: "https://dev.azure.com/example",
+        credentialKeyVaultSecretName: "kv-pat",
+      }),
+    );
+    mockTestConnection.mockResolvedValue({ ok: true, summary: "Connection check succeeded." });
+  });
+
+  it("renders customer-facing header without banned API terminology", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    expect(await screen.findByRole("heading", { name: AZURE_BOARDS_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByText(AZURE_BOARDS_PAGE_DESCRIPTION)).toBeInTheDocument();
+    expect(screen.getByText(/independent of whether your architecture runs on Azure, AWS, or Google Cloud/i)).toBeInTheDocument();
+
+    const page = screen.getByTestId("integrations-azure-boards-page");
+    const text = page.textContent ?? "";
+
+    for (const pattern of AZURE_BOARDS_BANNED_UI_PATTERNS) {
+      expect(text).not.toMatch(pattern);
+    }
+  });
+
+  it("shows setup incomplete and disables connection test without credentials", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const status = await screen.findByTestId("azure-boards-connection-status");
+    expect(within(status).getByText("Setup incomplete")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-test-connection-button")).toBeDisabled();
+  });
+
+  it("shows connected state when health probe succeeds", async () => {
+    mockFetchAzureHealth.mockResolvedValue(baseHealth({ reachable: true, status: "healthy" }));
+    mockFetchAzureSettings.mockResolvedValue(
+      baseSettings({ isConfigured: true, projectName: "Pilot", defaultWorkItemType: "Issue" }),
+    );
+    mockFetchConnection.mockResolvedValue(
+      baseConnection({
+        isConfigured: true,
+        instanceBaseUrl: "https://dev.azure.com/example",
+        credentialKeyVaultSecretName: "kv-pat",
+      }),
+    );
+
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const status = await screen.findByTestId("azure-boards-connection-status");
+    expect(within(status).getByText("Connected")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-test-connection-button")).toBeEnabled();
+  });
+
+  it("never redisplays saved token value in credential field", async () => {
+    mockFetchConnection.mockResolvedValue(
+      baseConnection({
+        isConfigured: true,
+        instanceBaseUrl: "https://dev.azure.com/example",
+        credentialKeyVaultSecretName: "kv-pat-secret",
+      }),
+    );
+
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await screen.findByTestId("azure-boards-token-reference");
+    expect(screen.getByTestId("azure-boards-token-reference")).toHaveValue("");
+    expect(screen.getByTestId("azure-boards-credential-status")).toHaveTextContent("Secure reference saved");
+    expect(screen.queryByText("kv-pat-secret")).not.toBeInTheDocument();
+  });
+
+  it("runs connection test with pending and success feedback", async () => {
+    mockFetchAzureHealth.mockResolvedValue(baseHealth({ reachable: true }));
+    mockFetchAzureSettings.mockResolvedValue(
+      baseSettings({ isConfigured: true, projectName: "Pilot", defaultWorkItemType: "Issue" }),
+    );
+    mockFetchConnection.mockResolvedValue(
+      baseConnection({
+        isConfigured: true,
+        instanceBaseUrl: "https://dev.azure.com/example",
+        credentialKeyVaultSecretName: "kv-pat",
+      }),
+    );
+
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const button = await screen.findByRole("button", { name: AZURE_BOARDS_TEST_CONNECTION_LABEL });
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(mockTestConnection).toHaveBeenCalled();
+    });
+
+    expect(await screen.findByTestId("azure-boards-latest-test")).toBeInTheDocument();
+  });
+
+  it("loads project and work item type discovery lists", async () => {
+    mockFetchConnection.mockResolvedValue(
+      baseConnection({
+        isConfigured: true,
+        instanceBaseUrl: "https://dev.azure.com/example",
+        credentialKeyVaultSecretName: "kv-pat",
+      }),
+    );
+    mockListProjects.mockResolvedValue(["Pilot", "Platform"]);
+    mockListWorkItemTypes.mockResolvedValue(["Issue", "Epic"]);
+
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await waitFor(() => {
+      expect(mockListProjects).toHaveBeenCalled();
+    });
+
+    fireEvent.click(await screen.findByTestId("azure-boards-project-select"));
+    expect(await screen.findByText("Platform")).toBeInTheDocument();
+  });
+
+  it("shows connection issue when probe fails", async () => {
+    mockFetchAzureHealth.mockResolvedValue(
+      baseHealth({ reachable: false, summary: "401 unauthorized from _apis/wit" }),
+    );
+    mockFetchAzureSettings.mockResolvedValue(
+      baseSettings({ isConfigured: true, projectName: "Pilot", defaultWorkItemType: "Issue" }),
+    );
+    mockFetchConnection.mockResolvedValue(
+      baseConnection({
+        isConfigured: true,
+        instanceBaseUrl: "https://dev.azure.com/example",
+        credentialKeyVaultSecretName: "kv-pat",
+      }),
+    );
+
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const status = await screen.findByTestId("azure-boards-connection-status");
+    expect(within(status).getByText("Connection issue")).toBeInTheDocument();
+  });
+});

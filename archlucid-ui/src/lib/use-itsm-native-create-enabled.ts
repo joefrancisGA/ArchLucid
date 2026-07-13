@@ -9,6 +9,7 @@ const INITIAL_READINESS: ItsmNativeCreateReadiness = {
   deploymentEnabled: false,
   defaultPathReady: false,
   health: null,
+  azureBoardsReady: false,
 };
 
 /** Client hook for TB-387 native ITSM create gate + Tier 2 #6 default-path readiness. */

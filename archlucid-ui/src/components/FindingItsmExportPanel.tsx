@@ -31,11 +31,11 @@ export function FindingItsmExportPanel({ runId, findingId, payload }: FindingIts
           id="finding-itsm-native-default-heading"
           className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
         >
-          Sync to Jira or ServiceNow
+          Sync to Jira, Azure Boards, or ServiceNow
         </h2>
         <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          Tenant ITSM connectors passed connection validation — create a linked issue in one click. Clipboard export
-          remains available below when you need manual paste.
+          Tenant work management connectors passed connection validation — create a linked issue in one click. Clipboard
+          export remains available below when you need manual paste.
         </p>
         <div className="flex flex-wrap items-center gap-3 pt-3">
           <ItsmOutboundCreateIssueDialog findingId={findingId} prominent />
@@ -62,10 +62,11 @@ export function FindingItsmExportPanel({ runId, findingId, payload }: FindingIts
         id="finding-itsm-export-heading"
         className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
       >
-        Copy for Jira or ServiceNow
+        Copy for Jira, Azure Boards, or ServiceNow
       </h2>
       <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        One click copies Jira wiki markup ready to paste into a ticket. Choose ServiceNow or JSON for other trackers.
+        One click copies Jira wiki markup ready to paste into a ticket. Choose ServiceNow, Azure DevOps markdown, or JSON
+        for other trackers.
       </p>
       {deploymentEnabled ? (
         <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>

@@ -1152,6 +1152,16 @@
       "nav_operator_href": "/governance/policy-packs"
     },
     {
+      "controller_file": "Integrations/AzureBoardsIntegrationsController.cs",
+      "class_name": "AzureBoardsIntegrationsController",
+      "route_template": "v{version:apiVersion}/integrations/azure-boards",
+      "normalized_prefix": "/v1/integrations/azure-boards",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Integrations/ItsmCorrelationController.cs",
       "class_name": "ItsmCorrelationController",
       "route_template": "v{version:apiVersion}/integrations/itsm/correlations",

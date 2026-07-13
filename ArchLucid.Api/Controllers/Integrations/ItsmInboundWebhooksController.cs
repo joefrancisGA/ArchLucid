@@ -189,6 +189,7 @@ public sealed class ItsmInboundWebhooksController(
             TenantItsmConnectorProvider.ServiceNow => string.IsNullOrWhiteSpace(inbound.ServiceNowWebhookSecret)
                 ? null
                 : inbound.ServiceNowWebhookSecret,
+            TenantItsmConnectorProvider.AzureBoards => null,
             _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null)
         };
     }

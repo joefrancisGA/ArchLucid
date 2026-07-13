@@ -1,6 +1,7 @@
 using System.Reflection;
 
 using ArchLucid.Api.Controllers.Integrations;
+using ArchLucid.Application.Integrations.AzureBoards.Outbound;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 
 using FluentAssertions;
@@ -15,7 +16,8 @@ public sealed class ExternalTicketConnectorApiBoundaryArchitectureTests
     private static readonly HashSet<Type> ForbiddenVendorHttpTypes =
     [
         typeof(JiraOutboundIssueClient),
-        typeof(ServiceNowOutboundIncidentClient)
+        typeof(ServiceNowOutboundIncidentClient),
+        typeof(AzureBoardsOutboundIssueClient)
     ];
 
     [Fact]

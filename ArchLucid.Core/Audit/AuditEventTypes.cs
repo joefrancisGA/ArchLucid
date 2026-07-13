@@ -928,6 +928,21 @@ public static class AuditEventTypes
     /// <summary>Outbound ServiceNow incident create skipped — unconfigured connector or prerequisite not met.</summary>
     public const string IntegrationServiceNowIncidentCreateSkipped = "Integration.ServiceNowIncidentCreateSkipped";
 
+    /// <summary>Outbound Azure Boards work item create succeeded.</summary>
+    public const string IntegrationAzureBoardsWorkItemCreateSucceeded = "Integration.AzureBoardsWorkItemCreateSucceeded";
+
+    /// <summary>Outbound Azure Boards work item create failed after vendor call or correlation persistence.</summary>
+    public const string IntegrationAzureBoardsWorkItemCreateFailed = "Integration.AzureBoardsWorkItemCreateFailed";
+
+    /// <summary>Outbound Azure Boards work item create skipped — unconfigured connector or informational severity dropped.</summary>
+    public const string IntegrationAzureBoardsWorkItemCreateSkipped = "Integration.AzureBoardsWorkItemCreateSkipped";
+
+    /// <summary>Per-tenant Azure Boards outbound settings upserted (project, work item type, optional paths).</summary>
+    public const string TenantAzureBoardsOutboundSettingsUpserted = "TenantAzureBoardsOutboundSettingsUpserted";
+
+    /// <summary>Azure Boards connection test executed (no work item created).</summary>
+    public const string IntegrationAzureBoardsConnectionTested = "Integration.AzureBoardsConnectionTested";
+
     /// <summary>Admin or CLI re-queued one or more integration outbox dead-letter rows for publish retry.</summary>
     public const string IntegrationOutboxDeadLetterRetried = "Integration.OutboxDeadLetterRetried";
 

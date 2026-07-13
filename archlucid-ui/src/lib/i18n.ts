@@ -157,6 +157,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   connectorOperations: "Integration readiness",
   integrationReadiness: "Connection status",
   jira: "Jira",
+  azureBoards: "Azure Boards",
   itsm: "ITSM",
   servicenow: "ServiceNow",
   microsoftTeams: "Microsoft Teams",

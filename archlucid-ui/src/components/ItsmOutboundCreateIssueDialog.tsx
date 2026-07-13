@@ -29,7 +29,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { showSuccess } from "@/lib/toast";
 
-export type ItsmOutboundProvider = "Jira" | "ServiceNow";
+export type ItsmOutboundProvider = "Jira" | "ServiceNow" | "Azure Boards";
 
 export type ItsmOutboundCreateIssueDialogProps = {
   readonly findingId: string;
@@ -93,6 +93,8 @@ export function ItsmOutboundCreateIssueDialog({
 
     if (!isProviderLinked(correlations, "Jira")) {
       setProvider("Jira");
+    } else if (!isProviderLinked(correlations, "Azure Boards")) {
+      setProvider("Azure Boards");
     } else if (!isProviderLinked(correlations, "ServiceNow")) {
       setProvider("ServiceNow");
     }
@@ -103,9 +105,10 @@ export function ItsmOutboundCreateIssueDialog({
   }
 
   const jiraLinked = isProviderLinked(correlations, "Jira");
+  const azureBoardsLinked = isProviderLinked(correlations, "Azure Boards");
   const serviceNowLinked = isProviderLinked(correlations, "ServiceNow");
   const selectedProviderLinked = isProviderLinked(correlations, provider);
-  const allProvidersLinked = jiraLinked && serviceNowLinked;
+  const allProvidersLinked = jiraLinked && azureBoardsLinked && serviceNowLinked;
 
   async function onCreateIssue(): Promise<void> {
     if (selectedProviderLinked) {
@@ -146,10 +149,10 @@ export function ItsmOutboundCreateIssueDialog({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md" data-testid="itsm-create-issue-dialog">
           <DialogHeader>
-            <DialogTitle>Create linked ITSM issue</DialogTitle>
+            <DialogTitle>Create linked work item</DialogTitle>
             <DialogDescription>
-              Create a Jira issue or ServiceNow incident from this finding. Duplicate creation per provider is blocked
-              when a correlation already exists.
+              Create a Jira issue, Azure Boards work item, or ServiceNow incident from this finding. Duplicate creation
+              per provider is blocked when a correlation already exists.
             </DialogDescription>
           </DialogHeader>
 
@@ -169,6 +172,9 @@ export function ItsmOutboundCreateIssueDialog({
                 <SelectContent>
                   <SelectItem value="Jira" disabled={jiraLinked}>
                     Jira{jiraLinked ? " (already linked)" : ""}
+                  </SelectItem>
+                  <SelectItem value="Azure Boards" disabled={azureBoardsLinked}>
+                    Azure Boards{azureBoardsLinked ? " (already linked)" : ""}
                   </SelectItem>
                   <SelectItem value="ServiceNow" disabled={serviceNowLinked}>
                     ServiceNow{serviceNowLinked ? " (already linked)" : ""}
@@ -229,7 +235,7 @@ export function ItsmOutboundCreateIssueDialog({
               }}
               data-testid="itsm-create-issue-submit"
             >
-              {busy ? "Creating…" : "Create issue"}
+              {busy ? "Creating…" : provider === "Azure Boards" ? "Create work item" : "Create issue"}
             </Button>
           </DialogFooter>
         </DialogContent>

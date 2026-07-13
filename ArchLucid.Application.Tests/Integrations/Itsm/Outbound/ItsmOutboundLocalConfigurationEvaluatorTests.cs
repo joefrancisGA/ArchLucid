@@ -27,4 +27,35 @@ public sealed class ItsmOutboundLocalConfigurationEvaluatorTests
     [Fact]
     public void TryValidateHttpsUrl_allows_only_https() =>
         ItsmOutboundLocalConfigurationEvaluator.TryValidateHttpsUrl("http://127.0.0.1").Should().BeFalse();
+
+    [Fact]
+    public void EvaluateAzureBoards_requires_org_credentials_project_and_work_item_type()
+    {
+        ArchLucid.Core.Configuration.IntegrationsItsmOutboundOptions options = new();
+
+        ItsmOutboundLocalReadiness incomplete =
+            ItsmOutboundLocalConfigurationEvaluator.EvaluateAzureBoards(options, null, null);
+
+        incomplete.IsReady.Should().BeFalse();
+
+        ArchLucid.Core.Persistence.ApplicationPorts.Integrations.TenantItsmConnectorConnectionRecord connection =
+            new()
+            {
+                Provider = ArchLucid.Core.Integrations.Itsm.TenantItsmConnectorProvider.AzureBoards,
+                InstanceBaseUrl = "https://dev.azure.com/example",
+                CredentialKeyVaultSecretName = "kv-pat",
+                IsEnabled = true,
+            };
+
+        ArchLucid.Core.Persistence.ApplicationPorts.Integrations.TenantAzureBoardsOutboundSettings settings = new()
+        {
+            ProjectName = "Pilot",
+            DefaultWorkItemType = "Issue",
+        };
+
+        ItsmOutboundLocalReadiness ready =
+            ItsmOutboundLocalConfigurationEvaluator.EvaluateAzureBoards(options, connection, settings);
+
+        ready.IsReady.Should().BeTrue();
+    }
 }

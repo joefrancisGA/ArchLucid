@@ -4,5 +4,6 @@ namespace ArchLucid.Core.Integrations.Itsm;
 public enum TenantItsmConnectorProvider
 {
     Jira = 1,
-    ServiceNow = 2
+    ServiceNow = 2,
+    AzureBoards = 3
 }

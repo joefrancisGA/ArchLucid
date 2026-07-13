@@ -52,6 +52,7 @@ export const CONNECTOR_PURPOSE_GROUPS: readonly ConnectorPurposeGroup[] = [
 const RECOMMENDED_CONNECTOR_KEYS = new Set<string>(["teams", "slack"]);
 const OPTIONAL_CONNECTOR_KEYS = new Set<string>([
   "jira",
+  "azureBoards",
   "servicenow",
   "confluence",
   "digests_advisory",
@@ -63,6 +64,7 @@ const CONNECTOR_GROUP_BY_KEY: Record<string, ConnectorPurposeGroupId> = {
   slack: "notifications",
   outbound_webhooks: "notifications",
   jira: "ticketing",
+  azureBoards: "ticketing",
   servicenow: "ticketing",
   confluence: "publishing",
   digests_advisory: "publishing",
@@ -73,6 +75,7 @@ const CONNECTOR_CARD_TITLES: Record<string, string> = {
   slack: "Slack",
   outbound_webhooks: "Outbound HTTP webhooks",
   jira: "Jira",
+  azureBoards: "Azure Boards",
   servicenow: "ServiceNow",
   confluence: "Confluence publishing",
   digests_advisory: "Architecture digests",
@@ -83,6 +86,7 @@ const CONNECTOR_BEST_FOR: Record<string, string> = {
   slack: "Best for review and alert notifications.",
   outbound_webhooks: "Best for custom automation.",
   jira: "Best for creating engineering backlog tickets.",
+  azureBoards: "Best for creating Azure Boards work items from findings.",
   servicenow: "Best for incident or compliance workflows.",
   confluence: "Best for publishing review artifacts to Confluence.",
   digests_advisory: "Best for recurring architecture digests to stakeholders.",
@@ -215,6 +219,13 @@ export function resolveConnectorGuidance(connector: ConnectorSurfaceStatusDto, h
       }
 
       return "Add a Jira Cloud base URL to enable outbound ticket creation from findings.";
+
+    case "azureBoards":
+      if (humanStatus === "Ready") {
+        return "Azure Boards settings are populated. Live work item creation still requires a successful connection test.";
+      }
+
+      return "Connect an Azure DevOps organization and choose a default project to create work items from findings.";
 
     case "servicenow":
       if (humanStatus === "Ready") {

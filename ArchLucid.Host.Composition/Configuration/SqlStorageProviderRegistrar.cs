@@ -424,6 +424,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IFirstTenantFunnelArchivalBatchStore, SqlFirstTenantFunnelArchivalBatchStore>();
         services.AddScoped<IItsmFindingCorrelationRepository, SqlItsmFindingCorrelationRepository>();
         services.AddScoped<ITenantItsmOutboundSettingsRepository, SqlTenantItsmOutboundSettingsRepository>();
+        services.AddScoped<ITenantAzureBoardsOutboundSettingsRepository, SqlTenantAzureBoardsOutboundSettingsRepository>();
         services.AddScoped<ITenantItsmConnectorConnectionRepository, SqlTenantItsmConnectorConnectionRepository>();
         services.AddScoped<ITenantSettingsRepository, SqlTenantSettingsRepository>();
         services.AddScoped<IFineTuningManifestConsentReader, TenantSettingsFineTuningManifestConsentReader>();

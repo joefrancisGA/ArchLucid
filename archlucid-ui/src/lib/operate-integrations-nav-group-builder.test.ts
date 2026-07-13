@@ -2,11 +2,13 @@ import { Ticket, Workflow } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
 import {
+  INTEGRATIONS_AZURE_BOARDS_PATH,
   INTEGRATIONS_JIRA_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
   INTEGRATIONS_WEBHOOKS_PATH,
 } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { AZURE_BOARDS_SURFACE_ICON } from "@/lib/azure-boards-surface-icon";
 import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-nav-group-builder";
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator-admin-nav-group-builder";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
@@ -47,6 +49,20 @@ describe("OperateIntegrationsNavGroupBuilder", () => {
     expect(group.links.findIndex((link) => link.href === INTEGRATIONS_WEBHOOKS_PATH)).toBeGreaterThan(slackIndex);
   });
 
+  it("exposes Azure Boards after Jira with a distinct icon", () => {
+    const group = new OperateIntegrationsNavGroupBuilder().build();
+    const hrefs = group.links.map((link) => link.href);
+    const jiraIndex = hrefs.indexOf(INTEGRATIONS_JIRA_PATH);
+    const azureIndex = hrefs.indexOf(INTEGRATIONS_AZURE_BOARDS_PATH);
+    const azureLink = group.links.find((link) => link.href === INTEGRATIONS_AZURE_BOARDS_PATH);
+
+    expect(azureIndex).toBe(jiraIndex + 1);
+    expect(azureLink?.label).toBe(OPERATOR_NAV_LINK_LABELS.azureBoards);
+    expect(azureLink?.icon).toBe(AZURE_BOARDS_SURFACE_ICON);
+    expect(azureLink?.icon).not.toBe(Ticket);
+    expect(hrefs).not.toContain("/integrations/cloud-connections/azure");
+  });
+
   it("lists dedicated integration routes before Webhooks", () => {
     const group = new OperateIntegrationsNavGroupBuilder().build();
     const hrefs = group.links.map((link) => link.href);
@@ -54,6 +70,7 @@ describe("OperateIntegrationsNavGroupBuilder", () => {
     expect(hrefs).toEqual([
       "/integrations/cloud-connections",
       INTEGRATIONS_JIRA_PATH,
+      INTEGRATIONS_AZURE_BOARDS_PATH,
       INTEGRATIONS_SERVICENOW_PATH,
       "/integrations/teams",
       "/integrations/slack",

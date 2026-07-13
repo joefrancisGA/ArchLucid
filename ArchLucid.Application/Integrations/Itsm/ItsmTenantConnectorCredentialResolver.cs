@@ -80,6 +80,7 @@ public sealed class ItsmTenantConnectorCredentialResolver(
         {
             TenantItsmConnectorProvider.Jira => NullIfEmpty(inbound.JiraWebhookSecret),
             TenantItsmConnectorProvider.ServiceNow => NullIfEmpty(inbound.ServiceNowWebhookSecret),
+            TenantItsmConnectorProvider.AzureBoards => null,
             _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null)
         };
     }
@@ -104,6 +105,7 @@ public sealed class ItsmTenantConnectorCredentialResolver(
         {
             TenantItsmConnectorProvider.Jira => NullIfEmpty(outbound.Jira.CloudBaseUrl)?.TrimEnd('/'),
             TenantItsmConnectorProvider.ServiceNow => NullIfEmpty(outbound.ServiceNow.InstanceBaseUrl)?.TrimEnd('/'),
+            TenantItsmConnectorProvider.AzureBoards => NullIfEmpty(outbound.AzureBoards.OrganizationBaseUrl)?.TrimEnd('/'),
             _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null)
         };
     }
@@ -118,7 +120,7 @@ public sealed class ItsmTenantConnectorCredentialResolver(
         string instanceBaseUrl = row.InstanceBaseUrl.Trim().TrimEnd('/');
 
         if (row.AuthMode is ItsmConnectorAuthMode.BasicApiToken)
-            return await TryResolveBasicFromTenantRowAsync(row, instanceBaseUrl, cancellationToken).ConfigureAwait(false);
+            return await TryResolveBasicFromTenantRowAsync(row, row.Provider, instanceBaseUrl, cancellationToken).ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(row.OAuthClientIdKeyVaultSecretName)
             || string.IsNullOrWhiteSpace(row.OAuthClientSecretKeyVaultSecretName))
@@ -163,11 +165,15 @@ public sealed class ItsmTenantConnectorCredentialResolver(
 
     private async Task<ResolvedItsmOutboundCredentials?> TryResolveBasicFromTenantRowAsync(
         TenantItsmConnectorConnectionRecord row,
+        TenantItsmConnectorProvider provider,
         string instanceBaseUrl,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(row.AuthUserName)
-            || string.IsNullOrWhiteSpace(row.CredentialKeyVaultSecretName))
+        if (string.IsNullOrWhiteSpace(row.CredentialKeyVaultSecretName))
+            return null;
+
+        if (provider is not TenantItsmConnectorProvider.AzureBoards
+            && string.IsNullOrWhiteSpace(row.AuthUserName))
         {
             return null;
         }
@@ -179,9 +185,13 @@ public sealed class ItsmTenantConnectorCredentialResolver(
         if (string.IsNullOrWhiteSpace(secret))
             return null;
 
+        string authUserName = provider is TenantItsmConnectorProvider.AzureBoards
+            ? row.AuthUserName?.Trim() ?? ""
+            : row.AuthUserName.Trim();
+
         return ResolvedItsmOutboundCredentials.ForBasic(
             instanceBaseUrl,
-            row.AuthUserName.Trim(),
+            authUserName,
             secret.Trim(),
             fromTenantConnection: true);
     }
@@ -194,6 +204,7 @@ public sealed class ItsmTenantConnectorCredentialResolver(
         {
             TenantItsmConnectorProvider.Jira => TryJiraDeployment(outbound.Jira),
             TenantItsmConnectorProvider.ServiceNow => TryServiceNowDeployment(outbound.ServiceNow),
+            TenantItsmConnectorProvider.AzureBoards => TryAzureBoardsDeployment(outbound.AzureBoards),
             _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null)
         };
     }
@@ -272,6 +283,21 @@ public sealed class ItsmTenantConnectorCredentialResolver(
             serviceNow.OAuthClientId.Trim(),
             serviceNow.OAuthClientSecret.Trim(),
             oauthRefreshToken: null,
+            fromTenantConnection: false);
+    }
+
+    private static ResolvedItsmOutboundCredentials? TryAzureBoardsDeployment(AzureBoardsItsmOutboundOptions azureBoards)
+    {
+        if (string.IsNullOrWhiteSpace(azureBoards.OrganizationBaseUrl)
+            || string.IsNullOrWhiteSpace(azureBoards.PersonalAccessToken))
+        {
+            return null;
+        }
+
+        return ResolvedItsmOutboundCredentials.ForBasic(
+            azureBoards.OrganizationBaseUrl.Trim().TrimEnd('/'),
+            "",
+            azureBoards.PersonalAccessToken.Trim(),
             fromTenantConnection: false);
     }
 

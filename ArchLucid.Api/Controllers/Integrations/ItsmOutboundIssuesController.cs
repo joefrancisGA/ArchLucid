@@ -89,7 +89,7 @@ public sealed class ItsmOutboundIssuesController(
 
         if (!TryMapProvider(body.Provider, out ItsmOutboundIssueProvider provider))
             return this.BadRequestProblem(
-                "provider must be Jira or ServiceNow.",
+                "provider must be Jira, ServiceNow, or Azure Boards.",
                 ProblemTypes.ValidationFailed,
                 extensions: ItsmProblemExtensions(body.Provider.Trim(), findingTrimmed));
 
@@ -97,7 +97,7 @@ public sealed class ItsmOutboundIssuesController(
 
         if (_outboundOptions.CurrentValue.DurableAsyncCreateEnabled)
         {
-            string providerLabel = provider is ItsmOutboundIssueProvider.Jira ? "Jira" : "ServiceNow";
+            string providerLabel = ToProviderLabel(provider);
             string correlationId = $"{providerLabel.ToLowerInvariant()}-outbound-create:{findingTrimmed}:{Guid.NewGuid():N}";
 
             ItsmOutboundCreateJobPayload payload = new(
@@ -145,7 +145,7 @@ public sealed class ItsmOutboundIssuesController(
         foreach (AuditEvent auditEvent in result.AuditEvents)
             await _auditService.LogAsync(auditEvent, ct).ConfigureAwait(false);
 
-        string providerLabel = provider is ItsmOutboundIssueProvider.Jira ? "Jira" : "ServiceNow";
+        string providerLabel = ToProviderLabel(provider);
 
         IReadOnlyDictionary<string, object?>? scopeExtensions = ItsmProblemExtensions(providerLabel, findingTrimmed);
 
@@ -230,10 +230,29 @@ public sealed class ItsmOutboundIssuesController(
         }
 
         if (!s.Equals("ServiceNow", StringComparison.OrdinalIgnoreCase))
-            return false;
+        {
+            if (!s.Equals("AzureBoards", StringComparison.OrdinalIgnoreCase)
+                && !s.Equals("Azure Boards", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            provider = ItsmOutboundIssueProvider.AzureBoards;
+
+            return true;
+        }
 
         provider = ItsmOutboundIssueProvider.ServiceNow;
 
         return true;
     }
+
+    private static string ToProviderLabel(ItsmOutboundIssueProvider provider) =>
+        provider switch
+        {
+            ItsmOutboundIssueProvider.Jira => "Jira",
+            ItsmOutboundIssueProvider.ServiceNow => "ServiceNow",
+            ItsmOutboundIssueProvider.AzureBoards => "Azure Boards",
+            _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null)
+        };
 }
