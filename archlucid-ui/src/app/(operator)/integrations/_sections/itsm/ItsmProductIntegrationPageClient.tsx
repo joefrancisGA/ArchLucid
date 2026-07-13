@@ -9,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { StatusTag } from "@/components/ui/status-tag";
 import { Textarea } from "@/components/ui/textarea";
 import {
   fetchItsmIntegrationHealth,
@@ -18,52 +17,30 @@ import {
   type ItsmIntegrationHealthResponse,
   type TenantItsmOutboundSettingsResponse,
 } from "@/lib/api/itsm-outbound-api";
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
-import { ITSM_CONNECTOR_SMOKE_HELP } from "@/lib/itsm-connectors-admin-scope";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import {
+  formatItsmNativeCreateReadyMessage,
+  ITSM_INTEGRATION_READINESS_AFTER_LINK,
+  ITSM_PLATFORM_OPERATOR_NOTES_BODY,
+  ITSM_PLATFORM_OPERATOR_NOTES_SUMMARY,
+  ITSM_PRODUCT_PAGE_COPY,
+  sanitizeItsmCustomerFacingProbeSummary,
+  type ItsmProductId,
+} from "@/lib/itsm-product-integration-page-copy";
 import { isItsmNativeCreateDefaultPathReady } from "@/lib/itsm-native-create-readiness";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 
 import { ItsmConnectorProbeCard } from "./ItsmConnectorProbeCard";
 
-export type ItsmProductId = "jira" | "servicenow";
-
 type Props = {
   readonly product: ItsmProductId;
 };
 
-const PRODUCT_COPY: Record<
-  ItsmProductId,
-  {
-    pageTitle: string;
-    summary: string;
-    readinessLabel: string;
-    smokeHelpHref: string;
-    smokeHelpLabel: string;
-  }
-> = {
-  jira: {
-    pageTitle: "Jira",
-    summary:
-      "Configure Jira Cloud outbound ticket creation from architecture findings. Per-tenant connector references live on the unified ITSM page — deployment credentials remain a single-tenant pilot fallback.",
-    readinessLabel: "Jira",
-    smokeHelpHref: ITSM_CONNECTOR_SMOKE_HELP.jira,
-    smokeHelpLabel: "Jira connector smoke checklist",
-  },
-  servicenow: {
-    pageTitle: "ServiceNow",
-    summary:
-      "Configure ServiceNow outbound incident creation from architecture findings. Per-tenant connector references live on the unified ITSM page — deployment credentials remain a single-tenant pilot fallback.",
-    readinessLabel: "ServiceNow",
-    smokeHelpHref: ITSM_CONNECTOR_SMOKE_HELP.serviceNow,
-    smokeHelpLabel: "ServiceNow connector smoke checklist",
-  },
-};
-
 export function ItsmProductIntegrationPageClient(props: Props): React.ReactElement {
   const canMutate = useOperateCapability();
-  const copy = PRODUCT_COPY[props.product];
+  const copy = ITSM_PRODUCT_PAGE_COPY[props.product];
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
   const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -109,7 +86,6 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
     void refresh();
   }, [refresh]);
 
-  const nativeEnabled = settings?.nativeEnabled ?? health?.nativeEnabled ?? false;
   const defaultPathReady = isItsmNativeCreateDefaultPathReady(health);
 
   const runConnectionTest = useCallback(async () => {
@@ -149,8 +125,15 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
     }
   }, [applySettings, canMutate, issueTypeJson, jiraProjectKey, jiraSendInfo, snowAutoCmdb]);
 
-  const probe =
+  const rawProbe =
     props.product === "jira" ? health?.jira : health?.serviceNow;
+  const probe =
+    rawProbe === null || rawProbe === undefined
+      ? rawProbe
+      : {
+          ...rawProbe,
+          summary: sanitizeItsmCustomerFacingProbeSummary(rawProbe.summary, props.product),
+        };
 
   return (
     <div
@@ -168,7 +151,7 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
           >
             Integration readiness
           </Link>{" "}
-          for cross-integration status across {copy.readinessLabel}, Teams, Slack, Azure, and webhooks.
+          {ITSM_INTEGRATION_READINESS_AFTER_LINK}
         </p>
       </header>
 
@@ -188,51 +171,28 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
             testId={`integrations-${props.product}-health`}
           />
 
-          <Card>
-            <CardHeader>
-              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Deployment prerequisites</CardTitle>
-              <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
-                Outbound credentials remain in host configuration or Key Vault materialization — never stored in tenant SQL.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-medium text-al-text-primary">Native outbound create</span>
-                <StatusTag kind={nativeEnabled ? "ready" : "neutral"} label={nativeEnabled ? "Enabled" : "Disabled"} />
-              </div>
-              {defaultPathReady ? (
-                <p className="m-0 text-al-text-primary">
-                  Connection validation passed — finding surfaces can offer one-click {copy.pageTitle} sync when native
-                  create is enabled.
-                </p>
-              ) : null}
-              {props.product === "jira" ? (
-                <p className="m-0 text-al-text-secondary">
-                  Jira deployment credentials:{" "}
-                  {settings?.deploymentCredentials?.jiraConfigured ? (
-                    <>
-                      configured — service account{" "}
-                      <span className="font-mono">{settings.deploymentCredentials.jiraServiceAccountEmailMasked ?? "••••"}</span>
-                    </>
-                  ) : (
-                    "not configured — add Integrations:ItsmOutbound:Jira credentials in host configuration"
-                  )}
-                </p>
-              ) : (
-                <p className="m-0 text-al-text-secondary">
-                  ServiceNow deployment credentials:{" "}
-                  {settings?.deploymentCredentials?.serviceNowConfigured ? (
-                    <>
-                      configured — username{" "}
-                      <span className="font-mono">{settings.deploymentCredentials.serviceNowUsernameMasked ?? "••••"}</span>
-                    </>
-                  ) : (
-                    "not configured — add Integrations:ItsmOutbound:ServiceNow credentials in host configuration"
-                  )}
-                </p>
+          {defaultPathReady ? (
+            <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {formatItsmNativeCreateReadyMessage(copy.pageTitle)}
+            </p>
+          ) : null}
+
+          <details
+            className="max-w-3xl rounded-md border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid={`integrations-${props.product}-operator-notes`}
+          >
+            <summary
+              className={cn(
+                "cursor-pointer select-none px-3 py-2 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
+                OPERATOR_DISCLOSURE_TRIGGER_CLASS,
               )}
-            </CardContent>
-          </Card>
+            >
+              {ITSM_PLATFORM_OPERATOR_NOTES_SUMMARY}
+            </summary>
+            <div className={cn("border-t border-neutral-200 px-3 py-2 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}>
+              <p className="m-0 text-al-text-secondary">{ITSM_PLATFORM_OPERATOR_NOTES_BODY}</p>
+            </div>
+          </details>
 
           <Card data-testid={`integrations-${props.product}-settings`}>
             <CardHeader>
@@ -319,9 +279,7 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
           <Card>
             <CardHeader>
               <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Connection test</CardTitle>
-              <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
-                Runs read-only vendor probes for {copy.pageTitle}.
-              </CardDescription>
+              <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>{copy.connectionTestLead}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {testError ? (
