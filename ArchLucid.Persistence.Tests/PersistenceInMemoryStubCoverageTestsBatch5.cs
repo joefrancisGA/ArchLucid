@@ -236,7 +236,7 @@ public sealed class PersistenceInMemoryStubCoverageTestsBatch5
         InMemoryTrialFunnelOperationalMetricsReader sut = new();
 
         (await sut.CountActiveSelfServiceTrialsAsync(CancellationToken.None)).Should().Be(0);
-        (await sut.GetOperationalSummaryAsync(CancellationToken.None)).ActiveSelfServiceTrials.Should().Be(0);
+        (await sut.GetOperationalSummaryAsync(cancellationToken: CancellationToken.None)).ActiveSelfServiceTrials.Should().Be(0);
     }
 
     [Fact]

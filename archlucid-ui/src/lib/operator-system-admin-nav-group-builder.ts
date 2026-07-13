@@ -34,7 +34,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/admin/trial-funnel",
           label: "Trial funnel",
-          title: "Trial funnel — signup, first commit, conversion, and estimated first-review COGS",
+          title: "Trial funnel — trial activation, review completion, conversion, and estimated first-review AI cost",
           icon: LineChart,
           tier: "advanced",
           requiredAuthority: "AdminAuthority",

@@ -12,10 +12,15 @@ public sealed class InMemoryTrialFunnelOperationalMetricsReader : ITrialFunnelOp
         return Task.FromResult(0L);
     }
 
-    public Task<TrialFunnelOperationalSummaryResponse> GetOperationalSummaryAsync(CancellationToken cancellationToken = default)
+    public Task<TrialFunnelOperationalSummaryResponse> GetOperationalSummaryAsync(
+        int periodDays = 30,
+        bool comparePreviousPeriod = false,
+        CancellationToken cancellationToken = default)
     {
         _ = cancellationToken;
+        _ = periodDays;
+        _ = comparePreviousPeriod;
 
-        return Task.FromResult(TrialFunnelOperationalSummaryBuilder.BuildEmpty(0));
+        return Task.FromResult(TrialFunnelOperationalSummaryBuilder.BuildEmpty(0, periodDays, comparePreviousPeriod));
     }
 }

@@ -7,5 +7,8 @@ public interface ITrialFunnelOperationalMetricsReader
 {
     Task<long> CountActiveSelfServiceTrialsAsync(CancellationToken cancellationToken = default);
 
-    Task<TrialFunnelOperationalSummaryResponse> GetOperationalSummaryAsync(CancellationToken cancellationToken = default);
+    Task<TrialFunnelOperationalSummaryResponse> GetOperationalSummaryAsync(
+        int periodDays = 30,
+        bool comparePreviousPeriod = false,
+        CancellationToken cancellationToken = default);
 }

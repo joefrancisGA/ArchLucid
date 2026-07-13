@@ -1,3 +1,57 @@
+import type { TrialFunnelPeriodDays } from "@/lib/trial-funnel-metric-contract";
+
+export type TrialFunnelStageMetric = {
+  stageId: string;
+  label: string;
+  count: number;
+  percentOfTrialStarts: number | null;
+  percentFromPreviousStage: number | null;
+  medianHoursFromPreviousStage: number | null;
+  previousPeriodCount: number | null;
+};
+
+export type TrialFunnelTimingMetrics = {
+  medianTrialStartToFirstReviewFinalizedHours: number | null;
+  medianTrialStartToFirstReviewFinalizedSampleSize: number | null;
+  medianTrialStartToConversionHours: number | null;
+  medianTrialStartToConversionSampleSize: number | null;
+};
+
+export type TrialFunnelFirstReviewCost = {
+  medianEstimatedUsd: number | null;
+  lowEstimatedUsd: number | null;
+  highEstimatedUsd: number | null;
+  sampleSize: number;
+  currencyCode: string;
+  basisLabel: string;
+  status: string;
+  statusDetail: string | null;
+};
+
+export type TrialFunnelDataQuality = {
+  generatedAtUtc: string;
+  periodDays: number;
+  comparePreviousPeriod: boolean;
+  excludesDemoWorkspaces: boolean;
+  conversionDefinition: string;
+  instrumentationWarning: string | null;
+  stageDefinitions: string[];
+};
+
+export type TrialFunnelCohortRow = {
+  tenantId: string;
+  organizationName: string;
+  trialStartedUtc: string | null;
+  currentStageId: string;
+  currentStageLabel: string;
+  daysInTrial: number | null;
+  lastMeaningfulActivityUtc: string | null;
+  firstReviewStatus: string;
+  estimatedFirstReviewCostUsd: number | null;
+  conversionStatus: string;
+  attentionLabel: string | null;
+};
+
 export type TrialFunnelOperationalSummary = {
   activeSelfServiceTrials: number;
   signupAttempts30Days: number;
@@ -11,10 +65,137 @@ export type TrialFunnelOperationalSummary = {
   estimatedFirstReviewCogsUsdHigh: number | null;
   llmBudgetCutoffEvents30Days: number;
   cogsBasisLabel: string;
+  dataQuality: TrialFunnelDataQuality | null;
+  stages: TrialFunnelStageMetric[];
+  timing: TrialFunnelTimingMetrics | null;
+  firstReviewCost: TrialFunnelFirstReviewCost | null;
+  cohortRows: TrialFunnelCohortRow[];
 };
 
-export async function fetchTrialFunnelOperationalSummary(): Promise<TrialFunnelOperationalSummary | null> {
-  const res = await fetch("/api/proxy/v1/admin/operational/trial-funnel-summary", {
+export type TrialFunnelFetchOptions = {
+  periodDays?: TrialFunnelPeriodDays;
+  comparePrevious?: boolean;
+};
+
+function readOptionalNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function readOptionalString(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function mapStageMetric(entry: unknown): TrialFunnelStageMetric {
+  const row = (entry ?? {}) as Record<string, unknown>;
+
+  return {
+    stageId: String(row.stageId ?? ""),
+    label: String(row.label ?? ""),
+    count: Number(row.count ?? 0),
+    percentOfTrialStarts: readOptionalNumber(row.percentOfTrialStarts),
+    percentFromPreviousStage: readOptionalNumber(row.percentFromPreviousStage),
+    medianHoursFromPreviousStage: readOptionalNumber(row.medianHoursFromPreviousStage),
+    previousPeriodCount: readOptionalNumber(row.previousPeriodCount),
+  };
+}
+
+function mapCohortRow(entry: unknown): TrialFunnelCohortRow {
+  const row = (entry ?? {}) as Record<string, unknown>;
+
+  return {
+    tenantId: String(row.tenantId ?? ""),
+    organizationName: String(row.organizationName ?? ""),
+    trialStartedUtc: readOptionalString(row.trialStartedUtc),
+    currentStageId: String(row.currentStageId ?? ""),
+    currentStageLabel: String(row.currentStageLabel ?? ""),
+    daysInTrial: readOptionalNumber(row.daysInTrial),
+    lastMeaningfulActivityUtc: readOptionalString(row.lastMeaningfulActivityUtc),
+    firstReviewStatus: String(row.firstReviewStatus ?? ""),
+    estimatedFirstReviewCostUsd: readOptionalNumber(row.estimatedFirstReviewCostUsd),
+    conversionStatus: String(row.conversionStatus ?? ""),
+    attentionLabel: readOptionalString(row.attentionLabel),
+  };
+}
+
+function mapSummary(json: Record<string, unknown>): TrialFunnelOperationalSummary {
+  const dataQualityRaw = json.dataQuality as Record<string, unknown> | null | undefined;
+  const timingRaw = json.timing as Record<string, unknown> | null | undefined;
+  const costRaw = json.firstReviewCost as Record<string, unknown> | null | undefined;
+  const stagesRaw = Array.isArray(json.stages) ? json.stages : [];
+  const cohortRaw = Array.isArray(json.cohortRows) ? json.cohortRows : [];
+
+  return {
+    activeSelfServiceTrials: Number(json.activeSelfServiceTrials ?? 0),
+    signupAttempts30Days: Number(json.signupAttempts30Days ?? 0),
+    signupFailures30Days: Number(json.signupFailures30Days ?? 0),
+    firstCommittedReviews30Days: Number(json.firstCommittedReviews30Days ?? 0),
+    trialConversions30Days: Number(json.trialConversions30Days ?? 0),
+    billingCheckouts30Days: Number(json.billingCheckouts30Days ?? 0),
+    medianSignupToFirstCommitSeconds: readOptionalNumber(json.medianSignupToFirstCommitSeconds),
+    estimatedFirstReviewCogsUsdLow: readOptionalNumber(json.estimatedFirstReviewCogsUsdLow),
+    estimatedFirstReviewCogsUsdMid: readOptionalNumber(json.estimatedFirstReviewCogsUsdMid),
+    estimatedFirstReviewCogsUsdHigh: readOptionalNumber(json.estimatedFirstReviewCogsUsdHigh),
+    llmBudgetCutoffEvents30Days: Number(json.llmBudgetCutoffEvents30Days ?? 0),
+    cogsBasisLabel: typeof json.cogsBasisLabel === "string" ? json.cogsBasisLabel : "estimated",
+    dataQuality: dataQualityRaw
+      ? {
+          generatedAtUtc: String(dataQualityRaw.generatedAtUtc ?? ""),
+          periodDays: Number(dataQualityRaw.periodDays ?? 30),
+          comparePreviousPeriod: Boolean(dataQualityRaw.comparePreviousPeriod),
+          excludesDemoWorkspaces: Boolean(dataQualityRaw.excludesDemoWorkspaces),
+          conversionDefinition: String(dataQualityRaw.conversionDefinition ?? ""),
+          instrumentationWarning: readOptionalString(dataQualityRaw.instrumentationWarning),
+          stageDefinitions: Array.isArray(dataQualityRaw.stageDefinitions)
+            ? dataQualityRaw.stageDefinitions.map((line) => String(line))
+            : [],
+        }
+      : null,
+    stages: stagesRaw.map(mapStageMetric),
+    timing: timingRaw
+      ? {
+          medianTrialStartToFirstReviewFinalizedHours: readOptionalNumber(
+            timingRaw.medianTrialStartToFirstReviewFinalizedHours,
+          ),
+          medianTrialStartToFirstReviewFinalizedSampleSize: readOptionalNumber(
+            timingRaw.medianTrialStartToFirstReviewFinalizedSampleSize,
+          ),
+          medianTrialStartToConversionHours: readOptionalNumber(timingRaw.medianTrialStartToConversionHours),
+          medianTrialStartToConversionSampleSize: readOptionalNumber(timingRaw.medianTrialStartToConversionSampleSize),
+        }
+      : null,
+    firstReviewCost: costRaw
+      ? {
+          medianEstimatedUsd: readOptionalNumber(costRaw.medianEstimatedUsd),
+          lowEstimatedUsd: readOptionalNumber(costRaw.lowEstimatedUsd),
+          highEstimatedUsd: readOptionalNumber(costRaw.highEstimatedUsd),
+          sampleSize: Number(costRaw.sampleSize ?? 0),
+          currencyCode: String(costRaw.currencyCode ?? "USD"),
+          basisLabel: String(costRaw.basisLabel ?? "estimated"),
+          status: String(costRaw.status ?? "unavailable"),
+          statusDetail: readOptionalString(costRaw.statusDetail),
+        }
+      : null,
+    cohortRows: cohortRaw.map(mapCohortRow),
+  };
+}
+
+export async function fetchTrialFunnelOperationalSummary(
+  options: TrialFunnelFetchOptions = {},
+): Promise<TrialFunnelOperationalSummary | null> {
+  const params = new URLSearchParams();
+
+  if (options.periodDays !== undefined) {
+    params.set("days", String(options.periodDays));
+  }
+
+  if (options.comparePrevious === true) {
+    params.set("comparePrevious", "true");
+  }
+
+  const query = params.toString();
+  const url = `/api/proxy/v1/admin/operational/trial-funnel-summary${query.length > 0 ? `?${query}` : ""}`;
+
+  const res = await fetch(url, {
     headers: { Accept: "application/json" },
     cache: "no-store",
   });
@@ -29,26 +210,7 @@ export async function fetchTrialFunnelOperationalSummary(): Promise<TrialFunnelO
 
   const json = (await res.json()) as Record<string, unknown>;
 
-  return {
-    activeSelfServiceTrials: Number(json.activeSelfServiceTrials ?? 0),
-    signupAttempts30Days: Number(json.signupAttempts30Days ?? 0),
-    signupFailures30Days: Number(json.signupFailures30Days ?? 0),
-    firstCommittedReviews30Days: Number(json.firstCommittedReviews30Days ?? 0),
-    trialConversions30Days: Number(json.trialConversions30Days ?? 0),
-    billingCheckouts30Days: Number(json.billingCheckouts30Days ?? 0),
-    medianSignupToFirstCommitSeconds:
-      typeof json.medianSignupToFirstCommitSeconds === "number"
-        ? json.medianSignupToFirstCommitSeconds
-        : null,
-    estimatedFirstReviewCogsUsdLow:
-      typeof json.estimatedFirstReviewCogsUsdLow === "number" ? json.estimatedFirstReviewCogsUsdLow : null,
-    estimatedFirstReviewCogsUsdMid:
-      typeof json.estimatedFirstReviewCogsUsdMid === "number" ? json.estimatedFirstReviewCogsUsdMid : null,
-    estimatedFirstReviewCogsUsdHigh:
-      typeof json.estimatedFirstReviewCogsUsdHigh === "number" ? json.estimatedFirstReviewCogsUsdHigh : null,
-    llmBudgetCutoffEvents30Days: Number(json.llmBudgetCutoffEvents30Days ?? 0),
-    cogsBasisLabel: typeof json.cogsBasisLabel === "string" ? json.cogsBasisLabel : "estimated",
-  };
+  return mapSummary(json);
 }
 
 export async function acknowledgePricingQuoteRequest(id: string, assignedOwner?: string): Promise<void> {
