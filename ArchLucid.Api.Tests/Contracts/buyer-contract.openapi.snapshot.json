@@ -4680,61 +4680,6 @@
         ],
         "type": "object"
       },
-      "BillingPortalPostRequest": {
-        "properties": {
-          "returnUrl": {
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
-      },
-      "BillingPortalResponseDto": {
-        "properties": {
-          "portalUrl": {
-            "type": "string"
-          },
-          "providerSessionId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "portalUrl",
-          "providerSessionId"
-        ],
-        "type": "object"
-      },
-      "BillingSubscriptionStatusResponseDto": {
-        "properties": {
-          "hasSubscription": {
-            "type": "boolean"
-          },
-          "isPaymentPastDue": {
-            "type": "boolean"
-          },
-          "provider": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "status": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "tierCode": {
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
-      },
       "BoardPackPdfPostRequest": {
         "properties": {
           "periodEndUtc": {
@@ -10073,35 +10018,6 @@
           "SoftInfeasible",
           "HardInfeasible"
         ]
-      },
-      "FeaturedCompletedSampleCandidateResponse": {
-        "properties": {
-          "architectureName": {
-            "type": "string"
-          },
-          "completedUtc": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "isSampleApproved": {
-            "type": "boolean"
-          },
-          "reviewTitle": {
-            "type": "string"
-          },
-          "runId": {
-            "format": "uuid",
-            "type": "string"
-          }
-        },
-        "required": [
-          "architectureName",
-          "completedUtc",
-          "isSampleApproved",
-          "reviewTitle",
-          "runId"
-        ],
-        "type": "object"
       },
       "FileContentResult": {
         "properties": {
@@ -21815,19 +21731,6 @@
               "string"
             ]
           },
-          "topologyReferenceArchitectureExemplarCount": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "topologyReferenceArchitectureExemplarDocumentIds": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "topologyReferenceArchitectureExemplarMissing": {
-            "type": "boolean"
-          },
           "totalGraphRagNeighborsAdded": {
             "format": "int32",
             "type": "integer"
@@ -23301,58 +23204,6 @@
           },
           "updatedUtc": {
             "format": "date-time",
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
-      },
-      "TenantHomepageSettingsGetResponse": {
-        "properties": {
-          "architectureName": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "completedUtc": {
-            "format": "date-time",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "isAvailable": {
-            "type": "boolean"
-          },
-          "isConfigured": {
-            "type": "boolean"
-          },
-          "isSampleApproved": {
-            "type": "boolean"
-          },
-          "reviewTitle": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "selectedRunId": {
-            "format": "uuid",
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
-      },
-      "TenantHomepageSettingsPutRequest": {
-        "properties": {
-          "selectedRunId": {
-            "format": "uuid",
             "type": [
               "null",
               "string"
@@ -27646,9 +27497,6 @@
     },
     {
       "name": "TenantExecDigestPreferences"
-    },
-    {
-      "name": "TenantHomepageSettings"
     },
     {
       "name": "TenantIntegrationsOperations"
