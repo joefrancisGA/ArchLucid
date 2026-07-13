@@ -56,6 +56,13 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "First review guide",
     description: "Step-by-step: name the review, upload evidence, add context, and finalize the package.",
     keywords: ["first review", "review guide", "new review", "architecture context", "getting started"],
+    action: { kind: "route", href: "/help/first-hour-operator-path", helpSlug: "first-hour-operator-path" },
+  },
+  {
+    id: "review-guide",
+    title: "Review guide",
+    description: "Wizard field reference: scope, evidence upload, review settings, and finalize options.",
+    keywords: ["review guide", "wizard", "review fields", "scope", "evidence upload", "finalize"],
     action: { kind: "route", href: "/help/review-guide", helpSlug: "review-guide" },
   },
   {

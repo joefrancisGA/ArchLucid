@@ -54,4 +54,29 @@ describe("help-search-panel-catalog", () => {
       expect(helpSearchPanelTopicHasBannedPublicCopy(topic), topic.id).toBe(false);
     }
   });
+
+  it("routes first-review-guide search to the first-hour operator path", () => {
+    const topics = listHelpSearchPanelTopics(false);
+    const firstReview = topics.find((topic) => topic.id === "first-review-guide");
+
+    expect(firstReview).toBeDefined();
+    expect(firstReview?.action).toEqual({
+      kind: "route",
+      href: "/help/first-hour-operator-path",
+      helpSlug: "first-hour-operator-path",
+    });
+  });
+
+  it("exposes a distinct review-guide search entry for the wizard reference page", () => {
+    const topics = listHelpSearchPanelTopics(false);
+    const reviewGuide = topics.find((topic) => topic.id === "review-guide");
+
+    expect(reviewGuide).toBeDefined();
+    expect(reviewGuide?.title).toBe("Review guide");
+    expect(reviewGuide?.action).toEqual({
+      kind: "route",
+      href: "/help/review-guide",
+      helpSlug: "review-guide",
+    });
+  });
 });
